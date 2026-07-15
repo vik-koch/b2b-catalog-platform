@@ -1,0 +1,19 @@
+# IDE
+.idea/
+.vscode/
+.claude/
+
+# Node
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Logs & temp
+*.log
+tmp/
