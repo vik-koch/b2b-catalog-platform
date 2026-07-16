@@ -13,7 +13,18 @@ const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+
+// SSRF protection: the engine rejects requests whose Host header is not
+// allowlisted. APP_DOMAIN is the hostname Traefik routes to this stack
+// (localhost during local development). Constructed lazily because the
+// production build imports this module without any runtime environment.
+let angularApp: AngularNodeAppEngine | undefined;
+
+function getAngularApp(): AngularNodeAppEngine {
+  return (angularApp ??= new AngularNodeAppEngine({
+    allowedHosts: [requireEnv('APP_DOMAIN')],
+  }));
+}
 
 /**
  * Example Express Rest API endpoints can be defined here.
@@ -42,7 +53,7 @@ app.use(
  * Handle all other requests by rendering the Angular application.
  */
 app.use('/**', (req, res, next) => {
-  angularApp
+  getAngularApp()
     .handle(req)
     .then((response) =>
       response ? writeResponseToNodeResponse(response, res) : next(),

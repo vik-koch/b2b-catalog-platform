@@ -40,6 +40,8 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+!.env.stack.example
+!.env.localtest
 
 .angular
 

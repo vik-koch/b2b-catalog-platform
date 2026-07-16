@@ -6,9 +6,12 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
+import { runMigrations } from './db/migrate';
 import { env } from './env';
 
 async function bootstrap() {
+  await runMigrations();
+
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);

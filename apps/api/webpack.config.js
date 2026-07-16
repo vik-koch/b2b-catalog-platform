@@ -15,7 +15,14 @@ module.exports = {
       compiler: 'tsc',
       main: './src/main.ts',
       tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets'],
+      assets: [
+        './src/assets',
+        {
+          input: 'apps/api/src/db/migrations',
+          glob: '**/*',
+          output: 'db/migrations',
+        },
+      ],
       optimization: false,
       outputHashing: 'none',
       generatePackageJson: true,

@@ -1,0 +1,36 @@
+# Local smoke test of the deploy stack without Traefik:
+#   docker compose -p b2b-dev --env-file .env.localtest up -d
+#
+# The proxy stands in for Traefik's routing (/api -> api, rest -> web) so the
+# browser's same-origin /api requests work like they do behind Traefik.
+# Open http://localhost:8080 — the proxy is the only published port.
+name: b2b-localtest
+
+services:
+  proxy:
+    image: nginx:alpine
+    ports: ['127.0.0.1:8080:80']
+    depends_on:
+      - web
+      - api
+    networks:
+      - internal
+    configs:
+      - source: proxy_conf
+        target: /etc/nginx/conf.d/default.conf
+
+configs:
+  proxy_conf:
+    content: |
+      server {
+        listen 80;
+        # Preserve the original Host header so the SSR server's
+        # APP_DOMAIN allowlist (localhost) still matches.
+        proxy_set_header Host $$http_host;
+        location /api {
+          proxy_pass http://api:3000;
+        }
+        location / {
+          proxy_pass http://web:4000;
+        }
+      }

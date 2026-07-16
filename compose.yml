@@ -1,0 +1,84 @@
+# Deployment stack for the VPS — one file for every environment; the env file
+# supplies what differs (STACK_NAME, APP_DOMAIN, images, credentials):
+#   docker compose --env-file .env.<stack> up -d
+#
+# Expects the shared Traefik reverse proxy running with an external network
+# named "traefik" (docker network create traefik).
+#
+# No service publishes ports — Traefik is the only entry point. App-internal
+# traffic (web -> api -> postgres) stays on the stack-private network so
+# multiple stacks on the same Traefik network cannot collide on DNS names;
+# STACK_NAME keeps the Traefik router names unique across stacks.
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?}
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:?} -d ${POSTGRES_DB:?}']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks:
+      - internal
+
+  api:
+    image: ${API_IMAGE:?}
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      API_PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.${STACK_NAME:?}-api.rule=Host(`${APP_DOMAIN:?}`) && PathPrefix(`/api`)
+      - traefik.http.routers.${STACK_NAME:?}-api.entrypoints=websecure
+      - traefik.http.routers.${STACK_NAME:?}-api.tls.certresolver=letsencrypt
+      - traefik.http.services.${STACK_NAME:?}-api.loadbalancer.server.port=3000
+
+  web:
+    image: ${WEB_IMAGE:?}
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?}
+      WEB_PORT: 4000
+      # SSR reaches the API directly on the stack network, not through Traefik.
+      API_URL: http://api:3000/api
+    depends_on:
+      - api
+    networks:
+      - internal
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      # Longer rules win in Traefik, so /api requests never land here.
+      - traefik.http.routers.${STACK_NAME:?}-web.rule=Host(`${APP_DOMAIN:?}`)
+      - traefik.http.routers.${STACK_NAME:?}-web.entrypoints=websecure
+      - traefik.http.routers.${STACK_NAME:?}-web.tls.certresolver=letsencrypt
+      - traefik.http.services.${STACK_NAME:?}-web.loadbalancer.server.port=4000
+
+networks:
+  internal:
+  traefik:
+    external: true
+
+volumes:
+  pgdata:

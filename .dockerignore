@@ -1,0 +1,15 @@
+node_modules
+dist
+tmp
+coverage
+.git
+.nx
+.angular
+.idea
+.vscode
+.claude
+.env
+.env.*
+!.env.example
+Dockerfile
+compose*.yml
