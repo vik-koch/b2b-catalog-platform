@@ -14,6 +14,12 @@ export default [
           ],
         },
       ],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['@angular/*', '@angular-devkit/*', '@nestjs/*'],
+        },
+      ],
     },
     languageOptions: {
       parser: await import('jsonc-eslint-parser'),

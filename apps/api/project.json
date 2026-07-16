@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/api/src",
   "projectType": "application",
-  "tags": [],
+  "tags": ["scope:api", "platform:node"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
@@ -68,6 +68,20 @@
     "test": {
       "options": {
         "passWithNoTests": true
+      }
+    },
+    "db-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "drizzle-kit generate",
+        "cwd": "apps/api"
+      }
+    },
+    "db-migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "drizzle-kit migrate",
+        "cwd": "apps/api"
       }
     }
   }

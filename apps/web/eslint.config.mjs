@@ -24,6 +24,12 @@ export default [
           style: 'kebab-case',
         },
       ],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['@nestjs/*'],
+        },
+      ],
     },
   },
   {

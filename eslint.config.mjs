@@ -20,6 +20,17 @@ export default [
               sourceTag: '*',
               onlyDependOnLibsWithTags: ['*'],
             },
+            {
+              sourceTag: 'platform:node',
+              onlyDependOnLibsWithTags: ['platform:node', 'platform:agnostic'],
+            },
+            {
+              sourceTag: 'platform:browser',
+              onlyDependOnLibsWithTags: [
+                'platform:browser',
+                'platform:agnostic',
+              ],
+            },
           ],
         },
       ],
