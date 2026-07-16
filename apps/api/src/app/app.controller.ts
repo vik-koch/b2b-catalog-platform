@@ -10,7 +10,7 @@ export class AppController {
   @TsRestHandler(helloWorldContract.getHelloWorld)
   async getData() {
     return tsRestHandler(helloWorldContract.getHelloWorld, async () => {
-      return { status: 200, body: this.appService.getData() };
+      return { status: 200, body: await this.appService.getData() };
     });
   }
 }

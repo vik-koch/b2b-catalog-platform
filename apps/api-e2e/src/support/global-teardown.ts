@@ -1,10 +1,17 @@
 import { killPort } from '@nx/node/utils';
+import { requireEnv } from './env';
 /* eslint-disable */
 
 module.exports = async function () {
-  // Put clean up logic here (e.g. stopping services, docker-compose, etc.).
-  // Hint: `globalThis` is shared between setup and teardown.
-  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
-  await killPort(port);
+  // The API process is managed by Nx (continuous api:serve dependency) and the
+  // Postgres container stays up for local development — nothing to stop here
+  // besides making sure the port is released when the server was started
+  // outside of Nx.
+  const port = Number(requireEnv('API_PORT'));
+  try {
+    await killPort(port);
+  } catch {
+    // Port already released — fine.
+  }
   console.log(globalThis.__TEARDOWN_MESSAGE__);
 };

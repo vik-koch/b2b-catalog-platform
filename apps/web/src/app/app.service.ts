@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { initClient } from '@ts-rest/core';
 import { helloWorldContract } from '@b2b-catalog-platform/shared';
 import { lastValueFrom } from 'rxjs';
+import { requireEnv } from '../env';
 
 @Injectable({ providedIn: 'root' })
 export class AppService {
@@ -12,7 +13,7 @@ export class AppService {
   // During SSR the relative /api URL would resolve against the SSR server
   // itself, which does not serve the API — reach the NestJS process directly.
   private baseUrl = isPlatformServer(inject(PLATFORM_ID))
-    ? (process.env['API_URL'] ?? 'http://localhost:3000/api')
+    ? requireEnv('API_URL')
     : '/api';
 
   private client = initClient(helloWorldContract, {
