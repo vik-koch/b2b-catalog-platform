@@ -35,5 +35,5 @@ This repo serves two purposes:
 
 ## Workflow
 
-Trunk-based development on `main` with short-lived `feat/*` / `fix/*` branches and strict semver. 
+Trunk-based development on `main` with short-lived `feat/*` / `fix/*` branches and strict semver.
 Issues carry requirement IDs; iterations are tracked as GitHub Milestones and releases as GitHub Releases per tag.

@@ -1,7 +1,9 @@
 # Project Brief
 
 ## What this is
+
 `b2b-catalog-platform` — a B2B catalog/ordering platform serving two purposes:
+
 1. Real production deployment for an actual client: a small retail/wholesale business,
    multi-decade history, several-hundred-SKU catalog, manual/negotiated pricing for repeat
    customers.
@@ -15,6 +17,7 @@ Docs: `docs/requirements.md` (stable "what", FR-\*/NFR-\* IDs) · `docs/roadmap.
 GitHub Milestones per iteration; release notes: GitHub Releases per tag.
 
 ## Architecture decisions (right-sizing is the recurring theme)
+
 - Angular + NestJS + PostgreSQL, custom-built. TypeScript throughout.
 - Search: Postgres FTS (`tsvector` + `pg_trgm`), NOT Elasticsearch.
 - Maps: configurable iframe embed URL per deployment.
@@ -31,14 +34,17 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
   adapters private. Private repo consumes only public artifacts for deployment.
 
 ## Hosting
-- Demo: Oracle Cloud Always Free (Ampere A1, ARM64 → build `linux/arm64`). Dev + prod = two compose
-  stacks, one VM, hostname-routed.
+
+- Demo: Oracle Cloud Always Free (Ampere A1, ARM64). CI publishes multi-arch images
+  (`linux/amd64` + `linux/arm64`, native runners per arch), so any host pulls its native
+  variant. Dev + prod = two compose stacks, one VM, hostname-routed.
 - Client deployment: provider/region documented only in the private repo. Billed and owned by
   the client, isolated from author's other infrastructure.
 - Walking skeleton first: hello-world Angular+NestJS+Postgres through the full pipeline
   before any real feature.
 
 ## Data model invariants
+
 - **Role ≠ tier.** Role (admin/manager/user) = authorization. Customer tier = pricing group,
   independent field, only for `user` accounts, assigned on approval, invisible to the user.
   Prices resolve via tier→price-list mapping; guests see lowest-tier price.
@@ -53,6 +59,7 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
 - Account deletion anonymizes past orders, never deletes them.
 
 ## Workflow conventions
+
 - Trunk-based: `main` only, branch protection (PR + green CI required), short-lived
   `feat/123-*` / `fix/123-*` branches. Issue titles carry requirement IDs: `[FR-CAT-04] ...`.
 - Strict semver; breaking changes avoided — new features are minor versions. API contracts

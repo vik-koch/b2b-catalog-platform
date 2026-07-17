@@ -1,0 +1,12 @@
+{
+  "name": "workspace",
+  "$schema": "node_modules/nx/schemas/project-schema.json",
+  "// targets": "Workspace-wide tasks that don't belong to a single project.",
+  "targets": {
+    "format-check": {
+      "command": "prettier --check .",
+      "// cache": "Disabled: in Nx's file map the root project only owns files outside apps/libs, so a cached whole-repo check would go stale when project files change.",
+      "cache": false
+    }
+  }
+}
