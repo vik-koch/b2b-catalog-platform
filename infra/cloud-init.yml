@@ -1,0 +1,45 @@
+#cloud-config
+# Shared server bootstrap for all b2b-catalog-platform deploy targets:
+# infra/demo passes it as user_data via Terraform; any other VPS gets it
+# pasted into the provider's user-data field at VM creation (or, for an
+# already-running VM, its runcmd steps executed manually — see infra/README.md).
+#
+# Assumes Ubuntu LTS images (tested on 24.04). Keep this file provider-neutral:
+# anything specific to one provider must be a no-op on the others.
+
+# The docker group must exist before the deploy user is created (user creation
+# runs before the Docker install in runcmd).
+groups:
+  - docker
+
+users:
+  # Keep the image's default admin user (root or ubuntu, depending on the
+  # provider) — omitting `default` here would drop it and lock us out of sudo.
+  - default
+  - name: deploy
+    gecos: CD deploy user
+    groups: [docker]
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      # Must match infra/keys/deploy.pub (the private half lives in the GitHub
+      # Actions secret DEMO_SSH_PRIVATE_KEY).
+      - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM0+T/kR+OtTjU+uSa705OxCNq18HskGgyOsi48IGrKh b2b-demo-deploy'
+
+package_update: true
+
+runcmd:
+  # Installs Docker Engine + the compose plugin for the native architecture.
+  - curl -fsSL https://get.docker.com | sh
+  - systemctl enable --now docker
+  # Directory the CD workflow copies compose files and per-stack .env into.
+  - mkdir -p /srv/b2b
+  - chown deploy:deploy /srv/b2b
+  # Some providers' Ubuntu images ship iptables rules that reject everything
+  # except SSH, so 80/443 must be opened at host level in addition to the cloud
+  # firewall. Harmless on images whose default INPUT policy accepts (e.g.
+  # Hetzner's, where the cloud firewall does the filtering).
+  - iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+  - iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+  # Persist the rules across reboots where the tool exists (no-op elsewhere).
+  - netfilter-persistent save || true

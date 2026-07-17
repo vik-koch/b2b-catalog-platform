@@ -45,4 +45,10 @@ Thumbs.db
 
 .angular
 
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
 __screenshots__/
