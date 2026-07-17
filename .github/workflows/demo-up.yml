@@ -1,0 +1,107 @@
+# Provisions the ephemeral Hetzner demo server (Terraform) and deploys the
+# app stack onto it (infra/deploy.sh) — click-to-browsable-URL in one run.
+#
+# One demo exists at a time (single Terraform workspace): running demo-up
+# while a demo is up re-points the existing server/DNS instead of creating a
+# second one. demo-down (also the nightly sweeper) destroys it.
+#
+# Needs (see infra/README.md): secrets HCLOUD_TOKEN, CLOUDFLARE_API_TOKEN,
+# TF_API_TOKEN, DEMO_SSH_PRIVATE_KEY + repo variable ACME_EMAIL. Images must
+# be pullable without auth — the GHCR packages are public.
+name: demo-up
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy: main (newest tested main build), sha-<sha>, or a release version'
+        required: true
+        default: main
+
+permissions:
+  contents: read
+
+# Shared with demo-down; queue instead of cancel — never interrupt a
+# terraform apply/destroy halfway.
+concurrency:
+  group: demo-infra
+  cancel-in-progress: false
+
+jobs:
+  up:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Becomes the hostname: b2b-demo-run<N>.<domain>. A fresh name per run
+      # keeps DNS caches and Let's Encrypt duplicate-cert limits out of play.
+      TF_VAR_demo_id: run${{ github.run_number }}
+      SSH_OPTS: -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -i ${{ github.workspace }}/.deploy-key
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          # No wrapper: we need clean stdout from `terraform output -raw`.
+          terraform_wrapper: false
+
+      - name: Terraform apply
+        working-directory: infra/demo
+        run: |
+          terraform init -input=false
+          terraform apply -input=false -auto-approve
+
+      - name: Collect Terraform outputs
+        id: tf
+        working-directory: infra/demo
+        run: |
+          echo "ip=$(terraform output -raw ipv4_address)" >> "$GITHUB_OUTPUT"
+          echo "fqdn=$(terraform output -raw demo_fqdn)" >> "$GITHUB_OUTPUT"
+
+      - name: Write SSH key
+        run: |
+          printf '%s\n' "${{ secrets.DEMO_SSH_PRIVATE_KEY }}" > .deploy-key
+          chmod 600 .deploy-key
+
+      - name: Wait for cloud-init to finish
+        run: |
+          # Ready means: Docker daemon up and /srv/b2b created — the last
+          # runcmd steps. The deploy user itself exists early in boot.
+          for _ in $(seq 1 60); do
+            if ssh $SSH_OPTS "deploy@${{ steps.tf.outputs.ip }}" \
+                'docker info >/dev/null 2>&1 && test -w /srv/b2b'; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "VM not ready after 5 minutes" >&2
+          exit 1
+
+      - name: Deploy
+        env:
+          TAG: ${{ inputs.image_tag }}
+          FQDN: ${{ steps.tf.outputs.fqdn }}
+          ACME_EMAIL: ${{ vars.ACME_EMAIL }}
+        run: |
+          : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
+          image_base="ghcr.io/${GITHUB_REPOSITORY,,}"
+
+          # Throwaway credentials: the database lives and dies with the VM.
+          cat > "$RUNNER_TEMP/demo.env" <<EOF
+          STACK_NAME=demo
+          APP_DOMAIN=$FQDN
+          API_IMAGE=$image_base-api:$TAG
+          WEB_IMAGE=$image_base-web:$TAG
+          POSTGRES_DB=b2b_catalog
+          POSTGRES_USER=b2b_catalog
+          POSTGRES_PASSWORD=$(openssl rand -hex 16)
+          EOF
+          printf 'ACME_EMAIL=%s\n' "$ACME_EMAIL" > "$RUNNER_TEMP/traefik.env"
+
+          infra/deploy.sh "${{ steps.tf.outputs.ip }}" \
+            "$RUNNER_TEMP/demo.env" "$RUNNER_TEMP/traefik.env"
+
+          echo "## Demo is up: https://$FQDN" >> "$GITHUB_STEP_SUMMARY"
+          echo "Deployed tag: \`$TAG\` — remember to run demo-down." >> "$GITHUB_STEP_SUMMARY"

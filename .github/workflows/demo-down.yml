@@ -1,0 +1,42 @@
+# Destroys the ephemeral demo server + DNS record (see demo-up.yml).
+#
+# Also runs nightly as a sweeper: the server is hourly-billed forget-insurance,
+# and destroying an already-empty state is a clean no-op — so the schedule can
+# fire unconditionally.
+name: demo-down
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
+
+permissions:
+  contents: read
+
+# Shared with demo-up; queue instead of cancel — never interrupt a
+# terraform apply/destroy halfway.
+concurrency:
+  group: demo-infra
+  cancel-in-progress: false
+
+jobs:
+  down:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Destroy works purely from state; the variable must merely be set and
+      # valid — its value never reaches any real resource here.
+      TF_VAR_demo_id: sweep
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform destroy
+        working-directory: infra/demo
+        run: |
+          terraform init -input=false
+          terraform destroy -input=false -auto-approve
