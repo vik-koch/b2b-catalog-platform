@@ -7,6 +7,11 @@ copies compose files into. Everything above the VM (TLS, routing, the apps)
 lives in the compose stacks, so the contract with the infrastructure layer is
 just: _a VM with Docker, a `deploy` user, and a DNS record pointing at it._
 
+On top of that contract every VM runs one [shared Traefik proxy](traefik/)
+(started once per VM — TLS via Let's Encrypt, 80→443 redirect) and any number
+of app stacks (the root [compose.yml](../compose.yml), one `.env` per stack)
+that self-register their routing with Traefik via container labels.
+
 There are two ways to get such a VM:
 
 - **Terraform demo** ([demo/](demo/)) — a worked example wired specifically to
@@ -45,7 +50,10 @@ Whatever the provider, the VM needs:
    runners, where the provider tokens don't exist.
 3. **Cloudflare zone id**: dashboard → vikkoch.com → Overview (right column) →
    into [demo/demo.auto.tfvars](demo/demo.auto.tfvars).
-4. **GitHub Actions secrets** (repo → Settings → Secrets and variables → Actions):
+4. **GHCR visibility**: after the first merge to `main` publishes the images,
+   make both packages public (package → Package settings → Change visibility)
+   so VMs can pull without a registry login.
+5. **GitHub Actions secrets** (repo → Settings → Secrets and variables → Actions):
 
    | Secret                 | Content                                                                                   |
    | ---------------------- | ----------------------------------------------------------------------------------------- |
@@ -53,6 +61,21 @@ Whatever the provider, the VM needs:
    | `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com    |
    | `TF_API_TOKEN`         | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI) |
    | `DEMO_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1                                                |
+
+   Plus one Actions **variable** (same page, Variables tab — not secret):
+   `ACME_EMAIL`, the Let's Encrypt account email Traefik registers with.
+
+## Demo workflows
+
+- **demo-up** (manual trigger): terraform apply → wait for cloud-init →
+  [deploy.sh](deploy.sh) with a generated `.env` (throwaway DB credentials,
+  images from GHCR — tag selectable, default `main`). The run summary shows
+  the demo URL. Hostname is `b2b-demo-run<N>` with the workflow run number,
+  so every run gets a fresh name (clean DNS, no Let's Encrypt
+  duplicate-cert limits).
+- **demo-down** (manual trigger + nightly sweeper at 03:00 UTC): terraform
+  destroy. The schedule is forget-insurance against an hourly-billed server
+  staying up; destroying an empty state is a no-op, so it always runs.
 
 ## Running Terraform locally
 
@@ -93,7 +116,23 @@ do them by hand (VM must meet the [requirements](#vm-requirements) above):
    on Cloudflare, keep it **DNS-only (grey cloud)** — Traefik obtains its own
    Let's Encrypt certificates via HTTP-01, which the Cloudflare proxy would
    break.
-4. **Deploy**: point the deploy workflow at the host (it SSHes as `deploy`
-   using `DEMO_SSH_PRIVATE_KEY` and copies the compose files + `.env` into
-   `/srv/b2b`), or do the same copy by hand and run `docker compose up -d`
-   there.
+4. **Deploy**: run [deploy.sh](deploy.sh) (the same script the workflows use):
+
+   ```sh
+   SSH_OPTS="-i /path/to/deploy-private-key" \
+     infra/deploy.sh <host> <app-env-file> infra/traefik/.env
+   ```
+
+   It SSHes as `deploy`, copies the [shared Traefik stack](traefik/) and the
+   app stack (root [compose.yml](../compose.yml) + the given env file, derived
+   from [.env.stack.example](../.env.stack.example)) into `/srv/b2b/`, brings
+   both up, and smoke-checks `https://$APP_DOMAIN`. Stacks land in
+   `/srv/b2b/<STACK_NAME>/`, so one VM can host several (dev / prod / demo).
+
+   Images are pulled from GHCR. To deploy before CI has published any (or to
+   test unmerged builds), preload local images under the tags your env file
+   references — never push workstation builds to the registry:
+
+   ```sh
+   docker save IMAGE:TAG ... | gzip | ssh deploy@<host> 'gunzip | docker load'
+   ```
