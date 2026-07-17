@@ -7,6 +7,11 @@
 name: b2b-localtest
 
 services:
+  postgres:
+    # Published so the web-e2e global-setup can seed test data (and for manual
+    # inspection). 5433 to avoid clashing with the compose.db.yml dev DB.
+    ports: ['127.0.0.1:${DATABASE_PORT:?}:5432']
+
   proxy:
     image: nginx:alpine
     ports: ['127.0.0.1:8080:80']
