@@ -1,0 +1,48 @@
+# Release: semver tags only. Does not rebuild or retest — the tagged commit
+# already went through checks, smoke test, build and push when it landed on
+# main (see ci.yml). This only attaches the version tags to the existing
+# sha-<sha> manifest, so prod ships byte-identical bits to what dev ran.
+# It fails if no sha image exists — i.e. the tag points at a commit that
+# never passed CI on main — which is exactly the loud failure we want.
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [api, web]
+    steps:
+      # GHCR requires a lowercase repository path.
+      - run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}-${{ matrix.app }}" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retag tested main image as release
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          docker buildx imagetools create \
+            -t "$IMAGE:$version" \
+            -t "$IMAGE:latest" \
+            "$IMAGE:sha-$GITHUB_SHA"
+
+      - name: Verify manifest
+        run: docker buildx imagetools inspect "$IMAGE:${GITHUB_REF_NAME#v}"

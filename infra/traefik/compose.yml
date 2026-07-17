@@ -1,0 +1,51 @@
+# Shared Traefik reverse proxy — one instance per VM, started once, serving
+# every app stack on the host (dev / prod / demo). App stacks attach to the
+# external "traefik" network and self-register via container labels; adding or
+# removing a stack never touches this file.
+#
+#   docker network create traefik        # once per VM
+#   docker compose --env-file .env up -d # in this directory (see .env.example)
+#
+# TLS: Let's Encrypt via HTTP-01 ("letsencrypt" certresolver referenced by the
+# app stacks' labels). Requires the hostname to resolve to this VM and port 80
+# reachable — with Cloudflare that means DNS-only (grey cloud) records.
+name: traefik
+
+services:
+  traefik:
+    # v3.6.1+ required: older Traefik speaks Docker API 1.24, which Docker
+    # Engine >= 29 (what get.docker.com installs) rejects.
+    image: traefik:v3.6
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    command:
+      # Only containers that opt in with traefik.enable=true are routed, and
+      # discovery happens on the shared network (containers may sit on several).
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=traefik
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:?}
+      - --certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+    volumes:
+      # Read-only socket: Traefik only watches container metadata for labels.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Issued certificates survive container recreation; losing this volume
+      # only costs a re-issue on next start (rate limits permitting).
+      - acme:/acme
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
+
+volumes:
+  acme:
