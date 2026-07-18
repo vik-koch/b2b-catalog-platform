@@ -8,7 +8,7 @@
 # Needs (see infra/README.md): secrets HCLOUD_TOKEN, CLOUDFLARE_API_TOKEN,
 # TF_API_TOKEN, DEMO_SSH_PRIVATE_KEY + repo variable ACME_EMAIL. Images must
 # be pullable without auth — the GHCR packages are public.
-name: demo-up
+name: Demo up
 
 on:
   workflow_dispatch:
@@ -40,9 +40,9 @@ jobs:
       TF_VAR_demo_id: run${{ github.run_number }}
       SSH_OPTS: -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -i ${{ github.workspace }}/.deploy-key
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           # No wrapper: we need clean stdout from `terraform output -raw`.
           terraform_wrapper: false
