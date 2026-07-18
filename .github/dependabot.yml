@@ -1,0 +1,16 @@
+# Keeps action majors and Terraform providers current so version drift
+# surfaces as small weekly PRs instead of deprecation warnings.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
+
+  - package-ecosystem: terraform
+    directory: /infra/demo
+    schedule:
+      interval: weekly

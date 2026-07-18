@@ -3,7 +3,7 @@
 # Also runs nightly as a sweeper: the server is hourly-billed forget-insurance,
 # and destroying an already-empty state is a clean no-op — so the schedule can
 # fire unconditionally.
-name: demo-down
+name: Demo down
 
 on:
   workflow_dispatch:
@@ -31,9 +31,9 @@ jobs:
       # valid — its value never reaches any real resource here.
       TF_VAR_demo_id: sweep
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
 
       - name: Terraform destroy
         working-directory: infra/demo
