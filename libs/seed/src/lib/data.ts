@@ -6,8 +6,6 @@ export interface PageSeed {
   bodyHtml: string;
 }
 
-export const helloWorldSeed = { message: 'Hello API' };
-
 // Demo persona: a fictional Hamburg specialty-coffee importer/roastery
 // selling wholesale to cafés, restaurants and offices across Europe.
 export const aboutPageSeed: PageSeed = {

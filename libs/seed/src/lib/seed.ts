@@ -1,5 +1,5 @@
 import type { Client } from 'pg';
-import { helloWorldSeed, pageSeeds } from './data';
+import { pageSeeds } from './data';
 
 /**
  * Idempotent: safe to run against a stack that was seeded before (e2e reruns,
@@ -7,11 +7,6 @@ import { helloWorldSeed, pageSeeds } from './data';
  * on startup before it starts listening).
  */
 export async function seedDatabase(client: Client): Promise<void> {
-  await client.query('DELETE FROM "helloWorld"');
-  await client.query('INSERT INTO "helloWorld" (message) VALUES ($1)', [
-    helloWorldSeed.message,
-  ]);
-
   for (const { slug, title, bodyHtml } of pageSeeds) {
     await client.query(
       `INSERT INTO page (id, title, "bodyHtml") VALUES ($1, $2, $3)

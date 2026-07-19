@@ -1,21 +1,18 @@
-import { test, expect } from '@playwright/test';
+import { aboutPageSeed } from '@b2b-catalog-platform/seed';
+import { expect, test } from '@playwright/test';
 
-test('renders the hello world message from the database', async ({ page }) => {
-  // The hydrated app refetches /api/helloworld from the browser (the SSR
-  // transfer cache can't serve it — server and client use different URLs).
-  // Wait for that refetch before asserting: the SSR HTML already contains
-  // the message, so asserting immediately would mask a broken browser-side
-  // fetch (the resource replaces the text with an error on failure).
-  const clientRefetch = page.waitForResponse('**/api/helloworld');
+test('renders the home placeholder', async ({ page }) => {
   await page.goto('/');
-  await clientRefetch;
 
-  await expect(page.locator('p')).toHaveText('Hello API');
+  await expect(page.locator('h1')).toHaveText('Wholesale specialty coffee');
 });
 
 test('serves the API on the same origin under /api', async ({ request }) => {
-  const response = await request.get('/api/helloworld');
+  const response = await request.get('/api/pages/about');
 
   expect(response.status()).toBe(200);
-  expect(await response.json()).toEqual({ message: 'Hello API' });
+  expect(await response.json()).toEqual({
+    title: aboutPageSeed.title,
+    bodyHtml: aboutPageSeed.bodyHtml,
+  });
 });
