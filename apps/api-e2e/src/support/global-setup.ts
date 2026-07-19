@@ -1,4 +1,8 @@
 import { waitForPortOpen } from '@nx/node/utils';
+// Relative import: jest resolves globalSetup outside its module resolver,
+// so the workspace path alias is not available here (it is in the specs).
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { seedDatabase } from '../../../../libs/seed/src/index';
 import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 import { Client } from 'pg';
@@ -29,10 +33,7 @@ module.exports = async function () {
   const client = new Client({ connectionString: requireEnv('DATABASE_URL') });
   await client.connect();
   try {
-    await client.query('DELETE FROM "helloWorld"');
-    await client.query('INSERT INTO "helloWorld" (message) VALUES ($1)', [
-      'Hello API',
-    ]);
+    await seedDatabase(client);
   } finally {
     await client.end();
   }

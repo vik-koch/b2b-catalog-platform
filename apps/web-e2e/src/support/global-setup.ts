@@ -1,3 +1,4 @@
+import { seedDatabase } from '@b2b-catalog-platform/seed';
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -66,10 +67,7 @@ export default async function globalSetup() {
   });
   await client.connect();
   try {
-    await client.query('DELETE FROM "helloWorld"');
-    await client.query('INSERT INTO "helloWorld" (message) VALUES ($1)', [
-      'Hello API',
-    ]);
+    await seedDatabase(client);
   } finally {
     await client.end();
   }

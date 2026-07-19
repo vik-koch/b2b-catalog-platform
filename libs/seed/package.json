@@ -1,0 +1,12 @@
+{
+  "name": "@b2b-catalog-platform/seed",
+  "version": "0.0.1",
+  "private": true,
+  "type": "commonjs",
+  "main": "./index.cjs",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "@b2b-catalog-platform/shared": "0.0.1",
+    "pg": "^8.22.0"
+  }
+}
