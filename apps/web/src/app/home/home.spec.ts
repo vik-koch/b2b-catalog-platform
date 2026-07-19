@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { App } from './app';
-import { AppService } from './app.service';
+import { Home } from './home';
+import { AppService } from '../app.service';
 
-describe('App', () => {
+describe('Home', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [Home],
       providers: [
         {
           provide: AppService,
@@ -23,7 +23,7 @@ describe('App', () => {
   });
 
   it('should render the message from the server', async () => {
-    const fixture = TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(Home);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain(

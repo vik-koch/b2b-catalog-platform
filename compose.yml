@@ -59,6 +59,10 @@ services:
     restart: unless-stopped
     environment:
       APP_DOMAIN: ${APP_DOMAIN:?}
+      # Public origin of this stack; the SSR transfer cache maps internal API
+      # fetches to it so hydrated pages don't refetch. Overridden for the
+      # TLS-less local smoke test in compose.override.yml.
+      APP_ORIGIN: https://${APP_DOMAIN:?}
       WEB_PORT: 4000
       # SSR reaches the API directly on the stack network, not through Traefik.
       API_URL: http://api:3000/api
