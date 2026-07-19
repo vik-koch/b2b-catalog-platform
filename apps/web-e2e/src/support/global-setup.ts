@@ -42,12 +42,14 @@ export default async function globalSetup() {
   });
 
   // 2. The API applies migrations before it starts listening, so poll it
-  //    through the proxy until the schema is guaranteed to exist.
+  //    through the proxy until the schema is guaranteed to exist. This runs
+  //    BEFORE seeding, so a 404 (known route, unseeded DB) already proves the
+  //    API is up — only 5xx means the proxy is still waiting for the API.
   const deadline = Date.now() + 60_000;
   for (;;) {
     try {
-      const response = await fetch(`${baseURL}/api/helloworld`);
-      if (response.ok) break;
+      const response = await fetch(`${baseURL}/api/pages/about`);
+      if (response.status < 500) break;
     } catch {
       // proxy or API not accepting connections yet
     }

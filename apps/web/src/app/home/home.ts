@@ -1,33 +1,12 @@
-import { Component, inject, resource } from '@angular/core';
-import { AppService } from '../app.service';
+import { Component } from '@angular/core';
 
-// Placeholder home route: keeps the walking skeleton's hello-world smoke
-// path alive until the real landing page exists.
+// Placeholder landing page until the real storefront exists (catalog comes
+// with iteration 2) — the deploy smoke check expects / to render something.
 @Component({
   selector: 'app-home',
   template: `
-    @if (helloWorldResource.isLoading()) {
-      <p>Loading hello world from server...</p>
-    } @else if (helloWorldResource.error()) {
-      <p>Error: Failed to fetch hello world.</p>
-    } @else if (helloWorldResource.value(); as value) {
-      <h1>Value from server</h1>
-      <p>{{ value.message }}</p>
-    }
+    <h1>Wholesale specialty coffee</h1>
+    <p>Our storefront is under construction — the company pages are live.</p>
   `,
 })
-export class Home {
-  private appService = inject(AppService);
-
-  helloWorldResource = resource({
-    loader: async () => {
-      const response = await this.appService.getHelloWorld();
-
-      if (response.status === 200) {
-        return response.body;
-      }
-
-      throw new Error('No response from server available');
-    },
-  });
-}
+export class Home {}
