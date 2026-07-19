@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/*
+ * Deployment-themeable design tokens — templates use only these semantic
+ * names (bg-primary, text-ink, …), never raw palette colors. Tailwind v4
+ * compiles the utilities to var() references, so a deployment can re-theme
+ * a built image at runtime by overriding the :root custom properties
+ * (planned: SSR-injected from deployment config, like the map embed URL).
+ *
+ * Token rule: replacement palettes must keep similar lightness — primary is
+ * used as text on white (needs >= 4.5:1) and as a background under white text.
+ */
+@theme {
+  /* "Coffee" — 7.5:1 on white */
+  --color-primary: #6f4e37;
+  /* Lighter roast of primary — 4.7:1 on white, still text-safe */
+  --color-secondary: #8b6f52;
+  /* Highlights, badges, eyebrows (amber-700) */
+  --color-accent: #b45309;
+  /* Page background (stone-50) and default text (stone-900) */
+  --color-surface: #fafaf9;
+  --color-ink: #1c1917;
+}
+
+/* Rich-text page bodies: brand the links, keep the rest prose-stone. */
+.prose {
+  --tw-prose-links: var(--color-primary);
+}

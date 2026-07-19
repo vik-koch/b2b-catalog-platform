@@ -34,5 +34,5 @@ test('unknown routes render the 404 page with a real 404 status', async ({
   const response = await page.goto('/definitely-not-a-page');
 
   expect(response?.status()).toBe(404);
-  await expect(page.locator('h1')).toHaveText(/404/);
+  await expect(page.locator('h1')).toHaveText('Page not found');
 });

@@ -30,5 +30,11 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    // NFR-SEO-03 (responsive layout): every spec also runs on a phone
+    // viewport; specs use the isMobile fixture where interaction differs.
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 7'] },
+    },
   ],
 });
