@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40" width="180" height="40">
+  <!-- Deployment branding asset: colors are baked in on purpose (an external
+       <img> SVG cannot inherit CSS custom properties); keep in sync with the
+       theme tokens in styles.css. Websafe serif stack — no font embedding. -->
+  <text x="0" y="23" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="23" fill="#6f4e37">Coffee Kontor</text>
+  <text x="1" y="36" font-family="Georgia, 'Times New Roman', serif" font-size="9" letter-spacing="2.2" fill="#8b6f52">ROASTERY &amp; WHOLESALE</text>
+</svg>
