@@ -79,9 +79,22 @@
     },
     "db-migrate": {
       "executor": "nx:run-commands",
+      "dependsOn": ["build"],
       "options": {
-        "command": "drizzle-kit migrate",
-        "cwd": "apps/api"
+        "command": "node dist/apps/api/main.js",
+        "env": {
+          "RUN_MODE": "migrate"
+        }
+      }
+    },
+    "db-seed": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/apps/api/main.js",
+        "env": {
+          "RUN_MODE": "seed"
+        }
       }
     }
   }

@@ -40,6 +40,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     networks:
       - internal
       - traefik
@@ -79,6 +81,37 @@ services:
       - traefik.http.routers.${STACK_NAME:?}-web.entrypoints=websecure
       - traefik.http.routers.${STACK_NAME:?}-web.tls.certresolver=letsencrypt
       - traefik.http.services.${STACK_NAME:?}-web.loadbalancer.server.port=4000
+
+  # One-shot migrator — reuses the API image in RUN_MODE=migrate to apply
+  # pending migrations, then exits. Not in a profile: plain `up` runs it.
+  migrate:
+    image: ${API_IMAGE:?}
+    restart: 'no'
+    environment:
+      RUN_MODE: migrate
+      API_PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+
+  # One-shot seeder — reuses the API image in RUN_MODE=seed to upsert seed
+  # data, then exits. In the 'tools' profile so `up` never starts it.
+  seed:
+    image: ${API_IMAGE:?}
+    profiles: ['tools']
+    restart: 'no'
+    environment:
+      RUN_MODE: seed
+      API_PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
 
 networks:
   internal:

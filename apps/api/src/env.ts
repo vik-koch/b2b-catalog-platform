@@ -3,6 +3,9 @@ import { z } from 'zod';
 const EnvSchema = z.object({
   API_PORT: z.coerce.number().int().positive(),
   DATABASE_URL: z.string().url(),
+  // Set by the one-shot tool containers (see compose.yml): "migrate" applies
+  // pending migrations, "seed" upserts seed data. Unset = normal server.
+  RUN_MODE: z.enum(['migrate', 'seed']).optional(),
 });
 
 const parsed = EnvSchema.safeParse(process.env);

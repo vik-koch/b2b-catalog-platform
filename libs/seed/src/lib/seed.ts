@@ -1,4 +1,4 @@
-import type { Client } from 'pg';
+import { Client } from 'pg';
 import { pageSeeds } from './data';
 
 /**
@@ -13,5 +13,20 @@ export async function seedDatabase(client: Client): Promise<void> {
        ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, "bodyHtml" = EXCLUDED."bodyHtml"`,
       [slug, title, bodyHtml],
     );
+  }
+}
+
+/**
+ * Connect, seed, disconnect. For one-shot use from the deploy pipeline, where
+ * the `migrate` one-shot has already applied the schema and postgres is healthy
+ * before this runs; the e2e harnesses call seedDatabase directly instead.
+ */
+export async function runSeed(connectionString: string): Promise<void> {
+  const client = new Client({ connectionString });
+  try {
+    await client.connect();
+    await seedDatabase(client);
+  } finally {
+    await client.end().catch(() => undefined);
   }
 }
