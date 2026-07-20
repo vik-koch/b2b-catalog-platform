@@ -19,6 +19,13 @@ export interface DeploymentConfig {
     readonly name: string;
     readonly logo: string;
   };
+  /**
+   * Whether cookie-consent gating is enforced. When false, no banner is shown
+   * and non-essential storage is not gated — correct both while the app sets
+   * only strictly-necessary storage, and for deployments in jurisdictions
+   * without consent requirements (optional storage just loads).
+   */
+  readonly cookieConsentEnabled: boolean;
 }
 
 /**
@@ -27,6 +34,7 @@ export interface DeploymentConfig {
  */
 export const defaultDeploymentConfig: DeploymentConfig = {
   branding: { name: 'Coffee Kontor', logo: '/logo.svg' },
+  cookieConsentEnabled: false,
 };
 
 export const DEPLOYMENT_CONFIG = new InjectionToken<DeploymentConfig>(
