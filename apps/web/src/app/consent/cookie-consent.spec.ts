@@ -10,7 +10,10 @@ import { CookieConsent } from './cookie-consent';
 const BANNER = 'aside[aria-label="Cookie consent"]';
 
 function config(cookieConsentEnabled: boolean): DeploymentConfig {
-  return { branding: { name: 'Test', logo: '/logo.svg' }, cookieConsentEnabled };
+  return {
+    branding: { name: 'Test', logo: '/logo.svg' },
+    cookieConsentEnabled,
+  };
 }
 
 async function render(enabled: boolean) {

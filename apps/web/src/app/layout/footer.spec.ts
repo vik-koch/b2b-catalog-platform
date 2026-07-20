@@ -8,7 +8,10 @@ import {
 import { Footer } from './footer';
 
 function config(cookieConsentEnabled: boolean): DeploymentConfig {
-  return { branding: { name: 'Test', logo: '/logo.svg' }, cookieConsentEnabled };
+  return {
+    branding: { name: 'Test', logo: '/logo.svg' },
+    cookieConsentEnabled,
+  };
 }
 
 async function render(enabled: boolean) {
