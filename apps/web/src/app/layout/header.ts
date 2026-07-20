@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { PageSlug } from '@b2b-catalog-platform/shared';
+import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 
-// TODO: logo.svg and the persona name are deployment branding and will move
-// to the same config seam as the theme tokens.
 @Component({
   imports: [RouterLink, RouterLinkActive],
   selector: 'app-header',
@@ -15,13 +16,13 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       >
         <a
           routerLink="/"
-          aria-label="Coffee Kontor — home"
+          [attr.aria-label]="branding.name + ' — home'"
           (click)="menuOpen.set(false)"
         >
           <!-- Plain <img>: NgOptimizedImage adds nothing for a local SVG.
                Intrinsic width/height prevent layout shift; CSS scales it. -->
           <img
-            src="/logo.svg"
+            [src]="branding.logo"
             alt=""
             width="180"
             height="40"
@@ -30,13 +31,13 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         </a>
 
         <nav class="hidden gap-6 text-sm md:flex" aria-label="Main">
-          @for (link of navLinks; track link.path) {
+          @for (slug of navSlugs; track slug) {
             <a
-              [routerLink]="link.path"
+              [routerLink]="'/' + slug"
               routerLinkActive="text-primary font-medium"
               class="text-stone-600 transition-colors hover:text-ink"
             >
-              {{ link.label }}
+              {{ text.nav[slug] }}
             </a>
           }
         </nav>
@@ -72,14 +73,14 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
           class="border-t border-stone-200 md:hidden"
           aria-label="Main"
         >
-          @for (link of navLinks; track link.path) {
+          @for (slug of navSlugs; track slug) {
             <a
-              [routerLink]="link.path"
+              [routerLink]="'/' + slug"
               routerLinkActive="text-primary font-medium"
               class="block px-4 py-3 text-stone-600 hover:bg-stone-100"
               (click)="menuOpen.set(false)"
             >
-              {{ link.label }}
+              {{ text.nav[slug] }}
             </a>
           }
         </nav>
@@ -90,6 +91,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 export class Header {
   menuOpen = signal(false);
 
-  // The logo is the home link; no separate "Home" entry.
-  navLinks = [{ path: '/about', label: 'About us' }];
+  protected readonly text = inject(APP_TEXT);
+  protected readonly branding = inject(DEPLOYMENT_CONFIG).branding;
+  protected readonly navSlugs: readonly PageSlug[] = ['about'];
 }
