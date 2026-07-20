@@ -1,4 +1,4 @@
-import { aboutPageSeed } from '@b2b-catalog-platform/seed';
+import { aboutPageSeed, privacyPageSeed } from '@b2b-catalog-platform/seed';
 import { expect, test } from '@playwright/test';
 
 // Exactly one main nav is visible at a time: the desktop bar (md+) or the
@@ -30,4 +30,16 @@ test('navigates from home to the about page via the main nav', async ({
     // The panel closes after navigating.
     await expect(page.locator(visibleMainNav)).toHaveCount(0);
   }
+});
+
+test('reaches the legal pages from the footer', async ({ page }) => {
+  await page.goto('/');
+
+  await page
+    .getByRole('navigation', { name: 'Legal' })
+    .getByRole('link', { name: 'Privacy' })
+    .click();
+
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.locator('h1')).toHaveText(privacyPageSeed.title);
 });
