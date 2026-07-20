@@ -4,8 +4,9 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** early stage — requirements and roadmap are defined; implementation starts with a
-> walking skeleton (hello-world Angular + NestJS + Postgres through the full CI/CD pipeline).
+> **Status:** early stage — requirements and roadmap are defined & implementation started.
+> 
+> Demo dev environment is available via: https://b2b-dev.vikkoch.com.
 
 ## What this project is
 
