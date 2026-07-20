@@ -55,15 +55,21 @@ Whatever the provider, the VM needs:
    so VMs can pull without a registry login.
 5. **GitHub Actions secrets** (repo → Settings → Secrets and variables → Actions):
 
-   | Secret                 | Content                                                                                   |
-   | ---------------------- | ----------------------------------------------------------------------------------------- |
-   | `HCLOUD_TOKEN`         | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token          |
-   | `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com    |
-   | `TF_API_TOKEN`         | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI) |
-   | `DEMO_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1                                                |
+   | Secret                  | Content                                                                                   |
+   | ----------------------- | ----------------------------------------------------------------------------------------- |
+   | `HCLOUD_TOKEN`          | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token          |
+   | `CLOUDFLARE_API_TOKEN`  | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com    |
+   | `TF_API_TOKEN`          | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI) |
+   | `DEMO_SSH_PRIVATE_KEY`  | Private half of the deploy key from step 1                                                |
+   | `DEV_POSTGRES_PASSWORD` | The dev stack's database password. Must stay **stable across deploys**                    |
 
-   Plus one Actions **variable** (same page, Variables tab — not secret):
-   `ACME_EMAIL`, the Let's Encrypt account email Traefik registers with.
+   Plus Actions **variables** (same page, Variables tab — not secret):
+
+   | Variable         | Content                                                                     |
+   | ---------------- | --------------------------------------------------------------------------- |
+   | `ACME_EMAIL`     | Let's Encrypt account email Traefik registers with                          |
+   | `DEV_HOST`       | Public IP (or DNS name) of the long-lived dev/prod VM, SSH target for CD    |
+   | `DEV_APP_DOMAIN` | Hostname of the dev stack (A record → `DEV_HOST`, DNS-only), e.g. b2b-dev.… |
 
 ## Demo workflows
 
