@@ -1,4 +1,5 @@
 import { Component, inject, input, resource } from '@angular/core';
+import { APP_TEXT } from '../config/app-text';
 import { PageService } from './page.service';
 
 @Component({
@@ -13,10 +14,10 @@ import { PageService } from './page.service';
         [innerHTML]="pageResource.value().bodyHtml"
       ></div>
     } @else if (pageResource.error()) {
-      <h1 class="text-3xl font-bold tracking-tight">Cannot load page</h1>
-      <p class="mt-4 text-stone-600">
-        Something went wrong while loading this page — please try again later.
-      </p>
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ text.cannotLoadTitle }}
+      </h1>
+      <p class="mt-4 text-stone-600">{{ text.cannotLoadBody }}</p>
     } @else {
       <div class="animate-pulse space-y-4" aria-hidden="true">
         <div class="h-8 w-1/3 rounded bg-stone-200"></div>
@@ -28,6 +29,8 @@ import { PageService } from './page.service';
 })
 export class Page {
   private pageService = inject(PageService);
+
+  protected readonly text = inject(APP_TEXT).errors;
 
   slug = input.required<string>();
   pageResource = resource({
