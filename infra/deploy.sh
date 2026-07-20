@@ -50,12 +50,20 @@ run "cd /srv/b2b/traefik && docker compose up -d"
 echo "==> Starting app stack '$stack'"
 run "cd /srv/b2b/$stack && docker compose up -d --no-build"
 
+# Idempotent upsert of seed data. Runs to completion (or fails the deploy);
+# the 'tools' profile keeps it out of the `up` above, which has already run the
+# `migrate` one-shot — so the schema exists by the time this runs.
+echo "==> Seeding database"
+run "cd /srv/b2b/$stack && docker compose run --rm seed"
+
 # First hit also triggers the Let's Encrypt issuance, so allow a generous
 # window: DNS propagation + cert order can take a minute or two on a fresh VM.
+# Require the seeded API page too, so a routing or seed failure fails loudly.
 echo "==> Smoke check https://$domain"
 for _ in $(seq 1 36); do
-  if curl -fsS --max-time 10 "https://$domain/" >/dev/null 2>&1; then
-    echo "OK: https://$domain is up"
+  if curl -fsS --max-time 10 "https://$domain/" >/dev/null 2>&1 &&
+    curl -fsS --max-time 10 "https://$domain/api/pages/about" >/dev/null 2>&1; then
+    echo "OK: https://$domain is up and serving seeded content"
     exit 0
   fi
   sleep 5

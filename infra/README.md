@@ -132,8 +132,9 @@ do them by hand (VM must meet the [requirements](#vm-requirements) above):
    It SSHes as `deploy`, copies the [shared Traefik stack](traefik/) and the
    app stack (root [compose.yml](../compose.yml) + the given env file, derived
    from [.env.stack.example](../.env.stack.example)) into `/srv/b2b/`, brings
-   both up, and smoke-checks `https://$APP_DOMAIN`. Stacks land in
-   `/srv/b2b/<STACK_NAME>/`, so one VM can host several (dev / prod / demo).
+   both up, runs the one-shot `seed` service (idempotent upsert of seed data),
+   and smoke-checks `https://$APP_DOMAIN` incl. a seeded API page. Stacks land
+   in `/srv/b2b/<STACK_NAME>/`, so one VM can host several (dev / prod / demo).
 
    Images are pulled from GHCR. To deploy before CI has published any (or to
    test unmerged builds), preload local images under the tags your env file
