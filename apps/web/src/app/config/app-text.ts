@@ -25,6 +25,13 @@ export interface AppText {
   };
   /** Keyed by page slug (see PAGE_SLUGS). */
   readonly nav: Readonly<Record<string, string>>;
+  readonly consent: {
+    readonly message: string;
+    readonly policyLink: string;
+    readonly accept: string;
+    readonly reject: string;
+    readonly settings: string;
+  };
   readonly errors: {
     readonly notFoundTitle: string;
     readonly notFoundBody: string;
@@ -42,6 +49,13 @@ export const defaultAppText: AppText = {
     conditions: 'Payment & delivery',
     privacy: 'Privacy',
     imprint: 'Imprint',
+  },
+  consent: {
+    message: 'We use only strictly necessary cookies to run this site. See our',
+    policyLink: 'privacy policy',
+    accept: 'Accept',
+    reject: 'Reject',
+    settings: 'Cookie settings',
   },
   errors: {
     notFoundTitle: 'Page not found',

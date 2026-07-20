@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { ConsentService } from '../consent/consent.service';
 
 @Component({
   imports: [RouterLink],
@@ -27,6 +28,17 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
               {{ text.nav[slug] }}
             </a>
           }
+          <!-- Consent withdrawal must be as easy as giving it; shown only when
+               the deployment runs the consent banner at all. -->
+          @if (consent.enabled) {
+            <button
+              type="button"
+              class="text-left transition-colors hover:text-ink"
+              (click)="consent.withdraw()"
+            >
+              {{ text.consent.settings }}
+            </button>
+          }
         </nav>
       </div>
     </footer>
@@ -34,6 +46,7 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 })
 export class Footer {
   protected readonly text = inject(APP_TEXT);
+  protected readonly consent = inject(ConsentService);
   protected readonly branding = inject(DEPLOYMENT_CONFIG).branding;
   protected readonly legalSlugs: readonly PageSlug[] = [
     'conditions',
