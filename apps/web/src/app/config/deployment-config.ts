@@ -42,9 +42,9 @@ export interface MapEmbed {
    */
   readonly url: string;
   /**
-   * Set when the embed sets cookies / loads tracking, so it is withheld until
-   * consent allows it. Omit for no-cookie embeds (static images, some map
-   * tiles), which render immediately.
+   * Set when the embed sets cookies / loads tracking (e.g. Google Maps), so it
+   * is withheld until consent allows it. Omit for no-cookie embeds (static
+   * images, some map tiles), which render immediately.
    */
   readonly consentRequired?: boolean;
 }

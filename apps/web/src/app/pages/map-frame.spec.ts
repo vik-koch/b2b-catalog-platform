@@ -7,12 +7,26 @@ import {
 } from '../config/deployment-config';
 import { MapFrame } from './map-frame';
 
-async function render(map: MapEmbed) {
+interface ConsentState {
+  readonly enabled?: boolean;
+  readonly decision?: 'accepted' | 'rejected';
+}
+
+async function render(map: MapEmbed, consent: ConsentState = {}) {
+  // ConsentService reads the record at construction, so seed it before DI.
+  if (consent.decision) {
+    localStorage.setItem(
+      'cookie-consent',
+      JSON.stringify({
+        version: 1,
+        choice: consent.decision,
+        timestamp: new Date().toISOString(),
+      }),
+    );
+  }
   const config: DeploymentConfig = {
     branding: { name: 'Test', logo: '/logo.svg' },
-    // Consent not enforced here — the consent-gated (consentRequired) path is
-    // covered with the consent work, not yet.
-    cookieConsentEnabled: false,
+    cookieConsentEnabled: consent.enabled ?? false,
     locations: [],
   };
   TestBed.configureTestingModule({
@@ -39,5 +53,36 @@ describe('MapFrame', () => {
     expect(iframe).not.toBeNull();
     expect(iframe?.getAttribute('src')).toBe('https://maps.example/x');
     expect(iframe?.getAttribute('title')).toBe('Test map');
+  });
+
+  it('shows the placeholder, not the iframe, when consent is required and not granted', async () => {
+    const el = await render(
+      { url: 'https://maps.example/x', consentRequired: true },
+      { enabled: true },
+    );
+
+    expect(el.querySelector('iframe')).toBeNull();
+    expect(el.textContent).toContain(defaultAppText.map.consentNotice);
+  });
+
+  it('renders the iframe for a consent-required map once accepted', async () => {
+    const el = await render(
+      { url: 'https://maps.example/x', consentRequired: true },
+      { enabled: true, decision: 'accepted' },
+    );
+
+    expect(el.querySelector('iframe')?.getAttribute('src')).toBe(
+      'https://maps.example/x',
+    );
+  });
+
+  it('renders a consent-required map freely where consent is not enforced', async () => {
+    // Flag off (no-rules jurisdiction): loads without a banner.
+    const el = await render(
+      { url: 'https://maps.example/x', consentRequired: true },
+      { enabled: false },
+    );
+
+    expect(el.querySelector('iframe')).not.toBeNull();
   });
 });
