@@ -56,7 +56,7 @@ Whatever the provider, the VM needs:
 5. **GitHub Actions secrets** (repo → Settings → Secrets and variables → Actions):
 
    | Secret                  | Content                                                                                   |
-   |-------------------------|-------------------------------------------------------------------------------------------|
+   | ----------------------- | ----------------------------------------------------------------------------------------- |
    | `HCLOUD_TOKEN`          | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token          |
    | `CLOUDFLARE_API_TOKEN`  | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com    |
    | `TF_API_TOKEN`          | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI) |

@@ -5,7 +5,7 @@ catalog, tiered customer pricing, order-request checkout with manager review, an
 catalog management with file-based bulk sync.
 
 > **Status:** early stage — requirements and roadmap are defined & implementation started.
-> 
+>
 > Demo dev environment is available via: https://b2b-dev.vikkoch.com.
 
 ## What this project is
