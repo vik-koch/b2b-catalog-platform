@@ -26,6 +26,34 @@ export interface DeploymentConfig {
    * without consent requirements (optional storage just loads).
    */
   readonly cookieConsentEnabled: boolean;
+  /**
+   * Offices shown on the contact page.
+   */
+  readonly locations: readonly ContactLocation[];
+}
+
+/**
+ * A map embed — restricted to an iframe URL by design.
+ */
+export interface MapEmbed {
+  /**
+   * iframe src. Deployment-owned, so trusted — bound as a resource URL.
+   * OpenStreetMap/static for the demo; a provider endpoint per deployment.
+   */
+  readonly url: string;
+  /**
+   * Set when the embed sets cookies / loads tracking, so it is withheld until
+   * consent allows it. Omit for no-cookie embeds (static images, some map
+   * tiles), which render immediately.
+   */
+  readonly consentRequired?: boolean;
+}
+
+/** One office/branch shown on the contact page. */
+export interface ContactLocation {
+  readonly name: string;
+  readonly description?: string;
+  readonly map: MapEmbed;
 }
 
 /**
@@ -35,6 +63,16 @@ export interface DeploymentConfig {
 export const defaultDeploymentConfig: DeploymentConfig = {
   branding: { name: 'Coffee Kontor', logo: '/logo.svg' },
   cookieConsentEnabled: false,
+  locations: [
+    {
+      name: 'Speicherstadt Office',
+      description: 'Am Sandtorkai 30, 20457 Hamburg',
+      map: {
+        // No-cookie OpenStreetMap embed → renders without consent.
+        url: 'https://www.openstreetmap.org/export/embed.html?bbox=9.9820%2C53.5400%2C9.9950%2C53.5460&layer=mapnik&marker=53.5430%2C9.9880',
+      },
+    },
+  ],
 };
 
 export const DEPLOYMENT_CONFIG = new InjectionToken<DeploymentConfig>(

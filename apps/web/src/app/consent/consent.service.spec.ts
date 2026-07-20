@@ -16,6 +16,7 @@ function service(
   const config: DeploymentConfig = {
     branding: { name: 'Test', logo: '/logo.svg' },
     cookieConsentEnabled,
+    locations: [],
   };
   TestBed.configureTestingModule({
     providers: [

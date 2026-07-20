@@ -49,6 +49,16 @@ export class ConsentService {
   /** The current choice, or null if none has been recorded. */
   readonly choice = computed(() => this.decision()?.choice ?? null);
 
+  /**
+   * Whether non-essential storage/embeds may load now — true when consent is
+   * not enforced for this deployment (e.g. a no-rules jurisdiction, flag off)
+   * or the visitor has accepted. Consent-gated widgets (e.g. a cookie-setting
+   * map) check this before loading.
+   */
+  readonly canUse = computed(
+    () => !this.enabled || this.choice() === 'accepted',
+  );
+
   accept(): void {
     this.persist('accepted');
   }
