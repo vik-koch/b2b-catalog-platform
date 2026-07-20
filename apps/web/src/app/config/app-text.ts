@@ -23,8 +23,15 @@ export interface AppText {
   readonly brand: {
     readonly tagline: string;
   };
-  /** Keyed by page slug (see PAGE_SLUGS). */
+  /** Keyed by nav route segment — page slugs (PAGE_SLUGS) plus feature routes
+   *  like `contact`. */
   readonly nav: Readonly<Record<string, string>>;
+  readonly contact: {
+    readonly intro: string;
+  };
+  readonly map: {
+    readonly consentNotice: string;
+  };
   readonly consent: {
     readonly message: string;
     readonly policyLink: string;
@@ -49,6 +56,13 @@ export const defaultAppText: AppText = {
     conditions: 'Payment & delivery',
     privacy: 'Privacy',
     imprint: 'Imprint',
+    contact: 'Contact',
+  },
+  contact: {
+    intro: 'Visit us or get in touch — find our offices below.',
+  },
+  map: {
+    consentNotice: 'This map is hidden until you accept cookies.',
   },
   consent: {
     message: 'We use only strictly necessary cookies to run this site. See our',

@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 
@@ -31,13 +30,13 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
         </a>
 
         <nav class="hidden gap-6 text-sm md:flex" aria-label="Main">
-          @for (slug of navSlugs; track slug) {
+          @for (route of navRoutes; track route) {
             <a
-              [routerLink]="'/' + slug"
+              [routerLink]="'/' + route"
               routerLinkActive="text-primary font-medium"
               class="text-stone-600 transition-colors hover:text-ink"
             >
-              {{ text.nav[slug] }}
+              {{ text.nav[route] }}
             </a>
           }
         </nav>
@@ -73,14 +72,14 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
           class="border-t border-stone-200 md:hidden"
           aria-label="Main"
         >
-          @for (slug of navSlugs; track slug) {
+          @for (route of navRoutes; track route) {
             <a
-              [routerLink]="'/' + slug"
+              [routerLink]="'/' + route"
               routerLinkActive="text-primary font-medium"
               class="block px-4 py-3 text-stone-600 hover:bg-stone-100"
               (click)="menuOpen.set(false)"
             >
-              {{ text.nav[slug] }}
+              {{ text.nav[route] }}
             </a>
           }
         </nav>
@@ -93,5 +92,5 @@ export class Header {
 
   protected readonly text = inject(APP_TEXT);
   protected readonly branding = inject(DEPLOYMENT_CONFIG).branding;
-  protected readonly navSlugs: readonly PageSlug[] = ['about'];
+  protected readonly navRoutes: readonly string[] = ['about', 'contact'];
 }

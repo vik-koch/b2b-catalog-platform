@@ -13,6 +13,7 @@ function config(cookieConsentEnabled: boolean): DeploymentConfig {
   return {
     branding: { name: 'Test', logo: '/logo.svg' },
     cookieConsentEnabled,
+    locations: [],
   };
 }
 

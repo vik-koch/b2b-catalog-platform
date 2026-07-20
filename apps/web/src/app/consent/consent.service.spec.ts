@@ -16,6 +16,7 @@ function service(
   const config: DeploymentConfig = {
     branding: { name: 'Test', logo: '/logo.svg' },
     cookieConsentEnabled,
+    locations: [],
   };
   TestBed.configureTestingModule({
     providers: [
@@ -121,5 +122,28 @@ describe('ConsentService', () => {
     consent.accept();
 
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
+
+  describe('canUse — gate for non-essential storage/embeds', () => {
+    it('allows use when consent is not enforced (flag off)', () => {
+      // e.g. a no-rules jurisdiction: embeds load without a banner.
+      expect(service(false).canUse()).toBe(true);
+    });
+
+    it('blocks use when enforced and undecided', () => {
+      expect(service(true).canUse()).toBe(false);
+    });
+
+    it('allows use after accept', () => {
+      const consent = service(true);
+      consent.accept();
+      expect(consent.canUse()).toBe(true);
+    });
+
+    it('blocks use after reject', () => {
+      const consent = service(true);
+      consent.reject();
+      expect(consent.canUse()).toBe(false);
+    });
   });
 });
