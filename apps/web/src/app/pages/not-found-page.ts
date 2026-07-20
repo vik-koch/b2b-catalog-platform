@@ -19,7 +19,7 @@ import { Button } from '../ui/button';
     </section>
   `,
 })
-export class NotFound {
+export class NotFoundPage {
   protected readonly text = inject(APP_TEXT).errors;
 
   constructor() {
