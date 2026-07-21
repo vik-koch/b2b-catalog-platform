@@ -6,12 +6,6 @@ import { runMigrations } from './db/migrate';
 import { env } from './env';
 
 async function bootstrap() {
-  // Idempotent: in the deploy stack the `migrate` one-shot has already applied
-  // everything before this container starts, so this is a no-op there. It does
-  // the real work for local `nx serve` and the e2e harnesses, which boot the
-  // API with no separate migrate step.
-  await runMigrations();
-
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);

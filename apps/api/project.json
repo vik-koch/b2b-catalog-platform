@@ -96,6 +96,18 @@
           "RUN_MODE": "seed"
         }
       }
+    },
+    "serve-fresh": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "parallel": false,
+        "commands": [
+          "nx run api:db-migrate",
+          "nx run api:db-seed",
+          "nx run api:serve"
+        ]
+      }
     }
   }
 }
