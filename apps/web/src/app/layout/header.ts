@@ -2,9 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { CloseIcon } from '../ui/icons/close-icon';
+import { MenuIcon } from '../ui/icons/menu-icon';
 
 @Component({
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, MenuIcon, CloseIcon],
   selector: 'app-header',
   template: `
     <header
@@ -58,9 +60,9 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
             stroke-linecap="round"
           >
             @if (menuOpen()) {
-              <path d="M5 5l10 10M15 5L5 15" />
+              <app-icon-close class="h-5 w-5" />
             } @else {
-              <path d="M3 5h14M3 10h14M3 15h14" />
+              <app-icon-menu class="h-5 w-5" />
             }
           </svg>
         </button>

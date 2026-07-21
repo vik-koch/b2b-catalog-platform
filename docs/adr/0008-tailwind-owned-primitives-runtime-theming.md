@@ -21,10 +21,15 @@ a headless base layer.
 - **Tailwind CSS (v4)** utilities for layout and page composition; no
   styled component library.
 - **Owned primitives** (shadcn model): small, repo-owned building blocks —
-  currently the `appButton` directive — extracted when a pattern repeats or
-  carries design decisions. Headless spartan/ui primitives (Angular CDK
-  based) are adopted per-component when complex interactive widgets arrive
-  (expected first: the admin UI in iteration 2).
+  the `appButton` directive and `ui/icons/*` SVG icon components — extracted
+  when a pattern repeats or carries design decisions. Headless spartan/ui
+  primitives (Angular CDK based) are adopted per-component when complex
+  interactive widgets arrive (expected first: the admin UI in iteration 2).
+- **Icons** (added 2026-07-21): **Lucide** (ISC) owned as inline-SVG
+  components under `ui/icons/`, not a runtime icon library — the same
+  no-treadmill reasoning as the other primitives, and Lucide is the set
+  shadcn already uses. Sized via a height/width class, coloured via
+  `currentColor`. Brand/social marks come from simple-icons when needed.
 - **Semantic theme tokens** (`primary`, `secondary`, `accent`, `surface`,
   `ink`) declared in Tailwind's `@theme`; templates use only semantic names.
   Tokens compile to CSS custom properties, so a **built image can be
