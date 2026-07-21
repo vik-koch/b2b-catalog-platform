@@ -37,6 +37,15 @@ services:
     environment:
       API_PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+      # SMTP (ADR 0013). Provided per stack: Mailpit for demo/localtest, a real
+      # provider for prod. USER/PASSWORD/SECURE are optional (Mailpit needs none).
+      MAIL_HOST: ${MAIL_HOST:?}
+      MAIL_PORT: ${MAIL_PORT:?}
+      MAIL_FROM: ${MAIL_FROM:?}
+      MAIL_CONTACT_TO: ${MAIL_CONTACT_TO:?}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_SECURE: ${MAIL_SECURE:-false}
     depends_on:
       postgres:
         condition: service_healthy

@@ -12,6 +12,12 @@ services:
     # inspection). 5433 to avoid clashing with the compose.db.yml dev DB.
     ports: ['127.0.0.1:${DATABASE_PORT:?}:5432']
 
+  # Email sink for the smoke test — the api sends here (see .env.localtest).
+  mailpit:
+    image: axllent/mailpit:latest
+    networks:
+      - internal
+
   web:
     environment:
       # The smoke test reaches the stack via the nginx stand-in, plain http.

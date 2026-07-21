@@ -16,12 +16,20 @@ const EnvSchema = z
     MAIL_USER: z.string().optional(),
     MAIL_PASSWORD: z.string().optional(),
     MAIL_SECURE: z.enum(['true', 'false']).optional(),
+    // Where the contact form is delivered (FR-NAV-06).
+    MAIL_CONTACT_TO: z.string().optional(),
   })
   .superRefine((val, ctx) => {
     // Only the running server sends mail; require its config there, not on the
     // migrate/seed one-shots.
     if (val.RUN_MODE === undefined) {
-      for (const key of ['MAIL_HOST', 'MAIL_PORT', 'MAIL_FROM'] as const) {
+      const required = [
+        'MAIL_HOST',
+        'MAIL_PORT',
+        'MAIL_FROM',
+        'MAIL_CONTACT_TO',
+      ] as const;
+      for (const key of required) {
         if (val[key] === undefined) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
