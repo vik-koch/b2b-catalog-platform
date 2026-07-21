@@ -21,13 +21,13 @@ const validSubmission = {
   message: 'Do you deliver to Altona?',
 };
 
-describe('POST /contact', () => {
+describe('POST /inquiry', () => {
   beforeEach(async () => {
     await mailpit.delete('/messages');
   });
 
   it('accepts a valid submission and emails the shop', async () => {
-    const res = await axios.post('/contact', validSubmission);
+    const res = await axios.post('/inquiry', validSubmission);
 
     expect(res.status).toBe(200);
     expect(res.data).toEqual({ ok: true });
@@ -42,7 +42,7 @@ describe('POST /contact', () => {
 
   it('rejects a submission without a name', async () => {
     const res = await axios.post(
-      '/contact',
+      '/inquiry',
       { ...validSubmission, name: '' },
       { validateStatus: () => true },
     );
@@ -53,7 +53,7 @@ describe('POST /contact', () => {
 
   it('rejects a submission with neither email nor phone', async () => {
     const { email: _email, ...noContact } = validSubmission;
-    const res = await axios.post('/contact', noContact, {
+    const res = await axios.post('/inquiry', noContact, {
       validateStatus: () => true,
     });
 

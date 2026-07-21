@@ -8,7 +8,7 @@ export interface MailMessage {
   readonly subject: string;
   readonly html: string;
   readonly text?: string;
-  /** Reply-To — e.g. the contact-form submitter, so the shop can reply. */
+  /** Reply-To — e.g. the inquiry-form submitter, so the shop can reply. */
   readonly replyTo?: string;
 }
 

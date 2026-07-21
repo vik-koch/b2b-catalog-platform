@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ContactRequest } from '@b2b-catalog-platform/shared';
+import { InquiryRequest } from '@b2b-catalog-platform/shared';
 import { env } from '../env';
 import { MAILER, Mailer } from '../mail/mailer';
-import { CONTACT_TEXT, ContactText } from './contact-text';
+import { INQUIRY_TEXT, InquiryText } from './inquiry-text';
 
 const HTML_ESCAPES: Record<string, string> = {
   '&': '&amp;',
@@ -17,13 +17,13 @@ const escapeHtml = (value: string): string =>
   value.replace(/[&<>"']/g, (ch) => HTML_ESCAPES[ch] ?? ch);
 
 @Injectable()
-export class ContactService {
+export class InquiryService {
   constructor(
     @Inject(MAILER) private readonly mailer: Mailer,
-    @Inject(CONTACT_TEXT) private readonly text: ContactText,
+    @Inject(INQUIRY_TEXT) private readonly text: InquiryText,
   ) {}
 
-  async submit(submission: ContactRequest): Promise<void> {
+  async submit(submission: InquiryRequest): Promise<void> {
     const to = env.MAIL_CONTACT_TO;
     if (!to) {
       // env.ts requires this in server mode; this narrows the type.
@@ -32,15 +32,15 @@ export class ContactService {
 
     await this.mailer.send({
       to,
-      subject: `${this.text.contact.subject}: ${submission.name}`,
+      subject: `${this.text.inquiry.subject}: ${submission.name}`,
       replyTo: submission.email,
       html: this.renderHtml(submission),
       text: this.renderText(submission),
     });
   }
 
-  private rows(s: ContactRequest): [string, string][] {
-    const t = this.text.contact;
+  private rows(s: InquiryRequest): [string, string][] {
+    const t = this.text.inquiry;
     return [
       [t.name, s.name],
       [t.email, s.email ?? '—'],
@@ -50,7 +50,7 @@ export class ContactService {
     ];
   }
 
-  private renderHtml(s: ContactRequest): string {
+  private renderHtml(s: InquiryRequest): string {
     return this.rows(s)
       .map(
         ([label, value]) =>
@@ -59,7 +59,7 @@ export class ContactService {
       .join('\n');
   }
 
-  private renderText(s: ContactRequest): string {
+  private renderText(s: InquiryRequest): string {
     return this.rows(s)
       .map(([label, value]) => `${label}: ${value}`)
       .join('\n');

@@ -9,11 +9,11 @@ const emptyToUndefined = (value: unknown): unknown =>
   typeof value === 'string' && value.trim() === '' ? undefined : value;
 
 /**
- * Contact form submission (FR-NAV-06). Name is required; at least one of email
+ * Inquiry form submission (FR-NAV-06). Name is required; at least one of email
  * or phone must be given (both are allowed), and `preferredContact` records
  * which the visitor wants used.
  */
-export const contactRequestSchema = z
+export const inquiryRequestSchema = z
   .object({
     name: z.string().trim().min(1).max(200),
     email: z.preprocess(
@@ -32,17 +32,17 @@ export const contactRequestSchema = z
     path: ['email'],
   });
 
-export type ContactRequest = z.infer<typeof contactRequestSchema>;
+export type InquiryRequest = z.infer<typeof inquiryRequestSchema>;
 
-export const contactContract = c.router({
+export const inquiryContract = c.router({
   submit: {
     method: 'POST',
-    path: '/contact',
-    body: contactRequestSchema,
+    path: '/inquiry',
+    body: inquiryRequestSchema,
     responses: {
       200: z.object({ ok: z.literal(true) }),
       400: z.object({ message: z.string() }),
     },
-    summary: 'Submit the contact form',
+    summary: 'Submit the inquiry form',
   },
 });
