@@ -22,14 +22,19 @@ module.exports = async function () {
     stdio: 'inherit',
   });
 
-  // 2. Wait for the API started by Nx (e2e dependsOn api:serve) to listen.
-  //    The API applies pending migrations on boot, so once the port is open
-  //    the schema is up to date.
+  // 2. Apply migrations explicitly.
+  execSync('node dist/apps/api/main.js', {
+    cwd: workspaceRoot,
+    stdio: 'inherit',
+    env: { ...process.env, RUN_MODE: 'migrate' },
+  });
+
+  // 3. Wait for the API started by Nx (e2e dependsOn api:serve) to listen.
   const host = requireEnv('API_HOST');
   const port = Number(requireEnv('API_PORT'));
   await waitForPortOpen(port, { host });
 
-  // 3. Seed the data the specs assert against (idempotent).
+  // 4. Seed the data the specs assert against (idempotent).
   const client = new Client({ connectionString: requireEnv('DATABASE_URL') });
   await client.connect();
   try {

@@ -41,10 +41,10 @@ export default async function globalSetup() {
     env: { ...process.env, ...env },
   });
 
-  // 2. The API applies migrations before it starts listening, so poll it
-  //    through the proxy until the schema is guaranteed to exist. This runs
-  //    BEFORE seeding, so a 404 (known route, unseeded DB) already proves the
-  //    API is up — only 5xx means the proxy is still waiting for the API.
+  // 2. `up --wait` above already ran the one-shot `migrate` service, so the
+  //    schema exists. Poll the API through the proxy until it answers. This
+  //    runs BEFORE seeding, so a 404 (known route, unseeded DB) already proves
+  //    the API is up — only 5xx means the proxy is still waiting for the API.
   const deadline = Date.now() + 60_000;
   for (;;) {
     try {
