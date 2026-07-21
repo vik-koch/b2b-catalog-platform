@@ -30,6 +30,14 @@ export interface DeploymentConfig {
    * Offices shown on the contact page.
    */
   readonly locations: readonly ContactLocation[];
+  /**
+   * Primary contact shown in the header bar and footer. Each field is optional
+   * — an omitted field is simply not rendered; omit the whole object for none.
+   */
+  readonly contact?: {
+    readonly phone?: string;
+    readonly email?: string;
+  };
 }
 
 /**
@@ -73,6 +81,10 @@ export const defaultDeploymentConfig: DeploymentConfig = {
       },
     },
   ],
+  contact: {
+    phone: '+49 40 1234567',
+    email: 'hallo@coffee-kontor.example',
+  },
 };
 
 export const DEPLOYMENT_CONFIG = new InjectionToken<DeploymentConfig>(
