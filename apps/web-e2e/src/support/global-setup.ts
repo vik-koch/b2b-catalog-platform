@@ -1,26 +1,9 @@
 import { seedDatabase } from '@b2b-catalog-platform/seed';
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { Client } from 'pg';
+import { localtestEnv, workspaceRoot } from './localtest';
 
-const workspaceRoot = join(__dirname, '../../../..');
 const baseURL = process.env['BASE_URL'] || 'http://localhost:8080';
-
-// The stack's env values live in .env.localtest (committed, no secrets) —
-// parse it here so the seed connection can't drift from what compose uses.
-function localtestEnv(): Record<string, string> {
-  return Object.fromEntries(
-    readFileSync(join(workspaceRoot, '.env.localtest'), 'utf8')
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line && !line.startsWith('#'))
-      .map((line) => {
-        const eq = line.indexOf('=');
-        return [line.slice(0, eq), line.slice(eq + 1)];
-      }),
-  );
-}
 
 export default async function globalSetup() {
   const env = localtestEnv();

@@ -17,6 +17,10 @@ services:
     image: axllent/mailpit:latest
     networks:
       - internal
+    # Publish the REST API so the web-e2e smoke test can assert the inquiry
+    # email was received. 8026 (not the compose.db.yml dev stack's 8025)
+    # mirrors the localtest DB's 5433 host port, so both stacks can coexist.
+    ports: ['127.0.0.1:8026:8025']
 
   web:
     environment:
