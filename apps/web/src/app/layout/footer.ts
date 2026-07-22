@@ -4,10 +4,11 @@ import { PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { ConsentService } from '../consent/consent.service';
+import { Button } from '../ui/button';
 import { ContactInfo } from './contact-info';
 
 @Component({
-  imports: [RouterLink, ContactInfo],
+  imports: [RouterLink, Button, ContactInfo],
   selector: 'app-footer',
   template: `
     <footer class="border-t border-stone-200 bg-stone-100">
@@ -23,9 +24,10 @@ import { ContactInfo } from './contact-info';
           }
         </div>
         <nav
-          class="flex flex-wrap gap-x-4 gap-y-2 text-stone-500"
+          class="flex flex-wrap items-center gap-x-4 gap-y-2 text-stone-500"
           aria-label="Legal"
         >
+          <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
           @for (slug of legalSlugs; track slug) {
             <a
               [routerLink]="'/' + slug"
