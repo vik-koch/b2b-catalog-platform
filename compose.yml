@@ -40,7 +40,7 @@ services:
       # Behind Traefik (one hop), so rate limiting keys on the real
       # client IP, not the proxy. Overridable for stacks with more layers.
       TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
-      # SMTP (ADR 0013). Provided per stack: Mailpit for demo/localtest, a real
+      # SMTP. Provided per stack: Mailpit for demo/localtest, a real
       # provider for prod. USER/PASSWORD/SECURE are optional (Mailpit needs none).
       MAIL_HOST: ${MAIL_HOST:?}
       MAIL_PORT: ${MAIL_PORT:?}

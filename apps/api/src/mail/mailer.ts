@@ -1,5 +1,5 @@
 /**
- * Mailer port (see ADR 0013). All outgoing email goes through this interface;
+ * Mailer port. All outgoing email goes through this interface;
  * the concrete transport is a per-deployment adapter (SMTP by default). Inject
  * with the MAILER token.
  */

@@ -1,4 +1,4 @@
-# Non-prod overlay (ADR 0013): adds a Mailpit sink + reviewer inbox to the base
+# Non-prod overlay: adds a Mailpit sink + reviewer inbox to the base
 # stack. deploy.sh copies this to the VM as compose.override.yml (which Docker
 # Compose auto-merges), so the dev and demo stacks capture inquiry mail and
 # expose Mailpit's UI as the reviewer inbox. Client prod never receives this

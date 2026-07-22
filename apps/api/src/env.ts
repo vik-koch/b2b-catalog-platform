@@ -7,7 +7,7 @@ const EnvSchema = z
     // Set by the one-shot tool containers (see compose.yml): "migrate" applies
     // pending migrations, "seed" upserts seed data. Unset = normal server.
     RUN_MODE: z.enum(['migrate', 'seed']).optional(),
-    // SMTP mail transport (ADR 0013). Declared optional but required in server
+    // SMTP mail transport. Declared optional but required in server
     // mode by the refinement below — the migrate/seed one-shots never send
     // mail. Dev/demo point these at Mailpit; prod at a real provider.
     MAIL_HOST: z.string().optional(),
