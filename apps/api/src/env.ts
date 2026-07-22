@@ -18,6 +18,10 @@ const EnvSchema = z
     MAIL_SECURE: z.enum(['true', 'false']).optional(),
     // Where the inquiry form is delivered (FR-NAV-06).
     MAIL_CONTACT_TO: z.string().optional(),
+    // Trusted proxy hops for rate limiting. 0 (default) = trust none,
+    // correct for dev/e2e with no proxy; behind Traefik set 1 so the throttler
+    // keys on the real client IP. Higher only with more forwarding layers.
+    TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
   })
   .superRefine((val, ctx) => {
     // Only the running server sends mail; require its config there, not on the
