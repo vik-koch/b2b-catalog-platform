@@ -6,8 +6,8 @@
 # second one. demo-down (also the nightly sweeper) destroys it.
 #
 # Needs (see infra/README.md): secrets HCLOUD_TOKEN, CLOUDFLARE_API_TOKEN,
-# TF_API_TOKEN, DEMO_SSH_PRIVATE_KEY + repo variable ACME_EMAIL. Images must
-# be pullable without auth — the GHCR packages are public.
+# TF_API_TOKEN, DEMO_SSH_PRIVATE_KEY, INBOX_PASSWORD + repo variable ACME_EMAIL.
+# Images must be pullable without auth — the GHCR packages are public.
 name: Demo up
 
 on:
@@ -84,9 +84,17 @@ jobs:
           TAG: ${{ inputs.image_tag }}
           FQDN: ${{ steps.tf.outputs.fqdn }}
           ACME_EMAIL: ${{ vars.ACME_EMAIL }}
+          # Guards the demo's Mailpit reviewer inbox (ADR 0013). Hashed below —
+          # the plaintext is a masked secret and is never written to a log.
+          INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
         run: |
           : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
+          : "${INBOX_PASSWORD:?secret INBOX_PASSWORD is not set}"
           image_base="ghcr.io/${GITHUB_REPOSITORY,,}"
+
+          # SHA1 htpasswd entry for Traefik basic-auth. SHA1 (not bcrypt) keeps
+          # the string free of '$', which Compose would treat as interpolation.
+          inbox_hash=$(printf '%s' "$INBOX_PASSWORD" | openssl sha1 -binary | openssl base64)
 
           # Throwaway credentials: the database lives and dies with the VM.
           cat > "$RUNNER_TEMP/demo.env" <<EOF
@@ -97,11 +105,17 @@ jobs:
           POSTGRES_DB=b2b_catalog
           POSTGRES_USER=b2b_catalog
           POSTGRES_PASSWORD=$(openssl rand -hex 16)
+          MAIL_HOST=mailpit
+          MAIL_PORT=1025
+          MAIL_FROM=Coffee Kontor <no-reply@coffee-kontor.example>
+          MAIL_CONTACT_TO=hallo@coffee-kontor.example
+          INBOX_BASICAUTH=reviewer:{SHA}$inbox_hash
           EOF
           printf 'ACME_EMAIL=%s\n' "$ACME_EMAIL" > "$RUNNER_TEMP/traefik.env"
 
           infra/deploy.sh "${{ steps.tf.outputs.ip }}" \
-            "$RUNNER_TEMP/demo.env" "$RUNNER_TEMP/traefik.env"
+            "$RUNNER_TEMP/demo.env" "$RUNNER_TEMP/traefik.env" compose.mailpit.yml
 
           echo "## Demo is up: https://$FQDN" >> "$GITHUB_STEP_SUMMARY"
+          echo "Reviewer inbox: https://$FQDN/inbox/ — user \`reviewer\`, password: the \`INBOX_PASSWORD\` secret." >> "$GITHUB_STEP_SUMMARY"
           echo "Deployed tag: \`$TAG\` — remember to run demo-down." >> "$GITHUB_STEP_SUMMARY"

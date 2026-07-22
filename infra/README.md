@@ -62,6 +62,7 @@ Whatever the provider, the VM needs:
    | `TF_API_TOKEN`          | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI) |
    | `DEMO_SSH_PRIVATE_KEY`  | Private half of the deploy key from step 1                                                |
    | `DEV_POSTGRES_PASSWORD` | The dev stack's database password. Must stay **stable across deploys**                    |
+   | `INBOX_PASSWORD`        | Basic-auth password for the dev/demo Mailpit reviewer inbox (username `reviewer`)         |
 
    Plus Actions **variables** (same page, Variables tab — not secret):
 
@@ -82,6 +83,22 @@ Whatever the provider, the VM needs:
 - **demo-down** (manual trigger + nightly sweeper at 03:00 UTC): terraform
   destroy. The schedule is forget-insurance against an hourly-billed server
   staying up; destroying an empty state is a no-op, so it always runs.
+
+## Email & the reviewer inbox (dev / demo)
+
+Per [ADR 0013](../docs/adr/0013-email-via-mailer-port-smtp-adapter.md) the api
+sends all mail over SMTP, and the dev/demo stacks use **Mailpit** as the sink —
+no real email leaves. Both deploy workflows pass the
+[compose.mailpit.yml](../compose.mailpit.yml) overlay to
+[deploy.sh](deploy.sh), which lands it on the VM as `compose.override.yml`
+(Compose auto-merges it). That overlay adds the Mailpit service the api targets
+(`MAIL_HOST=mailpit`) and exposes its web UI through Traefik as the **reviewer
+inbox** at `https://<stack-domain>/inbox/`, behind HTTP basic-auth
+(username `reviewer`, password = the `INBOX_PASSWORD` secret; the workflow hashes
+it into an SHA1 htpasswd entry at deploy time, never logging the plaintext).
+
+Client **prod** gets no overlay — it ships no Mailpit and sets `MAIL_*` to a real
+SMTP provider (see [.env.stack.example](../.env.stack.example)).
 
 ## Running Terraform locally
 
@@ -127,6 +144,14 @@ do them by hand (VM must meet the [requirements](#vm-requirements) above):
    ```sh
    SSH_OPTS="-i /path/to/deploy-private-key" \
      infra/deploy.sh <host> <app-env-file> infra/traefik/.env
+   ```
+
+   For a non-prod stack, append `compose.mailpit.yml` to add the Mailpit sink +
+   reviewer inbox (and set `MAIL_*`/`INBOX_BASICAUTH` in the env file):
+
+   ```sh
+   SSH_OPTS="-i /path/to/deploy-private-key" \
+     infra/deploy.sh <host> <app-env-file> infra/traefik/.env compose.mailpit.yml
    ```
 
    It SSHes as `deploy`, copies the [shared Traefik stack](traefik/) and the

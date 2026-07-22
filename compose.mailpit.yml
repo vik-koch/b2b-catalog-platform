@@ -1,0 +1,39 @@
+# Non-prod overlay (ADR 0013): adds a Mailpit sink + reviewer inbox to the base
+# stack. deploy.sh copies this to the VM as compose.override.yml (which Docker
+# Compose auto-merges), so the dev and demo stacks capture inquiry mail and
+# expose Mailpit's UI as the reviewer inbox. Client prod never receives this
+# overlay — it ships no Mailpit and points MAIL_* at a real SMTP provider.
+services:
+  # SMTP sink on 1025 (the api sends here via MAIL_HOST=mailpit), web UI on 8025
+  # exposed through Traefik as the reviewer inbox. Nothing is relayed onward.
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    environment:
+      # Serve the UI under a path on the stack's own domain so no extra DNS
+      # record or Let's Encrypt cert is needed (the demo FQDN changes per run).
+      # Traefik forwards the /inbox prefix unstripped, so Mailpit must own it.
+      MP_WEBROOT: /inbox
+    networks:
+      - internal
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.${STACK_NAME:?}-inbox.rule=Host(`${APP_DOMAIN:?}`) && PathPrefix(`/inbox`)
+      - traefik.http.routers.${STACK_NAME:?}-inbox.entrypoints=websecure
+      - traefik.http.routers.${STACK_NAME:?}-inbox.tls.certresolver=letsencrypt
+      - traefik.http.routers.${STACK_NAME:?}-inbox.service=${STACK_NAME:?}-inbox
+      - traefik.http.routers.${STACK_NAME:?}-inbox.middlewares=${STACK_NAME:?}-inbox-auth
+      # basicauth.users is "user:hashed" — supply it via INBOX_BASICAUTH (the
+      # deploy workflow hashes a password secret into an SHA1 htpasswd entry).
+      - traefik.http.middlewares.${STACK_NAME:?}-inbox-auth.basicauth.users=${INBOX_BASICAUTH:?}
+      - traefik.http.services.${STACK_NAME:?}-inbox.loadbalancer.server.port=8025
+
+  # The api sends synchronously on inquiry submit; make sure the sink is up so an
+  # early submission can't race a not-yet-started Mailpit. (Merged into the base
+  # api service's depends_on.)
+  api:
+    depends_on:
+      mailpit:
+        condition: service_started
