@@ -18,6 +18,11 @@
 #   SSH_OPTS="-i /path/to/deploy-private-key" infra/deploy.sh ...
 # CI additionally wants SSH_OPTS="... -o StrictHostKeyChecking=accept-new".
 #
+# Observability: opt-in per VM. Set OBSERVABILITY_ENV=<path to an env
+# file, see infra/observability/.env.example> to also bring up the shared
+# Loki/Alloy/Grafana stack once per VM (idempotent, like Traefik). Unset -> the
+# stack is left untouched, so the ephemeral demo simply omits it.
+#
 # Images: `up --no-build` pulls images missing on the host (never builds — the
 # VM has no source tree). To rehearse before CI has published any images,
 # preload local builds under the exact tags the env file references:
@@ -28,6 +33,7 @@ host=${1:?usage: deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-com
 app_env=${2:?usage: deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-compose-file]}
 traefik_env=${3:?usage: deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-compose-file]}
 overlay=${4:-}
+obs_env=${OBSERVABILITY_ENV:-}
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 
@@ -60,6 +66,17 @@ fi
 echo "==> Starting shared Traefik proxy"
 run "docker network inspect traefik >/dev/null 2>&1 || docker network create traefik"
 run "cd /srv/b2b/traefik && docker compose up -d"
+
+# Shared observability stack (opt-in) — brought up once per VM on the same
+# external Traefik network, idempotently, before the app stack so its logs are
+# collected from the first start.
+if [ -n "$obs_env" ]; then
+  echo "==> Starting shared observability stack"
+  run "mkdir -p /srv/b2b/observability"
+  put "$repo_root/infra/observability/compose.yml" /srv/b2b/observability/compose.yml
+  put "$obs_env" /srv/b2b/observability/.env
+  run "cd /srv/b2b/observability && docker compose up -d"
+fi
 
 echo "==> Starting app stack '$stack'"
 run "cd /srv/b2b/$stack && docker compose up -d --no-build"

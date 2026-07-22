@@ -12,6 +12,13 @@ On top of that contract every VM runs one [shared Traefik proxy](traefik/)
 of app stacks (the root [compose.yml](../compose.yml), one `.env` per stack)
 that self-register their routing with Traefik via container labels.
 
+Long-lived VMs (dev/prod) additionally run one [shared observability
+stack](observability/) — Loki + Alloy + Grafana, started once per VM the same
+way — that collects every container's stdout and exposes it through Grafana on
+its own ops hostname. It is **opt-in**: `deploy.sh` brings it up only when given
+`OBSERVABILITY_ENV`, so the ephemeral demo omits it. See
+[ADR 0016](../docs/adr/0016-central-logs-via-grafana-loki.md).
+
 There are two ways to get such a VM:
 
 - **Terraform demo** ([demo/](demo/)) — a worked example wired specifically to
@@ -29,7 +36,8 @@ Whatever the provider, the VM needs:
 
 - **2 vCPU / 4 GB RAM, ≥ 40 GB disk** — sized for one compose stack
   (Postgres + API + SSR + Traefik); the Hetzner `cx23` used by the demo is
-  exactly this. Add headroom if you run several stacks on one VM.
+  exactly this. Add headroom if you run several stacks on one VM, or the shared
+  observability stack (Loki + Alloy + Grafana, ~300–450 MB RAM) on dev/prod.
 - **amd64 or arm64** — CI publishes multi-arch images
   (`linux/amd64` + `linux/arm64`), the VM pulls its native variant.
 - **Ubuntu LTS (24.04)** — cloud-init.yml is only tested on Ubuntu and leans on
@@ -55,22 +63,24 @@ Whatever the provider, the VM needs:
    so VMs can pull without a registry login.
 5. **GitHub Actions secrets** (repo → Settings → Secrets and variables → Actions):
 
-   | Secret                  | Content                                                                                   |
-   | ----------------------- | ----------------------------------------------------------------------------------------- |
-   | `HCLOUD_TOKEN`          | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token          |
-   | `CLOUDFLARE_API_TOKEN`  | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com    |
-   | `TF_API_TOKEN`          | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI) |
-   | `DEMO_SSH_PRIVATE_KEY`  | Private half of the deploy key from step 1                                                |
-   | `DEV_POSTGRES_PASSWORD` | The dev stack's database password. Must stay **stable across deploys**                    |
-   | `INBOX_PASSWORD`        | Basic-auth password for the dev/demo Mailpit reviewer inbox (username `reviewer`)         |
+   | Secret                   | Content                                                                                   |
+   | ------------------------ | ----------------------------------------------------------------------------------------- |
+   | `HCLOUD_TOKEN`           | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token          |
+   | `CLOUDFLARE_API_TOKEN`   | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com    |
+   | `TF_API_TOKEN`           | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI) |
+   | `DEMO_SSH_PRIVATE_KEY`   | Private half of the deploy key from step 1                                                |
+   | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                    |
+   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo Mailpit reviewer inbox (username `reviewer`)         |
+   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it   |
 
    Plus Actions **variables** (same page, Variables tab — not secret):
 
-   | Variable         | Content                                                                     |
-   | ---------------- | --------------------------------------------------------------------------- |
-   | `ACME_EMAIL`     | Let's Encrypt account email Traefik registers with                          |
-   | `DEV_HOST`       | Public IP (or DNS name) of the long-lived dev/prod VM, SSH target for CD    |
-   | `DEV_APP_DOMAIN` | Hostname of the dev stack (A record → `DEV_HOST`, DNS-only), e.g. b2b-dev.… |
+   | Variable         | Content                                                                                                                                                            |
+   | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+   | `ACME_EMAIL`     | Let's Encrypt account email Traefik registers with                                                                                                                 |
+   | `DEV_HOST`       | Public IP (or DNS name) of the long-lived dev/prod VM, SSH target for CD                                                                                           |
+   | `DEV_APP_DOMAIN` | Hostname of the dev stack (A record → `DEV_HOST`, DNS-only), e.g. b2b-dev.…                                                                                        |
+   | `GRAFANA_DOMAIN` | Ops hostname for Grafana (A record → `DEV_HOST`, DNS-only). Set this + the `GRAFANA_ADMIN_PASSWORD` secret to turn on central logs (ADR 0016); leave unset to skip |
 
 ## Demo workflows
 

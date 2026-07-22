@@ -1,0 +1,189 @@
+# Shared observability stack — one instance per VM, started once (like the
+# Traefik proxy in ../traefik), serving every app stack on the host. Collects
+# each container's stdout into Loki and exposes it through Grafana.
+#
+#   docker network create traefik          # once per VM (shared with Traefik)
+#   docker compose --env-file .env up -d    # in this directory (see .env.example)
+#
+# Opt-in per VM: deploy.sh brings this up only when handed OBSERVABILITY_ENV.
+# Long-lived dev/prod run it; the ephemeral demo omits it (its logs die with the
+# VM) and local testing uses `docker compose logs` instead.
+name: observability
+
+services:
+  # Log store. Single Go binary, filesystem storage, label-indexed — the
+  # deliberately-not-Elasticsearch choice. Not exposed to Traefik; only Alloy
+  # (push) and Grafana (query) reach it on the internal network.
+  loki:
+    image: grafana/loki:3.5
+    restart: unless-stopped
+    command: ['-config.file=/etc/loki/config.yaml']
+    volumes:
+      - loki:/loki
+    configs:
+      - source: loki_config
+        target: /etc/loki/config.yaml
+    networks:
+      - observability
+
+  # Collector. Tails every container's stdout via the read-only Docker socket
+  # (same pattern Traefik uses) and ships to Loki, decoupled so a Loki outage
+  # never back-pressures the app. Runs as root to read the socket.
+  alloy:
+    image: grafana/alloy:v1.10.0
+    restart: unless-stopped
+    user: root
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy/data
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - alloy:/var/lib/alloy/data
+    configs:
+      - source: alloy_config
+        target: /etc/alloy/config.alloy
+    depends_on:
+      - loki
+    networks:
+      - observability
+
+  # UI. Provisioned with Loki as its default datasource; exposed on its own ops
+  # hostname over TLS through Traefik, guarded by Grafana's own login.
+  grafana:
+    image: grafana/grafana-oss:12.0.2
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_SERVER_ROOT_URL: https://${GRAFANA_DOMAIN:?}
+      # Public-internet hardening. Anonymous view off; no self-service signup.
+      GF_AUTH_ANONYMOUS_ENABLED: 'false'
+      # Disable the HTTP basic-auth API path so credentials can only be tried
+      # through the login form, where Grafana's brute-force lockout applies
+      # (5 failures -> temporary block, on by default).
+      GF_AUTH_BASIC_ENABLED: 'false'
+      # Session cookie only over TLS, not sent cross-site; HSTS on responses.
+      GF_SECURITY_COOKIE_SECURE: 'true'
+      GF_SECURITY_COOKIE_SAMESITE: strict
+      GF_SECURITY_STRICT_TRANSPORT_SECURITY: 'true'
+      GF_SECURITY_DISABLE_GRAVATAR: 'true'
+      # Keep a self-hosted, air-gapped-ish UI quiet — no phone-home.
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+      GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
+    volumes:
+      - grafana:/var/lib/grafana
+    configs:
+      - source: grafana_datasource
+        target: /etc/grafana/provisioning/datasources/loki.yaml
+    depends_on:
+      - loki
+    networks:
+      - observability
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.observability-grafana.rule=Host(`${GRAFANA_DOMAIN:?}`)
+      - traefik.http.routers.observability-grafana.entrypoints=websecure
+      - traefik.http.routers.observability-grafana.tls.certresolver=letsencrypt
+      - traefik.http.services.observability-grafana.loadbalancer.server.port=3000
+
+configs:
+  # Minimal single-binary Loki: filesystem storage, in-memory ring, 14-day
+  # retention enforced by the compactor.
+  loki_config:
+    content: |
+      auth_enabled: false
+      server:
+        http_listen_port: 3100
+        log_level: warn
+      common:
+        instance_addr: 127.0.0.1
+        path_prefix: /loki
+        storage:
+          filesystem:
+            chunks_directory: /loki/chunks
+            rules_directory: /loki/rules
+        replication_factor: 1
+        ring:
+          kvstore:
+            store: inmemory
+      schema_config:
+        configs:
+          - from: 2024-01-01
+            store: tsdb
+            object_store: filesystem
+            schema: v13
+            index:
+              prefix: index_
+              period: 24h
+      limits_config:
+        retention_period: 336h
+        reject_old_samples: true
+        reject_old_samples_max_age: 168h
+      compactor:
+        working_directory: /loki/compactor
+        retention_enabled: true
+        delete_request_store: filesystem
+
+  # Discover running containers, relabel the compose metadata into tidy
+  # stack/service/container labels, tail their logs, push to Loki.
+  alloy_config:
+    content: |
+      discovery.docker "containers" {
+        host = "unix:///var/run/docker.sock"
+      }
+
+      discovery.relabel "containers" {
+        targets = discovery.docker.containers.targets
+
+        rule {
+          source_labels = ["__meta_docker_container_name"]
+          regex         = "/(.*)"
+          target_label  = "container"
+        }
+        rule {
+          source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+          target_label  = "stack"
+        }
+        rule {
+          source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+          target_label  = "service"
+        }
+      }
+
+      loki.source.docker "containers" {
+        host          = "unix:///var/run/docker.sock"
+        targets       = discovery.docker.containers.targets
+        relabel_rules = discovery.relabel.containers.rules
+        forward_to    = [loki.write.default.receiver]
+      }
+
+      loki.write "default" {
+        endpoint {
+          url = "http://loki:3100/loki/api/v1/push"
+        }
+      }
+
+  grafana_datasource:
+    content: |
+      apiVersion: 1
+      datasources:
+        - name: Loki
+          type: loki
+          access: proxy
+          url: http://loki:3100
+          isDefault: true
+          jsonData:
+            maxLines: 1000
+
+networks:
+  observability:
+  traefik:
+    external: true
+
+volumes:
+  loki:
+  grafana:
+  alloy:
