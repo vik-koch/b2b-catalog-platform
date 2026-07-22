@@ -37,7 +37,10 @@ services:
     environment:
       API_PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
-      # SMTP (ADR 0013). Provided per stack: Mailpit for demo/localtest, a real
+      # Behind Traefik (one hop), so rate limiting keys on the real
+      # client IP, not the proxy. Overridable for stacks with more layers.
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      # SMTP. Provided per stack: Mailpit for demo/localtest, a real
       # provider for prod. USER/PASSWORD/SECURE are optional (Mailpit needs none).
       MAIL_HOST: ${MAIL_HOST:?}
       MAIL_PORT: ${MAIL_PORT:?}

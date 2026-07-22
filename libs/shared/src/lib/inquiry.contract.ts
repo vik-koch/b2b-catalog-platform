@@ -30,6 +30,15 @@ export const messageSchema = z.preprocess(
 );
 
 /**
+ * Honeypot field. A decoy the real form hides from humans; a naive
+ * bot that fills every input gives itself away.
+ */
+export const honeypotSchema = z.preprocess(
+  emptyToUndefined,
+  z.string().max(2000).optional(),
+);
+
+/**
  * Inquiry form submission (FR-NAV-06). Name is required; at least one of email
  * or phone must be given (both are allowed), and `preferredContact` records
  * which the visitor wants used.
@@ -41,6 +50,7 @@ export const inquiryRequestSchema = z
     phone: phoneSchema,
     preferredContact: preferredContactSchema,
     message: messageSchema,
+    website: honeypotSchema,
   })
   .refine((data) => Boolean(data.email) || Boolean(data.phone), {
     message: 'Provide an email address or a phone number.',

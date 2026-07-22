@@ -7,6 +7,15 @@ import { env } from './env';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Behind Traefik (prod), trust the proxy's forwarded client IP so rate
+  // limiting keys on the real client, not the proxy. Off by default
+  // (0): in dev/e2e there is no proxy and a spoofable X-Forwarded-For must not
+  // be trusted. The number is the count of trusted proxy hops (Traefik = 1).
+  if (env.TRUST_PROXY_HOPS > 0) {
+    app.getHttpAdapter().getInstance().set('trust proxy', env.TRUST_PROXY_HOPS);
+  }
+
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
   const port = env.API_PORT;

@@ -223,7 +223,7 @@ jobs:
           APP_DOMAIN: ${{ vars.DEV_APP_DOMAIN }}
           ACME_EMAIL: ${{ vars.ACME_EMAIL }}
           POSTGRES_PASSWORD: ${{ secrets.DEV_POSTGRES_PASSWORD }}
-          # Guards the dev Mailpit reviewer inbox (ADR 0013). Hashed below — the
+          # Guards the dev Mailpit reviewer inbox. Hashed below — the
           # plaintext is a masked secret and is never written to a log.
           INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
         run: |

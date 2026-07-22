@@ -4,7 +4,7 @@ import { env } from '../env';
 import { Mailer, MailMessage } from './mailer';
 
 /**
- * SMTP adapter for the Mailer port (ADR 0013). Universal by design — the same
+ * SMTP adapter for the Mailer port. Universal by design — the same
  * code serves Mailpit (dev/demo) and any real provider (prod); only the MAIL_*
  * config differs. Presence of that config is validated in env.ts (server mode).
  */
