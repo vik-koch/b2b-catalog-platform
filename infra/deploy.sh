@@ -5,9 +5,13 @@
 # keep it free of anything GitHub-Actions-specific.
 #
 # Usage:
-#   infra/deploy.sh <host> <app-env-file> <traefik-env-file>
+#   infra/deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-compose-file]
 # e.g.
 #   infra/deploy.sh 1.2.3.4 .env.demo infra/traefik/.env
+#
+# The optional overlay is copied to the VM as compose.override.yml (which Compose
+# auto-merges): non-prod stacks pass compose.mailpit.yml to add the Mailpit sink
+# + reviewer inbox; prod passes nothing and stays Mailpit-free.
 #
 # SSH: connects as the "deploy" user (see cloud-init.yml). Supply the key via
 # ssh-agent/ssh config, or SSH_OPTS, e.g. for a rehearsal from the workstation:
@@ -20,9 +24,10 @@
 #   docker save IMAGE... | gzip | ssh deploy@HOST 'gunzip | docker load'
 set -euo pipefail
 
-host=${1:?usage: deploy.sh <host> <app-env-file> <traefik-env-file>}
-app_env=${2:?usage: deploy.sh <host> <app-env-file> <traefik-env-file>}
-traefik_env=${3:?usage: deploy.sh <host> <app-env-file> <traefik-env-file>}
+host=${1:?usage: deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-compose-file]}
+app_env=${2:?usage: deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-compose-file]}
+traefik_env=${3:?usage: deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-compose-file]}
+overlay=${4:-}
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 
@@ -42,6 +47,15 @@ put "$repo_root/infra/traefik/compose.yml" /srv/b2b/traefik/compose.yml
 put "$traefik_env" /srv/b2b/traefik/.env
 put "$repo_root/compose.yml" "/srv/b2b/$stack/compose.yml"
 put "$app_env" "/srv/b2b/$stack/.env"
+
+# Optional overlay -> compose.override.yml (auto-merged by every compose command
+# in the dir). When absent, clear any override a previous deploy left behind, so
+# a stack never silently keeps an overlay it should no longer have.
+if [ -n "$overlay" ]; then
+  put "$overlay" "/srv/b2b/$stack/compose.override.yml"
+else
+  run "rm -f /srv/b2b/$stack/compose.override.yml"
+fi
 
 echo "==> Starting shared Traefik proxy"
 run "docker network inspect traefik >/dev/null 2>&1 || docker network create traefik"

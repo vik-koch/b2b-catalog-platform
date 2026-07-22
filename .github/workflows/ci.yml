@@ -199,7 +199,7 @@ jobs:
   # sha-pinned images published above, via the same infra/deploy.sh used for
   # rehearsals and demo-up. Needs (see infra/README.md): repo variables
   # DEV_HOST, DEV_APP_DOMAIN, ACME_EMAIL + secrets DEMO_SSH_PRIVATE_KEY,
-  # DEV_POSTGRES_PASSWORD.
+  # DEV_POSTGRES_PASSWORD, INBOX_PASSWORD.
   deploy-dev:
     if: github.event_name == 'push'
     needs: merge-manifests
@@ -223,12 +223,20 @@ jobs:
           APP_DOMAIN: ${{ vars.DEV_APP_DOMAIN }}
           ACME_EMAIL: ${{ vars.ACME_EMAIL }}
           POSTGRES_PASSWORD: ${{ secrets.DEV_POSTGRES_PASSWORD }}
+          # Guards the dev Mailpit reviewer inbox (ADR 0013). Hashed below — the
+          # plaintext is a masked secret and is never written to a log.
+          INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
         run: |
           : "${DEV_HOST:?repo variable DEV_HOST is not set}"
           : "${APP_DOMAIN:?repo variable DEV_APP_DOMAIN is not set}"
           : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
           : "${POSTGRES_PASSWORD:?secret DEV_POSTGRES_PASSWORD is not set}"
+          : "${INBOX_PASSWORD:?secret INBOX_PASSWORD is not set}"
           image_base="ghcr.io/${GITHUB_REPOSITORY,,}"
+
+          # SHA1 htpasswd entry for Traefik basic-auth. SHA1 (not bcrypt) keeps
+          # the string free of '$', which Compose would treat as interpolation.
+          inbox_hash=$(printf '%s' "$INBOX_PASSWORD" | openssl sha1 -binary | openssl base64)
 
           # sha-pinned: this deploy ships exactly the manifests merged above.
           # POSTGRES_PASSWORD must stay stable across deploys — the volume is
@@ -241,7 +249,13 @@ jobs:
           POSTGRES_DB=b2b_catalog
           POSTGRES_USER=b2b_catalog
           POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+          MAIL_HOST=mailpit
+          MAIL_PORT=1025
+          MAIL_FROM=Coffee Kontor <no-reply@coffee-kontor.example>
+          MAIL_CONTACT_TO=hallo@coffee-kontor.example
+          INBOX_BASICAUTH=reviewer:{SHA}$inbox_hash
           EOF
           printf 'ACME_EMAIL=%s\n' "$ACME_EMAIL" > "$RUNNER_TEMP/traefik.env"
 
-          infra/deploy.sh "$DEV_HOST" "$RUNNER_TEMP/dev.env" "$RUNNER_TEMP/traefik.env"
+          infra/deploy.sh "$DEV_HOST" "$RUNNER_TEMP/dev.env" \
+            "$RUNNER_TEMP/traefik.env" compose.mailpit.yml
