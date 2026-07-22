@@ -38,6 +38,16 @@ export interface DeploymentConfig {
     readonly phone?: string;
     readonly email?: string;
   };
+  /**
+   * Phone-number input for the inquiry form. The country code is fixed and
+   * shown as a prefix the visitor does not type. The optional mask formats the
+   * national part as they type — `#` is one digit, any other character is a
+   * literal separator.
+   */
+  readonly phoneInput?: {
+    readonly countryCode: string;
+    readonly mask?: string;
+  };
 }
 
 /**
@@ -84,6 +94,10 @@ export const defaultDeploymentConfig: DeploymentConfig = {
   contact: {
     phone: '+49 40 1234567',
     email: 'hallo@coffee-kontor.example',
+  },
+  phoneInput: {
+    countryCode: '+49',
+    mask: '(###) ###-####',
   },
 };
 

@@ -29,6 +29,30 @@ export interface AppText {
   readonly contact: {
     readonly intro: string;
   };
+  readonly inquiry: {
+    readonly intro: string;
+    readonly name: string;
+    readonly email: string;
+    readonly phone: string;
+    readonly preferredContact: string;
+    readonly preferredEmail: string;
+    readonly preferredPhone: string;
+    readonly message: string;
+    readonly privacyConsent: string;
+    readonly privacyLink: string;
+    readonly submit: string;
+    readonly submitting: string;
+    readonly success: string;
+    readonly error: string;
+    readonly validation: {
+      readonly nameRequired: string;
+      readonly emailRequired: string;
+      readonly emailInvalid: string;
+      readonly phoneRequired: string;
+      readonly phoneIncomplete: string;
+      readonly privacyRequired: string;
+    };
+  };
   readonly map: {
     readonly consentNotice: string;
   };
@@ -57,9 +81,36 @@ export const defaultAppText: AppText = {
     privacy: 'Privacy',
     imprint: 'Imprint',
     contact: 'Contact',
+    inquiry: 'Get in touch',
   },
   contact: {
     intro: 'Visit us or get in touch — find our offices below.',
+  },
+  inquiry: {
+    intro:
+      'Send us a message and we will get back to you by your preferred method.',
+    name: 'Name',
+    email: 'Email',
+    phone: 'Phone',
+    preferredContact: 'How should we reach you?',
+    preferredEmail: 'By email',
+    preferredPhone: 'By phone',
+    message: 'Message',
+    privacyConsent:
+      'I agree that my details will be used to answer my request. See our',
+    privacyLink: 'privacy policy',
+    submit: 'Send message',
+    submitting: 'Sending…',
+    success: 'Thanks — we have your message and will be in touch soon.',
+    error: 'Something went wrong sending your message. Please try again.',
+    validation: {
+      nameRequired: 'Please enter your name.',
+      emailRequired: 'Please enter your email address.',
+      emailInvalid: 'Please enter a valid email address.',
+      phoneRequired: 'Please enter your phone number.',
+      phoneIncomplete: 'Please enter a complete phone number.',
+      privacyRequired: 'Please accept the privacy policy to continue.',
+    },
   },
   map: {
     consentNotice: 'This map is hidden until you accept cookies.',

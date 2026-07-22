@@ -16,5 +16,14 @@ services:
       timeout: 3s
       retries: 15
 
+  # Dev/e2e email sink (ADR 0013): accepts SMTP on 1025, shows caught mail on
+  # the web UI at http://localhost:8025. Nothing is sent onward.
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${MAIL_PORT:?}:1025'
+      - '127.0.0.1:8025:8025'
+
 volumes:
   pgdata:
