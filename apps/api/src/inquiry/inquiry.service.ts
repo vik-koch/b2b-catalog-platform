@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InquiryRequest } from '@b2b-catalog-platform/shared';
 import { env } from '../env';
 import { MAILER, Mailer } from '../mail/mailer';
@@ -18,15 +18,20 @@ const escapeHtml = (value: string): string =>
 
 @Injectable()
 export class InquiryService {
+  private readonly logger = new Logger('Inquiry');
+
   constructor(
     @Inject(MAILER) private readonly mailer: Mailer,
     @Inject(INQUIRY_TEXT) private readonly text: InquiryText,
   ) {}
 
   async submit(submission: InquiryRequest): Promise<void> {
-    // Honeypot: drop it silently — no mail, no error — so the caller
-    // gets a normal 200 and no hint the decoy was tripped.
+    // Honeypot: drop it silently toward the caller — no mail, no error, a
+    // normal 200 with no hint the decoy tripped — but log it server-side so
+    // honeypot hits stay visible for spam monitoring. Log the fact only, no
+    // submission content (no PII in logs).
     if (submission.website) {
+      this.logger.warn('Rejected inquiry: honeypot field populated');
       return;
     }
 

@@ -26,6 +26,12 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=traefik
+      # Per-request access logs (method/path/status/latency) to stdout, where
+      # Alloy picks them up for Loki. JSON for easy querying; headers
+      # dropped so cookies/auth never land in the logs.
+      - --accesslog=true
+      - --accesslog.format=json
+      - --accesslog.fields.headers.defaultmode=drop
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https

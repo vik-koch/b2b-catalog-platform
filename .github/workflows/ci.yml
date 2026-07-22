@@ -226,6 +226,10 @@ jobs:
           # Guards the dev Mailpit reviewer inbox. Hashed below — the
           # plaintext is a masked secret and is never written to a log.
           INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
+          # Central logs. Both set -> the shared observability stack
+          # is deployed; either unset -> deploy.sh leaves it untouched.
+          GRAFANA_DOMAIN: ${{ vars.GRAFANA_DOMAIN }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
         run: |
           : "${DEV_HOST:?repo variable DEV_HOST is not set}"
           : "${APP_DOMAIN:?repo variable DEV_APP_DOMAIN is not set}"
@@ -256,6 +260,17 @@ jobs:
           INBOX_BASICAUTH=reviewer:{SHA}$inbox_hash
           EOF
           printf 'ACME_EMAIL=%s\n' "$ACME_EMAIL" > "$RUNNER_TEMP/traefik.env"
+
+          # Opt-in observability: only when both the hostname and password are
+          # configured. Absent -> OBSERVABILITY_ENV stays unset and the stack is
+          # left untouched (see deploy.sh).
+          if [ -n "$GRAFANA_DOMAIN" ] && [ -n "$GRAFANA_ADMIN_PASSWORD" ]; then
+            cat > "$RUNNER_TEMP/observability.env" <<EOF
+          GRAFANA_DOMAIN=$GRAFANA_DOMAIN
+          GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD
+          EOF
+            export OBSERVABILITY_ENV="$RUNNER_TEMP/observability.env"
+          fi
 
           infra/deploy.sh "$DEV_HOST" "$RUNNER_TEMP/dev.env" \
             "$RUNNER_TEMP/traefik.env" compose.mailpit.yml

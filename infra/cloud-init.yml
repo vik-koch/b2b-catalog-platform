@@ -28,6 +28,18 @@ users:
 
 package_update: true
 
+# Cap every container's on-disk stdout so json-file can't fill the VM disk.
+# Written before Docker installs (write_files runs before runcmd), so the daemon
+# adopts it on first start; Loki keeps the queryable history. On an
+# already-running VM, add this file and `systemctl restart docker` by hand.
+write_files:
+  - path: /etc/docker/daemon.json
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": { "max-size": "10m", "max-file": "3" }
+      }
+
 runcmd:
   # Installs Docker Engine + the compose plugin for the native architecture.
   - curl -fsSL https://get.docker.com | sh
