@@ -24,6 +24,12 @@ export class InquiryService {
   ) {}
 
   async submit(submission: InquiryRequest): Promise<void> {
+    // Honeypot: drop it silently — no mail, no error — so the caller
+    // gets a normal 200 and no hint the decoy was tripped.
+    if (submission.website) {
+      return;
+    }
+
     const to = env.MAIL_CONTACT_TO;
     if (!to) {
       // env.ts requires this in server mode; this narrows the type.

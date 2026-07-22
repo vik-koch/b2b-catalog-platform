@@ -191,6 +191,18 @@ const completePhone = (mask: string): ValidatorFn => {
           ></textarea>
         </div>
 
+        <!-- Honeypot: hidden from humans. -->
+        <div class="absolute -left-[9999px]" aria-hidden="true">
+          <label for="website">Leave this field empty</label>
+          <input
+            id="website"
+            type="text"
+            formControlName="website"
+            tabindex="-1"
+            autocomplete="off"
+          />
+        </div>
+
         <div>
           <label class="flex items-start gap-2 text-sm">
             <input
@@ -246,6 +258,8 @@ export class InquiryPage {
     phone: [''],
     preferredContact: ['email' as PreferredContact],
     message: [''],
+    // Honeypot.
+    website: [''],
     acceptPrivacy: [false, Validators.requiredTrue],
   });
 
@@ -330,6 +344,8 @@ export class InquiryPage {
       phone,
       preferredContact: value.preferredContact,
       message: value.message || undefined,
+      // Honeypot.
+      website: value.website || undefined,
     };
   }
 }

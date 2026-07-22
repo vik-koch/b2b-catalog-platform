@@ -178,6 +178,30 @@ describe('InquiryPage', () => {
     });
   });
 
+  it('hides the honeypot but forwards a filled value for server-side rejection', async () => {
+    const { el, submit, sync } = await render();
+
+    // Present, but kept from real users: inside an aria-hidden wrapper and out
+    // of the tab order.
+    const honeypot = el.querySelector<HTMLInputElement>('#website');
+    expect(honeypot).not.toBeNull();
+    expect(honeypot?.closest('[aria-hidden="true"]')).not.toBeNull();
+    expect(honeypot?.tabIndex).toBe(-1);
+
+    setInput(el, '#name', 'Jane Doe');
+    setInput(el, '#email', 'jane@example.com');
+    setInput(el, '#website', 'http://spam.example');
+    acceptPrivacy(el);
+    submitForm(el);
+    await sync();
+
+    // The client doesn't judge the honeypot; it hands the value to the server,
+    // which silently drops it.
+    expect(submit).toHaveBeenCalledWith(
+      expect.objectContaining({ website: 'http://spam.example' }),
+    );
+  });
+
   it('shows the error message when submission fails', async () => {
     const { el, submit, sync } = await render();
     submit.mockRejectedValue(new Error('boom'));

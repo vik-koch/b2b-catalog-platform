@@ -60,4 +60,17 @@ describe('POST /inquiry', () => {
     expect(res.status).toBe(400);
     expect(await caughtMessages()).toHaveLength(0);
   });
+
+  // Honeypot: a filled decoy field looks like success to the bot
+  // (a normal 200) but no mail is sent.
+  it('silently drops a submission with the honeypot filled', async () => {
+    const res = await axios.post('/inquiry', {
+      ...validSubmission,
+      website: 'http://spam.example',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.data).toEqual({ ok: true });
+    expect(await caughtMessages()).toHaveLength(0);
+  });
 });
