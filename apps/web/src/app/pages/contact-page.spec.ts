@@ -12,7 +12,6 @@ function config(locations: readonly ContactLocation[]): DeploymentConfig {
   return {
     branding: {
       name: 'Test',
-      logo: '/logo.svg',
       title: 'Test',
     },
     cookieConsentEnabled: false,

@@ -12,7 +12,7 @@ function service(
   platformId = 'browser',
 ): ConsentService {
   const config: DeploymentConfig = {
-    branding: { name: 'Test', logo: '/logo.svg', title: 'Test' },
+    branding: { name: 'Test', title: 'Test' },
     cookieConsentEnabled,
     locations: [],
   };

@@ -48,7 +48,6 @@ export const deploymentConfigSchema = z
     branding: z
       .object({
         name: z.string(),
-        logo: z.string(),
         /**
          * Document `<title>` for the whole site, set at runtime by the root
          * component via the Angular Title service (so SSR emits it and crawlers

@@ -10,7 +10,6 @@ function config(cookieConsentEnabled: boolean): DeploymentConfig {
   return {
     branding: {
       name: 'Test',
-      logo: '/logo.svg',
       title: 'Test',
     },
     cookieConsentEnabled,

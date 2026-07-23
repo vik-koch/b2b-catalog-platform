@@ -5,6 +5,7 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
@@ -27,16 +28,27 @@ function getAngularApp(): AngularNodeAppEngine {
 }
 
 /**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/**', (req, res) => {
- *   // Handle API request
- * });
- * ```
+ * Per-deployment asset overrides (logo, favicon), served ahead of the baked
+ * static so a deployment can replace them from its mounted config dir.
+ * CONFIG_ASSETS_DIR points at the *assets subdir* of the config mount, never
+ * the mount root: only files placed under it are web-served!
  */
+const configAssetsDir = process.env['CONFIG_ASSETS_DIR'];
+if (!configAssetsDir) {
+  throw new Error(
+    `CONFIG_ASSETS_DIR is not set — it must name a mounted config folder (see config/README.md)`,
+  );
+}
+if (!existsSync(configAssetsDir)) {
+  throw new Error(`Folder under CONFIG_ASSETS_DIR does not exist!`);
+}
+app.use(
+  express.static(configAssetsDir, {
+    maxAge: '1y',
+    index: false,
+    redirect: false,
+  }),
+);
 
 /**
  * Serve static files from /browser

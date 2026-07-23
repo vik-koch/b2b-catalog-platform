@@ -25,7 +25,6 @@ async function render(map: MapEmbed, consent: ConsentState = {}) {
   const config: DeploymentConfig = {
     branding: {
       name: 'Test',
-      logo: '/logo.svg',
       title: 'Test',
     },
     cookieConsentEnabled: consent.enabled ?? false,

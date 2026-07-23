@@ -5,7 +5,7 @@ import { ContactInfo } from './contact-info';
 
 async function render(contact: DeploymentConfig['contact']) {
   const config: DeploymentConfig = {
-    branding: { name: 'Test', logo: '/logo.svg', title: 'Test' },
+    branding: { name: 'Test', title: 'Test' },
     cookieConsentEnabled: false,
     locations: [],
     contact,
