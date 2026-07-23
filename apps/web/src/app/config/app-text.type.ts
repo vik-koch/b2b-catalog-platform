@@ -29,6 +29,16 @@ export const appTextSchema = z
         intro: z.string(),
       })
       .strict(),
+    /**
+     * Temporary text for homepage (will be removed in iteration 2).
+     */
+    home: z
+      .object({
+        line1: z.string(),
+        line2: z.string(),
+        line3: z.string(),
+      })
+      .strict(),
     inquiry: z
       .object({
         intro: z.string(),
