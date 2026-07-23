@@ -2,15 +2,17 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
-import {
-  DEPLOYMENT_CONFIG,
-  DeploymentConfig,
-} from '../config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { DeploymentConfig } from '../config/deployment-config.type';
 import { Footer } from './footer';
 
 function config(cookieConsentEnabled: boolean): DeploymentConfig {
   return {
-    branding: { name: 'Test', logo: '/logo.svg' },
+    branding: {
+      name: 'Test',
+      logo: '/logo.svg',
+      title: 'Test',
+    },
     cookieConsentEnabled,
     locations: [],
   };

@@ -1,0 +1,25 @@
+{
+  "branding": {
+    "name": "Coffee Kontor",
+    "logo": "/logo.svg",
+    "title": "Coffee Kontor — wholesale specialty coffee"
+  },
+  "cookieConsentEnabled": false,
+  "locations": [
+    {
+      "name": "Speicherstadt Office",
+      "description": "Am Sandtorkai 30, 20457 Hamburg",
+      "map": {
+        "url": "https://www.openstreetmap.org/export/embed.html?bbox=9.9820%2C53.5400%2C9.9950%2C53.5460&layer=mapnik&marker=53.5430%2C9.9880"
+      }
+    }
+  ],
+  "contact": {
+    "phone": "+49 40 1234567",
+    "email": "hallo@coffee-kontor.example"
+  },
+  "phoneInput": {
+    "countryCode": "+49",
+    "mask": "(###) ###-####"
+  }
+}

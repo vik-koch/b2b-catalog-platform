@@ -1,11 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
-import {
-  DEPLOYMENT_CONFIG,
-  DeploymentConfig,
-  MapEmbed,
-} from '../config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { DeploymentConfig, MapEmbed } from '../config/deployment-config.type';
 import { MapFrame } from './map-frame';
 
 interface ConsentState {
@@ -26,7 +23,11 @@ async function render(map: MapEmbed, consent: ConsentState = {}) {
     );
   }
   const config: DeploymentConfig = {
-    branding: { name: 'Test', logo: '/logo.svg' },
+    branding: {
+      name: 'Test',
+      logo: '/logo.svg',
+      title: 'Test',
+    },
     cookieConsentEnabled: consent.enabled ?? false,
     locations: [],
   };

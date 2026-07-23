@@ -1,16 +1,20 @@
 import { TestBed } from '@angular/core/testing';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   ContactLocation,
-  DEPLOYMENT_CONFIG,
   DeploymentConfig,
-} from '../config/deployment-config';
+} from '../config/deployment-config.type';
 import { ContactPage } from './contact-page';
 
 function config(locations: readonly ContactLocation[]): DeploymentConfig {
   return {
-    branding: { name: 'Test', logo: '/logo.svg' },
+    branding: {
+      name: 'Test',
+      logo: '/logo.svg',
+      title: 'Test',
+    },
     cookieConsentEnabled: false,
     locations,
   };
