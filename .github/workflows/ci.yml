@@ -250,6 +250,8 @@ jobs:
           APP_DOMAIN=$APP_DOMAIN
           API_IMAGE=$image_base-api:sha-$GITHUB_SHA
           WEB_IMAGE=$image_base-web:sha-$GITHUB_SHA
+          # Long-lived stack: enable the db-backup sidecar (NFR-OPS-04, ADR 0017).
+          COMPOSE_PROFILES=backup
           POSTGRES_DB=b2b_catalog
           POSTGRES_USER=b2b_catalog
           POSTGRES_PASSWORD=$POSTGRES_PASSWORD

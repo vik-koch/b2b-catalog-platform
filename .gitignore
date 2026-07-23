@@ -45,6 +45,9 @@ Thumbs.db
 
 .angular
 
+# DB backup dumps (db-backup sidecar; only present if run locally)
+/backups/
+
 # Terraform
 .terraform/
 *.tfstate
