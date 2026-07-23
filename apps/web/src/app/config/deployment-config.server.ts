@@ -4,7 +4,7 @@ import {
   DEPLOYMENT_CONFIG_STATE_KEY,
 } from './deployment-config';
 import { deploymentConfigSchema } from './deployment-config.type';
-import { loadConfig } from '@b2b-catalog-platform/shared';
+import { loadConfig } from '@b2b-catalog-platform/shared/node';
 
 const CONFIG_ENV_VAR = 'DEPLOYMENT_CONFIG_FILE';
 

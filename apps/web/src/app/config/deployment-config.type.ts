@@ -1,4 +1,4 @@
-import { DeepReadonly } from '@b2b-catalog-platform/shared';
+import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
 import { z } from 'zod';
 
 /**

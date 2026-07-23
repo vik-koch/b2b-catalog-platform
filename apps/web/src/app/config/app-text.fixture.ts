@@ -1,5 +1,5 @@
 import { AppText } from './app-text.type';
-import { loadConfig } from '@b2b-catalog-platform/shared';
+import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { appTextSchema } from './app-text.type';
 
 /**

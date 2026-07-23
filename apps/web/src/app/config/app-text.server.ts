@@ -1,7 +1,7 @@
 import { inject, Provider, TransferState } from '@angular/core';
 import { APP_TEXT, APP_TEXT_STATE_KEY } from './app-text';
 import { appTextSchema } from './app-text.type';
-import { loadConfig } from '@b2b-catalog-platform/shared';
+import { loadConfig } from '@b2b-catalog-platform/shared/node';
 
 const APP_TEXT_ENV_VAR = 'APP_TEXT_FILE';
 
