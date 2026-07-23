@@ -16,6 +16,14 @@
         "format": ["cjs"],
         "generatePackageJson": true
       }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{workspaceRoot}/coverage/libs/shared"],
+      "options": {
+        "passWithNoTests": true,
+        "tsConfig": "libs/shared/tsconfig.spec.json"
+      }
     }
   }
 }
