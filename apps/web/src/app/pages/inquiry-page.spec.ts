@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { APP_TEXT, defaultAppText } from '../config/app-text';
+import { APP_TEXT } from '../config/app-text';
+import { defaultAppText } from '../config/app-text.fixture';
 import {
   DEPLOYMENT_CONFIG,
   DeploymentConfig,

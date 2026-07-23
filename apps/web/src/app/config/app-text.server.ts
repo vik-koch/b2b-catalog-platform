@@ -1,5 +1,16 @@
 import { inject, Provider, TransferState } from '@angular/core';
-import { APP_TEXT, APP_TEXT_STATE_KEY, defaultAppText } from './app-text';
+import { APP_TEXT, APP_TEXT_STATE_KEY } from './app-text';
+import { appTextSchema } from './app-text.type';
+import { loadConfig } from '@b2b-catalog-platform/shared';
+
+const APP_TEXT_ENV_VAR = 'APP_TEXT_FILE';
+
+/**
+ * Read once per process: the mounted file is immutable for the container's
+ * lifetime, so there's no reason to re-read and re-validate on every SSR
+ * request. A bad file throws here, at first render, and keeps the stack down.
+ */
+const appText = loadConfig(appTextSchema, APP_TEXT_ENV_VAR);
 
 /**
  * Server provider: serializes the UI text into TransferState so the browser
@@ -10,9 +21,8 @@ export function provideServerAppText(): Provider {
   return {
     provide: APP_TEXT,
     useFactory: () => {
-      const text = defaultAppText;
-      inject(TransferState).set(APP_TEXT_STATE_KEY, text);
-      return text;
+      inject(TransferState).set(APP_TEXT_STATE_KEY, appText);
+      return appText;
     },
   };
 }

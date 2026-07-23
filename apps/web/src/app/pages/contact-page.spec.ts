@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { APP_TEXT, defaultAppText } from '../config/app-text';
+import { APP_TEXT } from '../config/app-text';
+import { defaultAppText } from '../config/app-text.fixture';
 import {
   ContactLocation,
   DEPLOYMENT_CONFIG,
