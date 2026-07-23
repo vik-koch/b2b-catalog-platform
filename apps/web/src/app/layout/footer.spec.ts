@@ -11,6 +11,11 @@ function config(cookieConsentEnabled: boolean): DeploymentConfig {
     branding: {
       name: 'Test',
       title: 'Test',
+      theme: {
+        primary: 'red',
+        secondary: 'green',
+        accent: 'black',
+      },
     },
     cookieConsentEnabled,
     locations: [],

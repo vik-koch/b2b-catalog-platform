@@ -1,7 +1,12 @@
 {
   "branding": {
     "name": "Coffee Kontor",
-    "title": "Coffee Kontor — wholesale specialty coffee"
+    "title": "Coffee Kontor — wholesale specialty coffee",
+    "theme": {
+      "primary": "#6f4e37",
+      "secondary": "#8b6f52",
+      "accent": "#b45309"
+    }
   },
   "cookieConsentEnabled": false,
   "locations": [

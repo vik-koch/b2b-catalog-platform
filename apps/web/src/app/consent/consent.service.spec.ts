@@ -12,7 +12,15 @@ function service(
   platformId = 'browser',
 ): ConsentService {
   const config: DeploymentConfig = {
-    branding: { name: 'Test', title: 'Test' },
+    branding: {
+      name: 'Test',
+      title: 'Test',
+      theme: {
+        primary: 'red',
+        secondary: 'green',
+        accent: 'black',
+      },
+    },
     cookieConsentEnabled,
     locations: [],
   };

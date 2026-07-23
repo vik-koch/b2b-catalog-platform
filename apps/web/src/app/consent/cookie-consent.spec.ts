@@ -10,7 +10,15 @@ const BANNER = 'aside[aria-label="Cookie consent"]';
 
 function config(cookieConsentEnabled: boolean): DeploymentConfig {
   return {
-    branding: { name: 'Test', title: 'Test' },
+    branding: {
+      name: 'Test',
+      title: 'Test',
+      theme: {
+        primary: 'red',
+        secondary: 'green',
+        accent: 'black',
+      },
+    },
     cookieConsentEnabled,
     locations: [],
   };

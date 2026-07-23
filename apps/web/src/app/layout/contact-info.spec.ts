@@ -5,7 +5,15 @@ import { ContactInfo } from './contact-info';
 
 async function render(contact: DeploymentConfig['contact']) {
   const config: DeploymentConfig = {
-    branding: { name: 'Test', title: 'Test' },
+    branding: {
+      name: 'Test',
+      title: 'Test',
+      theme: {
+        primary: 'red',
+        secondary: 'green',
+        accent: 'black',
+      },
+    },
     cookieConsentEnabled: false,
     locations: [],
     contact,

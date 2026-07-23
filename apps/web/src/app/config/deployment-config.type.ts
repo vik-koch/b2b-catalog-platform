@@ -54,6 +54,15 @@ export const deploymentConfigSchema = z
          * see it).
          */
         title: z.string(),
+        theme: z
+          .object({
+            primary: z.string(),
+            secondary: z.string(),
+            accent: z.string(),
+            surface: z.string().optional(),
+            ink: z.string().optional(),
+          })
+          .strict(),
       })
       .strict(),
     /**

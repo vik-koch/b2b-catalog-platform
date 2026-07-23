@@ -26,6 +26,11 @@ async function render(map: MapEmbed, consent: ConsentState = {}) {
     branding: {
       name: 'Test',
       title: 'Test',
+      theme: {
+        primary: 'red',
+        secondary: 'green',
+        accent: 'black',
+      },
     },
     cookieConsentEnabled: consent.enabled ?? false,
     locations: [],

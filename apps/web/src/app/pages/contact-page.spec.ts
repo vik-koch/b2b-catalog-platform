@@ -13,6 +13,11 @@ function config(locations: readonly ContactLocation[]): DeploymentConfig {
     branding: {
       name: 'Test',
       title: 'Test',
+      theme: {
+        primary: 'red',
+        secondary: 'green',
+        accent: 'black',
+      },
     },
     cookieConsentEnabled: false,
     locations,

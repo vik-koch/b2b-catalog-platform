@@ -10,7 +10,15 @@ import { InquiryService } from './inquiry.service';
 const text = defaultAppText.inquiry;
 
 const testConfig: DeploymentConfig = {
-  branding: { name: 'Test', title: 'Test' },
+  branding: {
+    name: 'Test',
+    title: 'Test',
+    theme: {
+      primary: '',
+      secondary: '',
+      accent: '',
+    },
+  },
   cookieConsentEnabled: false,
   locations: [],
   phoneInput: { countryCode: '+49', mask: '(###) ###-####' },
