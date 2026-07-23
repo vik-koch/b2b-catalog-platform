@@ -1,0 +1,10 @@
+{
+  "inquiry": {
+    "subject": "Inquiry",
+    "name": "Имя",
+    "email": "Email",
+    "phone": "Phone",
+    "preferredContact": "Preferred contact",
+    "message": "Message"
+  }
+}
