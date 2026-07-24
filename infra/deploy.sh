@@ -71,8 +71,12 @@ fi
 # wholesale so a removed file does not linger from a previous deploy.
 config_dir=${CONFIG_DIR:-$repo_root/config}
 echo "==> Copying deployment config from $config_dir"
+# tar over ssh rather than `scp -r`: config/ now has a subdir (assets/), and
+# OpenSSH 9's SFTP-mode scp fails to create a not-yet-existing remote subdir
+# ("realpath ...: No such file / path canonicalization failed"). tar streams the
+# whole tree in one shot and still replaces wholesale (dir wiped just above).
 run "rm -rf /srv/b2b/$stack/config && mkdir -p /srv/b2b/$stack/config"
-scp ${SSH_OPTS:-} -q -r "$config_dir"/* "deploy@$host:/srv/b2b/$stack/config/"
+tar -C "$config_dir" -cf - . | run "tar -C /srv/b2b/$stack/config -xf -"
 
 echo "==> Starting shared Traefik proxy"
 run "docker network inspect traefik >/dev/null 2>&1 || docker network create traefik"
