@@ -4,14 +4,14 @@ import { eq } from 'drizzle-orm';
 import { Page } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { page } from '../db/schema';
+import { pages } from '../db/schema';
 
 @Injectable()
 export class PageService {
   constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
 
   async getPage(slug: string): Promise<Page | undefined> {
-    const rows = await this.db.select().from(page).where(eq(page.id, slug));
+    const rows = await this.db.select().from(pages).where(eq(pages.id, slug));
     return rows[0];
   }
 }
