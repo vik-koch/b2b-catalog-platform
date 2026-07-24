@@ -52,6 +52,12 @@ config/
     favicon.png
 ```
 
+The path of the folder is defined by the following environment variable:
+
+```
+CONFIG_ASSETS_DIR=/config/assets                 # web
+```
+
 The web SSR server serves `assets/` ahead of the baked static files: a request
 for `/logo.svg` or `/favicon.svg` is answered from `config/assets/`.
 

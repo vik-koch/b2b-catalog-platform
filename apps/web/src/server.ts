@@ -33,22 +33,35 @@ function getAngularApp(): AngularNodeAppEngine {
  * CONFIG_ASSETS_DIR points at the *assets subdir* of the config mount, never
  * the mount root: only files placed under it are web-served!
  */
-const configAssetsDir = process.env['CONFIG_ASSETS_DIR'];
-if (!configAssetsDir) {
-  throw new Error(
-    `CONFIG_ASSETS_DIR is not set — it must name a mounted config folder (see config/README.md)`,
-  );
+let assetsMiddleware: express.Handler | undefined;
+
+function getAssetsMiddleware() {
+  if (!assetsMiddleware) {
+    const configAssetsDir = process.env['CONFIG_ASSETS_DIR'];
+    if (!configAssetsDir) {
+      throw new Error(
+        `CONFIG_ASSETS_DIR is not set — it must name a mounted config folder (see config/README.md)`,
+      );
+    }
+    if (!existsSync(configAssetsDir)) {
+      throw new Error(`Folder under CONFIG_ASSETS_DIR does not exist!`);
+    }
+    assetsMiddleware = express.static(configAssetsDir, {
+      maxAge: '1y',
+      index: false,
+      redirect: false,
+    });
+  }
+  return assetsMiddleware;
 }
-if (!existsSync(configAssetsDir)) {
-  throw new Error(`Folder under CONFIG_ASSETS_DIR does not exist!`);
-}
-app.use(
-  express.static(configAssetsDir, {
-    maxAge: '1y',
-    index: false,
-    redirect: false,
-  }),
-);
+
+/**
+ * Per-deployment asset overrides (logo, favicon).
+ * Evaluated lazily on the first incoming request so build-time imports don't throw.
+ */
+app.use((req, res, next) => {
+  getAssetsMiddleware()(req, res, next);
+});
 
 /**
  * Serve static files from /browser
