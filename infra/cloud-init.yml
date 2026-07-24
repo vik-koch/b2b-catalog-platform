@@ -23,7 +23,7 @@ users:
     lock_passwd: true
     ssh_authorized_keys:
       # Must match infra/keys/deploy.pub (the private half lives in the GitHub
-      # Actions secret DEMO_SSH_PRIVATE_KEY).
+      # Actions secret DEPLOY_SSH_PRIVATE_KEY).
       - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM0+T/kR+OtTjU+uSa705OxCNq18HskGgyOsi48IGrKh b2b-demo-deploy'
 
 package_update: true
