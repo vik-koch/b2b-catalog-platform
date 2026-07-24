@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { APP_TEXT } from '../config/app-text';
-import { MapEmbed } from '../config/deployment-config';
+import { MapEmbed } from '../config/deployment-config.type';
 import { ConsentService } from '../consent/consent.service';
 
 /**

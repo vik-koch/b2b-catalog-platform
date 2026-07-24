@@ -63,6 +63,17 @@ else
   run "rm -f /srv/b2b/$stack/compose.override.yml"
 fi
 
+# Per-deployment config/text: the web + api mount ./config read-only
+# and load their branding/text/wording WHOLE from it — there is no baked default,
+# so the dir must carry a complete config or the containers fail to boot.
+# CONFIG_DIR defaults to this repo's committed demo config (dev/demo); a real
+# deployment overrides it with its own dir (e.g. from the private repo). Replaced
+# wholesale so a removed file does not linger from a previous deploy.
+config_dir=${CONFIG_DIR:-$repo_root/config}
+echo "==> Copying deployment config from $config_dir"
+run "rm -rf /srv/b2b/$stack/config && mkdir -p /srv/b2b/$stack/config"
+scp ${SSH_OPTS:-} -q -r "$config_dir"/* "deploy@$host:/srv/b2b/$stack/config/"
+
 echo "==> Starting shared Traefik proxy"
 run "docker network inspect traefik >/dev/null 2>&1 || docker network create traefik"
 run "cd /srv/b2b/traefik && docker compose up -d"

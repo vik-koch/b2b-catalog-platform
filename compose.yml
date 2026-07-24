@@ -49,6 +49,11 @@ services:
       MAIL_USER: ${MAIL_USER:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_SECURE: ${MAIL_SECURE:-false}
+      # Server-only inquiry email wording, loaded whole from a file in the
+      # ./config mount below.
+      INQUIRY_TEXT_FILE: ${INQUIRY_TEXT_FILE:-/config/inquiry-text.json}
+    volumes:
+      - ./config:/config:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -80,6 +85,15 @@ services:
       WEB_PORT: 4000
       # SSR reaches the API directly on the stack network, not through Traefik.
       API_URL: http://api:3000/api
+      # SSR-injected chrome config and UI text, loaded whole from files in the
+      # ./config mount below.
+      DEPLOYMENT_CONFIG_FILE: ${DEPLOYMENT_CONFIG_FILE:-/config/deployment.json}
+      APP_TEXT_FILE: ${APP_TEXT_FILE:-/config/app-text.json}
+      # Per-deployment asset overrides (logo, favicon) live in the assets subdir
+      # of the same mount: served by the SSR server.
+      CONFIG_ASSETS_DIR: /config/assets
+    volumes:
+      - ./config:/config:ro
     depends_on:
       - api
     networks:

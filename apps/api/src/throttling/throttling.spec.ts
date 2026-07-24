@@ -3,6 +3,8 @@ import { Test } from '@nestjs/testing';
 import { InquiryModule } from '../inquiry/inquiry.module';
 import { MAILER, Mailer } from '../mail/mailer';
 import { ThrottlingModule } from './throttling.module';
+import { INQUIRY_TEXT } from '../inquiry/inquiry-text';
+import { demoInquiryText } from '../inquiry/inquiry-text.fixture';
 
 // Proves the shared limiter actually blocks a flood, exercised
 // through the real inquiry route (PublicFormThrottle = 10/min) with the mailer
@@ -24,6 +26,8 @@ describe('Throttling', () => {
     })
       .overrideProvider(MAILER)
       .useValue({ send } satisfies Mailer)
+      .overrideProvider(INQUIRY_TEXT)
+      .useValue(demoInquiryText)
       .compile();
 
     app = moduleRef.createNestApplication();

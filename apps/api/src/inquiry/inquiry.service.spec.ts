@@ -1,7 +1,8 @@
 import { Test } from '@nestjs/testing';
 import { InquiryRequest } from '@b2b-catalog-platform/shared';
 import { MAILER, Mailer } from '../mail/mailer';
-import { defaultInquiryText, INQUIRY_TEXT } from './inquiry-text';
+import { INQUIRY_TEXT } from './inquiry-text';
+import { demoInquiryText } from './inquiry-text.fixture';
 import { InquiryService } from './inquiry.service';
 
 // Honeypot behaviour: the service is the last line — even if a bot
@@ -23,7 +24,7 @@ describe('InquiryService', () => {
       providers: [
         InquiryService,
         { provide: MAILER, useValue: { send } satisfies Mailer },
-        { provide: INQUIRY_TEXT, useValue: defaultInquiryText },
+        { provide: INQUIRY_TEXT, useValue: demoInquiryText },
       ],
     }).compile();
     service = moduleRef.get(InquiryService);

@@ -13,3 +13,5 @@ coverage
 !.env.example
 Dockerfile
 compose*.yml
+# Deployment override files are mounted at runtime, never baked into the image.
+config

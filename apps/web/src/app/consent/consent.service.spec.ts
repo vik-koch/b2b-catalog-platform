@@ -1,9 +1,7 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import {
-  DEPLOYMENT_CONFIG,
-  DeploymentConfig,
-} from '../config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { DeploymentConfig } from '../config/deployment-config.type';
 import { ConsentDecision, ConsentService } from './consent.service';
 
 const STORAGE_KEY = 'cookie-consent';
@@ -14,7 +12,15 @@ function service(
   platformId = 'browser',
 ): ConsentService {
   const config: DeploymentConfig = {
-    branding: { name: 'Test', logo: '/logo.svg' },
+    branding: {
+      name: 'Test',
+      title: 'Test',
+      theme: {
+        primary: 'red',
+        secondary: 'green',
+        accent: 'black',
+      },
+    },
     cookieConsentEnabled,
     locations: [],
   };

@@ -52,7 +52,7 @@ import { ContactInfo } from './contact-info';
           <!-- Plain <img>: NgOptimizedImage adds nothing for a local SVG.
                Intrinsic width/height prevent layout shift; CSS scales it. -->
           <img
-            [src]="branding.logo"
+            src="logo.svg"
             alt=""
             width="180"
             height="40"

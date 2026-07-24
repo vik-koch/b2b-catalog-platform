@@ -1,13 +1,19 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  DEPLOYMENT_CONFIG,
-  DeploymentConfig,
-} from '../config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { DeploymentConfig } from '../config/deployment-config.type';
 import { ContactInfo } from './contact-info';
 
 async function render(contact: DeploymentConfig['contact']) {
   const config: DeploymentConfig = {
-    branding: { name: 'Test', logo: '/logo.svg' },
+    branding: {
+      name: 'Test',
+      title: 'Test',
+      theme: {
+        primary: 'red',
+        secondary: 'green',
+        accent: 'black',
+      },
+    },
     cookieConsentEnabled: false,
     locations: [],
     contact,
