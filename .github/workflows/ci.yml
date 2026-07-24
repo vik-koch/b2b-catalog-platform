@@ -197,8 +197,9 @@ jobs:
 
   # Merge to main auto-deploys the dev environment (NFR-OPS-01/-02) with the
   # sha-pinned images published above, via the same infra/deploy.sh used for
-  # rehearsals and demo-up. Needs (see infra/README.md): repo variables
-  # DEV_HOST, DEV_APP_DOMAIN, ACME_EMAIL + secrets DEMO_SSH_PRIVATE_KEY,
+  # rehearsals and demo-up. Prod is deployed separately, from a release tag
+  # (release.yml). Needs (see infra/README.md): repo variables DEPLOY_HOST,
+  # DEV_APP_DOMAIN, ACME_EMAIL + secrets DEPLOY_SSH_PRIVATE_KEY,
   # DEV_POSTGRES_PASSWORD, INBOX_PASSWORD.
   deploy-dev:
     if: github.event_name == 'push'
@@ -213,16 +214,18 @@ jobs:
 
       - name: Write SSH key
         run: |
-          printf '%s\n' "${{ secrets.DEMO_SSH_PRIVATE_KEY }}" > .deploy-key
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > .deploy-key
           chmod 600 .deploy-key
 
       - name: Deploy
         env:
           SSH_OPTS: -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -i ${{ github.workspace }}/.deploy-key
-          DEV_HOST: ${{ vars.DEV_HOST }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
           APP_DOMAIN: ${{ vars.DEV_APP_DOMAIN }}
           ACME_EMAIL: ${{ vars.ACME_EMAIL }}
           POSTGRES_PASSWORD: ${{ secrets.DEV_POSTGRES_PASSWORD }}
+          # Dev shows demo content, so seed after deploy (prod never does).
+          SEED: '1'
           # Guards the dev Mailpit reviewer inbox. Hashed below — the
           # plaintext is a masked secret and is never written to a log.
           INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
@@ -231,7 +234,7 @@ jobs:
           GRAFANA_DOMAIN: ${{ vars.GRAFANA_DOMAIN }}
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
         run: |
-          : "${DEV_HOST:?repo variable DEV_HOST is not set}"
+          : "${DEPLOY_HOST:?repo variable DEPLOY_HOST is not set}"
           : "${APP_DOMAIN:?repo variable DEV_APP_DOMAIN is not set}"
           : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
           : "${POSTGRES_PASSWORD:?secret DEV_POSTGRES_PASSWORD is not set}"
@@ -274,5 +277,5 @@ jobs:
             export OBSERVABILITY_ENV="$RUNNER_TEMP/observability.env"
           fi
 
-          infra/deploy.sh "$DEV_HOST" "$RUNNER_TEMP/dev.env" \
+          infra/deploy.sh "$DEPLOY_HOST" "$RUNNER_TEMP/dev.env" \
             "$RUNNER_TEMP/traefik.env" compose.mailpit.yml

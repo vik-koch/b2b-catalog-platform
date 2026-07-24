@@ -63,24 +63,47 @@ Whatever the provider, the VM needs:
    so VMs can pull without a registry login.
 5. **GitHub Actions secrets** (repo → Settings → Secrets and variables → Actions):
 
-   | Secret                   | Content                                                                                   |
-   | ------------------------ | ----------------------------------------------------------------------------------------- |
-   | `HCLOUD_TOKEN`           | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token          |
-   | `CLOUDFLARE_API_TOKEN`   | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com    |
-   | `TF_API_TOKEN`           | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI) |
-   | `DEMO_SSH_PRIVATE_KEY`   | Private half of the deploy key from step 1                                                |
-   | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                    |
-   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo Mailpit reviewer inbox (username `reviewer`)         |
-   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it   |
+   Naming: `DEPLOY_*` = the shared deploy target/key (dev, prod and demo all use
+   it); `DEV_*` / `PROD_*` = one environment's own domain + DB password; the rest
+   are provider tokens or shared services.
+
+   | Secret                   | Content                                                                                       |
+   | ------------------------ | --------------------------------------------------------------------------------------------- |
+   | `HCLOUD_TOKEN`           | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token              |
+   | `CLOUDFLARE_API_TOKEN`   | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com        |
+   | `TF_API_TOKEN`           | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI)     |
+   | `DEPLOY_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1 (dev CD, prod CD and demo-up all use it)           |
+   | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                        |
+   | `PROD_POSTGRES_PASSWORD` | The prod stack's database password (its own volume). Must stay **stable across deploys**      |
+   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox (username `reviewer`) |
+   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it       |
 
    Plus Actions **variables** (same page, Variables tab — not secret):
 
-   | Variable         | Content                                                                                                                                                            |
-   | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-   | `ACME_EMAIL`     | Let's Encrypt account email Traefik registers with                                                                                                                 |
-   | `DEV_HOST`       | Public IP (or DNS name) of the long-lived dev/prod VM, SSH target for CD                                                                                           |
-   | `DEV_APP_DOMAIN` | Hostname of the dev stack (A record → `DEV_HOST`, DNS-only), e.g. b2b-dev.…                                                                                        |
-   | `GRAFANA_DOMAIN` | Ops hostname for Grafana (A record → `DEV_HOST`, DNS-only). Set this + the `GRAFANA_ADMIN_PASSWORD` secret to turn on central logs (ADR 0016); leave unset to skip |
+   | Variable          | Content                                                                                                                                                               |
+   | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `ACME_EMAIL`      | Let's Encrypt account email Traefik registers with                                                                                                                    |
+   | `DEPLOY_HOST`     | Public IP (or DNS name) of the long-lived dev/prod VM, SSH target for CD                                                                                              |
+   | `DEV_APP_DOMAIN`  | Hostname of the dev stack (A record → `DEPLOY_HOST`, DNS-only), e.g. b2b-dev.…                                                                                        |
+   | `PROD_APP_DOMAIN` | Hostname of the public-prod stack (A record → `DEPLOY_HOST`, DNS-only), e.g. b2b.…                                                                                    |
+   | `GRAFANA_DOMAIN`  | Ops hostname for Grafana (A record → `DEPLOY_HOST`, DNS-only). Set this + the `GRAFANA_ADMIN_PASSWORD` secret to turn on central logs (ADR 0016); leave unset to skip |
+
+## Environments & deploys
+
+Two long-lived stacks share the one pet VM (`DEPLOY_HOST`), each with its own
+`STACK_NAME` → its own DB volume and domain; the shared Traefik proxy routes both
+by `Host` header and one shared observability stack collects both their logs.
+
+- **dev** — auto-deployed on every merge to `main` (`ci.yml` → `deploy-dev`),
+  from the sha-pinned images that push just built. Seeded with demo content.
+- **public prod** — deployed on pushing a `v*.*.*` release tag (`release.yml` →
+  `deploy-prod`), from the promoted **version-tagged** image (byte-identical to
+  the sha dev ran). **Never seeded** — it demonstrates the unseeded production
+  boot; content would arrive via catalog sync. It is a portfolio demonstration,
+  so it keeps the Mailpit reviewer inbox (below).
+
+A real **client prod** is a separate, client-owned VM deployed from the private
+repo — same `deploy.sh`, its own config and real SMTP, no Mailpit.
 
 ## Demo workflows
 
@@ -94,11 +117,11 @@ Whatever the provider, the VM needs:
   destroy. The schedule is forget-insurance against an hourly-billed server
   staying up; destroying an empty state is a no-op, so it always runs.
 
-## Email & the reviewer inbox (dev / demo)
+## Email & the reviewer inbox (dev / demo / public prod)
 
 Per [ADR 0013](../docs/adr/0013-email-via-mailer-port-smtp-adapter.md) the api
-sends all mail over SMTP, and the dev/demo stacks use **Mailpit** as the sink —
-no real email leaves. Both deploy workflows pass the
+sends all mail over SMTP, and the dev/demo/public-prod stacks use **Mailpit** as
+the sink — no real email leaves. Those deploy workflows pass the
 [compose.mailpit.yml](../compose.mailpit.yml) overlay to
 [deploy.sh](deploy.sh), which lands it on the VM as `compose.override.yml`
 (Compose auto-merges it). That overlay adds the Mailpit service the api targets
@@ -107,8 +130,9 @@ inbox** at `https://<stack-domain>/inbox/`, behind HTTP basic-auth
 (username `reviewer`, password = the `INBOX_PASSWORD` secret; the workflow hashes
 it into an SHA1 htpasswd entry at deploy time, never logging the plaintext).
 
-Client **prod** gets no overlay — it ships no Mailpit and sets `MAIL_*` to a real
-SMTP provider (see [.env.stack.example](../.env.stack.example)).
+A real **client prod** (private repo) gets no overlay — it ships no Mailpit and
+sets `MAIL_*` to a real SMTP provider (see
+[.env.stack.example](../.env.stack.example)).
 
 ## Running Terraform locally
 
@@ -157,18 +181,20 @@ do them by hand (VM must meet the [requirements](#vm-requirements) above):
    ```
 
    For a non-prod stack, append `compose.mailpit.yml` to add the Mailpit sink +
-   reviewer inbox (and set `MAIL_*`/`INBOX_BASICAUTH` in the env file):
+   reviewer inbox (and set `MAIL_*`/`INBOX_BASICAUTH` in the env file), and set
+   `SEED=1` to load demo content (prod leaves it unset — see below):
 
    ```sh
-   SSH_OPTS="-i /path/to/deploy-private-key" \
+   SSH_OPTS="-i /path/to/deploy-private-key" SEED=1 \
      infra/deploy.sh <host> <app-env-file> infra/traefik/.env compose.mailpit.yml
    ```
 
    It SSHes as `deploy`, copies the [shared Traefik stack](traefik/) and the
    app stack (root [compose.yml](../compose.yml) + the given env file, derived
    from [.env.stack.example](../.env.stack.example)) into `/srv/b2b/`, brings
-   both up, runs the one-shot `seed` service (idempotent upsert of seed data),
-   and smoke-checks `https://$APP_DOMAIN` incl. a seeded API page. Stacks land
+   both up, runs the one-shot `seed` service **only when `SEED` is set**
+   (idempotent upsert — off by default so prod is never seeded by accident), and
+   smoke-checks `https://$APP_DOMAIN` (incl. a seeded API page when seeded). Stacks land
    in `/srv/b2b/<STACK_NAME>/`, so one VM can host several (dev / prod / demo).
 
    Images are pulled from GHCR. To deploy before CI has published any (or to

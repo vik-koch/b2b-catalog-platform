@@ -46,3 +46,91 @@ jobs:
 
       - name: Verify manifest
         run: docker buildx imagetools inspect "$IMAGE:${GITHUB_REF_NAME#v}"
+
+  # Tagging a release deploys the public prod environment (NFR-OPS-02) from the
+  # just-promoted version tag — the same infra/deploy.sh dev uses, onto the same
+  # long-lived VM as a second, independent stack (own STACK_NAME -> own DB volume
+  # + own domain; Traefik routes both by Host). Public prod is a portfolio
+  # demonstration, so it keeps the Mailpit sink + reviewer inbox (no real mail
+  # leaves) and, unlike a real client prod, is never seeded — it demonstrates the
+  # unseeded production boot. Needs (see infra/README.md): repo variables
+  # DEPLOY_HOST, PROD_APP_DOMAIN, ACME_EMAIL + secrets DEPLOY_SSH_PRIVATE_KEY,
+  # PROD_POSTGRES_PASSWORD, INBOX_PASSWORD.
+  deploy-prod:
+    needs: promote
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: prod
+      url: https://${{ vars.PROD_APP_DOMAIN }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Write SSH key
+        run: |
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > .deploy-key
+          chmod 600 .deploy-key
+
+      - name: Deploy
+        env:
+          SSH_OPTS: -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -i ${{ github.workspace }}/.deploy-key
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          APP_DOMAIN: ${{ vars.PROD_APP_DOMAIN }}
+          ACME_EMAIL: ${{ vars.ACME_EMAIL }}
+          POSTGRES_PASSWORD: ${{ secrets.PROD_POSTGRES_PASSWORD }}
+          # Guards the prod Mailpit reviewer inbox. Hashed below — the
+          # plaintext is a masked secret and is never written to a log.
+          INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
+          # Central logs. Both set -> the shared observability stack is
+          # deployed (idempotent, already up from dev); either unset -> skipped.
+          GRAFANA_DOMAIN: ${{ vars.GRAFANA_DOMAIN }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+        run: |
+          : "${DEPLOY_HOST:?repo variable DEPLOY_HOST is not set}"
+          : "${APP_DOMAIN:?repo variable PROD_APP_DOMAIN is not set}"
+          : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
+          : "${POSTGRES_PASSWORD:?secret PROD_POSTGRES_PASSWORD is not set}"
+          : "${INBOX_PASSWORD:?secret INBOX_PASSWORD is not set}"
+          version="${GITHUB_REF_NAME#v}"
+          image_base="ghcr.io/${GITHUB_REPOSITORY,,}"
+
+          # SHA1 htpasswd entry for Traefik basic-auth. SHA1 (not bcrypt) keeps
+          # the string free of '$', which Compose would treat as interpolation.
+          inbox_hash=$(printf '%s' "$INBOX_PASSWORD" | openssl sha1 -binary | openssl base64)
+
+          # Deployed from the version tag — byte-identical to the sha image dev
+          # ran (release.yml promoted it above). POSTGRES_PASSWORD must stay
+          # stable across deploys — the prod volume keeps the first it ever saw.
+          cat > "$RUNNER_TEMP/prod.env" <<EOF
+          STACK_NAME=prod
+          APP_DOMAIN=$APP_DOMAIN
+          API_IMAGE=$image_base-api:$version
+          WEB_IMAGE=$image_base-web:$version
+          # Long-lived stack: enable the db-backup sidecar (NFR-OPS-04, ADR 0017).
+          COMPOSE_PROFILES=backup
+          POSTGRES_DB=b2b_catalog
+          POSTGRES_USER=b2b_catalog
+          POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+          MAIL_HOST=mailpit
+          MAIL_PORT=1025
+          MAIL_FROM=Coffee Kontor <no-reply@coffee-kontor.example>
+          MAIL_CONTACT_TO=hallo@coffee-kontor.example
+          INBOX_BASICAUTH=reviewer:{SHA}$inbox_hash
+          EOF
+          printf 'ACME_EMAIL=%s\n' "$ACME_EMAIL" > "$RUNNER_TEMP/traefik.env"
+
+          # Opt-in observability: only when both the hostname and password are
+          # configured. Absent -> OBSERVABILITY_ENV stays unset and the stack is
+          # left untouched (see deploy.sh).
+          if [ -n "$GRAFANA_DOMAIN" ] && [ -n "$GRAFANA_ADMIN_PASSWORD" ]; then
+            cat > "$RUNNER_TEMP/observability.env" <<EOF
+          GRAFANA_DOMAIN=$GRAFANA_DOMAIN
+          GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD
+          EOF
+            export OBSERVABILITY_ENV="$RUNNER_TEMP/observability.env"
+          fi
+
+          # No SEED -> prod boots unseeded (see deploy.sh). Mailpit overlay keeps
+          # the reviewer inbox; a real client prod would omit it (real SMTP).
+          infra/deploy.sh "$DEPLOY_HOST" "$RUNNER_TEMP/prod.env" \
+            "$RUNNER_TEMP/traefik.env" compose.mailpit.yml

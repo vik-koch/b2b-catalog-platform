@@ -4,9 +4,23 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** early stage — requirements and roadmap are defined & implementation started.
->
-> Demo dev environment is available via: https://b2b-dev.vikkoch.com.
+> **Status:** early stage — requirements and roadmap defined; iteration 1 (static pages,
+> compliance scaffolding, base infra: walking skeleton, CI/CD, dev + prod) implemented,
+> first release (`v0.1.0`) imminent.
+
+## Environments
+
+Two stacks share one VM; the shared Traefik proxy routes each by hostname, and one shared
+Grafana collects both their logs. See [`infra/README.md`](infra/README.md) for how they deploy.
+
+| Env      | URL                         | Reviewer inbox¹                   | Status                                        |
+| -------- | --------------------------- | --------------------------------- | --------------------------------------------- |
+| **dev**  | https://b2b-dev.vikkoch.com | https://b2b-dev.vikkoch.com/inbox | live · redeploys on every merge to `main`     |
+| **prod** | https://b2b.vikkoch.com     | https://b2b.vikkoch.com/inbox     | from `v0.1.0` · redeploys on each release tag |
+
+¹ Each environment runs its own [Mailpit](https://mailpit.axllent.org/) sink — no real mail
+leaves the demo; inquiries land in that environment's inbox. The reviewer inbox and Grafana
+are credential-gated (they're the demo's plumbing, not public features).
 
 ## What this project is
 

@@ -6,7 +6,7 @@
 # second one. demo-down (also the nightly sweeper) destroys it.
 #
 # Needs (see infra/README.md): secrets HCLOUD_TOKEN, CLOUDFLARE_API_TOKEN,
-# TF_API_TOKEN, DEMO_SSH_PRIVATE_KEY, INBOX_PASSWORD + repo variable ACME_EMAIL.
+# TF_API_TOKEN, DEPLOY_SSH_PRIVATE_KEY, INBOX_PASSWORD + repo variable ACME_EMAIL.
 # Images must be pullable without auth — the GHCR packages are public.
 name: Demo up
 
@@ -62,7 +62,7 @@ jobs:
 
       - name: Write SSH key
         run: |
-          printf '%s\n' "${{ secrets.DEMO_SSH_PRIVATE_KEY }}" > .deploy-key
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > .deploy-key
           chmod 600 .deploy-key
 
       - name: Wait for cloud-init to finish
@@ -87,6 +87,8 @@ jobs:
           # Guards the demo's Mailpit reviewer inbox. Hashed below —
           # the plaintext is a masked secret and is never written to a log.
           INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
+          # Throwaway demo needs demo content, so seed after deploy.
+          SEED: '1'
         run: |
           : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
           : "${INBOX_PASSWORD:?secret INBOX_PASSWORD is not set}"

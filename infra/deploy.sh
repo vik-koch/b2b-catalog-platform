@@ -23,6 +23,12 @@
 # Loki/Alloy/Grafana stack once per VM (idempotent, like Traefik). Unset -> the
 # stack is left untouched, so the ephemeral demo simply omits it.
 #
+# Seeding: opt-in and OFF by default. Set SEED=1 to upsert seed data after the
+# stack is up (dev/demo do — they need demo content). Prod leaves it unset, so a
+# real catalog is never overwritten by an accidental seed: the seed one-shot is
+# also parked in the 'tools' compose profile, so nothing but this explicit,
+# opted-in step ever runs it.
+#
 # Images: `up --no-build` pulls images missing on the host (never builds — the
 # VM has no source tree). To rehearse before CI has published any images,
 # preload local builds under the exact tags the env file references:
@@ -34,6 +40,7 @@ app_env=${2:?usage: deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-
 traefik_env=${3:?usage: deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-compose-file]}
 overlay=${4:-}
 obs_env=${OBSERVABILITY_ENV:-}
+seed=${SEED:-}
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 
@@ -96,20 +103,24 @@ fi
 echo "==> Starting app stack '$stack'"
 run "cd /srv/b2b/$stack && docker compose up -d --no-build"
 
-# Idempotent upsert of seed data. Runs to completion (or fails the deploy);
-# the 'tools' profile keeps it out of the `up` above, which has already run the
-# `migrate` one-shot — so the schema exists by the time this runs.
-echo "==> Seeding database"
-run "cd /srv/b2b/$stack && docker compose run --rm seed"
+# Idempotent upsert of seed data — opt-in only (SEED=1). Runs to completion (or
+# fails the deploy); the 'tools' profile keeps it out of the `up` above, which
+# has already run the `migrate` one-shot — so the schema exists by the time this
+# runs. Prod never sets SEED, so its data is left untouched.
+if [ -n "$seed" ]; then
+  echo "==> Seeding database"
+  run "cd /srv/b2b/$stack && docker compose run --rm seed"
+fi
 
 # First hit also triggers the Let's Encrypt issuance, so allow a generous
 # window: DNS propagation + cert order can take a minute or two on a fresh VM.
-# Require the seeded API page too, so a routing or seed failure fails loudly.
+# When seeded, require a seeded API page too, so a routing or seed failure fails
+# loudly; unseeded (prod) only asserts the app is reachable — no content yet.
 echo "==> Smoke check https://$domain"
 for _ in $(seq 1 36); do
   if curl -fsS --max-time 10 "https://$domain/" >/dev/null 2>&1 &&
-    curl -fsS --max-time 10 "https://$domain/api/pages/about" >/dev/null 2>&1; then
-    echo "OK: https://$domain is up and serving seeded content"
+    { [ -z "$seed" ] || curl -fsS --max-time 10 "https://$domain/api/pages/about" >/dev/null 2>&1; }; then
+    echo "OK: https://$domain is up"
     exit 0
   fi
   sleep 5
