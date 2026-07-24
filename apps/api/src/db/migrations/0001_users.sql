@@ -6,5 +6,6 @@ CREATE TABLE "users" (
 	"role" "user_role" DEFAULT 'user' NOT NULL,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL,
+	"tokenVersion" integer DEFAULT 0 NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );

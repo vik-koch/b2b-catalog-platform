@@ -1,4 +1,5 @@
 import {
+  integer,
   pgEnum,
   pgTable,
   text,
@@ -30,4 +31,9 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updatedAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
+  // Incremented on password change (or any forced logout). The signed session
+  // token embeds the value it was issued with; the auth guard rejects a token
+  // whose version no longer matches, so changing a password invalidates every
+  // session issued before it.
+  tokenVersion: integer('tokenVersion').notNull().default(0),
 });

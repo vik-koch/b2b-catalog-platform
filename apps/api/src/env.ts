@@ -18,6 +18,10 @@ const EnvSchema = z
     MAIL_SECURE: z.enum(['true', 'false']).optional(),
     // Where the inquiry form is delivered (FR-NAV-06).
     MAIL_CONTACT_TO: z.string().optional(),
+    // Secret that signs the session JWT. Required in server mode
+    // (see refinement below); the migrate/seed one-shots never sign tokens.
+    // Min length keeps a weak/short key from being accepted.
+    JWT_SECRET: z.string().min(32).optional(),
     // Trusted proxy hops for rate limiting. 0 (default) = trust none,
     // correct for dev/e2e with no proxy; behind Traefik set 1 so the throttler
     // keys on the real client IP. Higher only with more forwarding layers.

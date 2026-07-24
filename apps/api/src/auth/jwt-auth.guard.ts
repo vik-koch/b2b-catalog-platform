@@ -5,20 +5,28 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { authUserSchema } from '@b2b-catalog-platform/shared';
+import { UsersService } from '../users/users.service';
 import { AUTH_COOKIE } from './auth.constants';
 import { AuthenticatedRequest } from './authenticated-request';
 import { JwtPayload } from './jwt-payload';
 
 /**
- * Authenticates a request from the httpOnly session cookie. On success it
- * populates `request.user`; otherwise it fails with 401. Signing key and expiry
- * come from the JwtModule registration in AuthModule, so this guard stays
- * configuration-agnostic.
+ * Authenticates a request from the httpOnly session cookie. The token proves
+ * *identity* (its signature is tamper-proof); the database is the source of
+ * truth for *authorization*. So after verifying the signature we load the user
+ * and use the DB row — a deleted or demoted user is rejected on the next
+ * request rather than staying valid until the token expires, and a tokenVersion
+ * mismatch (e.g. after a password change) invalidates the session too.
+ *
+ * The cost is one indexed lookup per request, only on `@Auth`-gated routes;
+ * public routes never reach this guard.
  */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly jwt: JwtService) {}
+  constructor(
+    private readonly jwt: JwtService,
+    private readonly users: UsersService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
@@ -35,18 +43,18 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid or expired session');
     }
 
-    // A token signed with our key but carrying an unexpected claim shape is
-    // still rejected before anything downstream trusts it.
-    const parsed = authUserSchema.safeParse({
-      id: payload.sub,
-      email: payload.email,
-      role: payload.role,
-    });
-    if (!parsed.success) {
-      throw new UnauthorizedException('Invalid session');
+    const user = await this.users.findById(payload.sub);
+    // User gone (deleted) → reject.
+    if (!user) {
+      throw new UnauthorizedException('Session no longer valid');
+    }
+    // Version moved on (password changed / forced logout) → reject.
+    if (user.tokenVersion !== payload.tokenVersion) {
+      throw new UnauthorizedException('Session expired');
     }
 
-    request.user = parsed.data;
+    // Role comes from the DB, not the token, so a role change takes effect now.
+    request.user = { id: user.id, email: user.email, role: user.role };
     return true;
   }
 }

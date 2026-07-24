@@ -9,4 +9,7 @@ export interface JwtPayload {
   sub: string;
   email: string;
   role: UserRole;
+  // Snapshot of the user's `tokenVersion` at issue time; the guard rejects the
+  // token once the stored version moves past it (e.g. after a password change).
+  tokenVersion: number;
 }
