@@ -20,6 +20,16 @@ function getAppText() {
 }
 
 /**
+ * Load and validate the app text eagerly. Called from the Node entry
+ * point at startup so a missing/invalid file fails the boot rather than
+ * surfacing on the first SSR render. Safe to call before any render:
+ * it only populates the cache the provider factory reuses.
+ */
+export function preloadAppText(): void {
+  getAppText();
+}
+
+/**
  * Server provider: serializes the UI text into TransferState so the browser
  * reads it once from the initial HTML instead of over an endpoint. Merged after
  * appConfig, so it wins over the browser provider during SSR.

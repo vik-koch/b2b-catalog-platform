@@ -8,6 +8,7 @@ import { appTextSchema } from './app-text.type';
 export const defaultAppText: AppText = loadDefaultAppText();
 
 function loadDefaultAppText(): AppText {
-  process.env['APP_TEXT'] = 'config/app-text.json';
-  return loadConfig(appTextSchema, 'APP_TEXT');
+  const APP_TEXT_ENV_VAR = 'APP_TEXT_FILE';
+  process.env[APP_TEXT_ENV_VAR] = '/config/app-text.json';
+  return loadConfig(appTextSchema, APP_TEXT_ENV_VAR);
 }

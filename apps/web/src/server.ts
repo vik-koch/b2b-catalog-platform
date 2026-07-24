@@ -9,6 +9,8 @@ import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
+import { preloadAppText } from './app/config/app-text.server';
+import { preloadDeploymentConfig } from './app/config/deployment-config.server';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
@@ -56,8 +58,9 @@ function getAssetsMiddleware() {
 }
 
 /**
- * Per-deployment asset overrides (logo, favicon).
- * Evaluated lazily on the first incoming request so build-time imports don't throw.
+ * Per-deployment asset overrides (logo, favicon). The middleware is memoized on
+ * first use; the Node entry point below warms it (and the config loaders) at
+ * startup so a misconfigured mount fails the boot rather than the first request.
  */
 app.use((req, res, next) => {
   getAssetsMiddleware()(req, res, next);
@@ -91,6 +94,14 @@ app.use('/**', (req, res, next) => {
  * The server listens on the port defined by the `WEB_PORT` environment variable.
  */
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
+  // Validate the whole per-deployment config mount before listening, so a
+  // missing/invalid file or assets dir fails the boot rather than 500ing on the
+  // first request. Only runs when started as the Node server — never during the
+  // build/prerender, which import this module without a runtime environment.
+  getAssetsMiddleware();
+  preloadDeploymentConfig();
+  preloadAppText();
+
   const port = requireEnv('WEB_PORT');
   app.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
