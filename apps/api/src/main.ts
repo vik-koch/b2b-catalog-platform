@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 import { runSeed } from '@b2b-catalog-platform/seed';
 import { AppModule } from './app/app.module';
 import { runMigrations } from './db/migrate';
@@ -7,6 +8,10 @@ import { env } from './env';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Populates req.cookies so the auth guard can read the httpOnly session
+  // cookie. No secret: the JWT is self-verifying, so cookie signing adds nothing.
+  app.use(cookieParser());
 
   // Behind Traefik (prod), trust the proxy's forwarded client IP so rate
   // limiting keys on the real client, not the proxy. Off by default

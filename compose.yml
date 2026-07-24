@@ -40,6 +40,9 @@ services:
       # Behind Traefik (one hop), so rate limiting keys on the real
       # client IP, not the proxy. Overridable for stacks with more layers.
       TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      # Signs the session JWT. Required — no default, so a stack
+      # without it fails fast rather than booting with a guessable key.
+      JWT_SECRET: ${JWT_SECRET:?}
       # SMTP. Provided per stack: Mailpit for demo/localtest, a real
       # provider for prod. USER/PASSWORD/SECURE are optional (Mailpit needs none).
       MAIL_HOST: ${MAIL_HOST:?}

@@ -19,3 +19,14 @@ export const PublicFormThrottle = () =>
     UseGuards(ThrottlerGuard),
     Throttle({ default: { limit: 10, ttl: seconds(60) } }),
   );
+
+/**
+ * Authentication endpoints (login). A handful of tries a minute per IP is
+ * sufficient for a human and throttles credential-stuffing / brute force.
+ * Traefik also rate-limits at the edge.
+ */
+export const AuthThrottle = () =>
+  applyDecorators(
+    UseGuards(ThrottlerGuard),
+    Throttle({ default: { limit: 10, ttl: seconds(60) } }),
+  );

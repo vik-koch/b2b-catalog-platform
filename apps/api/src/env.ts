@@ -36,6 +36,7 @@ const EnvSchema = z
         'MAIL_PORT',
         'MAIL_FROM',
         'MAIL_CONTACT_TO',
+        'JWT_SECRET',
       ] as const;
       for (const key of required) {
         if (val[key] === undefined) {
