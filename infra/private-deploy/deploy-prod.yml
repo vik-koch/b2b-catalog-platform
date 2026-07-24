@@ -1,0 +1,127 @@
+# TEMPLATE — copy into your PRIVATE deployment repo as
+# .github/workflows/deploy-prod.yml. It is inert here (GitHub only runs
+# workflows under .github/workflows/); it lives in infra/ so the public repo's
+# Actions tab stays clean.
+#
+# What it does: deploys a released, PUBLIC image to your client VM by checking
+# the public platform out at the matching tag (for deploy.sh + the compose
+# files) and layering your PRIVATE config + real SMTP on top. Nothing from the
+# public repo is vendored — you always deploy the exact version's machinery.
+#
+# The private repo owns only: this workflow, a complete ./config dir (real
+# branding/text/assets — loaded whole, so it must be complete), and the
+# secrets/variables below. See infra/private-deploy/README.md.
+#
+# Prereqs (documented in that README): the VM is already provisioned (Terraform
+# or manual) with Docker + the `deploy` user + your deploy key, and DNS for
+# APP_DOMAIN points at it (DNS-only if behind Cloudflare).
+name: Deploy prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Released platform version to deploy, e.g. 0.1.0 (no leading v)'
+        required: true
+
+permissions:
+  contents: read
+
+# Never let two deploys to the same VM overlap.
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: prod
+      url: https://${{ vars.APP_DOMAIN }}
+    steps:
+      # 1. This (private) repo — your ./config lands in the workspace root.
+      - uses: actions/checkout@v7
+
+      # 2. The public platform at the tag whose image you're deploying, so
+      #    deploy.sh + compose.yml + the Traefik/observability stacks match the
+      #    running image exactly. Public repo -> no token needed.
+      - uses: actions/checkout@v7
+        with:
+          repository: vik-koch/b2b-catalog-platform
+          ref: v${{ inputs.version }}
+          path: platform
+
+      - name: Write SSH key
+        run: |
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > .deploy-key
+          chmod 600 .deploy-key
+
+      - name: Deploy
+        env:
+          SSH_OPTS: -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -i ${{ github.workspace }}/.deploy-key
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          APP_DOMAIN: ${{ vars.APP_DOMAIN }}
+          ACME_EMAIL: ${{ vars.ACME_EMAIL }}
+          # Real SMTP — no Mailpit on a client prod. USER/PASSWORD/SECURE
+          # per your provider (MAIL_SECURE=true for implicit TLS on 465).
+          MAIL_HOST: ${{ vars.MAIL_HOST }}
+          MAIL_PORT: ${{ vars.MAIL_PORT }}
+          MAIL_FROM: ${{ vars.MAIL_FROM }}
+          MAIL_CONTACT_TO: ${{ vars.MAIL_CONTACT_TO }}
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_SECURE: ${{ vars.MAIL_SECURE }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          # Optional central logs — set both to turn the shared stack on.
+          GRAFANA_DOMAIN: ${{ vars.GRAFANA_DOMAIN }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          # STACK_NAME defaults to prod; override only if this VM already runs
+          # another stack named prod (then pick a distinct name + domain).
+          STACK_NAME: ${{ vars.STACK_NAME }}
+        run: |
+          : "${DEPLOY_HOST:?variable DEPLOY_HOST is not set}"
+          : "${APP_DOMAIN:?variable APP_DOMAIN is not set}"
+          : "${ACME_EMAIL:?variable ACME_EMAIL is not set}"
+          : "${POSTGRES_PASSWORD:?secret POSTGRES_PASSWORD is not set}"
+          : "${MAIL_HOST:?variable MAIL_HOST is not set}"
+          version="${{ inputs.version }}"
+          image_base="ghcr.io/vik-koch/b2b-catalog-platform"
+
+          # POSTGRES_PASSWORD must stay stable across deploys — the volume keeps
+          # the first password it ever saw. No Mailpit overlay, no SEED: a real
+          # catalog arrives via admin bulk sync, never from seed data.
+          cat > "$RUNNER_TEMP/prod.env" <<EOF
+          STACK_NAME=${STACK_NAME:-prod}
+          APP_DOMAIN=$APP_DOMAIN
+          API_IMAGE=$image_base-api:$version
+          WEB_IMAGE=$image_base-web:$version
+          COMPOSE_PROFILES=backup
+          POSTGRES_DB=b2b_catalog
+          POSTGRES_USER=b2b_catalog
+          POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+          MAIL_HOST=$MAIL_HOST
+          MAIL_PORT=${MAIL_PORT:-587}
+          MAIL_FROM=$MAIL_FROM
+          MAIL_CONTACT_TO=$MAIL_CONTACT_TO
+          MAIL_USER=$MAIL_USER
+          MAIL_PASSWORD=$MAIL_PASSWORD
+          MAIL_SECURE=${MAIL_SECURE:-false}
+          EOF
+          printf 'ACME_EMAIL=%s\n' "$ACME_EMAIL" > "$RUNNER_TEMP/traefik.env"
+
+          # Opt-in observability, same contract as the public repo.
+          if [ -n "$GRAFANA_DOMAIN" ] && [ -n "$GRAFANA_ADMIN_PASSWORD" ]; then
+            cat > "$RUNNER_TEMP/observability.env" <<EOF
+          GRAFANA_DOMAIN=$GRAFANA_DOMAIN
+          GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD
+          EOF
+            export OBSERVABILITY_ENV="$RUNNER_TEMP/observability.env"
+          fi
+
+          # CONFIG_DIR -> this private repo's ./config (overrides the public
+          # demo config). No 4th arg -> no Mailpit overlay. deploy.sh finds
+          # compose.yml + the shared stacks under the checked-out platform/ dir.
+          CONFIG_DIR="$GITHUB_WORKSPACE/config" \
+            platform/infra/deploy.sh "$DEPLOY_HOST" \
+            "$RUNNER_TEMP/prod.env" "$RUNNER_TEMP/traefik.env"
