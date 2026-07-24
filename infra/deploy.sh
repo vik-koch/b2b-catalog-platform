@@ -82,7 +82,12 @@ echo "==> Copying deployment config from $config_dir"
 # OpenSSH 9's SFTP-mode scp fails to create a not-yet-existing remote subdir
 # ("realpath ...: No such file / path canonicalization failed"). tar streams the
 # whole tree in one shot and still replaces wholesale (dir wiped just above).
-run "rm -rf /srv/b2b/$stack/config && mkdir -p /srv/b2b/$stack/config"
+# Empty the dir in place rather than rm -rf'ing it: a running container's bind
+# mount is bound to the directory *inode*, so recreating the dir would leave an
+# already-running container mounting a now-deleted inode (a stale, empty
+# /config). Preserving the inode keeps existing mounts valid; the force-recreate
+# below then makes the app actually reload the refreshed files.
+run "mkdir -p /srv/b2b/$stack/config && find /srv/b2b/$stack/config -mindepth 1 -delete"
 tar -C "$config_dir" -cf - . | run "tar -C /srv/b2b/$stack/config -xf -"
 
 echo "==> Starting shared Traefik proxy"
@@ -102,6 +107,14 @@ fi
 
 echo "==> Starting app stack '$stack'"
 run "cd /srv/b2b/$stack && docker compose up -d --no-build"
+
+# web + api load their config WHOLE at boot from the ./config mount (ADR 0018).
+# The `up` above only recreates them when their image or compose config changes,
+# so a config-only redeploy (same image) would leave them running with the
+# previous config still in memory. Force just those two to restart so config
+# edits always take effect; --no-deps leaves postgres and the one-shot migrate
+# (already run above) untouched.
+run "cd /srv/b2b/$stack && docker compose up -d --no-build --force-recreate --no-deps web api"
 
 # Idempotent upsert of seed data — opt-in only (SEED=1). Runs to completion (or
 # fails the deploy); the 'tools' profile keeps it out of the `up` above, which
