@@ -7,4 +7,7 @@ import { AppText, appTextSchema } from './app-text.type';
  * env var Nx reads from .env (CI copies .env.example first) — so the fixture
  * can't drift from the real demo text and invents no test-only env var.
  */
-export const defaultAppText: AppText = loadConfig(appTextSchema, 'APP_TEXT_FILE');
+export const defaultAppText: AppText = loadConfig(
+  appTextSchema,
+  'APP_TEXT_FILE',
+);
