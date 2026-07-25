@@ -39,6 +39,7 @@
     "@types/node": "^22.0.0",
     "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.20.0",
+    "@types/sanitize-html": "^2.16.1",
     "@typescript-eslint/utils": "^8.58.0",
     "angular-eslint": "^22.0.0",
     "drizzle-kit": "^0.31.10",
@@ -95,6 +96,7 @@
     "pg": "^8.22.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "~7.8.0",
+    "sanitize-html": "^2.17.6",
     "zod": "3.25.76"
   },
   "overrides": {

@@ -13,7 +13,19 @@ export const pages = pgTable('pages', {
   // The primary key IS the public slug (fixed set, see shared PAGE_SLUGS).
   id: varchar('id', { length: 64 }).primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
+  // Always sanitized: nothing writes here without passing through
+  // sanitizeRichText — neither the admin endpoint nor the seed.
   bodyHtml: text('bodyHtml').notNull(),
+  // No `createdAt`: rows are seeded, never created, so it would only record the
+  // seed date. `updatedAt` is shown publicly as the page's last-changed date.
+  updatedAt: timestamp('updatedAt', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  // Who last edited, for audit. Null for never-edited seeded content. No
+  // version history is kept — this is the whole audit trail.
+  updatedBy: uuid('updatedBy').references(() => users.id, {
+    onDelete: 'set null',
+  }),
 });
 
 // New signups default to `user`; `admin`/`manager` are assigned deliberately.

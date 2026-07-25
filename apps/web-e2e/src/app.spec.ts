@@ -1,4 +1,5 @@
 import { aboutPageSeed } from '@b2b-catalog-platform/seed';
+import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { expect, test } from '@playwright/test';
 
 test('renders the home placeholder', async ({ page }) => {
@@ -13,6 +14,8 @@ test('serves the API on the same origin under /api', async ({ request }) => {
   expect(response.status()).toBe(200);
   expect(await response.json()).toEqual({
     title: aboutPageSeed.title,
-    bodyHtml: aboutPageSeed.bodyHtml,
+    // The seed writes through the sanitizer, so that is the stored form.
+    bodyHtml: sanitizeRichText(aboutPageSeed.bodyHtml),
+    updatedAt: expect.any(String),
   });
 });
