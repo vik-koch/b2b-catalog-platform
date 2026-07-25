@@ -1,7 +1,6 @@
 import { seedDatabase } from '@b2b-catalog-platform/seed';
 import { execSync } from 'node:child_process';
-import { Client } from 'pg';
-import { localtestEnv, workspaceRoot } from './localtest';
+import { localtestDbClient, localtestEnv, workspaceRoot } from './localtest';
 
 const baseURL = process.env['BASE_URL'] || 'http://localhost:8080';
 
@@ -43,16 +42,19 @@ export default async function globalSetup() {
   }
 
   // 3. Seed the data the specs assert against (idempotent).
-  const client = new Client({
-    host: '127.0.0.1',
-    port: Number(env['DATABASE_PORT']),
-    database: env['POSTGRES_DB'],
-    user: env['POSTGRES_USER'],
-    password: env['POSTGRES_PASSWORD'],
-  });
+  const client = localtestDbClient();
   await client.connect();
   try {
     await seedDatabase(client);
+    // bootstrap-admin flags its account as still using the password the deploy
+    // gave it, so the app forces a change on first sign-in. Clear it here: the
+    // login/session specs are about other things and would all have to dismiss
+    // the modal. The forced flow gets its own throwaway account and its own
+    // spec (change-password.spec.ts), so nothing here has to stay flagged.
+    await client.query(
+      'UPDATE users SET "mustChangePassword" = false WHERE email = $1',
+      [env['ADMIN_EMAIL'].trim().toLowerCase()],
+    );
   } finally {
     await client.end();
   }

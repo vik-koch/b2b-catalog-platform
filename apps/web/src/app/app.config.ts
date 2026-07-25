@@ -16,7 +16,8 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideBrowserGlobalErrorListeners(),
     provideRouter(appRoutes, withComponentInputBinding()),
-    // Browser reads config + copy from TransferState; the server providers
+    // Browser reads config + copy from the script the Node process injects into
+    // every document (shell-state.ts); the server providers
     // (app.config.server.ts) are merged last and override these on SSR.
     provideDeploymentConfig(),
     provideAppText(),

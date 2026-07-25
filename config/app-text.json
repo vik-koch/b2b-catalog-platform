@@ -1,5 +1,7 @@
 {
-  "brand": { "tagline": "wholesale specialty coffee, Hamburg." },
+  "brand": {
+    "tagline": "wholesale specialty coffee, Hamburg."
+  },
   "nav": {
     "about": "About us",
     "conditions": "Payment & delivery",
@@ -10,6 +12,44 @@
   },
   "contact": {
     "intro": "Visit us or get in touch — find our offices below."
+  },
+  "auth": {
+    "login": "Log in",
+    "logout": "Log out",
+    "accountNav": "Account",
+    "signedInAs": "Signed in as",
+    "adminPanel": "Admin panel",
+    "account": "My account",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Log in",
+    "submitting": "Logging in…",
+    "invalid": "Invalid email or password.",
+    "error": "Something went wrong logging you in. Please try again.",
+    "underConstruction": "This area is under construction.",
+    "changePassword": {
+      "heading": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "submit": "Change password",
+      "submitting": "Changing…",
+      "success": "Your password has been changed. Other devices you were signed in on have been logged out.",
+      "wrongCurrent": "That is not your current password.",
+      "error": "Something went wrong changing your password. Please try again.",
+      "forcedHeading": "Choose your own password",
+      "forcedIntro": "This account still uses the password it was set up with. Please choose your own before continuing.",
+      "forcedContinue": "Continue"
+    },
+    "validation": {
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "passwordRequired": "Please enter your password.",
+      "currentPasswordRequired": "Please enter your current password.",
+      "newPasswordRequired": "Please enter a new password.",
+      "newPasswordTooShort": "Please use at least {min} characters.",
+      "confirmPasswordMismatch": "The two passwords do not match."
+    }
   },
   "home": {
     "line1": "Hamburg · Speicherstadt",

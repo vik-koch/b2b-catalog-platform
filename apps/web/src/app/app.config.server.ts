@@ -10,9 +10,8 @@ import { serverRoutes } from './app.routes.server';
 const serverConfig: ApplicationConfig = {
   providers: [
     provideServerRendering(withRoutes(serverRoutes)),
-    // Derive config (demo defaults + env flags) and copy, and write them into
-    // TransferState. Merged after appConfig, so they win over the browser
-    // providers during SSR.
+    // Config and copy straight from the mounted files. Merged after appConfig,
+    // so they win over the browser providers, which read the document.
     provideServerDeploymentConfig(),
     provideServerAppText(),
     // SSR fetches the API via the internal API_URL origin; the browser via

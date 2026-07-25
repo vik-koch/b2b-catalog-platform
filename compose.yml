@@ -40,6 +40,12 @@ services:
       # Behind Traefik (one hop), so rate limiting keys on the real
       # client IP, not the proxy. Overridable for stacks with more layers.
       TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      # Login attempts per IP per minute. The default is the real policy;
+      # only the e2e stack raises it (see .env.localtest).
+      AUTH_RATE_LIMIT: ${AUTH_RATE_LIMIT:-10}
+      # Signs the session JWT. Required — no default, so a stack
+      # without it fails fast rather than booting with a guessable key.
+      JWT_SECRET: ${JWT_SECRET:?}
       # SMTP. Provided per stack: Mailpit for demo/localtest, a real
       # provider for prod. USER/PASSWORD/SECURE are optional (Mailpit needs none).
       MAIL_HOST: ${MAIL_HOST:?}
@@ -58,6 +64,8 @@ services:
       postgres:
         condition: service_healthy
       migrate:
+        condition: service_completed_successfully
+      bootstrap-admin:
         condition: service_completed_successfully
     networks:
       - internal
@@ -120,6 +128,28 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - internal
+
+  # One-shot admin bootstrap — reuses the API image in RUN_MODE=bootstrap-admin
+  # to create the seeded admin if it does not already exist (create-if-missing:
+  # never overwrites a changed password or real content), then exits. Unlike the
+  # dev-only content `seed`, this runs on every `up` in every environment —
+  # including prod — so an admin always exists. api waits on it completing.
+  bootstrap-admin:
+    image: ${API_IMAGE:?}
+    restart: 'no'
+    environment:
+      RUN_MODE: bootstrap-admin
+      API_PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     networks:
       - internal
 

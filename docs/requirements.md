@@ -56,6 +56,7 @@ without renumbering.
 | FR-AUTH-05 | Prices shown are determined by the user's tier via a tier → price-list mapping. Guests and users without an assigned tier always see the lowest-tier (default) price list.                                                                                                                                                                                 |
 | FR-AUTH-06 | A user can delete their own account. Deletion removes personal data; past orders are anonymized, not deleted, to preserve order history.                                                                                                                                                                                                                   |
 | FR-AUTH-07 | Admin-panel routes and endpoints are gated by an authenticated admin login with server-side role checks. A minimal variant (single seeded admin account, credentials provisioned via deployment configuration) is deliverable before full account management (FR-AUTH-01…06) exists.                                                                       |
+| FR-AUTH-08 | Any signed-in account can change its own password, confirming the current one. A successful change ends that account's other sessions. An account whose password it did not choose itself — provisioned by deployment configuration (FR-AUTH-07) or generated and emailed on approval (FR-AUTH-01) — is prompted to set its own before continuing.         |
 
 ### Cart & Checkout (FR-CART)
 

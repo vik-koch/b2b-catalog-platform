@@ -39,8 +39,8 @@ export type ContactLocation = DeepReadonly<
  * Per-deployment configuration for the app chrome — branding/identity and
  * feature flags.
  *
- * Delivered to the browser via TransferState (see deployment-config.server.ts)
- * — no separate public config endpoint, no runtime fetch. Non-secret by
+ * Injected into every document the Node process serves (see shell-state.ts) —
+ * no separate public config endpoint, no runtime fetch. Non-secret by
  * construction: the browser needs them to render.
  */
 export const deploymentConfigSchema = z

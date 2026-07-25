@@ -67,16 +67,33 @@ Whatever the provider, the VM needs:
    it); `DEV_*` / `PROD_*` = one environment's own domain + DB password; the rest
    are provider tokens or shared services.
 
-   | Secret                   | Content                                                                                       |
-   | ------------------------ | --------------------------------------------------------------------------------------------- |
-   | `HCLOUD_TOKEN`           | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token              |
-   | `CLOUDFLARE_API_TOKEN`   | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com        |
-   | `TF_API_TOKEN`           | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI)     |
-   | `DEPLOY_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1 (dev CD, prod CD and demo-up all use it)           |
-   | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                        |
-   | `PROD_POSTGRES_PASSWORD` | The prod stack's database password (its own volume). Must stay **stable across deploys**      |
-   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox (username `reviewer`) |
-   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it       |
+   The auth secrets (`JWT_SECRET`, `ADMIN_*`, see
+   [ADR 0019](../docs/adr/0019-session-auth-argon2-jwt-cookie.md)) are
+   deliberately **unprefixed = shared** by the public dev and prod stacks: the
+   guard resolves authorization from each stack's own database, so a token
+   minted on one stack names a user id the other's DB does not have and is
+   rejected there. A real client prod (private repo) always has its own.
+
+   | Secret                   | Content                                                                                                                                  |
+   | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+   | `HCLOUD_TOKEN`           | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token                                                         |
+   | `CLOUDFLARE_API_TOKEN`   | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com                                                   |
+   | `TF_API_TOKEN`           | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI)                                                |
+   | `DEPLOY_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1 (dev CD, prod CD and demo-up all use it)                                                      |
+   | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                                                                   |
+   | `PROD_POSTGRES_PASSWORD` | The prod stack's database password (its own volume). Must stay **stable across deploys**                                                 |
+   | `ADMIN_EMAIL`            | Login of the bootstrap admin created on every deploy if missing (dev/prod/demo)                                                          |
+   | `ADMIN_PASSWORD`         | Its first-boot password, ≥ 8 chars, no `$` (see below). Rotate it in-app after first login                                               |
+   | `JWT_SECRET`             | Signs the session JWT (dev/prod; demo generates its own). ≥ 32 chars, **stable across deploys**. Generate one: `openssl rand -base64 48` |
+   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox (username `reviewer`)                                            |
+   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it                                                  |
+
+   Values landing in a stack's `.env` must contain **no `$`** — Compose reads
+   that file for interpolation and would treat `$` as a variable reference.
+   `openssl rand -base64|-hex` output is always safe; a hand-picked
+   `ADMIN_PASSWORD` is the one to watch. The deploy workflows additionally
+   fail fast if `JWT_SECRET` or `ADMIN_PASSWORD` is missing or too short,
+   rather than letting the api crash-loop behind a smoke-check timeout.
 
    Plus Actions **variables** (same page, Variables tab — not secret):
 
@@ -108,9 +125,11 @@ repo — same `deploy.sh`, its own config and real SMTP, no Mailpit.
 ## Demo workflows
 
 - **demo-up** (manual trigger): terraform apply → wait for cloud-init →
-  [deploy.sh](deploy.sh) with a generated `.env` (throwaway DB credentials,
-  images from GHCR — tag selectable, default `main`). The run summary shows
-  the demo URL. Hostname is `b2b-demo-run<N>` with the workflow run number,
+  [deploy.sh](deploy.sh) with a generated `.env` (throwaway DB credentials and
+  JWT signing key — nothing outlives the VM — plus the shared `ADMIN_*` secrets
+  so a reviewer can sign in; images from GHCR — tag selectable, default `main`).
+  The run summary shows the demo URL and names the secrets to log in with —
+  never their values, since a public repo's run logs are public. Hostname is `b2b-demo-run<N>` with the workflow run number,
   so every run gets a fresh name (clean DNS, no Let's Encrypt
   duplicate-cert limits).
 - **demo-down** (manual trigger + nightly sweeper at 03:00 UTC): terraform
@@ -133,6 +152,28 @@ it into an SHA1 htpasswd entry at deploy time, never logging the plaintext).
 A real **client prod** (private repo) gets no overlay — it ships no Mailpit and
 sets `MAIL_*` to a real SMTP provider (see
 [.env.stack.example](../.env.stack.example)).
+
+## Admin access (every environment)
+
+Per [ADR 0019](../docs/adr/0019-session-auth-argon2-jwt-cookie.md) each stack
+runs a `bootstrap-admin` one-shot on every `up`, **before** the api starts: it
+creates the `ADMIN_EMAIL` account with an argon2id hash of `ADMIN_PASSWORD` if —
+and only if — that account does not exist yet. So:
+
+- every environment, including an unseeded prod, comes up with a usable admin,
+  with no manual step;
+- a redeploy **never** clobbers an admin whose password was rotated in-app, so
+  the deploy-time `ADMIN_PASSWORD` is a first-boot value only. Changing the
+  secret later has no effect on a stack that already ran the one-shot — reset
+  such an account in the database, not by redeploying;
+- the plaintext lives in the stack's `.env` on the VM and in the short-lived
+  one-shot's environment. `ADMIN_PASSWORD_HASH` is the documented hardening if
+  that is unacceptable for a given deployment (ADR 0019).
+
+Sessions are JWTs signed with `JWT_SECRET` and carried in an httpOnly cookie.
+Keep it stable across deploys: changing it invalidates every open session (which
+is also the emergency "log everyone out" lever). The ephemeral demo generates a
+fresh one per run, since no session outlives the VM.
 
 ## Running Terraform locally
 

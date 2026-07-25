@@ -55,7 +55,8 @@ jobs:
   # leaves) and, unlike a real client prod, is never seeded — it demonstrates the
   # unseeded production boot. Needs (see infra/README.md): repo variables
   # DEPLOY_HOST, PROD_APP_DOMAIN, ACME_EMAIL + secrets DEPLOY_SSH_PRIVATE_KEY,
-  # PROD_POSTGRES_PASSWORD, INBOX_PASSWORD.
+  # PROD_POSTGRES_PASSWORD, INBOX_PASSWORD, JWT_SECRET, ADMIN_EMAIL,
+  # ADMIN_PASSWORD.
   deploy-prod:
     needs: promote
     runs-on: ubuntu-24.04
@@ -78,6 +79,11 @@ jobs:
           APP_DOMAIN: ${{ vars.PROD_APP_DOMAIN }}
           ACME_EMAIL: ${{ vars.ACME_EMAIL }}
           POSTGRES_PASSWORD: ${{ secrets.PROD_POSTGRES_PASSWORD }}
+          # Session signing key + the bootstrap admin the one-shot creates if
+          # missing, shared with the dev stack — see the note in ci.yml.
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           # Guards the prod Mailpit reviewer inbox. Hashed below — the
           # plaintext is a masked secret and is never written to a log.
           INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
@@ -91,6 +97,14 @@ jobs:
           : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
           : "${POSTGRES_PASSWORD:?secret PROD_POSTGRES_PASSWORD is not set}"
           : "${INBOX_PASSWORD:?secret INBOX_PASSWORD is not set}"
+          : "${JWT_SECRET:?secret JWT_SECRET is not set}"
+          : "${ADMIN_EMAIL:?secret ADMIN_EMAIL is not set}"
+          : "${ADMIN_PASSWORD:?secret ADMIN_PASSWORD is not set}"
+          # Same floors the api enforces at boot (apps/api/src/env.ts) — check
+          # them here so a too-short secret fails now, loudly, instead of as a
+          # crash-looping container behind an opaque smoke-check timeout.
+          [ ${#JWT_SECRET} -ge 32 ] || { echo "JWT_SECRET must be >= 32 chars" >&2; exit 1; }
+          [ ${#ADMIN_PASSWORD} -ge 8 ] || { echo "ADMIN_PASSWORD must be >= 8 chars" >&2; exit 1; }
           version="${GITHUB_REF_NAME#v}"
           image_base="ghcr.io/${GITHUB_REPOSITORY,,}"
 
@@ -111,6 +125,9 @@ jobs:
           POSTGRES_DB=b2b_catalog
           POSTGRES_USER=b2b_catalog
           POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+          JWT_SECRET=$JWT_SECRET
+          ADMIN_EMAIL=$ADMIN_EMAIL
+          ADMIN_PASSWORD=$ADMIN_PASSWORD
           MAIL_HOST=mailpit
           MAIL_PORT=1025
           MAIL_FROM=Coffee Kontor <no-reply@coffee-kontor.example>

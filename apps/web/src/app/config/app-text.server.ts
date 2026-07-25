@@ -1,6 +1,6 @@
-import { inject, Provider, TransferState } from '@angular/core';
-import { APP_TEXT, APP_TEXT_STATE_KEY } from './app-text';
-import { appTextSchema } from './app-text.type';
+import { Provider } from '@angular/core';
+import { APP_TEXT } from './app-text';
+import { AppText, appTextSchema } from './app-text.type';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 
 const APP_TEXT_ENV_VAR = 'APP_TEXT_FILE';
@@ -13,9 +13,10 @@ const APP_TEXT_ENV_VAR = 'APP_TEXT_FILE';
  * Constructed lazily because the production build imports this module
  * without any runtime environment.
  */
-let cachedAppText: ReturnType<typeof loadConfig> | undefined;
+let cachedAppText: AppText | undefined;
 
-function getAppText() {
+/** The validated catalog. Also the source for the injected shell state. */
+export function getAppText(): AppText {
   return (cachedAppText ??= loadConfig(appTextSchema, APP_TEXT_ENV_VAR));
 }
 
@@ -30,17 +31,11 @@ export function preloadAppText(): void {
 }
 
 /**
- * Server provider: serializes the UI text into TransferState so the browser
- * reads it once from the initial HTML instead of over an endpoint. Merged after
- * appConfig, so it wins over the browser provider during SSR.
+ * Server provider: hands the render the text straight from the mounted file.
+ * Merged after appConfig, so it wins over the browser provider during SSR —
+ * which reads the document, and there is none on the server. Delivery to the
+ * browser is separate, and the same for every route (see shell-state.server.ts).
  */
 export function provideServerAppText(): Provider {
-  return {
-    provide: APP_TEXT,
-    useFactory: () => {
-      const appText = getAppText();
-      inject(TransferState).set(APP_TEXT_STATE_KEY, appText);
-      return appText;
-    },
-  };
+  return { provide: APP_TEXT, useFactory: getAppText };
 }

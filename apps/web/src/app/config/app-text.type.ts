@@ -8,9 +8,9 @@ import { z } from 'zod';
  * separate from DeploymentConfig so growing text has its own home and a
  * deployment can override the whole catalog as one unit.
  *
- * Delivered SSR → browser via TransferState (see app-text.server.ts), so a
- * per-deployment override is a runtime concern, not a rebuild. Non-secret by
- * construction: the browser renders it.
+ * Injected into every document the Node process serves (see shell-state.ts),
+ * so a per-deployment override is a runtime concern, not a rebuild. Non-secret
+ * by construction: the browser renders it.
  */
 export const appTextSchema = z
   .object({
@@ -27,6 +27,63 @@ export const appTextSchema = z
     contact: z
       .object({
         intro: z.string(),
+      })
+      .strict(),
+    /**
+     * Login form, the navbar account link and the signed-in block on its
+     * destination page. One vocabulary for all roles — the only thing that
+     * differs per role is where the link goes (`adminPanel` vs `account`).
+     */
+    auth: z
+      .object({
+        login: z.string(),
+        logout: z.string(),
+        /** Static navbar label — deliberately role-independent, see accountNav usage. */
+        accountNav: z.string(),
+        signedInAs: z.string(),
+        adminPanel: z.string(),
+        account: z.string(),
+        email: z.string(),
+        password: z.string(),
+        submit: z.string(),
+        submitting: z.string(),
+        invalid: z.string(),
+        error: z.string(),
+        underConstruction: z.string(),
+        /**
+         * The change-password form, plus the modal that forces it on an account
+         * still using a password it was handed rather than chose.
+         */
+        changePassword: z
+          .object({
+            heading: z.string(),
+            currentPassword: z.string(),
+            newPassword: z.string(),
+            confirmPassword: z.string(),
+            submit: z.string(),
+            submitting: z.string(),
+            success: z.string(),
+            wrongCurrent: z.string(),
+            error: z.string(),
+            /** Modal-only copy: why the form is in the way. */
+            forcedHeading: z.string(),
+            forcedIntro: z.string(),
+            /** Acknowledges the success message and dismisses the modal. */
+            forcedContinue: z.string(),
+          })
+          .strict(),
+        validation: z
+          .object({
+            emailRequired: z.string(),
+            emailInvalid: z.string(),
+            passwordRequired: z.string(),
+            currentPasswordRequired: z.string(),
+            newPasswordRequired: z.string(),
+            /** Carries the minimum length; `{min}` is substituted at render. */
+            newPasswordTooShort: z.string(),
+            confirmPasswordMismatch: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**

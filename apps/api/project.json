@@ -97,6 +97,16 @@
         }
       }
     },
+    "db-bootstrap-admin": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/apps/api/main.js",
+        "env": {
+          "RUN_MODE": "bootstrap-admin"
+        }
+      }
+    },
     "serve-fresh": {
       "executor": "nx:run-commands",
       "continuous": true,
@@ -105,6 +115,7 @@
         "commands": [
           "nx run api:db-migrate",
           "nx run api:db-seed",
+          "nx run api:db-bootstrap-admin",
           "nx run api:serve"
         ]
       }

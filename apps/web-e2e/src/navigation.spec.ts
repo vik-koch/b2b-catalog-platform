@@ -6,11 +6,11 @@ import {
 } from '@b2b-catalog-platform/seed';
 import { expect, test } from '@playwright/test';
 
-// Exactly one main nav is visible at a time: the desktop bar (md+) or the
-// hamburger panel once opened.
-const visibleMainNav = 'nav[aria-label="Main"]:visible';
+// Exactly one utility nav is visible at a time: the desktop top bar (md+) or
+// the hamburger panel once opened.
+const visibleUtilityNav = 'nav[aria-label="Utility"]:visible';
 
-test('navigates from home to the about page via the main nav', async ({
+test('navigates from home to the about page via the utility nav', async ({
   page,
   isMobile,
 }) => {
@@ -24,7 +24,7 @@ test('navigates from home to the about page via the main nav', async ({
   }
 
   await page
-    .locator(visibleMainNav)
+    .locator(visibleUtilityNav)
     .getByRole('link', { name: 'About us' })
     .click();
 
@@ -33,7 +33,7 @@ test('navigates from home to the about page via the main nav', async ({
 
   if (isMobile) {
     // The panel closes after navigating.
-    await expect(page.locator(visibleMainNav)).toHaveCount(0);
+    await expect(page.locator(visibleUtilityNav)).toHaveCount(0);
   }
 });
 

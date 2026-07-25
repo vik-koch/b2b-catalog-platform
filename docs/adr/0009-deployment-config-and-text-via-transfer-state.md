@@ -1,6 +1,7 @@
-# 0009 — Deliver deployment config and UI text via SSR TransferState
+# 0009 — Deliver deployment config and UI text in the served document
 
-**Status:** accepted · **Date:** 2026-07-20
+**Status:** accepted · **Date:** 2026-07-20 · **Amended:** 2026-07-25 (delivery
+mechanism: TransferState → an injected `<script>`, see _Amendment_ below)
 
 ## Context
 
@@ -29,10 +30,10 @@ Angular `TransferState` behind DI tokens.
 
 - Two DI tokens — **`DEPLOYMENT_CONFIG`** (non-text: branding, flags, locations)
   and **`APP_TEXT`** (the single-locale text catalog) — resolve the values.
-- A **server provider** reads/derives each value and writes it into
-  **`TransferState`**; a **browser provider** reads it back from the initial
-  HTML. Merged server-last, so the server wins during SSR. No `/api/config`
-  endpoint, no runtime fetch.
+- A **server provider** reads/derives each value from the mounted file; a
+  **browser provider** reads it back out of the served document. Merged
+  server-last, so the server wins during SSR. No `/api/config` endpoint, no
+  runtime fetch. (Originally the channel was `TransferState`; see _Amendment_.)
 - **Text is kept separate from config** (`APP_TEXT` vs `DEPLOYMENT_CONFIG`) so
   growing copy has its own home and a deployment can override the whole catalog
   as one unit. Navigation **structure** (which routes, order) is fixed code, not
@@ -46,9 +47,9 @@ Angular `TransferState` behind DI tokens.
    (0007) and the consume-public-artifacts rule. This is the same force that
    decided runtime theming in 0008, which already anticipated "SSR-injected from
    deployment config."
-2. **TransferState is consume-once, no new surface.** Values are serialized into
+2. **The document is consume-once, no new surface.** Values are serialized into
    the initial HTML and read on bootstrap — no extra public endpoint, no fetch
-   waterfall — reusing the same mechanism as the page transfer cache.
+   waterfall.
 3. **The DI token is the durable seam.** Consumers inject a token; whether it is
    backed today by a compile-time default or later by a mounted per-deployment
    override file can change without touching a single consumer.
@@ -79,10 +80,37 @@ deployment.
   ever required.
 - (+) Config and text have distinct homes; nav structure stays code, so only
   genuinely per-deployment values are configurable.
-- (−) Delivered values are public (visiWble in the serialized state / view
+- (−) Delivered values are public (visible in the serialized state / view
   source) — acceptable since they are non-secret by construction, but secrets
   must never be placed on these tokens.
 - (−) The runtime override mechanism is deferred; until the second deployment,
   the "override" is editing the typed defaults.
 - (−) More provider wiring than a baked constant, justified only because the
   runtime seam is a known near-term need.
+
+## Amendment — 2026-07-25: the channel is the document, not TransferState
+
+`TransferState` only exists in SSR output. Using it as the config channel meant
+**every** route had to be server-rendered, including the session-scoped ones
+(`/login`, `/admin`, `/account`) — which are not crawler-visible, are never
+cold-loaded, and which the server cannot render meaningfully anyway, since it
+resolves no session (0019). Server rendering them produced only a placeholder,
+and cost a `SessionGate` component, SSR branches in both route guards, and a
+hydration wait in the e2e specs to work around forms being rebound after paint.
+
+The binding constraint was never TransferState — it is that a per-deployment
+value cannot live in a build artifact (0007), so the boot document must come
+from the running Node process. That is satisfied by the Node server injecting a
+`<script id="app-shell-state" type="application/json">` into every HTML document
+it serves, server-rendered page and client-rendered shell alike (`<` escaped, so
+no config string can close the tag early). The DI tokens — rationale 3, the part
+that actually mattered — are untouched; only the browser providers' source
+changed.
+
+Consequently: config delivery is now a **shell** concern, uniform across render
+modes, and `TransferState` is left to what it is for (per-render data, e.g. the
+page transfer cache). Session-scoped routes are `RenderMode.Client`; content
+routes stay `RenderMode.Server`. The cost is ~40 lines of injection in
+`server.ts` in place of the framework's own serializer, and one more thing that
+must not break: a document served without the script fails loudly at bootstrap
+rather than rendering empty chrome.

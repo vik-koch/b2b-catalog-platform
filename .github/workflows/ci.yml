@@ -200,7 +200,8 @@ jobs:
   # rehearsals and demo-up. Prod is deployed separately, from a release tag
   # (release.yml). Needs (see infra/README.md): repo variables DEPLOY_HOST,
   # DEV_APP_DOMAIN, ACME_EMAIL + secrets DEPLOY_SSH_PRIVATE_KEY,
-  # DEV_POSTGRES_PASSWORD, INBOX_PASSWORD.
+  # DEV_POSTGRES_PASSWORD, INBOX_PASSWORD, JWT_SECRET, ADMIN_EMAIL,
+  # ADMIN_PASSWORD.
   deploy-dev:
     if: github.event_name == 'push'
     needs: merge-manifests
@@ -224,6 +225,12 @@ jobs:
           APP_DOMAIN: ${{ vars.DEV_APP_DOMAIN }}
           ACME_EMAIL: ${{ vars.ACME_EMAIL }}
           POSTGRES_PASSWORD: ${{ secrets.DEV_POSTGRES_PASSWORD }}
+          # Session signing key + the bootstrap admin the one-shot creates if
+          # missing. Shared with prod rather than per-stack: the
+          # guard resolves authorization from each stack's own database.
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           # Dev shows demo content, so seed after deploy (prod never does).
           SEED: '1'
           # Guards the dev Mailpit reviewer inbox. Hashed below — the
@@ -239,6 +246,14 @@ jobs:
           : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
           : "${POSTGRES_PASSWORD:?secret DEV_POSTGRES_PASSWORD is not set}"
           : "${INBOX_PASSWORD:?secret INBOX_PASSWORD is not set}"
+          : "${JWT_SECRET:?secret JWT_SECRET is not set}"
+          : "${ADMIN_EMAIL:?secret ADMIN_EMAIL is not set}"
+          : "${ADMIN_PASSWORD:?secret ADMIN_PASSWORD is not set}"
+          # Same floors the api enforces at boot (apps/api/src/env.ts) — check
+          # them here so a too-short secret fails now, loudly, instead of as a
+          # crash-looping container behind an opaque smoke-check timeout.
+          [ ${#JWT_SECRET} -ge 32 ] || { echo "JWT_SECRET must be >= 32 chars" >&2; exit 1; }
+          [ ${#ADMIN_PASSWORD} -ge 8 ] || { echo "ADMIN_PASSWORD must be >= 8 chars" >&2; exit 1; }
           image_base="ghcr.io/${GITHUB_REPOSITORY,,}"
 
           # SHA1 htpasswd entry for Traefik basic-auth. SHA1 (not bcrypt) keeps
@@ -258,6 +273,9 @@ jobs:
           POSTGRES_DB=b2b_catalog
           POSTGRES_USER=b2b_catalog
           POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+          JWT_SECRET=$JWT_SECRET
+          ADMIN_EMAIL=$ADMIN_EMAIL
+          ADMIN_PASSWORD=$ADMIN_PASSWORD
           MAIL_HOST=mailpit
           MAIL_PORT=1025
           MAIL_FROM=Coffee Kontor <no-reply@coffee-kontor.example>

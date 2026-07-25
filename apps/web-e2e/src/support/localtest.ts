@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { Client } from 'pg';
 
 export const workspaceRoot = join(__dirname, '../../../..');
 
@@ -17,6 +18,22 @@ export function localtestEnv(): Record<string, string> {
         return [line.slice(0, eq), line.slice(eq + 1)];
       }),
   );
+}
+
+/**
+ * A pg client for the localtest stack's database, on the host port compose
+ * publishes. Specs use it to arrange account state the UI cannot reach (there is
+ * no user administration yet), and global-setup uses it to seed content.
+ */
+export function localtestDbClient(): Client {
+  const env = localtestEnv();
+  return new Client({
+    host: '127.0.0.1',
+    port: Number(env['DATABASE_PORT']),
+    database: env['POSTGRES_DB'],
+    user: env['POSTGRES_USER'],
+    password: env['POSTGRES_PASSWORD'],
+  });
 }
 
 // Mailpit's REST API, published on the host by compose.override.yml. 8026 (not
