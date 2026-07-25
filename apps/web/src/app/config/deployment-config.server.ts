@@ -1,9 +1,9 @@
-import { inject, Provider, TransferState } from '@angular/core';
+import { Provider } from '@angular/core';
+import { DEPLOYMENT_CONFIG } from './deployment-config';
 import {
-  DEPLOYMENT_CONFIG,
-  DEPLOYMENT_CONFIG_STATE_KEY,
-} from './deployment-config';
-import { deploymentConfigSchema } from './deployment-config.type';
+  DeploymentConfig,
+  deploymentConfigSchema,
+} from './deployment-config.type';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 
 const CONFIG_ENV_VAR = 'DEPLOYMENT_CONFIG_FILE';
@@ -16,9 +16,10 @@ const CONFIG_ENV_VAR = 'DEPLOYMENT_CONFIG_FILE';
  * Constructed lazily because the production build imports this module
  * without any runtime environment.
  */
-let cachedDeploymentConfig: ReturnType<typeof loadConfig> | undefined;
+let cachedDeploymentConfig: DeploymentConfig | undefined;
 
-function getDeploymentConfig() {
+/** The validated config. Also the source for the injected shell state. */
+export function getDeploymentConfig(): DeploymentConfig {
   return (cachedDeploymentConfig ??= loadConfig(
     deploymentConfigSchema,
     CONFIG_ENV_VAR,
@@ -36,17 +37,11 @@ export function preloadDeploymentConfig(): void {
 }
 
 /**
- * Server provider: writes the deployment config into TransferState so the
- * browser reads it once from the initial HTML instead of over an endpoint.
- * Merged after appConfig, so it wins over the browser provider during SSR.
+ * Server provider: hands the render the config straight from the mounted file.
+ * Merged after appConfig, so it wins over the browser provider during SSR —
+ * which reads the document, and there is none on the server. Delivery to the
+ * browser is separate, and the same for every route (see shell-state.server.ts).
  */
 export function provideServerDeploymentConfig(): Provider {
-  return {
-    provide: DEPLOYMENT_CONFIG,
-    useFactory: () => {
-      const deploymentConfig = getDeploymentConfig();
-      inject(TransferState).set(DEPLOYMENT_CONFIG_STATE_KEY, deploymentConfig);
-      return deploymentConfig;
-    },
-  };
+  return { provide: DEPLOYMENT_CONFIG, useFactory: getDeploymentConfig };
 }

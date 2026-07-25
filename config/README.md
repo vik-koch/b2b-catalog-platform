@@ -12,8 +12,7 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
 ## The files
 
 - `deployment.json` → `DeploymentConfig` (branding, contact, locations,
-  cookie-consent flag, phone input). **Browser-delivered** via SSR TransferState
-  (ADR 0009).
+  cookie-consent flag, phone input). **Browser-delivered** via shell state.
 - `app-text.json` → `AppText` UI-text catalog (nav labels, copy…).
   **Browser-delivered.**
 - `inquiry-text.json` → `InquiryText`, the inquiry email wording. **Server-only**

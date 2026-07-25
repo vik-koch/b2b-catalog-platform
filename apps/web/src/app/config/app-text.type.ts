@@ -8,9 +8,9 @@ import { z } from 'zod';
  * separate from DeploymentConfig so growing text has its own home and a
  * deployment can override the whole catalog as one unit.
  *
- * Delivered SSR → browser via TransferState (see app-text.server.ts), so a
- * per-deployment override is a runtime concern, not a rebuild. Non-secret by
- * construction: the browser renders it.
+ * Injected into every document the Node process serves (see shell-state.ts),
+ * so a per-deployment override is a runtime concern, not a rebuild. Non-secret
+ * by construction: the browser renders it.
  */
 export const appTextSchema = z
   .object({
@@ -27,6 +27,34 @@ export const appTextSchema = z
     contact: z
       .object({
         intro: z.string(),
+      })
+      .strict(),
+    /**
+     * Login form and the navbar account menu. One vocabulary for all roles —
+     * the only thing that differs per role is which destination the menu
+     * offers (`adminPanel` vs `account`).
+     */
+    auth: z
+      .object({
+        login: z.string(),
+        logout: z.string(),
+        accountMenu: z.string(),
+        adminPanel: z.string(),
+        account: z.string(),
+        email: z.string(),
+        password: z.string(),
+        submit: z.string(),
+        submitting: z.string(),
+        invalid: z.string(),
+        error: z.string(),
+        underConstruction: z.string(),
+        validation: z
+          .object({
+            emailRequired: z.string(),
+            emailInvalid: z.string(),
+            passwordRequired: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**

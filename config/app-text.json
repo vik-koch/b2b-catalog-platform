@@ -11,6 +11,25 @@
   "contact": {
     "intro": "Visit us or get in touch — find our offices below."
   },
+  "auth": {
+    "login": "Log in",
+    "logout": "Log out",
+    "accountMenu": "Account",
+    "adminPanel": "Admin panel",
+    "account": "My account",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Log in",
+    "submitting": "Logging in…",
+    "invalid": "Invalid email or password.",
+    "error": "Something went wrong logging you in. Please try again.",
+    "underConstruction": "This area is under construction.",
+    "validation": {
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "passwordRequired": "Please enter your password."
+    }
+  },
   "home": {
     "line1": "Hamburg · Speicherstadt",
     "line2": "Wholesale specialty coffee",

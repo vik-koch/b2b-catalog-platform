@@ -1,5 +1,6 @@
 import { Route, UrlSegment } from '@angular/router';
 import { PAGE_SLUGS } from '@b2b-catalog-platform/shared';
+import { guestOnly, requireAuth } from './auth/auth.guard';
 import { NotFoundPage } from './pages/not-found-page';
 import { ContactPage } from './pages/contact-page';
 import { InquiryPage } from './pages/inquiry-page';
@@ -11,6 +12,23 @@ const isPageSlug = (_: Route, [first]: UrlSegment[]) =>
 
 export const appRoutes: Route[] = [
   { path: '', component: Home },
+  // Session-scoped routes, lazy so the public bundle carries none of them.
+  {
+    path: 'login',
+    canActivate: [guestOnly],
+    loadComponent: () => import('./auth/login-page').then((m) => m.LoginPage),
+  },
+  {
+    path: 'admin',
+    canActivate: [requireAuth('admin', 'manager')],
+    loadComponent: () => import('./admin/admin-page').then((m) => m.AdminPage),
+  },
+  {
+    path: 'account',
+    canActivate: [requireAuth()],
+    loadComponent: () =>
+      import('./account/account-page').then((m) => m.AccountPage),
+  },
   // Code pages are declared before the generic :slug route.
   { path: 'contact', component: ContactPage },
   { path: 'inquiry', component: InquiryPage },

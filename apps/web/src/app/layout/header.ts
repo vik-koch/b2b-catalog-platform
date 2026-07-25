@@ -5,12 +5,23 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { CloseIcon } from '../ui/icons/close-icon';
 import { MenuIcon } from '../ui/icons/menu-icon';
 import { PhoneIcon } from '../ui/icons/phone-icon';
+import { AccountMenu } from './account-menu';
 import { ContactInfo } from './contact-info';
 
+/**
+ * Two-row header, the conventional B2B/e-commerce split: a slim utility bar
+ * (company pages + contact details) above a main bar that carries the brand
+ * and the primary actions — the account menu today, search and cart later.
+ *
+ * On mobile there is no room for two rows: the utility bar is hidden, its
+ * links move into the hamburger panel, and the phone becomes a one-tap icon
+ * next to the account menu.
+ */
 @Component({
   imports: [
     RouterLink,
     RouterLinkActive,
+    AccountMenu,
     ContactInfo,
     PhoneIcon,
     MenuIcon,
@@ -24,23 +35,35 @@ import { ContactInfo } from './contact-info';
     <header
       class="sticky top-0 z-10 border-b border-stone-200 bg-surface/90 backdrop-blur"
     >
-      <!-- Desktop utility bar above the nav; collapses on scroll. The nav row
-           stays free for future catalog / search / cart / login. On mobile the
-           phone moves into the nav row (below) instead. -->
-      @if (contact?.phone || contact?.email) {
+      <!-- Utility bar; collapses on scroll so only the main bar keeps sticking.
+           Everything in it is reachable from the footer and the mobile panel
+           too, which is what makes collapsing it safe. -->
+      <div
+        class="hidden overflow-hidden transition-all duration-300 md:block"
+        [class.max-h-0]="collapsed()"
+        [class.opacity-0]="collapsed()"
+        [class.max-h-12]="!collapsed()"
+      >
         <div
-          class="hidden overflow-hidden transition-all duration-300 md:block"
-          [class.max-h-0]="collapsed()"
-          [class.opacity-0]="collapsed()"
-          [class.max-h-12]="!collapsed()"
+          class="mx-auto flex h-10 w-full max-w-5xl items-center justify-between gap-6 border-b border-stone-100 px-4"
         >
-          <div
-            class="mx-auto flex h-10 w-full max-w-5xl items-center justify-end border-b border-stone-100 px-4"
-          >
+          <nav class="flex gap-5 text-xs" aria-label="Utility">
+            @for (route of utilityRoutes; track route) {
+              <a
+                [routerLink]="'/' + route"
+                routerLinkActive="text-primary font-medium"
+                class="text-stone-500 transition-colors hover:text-ink"
+              >
+                {{ text.nav[route] }}
+              </a>
+            }
+          </nav>
+          @if (contact?.phone || contact?.email) {
             <app-contact-info />
-          </div>
+          }
         </div>
-      }
+      </div>
+
       <div
         class="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4"
       >
@@ -60,32 +83,23 @@ import { ContactInfo } from './contact-info';
           />
         </a>
 
-        <nav class="hidden gap-6 text-sm md:flex" aria-label="Main">
-          @for (route of navRoutes; track route) {
-            <a
-              [routerLink]="'/' + route"
-              routerLinkActive="text-primary font-medium"
-              class="text-stone-600 transition-colors hover:text-ink"
-            >
-              {{ text.nav[route] }}
-            </a>
-          }
-        </nav>
-
-        <!-- Mobile controls: a one-tap call icon (no text) beside the menu. -->
-        <div class="flex items-center gap-1 md:hidden">
+        <!-- Primary actions. Search and cart join the account menu here. -->
+        <div class="flex items-center gap-1">
           @if (contact?.phone; as phone) {
+            <!-- One-tap call, mobile only — on desktop the number is spelled
+                 out in the utility bar. -->
             <a
               [href]="telHref(phone)"
-              class="rounded-md p-2 text-primary hover:bg-stone-100"
+              class="rounded-md p-2 text-primary hover:bg-stone-100 md:hidden"
               [attr.aria-label]="'Call ' + phone"
             >
               <app-icon-phone class="h-5 w-5" />
             </a>
           }
+          <app-account-menu />
           <button
             type="button"
-            class="-mr-2 rounded-md p-2 text-stone-600 hover:bg-stone-100"
+            class="-mr-2 rounded-md p-2 text-stone-600 hover:bg-stone-100 md:hidden"
             [attr.aria-expanded]="menuOpen()"
             aria-controls="mobile-menu"
             aria-label="Toggle menu"
@@ -104,9 +118,9 @@ import { ContactInfo } from './contact-info';
         <nav
           id="mobile-menu"
           class="border-t border-stone-200 md:hidden"
-          aria-label="Main"
+          aria-label="Utility"
         >
-          @for (route of navRoutes; track route) {
+          @for (route of utilityRoutes; track route) {
             <a
               [routerLink]="'/' + route"
               routerLinkActive="text-primary font-medium"
@@ -130,9 +144,9 @@ export class Header {
   protected readonly text = inject(APP_TEXT);
   protected readonly branding = this.config.branding;
   protected readonly contact = this.config.contact;
-  protected readonly navRoutes: readonly string[] = ['about', 'contact'];
+  protected readonly utilityRoutes: readonly string[] = ['about', 'contact'];
 
-  // Collapse the contact bar once scrolled off the top. Never fires on the
+  // Collapse the utility bar once scrolled off the top. Never fires on the
   // server; the initial render is expanded and matches hydration.
   @HostListener('window:scroll')
   protected onScroll(): void {

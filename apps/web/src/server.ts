@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
 import { preloadAppText } from './app/config/app-text.server';
 import { preloadDeploymentConfig } from './app/config/deployment-config.server';
+import { injectShellState } from './app/config/shell-state.server';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
@@ -79,14 +80,32 @@ app.use(
 
 /**
  * Handle all other requests by rendering the Angular application.
+ *
+ * Every HTML document leaving here — a server-rendered page or the shell for a
+ * client-rendered route — gets the per-deployment state injected, which is the
+ * only channel branding and UI text have to the browser.
  */
-app.use('/**', (req, res, next) => {
-  getAngularApp()
-    .handle(req)
-    .then((response) =>
-      response ? writeResponseToNodeResponse(response, res) : next(),
-    )
-    .catch(next);
+app.use('/**', async (req, res, next) => {
+  try {
+    const response = await getAngularApp().handle(req);
+    if (!response) {
+      next();
+      return;
+    }
+    if (!response.headers.get('content-type')?.includes('text/html')) {
+      await writeResponseToNodeResponse(response, res);
+      return;
+    }
+    const html = injectShellState(await response.text());
+    const headers = new Headers(response.headers);
+    headers.delete('content-length');
+    await writeResponseToNodeResponse(
+      new Response(html, { status: response.status, headers }),
+      res,
+    );
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**

@@ -1,33 +1,19 @@
-import {
-  inject,
-  InjectionToken,
-  makeStateKey,
-  Provider,
-  TransferState,
-} from '@angular/core';
+import { InjectionToken, Provider } from '@angular/core';
 import { DeploymentConfig } from './deployment-config.type';
+import { readShellState } from './shell-state';
 
 export const DEPLOYMENT_CONFIG = new InjectionToken<DeploymentConfig>(
   'DEPLOYMENT_CONFIG',
 );
 
-export const DEPLOYMENT_CONFIG_STATE_KEY =
-  makeStateKey<DeploymentConfig>('deploymentConfig');
-
 /**
- * Browser provider: reads the text the server serialized into the HTML. No
- * baked fallback. SSR always writes the state, so a missing key is a bug,
- * surfaced loudly rather than rendered as empty chrome.
+ * Browser provider: reads the config the server injected into the document (see
+ * shell-state.ts). No baked fallback — a missing payload is a bug, surfaced
+ * loudly rather than rendered as empty chrome.
  */
 export function provideDeploymentConfig(): Provider {
   return {
     provide: DEPLOYMENT_CONFIG,
-    useFactory: () => {
-      const state = inject(TransferState);
-      if (!state.hasKey(DEPLOYMENT_CONFIG_STATE_KEY)) {
-        throw new Error('DeploymentConfig missing from TransferState');
-      }
-      return state.get(DEPLOYMENT_CONFIG_STATE_KEY, null as never);
-    },
+    useFactory: () => readShellState('deploymentConfig'),
   };
 }
