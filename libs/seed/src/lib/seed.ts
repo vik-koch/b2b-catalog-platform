@@ -9,7 +9,7 @@ import { pageSeeds } from './data';
 export async function seedDatabase(client: Client): Promise<void> {
   for (const { slug, title, bodyHtml } of pageSeeds) {
     await client.query(
-      `INSERT INTO page (id, title, "bodyHtml") VALUES ($1, $2, $3)
+      `INSERT INTO pages (id, title, "bodyHtml") VALUES ($1, $2, $3)
        ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, "bodyHtml" = EXCLUDED."bodyHtml"`,
       [slug, title, bodyHtml],
     );
