@@ -1,5 +1,5 @@
 import { Controller, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { authContract, AuthUser } from '@b2b-catalog-platform/shared';
 import { AuthThrottle } from '../throttling/throttle-presets';
