@@ -33,6 +33,11 @@ const EnvSchema = z
     // correct for dev/e2e with no proxy; behind Traefik set 1 so the throttler
     // keys on the real client IP. Higher only with more forwarding layers.
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
+    // Login attempts allowed per IP per minute (NFR-SEC-02). The default is the
+    // policy for real deployments; it is configurable because the e2e stack
+    // drives dozens of logins from one address in well under a minute and would
+    // otherwise throttle its own test run. Raise it there, never in prod.
+    AUTH_RATE_LIMIT: z.coerce.number().int().positive().default(10),
   })
   .superRefine((val, ctx) => {
     // Only the running server sends mail; require its config there, not on the

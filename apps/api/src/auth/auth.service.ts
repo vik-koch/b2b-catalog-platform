@@ -19,7 +19,12 @@ export class AuthService {
 
   /** The client-facing identity — never the hash or tokenVersion. */
   toAuthUser(user: UserRow): AuthUser {
-    return { id: user.id, email: user.email, role: user.role };
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      mustChangePassword: user.mustChangePassword,
+    };
   }
 
   /**
@@ -48,12 +53,16 @@ export class AuthService {
   /**
    * Change the caller's own password. Requires the current one; on success the
    * tokenVersion bump (in UsersService.setPassword) logs out other sessions.
+   *
+   * Returns the updated row — the caller's own session token was invalidated by
+   * that same bump, so the controller has to re-issue the cookie from it (see
+   * AuthController.changePassword) or the change would log the caller out too.
    */
   async changePassword(
     userId: string,
     currentPassword: string,
     newPassword: string,
-  ): Promise<void> {
+  ): Promise<UserRow> {
     const user = await this.users.findById(userId);
     if (!user) {
       throw new UnauthorizedException('Not authenticated');
@@ -63,7 +72,7 @@ export class AuthService {
       throw new BadRequestException('Current password is incorrect');
     }
     const passwordHash = await this.passwords.hash(newPassword);
-    await this.users.setPassword(userId, passwordHash);
+    return this.users.setPassword(userId, passwordHash);
   }
 
   // Computed once and reused: equalizes login timing for unknown emails without

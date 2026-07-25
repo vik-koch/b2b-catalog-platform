@@ -40,6 +40,9 @@ services:
       # Behind Traefik (one hop), so rate limiting keys on the real
       # client IP, not the proxy. Overridable for stacks with more layers.
       TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      # Login attempts per IP per minute. The default is the real policy;
+      # only the e2e stack raises it (see .env.localtest).
+      AUTH_RATE_LIMIT: ${AUTH_RATE_LIMIT:-10}
       # Signs the session JWT. Required — no default, so a stack
       # without it fails fast rather than booting with a guessable key.
       JWT_SECRET: ${JWT_SECRET:?}

@@ -19,6 +19,12 @@ export const authUserSchema = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
   role: userRoleSchema,
+  /**
+   * The account still carries a password it did not choose itself — the
+   * bootstrap admin's seeded one (FR-AUTH-07). The client uses it to force the
+   * change-password prompt.
+   */
+  mustChangePassword: z.boolean(),
 });
 export type AuthUser = z.infer<typeof authUserSchema>;
 
@@ -28,10 +34,17 @@ export const loginSchema = z.object({
 });
 export type LoginRequest = z.infer<typeof loginSchema>;
 
+/**
+ * Minimum length is the one password rule we enforce; argon2 handles the rest.
+ * Named and exported so the change-password form validates the very rule the
+ * server applies (see zodValidator) instead of a hand-copied near-match.
+ */
+export const PASSWORD_MIN_LENGTH = 8;
+export const newPasswordSchema = z.string().min(PASSWORD_MIN_LENGTH).max(200);
+
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
-  // Minimum length is the one password rule we enforce; argon2 handles the rest.
-  newPassword: z.string().min(8).max(200),
+  newPassword: newPasswordSchema,
 });
 export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
 
@@ -75,7 +88,9 @@ export const authContract = c.router({
     path: '/auth/change-password',
     body: changePasswordSchema,
     responses: {
-      200: z.object({ message: z.string() }),
+      // The refreshed identity (with mustChangePassword cleared), so the client
+      // updates its session state from the response rather than re-fetching.
+      200: authUserSchema,
       400: z.object({ message: z.string() }),
       401: z.object({ message: z.string() }),
     },

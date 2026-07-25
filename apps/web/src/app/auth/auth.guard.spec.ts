@@ -10,13 +10,7 @@ import {
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import { AuthService } from './auth.service';
 import { guestOnly, requireAuth } from './auth.guard';
-
-const admin: AuthUser = { id: 'a', email: 'admin@example.com', role: 'admin' };
-const plainUser: AuthUser = {
-  id: 'u',
-  email: 'user@example.com',
-  role: 'user',
-};
+import { adminUser as admin, plainUser } from './auth-user.fixture';
 
 function setup(user: AuthUser | null) {
   TestBed.configureTestingModule({

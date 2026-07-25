@@ -29,6 +29,12 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./account/account-page').then((m) => m.AccountPage),
   },
+  {
+    path: 'change-password',
+    canActivate: [requireAuth()],
+    loadComponent: () =>
+      import('./auth/change-password-page').then((m) => m.ChangePasswordPage),
+  },
   // Code pages are declared before the generic :slug route.
   { path: 'contact', component: ContactPage },
   { path: 'inquiry', component: InquiryPage },

@@ -11,6 +11,7 @@ const user = (overrides: Partial<UserRow> = {}): UserRow =>
     passwordHash: '$argon2id$stored',
     role: 'admin',
     tokenVersion: 2,
+    mustChangePassword: false,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
@@ -104,6 +105,7 @@ describe('AuthService', () => {
       users.findById.mockResolvedValue(user());
       passwords.verify.mockResolvedValue(true);
       passwords.hash.mockResolvedValue('$argon2id$new');
+      users.setPassword.mockResolvedValue(user({ tokenVersion: 3 }));
 
       await service.changePassword(user().id, 'current', 'new-password');
 
@@ -112,6 +114,20 @@ describe('AuthService', () => {
         user().id,
         '$argon2id$new',
       );
+    });
+
+    it('returns the updated row, so the caller can re-issue its own cookie', async () => {
+      const rotated = user({ tokenVersion: 3, mustChangePassword: false });
+      users.findById.mockResolvedValue(user({ mustChangePassword: true }));
+      passwords.verify.mockResolvedValue(true);
+      passwords.hash.mockResolvedValue('$argon2id$new');
+      users.setPassword.mockResolvedValue(rotated);
+
+      // Without this the change would invalidate the very session that made it:
+      // setPassword bumps tokenVersion, and the caller's token carries the old one.
+      await expect(
+        service.changePassword(user().id, 'current', 'new-password'),
+      ).resolves.toBe(rotated);
     });
   });
 });

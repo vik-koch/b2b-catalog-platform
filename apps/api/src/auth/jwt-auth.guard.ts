@@ -54,7 +54,12 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     // Role comes from the DB, not the token, so a role change takes effect now.
-    request.user = { id: user.id, email: user.email, role: user.role };
+    request.user = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      mustChangePassword: user.mustChangePassword,
+    };
     return true;
   }
 }

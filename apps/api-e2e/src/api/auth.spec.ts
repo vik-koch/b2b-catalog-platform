@@ -71,7 +71,12 @@ describe('auth (session cookie)', () => {
     const res = await login(TEST_PASSWORD);
 
     expect(res.status).toBe(200);
-    expect(res.data).toEqual({ id: userId, email: TEST_EMAIL, role: 'admin' });
+    expect(res.data).toEqual({
+      id: userId,
+      email: TEST_EMAIL,
+      role: 'admin',
+      mustChangePassword: false,
+    });
     const cookie = res.headers['set-cookie']?.find((c) =>
       c.startsWith('session='),
     );
@@ -92,7 +97,12 @@ describe('auth (session cookie)', () => {
     const res = await axios.get('/auth/me', { headers: { Cookie: cookie } });
 
     expect(res.status).toBe(200);
-    expect(res.data).toEqual({ id: userId, email: TEST_EMAIL, role: 'admin' });
+    expect(res.data).toEqual({
+      id: userId,
+      email: TEST_EMAIL,
+      role: 'admin',
+      mustChangePassword: false,
+    });
   });
 
   it('logout responds 200 and clears the session cookie', async () => {
@@ -126,6 +136,12 @@ describe('auth (session cookie)', () => {
       { headers: { Cookie: cookie }, validateStatus: () => true },
     );
     expect(ok.status).toBe(200);
+    expect(ok.data).toEqual({
+      id: userId,
+      email: TEST_EMAIL,
+      role: 'admin',
+      mustChangePassword: false,
+    });
 
     // The old cookie's tokenVersion is now stale -> rejected.
     const stale = await axios.get('/auth/me', {
@@ -134,7 +150,41 @@ describe('auth (session cookie)', () => {
     });
     expect(stale.status).toBe(401);
 
+    // ...but the caller is not logged out of the session it changed the password
+    // from: the response re-issues the cookie at the new tokenVersion.
+    const reissued = sessionCookie(ok.headers['set-cookie']);
+    expect(reissued).not.toBe(cookie);
+    const fresh = await axios.get('/auth/me', {
+      headers: { Cookie: reissued },
+      validateStatus: () => true,
+    });
+    expect(fresh.status).toBe(200);
+
     // The new password works.
     expect((await login(NEW_PASSWORD)).status).toBe(200);
+  });
+
+  it('clears a handed-out password flag once the account picks its own', async () => {
+    // What bootstrap-admin writes on a first deploy: a password the account did
+    // not choose, flagged so the app can insist on a change.
+    await client.query(
+      'UPDATE users SET "mustChangePassword" = true WHERE id = $1',
+      [userId],
+    );
+
+    const login1 = await login(NEW_PASSWORD);
+    expect(login1.data.mustChangePassword).toBe(true);
+
+    const changed = await axios.post(
+      '/auth/change-password',
+      { currentPassword: NEW_PASSWORD, newPassword: TEST_PASSWORD },
+      {
+        headers: { Cookie: sessionCookie(login1.headers['set-cookie']) },
+        validateStatus: () => true,
+      },
+    );
+    expect(changed.status).toBe(200);
+    expect(changed.data.mustChangePassword).toBe(false);
+    expect((await login(TEST_PASSWORD)).data.mustChangePassword).toBe(false);
   });
 });

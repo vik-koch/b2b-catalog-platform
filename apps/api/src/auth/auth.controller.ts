@@ -51,14 +51,21 @@ export class AuthController {
 
   @Auth()
   @TsRestHandler(authContract.changePassword)
-  changePassword(@CurrentUser() user: AuthUser) {
+  changePassword(
+    @CurrentUser() user: AuthUser,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     return tsRestHandler(authContract.changePassword, async ({ body }) => {
-      await this.auth.changePassword(
+      const updated = await this.auth.changePassword(
         user.id,
         body.currentPassword,
         body.newPassword,
       );
-      return { status: 200, body: { message: 'Password changed' } };
+      // Update token so the user is not logged out.
+      const token = await this.auth.signToken(updated);
+      res.cookie(AUTH_COOKIE, token, this.sessionCookie(req));
+      return { status: 200, body: this.auth.toAuthUser(updated) };
     });
   }
 

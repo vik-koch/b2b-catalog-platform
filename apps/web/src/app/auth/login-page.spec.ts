@@ -6,15 +6,9 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { AuthService, LoginResult } from './auth.service';
 import { LoginPage } from './login-page';
+import { adminUser as admin, plainUser } from './auth-user.fixture';
 
 const text = defaultAppText.auth;
-
-const admin: AuthUser = { id: 'a', email: 'admin@example.com', role: 'admin' };
-const plainUser: AuthUser = {
-  id: 'u',
-  email: 'user@example.com',
-  role: 'user',
-};
 
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);

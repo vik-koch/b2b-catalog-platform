@@ -7,5 +7,6 @@ CREATE TABLE "users" (
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"tokenVersion" integer DEFAULT 0 NOT NULL,
+	"mustChangePassword" boolean DEFAULT false NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );

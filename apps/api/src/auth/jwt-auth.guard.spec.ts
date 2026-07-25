@@ -12,6 +12,7 @@ const userRow = (overrides: Partial<UserRow> = {}): UserRow =>
     passwordHash: '$argon2id$stored',
     role: 'admin',
     tokenVersion: 0,
+    mustChangePassword: false,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
@@ -95,6 +96,7 @@ describe('JwtAuthGuard', () => {
       id: userRow().id,
       email: userRow().email,
       role: 'user',
+      mustChangePassword: false,
     });
   });
 });

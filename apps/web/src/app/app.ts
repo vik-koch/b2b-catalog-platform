@@ -1,13 +1,14 @@
-import { Component, DOCUMENT, inject, Renderer2 } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { RouterOutlet } from '@angular/router';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 import { CookieConsent } from './consent/cookie-consent';
+import { ForcePasswordChange } from './auth/force-password-change';
 import { Footer } from './layout/footer';
 import { Header } from './layout/header';
 
 @Component({
-  imports: [RouterOutlet, Header, Footer, CookieConsent],
+  imports: [RouterOutlet, Header, Footer, CookieConsent, ForcePasswordChange],
   selector: 'app-root',
   template: `
     <div class="flex min-h-dvh flex-col bg-surface text-ink">
@@ -18,6 +19,9 @@ import { Header } from './layout/header';
       <app-footer />
     </div>
     <app-cookie-consent />
+    <!-- Renders nothing unless a signed-in account still owes a password
+         change, so public pages carry only the (empty) component instance. -->
+    <app-force-password-change />
   `,
   host: {
     '[style.--color-primary]': 'branding.theme.primary',

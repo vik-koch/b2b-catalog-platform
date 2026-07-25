@@ -19,8 +19,12 @@ export async function bootstrapAdmin(
   // Normalize to match the case-insensitive login lookup (UsersService.findByEmail).
   const normalizedEmail = email.trim().toLowerCase();
   const result = await client.query(
-    `INSERT INTO users (email, "passwordHash", role)
-     VALUES ($1, $2, 'admin')
+    // mustChangePassword: the deploy pipeline chose this password, not the
+    // admin. The app forces a change on first sign-in and clears the flag then;
+    // because this INSERT is create-if-missing, a later deploy never re-raises
+    // it on an admin who has already changed theirs.
+    `INSERT INTO users (email, "passwordHash", role, "mustChangePassword")
+     VALUES ($1, $2, 'admin', true)
      ON CONFLICT (email) DO NOTHING`,
     [normalizedEmail, passwordHash],
   );

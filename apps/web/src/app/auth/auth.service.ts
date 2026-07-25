@@ -9,12 +9,20 @@ import {
 import {
   authContract,
   AuthUser,
+  ChangePasswordRequest,
   LoginRequest,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../core/api-client';
 
 /** What the login form needs to distinguish: bad credentials vs. anything else. */
 export type LoginResult = 'ok' | 'invalid' | 'error';
+
+/**
+ * What the change-password form needs to distinguish. `wrong-current` is the
+ * only failure the user can act on by correcting a field; `error` covers the
+ * rest (expired session, server trouble).
+ */
+export type ChangePasswordResult = 'ok' | 'wrong-current' | 'error';
 
 /**
  * The browser's view of the session. The token itself lives in an
@@ -60,6 +68,30 @@ export class AuthService {
       // 401 is the deliberately vague "invalid email or password"; anything
       // else (429 from the login throttle, 5xx) is not the user's fault.
       return response.status === 401 ? 'invalid' : 'error';
+    } catch {
+      return 'error';
+    }
+  }
+
+  /**
+   * Change the signed-in user's own password. On success the server re-issues
+   * the session cookie at the new tokenVersion and returns the refreshed
+   * identity, so the local state (notably `mustChangePassword`) comes straight
+   * from the response — no follow-up /auth/me needed.
+   */
+  async changePassword(
+    request: ChangePasswordRequest,
+  ): Promise<ChangePasswordResult> {
+    try {
+      const response = await this.client.changePassword({ body: request });
+      if (response.status === 200) {
+        this.session.set(response.body);
+        return 'ok';
+      }
+      // 400 is specifically "current password is incorrect" — the only field
+      // error this endpoint reports, since the new password's rules are checked
+      // client-side and by the contract before the request goes out.
+      return response.status === 400 ? 'wrong-current' : 'error';
     } catch {
       return 'error';
     }

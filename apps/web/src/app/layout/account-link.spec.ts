@@ -6,15 +6,9 @@ import { AuthService } from '../auth/auth.service';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { AccountLink } from './account-link';
+import { adminUser as admin, plainUser } from '../auth/auth-user.fixture';
 
 const text = defaultAppText.auth;
-
-const admin: AuthUser = { id: 'a', email: 'admin@example.com', role: 'admin' };
-const plainUser: AuthUser = {
-  id: 'u',
-  email: 'user@example.com',
-  role: 'user',
-};
 
 async function render(initial: AuthUser | null) {
   const user: WritableSignal<AuthUser | null> = signal(initial);
@@ -46,7 +40,6 @@ describe('AccountLink', () => {
     const { link } = await render(null);
 
     expect(link()?.getAttribute('href')).toBe('/login');
-    expect(link()?.textContent).toContain(text.login);
   });
 
   it('points a signed-in admin at the panel', async () => {
@@ -61,10 +54,15 @@ describe('AccountLink', () => {
     expect(link()?.getAttribute('href')).toBe('/account');
   });
 
-  // The label must not depend on the role, or the icon row would resize the
-  // moment /auth/me resolves — and again per role.
-  it('keeps one static label for every signed-in role', async () => {
-    const { link, user, rerender } = await render(admin);
+  // The label must not depend on the session at all: the first paint is always
+  // the signed-out one, so anything role- or sign-in-dependent would visibly
+  // change on every reload once /auth/me answers.
+  it('keeps one static label in every state', async () => {
+    const { link, user, rerender } = await render(null);
+    expect(link()?.textContent).toContain(text.accountNav);
+
+    user.set(admin);
+    await rerender();
     expect(link()?.textContent).toContain(text.accountNav);
 
     user.set(plainUser);

@@ -27,7 +27,7 @@ import { NAV_ACTION, NAV_ACTION_LABEL } from './nav-action';
       [class]="navAction"
     >
       <app-icon-user class="h-5 w-5" />
-      <span [class]="labelClass">{{ label() }}</span>
+      <span [class]="labelClass">{{ text.accountNav }}</span>
     </a>
   `,
 })
@@ -42,8 +42,4 @@ export class AccountLink {
     const user = this.auth.user();
     return user ? landingFor(user.role) : '/login';
   });
-
-  protected readonly label = computed(() =>
-    this.auth.user() ? this.text.accountNav : this.text.login,
-  );
 }

@@ -1,4 +1,5 @@
 import {
+  boolean,
   integer,
   pgEnum,
   pgTable,
@@ -31,9 +32,12 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updatedAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
-  // Incremented on password change (or any forced logout). The signed session
-  // token embeds the value it was issued with; the auth guard rejects a token
-  // whose version no longer matches, so changing a password invalidates every
-  // session issued before it.
+  // Incremented on password change. The signed session token embeds the value
+  // it was issued with; the auth guard rejects a token whose version no longer
+  // matches.
   tokenVersion: integer('tokenVersion').notNull().default(0),
+  // True while the account still carries a password it did not choose itself:
+  // the bootstrap admin's seeded one, and later any admin-issue reset.
+  // Cleared by setPassword.
+  mustChangePassword: boolean('mustChangePassword').notNull().default(false),
 });

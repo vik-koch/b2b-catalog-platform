@@ -30,16 +30,22 @@ export class UsersService {
 
   /**
    * Replace the password hash and bump `tokenVersion` in one statement, so the
-   * change atomically invalidates every session issued before it.
+   * change atomically invalidates every session issued before it. Clears
+   * `mustChangePassword` in the same write: whatever was handed to the account,
+   * it has now chosen its own. Returns the updated row so the caller can
+   * re-issue its own session token at the new version.
    */
-  async setPassword(id: string, passwordHash: string): Promise<void> {
-    await this.db
+  async setPassword(id: string, passwordHash: string): Promise<UserRow> {
+    const [updated] = await this.db
       .update(users)
       .set({
         passwordHash,
         tokenVersion: sql`${users.tokenVersion} + 1`,
+        mustChangePassword: false,
         updatedAt: new Date(),
       })
-      .where(eq(users.id, id));
+      .where(eq(users.id, id))
+      .returning();
+    return updated;
   }
 }

@@ -1,11 +1,11 @@
 {
-  "id": "64083df5-b6c3-4ca3-b28d-7e973bd4a899",
-  "prevId": "75434dcb-529e-44ee-bbf6-9a89cd829ab1",
+  "id": "1cc6bf5a-6db9-4674-99c5-73f2899a6493",
+  "prevId": "5e941102-734a-426a-9368-f82e6c4627b4",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.page": {
-      "name": "page",
+    "public.pages": {
+      "name": "pages",
       "schema": "",
       "columns": {
         "id": {
@@ -86,6 +86,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": 0
+        },
+        "mustChangePassword": {
+          "name": "mustChangePassword",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         }
       },
       "indexes": {},

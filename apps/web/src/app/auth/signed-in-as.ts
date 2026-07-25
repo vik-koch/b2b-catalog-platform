@@ -1,16 +1,23 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { Button } from '../ui/button';
 import { AuthService } from './auth.service';
 
 /**
- * Who you are and the way out — shared by /admin and /account;
- * Renders nothing until /auth/me has answered, which matches the server.
+ * Who you are and what you can do with the session — shared by /admin and
+ * /account. Renders nothing until /auth/me has answered, which matches the
+ * server.
+ *
+ * This is also, for now, the account menu: the change-password link lives here
+ * because there is no other place yet that belongs to the session rather than to
+ * a page. Its presentation is deliberately provisional — when the account menu
+ * proper is designed, the link moves and this block goes back to identity and
+ * sign-out.
  */
 @Component({
   selector: 'app-signed-in-as',
-  imports: [Button],
+  imports: [Button, RouterLink],
   template: `
     @if (auth.user(); as user) {
       <div
@@ -20,9 +27,22 @@ import { AuthService } from './auth.service';
           {{ text.signedInAs }}
           <span class="font-medium text-ink">{{ user.email }}</span>
         </p>
-        <button appButton variant="secondary" type="button" (click)="logout()">
-          {{ text.logout }}
-        </button>
+        <div class="flex flex-wrap items-center gap-3">
+          <a
+            routerLink="/change-password"
+            class="text-sm font-medium text-primary underline underline-offset-2 hover:no-underline"
+          >
+            {{ text.changePassword.heading }}
+          </a>
+          <button
+            appButton
+            variant="secondary"
+            type="button"
+            (click)="logout()"
+          >
+            {{ text.logout }}
+          </button>
+        </div>
       </div>
     }
   `,

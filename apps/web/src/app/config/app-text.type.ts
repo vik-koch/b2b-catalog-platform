@@ -50,11 +50,38 @@ export const appTextSchema = z
         invalid: z.string(),
         error: z.string(),
         underConstruction: z.string(),
+        /**
+         * The change-password form, plus the modal that forces it on an account
+         * still using a password it was handed rather than chose.
+         */
+        changePassword: z
+          .object({
+            heading: z.string(),
+            currentPassword: z.string(),
+            newPassword: z.string(),
+            confirmPassword: z.string(),
+            submit: z.string(),
+            submitting: z.string(),
+            success: z.string(),
+            wrongCurrent: z.string(),
+            error: z.string(),
+            /** Modal-only copy: why the form is in the way. */
+            forcedHeading: z.string(),
+            forcedIntro: z.string(),
+            /** Acknowledges the success message and dismisses the modal. */
+            forcedContinue: z.string(),
+          })
+          .strict(),
         validation: z
           .object({
             emailRequired: z.string(),
             emailInvalid: z.string(),
             passwordRequired: z.string(),
+            currentPasswordRequired: z.string(),
+            newPasswordRequired: z.string(),
+            /** Carries the minimum length; `{min}` is substituted at render. */
+            newPasswordTooShort: z.string(),
+            confirmPasswordMismatch: z.string(),
           })
           .strict(),
       })

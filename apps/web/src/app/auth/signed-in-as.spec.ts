@@ -6,9 +6,9 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { AuthService } from './auth.service';
 import { SignedInAs } from './signed-in-as';
+import { adminUser as admin } from './auth-user.fixture';
 
 const text = defaultAppText.auth;
-const admin: AuthUser = { id: 'a', email: 'admin@example.com', role: 'admin' };
 
 async function render(initial: AuthUser | null) {
   const user: WritableSignal<AuthUser | null> = signal(initial);
@@ -47,6 +47,15 @@ describe('SignedInAs', () => {
     expect(el.textContent).toContain(text.signedInAs);
     expect(el.textContent).toContain(admin.email);
     expect(el.querySelector('button')?.textContent).toContain(text.logout);
+  });
+
+  // The only route to the change-password form until the account menu exists.
+  it('links to the change-password page', async () => {
+    const { el } = await render(admin);
+    const link = el.querySelector('a');
+
+    expect(link?.getAttribute('href')).toBe('/change-password');
+    expect(link?.textContent).toContain(text.changePassword.heading);
   });
 
   // Matches what the server renders before /auth/me answers, so hydration has
