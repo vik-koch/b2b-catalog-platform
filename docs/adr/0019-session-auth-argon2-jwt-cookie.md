@@ -33,7 +33,7 @@ redeploy.
 
 1. **argon2id over bcrypt** — memory-hard, current best practice; the prebuilt
    `@node-rs` binaries avoid node-gyp on the arm64/amd64 image builds (0007).
-2. **DB as authz source** — a signed token is tamper-proof but *stale*: a demoted
+2. **DB as authz source** — a signed token is tamper-proof but _stale_: a demoted
    or deleted user would keep access until expiry. One indexed lookup per gated
    request (admin routes only, low traffic) buys immediate revocation and makes
    password-change logout trivial via `tokenVersion`. We can afford freshness

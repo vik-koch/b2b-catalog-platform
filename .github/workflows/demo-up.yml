@@ -6,7 +6,8 @@
 # second one. demo-down (also the nightly sweeper) destroys it.
 #
 # Needs (see infra/README.md): secrets HCLOUD_TOKEN, CLOUDFLARE_API_TOKEN,
-# TF_API_TOKEN, DEPLOY_SSH_PRIVATE_KEY, INBOX_PASSWORD + repo variable ACME_EMAIL.
+# TF_API_TOKEN, DEPLOY_SSH_PRIVATE_KEY, INBOX_PASSWORD, ADMIN_EMAIL,
+# ADMIN_PASSWORD + repo variable ACME_EMAIL.
 # Images must be pullable without auth — the GHCR packages are public.
 name: Demo up
 
@@ -87,18 +88,34 @@ jobs:
           # Guards the demo's Mailpit reviewer inbox. Hashed below —
           # the plaintext is a masked secret and is never written to a log.
           INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
+          # Bootstrap admin for the demo's admin panel. Taken from
+          # the shared secrets rather than generated, because a reviewer has to
+          # be able to log in — same reasoning as INBOX_PASSWORD. The signing
+          # key is NOT taken from the secrets: nothing outlives this VM, so it
+          # is generated per run below, like the DB password.
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           # Throwaway demo needs demo content, so seed after deploy.
           SEED: '1'
         run: |
           : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
           : "${INBOX_PASSWORD:?secret INBOX_PASSWORD is not set}"
+          : "${ADMIN_EMAIL:?secret ADMIN_EMAIL is not set}"
+          : "${ADMIN_PASSWORD:?secret ADMIN_PASSWORD is not set}"
+          # Same floor the api enforces at boot (apps/api/src/env.ts) — check it
+          # here so a too-short secret fails now, loudly, instead of as a
+          # crash-looping container behind an opaque smoke-check timeout.
+          [ ${#ADMIN_PASSWORD} -ge 8 ] || { echo "ADMIN_PASSWORD must be >= 8 chars" >&2; exit 1; }
           image_base="ghcr.io/${GITHUB_REPOSITORY,,}"
 
           # SHA1 htpasswd entry for Traefik basic-auth. SHA1 (not bcrypt) keeps
           # the string free of '$', which Compose would treat as interpolation.
           inbox_hash=$(printf '%s' "$INBOX_PASSWORD" | openssl sha1 -binary | openssl base64)
 
-          # Throwaway credentials: the database lives and dies with the VM.
+          # Throwaway credentials: the database lives and dies with the VM. Same
+          # for the JWT signing key — no session outlives the demo, so there is
+          # nothing to keep stable and nothing worth putting in a secret. hex
+          # (not base64) keeps it free of '$', which Compose would interpolate.
           cat > "$RUNNER_TEMP/demo.env" <<EOF
           STACK_NAME=demo
           APP_DOMAIN=$FQDN
@@ -107,6 +124,9 @@ jobs:
           POSTGRES_DB=b2b_catalog
           POSTGRES_USER=b2b_catalog
           POSTGRES_PASSWORD=$(openssl rand -hex 16)
+          JWT_SECRET=$(openssl rand -hex 32)
+          ADMIN_EMAIL=$ADMIN_EMAIL
+          ADMIN_PASSWORD=$ADMIN_PASSWORD
           MAIL_HOST=mailpit
           MAIL_PORT=1025
           MAIL_FROM=Coffee Kontor <no-reply@coffee-kontor.example>
@@ -120,4 +140,7 @@ jobs:
 
           echo "## Demo is up: https://$FQDN" >> "$GITHUB_STEP_SUMMARY"
           echo "Reviewer inbox: https://$FQDN/inbox/ — user \`reviewer\`, password: the \`INBOX_PASSWORD\` secret." >> "$GITHUB_STEP_SUMMARY"
+          # Credentials by secret *name* only — this repo is public, so its run
+          # summaries are too.
+          echo "Admin panel: sign in with the \`ADMIN_EMAIL\` / \`ADMIN_PASSWORD\` secrets." >> "$GITHUB_STEP_SUMMARY"
           echo "Deployed tag: \`$TAG\` — remember to run demo-down." >> "$GITHUB_STEP_SUMMARY"

@@ -17,6 +17,7 @@ lives in `infra/` so this public repo's Actions tab stays clean.
 | Platform files | in-repo                                | `actions/checkout` of this repo at `v<version>`     |
 | Config         | committed demo `config/`               | the **private** repo's own `config/` (`CONFIG_DIR`) |
 | Mail           | Mailpit sink + reviewer inbox          | **real SMTP**, no Mailpit                           |
+| Auth secrets   | shared with the dev stack              | client-specific `JWT_SECRET` + `ADMIN_*`            |
 | Seeding        | never                                  | never (catalog arrives via admin bulk sync)         |
 
 ## What the private repo owns
@@ -28,14 +29,14 @@ lives in `infra/` so this public repo's Actions tab stays clean.
 2. **`.github/workflows/deploy-prod.yml`** — the copied template.
 3. **Secrets & variables** (private repo → Settings → Secrets and variables → Actions):
 
-   | Secret                           | Content                                                              |
-   | -------------------------------- | -------------------------------------------------------------------- |
-   | `DEPLOY_SSH_PRIVATE_KEY`         | Private half of the VM's `deploy` key                                |
-   | `POSTGRES_PASSWORD`              | DB password — **stable across deploys** (the volume keeps the first) |
-   | `MAIL_USER` / `MAIL_PASSWORD`    | Real SMTP credentials                                                |
-   | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Bootstrap admin credentials                                          |
-   | `JWT_SECRET`                     | Secret that signs the session JWT                                    |
-   | `GRAFANA_ADMIN_PASSWORD`         | Only if you enable central logs                                      |
+   | Secret                           | Content                                                                                                                                  |
+   | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+   | `DEPLOY_SSH_PRIVATE_KEY`         | Private half of the VM's `deploy` key                                                                                                    |
+   | `POSTGRES_PASSWORD`              | DB password — **stable across deploys** (the volume keeps the first)                                                                     |
+   | `MAIL_USER` / `MAIL_PASSWORD`    | Real SMTP credentials                                                                                                                    |
+   | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Bootstrap admin login + first-boot password (≥ 8 chars); rotate it in-app after the first login                                          |
+   | `JWT_SECRET`                     | Signs the session JWT; ≥ 32 chars, **stable across deploys** (rotating it logs every admin out). Generate one: `openssl rand -base64 48` |
+   | `GRAFANA_ADMIN_PASSWORD`         | Only if you enable central logs                                                                                                          |
 
    | Variable                                                    | Content                                                                                            |
    | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -46,6 +47,18 @@ lives in `infra/` so this public repo's Actions tab stays clean.
    | `MAIL_SECURE`                                               | `true` for implicit TLS (465), else `false`                                                        |
    | `STACK_NAME`                                                | Optional; defaults to `prod`. Set a distinct name only if the VM already runs another `prod` stack |
    | `GRAFANA_DOMAIN`                                            | Optional; set with `GRAFANA_ADMIN_PASSWORD` to turn on central logs                                |
+
+   All of the secrets are client-specific — never reuse the public repo's
+   values. None may contain a `$`: Compose reads the generated `.env` for
+   interpolation. The workflow fails fast if any of the auth secrets is missing
+   or below its length floor, rather than letting the api crash-loop behind an
+   opaque smoke-check timeout.
+
+   The `bootstrap-admin` one-shot runs on every deploy and is
+   **create-if-missing**: the first deploy creates the admin, later ones leave
+   it — and any password rotated in-app — untouched. So `ADMIN_PASSWORD` is a
+   first-boot value; changing the secret later does nothing to a stack that
+   already ran it.
 
 Nothing else is copied — `deploy.sh`, `compose.yml`, and the Traefik/observability
 stacks all come from the checked-out `platform/` at the chosen tag, so they always
