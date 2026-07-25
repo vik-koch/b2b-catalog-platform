@@ -5,8 +5,15 @@ const EnvSchema = z
     API_PORT: z.coerce.number().int().positive(),
     DATABASE_URL: z.string().url(),
     // Set by the one-shot tool containers (see compose.yml): "migrate" applies
-    // pending migrations, "seed" upserts seed data. Unset = normal server.
-    RUN_MODE: z.enum(['migrate', 'seed']).optional(),
+    // pending migrations, "seed" upserts demo content, "bootstrap-admin" creates
+    // the seeded admin if missing. Unset = normal server.
+    RUN_MODE: z.enum(['migrate', 'seed', 'bootstrap-admin']).optional(),
+    // Bootstrap admin credentials — required only in bootstrap-admin mode (the
+    // refinement below). Plaintext is hashed by the one-shot and never stored;
+    // the account is created-if-missing, so this is meaningful on first deploy
+    // only. The admin rotates it via the app afterwards.
+    ADMIN_EMAIL: z.string().email().optional(),
+    ADMIN_PASSWORD: z.string().min(8).optional(),
     // SMTP mail transport. Declared optional but required in server
     // mode by the refinement below — the migrate/seed one-shots never send
     // mail. Dev/demo point these at Mailpit; prod at a real provider.
@@ -44,6 +51,19 @@ const EnvSchema = z
             code: z.ZodIssueCode.custom,
             path: [key],
             message: 'required in server mode (RUN_MODE unset)',
+          });
+        }
+      }
+    }
+
+    // The bootstrap-admin one-shot needs the credentials to seed; nothing else.
+    if (val.RUN_MODE === 'bootstrap-admin') {
+      for (const key of ['ADMIN_EMAIL', 'ADMIN_PASSWORD'] as const) {
+        if (val[key] === undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [key],
+            message: 'required in bootstrap-admin mode',
           });
         }
       }

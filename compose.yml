@@ -62,6 +62,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      bootstrap-admin:
+        condition: service_completed_successfully
     networks:
       - internal
       - traefik
@@ -123,6 +125,28 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - internal
+
+  # One-shot admin bootstrap — reuses the API image in RUN_MODE=bootstrap-admin
+  # to create the seeded admin if it does not already exist (create-if-missing:
+  # never overwrites a changed password or real content), then exits. Unlike the
+  # dev-only content `seed`, this runs on every `up` in every environment —
+  # including prod — so an admin always exists. api waits on it completing.
+  bootstrap-admin:
+    image: ${API_IMAGE:?}
+    restart: 'no'
+    environment:
+      RUN_MODE: bootstrap-admin
+      API_PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     networks:
       - internal
 

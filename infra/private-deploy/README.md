@@ -28,12 +28,14 @@ lives in `infra/` so this public repo's Actions tab stays clean.
 2. **`.github/workflows/deploy-prod.yml`** — the copied template.
 3. **Secrets & variables** (private repo → Settings → Secrets and variables → Actions):
 
-   | Secret                        | Content                                                              |
-   | ----------------------------- | -------------------------------------------------------------------- |
-   | `DEPLOY_SSH_PRIVATE_KEY`      | Private half of the VM's `deploy` key                                |
-   | `POSTGRES_PASSWORD`           | DB password — **stable across deploys** (the volume keeps the first) |
-   | `MAIL_USER` / `MAIL_PASSWORD` | Real SMTP credentials                                                |
-   | `GRAFANA_ADMIN_PASSWORD`      | Only if you enable central logs                                      |
+   | Secret                           | Content                                                              |
+   | -------------------------------- | -------------------------------------------------------------------- |
+   | `DEPLOY_SSH_PRIVATE_KEY`         | Private half of the VM's `deploy` key                                |
+   | `POSTGRES_PASSWORD`              | DB password — **stable across deploys** (the volume keeps the first) |
+   | `MAIL_USER` / `MAIL_PASSWORD`    | Real SMTP credentials                                                |
+   | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Bootstrap admin credentials                                          |
+   | `JWT_SECRET`                     | Secret that signs the session JWT                                    |
+   | `GRAFANA_ADMIN_PASSWORD`         | Only if you enable central logs                                      |
 
    | Variable                                                    | Content                                                                                            |
    | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |

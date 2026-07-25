@@ -1,9 +1,10 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
-import { runSeed } from '@b2b-catalog-platform/seed';
+import { runBootstrapAdmin, runSeed } from '@b2b-catalog-platform/seed';
 import { AppModule } from './app/app.module';
 import { runMigrations } from './db/migrate';
+import { hashPassword } from './auth/password-hashing';
 import { env } from './env';
 
 async function bootstrap() {
@@ -34,8 +35,9 @@ async function bootstrap() {
 async function main() {
   // One-shot tool containers (compose.yml) that do their job and exit instead
   // of starting the server:
-  //   migrate — apply pending migrations; api waits on it completing.
-  //   seed    — upsert seed data (runs after migrate in the deploy pipeline).
+  //   migrate         — apply pending migrations; api waits on it completing.
+  //   seed            — upsert demo content (dev only, runs after migrate).
+  //   bootstrap-admin — create the seeded admin if missing (every env).
   if (env.RUN_MODE === 'migrate') {
     await runMigrations();
     Logger.log('Database migrations complete');
@@ -45,6 +47,28 @@ async function main() {
   if (env.RUN_MODE === 'seed') {
     await runSeed(env.DATABASE_URL);
     Logger.log('Database seeding complete');
+    return;
+  }
+
+  if (env.RUN_MODE === 'bootstrap-admin') {
+    const { ADMIN_EMAIL, ADMIN_PASSWORD } = env;
+    // env.ts requires these in this mode; this narrows the optional types.
+    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+      throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD are required');
+    }
+    // Hash here (inside the app, with the shared argon2 params) and hand only
+    // the hash to the DB layer — plaintext never leaves this process.
+    const passwordHash = await hashPassword(ADMIN_PASSWORD);
+    const created = await runBootstrapAdmin(
+      env.DATABASE_URL,
+      ADMIN_EMAIL,
+      passwordHash,
+    );
+    Logger.log(
+      created
+        ? `Admin bootstrap: created ${ADMIN_EMAIL}`
+        : `Admin bootstrap: ${ADMIN_EMAIL} already exists, left unchanged`,
+    );
     return;
   }
 

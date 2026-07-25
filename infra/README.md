@@ -75,6 +75,8 @@ Whatever the provider, the VM needs:
    | `DEPLOY_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1 (dev CD, prod CD and demo-up all use it)           |
    | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                        |
    | `PROD_POSTGRES_PASSWORD` | The prod stack's database password (its own volume). Must stay **stable across deploys**      |
+   | `ADMIN_EMAIL`            | Bootstrap admin email address used to create initial admin account (if not already) on boot   |
+   | `ADMIN_PASSWORD`         | Bootstrap admin password used to create initial admin account (if not already) on boot        |
    | `JWT_SECRET`             | Secret that signs the session JWT. Minimum 32 chars. Generate one: `openssl rand -base64 48`  |
    | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox (username `reviewer`) |
    | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it       |
