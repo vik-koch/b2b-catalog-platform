@@ -27,7 +27,7 @@ test('the navbar account icon takes a signed-out visitor to the login page', asy
 }) => {
   await page.goto('/');
 
-  await accountLink(page, 'Log in').click();
+  await accountLink(page, 'Account').click();
 
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.locator('h1')).toHaveText('Log in');
@@ -52,7 +52,7 @@ test('signs the bootstrap admin in and lands them in the admin panel', async ({
 
   await page.getByRole('button', { name: 'Log out' }).click();
   await expect(page).toHaveURL('/');
-  await expect(accountLink(page, 'Log in')).toBeAttached();
+  await expect(accountLink(page, 'Account')).toBeAttached();
 });
 
 test('rejects wrong credentials without leaving the login page', async ({
