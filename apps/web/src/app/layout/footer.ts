@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -8,7 +8,7 @@ import { Button } from '../ui/button';
 import { ContactInfo } from './contact-info';
 
 @Component({
-  imports: [RouterLink, Button, ContactInfo],
+  imports: [RouterLink, RouterLinkActive, Button, ContactInfo],
   selector: 'app-footer',
   template: `
     <footer class="border-t border-stone-200 bg-stone-100">
@@ -20,7 +20,7 @@ import { ContactInfo } from './contact-info';
             {{ branding.name }} — {{ text.brand.tagline }}
           </p>
           @if (contact?.phone || contact?.email) {
-            <app-contact-info variant="plain" />
+            <app-contact-info />
           }
         </div>
         <nav
@@ -31,7 +31,9 @@ import { ContactInfo } from './contact-info';
           @for (slug of legalSlugs; track slug) {
             <a
               [routerLink]="'/' + slug"
-              class="transition-colors hover:text-ink"
+              routerLinkActive
+              ariaCurrentWhenActive="page"
+              class="transition-colors hover:text-ink aria-[current=page]:font-medium aria-[current=page]:text-primary"
             >
               {{ text.nav[slug] }}
             </a>

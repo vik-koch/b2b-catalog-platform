@@ -16,13 +16,17 @@ import { PhoneIcon } from '../ui/icons/phone-icon';
   template: `
     @if (contact?.phone; as phone) {
       <a [href]="telHref(phone)" [class]="pillClass()">
-        <app-icon-phone class="h-4 w-4" />
+        @if (this.variant() === 'primary') {
+          <app-icon-phone class="h-4 w-4" />
+        }
         {{ phone }}
       </a>
     }
     @if (contact?.email; as email) {
       <a [href]="'mailto:' + email" [class]="pillClass()">
-        <app-icon-mail class="h-4 w-4" />
+        @if (this.variant() === 'primary') {
+          <app-icon-mail class="h-4 w-4" />
+        }
         {{ email }}
       </a>
     }
@@ -31,15 +35,13 @@ import { PhoneIcon } from '../ui/icons/phone-icon';
 export class ContactInfo {
   protected readonly contact = inject(DEPLOYMENT_CONFIG).contact;
 
-  /** 'primary' for the header bar; 'plain' (white/ink) for the gray footer. */
+  /** 'primary' for the pill design, 'plain': simple text */
   readonly variant = input<'primary' | 'plain'>('primary');
 
   protected readonly pillClass = computed(() => {
-    const base =
-      'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-colors';
-    return this.variant() === 'plain'
-      ? `${base} border border-stone-200 bg-white text-ink hover:bg-stone-100`
-      : `${base} bg-primary/10 text-primary hover:bg-primary/20`;
+    return this.variant() === 'primary'
+      ? `inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-colors border border-stone-200 bg-white text-ink hover:bg-stone-100`
+      : `text-sm text-stone-500 transition-colors hover:text-ink`;
   });
 
   /** tel: needs dial characters only; the displayed value keeps its spacing. */

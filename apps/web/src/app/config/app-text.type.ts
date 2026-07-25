@@ -30,15 +30,17 @@ export const appTextSchema = z
       })
       .strict(),
     /**
-     * Login form and the navbar account menu. One vocabulary for all roles —
-     * the only thing that differs per role is which destination the menu
-     * offers (`adminPanel` vs `account`).
+     * Login form, the navbar account link and the signed-in block on its
+     * destination page. One vocabulary for all roles — the only thing that
+     * differs per role is where the link goes (`adminPanel` vs `account`).
      */
     auth: z
       .object({
         login: z.string(),
         logout: z.string(),
-        accountMenu: z.string(),
+        /** Static navbar label — deliberately role-independent, see accountNav usage. */
+        accountNav: z.string(),
+        signedInAs: z.string(),
         adminPanel: z.string(),
         account: z.string(),
         email: z.string(),

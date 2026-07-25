@@ -85,7 +85,7 @@ app.use(
  * client-rendered route — gets the per-deployment state injected, which is the
  * only channel branding and UI text have to the browser.
  */
-app.use('/**', async (req, res, next) => {
+app.use(async (req, res, next) => {
   try {
     const response = await getAngularApp().handle(req);
     if (!response) {

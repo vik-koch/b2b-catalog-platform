@@ -14,7 +14,8 @@
   "auth": {
     "login": "Log in",
     "logout": "Log out",
-    "accountMenu": "Account",
+    "accountNav": "Account",
+    "signedInAs": "Signed in as",
     "adminPanel": "Admin panel",
     "account": "My account",
     "email": "Email",
