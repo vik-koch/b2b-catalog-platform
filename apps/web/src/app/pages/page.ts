@@ -40,12 +40,12 @@ import { UnsavedChangesAware } from './unsaved-changes.guard';
           @if (canEdit()) {
             <button
               type="button"
-              class="-mt-1 rounded-md p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-ink"
+              class="-mt-1 rounded-md p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-accent"
               [attr.aria-label]="editorText.edit"
               [attr.title]="editorText.edit"
               (click)="editing.set(true)"
             >
-              <app-pencil-icon class="h-5 w-5" />
+              <app-pencil-icon class="h-6 w-6" />
             </button>
           }
         </div>

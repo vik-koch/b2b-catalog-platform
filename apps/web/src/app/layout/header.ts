@@ -60,7 +60,7 @@ import { NAV_ACTION } from './nav-action';
                 [routerLink]="'/' + route"
                 routerLinkActive
                 ariaCurrentWhenActive="page"
-                class="text-stone-500 transition-colors hover:text-ink aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                class="text-stone-500 transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
               >
                 {{ text.nav[route] }}
               </a>
@@ -97,7 +97,7 @@ import { NAV_ACTION } from './nav-action';
             <!-- One-tap call, mobile only — on desktop the number is spelled
                  out in the utility bar, so this label is never visible. -->
             <a [href]="telHref(phone)" [class]="navAction + ' md:hidden'">
-              <app-icon-phone class="h-5 w-5" />
+              <app-icon-phone class="h-6 w-6" />
               <span class="sr-only">Call {{ phone }}</span>
             </a>
           }
@@ -110,9 +110,9 @@ import { NAV_ACTION } from './nav-action';
             (click)="menuOpen.set(!menuOpen())"
           >
             @if (menuOpen()) {
-              <app-icon-close class="h-5 w-5" />
+              <app-icon-close class="h-6 w-6" />
             } @else {
-              <app-icon-menu class="h-5 w-5" />
+              <app-icon-menu class="h-6 w-6" />
             }
             <span class="sr-only">Toggle menu</span>
           </button>

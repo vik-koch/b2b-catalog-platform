@@ -33,7 +33,7 @@ import { ContactInfo } from './contact-info';
               [routerLink]="'/' + slug"
               routerLinkActive
               ariaCurrentWhenActive="page"
-              class="transition-colors hover:text-ink aria-[current=page]:font-medium aria-[current=page]:text-primary"
+              class="transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
             >
               {{ text.nav[slug] }}
             </a>
@@ -43,7 +43,7 @@ import { ContactInfo } from './contact-info';
           @if (consent.enabled) {
             <button
               type="button"
-              class="text-left transition-colors hover:text-ink"
+              class="text-left transition-colors hover:text-accent"
               (click)="consent.withdraw()"
             >
               {{ text.consent.settings }}

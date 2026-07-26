@@ -16,7 +16,8 @@
  * signal a screen reader announces as "current page".
  */
 export const NAV_ACTION =
-  'flex flex-col items-center gap-1 rounded-lg p-3 text-primary transition-colors hover:bg-stone-100 md:px-3 md:py-1.5 aria-[current=page]:bg-primary/10 aria-[current=page]:font-medium';
+  'flex flex-col items-center gap-0.5 rounded-lg p-3 text-primary transition-colors hover:text-accent md:px-3 md:py-1.5 aria-[current=page]:stroke-3 aria-[current=page]:font-medium';
 
 /** Label inside a NAV_ACTION control that has a desktop counterpart. */
-export const NAV_ACTION_LABEL = 'sr-only text-xs leading-none md:not-sr-only';
+export const NAV_ACTION_LABEL =
+  'sr-only text-[0.6875rem] leading-none md:not-sr-only';
