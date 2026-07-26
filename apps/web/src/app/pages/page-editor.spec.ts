@@ -57,6 +57,34 @@ describe('PageEditor', () => {
     expect(el.querySelector('input')).toBeNull();
   });
 
+  it('neutralizes link clicks in the preview so navigation cannot bypass the guard', async () => {
+    const about2: PageContent = {
+      ...about,
+      bodyHtml: '<p><a href="https://elsewhere.test">Leave</a></p>',
+    };
+    TestBed.configureTestingModule({
+      imports: [PageEditor],
+      providers: [
+        { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: PageService, useValue: { updatePage: vi.fn() } },
+      ],
+    });
+    const fixture = TestBed.createComponent(PageEditor);
+    fixture.componentRef.setInput('slug', 'about');
+    fixture.componentRef.setInput('page', about2);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+
+    buttonNamed(el, text.preview).click();
+    await fixture.whenStable();
+
+    const link = el.querySelector('.prose a') as HTMLAnchorElement;
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    link.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+  });
+
   it('returns to editing from preview', async () => {
     const { fixture, el } = await render();
 

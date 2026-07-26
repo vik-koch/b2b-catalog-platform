@@ -187,6 +187,8 @@ export const appTextSchema = z
             altLabel: z.string(),
             altPlaceholder: z.string(),
             altHint: z.string(),
+            linkLabel: z.string(),
+            linkPlaceholder: z.string(),
             alignLabel: z.string(),
             alignNone: z.string(),
             alignLeft: z.string(),

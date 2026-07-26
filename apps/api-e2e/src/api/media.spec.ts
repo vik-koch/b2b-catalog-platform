@@ -137,7 +137,7 @@ describe('POST /media (0021)', () => {
         await upload(form(await png(), 'about.png', 'image/png'), adminCookie)
       ).data;
 
-      const body = `<p>Intro</p><img src="${url}" alt="Our roastery" data-align="center" data-width="60">`;
+      const body = `<p>Intro</p><img src="${url}" alt="Our roastery" data-align="center" data-width="600">`;
       const save = await axios.put(
         '/pages/about',
         { title: 'About', bodyHtml: body },
@@ -149,7 +149,7 @@ describe('POST /media (0021)', () => {
       expect(stored).toContain(`src="${url}"`);
       expect(stored).toContain('alt="Our roastery"');
       expect(stored).toContain('data-align="center"');
-      expect(stored).toContain('width:60%');
+      expect(stored).toContain('width:600px');
     });
   });
 });

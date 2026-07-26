@@ -1,26 +1,23 @@
 import sanitizeHtml from 'sanitize-html';
 import {
   RICH_TEXT_IMAGE_ALIGNMENTS,
-  RICH_TEXT_IMAGE_WIDTH_MAX,
-  RICH_TEXT_IMAGE_WIDTH_MIN,
   RICH_TEXT_LINK_SCHEMES,
   RICH_TEXT_TAGS,
 } from '../lib/page.contract';
-import { MEDIA_URL_PREFIX } from '../lib/media.contract';
+import { MEDIA_MAX_IMAGE_WIDTH, MEDIA_URL_PREFIX } from '../lib/media.contract';
 
 const IMAGE_ALIGNMENTS = new Set<string>(RICH_TEXT_IMAGE_ALIGNMENTS);
 
 // A whole number of digits only — no unit, sign, or decimal — then bounded to
-// the allowed percentage range. Returns null for anything else, so a bad value
-// simply yields no width rather than an unvalidated style.
-const parseWidthPercent = (raw: string | undefined): number | null => {
+// a sane pixel range (1..the stored-image cap, since a display width can never
+// usefully exceed the largest stored image). Returns null for anything else, so
+// a bad value simply yields no width rather than an unvalidated style.
+const parseWidthPixels = (raw: string | undefined): number | null => {
   if (!raw || !/^[0-9]+$/.test(raw)) {
     return null;
   }
   const n = Number(raw);
-  return n >= RICH_TEXT_IMAGE_WIDTH_MIN && n <= RICH_TEXT_IMAGE_WIDTH_MAX
-    ? n
-    : null;
+  return n >= 1 && n <= MEDIA_MAX_IMAGE_WIDTH ? n : null;
 };
 
 // A same-origin URL to a single stored file: our prefix, then one path segment
@@ -77,9 +74,9 @@ export function sanitizeRichText(html: string): string {
       // Rebuild each img from scratch: keep src/alt, admit data-align only when
       // it is one of the closed enum values, and turn a validated data-width
       // into both the canonical attribute and a reconstructed width-only style
-      // (the only style we ever emit — the browser needs it inline to apply a
-      // per-image percentage). Force an alt (empty is valid — a decorative
-      // image). An unusable src is dropped here and the tag then removed by
+      // (the only style we ever emit — the browser needs an inline pixel width
+      // to size the image). Force an alt (empty is valid — a decorative image).
+      // An unusable src is dropped here and the tag then removed by
       // exclusiveFilter below.
       img: (tagName, attribs) => {
         const out: Record<string, string> = { alt: attribs['alt'] ?? '' };
@@ -89,10 +86,12 @@ export function sanitizeRichText(html: string): string {
         if (IMAGE_ALIGNMENTS.has(attribs['data-align'])) {
           out['data-align'] = attribs['data-align'];
         }
-        const width = parseWidthPercent(attribs['data-width']);
+        const width = parseWidthPixels(attribs['data-width']);
         if (width !== null) {
           out['data-width'] = String(width);
-          out['style'] = `width:${width}%`;
+          // Pixels, not a percentage: the width is of the image itself. CSS
+          // caps it at the container (max-width:100%), so it cannot overflow.
+          out['style'] = `width:${width}px`;
         }
         return { tagName, attribs: out };
       },

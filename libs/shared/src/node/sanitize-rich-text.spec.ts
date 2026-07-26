@@ -104,14 +104,14 @@ describe('sanitizeRichText', () => {
       expect(out).toContain('alt="A logo"');
     });
 
-    it('keeps a valid alignment and turns data-width into a width style', () => {
+    it('keeps a valid alignment and turns data-width into a pixel width style', () => {
       const out = sanitizeRichText(
-        '<img src="/media/a.webp" alt="" data-align="right" data-width="50" />',
+        '<img src="/media/a.webp" alt="" data-align="right" data-width="300" />',
       );
 
       expect(out).toContain('data-align="right"');
-      expect(out).toContain('data-width="50"');
-      expect(out).toContain('width:50%');
+      expect(out).toContain('data-width="300"');
+      expect(out).toContain('width:300px');
     });
 
     it('drops an out-of-enum alignment but keeps the image', () => {
@@ -123,13 +123,13 @@ describe('sanitizeRichText', () => {
       expect(out).not.toContain('data-align');
     });
 
-    it('accepts the full width range and drops out-of-range or non-integer', () => {
-      for (const w of ['1', '100']) {
+    it('accepts pixel widths in range and drops out-of-range or non-integer', () => {
+      for (const w of ['1', '1600']) {
         expect(
           sanitizeRichText(`<img src="/media/a.webp" data-width="${w}" />`),
-        ).toContain(`width:${w}%`);
+        ).toContain(`width:${w}px`);
       }
-      for (const bad of ['0', '101', '50.5', '-5', '50px', 'abc']) {
+      for (const bad of ['0', '1601', '50.5', '-5', '50px', 'abc']) {
         const out = sanitizeRichText(
           `<img src="/media/a.webp" data-width="${bad}" />`,
         );
@@ -140,12 +140,31 @@ describe('sanitizeRichText', () => {
 
     it('ignores an author-supplied style, emitting only its own width', () => {
       const out = sanitizeRichText(
-        '<img src="/media/a.webp" data-width="30" style="position:fixed;width:9000px" />',
+        '<img src="/media/a.webp" data-width="200" style="position:fixed;width:9000px" />',
       );
 
-      expect(out).toContain('width:30%');
+      expect(out).toContain('width:200px');
       expect(out).not.toContain('position');
       expect(out).not.toContain('9000');
+    });
+
+    it('keeps a linked image and forces a safe rel on the wrapping anchor', () => {
+      const out = sanitizeRichText(
+        '<a href="https://shop.test"><img src="/media/a.webp" alt="Shop" /></a>',
+      );
+
+      expect(out).toContain('href="https://shop.test"');
+      expect(out).toContain('rel="noopener noreferrer"');
+      expect(out).toContain('src="/media/a.webp"');
+    });
+
+    it('drops a javascript: link around an image but keeps the image', () => {
+      const out = sanitizeRichText(
+        '<a href="javascript:alert(1)"><img src="/media/a.webp" /></a>',
+      );
+
+      expect(out).not.toContain('javascript');
+      expect(out).toContain('src="/media/a.webp"');
     });
 
     it('forces an alt attribute even when none was supplied', () => {

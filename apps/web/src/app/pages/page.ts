@@ -12,6 +12,7 @@ import { AuthService } from '../auth/auth.service';
 import { PencilIcon } from '../ui/icons/pencil-icon';
 import { PageEditor } from './page-editor';
 import { PageService } from './page.service';
+import { trustedRichText } from './trusted-rich-text';
 import { UnsavedChangesAware } from './unsaved-changes.guard';
 
 @Component({
@@ -51,7 +52,7 @@ import { UnsavedChangesAware } from './unsaved-changes.guard';
         </div>
         <div
           class="prose prose-stone max-w-none"
-          [innerHTML]="page.bodyHtml"
+          [innerHTML]="safeBody(page.bodyHtml)"
         ></div>
       }
     } @else if (pageResource.error()) {
@@ -74,6 +75,9 @@ export class Page implements UnsavedChangesAware {
 
   protected readonly text = inject(APP_TEXT).errors;
   protected readonly editorText = inject(APP_TEXT).pageEditor;
+  /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
+   * page body — see trustedRichText. */
+  protected readonly safeBody = trustedRichText();
 
   slug = input.required<PageSlug>();
   pageResource = resource({

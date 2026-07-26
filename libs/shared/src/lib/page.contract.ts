@@ -59,13 +59,19 @@ export type RichTextImageAlignment =
   (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
 /**
- * Image width is a free percentage of the container, carried as a `data-width`
- * integer in this inclusive range. It stays allowlistable despite being free:
- * the value is a bounded integer the sanitizer validates by pattern and range,
- * from which it reconstructs the inline `width` style — it never parses CSS.
+ * Image size is a free pixel width of the image itself, carried as a
+ * `data-width` integer. It stays allowlistable despite being free: the value is
+ * a bounded integer the sanitizer validates by pattern and range (1..the upload
+ * cap), from which it reconstructs the inline `width` style — it never parses
+ * CSS. The rendered image is capped at the container via CSS `max-width:100%`,
+ * so a width wider than the column simply fills it rather than overflowing.
+ *
+ * The editor presents this as a percentage of the image's natural size (a "size"
+ * slider); it converts to pixels before storing, so the stored value is always
+ * absolute and resolution-honest.
  */
-export const RICH_TEXT_IMAGE_WIDTH_MIN = 1;
-export const RICH_TEXT_IMAGE_WIDTH_MAX = 100;
+export const RICH_TEXT_IMAGE_SIZE_MIN_PERCENT = 1;
+export const RICH_TEXT_IMAGE_SIZE_MAX_PERCENT = 100;
 
 /** Matches the `pages.title` varchar. */
 export const PAGE_TITLE_MAX_LENGTH = 255;
