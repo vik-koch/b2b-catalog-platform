@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 /**
  * Lucide "user". Owned SVG (ISC); see ADR 0008 (owned primitives). Size via a
- * height/width class on the element (e.g. `class="h-5 w-5"`); colour follows
+ * height/width class on the element (e.g. `class="h-6 w-6"`); colour follows
  * `currentColor`.
  */
 @Component({
@@ -19,8 +19,8 @@ import { Component } from '@angular/core';
       stroke-linejoin="round"
       aria-hidden="true"
     >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
+      <circle cx="12" cy="8" r="5" />
+      <path d="M20 21a8 8 0 0 0-16 0" />
     </svg>
   `,
 })

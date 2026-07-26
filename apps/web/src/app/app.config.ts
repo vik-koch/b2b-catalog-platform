@@ -2,8 +2,13 @@ import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import {
+  provideRouter,
+  RouteReuseStrategy,
+  withComponentInputBinding,
+} from '@angular/router';
 import { appRoutes } from './app.routes';
+import { StaticPageReuseStrategy } from './pages/unsaved-changes.guard';
 import {
   provideClientHydration,
   withEventReplay,
@@ -16,6 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideBrowserGlobalErrorListeners(),
     provideRouter(appRoutes, withComponentInputBinding()),
+    { provide: RouteReuseStrategy, useClass: StaticPageReuseStrategy },
     // Browser reads config + copy from the script the Node process injects into
     // every document (shell-state.ts); the server providers
     // (app.config.server.ts) are merged last and override these on SSR.

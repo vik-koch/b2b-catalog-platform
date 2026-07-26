@@ -1,11 +1,6 @@
 import { waitForPortOpen } from '@nx/node/utils';
-// Relative import: jest resolves globalSetup outside its module resolver,
-// so the workspace path alias is not available here (it is in the specs).
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { seedDatabase } from '../../../../libs/seed/src/index';
 import { execSync } from 'node:child_process';
 import { join } from 'node:path';
-import { Client } from 'pg';
 import { requireEnv } from './env';
 
 /* eslint-disable */
@@ -34,14 +29,16 @@ module.exports = async function () {
   const port = Number(requireEnv('API_PORT'));
   await waitForPortOpen(port, { host });
 
-  // 4. Seed the data the specs assert against (idempotent).
-  const client = new Client({ connectionString: requireEnv('DATABASE_URL') });
-  await client.connect();
-  try {
-    await seedDatabase(client);
-  } finally {
-    await client.end();
-  }
+  // 4. Seed the data the specs assert against, through the real one-shot
+  // (idempotent). Running the built bundle rather than importing the seed lib
+  // is deliberate: jest resolves globalSetup outside its module resolver, so
+  // workspace path aliases are unavailable here — and this exercises the same
+  // container entry point a deployment uses.
+  execSync('node dist/apps/api/main.js', {
+    cwd: workspaceRoot,
+    stdio: 'inherit',
+    env: { ...process.env, RUN_MODE: 'seed' },
+  });
 
   // Hint: Use `globalThis` to pass variables to global teardown.
   globalThis.__TEARDOWN_MESSAGE__ = '\nTearing down...\n';

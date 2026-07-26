@@ -138,6 +138,50 @@ export const appTextSchema = z
         settings: z.string(),
       })
       .strict(),
+    /** Inline static-page editing, shown to admins only (FR-ADM-03). */
+    pageEditor: z
+      .object({
+        edit: z.string(),
+        pageTitle: z.string(),
+        save: z.string(),
+        saving: z.string(),
+        cancel: z.string(),
+        preview: z.string(),
+        resumeEditing: z.string(),
+        previewNotice: z.string(),
+        discardConfirm: z.string(),
+        titleRequired: z.string(),
+        saveError: z.string(),
+        toolbar: z
+          .object({
+            label: z.string(),
+            bold: z.string(),
+            italic: z.string(),
+            underline: z.string(),
+            strikethrough: z.string(),
+            heading2: z.string(),
+            heading3: z.string(),
+            bulletList: z.string(),
+            orderedList: z.string(),
+            blockquote: z.string(),
+            link: z.string(),
+            unlink: z.string(),
+            removeFormatting: z.string(),
+            horizontalRule: z.string(),
+          })
+          .strict(),
+        linkPanel: z
+          .object({
+            heading: z.string(),
+            urlLabel: z.string(),
+            placeholder: z.string(),
+            apply: z.string(),
+            remove: z.string(),
+            cancel: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
     errors: z
       .object({
         notFoundTitle: z.string(),
