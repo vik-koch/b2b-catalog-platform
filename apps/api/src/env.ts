@@ -33,6 +33,10 @@ const EnvSchema = z
     // correct for dev/e2e with no proxy; behind Traefik set 1 so the throttler
     // keys on the real client IP. Higher only with more forwarding layers.
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
+    // Filesystem root the LocalMediaStore writes uploaded images to. A
+    // mounted volume served at /media/ by Traefik; required in server mode (the
+    // one-shots never handle uploads). The refinement below enforces that.
+    MEDIA_ROOT: z.string().optional(),
     // Login attempts allowed per IP per minute (NFR-SEC-02). The default is the
     // policy for real deployments; it is configurable because the e2e stack
     // drives dozens of logins from one address in well under a minute and would
@@ -49,6 +53,7 @@ const EnvSchema = z
         'MAIL_FROM',
         'MAIL_CONTACT_TO',
         'JWT_SECRET',
+        'MEDIA_ROOT',
       ] as const;
       for (const key of required) {
         if (val[key] === undefined) {

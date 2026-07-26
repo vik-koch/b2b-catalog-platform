@@ -7,7 +7,7 @@
     // ts-jest must transpile the ESM-only packages the shared preset's
     // transformIgnorePatterns lets through, not just our TypeScript.
     "allowJs": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node", "multer"]
   },
   "include": [
     "jest.config.ts",

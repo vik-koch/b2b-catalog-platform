@@ -55,3 +55,6 @@ Thumbs.db
 crash.log
 
 __screenshots__/
+
+# Local media uploads (dev LocalMediaStore, see MEDIA_ROOT)
+.media/
