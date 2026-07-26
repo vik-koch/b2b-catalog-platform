@@ -50,6 +50,11 @@ configs:
         location /api {
           proxy_pass http://api:3000;
         }
+        # Stand in for Traefik's /media route: the media nginx serves uploads
+        # from the shared volume.
+        location /media {
+          proxy_pass http://media:80;
+        }
         location / {
           proxy_pass http://web:4000;
         }

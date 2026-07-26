@@ -8,7 +8,7 @@ import { MediaStore, StoredImage } from './media-store';
 
 /**
  * Local-volume adapter for the MediaStore port. Writes to MEDIA_ROOT — a
- * mounted volume the shared Traefik serves as static files at /media/. The
+ * mounted volume a small nginx serves read-only at /media/ (behind Traefik). The
  * durability of these files is the volume's backup story.
  */
 @Injectable()

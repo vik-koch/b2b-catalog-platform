@@ -77,6 +77,33 @@ test.describe('as an admin', () => {
     await expect(body.locator('a[href="https://example.com"]')).toHaveCount(1);
   });
 
+  test('uploads an image, shows it, and opens its placement panel', async ({
+    page,
+  }) => {
+    await editButton(page).click();
+    const body = page.locator('.ProseMirror');
+    await body.click();
+
+    // A 1x1 PNG is enough — the server re-encodes to WebP regardless.
+    await page.locator('input[type="file"]').setInputFiles({
+      name: 'logo.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from(ONE_PX_PNG_BASE64, 'base64'),
+    });
+
+    const img = body.locator('img');
+    // The upload returned a content-hashed /media URL...
+    await expect(img).toHaveAttribute('src', /^\/media\/[0-9a-f]{12}\.webp$/);
+    // ...and it actually loads through the /media route (proxy -> media nginx).
+    await expect
+      .poll(() => img.evaluate((el: HTMLImageElement) => el.naturalWidth))
+      .toBeGreaterThan(0);
+
+    // The inserted image is selected, so its panel is open for alt/placement.
+    const panel = page.getByRole('dialog', { name: 'Image' });
+    await expect(panel.getByLabel('Alt text')).toBeVisible();
+  });
+
   test('previews the edited page as it will look, then returns to editing', async ({
     page,
   }) => {
@@ -143,3 +170,7 @@ test.describe('as an admin', () => {
     await expect(editButton(page)).toBeVisible();
   });
 });
+
+// A 1x1 transparent PNG — the smallest valid upload the media endpoint accepts.
+const ONE_PX_PNG_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';

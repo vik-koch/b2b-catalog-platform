@@ -34,8 +34,8 @@ const EnvSchema = z
     // keys on the real client IP. Higher only with more forwarding layers.
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
     // Filesystem root the LocalMediaStore writes uploaded images to. A
-    // mounted volume served at /media/ by Traefik; required in server mode (the
-    // one-shots never handle uploads). The refinement below enforces that.
+    // mounted volume a small nginx serves at /media/; required in server mode
+    // (the one-shots never handle uploads). The refinement below enforces that.
     MEDIA_ROOT: z.string().optional(),
     // Login attempts allowed per IP per minute (NFR-SEC-02). The default is the
     // policy for real deployments; it is configurable because the e2e stack
