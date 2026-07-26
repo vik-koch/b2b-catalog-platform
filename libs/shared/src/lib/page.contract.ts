@@ -43,10 +43,29 @@ export const RICH_TEXT_TAGS = [
   'blockquote',
   'hr',
   'a',
+  'img',
 ] as const;
 
 /** Link targets we accept. `javascript:`/`data:` are the reason this is a list. */
 export const RICH_TEXT_LINK_SCHEMES = ['http', 'https', 'mailto'] as const;
+
+/**
+ * Image alignment is a closed enum, never free-form CSS: the sanitizer
+ * allowlists it by string comparison and our own styles render it (block with
+ * auto margins for `center`; float so text wraps for `left`/`right`).
+ */
+export const RICH_TEXT_IMAGE_ALIGNMENTS = ['left', 'center', 'right'] as const;
+export type RichTextImageAlignment =
+  (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
+
+/**
+ * Image width is a free percentage of the container, carried as a `data-width`
+ * integer in this inclusive range. It stays allowlistable despite being free:
+ * the value is a bounded integer the sanitizer validates by pattern and range,
+ * from which it reconstructs the inline `width` style — it never parses CSS.
+ */
+export const RICH_TEXT_IMAGE_WIDTH_MIN = 1;
+export const RICH_TEXT_IMAGE_WIDTH_MAX = 100;
 
 /** Matches the `pages.title` varchar. */
 export const PAGE_TITLE_MAX_LENGTH = 255;

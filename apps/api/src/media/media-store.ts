@@ -23,6 +23,3 @@ export interface MediaStore {
 }
 
 export const MEDIA_STORE = 'MEDIA_STORE';
-
-/** Public path prefix; must stay in sync with the sanitizer's src guard. */
-export const MEDIA_URL_PREFIX = '/media';

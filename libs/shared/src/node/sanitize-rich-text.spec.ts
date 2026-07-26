@@ -32,8 +32,15 @@ describe('sanitizeRichText', () => {
       // Guards the two lists against drift: a tag added to RICH_TEXT_TAGS but
       // not reaching the sanitizer config would fail here.
       for (const tag of RICH_TEXT_TAGS) {
-        const markup =
-          tag === 'br' || tag === 'hr' ? `<${tag} />` : `<${tag}>x</${tag}>`;
+        let markup: string;
+        if (tag === 'br' || tag === 'hr') {
+          markup = `<${tag} />`;
+        } else if (tag === 'img') {
+          // img survives only with an allowed same-origin src.
+          markup = '<img src="/media/abc123.webp" />';
+        } else {
+          markup = `<${tag}>x</${tag}>`;
+        }
         expect(sanitizeRichText(markup)).not.toBe('');
       }
     });
@@ -85,11 +92,97 @@ describe('sanitizeRichText', () => {
 
       expect(out).toBe('');
     });
+  });
 
-    it('strips images until the media store exists', () => {
-      const out = sanitizeRichText('<img src="https://evil.test/track.gif" />');
+  describe('image safety', () => {
+    it('keeps a same-origin /media/ image with alt', () => {
+      const out = sanitizeRichText(
+        '<img src="/media/abc123.webp" alt="A logo" />',
+      );
 
-      expect(out).toBe('');
+      expect(out).toContain('src="/media/abc123.webp"');
+      expect(out).toContain('alt="A logo"');
+    });
+
+    it('keeps a valid alignment and turns data-width into a width style', () => {
+      const out = sanitizeRichText(
+        '<img src="/media/a.webp" alt="" data-align="right" data-width="50" />',
+      );
+
+      expect(out).toContain('data-align="right"');
+      expect(out).toContain('data-width="50"');
+      expect(out).toContain('width:50%');
+    });
+
+    it('drops an out-of-enum alignment but keeps the image', () => {
+      const out = sanitizeRichText(
+        '<img src="/media/a.webp" alt="" data-align="justify" />',
+      );
+
+      expect(out).toContain('src="/media/a.webp"');
+      expect(out).not.toContain('data-align');
+    });
+
+    it('accepts the full width range and drops out-of-range or non-integer', () => {
+      for (const w of ['1', '100']) {
+        expect(
+          sanitizeRichText(`<img src="/media/a.webp" data-width="${w}" />`),
+        ).toContain(`width:${w}%`);
+      }
+      for (const bad of ['0', '101', '50.5', '-5', '50px', 'abc']) {
+        const out = sanitizeRichText(
+          `<img src="/media/a.webp" data-width="${bad}" />`,
+        );
+        expect(out).not.toContain('width');
+        expect(out).not.toContain('data-width');
+      }
+    });
+
+    it('ignores an author-supplied style, emitting only its own width', () => {
+      const out = sanitizeRichText(
+        '<img src="/media/a.webp" data-width="30" style="position:fixed;width:9000px" />',
+      );
+
+      expect(out).toContain('width:30%');
+      expect(out).not.toContain('position');
+      expect(out).not.toContain('9000');
+    });
+
+    it('forces an alt attribute even when none was supplied', () => {
+      expect(sanitizeRichText('<img src="/media/a.webp" />')).toContain(
+        'alt=""',
+      );
+    });
+
+    it('drops an absolute-URL image (an exfiltration/tracking channel)', () => {
+      expect(
+        sanitizeRichText('<img src="https://evil.test/track.gif" alt="x" />'),
+      ).toBe('');
+    });
+
+    it('drops a protocol-relative image src', () => {
+      expect(sanitizeRichText('<img src="//evil.test/x.png" />')).toBe('');
+    });
+
+    it('drops a src that escapes the media prefix or adds a path segment', () => {
+      expect(sanitizeRichText('<img src="/media/../secret" />')).toBe('');
+      expect(sanitizeRichText('<img src="/media/sub/x.webp" />')).toBe('');
+      expect(sanitizeRichText('<img src="/uploads/x.webp" />')).toBe('');
+    });
+
+    it('drops a javascript: image src', () => {
+      expect(sanitizeRichText('<img src="javascript:alert(1)" />')).toBe('');
+    });
+
+    it('strips class, style and on* from an otherwise valid image', () => {
+      const out = sanitizeRichText(
+        '<img src="/media/a.webp" class="x" style="width:9000px" onerror="steal()" />',
+      );
+
+      expect(out).toContain('src="/media/a.webp"');
+      expect(out).not.toContain('class');
+      expect(out).not.toContain('style');
+      expect(out).not.toContain('onerror');
     });
   });
 

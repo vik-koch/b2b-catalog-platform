@@ -17,6 +17,11 @@ export const ACCEPTED_IMAGE_MIME_TYPES = [
 
 export type AcceptedImageMime = (typeof ACCEPTED_IMAGE_MIME_TYPES)[number];
 
+/** Public path prefix uploaded images are served under. The single source of
+ * truth for the store (which builds these URLs) and the sanitizer (which admits
+ * only `src`s under it). */
+export const MEDIA_URL_PREFIX = '/media';
+
 /** Upper bound on an uploaded image (a DoS guard). A few MB covers any logo or
  * product photo these pages need; larger is a mistake, not a use case. */
 export const MEDIA_MAX_UPLOAD_BYTES = 5 * 1024 * 1024;

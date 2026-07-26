@@ -2,8 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { mkdir, writeFile, access } from 'node:fs/promises';
 import { join } from 'node:path';
+import { MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared';
 import { env } from '../env';
-import { MediaStore, MEDIA_URL_PREFIX, StoredImage } from './media-store';
+import { MediaStore, StoredImage } from './media-store';
 
 /**
  * Local-volume adapter for the MediaStore port. Writes to MEDIA_ROOT — a
