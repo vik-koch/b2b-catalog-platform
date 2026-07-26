@@ -20,6 +20,7 @@ export type LucideIconName =
   | 'unlink'
   | 'remove-formatting'
   | 'square-split-vertical'
+  | 'image'
   | 'eye'
   | 'pencil'
   | 'save'
@@ -128,6 +129,11 @@ export type LucideIconName =
           <path d="M5 8V5c0-1 1-2 2-2h10c1 0 2 1 2 2v3" />
           <path d="M19 16v3c0 1-1 2-2 2H7c-1 0-2-1-2-2v-3" />
           <line x1="4" x2="20" y1="12" y2="12" />
+        }
+        @case ('image') {
+          <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+          <circle cx="9" cy="9" r="2" />
+          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
         }
         @case ('eye') {
           <path

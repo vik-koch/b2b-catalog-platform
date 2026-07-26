@@ -168,6 +168,7 @@ export const appTextSchema = z
             unlink: z.string(),
             removeFormatting: z.string(),
             horizontalRule: z.string(),
+            image: z.string(),
           })
           .strict(),
         linkPanel: z
@@ -178,6 +179,24 @@ export const appTextSchema = z
             apply: z.string(),
             remove: z.string(),
             cancel: z.string(),
+          })
+          .strict(),
+        imagePanel: z
+          .object({
+            heading: z.string(),
+            altLabel: z.string(),
+            altPlaceholder: z.string(),
+            altHint: z.string(),
+            alignLabel: z.string(),
+            alignNone: z.string(),
+            alignLeft: z.string(),
+            alignCenter: z.string(),
+            alignRight: z.string(),
+            widthLabel: z.string(),
+            remove: z.string(),
+            done: z.string(),
+            uploading: z.string(),
+            uploadError: z.string(),
           })
           .strict(),
       })

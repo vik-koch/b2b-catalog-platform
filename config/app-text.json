@@ -116,7 +116,8 @@
       "link": "Add link",
       "unlink": "Remove link",
       "removeFormatting": "Clear formatting",
-      "horizontalRule": "Divider"
+      "horizontalRule": "Divider",
+      "image": "Add image"
     },
     "linkPanel": {
       "heading": "Link",
@@ -125,6 +126,22 @@
       "apply": "Apply",
       "remove": "Remove",
       "cancel": "Cancel"
+    },
+    "imagePanel": {
+      "heading": "Image",
+      "altLabel": "Alt text",
+      "altPlaceholder": "Describe the image",
+      "altHint": "Describes the image for screen readers and search engines. Leave empty only if the image is purely decorative.",
+      "alignLabel": "Alignment",
+      "alignNone": "Inline",
+      "alignLeft": "Left",
+      "alignCenter": "Center",
+      "alignRight": "Right",
+      "widthLabel": "Width",
+      "remove": "Remove image",
+      "done": "Done",
+      "uploading": "Uploading…",
+      "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB."
     }
   },
   "errors": {

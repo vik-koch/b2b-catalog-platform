@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MEDIA_STORE } from './media-store';
 import { LocalMediaStore } from './local-media-store';
 import { MediaController } from './media.controller';
+import { AuthModule } from '../auth/auth.module';
 
 /**
  * Wires the image upload endpoint to the MediaStore port, bound to the
@@ -9,6 +10,7 @@ import { MediaController } from './media.controller';
  * store) is a one-line change here — no call site changes.
  */
 @Module({
+  imports: [AuthModule],
   controllers: [MediaController],
   providers: [{ provide: MEDIA_STORE, useClass: LocalMediaStore }],
   exports: [MEDIA_STORE],
