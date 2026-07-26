@@ -6,6 +6,7 @@ import { ContactPage } from './pages/contact-page';
 import { InquiryPage } from './pages/inquiry-page';
 import { Home } from './home/home';
 import { Page } from './pages/page';
+import { unsavedChangesGuard } from './pages/unsaved-changes.guard';
 
 const isPageSlug = (_: Route, [first]: UrlSegment[]) =>
   (PAGE_SLUGS as readonly string[]).includes(first?.path ?? '');
@@ -38,6 +39,14 @@ export const appRoutes: Route[] = [
   // Code pages are declared before the generic :slug route.
   { path: 'contact', component: ContactPage },
   { path: 'inquiry', component: InquiryPage },
-  { path: ':slug', component: Page, canMatch: [isPageSlug] },
+  {
+    path: ':slug',
+    component: Page,
+    canMatch: [isPageSlug],
+    // noReuse makes a slug change a fresh activation, so the unsaved-changes
+    // guard runs when an admin edits and switches pages (see the strategy).
+    canDeactivate: [unsavedChangesGuard],
+    data: { noReuse: true },
+  },
   { path: '**', component: NotFoundPage },
 ];

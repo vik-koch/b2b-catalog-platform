@@ -138,7 +138,7 @@ describe('PUT /pages/:slug (FR-ADM-03)', () => {
     expect(res.status).toBe(200);
     expect(res.data.bodyHtml).toBe('<p>Text</p>');
 
-    // The column itself is clean — the guarantee ADR 0020 rests on.
+    // The column itself is clean, not just the response.
     const { rows } = await client.query(
       'SELECT "bodyHtml" FROM pages WHERE id = $1',
       [slug],

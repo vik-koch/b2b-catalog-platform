@@ -7,13 +7,8 @@ import { pageSeeds } from './data';
  * demo redeploys). Expects migrations to have been applied (the API does this
  * on startup before it starts listening).
  *
- * Seed bodies go through the same sanitizer as admin edits (ADR 0020) — not
- * because the committed demo content is untrusted, but so that the column has
- * exactly one kind of content in it and the seeds cannot drift into markup the
- * editor could never reproduce.
- *
- * `updatedAt` is left to its column default (now) and `updatedBy` to null:
- * seeded content has no human editor.
+ * Bodies pass through the same sanitizer as admin edits, so seeds cannot drift
+ * into markup the editor could never reproduce.
  */
 export async function seedDatabase(client: Client): Promise<void> {
   for (const { slug, title, bodyHtml } of pageSeeds) {

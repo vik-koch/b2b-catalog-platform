@@ -22,6 +22,12 @@ describe('sanitizeRichText', () => {
       expect(sanitizeRichText('')).toBe('');
     });
 
+    it('keeps underline and strikethrough', () => {
+      expect(sanitizeRichText('<p><u>a</u> <s>b</s></p>')).toBe(
+        '<p><u>a</u> <s>b</s></p>',
+      );
+    });
+
     it('accepts every tag the shared vocabulary declares', () => {
       // Guards the two lists against drift: a tag added to RICH_TEXT_TAGS but
       // not reaching the sanitizer config would fail here.
@@ -67,20 +73,20 @@ describe('sanitizeRichText', () => {
       expect(out).toContain('Imposter title');
     });
 
-    it('strips tables (not part of the vocabulary yet, ADR 0020)', () => {
+    it('strips tables, not part of the vocabulary yet', () => {
       const out = sanitizeRichText('<table><tr><td>cell</td></tr></table>');
 
       expect(out).not.toContain('<table');
       expect(out).not.toContain('<td');
     });
 
-    it('strips iframes — embeds are code and config, never content (ADR 0010)', () => {
+    it('strips iframes', () => {
       const out = sanitizeRichText('<iframe src="https://evil.test"></iframe>');
 
       expect(out).toBe('');
     });
 
-    it('strips images until the media store exists (ADR 0021)', () => {
+    it('strips images until the media store exists', () => {
       const out = sanitizeRichText('<img src="https://evil.test/track.gif" />');
 
       expect(out).toBe('');

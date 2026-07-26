@@ -32,6 +32,8 @@ export const RICH_TEXT_TAGS = [
   'br',
   'strong',
   'em',
+  'u',
+  's',
   'h2',
   'h3',
   'h4',

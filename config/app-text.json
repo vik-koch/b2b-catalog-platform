@@ -90,6 +90,43 @@
     "reject": "Reject",
     "settings": "Cookie settings"
   },
+  "pageEditor": {
+    "edit": "Edit page",
+    "pageTitle": "Page title",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "preview": "Preview",
+    "resumeEditing": "Back to editing",
+    "previewNotice": "Preview — this is how the page will look once saved.",
+    "discardConfirm": "Discard your unsaved changes to this page?",
+    "titleRequired": "Please enter a page title.",
+    "saveError": "Something went wrong saving this page. Please try again.",
+    "toolbar": {
+      "label": "Formatting",
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strikethrough": "Strikethrough",
+      "heading2": "Heading",
+      "heading3": "Subheading",
+      "bulletList": "Bullet list",
+      "orderedList": "Numbered list",
+      "blockquote": "Quote",
+      "link": "Add link",
+      "unlink": "Remove link",
+      "removeFormatting": "Clear formatting",
+      "horizontalRule": "Divider"
+    },
+    "linkPanel": {
+      "heading": "Link",
+      "urlLabel": "Link address",
+      "placeholder": "https://example.com",
+      "apply": "Apply",
+      "remove": "Remove",
+      "cancel": "Cancel"
+    }
+  },
   "errors": {
     "notFoundTitle": "Page not found",
     "notFoundBody": "The page you are looking for does not exist.",
