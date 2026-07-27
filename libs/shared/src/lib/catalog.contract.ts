@@ -85,16 +85,19 @@ export interface CategoryNode {
   imageUrl: string | null;
   children: CategoryNode[];
 }
-export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
-  z
-    .object({
-      slug: z.string(),
-      name: z.string(),
-      imageUrl: z.string().nullable(),
-      children: z.array(categoryNodeSchema),
-    })
-    .strict(),
-);
+export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
+  () =>
+    z
+      .object({
+        slug: z.string(),
+        name: z.string(),
+        imageUrl: z.string().nullable(),
+        children: z.array(categoryNodeSchema),
+      })
+      .strict(),
+  // Cast: under the self-reference zod widens the inferred field types to
+  // optional; the explicit interface above is the real shape.
+) as z.ZodType<CategoryNode>;
 
 /** A breadcrumb ancestor of the selected category, root-first. */
 export const categoryCrumbSchema = z
