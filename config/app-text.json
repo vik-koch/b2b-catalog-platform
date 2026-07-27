@@ -14,11 +14,19 @@
     "intro": "Visit us or get in touch — find our offices below."
   },
   "catalog": {
+    "navLabel": "Catalogue",
     "overviewTitle": "Our catalogue",
     "overviewIntro": "Browse our range by category.",
     "viewCategory": "Browse {name}",
     "emptyCategories": "Our catalogue is being set up — please check back soon.",
-    "loadError": "Something went wrong loading the catalogue — please try again later."
+    "loadError": "Something went wrong loading the catalogue — please try again later.",
+    "catalogRoot": "Catalogue",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "emptyProducts": "No products in this category yet.",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageStatus": "Page {page} of {total}"
   },
   "auth": {
     "login": "Log in",

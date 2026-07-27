@@ -12,6 +12,7 @@ import { CloseIcon } from '../ui/icons/close-icon';
 import { MenuIcon } from '../ui/icons/menu-icon';
 import { PhoneIcon } from '../ui/icons/phone-icon';
 import { AccountLink } from './account-link';
+import { CatalogLink } from './catalog-link';
 import { ContactInfo } from './contact-info';
 import { NAV_ACTION } from './nav-action';
 
@@ -29,6 +30,7 @@ import { NAV_ACTION } from './nav-action';
     RouterLink,
     RouterLinkActive,
     AccountLink,
+    CatalogLink,
     ContactInfo,
     PhoneIcon,
     MenuIcon,
@@ -101,6 +103,7 @@ import { NAV_ACTION } from './nav-action';
               <span class="sr-only">Call {{ phone }}</span>
             </a>
           }
+          <app-catalog-link />
           <app-account-link />
           <button
             type="button"

@@ -1,7 +1,7 @@
 import { formatPriceMinor } from './price';
 
 /** de-DE inserts a non-breaking space before the symbol; normalise for asserts. */
-const norm = (s: string): string => s.replace(/ /g, ' ');
+const norm = (s: string): string => s.replace(/\u00A0/g, ' ');
 
 describe('formatPriceMinor', () => {
   it('formats EUR minor units in de-DE (symbol after, comma decimal)', () => {

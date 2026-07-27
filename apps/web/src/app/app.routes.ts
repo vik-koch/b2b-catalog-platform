@@ -6,6 +6,7 @@ import { ContactPage } from './pages/contact-page';
 import { InquiryPage } from './pages/inquiry-page';
 import { Home } from './home/home';
 import { CategoryOverview } from './catalog/category-overview';
+import { CategoryGrid } from './catalog/category-grid';
 import { Page } from './pages/page';
 import { unsavedChangesGuard } from './pages/unsaved-changes.guard';
 
@@ -41,6 +42,7 @@ export const appRoutes: Route[] = [
   { path: 'contact', component: ContactPage },
   { path: 'inquiry', component: InquiryPage },
   { path: 'catalog', component: CategoryOverview },
+  { path: 'catalog/:slug', component: CategoryGrid },
   {
     path: ':slug',
     component: Page,

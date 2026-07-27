@@ -3,7 +3,7 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { PricePipe } from './price.pipe';
 
-const norm = (s: string): string => s.replace(/ /g, ' ');
+const norm = (s: string): string => s.replace(/\u00A0/g, ' ');
 
 function pipeWithCurrency(code: string, locale: string): PricePipe {
   const config = {

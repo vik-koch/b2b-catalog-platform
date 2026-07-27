@@ -104,6 +104,18 @@ export const categoryCrumbSchema = z
   .object({ slug: z.string(), name: z.string() })
   .strict();
 
+/** A direct child of the selected category, for the drill-down nav
+ * (FR-CAT-02). `imageUrl` lets the nav render as tiles if wanted; the current
+ * grid uses chips and ignores it. */
+export const subcategoryLinkSchema = z
+  .object({
+    slug: z.string(),
+    name: z.string(),
+    imageUrl: z.string().nullable(),
+  })
+  .strict();
+export type SubcategoryLink = z.infer<typeof subcategoryLinkSchema>;
+
 /** Pagination envelope for the grid. */
 export const paginationSchema = z
   .object({
@@ -146,6 +158,8 @@ export const catalogContract = c.router({
               slug: z.string(),
               name: z.string(),
               ancestors: z.array(categoryCrumbSchema),
+              /** Direct children, for the drill-down nav. Empty on a leaf. */
+              subcategories: z.array(subcategoryLinkSchema),
             })
             .strict(),
           items: z.array(productListItemSchema),

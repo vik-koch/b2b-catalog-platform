@@ -213,6 +213,24 @@ export const SEED_PRODUCTS: SeedProduct[] = [
     ),
   },
 
+  {
+    slug: 'hafen-reserve-microlot',
+    name: 'Hafen Espresso Reserve — Limited Micro-Lot, Whole Bean, Roasted to Order (1 kg)',
+    categorySlug: 'espresso',
+    priceMinor: 2790,
+    imageCount: 3,
+    descriptionHtml: beanDescription(
+      'Hafen Espresso Reserve',
+      'blackberry, dark chocolate and a long, syrupy finish',
+    ),
+    attributes: beanAttributes(
+      'Ethiopia (micro-lot)',
+      'Medium-dark',
+      'Natural',
+      'blackberry, chocolate',
+    ),
+  },
+
   // Filter
   {
     slug: 'yirgacheffe-filter',
@@ -402,7 +420,8 @@ export function buildCategoryTree(): CategoryNode[] {
   }
   const roots: CategoryNode[] = [];
   for (const c of SEED_CATEGORIES) {
-    const node = bySlug.get(c.slug)!;
+    const node = bySlug.get(c.slug);
+    if (!node) continue;
     if (c.parentSlug === null) {
       roots.push(node);
     } else {
@@ -446,6 +465,17 @@ export function categoryAndDescendantSlugs(slug: string): Set<string> {
     }
   }
   return result;
+}
+
+/** Direct children of a category, in seed order — the drill-down nav. */
+export function categoryChildren(
+  slug: string,
+): { slug: string; name: string; imageUrl: string | null }[] {
+  return SEED_CATEGORIES.filter((c) => c.parentSlug === slug).map((c) => ({
+    slug: c.slug,
+    name: c.name,
+    imageUrl: c.imageUrl,
+  }));
 }
 
 export function findProduct(slug: string): SeedProduct | undefined {

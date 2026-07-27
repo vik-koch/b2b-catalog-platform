@@ -32,6 +32,8 @@ export const appTextSchema = z
     /** Storefront catalog chrome (FR-CAT). */
     catalog: z
       .object({
+        /** Main navbar action label (icon button). */
+        navLabel: z.string(),
         /** Main-page category overview (FR-CAT-01). */
         overviewTitle: z.string(),
         overviewIntro: z.string(),
@@ -39,6 +41,15 @@ export const appTextSchema = z
         viewCategory: z.string(),
         emptyCategories: z.string(),
         loadError: z.string(),
+        /** Category grid (FR-CAT-03/04). */
+        catalogRoot: z.string(),
+        showMore: z.string(),
+        showLess: z.string(),
+        emptyProducts: z.string(),
+        prevPage: z.string(),
+        nextPage: z.string(),
+        /** `{page}` and `{total}` substituted at render. */
+        pageStatus: z.string(),
       })
       .strict(),
     /**
