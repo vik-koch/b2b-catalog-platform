@@ -21,13 +21,13 @@ without renumbering.
 
 ### Catalog (FR-CAT)
 
-| ID        | Requirement                                                                                                                                  |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| FR-CAT-01 | The main page displays an overview of all catalog categories.                                                                                |
-| FR-CAT-02 | Products are grouped by category (incl. subcategories); this grouping is navigable.                                                          |
-| FR-CAT-03 | Products within a selected category are shown as a paginated grid.                                                                           |
-| FR-CAT-04 | A product list item displays SKU, an image gallery (slider), name and price, and links to the full product page.                             |
-| FR-CAT-05 | A product page displays SKU, name, price, full rich-text description, an image gallery, and a table of custom attributes (e.g. color: blue). |
+| ID        | Requirement                                                                                                                             |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| FR-CAT-01 | The main page displays an overview of all catalog categories.                                                                           |
+| FR-CAT-02 | Products are grouped by category (incl. subcategories); this grouping is navigable.                                                     |
+| FR-CAT-03 | Products within a selected category are shown as a paginated grid.                                                                      |
+| FR-CAT-04 | A product list item displays an image gallery (slider), name and price, and links to the full product page.                             |
+| FR-CAT-05 | A product page displays name, price, full rich-text description, an image gallery, and a table of custom attributes (e.g. color: blue). |
 
 ### Search (FR-SEARCH)
 

@@ -22,7 +22,10 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
 - Search: Postgres FTS (`tsvector` + `pg_trgm`), NOT Elasticsearch.
 - Maps: configurable iframe embed URL per deployment.
 - Auth: app-issued JWT (httpOnly cookie) + NestJS AuthGuard/RolesGuard, NOT OAuth2, NOT OPA.
-- Validation: global ValidationPipe, class-validator DTOs, whitelist + forbidNonWhitelisted.
+- API contracts: ts-rest + Zod. One schema per endpoint lives in `libs/shared`
+  (`*.contract.ts`), consumed by both apps — the single source of truth for shape and
+  validation. API implements them with `@ts-rest/nest` (`tsRestHandler`, `validateResponses`);
+  web calls them with `@ts-rest/core` `initClient`. No class-validator, no global ValidationPipe.
 - Rendering: Angular SSR (one running Node process) serves all crawler-visible routes —
   catalog/product and static pages alike. Static-page HTML is cached per slug, invalidated
   on admin save. No build-time prerendering of DB-backed content.
