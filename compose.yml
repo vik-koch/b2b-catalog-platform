@@ -58,8 +58,18 @@ services:
       # Server-only inquiry email wording, loaded whole from a file in the
       # ./config mount below.
       INQUIRY_TEXT_FILE: ${INQUIRY_TEXT_FILE:-/config/inquiry-text.json}
+      # Uploaded images land on the shared media volume; the media service
+      # serves them read-only at /media.
+      MEDIA_ROOT: /media
+      # In-process orphan prune: the server sweeps unreferenced uploads on
+      # a timer. Defaults live in the API's env schema; a stack overrides here —
+      # notably MEDIA_PRUNE_DRY_RUN=true to watch a first prod sweep before it deletes.
+      MEDIA_PRUNE_INTERVAL_HOURS: ${MEDIA_PRUNE_INTERVAL_HOURS:-24}
+      MEDIA_PRUNE_GRACE_HOURS: ${MEDIA_PRUNE_GRACE_HOURS:-24}
+      MEDIA_PRUNE_DRY_RUN: ${MEDIA_PRUNE_DRY_RUN:-false}
     volumes:
       - ./config:/config:ro
+      - mediadata:/media
     depends_on:
       postgres:
         condition: service_healthy
@@ -115,6 +125,35 @@ services:
       - traefik.http.routers.${STACK_NAME:?}-web.entrypoints=websecure
       - traefik.http.routers.${STACK_NAME:?}-web.tls.certresolver=letsencrypt
       - traefik.http.services.${STACK_NAME:?}-web.loadbalancer.server.port=4000
+
+  # Static server for uploaded images (0021). Traefik cannot serve files, so a
+  # tiny nginx exposes the shared media volume read-only at /media, with an
+  # immutable cache policy (filenames are content hashes). On the internal
+  # network too, so the local smoke-test proxy can reach it by name.
+  media:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - mediadata:/srv/media:ro
+      - ./infra/media/media.conf:/etc/nginx/conf.d/default.conf:ro
+    # Let the api initialize the shared mediadata volume first. The api image
+    # creates /media owned by the unprivileged `node` user, so whichever
+    # container mounts the empty volume first sets its ownership — this nginx
+    # runs as root and would seed it root-owned, leaving the node api unable to
+    # write uploads. Ordering the api ahead makes the volume node-owned.
+    depends_on:
+      - api
+    networks:
+      - internal
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      # More specific than the web catch-all, so /media never lands on web.
+      - traefik.http.routers.${STACK_NAME:?}-media.rule=Host(`${APP_DOMAIN:?}`) && PathPrefix(`/media`)
+      - traefik.http.routers.${STACK_NAME:?}-media.entrypoints=websecure
+      - traefik.http.routers.${STACK_NAME:?}-media.tls.certresolver=letsencrypt
+      - traefik.http.services.${STACK_NAME:?}-media.loadbalancer.server.port=80
 
   # One-shot migrator — reuses the API image in RUN_MODE=migrate to apply
   # pending migrations, then exits. Not in a profile: plain `up` runs it.
@@ -200,3 +239,7 @@ networks:
 
 volumes:
   pgdata:
+  # Uploaded images (0021). Written by api, served by media. Not covered by the
+  # postgres db-backup job — a long-lived deployment must include this volume in
+  # its filesystem/volume backups (the same tier as ./backups and ./config).
+  mediadata:

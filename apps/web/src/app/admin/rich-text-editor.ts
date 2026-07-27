@@ -11,9 +11,19 @@ import {
 } from '@angular/core';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
-import { RICH_TEXT_LINK_SCHEMES } from '@b2b-catalog-platform/shared';
+import {
+  ACCEPTED_IMAGE_MIME_TYPES,
+  RICH_TEXT_IMAGE_ALIGNMENTS,
+  RICH_TEXT_IMAGE_SIZE_MAX_PERCENT,
+  RICH_TEXT_IMAGE_SIZE_MIN_PERCENT,
+  RICH_TEXT_LINK_SCHEMES,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LucideIcon, LucideIconName } from '../ui/icons/lucide-icon';
+import { RichTextImage } from './rich-text-image';
+import { MediaService } from './media.service';
+
+type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
 interface ToolbarAction {
   id: string;
@@ -59,6 +69,25 @@ interface ToolbarAction {
           class="prose prose-stone max-w-none p-4 [&_.ProseMirror]:min-h-64 [&_.ProseMirror]:outline-none"
         ></div>
       </div>
+
+      <input
+        #fileInput
+        type="file"
+        class="hidden"
+        [accept]="acceptImages"
+        (change)="onFileSelected($event)"
+      />
+
+      @if (uploading()) {
+        <p class="mt-2 text-sm text-stone-600" role="status">
+          {{ image.uploading }}
+        </p>
+      }
+      @if (uploadError()) {
+        <p class="mt-2 text-sm text-red-700" role="alert">
+          {{ image.uploadError }}
+        </p>
+      }
 
       @if (linkPanelOpen()) {
         <div
@@ -109,16 +138,118 @@ interface ToolbarAction {
           </div>
         </div>
       }
+
+      @if (imagePanelOpen()) {
+        <div
+          class="absolute right-2 top-14 z-10 w-72 rounded-md border border-stone-300 bg-white p-3 shadow-lg"
+          role="dialog"
+          [attr.aria-label]="image.heading"
+        >
+          <label class="block">
+            <span class="mb-1 block text-sm font-medium">{{
+              image.altLabel
+            }}</span>
+            <input
+              type="text"
+              class="w-full rounded-md border border-stone-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+              [placeholder]="image.altPlaceholder"
+              [value]="imageAlt()"
+              (input)="onImageAltInput($any($event.target).value)"
+            />
+            <span class="mt-1 block text-xs text-stone-500">{{
+              image.altHint
+            }}</span>
+          </label>
+
+          <label class="mt-3 block">
+            <span class="mb-1 block text-sm font-medium">{{
+              image.linkLabel
+            }}</span>
+            <input
+              type="text"
+              class="w-full rounded-md border border-stone-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+              [placeholder]="image.linkPlaceholder"
+              [value]="imageHref()"
+              (input)="onImageHrefInput($any($event.target).value)"
+            />
+          </label>
+
+          <div class="mt-3">
+            <span class="mb-1 block text-sm font-medium">{{
+              image.alignLabel
+            }}</span>
+            <div class="flex gap-1">
+              <button
+                type="button"
+                [class]="alignButtonClass(imageAlign() === null)"
+                (click)="setImageAlign(null)"
+              >
+                {{ image.alignNone }}
+              </button>
+              @for (a of alignments; track a) {
+                <button
+                  type="button"
+                  [class]="alignButtonClass(imageAlign() === a)"
+                  (click)="setImageAlign(a)"
+                >
+                  {{ alignLabel(a) }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <label class="mt-3 block">
+            <span class="mb-1 flex justify-between text-sm font-medium">
+              <span>{{ image.widthLabel }}</span>
+              <span class="text-stone-500">{{ imageSize() }}%</span>
+            </span>
+            <input
+              type="range"
+              class="w-full accent-primary"
+              [min]="sizeMin"
+              [max]="sizeMax"
+              [value]="imageSize()"
+              (input)="onImageSizeInput($any($event.target).value)"
+            />
+          </label>
+
+          <div class="mt-3 flex justify-end gap-2">
+            <button
+              type="button"
+              class="mr-auto rounded px-2 py-1 text-sm text-red-700 hover:bg-red-50"
+              (click)="removeImage()"
+            >
+              {{ image.remove }}
+            </button>
+            <button
+              type="button"
+              class="rounded bg-primary px-2 py-1 text-sm text-white hover:bg-primary/90"
+              (click)="closeImagePanel()"
+            >
+              {{ image.done }}
+            </button>
+          </div>
+        </div>
+      }
     </div>
   `,
 })
 export class RichTextEditor {
   protected readonly text = inject(APP_TEXT).pageEditor;
   protected readonly link = this.text.linkPanel;
+  protected readonly image = this.text.imagePanel;
+  private readonly media = inject(MediaService);
+
+  protected readonly acceptImages = ACCEPTED_IMAGE_MIME_TYPES.join(',');
+  protected readonly sizeMin = RICH_TEXT_IMAGE_SIZE_MIN_PERCENT;
+  protected readonly sizeMax = RICH_TEXT_IMAGE_SIZE_MAX_PERCENT;
+  protected readonly alignments = RICH_TEXT_IMAGE_ALIGNMENTS;
 
   private readonly host = viewChild.required<ElementRef<HTMLElement>>('host');
   private readonly linkInput =
     viewChild<ElementRef<HTMLInputElement>>('linkInput');
+  private readonly fileInput =
+    viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
   /** Read once, when the editor is created; later edits flow out via output. */
   readonly value = input<string>('');
@@ -129,6 +260,20 @@ export class RichTextEditor {
   protected readonly linkPanelOpen = signal(false);
   protected readonly linkDraft = signal('');
   protected readonly editingExistingLink = signal(false);
+  // Image editing panel, driven by whether the current selection is an image.
+  protected readonly imagePanelOpen = signal(false);
+  protected readonly imageAlt = signal('');
+  // Raw link text as typed; normalized to an allowed URL before it is stored.
+  protected readonly imageHref = signal('');
+  protected readonly imageAlign = signal<ImageAlign | null>(null);
+  // Percentage of the image's natural width shown on the size slider; the node
+  // stores the resulting pixel width.
+  protected readonly imageSize = signal(RICH_TEXT_IMAGE_SIZE_MAX_PERCENT);
+  protected readonly uploading = signal(false);
+  protected readonly uploadError = signal(false);
+  // Document position of the image the panel is currently bound to, so panel
+  // state is re-seeded only when the selection moves to a different image.
+  private selectedImagePos: number | null = null;
   // Captured when the panel opens: focusing the input collapses the editor
   // selection, so we restore this range before applying the link.
   private linkRange: { from: number; to: number } | null = null;
@@ -222,6 +367,13 @@ export class RichTextEditor {
       icon: 'square-split-vertical',
       run: (e) => e.chain().focus().setHorizontalRule().run(),
     },
+    {
+      id: 'image',
+      label: this.text.toolbar.image,
+      icon: 'image',
+      run: () => this.pickImage(),
+      isActive: (e) => e.isActive('image'),
+    },
   ];
 
   constructor() {
@@ -245,6 +397,8 @@ export class RichTextEditor {
             HTMLAttributes: { rel: 'noopener noreferrer', target: null },
           },
         }),
+        // Same-origin uploaded images only; base64 would defeat the media store.
+        RichTextImage.configure({ inline: false, allowBase64: false }),
       ],
       onUpdate: ({ editor }) => {
         this.contentChange.emit(editor.getHTML());
@@ -258,6 +412,53 @@ export class RichTextEditor {
   private refreshActive(editor: Editor): void {
     this.activeIds.set(
       this.actions.filter((a) => a.isActive?.(editor)).map((a) => a.id),
+    );
+    // Mirror the selected image's attributes into the panel signals, but only
+    // when the *selected image changes* — re-seeding them on every keystroke
+    // would rewrite the alt input mid-edit and jump the caret. While the same
+    // image stays selected, the panel's own handlers own the signals.
+    if (editor.isActive('image')) {
+      const pos = editor.state.selection.from;
+      if (pos !== this.selectedImagePos) {
+        this.selectedImagePos = pos;
+        const attrs = editor.getAttributes('image');
+        this.imageAlt.set(attrs['alt'] ?? '');
+        this.imageHref.set(attrs['href'] ?? '');
+        this.imageAlign.set(attrs['align'] ?? null);
+        this.syncImageSize(Number(attrs['width']) || 0);
+      }
+      this.imagePanelOpen.set(true);
+    } else {
+      this.selectedImagePos = null;
+      this.imagePanelOpen.set(false);
+    }
+  }
+
+  /**
+   * Derives the size-slider percentage from the stored pixel width and the
+   * image's natural width. If the image has not finished loading yet its natural
+   * width is 0, so recompute once it loads; until then default to full size.
+   */
+  private syncImageSize(widthPx: number): void {
+    const img = this.selectedImage();
+    const toPercent = () => {
+      const natural = img?.naturalWidth ?? 0;
+      this.imageSize.set(
+        natural > 0 && widthPx > 0
+          ? Math.round((widthPx / natural) * 100)
+          : RICH_TEXT_IMAGE_SIZE_MAX_PERCENT,
+      );
+    };
+    if (img && img.naturalWidth === 0) {
+      img.addEventListener('load', toPercent, { once: true });
+    }
+    toPercent();
+  }
+
+  /** The DOM node of the currently selected image, if any. */
+  private selectedImage(): HTMLImageElement | null {
+    return this.host().nativeElement.querySelector<HTMLImageElement>(
+      'img.ProseMirror-selectednode',
     );
   }
 
@@ -273,6 +474,21 @@ export class RichTextEditor {
     return active
       ? `${base} bg-primary text-white`
       : `${base} text-ink hover:bg-stone-200`;
+  }
+
+  protected alignButtonClass(active: boolean): string {
+    const base = 'flex-1 rounded px-2 py-1 text-xs transition-colors';
+    return active
+      ? `${base} bg-primary text-white`
+      : `${base} text-ink hover:bg-stone-200`;
+  }
+
+  protected alignLabel(align: ImageAlign): string {
+    return align === 'left'
+      ? this.image.alignLeft
+      : align === 'center'
+        ? this.image.alignCenter
+        : this.image.alignRight;
   }
 
   private openLinkPanel(): void {
@@ -322,6 +538,101 @@ export class RichTextEditor {
     }
     chain.run();
     this.closeLinkPanel();
+  }
+
+  protected pickImage(): void {
+    this.uploadError.set(false);
+    this.fileInput()?.nativeElement.click();
+  }
+
+  protected async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    // Reset so picking the same file again still fires a change event.
+    input.value = '';
+    if (!file || !this.editor) {
+      return;
+    }
+
+    this.uploadError.set(false);
+    this.uploading.set(true);
+    try {
+      const src = await this.media.upload(file);
+      // Insert at natural size (no width attr — CSS caps it at the column), then
+      // select it so the panel opens for alt and placement right away.
+      this.editor
+        .chain()
+        .focus()
+        .insertContent({ type: 'image', attrs: { src } })
+        .run();
+      // The image is a block node, so inserting it splits the current paragraph
+      // and the cursor lands in the block after it — a fixed offset back would
+      // miss. Find the image nearest before the cursor (the one just inserted)
+      // and select it, which opens the placement panel via onSelectionUpdate.
+      const { doc, selection } = this.editor.state;
+      let imagePos: number | null = null;
+      doc.descendants((node, pos) => {
+        if (node.type.name === 'image' && pos < selection.from) {
+          imagePos = pos;
+        }
+      });
+      if (imagePos !== null) {
+        this.editor.commands.setNodeSelection(imagePos);
+      }
+    } catch {
+      this.uploadError.set(true);
+    } finally {
+      this.uploading.set(false);
+    }
+  }
+
+  // Panel edits deliberately do NOT call .focus(): focusing the editor would
+  // pull focus out of the panel's own input after each keystroke. The image
+  // stays selected in editor state regardless of DOM focus, so updateAttributes
+  // still targets it.
+  protected onImageAltInput(value: string): void {
+    this.imageAlt.set(value);
+    this.editor?.chain().updateAttributes('image', { alt: value }).run();
+  }
+
+  protected onImageHrefInput(value: string): void {
+    this.imageHref.set(value);
+    const trimmed = value.trim();
+    // Empty clears the link; otherwise normalize like a text link. The server
+    // sanitizer is the final authority on the scheme and forces the safe rel.
+    this.editor
+      ?.chain()
+      .updateAttributes('image', {
+        href: trimmed ? normalizeHref(trimmed) : null,
+      })
+      .run();
+  }
+
+  protected setImageAlign(align: ImageAlign | null): void {
+    this.imageAlign.set(align);
+    this.editor?.chain().updateAttributes('image', { align }).run();
+  }
+
+  protected onImageSizeInput(value: string): void {
+    const percent = Number(value);
+    this.imageSize.set(percent);
+    const natural = this.selectedImage()?.naturalWidth ?? 0;
+    if (!this.editor || natural <= 0) {
+      return;
+    }
+    // Percent of the image's natural width -> absolute pixels (what we store).
+    const width = Math.max(1, Math.round((natural * percent) / 100));
+    this.editor.chain().updateAttributes('image', { width }).run();
+  }
+
+  protected removeImage(): void {
+    this.editor?.chain().focus().deleteSelection().run();
+    this.imagePanelOpen.set(false);
+  }
+
+  protected closeImagePanel(): void {
+    this.imagePanelOpen.set(false);
+    this.editor?.chain().focus().run();
   }
 }
 

@@ -27,3 +27,55 @@
 .prose {
   --tw-prose-links: var(--color-primary);
 }
+
+/*
+ * Rich-text image placement. Width arrives inline (width:N%, sanitizer-built);
+ * alignment is these attribute rules, matched by the same enum the sanitizer
+ * allows. The container clears its floats so a floated image never spills past
+ * the body, and floats collapse on narrow screens so text is never squeezed.
+ */
+.prose::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+/* Width is an inline pixel value (sanitizer-built); cap it at the column so a
+   large image fills the width instead of overflowing, and scale height with it. */
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+/* Lists form their own block context so their markers sit beside a floated
+   image rather than overlapping it. */
+.prose :where(ul, ol) {
+  display: flow-root;
+}
+/* Editor-only affordance: linked images carry data-linked (see the NodeView).
+   It never reaches the public page, whose links are real anchors. */
+.ProseMirror img[data-linked] {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.prose img[data-align='center'] {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.prose img[data-align='left'] {
+  float: left;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+}
+.prose img[data-align='right'] {
+  float: right;
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+@media (max-width: 640px) {
+  .prose img[data-align='left'],
+  .prose img[data-align='right'] {
+    float: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

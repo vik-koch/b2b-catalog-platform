@@ -5,7 +5,11 @@ import { runBootstrapAdmin, runSeed } from '@b2b-catalog-platform/seed';
 import { AppModule } from './app/app.module';
 import { runMigrations } from './db/migrate';
 import { hashPassword } from './auth/password-hashing';
+import { scheduleMediaPrune } from './media/prune/media-prune-scheduler';
 import { env } from './env';
+
+// Let the server settle and serve traffic before the first maintenance sweep.
+const PRUNE_STARTUP_DELAY_MS = 60_000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,6 +34,19 @@ async function bootstrap() {
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
   );
+
+  // Delete uploaded images no stored content references. Runs in-process
+  // on a timer. Grace-windowed, so an upload not yet saved into a body
+  // is never swept mid-edit.
+  scheduleMediaPrune({
+    connectionString: env.DATABASE_URL,
+    mediaRoot: env.MEDIA_ROOT as string,
+    graceMs: env.MEDIA_PRUNE_GRACE_HOURS * 60 * 60 * 1000,
+    intervalMs: env.MEDIA_PRUNE_INTERVAL_HOURS * 60 * 60 * 1000,
+    startupDelayMs: PRUNE_STARTUP_DELAY_MS,
+    dryRun: env.MEDIA_PRUNE_DRY_RUN === 'true',
+    log: (message) => Logger.log(message, 'MediaPrune'),
+  });
 }
 
 async function main() {

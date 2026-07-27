@@ -14,6 +14,7 @@ import { Button } from '../ui/button';
 import { RichTextEditor } from '../admin/rich-text-editor';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { PageService } from './page.service';
+import { trustedRichText } from './trusted-rich-text';
 
 /**
  * Inline editing surface for a static page: title, body and a preview that
@@ -22,6 +23,9 @@ import { PageService } from './page.service';
 @Component({
   selector: 'app-page-editor',
   imports: [Button, RichTextEditor, LucideIcon],
+  // Neutralize link navigation from the preview at the host: a native click on
+  // a rendered link would leave the page without the unsaved-changes guard.
+  host: { '(click)': 'onPreviewClick($event)' },
   template: `
     @if (previewing()) {
       <p
@@ -31,7 +35,10 @@ import { PageService } from './page.service';
         {{ text.previewNotice }}
       </p>
       <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ title() }}</h1>
-      <div class="prose prose-stone max-w-none" [innerHTML]="body()"></div>
+      <div
+        class="prose prose-stone max-w-none"
+        [innerHTML]="safeBody(body())"
+      ></div>
     } @else {
       <label class="mb-6 block">
         <span class="mb-1 block text-sm font-medium">{{ text.pageTitle }}</span>
@@ -44,7 +51,7 @@ import { PageService } from './page.service';
       </label>
 
       <app-rich-text-editor
-        [value]="page().bodyHtml"
+        [value]="body()"
         (contentChange)="body.set($event)"
       />
     }
@@ -93,6 +100,9 @@ import { PageService } from './page.service';
 export class PageEditor {
   private readonly pageService = inject(PageService);
   protected readonly text = inject(APP_TEXT).pageEditor;
+  /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
+   * preview body — see trustedRichText. */
+  protected readonly safeBody = trustedRichText();
 
   readonly slug = input.required<PageSlug>();
   readonly page = input.required<Page>();
@@ -122,6 +132,21 @@ export class PageEditor {
 
   protected onTitleInput(event: Event): void {
     this.title.set((event.target as HTMLInputElement).value);
+  }
+
+  /**
+   * Preview is a visual preview, not a live page. Its body renders real anchors
+   * (text links, linked images); a native click on one would leave the page
+   * *without* passing through the unsaved-changes route guard, silently dropping
+   * the edit. Neutralize link clicks while previewing — the admin resumes
+   * editing or uses the app's own navigation, which the guard protects. Scoped
+   * to preview so it never interferes with the editor or toolbar. A keyboard
+   * Enter on a link also dispatches a click, so this covers that too.
+   */
+  protected onPreviewClick(event: MouseEvent): void {
+    if (this.previewing() && (event.target as HTMLElement).closest('a')) {
+      event.preventDefault();
+    }
   }
 
   protected async save(): Promise<void> {

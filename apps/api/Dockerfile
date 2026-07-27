@@ -19,6 +19,11 @@ WORKDIR /app
 COPY --from=build /workspace/dist/apps/api ./
 RUN npm ci --omit=dev && npm cache clean --force
 
+# The media store writes here (MEDIA_ROOT=/media in compose). Creating it owned
+# by node means the named volume mounted here inherits that ownership, so the
+# unprivileged runtime user can write uploads.
+RUN mkdir -p /media && chown node:node /media
+
 USER node
 EXPOSE 3000
 CMD ["node", "main.js"]
