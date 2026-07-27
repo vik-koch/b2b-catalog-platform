@@ -5,6 +5,7 @@ import { NotFoundPage } from './pages/not-found-page';
 import { ContactPage } from './pages/contact-page';
 import { InquiryPage } from './pages/inquiry-page';
 import { Home } from './home/home';
+import { CategoryOverview } from './catalog/category-overview';
 import { Page } from './pages/page';
 import { unsavedChangesGuard } from './pages/unsaved-changes.guard';
 
@@ -39,6 +40,7 @@ export const appRoutes: Route[] = [
   // Code pages are declared before the generic :slug route.
   { path: 'contact', component: ContactPage },
   { path: 'inquiry', component: InquiryPage },
+  { path: 'catalog', component: CategoryOverview },
   {
     path: ':slug',
     component: Page,

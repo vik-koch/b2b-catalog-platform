@@ -13,6 +13,13 @@
   "contact": {
     "intro": "Visit us or get in touch — find our offices below."
   },
+  "catalog": {
+    "overviewTitle": "Our catalogue",
+    "overviewIntro": "Browse our range by category.",
+    "viewCategory": "Browse {name}",
+    "emptyCategories": "Our catalogue is being set up — please check back soon.",
+    "loadError": "Something went wrong loading the catalogue — please try again later."
+  },
   "auth": {
     "login": "Log in",
     "logout": "Log out",

@@ -29,6 +29,18 @@ export const appTextSchema = z
         intro: z.string(),
       })
       .strict(),
+    /** Storefront catalog chrome (FR-CAT). */
+    catalog: z
+      .object({
+        /** Main-page category overview (FR-CAT-01). */
+        overviewTitle: z.string(),
+        overviewIntro: z.string(),
+        /** Accessible label for a category card link; `{name}` is substituted. */
+        viewCategory: z.string(),
+        emptyCategories: z.string(),
+        loadError: z.string(),
+      })
+      .strict(),
     /**
      * Login form, the navbar account link and the signed-in block on its
      * destination page. One vocabulary for all roles — the only thing that

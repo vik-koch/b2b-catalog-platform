@@ -47,51 +47,67 @@ export function seedImages(slug: string, count: number): CatalogImage[] {
 
 const CATEGORY_IMG = (seed: string): string => placeholder(`cat-${seed}`, 1);
 
+/** A root category. `img=false` leaves the overlay image unset (placeholder). */
+const top = (slug: string, name: string, img = true): SeedCategory => ({
+  slug,
+  name,
+  parentSlug: null,
+  imageUrl: img ? CATEGORY_IMG(slug) : null,
+});
+
+/** A subcategory under `parent`. */
+const sub = (
+  slug: string,
+  name: string,
+  parent: string,
+  img = true,
+): SeedCategory => ({
+  slug,
+  name,
+  parentSlug: parent,
+  imageUrl: img ? CATEGORY_IMG(slug) : null,
+});
+
 export const SEED_CATEGORIES: SeedCategory[] = [
-  {
-    slug: 'coffee-beans',
-    name: 'Coffee Beans',
-    parentSlug: null,
-    imageUrl: CATEGORY_IMG('coffee-beans'),
-  },
-  {
-    slug: 'espresso',
-    name: 'Espresso Roasts',
-    parentSlug: 'coffee-beans',
-    imageUrl: CATEGORY_IMG('espresso'),
-  },
-  {
-    slug: 'filter',
-    name: 'Filter Roasts',
-    parentSlug: 'coffee-beans',
-    imageUrl: CATEGORY_IMG('filter'),
-  },
-  { slug: 'decaf', name: 'Decaf', parentSlug: 'coffee-beans', imageUrl: null },
-  { slug: 'tea', name: 'Tea', parentSlug: null, imageUrl: CATEGORY_IMG('tea') },
-  {
-    slug: 'equipment',
-    name: 'Equipment',
-    parentSlug: null,
-    imageUrl: CATEGORY_IMG('equipment'),
-  },
-  {
-    slug: 'grinders',
-    name: 'Grinders',
-    parentSlug: 'equipment',
-    imageUrl: CATEGORY_IMG('grinders'),
-  },
-  {
-    slug: 'machines',
-    name: 'Espresso Machines',
-    parentSlug: 'equipment',
-    imageUrl: CATEGORY_IMG('machines'),
-  },
-  {
-    slug: 'accessories',
-    name: 'Accessories',
-    parentSlug: null,
-    imageUrl: CATEGORY_IMG('accessories'),
-  },
+  top('coffee-beans', 'Coffee Beans'),
+  sub('espresso', 'Espresso Roasts', 'coffee-beans'),
+  sub('filter', 'Filter Roasts', 'coffee-beans'),
+  sub('decaf', 'Decaf', 'coffee-beans', false),
+  sub('single-origin', 'Single Origin', 'coffee-beans'),
+
+  top('tea', 'Tea'),
+  sub('black-tea', 'Black Tea', 'tea'),
+  sub('green-tea', 'Green Tea', 'tea'),
+  sub('herbal-tea', 'Herbal & Fruit', 'tea', false),
+
+  top('equipment', 'Equipment'),
+  sub('grinders', 'Grinders', 'equipment'),
+  sub('machines', 'Espresso Machines', 'equipment'),
+  sub('brewers', 'Filter Brewers', 'equipment'),
+
+  top('accessories', 'Accessories'),
+  sub('tampers', 'Tampers', 'accessories'),
+  sub('pitchers', 'Milk Pitchers', 'accessories'),
+
+  top('cold-brew', 'Cold Brew & RTD'),
+  top('syrups', 'Syrups & Flavours'),
+  sub('syrups-fruit', 'Fruit', 'syrups', false),
+  sub('syrups-classic', 'Classic', 'syrups', false),
+
+  top('chocolate', 'Chocolate & Cocoa'),
+
+  top('milk', 'Milk & Alternatives'),
+  sub('milk-dairy', 'Dairy', 'milk', false),
+  sub('milk-plant', 'Plant-based', 'milk', false),
+
+  top('cups', 'Cups & Glassware'),
+  sub('cups-ceramic', 'Ceramic', 'cups'),
+  sub('cups-glass', 'Glass', 'cups'),
+  sub('cups-togo', 'To-Go', 'cups', false),
+
+  top('cleaning', 'Cleaning & Care'),
+  top('filters', 'Filters & Papers'),
+  top('gifts', 'Gift Sets'),
 ];
 
 const beanAttributes = (
@@ -273,7 +289,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   {
     slug: 'ostfriesen-broken',
     name: 'Ostfriesen Broken',
-    categorySlug: 'tea',
+    categorySlug: 'black-tea',
     priceMinor: 1290,
     imageCount: 2,
     descriptionHtml:
@@ -287,7 +303,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   {
     slug: 'sencha-green',
     name: 'Sencha Green',
-    categorySlug: 'tea',
+    categorySlug: 'green-tea',
     priceMinor: 1490,
     imageCount: 2,
     descriptionHtml:
@@ -348,7 +364,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   {
     slug: 'tamper-58',
     name: 'Precision Tamper 58 mm',
-    categorySlug: 'accessories',
+    categorySlug: 'tampers',
     priceMinor: 4500,
     imageCount: 2,
     descriptionHtml:
@@ -361,7 +377,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
   {
     slug: 'milk-pitcher-05',
     name: 'Milk Pitcher 0.5 L',
-    categorySlug: 'accessories',
+    categorySlug: 'pitchers',
     priceMinor: 2900,
     imageCount: 2,
     descriptionHtml:
