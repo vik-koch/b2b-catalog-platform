@@ -41,9 +41,9 @@ async function bootstrap() {
   scheduleMediaPrune({
     connectionString: env.DATABASE_URL,
     mediaRoot: env.MEDIA_ROOT as string,
-    graceMs: 0, // env.MEDIA_PRUNE_GRACE_HOURS * 60 * 60 * 1000,
-    intervalMs: 1000, // env.MEDIA_PRUNE_INTERVAL_HOURS * 60 * 60 * 1000,
-    startupDelayMs: 10, //PRUNE_STARTUP_DELAY_MS,
+    graceMs: env.MEDIA_PRUNE_GRACE_HOURS * 60 * 60 * 1000,
+    intervalMs: env.MEDIA_PRUNE_INTERVAL_HOURS * 60 * 60 * 1000,
+    startupDelayMs: PRUNE_STARTUP_DELAY_MS,
     dryRun: env.MEDIA_PRUNE_DRY_RUN === 'true',
     log: (message) => Logger.log(message, 'MediaPrune'),
   });
