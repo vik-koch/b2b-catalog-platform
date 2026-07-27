@@ -136,6 +136,13 @@ services:
     volumes:
       - mediadata:/srv/media:ro
       - ./infra/media/media.conf:/etc/nginx/conf.d/default.conf:ro
+    # Let the api initialize the shared mediadata volume first. The api image
+    # creates /media owned by the unprivileged `node` user, so whichever
+    # container mounts the empty volume first sets its ownership — this nginx
+    # runs as root and would seed it root-owned, leaving the node api unable to
+    # write uploads. Ordering the api ahead makes the volume node-owned.
+    depends_on:
+      - api
     networks:
       - internal
       - traefik

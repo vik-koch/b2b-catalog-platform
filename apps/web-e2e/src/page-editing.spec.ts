@@ -84,11 +84,11 @@ test.describe('as an admin', () => {
     const body = page.locator('.ProseMirror');
     await body.click();
 
-    // A 1x1 PNG is enough — the server re-encodes to WebP regardless.
+    // A tiny PNG is enough — the server re-encodes to WebP regardless.
     await page.locator('input[type="file"]').setInputFiles({
       name: 'logo.png',
       mimeType: 'image/png',
-      buffer: Buffer.from(ONE_PX_PNG_BASE64, 'base64'),
+      buffer: Buffer.from(TINY_PNG_BASE64, 'base64'),
     });
 
     const img = body.locator('img');
@@ -171,6 +171,8 @@ test.describe('as an admin', () => {
   });
 });
 
-// A 1x1 transparent PNG — the smallest valid upload the media endpoint accepts.
-const ONE_PX_PNG_BASE64 =
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+// A tiny 2x2 RGBA PNG produced by sharp — small, but a real encode the server's
+// libvips fully decodes. (A hand-crafted 1x1 PNG passes the header sniff but
+// trips "libpng read error" on the full pixel decode in the runtime's libvips.)
+const TINY_PNG_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAAEUlEQVQImWPI9zP/D8IMMAYAQwwHzSg0SO0AAAAASUVORK5CYII=';

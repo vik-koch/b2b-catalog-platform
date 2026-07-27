@@ -565,9 +565,19 @@ export class RichTextEditor {
         .focus()
         .insertContent({ type: 'image', attrs: { src } })
         .run();
-      const pos = this.editor.state.selection.from - 1;
-      if (pos >= 0) {
-        this.editor.commands.setNodeSelection(pos);
+      // The image is a block node, so inserting it splits the current paragraph
+      // and the cursor lands in the block after it — a fixed offset back would
+      // miss. Find the image nearest before the cursor (the one just inserted)
+      // and select it, which opens the placement panel via onSelectionUpdate.
+      const { doc, selection } = this.editor.state;
+      let imagePos: number | null = null;
+      doc.descendants((node, pos) => {
+        if (node.type.name === 'image' && pos < selection.from) {
+          imagePos = pos;
+        }
+      });
+      if (imagePos !== null) {
+        this.editor.commands.setNodeSelection(imagePos);
       }
     } catch {
       this.uploadError.set(true);

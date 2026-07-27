@@ -1,5 +1,6 @@
 import { waitForPortOpen } from '@nx/node/utils';
 import { execSync } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireEnv } from './env';
 
@@ -10,6 +11,13 @@ const workspaceRoot = join(__dirname, '../../../..');
 
 module.exports = async function () {
   console.log('\nSetting up...\n');
+
+  // 0. Create the media dir the LocalMediaStore writes to (MEDIA_ROOT=./.media)
+  // before compose runs. The compose.db.yml `media` service bind-mounts it, and
+  // if it does not exist yet the Docker daemon creates it root-owned — leaving
+  // the nx-served api (this user) unable to write uploads (EACCES). Creating it
+  // here first means Docker reuses the dir with this user's ownership.
+  mkdirSync(join(workspaceRoot, '.media'), { recursive: true });
 
   // 1. Ensure the dev Postgres container is up and healthy.
   execSync('docker compose -f compose.db.yml up -d --wait', {
