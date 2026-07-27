@@ -11,6 +11,7 @@ import { APP_TEXT } from '../config/app-text';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
 import { CatalogService } from './catalog.service';
 import { PricePipe } from './price.pipe';
+import { TileGallery } from './tile-gallery';
 
 /** Subcategory chips shown before the "show more" toggle reveals the rest. */
 const SUBS_COLLAPSED = 4;
@@ -23,7 +24,7 @@ const SUBS_COLLAPSED = 4;
  */
 @Component({
   selector: 'app-category-grid',
-  imports: [RouterLink, PricePipe, ChevronRightIcon],
+  imports: [RouterLink, PricePipe, ChevronRightIcon, TileGallery],
   template: `
     <section class="pb-8 sm:pb-12">
       @if (products.error()) {
@@ -108,19 +109,11 @@ const SUBS_COLLAPSED = 4;
                   <div
                     class="group flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white transition-shadow hover:shadow-md"
                   >
-                    <a
-                      [routerLink]="['/product', item.slug]"
-                      class="block aspect-square overflow-hidden bg-stone-100"
-                    >
-                      @if (item.images.length) {
-                        <img
-                          [src]="item.images[0].url"
-                          [alt]="item.images[0].alt"
-                          class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          loading="lazy"
-                        />
-                      }
-                    </a>
+                    <app-tile-gallery
+                      [images]="item.images"
+                      [link]="['/product', item.slug]"
+                      [ariaLabel]="item.name"
+                    />
                     <div class="flex flex-1 flex-col p-3">
                       <a [routerLink]="['/product', item.slug]" class="block">
                         <h2
