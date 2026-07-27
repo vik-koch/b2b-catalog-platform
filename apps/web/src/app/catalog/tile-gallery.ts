@@ -19,7 +19,7 @@ const SWIPE_THRESHOLD_PX = 30;
   template: `
     <a
       [routerLink]="link()"
-      [attr.aria-label]="ariaLabel()"
+      [attr.aria-label]="productName()"
       class="relative block aspect-square overflow-hidden bg-stone-100"
       (pointermove)="onScrub($event)"
       (pointerleave)="reset()"
@@ -29,8 +29,8 @@ const SWIPE_THRESHOLD_PX = 30;
     >
       @for (img of images(); track $index) {
         <img
-          [src]="img.url"
-          [alt]="$index === 0 ? img.alt : ''"
+          [src]="img.thumb"
+          [alt]="productName()"
           class="absolute inset-0 h-full w-full object-cover transition-opacity duration-200"
           [class.opacity-100]="$index === selected()"
           [class.opacity-0]="$index !== selected()"
@@ -59,7 +59,8 @@ export class TileGallery {
   images = input.required<readonly CatalogImage[]>();
   /** Router commands for the product this tile links to. */
   link = input.required<unknown[]>();
-  ariaLabel = input<string>();
+  /** Product name — the link's accessible label and each image's alt text. */
+  productName = input.required<string>();
 
   /** Resets to the first image when the tile shows a different product. */
   protected selected = linkedSignal<readonly CatalogImage[], number>({

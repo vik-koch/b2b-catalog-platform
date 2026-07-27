@@ -35,17 +35,15 @@ interface SeedProduct {
   attributes: ProductAttribute[];
 }
 
-const placeholder = (seed: string, i: number): string =>
-  `https://picsum.photos/seed/${seed}-${i}/800/800`;
-
 export function seedImages(slug: string, count: number): CatalogImage[] {
   return Array.from({ length: count }, (_, i) => ({
-    url: placeholder(slug, i + 1),
-    alt: '',
+    full: `https://picsum.photos/seed/${slug}-${i + 1}/1000/1000`,
+    thumb: `https://picsum.photos/seed/${slug}-${i + 1}/400/400`,
   }));
 }
 
-const CATEGORY_IMG = (seed: string): string => placeholder(`cat-${seed}`, 1);
+const CATEGORY_IMG = (seed: string): string =>
+  `https://picsum.photos/seed/cat-${seed}-1/600/600`;
 
 /** A root category. `img=false` leaves the overlay image unset (placeholder). */
 const top = (slug: string, name: string, img = true): SeedCategory => ({

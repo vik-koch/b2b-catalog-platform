@@ -5,8 +5,8 @@ import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { TileGallery } from './tile-gallery';
 
 const img = (n: number): CatalogImage => ({
-  url: `https://img.example/${n}.jpg`,
-  alt: `alt ${n}`,
+  full: `https://img.example/full/${n}.jpg`,
+  thumb: `https://img.example/thumb/${n}.jpg`,
 });
 
 function render(images: CatalogImage[]): ComponentFixture<TileGallery> {
@@ -17,6 +17,7 @@ function render(images: CatalogImage[]): ComponentFixture<TileGallery> {
   const fixture = TestBed.createComponent(TileGallery);
   fixture.componentRef.setInput('images', images);
   fixture.componentRef.setInput('link', ['/product', 'p1']);
+  fixture.componentRef.setInput('productName', 'Test product');
   fixture.detectChanges();
   return fixture;
 }

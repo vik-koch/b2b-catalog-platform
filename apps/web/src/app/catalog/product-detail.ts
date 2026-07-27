@@ -57,7 +57,10 @@ import { ProductGallery } from './product-gallery';
           </nav>
 
           <div class="mt-4 grid gap-8 lg:grid-cols-2">
-            <app-product-gallery [images]="item.images" />
+            <app-product-gallery
+              [images]="item.images"
+              [productName]="item.name"
+            />
 
             <div>
               <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">

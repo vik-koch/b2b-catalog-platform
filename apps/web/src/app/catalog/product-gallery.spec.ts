@@ -6,8 +6,8 @@ import { defaultAppText } from '../config/app-text.fixture';
 import { ProductGallery } from './product-gallery';
 
 const img = (n: number): CatalogImage => ({
-  url: `https://img.example/${n}.jpg`,
-  alt: `alt ${n}`,
+  full: `https://img.example/full/${n}.jpg`,
+  thumb: `https://img.example/thumb/${n}.jpg`,
 });
 
 function render(images: CatalogImage[]): ComponentFixture<ProductGallery> {
@@ -32,7 +32,7 @@ describe('ProductGallery', () => {
     const buttons = (f.nativeElement as HTMLElement).querySelectorAll('button');
 
     expect(buttons.length).toBe(3);
-    expect(mainSrc(f)).toBe('https://img.example/1.jpg');
+    expect(mainSrc(f)).toBe('https://img.example/full/1.jpg');
   });
 
   it('swaps the main image when a thumbnail is selected', () => {
@@ -42,7 +42,7 @@ describe('ProductGallery', () => {
     (buttons[1] as HTMLButtonElement).click();
     f.detectChanges();
 
-    expect(mainSrc(f)).toBe('https://img.example/2.jpg');
+    expect(mainSrc(f)).toBe('https://img.example/full/2.jpg');
   });
 
   it('shows no thumbnail strip for a single image', () => {
@@ -51,6 +51,6 @@ describe('ProductGallery', () => {
     expect(
       (f.nativeElement as HTMLElement).querySelectorAll('button').length,
     ).toBe(0);
-    expect(mainSrc(f)).toBe('https://img.example/1.jpg');
+    expect(mainSrc(f)).toBe('https://img.example/full/1.jpg');
   });
 });

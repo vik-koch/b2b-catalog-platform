@@ -36,8 +36,8 @@ import { APP_TEXT } from '../config/app-text';
                 (mouseenter)="selected.set($index)"
               >
                 <img
-                  [src]="img.url"
-                  [alt]="img.alt"
+                  [src]="img.thumb"
+                  alt=""
                   class="h-full w-full object-cover"
                   loading="lazy"
                 />
@@ -51,8 +51,8 @@ import { APP_TEXT } from '../config/app-text';
         <div class="aspect-square overflow-hidden rounded-xl bg-stone-100">
           @if (current(); as img) {
             <img
-              [src]="img.url"
-              [alt]="img.alt"
+              [src]="img.full"
+              [alt]="productName()"
               class="h-full w-full object-cover"
             />
           }
@@ -65,6 +65,8 @@ export class ProductGallery {
   private readonly text = inject(APP_TEXT).catalog;
 
   images = input.required<readonly CatalogImage[]>();
+  /** Product name, used as the main image's alt text. */
+  productName = input<string>('');
 
   /** Resets to the first image whenever the product (its images) changes. */
   protected selected = linkedSignal<readonly CatalogImage[], number>({

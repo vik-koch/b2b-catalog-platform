@@ -112,7 +112,7 @@ const SUBS_COLLAPSED = 4;
                     <app-tile-gallery
                       [images]="item.images"
                       [link]="['/product', item.slug]"
-                      [ariaLabel]="item.name"
+                      [productName]="item.name"
                     />
                     <div class="flex flex-1 flex-col p-3">
                       <a [routerLink]="['/product', item.slug]" class="block">

@@ -15,7 +15,12 @@ const product: Product = {
   name: 'Hafen Espresso',
   priceMinor: 1890,
   descriptionHtml: '<p>Dark and <strong>syrupy</strong>.</p>',
-  images: [{ url: 'https://img.example/1.jpg', alt: '' }],
+  images: [
+    {
+      full: 'https://img.example/full/1.jpg',
+      thumb: 'https://img.example/thumb/1.jpg',
+    },
+  ],
   attributes: [
     { key: 'Net weight', value: '1 kg' },
     { key: 'Count per package', value: '200' },

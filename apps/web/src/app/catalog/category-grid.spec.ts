@@ -12,7 +12,10 @@ type Products = NonNullable<
   Awaited<ReturnType<CatalogService['getCategoryProducts']>>
 >;
 
-const image = (n: number) => ({ url: `https://img.example/${n}.jpg`, alt: '' });
+const image = (n: number) => ({
+  full: `https://img.example/full/${n}.jpg`,
+  thumb: `https://img.example/thumb/${n}.jpg`,
+});
 
 function response(overrides: Partial<Products> = {}): Products {
   return {

@@ -17,14 +17,14 @@ const c = initContract();
 export const CATALOG_PAGE_SIZE = 24;
 
 /**
- * One image in a gallery/carousel (FR-CAT-04/05). Order is the array order.
- * `alt` may be empty — it is presentation text an admin adds later, not always
- * present during the read path.
+ * One image in a gallery/carousel (FR-CAT-04/05), as two media-store URLs:
+ * `thumb` for grid/list (and search), `full` for the product page. Order is the
+ * array order. No alt — the UI uses the product name.
  */
 export const catalogImageSchema = z
   .object({
-    url: z.string(),
-    alt: z.string(),
+    full: z.string(),
+    thumb: z.string(),
   })
   .strict();
 export type CatalogImage = z.infer<typeof catalogImageSchema>;
