@@ -81,7 +81,6 @@ export async function pruneMediaFiles({
 
 /**
  * Connect, collect references from every registered source, sweep, disconnect.
- * Invoked by the prune-media one-shot (RUN_MODE=prune-media).
  */
 export async function runMediaPrune(params: {
   connectionString: string;

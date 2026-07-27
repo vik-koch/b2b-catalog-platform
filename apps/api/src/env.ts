@@ -34,18 +34,13 @@ const EnvSchema = z
     // keys on the real client IP. Higher only with more forwarding layers.
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
     // Filesystem root the LocalMediaStore writes uploaded images to. A
-    // mounted volume a small nginx serves at /media/; required in server mode
-    // and by the prune-media one-shot (the refinement below enforces that).
+    // mounted volume a small nginx serves at /media/; required in server mode.
     MEDIA_ROOT: z.string().optional(),
-    // prune-media one-shot: a file unreferenced and older than this is deleted;
-    // the grace window protects an upload not yet saved into a body. Dry-run
-    // logs candidates without deleting (observe a first prod run before it acts).
+    // a file unreferenced and older than this is deleted, the grace window
+    // protects an upload not yet saved into a body.
     MEDIA_PRUNE_GRACE_HOURS: z.coerce.number().int().positive().default(24),
     MEDIA_PRUNE_DRY_RUN: z.enum(['true', 'false']).default('false'),
-    // The running server sweeps in-process on this cadence (a background timer,
-    // not a sidecar — the platform is a single Node process, so one owner of the
-    // schedule is correct). The RUN_MODE=prune-media one-shot is the manual door
-    // onto the same sweep for a forced or dry-run pass.
+    // The running server sweeps in-process on this cadence (a background timer)
     MEDIA_PRUNE_INTERVAL_HOURS: z.coerce.number().int().positive().default(24),
     // Login attempts allowed per IP per minute (NFR-SEC-02). The default is the
     // policy for real deployments; it is configurable because the e2e stack
