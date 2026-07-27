@@ -50,6 +50,11 @@ export const appTextSchema = z
         nextPage: z.string(),
         /** `{page}` and `{total}` substituted at render. */
         pageStatus: z.string(),
+        /** Product detail (FR-CAT-05). */
+        specifications: z.string(),
+        productNotFound: z.string(),
+        /** Gallery thumbnail label; `{n}` is substituted. */
+        viewImage: z.string(),
       })
       .strict(),
     /**

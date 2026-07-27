@@ -57,6 +57,15 @@ export const productAttributeSchema = z
   .strict();
 export type ProductAttribute = z.infer<typeof productAttributeSchema>;
 
+/**
+ * The rich-text vocabulary a product description may use — deliberately far
+ * narrower than the static-page set (`RICH_TEXT_TAGS`): inline emphasis and
+ * paragraphs only, no headings, lists, images or links. Declared here as the
+ * shared contract; the sanitizer that enforces it lives with the product editor
+ * (FR-ADM). On the read path the stored HTML is already trusted, same as pages.
+ */
+export const PRODUCT_RICH_TEXT_TAGS = ['p', 'br', 'strong', 'em'] as const;
+
 /** The full product page (FR-CAT-05). */
 export const productDetailSchema = z
   .object({

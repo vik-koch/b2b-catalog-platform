@@ -26,7 +26,10 @@
     "emptyProducts": "No products in this category yet.",
     "prevPage": "Previous",
     "nextPage": "Next",
-    "pageStatus": "Page {page} of {total}"
+    "pageStatus": "Page {page} of {total}",
+    "specifications": "Specifications",
+    "productNotFound": "This product could not be found. It may have been removed.",
+    "viewImage": "Show image {n}"
   },
   "auth": {
     "login": "Log in",

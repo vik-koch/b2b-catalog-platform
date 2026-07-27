@@ -126,9 +126,8 @@ const beanAttributes = (
 const beanDescription = (name: string, notes: string): string =>
   `<p>${name} is a wholesale specialty lot roasted to order in Hamburg.</p>` +
   `<p>Expect <strong>${notes}</strong> in the cup. Supplied in 1&nbsp;kg bags, ` +
-  `whole bean, with a roast date on every bag.</p>` +
-  `<ul><li>Roasted to order</li><li>Traceable single origin</li>` +
-  `<li>Available on standing order</li></ul>`;
+  `whole bean, with a roast date on every bag, and <em>available on standing ` +
+  `order</em>.</p>`;
 
 export const SEED_PRODUCTS: SeedProduct[] = [
   // Espresso — enough items to exercise pagination on one category.
