@@ -41,6 +41,26 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
       return rows.flatMap((row) => mediaFilenamesInHtml(row.bodyHtml));
     },
   },
+  {
+    // The images jsonb holds { full, thumb } URL pairs; scanning its text form
+    // captures both filenames per image.
+    name: 'product images',
+    async collect(client) {
+      const { rows } = await client.query<{ images: string }>(
+        `SELECT images::text AS images FROM products`,
+      );
+      return rows.flatMap((row) => mediaFilenamesInHtml(row.images));
+    },
+  },
+  {
+    name: 'category images',
+    async collect(client) {
+      const { rows } = await client.query<{ imageUrl: string }>(
+        `SELECT "imageUrl" FROM categories WHERE "imageUrl" IS NOT NULL`,
+      );
+      return rows.flatMap((row) => mediaFilenamesInHtml(row.imageUrl));
+    },
+  },
 ];
 
 /** Union of the filenames every registered source currently references. */

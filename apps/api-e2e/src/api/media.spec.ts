@@ -1,5 +1,5 @@
 import { hash } from '@node-rs/argon2';
-import { seedDatabase } from '@b2b-catalog-platform/seed';
+import { seedPages } from '@b2b-catalog-platform/seed';
 import axios from 'axios';
 import { Client } from 'pg';
 import sharp from 'sharp';
@@ -127,7 +127,7 @@ describe('POST /media (0021)', () => {
       await client2.connect();
     });
     afterAll(async () => {
-      await seedDatabase(client2);
+      await seedPages(client2);
       await client2.query('UPDATE pages SET "updatedBy" = NULL');
       await client2.end();
     });

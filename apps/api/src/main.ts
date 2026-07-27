@@ -62,7 +62,7 @@ async function main() {
   }
 
   if (env.RUN_MODE === 'seed') {
-    await runSeed(env.DATABASE_URL);
+    await runSeed(env.DATABASE_URL, env.MEDIA_ROOT as string);
     Logger.log('Database seeding complete');
     return;
   }
