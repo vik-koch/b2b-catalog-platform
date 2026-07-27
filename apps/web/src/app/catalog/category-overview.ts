@@ -17,7 +17,7 @@ const MAX_CHILD_LINKS = 3;
   selector: 'app-category-overview',
   imports: [RouterLink],
   template: `
-    <section class="py-12 sm:py-16">
+    <section class="pb-12 sm:pb-16">
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         {{ text.overviewTitle }}
       </h1>
@@ -30,7 +30,7 @@ const MAX_CHILD_LINKS = 3;
       } @else if (categories.value(); as cats) {
         @if (cats.length) {
           <ul
-            class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+            class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
           >
             @for (cat of cats; track cat.slug) {
               <li class="group">
@@ -85,7 +85,7 @@ const MAX_CHILD_LINKS = 3;
         }
       } @else {
         <div
-          class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+          class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
           aria-hidden="true"
         >
           @for (i of skeletons; track i) {

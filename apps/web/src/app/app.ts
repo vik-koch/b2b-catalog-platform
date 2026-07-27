@@ -13,7 +13,7 @@ import { Header } from './layout/header';
   template: `
     <div class="flex min-h-dvh flex-col bg-surface text-ink">
       <app-header />
-      <main class="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
+      <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
         <router-outlet />
       </main>
       <app-footer />

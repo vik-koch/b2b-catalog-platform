@@ -42,200 +42,206 @@ const completePhone = (mask: string): ValidatorFn => {
   selector: 'app-inquiry-page',
   imports: [ReactiveFormsModule, RouterLink, Button, PhoneMask],
   template: `
-    <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
+    <div class="mx-auto max-w-xl">
+      <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
 
-    @if (status() === 'success') {
-      <p class="text-stone-600">{{ text.success }}</p>
-      <a appButton variant="secondary" routerLink="/" class="mt-8">
-        {{ errors.notFoundBack }}
-      </a>
-    } @else {
-      <p class="mb-8 text-stone-600">{{ text.intro }}</p>
+      @if (status() === 'success') {
+        <p class="text-stone-600">{{ text.success }}</p>
+        <a appButton variant="secondary" routerLink="/" class="mt-8">
+          {{ errors.notFoundBack }}
+        </a>
+      } @else {
+        <p class="mb-8 text-stone-600">{{ text.intro }}</p>
 
-      <form
-        [formGroup]="form"
-        (ngSubmit)="submit()"
-        novalidate
-        class="max-w-xl space-y-6"
-      >
-        <div>
-          <label for="name" class="mb-1 block text-sm font-medium">
-            {{ text.name }}
-            <span class="text-accent" aria-hidden="true">*</span>
-          </label>
-          <input
-            id="name"
-            type="text"
-            formControlName="name"
-            aria-required="true"
-            [class]="inputClass"
-            [attr.aria-invalid]="isInvalid('name') || null"
-          />
-          @if (isInvalid('name')) {
-            <p class="mt-1 text-sm text-red-600">
-              {{ text.validation.nameRequired }}
-            </p>
-          }
-        </div>
-
-        <fieldset>
-          <legend class="mb-1 block text-sm font-medium">
-            {{ text.preferredContact }}
-          </legend>
-          <div
-            role="radiogroup"
-            class="inline-flex gap-1 rounded-lg border border-stone-300 p-1"
-          >
-            <label [class]="segClass('email')">
-              <input
-                type="radio"
-                class="sr-only"
-                formControlName="preferredContact"
-                value="email"
-              />
-              {{ text.preferredEmail }}
+        <form
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          novalidate
+          class="space-y-6"
+        >
+          <div>
+            <label for="name" class="mb-1 block text-sm font-medium">
+              {{ text.name }}
+              <span class="text-accent" aria-hidden="true">*</span>
             </label>
-            <label [class]="segClass('phone')">
-              <input
-                type="radio"
-                class="sr-only"
-                formControlName="preferredContact"
-                value="phone"
-              />
-              {{ text.preferredPhone }}
-            </label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              aria-required="true"
+              [class]="inputClass"
+              [attr.aria-invalid]="isInvalid('name') || null"
+            />
+            @if (isInvalid('name')) {
+              <p class="mt-1 text-sm text-red-600">
+                {{ text.validation.nameRequired }}
+              </p>
+            }
           </div>
-        </fieldset>
 
-        <div>
-          <label for="email" class="mb-1 block text-sm font-medium">
-            {{ text.email }}
-            @if (preferred() === 'email') {
-              <span class="text-accent" aria-hidden="true">*</span>
-            }
-          </label>
-          <input
-            id="email"
-            type="email"
-            formControlName="email"
-            [class]="inputClass"
-            [attr.aria-required]="preferred() === 'email' || null"
-            [attr.aria-invalid]="isInvalid('email') || null"
-          />
-          @if (isInvalid('email')) {
-            <p class="mt-1 text-sm text-red-600">
-              {{
-                form.controls.email.hasError('required')
-                  ? text.validation.emailRequired
-                  : text.validation.emailInvalid
-              }}
-            </p>
-          }
-        </div>
+          <fieldset>
+            <legend class="mb-1 block text-sm font-medium">
+              {{ text.preferredContact }}
+            </legend>
+            <div
+              role="radiogroup"
+              class="inline-flex gap-1 rounded-lg border border-stone-300 p-1"
+            >
+              <label [class]="segClass('email')">
+                <input
+                  type="radio"
+                  class="sr-only"
+                  formControlName="preferredContact"
+                  value="email"
+                />
+                {{ text.preferredEmail }}
+              </label>
+              <label [class]="segClass('phone')">
+                <input
+                  type="radio"
+                  class="sr-only"
+                  formControlName="preferredContact"
+                  value="phone"
+                />
+                {{ text.preferredPhone }}
+              </label>
+            </div>
+          </fieldset>
 
-        <div>
-          <label for="phone" class="mb-1 block text-sm font-medium">
-            {{ text.phone }}
-            @if (preferred() === 'phone') {
-              <span class="text-accent" aria-hidden="true">*</span>
+          <div>
+            <label for="email" class="mb-1 block text-sm font-medium">
+              {{ text.email }}
+              @if (preferred() === 'email') {
+                <span class="text-accent" aria-hidden="true">*</span>
+              }
+            </label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              [class]="inputClass"
+              [attr.aria-required]="preferred() === 'email' || null"
+              [attr.aria-invalid]="isInvalid('email') || null"
+            />
+            @if (isInvalid('email')) {
+              <p class="mt-1 text-sm text-red-600">
+                {{
+                  form.controls.email.hasError('required')
+                    ? text.validation.emailRequired
+                    : text.validation.emailInvalid
+                }}
+              </p>
             }
-          </label>
-          @if (phoneInput) {
-            <div class="flex">
-              <span
-                class="inline-flex items-center rounded-l-md border border-r-0 border-stone-300 bg-stone-100 px-3 text-stone-600"
-              >
-                {{ phoneInput.countryCode }}
-              </span>
+          </div>
+
+          <div>
+            <label for="phone" class="mb-1 block text-sm font-medium">
+              {{ text.phone }}
+              @if (preferred() === 'phone') {
+                <span class="text-accent" aria-hidden="true">*</span>
+              }
+            </label>
+            @if (phoneInput) {
+              <div class="flex">
+                <span
+                  class="inline-flex items-center rounded-l-md border border-r-0 border-stone-300 bg-stone-100 px-3 text-stone-600"
+                >
+                  {{ phoneInput.countryCode }}
+                </span>
+                <input
+                  id="phone"
+                  type="tel"
+                  appPhoneMask
+                  [mask]="phoneInput.mask ?? ''"
+                  formControlName="phone"
+                  class="block w-full rounded-r-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
+                  [attr.aria-required]="preferred() === 'phone' || null"
+                  [attr.aria-invalid]="isInvalid('phone') || null"
+                />
+              </div>
+            } @else {
               <input
                 id="phone"
                 type="tel"
-                appPhoneMask
-                [mask]="phoneInput.mask ?? ''"
                 formControlName="phone"
-                class="block w-full rounded-r-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
+                [class]="inputClass"
                 [attr.aria-required]="preferred() === 'phone' || null"
                 [attr.aria-invalid]="isInvalid('phone') || null"
               />
-            </div>
-          } @else {
-            <input
-              id="phone"
-              type="tel"
-              formControlName="phone"
+            }
+            @if (isInvalid('phone')) {
+              <p class="mt-1 text-sm text-red-600">
+                {{
+                  form.controls.phone.hasError('required')
+                    ? text.validation.phoneRequired
+                    : text.validation.phoneIncomplete
+                }}
+              </p>
+            }
+          </div>
+
+          <div>
+            <label for="message" class="mb-1 block text-sm font-medium">
+              {{ text.message }}
+            </label>
+            <textarea
+              id="message"
+              rows="5"
+              formControlName="message"
               [class]="inputClass"
-              [attr.aria-required]="preferred() === 'phone' || null"
-              [attr.aria-invalid]="isInvalid('phone') || null"
-            />
-          }
-          @if (isInvalid('phone')) {
-            <p class="mt-1 text-sm text-red-600">
-              {{
-                form.controls.phone.hasError('required')
-                  ? text.validation.phoneRequired
-                  : text.validation.phoneIncomplete
-              }}
-            </p>
-          }
-        </div>
+            ></textarea>
+          </div>
 
-        <div>
-          <label for="message" class="mb-1 block text-sm font-medium">
-            {{ text.message }}
-          </label>
-          <textarea
-            id="message"
-            rows="5"
-            formControlName="message"
-            [class]="inputClass"
-          ></textarea>
-        </div>
-
-        <!-- Honeypot: hidden from humans. -->
-        <div class="absolute -left-[9999px]" aria-hidden="true">
-          <label for="website">Leave this field empty</label>
-          <input
-            id="website"
-            type="text"
-            formControlName="website"
-            tabindex="-1"
-            autocomplete="off"
-          />
-        </div>
-
-        <div>
-          <label class="flex items-start gap-2 text-sm">
+          <!-- Honeypot: hidden from humans. -->
+          <div class="absolute -left-[9999px]" aria-hidden="true">
+            <label for="website">Leave this field empty</label>
             <input
-              type="checkbox"
-              formControlName="acceptPrivacy"
-              class="mt-0.5 accent-primary"
-              aria-required="true"
-              [attr.aria-invalid]="isInvalid('acceptPrivacy') || null"
+              id="website"
+              type="text"
+              formControlName="website"
+              tabindex="-1"
+              autocomplete="off"
             />
-            <span>
-              {{ text.privacyConsent }}
-              <a routerLink="/privacy" class="text-primary underline">{{
-                text.privacyLink
-              }}</a
-              ><span class="text-accent" aria-hidden="true">*</span>
-            </span>
-          </label>
-          @if (isInvalid('acceptPrivacy')) {
-            <p class="mt-1 text-sm text-red-600">
-              {{ text.validation.privacyRequired }}
-            </p>
+          </div>
+
+          <div>
+            <label class="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                formControlName="acceptPrivacy"
+                class="mt-0.5 accent-primary"
+                aria-required="true"
+                [attr.aria-invalid]="isInvalid('acceptPrivacy') || null"
+              />
+              <span>
+                {{ text.privacyConsent }}
+                <a routerLink="/privacy" class="text-primary underline">{{
+                  text.privacyLink
+                }}</a
+                ><span class="text-accent" aria-hidden="true">*</span>
+              </span>
+            </label>
+            @if (isInvalid('acceptPrivacy')) {
+              <p class="mt-1 text-sm text-red-600">
+                {{ text.validation.privacyRequired }}
+              </p>
+            }
+          </div>
+
+          @if (status() === 'error') {
+            <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
           }
-        </div>
 
-        @if (status() === 'error') {
-          <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
-        }
-
-        <button appButton type="submit" [disabled]="status() === 'submitting'">
-          {{ status() === 'submitting' ? text.submitting : text.submit }}
-        </button>
-      </form>
-    }
+          <button
+            appButton
+            type="submit"
+            [disabled]="status() === 'submitting'"
+          >
+            {{ status() === 'submitting' ? text.submitting : text.submit }}
+          </button>
+        </form>
+      }
+    </div>
   `,
 })
 export class InquiryPage {

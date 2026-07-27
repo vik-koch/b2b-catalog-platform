@@ -52,7 +52,7 @@ import { NAV_ACTION } from './nav-action';
         [class.max-h-12]="!collapsed()"
       >
         <div
-          class="mx-auto flex h-10 w-full max-w-5xl items-center justify-between gap-6 px-4"
+          class="mx-auto flex h-10 w-full max-w-7xl items-center justify-between gap-6 px-4"
         >
           <nav class="flex gap-5 text-sm" aria-label="Utility">
             @for (route of utilityRoutes; track route) {
@@ -73,7 +73,7 @@ import { NAV_ACTION } from './nav-action';
       </div>
 
       <div
-        class="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4"
+        class="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4"
       >
         <a
           routerLink="/"

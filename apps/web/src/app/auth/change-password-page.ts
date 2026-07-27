@@ -9,8 +9,10 @@ import { ChangePasswordForm } from './change-password-form';
   selector: 'app-change-password-page',
   imports: [ChangePasswordForm],
   template: `
-    <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.heading }}</h1>
-    <app-change-password-form />
+    <div class="mx-auto max-w-sm">
+      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.heading }}</h1>
+      <app-change-password-form />
+    </div>
   `,
 })
 export class ChangePasswordPage {
