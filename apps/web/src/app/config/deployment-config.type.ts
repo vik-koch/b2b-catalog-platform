@@ -73,6 +73,25 @@ export const deploymentConfigSchema = z
      */
     cookieConsentEnabled: z.boolean(),
     /**
+     * Catalog presentation. Prices come from the API as integer minor units and
+     * are currency-agnostic; this is where a deployment names its single
+     * currency and how to format it. `locale` is required so formatting is
+     * deterministic under SSR (symbol placement and grouping differ per locale)
+     * — it matches the deployment's one shipped locale.
+     */
+    catalog: z
+      .object({
+        currency: z
+          .object({
+            /** ISO 4217 code, e.g. "EUR". Drives symbol and fraction digits. */
+            code: z.string(),
+            /** BCP 47 locale for number formatting, e.g. "de-DE". */
+            locale: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
      * Offices shown on the contact page.
      */
     locations: z.array(contactLocationSchema),

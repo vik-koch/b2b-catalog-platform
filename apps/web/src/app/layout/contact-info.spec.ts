@@ -15,6 +15,7 @@ async function render(contact: DeploymentConfig['contact']) {
       },
     },
     cookieConsentEnabled: false,
+    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
     locations: [],
     contact,
   };

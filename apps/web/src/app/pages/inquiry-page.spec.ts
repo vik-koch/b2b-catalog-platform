@@ -20,6 +20,7 @@ const testConfig: DeploymentConfig = {
     },
   },
   cookieConsentEnabled: false,
+  catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
   locations: [],
   phoneInput: { countryCode: '+49', mask: '(###) ###-####' },
 };

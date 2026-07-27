@@ -33,6 +33,7 @@ async function render(map: MapEmbed, consent: ConsentState = {}) {
       },
     },
     cookieConsentEnabled: consent.enabled ?? false,
+    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
     locations: [],
   };
   TestBed.configureTestingModule({

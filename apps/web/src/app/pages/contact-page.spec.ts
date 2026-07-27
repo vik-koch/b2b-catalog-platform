@@ -20,6 +20,7 @@ function config(locations: readonly ContactLocation[]): DeploymentConfig {
       },
     },
     cookieConsentEnabled: false,
+    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
     locations,
   };
 }
