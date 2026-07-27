@@ -61,6 +61,14 @@ put "$traefik_env" /srv/b2b/traefik/.env
 put "$repo_root/compose.yml" "/srv/b2b/$stack/compose.yml"
 put "$app_env" "/srv/b2b/$stack/.env"
 
+# The media nginx service bind-mounts this config file (0021). It must exist on
+# the host as a file before `up`, or Docker auto-creates the missing path as a
+# directory and the file-onto-file mount fails.
+# rm first so a failed earlier deploy that left Docker's auto-created *directory*
+# at this path is replaced by the real file (scp into a dir would nest it).
+run "mkdir -p /srv/b2b/$stack/infra/media && rm -rf /srv/b2b/$stack/infra/media/media.conf"
+put "$repo_root/infra/media/media.conf" "/srv/b2b/$stack/infra/media/media.conf"
+
 # Optional overlay -> compose.override.yml (auto-merged by every compose command
 # in the dir). When absent, clear any override a previous deploy left behind, so
 # a stack never silently keeps an overlay it should no longer have.
