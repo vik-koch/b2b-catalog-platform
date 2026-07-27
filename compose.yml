@@ -61,6 +61,12 @@ services:
       # Uploaded images land on the shared media volume; the media service
       # serves them read-only at /media.
       MEDIA_ROOT: /media
+      # In-process orphan prune: the server sweeps unreferenced uploads on
+      # a timer. Defaults live in the API's env schema; a stack overrides here —
+      # notably MEDIA_PRUNE_DRY_RUN=true to watch a first prod sweep before it deletes.
+      MEDIA_PRUNE_INTERVAL_HOURS: ${MEDIA_PRUNE_INTERVAL_HOURS:-24}
+      MEDIA_PRUNE_GRACE_HOURS: ${MEDIA_PRUNE_GRACE_HOURS:-24}
+      MEDIA_PRUNE_DRY_RUN: ${MEDIA_PRUNE_DRY_RUN:-false}
     volumes:
       - ./config:/config:ro
       - mediadata:/media
