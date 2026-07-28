@@ -6,6 +6,7 @@ import { CatalogModule } from '../catalog/catalog.module';
 import { PageModule } from '../pages/page.module';
 import { MediaModule } from '../media/media.module';
 import { ThrottlingModule } from '../throttling/throttling.module';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ThrottlingModule } from '../throttling/throttling.module';
     PageModule,
     MediaModule,
     InquiryModule,
+    SettingsModule,
   ],
 })
 export class AppModule {}

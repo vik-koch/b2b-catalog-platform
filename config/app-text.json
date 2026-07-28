@@ -171,5 +171,16 @@
     "notFoundBack": "Back to home",
     "cannotLoadTitle": "Cannot load page",
     "cannotLoadBody": "Something went wrong while loading this page — please try again later."
+  },
+  "maintenance": {
+    "title": "We'll be right back",
+    "body": "Our shop is currently being set up and is not available yet. Please check back soon.",
+    "adminHeading": "Maintenance mode",
+    "adminDescription": "While on, the public shop is hidden from visitors and search engines. You stay signed in and can browse it to preview.",
+    "statusOn": "The shop is hidden from visitors.",
+    "statusOff": "The shop is live and visible to everyone.",
+    "enable": "Turn on maintenance",
+    "disable": "Turn off maintenance",
+    "error": "Something went wrong changing maintenance mode. Please try again."
   }
 }

@@ -27,6 +27,11 @@ Notes:
   catalog/content/UX review — no accounts or cart exist yet, and prices are default-list only.
 - SSR and sitemap (NFR-SEO-01/02) are built in iteration 2, but the dev environment stays
   `noindex`; indexing is enabled only when prod goes live.
+- Maintenance mode (FR-ADM-04) is the go-live gate. A deployment boots with it **off** (the
+  default runtime setting); the admin logs in — the login route stays reachable — flips it
+  **on** to populate catalog and content behind a 503'd storefront via FR-ADM-01-03, then flips
+  it **off** to launch. The brief window before it is first switched on is harmless: prod DNS
+  is not public and dev stays `noindex` until launch.
 
 ## Explicitly out of scope for now
 
