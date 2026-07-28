@@ -159,12 +159,22 @@ export class Header {
 
   // Collapse the utility bar once scrolled off the top. Never fires on the
   // server; the initial render is expanded and matches hydration.
+  //
+  // The two thresholds must straddle by more than the utility bar's own height
+  // (max-h-12 = 48px): collapsing removes that height, dropping window.scrollY
+  // by up to as much, and if that lands below the expand threshold the bar
+  // reopens, re-adds the height, and the page shakes forever (a click can never
+  // land on a never-stable target). Keeping COLLAPSE_AT − EXPAND_AT > 48 means a
+  // collapse can never cross back over the expand line. On pages too short to
+  // reach COLLAPSE_AT the bar simply stays open — the collapse is cosmetic.
   @HostListener('window:scroll')
   protected onScroll(): void {
+    const COLLAPSE_AT = 96;
+    const EXPAND_AT = 32;
     const currentScroll = window.scrollY;
-    if (!this.collapsed() && currentScroll > 16) {
+    if (!this.collapsed() && currentScroll > COLLAPSE_AT) {
       this.collapsed.set(true);
-    } else if (this.collapsed() && currentScroll < 4) {
+    } else if (this.collapsed() && currentScroll < EXPAND_AT) {
       this.collapsed.set(false);
     }
   }

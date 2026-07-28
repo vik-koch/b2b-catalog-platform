@@ -56,7 +56,12 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
       'priceMinor',
       'slug',
     ]);
-    expect(Object.keys(item.images[0]).sort()).toEqual(['full', 'thumb']);
+    // Some seed products ship without photos (the no-image placeholder case), so
+    // assert the image shape against one that has images rather than items[0].
+    const withImage = res.data.items.find(
+      (i: { images: unknown[] }) => i.images.length > 0,
+    );
+    expect(Object.keys(withImage.images[0]).sort()).toEqual(['full', 'thumb']);
 
     // A leaf: ancestors up to the root, no subcategories.
     expect(res.data.category.ancestors).toEqual([

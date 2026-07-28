@@ -45,7 +45,7 @@ export default async function globalSetup() {
   const client = localtestDbClient();
   await client.connect();
   try {
-    await seedDatabase(client);
+    await seedDatabase(client, env['MEDIA_ROOT']);
     // bootstrap-admin flags its account as still using the password the deploy
     // gave it, so the app forces a change on first sign-in. Clear it here: the
     // login/session specs are about other things and would all have to dismiss
