@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   AnyPgColumn,
   boolean,
+  check,
   integer,
   jsonb,
   pgEnum,
@@ -134,3 +135,24 @@ export const users = pgTable('users', {
   // Cleared by setPassword.
   mustChangePassword: boolean('mustChangePassword').notNull().default(false),
 });
+
+/**
+ * Runtime application settings — a deliberate singleton (the `id = 1` check
+ * permits exactly one row). This is mutable admin-toggled state, distinct from
+ * the boot-time per-deployment `config/` surface.
+ */
+export const appSettings = pgTable(
+  'app_settings',
+  {
+    id: integer('id').primaryKey().default(1),
+    maintenanceMode: boolean('maintenanceMode').notNull().default(false),
+    updatedAt: timestamp('updatedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    // Who last changed a setting, for audit. Null for the seeded default row.
+    updatedBy: uuid('updatedBy').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+  },
+  (t) => [check('app_settings_singleton', sql`${t.id} = 1`)],
+);
