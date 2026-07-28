@@ -9,6 +9,10 @@ import { appSettings } from '../db/schema';
 /** The singleton row's fixed primary key (see the `id = 1` check constraint). */
 const SETTINGS_ID = 1;
 
+// Boot-time cache warm-up tolerance for a not-yet-migrated table (see onModuleInit).
+const WARM_CACHE_ATTEMPTS = 15;
+const WARM_CACHE_RETRY_MS = 1000;
+
 /**
  * Owns the runtime settings singleton. The maintenance flag is read on every
  * request by the maintenance guard, so it is cached in-process and refreshed
@@ -27,11 +31,34 @@ export class SettingsService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    const status = await this.readMaintenance();
-    this.maintenanceEnabled = status.enabled;
-    this.logger.log(
-      `Maintenance mode is ${status.enabled ? 'ON' : 'off'} at startup`,
-    );
+    // Warm the cache from the singleton row. A real deployment applies
+    // migrations in a one-shot that finishes before the server starts, so the
+    // table is present here. The e2e harness, though, starts the server
+    // concurrently with the migrate step — so a missing table must not fail the
+    // boot: reload in the background until it appears, staying fail-open (off)
+    // until the read succeeds, rather than crashing or blocking startup.
+    await this.warmCache(1);
+  }
+
+  private async warmCache(attempt: number): Promise<void> {
+    try {
+      this.maintenanceEnabled = (await this.readMaintenance()).enabled;
+      this.logger.log(
+        `Maintenance mode is ${this.maintenanceEnabled ? 'ON' : 'off'} at startup`,
+      );
+    } catch {
+      if (attempt >= WARM_CACHE_ATTEMPTS) {
+        this.logger.warn(
+          `Could not read maintenance mode after ${attempt} attempts; defaulting to off until the next write`,
+        );
+        return;
+      }
+      // Non-blocking: schedule a retry and let the boot proceed.
+      setTimeout(
+        () => void this.warmCache(attempt + 1),
+        WARM_CACHE_RETRY_MS,
+      ).unref?.();
+    }
   }
 
   /** Synchronous cached read for the hot path (the maintenance guard). */
