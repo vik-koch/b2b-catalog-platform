@@ -114,14 +114,12 @@ export const appTextSchema = z
           .strict(),
       })
       .strict(),
-    /**
-     * Temporary text for homepage (will be removed in iteration 2).
-     */
+    /** Storefront landing (FR-CAT-01): intro above the category showcase. */
     home: z
       .object({
-        line1: z.string(),
-        line2: z.string(),
-        line3: z.string(),
+        eyebrow: z.string(),
+        title: z.string(),
+        intro: z.string(),
       })
       .strict(),
     inquiry: z

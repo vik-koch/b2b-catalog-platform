@@ -1,26 +1,26 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { Button } from '../ui/button';
+import { CategoryShowcase } from '../catalog/category-showcase';
 import { APP_TEXT } from '../config/app-text';
 
-// Placeholder landing page until the real storefront exists (catalog comes
-// with iteration 2) — the deploy smoke check expects / to render something.
+// The storefront landing (FR-CAT-01): a brief intro, then the category
+// showcase. The dense full index lives at /catalog.
 @Component({
-  imports: [RouterLink, Button],
+  imports: [CategoryShowcase],
   selector: 'app-home',
   template: `
-    <section class="py-12 sm:py-20">
+    <section class="pb-10">
       <p class="text-sm font-medium tracking-widest text-accent uppercase">
-        {{ text.home.line1 }}
+        {{ text.home.eyebrow }}
       </p>
       <h1 class="mt-3 max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">
-        {{ text.home.line2 }}
+        {{ text.home.title }}
       </h1>
       <p class="mt-4 max-w-xl text-lg text-stone-600">
-        {{ text.home.line3 }}
+        {{ text.home.intro }}
       </p>
-      <a appButton routerLink="/about" class="mt-8">{{ text.nav['about'] }}</a>
     </section>
+
+    <app-category-showcase />
   `,
 })
 export class Home {
