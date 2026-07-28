@@ -87,10 +87,15 @@ export async function generateProductImages(
   return images;
 }
 
-/** A single category overlay image. */
-export function generateCategoryImage(
+/** A category overlay image as a full + thumb pair (same motif, two sizes). */
+export async function generateCategoryImage(
   mediaRoot: string,
   seed: string,
-): Promise<string> {
-  return store(mediaRoot, placeholderSvg(`cat-${seed}`, CATEGORY_PX));
+): Promise<CatalogImage> {
+  const svgSeed = `cat-${seed}`;
+  const [full, thumb] = await Promise.all([
+    store(mediaRoot, placeholderSvg(svgSeed, CATEGORY_PX)),
+    store(mediaRoot, placeholderSvg(svgSeed, THUMB_PX)),
+  ]);
+  return { full, thumb };
 }

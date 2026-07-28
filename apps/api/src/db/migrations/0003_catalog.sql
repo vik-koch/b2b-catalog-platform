@@ -5,7 +5,7 @@ CREATE TABLE "categories" (
 	"name" varchar(255) NOT NULL,
 	"parentId" uuid,
 	"sortOrder" integer DEFAULT 0 NOT NULL,
-	"imageUrl" text,
+	"image" jsonb,
 	"description" text,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL,

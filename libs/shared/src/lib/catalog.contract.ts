@@ -84,14 +84,14 @@ export type ProductDetail = z.infer<typeof productDetailSchema>;
 
 /**
  * A node in the category tree (FR-CAT-01/02). The structure (name/hierarchy)
- * comes from the sync; `imageUrl` is the admin presentation overlay and may be
- * absent until one is attached. Recursive: subcategories nest arbitrarily,
- * though the UI may render only the depth it needs.
+ * comes from the sync; `image` is the admin presentation overlay (a full+thumb
+ * pair) and may be absent until one is attached. Recursive: subcategories nest
+ * arbitrarily, though the UI may render only the depth it needs.
  */
 export interface CategoryNode {
   slug: string;
   name: string;
-  imageUrl: string | null;
+  image: CatalogImage | null;
   children: CategoryNode[];
 }
 export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
@@ -100,7 +100,7 @@ export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
       .object({
         slug: z.string(),
         name: z.string(),
-        imageUrl: z.string().nullable(),
+        image: catalogImageSchema.nullable(),
         children: z.array(categoryNodeSchema),
       })
       .strict(),
@@ -114,13 +114,13 @@ export const categoryCrumbSchema = z
   .strict();
 
 /** A direct child of the selected category, for the drill-down nav
- * (FR-CAT-02). `imageUrl` lets the nav render as tiles if wanted; the current
- * grid uses chips and ignores it. */
+ * (FR-CAT-02). `image` lets the nav render as tiles if wanted; the current grid
+ * uses chips and ignores it. */
 export const subcategoryLinkSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
-    imageUrl: z.string().nullable(),
+    image: catalogImageSchema.nullable(),
   })
   .strict();
 export type SubcategoryLink = z.infer<typeof subcategoryLinkSchema>;

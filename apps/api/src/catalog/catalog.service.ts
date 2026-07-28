@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, count, eq, inArray, isNull } from 'drizzle-orm';
 import {
+  CatalogImage,
   CATALOG_PAGE_SIZE,
   CategoryNode,
   ProductDetail,
@@ -24,7 +25,11 @@ interface CategoryProductsResult {
     slug: string;
     name: string;
     ancestors: { slug: string; name: string }[];
-    subcategories: { slug: string; name: string; imageUrl: string | null }[];
+    subcategories: {
+      slug: string;
+      name: string;
+      image: CatalogImage | null;
+    }[];
   };
   items: ProductListItem[];
   pagination: {
@@ -51,7 +56,7 @@ export class CatalogService {
         slug: categories.slug,
         name: categories.name,
         parentId: categories.parentId,
-        imageUrl: categories.imageUrl,
+        image: categories.image,
         sortOrder: categories.sortOrder,
       })
       .from(categories)

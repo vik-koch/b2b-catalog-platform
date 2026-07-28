@@ -42,9 +42,9 @@ const MAX_CHILD_LINKS = 3;
                   <div
                     class="aspect-square overflow-hidden rounded-lg bg-stone-100"
                   >
-                    @if (cat.imageUrl) {
+                    @if (cat.image) {
                       <img
-                        [src]="cat.imageUrl"
+                        [src]="cat.image.thumb"
                         alt=""
                         class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         loading="lazy"

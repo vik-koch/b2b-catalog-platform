@@ -1,5 +1,5 @@
 {
-  "id": "609e5bca-0809-4266-aebf-11eb77e5e9e8",
+  "id": "77d768d2-a9e0-4f1e-8c66-5f8e0cd7ecee",
   "prevId": "0f6ff13b-09e3-4187-9f38-989bf08e9074",
   "version": "7",
   "dialect": "postgresql",
@@ -46,9 +46,9 @@
           "notNull": true,
           "default": 0
         },
-        "imageUrl": {
-          "name": "imageUrl",
-          "type": "text",
+        "image": {
+          "name": "image",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },

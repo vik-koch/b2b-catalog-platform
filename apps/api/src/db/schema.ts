@@ -34,9 +34,9 @@ export const pages = pgTable('pages', {
 /**
  * Catalog categories, an adjacency-list tree. Structure (name, hierarchy) is
  * file-owned — derived from the import's category paths and keyed by
- * `sourceKey` — while `sortOrder`, `imageUrl` and `description` are admin
- * overlay that survives a re-sync. `slug` is the public URL handle, generated
- * once and kept stable.
+ * `sourceKey` — while `sortOrder`, `image` and `description` are admin overlay
+ * that survives a re-sync. `slug` is the public URL handle, generated once and
+ * kept stable.
  */
 export const categories = pgTable('categories', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -47,9 +47,11 @@ export const categories = pgTable('categories', {
   parentId: uuid('parentId').references((): AnyPgColumn => categories.id, {
     onDelete: 'set null',
   }),
-  // Overlay fields — admin-owned, never touched by the import.
+  // Overlay fields — admin-owned, never touched by the import. `image` is a
+  // full + thumb media-store pair (thumb for the overview tiles); its URLs
+  // must be covered by the media-prune reference scan.
   sortOrder: integer('sortOrder').notNull().default(0),
-  imageUrl: text('imageUrl'),
+  image: jsonb('image').$type<ProductImageRef>(),
   description: text('description'),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
@@ -92,7 +94,7 @@ export const products = pgTable('products', {
     .notNull()
     .default(sql`'[]'::jsonb`),
   // Ordered gallery, each with a full and a thumb media-store URL. The
-  // media-prune reference scan must include these URLs (and categories.imageUrl)
+  // media-prune reference scan must include these URLs (and categories.image)
   // so seeded/uploaded images are not swept.
   images: jsonb('images')
     .$type<ProductImageRef[]>()

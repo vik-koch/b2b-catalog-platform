@@ -19,7 +19,7 @@ export async function seedCatalog(
   const idByKey = new Map<string, string>();
 
   for (const category of categorySeeds) {
-    const imageUrl = category.hasImage
+    const image = category.hasImage
       ? await generateCategoryImage(mediaRoot, category.sourceKey)
       : null;
     const parentId = category.parentKey
@@ -27,12 +27,12 @@ export async function seedCatalog(
       : null;
 
     const { rows } = await client.query<{ id: string }>(
-      `INSERT INTO categories ("sourceKey", slug, name, "parentId", "sortOrder", "imageUrl")
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO categories ("sourceKey", slug, name, "parentId", "sortOrder", image)
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb)
        ON CONFLICT ("sourceKey") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "parentId" = EXCLUDED."parentId", "sortOrder" = EXCLUDED."sortOrder",
-         "imageUrl" = EXCLUDED."imageUrl"
+         image = EXCLUDED.image
        RETURNING id`,
       [
         category.sourceKey,
@@ -40,7 +40,7 @@ export async function seedCatalog(
         category.name,
         parentId,
         category.sortOrder,
-        imageUrl,
+        image ? JSON.stringify(image) : null,
       ],
     );
     idByKey.set(category.sourceKey, rows[0].id);

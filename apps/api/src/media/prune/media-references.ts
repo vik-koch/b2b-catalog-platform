@@ -53,12 +53,14 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
     },
   },
   {
+    // image is a jsonb { full, thumb } pair; scanning its text form captures
+    // both filenames.
     name: 'category images',
     async collect(client) {
-      const { rows } = await client.query<{ imageUrl: string }>(
-        `SELECT "imageUrl" FROM categories WHERE "imageUrl" IS NOT NULL`,
+      const { rows } = await client.query<{ image: string }>(
+        `SELECT image::text AS image FROM categories WHERE image IS NOT NULL`,
       );
-      return rows.flatMap((row) => mediaFilenamesInHtml(row.imageUrl));
+      return rows.flatMap((row) => mediaFilenamesInHtml(row.image));
     },
   },
 ];

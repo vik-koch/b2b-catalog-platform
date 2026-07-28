@@ -101,7 +101,7 @@ describe('CategoryGrid', () => {
     const subcategories = ['a', 'b', 'c', 'd', 'e', 'f'].map((s) => ({
       slug: s,
       name: s.toUpperCase(),
-      imageUrl: null,
+      image: null,
     }));
     const f = await render(
       response({

@@ -10,18 +10,21 @@ const tree: CategoryNode[] = [
   {
     slug: 'coffee-beans',
     name: 'Coffee Beans',
-    imageUrl: 'https://img.example/coffee.jpg',
+    image: {
+      full: 'https://img.example/full.jpg',
+      thumb: 'https://img.example/thumb.jpg',
+    },
     children: [
       {
         slug: 'espresso',
         name: 'Espresso Roasts',
-        imageUrl: null,
+        image: null,
         children: [],
       },
-      { slug: 'filter', name: 'Filter Roasts', imageUrl: null, children: [] },
+      { slug: 'filter', name: 'Filter Roasts', image: null, children: [] },
     ],
   },
-  { slug: 'tea', name: 'Tea', imageUrl: null, children: [] },
+  { slug: 'tea', name: 'Tea', image: null, children: [] },
 ];
 
 async function render(

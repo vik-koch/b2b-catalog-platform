@@ -1,4 +1,4 @@
-import { CategoryNode } from '@b2b-catalog-platform/shared';
+import { CatalogImage, CategoryNode } from '@b2b-catalog-platform/shared';
 
 /** A flat category row as stored, the input to every tree computation below. */
 export interface CategoryRow {
@@ -6,7 +6,7 @@ export interface CategoryRow {
   slug: string;
   name: string;
   parentId: string | null;
-  imageUrl: string | null;
+  image: CatalogImage | null;
   sortOrder: number;
 }
 
@@ -20,7 +20,7 @@ export function buildCategoryTree(rows: CategoryRow[]): CategoryNode[] {
     nodes.set(row.id, {
       slug: row.slug,
       name: row.name,
-      imageUrl: row.imageUrl,
+      image: row.image,
       children: [],
     });
   }
@@ -85,8 +85,8 @@ export function ancestorsOf(
 export function directChildren(
   categoryId: string,
   rows: CategoryRow[],
-): { slug: string; name: string; imageUrl: string | null }[] {
+): { slug: string; name: string; image: CatalogImage | null }[] {
   return rows
     .filter((row) => row.parentId === categoryId)
-    .map((row) => ({ slug: row.slug, name: row.name, imageUrl: row.imageUrl }));
+    .map((row) => ({ slug: row.slug, name: row.name, image: row.image }));
 }

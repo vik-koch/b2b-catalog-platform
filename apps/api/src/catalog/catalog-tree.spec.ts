@@ -17,7 +17,7 @@ const cat = (
   slug,
   name: slug.toUpperCase(),
   parentId,
-  imageUrl: null,
+  image: null,
   sortOrder,
 });
 
