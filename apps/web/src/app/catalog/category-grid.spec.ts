@@ -42,6 +42,7 @@ async function render(
   result: Products | null,
 ): Promise<ComponentFixture<CategoryGrid>> {
   const config = {
+    branding: { title: 'Test Shop' },
     catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
   } as unknown as DeploymentConfig;
   TestBed.configureTestingModule({

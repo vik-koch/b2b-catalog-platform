@@ -1,6 +1,7 @@
 import { Component, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 import { trustedRichText } from '../pages/trusted-rich-text';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
 import { CatalogService } from './catalog.service';
@@ -125,4 +126,24 @@ export class ProductDetail {
     params: () => ({ slug: this.slug() }),
     loader: ({ params }) => this.catalog.getProduct(params.slug),
   });
+
+  constructor() {
+    usePageSeo({
+      name: () => this.product.value()?.name,
+      description: () =>
+        plainTextExcerpt(this.product.value()?.descriptionHtml),
+    });
+  }
+}
+
+/** A meta-description excerpt from a product's rich-text description: tags
+ * stripped, whitespace collapsed, trimmed to a sensible length. */
+function plainTextExcerpt(html: string | undefined): string | undefined {
+  if (!html) return undefined;
+  const text = html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!text) return undefined;
+  return text.length > 160 ? `${text.slice(0, 157).trimEnd()}…` : text;
 }

@@ -117,10 +117,12 @@ by `Host` header and one shared observability stack collects both their logs.
   `deploy-prod`), from the promoted **version-tagged** image (byte-identical to
   the sha dev ran). **Never seeded** — it demonstrates the unseeded production
   boot; content would arrive via catalog sync. It is a portfolio demonstration,
-  so it keeps the Mailpit reviewer inbox (below).
+  so it keeps the Mailpit reviewer inbox (below) and stays out of search results
+  (`SEO_INDEXABLE=false`) — like dev and the demo.
 
 A real **client prod** is a separate, client-owned VM deployed from the private
-repo — same `deploy.sh`, its own config and real SMTP, no Mailpit.
+repo — same `deploy.sh`, its own config and real SMTP, no Mailpit, and
+`SEO_INDEXABLE=true` so it is the one stack search engines index.
 
 ## Demo workflows
 

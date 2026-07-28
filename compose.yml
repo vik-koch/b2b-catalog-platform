@@ -101,6 +101,9 @@ services:
       # TLS-less local smoke test in compose.override.yml.
       APP_ORIGIN: https://${APP_DOMAIN:?}
       WEB_PORT: 4000
+      # Indexing opt-in. Off unless the deployment env sets it true
+      # (the private prod stack at go-live); dev and the demo stay noindex.
+      SEO_INDEXABLE: ${SEO_INDEXABLE:-false}
       # SSR reaches the API directly on the stack network, not through Traefik.
       API_URL: http://api:3000/api
       # SSR-injected chrome config and UI text, loaded whole from files in the

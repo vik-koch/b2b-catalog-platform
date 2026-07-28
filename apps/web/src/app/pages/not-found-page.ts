@@ -1,6 +1,7 @@
 import { Component, inject, RESPONSE_INIT } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
 
 @Component({
@@ -23,6 +24,8 @@ export class NotFoundPage {
   protected readonly text = inject(APP_TEXT).errors;
 
   constructor() {
+    usePageSeo({ name: () => this.text.notFoundTitle });
+
     // Crawlers must receive a real 404 status, not a styled 200. The token
     // only exists during SSR; it is null in the browser and on client-side
     // navigations, where the status line has already been sent.

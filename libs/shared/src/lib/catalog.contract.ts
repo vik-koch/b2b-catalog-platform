@@ -141,6 +141,17 @@ export const productListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
 });
 
+/**
+ * One indexable URL for the sitemap (NFR-SEO-02): a slug and the row's
+ * `updatedAt` as an ISO string, used for `<lastmod>`. The SSR server turns
+ * these into absolute `/catalog/:slug` and `/product/:slug` URLs;
+ * this endpoint stays origin-agnostic and exposes no other product data.
+ */
+export const sitemapEntrySchema = z
+  .object({ slug: z.string(), updatedAt: z.string() })
+  .strict();
+export type SitemapEntry = z.infer<typeof sitemapEntrySchema>;
+
 const notFoundSchema = z.object({ message: z.string() });
 
 export const catalogContract = c.router({
@@ -178,6 +189,26 @@ export const catalogContract = c.router({
       404: notFoundSchema,
     },
     summary: 'List products in a category (paginated)',
+  },
+  /**
+   * Every indexable slug for the sitemap (NFR-SEO-02) — all categories and all
+   * non-deleted products, each with its `updatedAt`. Consumed only by the SSR
+   * server to build sitemap.xml; the maintenance guard gates it like the rest
+   * of the storefront read API (ADR 0022), so it 503s while the site is gated.
+   */
+  getSitemap: {
+    method: 'GET',
+    path: '/catalog/sitemap',
+    responses: {
+      200: z
+        .object({
+          categories: z.array(sitemapEntrySchema),
+          products: z.array(sitemapEntrySchema),
+          pages: z.array(sitemapEntrySchema),
+        })
+        .strict(),
+    },
+    summary: 'List all indexable slugs for the sitemap',
   },
   /** The full product page (FR-CAT-05). */
   getProduct: {

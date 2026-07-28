@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { usePageSeo } from '../core/page-seo';
 import { MapFrame } from './map-frame';
 
 /**
@@ -39,4 +40,11 @@ export class ContactPage {
   protected readonly heading = this.appText.nav['contact'];
   protected readonly text = this.appText.contact;
   protected readonly locations = inject(DEPLOYMENT_CONFIG).locations;
+
+  constructor() {
+    usePageSeo({
+      name: () => this.heading,
+      description: () => this.text.intro,
+    });
+  }
 }

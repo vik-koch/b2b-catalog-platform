@@ -3,6 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { CategoryNode } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { DeploymentConfig } from '../config/deployment-config.type';
 import { CategoryOverview } from './category-overview';
 import { CatalogService } from './catalog.service';
 
@@ -35,6 +37,12 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: {
+          branding: { title: 'Test Shop' },
+        } as unknown as DeploymentConfig,
+      },
       { provide: CatalogService, useValue: { getCategoryTree } },
     ],
   });

@@ -2,6 +2,7 @@ import { Component, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CategoryNode } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
 
@@ -46,7 +47,7 @@ const MAX_CHILD_LINKS = 3;
                     @if (cat.image && !failed().has(cat.image.thumb)) {
                       <img
                         [src]="cat.image.thumb"
-                        alt=""
+                        [alt]="cat.name"
                         class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         loading="lazy"
                         (error)="markFailed(cat.image.thumb)"
@@ -115,6 +116,13 @@ export class CategoryOverview {
   protected categories = resource({
     loader: () => this.catalog.getCategoryTree(),
   });
+
+  constructor() {
+    usePageSeo({
+      name: () => this.text.overviewTitle,
+      description: () => this.text.overviewIntro,
+    });
+  }
 
   /** Category image URLs that failed to load — shown as the placeholder instead
    * of the browser's broken-image icon. Keyed by URL. */

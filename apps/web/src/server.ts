@@ -13,6 +13,11 @@ import { preloadAppText } from './app/config/app-text.server';
 import { preloadDeploymentConfig } from './app/config/deployment-config.server';
 import { injectShellState } from './app/config/shell-state.server';
 import { isGatedPath, isMaintenanceOn } from './app/config/maintenance.server';
+import {
+  injectNoindexMeta,
+  renderRobots,
+  renderSitemap,
+} from './app/config/seo.server';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
@@ -80,6 +85,34 @@ app.use(
 );
 
 /**
+ * robots.txt and sitemap.xml. Served from the SSR tier so they see APP_ORIGIN
+ * and the per-deployment SEO_INDEXABLE flag; the sitemap pulls its URL set from
+ * the API. Registered ahead of the Angular catch-all. robots.txt is always
+ * answered (a crawler must be able to read it even under maintenance);
+ * its body switches to disallow-all when appropriate.
+ */
+app.get('/robots.txt', async (_req, res, next) => {
+  try {
+    res.type('text/plain').send(await renderRobots());
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/sitemap.xml', async (_req, res, next) => {
+  try {
+    const result = await renderSitemap();
+    if (result.kind === 'status') {
+      res.status(result.status).end();
+      return;
+    }
+    res.type('application/xml').send(result.body);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * Handle all other requests by rendering the Angular application.
  *
  * Every HTML document leaving here — a server-rendered page or the shell for a
@@ -105,7 +138,7 @@ app.use(async (req, res, next) => {
 
     const response = await getAngularApp().handle(req);
     if (response && gated) {
-      const html = injectShellState(await response.text());
+      const html = injectNoindexMeta(injectShellState(await response.text()));
       const headers = new Headers(response.headers);
       headers.delete('content-length');
       await writeResponseToNodeResponse(
@@ -122,7 +155,7 @@ app.use(async (req, res, next) => {
       await writeResponseToNodeResponse(response, res);
       return;
     }
-    const html = injectShellState(await response.text());
+    const html = injectNoindexMeta(injectShellState(await response.text()));
     const headers = new Headers(response.headers);
     headers.delete('content-length');
     await writeResponseToNodeResponse(

@@ -19,6 +19,7 @@ lives in `infra/` so this public repo's Actions tab stays clean.
 | Mail           | Mailpit sink + reviewer inbox          | **real SMTP**, no Mailpit                           |
 | Auth secrets   | shared with the dev stack              | client-specific `JWT_SECRET` + `ADMIN_*`            |
 | Seeding        | never                                  | never (catalog arrives via admin bulk sync)         |
+| Indexing       | `noindex` (portfolio)                  | indexed — `SEO_INDEXABLE` defaults true             |
 
 ## What the private repo owns
 
@@ -46,6 +47,7 @@ lives in `infra/` so this public repo's Actions tab stays clean.
    | `MAIL_HOST` / `MAIL_PORT` / `MAIL_FROM` / `MAIL_CONTACT_TO` | SMTP provider + addresses                                                                          |
    | `MAIL_SECURE`                                               | `true` for implicit TLS (465), else `false`                                                        |
    | `STACK_NAME`                                                | Optional; defaults to `prod`. Set a distinct name only if the VM already runs another `prod` stack |
+   | `SEO_INDEXABLE`                                             | Optional; defaults to `true` (a real shop is a search target). Set `false` for a noindex stack.    |
    | `GRAFANA_DOMAIN`                                            | Optional; set with `GRAFANA_ADMIN_PASSWORD` to turn on central logs                                |
 
    All of the secrets are client-specific — never reuse the public repo's

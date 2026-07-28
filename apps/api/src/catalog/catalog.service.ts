@@ -7,10 +7,11 @@ import {
   CategoryNode,
   ProductDetail,
   ProductListItem,
+  SitemapEntry,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { categories, products } from '../db/schema';
+import { categories, pages, products } from '../db/schema';
 import {
   ancestorsOf,
   buildCategoryTree,
@@ -114,6 +115,43 @@ export class CatalogService {
         total: Number(total),
         totalPages: Math.ceil(Number(total) / pageSize),
       },
+    };
+  }
+
+  /**
+   * Every indexable slug for the sitemap: all categories, all non-deleted
+   * products, and the DB-backed static pages, each with its `updatedAt` for
+   * `<lastmod>` (a page's id is its public slug). Returns bare slugs only — the
+   * SSR server builds the absolute URLs.
+   */
+  async getSitemap(): Promise<{
+    categories: SitemapEntry[];
+    products: SitemapEntry[];
+    pages: SitemapEntry[];
+  }> {
+    const [categoryRows, productRows, pageRows] = await Promise.all([
+      this.db
+        .select({ slug: categories.slug, updatedAt: categories.updatedAt })
+        .from(categories)
+        .orderBy(asc(categories.slug)),
+      this.db
+        .select({ slug: products.slug, updatedAt: products.updatedAt })
+        .from(products)
+        .where(isNull(products.deletedAt))
+        .orderBy(asc(products.slug)),
+      this.db
+        .select({ slug: pages.id, updatedAt: pages.updatedAt })
+        .from(pages)
+        .orderBy(asc(pages.id)),
+    ]);
+    const toEntry = (r: { slug: string; updatedAt: Date }): SitemapEntry => ({
+      slug: r.slug,
+      updatedAt: r.updatedAt.toISOString(),
+    });
+    return {
+      categories: categoryRows.map(toEntry),
+      products: productRows.map(toEntry),
+      pages: pageRows.map(toEntry),
     };
   }
 

@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
 import { CatalogService } from './catalog.service';
 import { PricePipe } from './price.pipe';
@@ -209,6 +210,10 @@ export class CategoryGrid {
     loader: ({ params }) =>
       this.catalog.getCategoryProducts(params.slug, params.page),
   });
+
+  constructor() {
+    usePageSeo({ name: () => this.products.value()?.category.name });
+  }
 
   protected visibleSubs<T>(subs: readonly T[]): readonly T[] {
     return this.showAllSubs() ? subs : subs.slice(0, SUBS_COLLAPSED);
