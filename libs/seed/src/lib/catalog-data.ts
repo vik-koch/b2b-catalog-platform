@@ -167,7 +167,7 @@ const p = (
   imageCount,
 });
 
-export const productSeeds: ProductSeed[] = [
+const allProducts: ProductSeed[] = [
   ...espressoProducts,
 
   p(
@@ -387,3 +387,13 @@ export const productSeeds: ProductSeed[] = [
     ],
   ),
 ];
+
+/**
+ * Every 5th ships without images, so the demo exercises the no-photo placeholder
+ * (real deployments will always have products awaiting photography).
+ * Deterministic by position → a re-seed leaves the same rows imageless.
+ */
+export const productSeeds: ProductSeed[] = allProducts.map((product, i) => {
+  const n = i + 1;
+  return n % 5 === 0 ? { ...product, imageCount: 0 } : product;
+});

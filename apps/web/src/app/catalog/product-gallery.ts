@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { ImagePlaceholder } from './image-placeholder';
 
 /**
  * The product-page image viewer (FR-CAT-05): one large image with a strip of
@@ -17,6 +18,7 @@ import { APP_TEXT } from '../config/app-text';
  */
 @Component({
   selector: 'app-product-gallery',
+  imports: [ImagePlaceholder],
   template: `
     <div class="flex flex-col gap-3 sm:flex-row">
       @if (images().length > 1) {
@@ -55,6 +57,8 @@ import { APP_TEXT } from '../config/app-text';
               [alt]="productName()"
               class="h-full w-full object-cover"
             />
+          } @else {
+            <app-image-placeholder [label]="productName()" />
           }
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { Component, computed, input, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
+import { ImagePlaceholder } from './image-placeholder';
 
 /** Below this horizontal travel a touch gesture counts as a tap, not a swipe. */
 const SWIPE_THRESHOLD_PX = 30;
@@ -15,7 +16,7 @@ const SWIPE_THRESHOLD_PX = 30;
  */
 @Component({
   selector: 'app-tile-gallery',
-  imports: [RouterLink],
+  imports: [RouterLink, ImagePlaceholder],
   template: `
     <a
       [routerLink]="link()"
@@ -36,6 +37,8 @@ const SWIPE_THRESHOLD_PX = 30;
           [class.opacity-0]="$index !== selected()"
           loading="lazy"
         />
+      } @empty {
+        <app-image-placeholder [label]="productName()" />
       }
 
       @if (hasMultiple()) {

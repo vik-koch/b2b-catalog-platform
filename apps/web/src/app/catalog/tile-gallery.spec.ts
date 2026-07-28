@@ -2,6 +2,8 @@ import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
+import { APP_TEXT } from '../config/app-text';
+import { defaultAppText } from '../config/app-text.fixture';
 import { TileGallery } from './tile-gallery';
 
 const img = (n: number): CatalogImage => ({
@@ -12,7 +14,10 @@ const img = (n: number): CatalogImage => ({
 function render(images: CatalogImage[]): ComponentFixture<TileGallery> {
   TestBed.configureTestingModule({
     imports: [TileGallery],
-    providers: [provideRouter([])],
+    providers: [
+      provideRouter([]),
+      { provide: APP_TEXT, useValue: defaultAppText },
+    ],
   });
   const fixture = TestBed.createComponent(TileGallery);
   fixture.componentRef.setInput('images', images);
@@ -35,6 +40,15 @@ describe('TileGallery', () => {
 
     expect(root.querySelector('a')?.getAttribute('href')).toBe('/product/p1');
     expect(activeIndex(f)).toBe(0);
+  });
+
+  it('shows the placeholder instead of an image when there are none', () => {
+    const f = render([]);
+    const root = f.nativeElement as HTMLElement;
+
+    expect(root.querySelector('a')?.getAttribute('href')).toBe('/product/p1');
+    expect(root.querySelector('img')).toBeNull();
+    expect(root.querySelector('app-image-placeholder')).not.toBeNull();
   });
 
   it('scrubs to the image under the cursor on mouse move', () => {

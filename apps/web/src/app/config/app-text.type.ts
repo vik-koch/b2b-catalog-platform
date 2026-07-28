@@ -55,6 +55,8 @@ export const appTextSchema = z
         productNotFound: z.string(),
         /** Gallery thumbnail label; `{n}` is substituted. */
         viewImage: z.string(),
+        /** Caption shown on the fallback tile when a product has no photo. */
+        imagePlaceholder: z.string(),
       })
       .strict(),
     /**

@@ -53,4 +53,12 @@ describe('ProductGallery', () => {
     ).toBe(0);
     expect(mainSrc(f)).toBe('https://img.example/full/1.jpg');
   });
+
+  it('renders the placeholder in the main slot when there are no images', () => {
+    const f = render([]);
+    const el = f.nativeElement as HTMLElement;
+
+    expect(mainSrc(f)).toBeUndefined();
+    expect(el.querySelector('.order-1 app-image-placeholder')).not.toBeNull();
+  });
 });
