@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CategoryShowcase } from '../catalog/category-showcase';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 
 // The storefront landing (FR-CAT-01): a brief intro, then the category
 // showcase. The dense full index lives at /catalog.
@@ -25,4 +26,9 @@ import { APP_TEXT } from '../config/app-text';
 })
 export class Home {
   protected readonly text = inject(APP_TEXT);
+
+  constructor() {
+    // Landing page keeps the bare shop title (name null); adds a description.
+    usePageSeo({ name: () => null, description: () => this.text.home.intro });
+  }
 }

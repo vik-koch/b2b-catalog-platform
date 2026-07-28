@@ -32,6 +32,7 @@ async function render(
   result: Product | null,
 ): Promise<ComponentFixture<ProductDetail>> {
   const config = {
+    branding: { title: 'Test Shop' },
     catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
   } as unknown as DeploymentConfig;
   TestBed.configureTestingModule({

@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { Page as PageContent, PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 import { AuthService } from '../auth/auth.service';
 import { PencilIcon } from '../ui/icons/pencil-icon';
 import { PageEditor } from './page-editor';
@@ -90,6 +91,10 @@ export class Page implements UnsavedChangesAware {
   protected readonly current = computed(
     () => this.saved() ?? this.pageResource.value(),
   );
+
+  constructor() {
+    usePageSeo({ name: () => this.current()?.title });
+  }
 
   protected readonly editing = signal(false);
   protected readonly editorDirty = signal(false);

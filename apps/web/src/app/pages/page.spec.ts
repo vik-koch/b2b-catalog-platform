@@ -3,6 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { AuthUser, Page as PageContent } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { DeploymentConfig } from '../config/deployment-config.type';
 import { AuthService } from '../auth/auth.service';
 import { Page } from './page';
 import { PageService } from './page.service';
@@ -25,6 +27,12 @@ async function render(user: AuthUser | null) {
     imports: [Page],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: {
+          branding: { title: 'Test Shop' },
+        } as unknown as DeploymentConfig,
+      },
       { provide: AuthService, useValue: { user: signal(user) } },
       { provide: PageService, useValue: { getPage: async () => about } },
     ],

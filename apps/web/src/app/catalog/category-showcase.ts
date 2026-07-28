@@ -33,7 +33,7 @@ import { ImagePlaceholder } from './image-placeholder';
                   @if (cat.image && !failed().has(cat.image.thumb)) {
                     <img
                       [src]="cat.image.thumb"
-                      alt=""
+                      [alt]="cat.name"
                       loading="lazy"
                       class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       (error)="markFailed(cat.image.thumb)"
