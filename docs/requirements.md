@@ -44,6 +44,7 @@ without renumbering.
 | FR-ADM-01 | Admin can add, modify, and delete individual products via the admin panel.                                                                                                                                                                                                               |
 | FR-ADM-02 | Admin can trigger a bulk sync (file upload or endpoint) that upserts products by SKU and deletes products missing from the source. Intended for periodic price/availability updates.                                                                                                     |
 | FR-ADM-03 | Admin can edit the rich-text content of a fixed set of static pages (about, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content. |
+| FR-ADM-04 | Admin can toggle a site-wide maintenance mode from the admin panel. While active, the public storefront (catalog, product, and static pages) and its read APIs are unavailable to visitors and crawlers — served with an HTTP 503 status and a minimal maintenance notice.               |
 
 ### Accounts, Roles & Pricing (FR-AUTH)
 

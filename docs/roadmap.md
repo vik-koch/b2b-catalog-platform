@@ -27,6 +27,8 @@ Notes:
   catalog/content/UX review — no accounts or cart exist yet, and prices are default-list only.
 - SSR and sitemap (NFR-SEO-01/02) are built in iteration 2, but the dev environment stays
   `noindex`; indexing is enabled only when prod goes live.
+- Maintenance mode (FR-ADM-04) is the go-live gate: prod ships with it **on**, the client
+  populates catalog and content behind it via FR-ADM-01-03, and toggling it off is the launch.
 
 ## Explicitly out of scope for now
 
