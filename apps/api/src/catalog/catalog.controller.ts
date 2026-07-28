@@ -36,6 +36,14 @@ export class CatalogController {
     );
   }
 
+  @TsRestHandler(catalogContract.getSitemap, { validateResponses: true })
+  async getSitemap() {
+    return tsRestHandler(catalogContract.getSitemap, async () => ({
+      status: 200,
+      body: await this.catalog.getSitemap(),
+    }));
+  }
+
   @TsRestHandler(catalogContract.getProduct, { validateResponses: true })
   async getProduct() {
     return tsRestHandler(

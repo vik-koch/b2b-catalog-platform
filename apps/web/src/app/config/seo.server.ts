@@ -1,0 +1,132 @@
+import { SitemapEntry } from '@b2b-catalog-platform/shared';
+import { requireEnv } from '../../env';
+import { isMaintenanceOn } from './maintenance.server';
+
+/**
+ * Server-side SEO surface: robots.txt, sitemap.xml, and the environment-level
+ * `noindex` switch. Lives with the other `.server.ts` config so the browser
+ * bundle never imports it.
+ *
+ * Two independent suppression axes combine here: `SEO_INDEXABLE` (permanent,
+ * per-deployment — dev and the demo stay out of the index) and maintenance mode
+ * (temporary, runtime). Either one disallows crawling.
+ */
+
+/** Whether this deployment opts in to being indexed. Defaults to false so a new
+ * or misconfigured host is never accidentally crawled. */
+export function isIndexable(): boolean {
+  return process.env['SEO_INDEXABLE'] === 'true';
+}
+
+// Code routes that belong in the sitemap but have no content timestamp, so
+// they carry no <lastmod> (deliberately — see the DB-backed entries below,
+// which do). The static *page* slugs (about/privacy/…) are not here: they come
+// from the API with their real updatedAt.
+const CODE_PATHS = ['/', '/catalog', '/contact'];
+
+// Session/admin routes: client-rendered shells with no crawler value. Kept out
+// of the sitemap and explicitly disallowed in robots.txt as defence-in-depth.
+const PRIVATE_PATHS = ['/admin', '/account', '/login', '/change-password'];
+
+/**
+ * robots.txt body. Disallows everything unless the deployment is indexable and
+ * not under maintenance; otherwise allows all but the private/session routes
+ * and advertises the sitemap.
+ */
+export async function renderRobots(): Promise<string> {
+  const blocked = !isIndexable() || (await isMaintenanceOn());
+  if (blocked) {
+    return 'User-agent: *\nDisallow: /\n';
+  }
+  const origin = requireEnv('APP_ORIGIN').replace(/\/+$/, '');
+  const disallow = PRIVATE_PATHS.map((p) => `Disallow: ${p}`).join('\n');
+  return `User-agent: *\nAllow: /\n${disallow}\nSitemap: ${origin}/sitemap.xml\n`;
+}
+
+/** Escapes the five XML entities in a URL before it goes into <loc>. */
+function xmlEscape(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function urlEntry(origin: string, path: string, lastmod?: string): string {
+  const loc = xmlEscape(`${origin}${path}`);
+  const mod = lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : '';
+  return `  <url>\n    <loc>${loc}</loc>${mod}\n  </url>`;
+}
+
+// The rendered XML is cached in-process behind a short TTL rather than a
+// sync-invalidation hook: the URL set changes only on catalog sync,
+// so a brief staleness window is acceptable and keeps this off the hot path.
+const SITEMAP_TTL_MS = 5 * 60 * 1000;
+let sitemapCache: { xml: string; at: number } | undefined;
+
+/**
+ * Result of a sitemap request: either the rendered document, or a status the
+ * route should return in place of it — `503` while maintenance gates the API,
+ * `404` when the deployment is not indexable.
+ */
+export type SitemapResult =
+  | { kind: 'xml'; body: string }
+  | { kind: 'status'; status: 404 | 503 };
+
+export async function renderSitemap(): Promise<SitemapResult> {
+  if (!isIndexable()) {
+    return { kind: 'status', status: 404 };
+  }
+  if (sitemapCache && Date.now() - sitemapCache.at < SITEMAP_TTL_MS) {
+    return { kind: 'xml', body: sitemapCache.xml };
+  }
+
+  const response = await fetch(`${requireEnv('API_URL')}/catalog/sitemap`);
+  // The maintenance guard 503s this endpoint like the rest of the read API;
+  // surface it so crawlers back off instead of caching an empty sitemap.
+  if (response.status === 503) {
+    return { kind: 'status', status: 503 };
+  }
+  if (!response.ok) {
+    throw new Error(`Sitemap source responded ${response.status}`);
+  }
+  const data = (await response.json()) as {
+    categories: SitemapEntry[];
+    products: SitemapEntry[];
+    pages: SitemapEntry[];
+  };
+
+  const origin = requireEnv('APP_ORIGIN').replace(/\/+$/, '');
+  const urls = [
+    ...CODE_PATHS.map((path) => urlEntry(origin, path)),
+    ...data.pages.map((p) => urlEntry(origin, `/${p.slug}`, p.updatedAt)),
+    ...data.categories.map((c) =>
+      urlEntry(origin, `/catalog/${c.slug}`, c.updatedAt),
+    ),
+    ...data.products.map((p) =>
+      urlEntry(origin, `/product/${p.slug}`, p.updatedAt),
+    ),
+  ];
+  const xml =
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    `${urls.join('\n')}\n` +
+    `</urlset>\n`;
+
+  sitemapCache = { xml, at: Date.now() };
+  return { kind: 'xml', body: xml };
+}
+
+/**
+ * Injects `<meta name="robots" content="noindex, nofollow">` into an SSR
+ * document when the deployment is not indexable — belt-and-braces alongside
+ * robots.txt so a directly-fetched page is also marked.
+ */
+export function injectNoindexMeta(html: string): string {
+  if (isIndexable()) return html;
+  return html.replace(
+    '</head>',
+    `<meta name="robots" content="noindex, nofollow"></head>`,
+  );
+}
