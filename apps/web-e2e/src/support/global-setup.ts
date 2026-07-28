@@ -14,6 +14,19 @@ export default async function globalSetup() {
     'docker network inspect traefik >/dev/null 2>&1 || docker network create traefik',
     { cwd: workspaceRoot, stdio: 'inherit' },
   );
+  // The stack's api bind-mounts MEDIA_ROOT (compose.override.yml) and writes
+  // uploads there as its unprivileged uid-1000 `node` user. Create it
+  // world-writable BEFORE `up`, or Docker auto-creates the bind path owned by
+  // whoever runs compose — root on CI — and the uid-1000 container can't write
+  // uploads (they 500, and the upload spec fails while host-seeded catalog
+  // images still load). Must precede `up`; the host seed writes here too.
+  execSync(
+    `mkdir -p "${env['MEDIA_ROOT']}" && chmod 777 "${env['MEDIA_ROOT']}"`,
+    {
+      cwd: workspaceRoot,
+      stdio: 'inherit',
+    },
+  );
   // OS environment beats --env-file in compose interpolation, and Nx loads
   // the workspace .env (dev-stack values, e.g. DATABASE_PORT) into
   // process.env — override with the localtest values so they always win.

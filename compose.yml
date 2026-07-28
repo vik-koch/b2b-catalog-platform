@@ -202,6 +202,13 @@ services:
       RUN_MODE: seed
       API_PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+      # Seeds generate placeholder images through the same media store the api
+      # writes uploads to, so the seeder needs the root and the shared volume —
+      # without them the seed crashes on an undefined path. The api (which runs
+      # first in a SEED=1 deploy) has already created /media node-owned.
+      MEDIA_ROOT: /media
+    volumes:
+      - mediadata:/media
     depends_on:
       postgres:
         condition: service_healthy
