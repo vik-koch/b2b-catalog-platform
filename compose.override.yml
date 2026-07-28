@@ -27,6 +27,20 @@ services:
       # The smoke test reaches the stack via the nginx stand-in, plain http.
       APP_ORIGIN: http://localhost:8080
 
+  # The web-e2e seed runs on the host (global-setup) and writes catalog images
+  # to ./.media. Bind-mount that same dir into the api (upload writes) and the
+  # media server (reads) so what the seed writes is actually served — otherwise
+  # they land in ./.media while the media container serves the mediadata named
+  # volume and every catalog image 404s. The deploy stack keeps the named volume
+  # (compose.yml); this override is local-only and never shipped (deploy.sh
+  # installs its own override on the VM).
+  api:
+    volumes:
+      - ./.media:/media
+  media:
+    volumes:
+      - ./.media:/srv/media:ro
+
   proxy:
     image: nginx:alpine
     ports: ['127.0.0.1:8080:80']

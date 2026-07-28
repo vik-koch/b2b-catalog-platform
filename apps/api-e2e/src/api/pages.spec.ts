@@ -1,5 +1,5 @@
 import { hash } from '@node-rs/argon2';
-import { pageSeeds, seedDatabase } from '@b2b-catalog-platform/seed';
+import { pageSeeds, seedPages } from '@b2b-catalog-platform/seed';
 import { PAGE_BODY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import axios from 'axios';
@@ -89,7 +89,7 @@ describe('PUT /pages/:slug (FR-ADM-03)', () => {
   // Every edit mutates shared state, so restore the seeded content afterwards
   // and leave no test users behind.
   afterEach(async () => {
-    await seedDatabase(client);
+    await seedPages(client);
     await client.query('UPDATE pages SET "updatedBy" = NULL');
   });
 

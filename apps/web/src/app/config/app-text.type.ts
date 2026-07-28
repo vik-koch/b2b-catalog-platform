@@ -29,6 +29,36 @@ export const appTextSchema = z
         intro: z.string(),
       })
       .strict(),
+    /** Storefront catalog chrome (FR-CAT). */
+    catalog: z
+      .object({
+        /** Main navbar action label (icon button). */
+        navLabel: z.string(),
+        /** Main-page category overview (FR-CAT-01). */
+        overviewTitle: z.string(),
+        overviewIntro: z.string(),
+        /** Accessible label for a category card link; `{name}` is substituted. */
+        viewCategory: z.string(),
+        emptyCategories: z.string(),
+        loadError: z.string(),
+        /** Category grid (FR-CAT-03/04). */
+        catalogRoot: z.string(),
+        showMore: z.string(),
+        showLess: z.string(),
+        emptyProducts: z.string(),
+        prevPage: z.string(),
+        nextPage: z.string(),
+        /** `{page}` and `{total}` substituted at render. */
+        pageStatus: z.string(),
+        /** Product detail (FR-CAT-05). */
+        specifications: z.string(),
+        productNotFound: z.string(),
+        /** Gallery thumbnail label; `{n}` is substituted. */
+        viewImage: z.string(),
+        /** Caption shown on the fallback tile when a product has no photo. */
+        imagePlaceholder: z.string(),
+      })
+      .strict(),
     /**
      * Login form, the navbar account link and the signed-in block on its
      * destination page. One vocabulary for all roles — the only thing that
@@ -86,14 +116,12 @@ export const appTextSchema = z
           .strict(),
       })
       .strict(),
-    /**
-     * Temporary text for homepage (will be removed in iteration 2).
-     */
+    /** Storefront landing (FR-CAT-01): intro above the category showcase. */
     home: z
       .object({
-        line1: z.string(),
-        line2: z.string(),
-        line3: z.string(),
+        eyebrow: z.string(),
+        title: z.string(),
+        intro: z.string(),
       })
       .strict(),
     inquiry: z

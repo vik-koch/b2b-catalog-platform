@@ -22,6 +22,7 @@ function service(
       },
     },
     cookieConsentEnabled,
+    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
     locations: [],
   };
   TestBed.configureTestingModule({

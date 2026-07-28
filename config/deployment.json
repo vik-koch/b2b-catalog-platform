@@ -9,6 +9,12 @@
     }
   },
   "cookieConsentEnabled": false,
+  "catalog": {
+    "currency": {
+      "code": "EUR",
+      "locale": "de-DE"
+    }
+  },
   "locations": [
     {
       "name": "Speicherstadt Office",

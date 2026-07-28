@@ -12,6 +12,7 @@ import { CloseIcon } from '../ui/icons/close-icon';
 import { MenuIcon } from '../ui/icons/menu-icon';
 import { PhoneIcon } from '../ui/icons/phone-icon';
 import { AccountLink } from './account-link';
+import { CatalogLink } from './catalog-link';
 import { ContactInfo } from './contact-info';
 import { NAV_ACTION } from './nav-action';
 
@@ -29,6 +30,7 @@ import { NAV_ACTION } from './nav-action';
     RouterLink,
     RouterLinkActive,
     AccountLink,
+    CatalogLink,
     ContactInfo,
     PhoneIcon,
     MenuIcon,
@@ -52,7 +54,7 @@ import { NAV_ACTION } from './nav-action';
         [class.max-h-12]="!collapsed()"
       >
         <div
-          class="mx-auto flex h-10 w-full max-w-5xl items-center justify-between gap-6 px-4"
+          class="mx-auto flex h-10 w-full max-w-7xl items-center justify-between gap-6 px-4"
         >
           <nav class="flex gap-5 text-sm" aria-label="Utility">
             @for (route of utilityRoutes; track route) {
@@ -73,7 +75,7 @@ import { NAV_ACTION } from './nav-action';
       </div>
 
       <div
-        class="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4"
+        class="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4"
       >
         <a
           routerLink="/"
@@ -101,6 +103,7 @@ import { NAV_ACTION } from './nav-action';
               <span class="sr-only">Call {{ phone }}</span>
             </a>
           }
+          <app-catalog-link />
           <app-account-link />
           <button
             type="button"
@@ -156,12 +159,22 @@ export class Header {
 
   // Collapse the utility bar once scrolled off the top. Never fires on the
   // server; the initial render is expanded and matches hydration.
+  //
+  // The two thresholds must straddle by more than the utility bar's own height
+  // (max-h-12 = 48px): collapsing removes that height, dropping window.scrollY
+  // by up to as much, and if that lands below the expand threshold the bar
+  // reopens, re-adds the height, and the page shakes forever (a click can never
+  // land on a never-stable target). Keeping COLLAPSE_AT − EXPAND_AT > 48 means a
+  // collapse can never cross back over the expand line. On pages too short to
+  // reach COLLAPSE_AT the bar simply stays open — the collapse is cosmetic.
   @HostListener('window:scroll')
   protected onScroll(): void {
+    const COLLAPSE_AT = 96;
+    const EXPAND_AT = 32;
     const currentScroll = window.scrollY;
-    if (!this.collapsed() && currentScroll > 16) {
+    if (!this.collapsed() && currentScroll > COLLAPSE_AT) {
       this.collapsed.set(true);
-    } else if (this.collapsed() && currentScroll < 4) {
+    } else if (this.collapsed() && currentScroll < EXPAND_AT) {
       this.collapsed.set(false);
     }
   }

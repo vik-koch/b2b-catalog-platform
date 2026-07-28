@@ -13,7 +13,7 @@ import { ContactInfo } from './contact-info';
   template: `
     <footer class="border-t border-stone-200 bg-stone-100">
       <div
-        class="mx-auto flex w-full max-w-5xl flex-col gap-3 px-4 py-6 text-sm sm:flex-row sm:items-center sm:justify-between"
+        class="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-6 text-sm sm:flex-row sm:items-center sm:justify-between"
       >
         <div class="flex flex-col gap-3">
           <p class="text-secondary">

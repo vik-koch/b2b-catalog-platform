@@ -17,68 +17,70 @@ import { landingFor } from './auth.guard';
   selector: 'app-login-page',
   imports: [ReactiveFormsModule, Button],
   template: `
-    <h1 class="mb-8 text-3xl font-bold tracking-tight">{{ text.login }}</h1>
+    <div class="mx-auto max-w-sm">
+      <h1 class="mb-8 text-3xl font-bold tracking-tight">{{ text.login }}</h1>
 
-    <form
-      [formGroup]="form"
-      (ngSubmit)="submit()"
-      novalidate
-      class="max-w-sm space-y-6"
-    >
-      <div>
-        <label for="email" class="mb-1 block text-sm font-medium">
-          {{ text.email }}
-        </label>
-        <input
-          id="email"
-          type="email"
-          formControlName="email"
-          autocomplete="email"
-          aria-required="true"
-          [class]="inputClass"
-          [attr.aria-invalid]="isInvalid('email') || null"
-        />
-        @if (isInvalid('email')) {
-          <p class="mt-1 text-sm text-red-600">
-            {{
-              form.controls.email.hasError('required')
-                ? text.validation.emailRequired
-                : text.validation.emailInvalid
-            }}
+      <form
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+        novalidate
+        class="space-y-6"
+      >
+        <div>
+          <label for="email" class="mb-1 block text-sm font-medium">
+            {{ text.email }}
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            aria-required="true"
+            [class]="inputClass"
+            [attr.aria-invalid]="isInvalid('email') || null"
+          />
+          @if (isInvalid('email')) {
+            <p class="mt-1 text-sm text-red-600">
+              {{
+                form.controls.email.hasError('required')
+                  ? text.validation.emailRequired
+                  : text.validation.emailInvalid
+              }}
+            </p>
+          }
+        </div>
+
+        <div>
+          <label for="password" class="mb-1 block text-sm font-medium">
+            {{ text.password }}
+          </label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            autocomplete="current-password"
+            aria-required="true"
+            [class]="inputClass"
+            [attr.aria-invalid]="isInvalid('password') || null"
+          />
+          @if (isInvalid('password')) {
+            <p class="mt-1 text-sm text-red-600">
+              {{ text.validation.passwordRequired }}
+            </p>
+          }
+        </div>
+
+        @if (status() === 'invalid' || status() === 'error') {
+          <p class="text-sm text-red-600" role="alert">
+            {{ status() === 'invalid' ? text.invalid : text.error }}
           </p>
         }
-      </div>
 
-      <div>
-        <label for="password" class="mb-1 block text-sm font-medium">
-          {{ text.password }}
-        </label>
-        <input
-          id="password"
-          type="password"
-          formControlName="password"
-          autocomplete="current-password"
-          aria-required="true"
-          [class]="inputClass"
-          [attr.aria-invalid]="isInvalid('password') || null"
-        />
-        @if (isInvalid('password')) {
-          <p class="mt-1 text-sm text-red-600">
-            {{ text.validation.passwordRequired }}
-          </p>
-        }
-      </div>
-
-      @if (status() === 'invalid' || status() === 'error') {
-        <p class="text-sm text-red-600" role="alert">
-          {{ status() === 'invalid' ? text.invalid : text.error }}
-        </p>
-      }
-
-      <button appButton type="submit" [disabled]="status() === 'submitting'">
-        {{ status() === 'submitting' ? text.submitting : text.submit }}
-      </button>
-    </form>
+        <button appButton type="submit" [disabled]="status() === 'submitting'">
+          {{ status() === 'submitting' ? text.submitting : text.submit }}
+        </button>
+      </form>
+    </div>
   `,
 })
 export class LoginPage {

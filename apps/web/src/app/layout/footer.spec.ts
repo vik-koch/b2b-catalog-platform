@@ -18,6 +18,7 @@ function config(cookieConsentEnabled: boolean): DeploymentConfig {
       },
     },
     cookieConsentEnabled,
+    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
     locations: [],
   };
 }

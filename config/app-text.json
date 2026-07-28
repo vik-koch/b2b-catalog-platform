@@ -13,6 +13,25 @@
   "contact": {
     "intro": "Visit us or get in touch — find our offices below."
   },
+  "catalog": {
+    "navLabel": "Catalogue",
+    "overviewTitle": "Our catalogue",
+    "overviewIntro": "Browse our range by category.",
+    "viewCategory": "Browse {name}",
+    "emptyCategories": "Our catalogue is being set up — please check back soon.",
+    "loadError": "Something went wrong loading the catalogue — please try again later.",
+    "catalogRoot": "Catalogue",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "emptyProducts": "No products in this category yet.",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageStatus": "Page {page} of {total}",
+    "specifications": "Specifications",
+    "productNotFound": "This product could not be found. It may have been removed.",
+    "viewImage": "Show image {n}",
+    "imagePlaceholder": "No image available"
+  },
   "auth": {
     "login": "Log in",
     "logout": "Log out",
@@ -52,9 +71,9 @@
     }
   },
   "home": {
-    "line1": "Hamburg · Speicherstadt",
-    "line2": "Wholesale specialty coffee",
-    "line3": "Our storefront is under construction — the company pages are live."
+    "eyebrow": "Hamburg · Speicherstadt",
+    "title": "Wholesale specialty coffee",
+    "intro": "Browse our range by category below, or open the full catalogue."
   },
   "inquiry": {
     "intro": "Send us a message and we will get back to you by your preferred method.",
