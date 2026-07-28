@@ -88,6 +88,11 @@ jobs:
           # STACK_NAME defaults to prod; override only if this VM already runs
           # another stack named prod (then pick a distinct name + domain).
           STACK_NAME: ${{ vars.STACK_NAME }}
+          # Indexing opt-in. Defaults to true: a real client prod is a search target.
+          # Set the variable to false for a noindex stack (e.g.a client-prod
+          # rehearsal). Pre-launch, maintenance mode already keeps crawlers out
+          # (503 + robots disallow), so true is safe from day one.
+          SEO_INDEXABLE: ${{ vars.SEO_INDEXABLE }}
         run: |
           : "${DEPLOY_HOST:?variable DEPLOY_HOST is not set}"
           : "${APP_DOMAIN:?variable APP_DOMAIN is not set}"
@@ -127,6 +132,7 @@ jobs:
           MAIL_USER=$MAIL_USER
           MAIL_PASSWORD=$MAIL_PASSWORD
           MAIL_SECURE=${MAIL_SECURE:-false}
+          SEO_INDEXABLE=${SEO_INDEXABLE:-true}
           EOF
           printf 'ACME_EMAIL=%s\n' "$ACME_EMAIL" > "$RUNNER_TEMP/traefik.env"
 
