@@ -49,6 +49,14 @@ describe('settings (maintenance toggle)', () => {
     await client.end();
   });
 
+  it('exposes the public maintenance check without a session', async () => {
+    const res = await axios.get('/maintenance', {
+      validateStatus: () => true,
+    });
+    expect(res.status).toBe(200);
+    expect(res.data).toEqual({ enabled: false });
+  });
+
   it('rejects reading the toggle without a session', async () => {
     const res = await axios.get('/settings/maintenance', {
       validateStatus: () => true,

@@ -12,6 +12,7 @@ import { requireEnv } from './env';
 import { preloadAppText } from './app/config/app-text.server';
 import { preloadDeploymentConfig } from './app/config/deployment-config.server';
 import { injectShellState } from './app/config/shell-state.server';
+import { isGatedPath, isMaintenanceOn } from './app/config/maintenance.server';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
@@ -87,7 +88,32 @@ app.use(
  */
 app.use(async (req, res, next) => {
   try {
+    // Maintenance gate (SSR mirror): while the storefront is gated, a public
+    // route is served the maintenance screen with a 503 at its own URL — no
+    // redirect, which the response could not carry alongside a 503. Point the
+    // render at the maintenance route in place; the asset/static middleware
+    // above has already matched the original path, so this only affects what
+    // Angular renders. The engine derives the route from `originalUrl` (Express
+    // sets it), so both must be rewritten or the original page renders behind
+    // the 503. The server is session-blind, so an admin's cold load sees the
+    // screen too; their preview happens on the subsequent client navigation.
+    const gated = isGatedPath(req.path) && (await isMaintenanceOn());
+    if (gated) {
+      req.url = '/maintenance';
+      req.originalUrl = '/maintenance';
+    }
+
     const response = await getAngularApp().handle(req);
+    if (response && gated) {
+      const html = injectShellState(await response.text());
+      const headers = new Headers(response.headers);
+      headers.delete('content-length');
+      await writeResponseToNodeResponse(
+        new Response(html, { status: 503, headers }),
+        res,
+      );
+      return;
+    }
     if (!response) {
       next();
       return;

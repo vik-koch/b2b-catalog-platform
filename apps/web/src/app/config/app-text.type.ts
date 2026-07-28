@@ -240,6 +240,25 @@ export const appTextSchema = z
         cannotLoadBody: z.string(),
       })
       .strict(),
+    /**
+     * Maintenance mode (FR-ADM-04): the public screen shown while the
+     * storefront is gated, and the admin-panel control that toggles it.
+     */
+    maintenance: z
+      .object({
+        /** Public 503 screen. */
+        title: z.string(),
+        body: z.string(),
+        /** Admin-panel toggle. */
+        adminHeading: z.string(),
+        adminDescription: z.string(),
+        statusOn: z.string(),
+        statusOff: z.string(),
+        enable: z.string(),
+        disable: z.string(),
+        error: z.string(),
+      })
+      .strict(),
   })
   .strict();
 

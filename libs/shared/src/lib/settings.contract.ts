@@ -20,7 +20,25 @@ export const setMaintenanceSchema = z
   .strict();
 export type SetMaintenanceRequest = z.infer<typeof setMaintenanceSchema>;
 
+/**
+ * The public view of maintenance mode — just the on/off bit, no audit data.
+ * Unauthenticated and exempt from the gate itself, so the storefront can learn
+ * whether to show the maintenance screen even while the gate is on.
+ */
+export const maintenanceCheckSchema = z.object({
+  enabled: z.boolean(),
+});
+export type MaintenanceCheck = z.infer<typeof maintenanceCheckSchema>;
+
 export const settingsContract = c.router({
+  checkMaintenance: {
+    method: 'GET',
+    path: '/maintenance',
+    responses: {
+      200: maintenanceCheckSchema,
+    },
+    summary: 'Public: is the storefront in maintenance mode?',
+  },
   getMaintenance: {
     method: 'GET',
     path: '/settings/maintenance',
