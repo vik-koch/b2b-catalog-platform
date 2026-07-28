@@ -7,6 +7,7 @@ import { AUTH_COOKIE } from './auth.constants';
 import { Auth } from './auth.decorator';
 import { CurrentUser } from './current-user.decorator';
 import { AuthService } from './auth.service';
+import { MaintenanceExempt } from '../settings/maintenance-exempt.decorator';
 
 // Matches the JWT expiry (7d) so the browser drops the cookie around the time
 // the token stops verifying.
@@ -16,6 +17,7 @@ const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
+  @MaintenanceExempt()
   @AuthThrottle()
   @TsRestHandler(authContract.login)
   login(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
@@ -32,6 +34,7 @@ export class AuthController {
     });
   }
 
+  @MaintenanceExempt()
   @TsRestHandler(authContract.logout)
   logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     return tsRestHandler(authContract.logout, async () => {
