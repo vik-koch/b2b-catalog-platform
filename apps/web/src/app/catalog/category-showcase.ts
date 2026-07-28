@@ -1,7 +1,8 @@
-import { Component, inject, resource } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { CatalogService } from './catalog.service';
+import { ImagePlaceholder } from './image-placeholder';
 
 /**
  * Home-page category showcase (FR-CAT-01): an editorial, masonry-style set of
@@ -12,7 +13,7 @@ import { CatalogService } from './catalog.service';
  */
 @Component({
   selector: 'app-category-showcase',
-  imports: [RouterLink],
+  imports: [RouterLink, ImagePlaceholder],
   template: `
     @if (categories.error()) {
       <p class="text-stone-600">{{ text.loadError }}</p>
@@ -28,16 +29,19 @@ import { CatalogService } from './catalog.service';
                 [attr.aria-label]="viewLabel(cat.name)"
                 class="group block"
               >
-                @if (cat.image) {
-                  <div class="aspect-video overflow-hidden bg-stone-100">
+                <div class="aspect-video overflow-hidden bg-stone-100">
+                  @if (cat.image && !failed().has(cat.image.thumb)) {
                     <img
                       [src]="cat.image.thumb"
                       alt=""
                       loading="lazy"
                       class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      (error)="markFailed(cat.image.thumb)"
                     />
-                  </div>
-                }
+                  } @else {
+                    <app-image-placeholder [label]="cat.name" />
+                  }
+                </div>
                 <h3
                   class="px-4 pt-3 text-base font-semibold tracking-tight group-hover:text-accent"
                 >
@@ -88,6 +92,14 @@ export class CategoryShowcase {
   protected categories = resource({
     loader: () => this.catalog.getCategoryTree(),
   });
+
+  /** Category image URLs that failed to load — shown as the placeholder instead
+   * of the browser's broken-image icon. Keyed by URL. */
+  protected readonly failed = signal(new Set<string>());
+
+  protected markFailed(src: string): void {
+    this.failed.update((set) => new Set(set).add(src));
+  }
 
   protected viewLabel(name: string): string {
     return this.text.viewCategory.replace('{name}', name);

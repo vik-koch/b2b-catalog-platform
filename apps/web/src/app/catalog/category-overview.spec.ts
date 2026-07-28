@@ -66,6 +66,14 @@ describe('CategoryOverview', () => {
     expect(el.querySelector('a[href="/catalog/filter"]')).not.toBeNull();
   });
 
+  it('shows the placeholder for a category with no image', async () => {
+    const el = await render(async () => tree);
+
+    // 'Coffee Beans' has an image, 'Tea' does not → exactly one placeholder.
+    expect(el.querySelectorAll('img')).toHaveLength(1);
+    expect(el.querySelectorAll('app-image-placeholder')).toHaveLength(1);
+  });
+
   it('shows an empty-state message when there are no categories', async () => {
     const el = await render(async () => []);
 

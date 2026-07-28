@@ -1,4 +1,10 @@
-import { Component, computed, input, linkedSignal } from '@angular/core';
+import {
+  Component,
+  computed,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { ImagePlaceholder } from './image-placeholder';
@@ -29,14 +35,24 @@ const SWIPE_THRESHOLD_PX = 30;
       (click)="onClick($event)"
     >
       @for (img of images(); track $index) {
-        <img
-          [src]="img.thumb"
-          [alt]="productName()"
-          class="absolute inset-0 h-full w-full object-cover transition-opacity duration-200"
-          [class.opacity-100]="$index === selected()"
-          [class.opacity-0]="$index !== selected()"
-          loading="lazy"
-        />
+        @if (failed().has(img.thumb)) {
+          <app-image-placeholder
+            [label]="productName()"
+            class="absolute inset-0 transition-opacity duration-200"
+            [class.opacity-100]="$index === selected()"
+            [class.opacity-0]="$index !== selected()"
+          />
+        } @else {
+          <img
+            [src]="img.thumb"
+            [alt]="productName()"
+            class="absolute inset-0 h-full w-full object-cover transition-opacity duration-200"
+            [class.opacity-100]="$index === selected()"
+            [class.opacity-0]="$index !== selected()"
+            loading="lazy"
+            (error)="markFailed(img.thumb)"
+          />
+        }
       } @empty {
         <app-image-placeholder [label]="productName()" />
       }
@@ -72,6 +88,14 @@ export class TileGallery {
   });
 
   protected hasMultiple = computed(() => this.images().length > 1);
+
+  /** Thumb URLs that failed to load — rendered as the placeholder instead of
+   * the browser's broken-image icon. Keyed by URL. */
+  protected readonly failed = signal(new Set<string>());
+
+  protected markFailed(src: string): void {
+    this.failed.update((set) => new Set(set).add(src));
+  }
 
   private touchStartX = 0;
   /** True once a touch has moved far enough to be a swipe, so the tap that

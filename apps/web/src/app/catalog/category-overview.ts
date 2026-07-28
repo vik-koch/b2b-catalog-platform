@@ -1,8 +1,9 @@
-import { Component, inject, resource } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CategoryNode } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { CatalogService } from './catalog.service';
+import { ImagePlaceholder } from './image-placeholder';
 
 /** How many subcategory links a tile shows before collapsing to "+N". */
 const MAX_CHILD_LINKS = 3;
@@ -15,7 +16,7 @@ const MAX_CHILD_LINKS = 3;
  */
 @Component({
   selector: 'app-category-overview',
-  imports: [RouterLink],
+  imports: [RouterLink, ImagePlaceholder],
   template: `
     <section class="pb-12 sm:pb-16">
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -42,13 +43,16 @@ const MAX_CHILD_LINKS = 3;
                   <div
                     class="aspect-square overflow-hidden rounded-lg bg-stone-100"
                   >
-                    @if (cat.image) {
+                    @if (cat.image && !failed().has(cat.image.thumb)) {
                       <img
                         [src]="cat.image.thumb"
                         alt=""
                         class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         loading="lazy"
+                        (error)="markFailed(cat.image.thumb)"
                       />
+                    } @else {
+                      <app-image-placeholder [label]="cat.name" />
                     }
                   </div>
                   <h2
@@ -111,6 +115,14 @@ export class CategoryOverview {
   protected categories = resource({
     loader: () => this.catalog.getCategoryTree(),
   });
+
+  /** Category image URLs that failed to load — shown as the placeholder instead
+   * of the browser's broken-image icon. Keyed by URL. */
+  protected readonly failed = signal(new Set<string>());
+
+  protected markFailed(src: string): void {
+    this.failed.update((set) => new Set(set).add(src));
+  }
 
   protected viewCategoryLabel(name: string): string {
     return this.text.viewCategory.replace('{name}', name);

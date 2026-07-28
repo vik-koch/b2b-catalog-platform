@@ -51,6 +51,18 @@ describe('TileGallery', () => {
     expect(root.querySelector('app-image-placeholder')).not.toBeNull();
   });
 
+  it('swaps a failed image for the placeholder in its slot', () => {
+    const f = render([img(1), img(2)]);
+    const root = f.nativeElement as HTMLElement;
+
+    root.querySelectorAll('img')[0].dispatchEvent(new Event('error'));
+    f.detectChanges();
+
+    // One slot became a placeholder; the other image is still present.
+    expect(root.querySelectorAll('img')).toHaveLength(1);
+    expect(root.querySelector('app-image-placeholder')).not.toBeNull();
+  });
+
   it('scrubs to the image under the cursor on mouse move', () => {
     const f = render([img(1), img(2), img(3)]);
     const anchor = (f.nativeElement as HTMLElement).querySelector(

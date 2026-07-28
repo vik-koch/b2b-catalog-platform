@@ -4,6 +4,7 @@ import {
   inject,
   input,
   linkedSignal,
+  signal,
 } from '@angular/core';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
@@ -37,12 +38,17 @@ import { ImagePlaceholder } from './image-placeholder';
                 (click)="selected.set($index)"
                 (mouseenter)="selected.set($index)"
               >
-                <img
-                  [src]="img.thumb"
-                  alt=""
-                  class="h-full w-full object-cover"
-                  loading="lazy"
-                />
+                @if (failed().has(img.thumb)) {
+                  <app-image-placeholder />
+                } @else {
+                  <img
+                    [src]="img.thumb"
+                    alt=""
+                    class="h-full w-full object-cover"
+                    loading="lazy"
+                    (error)="markFailed(img.thumb)"
+                  />
+                }
               </button>
             </li>
           }
@@ -52,11 +58,16 @@ import { ImagePlaceholder } from './image-placeholder';
       <div class="order-1 flex-1 sm:order-2">
         <div class="aspect-square overflow-hidden rounded-xl bg-stone-100">
           @if (current(); as img) {
-            <img
-              [src]="img.full"
-              [alt]="productName()"
-              class="h-full w-full object-cover"
-            />
+            @if (failed().has(img.full)) {
+              <app-image-placeholder [label]="productName()" />
+            } @else {
+              <img
+                [src]="img.full"
+                [alt]="productName()"
+                class="h-full w-full object-cover"
+                (error)="markFailed(img.full)"
+              />
+            }
           } @else {
             <app-image-placeholder [label]="productName()" />
           }
@@ -82,6 +93,14 @@ export class ProductGallery {
     const imgs = this.images();
     return imgs[this.selected()] ?? imgs[0];
   });
+
+  /** Media URLs that failed to load — shown as the placeholder instead of the
+   * browser's broken-image icon. Keyed by URL so it survives selection changes. */
+  protected readonly failed = signal(new Set<string>());
+
+  protected markFailed(src: string): void {
+    this.failed.update((set) => new Set(set).add(src));
+  }
 
   protected thumbLabel(index: number): string {
     return this.text.viewImage.replace('{n}', String(index + 1));

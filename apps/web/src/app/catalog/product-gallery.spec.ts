@@ -61,4 +61,15 @@ describe('ProductGallery', () => {
     expect(mainSrc(f)).toBeUndefined();
     expect(el.querySelector('.order-1 app-image-placeholder')).not.toBeNull();
   });
+
+  it('swaps the main image for the placeholder when it fails to load', () => {
+    const f = render([img(1)]);
+    const el = f.nativeElement as HTMLElement;
+
+    el.querySelector('.order-1 img')?.dispatchEvent(new Event('error'));
+    f.detectChanges();
+
+    expect(el.querySelector('.order-1 img')).toBeNull();
+    expect(el.querySelector('.order-1 app-image-placeholder')).not.toBeNull();
+  });
 });
