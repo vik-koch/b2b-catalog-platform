@@ -4,6 +4,7 @@ import {
   RICH_TEXT_LINK_SCHEMES,
   RICH_TEXT_TAGS,
 } from '../lib/page.contract';
+import { PRODUCT_RICH_TEXT_TAGS } from '../lib/catalog.contract';
 import { MEDIA_MAX_IMAGE_WIDTH, MEDIA_URL_PREFIX } from '../lib/media.contract';
 
 const IMAGE_ALIGNMENTS = new Set<string>(RICH_TEXT_IMAGE_ALIGNMENTS);
@@ -101,6 +102,21 @@ export function sanitizeRichText(html: string): string {
     exclusiveFilter: (frame) => frame.tag === 'img' && !frame.attribs['src'],
     // Drop the *contents* of these, not just the tags: the default keeps inner
     // text, which would leak script source into the page as visible prose.
+    nonTextTags: ['style', 'script', 'textarea', 'option', 'noscript'],
+  });
+}
+
+/**
+ * The trust boundary for a product description — the same write-time
+ * discipline as page bodies, but a deliberately narrower vocabulary
+ * (`PRODUCT_RICH_TEXT_TAGS`: paragraphs and inline emphasis only, no headings,
+ * lists, links or images). No attributes are allowed, so there is nothing to
+ * transform or validate — every disallowed tag or attribute is simply stripped.
+ */
+export function sanitizeProductRichText(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: [...PRODUCT_RICH_TEXT_TAGS],
+    allowedAttributes: {},
     nonTextTags: ['style', 'script', 'textarea', 'option', 'noscript'],
   });
 }
