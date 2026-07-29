@@ -225,6 +225,25 @@
     "deletedBadge": "Deleted",
     "empty": "No products yet."
   },
+  "adminCategories": {
+    "title": "Categories",
+    "add": "Add category",
+    "addChild": "Add subcategory",
+    "parent": "Parent category",
+    "noParent": "— Top level —",
+    "image": "Image",
+    "removeImage": "Remove image",
+    "uploading": "Uploading…",
+    "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB.",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "edit": "Edit",
+    "done": "Done",
+    "delete": "Delete",
+    "deleteBlocked": "This category still has products or subcategories, so it can't be deleted.",
+    "empty": "No categories yet.",
+    "defaultName": "New category"
+  },
   "errors": {
     "notFoundTitle": "Page not found",
     "notFoundBody": "The page you are looking for does not exist.",

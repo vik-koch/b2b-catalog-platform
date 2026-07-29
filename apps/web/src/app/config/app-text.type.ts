@@ -304,6 +304,28 @@ export const appTextSchema = z
         empty: z.string(),
       })
       .strict(),
+    /** The admin category management screen (FR-ADM-01): tree CRUD + ordering. */
+    adminCategories: z
+      .object({
+        title: z.string(),
+        add: z.string(),
+        addChild: z.string(),
+        parent: z.string(),
+        noParent: z.string(),
+        image: z.string(),
+        removeImage: z.string(),
+        uploading: z.string(),
+        uploadError: z.string(),
+        moveUp: z.string(),
+        moveDown: z.string(),
+        edit: z.string(),
+        done: z.string(),
+        delete: z.string(),
+        deleteBlocked: z.string(),
+        empty: z.string(),
+        defaultName: z.string(),
+      })
+      .strict(),
     errors: z
       .object({
         notFoundTitle: z.string(),

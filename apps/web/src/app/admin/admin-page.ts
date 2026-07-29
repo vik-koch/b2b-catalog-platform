@@ -20,14 +20,26 @@ import { MaintenanceToggle } from './maintenance-toggle';
       {{ text.adminPanel }}
     </h1>
     <app-signed-in-as />
-    <a appButton routerLink="/admin/products" class="mt-8 inline-flex gap-2">
-      <app-lucide-icon name="pencil" class="h-4 w-4" />
-      {{ productText.title }}
-    </a>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a appButton routerLink="/admin/products" class="gap-2">
+        <app-lucide-icon name="pencil" class="h-4 w-4" />
+        {{ productText.title }}
+      </a>
+      <a
+        appButton
+        variant="secondary"
+        routerLink="/admin/categories"
+        class="gap-2"
+      >
+        <app-lucide-icon name="pencil" class="h-4 w-4" />
+        {{ categoryText.title }}
+      </a>
+    </div>
     <app-maintenance-toggle class="mt-8 block" />
   `,
 })
 export class AdminPage {
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly productText = inject(APP_TEXT).adminProducts;
+  protected readonly categoryText = inject(APP_TEXT).adminCategories;
 }

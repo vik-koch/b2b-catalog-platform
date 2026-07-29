@@ -40,6 +40,14 @@ export const appRoutes: Route[] = [
       ),
   },
   {
+    path: 'admin/categories',
+    canActivate: [requireAuth('admin')],
+    loadComponent: () =>
+      import('./admin/admin-category-list-page').then(
+        (m) => m.AdminCategoryListPage,
+      ),
+  },
+  {
     path: 'admin/products/new',
     canActivate: [requireAuth('admin')],
     canDeactivate: [productUnsavedChangesGuard],
