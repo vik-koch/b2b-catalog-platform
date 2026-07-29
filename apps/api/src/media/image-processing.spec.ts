@@ -1,5 +1,9 @@
 import sharp from 'sharp';
-import { MEDIA_MAX_IMAGE_WIDTH } from '@b2b-catalog-platform/shared';
+import {
+  MEDIA_CATALOG_FULL_WIDTH,
+  MEDIA_CATALOG_THUMB_WIDTH,
+  MEDIA_MAX_IMAGE_WIDTH,
+} from '@b2b-catalog-platform/shared';
 import { processImage } from './image-processing';
 
 const solidPng = (width: number, height: number): Promise<Buffer> =>
@@ -23,5 +27,20 @@ describe('processImage', () => {
     const meta = await sharp(out).metadata();
     expect(meta.width).toBe(200);
     expect(meta.height).toBe(150);
+  });
+
+  it('caps at an explicit width (the catalog full/thumb profiles)', async () => {
+    const src = await solidPng(3000, 2000);
+    const full = await processImage(src, 'image/png', MEDIA_CATALOG_FULL_WIDTH);
+    const thumb = await processImage(
+      src,
+      'image/png',
+      MEDIA_CATALOG_THUMB_WIDTH,
+    );
+
+    expect((await sharp(full).metadata()).width).toBe(MEDIA_CATALOG_FULL_WIDTH);
+    expect((await sharp(thumb).metadata()).width).toBe(
+      MEDIA_CATALOG_THUMB_WIDTH,
+    );
   });
 });

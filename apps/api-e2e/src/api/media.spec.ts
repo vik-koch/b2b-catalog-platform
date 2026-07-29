@@ -1,9 +1,22 @@
 import { hash } from '@node-rs/argon2';
 import { seedPages } from '@b2b-catalog-platform/seed';
+import {
+  MEDIA_CATALOG_FULL_WIDTH,
+  MEDIA_CATALOG_THUMB_WIDTH,
+} from '@b2b-catalog-platform/shared';
 import axios from 'axios';
+import { readFile } from 'node:fs/promises';
+import { basename, join } from 'node:path';
 import { Client } from 'pg';
 import sharp from 'sharp';
 import { requireEnv } from '../support/env';
+
+// The LocalMediaStore writes to <workspace>/.media (created by global-setup).
+const MEDIA_DIR = join(__dirname, '../../../..', '.media');
+const storedWidth = async (mediaUrl: string): Promise<number | undefined> => {
+  const bytes = await readFile(join(MEDIA_DIR, basename(mediaUrl)));
+  return (await sharp(bytes).metadata()).width;
+};
 
 const ADMIN_EMAIL = 'e2e-media-admin@example.com';
 const MANAGER_EMAIL = 'e2e-media-manager@example.com';
@@ -39,6 +52,12 @@ const png = (size = 32): Promise<Buffer> =>
 
 const upload = (data: FormData | undefined, cookie?: string) =>
   axios.post('/media', data, {
+    headers: cookie ? { Cookie: cookie } : {},
+    validateStatus: () => true,
+  });
+
+const uploadCatalog = (data: FormData | undefined, cookie?: string) =>
+  axios.post('/media/catalog', data, {
     headers: cookie ? { Cookie: cookie } : {},
     validateStatus: () => true,
   });
@@ -117,6 +136,49 @@ describe('POST /media (0021)', () => {
   it('rejects a request with no file', async () => {
     const res = await upload(new FormData(), adminCookie);
     expect(res.status).toBe(400);
+  });
+
+  describe('POST /media/catalog (FR-ADM-01)', () => {
+    it('returns a full + thumb pair at the catalog profile widths', async () => {
+      // A source wider than both profiles so each is actually downscaled.
+      const res = await uploadCatalog(
+        form(await png(1600), 'product.png', 'image/png'),
+        adminCookie,
+      );
+
+      expect(res.status).toBe(201);
+      expect(res.data).toEqual({
+        full: expect.stringMatching(/^\/media\/[0-9a-f]{12}\.webp$/),
+        thumb: expect.stringMatching(/^\/media\/[0-9a-f]{12}\.webp$/),
+      });
+      expect(res.data.full).not.toBe(res.data.thumb);
+      expect(await storedWidth(res.data.full)).toBe(MEDIA_CATALOG_FULL_WIDTH);
+      expect(await storedWidth(res.data.thumb)).toBe(MEDIA_CATALOG_THUMB_WIDTH);
+    });
+
+    it('rejects an unauthenticated catalog upload', async () => {
+      const res = await uploadCatalog(form(await png(), 'x.png', 'image/png'));
+      expect(res.status).toBe(401);
+    });
+
+    it('rejects a non-admin catalog upload', async () => {
+      const res = await uploadCatalog(
+        form(await png(), 'x.png', 'image/png'),
+        managerCookie,
+      );
+      expect(res.status).toBe(403);
+    });
+
+    it('rejects an SVG by content on the catalog endpoint too', async () => {
+      const svg = Buffer.from(
+        '<svg xmlns="http://www.w3.org/2000/svg"><script/></svg>',
+      );
+      const res = await uploadCatalog(
+        form(svg, 'logo.png', 'image/png'),
+        adminCookie,
+      );
+      expect(res.status).toBe(415);
+    });
   });
 
   describe('a stored image survives a page save', () => {

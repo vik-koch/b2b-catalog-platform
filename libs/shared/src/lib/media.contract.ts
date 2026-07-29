@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { catalogImageSchema } from './catalog.contract';
 
 /**
  * Image formats accepted by the upload endpoint. This is the allowlist the
@@ -41,3 +42,21 @@ export const uploadMediaResponseSchema = z.object({
   url: z.string(),
 });
 export type UploadMediaResponse = z.infer<typeof uploadMediaResponseSchema>;
+
+/**
+ * Catalog product/category images are stored as two independently
+ * content-addressed WebPs: `full` for the product page and `thumb` for the
+ * grid/list/search so those views stay light. The widths are smaller than the
+ * page-image profile above because the storefront never displays a catalog
+ * image larger than these (full ~1000px on the product page, thumb ~300px in
+ * the grid/strip). The seed placeholders use the same widths.
+ */
+export const MEDIA_CATALOG_FULL_WIDTH = 1000;
+export const MEDIA_CATALOG_THUMB_WIDTH = 300;
+
+/** The catalog upload endpoint returns a `{ full, thumb }` pair, i.e. exactly a
+ * stored `CatalogImage` ready to drop into a product's gallery. */
+export const uploadCatalogImageResponseSchema = catalogImageSchema;
+export type UploadCatalogImageResponse = z.infer<
+  typeof uploadCatalogImageResponseSchema
+>;

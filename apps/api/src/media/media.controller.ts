@@ -10,7 +10,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  AcceptedImageMime,
+  MEDIA_CATALOG_FULL_WIDTH,
+  MEDIA_CATALOG_THUMB_WIDTH,
   MEDIA_MAX_UPLOAD_BYTES,
+  UploadCatalogImageResponse,
   UploadMediaResponse,
 } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
@@ -44,24 +48,60 @@ export class MediaController {
   async upload(
     @UploadedFile() file: Express.Multer.File | undefined,
   ): Promise<UploadMediaResponse> {
+    const mime = await this.validate(file);
+
+    // Re-encode to a single capped WebP, then store by content hash.
+    const processed = await processImage(file!.buffer, mime);
+    return this.store.put({ bytes: processed, ext: STORED_IMAGE_EXT });
+  }
+
+  /**
+   * Catalog image upload: derives two independently content-addressed WebPs
+   * from one upload — a `full` at MEDIA_CATALOG_FULL_WIDTH and a `thumb`
+   * at MEDIA_CATALOG_THUMB_WIDTH — and returns the `{ full, thumb }` pair.
+   */
+  @Auth('admin')
+  @Post('catalog')
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: MEDIA_MAX_UPLOAD_BYTES } }),
+  )
+  async uploadCatalogImage(
+    @UploadedFile() file: Express.Multer.File | undefined,
+  ): Promise<UploadCatalogImageResponse> {
+    const mime = await this.validate(file);
+
+    const [fullBytes, thumbBytes] = await Promise.all([
+      processImage(file!.buffer, mime, MEDIA_CATALOG_FULL_WIDTH),
+      processImage(file!.buffer, mime, MEDIA_CATALOG_THUMB_WIDTH),
+    ]);
+    const [full, thumb] = await Promise.all([
+      this.store.put({ bytes: fullBytes, ext: STORED_IMAGE_EXT }),
+      this.store.put({ bytes: thumbBytes, ext: STORED_IMAGE_EXT }),
+    ]);
+    return { full: full.url, thumb: thumb.url };
+  }
+
+  /**
+   * The shared, server-side upload gate: presence, size cap, and — decisively —
+   * content sniffing over the client's declared type, so a renamed SVG or
+   * non-image is rejected here rather than served same-origin. Returns the
+   * sniffed mime; throws the matching 4xx otherwise.
+   */
+  private async validate(
+    file: Express.Multer.File | undefined,
+  ): Promise<AcceptedImageMime> {
     if (!file) {
       throw new BadRequestException('No file uploaded (field "file")');
     }
     if (file.size > MEDIA_MAX_UPLOAD_BYTES) {
       throw new PayloadTooLargeException('Image exceeds the size limit');
     }
-
-    // Content sniffing over the declared type: a renamed SVG or non-image is
-    // rejected here, not served same-origin.
     const mime = await sniffAcceptedImage(file.buffer);
     if (!mime) {
       throw new UnsupportedMediaTypeException(
         'Unsupported image type (allowed: PNG, JPEG, WebP, GIF)',
       );
     }
-
-    // Re-encode to a single capped WebP, then store by content hash.
-    const processed = await processImage(file.buffer, mime);
-    return this.store.put({ bytes: processed, ext: STORED_IMAGE_EXT });
+    return mime;
   }
 }
