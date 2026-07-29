@@ -8,12 +8,12 @@ import { APP_TEXT } from '../config/app-text';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
+import {
+  categoryDescendantIds,
+  CategoryTreeNode,
+  flattenCategoryTree,
+} from './category-tree';
 import { MediaService } from './media.service';
-
-interface TreeNode {
-  category: AdminCategory;
-  depth: number;
-}
 
 /**
  * Admin category management: the category tree with add/rename/delete,
@@ -264,25 +264,9 @@ export class AdminCategoryListPage {
   });
 
   /** Flat depth-first order (by sortOrder then name) for indented rendering. */
-  protected readonly tree = computed<TreeNode[]>(() => {
-    const all = this.categories.value() ?? [];
-    const byParent = new Map<string | null, AdminCategory[]>();
-    for (const c of all) {
-      const list = byParent.get(c.parentId) ?? [];
-      list.push(c);
-      byParent.set(c.parentId, list);
-    }
-    for (const list of byParent.values()) list.sort(bySortThenName);
-    const out: TreeNode[] = [];
-    const walk = (parentId: string | null, depth: number): void => {
-      for (const c of byParent.get(parentId) ?? []) {
-        out.push({ category: c, depth });
-        walk(c.id, depth + 1);
-      }
-    };
-    walk(null, 0);
-    return out;
-  });
+  protected readonly tree = computed<CategoryTreeNode[]>(() =>
+    flattenCategoryTree(this.categories.value() ?? []),
+  );
 
   protected hasContents(c: AdminCategory): boolean {
     return c.productCount > 0 || c.childCount > 0;
@@ -300,11 +284,10 @@ export class AdminCategoryListPage {
   /** Parents a category may move under: everyone except itself and its
    * descendants (which would form a cycle). */
   protected parentOptions(c: AdminCategory): AdminCategory[] {
-    const banned = this.descendants(c.id);
+    const all = this.categories.value() ?? [];
+    const banned = categoryDescendantIds(all, c.id);
     banned.add(c.id);
-    return (this.categories.value() ?? [])
-      .filter((o) => !banned.has(o.id))
-      .sort(bySortThenName);
+    return all.filter((o) => !banned.has(o.id)).sort(bySortThenName);
   }
 
   protected toggleEdit(c: AdminCategory): void {
@@ -405,21 +388,6 @@ export class AdminCategoryListPage {
     return (this.categories.value() ?? [])
       .filter((c) => c.parentId === parentId)
       .sort(bySortThenName);
-  }
-
-  private descendants(id: string): Set<string> {
-    const all = this.categories.value() ?? [];
-    const out = new Set<string>();
-    const walk = (parentId: string): void => {
-      for (const c of all) {
-        if (c.parentId === parentId && !out.has(c.id)) {
-          out.add(c.id);
-          walk(c.id);
-        }
-      }
-    };
-    walk(id);
-    return out;
   }
 }
 

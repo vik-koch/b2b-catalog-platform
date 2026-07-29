@@ -1,36 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { LucideIcon } from '../ui/icons/lucide-icon';
-
-interface Option {
-  id: string;
-  name: string;
-  depth: number;
-}
-
-/** Orders a flat category list depth-first so the <select> can indent by depth. */
-function ordered(categories: readonly AdminCategory[]): Option[] {
-  const byParent = new Map<string | null, AdminCategory[]>();
-  for (const c of categories) {
-    const siblings = byParent.get(c.parentId) ?? [];
-    siblings.push(c);
-    byParent.set(c.parentId, siblings);
-  }
-  for (const siblings of byParent.values()) {
-    siblings.sort(
-      (a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name),
-    );
-  }
-  const out: Option[] = [];
-  const walk = (parentId: string | null, depth: number): void => {
-    for (const c of byParent.get(parentId) ?? []) {
-      out.push({ id: c.id, name: c.name, depth });
-      walk(c.id, depth + 1);
-    }
-  };
-  walk(null, 0);
-  return out;
-}
+import { flattenCategoryTree } from './category-tree';
 
 /**
  * Single-select category picker for the product editor: a native <select> whose
@@ -71,7 +42,13 @@ export class CategoryPicker {
   readonly ariaLabel = input('');
   readonly valueChange = output<string>();
 
-  protected readonly options = computed(() => ordered(this.categories()));
+  protected readonly options = computed(() =>
+    flattenCategoryTree(this.categories()).map((n) => ({
+      id: n.category.id,
+      name: n.category.name,
+      depth: n.depth,
+    })),
+  );
 
   protected indent(depth: number): string {
     return '   '.repeat(depth);

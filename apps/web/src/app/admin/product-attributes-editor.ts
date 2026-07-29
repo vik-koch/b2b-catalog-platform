@@ -14,11 +14,14 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LucideIcon } from '../ui/icons/lucide-icon';
-
-interface CellCoord {
-  row: number;
-  col: 0 | 1;
-}
+import {
+  applyPastedGrid,
+  clearRange,
+  GridCell,
+  GridRange,
+  parseClipboardGrid,
+  selectionToTsv,
+} from './attribute-grid';
 
 /**
  * The product's custom-attribute table (FR-CAT-05) as a spreadsheet-like grid.
@@ -197,15 +200,10 @@ export class ProductAttributesEditor {
   protected onCopy(event: ClipboardEvent): void {
     const range = this.selectedRange();
     if (!range) return;
-    const rows = this.current();
-    const lines: string[] = [];
-    for (let r = range.r0; r <= range.r1 && r < rows.length; r++) {
-      const cols: string[] = [];
-      if (range.c0 <= 0 && range.c1 >= 0) cols.push(rows[r].key);
-      if (range.c0 <= 1 && range.c1 >= 1) cols.push(rows[r].value);
-      lines.push(cols.join('\t'));
-    }
-    event.clipboardData?.setData('text/plain', lines.join('\n'));
+    event.clipboardData?.setData(
+      'text/plain',
+      selectionToTsv(this.current(), range),
+    );
     event.preventDefault();
   }
 
@@ -246,29 +244,10 @@ export class ProductAttributesEditor {
     event.preventDefault();
     this.grid()?.nativeElement.blur();
 
-    const grid = text
-      .replace(/\r\n?/g, '\n')
-      .replace(/\n$/, '')
-      .split('\n')
-      .map((line) => line.split('\t'))
-      // Drop wholly-empty lines: copying contenteditable cells serialises blank
-      // lines between rows, which would otherwise become stray empty rows.
-      .filter((cols) => cols.some((c) => c.trim() !== ''));
-
-    const rows = this.current();
-    grid.forEach((cols, i) => {
-      const r = start.row + i;
-      while (rows.length <= r && rows.length < PRODUCT_ATTRIBUTES_MAX) {
-        rows.push({ key: '', value: '' });
-      }
-      if (r >= rows.length) return;
-      cols.forEach((val, j) => {
-        const c = start.col + j;
-        if (c === 0) rows[r] = { ...rows[r], key: val.trim() };
-        else if (c === 1) rows[r] = { ...rows[r], value: val.trim() };
-      });
-    });
-    this.valueChange.emit(rows);
+    const grid = parseClipboardGrid(text);
+    this.valueChange.emit(
+      applyPastedGrid(this.current(), start, grid, PRODUCT_ATTRIBUTES_MAX),
+    );
   }
 
   // --- Helpers -------------------------------------------------------------
@@ -287,7 +266,7 @@ export class ProductAttributesEditor {
   }
 
   /** The data cell (row/col) a DOM node sits in, or null. */
-  private cellOf(node: Node | null): CellCoord | null {
+  private cellOf(node: Node | null): GridCell | null {
     const el =
       node?.nodeType === Node.TEXT_NODE
         ? node.parentElement
@@ -301,12 +280,7 @@ export class ProductAttributesEditor {
   }
 
   /** The rectangle spanned by a non-collapsed selection across cells, or null. */
-  private selectedRange(): {
-    r0: number;
-    c0: number;
-    r1: number;
-    c1: number;
-  } | null {
+  private selectedRange(): GridRange | null {
     const sel = document.getSelection();
     if (!sel || sel.isCollapsed) return null;
     const a = this.cellOf(sel.anchorNode);
@@ -320,21 +294,9 @@ export class ProductAttributesEditor {
     };
   }
 
-  private clearRange(range: {
-    r0: number;
-    c0: number;
-    r1: number;
-    c1: number;
-  }): void {
-    const rows = this.current();
-    for (let r = range.r0; r <= range.r1 && r < rows.length; r++) {
-      const next = { ...rows[r] };
-      if (range.c0 <= 0 && range.c1 >= 0) next.key = '';
-      if (range.c0 <= 1 && range.c1 >= 1) next.value = '';
-      rows[r] = next;
-    }
+  private clearRange(range: GridRange): void {
     this.grid()?.nativeElement.blur();
-    this.valueChange.emit(rows);
+    this.valueChange.emit(clearRange(this.current(), range));
   }
 
   private atBoundary(key: string): boolean {
