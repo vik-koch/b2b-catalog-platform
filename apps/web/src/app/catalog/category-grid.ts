@@ -9,7 +9,10 @@ import {
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
+import { EditModeService } from '../admin/edit-mode.service';
+import { ProductAdminControls } from '../admin/product-admin-controls';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
+import { LucideIcon } from '../ui/icons/lucide-icon';
 import { CatalogService } from './catalog.service';
 import { PricePipe } from './price.pipe';
 import { TileGallery } from './tile-gallery';
@@ -25,7 +28,14 @@ const SUBS_COLLAPSED = 4;
  */
 @Component({
   selector: 'app-category-grid',
-  imports: [RouterLink, PricePipe, ChevronRightIcon, TileGallery],
+  imports: [
+    RouterLink,
+    PricePipe,
+    ChevronRightIcon,
+    TileGallery,
+    LucideIcon,
+    ProductAdminControls,
+  ],
   template: `
     <section class="pb-8 sm:pb-12">
       @if (products.error()) {
@@ -101,15 +111,39 @@ const SUBS_COLLAPSED = 4;
             </ul>
           }
 
-          @if (data.items.length) {
+          @if (data.items.length || editMode.enabled()) {
             <ul
               class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
             >
+              @if (editMode.enabled()) {
+                <li class="h-full">
+                  <a
+                    [routerLink]="['/admin/products/new']"
+                    [queryParams]="{ category: data.category.slug }"
+                    class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-stone-300 text-stone-500 transition-colors hover:border-primary hover:text-primary"
+                  >
+                    <app-lucide-icon name="plus" class="h-8 w-8" />
+                    <span class="text-sm font-medium">{{
+                      editText.addProduct
+                    }}</span>
+                  </a>
+                </li>
+              }
               @for (item of data.items; track item.slug) {
                 <li class="h-full">
                   <div
-                    class="group flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white transition-shadow hover:shadow-md"
+                    class="group relative flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white transition-shadow hover:shadow-md"
                   >
+                    @defer (when editMode.enabled()) {
+                      @if (editMode.enabled()) {
+                        <app-product-admin-controls
+                          variant="overlay"
+                          [slug]="item.slug"
+                          [name]="item.name"
+                          (deleted)="products.reload()"
+                        />
+                      }
+                    }
                     <app-tile-gallery
                       [images]="item.images"
                       [link]="['/product', item.slug]"
@@ -191,7 +225,9 @@ const SUBS_COLLAPSED = 4;
 })
 export class CategoryGrid {
   private catalog = inject(CatalogService);
+  protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly editText = inject(APP_TEXT).editMode;
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
   protected readonly SUBS_COLLAPSED = SUBS_COLLAPSED;
 

@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { SignedInAs } from '../auth/signed-in-as';
+import { Button } from '../ui/button';
+import { LucideIcon } from '../ui/icons/lucide-icon';
 import { MaintenanceToggle } from './maintenance-toggle';
 
 /**
@@ -11,15 +14,20 @@ import { MaintenanceToggle } from './maintenance-toggle';
  */
 @Component({
   selector: 'app-admin-page',
-  imports: [SignedInAs, MaintenanceToggle],
+  imports: [SignedInAs, MaintenanceToggle, RouterLink, Button, LucideIcon],
   template: `
     <h1 class="mb-4 text-3xl font-bold tracking-tight">
       {{ text.adminPanel }}
     </h1>
     <app-signed-in-as />
+    <a appButton routerLink="/admin/products" class="mt-8 inline-flex gap-2">
+      <app-lucide-icon name="pencil" class="h-4 w-4" />
+      {{ productText.title }}
+    </a>
     <app-maintenance-toggle class="mt-8 block" />
   `,
 })
 export class AdminPage {
   protected readonly text = inject(APP_TEXT).auth;
+  protected readonly productText = inject(APP_TEXT).adminProducts;
 }

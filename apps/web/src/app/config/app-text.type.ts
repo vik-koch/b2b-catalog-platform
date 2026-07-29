@@ -231,6 +231,79 @@ export const appTextSchema = z
           .strict(),
       })
       .strict(),
+    /** The admin product Add/Edit screen (FR-ADM-01), admins only. */
+    productEditor: z
+      .object({
+        newTitle: z.string(),
+        editTitle: z.string(),
+        name: z.string(),
+        price: z.string(),
+        category: z.string(),
+        categoryPlaceholder: z.string(),
+        slug: z.string(),
+        slugHint: z.string(),
+        sourceId: z.string(),
+        sourceIdHint: z.string(),
+        description: z.string(),
+        save: z.string(),
+        saving: z.string(),
+        cancel: z.string(),
+        preview: z.string(),
+        resumeEditing: z.string(),
+        previewNotice: z.string(),
+        discardConfirm: z.string(),
+        nameRequired: z.string(),
+        categoryRequired: z.string(),
+        priceInvalid: z.string(),
+        saveError: z.string(),
+        attributes: z
+          .object({
+            heading: z.string(),
+            key: z.string(),
+            value: z.string(),
+            add: z.string(),
+            remove: z.string(),
+            moveUp: z.string(),
+            moveDown: z.string(),
+            paste: z.string(),
+            copy: z.string(),
+            empty: z.string(),
+          })
+          .strict(),
+        images: z
+          .object({
+            heading: z.string(),
+            add: z.string(),
+            remove: z.string(),
+            moveUp: z.string(),
+            moveDown: z.string(),
+            uploading: z.string(),
+            uploadError: z.string(),
+            empty: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    /** The storefront edit-mode toggle and inline admin controls (FR-ADM-01). */
+    editMode: z
+      .object({
+        enable: z.string(),
+        disable: z.string(),
+        editProduct: z.string(),
+        addProduct: z.string(),
+        deleteProduct: z.string(),
+        deleteConfirm: z.string(),
+      })
+      .strict(),
+    /** The admin product-list screen (FR-ADM-01): includes soft-deleted rows. */
+    adminProducts: z
+      .object({
+        title: z.string(),
+        restore: z.string(),
+        deletedBadge: z.string(),
+        empty: z.string(),
+      })
+      .strict(),
     errors: z
       .object({
         notFoundTitle: z.string(),

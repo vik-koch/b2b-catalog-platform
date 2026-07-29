@@ -165,6 +165,66 @@
       "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB."
     }
   },
+  "productEditor": {
+    "newTitle": "Add product",
+    "editTitle": "Edit product",
+    "name": "Name",
+    "price": "Price",
+    "category": "Category",
+    "categoryPlaceholder": "Select a category…",
+    "slug": "URL slug",
+    "slugHint": "Used in the product's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
+    "sourceId": "Article number (optional)",
+    "sourceIdHint": "The legacy/import key. Leave empty for a product created here; set it to match a future import.",
+    "description": "Description",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "preview": "Preview",
+    "resumeEditing": "Back to editing",
+    "previewNotice": "Preview — this is how the product will look once saved.",
+    "discardConfirm": "Discard your unsaved changes to this product?",
+    "nameRequired": "Please enter a product name.",
+    "categoryRequired": "Please choose a category.",
+    "priceInvalid": "Please enter a valid price.",
+    "saveError": "Something went wrong saving this product. Please try again.",
+    "attributes": {
+      "heading": "Characteristics",
+      "key": "Name",
+      "value": "Value",
+      "add": "Add characteristic",
+      "remove": "Remove",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "paste": "Paste from spreadsheet",
+      "copy": "Copy",
+      "empty": "No characteristics yet."
+    },
+    "images": {
+      "heading": "Images",
+      "add": "Add images",
+      "remove": "Remove",
+      "moveUp": "Move earlier",
+      "moveDown": "Move later",
+      "uploading": "Uploading…",
+      "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB.",
+      "empty": "No images yet."
+    }
+  },
+  "editMode": {
+    "enable": "Edit mode",
+    "disable": "Editing on",
+    "editProduct": "Edit product",
+    "addProduct": "Add product",
+    "deleteProduct": "Delete product",
+    "deleteConfirm": "Delete “{name}”? It stays recoverable from the admin panel."
+  },
+  "adminProducts": {
+    "title": "Products",
+    "restore": "Restore",
+    "deletedBadge": "Deleted",
+    "empty": "No products yet."
+  },
   "errors": {
     "notFoundTitle": "Page not found",
     "notFoundBody": "The page you are looking for does not exist.",

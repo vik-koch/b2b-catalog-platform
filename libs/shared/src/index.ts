@@ -6,3 +6,4 @@ export * from './lib/media.contract';
 export * from './lib/page.contract';
 export * from './lib/settings.contract';
 export * from './lib/slug';
+export * from './lib/slugify';

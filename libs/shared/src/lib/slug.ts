@@ -1,4 +1,3 @@
-import baseSlugify from 'slugify';
 import { z } from 'zod';
 
 /**
@@ -22,22 +21,7 @@ export const slugSchema = z
   .min(1)
   .max(SLUG_MAX_LENGTH)
   .regex(SLUG_PATTERN);
-
-/**
- * Turn arbitrary text — including non-Latin scripts — into a URL-safe slug by
- * transliterating to Latin, lowercasing, and joining words with hyphens.
- * `strict` drops anything left that is not `[a-z0-9-]`, so the result
- * always matches `SLUG_PATTERN` (or is empty).
- *
- * Isomorphic on purpose: the product/category editor calls this to preview the
- * slug live as the admin types the name, and the server calls the same function
- * as the authoritative generator — one transliteration table, no drift.
- *
- * Returns `''` when the input has no transliterable characters. Callers must not
- * store an empty slug — the server falls back to a default stem and a uniqueness
- * suffix. A deployment needing a specific romanization can extend the charmap in
- * its private config; nothing here is language-specific.
- */
-export function slugify(input: string): string {
-  return baseSlugify(input, { lower: true, strict: true, trim: true });
-}
+// NOTE: the `slugify()` transliteration function lives in its own module
+// (`slugify.ts`) so this file stays dependency-free. Contracts import
+// `slugSchema` from here; keeping the CJS `slugify` package out of that path
+// prevents it leaking (untree-shakeable) into every eager bundle.
