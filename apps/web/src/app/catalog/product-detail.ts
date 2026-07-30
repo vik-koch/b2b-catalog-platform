@@ -1,24 +1,34 @@
-import { Component, inject, input, resource } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, input, resource, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
-import { trustedRichText } from '../pages/trusted-rich-text';
-import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
+import { EditModeService } from '../admin/edit-mode.service';
+import { ProductDeleteDialog } from '../admin/product-delete-dialog';
+import { IconButton } from '../ui/icon-button';
+import { LucideIcon } from '../ui/icons/lucide-icon';
 import { CatalogService } from './catalog.service';
-import { PricePipe } from './price.pipe';
-import { ProductGallery } from './product-gallery';
+import { ProductDetailView } from './product-detail-view';
 
 /**
- * The product page (FR-CAT-05): a two-column layout — the image gallery on the
- * left, and on the right the name, price, a simple rich-text description, and a
- * specifications table of plain key/value attributes (rendered a touch greyer
- * than the description). Stacks to one column on a phone.
+ * The product page route (FR-CAT-05): loads a product by slug and renders it
+ * through the shared presentational view, with load/not-found states and SEO.
+ * In admin edit mode it shows edit/delete icons anchored to the section's
+ * top-right corner (a consistent spot across the storefront) — edit links to
+ * the editor; delete opens a confirmation modal lazy-loaded via `@defer`, so the
+ * public bundle carries no admin write client.
  */
 @Component({
   selector: 'app-product-detail',
-  imports: [RouterLink, PricePipe, ProductGallery, ChevronRightIcon],
+  imports: [
+    ProductDetailView,
+    ProductDeleteDialog,
+    RouterLink,
+    IconButton,
+    LucideIcon,
+  ],
   template: `
-    <section class="pb-8 sm:pb-12">
+    <section class="relative pb-8 sm:pb-12">
       @if (product.error()) {
         <p class="text-stone-600">{{ text.loadError }}</p>
       } @else if (product.hasValue()) {
@@ -26,79 +36,41 @@ import { ProductGallery } from './product-gallery';
         @if (!item) {
           <p class="text-stone-600">{{ text.productNotFound }}</p>
         } @else {
-          <nav [attr.aria-label]="text.catalogRoot">
-            <ol
-              class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-stone-500"
-            >
-              <li>
-                <a routerLink="/catalog" class="hover:text-accent">
-                  {{ text.catalogRoot }}
-                </a>
-              </li>
-              <li aria-hidden="true" class="flex items-center">
-                <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
-              </li>
-              <li>
-                <a
-                  [routerLink]="['/catalog', item.category.slug]"
-                  class="hover:text-accent"
-                >
-                  {{ item.category.name }}
-                </a>
-              </li>
-              <li aria-hidden="true" class="flex items-center">
-                <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
-              </li>
-              <li>
-                <span aria-current="page" class="font-medium text-stone-700">
-                  {{ item.name }}
-                </span>
-              </li>
-            </ol>
-          </nav>
-
-          <div class="mt-4 grid gap-8 lg:grid-cols-2">
-            <app-product-gallery
-              [images]="item.images"
-              [productName]="item.name"
-            />
-
-            <div>
-              <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
-                {{ item.name }}
-              </h1>
-              <p class="mt-3 text-2xl font-bold text-primary">
-                {{ item.priceMinor | price }}
-              </p>
-
-              @if (item.descriptionHtml) {
-                <div
-                  class="prose prose-stone mt-6 max-w-none"
-                  [innerHTML]="safeDescription(item.descriptionHtml)"
-                ></div>
-              }
-
-              @if (item.attributes.length) {
-                <h2
-                  class="mt-8 text-xs font-semibold tracking-wide text-stone-500 uppercase"
-                >
-                  {{ text.specifications }}
-                </h2>
-                <dl
-                  class="mt-3 divide-y divide-stone-200 border-t border-stone-200 text-sm"
-                >
-                  @for (attr of item.attributes; track $index) {
-                    <div class="flex justify-between gap-4 py-2">
-                      <dt class="text-stone-500">{{ attr.key }}</dt>
-                      <dd class="text-right text-stone-700">
-                        {{ attr.value }}
-                      </dd>
-                    </div>
-                  }
-                </dl>
-              }
+          @if (editMode.enabled()) {
+            <div class="absolute top-0 right-0 z-10 flex gap-2">
+              <a
+                appIconButton
+                [routerLink]="['/admin/products', item.slug, 'edit']"
+                [attr.aria-label]="editText.editProduct"
+                [attr.title]="editText.editProduct"
+              >
+                <app-lucide-icon name="pencil" class="h-5 w-5" />
+              </a>
+              <button
+                appIconButton
+                variant="danger"
+                type="button"
+                [attr.aria-label]="editText.deleteProduct"
+                [attr.title]="editText.deleteProduct"
+                (click)="confirmingDelete.set(true)"
+              >
+                <app-lucide-icon name="trash-2" class="h-5 w-5" />
+              </button>
             </div>
-          </div>
+          }
+
+          <app-product-detail-view [item]="item" />
+
+          @defer (when confirmingDelete()) {
+            @if (confirmingDelete()) {
+              <app-product-delete-dialog
+                [slug]="item.slug"
+                [name]="item.name"
+                (deleted)="onDeleted(item)"
+                (cancelled)="confirmingDelete.set(false)"
+              />
+            }
+          }
         }
       } @else {
         <div class="grid animate-pulse gap-8 lg:grid-cols-2" aria-hidden="true">
@@ -116,16 +88,24 @@ import { ProductGallery } from './product-gallery';
 })
 export class ProductDetail {
   private catalog = inject(CatalogService);
+  private readonly router = inject(Router);
+  protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
-  /** The description is trusted rich text (server-sanitized, same as pages). */
-  protected readonly safeDescription = trustedRichText();
+  protected readonly editText = inject(APP_TEXT).editMode;
 
   slug = input.required<string>();
+  protected readonly confirmingDelete = signal(false);
 
   protected product = resource({
     params: () => ({ slug: this.slug() }),
     loader: ({ params }) => this.catalog.getProduct(params.slug),
   });
+
+  /** After a soft-delete from the product page, return to its category (the
+   * product's public page will now 404). Restore lives in the admin panel. */
+  protected onDeleted(item: ProductDetailModel): void {
+    void this.router.navigate(['/catalog', item.category.slug]);
+  }
 
   constructor() {
     usePageSeo({

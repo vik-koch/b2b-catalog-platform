@@ -41,3 +41,24 @@ export function formatPriceMinor(
   const fractionDigits = formatter.resolvedOptions().maximumFractionDigits ?? 2;
   return formatter.format(priceMinor / 10 ** fractionDigits);
 }
+
+/** The currency's minor-unit exponent (2 for EUR, 0 for JPY, 3 for BHD). */
+export function currencyFractionDigits(currency: CurrencyConfig): number {
+  return formatterFor(currency).resolvedOptions().maximumFractionDigits ?? 2;
+}
+
+/** Minor units → a major-unit number for a decimal input (e.g. 1890 → 18.9). */
+export function minorToMajor(
+  priceMinor: number,
+  currency: CurrencyConfig,
+): number {
+  return priceMinor / 10 ** currencyFractionDigits(currency);
+}
+
+/** A major-unit input value → integer minor units, rounded (e.g. 18.9 → 1890). */
+export function majorToMinor(
+  priceMajor: number,
+  currency: CurrencyConfig,
+): number {
+  return Math.round(priceMajor * 10 ** currencyFractionDigits(currency));
+}

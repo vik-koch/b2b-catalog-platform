@@ -40,11 +40,12 @@ import { trustedRichText } from './trusted-rich-text';
         [innerHTML]="safeBody(body())"
       ></div>
     } @else {
+      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.edit }}</h1>
       <label class="mb-6 block">
         <span class="mb-1 block text-sm font-medium">{{ text.pageTitle }}</span>
         <input
           type="text"
-          class="w-full rounded-md border border-stone-300 px-3 py-2 text-lg focus:border-primary focus:outline-none"
+          class="w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
           [value]="title()"
           (input)="onTitleInput($event)"
         />

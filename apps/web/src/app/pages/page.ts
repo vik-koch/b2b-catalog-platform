@@ -9,16 +9,17 @@ import {
 import { Page as PageContent, PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
-import { AuthService } from '../auth/auth.service';
-import { PencilIcon } from '../ui/icons/pencil-icon';
+import { EditModeService } from '../admin/edit-mode.service';
+import { LucideIcon } from '../ui/icons/lucide-icon';
 import { PageEditor } from './page-editor';
 import { PageService } from './page.service';
 import { trustedRichText } from './trusted-rich-text';
 import { UnsavedChangesAware } from './unsaved-changes.guard';
+import { IconButton } from '../ui/icon-button';
 
 @Component({
   selector: 'app-page',
-  imports: [PencilIcon, PageEditor],
+  imports: [LucideIcon, PageEditor, IconButton],
   template: `
     @if (current(); as page) {
       @if (editing()) {
@@ -41,13 +42,13 @@ import { UnsavedChangesAware } from './unsaved-changes.guard';
           </h1>
           @if (canEdit()) {
             <button
+              appIconButton
               type="button"
-              class="-mt-1 rounded-md p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-accent"
+              (click)="editing.set(true)"
               [attr.aria-label]="editorText.edit"
               [attr.title]="editorText.edit"
-              (click)="editing.set(true)"
             >
-              <app-pencil-icon class="h-6 w-6" />
+              <app-lucide-icon name="pencil" class="h-4 w-4" />
             </button>
           }
         </div>
@@ -72,7 +73,7 @@ import { UnsavedChangesAware } from './unsaved-changes.guard';
 })
 export class Page implements UnsavedChangesAware {
   private pageService = inject(PageService);
-  private auth = inject(AuthService);
+  private readonly editMode = inject(EditModeService);
 
   protected readonly text = inject(APP_TEXT).errors;
   protected readonly editorText = inject(APP_TEXT).pageEditor;
@@ -99,11 +100,10 @@ export class Page implements UnsavedChangesAware {
   protected readonly editing = signal(false);
   protected readonly editorDirty = signal(false);
 
-  // False during SSR and until /auth/me answers, so the pencil appears only
-  // once the session is known.
-  protected readonly canEdit = computed(
-    () => this.auth.user()?.role === 'admin',
-  );
+  // The pencil is one of the storefront's edit-mode affordances: it appears
+  // only for an admin who has turned edit mode on (false during SSR / before
+  // the session resolves), consistent with products and categories.
+  protected readonly canEdit = computed(() => this.editMode.enabled());
 
   hasUnsavedChanges(): boolean {
     return this.editing() && this.editorDirty();

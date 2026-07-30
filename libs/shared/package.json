@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "commonjs",
+  "sideEffects": false,
   "main": "./index.cjs",
   "types": "./index.d.ts",
   "dependencies": {
@@ -10,6 +11,7 @@
     "sanitize-html": "^2.17.6",
     "zod": "3.25.76",
     "vitest": "^4.0.8",
-    "vite-tsconfig-paths": "^6.1.1"
+    "vite-tsconfig-paths": "^6.1.1",
+    "slugify": "^1.6.9"
   }
 }

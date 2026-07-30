@@ -6,6 +6,7 @@ const base =
 const variants = {
   primary: 'bg-primary text-white hover:bg-primary/90',
   secondary: 'border border-stone-300 text-ink hover:bg-stone-100',
+  danger: 'bg-red-700 text-white hover:bg-red-800',
 } as const;
 
 /**

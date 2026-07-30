@@ -6,9 +6,17 @@ import { CookieConsent } from './consent/cookie-consent';
 import { ForcePasswordChange } from './auth/force-password-change';
 import { Footer } from './layout/footer';
 import { Header } from './layout/header';
+import { EditModeToggle } from './admin/edit-mode-toggle';
 
 @Component({
-  imports: [RouterOutlet, Header, Footer, CookieConsent, ForcePasswordChange],
+  imports: [
+    RouterOutlet,
+    Header,
+    Footer,
+    CookieConsent,
+    ForcePasswordChange,
+    EditModeToggle,
+  ],
   selector: 'app-root',
   template: `
     <div class="flex min-h-dvh flex-col bg-surface text-ink">
@@ -22,6 +30,8 @@ import { Header } from './layout/header';
     <!-- Renders nothing unless a signed-in account still owes a password
          change, so public pages carry only the (empty) component instance. -->
     <app-force-password-change />
+    <!-- Admin-only storefront edit-mode toggle; empty for everyone else. -->
+    <app-edit-mode-toggle />
   `,
   host: {
     '[style.--color-primary]': 'branding.theme.primary',

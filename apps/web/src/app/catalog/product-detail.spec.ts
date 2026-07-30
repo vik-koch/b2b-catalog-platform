@@ -69,13 +69,15 @@ describe('ProductDetail', () => {
     ).toContain('Espresso Roasts');
   });
 
-  it('renders the attributes as a specifications list', async () => {
+  it('renders the attributes as a specifications table', async () => {
     const root = el(await render(product));
 
-    const keys = [...root.querySelectorAll('dt')].map((n) =>
+    // A real table (th/td) so a cell selection copies as TSV — see
+    // product-detail-view.
+    const keys = [...root.querySelectorAll('tbody th')].map((n) =>
       n.textContent?.trim(),
     );
-    const values = [...root.querySelectorAll('dd')].map((n) =>
+    const values = [...root.querySelectorAll('tbody td')].map((n) =>
       n.textContent?.trim(),
     );
     expect(keys).toEqual(['Net weight', 'Count per package']);

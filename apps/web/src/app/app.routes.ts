@@ -2,6 +2,8 @@ import { Route, UrlSegment } from '@angular/router';
 import { PAGE_SLUGS } from '@b2b-catalog-platform/shared';
 import { guestOnly, requireAuth } from './auth/auth.guard';
 import { maintenanceGate } from './admin/maintenance.guard';
+import { productUnsavedChangesGuard } from './admin/product-unsaved-changes.guard';
+import { categoryUnsavedChangesGuard } from './admin/category-unsaved-changes.guard';
 import { NotFoundPage } from './pages/not-found-page';
 import { ContactPage } from './pages/contact-page';
 import { InquiryPage } from './pages/inquiry-page';
@@ -28,6 +30,46 @@ export const appRoutes: Route[] = [
     path: 'admin',
     canActivate: [requireAuth('admin', 'manager')],
     loadComponent: () => import('./admin/admin-page').then((m) => m.AdminPage),
+  },
+  // Product management, admin-only and client-rendered like the panel.
+  {
+    path: 'admin/products',
+    canActivate: [requireAuth('admin')],
+    loadComponent: () =>
+      import('./admin/admin-product-list-page').then(
+        (m) => m.AdminProductListPage,
+      ),
+  },
+  {
+    path: 'admin/categories',
+    canActivate: [requireAuth('admin')],
+    loadComponent: () =>
+      import('./admin/admin-category-list-page').then(
+        (m) => m.AdminCategoryListPage,
+      ),
+  },
+  {
+    path: 'admin/categories/:slug/edit',
+    canActivate: [requireAuth('admin')],
+    canDeactivate: [categoryUnsavedChangesGuard],
+    loadComponent: () =>
+      import('./admin/admin-category-editor-page').then(
+        (m) => m.AdminCategoryEditorPage,
+      ),
+  },
+  {
+    path: 'admin/products/new',
+    canActivate: [requireAuth('admin')],
+    canDeactivate: [productUnsavedChangesGuard],
+    loadComponent: () =>
+      import('./admin/product-editor-page').then((m) => m.ProductEditorPage),
+  },
+  {
+    path: 'admin/products/:slug/edit',
+    canActivate: [requireAuth('admin')],
+    canDeactivate: [productUnsavedChangesGuard],
+    loadComponent: () =>
+      import('./admin/product-editor-page').then((m) => m.ProductEditorPage),
   },
   {
     path: 'account',

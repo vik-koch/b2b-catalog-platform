@@ -12,9 +12,11 @@ import { CatalogImage, MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared';
  * WebP with sharp, because the media store only accepts raster formats.
  */
 
-const FULL_PX = 900;
-const THUMB_PX = 400;
-const CATEGORY_PX = 640;
+// Match the catalog media profile (MEDIA_CATALOG_FULL_WIDTH / _THUMB_WIDTH) so
+// the demo images are representative of what an admin upload produces.
+const FULL_PX = 1000;
+const THUMB_PX = 300;
+const CATEGORY_PX = 1000;
 
 function hash(seed: string): number {
   let h = 2166136261;

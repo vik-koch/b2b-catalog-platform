@@ -1,6 +1,7 @@
 import {
   afterNextRender,
   Component,
+  computed,
   DestroyRef,
   ElementRef,
   inject,
@@ -51,7 +52,7 @@ interface ToolbarAction {
           [attr.aria-label]="text.toolbar.label"
           class="flex flex-wrap items-center gap-0.5 border-b border-stone-200 bg-stone-50 p-1.5"
         >
-          @for (action of actions; track action.id) {
+          @for (action of visibleActions(); track action.id) {
             <button
               type="button"
               [attr.aria-label]="action.label"
@@ -255,6 +256,29 @@ export class RichTextEditor {
   readonly value = input<string>('');
   readonly contentChange = output<string>();
 
+  /**
+   * Which vocabulary the editor exposes. `page` (default) is the full static-page
+   * set; `product` is the product-description set (PRODUCT_RICH_TEXT_TAGS: the
+   * page set minus headings, links and images). The preset gates both the
+   * toolbar and the tiptap schema, so a product editor cannot even produce markup
+   * the server would strip on save.
+   */
+  readonly preset = input<'page' | 'product'>('page');
+
+  /** Toolbar buttons the product preset hides (everything else stays). */
+  private readonly productHiddenIds = [
+    'heading2',
+    'heading3',
+    'link',
+    'unlink',
+    'image',
+  ];
+  protected readonly visibleActions = computed<ToolbarAction[]>(() =>
+    this.preset() === 'product'
+      ? this.actions.filter((a) => !this.productHiddenIds.includes(a.id))
+      : this.actions,
+  );
+
   private editor?: Editor;
   protected readonly activeIds = signal<string[]>([]);
   protected readonly linkPanelOpen = signal(false);
@@ -382,11 +406,19 @@ export class RichTextEditor {
   }
 
   private createEditor(): void {
-    this.editor = new Editor({
-      element: this.host().nativeElement,
-      content: this.value(),
-      extensions: [
-        StarterKit.configure({
+    const minimal = this.preset() === 'product';
+    // The product preset disables the nodes outside PRODUCT_RICH_TEXT_TAGS
+    // (headings and links; images come from a separate extension omitted below),
+    // so the schema itself — not just the toolbar — refuses them. Lists, quotes,
+    // underline, strike and the divider stay.
+    const starterKit = minimal
+      ? StarterKit.configure({
+          code: false,
+          codeBlock: false,
+          heading: false,
+          link: false,
+        })
+      : StarterKit.configure({
           // Excluded because they are not in the server allowlist.
           code: false,
           codeBlock: false,
@@ -396,10 +428,18 @@ export class RichTextEditor {
             openOnClick: false,
             HTMLAttributes: { rel: 'noopener noreferrer', target: null },
           },
-        }),
-        // Same-origin uploaded images only; base64 would defeat the media store.
-        RichTextImage.configure({ inline: false, allowBase64: false }),
-      ],
+        });
+
+    this.editor = new Editor({
+      element: this.host().nativeElement,
+      content: this.value(),
+      extensions: minimal
+        ? [starterKit]
+        : [
+            starterKit,
+            // Same-origin uploaded images only; base64 would defeat the store.
+            RichTextImage.configure({ inline: false, allowBase64: false }),
+          ],
       onUpdate: ({ editor }) => {
         this.contentChange.emit(editor.getHTML());
         this.refreshActive(editor);

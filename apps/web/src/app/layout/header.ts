@@ -42,7 +42,7 @@ import { NAV_ACTION } from './nav-action';
   selector: 'app-header',
   template: `
     <header
-      class="sticky top-0 z-10 border-b border-stone-200 bg-surface/90 backdrop-blur"
+      class="sticky top-0 z-20 border-b border-stone-200 bg-surface/90 backdrop-blur"
     >
       <!-- Utility bar; collapses on scroll so only the main bar keeps sticking.
            Everything in it is reachable from the footer and the mobile panel

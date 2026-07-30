@@ -9,6 +9,11 @@ export const serverRoutes: ServerRoute[] = [
   // routes need no gate component and no hydration dance.
   { path: 'login', renderMode: RenderMode.Client },
   { path: 'admin', renderMode: RenderMode.Client },
+  { path: 'admin/products', renderMode: RenderMode.Client },
+  { path: 'admin/categories', renderMode: RenderMode.Client },
+  { path: 'admin/categories/:slug/edit', renderMode: RenderMode.Client },
+  { path: 'admin/products/new', renderMode: RenderMode.Client },
+  { path: 'admin/products/:slug/edit', renderMode: RenderMode.Client },
   { path: 'account', renderMode: RenderMode.Client },
   { path: 'change-password', renderMode: RenderMode.Client },
   // Everything else is content, and server-rendered. The per-deployment config
