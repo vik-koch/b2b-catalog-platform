@@ -25,6 +25,11 @@ async function logIn(page: Page): Promise<void> {
 const editButton = (page: Page) =>
   page.getByRole('button', { name: 'Edit page' });
 
+// The pencil affordance only appears once an admin turns on storefront edit
+// mode (FR-ADM-01) — a browser-local toggle, so each test enables it afresh.
+const enableEditMode = (page: Page) =>
+  page.getByRole('button', { name: 'Edit mode' }).click();
+
 test('a signed-out visitor sees no edit affordance', async ({ page }) => {
   await page.goto('/about');
 
@@ -36,6 +41,7 @@ test.describe('as an admin', () => {
   test.beforeEach(async ({ page }) => {
     await logIn(page);
     await page.goto('/about');
+    await enableEditMode(page);
   });
 
   test('opens the editor loaded with the current content', async ({ page }) => {
