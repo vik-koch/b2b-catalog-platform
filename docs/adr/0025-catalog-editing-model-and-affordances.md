@@ -1,4 +1,4 @@
-# 0024 — Edit the catalog in place, with soft-deleted products and guarded categories
+# 0025 — Edit the catalog in place, with soft-deleted products and guarded categories
 
 **Status:** accepted · **Date:** 2026-07-30
 
