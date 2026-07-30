@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { PricePipe } from '../catalog/price.pipe';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
@@ -74,7 +74,7 @@ import { AdminCatalogService } from './admin-catalog.service';
                       {{
                         restoring() === item.slug
                           ? text.restoring
-                          : text.restore
+                          : common.restore
                       }}
                     </button>
                   </div>
@@ -92,7 +92,8 @@ import { AdminCatalogService } from './admin-catalog.service';
 })
 export class DeletedProductsSection {
   private readonly admin = inject(AdminCatalogService);
-  protected readonly text = inject(APP_TEXT).editMode;
+  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly text = inject(ADMIN_TEXT).editMode;
 
   readonly categorySlug = input.required<string>();
   /** Bump to force a re-fetch (e.g. after a delete elsewhere on the page). */

@@ -20,7 +20,7 @@ import {
   PRODUCT_ATTRIBUTES_MAX,
   ProductAttribute,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import {
   applyPastedGrid,
@@ -102,7 +102,7 @@ import {
                     type="button"
                     cdkDragHandle
                     class="cursor-grab p-1 text-stone-300 hover:text-stone-500 active:cursor-grabbing"
-                    [attr.aria-label]="text.reorder"
+                    [attr.aria-label]="common.reorder"
                   >
                     <app-lucide-icon name="grip-vertical" class="h-5 w-5" />
                   </button>
@@ -117,7 +117,7 @@ import {
                   <button
                     type="button"
                     class="p-1 text-stone-400 hover:text-red-700"
-                    [attr.aria-label]="text.remove"
+                    [attr.aria-label]="common.remove"
                     (click)="remove($index)"
                   >
                     <app-lucide-icon name="trash-2" class="h-5 w-5" />
@@ -132,7 +132,8 @@ import {
   `,
 })
 export class ProductAttributesEditor {
-  protected readonly text = inject(APP_TEXT).productEditor.attributes;
+  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly text = inject(ADMIN_TEXT).productEditor.attributes;
   private readonly grid =
     viewChild<ElementRef<HTMLTableSectionElement>>('grid');
 

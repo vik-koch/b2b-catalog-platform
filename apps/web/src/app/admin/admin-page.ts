@@ -2,6 +2,7 @@ import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PAGE_SLUGS } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { SignedInAs } from '../auth/signed-in-as';
 import { Button } from '../ui/button';
@@ -90,11 +91,11 @@ import { SyncService } from './sync.service';
 export class AdminPage {
   private readonly sync = inject(SyncService);
   protected readonly text = inject(APP_TEXT).auth;
-  protected readonly panelText = inject(APP_TEXT).adminPanel;
-  protected readonly productText = inject(APP_TEXT).adminProducts;
-  protected readonly categoryText = inject(APP_TEXT).adminCategories;
+  protected readonly panelText = inject(ADMIN_TEXT).panel;
+  protected readonly productText = inject(ADMIN_TEXT).productList;
+  protected readonly categoryText = inject(ADMIN_TEXT).categories;
   protected readonly navText = inject(APP_TEXT).nav;
-  protected readonly syncText = inject(APP_TEXT).adminSync;
+  protected readonly syncText = inject(ADMIN_TEXT).sync;
   protected readonly pageSlugs = PAGE_SLUGS;
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 

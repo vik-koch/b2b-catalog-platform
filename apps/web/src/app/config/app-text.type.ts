@@ -11,6 +11,11 @@ import { z } from 'zod';
  * Injected into every document the Node process serves (see shell-state.ts),
  * so a per-deployment override is a runtime concern, not a rebuild. Non-secret
  * by construction: the browser renders it.
+ *
+ * This is the *public* half: everything a logged-out visitor can reach, which
+ * includes the login form and the maintenance screen. Wording behind an admin
+ * session lives in AdminText, which is fetched rather than injected — see
+ * admin-text.type.ts.
  */
 export const appTextSchema = z
   .object({
@@ -166,273 +171,6 @@ export const appTextSchema = z
         settings: z.string(),
       })
       .strict(),
-    /** Inline static-page editing, shown to admins only (FR-ADM-03). */
-    pageEditor: z
-      .object({
-        edit: z.string(),
-        pageTitle: z.string(),
-        save: z.string(),
-        saving: z.string(),
-        cancel: z.string(),
-        preview: z.string(),
-        resumeEditing: z.string(),
-        previewNotice: z.string(),
-        discardConfirm: z.string(),
-        titleRequired: z.string(),
-        saveError: z.string(),
-        toolbar: z
-          .object({
-            label: z.string(),
-            bold: z.string(),
-            italic: z.string(),
-            underline: z.string(),
-            strikethrough: z.string(),
-            heading2: z.string(),
-            heading3: z.string(),
-            bulletList: z.string(),
-            orderedList: z.string(),
-            blockquote: z.string(),
-            link: z.string(),
-            unlink: z.string(),
-            removeFormatting: z.string(),
-            horizontalRule: z.string(),
-            image: z.string(),
-          })
-          .strict(),
-        linkPanel: z
-          .object({
-            heading: z.string(),
-            urlLabel: z.string(),
-            placeholder: z.string(),
-            apply: z.string(),
-            remove: z.string(),
-            cancel: z.string(),
-          })
-          .strict(),
-        imagePanel: z
-          .object({
-            heading: z.string(),
-            altLabel: z.string(),
-            altPlaceholder: z.string(),
-            altHint: z.string(),
-            linkLabel: z.string(),
-            linkPlaceholder: z.string(),
-            alignLabel: z.string(),
-            alignNone: z.string(),
-            alignLeft: z.string(),
-            alignCenter: z.string(),
-            alignRight: z.string(),
-            widthLabel: z.string(),
-            remove: z.string(),
-            done: z.string(),
-            uploading: z.string(),
-            uploadError: z.string(),
-          })
-          .strict(),
-      })
-      .strict(),
-    /** The admin product Add/Edit screen (FR-ADM-01), admins only. */
-    productEditor: z
-      .object({
-        newTitle: z.string(),
-        editTitle: z.string(),
-        name: z.string(),
-        price: z.string(),
-        category: z.string(),
-        categoryPlaceholder: z.string(),
-        slug: z.string(),
-        slugHint: z.string(),
-        sourceId: z.string(),
-        sourceIdHint: z.string(),
-        description: z.string(),
-        save: z.string(),
-        saving: z.string(),
-        cancel: z.string(),
-        preview: z.string(),
-        resumeEditing: z.string(),
-        previewNotice: z.string(),
-        discardConfirm: z.string(),
-        nameRequired: z.string(),
-        categoryRequired: z.string(),
-        priceInvalid: z.string(),
-        saveError: z.string(),
-        attributes: z
-          .object({
-            heading: z.string(),
-            key: z.string(),
-            value: z.string(),
-            add: z.string(),
-            remove: z.string(),
-            reorder: z.string(),
-            paste: z.string(),
-            copy: z.string(),
-            empty: z.string(),
-          })
-          .strict(),
-        images: z
-          .object({
-            heading: z.string(),
-            add: z.string(),
-            remove: z.string(),
-            reorder: z.string(),
-            uploading: z.string(),
-            uploadError: z.string(),
-            empty: z.string(),
-          })
-          .strict(),
-      })
-      .strict(),
-    /** The storefront edit-mode toggle and inline admin controls (FR-ADM-01). */
-    editMode: z
-      .object({
-        enable: z.string(),
-        disable: z.string(),
-        editProduct: z.string(),
-        addProduct: z.string(),
-        deleteProduct: z.string(),
-        deleteConfirm: z.string(),
-        editCategory: z.string(),
-        editCategories: z.string(),
-        deleteCategory: z.string(),
-        deletedHeading: z.string(),
-        restore: z.string(),
-        restoring: z.string(),
-        restoreError: z.string(),
-      })
-      .strict(),
-    /** The admin product-list screen (FR-ADM-01): includes soft-deleted rows. */
-    adminProducts: z
-      .object({
-        title: z.string(),
-        restore: z.string(),
-        deletedBadge: z.string(),
-        empty: z.string(),
-      })
-      .strict(),
-    /** The admin category management screen (FR-ADM-01): tree CRUD + ordering. */
-    adminCategories: z
-      .object({
-        title: z.string(),
-        editTitle: z.string(),
-        add: z.string(),
-        addChild: z.string(),
-        parent: z.string(),
-        noParent: z.string(),
-        image: z.string(),
-        removeImage: z.string(),
-        uploading: z.string(),
-        uploadError: z.string(),
-        reorder: z.string(),
-        edit: z.string(),
-        delete: z.string(),
-        deleting: z.string(),
-        /** Delete-confirmation modal. `{name}`/`{count}` substituted at render. */
-        deleteTitle: z.string(),
-        deleteConfirm: z.string(),
-        deleteReassignIntro: z.string(),
-        reassignLabel: z.string(),
-        reassignPlaceholder: z.string(),
-        deleteBlockedChildren: z.string(),
-        deleteError: z.string(),
-        deleteBlocked: z.string(),
-        discardConfirm: z.string(),
-        saveError: z.string(),
-        empty: z.string(),
-        defaultName: z.string(),
-      })
-      .strict(),
-    /**
-     * The bulk catalog sync screen (FR-ADM-02): the run's intent, the diff
-     * preview, the delete confirmation, and the run history.
-     */
-    adminSync: z
-      .object({
-        title: z.string(),
-        description: z.string(),
-        /** Presets over the individual options. */
-        modeLabel: z.string(),
-        modeFull: z.string(),
-        modeFullHint: z.string(),
-        modePrices: z.string(),
-        modePricesHint: z.string(),
-        modeCustom: z.string(),
-        advanced: z.string(),
-        /** Individual options, in the order the form shows them. */
-        optionName: z.string(),
-        optionCategory: z.string(),
-        optionCreateMissing: z.string(),
-        optionUpdateExisting: z.string(),
-        optionRestoreReturning: z.string(),
-        optionCreateCategories: z.string(),
-        optionAuthoritative: z.string(),
-        optionSoftDelete: z.string(),
-        optionSoftDeleteHint: z.string(),
-        file: z.string(),
-        fileHint: z.string(),
-        dropHint: z.string(),
-        browse: z.string(),
-        changeFile: z.string(),
-        preview: z.string(),
-        previewing: z.string(),
-        previewError: z.string(),
-        /** The diff. `{count}` substituted at render. */
-        summaryTitle: z.string(),
-        countCreate: z.string(),
-        countUpdate: z.string(),
-        countSoftDelete: z.string(),
-        countRestore: z.string(),
-        countUnchanged: z.string(),
-        countCategories: z.string(),
-        countKept: z.string(),
-        countErrors: z.string(),
-        productsTitle: z.string(),
-        categoriesTitle: z.string(),
-        categoriesHint: z.string(),
-        emptiedTitle: z.string(),
-        emptiedHint: z.string(),
-        keptTitle: z.string(),
-        keptHint: z.string(),
-        errorsTitle: z.string(),
-        errorRow: z.string(),
-        truncated: z.string(),
-        nothingToApply: z.string(),
-        /** Change kinds, used as row badges. */
-        kindCreate: z.string(),
-        kindUpdate: z.string(),
-        kindSoftDelete: z.string(),
-        kindRestore: z.string(),
-        /** The delete gate: a typed confirmation before an authoritative run. */
-        deleteWarning: z.string(),
-        deleteConfirmLabel: z.string(),
-        deleteConfirmWord: z.string(),
-        apply: z.string(),
-        applying: z.string(),
-        applyError: z.string(),
-        applied: z.string(),
-        discard: z.string(),
-        /** Run history + the dashboard's last-sync line. */
-        historyTitle: z.string(),
-        historyEmpty: z.string(),
-        colDate: z.string(),
-        colFile: z.string(),
-        colActor: z.string(),
-        colStatus: z.string(),
-        colChanges: z.string(),
-        statusPreviewed: z.string(),
-        statusApplied: z.string(),
-        statusFailed: z.string(),
-        lastSync: z.string(),
-        lastSyncNever: z.string(),
-      })
-      .strict(),
-    /** Section headings for the admin panel dashboard (FR-ADM-01/03/04). */
-    adminPanel: z
-      .object({
-        catalog: z.string(),
-        content: z.string(),
-        site: z.string(),
-      })
-      .strict(),
     errors: z
       .object({
         notFoundTitle: z.string(),
@@ -443,22 +181,13 @@ export const appTextSchema = z
       })
       .strict(),
     /**
-     * Maintenance mode (FR-ADM-04): the public screen shown while the
-     * storefront is gated, and the admin-panel control that toggles it.
+     * The public 503 screen shown while the storefront is gated (FR-ADM-04).
+     * The control that toggles it is admin text.
      */
     maintenance: z
       .object({
-        /** Public 503 screen. */
         title: z.string(),
         body: z.string(),
-        /** Admin-panel toggle. */
-        adminHeading: z.string(),
-        adminDescription: z.string(),
-        statusOn: z.string(),
-        statusOff: z.string(),
-        enable: z.string(),
-        disable: z.string(),
-        error: z.string(),
       })
       .strict(),
   })

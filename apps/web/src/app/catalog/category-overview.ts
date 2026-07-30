@@ -1,7 +1,8 @@
-import { Component, inject, resource, signal } from '@angular/core';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CategoryNode } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
 import { CategoryDeleteDialog } from '../admin/category-delete-dialog';
@@ -30,7 +31,7 @@ const MAX_CHILD_LINKS = 3;
   ],
   template: `
     <section class="relative pb-12 sm:pb-16">
-      @if (editMode.enabled()) {
+      @if (editText(); as editText) {
         <a
           appIconButton
           class="absolute top-0 right-0 z-10"
@@ -57,7 +58,7 @@ const MAX_CHILD_LINKS = 3;
           >
             @for (cat of cats; track cat.slug) {
               <li class="group relative">
-                @if (editMode.enabled()) {
+                @if (editText(); as editText) {
                   <div class="absolute top-2 right-2 z-10 flex gap-1.5">
                     <a
                       appIconButton
@@ -166,7 +167,15 @@ export class CategoryOverview {
   private catalog = inject(CatalogService);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
-  protected readonly editText = inject(APP_TEXT).editMode;
+  /**
+   * Edit-mode wording, non-null only once edit mode is on — which implies the
+   * admin text has arrived (see EditModeService). Read as a signal rather than
+   * injected, because this component also renders for anonymous visitors, who
+   * never fetch that text.
+   */
+  protected readonly editText = computed(() =>
+    this.editMode.enabled() ? (adminText()?.editMode ?? null) : null,
+  );
   protected readonly skeletons = Array.from({ length: 12 }, (_, i) => i);
   /** The top-level category whose delete confirmation is open, if any. */
   protected readonly deletingCategory = signal<{

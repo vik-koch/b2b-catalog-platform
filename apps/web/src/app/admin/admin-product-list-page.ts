@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { PricePipe } from '../catalog/price.pipe';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
@@ -102,7 +103,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                       <button
                         type="button"
                         class="p-1.5 text-stone-500 hover:text-primary"
-                        [attr.aria-label]="text.restore"
+                        [attr.aria-label]="common.restore"
                         (click)="restore(item)"
                       >
                         <app-lucide-icon name="rotate-ccw" class="h-4 w-4" />
@@ -175,9 +176,10 @@ import { ProductDeleteDialog } from './product-delete-dialog';
 })
 export class AdminProductListPage {
   private readonly admin = inject(AdminCatalogService);
-  protected readonly text = inject(APP_TEXT).adminProducts;
-  protected readonly editText = inject(APP_TEXT).editMode;
-  protected readonly productText = inject(APP_TEXT).productEditor;
+  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly text = inject(ADMIN_TEXT).productList;
+  protected readonly editText = inject(ADMIN_TEXT).editMode;
+  protected readonly productText = inject(ADMIN_TEXT).productEditor;
   protected readonly catalogText = inject(APP_TEXT).catalog;
 
   /** Bound from the `page` query param (a string); coerced and floored to 1. */

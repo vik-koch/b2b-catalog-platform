@@ -1,6 +1,7 @@
 import { Route, UrlSegment } from '@angular/router';
 import { PAGE_SLUGS } from '@b2b-catalog-platform/shared';
 import { guestOnly, requireAuth } from './auth/auth.guard';
+import { adminTextGuard } from './config/admin-text';
 import { maintenanceGate } from './admin/maintenance.guard';
 import { productUnsavedChangesGuard } from './admin/product-unsaved-changes.guard';
 import { categoryUnsavedChangesGuard } from './admin/category-unsaved-changes.guard';
@@ -21,6 +22,8 @@ const isPageSlug = (_: Route, [first]: UrlSegment[]) =>
 export const appRoutes: Route[] = [
   { path: '', component: Home, canActivate: [maintenanceGate] },
   // Session-scoped routes, lazy so the public bundle carries none of them.
+  // Admin routes also wait on adminTextGuard: their wording is fetched rather
+  // than injected into the document (see config/admin-text.ts).
   {
     path: 'login',
     canActivate: [guestOnly],
@@ -28,13 +31,13 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'admin',
-    canActivate: [requireAuth('admin', 'manager')],
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () => import('./admin/admin-page').then((m) => m.AdminPage),
   },
   // Product management, admin-only and client-rendered like the panel.
   {
     path: 'admin/products',
-    canActivate: [requireAuth('admin')],
+    canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
       import('./admin/admin-product-list-page').then(
         (m) => m.AdminProductListPage,
@@ -42,12 +45,12 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'admin/sync',
-    canActivate: [requireAuth('admin')],
+    canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () => import('./admin/sync-page').then((m) => m.SyncPage),
   },
   {
     path: 'admin/categories',
-    canActivate: [requireAuth('admin')],
+    canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
       import('./admin/admin-category-list-page').then(
         (m) => m.AdminCategoryListPage,
@@ -55,7 +58,7 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'admin/categories/:slug/edit',
-    canActivate: [requireAuth('admin')],
+    canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [categoryUnsavedChangesGuard],
     loadComponent: () =>
       import('./admin/admin-category-editor-page').then(
@@ -64,14 +67,14 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'admin/products/new',
-    canActivate: [requireAuth('admin')],
+    canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [productUnsavedChangesGuard],
     loadComponent: () =>
       import('./admin/product-editor-page').then((m) => m.ProductEditorPage),
   },
   {
     path: 'admin/products/:slug/edit',
-    canActivate: [requireAuth('admin')],
+    canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [productUnsavedChangesGuard],
     loadComponent: () =>
       import('./admin/product-editor-page').then((m) => m.ProductEditorPage),

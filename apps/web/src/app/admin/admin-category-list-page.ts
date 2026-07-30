@@ -9,6 +9,7 @@ import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
@@ -74,7 +75,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
               <span
                 cdkDragHandle
                 class="cursor-grab p-1 text-stone-300 hover:text-stone-500 active:cursor-grabbing"
-                [attr.aria-label]="text.reorder"
+                [attr.aria-label]="common.reorder"
               >
                 <app-lucide-icon name="grip-vertical" class="h-4 w-4" />
               </span>
@@ -136,7 +137,8 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
 })
 export class AdminCategoryListPage {
   private readonly admin = inject(AdminCatalogService);
-  protected readonly text = inject(APP_TEXT).adminCategories;
+  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly text = inject(ADMIN_TEXT).categories;
   protected readonly catalogText = inject(APP_TEXT).catalog;
 
   /** The category whose delete confirmation modal is open, if any. */

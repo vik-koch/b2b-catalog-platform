@@ -9,7 +9,8 @@ import {
   SyncRun,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
-import { AppText } from '../config/app-text.type';
+import { ADMIN_TEXT } from '../config/admin-text';
+import { AdminText } from '../config/admin-text.type';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPriceMinor } from '../catalog/price';
 import { Button } from '../ui/button';
@@ -54,11 +55,11 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
             />
             <span>
               <span class="block text-sm font-medium">{{
-                text[option.label]
+                text.mode[option.label]
               }}</span>
               @if (option.hint) {
                 <span class="block text-sm text-stone-500">{{
-                  text[option.hint]
+                  text.mode[option.hint]
                 }}</span>
               }
             </span>
@@ -84,10 +85,10 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
                 (change)="toggleFlag(flag.key, $any($event.target).checked)"
               />
               <span>
-                {{ text[flag.label] }}
+                {{ text.option[flag.label] }}
                 @if (flag.hint) {
                   <span class="block text-stone-500">{{
-                    text[flag.hint]
+                    text.option[flag.hint]
                   }}</span>
                 }
               </span>
@@ -162,7 +163,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
         <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
           @for (tile of summaryTiles(plan); track tile.label) {
             <div>
-              <dt class="text-stone-500">{{ text[tile.label] }}</dt>
+              <dt class="text-stone-500">{{ text.count[tile.label] }}</dt>
               <dd
                 class="text-lg font-semibold"
                 [class.text-red-700]="tile.danger"
@@ -219,7 +220,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
                   class="rounded px-1.5 py-0.5 text-xs"
                   [class]="badgeClass(product.kind)"
                 >
-                  {{ text[kindLabel(product.kind)] }}
+                  {{ text.kind[product.kind] }}
                 </span>
                 <span class="font-medium">{{ product.name }}</span>
                 @for (change of product.changes; track change.field) {
@@ -320,11 +321,11 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-stone-200 text-left text-stone-500">
-              <th class="py-2 font-medium">{{ text.colDate }}</th>
-              <th class="py-2 font-medium">{{ text.colFile }}</th>
-              <th class="py-2 font-medium">{{ text.colActor }}</th>
-              <th class="py-2 font-medium">{{ text.colStatus }}</th>
-              <th class="py-2 font-medium">{{ text.colChanges }}</th>
+              <th class="py-2 font-medium">{{ text.col.date }}</th>
+              <th class="py-2 font-medium">{{ text.col.file }}</th>
+              <th class="py-2 font-medium">{{ text.col.actor }}</th>
+              <th class="py-2 font-medium">{{ text.col.status }}</th>
+              <th class="py-2 font-medium">{{ text.col.changes }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-stone-100">
@@ -333,7 +334,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
                 <td class="py-2">{{ formatDate(run.startedAt) }}</td>
                 <td class="py-2 text-stone-500">{{ run.filename }}</td>
                 <td class="py-2 text-stone-500">{{ run.actorEmail }}</td>
-                <td class="py-2">{{ text[statusLabel(run.status)] }}</td>
+                <td class="py-2">{{ text.status[run.status] }}</td>
                 <td class="py-2 text-stone-500">{{ changeSummary(run) }}</td>
               </tr>
             }
@@ -348,7 +349,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
 export class SyncPage {
   private readonly sync = inject(SyncService);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
-  protected readonly text = inject(APP_TEXT).adminSync;
+  protected readonly text = inject(ADMIN_TEXT).sync;
   protected readonly catalogText = inject(APP_TEXT).catalog;
 
   protected readonly presets = SYNC_PRESETS;
@@ -493,22 +494,22 @@ export class SyncPage {
   protected summaryTiles(plan: SyncPlan) {
     const s = plan.summary;
     return [
-      { label: 'countCreate' as const, value: s.create, danger: false },
-      { label: 'countUpdate' as const, value: s.update, danger: false },
+      { label: 'create' as const, value: s.create, danger: false },
+      { label: 'update' as const, value: s.update, danger: false },
       {
-        label: 'countSoftDelete' as const,
+        label: 'softDelete' as const,
         value: s.softDelete,
         danger: s.softDelete > 0,
       },
-      { label: 'countRestore' as const, value: s.restore, danger: false },
+      { label: 'restore' as const, value: s.restore, danger: false },
       {
-        label: 'countCategories' as const,
+        label: 'categories' as const,
         value: s.categoriesCreated,
         danger: false,
       },
-      { label: 'countUnchanged' as const, value: s.unchanged, danger: false },
-      { label: 'countKept' as const, value: s.keptManual, danger: false },
-      { label: 'countErrors' as const, value: s.errors, danger: s.errors > 0 },
+      { label: 'unchanged' as const, value: s.unchanged, danger: false },
+      { label: 'kept' as const, value: s.keptManual, danger: false },
+      { label: 'errors' as const, value: s.errors, danger: s.errors > 0 },
     ];
   }
 
@@ -523,16 +524,8 @@ export class SyncPage {
     return value;
   }
 
-  protected kindLabel(kind: SyncProductChange['kind']) {
-    return KIND_LABEL[kind];
-  }
-
   protected badgeClass(kind: SyncProductChange['kind']): string {
     return KIND_BADGE[kind];
-  }
-
-  protected statusLabel(status: SyncRun['status']) {
-    return STATUS_LABEL[status];
   }
 
   protected rowLabel(row: number): string {
@@ -571,15 +564,8 @@ export class SyncPage {
   }
 }
 
-/** Keys of the sync block, so a flag's label cannot name missing text. */
-type SyncTextKey = keyof AppText['adminSync'];
-
-const KIND_LABEL = {
-  create: 'kindCreate',
-  update: 'kindUpdate',
-  softDelete: 'kindSoftDelete',
-  restore: 'kindRestore',
-} as const;
+/** Keys of the option group, so a flag's label cannot name missing text. */
+type SyncOptionKey = keyof AdminText['sync']['option'];
 
 const KIND_BADGE: Record<SyncProductChange['kind'], string> = {
   create: 'bg-green-100 text-green-800',
@@ -587,12 +573,6 @@ const KIND_BADGE: Record<SyncProductChange['kind'], string> = {
   softDelete: 'bg-red-100 text-red-800',
   restore: 'bg-blue-100 text-blue-800',
 };
-
-const STATUS_LABEL = {
-  previewed: 'statusPreviewed',
-  applied: 'statusApplied',
-  failed: 'statusFailed',
-} as const;
 
 /**
  * The advanced checkboxes. `name`/`category` are members of the `fields`
@@ -609,18 +589,18 @@ type FlagKey =
   | 'authoritative'
   | 'softDelete';
 
-const FLAGS: { key: FlagKey; label: SyncTextKey; hint?: SyncTextKey }[] = [
-  { key: 'name', label: 'optionName' },
-  { key: 'category', label: 'optionCategory' },
-  { key: 'createMissing', label: 'optionCreateMissing' },
-  { key: 'updateExisting', label: 'optionUpdateExisting' },
-  { key: 'restoreReturning', label: 'optionRestoreReturning' },
-  { key: 'createCategories', label: 'optionCreateCategories' },
-  { key: 'authoritative', label: 'optionAuthoritative' },
+const FLAGS: { key: FlagKey; label: SyncOptionKey; hint?: SyncOptionKey }[] = [
+  { key: 'name', label: 'name' },
+  { key: 'category', label: 'category' },
+  { key: 'createMissing', label: 'createMissing' },
+  { key: 'updateExisting', label: 'updateExisting' },
+  { key: 'restoreReturning', label: 'restoreReturning' },
+  { key: 'createCategories', label: 'createCategories' },
+  { key: 'authoritative', label: 'authoritative' },
   {
     key: 'softDelete',
-    label: 'optionSoftDelete',
-    hint: 'optionSoftDeleteHint',
+    label: 'softDelete',
+    hint: 'softDeleteHint',
   },
 ];
 

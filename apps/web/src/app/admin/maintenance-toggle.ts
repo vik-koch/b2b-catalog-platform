@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
 import { MaintenanceService } from './maintenance.service';
 
@@ -13,8 +13,8 @@ import { MaintenanceService } from './maintenance.service';
   imports: [Button],
   template: `
     <section class="rounded-lg border border-stone-200 p-5">
-      <h2 class="text-lg font-semibold">{{ text.adminHeading }}</h2>
-      <p class="mt-1 text-sm text-stone-600">{{ text.adminDescription }}</p>
+      <h2 class="text-lg font-semibold">{{ text.heading }}</h2>
+      <p class="mt-1 text-sm text-stone-600">{{ text.description }}</p>
 
       @if (enabled() !== undefined) {
         <p class="mt-4 text-sm font-medium">
@@ -38,7 +38,7 @@ import { MaintenanceService } from './maintenance.service';
   `,
 })
 export class MaintenanceToggle {
-  protected readonly text = inject(APP_TEXT).maintenance;
+  protected readonly text = inject(ADMIN_TEXT).maintenance;
   private readonly maintenance = inject(MaintenanceService);
 
   protected readonly enabled = signal<boolean | undefined>(undefined);

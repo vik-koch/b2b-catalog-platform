@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
@@ -77,7 +77,7 @@ import { categoryDescendantIds } from './category-tree';
           type="button"
           (click)="cancelled.emit()"
         >
-          {{ productText.cancel }}
+          {{ common.cancel }}
         </button>
         @if (mode() !== 'loading' && mode() !== 'blocked-children') {
           <button
@@ -98,8 +98,9 @@ import { categoryDescendantIds } from './category-tree';
 })
 export class CategoryDeleteDialog {
   private readonly admin = inject(AdminCatalogService);
-  protected readonly text = inject(APP_TEXT).adminCategories;
-  protected readonly productText = inject(APP_TEXT).productEditor;
+  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly text = inject(ADMIN_TEXT).categories;
+  protected readonly productText = inject(ADMIN_TEXT).productEditor;
 
   private readonly dialog =
     viewChild.required<ElementRef<HTMLDialogElement>>('dialog');

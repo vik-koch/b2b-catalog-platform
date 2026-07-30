@@ -1,8 +1,11 @@
 import { signal } from '@angular/core';
+import { beforeAll, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { Page as PageContent } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { loadAdminText } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { EditModeService } from '../admin/edit-mode.service';
@@ -42,9 +45,21 @@ async function render(editModeEnabled: boolean) {
 }
 
 const editButton = (el: HTMLElement) =>
-  el.querySelector(`button[aria-label="${defaultAppText.pageEditor.edit}"]`);
+  el.querySelector(`button[aria-label="${defaultAdminText.pageEditor.edit}"]`);
 
 describe('Page', () => {
+  // The pencil's wording comes from the fetched admin text, not the token —
+  // this is a public route, so the component reads it as a signal.
+  beforeAll(async () => {
+    vi.stubGlobal('fetch', () =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(defaultAdminText),
+      }),
+    );
+    await loadAdminText();
+  });
+
   it('renders the page title and body', async () => {
     const el = await render(false);
 

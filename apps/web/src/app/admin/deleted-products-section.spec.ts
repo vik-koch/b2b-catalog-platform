@@ -1,13 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { AdminCatalogService } from './admin-catalog.service';
 import { DeletedProductsSection } from './deleted-products-section';
 
-const text = defaultAppText.editMode;
+const text = defaultAdminText.editMode;
 
 const deletedItem: ProductListItem = {
   slug: 'old-roast',
@@ -29,6 +31,7 @@ async function render(
     imports: [DeletedProductsSection],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       {
         provide: AdminCatalogService,
@@ -64,6 +67,7 @@ describe('DeletedProductsSection', () => {
       imports: [DeletedProductsSection],
       providers: [
         { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: ADMIN_TEXT, useValue: defaultAdminText },
         { provide: DEPLOYMENT_CONFIG, useValue: config },
         {
           provide: AdminCatalogService,
@@ -87,7 +91,7 @@ describe('DeletedProductsSection', () => {
     fixture.componentInstance.restored.subscribe(restored);
 
     const button = [...el.querySelectorAll('button')].find((b) =>
-      b.textContent?.includes(text.restore),
+      b.textContent?.includes(defaultAdminText.common.restore),
     );
     button?.click();
     await fixture.whenStable();

@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
 import { CategoryDeleteDialog } from '../admin/category-delete-dialog';
@@ -52,7 +53,7 @@ const SUBS_COLLAPSED = 4;
         @if (!data) {
           <p class="text-stone-600">{{ text.emptyCategories }}</p>
         } @else {
-          @if (editControls()) {
+          @if (editControls(); as editText) {
             <div class="absolute top-0 right-0 z-10 flex gap-2">
               <a
                 appIconButton
@@ -149,7 +150,7 @@ const SUBS_COLLAPSED = 4;
             <ul
               class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
             >
-              @if (editControls()) {
+              @if (editControls(); as editText) {
                 <li class="h-full">
                   <a
                     [routerLink]="['/admin/products/new']"
@@ -168,7 +169,7 @@ const SUBS_COLLAPSED = 4;
                   <div
                     class="group relative flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white transition-shadow hover:shadow-md"
                   >
-                    @if (editControls()) {
+                    @if (editControls(); as editText) {
                       <div class="absolute top-2 right-2 z-10 flex gap-1.5">
                         <a
                           appIconButton
@@ -307,7 +308,6 @@ export class CategoryGrid {
   private readonly router = inject(Router);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
-  protected readonly editText = inject(APP_TEXT).editMode;
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
   protected readonly SUBS_COLLAPSED = SUBS_COLLAPSED;
 
@@ -338,9 +338,13 @@ export class CategoryGrid {
 
   /** Gate for the in-place edit affordances (＋ tile, per-item and category
    * controls). Held back until the "Deleted" overlay has loaded so entering edit
-   * mode reveals everything at once instead of flashing the controls first. */
-  protected readonly editControls = computed(
-    () => this.editMode.enabled() && this.deletedReady(),
+   * mode reveals everything at once instead of flashing the controls first.
+   * Also carries the edit-mode wording, which is fetched rather than injected:
+   * this component renders for anonymous visitors too, who never load it. */
+  protected readonly editControls = computed(() =>
+    this.editMode.enabled() && this.deletedReady()
+      ? (adminText()?.editMode ?? null)
+      : null,
   );
 
   protected products = resource({

@@ -8,7 +8,7 @@ import {
   ProductInput,
   slugify,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { majorToMinor, minorToMajor } from '../catalog/price';
 import { ProductDetailView } from '../catalog/product-detail-view';
@@ -163,7 +163,7 @@ import { AdminCatalogService } from './admin-catalog.service';
           (click)="save()"
         >
           <app-lucide-icon name="save" class="h-4 w-4" />
-          {{ saving() ? text.saving : text.save }}
+          {{ saving() ? common.saving : common.save }}
         </button>
         <button
           appButton
@@ -176,7 +176,7 @@ import { AdminCatalogService } from './admin-catalog.service';
             [name]="previewing() ? 'pencil' : 'eye'"
             class="h-4 w-4"
           />
-          {{ previewing() ? text.resumeEditing : text.preview }}
+          {{ previewing() ? common.resumeEditing : common.preview }}
         </button>
         <button
           appButton
@@ -186,7 +186,7 @@ import { AdminCatalogService } from './admin-catalog.service';
           (click)="cancel()"
         >
           <app-lucide-icon name="x" class="h-4 w-4" />
-          {{ text.cancel }}
+          {{ common.cancel }}
         </button>
       </div>
     }
@@ -197,7 +197,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
-  protected readonly text = inject(APP_TEXT).productEditor;
+  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly text = inject(ADMIN_TEXT).productEditor;
 
   /** null slug param → the "new" route. */
   private readonly slugParam = this.route.snapshot.paramMap.get('slug');
