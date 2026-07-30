@@ -1,6 +1,5 @@
 import { killPort } from '@nx/node/utils';
 import { requireEnv } from './env';
-/* eslint-disable */
 
 module.exports = async function () {
   // The API process is managed by Nx (continuous api:serve dependency) and the
