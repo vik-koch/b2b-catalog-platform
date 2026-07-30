@@ -35,14 +35,14 @@ export const pages = pgTable('pages', {
 /**
  * Catalog categories, an adjacency-list tree. Structure (name, hierarchy) is
  * file-owned — derived from the import's category paths and keyed by
- * `sourceKey` — while `sortOrder`, `image` and `description` are admin overlay
+ * `sourceId` — while `sortOrder`, `image` and `description` are admin overlay
  * that survives a re-sync. `slug` is the public URL handle, generated once and
  * kept stable.
  */
 export const categories = pgTable('categories', {
   id: uuid('id').primaryKey().defaultRandom(),
   // The sync identity, derived from the file's category path. Unique + private.
-  sourceKey: varchar('sourceKey', { length: 512 }).notNull().unique(),
+  sourceId: varchar('sourceId', { length: 512 }).notNull().unique(),
   slug: varchar('slug', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   parentId: uuid('parentId').references((): AnyPgColumn => categories.id, {

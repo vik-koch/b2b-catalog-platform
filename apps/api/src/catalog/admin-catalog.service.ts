@@ -314,7 +314,7 @@ export class AdminCatalogService {
       this.db
         .insert(categories)
         .values({
-          sourceKey: `manual:${randomUUID()}`,
+          sourceId: `manual:${randomUUID()}`,
           slug,
           name: input.name,
           parentId: input.parentId,

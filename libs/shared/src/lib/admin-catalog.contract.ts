@@ -43,7 +43,7 @@ export const PRODUCT_ATTRIBUTE_VALUE_MAX_LENGTH = 2000;
 /** A gallery is a short ordered list, not an archive. */
 export const PRODUCT_IMAGES_MAX = 20;
 
-/** Matches the `products.sourceId` / `categories.sourceKey` varchar(255). */
+/** Matches the `products.sourceId` / `categories.sourceId` varchar(255). */
 export const SOURCE_ID_MAX_LENGTH = 255;
 
 /** Matches the `categories.name` varchar(255). */
@@ -158,7 +158,7 @@ export const adminCategorySchema = z
 export type AdminCategory = z.infer<typeof adminCategorySchema>;
 
 /** What create/update accept for a category. `slug` follows the same
- * optional-override rule as products (omit to derive/keep). `sourceKey` is
+ * optional-override rule as products (omit to derive/keep). `sourceId` is
  * server-owned. Reorder/reparent within the tree goes through `reorder`, but a
  * single move may also set `parentId` here. */
 export const categoryInputSchema = z
@@ -299,7 +299,7 @@ export const adminCatalogContract = c.router(
       path: '/admin/catalog/categories',
       body: categoryInputSchema,
       responses: { 201: adminCategorySchema, 404: messageSchema },
-      summary: 'Create a category (admin; slug/sourceKey generated)',
+      summary: 'Create a category (admin; slug/sourceId generated)',
     },
     updateCategory: {
       method: 'PUT',
