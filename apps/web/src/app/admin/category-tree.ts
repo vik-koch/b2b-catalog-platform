@@ -35,6 +35,36 @@ export function flattenCategoryTree(
   return out;
 }
 
+export interface CategoryTreeBranch {
+  category: AdminCategory;
+  children: CategoryTreeBranch[];
+}
+
+/**
+ * Build the category forest as nested branches — each parent's children ordered
+ * by `sortOrder` then name. The management tree renders one CDK drop list per
+ * sibling group (drops stay within a group, matching the sibling-only reorder
+ * semantics of the `reorderCategories` endpoint).
+ */
+export function buildCategoryTree(
+  categories: readonly AdminCategory[],
+): CategoryTreeBranch[] {
+  const byParent = new Map<string | null, AdminCategory[]>();
+  for (const c of categories) {
+    const siblings = byParent.get(c.parentId) ?? [];
+    siblings.push(c);
+    byParent.set(c.parentId, siblings);
+  }
+  for (const siblings of byParent.values()) siblings.sort(bySortThenName);
+
+  const build = (parentId: string | null): CategoryTreeBranch[] =>
+    (byParent.get(parentId) ?? []).map((category) => ({
+      category,
+      children: build(category.id),
+    }));
+  return build(null);
+}
+
 /** The ids of every descendant of `id` (excluding `id` itself). */
 export function categoryDescendantIds(
   categories: readonly AdminCategory[],

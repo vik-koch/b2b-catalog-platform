@@ -34,6 +34,7 @@ export type LucideIconName =
   | 'clipboard-paste'
   | 'trash-2'
   | 'image-plus'
+  | 'grip-vertical'
   | 'rotate-ccw';
 
 @Component({
@@ -212,6 +213,14 @@ export type LucideIconName =
           />
           <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
           <circle cx="9" cy="9" r="2" />
+        }
+        @case ('grip-vertical') {
+          <circle cx="9" cy="12" r="1" />
+          <circle cx="9" cy="5" r="1" />
+          <circle cx="9" cy="19" r="1" />
+          <circle cx="15" cy="12" r="1" />
+          <circle cx="15" cy="5" r="1" />
+          <circle cx="15" cy="19" r="1" />
         }
         @case ('rotate-ccw') {
           <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />

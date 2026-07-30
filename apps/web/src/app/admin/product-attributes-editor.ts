@@ -1,4 +1,12 @@
 import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragHandle,
+  CdkDragPreview,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import {
   Component,
   ElementRef,
   afterRenderEffect,
@@ -41,7 +49,7 @@ import {
  */
 @Component({
   selector: 'app-product-attributes-editor',
-  imports: [LucideIcon],
+  imports: [LucideIcon, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview],
   template: `
     <fieldset>
       <legend class="mb-1 block text-sm font-medium">{{ text.heading }}</legend>
@@ -56,15 +64,25 @@ import {
         </thead>
         <tbody
           #grid
+          cdkDropList
           contenteditable="true"
           class="focus:outline-none"
+          (cdkDropListDropped)="onDrop($event)"
           (input)="onInput()"
           (copy)="onCopy($event)"
           (paste)="onPaste($event)"
           (keydown)="onKeydown($event)"
         >
           @for (row of rows(); track $index) {
-            <tr>
+            <tr cdkDrag [cdkDragData]="row">
+              <!-- A detached table row collapses (loses cell widths), so the
+                   floating drag preview is a plain labelled chip instead. -->
+              <div
+                *cdkDragPreview
+                class="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm shadow-md"
+              >
+                {{ row.key || text.key }}
+              </div>
               <td
                 [attr.data-row]="$index"
                 data-col="0"
@@ -82,21 +100,11 @@ import {
                 <div class="flex items-center justify-center gap-1">
                   <button
                     type="button"
-                    class="p-1 text-stone-400 hover:text-ink disabled:opacity-30"
-                    [attr.aria-label]="text.moveUp"
-                    [disabled]="$index === 0"
-                    (click)="move($index, -1)"
+                    cdkDragHandle
+                    class="cursor-grab p-1 text-stone-300 hover:text-stone-500 active:cursor-grabbing"
+                    [attr.aria-label]="text.reorder"
                   >
-                    <app-lucide-icon name="chevron-up" class="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    class="p-1 text-stone-400 hover:text-ink disabled:opacity-30"
-                    [attr.aria-label]="text.moveDown"
-                    [disabled]="$index === rows().length - 1"
-                    (click)="move($index, 1)"
-                  >
-                    <app-lucide-icon name="chevron-down" class="h-5 w-5" />
+                    <app-lucide-icon name="grip-vertical" class="h-5 w-5" />
                   </button>
                   <button
                     type="button"
@@ -166,11 +174,13 @@ export class ProductAttributesEditor {
     this.valueChange.emit(this.current().filter((_, i) => i !== index));
   }
 
-  protected move(index: number, direction: -1 | 1): void {
+  protected onDrop(event: CdkDragDrop<ProductAttribute[]>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    // Blur first so the grid re-renders cell text from the reordered model
+    // rather than from the DOM order CDK left behind.
+    this.grid()?.nativeElement.blur();
     const rows = this.current();
-    const target = index + direction;
-    if (target < 0 || target >= rows.length) return;
-    [rows[index], rows[target]] = [rows[target], rows[index]];
+    moveItemInArray(rows, event.previousIndex, event.currentIndex);
     this.valueChange.emit(rows);
   }
 

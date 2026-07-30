@@ -74,6 +74,7 @@
   },
   "dependencies": {
     "@angular-devkit/build-angular": "~22.0.4",
+    "@angular/cdk": "~22.0.4",
     "@angular/common": "~22.0.4",
     "@angular/compiler": "~22.0.4",
     "@angular/core": "~22.0.4",

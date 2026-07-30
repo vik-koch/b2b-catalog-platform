@@ -1,3 +1,10 @@
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
@@ -6,21 +13,30 @@ import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
 import { CategoryDeleteDialog } from './category-delete-dialog';
-import { CategoryTreeNode, flattenCategoryTree } from './category-tree';
+import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
 
 /**
  * Admin category management: the category tree with add/delete and sibling
- * reordering (move up/down). Editing a category (name, parent, slug, image,
+ * reordering by CDK drag-drop. Editing a category (name, parent, slug, image,
  * description) is its own screen — the pencil links to
  * `/admin/categories/:slug/edit` — so structure lives here and presentation
  * lives on the editor page, each with its own save semantics. Deletion is
  * guarded server-side — a category with products or subcategories can't be
- * removed. Reordering goes through the transactional `reorderCategories`
- * endpoint, so a drag-drop UI could replace the buttons later with no API change.
+ * removed. Each sibling group is its own drop list (drops stay within a group),
+ * so a drop reorders siblings and commits through the transactional
+ * `reorderCategories` endpoint — reparenting is out of scope here.
  */
 @Component({
   selector: 'app-admin-category-list-page',
-  imports: [RouterLink, Button, LucideIcon, CategoryDeleteDialog],
+  imports: [
+    RouterLink,
+    Button,
+    LucideIcon,
+    CategoryDeleteDialog,
+    CdkDropList,
+    CdkDrag,
+    NgTemplateOutlet,
+  ],
   template: `
     <div class="mb-6 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
@@ -36,69 +52,77 @@ import { CategoryTreeNode, flattenCategoryTree } from './category-tree';
       @if (tree().length === 0) {
         <p class="text-stone-600">{{ text.empty }}</p>
       } @else {
-        <ul class="divide-y divide-stone-100">
-          @for (node of tree(); track node.category.id) {
-            <li>
-              <div
-                class="flex items-center gap-2 py-2"
-                [style.paddingLeft.rem]="node.depth * 1.5"
-              >
-                <span class="flex-1 font-medium text-stone-700">
-                  {{ node.category.name }}
-                </span>
-                <button
-                  type="button"
-                  class="p-1 text-stone-400 hover:text-ink disabled:opacity-30"
-                  [attr.aria-label]="text.moveUp"
-                  [disabled]="isFirstSibling(node.category)"
-                  (click)="move(node.category, -1)"
-                >
-                  <app-lucide-icon name="chevron-up" class="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  class="p-1 text-stone-400 hover:text-ink disabled:opacity-30"
-                  [attr.aria-label]="text.moveDown"
-                  [disabled]="isLastSibling(node.category)"
-                  (click)="move(node.category, 1)"
-                >
-                  <app-lucide-icon name="chevron-down" class="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  class="p-1 text-stone-400 hover:text-primary"
-                  [attr.aria-label]="text.addChild"
-                  (click)="addChild(node.category)"
-                >
-                  <app-lucide-icon name="plus" class="h-4 w-4" />
-                </button>
-                <a
-                  [routerLink]="[
-                    '/admin/categories',
-                    node.category.slug,
-                    'edit',
-                  ]"
-                  class="p-1 text-stone-400 hover:text-primary"
-                  [attr.aria-label]="text.edit"
-                >
-                  <app-lucide-icon name="pencil" class="h-4 w-4" />
-                </a>
-                <button
-                  type="button"
-                  class="p-1 text-stone-400 hover:text-red-700"
-                  [attr.aria-label]="text.delete"
-                  (click)="deletingCategory.set(node.category)"
-                >
-                  <app-lucide-icon name="trash-2" class="h-4 w-4" />
-                </button>
-              </div>
-            </li>
-          }
-        </ul>
+        <ng-container
+          *ngTemplateOutlet="group; context: { $implicit: tree() }"
+        />
       }
     } @else {
       <p class="text-stone-500" role="status">…</p>
     }
+
+    <!-- One drop list per sibling group; recurses for each branch's children. -->
+    <ng-template #group let-branches>
+      <ul
+        cdkDropList
+        [cdkDropListData]="branches"
+        (cdkDropListDropped)="onDrop($event)"
+        class="divide-y divide-stone-100"
+      >
+        @for (branch of branches; track branch.category.id) {
+          <li cdkDrag [cdkDragData]="branch">
+            <div class="flex items-center gap-2 py-2">
+              <span
+                cdkDragHandle
+                class="cursor-grab p-1 text-stone-300 hover:text-stone-500 active:cursor-grabbing"
+                [attr.aria-label]="text.reorder"
+              >
+                <app-lucide-icon name="grip-vertical" class="h-4 w-4" />
+              </span>
+              <span class="flex-1 font-medium text-stone-700">
+                {{ branch.category.name }}
+              </span>
+              <button
+                type="button"
+                class="p-1 text-stone-400 hover:text-primary"
+                [attr.aria-label]="text.addChild"
+                (click)="addChild(branch.category)"
+              >
+                <app-lucide-icon name="plus" class="h-4 w-4" />
+              </button>
+              <a
+                [routerLink]="[
+                  '/admin/categories',
+                  branch.category.slug,
+                  'edit',
+                ]"
+                class="p-1 text-stone-400 hover:text-primary"
+                [attr.aria-label]="text.edit"
+              >
+                <app-lucide-icon name="pencil" class="h-4 w-4" />
+              </a>
+              <button
+                type="button"
+                class="p-1 text-stone-400 hover:text-red-700"
+                [attr.aria-label]="text.delete"
+                (click)="deletingCategory.set(branch.category)"
+              >
+                <app-lucide-icon name="trash-2" class="h-4 w-4" />
+              </button>
+            </div>
+            @if (branch.children.length > 0) {
+              <div class="pl-6">
+                <ng-container
+                  *ngTemplateOutlet="
+                    group;
+                    context: { $implicit: branch.children }
+                  "
+                />
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    </ng-template>
 
     @if (deletingCategory(); as target) {
       <app-category-delete-dialog
@@ -122,23 +146,14 @@ export class AdminCategoryListPage {
     loader: () => this.admin.listCategories(),
   });
 
-  /** Flat depth-first order (by sortOrder then name) for indented rendering. */
-  protected readonly tree = computed<CategoryTreeNode[]>(() =>
-    flattenCategoryTree(this.categories.value() ?? []),
+  /** Nested branches (by sortOrder then name) for the drag-drop tree. */
+  protected readonly tree = computed<CategoryTreeBranch[]>(() =>
+    buildCategoryTree(this.categories.value() ?? []),
   );
 
   protected onCategoryDeleted(): void {
     this.deletingCategory.set(null);
     this.categories.reload();
-  }
-
-  protected isFirstSibling(c: AdminCategory): boolean {
-    return this.siblings(c.parentId)[0]?.id === c.id;
-  }
-
-  protected isLastSibling(c: AdminCategory): boolean {
-    const s = this.siblings(c.parentId);
-    return s[s.length - 1]?.id === c.id;
   }
 
   protected async addRoot(): Promise<void> {
@@ -161,28 +176,20 @@ export class AdminCategoryListPage {
     this.categories.reload();
   }
 
-  protected async move(c: AdminCategory, direction: -1 | 1): Promise<void> {
-    const siblings = this.siblings(c.parentId);
-    const index = siblings.findIndex((s) => s.id === c.id);
-    const target = index + direction;
-    if (target < 0 || target >= siblings.length) return;
-    [siblings[index], siblings[target]] = [siblings[target], siblings[index]];
+  /** A drop within a sibling group: reorder and persist that group's order. */
+  protected async onDrop(
+    event: CdkDragDrop<CategoryTreeBranch[]>,
+  ): Promise<void> {
+    if (event.previousIndex === event.currentIndex) return;
+    const siblings = event.container.data;
+    moveItemInArray(siblings, event.previousIndex, event.currentIndex);
     await this.admin.reorderCategories({
-      order: siblings.map((s, i) => ({
-        id: s.id,
-        parentId: s.parentId,
+      order: siblings.map((branch, i) => ({
+        id: branch.category.id,
+        parentId: branch.category.parentId,
         sortOrder: i,
       })),
     });
     this.categories.reload();
   }
-
-  private siblings(parentId: string | null): AdminCategory[] {
-    return (this.categories.value() ?? [])
-      .filter((c) => c.parentId === parentId)
-      .sort(bySortThenName);
-  }
 }
-
-const bySortThenName = (a: AdminCategory, b: AdminCategory): number =>
-  a.sortOrder - b.sortOrder || a.name.localeCompare(b.name);

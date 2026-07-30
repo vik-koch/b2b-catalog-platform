@@ -1,3 +1,10 @@
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragPlaceholder,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { Component, inject, input, output, signal } from '@angular/core';
 import {
   ACCEPTED_IMAGE_MIME_TYPES,
@@ -10,38 +17,47 @@ import { MediaService } from './media.service';
 /**
  * The product's ordered image gallery (FR-CAT-04/05). Uploads go through the
  * catalog media endpoint, which returns the stored `{ full, thumb }` pair; the
- * list order is the display order. Reordering is by move buttons for now (a
- * later pass may adopt CDK drag-drop, shared with the category tree).
+ * list order is the display order. Reordering is by CDK drag-drop, shared in
+ * spirit with the category tree; the upload tile is excluded from the drop list.
  */
 @Component({
   selector: 'app-product-image-gallery',
-  imports: [LucideIcon],
+  imports: [LucideIcon, CdkDropList, CdkDrag, CdkDragPlaceholder],
   template: `
     <fieldset>
       <legend class="mb-1 block text-sm font-medium">{{ text.heading }}</legend>
 
-      <ul class="flex flex-wrap items-stretch gap-3">
+      <ul
+        class="flex flex-wrap items-stretch gap-3"
+        cdkDropList
+        cdkDropListOrientation="mixed"
+        (cdkDropListDropped)="onDrop($event)"
+      >
         @for (image of value(); track image.thumb) {
           <li
-            class="relative h-28 w-28 overflow-hidden rounded-md border border-stone-200"
+            cdkDrag
+            [cdkDragData]="image"
+            class="relative h-28 w-28 cursor-grab overflow-hidden rounded-md border border-stone-200 active:cursor-grabbing"
+            [attr.aria-label]="text.reorder"
           >
             <img
               [src]="image.thumb"
               alt=""
-              class="h-full w-full object-cover"
+              class="pointer-events-none h-full w-full object-cover"
             />
+            <!-- A thin insertion caret rather than a full-size box: in the
+                 single horizontal row it reads as "drops here"; when the row
+                 wraps on narrow screens it simply sits at the row it lands in. -->
+            <div
+              *cdkDragPlaceholder
+              class="h-28 w-1 self-center rounded-full bg-primary"
+            ></div>
             <div
               class="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 p-1"
             >
-              <button
-                type="button"
-                class="p-0.5 text-white/90 hover:text-white disabled:opacity-30"
-                [attr.aria-label]="text.moveUp"
-                [disabled]="$index === 0"
-                (click)="move($index, -1)"
-              >
-                <app-lucide-icon name="chevron-left" class="h-4 w-4" />
-              </button>
+              <span class="p-0.5 text-white/70">
+                <app-lucide-icon name="grip-vertical" class="h-4 w-4" />
+              </span>
               <button
                 type="button"
                 class="p-0.5 text-white/90 hover:text-white"
@@ -49,15 +65,6 @@ import { MediaService } from './media.service';
                 (click)="remove($index)"
               >
                 <app-lucide-icon name="trash-2" class="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                class="p-0.5 text-white/90 hover:text-white disabled:opacity-30"
-                [attr.aria-label]="text.moveDown"
-                [disabled]="$index === value().length - 1"
-                (click)="move($index, 1)"
-              >
-                <app-lucide-icon name="chevron-right" class="h-4 w-4" />
               </button>
             </div>
           </li>
@@ -128,11 +135,10 @@ export class ProductImageGallery {
     this.valueChange.emit(this.value().filter((_, i) => i !== index));
   }
 
-  protected move(index: number, direction: -1 | 1): void {
+  protected onDrop(event: CdkDragDrop<CatalogImage[]>): void {
+    if (event.previousIndex === event.currentIndex) return;
     const images = [...this.value()];
-    const target = index + direction;
-    if (target < 0 || target >= images.length) return;
-    [images[index], images[target]] = [images[target], images[index]];
+    moveItemInArray(images, event.previousIndex, event.currentIndex);
     this.valueChange.emit(images);
   }
 }

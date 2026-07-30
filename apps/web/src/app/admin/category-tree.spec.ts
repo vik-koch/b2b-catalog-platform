@@ -1,5 +1,9 @@
 import { AdminCategory } from '@b2b-catalog-platform/shared';
-import { categoryDescendantIds, flattenCategoryTree } from './category-tree';
+import {
+  buildCategoryTree,
+  categoryDescendantIds,
+  flattenCategoryTree,
+} from './category-tree';
 
 const cat = (
   id: string,
@@ -49,6 +53,30 @@ describe('flattenCategoryTree', () => {
 
   it('handles an empty list', () => {
     expect(flattenCategoryTree([])).toEqual([]);
+  });
+});
+
+describe('buildCategoryTree', () => {
+  it('nests children under parents, siblings by sortOrder then name', () => {
+    const tree = buildCategoryTree([
+      cat('a', null, 1, 'Apple'),
+      cat('a2', 'a', 1),
+      cat('a1', 'a', 0),
+      cat('m', null, 0, 'Middle'),
+    ]);
+    expect(
+      tree.map((b) => ({
+        id: b.category.id,
+        children: b.children.map((c) => c.category.id),
+      })),
+    ).toEqual([
+      { id: 'm', children: [] }, // lower sortOrder first
+      { id: 'a', children: ['a1', 'a2'] }, // children sorted too
+    ]);
+  });
+
+  it('handles an empty list', () => {
+    expect(buildCategoryTree([])).toEqual([]);
   });
 });
 
