@@ -8,10 +8,10 @@ import { ProductAttribute } from '@b2b-catalog-platform/shared';
  */
 
 export interface CategorySeed {
-  sourceKey: string;
+  sourceId: string;
   slug: string;
   name: string;
-  /** Parent's sourceKey, or null for a top-level category. */
+  /** Parent's sourceId, or null for a top-level category. */
   parentKey: string | null;
   sortOrder: number;
   hasImage: boolean;
@@ -21,7 +21,7 @@ export interface ProductSeed {
   sourceId: string;
   slug: string;
   name: string;
-  /** The leaf category's sourceKey. */
+  /** The leaf category's sourceId. */
   categoryKey: string;
   priceMinor: number;
   descriptionHtml: string;
@@ -31,25 +31,25 @@ export interface ProductSeed {
 
 let order = 0;
 const top = (
-  sourceKey: string,
+  sourceId: string,
   name: string,
   hasImage = true,
 ): CategorySeed => ({
-  sourceKey,
-  slug: sourceKey,
+  sourceId,
+  slug: sourceId,
   name,
   parentKey: null,
   sortOrder: order++,
   hasImage,
 });
 const sub = (
-  sourceKey: string,
+  sourceId: string,
   name: string,
   parentKey: string,
   hasImage = true,
 ): CategorySeed => ({
-  sourceKey,
-  slug: sourceKey,
+  sourceId,
+  slug: sourceId,
   name,
   parentKey,
   sortOrder: order++,

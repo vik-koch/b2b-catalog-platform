@@ -9,7 +9,7 @@ import {
 /**
  * Seeds the demo catalog: categories (parents first, so the FK resolves) then
  * products, each with generated placeholder images written to the media store.
- * Idempotent — upserts by the sync keys (`sourceKey` / `sourceId`) and reuses
+ * Idempotent — upserts by the sync keys (`sourceId` / `sourceId`) and reuses
  * content-addressed image files, so a re-seed neither duplicates rows nor files.
  */
 export async function seedCatalog(
@@ -20,22 +20,22 @@ export async function seedCatalog(
 
   for (const category of categorySeeds) {
     const image = category.hasImage
-      ? await generateCategoryImage(mediaRoot, category.sourceKey)
+      ? await generateCategoryImage(mediaRoot, category.sourceId)
       : null;
     const parentId = category.parentKey
       ? (idByKey.get(category.parentKey) ?? null)
       : null;
 
     const { rows } = await client.query<{ id: string }>(
-      `INSERT INTO categories ("sourceKey", slug, name, "parentId", "sortOrder", image)
+      `INSERT INTO categories ("sourceId", slug, name, "parentId", "sortOrder", image)
        VALUES ($1, $2, $3, $4, $5, $6::jsonb)
-       ON CONFLICT ("sourceKey") DO UPDATE SET
+       ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "parentId" = EXCLUDED."parentId", "sortOrder" = EXCLUDED."sortOrder",
          image = EXCLUDED.image
        RETURNING id`,
       [
-        category.sourceKey,
+        category.sourceId,
         category.slug,
         category.name,
         parentId,
@@ -43,7 +43,7 @@ export async function seedCatalog(
         image ? JSON.stringify(image) : null,
       ],
     );
-    idByKey.set(category.sourceKey, rows[0].id);
+    idByKey.set(category.sourceId, rows[0].id);
   }
 
   for (const product of productSeeds) {

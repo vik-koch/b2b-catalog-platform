@@ -32,7 +32,7 @@ read contract, and these futures don't entangle.
   (edited in-app, **untouched by a re-sync**): product `descriptionHtml`,
   `attributes`, images; category `image`, `sortOrder`, `description`.
 - **Private sync keys, never serialized.** `products.sourceId` (the legacy
-  internal id) and `categories.sourceKey` are the upsert identities and stay
+  internal id) and `categories.sourceId` are the upsert identities and stay
   server-side; the only public handle is the `slug`, generated once and kept
   stable across name changes (a changed URL breaks links/SEO). Response
   validation (`validateResponses`) enforces this at the edge.

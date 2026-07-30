@@ -26,7 +26,7 @@ describe('GET /catalog/categories (FR-CAT-01/02)', () => {
     expect(coffee.children.map((c: { slug: string }) => c.slug)).toEqual(
       coffeeChildren,
     );
-    // Exactly the contract keys — no internal columns (id, sourceKey) leak.
+    // Exactly the contract keys — no internal columns (id, sourceId) leak.
     expect(Object.keys(coffee).sort()).toEqual([
       'children',
       'image',
