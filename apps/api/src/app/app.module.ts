@@ -7,6 +7,7 @@ import { PageModule } from '../pages/page.module';
 import { MediaModule } from '../media/media.module';
 import { ThrottlingModule } from '../throttling/throttling.module';
 import { SettingsModule } from '../settings/settings.module';
+import { SyncModule } from '../sync/sync.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { SettingsModule } from '../settings/settings.module';
     MediaModule,
     InquiryModule,
     SettingsModule,
+    SyncModule,
   ],
 })
 export class AppModule {}
