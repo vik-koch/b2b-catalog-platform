@@ -20,22 +20,9 @@ import {
 import { sanitizeProductRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import {
-  categories,
-  products,
-  ProductAttribute,
-  ProductImageRef,
-} from '../db/schema';
+import { categories, products } from '../db/schema';
 import { categoryBySlug, descendantIds } from './catalog-tree';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
-
-// The API project compiles with strictNullChecks off, under which zod widens
-// every object property to optional (its inference marks any key whose type
-// admits undefined). So `ProductInput.attributes`/`images` come through as
-// `{ key?; value? }[]` / `{ full?; thumb? }[]`, structurally identical to the
-// drizzle column types but not assignable. The `as` casts at the insert/update
-// sites below bridge that gap; the values are already zod-validated at the
-// contract edge, so every property is in fact present.
 
 /** The editable product shape the admin contract returns. */
 const adminProductColumns = {
@@ -158,8 +145,8 @@ export class AdminCatalogService {
           priceMinor: input.priceMinor,
           categoryId: input.categoryId,
           descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
-          attributes: input.attributes as ProductAttribute[],
-          images: input.images as ProductImageRef[],
+          attributes: input.attributes,
+          images: input.images,
         })
         .returning(adminProductColumns),
     );
@@ -193,8 +180,8 @@ export class AdminCatalogService {
           priceMinor: input.priceMinor,
           categoryId: input.categoryId,
           descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
-          attributes: input.attributes as ProductAttribute[],
-          images: input.images as ProductImageRef[],
+          attributes: input.attributes,
+          images: input.images,
           sourceId: newSourceId,
           updatedAt: new Date(),
         })
@@ -319,7 +306,7 @@ export class AdminCatalogService {
           name: input.name,
           parentId: input.parentId,
           sortOrder,
-          image: input.image as ProductImageRef | null,
+          image: input.image,
           description: input.description,
         })
         .returning(),
@@ -353,7 +340,7 @@ export class AdminCatalogService {
           name: input.name,
           slug: newSlug,
           parentId: input.parentId,
-          image: input.image as ProductImageRef | null,
+          image: input.image,
           description: input.description,
           updatedAt: new Date(),
         })

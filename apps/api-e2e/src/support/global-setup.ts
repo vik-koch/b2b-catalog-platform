@@ -4,8 +4,12 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireEnv } from './env';
 
-/* eslint-disable */
-var __TEARDOWN_MESSAGE__: string;
+// Passed from here to global-teardown via globalThis (Nx's own convention).
+// Declared globally so both halves see the same type under `strict`.
+declare global {
+  // eslint-disable-next-line no-var
+  var __TEARDOWN_MESSAGE__: string;
+}
 
 const workspaceRoot = join(__dirname, '../../../..');
 

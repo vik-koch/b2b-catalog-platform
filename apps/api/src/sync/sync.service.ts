@@ -13,9 +13,7 @@ import {
   SyncPlan,
   SyncPreviewResponse,
   SyncRow,
-  SyncRowError,
   SyncRun,
-  SyncSummary,
   slugify,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
@@ -64,10 +62,10 @@ export class SyncService {
         filename,
         actorId: actor.id,
         actorEmail: actor.email,
-        options: options as SyncOptions,
-        summary: plan.summary as SyncSummary,
-        rows: rows as SyncRow[],
-        parseErrors: parseErrors as SyncRowError[],
+        options,
+        summary: plan.summary,
+        rows,
+        parseErrors,
       })
       .returning();
 
@@ -118,7 +116,7 @@ export class SyncService {
       .set({
         status: 'applied',
         finishedAt: new Date(),
-        summary: plan.summary as SyncSummary,
+        summary: plan.summary,
         actorId: actor.id,
         actorEmail: actor.email,
         // The staged input has served its purpose; the summary is the record.
