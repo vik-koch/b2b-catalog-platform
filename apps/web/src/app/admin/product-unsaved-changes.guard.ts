@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanDeactivateFn } from '@angular/router';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { UnsavedChangesAware } from '../pages/unsaved-changes.guard';
 
 /** Confirms before a navigation drops unsaved product edits (FR-ADM-01). */
@@ -10,5 +10,5 @@ export const productUnsavedChangesGuard: CanDeactivateFn<
   if (!component.hasUnsavedChanges()) {
     return true;
   }
-  return window.confirm(inject(APP_TEXT).productEditor.discardConfirm);
+  return window.confirm(inject(ADMIN_TEXT).productEditor.discardConfirm);
 };

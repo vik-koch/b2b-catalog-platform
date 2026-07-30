@@ -19,7 +19,7 @@ import {
   RICH_TEXT_IMAGE_SIZE_MIN_PERCENT,
   RICH_TEXT_LINK_SCHEMES,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { LucideIcon, LucideIconName } from '../ui/icons/lucide-icon';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from './media.service';
@@ -81,12 +81,12 @@ interface ToolbarAction {
 
       @if (uploading()) {
         <p class="mt-2 text-sm text-stone-600" role="status">
-          {{ image.uploading }}
+          {{ common.uploading }}
         </p>
       }
       @if (uploadError()) {
         <p class="mt-2 text-sm text-red-700" role="alert">
-          {{ image.uploadError }}
+          {{ common.uploadError }}
         </p>
       }
 
@@ -118,7 +118,7 @@ interface ToolbarAction {
                 class="mr-auto rounded px-2 py-1 text-sm text-red-700 hover:bg-red-50"
                 (click)="removeLink()"
               >
-                {{ link.remove }}
+                {{ common.remove }}
               </button>
             }
             <button
@@ -126,7 +126,7 @@ interface ToolbarAction {
               class="rounded px-2 py-1 text-sm text-ink hover:bg-stone-100"
               (click)="closeLinkPanel()"
             >
-              {{ link.cancel }}
+              {{ common.cancel }}
             </button>
             <button
               type="button"
@@ -236,7 +236,8 @@ interface ToolbarAction {
   `,
 })
 export class RichTextEditor {
-  protected readonly text = inject(APP_TEXT).pageEditor;
+  protected readonly text = inject(ADMIN_TEXT).pageEditor;
+  protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly link = this.text.linkPanel;
   protected readonly image = this.text.imagePanel;
   private readonly media = inject(MediaService);

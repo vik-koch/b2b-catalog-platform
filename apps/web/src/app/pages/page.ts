@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { Page as PageContent, PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
 import { LucideIcon } from '../ui/icons/lucide-icon';
@@ -40,7 +41,7 @@ import { IconButton } from '../ui/icon-button';
           <h1 class="mb-6 text-3xl font-bold tracking-tight">
             {{ page.title }}
           </h1>
-          @if (canEdit()) {
+          @if (canEdit(); as editorText) {
             <button
               appIconButton
               type="button"
@@ -76,7 +77,6 @@ export class Page implements UnsavedChangesAware {
   private readonly editMode = inject(EditModeService);
 
   protected readonly text = inject(APP_TEXT).errors;
-  protected readonly editorText = inject(APP_TEXT).pageEditor;
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * page body — see trustedRichText. */
   protected readonly safeBody = trustedRichText();
@@ -103,7 +103,14 @@ export class Page implements UnsavedChangesAware {
   // The pencil is one of the storefront's edit-mode affordances: it appears
   // only for an admin who has turned edit mode on (false during SSR / before
   // the session resolves), consistent with products and categories.
-  protected readonly canEdit = computed(() => this.editMode.enabled());
+  /**
+   * The editing affordance, carrying its own wording: this is a public route,
+   * so the admin text is fetched rather than injected and is null until edit
+   * mode is on (see EditModeService).
+   */
+  protected readonly canEdit = computed(() =>
+    this.editMode.enabled() ? (adminText()?.pageEditor ?? null) : null,
+  );
 
   hasUnsavedChanges(): boolean {
     return this.editing() && this.editorDirty();

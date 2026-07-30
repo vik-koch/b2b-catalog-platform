@@ -1,5 +1,6 @@
 import {
   computed,
+  effect,
   inject,
   Injectable,
   PLATFORM_ID,
@@ -7,6 +8,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../auth/auth.service';
+import { adminTextLoaded, loadAdminText } from '../config/admin-text';
 
 const STORAGE_KEY = 'admin-edit-mode';
 
@@ -25,8 +27,27 @@ export class EditModeService {
 
   private readonly wanted = signal(this.readStored());
 
-  /** True only when an admin has turned it on (and we are in the browser). */
-  readonly enabled = computed(() => this.isAdmin() && this.wanted());
+  constructor() {
+    // Warm the admin wording as soon as we know the session is an admin, so the
+    // toggle and its affordances are ready before anyone reaches for them.
+    effect(() => {
+      if (this.isBrowser && this.isAdmin()) {
+        // A failure leaves edit mode disabled, which is the safe state; the
+        // admin routes surface the same problem through their guard.
+        loadAdminText().catch((error) => console.error(error));
+      }
+    });
+  }
+
+  /**
+   * True only when an admin has turned it on. Also waits on the admin text,
+   * which arrives by fetch: every inline affordance reads that wording, so
+   * gating here keeps them from rendering with blank labels and lets them use
+   * ADMIN_TEXT synchronously.
+   */
+  readonly enabled = computed(
+    () => this.isAdmin() && this.wanted() && adminTextLoaded(),
+  );
 
   toggle(): void {
     const next = !this.wanted();

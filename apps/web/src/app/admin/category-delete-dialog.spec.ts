@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultAdminText } from '../config/admin-text.fixture';
 import { AdminCatalogService } from './admin-catalog.service';
 import { CategoryDeleteDialog } from './category-delete-dialog';
 
@@ -42,6 +44,7 @@ async function render(
     imports: [CategoryDeleteDialog],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: ADMIN_TEXT, useValue: defaultAdminText },
       {
         provide: AdminCatalogService,
         useValue: {

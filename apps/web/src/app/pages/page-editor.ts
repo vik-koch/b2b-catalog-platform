@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { Page, PageSlug } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
 import { RichTextEditor } from '../admin/rich-text-editor';
 import { LucideIcon } from '../ui/icons/lucide-icon';
@@ -70,7 +70,7 @@ import { trustedRichText } from './trusted-rich-text';
         (click)="save()"
       >
         <app-lucide-icon name="save" class="h-4 w-4" />
-        {{ saving() ? text.saving : text.save }}
+        {{ saving() ? common.saving : common.save }}
       </button>
       <button
         appButton
@@ -83,7 +83,7 @@ import { trustedRichText } from './trusted-rich-text';
           [name]="previewing() ? 'pencil' : 'eye'"
           class="h-4 w-4"
         />
-        {{ previewing() ? text.resumeEditing : text.preview }}
+        {{ previewing() ? common.resumeEditing : common.preview }}
       </button>
       <button
         appButton
@@ -93,14 +93,15 @@ import { trustedRichText } from './trusted-rich-text';
         (click)="cancel()"
       >
         <app-lucide-icon name="x" class="h-4 w-4" />
-        {{ text.cancel }}
+        {{ common.cancel }}
       </button>
     </div>
   `,
 })
 export class PageEditor {
   private readonly pageService = inject(PageService);
-  protected readonly text = inject(APP_TEXT).pageEditor;
+  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly text = inject(ADMIN_TEXT).pageEditor;
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * preview body — see trustedRichText. */
   protected readonly safeBody = trustedRichText();

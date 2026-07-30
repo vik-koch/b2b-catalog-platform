@@ -8,7 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
@@ -48,7 +48,7 @@ import { AdminCatalogService } from './admin-catalog.service';
           type="button"
           (click)="cancelled.emit()"
         >
-          {{ productText.cancel }}
+          {{ common.cancel }}
         </button>
         <button
           appButton
@@ -67,8 +67,9 @@ import { AdminCatalogService } from './admin-catalog.service';
 })
 export class ProductDeleteDialog {
   private readonly admin = inject(AdminCatalogService);
-  protected readonly text = inject(APP_TEXT).editMode;
-  protected readonly productText = inject(APP_TEXT).productEditor;
+  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly text = inject(ADMIN_TEXT).editMode;
+  protected readonly productText = inject(ADMIN_TEXT).productEditor;
 
   private readonly dialog =
     viewChild.required<ElementRef<HTMLDialogElement>>('dialog');

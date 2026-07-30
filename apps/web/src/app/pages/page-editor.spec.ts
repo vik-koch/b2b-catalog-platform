@@ -1,11 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { Page as PageContent } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultAdminText } from '../config/admin-text.fixture';
 import { PageEditor } from './page-editor';
 import { PageService } from './page.service';
 
-const text = defaultAppText.pageEditor;
+const text = defaultAdminText.pageEditor;
 
 const about: PageContent = {
   title: 'About us',
@@ -18,6 +20,7 @@ async function render(updatePage = vi.fn()) {
     imports: [PageEditor],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: PageService, useValue: { updatePage } },
     ],
   });
@@ -48,7 +51,7 @@ describe('PageEditor', () => {
   it('shows the body in a prose container when previewing', async () => {
     const { fixture, el } = await render();
 
-    buttonNamed(el, text.preview).click();
+    buttonNamed(el, defaultAdminText.common.preview).click();
     await fixture.whenStable();
 
     expect(el.querySelector('.prose')?.innerHTML).toContain('Original copy.');
@@ -66,6 +69,7 @@ describe('PageEditor', () => {
       imports: [PageEditor],
       providers: [
         { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: ADMIN_TEXT, useValue: defaultAdminText },
         { provide: PageService, useValue: { updatePage: vi.fn() } },
       ],
     });
@@ -75,7 +79,7 @@ describe('PageEditor', () => {
     await fixture.whenStable();
     const el = fixture.nativeElement as HTMLElement;
 
-    buttonNamed(el, text.preview).click();
+    buttonNamed(el, defaultAdminText.common.preview).click();
     await fixture.whenStable();
 
     const link = el.querySelector('.prose a') as HTMLAnchorElement;
@@ -88,9 +92,9 @@ describe('PageEditor', () => {
   it('returns to editing from preview', async () => {
     const { fixture, el } = await render();
 
-    buttonNamed(el, text.preview).click();
+    buttonNamed(el, defaultAdminText.common.preview).click();
     await fixture.whenStable();
-    buttonNamed(el, text.resumeEditing).click();
+    buttonNamed(el, defaultAdminText.common.resumeEditing).click();
     await fixture.whenStable();
 
     expect(el.querySelector('input')?.value).toBe('About us');
@@ -107,7 +111,7 @@ describe('PageEditor', () => {
     const input = el.querySelector('input') as HTMLInputElement;
     input.value = 'Renamed';
     input.dispatchEvent(new Event('input'));
-    buttonNamed(el, text.save).click();
+    buttonNamed(el, defaultAdminText.common.save).click();
     await fixture.whenStable();
 
     expect(updatePage).toHaveBeenCalledWith('about', {
@@ -123,7 +127,7 @@ describe('PageEditor', () => {
     const input = el.querySelector('input') as HTMLInputElement;
     input.value = '   ';
     input.dispatchEvent(new Event('input'));
-    buttonNamed(el, text.save).click();
+    buttonNamed(el, defaultAdminText.common.save).click();
     await fixture.whenStable();
 
     expect(updatePage).not.toHaveBeenCalled();
@@ -135,7 +139,7 @@ describe('PageEditor', () => {
       vi.fn().mockRejectedValue(new Error('boom')),
     );
 
-    buttonNamed(el, text.save).click();
+    buttonNamed(el, defaultAdminText.common.save).click();
     await fixture.whenStable();
 
     expect(el.textContent).toContain(text.saveError);
@@ -148,7 +152,7 @@ describe('PageEditor', () => {
     fixture.componentInstance.closed.subscribe(closed);
     const confirm = vi.spyOn(window, 'confirm');
 
-    buttonNamed(el, text.cancel).click();
+    buttonNamed(el, defaultAdminText.common.cancel).click();
     await fixture.whenStable();
 
     expect(confirm).not.toHaveBeenCalled();
@@ -164,7 +168,7 @@ describe('PageEditor', () => {
     const input = el.querySelector('input') as HTMLInputElement;
     input.value = 'Changed';
     input.dispatchEvent(new Event('input'));
-    buttonNamed(el, text.cancel).click();
+    buttonNamed(el, defaultAdminText.common.cancel).click();
     await fixture.whenStable();
 
     expect(closed).not.toHaveBeenCalled();

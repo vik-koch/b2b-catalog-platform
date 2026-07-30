@@ -7,13 +7,15 @@ import {
 } from '@angular/router';
 import { AdminCategory, AdminProduct } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { AdminCatalogService } from './admin-catalog.service';
 import { ProductEditorPage } from './product-editor-page';
 
-const text = defaultAppText.productEditor;
+const text = defaultAdminText.productEditor;
 
 const category: AdminCategory = {
   id: 'cat-1',
@@ -75,6 +77,7 @@ async function render(
     imports: [ProductEditorPage],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: Router, useValue: { navigate: h.navigate } },
       {
@@ -115,7 +118,7 @@ function setInput(input: HTMLInputElement, value: string): void {
 
 function saveButton(el: HTMLElement): HTMLButtonElement {
   const button = [...el.querySelectorAll('button')].find((b) =>
-    b.textContent?.includes(text.save),
+    b.textContent?.includes(defaultAdminText.common.save),
   );
   if (!button) throw new Error('no save button');
   return button;

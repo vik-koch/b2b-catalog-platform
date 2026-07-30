@@ -10,7 +10,7 @@ import {
   ACCEPTED_IMAGE_MIME_TYPES,
   CatalogImage,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { MediaService } from './media.service';
 
@@ -38,7 +38,7 @@ import { MediaService } from './media.service';
             cdkDrag
             [cdkDragData]="image"
             class="relative h-28 w-28 cursor-grab overflow-hidden rounded-md border border-stone-200 active:cursor-grabbing"
-            [attr.aria-label]="text.reorder"
+            [attr.aria-label]="common.reorder"
           >
             <img
               [src]="image.thumb"
@@ -61,7 +61,7 @@ import { MediaService } from './media.service';
               <button
                 type="button"
                 class="p-0.5 text-white/90 hover:text-white"
-                [attr.aria-label]="text.remove"
+                [attr.aria-label]="common.remove"
                 (click)="remove($index)"
               >
                 <app-lucide-icon name="trash-2" class="h-4 w-4" />
@@ -87,7 +87,7 @@ import { MediaService } from './media.service';
           >
             <app-lucide-icon name="image-plus" class="h-6 w-6" />
             <span class="text-xs">
-              {{ uploading() ? text.uploading : text.add }}
+              {{ uploading() ? common.uploading : text.add }}
             </span>
           </button>
         </li>
@@ -101,7 +101,8 @@ import { MediaService } from './media.service';
 })
 export class ProductImageGallery {
   private readonly media = inject(MediaService);
-  protected readonly text = inject(APP_TEXT).productEditor.images;
+  protected readonly text = inject(ADMIN_TEXT).productEditor.images;
+  protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
 
   readonly value = input.required<CatalogImage[]>();
@@ -125,7 +126,7 @@ export class ProductImageGallery {
       }
       this.valueChange.emit([...this.value(), ...uploaded]);
     } catch {
-      this.error.set(this.text.uploadError);
+      this.error.set(this.common.uploadError);
     } finally {
       this.uploading.set(false);
     }

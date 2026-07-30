@@ -29,7 +29,10 @@ on them (0009); **server-only** values (`InquiryText`) never leave Node.
 A single **`./config` directory** is the whole per-deployment config surface,
 bind-mounted read-only into **both** the `web` and `api` containers at `/config`.
 Each facet is a separate `.strict()` Zod-validated JSON file (`deployment.json`,
-`app-text.json`, `inquiry-text.json`, later email templates).
+`app-text.json`, `admin-text.json`, `inquiry-text.json`, later email templates).
+Facets are split by **audience** as well as by producer: the admin wording is its
+own file so it is not delivered to visitors who can never see it (ADR 0009,
+amendment 2).
 
 **The image ships only schemas, never values.** Each process **requires** its
 file (via its `*_FILE` env var), loads it **whole**, and validates the complete
@@ -72,7 +75,7 @@ a config field (`branding.title`), set at runtime via the Angular Title service.
 
 - (+) One per-deployment surface: a `config/` folder + one `CONFIG_DIR`; a new
   facet is a new file, not a new mechanism, with the same fail-loud rule in
-  web-SSR and the API.
+  web-SSR and the API — including a new _audience_, such as the admin text.
 - (+) The image ships no shop identity or locale words; a misconfigured deployment
   fails to boot instead of silently rendering demo/English text.
 - (+) The browser-delivered vs server-only boundary stays explicit; logo, favicon

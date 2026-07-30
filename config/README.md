@@ -13,8 +13,14 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
 
 - `deployment.json` → `DeploymentConfig` (branding, contact, locations,
   cookie-consent flag, phone input). **Browser-delivered** via shell state.
-- `app-text.json` → `AppText` UI-text catalog (nav labels, copy…).
-  **Browser-delivered.**
+- `app-text.json` → `AppText`, the **public** UI-text catalog (nav labels,
+  storefront chrome, the login form, error messages).
+  **Browser-delivered** via shell state.
+- `admin-text.json` → `AdminText`, the wording of the **admin** surfaces
+  (editors, management screens, catalog sync, storefront edit mode).
+  **Browser-delivered on demand**: fetched from `/admin-text.json` once an admin
+  needs it, rather than injected into every visitor's document (ADR 0009,
+  amendment 2). Non-secret, like everything else on this side of the line.
 - `inquiry-text.json` → `InquiryText`, the inquiry email wording. **Server-only**
   — rendered in the API, never sent to a browser.
 
@@ -24,6 +30,7 @@ to the paths below, so this is only needed to rename a file):
 ```
 DEPLOYMENT_CONFIG_FILE=/config/deployment.json   # web
 APP_TEXT_FILE=/config/app-text.json              # web
+ADMIN_TEXT_FILE=/config/admin-text.json          # web
 INQUIRY_TEXT_FILE=/config/inquiry-text.json      # api
 ```
 
@@ -32,8 +39,9 @@ INQUIRY_TEXT_FILE=/config/inquiry-text.json      # api
 > the files separate keeps that line visible (ADR 0018).
 
 Each file must be **complete** (no partial overrides). The authoritative shape of
-each is its Zod schema: `apps/web/src/app/config/deployment-config.ts`,
-`.../app-text.ts`, and `apps/api/src/inquiry/inquiry-text.ts`. The committed demo
+each is its Zod schema: `apps/web/src/app/config/deployment-config.type.ts`,
+`.../app-text.type.ts`, `.../admin-text.type.ts`, and
+`apps/api/src/inquiry/inquiry-text.ts`. The committed demo
 files are the worked example to copy from.
 
 ## Assets (logo, favicon)
@@ -42,8 +50,9 @@ Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:
 
 ```
 config/
-  deployment.json      # web config      (browser-delivered)
-  app-text.json        # web text        (browser-delivered)
+  deployment.json      # web config        (browser-delivered)
+  app-text.json        # web public text   (browser-delivered)
+  admin-text.json      # web admin text    (fetched by admins)
   inquiry-text.json    # api email wording (server-only)
   assets/
     logo.svg

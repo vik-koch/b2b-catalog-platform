@@ -10,6 +10,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
 import { preloadAppText } from './app/config/app-text.server';
+import { getAdminText, preloadAdminText } from './app/config/admin-text.server';
 import { preloadDeploymentConfig } from './app/config/deployment-config.server';
 import { injectShellState } from './app/config/shell-state.server';
 import { isGatedPath, isMaintenanceOn } from './app/config/maintenance.server';
@@ -99,6 +100,21 @@ app.get('/robots.txt', async (_req, res, next) => {
   }
 });
 
+/**
+ * The admin half of the UI text (see admin-text.type.ts). Fetched by the client
+ * instead of being injected into the document: the SSR tier is session-blind on
+ * purpose, so it cannot vary a document by who is asking without forking the
+ * page cache per visitor. Not a secret — just wording an anonymous visitor has
+ * no use for — so it is served unauthenticated and cached like a static asset.
+ */
+app.get('/admin-text.json', (_req, res, next) => {
+  try {
+    res.set('Cache-Control', 'public, max-age=300').json(getAdminText());
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get('/sitemap.xml', async (_req, res, next) => {
   try {
     const result = await renderSitemap();
@@ -179,6 +195,7 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
   getAssetsMiddleware();
   preloadDeploymentConfig();
   preloadAppText();
+  preloadAdminText();
 
   const port = requireEnv('WEB_PORT');
   app.listen(port, () => {

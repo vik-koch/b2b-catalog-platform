@@ -11,15 +11,15 @@ export type SyncPresetName = 'full' | 'prices' | 'custom';
 
 export interface SyncPreset {
   name: SyncPresetName;
-  /** Keys into the `adminSync` text block. */
-  label: 'modeFull' | 'modePrices' | 'modeCustom';
-  hint?: 'modeFullHint' | 'modePricesHint';
+  /** Keys into the sync text block's `mode` group. */
+  label: 'full' | 'prices' | 'custom';
+  hint?: 'fullHint' | 'pricesHint';
 }
 
 export const SYNC_PRESETS: SyncPreset[] = [
-  { name: 'full', label: 'modeFull', hint: 'modeFullHint' },
-  { name: 'prices', label: 'modePrices', hint: 'modePricesHint' },
-  { name: 'custom', label: 'modeCustom' },
+  { name: 'full', label: 'full', hint: 'fullHint' },
+  { name: 'prices', label: 'prices', hint: 'pricesHint' },
+  { name: 'custom', label: 'custom' },
 ];
 
 /**

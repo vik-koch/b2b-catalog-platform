@@ -5,7 +5,7 @@ import {
   AdminCategory,
   CatalogImage,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { UnsavedChangesAware } from '../pages/unsaved-changes.guard';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
@@ -116,7 +116,7 @@ import { CategoryPicker } from './category-picker';
                 (click)="imageInput.click()"
               >
                 <app-lucide-icon name="image-plus" class="h-4 w-4" />
-                {{ uploading() ? text.uploading : text.image }}
+                {{ uploading() ? common.uploading : text.image }}
               </button>
             }
           </div>
@@ -136,7 +136,7 @@ import { CategoryPicker } from './category-picker';
           (click)="save()"
         >
           <app-lucide-icon name="save" class="h-4 w-4" />
-          {{ saving() ? productText.saving : productText.save }}
+          {{ saving() ? common.saving : common.save }}
         </button>
         <button
           appButton
@@ -146,7 +146,7 @@ import { CategoryPicker } from './category-picker';
           (click)="cancel()"
         >
           <app-lucide-icon name="x" class="h-4 w-4" />
-          {{ productText.cancel }}
+          {{ common.cancel }}
         </button>
       </div>
     }
@@ -157,8 +157,9 @@ export class AdminCategoryEditorPage implements UnsavedChangesAware {
   private readonly media = inject(MediaService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  protected readonly text = inject(APP_TEXT).adminCategories;
-  protected readonly productText = inject(APP_TEXT).productEditor;
+  protected readonly text = inject(ADMIN_TEXT).categories;
+  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly productText = inject(ADMIN_TEXT).productEditor;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
 
   private readonly slugParam = this.route.snapshot.paramMap.get('slug') ?? '';
@@ -266,7 +267,7 @@ export class AdminCategoryEditorPage implements UnsavedChangesAware {
     try {
       this.image.set(await this.media.uploadCatalogImage(file));
     } catch {
-      this.error.set(this.text.uploadError);
+      this.error.set(this.common.uploadError);
     } finally {
       this.uploading.set(false);
     }

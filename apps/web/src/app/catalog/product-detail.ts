@@ -1,7 +1,15 @@
-import { Component, inject, input, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  resource,
+  signal,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
 import { ProductDeleteDialog } from '../admin/product-delete-dialog';
@@ -36,7 +44,7 @@ import { ProductDetailView } from './product-detail-view';
         @if (!item) {
           <p class="text-stone-600">{{ text.productNotFound }}</p>
         } @else {
-          @if (editMode.enabled()) {
+          @if (editText(); as editText) {
             <div class="absolute top-0 right-0 z-10 flex gap-2">
               <a
                 appIconButton
@@ -91,7 +99,15 @@ export class ProductDetail {
   private readonly router = inject(Router);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
-  protected readonly editText = inject(APP_TEXT).editMode;
+  /**
+   * Edit-mode wording, non-null only once edit mode is on — which implies the
+   * admin text has arrived (see EditModeService). Read as a signal rather than
+   * injected, because this component also renders for anonymous visitors, who
+   * never fetch that text.
+   */
+  protected readonly editText = computed(() =>
+    this.editMode.enabled() ? (adminText()?.editMode ?? null) : null,
+  );
 
   slug = input.required<string>();
   protected readonly confirmingDelete = signal(false);

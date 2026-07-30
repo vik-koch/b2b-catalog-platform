@@ -1,7 +1,8 @@
 # 0009 — Deliver deployment config and UI text in the served document
 
 **Status:** accepted · **Date:** 2026-07-20 · **Amended:** 2026-07-25 (delivery
-mechanism: TransferState → an injected `<script>`, see _Amendment_ below)
+mechanism: TransferState → an injected `<script>`), 2026-07-30 (the text is split
+by audience; the admin half is fetched) — see the _Amendments_ below
 
 ## Context
 
@@ -88,7 +89,7 @@ deployment.
 - (−) More provider wiring than a baked constant, justified only because the
   runtime seam is a known near-term need.
 
-## Amendment — 2026-07-25: the channel is the document, not TransferState
+## Amendment 1 — 2026-07-25: the channel is the document, not TransferState
 
 `TransferState` only exists in SSR output. Using it as the config channel meant
 **every** route had to be server-rendered, including the session-scoped ones
@@ -114,3 +115,43 @@ routes stay `RenderMode.Server`. The cost is ~40 lines of injection in
 `server.ts` in place of the framework's own serializer, and one more thing that
 must not break: a document served without the script fails loudly at bootstrap
 rather than rendering empty chrome.
+
+## Amendment 2 — 2026-07-30: split the text by audience, fetch the admin half
+
+The single `AppText` catalog grew to 12.6 kB as the admin surfaces landed, and
+**63% of it was admin wording** — editors, management screens, the sync diff.
+All of it was injected into every document, so every anonymous page view carried
+~8 kB of text no visitor could ever see.
+
+The text is therefore split by **audience**, not by feature: `AppText`
+(`app-text.json`) is what a logged-out visitor can reach — including the login
+form and the public maintenance screen — and `AdminText` (`admin-text.json`) is
+everything behind an admin session. Both keep the whole ADR-0018 contract: own
+`.strict()` schema, own `*_FILE` env var, complete-or-die at boot.
+
+**The admin half is fetched, not injected**, from a new `/admin-text.json` route
+on the SSR tier. This is forced by amendment 1's own consequence: the shell
+state is written into _every_ document, identically, because the server is
+session-blind (0019). Varying the document by who is asking would fork the page
+cache per visitor and put session-dependent content in HTML that is cached and
+crawled. A fetch keeps the document uniform. The file is not secret — it is
+wording, served unauthenticated and cached like a static asset — the split is
+about payload and audience, not access control.
+
+The asynchrony is confined to two places rather than to ~20 components:
+`adminTextGuard` holds an admin route's activation until the text lands, and
+`EditModeService.enabled()` stays false until then, which gates every inline
+storefront affordance. Behind both, `ADMIN_TEXT` resolves synchronously exactly
+as `APP_TEXT` does, so consumers are unaware of the difference.
+
+Consequently: adding an audience later (a signed-in customer's account text, a
+manager's subset) is another file on the same mechanism, not a new mechanism.
+
+- (+) ~8 kB less in every anonymous document; the admin schema never enters the
+  browser bundle (it never did — only the values were shipped).
+- (+) The audience boundary is now enforced by the file layout, so admin wording
+  cannot drift back into the public payload unnoticed.
+- (−) One extra request for an admin, and two new failure modes to keep in mind:
+  a route that renders admin text without the guard, and a storefront affordance
+  that does not gate on `EditModeService.enabled()`. Both fail loudly (the token
+  throws) rather than rendering blank labels.

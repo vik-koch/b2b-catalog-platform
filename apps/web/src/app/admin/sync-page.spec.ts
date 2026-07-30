@@ -2,13 +2,15 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { SyncPlan, SyncPreviewResponse } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { SyncPage } from './sync-page';
 import { SyncService } from './sync.service';
 
-const text = defaultAppText.adminSync;
+const text = defaultAdminText.sync;
 
 const config = {
   branding: { title: 'Test Shop' },
@@ -87,6 +89,7 @@ async function render(previewResult: SyncPreviewResponse) {
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       {
         provide: SyncService,
@@ -119,7 +122,7 @@ async function runPreview(
   input.dispatchEvent(new Event('change'));
   fixture.detectChanges();
 
-  buttonWith(el, text.preview).click();
+  buttonWith(el, defaultAdminText.common.preview).click();
   await fixture.whenStable();
   fixture.detectChanges();
 }
@@ -171,7 +174,7 @@ describe('SyncPage', () => {
     const { fixture, el, h } = await render(preview(plan()));
 
     const priceRadio = [...el.querySelectorAll('label')]
-      .find((l) => l.textContent?.includes(text.modePrices))
+      .find((l) => l.textContent?.includes(text.mode.prices))
       ?.querySelector('input') as HTMLInputElement;
     priceRadio.dispatchEvent(new Event('change'));
     fixture.detectChanges();
@@ -248,7 +251,7 @@ describe('SyncPage', () => {
     expect(el.textContent).toContain(text.summaryTitle);
 
     const priceRadio = [...el.querySelectorAll('label')]
-      .find((l) => l.textContent?.includes(text.modePrices))
+      .find((l) => l.textContent?.includes(text.mode.prices))
       ?.querySelector('input') as HTMLInputElement;
     priceRadio.dispatchEvent(new Event('change'));
     fixture.detectChanges();
