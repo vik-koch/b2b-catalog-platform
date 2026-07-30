@@ -202,12 +202,20 @@ export class AdminCatalogService {
     return toAdminProduct(row[0]);
   }
 
-  /** Soft delete: sets `deletedAt`, reversible via restore. Idempotent. */
+  /**
+   * Soft delete: sets `deletedAt`, reversible via restore. Genuinely
+   * idempotent — re-deleting an already-deleted product is a no-op that leaves
+   * its original `deletedAt`/`updatedAt` untouched (coalesce keeps the first
+   * timestamp; `updatedAt` only moves on the live→deleted transition).
+   */
   async deleteProduct(slug: string): Promise<AdminProduct> {
     const now = new Date();
     const rows = await this.db
       .update(products)
-      .set({ deletedAt: now, updatedAt: now })
+      .set({
+        deletedAt: sql`coalesce(${products.deletedAt}, ${now})`,
+        updatedAt: sql`case when ${products.deletedAt} is null then ${now} else ${products.updatedAt} end`,
+      })
       .where(eq(products.slug, slug))
       .returning(adminProductColumns);
     if (!rows[0]) throw new NotFoundException('Product not found');

@@ -348,6 +348,20 @@ describe('Admin catalog (FR-ADM-01)', () => {
       });
       expect(after.status).toBe(200);
     });
+
+    it('is idempotent: a second delete keeps the original timestamps', async () => {
+      const created = await createProduct({ name: `Idem ${R}` });
+      const slug = created.data.slug;
+
+      const first = await del(`/admin/catalog/products/${slug}`);
+      expect(first.status).toBe(200);
+
+      const second = await del(`/admin/catalog/products/${slug}`);
+      expect(second.status).toBe(200);
+      // The re-delete is a no-op: neither timestamp moves.
+      expect(second.data.deletedAt).toBe(first.data.deletedAt);
+      expect(second.data.updatedAt).toBe(first.data.updatedAt);
+    });
   });
 
   describe('categories', () => {
