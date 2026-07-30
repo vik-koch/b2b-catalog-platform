@@ -43,6 +43,13 @@
       "when": 1785418031955,
       "tag": "0005_category_source_id",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785419218465,
+      "tag": "0006_sync_runs",
+      "breakpoints": true
     }
   ]
 }

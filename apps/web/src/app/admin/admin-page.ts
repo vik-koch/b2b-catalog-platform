@@ -1,11 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PAGE_SLUGS } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { SignedInAs } from '../auth/signed-in-as';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { MaintenanceToggle } from './maintenance-toggle';
+import { SyncService } from './sync.service';
 
 /**
  * Admin panel — a small dashboard grouping the editable surfaces into sections:
@@ -42,7 +44,14 @@ import { MaintenanceToggle } from './maintenance-toggle';
           <app-lucide-icon name="pencil" class="h-4 w-4" />
           {{ categoryText.title }}
         </a>
+        <a appButton variant="secondary" routerLink="/admin/sync" class="gap-2">
+          <app-lucide-icon name="upload" class="h-4 w-4" />
+          {{ syncText.title }}
+        </a>
       </div>
+      <!-- The audit trail's newest applied run is the last-sync answer; there
+           is no separate setting to keep in step. -->
+      <p class="mt-3 text-sm text-stone-500">{{ lastSync() }}</p>
     </section>
 
     <section class="mt-10">
@@ -79,10 +88,29 @@ import { MaintenanceToggle } from './maintenance-toggle';
   `,
 })
 export class AdminPage {
+  private readonly sync = inject(SyncService);
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly panelText = inject(APP_TEXT).adminPanel;
   protected readonly productText = inject(APP_TEXT).adminProducts;
   protected readonly categoryText = inject(APP_TEXT).adminCategories;
   protected readonly navText = inject(APP_TEXT).nav;
+  protected readonly syncText = inject(APP_TEXT).adminSync;
   protected readonly pageSlugs = PAGE_SLUGS;
+  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+
+  // Managers reach this page too, but the sync is admin-only — a 403 here is
+  // expected, not an error, so the line simply stays absent for them.
+  private readonly runs = resource({
+    loader: () => this.sync.listRuns().catch(() => null),
+  });
+
+  protected readonly lastSync = computed(() => {
+    const applied = this.runs.value()?.lastApplied;
+    if (!applied?.finishedAt) return this.syncText.lastSyncNever;
+    const date = new Intl.DateTimeFormat(this.currency.locale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(applied.finishedAt));
+    return this.syncText.lastSync.replace('{date}', date);
+  });
 }

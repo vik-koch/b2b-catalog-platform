@@ -35,7 +35,8 @@ export type LucideIconName =
   | 'trash-2'
   | 'image-plus'
   | 'grip-vertical'
-  | 'rotate-ccw';
+  | 'rotate-ccw'
+  | 'upload';
 
 @Component({
   selector: 'app-lucide-icon',
@@ -225,6 +226,11 @@ export type LucideIconName =
         @case ('rotate-ccw') {
           <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
           <path d="M3 3v5h5" />
+        }
+        @case ('upload') {
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <path d="M17 8l-5-5-5 5" />
+          <path d="M12 3v12" />
         }
       }
     </svg>

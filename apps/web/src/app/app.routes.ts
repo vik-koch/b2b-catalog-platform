@@ -41,6 +41,11 @@ export const appRoutes: Route[] = [
       ),
   },
   {
+    path: 'admin/sync',
+    canActivate: [requireAuth('admin')],
+    loadComponent: () => import('./admin/sync-page').then((m) => m.SyncPage),
+  },
+  {
     path: 'admin/categories',
     canActivate: [requireAuth('admin')],
     loadComponent: () =>

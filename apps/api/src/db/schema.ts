@@ -1,4 +1,10 @@
 import { sql } from 'drizzle-orm';
+import type {
+  SyncOptions,
+  SyncRow,
+  SyncRowError,
+  SyncSummary,
+} from '@b2b-catalog-platform/shared';
 import {
   AnyPgColumn,
   boolean,
@@ -156,3 +162,46 @@ export const appSettings = pgTable(
   },
   (t) => [check('app_settings_singleton', sql`${t.id} = 1`)],
 );
+
+export const syncRunStatus = pgEnum('sync_run_status', [
+  'previewed',
+  'applied',
+  'failed',
+]);
+
+// `api` is the headless entry point — specified but not built yet, since it
+// needs a non-cookie credential.
+export const syncRunSource = pgEnum('sync_run_source', ['upload', 'api']);
+
+/**
+ * One bulk-sync run (FR-ADM-02). This is both the audit log the requirement
+ * asks for and the answer to "when did we last sync" — the newest applied row —
+ * which is why there is no separate last-sync setting to keep consistent.
+ *
+ * `rows` stages the parsed import between preview and commit, so a commit needs
+ * no re-upload and both halves diff the same input. It is cleared once the run
+ * finishes, and pruned by age, so the table does not accumulate catalogs.
+ */
+export const syncRuns = pgTable('sync_runs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  status: syncRunStatus('status').notNull().default('previewed'),
+  source: syncRunSource('source').notNull().default('upload'),
+  filename: text('filename'),
+  startedAt: timestamp('startedAt', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  finishedAt: timestamp('finishedAt', { withTimezone: true }),
+  // The actor is kept two ways on purpose: the FK for joins, and the email
+  // denormalized so the audit trail still names who ran it after the account
+  // is gone (accounts are deletable; the audit record is not rewritable).
+  actorId: uuid('actorId').references(() => users.id, { onDelete: 'set null' }),
+  actorEmail: varchar('actorEmail', { length: 255 }),
+  options: jsonb('options').$type<SyncOptions>().notNull(),
+  summary: jsonb('summary').$type<SyncSummary>().notNull(),
+  rows: jsonb('rows').$type<SyncRow[]>(),
+  // Rows the file itself could not yield (bad price, missing/duplicate
+  // sourceId). Staged with `rows` so a commit's re-diff reports the same error
+  // count the preview showed — the parse happens once, at upload.
+  parseErrors: jsonb('parseErrors').$type<SyncRowError[]>(),
+  error: text('error'),
+});
