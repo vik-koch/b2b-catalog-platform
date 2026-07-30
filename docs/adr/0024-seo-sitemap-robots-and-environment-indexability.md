@@ -1,4 +1,4 @@
-# 0023 — Serve sitemap/robots from the SSR tier and gate indexing with a per-deployment env flag
+# 0024 — Serve sitemap/robots from the SSR tier and gate indexing with a per-deployment env flag
 
 **Status:** accepted · **Date:** 2026-07-28
 

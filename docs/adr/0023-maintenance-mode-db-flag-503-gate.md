@@ -1,4 +1,4 @@
-# 0022 — Maintenance mode is a DB-persisted flag enforced as a server-side 503 gate
+# 0023 — Maintenance mode is a DB-persisted flag enforced as a server-side 503 gate
 
 **Status:** accepted · **Date:** 2026-07-28
 
