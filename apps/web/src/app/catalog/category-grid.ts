@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   resource,
@@ -12,6 +13,7 @@ import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
 import { CategoryDeleteDialog } from '../admin/category-delete-dialog';
 import { ProductDeleteDialog } from '../admin/product-delete-dialog';
+import { DeletedProductsSection } from '../admin/deleted-products-section';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
 import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
@@ -39,6 +41,7 @@ const SUBS_COLLAPSED = 4;
     IconButton,
     ProductDeleteDialog,
     CategoryDeleteDialog,
+    DeletedProductsSection,
   ],
   template: `
     <section class="relative pb-8 sm:pb-12">
@@ -49,7 +52,7 @@ const SUBS_COLLAPSED = 4;
         @if (!data) {
           <p class="text-stone-600">{{ text.emptyCategories }}</p>
         } @else {
-          @if (editMode.enabled()) {
+          @if (editControls()) {
             <div class="absolute top-0 right-0 z-10 flex gap-2">
               <a
                 appIconButton
@@ -146,7 +149,7 @@ const SUBS_COLLAPSED = 4;
             <ul
               class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
             >
-              @if (editMode.enabled()) {
+              @if (editControls()) {
                 <li class="h-full">
                   <a
                     [routerLink]="['/admin/products/new']"
@@ -165,7 +168,7 @@ const SUBS_COLLAPSED = 4;
                   <div
                     class="group relative flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white transition-shadow hover:shadow-md"
                   >
-                    @if (editMode.enabled()) {
+                    @if (editControls()) {
                       <div class="absolute top-2 right-2 z-10 flex gap-1.5">
                         <a
                           appIconButton
@@ -249,6 +252,17 @@ const SUBS_COLLAPSED = 4;
             <p class="mt-8 text-stone-600">{{ text.emptyProducts }}</p>
           }
 
+          @defer (when editMode.enabled()) {
+            @if (editMode.enabled()) {
+              <app-deleted-products-section
+                [categorySlug]="data.category.slug"
+                [reloadToken]="deletedReload()"
+                (loaded)="deletedReady.set(true)"
+                (restored)="onProductRestored()"
+              />
+            }
+          }
+
           @defer (when deletingProduct()) {
             @if (deletingProduct(); as target) {
               <app-product-delete-dialog
@@ -316,6 +330,18 @@ export class CategoryGrid {
     slug: string;
     name: string;
   } | null>(null);
+  /** Bumped to re-fetch the edit-mode "Deleted" overlay after a delete/restore. */
+  protected readonly deletedReload = signal(0);
+  /** True once the deleted-products overlay has loaded for the current edit-mode
+   * session; re-armed whenever edit mode turns off. */
+  protected readonly deletedReady = signal(false);
+
+  /** Gate for the in-place edit affordances (＋ tile, per-item and category
+   * controls). Held back until the "Deleted" overlay has loaded so entering edit
+   * mode reveals everything at once instead of flashing the controls first. */
+  protected readonly editControls = computed(
+    () => this.editMode.enabled() && this.deletedReady(),
+  );
 
   protected products = resource({
     params: () => ({ slug: this.slug(), page: this.currentPage() }),
@@ -325,11 +351,24 @@ export class CategoryGrid {
 
   constructor() {
     usePageSeo({ name: () => this.products.value()?.category.name });
+    // Re-arm the gate each time edit mode turns off, so re-entering waits for a
+    // fresh overlay load rather than showing the controls from the last session.
+    effect(() => {
+      if (!this.editMode.enabled()) this.deletedReady.set(false);
+    });
   }
 
   protected onProductDeleted(): void {
     this.deletingProduct.set(null);
     this.products.reload();
+    // The just-deleted product now belongs in the "Deleted" overlay.
+    this.deletedReload.update((v) => v + 1);
+  }
+
+  /** A product was restored from the overlay — it returns to the live grid. */
+  protected onProductRestored(): void {
+    this.products.reload();
+    this.deletedReload.update((v) => v + 1);
   }
 
   /** This category is gone — leave for its parent (or the catalog root). */

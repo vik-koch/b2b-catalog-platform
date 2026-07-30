@@ -364,6 +364,55 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
+  describe('GET /admin/catalog/categories/:slug/deleted-products', () => {
+    it('lists soft-deleted products across the subtree, excluding live ones', async () => {
+      // A deleted product directly under the parent, and one deleted under a
+      // child category — both must surface (Pattern A aggregation). Plus a live
+      // product that must not.
+      const child = await createCategory({ name: `Deleted Sub ${R}` });
+      const directDeleted = await createProduct({ name: `Direct Del ${R}` });
+      const childDeleted = await createProduct({
+        name: `Child Del ${R}`,
+        categoryId: child.data.id,
+      });
+      const live = await createProduct({ name: `Still Live ${R}` });
+
+      await del(`/admin/catalog/products/${directDeleted.data.slug}`);
+      await del(`/admin/catalog/products/${childDeleted.data.slug}`);
+
+      const res = await adminGet(
+        '/admin/catalog/categories/cleaning/deleted-products',
+      );
+      expect(res.status).toBe(200);
+      const slugs = res.data.items.map((i: { slug: string }) => i.slug);
+      expect(slugs).toContain(directDeleted.data.slug);
+      expect(slugs).toContain(childDeleted.data.slug);
+      expect(slugs).not.toContain(live.data.slug);
+      // Public tile shape only — no internal columns leak.
+      expect(Object.keys(res.data.items[0]).sort()).toEqual([
+        'images',
+        'name',
+        'priceMinor',
+        'slug',
+      ]);
+    });
+
+    it('404s an unknown category', async () => {
+      const res = await adminGet(
+        '/admin/catalog/categories/no-such-category/deleted-products',
+      );
+      expect(res.status).toBe(404);
+    });
+
+    it('rejects an anonymous request with 401', async () => {
+      const res = await adminGet(
+        '/admin/catalog/categories/cleaning/deleted-products',
+        '',
+      );
+      expect(res.status).toBe(401);
+    });
+  });
+
   describe('categories', () => {
     it('creates a category in exactly the admin shape', async () => {
       const res = await createCategory({ name: `Cat Shape ${R}` });

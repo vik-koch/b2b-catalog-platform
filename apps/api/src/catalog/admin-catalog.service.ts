@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { asc, count, eq, sql } from 'drizzle-orm';
+import { and, asc, count, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import {
   ADMIN_CATALOG_PAGE_SIZE,
@@ -26,6 +26,8 @@ import {
   ProductAttribute,
   ProductImageRef,
 } from '../db/schema';
+import { categoryBySlug, descendantIds } from './catalog-tree';
+import { ProductListItem } from '@b2b-catalog-platform/shared';
 
 // The API project compiles with strictNullChecks off, under which zod widens
 // every object property to optional (its inference marks any key whose type
@@ -230,6 +232,40 @@ export class AdminCatalogService {
       .returning(adminProductColumns);
     if (!rows[0]) throw new NotFoundException('Product not found');
     return toAdminProduct(rows[0]);
+  }
+
+  /**
+   * The soft-deleted products in a category's subtree, in the public tile shape.
+   * Aggregates over descendants exactly like the storefront grid (Pattern A), so
+   * the edit-mode "Deleted" overlay is consistent with what the live grid shows.
+   */
+  async listDeletedProducts(slug: string): Promise<ProductListItem[]> {
+    const rows = await this.db
+      .select({
+        id: categories.id,
+        slug: categories.slug,
+        name: categories.name,
+        parentId: categories.parentId,
+        image: categories.image,
+        sortOrder: categories.sortOrder,
+      })
+      .from(categories);
+    const category = categoryBySlug(rows, slug);
+    if (!category) throw new NotFoundException('Category not found');
+
+    const ids = descendantIds(category.id, rows);
+    return this.db
+      .select({
+        slug: products.slug,
+        name: products.name,
+        priceMinor: products.priceMinor,
+        images: products.images,
+      })
+      .from(products)
+      .where(
+        and(inArray(products.categoryId, ids), isNotNull(products.deletedAt)),
+      )
+      .orderBy(asc(products.name));
   }
 
   // --- Categories ---------------------------------------------------------

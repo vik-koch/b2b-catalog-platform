@@ -96,6 +96,19 @@ export class AdminCatalogController {
     );
   }
 
+  @TsRestHandler(adminCatalogContract.listDeletedProducts, {
+    validateResponses: true,
+  })
+  listDeletedProducts() {
+    return tsRestHandler(
+      adminCatalogContract.listDeletedProducts,
+      async ({ params: { slug } }) => {
+        const items = await this.service.listDeletedProducts(slug);
+        return { status: 200, body: { items } };
+      },
+    );
+  }
+
   @TsRestHandler(adminCatalogContract.listCategories, {
     validateResponses: true,
   })

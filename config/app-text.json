@@ -218,7 +218,11 @@
     "deleteConfirm": "Delete “{name}”? It stays recoverable from the admin panel.",
     "editCategory": "Edit category",
     "editCategories": "Edit categories",
-    "deleteCategory": "Delete category"
+    "deleteCategory": "Delete category",
+    "deletedHeading": "Deleted",
+    "restore": "Restore",
+    "restoring": "Restoring…",
+    "restoreError": "Could not restore this product. Please try again."
   },
   "adminProducts": {
     "title": "Products",

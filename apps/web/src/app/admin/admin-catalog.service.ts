@@ -4,6 +4,7 @@ import {
   AdminProduct,
   CategoryInput,
   ProductInput,
+  ProductListItem,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../core/api-client';
@@ -67,6 +68,18 @@ export class AdminCatalogService {
     });
     if (response.status === 200) return response.body;
     throw new Error(`Failed to delete product "${slug}" (${response.status})`);
+  }
+
+  /** The soft-deleted products in a category subtree — the edit-mode overlay. */
+  async listDeletedProducts(slug: string): Promise<ProductListItem[]> {
+    const response = await this.client.listDeletedProducts({
+      params: { slug },
+    });
+    if (response.status === 200) return response.body.items;
+    if (response.status === 404) return [];
+    throw new Error(
+      `Failed to list deleted products for "${slug}" (${response.status})`,
+    );
   }
 
   async restoreProduct(slug: string): Promise<AdminProduct> {

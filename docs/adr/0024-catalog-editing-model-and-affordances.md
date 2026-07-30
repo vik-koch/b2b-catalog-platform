@@ -33,11 +33,13 @@ Ship **both surfaces over one write contract**, weighted toward in-place editing
   routes; delete opens a confirmation dialog `@defer`-loaded so the admin write
   client never enters the public bundle.
 - **Admin list pages** (`/admin/products`, `/admin/categories`) are the
-  secondary surface, for scanning the whole catalog and for the one thing edit
-  mode structurally cannot do: seeing and **restoring soft-deleted** products,
-  which are invisible on the storefront.
+  secondary surface, for scanning and bulk-managing the whole catalog.
 - **Products are soft-deleted** (`deletedAt`), reversible via restore; their
   slug is preserved and their public page 404s while deleted.
+- **A "Deleted" overlay** sits beneath each category grid _in edit mode only_,
+  listing the soft-deleted products in that category's subtree with an in-place
+  restore. It is a second, admin-only read (`listDeletedProducts`) fired solely
+  when edit mode is on; the public read path and its SSR output never see it.
 - **Categories are hard-deleted but guarded**: a category with subcategories is
   always blocked (resolve the subtree first); a category with products is
   blocked unless the admin reassigns those products (soft-deleted ones included)
@@ -56,11 +58,25 @@ renders through the storefront's own `ProductDetailView`), so there is no second
 rendering of the catalog to keep in sync. A pure admin panel would have
 duplicated all of that presentation for no gain to a one-person editing team.
 
-The admin list pages still earn their place: soft-deleted products are hidden
-from the storefront by design, so **restore has nowhere to live in edit mode** —
-you cannot click a trash icon on a product you can no longer see. The list is
-the home for restore and for whole-catalog scanning. This is the honest seam
-between the two surfaces, not redundancy.
+Restore is the one operation edit mode cannot reach by the same affordance as
+the others: a soft-deleted product is invisible on the storefront, so there is
+no tile to click. Rather than exile restore to the admin list, edit mode grows a
+dedicated **"Deleted" section** below each category grid — a separate admin-only
+query surfaces the subtree's deleted products so they can be restored where they
+belong. This keeps the public read pure (a conditional "include deleted if admin"
+branch on the public endpoint would make the stable read contract depend on auth
+state, and risk leaking deleted rows into the SSR-rendered, crawler-visible,
+cached HTML). Because the extra fetch only fires when an admin has edit mode on,
+the visitor's render path is byte-for-byte unchanged. The admin list pages still
+earn their place for whole-catalog scanning and bulk work, but restore no longer
+depends on them.
+
+Aggregating the deleted overlay over the category's descendants (Pattern A, like
+the live grid) rather than the exact category was the consistent choice — the
+same tree helper backs both — so "what's deleted here" matches "what shows here".
+The overlay is unpaginated: a single category's deleted set is small, and paging
+it independently of the live grid's server-sliced pages would be awkward for no
+real gain.
 
 Soft delete for products is the safe default for a shop where a "removed"
 product is usually seasonal or temporarily out of stock, and where past
@@ -90,13 +106,17 @@ regardless, so the toggle is a convenience, never a control boundary.
 - (+) One write contract (`admin-catalog.contract.ts`) backs both surfaces;
   storefront read shapes stay untouched and stable.
 - (+) The public bundle carries no admin write client — the affordances are
-  links plus a `@defer`-loaded delete dialog.
+  links plus `@defer`-loaded admin pieces (the delete dialog and the "Deleted"
+  overlay), and the extra deleted-products fetch never runs for a visitor.
+- (+) Restore lives in edit mode where deletion does, so the storefront is a
+  complete edit surface; the admin list is a convenience, not a dependency.
 - (+) Removing a product is reversible and its URL degrades cleanly; the tree
   can never orphan a product.
 - (+) The "always categorised" invariant is enforced at the contract edge, in
   the service, and by the FK — three layers agree.
-- (−) Restore is only reachable from the admin list, not from edit mode — a
-  deliberate asymmetry an admin has to learn (deleted things live in the list).
+- (−) The category grid now issues a second read in edit mode, and keeps the two
+  in sync client-side (a reload token re-fetches the overlay after a delete or
+  restore) — modest extra coordination the live-only grid did not need.
 - (−) Two surfaces to keep coherent as the catalog grows (e.g. a future bulk
   action must decide which surface it belongs to).
 - (−) Products on parent categories are allowed, so an admin can create a
@@ -104,3 +124,13 @@ regardless, so the toggle is a convenience, never a control boundary.
   placement.
 - (−) Category delete is a hard delete: no undo, unlike products. Mitigated by
   the confirmation dialog and the subcategory/product guards.
+- (−) There is no permanent/hard delete for products, deliberately. A product is
+  part of commercial history (past orders, negotiated prices), which this system
+  preserves by design, so soft delete is the terminal state. If real friction
+  ever justifies a purge — clutter from never-sold test products, or reclaiming a
+  soft-deleted product's still-unique `slug`/`sourceId` for reuse — it should be
+  a _guarded_ purge restricted to products no order references, mirroring the
+  category guard, not a general permanent delete. Whether that guard is even
+  required depends on how orders record their line items (a self-contained
+  snapshot makes a purge safe; a live FK does not) — a question left to the
+  future orders ADR, not settled here.

@@ -294,6 +294,10 @@ export const appTextSchema = z
         editCategory: z.string(),
         editCategories: z.string(),
         deleteCategory: z.string(),
+        deletedHeading: z.string(),
+        restore: z.string(),
+        restoring: z.string(),
+        restoreError: z.string(),
       })
       .strict(),
     /** The admin product-list screen (FR-ADM-01): includes soft-deleted rows. */

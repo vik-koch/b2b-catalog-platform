@@ -4,6 +4,7 @@ import {
   catalogImageSchema,
   priceMinorSchema,
   productAttributeSchema,
+  productListItemSchema,
 } from './catalog.contract';
 import { slugSchema } from './slug';
 
@@ -268,6 +269,20 @@ export const adminCatalogContract = c.router(
       body: z.object({}),
       responses: { 200: adminProductSchema, 404: messageSchema },
       summary: 'Restore a soft-deleted product (admin)',
+    },
+    listDeletedProducts: {
+      method: 'GET',
+      path: '/admin/catalog/categories/:slug/deleted-products',
+      // Powers the storefront edit-mode "Deleted" overlay: the soft-deleted
+      // products in this category's subtree (Pattern A, same aggregation as the
+      // public grid), in the public tile shape so the overlay reuses the grid's
+      // tile. Unpaginated — a category's deleted set is small. Fetched only when
+      // an admin has edit mode on, so the public read path stays untouched.
+      responses: {
+        200: z.object({ items: z.array(productListItemSchema) }).strict(),
+        404: messageSchema,
+      },
+      summary: 'List soft-deleted products in a category subtree (admin)',
     },
 
     // --- Categories -------------------------------------------------------
