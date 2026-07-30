@@ -1,10 +1,18 @@
-import { Component, computed, inject, input, resource } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  resource,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { PricePipe } from '../catalog/price.pipe';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
+import { ProductDeleteDialog } from './product-delete-dialog';
 
 /**
  * The admin product list: every product including soft-deleted ones
@@ -15,7 +23,7 @@ import { AdminCatalogService } from './admin-catalog.service';
  */
 @Component({
   selector: 'app-admin-product-list-page',
-  imports: [RouterLink, PricePipe, Button, LucideIcon],
+  imports: [RouterLink, PricePipe, Button, LucideIcon, ProductDeleteDialog],
   template: `
     <div class="mb-6 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
@@ -104,7 +112,7 @@ import { AdminCatalogService } from './admin-catalog.service';
                         type="button"
                         class="p-1.5 text-stone-500 hover:text-red-700"
                         [attr.aria-label]="editText.deleteProduct"
-                        (click)="remove(item)"
+                        (click)="deletingProduct.set(item)"
                       >
                         <app-lucide-icon name="trash-2" class="h-4 w-4" />
                       </button>
@@ -154,6 +162,15 @@ import { AdminCatalogService } from './admin-catalog.service';
     } @else {
       <p class="text-stone-500" role="status">…</p>
     }
+
+    @if (deletingProduct(); as target) {
+      <app-product-delete-dialog
+        [slug]="target.slug"
+        [name]="target.name"
+        (deleted)="onProductDeleted()"
+        (cancelled)="deletingProduct.set(null)"
+      />
+    }
   `,
 })
 export class AdminProductListPage {
@@ -182,10 +199,14 @@ export class AdminProductListPage {
     loader: ({ params }) => this.admin.listProducts({ page: params.page }),
   });
 
-  protected async remove(item: { slug: string; name: string }): Promise<void> {
-    const message = this.editText.deleteConfirm.replace('{name}', item.name);
-    if (!window.confirm(message)) return;
-    await this.admin.deleteProduct(item.slug);
+  /** The product whose delete confirmation modal is open, if any. */
+  protected readonly deletingProduct = signal<{
+    slug: string;
+    name: string;
+  } | null>(null);
+
+  protected onProductDeleted(): void {
+    this.deletingProduct.set(null);
     this.products.reload();
   }
 

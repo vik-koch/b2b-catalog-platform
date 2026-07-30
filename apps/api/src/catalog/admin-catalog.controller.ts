@@ -138,8 +138,8 @@ export class AdminCatalogController {
   deleteCategory() {
     return tsRestHandler(
       adminCatalogContract.deleteCategory,
-      async ({ params: { id } }) => {
-        const body = await this.service.deleteCategory(id);
+      async ({ params: { id }, query }) => {
+        const body = await this.service.deleteCategory(id, query.reassignTo);
         return { status: 200, body };
       },
     );

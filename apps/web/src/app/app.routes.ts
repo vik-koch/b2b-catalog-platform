@@ -3,6 +3,7 @@ import { PAGE_SLUGS } from '@b2b-catalog-platform/shared';
 import { guestOnly, requireAuth } from './auth/auth.guard';
 import { maintenanceGate } from './admin/maintenance.guard';
 import { productUnsavedChangesGuard } from './admin/product-unsaved-changes.guard';
+import { categoryUnsavedChangesGuard } from './admin/category-unsaved-changes.guard';
 import { NotFoundPage } from './pages/not-found-page';
 import { ContactPage } from './pages/contact-page';
 import { InquiryPage } from './pages/inquiry-page';
@@ -45,6 +46,15 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/admin-category-list-page').then(
         (m) => m.AdminCategoryListPage,
+      ),
+  },
+  {
+    path: 'admin/categories/:slug/edit',
+    canActivate: [requireAuth('admin')],
+    canDeactivate: [categoryUnsavedChangesGuard],
+    loadComponent: () =>
+      import('./admin/admin-category-editor-page').then(
+        (m) => m.AdminCategoryEditorPage,
       ),
   },
   {

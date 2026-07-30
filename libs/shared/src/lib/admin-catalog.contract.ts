@@ -298,15 +298,23 @@ export const adminCatalogContract = c.router(
       method: 'DELETE',
       path: '/admin/catalog/categories/:id',
       pathParams: z.object({ id: z.string().uuid() }),
+      // `reassignTo` moves every product (including soft-deleted ones — the FK
+      // is `restrict` and blocks on those too) to another category first, so a
+      // populated category can be deleted without orphaning its products. Omit
+      // it to keep the strict guard (409 if the category has any products).
+      // Subcategories always block regardless — the admin resolves the subtree
+      // first; reassignment never merges child categories.
+      query: z.object({ reassignTo: z.string().uuid().optional() }),
       body: z.void(),
       responses: {
         200: messageSchema,
+        // Category (or the reassign target) not found.
         404: messageSchema,
-        // Category still has products or child categories (FK restrict).
+        // Blocked: has subcategories, or has products and no `reassignTo`.
         409: messageSchema,
       },
       summary:
-        'Delete an empty category (admin; 409 if it has products/children)',
+        'Delete a category (admin; optionally reassign its products first)',
     },
     reorderCategories: {
       method: 'PATCH',

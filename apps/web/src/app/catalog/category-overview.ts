@@ -3,6 +3,10 @@ import { RouterLink } from '@angular/router';
 import { CategoryNode } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
+import { EditModeService } from '../admin/edit-mode.service';
+import { CategoryDeleteDialog } from '../admin/category-delete-dialog';
+import { IconButton } from '../ui/icon-button';
+import { LucideIcon } from '../ui/icons/lucide-icon';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
 
@@ -17,9 +21,26 @@ const MAX_CHILD_LINKS = 3;
  */
 @Component({
   selector: 'app-category-overview',
-  imports: [RouterLink, ImagePlaceholder],
+  imports: [
+    RouterLink,
+    ImagePlaceholder,
+    LucideIcon,
+    IconButton,
+    CategoryDeleteDialog,
+  ],
   template: `
-    <section class="pb-12 sm:pb-16">
+    <section class="relative pb-12 sm:pb-16">
+      @if (editMode.enabled()) {
+        <a
+          appIconButton
+          class="absolute top-0 right-0 z-10"
+          [routerLink]="['/admin/categories']"
+          [attr.aria-label]="editText.editCategories"
+          [attr.title]="editText.editCategories"
+        >
+          <app-lucide-icon name="pencil" class="h-5 w-5" />
+        </a>
+      }
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         {{ text.overviewTitle }}
       </h1>
@@ -35,7 +56,29 @@ const MAX_CHILD_LINKS = 3;
             class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
           >
             @for (cat of cats; track cat.slug) {
-              <li class="group">
+              <li class="group relative">
+                @if (editMode.enabled()) {
+                  <div class="absolute top-2 right-2 z-10 flex gap-1.5">
+                    <a
+                      appIconButton
+                      [routerLink]="['/admin/categories', cat.slug, 'edit']"
+                      [attr.aria-label]="editText.editCategory"
+                    >
+                      <app-lucide-icon name="pencil" class="h-4 w-4" />
+                    </a>
+                    <button
+                      appIconButton
+                      variant="danger"
+                      type="button"
+                      [attr.aria-label]="editText.deleteCategory"
+                      (click)="
+                        deletingCategory.set({ slug: cat.slug, name: cat.name })
+                      "
+                    >
+                      <app-lucide-icon name="trash-2" class="h-4 w-4" />
+                    </button>
+                  </div>
+                }
                 <a
                   [routerLink]="['/catalog', cat.slug]"
                   [attr.aria-label]="viewCategoryLabel(cat.name)"
@@ -105,17 +148,40 @@ const MAX_CHILD_LINKS = 3;
           }
         </div>
       }
+
+      @defer (when deletingCategory()) {
+        @if (deletingCategory(); as target) {
+          <app-category-delete-dialog
+            [slug]="target.slug"
+            [name]="target.name"
+            (deleted)="onCategoryDeleted()"
+            (cancelled)="deletingCategory.set(null)"
+          />
+        }
+      }
     </section>
   `,
 })
 export class CategoryOverview {
   private catalog = inject(CatalogService);
+  protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly editText = inject(APP_TEXT).editMode;
   protected readonly skeletons = Array.from({ length: 12 }, (_, i) => i);
+  /** The top-level category whose delete confirmation is open, if any. */
+  protected readonly deletingCategory = signal<{
+    slug: string;
+    name: string;
+  } | null>(null);
 
   protected categories = resource({
     loader: () => this.catalog.getCategoryTree(),
   });
+
+  protected onCategoryDeleted(): void {
+    this.deletingCategory.set(null);
+    this.categories.reload();
+  }
 
   constructor() {
     usePageSeo({

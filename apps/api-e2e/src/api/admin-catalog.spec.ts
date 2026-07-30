@@ -389,6 +389,64 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(res.status).toBe(409);
     });
 
+    it('reassigns products (including soft-deleted) to another category, then deletes it (200)', async () => {
+      const src = await createCategory({ name: `Src ${R}` });
+      const dest = await createCategory({ name: `Dest ${R}` });
+      const live = await createProduct({
+        name: `Live ${R}`,
+        categoryId: src.data.id,
+      });
+      const gone = await createProduct({
+        name: `Gone ${R}`,
+        categoryId: src.data.id,
+      });
+      // Soft-delete one: it still carries the categoryId FK, so it must move too
+      // or the delete would still be blocked.
+      await del(`/admin/catalog/products/${gone.data.slug}`);
+
+      const res = await del(
+        `/admin/catalog/categories/${src.data.id}?reassignTo=${dest.data.id}`,
+      );
+      expect(res.status).toBe(200);
+
+      const { rows: catRows } = await client.query(
+        'SELECT COUNT(*)::int AS count FROM categories WHERE id = $1',
+        [src.data.id],
+      );
+      expect(catRows[0].count).toBe(0);
+
+      const { rows: prodRows } = await client.query(
+        'SELECT "categoryId" FROM products WHERE slug = ANY($1)',
+        [[live.data.slug, gone.data.slug]],
+      );
+      expect(prodRows).toHaveLength(2);
+      for (const row of prodRows) {
+        expect(row.categoryId).toBe(dest.data.id);
+      }
+    });
+
+    it('404s a delete whose reassign target does not exist', async () => {
+      const src = await createCategory({ name: `Src NoTarget ${R}` });
+      await createProduct({ name: `Stuck ${R}`, categoryId: src.data.id });
+
+      const res = await del(
+        `/admin/catalog/categories/${src.data.id}` +
+          `?reassignTo=00000000-0000-0000-0000-000000000000`,
+      );
+      expect(res.status).toBe(404);
+    });
+
+    it('still refuses to delete a category with subcategories, even with reassignTo (409)', async () => {
+      const parent = await createCategory({ name: `HasChild ${R}` });
+      await createCategory({ name: `Child ${R}`, parentId: parent.data.id });
+      const dest = await createCategory({ name: `Dest Child ${R}` });
+
+      const res = await del(
+        `/admin/catalog/categories/${parent.data.id}?reassignTo=${dest.data.id}`,
+      );
+      expect(res.status).toBe(409);
+    });
+
     it('deletes an empty category', async () => {
       const cat = await createCategory({ name: `Empty ${R}` });
 

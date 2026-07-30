@@ -1,24 +1,34 @@
-import { Component, inject, input, resource } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, input, resource, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
-import { ProductAdminControls } from '../admin/product-admin-controls';
+import { ProductDeleteDialog } from '../admin/product-delete-dialog';
+import { IconButton } from '../ui/icon-button';
+import { LucideIcon } from '../ui/icons/lucide-icon';
 import { CatalogService } from './catalog.service';
 import { ProductDetailView } from './product-detail-view';
 
 /**
  * The product page route (FR-CAT-05): loads a product by slug and renders it
  * through the shared presentational view, with load/not-found states and SEO.
- * In admin edit mode it lazy-loads inline edit/delete controls (FR-ADM-01), so
- * the public bundle carries none of the admin write client.
+ * In admin edit mode it shows edit/delete icons anchored to the section's
+ * top-right corner (a consistent spot across the storefront) — edit links to
+ * the editor; delete opens a confirmation modal lazy-loaded via `@defer`, so the
+ * public bundle carries no admin write client.
  */
 @Component({
   selector: 'app-product-detail',
-  imports: [ProductDetailView, ProductAdminControls],
+  imports: [
+    ProductDetailView,
+    ProductDeleteDialog,
+    RouterLink,
+    IconButton,
+    LucideIcon,
+  ],
   template: `
-    <section class="pb-8 sm:pb-12">
+    <section class="relative pb-8 sm:pb-12">
       @if (product.error()) {
         <p class="text-stone-600">{{ text.loadError }}</p>
       } @else if (product.hasValue()) {
@@ -26,17 +36,41 @@ import { ProductDetailView } from './product-detail-view';
         @if (!item) {
           <p class="text-stone-600">{{ text.productNotFound }}</p>
         } @else {
-          @defer (when editMode.enabled()) {
-            @if (editMode.enabled()) {
-              <app-product-admin-controls
-                variant="bar"
+          @if (editMode.enabled()) {
+            <div class="absolute top-0 right-0 z-10 flex gap-2">
+              <a
+                appIconButton
+                [routerLink]="['/admin/products', item.slug, 'edit']"
+                [attr.aria-label]="editText.editProduct"
+                [attr.title]="editText.editProduct"
+              >
+                <app-lucide-icon name="pencil" class="h-5 w-5" />
+              </a>
+              <button
+                appIconButton
+                variant="danger"
+                type="button"
+                [attr.aria-label]="editText.deleteProduct"
+                [attr.title]="editText.deleteProduct"
+                (click)="confirmingDelete.set(true)"
+              >
+                <app-lucide-icon name="trash-2" class="h-5 w-5" />
+              </button>
+            </div>
+          }
+
+          <app-product-detail-view [item]="item" />
+
+          @defer (when confirmingDelete()) {
+            @if (confirmingDelete()) {
+              <app-product-delete-dialog
                 [slug]="item.slug"
                 [name]="item.name"
                 (deleted)="onDeleted(item)"
+                (cancelled)="confirmingDelete.set(false)"
               />
             }
           }
-          <app-product-detail-view [item]="item" />
         }
       } @else {
         <div class="grid animate-pulse gap-8 lg:grid-cols-2" aria-hidden="true">
@@ -57,8 +91,10 @@ export class ProductDetail {
   private readonly router = inject(Router);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly editText = inject(APP_TEXT).editMode;
 
   slug = input.required<string>();
+  protected readonly confirmingDelete = signal(false);
 
   protected product = resource({
     params: () => ({ slug: this.slug() }),

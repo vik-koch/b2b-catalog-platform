@@ -18,9 +18,14 @@ import { flattenCategoryTree } from './category-tree';
         [attr.aria-label]="ariaLabel() || placeholder()"
         (change)="onChange($event)"
       >
-        <option value="" disabled [selected]="!value()">
-          {{ placeholder() }}
-        </option>
+        @if (emptyLabel() !== null) {
+          <!-- A selectable "none" (e.g. top-level) — opt-in via emptyLabel. -->
+          <option value="" [selected]="!value()">{{ emptyLabel() }}</option>
+        } @else {
+          <option value="" disabled [selected]="!value()">
+            {{ placeholder() }}
+          </option>
+        }
         @for (o of options(); track o.id) {
           <option [value]="o.id" [selected]="o.id === value()">
             {{ indent(o.depth) }}{{ o.name }}
@@ -38,6 +43,10 @@ export class CategoryPicker {
   readonly categories = input.required<readonly AdminCategory[]>();
   readonly value = input<string | null>(null);
   readonly placeholder = input('');
+  /** When set, adds a selectable empty option with this label (value ""), for
+   * pickers where "none" is valid — e.g. a top-level category. The product
+   * editor leaves it null so a category stays required. */
+  readonly emptyLabel = input<string | null>(null);
   /** Accessible name for the field (the visible label sits outside). */
   readonly ariaLabel = input('');
   readonly valueChange = output<string>();

@@ -98,14 +98,25 @@ export class AdminCatalogService {
     throw new Error(`Failed to update category "${id}" (${response.status})`);
   }
 
-  /** `false` when the category still has products or children (409). */
-  async deleteCategory(id: string): Promise<boolean> {
+  /**
+   * Deletes a category. Pass `reassignTo` to move its products (including
+   * soft-deleted ones) to that category first — the way to delete a populated
+   * one. Returns a typed blocked result (409: subcategories, or products with no
+   * `reassignTo`; 404: reassign target gone) rather than throwing.
+   */
+  async deleteCategory(
+    id: string,
+    reassignTo?: string,
+  ): Promise<CategoryDeleteResult> {
     const response = await this.client.deleteCategory({
       params: { id },
+      query: reassignTo ? { reassignTo } : {},
       body: undefined,
     });
-    if (response.status === 200) return true;
-    if (response.status === 409) return false;
+    if (response.status === 200) return { ok: true };
+    if (response.status === 409 || response.status === 404) {
+      return { ok: false, message: response.body.message };
+    }
     throw new Error(`Failed to delete category "${id}" (${response.status})`);
   }
 
@@ -119,4 +130,9 @@ export class AdminCatalogService {
 /** A create/update outcome: the stored product, or a message to show inline. */
 export type SaveResult =
   | { ok: true; product: AdminProduct }
+  | { ok: false; message: string };
+
+/** A category delete outcome: done, or blocked with a message to show. */
+export type CategoryDeleteResult =
+  | { ok: true }
   | { ok: false; message: string };

@@ -1,11 +1,11 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AuthUser, Page as PageContent } from '@b2b-catalog-platform/shared';
+import { Page as PageContent } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
-import { AuthService } from '../auth/auth.service';
+import { EditModeService } from '../admin/edit-mode.service';
 import { Page } from './page';
 import { PageService } from './page.service';
 
@@ -15,14 +15,9 @@ const about: PageContent = {
   updatedAt: '2026-07-25T10:00:00.000Z',
 };
 
-const admin: AuthUser = {
-  id: 'a1',
-  email: 'admin@example.com',
-  role: 'admin',
-  mustChangePassword: false,
-};
-
-async function render(user: AuthUser | null) {
+/** The pencil is an edit-mode affordance; who may enable edit mode (admin only)
+ * is EditModeService's concern, so the component test just drives `enabled`. */
+async function render(editModeEnabled: boolean) {
   TestBed.configureTestingModule({
     imports: [Page],
     providers: [
@@ -33,7 +28,10 @@ async function render(user: AuthUser | null) {
           branding: { title: 'Test Shop' },
         } as unknown as DeploymentConfig,
       },
-      { provide: AuthService, useValue: { user: signal(user) } },
+      {
+        provide: EditModeService,
+        useValue: { enabled: signal(editModeEnabled) },
+      },
       { provide: PageService, useValue: { getPage: async () => about } },
     ],
   });
@@ -48,23 +46,17 @@ const editButton = (el: HTMLElement) =>
 
 describe('Page', () => {
   it('renders the page title and body', async () => {
-    const el = await render(null);
+    const el = await render(false);
 
     expect(el.querySelector('h1')?.textContent).toContain('About us');
     expect(el.querySelector('.prose')?.innerHTML).toContain('Original copy.');
   });
 
-  it('offers no edit button to a signed-out visitor', async () => {
-    expect(editButton(await render(null))).toBeNull();
+  it('offers no edit button when edit mode is off', async () => {
+    expect(editButton(await render(false))).toBeNull();
   });
 
-  it('offers no edit button to a manager', async () => {
-    const el = await render({ ...admin, role: 'manager' });
-
-    expect(editButton(el)).toBeNull();
-  });
-
-  it('offers an edit button to an admin', async () => {
-    expect(editButton(await render(admin))).not.toBeNull();
+  it('offers an edit button when edit mode is on', async () => {
+    expect(editButton(await render(true))).not.toBeNull();
   });
 });

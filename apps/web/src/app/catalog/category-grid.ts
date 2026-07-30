@@ -6,12 +6,14 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
-import { ProductAdminControls } from '../admin/product-admin-controls';
+import { CategoryDeleteDialog } from '../admin/category-delete-dialog';
+import { ProductDeleteDialog } from '../admin/product-delete-dialog';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
+import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { CatalogService } from './catalog.service';
 import { PricePipe } from './price.pipe';
@@ -34,10 +36,12 @@ const SUBS_COLLAPSED = 4;
     ChevronRightIcon,
     TileGallery,
     LucideIcon,
-    ProductAdminControls,
+    IconButton,
+    ProductDeleteDialog,
+    CategoryDeleteDialog,
   ],
   template: `
-    <section class="pb-8 sm:pb-12">
+    <section class="relative pb-8 sm:pb-12">
       @if (products.error()) {
         <p class="text-stone-600">{{ text.loadError }}</p>
       } @else if (products.hasValue()) {
@@ -45,6 +49,33 @@ const SUBS_COLLAPSED = 4;
         @if (!data) {
           <p class="text-stone-600">{{ text.emptyCategories }}</p>
         } @else {
+          @if (editMode.enabled()) {
+            <div class="absolute top-0 right-0 z-10 flex gap-2">
+              <a
+                appIconButton
+                [routerLink]="['/admin/categories', data.category.slug, 'edit']"
+                [attr.aria-label]="editText.editCategory"
+                [attr.title]="editText.editCategory"
+              >
+                <app-lucide-icon name="pencil" class="h-5 w-5" />
+              </a>
+              <button
+                appIconButton
+                variant="danger"
+                type="button"
+                [attr.aria-label]="editText.deleteCategory"
+                [attr.title]="editText.deleteCategory"
+                (click)="
+                  deletingCategory.set({
+                    slug: data.category.slug,
+                    name: data.category.name,
+                  })
+                "
+              >
+                <app-lucide-icon name="trash-2" class="h-5 w-5" />
+              </button>
+            </div>
+          }
           <nav [attr.aria-label]="text.catalogRoot">
             <ol
               class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-stone-500"
@@ -134,15 +165,25 @@ const SUBS_COLLAPSED = 4;
                   <div
                     class="group relative flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white transition-shadow hover:shadow-md"
                   >
-                    @defer (when editMode.enabled()) {
-                      @if (editMode.enabled()) {
-                        <app-product-admin-controls
-                          variant="overlay"
-                          [slug]="item.slug"
-                          [name]="item.name"
-                          (deleted)="products.reload()"
-                        />
-                      }
+                    @if (editMode.enabled()) {
+                      <div class="absolute top-2 right-2 z-10 flex gap-1.5">
+                        <a
+                          appIconButton
+                          [routerLink]="['/admin/products', item.slug, 'edit']"
+                          [attr.aria-label]="editText.editProduct"
+                        >
+                          <app-lucide-icon name="pencil" class="h-4 w-4" />
+                        </a>
+                        <button
+                          appIconButton
+                          variant="danger"
+                          type="button"
+                          [attr.aria-label]="editText.deleteProduct"
+                          (click)="deletingProduct.set(item)"
+                        >
+                          <app-lucide-icon name="trash-2" class="h-4 w-4" />
+                        </button>
+                      </div>
                     }
                     <app-tile-gallery
                       [images]="item.images"
@@ -207,6 +248,30 @@ const SUBS_COLLAPSED = 4;
           } @else {
             <p class="mt-8 text-stone-600">{{ text.emptyProducts }}</p>
           }
+
+          @defer (when deletingProduct()) {
+            @if (deletingProduct(); as target) {
+              <app-product-delete-dialog
+                [slug]="target.slug"
+                [name]="target.name"
+                (deleted)="onProductDeleted()"
+                (cancelled)="deletingProduct.set(null)"
+              />
+            }
+          }
+
+          @defer (when deletingCategory()) {
+            @if (deletingCategory(); as target) {
+              <app-category-delete-dialog
+                [slug]="target.slug"
+                [name]="target.name"
+                (deleted)="
+                  onCategoryDeleted(data.category.ancestors.at(-1)?.slug)
+                "
+                (cancelled)="deletingCategory.set(null)"
+              />
+            }
+          }
         }
       } @else {
         <div class="animate-pulse space-y-8" aria-hidden="true">
@@ -225,6 +290,7 @@ const SUBS_COLLAPSED = 4;
 })
 export class CategoryGrid {
   private catalog = inject(CatalogService);
+  private readonly router = inject(Router);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly editText = inject(APP_TEXT).editMode;
@@ -240,6 +306,16 @@ export class CategoryGrid {
   });
 
   protected showAllSubs = signal(false);
+  /** The product whose delete confirmation is open, if any. */
+  protected readonly deletingProduct = signal<{
+    slug: string;
+    name: string;
+  } | null>(null);
+  /** The category (this page's own) whose delete confirmation is open. */
+  protected readonly deletingCategory = signal<{
+    slug: string;
+    name: string;
+  } | null>(null);
 
   protected products = resource({
     params: () => ({ slug: this.slug(), page: this.currentPage() }),
@@ -249,6 +325,19 @@ export class CategoryGrid {
 
   constructor() {
     usePageSeo({ name: () => this.products.value()?.category.name });
+  }
+
+  protected onProductDeleted(): void {
+    this.deletingProduct.set(null);
+    this.products.reload();
+  }
+
+  /** This category is gone — leave for its parent (or the catalog root). */
+  protected onCategoryDeleted(parentSlug: string | undefined): void {
+    this.deletingCategory.set(null);
+    void this.router.navigate(
+      parentSlug ? ['/catalog', parentSlug] : ['/catalog'],
+    );
   }
 
   protected visibleSubs<T>(subs: readonly T[]): readonly T[] {

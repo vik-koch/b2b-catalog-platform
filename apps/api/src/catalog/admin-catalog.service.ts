@@ -332,30 +332,56 @@ export class AdminCatalogService {
   }
 
   /**
-   * Hard delete, guarded. A category still referenced by any product (including
-   * a soft-deleted one — the FK is `restrict` and does not distinguish) or by a
-   * child category cannot be removed; the admin reassigns or removes those
-   * first.
+   * Hard delete, guarded. Subcategories always block — the admin resolves the
+   * subtree first; reassignment never merges child categories. Products
+   * (including soft-deleted ones — the FK is `restrict` and does not
+   * distinguish) block too, unless `reassignToId` is given: then every product
+   * is moved to that category first, in one transaction with the delete, so a
+   * populated category can be removed without orphaning anything.
    */
-  async deleteCategory(id: string): Promise<{ message: string }> {
+  async deleteCategory(
+    id: string,
+    reassignToId?: string,
+  ): Promise<{ message: string }> {
     const existing = await this.categoryById(id);
     if (!existing) throw new NotFoundException('Category not found');
+
+    const [{ value: childCount }] = await this.db
+      .select({ value: count() })
+      .from(categories)
+      .where(eq(categories.parentId, id));
+    if (Number(childCount) > 0) {
+      throw new ConflictException('Category still has subcategories');
+    }
 
     const [{ value: productCount }] = await this.db
       .select({ value: count() })
       .from(products)
       .where(eq(products.categoryId, id));
-    const [{ value: childCount }] = await this.db
-      .select({ value: count() })
-      .from(categories)
-      .where(eq(categories.parentId, id));
-    if (Number(productCount) > 0 || Number(childCount) > 0) {
-      throw new ConflictException(
-        'Category still has products or subcategories',
-      );
+
+    if (Number(productCount) === 0) {
+      await this.db.delete(categories).where(eq(categories.id, id));
+      return { message: 'Category deleted' };
     }
 
-    await this.db.delete(categories).where(eq(categories.id, id));
+    if (!reassignToId) {
+      throw new ConflictException('Category still has products');
+    }
+    if (reassignToId === id) {
+      throw new ConflictException('Cannot reassign a category to itself');
+    }
+    const target = await this.categoryById(reassignToId);
+    if (!target) throw new NotFoundException('Target category not found');
+
+    await this.db.transaction(async (tx) => {
+      // No deletedAt filter: soft-deleted products carry the FK too, so they
+      // must move as well or the delete would still fail.
+      await tx
+        .update(products)
+        .set({ categoryId: reassignToId, updatedAt: new Date() })
+        .where(eq(products.categoryId, id));
+      await tx.delete(categories).where(eq(categories.id, id));
+    });
     return { message: 'Category deleted' };
   }
 

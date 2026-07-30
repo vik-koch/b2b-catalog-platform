@@ -61,7 +61,7 @@ import { AdminCatalogService } from './admin-catalog.service';
           <span class="mb-1 block text-sm font-medium">{{ text.name }}</span>
           <input
             type="text"
-            class="w-full rounded-md border border-stone-300 px-3 py-2 text-lg focus:border-primary focus:outline-none"
+            class="w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
             [value]="name()"
             (input)="name.set($any($event.target).value)"
           />

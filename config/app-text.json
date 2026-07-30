@@ -217,7 +217,10 @@
     "editProduct": "Edit product",
     "addProduct": "Add product",
     "deleteProduct": "Delete product",
-    "deleteConfirm": "Delete “{name}”? It stays recoverable from the admin panel."
+    "deleteConfirm": "Delete “{name}”? It stays recoverable from the admin panel.",
+    "editCategory": "Edit category",
+    "editCategories": "Edit categories",
+    "deleteCategory": "Delete category"
   },
   "adminProducts": {
     "title": "Products",
@@ -227,6 +230,7 @@
   },
   "adminCategories": {
     "title": "Categories",
+    "editTitle": "Edit category",
     "add": "Add category",
     "addChild": "Add subcategory",
     "parent": "Parent category",
@@ -238,11 +242,25 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "edit": "Edit",
-    "done": "Done",
     "delete": "Delete",
+    "deleting": "Deleting…",
+    "deleteTitle": "Delete category",
+    "deleteConfirm": "Delete “{name}”?",
+    "deleteReassignIntro": "“{name}” still has {count} product(s). Choose a category to move them to, then delete.",
+    "reassignLabel": "Move products to",
+    "reassignPlaceholder": "Select a category…",
+    "deleteBlockedChildren": "“{name}” has subcategories. Delete or move those first.",
+    "deleteError": "This category could not be deleted. Please try again.",
     "deleteBlocked": "This category still has products or subcategories, so it can't be deleted.",
+    "discardConfirm": "Discard your unsaved changes to this category?",
+    "saveError": "This category could not be saved. Please try again.",
     "empty": "No categories yet.",
     "defaultName": "New category"
+  },
+  "adminPanel": {
+    "catalog": "Catalog",
+    "content": "Content pages",
+    "site": "Site"
   },
   "errors": {
     "notFoundTitle": "Page not found",

@@ -293,6 +293,9 @@ export const appTextSchema = z
         addProduct: z.string(),
         deleteProduct: z.string(),
         deleteConfirm: z.string(),
+        editCategory: z.string(),
+        editCategories: z.string(),
+        deleteCategory: z.string(),
       })
       .strict(),
     /** The admin product-list screen (FR-ADM-01): includes soft-deleted rows. */
@@ -308,6 +311,7 @@ export const appTextSchema = z
     adminCategories: z
       .object({
         title: z.string(),
+        editTitle: z.string(),
         add: z.string(),
         addChild: z.string(),
         parent: z.string(),
@@ -319,11 +323,29 @@ export const appTextSchema = z
         moveUp: z.string(),
         moveDown: z.string(),
         edit: z.string(),
-        done: z.string(),
         delete: z.string(),
+        deleting: z.string(),
+        /** Delete-confirmation modal. `{name}`/`{count}` substituted at render. */
+        deleteTitle: z.string(),
+        deleteConfirm: z.string(),
+        deleteReassignIntro: z.string(),
+        reassignLabel: z.string(),
+        reassignPlaceholder: z.string(),
+        deleteBlockedChildren: z.string(),
+        deleteError: z.string(),
         deleteBlocked: z.string(),
+        discardConfirm: z.string(),
+        saveError: z.string(),
         empty: z.string(),
         defaultName: z.string(),
+      })
+      .strict(),
+    /** Section headings for the admin panel dashboard (FR-ADM-01/03/04). */
+    adminPanel: z
+      .object({
+        catalog: z.string(),
+        content: z.string(),
+        site: z.string(),
       })
       .strict(),
     errors: z
