@@ -9,11 +9,13 @@ import {
 import {
   Component,
   ElementRef,
+  HostListener,
   afterRenderEffect,
   computed,
   inject,
   input,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import {
@@ -95,11 +97,13 @@ import {
                 [attr.data-row]="$index"
                 data-col="0"
                 class="h-10 border border-border-strong bg-white px-2 py-1.5 align-center"
+                [class]="cellFocus($index, 0)"
               ></td>
               <td
                 [attr.data-row]="$index"
                 data-col="1"
                 class="h-10 border border-border-strong bg-white px-2 py-1.5 align-center"
+                [class]="cellFocus($index, 1)"
               ></td>
               <td
                 contenteditable="false"
@@ -168,6 +172,41 @@ export class ProductAttributesEditor {
         this.writeCell(tr, 1, row.value);
       });
     });
+  }
+
+  /**
+   * The cell the caret sits in, as "row:col". The grid is a single
+   * contenteditable region, so no individual cell ever takes DOM focus and
+   * `:focus` cannot reach one — the selection is the only signal for which cell
+   * is being edited, and without it the grid is the one control in the app that
+   * shows nothing on focus.
+   */
+  private readonly activeCell = signal<string | null>(null);
+
+  @HostListener('document:selectionchange')
+  protected onSelectionChange(): void {
+    const tbody = this.grid()?.nativeElement;
+    const anchor = document.getSelection()?.anchorNode;
+    if (!tbody || !anchor || !tbody.contains(anchor)) {
+      this.activeCell.set(null);
+      return;
+    }
+    const element =
+      anchor instanceof Element ? anchor : (anchor.parentElement ?? null);
+    const cell = element?.closest('td[data-col]');
+    this.activeCell.set(
+      cell
+        ? `${cell.getAttribute('data-row')}:${cell.getAttribute('data-col')}`
+        : null,
+    );
+  }
+
+  /** Matches the focus outline of a normal input, drawn inside the cell's own
+   * border so it never overlaps its neighbours. */
+  protected cellFocus(row: number, col: number): string {
+    return this.activeCell() === `${row}:${col}`
+      ? 'outline-2 -outline-offset-2 outline-primary'
+      : '';
   }
 
   // --- Row actions ---------------------------------------------------------

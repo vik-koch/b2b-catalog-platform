@@ -220,10 +220,13 @@ const completePhone = (mask: string): ValidatorFn => {
 
           <div>
             <label class="flex items-start gap-2 text-sm">
+              <!-- Sized explicitly so the nudge is exact: a 16px box in the 20px
+                   line box of text-sm sits 2px down. At the browser's default
+                   size (~13px) the same nudge reads as too high. -->
               <input
                 type="checkbox"
                 formControlName="acceptPrivacy"
-                class="mt-0.5 accent-primary"
+                class="mt-0.5 h-4 w-4 shrink-0 accent-primary"
                 aria-required="true"
                 [attr.aria-invalid]="isInvalid('acceptPrivacy') || null"
               />
