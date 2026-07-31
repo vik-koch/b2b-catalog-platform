@@ -14,6 +14,7 @@ import { delayedLoading } from '../core/delayed-loading';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
+import { injectEditorReturnParams } from './editor-return';
 import { CategoryDeleteDialog } from './category-delete-dialog';
 import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
 
@@ -42,10 +43,15 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
   template: `
     <div class="mb-6 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-      <button appButton type="button" class="gap-2" (click)="addRoot()">
+      <a
+        appButton
+        routerLink="/admin/categories/new"
+        [queryParams]="editorFrom"
+        class="gap-2"
+      >
         <app-lucide-icon name="plus" class="h-4 w-4" />
         {{ text.add }}
-      </button>
+      </a>
     </div>
 
     @if (categories.error()) {
@@ -83,20 +89,24 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
               <span class="flex-1 font-medium text-stone-700">
                 {{ branch.category.name }}
               </span>
-              <button
-                type="button"
+              <a
+                routerLink="/admin/categories/new"
+                [queryParams]="{
+                  parent: branch.category.slug,
+                  from: editorFrom.from,
+                }"
                 class="p-1 text-stone-400 hover:text-accent"
                 [attr.aria-label]="text.addChild"
-                (click)="addChild(branch.category)"
               >
                 <app-lucide-icon name="plus" class="h-4 w-4" />
-              </button>
+              </a>
               <a
                 [routerLink]="[
                   '/admin/categories',
                   branch.category.slug,
                   'edit',
                 ]"
+                [queryParams]="editorFrom"
                 class="p-1 text-stone-400 hover:text-accent"
                 [attr.aria-label]="text.edit"
               >
@@ -141,6 +151,7 @@ export class AdminCategoryListPage {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).categories;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly editorFrom = injectEditorReturnParams();
 
   /** The category whose delete confirmation modal is open, if any. */
   protected readonly deletingCategory = signal<AdminCategory | null>(null);
@@ -159,26 +170,6 @@ export class AdminCategoryListPage {
 
   protected onCategoryDeleted(): void {
     this.deletingCategory.set(null);
-    this.categories.reload();
-  }
-
-  protected async addRoot(): Promise<void> {
-    await this.admin.createCategory({
-      name: this.text.defaultName,
-      parentId: null,
-      image: null,
-      description: null,
-    });
-    this.categories.reload();
-  }
-
-  protected async addChild(parent: AdminCategory): Promise<void> {
-    await this.admin.createCategory({
-      name: this.text.defaultName,
-      parentId: parent.id,
-      image: null,
-      description: null,
-    });
     this.categories.reload();
   }
 

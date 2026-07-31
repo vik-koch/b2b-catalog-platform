@@ -1,11 +1,12 @@
 import { Component, inject, resource, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { PageSlug } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { delayedLoading } from '../core/delayed-loading';
 import { PageEditor } from '../pages/page-editor';
 import { PageService } from '../pages/page.service';
 import { UnsavedChangesAware } from '../pages/unsaved-changes.guard';
+import { injectEditorReturn } from './editor-return';
 
 /**
  * Edit a static page (FR-ADM-03) on its own screen at
@@ -38,7 +39,6 @@ import { UnsavedChangesAware } from '../pages/unsaved-changes.guard';
 })
 export class AdminPageEditorPage implements UnsavedChangesAware {
   private readonly pageService = inject(PageService);
-  private readonly router = inject(Router);
   protected readonly text = inject(ADMIN_TEXT).pageEditor;
 
   protected readonly slug = (inject(ActivatedRoute).snapshot.paramMap.get(
@@ -54,6 +54,7 @@ export class AdminPageEditorPage implements UnsavedChangesAware {
 
   protected readonly editorDirty = signal(false);
   private navigatingAway = false;
+  private readonly close = injectEditorReturn();
 
   hasUnsavedChanges(): boolean {
     return !this.navigatingAway && this.editorDirty();
@@ -66,6 +67,6 @@ export class AdminPageEditorPage implements UnsavedChangesAware {
    */
   protected leave(): void {
     this.navigatingAway = true;
-    void this.router.navigate(['/admin']);
+    void this.close('/admin');
   }
 }

@@ -56,6 +56,16 @@ export const appRoutes: Route[] = [
         (m) => m.AdminCategoryListPage,
       ),
   },
+  // Creating and editing share one screen, like products.
+  {
+    path: 'admin/categories/new',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    canDeactivate: [categoryUnsavedChangesGuard],
+    loadComponent: () =>
+      import('./admin/admin-category-editor-page').then(
+        (m) => m.AdminCategoryEditorPage,
+      ),
+  },
   {
     path: 'admin/categories/:slug/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
@@ -79,13 +89,15 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/product-editor-page').then((m) => m.ProductEditorPage),
   },
-  // Static-page editing as an admin route, alongside the catalog editors. The
-  // storefront pencil still opens the same editor inline on the public page;
-  // this is the entry point the admin panel links to.
+  // Static-page editing as an admin route, alongside the catalog editors — the
+  // only way in, whether from the admin panel or the storefront pencil.
   {
     path: 'admin/pages/:slug/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [unsavedChangesGuard],
+    // noReuse makes a slug change a fresh activation, so the unsaved-changes
+    // guard runs and the editor re-reads its slug (see the strategy).
+    data: { noReuse: true },
     loadComponent: () =>
       import('./admin/admin-page-editor-page').then(
         (m) => m.AdminPageEditorPage,
@@ -130,10 +142,6 @@ export const appRoutes: Route[] = [
     component: Page,
     canMatch: [isPageSlug],
     canActivate: [maintenanceGate],
-    // noReuse makes a slug change a fresh activation, so the unsaved-changes
-    // guard runs when an admin edits and switches pages (see the strategy).
-    canDeactivate: [unsavedChangesGuard],
-    data: { noReuse: true },
   },
   { path: '**', component: NotFoundPage },
 ];

@@ -14,6 +14,7 @@ import { PricePipe } from '../catalog/price.pipe';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
+import { injectEditorReturnParams } from './editor-return';
 import { ProductDeleteDialog } from './product-delete-dialog';
 
 /**
@@ -29,7 +30,12 @@ import { ProductDeleteDialog } from './product-delete-dialog';
   template: `
     <div class="mb-6 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-      <a appButton routerLink="/admin/products/new" class="gap-2">
+      <a
+        appButton
+        routerLink="/admin/products/new"
+        [queryParams]="editorFrom"
+        class="gap-2"
+      >
         <app-lucide-icon name="plus" class="h-4 w-4" />
         {{ editText.addProduct }}
       </a>
@@ -73,6 +79,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                 <td class="py-2">
                   <a
                     [routerLink]="['/admin/products', item.slug, 'edit']"
+                    [queryParams]="editorFrom"
                     class="font-medium text-stone-700 hover:text-accent"
                   >
                     {{ item.name }}
@@ -95,6 +102,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                   <div class="flex items-center justify-end gap-1">
                     <a
                       [routerLink]="['/admin/products', item.slug, 'edit']"
+                      [queryParams]="editorFrom"
                       class="p-1.5 text-subtle hover:text-accent"
                       [attr.aria-label]="editText.editProduct"
                     >
@@ -184,6 +192,7 @@ export class AdminProductListPage {
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly editorFrom = injectEditorReturnParams();
 
   /** Bound from the `page` query param (a string); coerced and floored to 1. */
   page = input('1');

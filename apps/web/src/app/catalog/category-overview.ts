@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CategoryNode } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { delayedLoading } from '../core/delayed-loading';
+import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
@@ -57,6 +58,23 @@ const MAX_CHILD_LINKS = 3;
           <ul
             class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
           >
+            <!-- Top-level categories are created from here, the same gesture
+                 as adding a product from a category page. No parent: this grid
+                 is the top level. -->
+            @if (editText(); as editText) {
+              <li>
+                <a
+                  [routerLink]="['/admin/categories/new']"
+                  [queryParams]="editorFrom"
+                  class="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent"
+                >
+                  <app-lucide-icon name="plus" class="h-8 w-8" />
+                  <span class="text-sm font-medium">{{
+                    editText.addCategory
+                  }}</span>
+                </a>
+              </li>
+            }
             @for (cat of cats; track cat.slug) {
               <li class="group relative">
                 @if (editText(); as editText) {
@@ -64,6 +82,7 @@ const MAX_CHILD_LINKS = 3;
                     <a
                       appIconButton
                       [routerLink]="['/admin/categories', cat.slug, 'edit']"
+                      [queryParams]="editorFrom"
                       [attr.aria-label]="editText.editCategory"
                     >
                       <app-lucide-icon name="pencil" class="h-4 w-4" />
@@ -168,6 +187,7 @@ export class CategoryOverview {
   private catalog = inject(CatalogService);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly editorFrom = injectEditorReturnParams();
   /**
    * Edit-mode wording, non-null only once edit mode is on — which implies the
    * admin text has arrived (see EditModeService). Read as a signal rather than

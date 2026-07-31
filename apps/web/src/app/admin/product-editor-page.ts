@@ -23,6 +23,7 @@ import { CategoryPicker } from './category-picker';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { ProductImageGallery } from './product-image-gallery';
 import { AdminCatalogService } from './admin-catalog.service';
+import { injectEditorReturn } from './editor-return';
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
@@ -231,6 +232,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   // JSON snapshot of the form at load, for dirty detection.
   private original = '';
   private navigatingAway = false;
+  private readonly close = injectEditorReturn();
 
   /** For a new product the slug tracks the name until the admin edits it. */
   protected readonly effectiveSlug = computed(() =>
@@ -374,8 +376,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected cancel(): void {
     // The route's canDeactivate guard confirms if there are unsaved changes.
     const existingSlug = this.slugParam;
-    void this.router.navigate(
-      existingSlug === null ? ['/catalog'] : ['/product', existingSlug],
+    void this.close(
+      existingSlug === null ? '/catalog' : `/product/${existingSlug}`,
     );
   }
 }

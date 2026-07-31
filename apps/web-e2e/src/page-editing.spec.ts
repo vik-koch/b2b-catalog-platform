@@ -22,8 +22,9 @@ async function logIn(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/admin$/);
 }
 
-const editButton = (page: Page) =>
-  page.getByRole('button', { name: 'Edit page' });
+// Editing lives on its own admin route now, so the storefront affordance is a
+// link into it rather than an inline toggle.
+const editLink = (page: Page) => page.getByRole('link', { name: 'Edit page' });
 
 // The pencil affordance only appears once an admin turns on storefront edit
 // mode (FR-ADM-01) — a browser-local toggle, so each test enables it afresh.
@@ -45,7 +46,7 @@ test('a signed-out visitor sees no edit affordance', async ({ page }) => {
   await page.goto('/about');
 
   await expect(page.locator('h1')).toHaveText(aboutPageSeed.title);
-  await expect(editButton(page)).toBeHidden();
+  await expect(editLink(page)).toBeHidden();
 });
 
 // The admin panel's second entry point: it links straight into the editor
@@ -58,7 +59,7 @@ test('the admin panel opens a static page in edit mode', async ({ page }) => {
     .getByRole('link', { name: 'About us' })
     .click();
 
-  await expect(page).toHaveURL(/\/admin\/pages\/about\/edit$/);
+  await expect(page).toHaveURL(/\/admin\/pages\/about\/edit\b/);
   await expect(page.getByLabel('Page title')).toHaveValue(aboutPageSeed.title);
 
   // Leaving an untouched editor returns to the panel without a prompt.
@@ -74,7 +75,7 @@ test.describe('as an admin', () => {
   });
 
   test('opens the editor loaded with the current content', async ({ page }) => {
-    await editButton(page).click();
+    await editLink(page).click();
 
     await expect(page.getByLabel('Page title')).toHaveValue(
       aboutPageSeed.title,
@@ -83,7 +84,7 @@ test.describe('as an admin', () => {
   });
 
   test('applies formatting through the toolbar', async ({ page }) => {
-    await editButton(page).click();
+    await editLink(page).click();
 
     const body = page.locator('.ProseMirror');
     await body.click();
@@ -96,7 +97,7 @@ test.describe('as an admin', () => {
   });
 
   test('adds a link through the in-app panel', async ({ page }) => {
-    await editButton(page).click();
+    await editLink(page).click();
     const body = page.locator('.ProseMirror');
     // Select the first line only, so exactly one link is created.
     await body.locator('p, h2, h3, li').first().click();
@@ -115,7 +116,7 @@ test.describe('as an admin', () => {
   test('uploads an image, shows it, and opens its placement panel', async ({
     page,
   }) => {
-    await editButton(page).click();
+    await editLink(page).click();
     const body = page.locator('.ProseMirror');
     await body.click();
 
@@ -142,7 +143,7 @@ test.describe('as an admin', () => {
   test('uploads a pasted image instead of embedding it in the document', async ({
     page,
   }) => {
-    await editButton(page).click();
+    await editLink(page).click();
     const body = page.locator('.ProseMirror');
     await body.click();
 
@@ -175,7 +176,7 @@ test.describe('as an admin', () => {
     // This page opens with a heading, so the pre-focus selection at the start of
     // the document would light up the heading button with no caret to show why.
     await page.goto('/conditions');
-    await editButton(page).click();
+    await editLink(page).click();
 
     const body = page.locator('.ProseMirror');
     await expect(body).toBeVisible();
@@ -196,7 +197,7 @@ test.describe('as an admin', () => {
   test('starts the first block flush with the top of the editor', async ({
     page,
   }) => {
-    await editButton(page).click();
+    await editLink(page).click();
 
     // The editor is a preview of the rendered page, which has no gap above its
     // first block; prose's own margin reset stops at the ProseMirror wrapper.
@@ -210,7 +211,7 @@ test.describe('as an admin', () => {
   test('previews the edited page as it will look, then returns to editing', async ({
     page,
   }) => {
-    await editButton(page).click();
+    await editLink(page).click();
     await page.getByLabel('Page title').fill('Preview heading');
 
     await page.getByRole('button', { name: 'Preview' }).click();
@@ -227,16 +228,15 @@ test.describe('as an admin', () => {
   test('discards an edit on cancel, leaving the page as it was', async ({
     page,
   }) => {
-    await editButton(page).click();
+    await editLink(page).click();
     await page.getByLabel('Page title').fill('Never saved');
 
     await page.getByRole('button', { name: 'Cancel' }).click();
     await discardChanges(page);
 
-    await expect(page.locator('h1')).toHaveText(aboutPageSeed.title);
-
-    // Nothing was persisted: a reload still shows the seeded page.
-    await page.reload();
+    // The editor was opened from the page itself, so cancelling goes back
+    // there rather than to the admin panel — and nothing was persisted.
+    await expect(page).toHaveURL(/\/about$/);
     await expect(page.locator('h1')).toHaveText(aboutPageSeed.title);
   });
 
@@ -248,20 +248,20 @@ test.describe('as an admin', () => {
   test('keeps the editor open when a page switch is declined', async ({
     page,
   }) => {
-    await editButton(page).click();
+    await editLink(page).click();
     await page.getByLabel('Page title').fill('Unsaved edit');
 
     await legalPrivacyLink(page).click();
     await keepEditing(page);
 
-    await expect(page).toHaveURL(/\/about$/);
+    await expect(page).toHaveURL(/\/admin\/pages\/about\/edit\b/);
     await expect(page.getByLabel('Page title')).toHaveValue('Unsaved edit');
   });
 
   test('abandons the edit and lands in read mode when the switch is confirmed', async ({
     page,
   }) => {
-    await editButton(page).click();
+    await editLink(page).click();
     await page.getByLabel('Page title').fill('Unsaved edit');
 
     await legalPrivacyLink(page).click();
@@ -270,7 +270,7 @@ test.describe('as an admin', () => {
     await expect(page).toHaveURL(/\/privacy$/);
     // A fresh page, in read mode — the abandoned edit did not carry over.
     await expect(page.getByLabel('Page title')).toBeHidden();
-    await expect(editButton(page)).toBeVisible();
+    await expect(editLink(page)).toBeVisible();
   });
 });
 

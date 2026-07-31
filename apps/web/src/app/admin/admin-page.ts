@@ -9,6 +9,7 @@ import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { MaintenanceToggle } from './maintenance-toggle';
 import { SyncService } from './sync.service';
+import { injectEditorReturnParams } from './editor-return';
 
 /**
  * Admin panel — a small dashboard over two cards: everything that changes shop
@@ -44,8 +45,17 @@ import { SyncService } from './sync.service';
             {{ syncText.title }}
           </a>
           <!-- The audit trail's newest applied run is the last-sync answer;
-               there is no separate setting to keep in step. -->
-          <p class="mt-3 text-sm text-subtle">{{ lastSync() }}</p>
+               there is no separate setting to keep in step. Until it arrives,
+               hold the line's space rather than showing "never synced" and
+               correcting it a moment later. -->
+          @if (runs.isLoading()) {
+            <div
+              class="mt-3 h-5 w-48 animate-pulse rounded bg-stone-200"
+              aria-hidden="true"
+            ></div>
+          } @else {
+            <p class="mt-3 text-sm text-subtle">{{ lastSync() }}</p>
+          }
         </div>
 
         <div class="p-5">
@@ -89,6 +99,7 @@ import { SyncService } from './sync.service';
                   appButton
                   variant="secondary"
                   [routerLink]="['/admin/pages', slug, 'edit']"
+                  [queryParams]="editorFrom"
                 >
                   {{ navText[slug] }}
                 </a>
@@ -119,10 +130,11 @@ export class AdminPage {
   protected readonly syncText = inject(ADMIN_TEXT).sync;
   protected readonly pageSlugs = PAGE_SLUGS;
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  protected readonly editorFrom = injectEditorReturnParams();
 
   // Managers reach this page too, but the sync is admin-only — a 403 here is
   // expected, not an error, so the line simply stays absent for them.
-  private readonly runs = resource({
+  protected readonly runs = resource({
     loader: () => this.sync.listRuns().catch(() => null),
   });
 

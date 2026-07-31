@@ -10,6 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { delayedLoading } from '../core/delayed-loading';
+import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
@@ -56,6 +57,7 @@ import { ProductDetailView } from './product-detail-view';
               <a
                 appIconButton
                 [routerLink]="['/admin/products', item.slug, 'edit']"
+                [queryParams]="editorFrom"
                 [attr.aria-label]="editText.editProduct"
                 [attr.title]="editText.editProduct"
               >
@@ -106,6 +108,7 @@ export class ProductDetail {
   private readonly router = inject(Router);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly editorFrom = injectEditorReturnParams();
   /**
    * Edit-mode wording, non-null only once edit mode is on — which implies the
    * admin text has arrived (see EditModeService). Read as a signal rather than

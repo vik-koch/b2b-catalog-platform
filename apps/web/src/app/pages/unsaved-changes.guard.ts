@@ -23,9 +23,9 @@ export const unsavedChangesGuard: CanDeactivateFn<UnsavedChangesAware> = (
 
 /**
  * Angular reuses a component across param-only changes, so navigating between
- * two `:slug` pages neither recreates it nor runs canDeactivate. Routes flagged
- * `data.noReuse` opt out: a different slug is treated as a new activation, which
- * fires the guard and resets editor state for free.
+ * two `:slug` editors neither recreates it nor runs canDeactivate. Routes
+ * flagged `data.noReuse` opt out: a different slug is treated as a new
+ * activation, which fires the guard and resets editor state for free.
  */
 export class StaticPageReuseStrategy extends BaseRouteReuseStrategy {
   override shouldReuseRoute(

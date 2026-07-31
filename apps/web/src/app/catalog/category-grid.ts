@@ -10,6 +10,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { delayedLoading } from '../core/delayed-loading';
+import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
@@ -69,6 +70,7 @@ const SUBS_COLLAPSED = 4;
                 [routerLink]="['/admin/categories', data.category.slug, 'edit']"
                 [attr.aria-label]="editText.editCategory"
                 [attr.title]="editText.editCategory"
+                [queryParams]="editorFrom"
               >
                 <app-lucide-icon name="pencil" class="h-5 w-5" />
               </a>
@@ -126,7 +128,7 @@ const SUBS_COLLAPSED = 4;
             {{ data.category.name }}
           </h1>
 
-          @if (data.category.subcategories.length) {
+          @if (data.category.subcategories.length || editControls()) {
             <ul class="mt-5 flex flex-wrap items-stretch gap-3">
               @for (
                 sub of visibleSubs(data.category.subcategories);
@@ -152,6 +154,24 @@ const SUBS_COLLAPSED = 4;
                   </button>
                 </li>
               }
+              <!-- Symmetric with the add-product tile below: subcategories are
+                   created from where they will appear, with this category
+                   already chosen as the parent. -->
+              @if (editControls(); as editText) {
+                <li class="flex">
+                  <a
+                    [routerLink]="['/admin/categories/new']"
+                    [queryParams]="{
+                      parent: data.category.slug,
+                      from: editorFrom.from,
+                    }"
+                    class="flex items-center gap-1.5 rounded-xl border border-dashed border-border-strong px-4 py-2.5 text-sm font-medium text-subtle transition-colors hover:border-primary hover:text-accent"
+                  >
+                    <app-lucide-icon name="plus" class="h-4 w-4" />
+                    {{ editText.addCategory }}
+                  </a>
+                </li>
+              }
             </ul>
           }
 
@@ -163,7 +183,10 @@ const SUBS_COLLAPSED = 4;
                 <li class="h-full">
                   <a
                     [routerLink]="['/admin/products/new']"
-                    [queryParams]="{ category: data.category.slug }"
+                    [queryParams]="{
+                      category: data.category.slug,
+                      from: editorFrom.from,
+                    }"
                     class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent"
                   >
                     <app-lucide-icon name="plus" class="h-8 w-8" />
@@ -183,6 +206,7 @@ const SUBS_COLLAPSED = 4;
                         <a
                           appIconButton
                           [routerLink]="['/admin/products', item.slug, 'edit']"
+                          [queryParams]="editorFrom"
                           [attr.aria-label]="editText.editProduct"
                         >
                           <app-lucide-icon name="pencil" class="h-4 w-4" />
@@ -321,6 +345,7 @@ export class CategoryGrid {
   private readonly router = inject(Router);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly editorFrom = injectEditorReturnParams();
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
   protected readonly SUBS_COLLAPSED = SUBS_COLLAPSED;
 

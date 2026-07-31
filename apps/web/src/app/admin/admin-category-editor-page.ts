@@ -1,10 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import {
-  ACCEPTED_IMAGE_MIME_TYPES,
-  AdminCategory,
-  CatalogImage,
-} from '@b2b-catalog-platform/shared';
+import { ActivatedRoute } from '@angular/router';
+import { AdminCategory, CatalogImage } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { delayedLoading } from '../core/delayed-loading';
 import { UnsavedChangesAware } from '../pages/unsaved-changes.guard';
@@ -13,8 +9,8 @@ import { LucideIcon } from '../ui/icons/lucide-icon';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { AdminCatalogService } from './admin-catalog.service';
+import { injectEditorReturn } from './editor-return';
 import { categoryDescendantIds } from './category-tree';
-import { MediaService } from './media.service';
 import { ImagePicker } from './image-picker';
 import { CategoryPicker } from './category-picker';
 
@@ -31,13 +27,15 @@ import { CategoryPicker } from './category-picker';
   selector: 'app-admin-category-editor-page',
   imports: [Button, LucideIcon, CategoryPicker, FieldLabel, Input, ImagePicker],
   template: `
-    <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.editTitle }}</h1>
+    <h1 class="mb-6 text-3xl font-bold tracking-tight">
+      {{ isNew ? text.addTitle : text.editTitle }}
+    </h1>
 
     @if (loading()) {
       @if (showSkeleton()) {
         <p class="text-subtle" role="status">…</p>
       }
-    } @else if (!category()) {
+    } @else if (!isNew && !category()) {
       <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else {
       <div class="space-y-6">
@@ -126,15 +124,22 @@ import { CategoryPicker } from './category-picker';
 })
 export class AdminCategoryEditorPage implements UnsavedChangesAware {
   private readonly admin = inject(AdminCatalogService);
-  private readonly media = inject(MediaService);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   protected readonly text = inject(ADMIN_TEXT).categories;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
-  protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
 
-  private readonly slugParam = this.route.snapshot.paramMap.get('slug') ?? '';
+  // No :slug segment means this is `/admin/categories/new` — the same screen,
+  // creating instead of updating, mirroring the product editor.
+  private readonly slugParam = this.route.snapshot.paramMap.get('slug');
+  protected readonly isNew = this.slugParam === null;
+  /**
+   * Preselected parent when an "add subcategory" affordance opened this screen.
+   * Carried as a slug, not an id: the storefront's own add-card only knows the
+   * public catalog shape, where categories are identified by slug.
+   */
+  private readonly parentParam =
+    this.route.snapshot.queryParamMap.get('parent');
 
   protected readonly loading = signal(true);
   protected readonly showSkeleton = delayedLoading(this.loading);
@@ -153,15 +158,19 @@ export class AdminCategoryEditorPage implements UnsavedChangesAware {
   // JSON snapshot of the form at load, for dirty detection.
   private original = '';
   private navigatingAway = false;
+  private readonly close = injectEditorReturn();
   private readonly dirty = computed(() => this.snapshot() !== this.original);
 
   /** Parents this category may move under: everyone except itself and its
    * descendants (which would form a cycle). */
   protected readonly parentOptions = computed(() => {
     const current = this.category();
-    if (!current) return [];
-    const banned = categoryDescendantIds(this.all(), current.id);
-    banned.add(current.id);
+    // A category that does not exist yet has no descendants to exclude, so
+    // every category is a candidate parent.
+    const banned = current
+      ? categoryDescendantIds(this.all(), current.id)
+      : new Set<string>();
+    if (current) banned.add(current.id);
     return this.all()
       .filter((o) => !banned.has(o.id))
       .sort(
@@ -180,6 +189,15 @@ export class AdminCategoryEditorPage implements UnsavedChangesAware {
   private async load(): Promise<void> {
     const categories = await this.admin.listCategories();
     this.all.set(categories);
+    if (this.isNew) {
+      // An empty form, so the category only exists once it is saved with a name
+      // the admin chose — rather than appearing in the tree as "New category".
+      const parent = categories.find((c) => c.slug === this.parentParam);
+      this.parentId.set(parent?.id ?? '');
+      this.original = this.snapshot();
+      this.loading.set(false);
+      return;
+    }
     const match = categories.find((c) => c.slug === this.slugParam) ?? null;
     this.category.set(match);
     if (match) {
@@ -205,19 +223,30 @@ export class AdminCategoryEditorPage implements UnsavedChangesAware {
 
   protected async save(): Promise<void> {
     const current = this.category();
-    if (!current) return;
+    if (!this.isNew && !current) return;
+    // A category is found by its name everywhere else in the admin UI, so an
+    // unnamed one is not a useful thing to create.
+    if (!this.name().trim()) {
+      this.error.set(this.text.nameRequired);
+      return;
+    }
     this.saving.set(true);
     this.error.set(null);
+    const body = {
+      name: this.name().trim(),
+      parentId: this.parentId() || null,
+      description: this.description().trim() || null,
+      image: this.image(),
+      ...(this.slug().trim() ? { slug: this.slug().trim() } : {}),
+    };
     try {
-      await this.admin.updateCategory(current.id, {
-        name: this.name().trim() || this.text.defaultName,
-        parentId: this.parentId() || null,
-        description: this.description().trim() || null,
-        image: this.image(),
-        ...(this.slug().trim() ? { slug: this.slug().trim() } : {}),
-      });
+      if (current) {
+        await this.admin.updateCategory(current.id, body);
+      } else {
+        await this.admin.createCategory(body);
+      }
       this.navigatingAway = true; // let the unsaved-changes guard pass
-      await this.router.navigate(['/admin/categories']);
+      await this.close('/admin/categories');
     } catch {
       this.error.set(this.text.saveError);
       this.saving.set(false);
@@ -226,6 +255,6 @@ export class AdminCategoryEditorPage implements UnsavedChangesAware {
 
   protected cancel(): void {
     // The route's canDeactivate guard confirms if there are unsaved changes.
-    void this.router.navigate(['/admin/categories']);
+    void this.close('/admin/categories');
   }
 }
