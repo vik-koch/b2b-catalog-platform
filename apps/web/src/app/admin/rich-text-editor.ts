@@ -47,7 +47,7 @@ interface ToolbarAction {
   template: `
     <div class="relative">
       <div
-        class="overflow-hidden rounded-md border bg-white border-border-strong focus-within:border-primary"
+        class="overflow-hidden rounded-md border border-border-strong bg-white focus-within:border-primary focus-within:outline-1 focus-within:outline-offset-0 focus-within:outline-primary"
       >
         <div
           role="toolbar"
@@ -67,13 +67,12 @@ interface ToolbarAction {
             </button>
           }
         </div>
-        <!-- The .ProseMirror wrapper sits between .prose and the content, so
-             prose's own first/last-child margin reset never reaches the first
-             and last blocks — hence the two explicit rules. Without them the
-             editor shows a top gap the rendered page does not have. -->
+        <!-- Typography's direct-child rules do not survive the .ProseMirror
+             wrapper; styles.css re-applies them so the editing surface matches
+             the saved page exactly. -->
         <div
           #host
-          class="prose prose-stone max-w-none p-4 [&_.ProseMirror]:min-h-64 [&_.ProseMirror]:outline-none [&_.ProseMirror>:first-child]:mt-0 [&_.ProseMirror>:last-child]:mb-0"
+          class="prose prose-stone max-w-none p-4 [&_.ProseMirror]:min-h-64 [&_.ProseMirror]:outline-none"
         ></div>
       </div>
 

@@ -65,6 +65,46 @@
 .prose :where(ul, ol) {
   display: flow-root;
 }
+/*
+ * WYSIWYG parity between the editor and the page it produces. Two separate
+ * causes, both of which showed up as "lists are looser while editing".
+ *
+ * 1. A list item's text may or may not be wrapped in a paragraph. Stored HTML
+ *    often has bare text (`<li>Text</li>`), while ProseMirror's schema always
+ *    wraps it (`<li><p>Text</p></li>`) — so the editor picked up a paragraph's
+ *    full 1.25em margins that the page did not have. Worse, saving rewrote the
+ *    page into the wrapped form, so the *published* spacing changed on first
+ *    save. Zeroing a lone paragraph inside a list item makes the two forms
+ *    render identically, on both sides. Items with several paragraphs keep
+ *    their spacing.
+ * 2. Typography scopes some rules to direct children of `.prose`
+ *    (`.prose > ul > li p`, `.prose > :first-child`, …). ProseMirror's wrapper
+ *    div sits in between, so those never matched while editing. Re-applied here
+ *    one level down; keep the values in step with the plugin's.
+ */
+.prose .ProseMirror > :where(ul, ol) > li p {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+}
+.prose .ProseMirror > :where(ul, ol) > li > p:first-child {
+  margin-top: 1.25em;
+}
+.prose .ProseMirror > :where(ul, ol) > li > p:last-child {
+  margin-bottom: 1.25em;
+}
+/* Last, and at matching specificity, so it wins over the two rules above. */
+.prose .ProseMirror > :where(ul, ol) > li > p:only-child,
+.prose :where(ul, ol) > li > p:only-child {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.prose .ProseMirror > :first-child {
+  margin-top: 0;
+}
+.prose .ProseMirror > :last-child {
+  margin-bottom: 0;
+}
+
 /* Editor-only affordance: linked images carry data-linked (see the NodeView).
    It never reaches the public page, whose links are real anchors. */
 .ProseMirror img[data-linked] {
