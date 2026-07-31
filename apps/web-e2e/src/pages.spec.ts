@@ -23,7 +23,7 @@ test('renders the about page from SSR without a browser refetch', async ({
   await page.goto('/about');
   await expect(page.locator('h1')).toHaveText(aboutPageSeed.title);
   // A phrase from the seeded rich-text body, rendered via innerHTML.
-  await expect(page.locator('app-page')).toContainText('Speicherstadt');
+  await expect(page.locator('app-static-page')).toContainText('Speicherstadt');
   // Hydration replays the response from the transfer cache — no request.
   expect(apiCalls).toEqual([]);
 });

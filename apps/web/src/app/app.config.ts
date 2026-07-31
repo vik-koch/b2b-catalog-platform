@@ -9,7 +9,7 @@ import {
   withViewTransitions,
 } from '@angular/router';
 import { appRoutes } from './app.routes';
-import { StaticPageReuseStrategy } from './pages/unsaved-changes.guard';
+import { StaticPageReuseStrategy } from './core/unsaved-changes.guard';
 import {
   provideClientHydration,
   withEventReplay,

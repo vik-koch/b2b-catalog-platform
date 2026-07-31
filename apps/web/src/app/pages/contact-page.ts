@@ -12,7 +12,7 @@ import { LucideIcon } from '../ui/icons/lucide-icon';
 import { Skeleton } from '../ui/skeleton';
 import { MapFrame } from './map-frame';
 import { PageService } from './page.service';
-import { trustedRichText } from './trusted-rich-text';
+import { trustedRichText } from '../core/trusted-rich-text';
 
 /**
  * Contact page — a code route that renders an editable body.

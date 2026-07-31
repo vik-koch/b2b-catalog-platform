@@ -7,7 +7,7 @@ import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
-import { CategoryDeleteDialog } from '../admin/category-delete-dialog';
+import { CategoryDeleteDialog } from '../admin/categories/category-delete-dialog';
 import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { CatalogService } from './catalog.service';

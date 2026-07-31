@@ -14,7 +14,7 @@ import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
-import { ProductDeleteDialog } from '../admin/product-delete-dialog';
+import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
 import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { NotFoundView } from '../pages/not-found-view';
