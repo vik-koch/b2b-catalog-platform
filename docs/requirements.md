@@ -123,9 +123,9 @@ without renumbering.
 
 ### Operability (NFR-OPS)
 
-| ID         | Requirement                                                                                           |
-| ---------- | ----------------------------------------------------------------------------------------------------- |
-| NFR-OPS-01 | Application and infrastructure are deployed via CI/CD; no manual commands are run against production. |
-| NFR-OPS-02 | Separate dev and prod environments exist with independent data and configuration.                     |
-| NFR-OPS-03 | Application logs are centrally accessible for debugging.                                              |
-| NFR-OPS-04 | Database backups are taken on a defined schedule.                                                     |
+| ID         | Requirement                                                                                                                       |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| NFR-OPS-01 | Application and infrastructure are deployed via CI/CD; no manual commands are run against production.                             |
+| NFR-OPS-02 | Separate dev and prod environments exist with independent data and configuration.                                                 |
+| NFR-OPS-03 | Application logs are centrally accessible for debugging.                                                                          |
+| NFR-OPS-04 | Database and uploaded-media backups are taken on a defined schedule, and can be copied off the host and restored by the operator. |

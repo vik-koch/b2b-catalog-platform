@@ -243,6 +243,32 @@ services:
     networks:
       - internal
 
+  # Scheduled media backups (NFR-OPS-04, ADR 0028) — the second data class the
+  # db-backup job deliberately does not cover. Same 'backup' profile, so a stack
+  # opts into both at once and the ephemeral demo starts neither.
+  #
+  # Runs *after* the database dump, and that order is the whole point: uploads
+  # are append-only, so an archive taken later than the dump always contains
+  # every image the dump references. The reverse order can restore a catalog
+  # pointing at files that were never archived.
+  #
+  # No docker socket: nothing has to be stopped for a consistent copy of an
+  # append-only directory, so the container gets the volume read-only and
+  # nothing else.
+  media-backup:
+    image: offen/docker-volume-backup:v2
+    profiles: ['backup']
+    restart: unless-stopped
+    environment:
+      BACKUP_CRON_EXPRESSION: ${MEDIA_BACKUP_SCHEDULE:-30 1 * * *}
+      BACKUP_FILENAME: 'media-%Y-%m-%dT%H-%M-%S.tar.gz'
+      BACKUP_LATEST_SYMLINK: media-latest.tar.gz
+      BACKUP_PRUNING_PREFIX: 'media-'
+      BACKUP_RETENTION_DAYS: ${BACKUP_KEEP_DAYS:-14}
+    volumes:
+      - mediadata:/backup/media:ro
+      - ./backups/media:/archive
+
 networks:
   internal:
   traefik:
@@ -250,7 +276,7 @@ networks:
 
 volumes:
   pgdata:
-  # Uploaded images (0021). Written by api, served by media. Not covered by the
-  # postgres db-backup job — a long-lived deployment must include this volume in
-  # its filesystem/volume backups (the same tier as ./backups and ./config).
+  # Uploaded images (0021). Written by api, served by media. Backed up by the
+  # media-backup sidecar above into ./backups/media (ADR 0028), on the same
+  # 'backup' profile as the database dump.
   mediadata:
