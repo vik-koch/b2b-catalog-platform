@@ -15,6 +15,7 @@ function service(
     branding: {
       name: 'Test',
       title: 'Test',
+      startYear: 2021,
       theme: {
         primary: 'red',
         secondary: 'green',

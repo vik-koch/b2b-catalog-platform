@@ -54,6 +54,12 @@ export const deploymentConfigSchema = z
          * see it).
          */
         title: z.string(),
+        /**
+         * First year of the copyright range in the footer. The end of the range
+         * is the current year, so it never needs maintaining; a shop that
+         * launched this year shows a single year rather than a range.
+         */
+        startYear: z.number().int(),
         theme: z
           .object({
             primary: z.string(),

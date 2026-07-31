@@ -1,6 +1,6 @@
 {
-  "brand": {
-    "tagline": "wholesale specialty coffee, Hamburg."
+  "footer": {
+    "copyright": "© {name} {years}"
   },
   "nav": {
     "about": "About us",

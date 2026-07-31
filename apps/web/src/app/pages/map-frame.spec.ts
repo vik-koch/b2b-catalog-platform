@@ -26,6 +26,7 @@ async function render(map: MapEmbed, consent: ConsentState = {}) {
     branding: {
       name: 'Test',
       title: 'Test',
+      startYear: 2021,
       theme: {
         primary: 'red',
         secondary: 'green',

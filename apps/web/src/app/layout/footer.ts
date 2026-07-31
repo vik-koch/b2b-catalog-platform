@@ -12,44 +12,52 @@ import { ContactInfo } from './contact-info';
   selector: 'app-footer',
   template: `
     <footer class="border-t border-stone-200 bg-stone-100">
-      <div
-        class="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-6 text-sm sm:flex-row sm:items-center sm:justify-between"
-      >
-        <div class="flex flex-col gap-3">
-          <p class="text-secondary">
-            {{ branding.name }} — {{ text.brand.tagline }}
-          </p>
+      <div class="mx-auto w-full max-w-7xl px-4 py-6 text-sm">
+        <div
+          class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
           @if (contact?.phone || contact?.email) {
             <app-contact-info />
           }
+          <!-- The call to action sits on the same line as the legal links, but
+               outside the <nav>: it is not a legal link, and a nav of three
+               quiet links plus one filled button reads as one row either way. -->
+          <div
+            class="flex flex-wrap items-center gap-x-4 gap-y-2 sm:justify-end"
+          >
+            <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
+            <nav
+              class="flex flex-wrap items-center gap-x-4 gap-y-2 text-stone-500"
+              aria-label="Legal"
+            >
+              @for (slug of legalSlugs; track slug) {
+                <a
+                  [routerLink]="'/' + slug"
+                  routerLinkActive
+                  ariaCurrentWhenActive="page"
+                  class="transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                >
+                  {{ text.nav[slug] }}
+                </a>
+              }
+              <!-- Consent withdrawal must be as easy as giving it; shown only
+                   when the deployment runs the consent banner at all. -->
+              @if (consent.enabled) {
+                <button
+                  type="button"
+                  class="cursor-pointer text-left transition-colors hover:text-accent"
+                  (click)="consent.withdraw()"
+                >
+                  {{ text.consent.settings }}
+                </button>
+              }
+            </nav>
+          </div>
         </div>
-        <nav
-          class="flex flex-wrap items-center gap-x-4 gap-y-2 text-stone-500"
-          aria-label="Legal"
-        >
-          <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
-          @for (slug of legalSlugs; track slug) {
-            <a
-              [routerLink]="'/' + slug"
-              routerLinkActive
-              ariaCurrentWhenActive="page"
-              class="transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
-            >
-              {{ text.nav[slug] }}
-            </a>
-          }
-          <!-- Consent withdrawal must be as easy as giving it; shown only when
-               the deployment runs the consent banner at all. -->
-          @if (consent.enabled) {
-            <button
-              type="button"
-              class="text-left transition-colors hover:text-accent"
-              (click)="consent.withdraw()"
-            >
-              {{ text.consent.settings }}
-            </button>
-          }
-        </nav>
+
+        <p class="mt-6 border-t border-stone-200 pt-4 text-xs text-stone-500">
+          {{ copyright }}
+        </p>
       </div>
     </footer>
   `,
@@ -66,4 +74,21 @@ export class Footer {
     'privacy',
     'imprint',
   ];
+
+  /**
+   * "© Coffee Kontor 2025–2026" — the end of the range is always the current
+   * year, so nothing has to be updated in January. Rendered on the server and
+   * again on hydration; the two agree except for the one second a year in which
+   * they don't.
+   */
+  protected readonly copyright = this.buildCopyright();
+
+  private buildCopyright(): string {
+    const start = this.branding.startYear;
+    const now = new Date().getFullYear();
+    const years = now > start ? `${start}–${now}` : `${start}`;
+    return this.text.footer.copyright
+      .replace('{name}', this.branding.name)
+      .replace('{years}', years);
+  }
 }

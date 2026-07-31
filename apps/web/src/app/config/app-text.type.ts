@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 /**
  * Frontend-only UI text — the human-readable chrome wording (nav labels,
- * consent copy, error messages, taglines). A single-locale catalog: each
+ * consent copy, error messages, footer wording). A single-locale catalog: each
  * deployment ships its one language's text here (i18n is out of scope). Kept
  * separate from DeploymentConfig so growing text has its own home and a
  * deployment can override the whole catalog as one unit.
@@ -19,9 +19,14 @@ import { z } from 'zod';
  */
 export const appTextSchema = z
   .object({
-    brand: z
+    /**
+     * Footer chrome. `copyright` carries the whole line so a deployment owns
+     * the symbol and word order; `{name}` and `{years}` are substituted at
+     * render (years is either "2025–2026" or a single year).
+     */
+    footer: z
       .object({
-        tagline: z.string(),
+        copyright: z.string(),
       })
       .strict(),
     /**
