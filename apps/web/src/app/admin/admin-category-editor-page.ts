@@ -14,6 +14,7 @@ import { Input } from '../ui/input';
 import { AdminCatalogService } from './admin-catalog.service';
 import { categoryDescendantIds } from './category-tree';
 import { MediaService } from './media.service';
+import { ImagePicker } from './image-picker';
 import { CategoryPicker } from './category-picker';
 
 /**
@@ -27,7 +28,7 @@ import { CategoryPicker } from './category-picker';
  */
 @Component({
   selector: 'app-admin-category-editor-page',
-  imports: [Button, LucideIcon, CategoryPicker, FieldLabel, Input],
+  imports: [Button, LucideIcon, CategoryPicker, FieldLabel, Input, ImagePicker],
   template: `
     <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.editTitle }}</h1>
 
@@ -83,42 +84,11 @@ import { CategoryPicker } from './category-picker';
 
         <div>
           <span appFieldLabel>{{ text.image }}</span>
-          <div class="flex items-center gap-3">
-            @if (image(); as img) {
-              <img
-                [src]="img.thumb"
-                alt=""
-                class="h-16 w-16 rounded border border-border object-cover"
-              />
-              <button
-                appButton
-                variant="secondary"
-                type="button"
-                (click)="image.set(null)"
-              >
-                {{ text.removeImage }}
-              </button>
-            } @else {
-              <input
-                #imageInput
-                type="file"
-                class="hidden"
-                [accept]="accept"
-                (change)="onImage($event)"
-              />
-              <button
-                appButton
-                variant="secondary"
-                type="button"
-                class="gap-2"
-                [disabled]="uploading()"
-                (click)="imageInput.click()"
-              >
-                <app-lucide-icon name="image-plus" class="h-4 w-4" />
-                {{ uploading() ? common.uploading : text.image }}
-              </button>
-            }
-          </div>
+          <app-image-picker
+            [value]="image()"
+            [label]="text.image"
+            (valueChange)="image.set($event)"
+          />
         </div>
       </div>
 
@@ -165,7 +135,6 @@ export class AdminCategoryEditorPage implements UnsavedChangesAware {
 
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
-  protected readonly uploading = signal(false);
   protected readonly error = signal<string | null>(null);
 
   private readonly all = signal<AdminCategory[]>([]);
@@ -254,21 +223,5 @@ export class AdminCategoryEditorPage implements UnsavedChangesAware {
   protected cancel(): void {
     // The route's canDeactivate guard confirms if there are unsaved changes.
     void this.router.navigate(['/admin/categories']);
-  }
-
-  protected async onImage(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) return;
-    this.uploading.set(true);
-    this.error.set(null);
-    try {
-      this.image.set(await this.media.uploadCatalogImage(file));
-    } catch {
-      this.error.set(this.common.uploadError);
-    } finally {
-      this.uploading.set(false);
-    }
   }
 }
