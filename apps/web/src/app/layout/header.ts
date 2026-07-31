@@ -76,7 +76,7 @@ import { NAV_ACTION } from './nav-action';
       </div>
 
       <div
-        class="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4"
+        class="mx-auto flex h-15 w-full max-w-7xl items-center justify-between px-4"
       >
         <a
           routerLink="/"
@@ -90,7 +90,7 @@ import { NAV_ACTION } from './nav-action';
             alt=""
             width="180"
             height="40"
-            class="h-8 w-auto"
+            class="h-10 w-auto"
           />
         </a>
 

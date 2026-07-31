@@ -20,4 +20,4 @@ export const NAV_ACTION =
 
 /** Label inside a NAV_ACTION control that has a desktop counterpart. */
 export const NAV_ACTION_LABEL =
-  'sr-only text-[0.6875rem] leading-none md:not-sr-only';
+  'sr-only text-xs leading-none md:not-sr-only';
