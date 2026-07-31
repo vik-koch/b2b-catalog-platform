@@ -10,6 +10,14 @@
     "contact": "Contact",
     "inquiry": "Get in touch"
   },
+  "a11y": {
+    "homeLink": "{name} — home",
+    "callPhone": "Call {phone}",
+    "toggleMenu": "Toggle menu",
+    "utilityNav": "Utility",
+    "legalNav": "Legal",
+    "consentBanner": "Cookie consent"
+  },
   "contact": {
     "intro": "Visit us or get in touch — find our offices below."
   },

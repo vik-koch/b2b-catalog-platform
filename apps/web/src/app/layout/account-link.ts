@@ -27,7 +27,9 @@ import { NAV_ACTION, NAV_ACTION_LABEL } from './nav-action';
       [class]="navAction"
     >
       <app-icon-user class="h-6 w-6" />
-      <span [class]="labelClass">{{ text.accountNav }}</span>
+      <span [class]="labelClass" [attr.data-label]="text.accountNav">{{
+        text.accountNav
+      }}</span>
     </a>
   `,
 })

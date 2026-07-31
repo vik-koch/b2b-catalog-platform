@@ -28,14 +28,15 @@ import { ContactInfo } from './contact-info';
             <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
             <nav
               class="flex flex-wrap items-center gap-x-4 gap-y-2 text-subtle"
-              aria-label="Legal"
+              [attr.aria-label]="text.a11y.legalNav"
             >
               @for (slug of legalSlugs; track slug) {
                 <a
                   [routerLink]="'/' + slug"
                   routerLinkActive
                   ariaCurrentWhenActive="page"
-                  class="transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                  [attr.data-label]="text.nav[slug]"
+                  class="text-stable transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
                 >
                   {{ text.nav[slug] }}
                 </a>

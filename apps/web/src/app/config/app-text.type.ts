@@ -34,6 +34,25 @@ export const appTextSchema = z
      * like `contact`. Open by design (a record), so no `.strict()`.
      */
     nav: z.record(z.string(), z.string()),
+    /**
+     * Text only assistive technology reads: landmark names and the accessible
+     * names of controls whose visible content is an icon or a logo. It is still
+     * user-facing copy in one language, so it belongs here rather than baked
+     * into templates.
+     */
+    a11y: z
+      .object({
+        /** Accessible name of the logo's home link; `{name}` is substituted. */
+        homeLink: z.string(),
+        /** Mobile one-tap call action; `{phone}` is substituted. */
+        callPhone: z.string(),
+        toggleMenu: z.string(),
+        /** Landmark names for the three navigations and the consent banner. */
+        utilityNav: z.string(),
+        legalNav: z.string(),
+        consentBanner: z.string(),
+      })
+      .strict(),
     contact: z
       .object({
         intro: z.string(),

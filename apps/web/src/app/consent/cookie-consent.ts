@@ -20,7 +20,7 @@ import { ConsentService } from './consent.service';
   template: `
     @if (ready() && consent.needsDecision()) {
       <aside
-        aria-label="Cookie consent"
+        [attr.aria-label]="a11y.consentBanner"
         class="fixed inset-x-4 bottom-4 z-20 mx-auto max-w-3xl rounded-xl border border-border bg-surface shadow-xl"
       >
         <div
@@ -49,6 +49,7 @@ import { ConsentService } from './consent.service';
 export class CookieConsent {
   protected readonly consent = inject(ConsentService);
   protected readonly text = inject(APP_TEXT).consent;
+  protected readonly a11y = inject(APP_TEXT).a11y;
   protected readonly ready = signal(false);
 
   constructor() {
