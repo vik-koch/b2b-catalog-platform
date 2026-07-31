@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { delayedLoading } from '../core/delayed-loading';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
@@ -300,7 +301,7 @@ const SUBS_COLLAPSED = 4;
             }
           }
         }
-      } @else {
+      } @else if (showSkeleton()) {
         <div class="animate-pulse space-y-8" aria-hidden="true">
           <div class="h-8 w-1/3 rounded bg-stone-200"></div>
           <div
@@ -364,6 +365,9 @@ export class CategoryGrid {
     loader: ({ params }) =>
       this.catalog.getCategoryProducts(params.slug, params.page),
   });
+
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.products.isLoading);
 
   constructor() {
     usePageSeo({ name: () => this.products.value()?.category.name });

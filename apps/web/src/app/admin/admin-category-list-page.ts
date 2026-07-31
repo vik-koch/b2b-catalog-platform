@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { delayedLoading } from '../core/delayed-loading';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
@@ -57,7 +58,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
           *ngTemplateOutlet="group; context: { $implicit: tree() }"
         />
       }
-    } @else {
+    } @else if (showSkeleton()) {
       <p class="text-subtle" role="status">…</p>
     }
 
@@ -147,6 +148,9 @@ export class AdminCategoryListPage {
   protected categories = resource({
     loader: () => this.admin.listCategories(),
   });
+
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.categories.isLoading);
 
   /** Nested branches (by sortOrder then name) for the drag-drop tree. */
   protected readonly tree = computed<CategoryTreeBranch[]>(() =>

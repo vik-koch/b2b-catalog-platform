@@ -9,6 +9,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { delayedLoading } from '../core/delayed-loading';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
@@ -86,7 +87,7 @@ import { ProductDetailView } from './product-detail-view';
             }
           }
         }
-      } @else {
+      } @else if (showSkeleton()) {
         <div class="grid animate-pulse gap-8 lg:grid-cols-2" aria-hidden="true">
           <div class="aspect-square rounded-xl bg-stone-200"></div>
           <div class="space-y-4">
@@ -122,6 +123,9 @@ export class ProductDetail {
     params: () => ({ slug: this.slug() }),
     loader: ({ params }) => this.catalog.getProduct(params.slug),
   });
+
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.product.isLoading);
 
   /** After a soft-delete from the product page, return to its category (the
    * product's public page will now 404). Restore lives in the admin panel. */

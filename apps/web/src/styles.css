@@ -38,6 +38,35 @@
   --color-border-strong: #d6d3d1;
 }
 
+/*
+ * Navigation labels that go bolder when active. Bold text is wider, so without
+ * this the active item grows and pushes its neighbours sideways as you move
+ * between pages. The pseudo-element lays out a second, invisible copy of the
+ * label at the active weight and zero height, which fixes the element's width at
+ * the wider of the two states — nothing moves, in either direction.
+ *
+ * Needs the label repeated in `data-label`; it inherits the element's own font
+ * metrics, so it must sit on whichever element carries the text.
+ */
+.text-stable::after {
+  content: attr(data-label);
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/*
+ * Always reserve the scrollbar's width, so moving between a page that scrolls
+ * and one that does not cannot shift the layout sideways. Costs a sliver of
+ * width on pages that fit; the alternative is every centred element jumping.
+ */
+html {
+  scrollbar-gutter: stable;
+}
+
 /* Rich-text page bodies: brand the links, keep the rest prose-stone. */
 .prose {
   --tw-prose-links: var(--color-primary);

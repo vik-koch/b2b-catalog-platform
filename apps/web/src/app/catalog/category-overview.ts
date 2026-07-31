@@ -2,6 +2,7 @@ import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CategoryNode } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { delayedLoading } from '../core/delayed-loading';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
@@ -132,7 +133,7 @@ const MAX_CHILD_LINKS = 3;
         } @else {
           <p class="mt-10 text-muted">{{ text.emptyCategories }}</p>
         }
-      } @else {
+      } @else if (showSkeleton()) {
         <div
           class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
           aria-hidden="true"
@@ -186,6 +187,9 @@ export class CategoryOverview {
   protected categories = resource({
     loader: () => this.catalog.getCategoryTree(),
   });
+
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.categories.isLoading);
 
   protected onCategoryDeleted(): void {
     this.deletingCategory.set(null);

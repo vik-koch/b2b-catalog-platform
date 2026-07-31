@@ -9,6 +9,7 @@ import {
   slugify,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { delayedLoading } from '../core/delayed-loading';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { majorToMinor, minorToMajor } from '../catalog/price';
 import { ProductDetailView } from '../catalog/product-detail-view';
@@ -48,7 +49,9 @@ import { AdminCatalogService } from './admin-catalog.service';
     </h1>
 
     @if (loading()) {
-      <p class="text-subtle" role="status">…</p>
+      @if (showSkeleton()) {
+        <p class="text-subtle" role="status">…</p>
+      }
     } @else if (notFound()) {
       <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else if (previewing()) {
@@ -207,6 +210,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly isNew = this.slugParam === null;
 
   protected readonly loading = signal(true);
+  protected readonly showSkeleton = delayedLoading(this.loading);
   protected readonly notFound = signal(false);
   protected readonly categories = signal<AdminCategory[]>([]);
 

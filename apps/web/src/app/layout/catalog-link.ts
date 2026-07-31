@@ -20,7 +20,9 @@ import { NAV_ACTION, NAV_ACTION_LABEL } from './nav-action';
       [class]="navAction"
     >
       <app-icon-store class="h-6 w-6" />
-      <span [class]="labelClass">{{ text.navLabel }}</span>
+      <span [class]="labelClass" [attr.data-label]="text.navLabel">{{
+        text.navLabel
+      }}</span>
     </a>
   `,
 })

@@ -9,6 +9,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { delayedLoading } from '../core/delayed-loading';
 import { PricePipe } from '../catalog/price.pipe';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
@@ -162,7 +163,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
           </nav>
         }
       }
-    } @else {
+    } @else if (showSkeleton()) {
       <p class="text-subtle" role="status">…</p>
     }
 
@@ -202,6 +203,9 @@ export class AdminProductListPage {
     params: () => ({ page: this.currentPage() }),
     loader: ({ params }) => this.admin.listProducts({ page: params.page }),
   });
+
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.products.isLoading);
 
   /** The product whose delete confirmation modal is open, if any. */
   protected readonly deletingProduct = signal<{

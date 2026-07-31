@@ -6,6 +6,7 @@ import {
   CatalogImage,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { delayedLoading } from '../core/delayed-loading';
 import { UnsavedChangesAware } from '../pages/unsaved-changes.guard';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
@@ -33,7 +34,9 @@ import { CategoryPicker } from './category-picker';
     <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.editTitle }}</h1>
 
     @if (loading()) {
-      <p class="text-subtle" role="status">…</p>
+      @if (showSkeleton()) {
+        <p class="text-subtle" role="status">…</p>
+      }
     } @else if (!category()) {
       <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else {
@@ -134,6 +137,7 @@ export class AdminCategoryEditorPage implements UnsavedChangesAware {
   private readonly slugParam = this.route.snapshot.paramMap.get('slug') ?? '';
 
   protected readonly loading = signal(true);
+  protected readonly showSkeleton = delayedLoading(this.loading);
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
 

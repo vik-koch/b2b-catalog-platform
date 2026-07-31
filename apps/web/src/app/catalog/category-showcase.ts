@@ -1,6 +1,7 @@
 import { Component, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { delayedLoading } from '../core/delayed-loading';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
 
@@ -70,7 +71,7 @@ import { ImagePlaceholder } from './image-placeholder';
       } @else {
         <p class="text-muted">{{ text.emptyCategories }}</p>
       }
-    } @else {
+    } @else if (showSkeleton()) {
       <div class="gap-5 columns-2 sm:columns-3 lg:columns-4" aria-hidden="true">
         @for (i of skeletons; track i) {
           <div
@@ -92,6 +93,9 @@ export class CategoryShowcase {
   protected categories = resource({
     loader: () => this.catalog.getCategoryTree(),
   });
+
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.categories.isLoading);
 
   /** Category image URLs that failed to load — shown as the placeholder instead
    * of the browser's broken-image icon. Keyed by URL. */
