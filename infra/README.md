@@ -155,6 +155,31 @@ A real **client prod** (private repo) gets no overlay — it ships no Mailpit an
 sets `MAIL_*` to a real SMTP provider (see
 [.env.stack.example](../.env.stack.example)).
 
+## Backups & restore
+
+Long-lived stacks (dev, prod) opt into the `backup` profile via
+`COMPOSE_PROFILES=backup` in their `.env`, which starts two sidecars: a nightly
+`pg_dump` (ADR 0017) and a media-volume archive (ADR 0028). Both write under
+`/srv/b2b/<stack>/backups`, and both live on the same VM as the data they
+protect — so getting a copy **off** the box is a separate, deliberate step:
+
+```bash
+# take a fresh dump + media archive and download both (plus the stack .env)
+infra/backup.sh <host> .env.prod [dest-dir]
+
+# put a matched pair back (destructive; asks for the stack name)
+infra/restore.sh <host> .env.prod <dump.sql.gz> <media.tar.gz>
+```
+
+The two artifacts must be a **matched pair**, and `backup.sh` takes them in the
+right order: database first, media second. Uploads are append-only, so an
+archive taken after the dump always contains every image the dump references —
+the reverse order restores a catalog whose images 404.
+
+Restore replaces data wholesale: schemas are dropped and rebuilt, the media
+volume is emptied and refilled. Rehearse it against a throwaway stack before
+you need it against a real one.
+
 ## Admin access (every environment)
 
 Per [ADR 0019](../docs/adr/0019-session-auth-argon2-jwt-cookie.md) each stack

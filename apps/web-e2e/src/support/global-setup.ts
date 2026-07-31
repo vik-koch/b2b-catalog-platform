@@ -1,5 +1,6 @@
 import { seedDatabase } from '@b2b-catalog-platform/seed';
 import { execSync } from 'node:child_process';
+import { resolve } from 'node:path';
 import { localtestDbClient, localtestEnv, workspaceRoot } from './localtest';
 
 const baseURL = process.env['BASE_URL'] || 'http://localhost:8080';
@@ -78,7 +79,12 @@ export default async function globalSetup() {
   const client = localtestDbClient();
   await client.connect();
   try {
-    await seedDatabase(client, env['MEDIA_ROOT']);
+    // MEDIA_ROOT is relative, and compose resolves it against the repo root
+    // (where compose.yml lives) while this process runs from the project dir.
+    // Resolving it here is what makes the seed write into the same directory
+    // the api and media containers bind-mount — otherwise the catalog's images
+    // land in apps/web-e2e/.media and every seeded image 404s.
+    await seedDatabase(client, resolve(workspaceRoot, env['MEDIA_ROOT']));
     // bootstrap-admin flags its account as still using the password the deploy
     // gave it, so the app forces a change on first sign-in. Clear it here: the
     // login/session specs are about other things and would all have to dismiss
