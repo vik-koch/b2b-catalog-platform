@@ -14,6 +14,8 @@ import { Button } from '../ui/button';
 import { RichTextEditor } from '../admin/rich-text-editor';
 import { injectConfirmDiscard } from '../admin/confirm-discard';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { PageService } from './page.service';
 import { trustedRichText } from './trusted-rich-text';
 
@@ -23,7 +25,7 @@ import { trustedRichText } from './trusted-rich-text';
  */
 @Component({
   selector: 'app-page-editor',
-  imports: [Button, RichTextEditor, LucideIcon],
+  imports: [Button, RichTextEditor, LucideIcon, FieldLabel, Input],
   // Neutralize link navigation from the preview at the host: a native click on
   // a rendered link would leave the page without the unsaved-changes guard.
   host: { '(click)': 'onPreviewClick($event)' },
@@ -43,10 +45,11 @@ import { trustedRichText } from './trusted-rich-text';
     } @else {
       <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.edit }}</h1>
       <label class="mb-6 block">
-        <span class="mb-1 block text-sm font-medium">{{ text.pageTitle }}</span>
+        <span appFieldLabel>{{ text.pageTitle }}</span>
         <input
           type="text"
-          class="w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
+          appInput
+          class="w-full"
           [value]="title()"
           (input)="onTitleInput($event)"
         />

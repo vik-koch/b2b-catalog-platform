@@ -22,6 +22,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
 import {
   applyPastedGrid,
   clearRange,
@@ -49,10 +50,17 @@ import {
  */
 @Component({
   selector: 'app-product-attributes-editor',
-  imports: [LucideIcon, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview],
+  imports: [
+    LucideIcon,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    CdkDragPreview,
+    FieldLabel,
+  ],
   template: `
     <fieldset>
-      <legend class="mb-1 block text-sm font-medium">{{ text.heading }}</legend>
+      <legend appFieldLabel>{{ text.heading }}</legend>
 
       <table class="w-full max-w-2xl border-collapse text-sm">
         <thead>

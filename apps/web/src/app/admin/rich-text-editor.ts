@@ -21,6 +21,8 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { LucideIcon, LucideIconName } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from './media.service';
 
@@ -41,7 +43,7 @@ interface ToolbarAction {
  */
 @Component({
   selector: 'app-rich-text-editor',
-  imports: [LucideIcon],
+  imports: [LucideIcon, FieldLabel, Input],
   template: `
     <div class="relative">
       <div
@@ -101,13 +103,13 @@ interface ToolbarAction {
           [attr.aria-label]="link.heading"
         >
           <label class="block">
-            <span class="mb-1 block text-sm font-medium">{{
-              link.urlLabel
-            }}</span>
+            <span appFieldLabel>{{ link.urlLabel }}</span>
             <input
               #linkInput
               type="text"
-              class="w-full rounded-md border border-stone-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+              appInput
+              size="sm"
+              class="w-full"
               [placeholder]="link.placeholder"
               [value]="linkDraft()"
               (input)="linkDraft.set($any($event.target).value)"
@@ -151,12 +153,12 @@ interface ToolbarAction {
           [attr.aria-label]="image.heading"
         >
           <label class="block">
-            <span class="mb-1 block text-sm font-medium">{{
-              image.altLabel
-            }}</span>
+            <span appFieldLabel>{{ image.altLabel }}</span>
             <input
               type="text"
-              class="w-full rounded-md border border-stone-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+              appInput
+              size="sm"
+              class="w-full"
               [placeholder]="image.altPlaceholder"
               [value]="imageAlt()"
               (input)="onImageAltInput($any($event.target).value)"
@@ -167,12 +169,12 @@ interface ToolbarAction {
           </label>
 
           <label class="mt-3 block">
-            <span class="mb-1 block text-sm font-medium">{{
-              image.linkLabel
-            }}</span>
+            <span appFieldLabel>{{ image.linkLabel }}</span>
             <input
               type="text"
-              class="w-full rounded-md border border-stone-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+              appInput
+              size="sm"
+              class="w-full"
               [placeholder]="image.linkPlaceholder"
               [value]="imageHref()"
               (input)="onImageHrefInput($any($event.target).value)"
@@ -180,9 +182,7 @@ interface ToolbarAction {
           </label>
 
           <div class="mt-3">
-            <span class="mb-1 block text-sm font-medium">{{
-              image.alignLabel
-            }}</span>
+            <span appFieldLabel>{{ image.alignLabel }}</span>
             <div class="flex gap-1">
               <button
                 type="button"

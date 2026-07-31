@@ -1,6 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { Input } from '../ui/input';
 import { flattenCategoryTree } from './category-tree';
 
 /**
@@ -10,11 +11,12 @@ import { flattenCategoryTree } from './category-tree';
  */
 @Component({
   selector: 'app-category-picker',
-  imports: [LucideIcon],
+  imports: [LucideIcon, Input],
   template: `
     <div class="relative">
       <select
-        class="w-full appearance-none rounded-md border border-stone-300 py-2 pr-10 pl-3 focus:border-primary focus:outline-none"
+        appInput
+        class="w-full appearance-none pr-10 pl-3"
         [attr.aria-label]="ariaLabel() || placeholder()"
         (change)="onChange($event)"
       >

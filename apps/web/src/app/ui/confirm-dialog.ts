@@ -7,6 +7,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Button } from './button';
+import { DialogPanel } from './dialog-panel';
 
 /**
  * Generic yes/no confirmation modal.
@@ -14,13 +15,13 @@ import { Button } from './button';
  */
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [Button],
+  imports: [Button, DialogPanel],
   template: `
     <dialog
       #dialog
       (cancel)="cancelled.emit()"
       aria-labelledby="confirm-dialog-heading"
-      class="m-auto max-w-md rounded-lg border border-stone-200 bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50"
+      appDialogPanel
     >
       <h2 id="confirm-dialog-heading" class="text-xl font-bold tracking-tight">
         {{ heading() }}

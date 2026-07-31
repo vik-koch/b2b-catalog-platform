@@ -12,7 +12,9 @@ import {
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
+import { DialogPanel } from '../ui/dialog-panel';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
 import { AdminCatalogService } from './admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
@@ -32,13 +34,13 @@ import { categoryDescendantIds } from './category-tree';
  */
 @Component({
   selector: 'app-category-delete-dialog',
-  imports: [Button, LucideIcon, CategoryPicker],
+  imports: [Button, LucideIcon, CategoryPicker, FieldLabel, DialogPanel],
   template: `
     <dialog
       #dialog
       (cancel)="cancelled.emit()"
       aria-labelledby="category-delete-heading"
-      class="m-auto max-w-md rounded-lg border border-stone-200 bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50"
+      appDialogPanel
     >
       <h2 id="category-delete-heading" class="text-xl font-bold tracking-tight">
         {{ text.deleteTitle }}
@@ -51,9 +53,7 @@ import { categoryDescendantIds } from './category-tree';
       } @else if (mode() === 'reassign') {
         <p class="mt-3 text-stone-600">{{ reassignIntro() }}</p>
         <div class="mt-4">
-          <span class="mb-1 block text-sm font-medium">{{
-            text.reassignLabel
-          }}</span>
+          <span appFieldLabel>{{ text.reassignLabel }}</span>
           <app-category-picker
             [categories]="destinations()"
             [value]="reassignTo()"

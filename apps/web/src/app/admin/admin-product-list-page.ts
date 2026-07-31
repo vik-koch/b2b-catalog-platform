@@ -134,7 +134,9 @@ import { ProductDeleteDialog } from './product-delete-dialog';
               <a
                 routerLink="/admin/products"
                 [queryParams]="{ page: data.pagination.page - 1 }"
-                class="rounded-md px-3 py-1.5 text-stone-700 hover:bg-stone-100 hover:text-primary"
+                appButton
+                variant="ghost"
+                size="sm"
                 >{{ catalogText.prevPage }}</a
               >
             } @else {
@@ -149,7 +151,9 @@ import { ProductDeleteDialog } from './product-delete-dialog';
               <a
                 routerLink="/admin/products"
                 [queryParams]="{ page: data.pagination.page + 1 }"
-                class="rounded-md px-3 py-1.5 text-stone-700 hover:bg-stone-100 hover:text-primary"
+                appButton
+                variant="ghost"
+                size="sm"
                 >{{ catalogText.nextPage }}</a
               >
             } @else {

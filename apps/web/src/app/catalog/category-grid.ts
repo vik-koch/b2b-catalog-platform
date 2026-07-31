@@ -16,6 +16,7 @@ import { CategoryDeleteDialog } from '../admin/category-delete-dialog';
 import { ProductDeleteDialog } from '../admin/product-delete-dialog';
 import { DeletedProductsSection } from '../admin/deleted-products-section';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
+import { Button } from '../ui/button';
 import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { NotFoundView } from '../pages/not-found-view';
@@ -40,6 +41,7 @@ const SUBS_COLLAPSED = 4;
     ChevronRightIcon,
     TileGallery,
     LucideIcon,
+    Button,
     IconButton,
     ProductDeleteDialog,
     CategoryDeleteDialog,
@@ -230,7 +232,9 @@ const SUBS_COLLAPSED = 4;
                   <a
                     [routerLink]="['/catalog', slug()]"
                     [queryParams]="{ page: data.pagination.page - 1 }"
-                    class="rounded-md px-3 py-1.5 text-stone-700 hover:bg-stone-100 hover:text-accent"
+                    appButton
+                    variant="ghost"
+                    size="sm"
                     >{{ text.prevPage }}</a
                   >
                 } @else {
@@ -245,7 +249,9 @@ const SUBS_COLLAPSED = 4;
                   <a
                     [routerLink]="['/catalog', slug()]"
                     [queryParams]="{ page: data.pagination.page + 1 }"
-                    class="rounded-md px-3 py-1.5 text-stone-700 hover:bg-stone-100 hover:text-accent"
+                    appButton
+                    variant="ghost"
+                    size="sm"
                     >{{ text.nextPage }}</a
                   >
                 } @else {

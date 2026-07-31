@@ -5,6 +5,8 @@ import { emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { AuthService, LoginResult } from './auth.service';
 import { landingFor } from './auth.guard';
 
@@ -15,7 +17,7 @@ import { landingFor } from './auth.guard';
  */
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, Button],
+  imports: [ReactiveFormsModule, Button, FieldLabel, Input],
   template: `
     <div class="mx-auto max-w-sm">
       <h1 class="mb-8 text-3xl font-bold tracking-tight">{{ text.login }}</h1>
@@ -27,7 +29,7 @@ import { landingFor } from './auth.guard';
         class="space-y-6"
       >
         <div>
-          <label for="email" class="mb-1 block text-sm font-medium">
+          <label for="email" appFieldLabel>
             {{ text.email }}
           </label>
           <input
@@ -36,7 +38,8 @@ import { landingFor } from './auth.guard';
             formControlName="email"
             autocomplete="email"
             aria-required="true"
-            [class]="inputClass"
+            appInput
+            class="w-full"
             [attr.aria-invalid]="isInvalid('email') || null"
           />
           @if (isInvalid('email')) {
@@ -51,7 +54,7 @@ import { landingFor } from './auth.guard';
         </div>
 
         <div>
-          <label for="password" class="mb-1 block text-sm font-medium">
+          <label for="password" appFieldLabel>
             {{ text.password }}
           </label>
           <input
@@ -60,7 +63,8 @@ import { landingFor } from './auth.guard';
             formControlName="password"
             autocomplete="current-password"
             aria-required="true"
-            [class]="inputClass"
+            appInput
+            class="w-full"
             [attr.aria-invalid]="isInvalid('password') || null"
           />
           @if (isInvalid('password')) {
@@ -95,9 +99,6 @@ export class LoginPage {
 
   /** Set by the guards when they bounce a deep link here (query param). */
   readonly returnUrl = input<string>();
-
-  protected readonly inputClass =
-    'block w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none';
 
   protected readonly form = this.fb.nonNullable.group({
     // The contract's own rule, so client and server agree on what a valid

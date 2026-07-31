@@ -9,6 +9,8 @@ import { ADMIN_TEXT } from '../config/admin-text';
 import { UnsavedChangesAware } from '../pages/unsaved-changes.guard';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { AdminCatalogService } from './admin-catalog.service';
 import { categoryDescendantIds } from './category-tree';
 import { MediaService } from './media.service';
@@ -25,7 +27,7 @@ import { CategoryPicker } from './category-picker';
  */
 @Component({
   selector: 'app-admin-category-editor-page',
-  imports: [Button, LucideIcon, CategoryPicker],
+  imports: [Button, LucideIcon, CategoryPicker, FieldLabel, Input],
   template: `
     <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.editTitle }}</h1>
 
@@ -36,19 +38,18 @@ import { CategoryPicker } from './category-picker';
     } @else {
       <div class="space-y-6">
         <label class="block">
-          <span class="mb-1 block text-sm font-medium">{{
-            productText.name
-          }}</span>
+          <span appFieldLabel>{{ productText.name }}</span>
           <input
             type="text"
-            class="w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
+            appInput
+            class="w-full"
             [value]="name()"
             (input)="name.set($any($event.target).value)"
           />
         </label>
 
         <div class="block">
-          <span class="mb-1 block text-sm font-medium">{{ text.parent }}</span>
+          <span appFieldLabel>{{ text.parent }}</span>
           <app-category-picker
             [categories]="parentOptions()"
             [value]="parentId()"
@@ -59,31 +60,29 @@ import { CategoryPicker } from './category-picker';
         </div>
 
         <label class="block">
-          <span class="mb-1 block text-sm font-medium">{{
-            productText.slug
-          }}</span>
+          <span appFieldLabel>{{ productText.slug }}</span>
           <input
             type="text"
-            class="w-full rounded-md border border-stone-300 px-3 py-2 font-mono text-sm focus:border-primary focus:outline-none"
+            appInput
+            class="w-full font-mono text-sm"
             [value]="slug()"
             (input)="slug.set($any($event.target).value)"
           />
         </label>
 
         <label class="block">
-          <span class="mb-1 block text-sm font-medium">{{
-            productText.description
-          }}</span>
+          <span appFieldLabel>{{ productText.description }}</span>
           <textarea
             rows="3"
-            class="w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
+            appInput
+            class="w-full"
             [value]="description()"
             (input)="description.set($any($event.target).value)"
           ></textarea>
         </label>
 
         <div>
-          <span class="mb-1 block text-sm font-medium">{{ text.image }}</span>
+          <span appFieldLabel>{{ text.image }}</span>
           <div class="flex items-center gap-3">
             @if (image(); as img) {
               <img

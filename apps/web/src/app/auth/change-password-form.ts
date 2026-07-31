@@ -13,6 +13,8 @@ import {
 import { APP_TEXT } from '../config/app-text';
 import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { AuthService, ChangePasswordResult } from './auth.service';
 
 /**
@@ -31,7 +33,7 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null => {
  */
 @Component({
   selector: 'app-change-password-form',
-  imports: [ReactiveFormsModule, Button],
+  imports: [ReactiveFormsModule, Button, FieldLabel, Input],
   template: `
     <form
       [formGroup]="form"
@@ -40,7 +42,7 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null => {
       class="max-w-sm space-y-6"
     >
       <div>
-        <label [for]="id('current')" class="mb-1 block text-sm font-medium">
+        <label [for]="id('current')" appFieldLabel>
           {{ text.currentPassword }}
         </label>
         <input
@@ -49,7 +51,8 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null => {
           formControlName="currentPassword"
           autocomplete="current-password"
           aria-required="true"
-          [class]="inputClass"
+          appInput
+          class="w-full"
           [attr.aria-invalid]="isInvalid('currentPassword') || null"
         />
         @if (isInvalid('currentPassword')) {
@@ -60,7 +63,7 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null => {
       </div>
 
       <div>
-        <label [for]="id('new')" class="mb-1 block text-sm font-medium">
+        <label [for]="id('new')" appFieldLabel>
           {{ text.newPassword }}
         </label>
         <input
@@ -69,7 +72,8 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null => {
           formControlName="newPassword"
           autocomplete="new-password"
           aria-required="true"
-          [class]="inputClass"
+          appInput
+          class="w-full"
           [attr.aria-invalid]="isInvalid('newPassword') || null"
           [attr.aria-describedby]="id('new-hint')"
         />
@@ -88,7 +92,7 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null => {
       </div>
 
       <div>
-        <label [for]="id('confirm')" class="mb-1 block text-sm font-medium">
+        <label [for]="id('confirm')" appFieldLabel>
           {{ text.confirmPassword }}
         </label>
         <input
@@ -97,7 +101,8 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null => {
           formControlName="confirmPassword"
           autocomplete="new-password"
           aria-required="true"
-          [class]="inputClass"
+          appInput
+          class="w-full"
           [attr.aria-invalid]="showMismatch() || null"
         />
         @if (showMismatch()) {
@@ -144,9 +149,6 @@ export class ChangePasswordForm {
   protected readonly status = signal<
     'idle' | 'submitting' | ChangePasswordResult
   >('idle');
-
-  protected readonly inputClass =
-    'block w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none';
 
   protected readonly minLengthHint =
     this.validation.newPasswordTooShort.replace(

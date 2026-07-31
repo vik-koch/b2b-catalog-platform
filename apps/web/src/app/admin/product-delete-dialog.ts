@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
+import { DialogPanel } from '../ui/dialog-panel';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
 
@@ -24,13 +25,13 @@ import { AdminCatalogService } from './admin-catalog.service';
  */
 @Component({
   selector: 'app-product-delete-dialog',
-  imports: [Button, LucideIcon],
+  imports: [Button, LucideIcon, DialogPanel],
   template: `
     <dialog
       #dialog
       (cancel)="cancelled.emit()"
       aria-labelledby="product-delete-heading"
-      class="m-auto max-w-md rounded-lg border border-stone-200 bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50"
+      appDialogPanel
     >
       <h2 id="product-delete-heading" class="text-xl font-bold tracking-tight">
         {{ text.deleteProduct }}

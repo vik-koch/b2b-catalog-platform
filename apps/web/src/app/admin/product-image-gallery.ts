@@ -12,6 +12,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
 import { MediaService } from './media.service';
 
 /**
@@ -22,10 +23,10 @@ import { MediaService } from './media.service';
  */
 @Component({
   selector: 'app-product-image-gallery',
-  imports: [LucideIcon, CdkDropList, CdkDrag, CdkDragPlaceholder],
+  imports: [LucideIcon, CdkDropList, CdkDrag, CdkDragPlaceholder, FieldLabel],
   template: `
     <fieldset>
-      <legend class="mb-1 block text-sm font-medium">{{ text.heading }}</legend>
+      <legend appFieldLabel>{{ text.heading }}</legend>
 
       <ul
         class="flex flex-wrap items-stretch gap-3"

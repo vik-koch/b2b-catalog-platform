@@ -12,6 +12,8 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { PhoneMask } from '../ui/phone-mask';
 import { InquiryService } from './inquiry.service';
 
@@ -40,7 +42,14 @@ const completePhone = (mask: string): ValidatorFn => {
  */
 @Component({
   selector: 'app-inquiry-page',
-  imports: [ReactiveFormsModule, RouterLink, Button, PhoneMask],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    Button,
+    PhoneMask,
+    FieldLabel,
+    Input,
+  ],
   template: `
     <div class="mx-auto max-w-xl">
       <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
@@ -60,7 +69,7 @@ const completePhone = (mask: string): ValidatorFn => {
           class="space-y-6"
         >
           <div>
-            <label for="name" class="mb-1 block text-sm font-medium">
+            <label for="name" appFieldLabel>
               {{ text.name }}
               <span class="text-accent" aria-hidden="true">*</span>
             </label>
@@ -69,7 +78,8 @@ const completePhone = (mask: string): ValidatorFn => {
               type="text"
               formControlName="name"
               aria-required="true"
-              [class]="inputClass"
+              appInput
+              class="w-full"
               [attr.aria-invalid]="isInvalid('name') || null"
             />
             @if (isInvalid('name')) {
@@ -80,7 +90,7 @@ const completePhone = (mask: string): ValidatorFn => {
           </div>
 
           <fieldset>
-            <legend class="mb-1 block text-sm font-medium">
+            <legend appFieldLabel>
               {{ text.preferredContact }}
             </legend>
             <div
@@ -109,7 +119,7 @@ const completePhone = (mask: string): ValidatorFn => {
           </fieldset>
 
           <div>
-            <label for="email" class="mb-1 block text-sm font-medium">
+            <label for="email" appFieldLabel>
               {{ text.email }}
               @if (preferred() === 'email') {
                 <span class="text-accent" aria-hidden="true">*</span>
@@ -119,7 +129,8 @@ const completePhone = (mask: string): ValidatorFn => {
               id="email"
               type="email"
               formControlName="email"
-              [class]="inputClass"
+              appInput
+              class="w-full"
               [attr.aria-required]="preferred() === 'email' || null"
               [attr.aria-invalid]="isInvalid('email') || null"
             />
@@ -135,7 +146,7 @@ const completePhone = (mask: string): ValidatorFn => {
           </div>
 
           <div>
-            <label for="phone" class="mb-1 block text-sm font-medium">
+            <label for="phone" appFieldLabel>
               {{ text.phone }}
               @if (preferred() === 'phone') {
                 <span class="text-accent" aria-hidden="true">*</span>
@@ -154,7 +165,8 @@ const completePhone = (mask: string): ValidatorFn => {
                   appPhoneMask
                   [mask]="phoneInput.mask ?? ''"
                   formControlName="phone"
-                  class="block w-full rounded-r-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
+                  appInput
+                  class="w-full rounded-l-none"
                   [attr.aria-required]="preferred() === 'phone' || null"
                   [attr.aria-invalid]="isInvalid('phone') || null"
                 />
@@ -164,7 +176,8 @@ const completePhone = (mask: string): ValidatorFn => {
                 id="phone"
                 type="tel"
                 formControlName="phone"
-                [class]="inputClass"
+                appInput
+                class="w-full"
                 [attr.aria-required]="preferred() === 'phone' || null"
                 [attr.aria-invalid]="isInvalid('phone') || null"
               />
@@ -181,14 +194,15 @@ const completePhone = (mask: string): ValidatorFn => {
           </div>
 
           <div>
-            <label for="message" class="mb-1 block text-sm font-medium">
+            <label for="message" appFieldLabel>
               {{ text.message }}
             </label>
             <textarea
               id="message"
               rows="5"
               formControlName="message"
-              [class]="inputClass"
+              appInput
+              class="w-full"
             ></textarea>
           </div>
 
@@ -254,9 +268,6 @@ export class InquiryPage {
   protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly status = signal<Status>('idle');
   protected readonly preferred = signal<PreferredContact>('email');
-
-  protected readonly inputClass =
-    'block w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none';
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],

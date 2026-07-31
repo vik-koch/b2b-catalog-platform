@@ -15,6 +15,8 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPriceMinor } from '../catalog/price';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { SyncService } from './sync.service';
 import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
 
@@ -31,7 +33,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
  */
 @Component({
   selector: 'app-sync-page',
-  imports: [RouterLink, Button, LucideIcon],
+  imports: [RouterLink, Button, LucideIcon, FieldLabel, Input],
   template: `
     <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
     <p class="mb-8 max-w-2xl text-stone-600">{{ text.description }}</p>
@@ -100,7 +102,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
 
     <!-- Step 2: the file -->
     <section class="mb-8">
-      <span class="mb-1 block text-sm font-medium">{{ text.file }}</span>
+      <span appFieldLabel>{{ text.file }}</span>
 
       <!-- The picker is the drop target: a bare file input is easy to miss on
            a screen where uploading is the whole point. -->
@@ -276,7 +278,8 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
               <span class="mb-1 block">{{ confirmLabel() }}</span>
               <input
                 type="text"
-                class="rounded-md border border-stone-300 px-3 py-1.5 font-mono focus:border-primary focus:outline-none"
+                appInput
+                class="font-mono"
                 [value]="confirmation()"
                 (input)="confirmation.set($any($event.target).value)"
               />
