@@ -29,7 +29,7 @@ const SWIPE_THRESHOLD_PX = 30;
       [attr.aria-label]="productName()"
       class="relative block aspect-square overflow-hidden bg-stone-100"
       (pointermove)="onScrub($event)"
-      (pointerleave)="reset()"
+      (pointerleave)="onPointerLeave($event)"
       (touchstart)="onTouchStart($event)"
       (touchend)="onTouchEnd($event)"
       (click)="onClick($event)"
@@ -111,8 +111,15 @@ export class TileGallery {
     this.selected.set(this.clamp(Math.floor(fraction * this.images().length)));
   }
 
-  protected reset(): void {
-    this.selected.set(0);
+  /**
+   * Only a mouse leaving resets the tile. A touch pointer fires pointerleave the
+   * moment the finger lifts — and, per the Pointer Events spec, *before* the
+   * touchend that ends the swipe. Resetting there put every swipe back at image
+   * 0 first, so the gesture could only ever reach image 1: the reported "cannot
+   * swipe past the second photo".
+   */
+  protected onPointerLeave(event: PointerEvent): void {
+    if (event.pointerType === 'mouse') this.selected.set(0);
   }
 
   protected onTouchStart(event: TouchEvent): void {
