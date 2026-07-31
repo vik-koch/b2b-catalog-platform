@@ -29,6 +29,18 @@ export const adminText: Signal<AdminText | null> = loadedSignal.asReadonly();
 export const adminTextLoaded = computed(() => loadedSignal() !== null);
 
 /**
+ * The same flag, injectable. `adminTextLoaded` is a module-level signal on
+ * purpose — it is a per-tab cache the route guard reads outside any injector —
+ * but a consumer that *waits* on it should take it as a dependency rather than
+ * reach for the module, so a test can decide what "not loaded yet" means
+ * instead of depending on which spec file the runner happened to load first.
+ */
+export const ADMIN_TEXT_LOADED = new InjectionToken<Signal<boolean>>(
+  'ADMIN_TEXT_LOADED',
+  { providedIn: 'root', factory: () => adminTextLoaded },
+);
+
+/**
  * Fetches once per tab and shares the promise, so a guard, the edit-mode
  * service and a deferred dialog racing each other still make one request.
  */

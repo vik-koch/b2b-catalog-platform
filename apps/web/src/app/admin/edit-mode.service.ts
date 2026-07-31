@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../auth/auth.service';
-import { adminTextLoaded, loadAdminText } from '../config/admin-text';
+import { ADMIN_TEXT_LOADED, loadAdminText } from '../config/admin-text';
 
 const STORAGE_KEY = 'admin-edit-mode';
 
@@ -22,6 +22,7 @@ const STORAGE_KEY = 'admin-edit-mode';
 export class EditModeService {
   private readonly auth = inject(AuthService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly textLoaded = inject(ADMIN_TEXT_LOADED);
 
   readonly isAdmin = computed(() => this.auth.user()?.role === 'admin');
 
@@ -46,7 +47,7 @@ export class EditModeService {
    * ADMIN_TEXT synchronously.
    */
   readonly enabled = computed(
-    () => this.isAdmin() && this.wanted() && adminTextLoaded(),
+    () => this.isAdmin() && this.wanted() && this.textLoaded(),
   );
 
   toggle(): void {

@@ -1,11 +1,9 @@
 import { PLATFORM_ID, signal } from '@angular/core';
-import { vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { adminUser, plainUser } from '../auth/auth-user.fixture';
-import { defaultAdminText } from '../config/admin-text.fixture';
-import { loadAdminText } from '../config/admin-text';
+import { ADMIN_TEXT_LOADED } from '../config/admin-text';
 import { EditModeService } from './edit-mode.service';
 
 /**
@@ -15,25 +13,24 @@ import { EditModeService } from './edit-mode.service';
  * the affordances are shown.
  *
  * Edit mode also waits on the admin text, which is fetched rather than injected
- * into the document, so the affordances never render with blank labels. The
- * first test covers that; the rest load it up front, as a real admin session
- * does. The loaded text is cached per module, so order matters here.
+ * into the document, so the affordances never render with blank labels.
+ *
+ * That wait is injected (ADMIN_TEXT_LOADED) rather than read from the module,
+ * which is what each case sets here. The flag it stands for is a module-level
+ * signal — a per-tab cache the route guard reads outside any injector — and a
+ * runner that shares a module graph between spec files shares that state too:
+ * static-page.spec loads the text in a `beforeAll`, so before this was injected,
+ * whether the "still loading" case saw it loaded came down to which file the
+ * runner scheduled first.
  */
-function stubAdminTextFetch() {
-  vi.stubGlobal('fetch', () =>
-    Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve(defaultAdminText),
-    }),
-  );
-}
-function setup(user: AuthUser | null, stored?: string) {
+function setup(user: AuthUser | null, stored?: string, textLoaded = true) {
   localStorage.clear();
   if (stored !== undefined) localStorage.setItem('admin-edit-mode', stored);
   TestBed.configureTestingModule({
     providers: [
       { provide: PLATFORM_ID, useValue: 'browser' },
       { provide: AuthService, useValue: { user: signal(user) } },
+      { provide: ADMIN_TEXT_LOADED, useValue: signal(textLoaded) },
     ],
   });
   return TestBed.inject(EditModeService);
@@ -43,15 +40,13 @@ describe('EditModeService', () => {
   afterEach(() => localStorage.clear());
 
   it('stays disabled while the admin text is still loading', () => {
-    const svc = setup(adminUser, '1');
+    const svc = setup(adminUser, '1', false);
 
     expect(svc.isAdmin()).toBe(true);
     expect(svc.enabled()).toBe(false);
   });
 
-  it('is disabled by default for an admin until toggled on', async () => {
-    stubAdminTextFetch();
-    await loadAdminText();
+  it('is disabled by default for an admin until toggled on', () => {
     const svc = setup(adminUser);
 
     expect(svc.enabled()).toBe(false);
