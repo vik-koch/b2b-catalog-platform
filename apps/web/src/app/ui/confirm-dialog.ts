@@ -1,0 +1,69 @@
+import {
+  afterNextRender,
+  Component,
+  ElementRef,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
+import { Button } from './button';
+
+/**
+ * Generic yes/no confirmation modal.
+ * Rendered by `ConfirmService` rather than used in templates directly.
+ */
+@Component({
+  selector: 'app-confirm-dialog',
+  imports: [Button],
+  template: `
+    <dialog
+      #dialog
+      (cancel)="cancelled.emit()"
+      aria-labelledby="confirm-dialog-heading"
+      class="m-auto max-w-md rounded-lg border border-stone-200 bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50"
+    >
+      <h2 id="confirm-dialog-heading" class="text-xl font-bold tracking-tight">
+        {{ heading() }}
+      </h2>
+      <p class="mt-3 text-stone-600">{{ message() }}</p>
+
+      <div class="mt-6 flex flex-wrap justify-end gap-3">
+        <button
+          appButton
+          variant="secondary"
+          type="button"
+          (click)="cancelled.emit()"
+        >
+          {{ cancelLabel() }}
+        </button>
+        <button
+          appButton
+          [variant]="confirmVariant()"
+          type="button"
+          (click)="confirmed.emit()"
+        >
+          {{ confirmLabel() }}
+        </button>
+      </div>
+    </dialog>
+  `,
+})
+export class ConfirmDialog {
+  private readonly dialog =
+    viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+
+  readonly heading = input.required<string>();
+  readonly message = input.required<string>();
+  readonly confirmLabel = input.required<string>();
+  readonly cancelLabel = input.required<string>();
+  readonly confirmVariant = input<'primary' | 'danger'>('danger');
+
+  readonly confirmed = output<void>();
+  readonly cancelled = output<void>();
+
+  constructor() {
+    // showModal() must be called imperatively for the focus trap and backdrop;
+    // the host destroys this component to close, and a removed dialog is closed.
+    afterNextRender(() => this.dialog().nativeElement.showModal());
+  }
+}

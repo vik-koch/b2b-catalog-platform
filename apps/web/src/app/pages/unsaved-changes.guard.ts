@@ -4,6 +4,7 @@ import {
   BaseRouteReuseStrategy,
   CanDeactivateFn,
 } from '@angular/router';
+import { confirmDiscard } from '../admin/confirm-discard';
 import { ADMIN_TEXT } from '../config/admin-text';
 
 export interface UnsavedChangesAware {
@@ -17,7 +18,7 @@ export const unsavedChangesGuard: CanDeactivateFn<UnsavedChangesAware> = (
   if (!component.hasUnsavedChanges()) {
     return true;
   }
-  return window.confirm(inject(ADMIN_TEXT).pageEditor.discardConfirm);
+  return confirmDiscard(inject(ADMIN_TEXT).pageEditor.discardConfirm);
 };
 
 /**

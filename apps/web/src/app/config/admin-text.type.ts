@@ -26,6 +26,10 @@ export const adminTextSchema = z
         cancel: z.string(),
         preview: z.string(),
         resumeEditing: z.string(),
+        /** Heading and confirm label of the discard-changes modal. */
+        discardTitle: z.string(),
+        discard: z.string(),
+        keepEditing: z.string(),
         remove: z.string(),
         restore: z.string(),
         reorder: z.string(),

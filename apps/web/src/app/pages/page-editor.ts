@@ -12,6 +12,7 @@ import { Page, PageSlug } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
 import { RichTextEditor } from '../admin/rich-text-editor';
+import { injectConfirmDiscard } from '../admin/confirm-discard';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { PageService } from './page.service';
 import { trustedRichText } from './trusted-rich-text';
@@ -102,6 +103,7 @@ export class PageEditor {
   private readonly pageService = inject(PageService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).pageEditor;
+  private readonly confirmDiscard = injectConfirmDiscard();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * preview body — see trustedRichText. */
   protected readonly safeBody = trustedRichText();
@@ -171,8 +173,11 @@ export class PageEditor {
     }
   }
 
-  protected cancel(): void {
-    if (this.dirty() && !window.confirm(this.text.discardConfirm)) {
+  protected async cancel(): Promise<void> {
+    if (
+      this.dirty() &&
+      !(await this.confirmDiscard(this.text.discardConfirm))
+    ) {
       return;
     }
     this.closed.emit();
