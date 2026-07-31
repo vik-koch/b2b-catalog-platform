@@ -2,7 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductDetail } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
-import { trustedRichText } from '../pages/trusted-rich-text';
+import { trustedRichText } from '../core/trusted-rich-text';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
 import { PricePipe } from './price.pipe';
 import { ProductGallery } from './product-gallery';

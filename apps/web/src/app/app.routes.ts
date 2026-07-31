@@ -4,9 +4,9 @@ import { PageSlug, STANDALONE_PAGE_SLUGS } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 import { guestOnly, requireAuth } from './auth/auth.guard';
 import { adminTextGuard } from './config/admin-text';
-import { maintenanceGate } from './admin/maintenance.guard';
-import { productUnsavedChangesGuard } from './admin/product-unsaved-changes.guard';
-import { categoryUnsavedChangesGuard } from './admin/category-unsaved-changes.guard';
+import { maintenanceGate } from './admin/maintenance/maintenance.guard';
+import { productUnsavedChangesGuard } from './admin/products/unsaved-changes.guard';
+import { categoryUnsavedChangesGuard } from './admin/categories/unsaved-changes.guard';
 import { NotFoundPage } from './pages/not-found-page';
 import { ContactPage } from './pages/contact-page';
 import { InquiryPage } from './pages/inquiry-page';
@@ -15,8 +15,8 @@ import { Home } from './home/home';
 import { CategoryOverview } from './catalog/category-overview';
 import { CategoryGrid } from './catalog/category-grid';
 import { ProductDetail } from './catalog/product-detail';
-import { Page } from './pages/page';
-import { unsavedChangesGuard } from './pages/unsaved-changes.guard';
+import { StaticPage } from './pages/static-page';
+import { unsavedChangesGuard } from './core/unsaved-changes.guard';
 
 /**
  * The generic page route serves a slug only when the deployment publishes it,
@@ -54,28 +54,30 @@ export const appRoutes: Route[] = [
   {
     path: 'admin',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
-    loadComponent: () => import('./admin/admin-page').then((m) => m.AdminPage),
+    loadComponent: () =>
+      import('./admin/admin-panel-page').then((m) => m.AdminPanelPage),
   },
   // Product management, admin-only and client-rendered like the panel.
   {
     path: 'admin/products',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./admin/admin-product-list-page').then(
-        (m) => m.AdminProductListPage,
+      import('./admin/products/product-list-page').then(
+        (m) => m.ProductListPage,
       ),
   },
   {
     path: 'admin/sync',
     canActivate: [requireAuth('admin'), adminTextGuard],
-    loadComponent: () => import('./admin/sync-page').then((m) => m.SyncPage),
+    loadComponent: () =>
+      import('./admin/sync/sync-page').then((m) => m.SyncPage),
   },
   {
     path: 'admin/categories',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./admin/admin-category-list-page').then(
-        (m) => m.AdminCategoryListPage,
+      import('./admin/categories/category-list-page').then(
+        (m) => m.CategoryListPage,
       ),
   },
   // Creating and editing share one screen, like products.
@@ -84,8 +86,8 @@ export const appRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [categoryUnsavedChangesGuard],
     loadComponent: () =>
-      import('./admin/admin-category-editor-page').then(
-        (m) => m.AdminCategoryEditorPage,
+      import('./admin/categories/category-editor-page').then(
+        (m) => m.CategoryEditorPage,
       ),
   },
   {
@@ -93,8 +95,8 @@ export const appRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [categoryUnsavedChangesGuard],
     loadComponent: () =>
-      import('./admin/admin-category-editor-page').then(
-        (m) => m.AdminCategoryEditorPage,
+      import('./admin/categories/category-editor-page').then(
+        (m) => m.CategoryEditorPage,
       ),
   },
   {
@@ -102,14 +104,18 @@ export const appRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [productUnsavedChangesGuard],
     loadComponent: () =>
-      import('./admin/product-editor-page').then((m) => m.ProductEditorPage),
+      import('./admin/products/product-editor-page').then(
+        (m) => m.ProductEditorPage,
+      ),
   },
   {
     path: 'admin/products/:slug/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
     canDeactivate: [productUnsavedChangesGuard],
     loadComponent: () =>
-      import('./admin/product-editor-page').then((m) => m.ProductEditorPage),
+      import('./admin/products/product-editor-page').then(
+        (m) => m.ProductEditorPage,
+      ),
   },
   // Static-page editing as an admin route, alongside the catalog editors — the
   // only way in, whether from the admin panel or the storefront pencil.
@@ -121,9 +127,7 @@ export const appRoutes: Route[] = [
     // guard runs and the editor re-reads its slug (see the strategy).
     data: { noReuse: true },
     loadComponent: () =>
-      import('./admin/admin-page-editor-page').then(
-        (m) => m.AdminPageEditorPage,
-      ),
+      import('./admin/pages/page-editor-page').then((m) => m.PageEditorPage),
   },
   {
     path: 'account',
@@ -168,7 +172,7 @@ export const appRoutes: Route[] = [
   },
   {
     path: ':slug',
-    component: Page,
+    component: StaticPage,
     canMatch: [isPublishedPage],
     canActivate: [maintenanceGate],
   },
