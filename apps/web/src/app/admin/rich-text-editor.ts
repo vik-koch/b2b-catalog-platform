@@ -65,9 +65,13 @@ interface ToolbarAction {
             </button>
           }
         </div>
+        <!-- The .ProseMirror wrapper sits between .prose and the content, so
+             prose's own first/last-child margin reset never reaches the first
+             and last blocks — hence the two explicit rules. Without them the
+             editor shows a top gap the rendered page does not have. -->
         <div
           #host
-          class="prose prose-stone max-w-none p-4 [&_.ProseMirror]:min-h-64 [&_.ProseMirror]:outline-none"
+          class="prose prose-stone max-w-none p-4 [&_.ProseMirror]:min-h-64 [&_.ProseMirror]:outline-none [&_.ProseMirror>:first-child]:mt-0 [&_.ProseMirror>:last-child]:mb-0"
         ></div>
       </div>
 
@@ -281,6 +285,8 @@ export class RichTextEditor {
   );
 
   private editor?: Editor;
+  /** Whether a caret has ever been placed; gates the toolbar's active states. */
+  private focused = false;
   protected readonly activeIds = signal<string[]>([]);
   protected readonly linkPanelOpen = signal(false);
   protected readonly linkDraft = signal('');
@@ -441,6 +447,24 @@ export class RichTextEditor {
             // Same-origin uploaded images only; base64 would defeat the store.
             RichTextImage.configure({ inline: false, allowBase64: false }),
           ],
+      editorProps: {
+        // Pasted (or dragged-in) image files must go through the media store
+        // like any other image — otherwise the browser drops in a blob/data URL
+        // that dies with the tab and never survives a save. Swallowed entirely
+        // in the product preset, whose schema has no image node.
+        handlePaste: (_view, event) =>
+          this.handleImageFiles(event.clipboardData?.files),
+        handleDrop: (_view, event) =>
+          this.handleImageFiles((event as DragEvent).dataTransfer?.files),
+      },
+      onFocus: () => {
+        // Until the user actually puts a caret in the document, the toolbar
+        // reflects nothing: ProseMirror's initial selection sits at the start of
+        // the first block, which would light up its buttons (a list, a quote)
+        // with no visible caret to explain why.
+        this.focused = true;
+        if (this.editor) this.refreshActive(this.editor);
+      },
       onUpdate: ({ editor }) => {
         this.contentChange.emit(editor.getHTML());
         this.refreshActive(editor);
@@ -452,7 +476,9 @@ export class RichTextEditor {
 
   private refreshActive(editor: Editor): void {
     this.activeIds.set(
-      this.actions.filter((a) => a.isActive?.(editor)).map((a) => a.id),
+      this.focused
+        ? this.actions.filter((a) => a.isActive?.(editor)).map((a) => a.id)
+        : [],
     );
     // Mirror the selected image's attributes into the panel signals, but only
     // when the *selected image changes* — re-seeding them on every keystroke
@@ -591,7 +617,33 @@ export class RichTextEditor {
     const file = input.files?.[0];
     // Reset so picking the same file again still fires a change event.
     input.value = '';
-    if (!file || !this.editor) {
+    if (file) {
+      await this.uploadAndInsert(file);
+    }
+  }
+
+  /**
+   * Takes over a paste or drop that carries an image file, routing it through
+   * the same upload as the toolbar button. Returns true when it handled the
+   * event (ProseMirror then leaves the clipboard content alone), false to let
+   * normal handling continue — text pastes are untouched. The product preset
+   * has no image node, so there it only blocks the file.
+   */
+  private handleImageFiles(files: FileList | null | undefined): boolean {
+    const accepted: readonly string[] = ACCEPTED_IMAGE_MIME_TYPES;
+    const file = [...(files ?? [])].find((f) => accepted.includes(f.type));
+    if (!file) {
+      return false;
+    }
+    if (this.preset() !== 'product') {
+      void this.uploadAndInsert(file);
+    }
+    return true;
+  }
+
+  /** Uploads an image and inserts it at the caret, then selects it. */
+  private async uploadAndInsert(file: File): Promise<void> {
+    if (!this.editor) {
       return;
     }
 
