@@ -102,8 +102,12 @@ test.describe('as an admin', () => {
     const name = page.getByRole('textbox').first();
     await name.fill('E2E never-saved product');
 
-    page.once('dialog', (dialog) => dialog.accept()); // unsaved-changes guard
     await page.getByRole('button', { name: 'Cancel' }).click();
+    // The unsaved-changes guard prompts through the app's own modal.
+    await page
+      .getByRole('dialog', { name: 'Discard changes?' })
+      .getByRole('button', { name: 'Discard changes' })
+      .click();
     await expect(page).not.toHaveURL(/\/admin\/products\/new/);
   });
 
