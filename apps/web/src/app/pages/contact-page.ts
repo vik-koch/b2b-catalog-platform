@@ -15,14 +15,14 @@ import { MapFrame } from './map-frame';
   imports: [MapFrame],
   template: `
     <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
-    <p class="mb-8 text-stone-600">{{ text.intro }}</p>
+    <p class="mb-8 text-muted">{{ text.intro }}</p>
 
     <div class="space-y-10">
       @for (location of locations; track location.name) {
         <section>
           <h2 class="text-xl font-semibold">{{ location.name }}</h2>
           @if (location.description) {
-            <p class="mt-1 text-stone-600">{{ location.description }}</p>
+            <p class="mt-1 text-muted">{{ location.description }}</p>
           }
           <app-map-frame
             class="mt-4 block"

@@ -12,7 +12,10 @@ import { Page, PageSlug } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
 import { RichTextEditor } from '../admin/rich-text-editor';
+import { injectConfirmDiscard } from '../admin/confirm-discard';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { PageService } from './page.service';
 import { trustedRichText } from './trusted-rich-text';
 
@@ -22,14 +25,14 @@ import { trustedRichText } from './trusted-rich-text';
  */
 @Component({
   selector: 'app-page-editor',
-  imports: [Button, RichTextEditor, LucideIcon],
+  imports: [Button, RichTextEditor, LucideIcon, FieldLabel, Input],
   // Neutralize link navigation from the preview at the host: a native click on
   // a rendered link would leave the page without the unsaved-changes guard.
   host: { '(click)': 'onPreviewClick($event)' },
   template: `
     @if (previewing()) {
       <p
-        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-stone-600"
+        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
         role="status"
       >
         {{ text.previewNotice }}
@@ -42,10 +45,11 @@ import { trustedRichText } from './trusted-rich-text';
     } @else {
       <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.edit }}</h1>
       <label class="mb-6 block">
-        <span class="mb-1 block text-sm font-medium">{{ text.pageTitle }}</span>
+        <span appFieldLabel>{{ text.pageTitle }}</span>
         <input
           type="text"
-          class="w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
+          appInput
+          class="w-full"
           [value]="title()"
           (input)="onTitleInput($event)"
         />
@@ -102,6 +106,7 @@ export class PageEditor {
   private readonly pageService = inject(PageService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).pageEditor;
+  private readonly confirmDiscard = injectConfirmDiscard();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * preview body — see trustedRichText. */
   protected readonly safeBody = trustedRichText();
@@ -171,8 +176,11 @@ export class PageEditor {
     }
   }
 
-  protected cancel(): void {
-    if (this.dirty() && !window.confirm(this.text.discardConfirm)) {
+  protected async cancel(): Promise<void> {
+    if (
+      this.dirty() &&
+      !(await this.confirmDiscard(this.text.discardConfirm))
+    ) {
       return;
     }
     this.closed.emit();

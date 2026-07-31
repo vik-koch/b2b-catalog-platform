@@ -13,7 +13,7 @@ import { APP_TEXT } from '../config/app-text';
   template: `
     <section class="py-12 text-center sm:py-20">
       <h1 class="mt-3 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-      <p class="mx-auto mt-4 max-w-prose text-stone-600">{{ text.body }}</p>
+      <p class="mx-auto mt-4 max-w-prose text-muted">{{ text.body }}</p>
     </section>
   `,
 })

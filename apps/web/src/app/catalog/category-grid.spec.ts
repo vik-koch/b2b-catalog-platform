@@ -163,6 +163,8 @@ describe('CategoryGrid', () => {
   it('shows a not-found message when the category does not exist', async () => {
     const f = await render(null);
 
-    expect(el(f).textContent).toContain(defaultAppText.catalog.emptyCategories);
+    expect(el(f).textContent).toContain(
+      defaultAppText.catalog.categoryNotFound,
+    );
   });
 });

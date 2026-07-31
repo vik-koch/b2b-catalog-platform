@@ -16,11 +16,12 @@ export function usePageSeo(opts: {
 }): void {
   const title = inject(Title);
   const meta = inject(Meta);
-  const base = inject(DEPLOYMENT_CONFIG).branding.title;
+  const brandingName = inject(DEPLOYMENT_CONFIG).branding.name;
+  const brandingTitle = inject(DEPLOYMENT_CONFIG).branding.title;
 
   effect(() => {
     const name = opts.name();
-    title.setTitle(name ? `${name} — ${base}` : base);
+    title.setTitle(name ? `${name} — ${brandingName}` : brandingTitle);
   });
 
   const describe = opts.description;

@@ -78,3 +78,41 @@ test('navigates between legal pages client-side without a full reload', async ({
 
   await expect(page.locator('html')).toHaveAttribute('data-spa', 'true');
 });
+
+// The utility bar collapses out of view once scrolled off the top and comes
+// back at the top again. It does that by sliding the header, not by resizing
+// it, so its space is always reserved and the page content never jumps.
+test('collapsing and restoring the utility bar never moves the page content', async ({
+  page,
+  isMobile,
+}) => {
+  // Structural, not a disabled test: the mobile project has no utility bar to
+  // collapse, so there is nothing here to assert on a phone viewport.
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(isMobile, 'the utility bar is desktop-only');
+
+  await page.goto('/catalog');
+  const heading = page.locator('h1');
+  // Position in *document* coordinates, so scrolling alone cannot change it.
+  const headingTop = () =>
+    heading.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+  // Tailwind v4's translate utilities set the `translate` property, not
+  // `transform` — which stays "none" throughout.
+  const headerOffset = () =>
+    page.locator('header').evaluate((el) => getComputedStyle(el).translate);
+
+  const atRest = await headingTop();
+
+  await page.evaluate(() => window.scrollTo(0, 400));
+  // Guards the test itself: below the collapse threshold it would prove nothing.
+  await expect
+    .poll(() => page.evaluate(() => window.scrollY))
+    .toBeGreaterThan(96);
+  // The header slid up by exactly the utility bar's height.
+  await expect.poll(headerOffset).toBe('0px -40px');
+  expect(await headingTop()).toBe(atRest);
+
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect.poll(headerOffset).toBe('none');
+  expect(await headingTop()).toBe(atRest);
+});

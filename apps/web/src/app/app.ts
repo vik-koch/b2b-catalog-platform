@@ -39,6 +39,10 @@ import { EditModeToggle } from './admin/edit-mode-toggle';
     '[style.--color-accent]': 'branding.theme.accent',
     '[style.--color-surface]': 'branding.theme.surface || null',
     '[style.--color-ink]': 'branding.theme.ink || null',
+    '[style.--color-muted]': 'branding.theme.muted || null',
+    '[style.--color-subtle]': 'branding.theme.subtle || null',
+    '[style.--color-border]': 'branding.theme.border || null',
+    '[style.--color-border-strong]': 'branding.theme.borderStrong || null',
   },
 })
 export class App {

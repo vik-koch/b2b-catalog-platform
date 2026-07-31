@@ -18,6 +18,11 @@
 export const NAV_ACTION =
   'flex flex-col items-center gap-0.5 rounded-lg p-3 text-primary transition-colors hover:text-accent md:px-3 md:py-1.5 aria-[current=page]:stroke-3 aria-[current=page]:font-medium';
 
-/** Label inside a NAV_ACTION control that has a desktop counterpart. */
+/**
+ * Label inside a NAV_ACTION control that has a desktop counterpart. `text-stable`
+ * reserves the active (medium) weight's width — see styles.css — so the control
+ * does not grow when its route becomes current. Call sites must set
+ * `data-label` to the same text.
+ */
 export const NAV_ACTION_LABEL =
-  'sr-only text-[0.6875rem] leading-none md:not-sr-only';
+  'text-stable sr-only text-xs leading-none md:not-sr-only';

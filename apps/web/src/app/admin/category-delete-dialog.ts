@@ -12,7 +12,9 @@ import {
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
+import { DialogPanel } from '../ui/dialog-panel';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
 import { AdminCatalogService } from './admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
@@ -32,28 +34,26 @@ import { categoryDescendantIds } from './category-tree';
  */
 @Component({
   selector: 'app-category-delete-dialog',
-  imports: [Button, LucideIcon, CategoryPicker],
+  imports: [Button, LucideIcon, CategoryPicker, FieldLabel, DialogPanel],
   template: `
     <dialog
       #dialog
       (cancel)="cancelled.emit()"
       aria-labelledby="category-delete-heading"
-      class="m-auto max-w-md rounded-lg border border-stone-200 bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50"
+      appDialogPanel
     >
       <h2 id="category-delete-heading" class="text-xl font-bold tracking-tight">
         {{ text.deleteTitle }}
       </h2>
 
       @if (mode() === 'loading') {
-        <p class="mt-3 text-stone-500" role="status">…</p>
+        <p class="mt-3 text-subtle" role="status">…</p>
       } @else if (mode() === 'blocked-children') {
-        <p class="mt-3 text-stone-600">{{ blockedChildrenMessage() }}</p>
+        <p class="mt-3 text-muted">{{ blockedChildrenMessage() }}</p>
       } @else if (mode() === 'reassign') {
-        <p class="mt-3 text-stone-600">{{ reassignIntro() }}</p>
+        <p class="mt-3 text-muted">{{ reassignIntro() }}</p>
         <div class="mt-4">
-          <span class="mb-1 block text-sm font-medium">{{
-            text.reassignLabel
-          }}</span>
+          <span appFieldLabel>{{ text.reassignLabel }}</span>
           <app-category-picker
             [categories]="destinations()"
             [value]="reassignTo()"
@@ -63,7 +63,7 @@ import { categoryDescendantIds } from './category-tree';
           />
         </div>
       } @else {
-        <p class="mt-3 text-stone-600">{{ confirmMessage() }}</p>
+        <p class="mt-3 text-muted">{{ confirmMessage() }}</p>
       }
 
       @if (error()) {
@@ -99,7 +99,7 @@ import { categoryDescendantIds } from './category-tree';
 export class CategoryDeleteDialog {
   private readonly admin = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).categories;
+  protected readonly text = inject(ADMIN_TEXT).categoryList;
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
 
   private readonly dialog =

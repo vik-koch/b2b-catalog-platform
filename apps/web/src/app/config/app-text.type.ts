@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 /**
  * Frontend-only UI text — the human-readable chrome wording (nav labels,
- * consent copy, error messages, taglines). A single-locale catalog: each
+ * consent copy, error messages, footer wording). A single-locale catalog: each
  * deployment ships its one language's text here (i18n is out of scope). Kept
  * separate from DeploymentConfig so growing text has its own home and a
  * deployment can override the whole catalog as one unit.
@@ -19,9 +19,14 @@ import { z } from 'zod';
  */
 export const appTextSchema = z
   .object({
-    brand: z
+    /**
+     * Footer chrome. `copyright` carries the whole line so a deployment owns
+     * the symbol and word order; `{name}` and `{years}` are substituted at
+     * render (years is either "2025–2026" or a single year).
+     */
+    footer: z
       .object({
-        tagline: z.string(),
+        copyright: z.string(),
       })
       .strict(),
     /**
@@ -29,6 +34,25 @@ export const appTextSchema = z
      * like `contact`. Open by design (a record), so no `.strict()`.
      */
     nav: z.record(z.string(), z.string()),
+    /**
+     * Text only assistive technology reads: landmark names and the accessible
+     * names of controls whose visible content is an icon or a logo. It is still
+     * user-facing copy in one language, so it belongs here rather than baked
+     * into templates.
+     */
+    a11y: z
+      .object({
+        /** Accessible name of the logo's home link; `{name}` is substituted. */
+        homeLink: z.string(),
+        /** Mobile one-tap call action; `{phone}` is substituted. */
+        callPhone: z.string(),
+        toggleMenu: z.string(),
+        /** Landmark names for the three navigations and the consent banner. */
+        utilityNav: z.string(),
+        legalNav: z.string(),
+        consentBanner: z.string(),
+      })
+      .strict(),
     contact: z
       .object({
         intro: z.string(),
@@ -58,6 +82,9 @@ export const appTextSchema = z
         /** Product detail (FR-CAT-05). */
         specifications: z.string(),
         productNotFound: z.string(),
+        categoryNotFound: z.string(),
+        /** Back link on the catalogue's 404 screens. */
+        backToCatalog: z.string(),
         /** Gallery thumbnail label; `{n}` is substituted. */
         viewImage: z.string(),
         /** Caption shown on the fallback tile when a product has no photo. */

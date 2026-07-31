@@ -12,6 +12,8 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { PhoneMask } from '../ui/phone-mask';
 import { InquiryService } from './inquiry.service';
 
@@ -40,18 +42,25 @@ const completePhone = (mask: string): ValidatorFn => {
  */
 @Component({
   selector: 'app-inquiry-page',
-  imports: [ReactiveFormsModule, RouterLink, Button, PhoneMask],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    Button,
+    PhoneMask,
+    FieldLabel,
+    Input,
+  ],
   template: `
     <div class="mx-auto max-w-xl">
       <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
 
       @if (status() === 'success') {
-        <p class="text-stone-600">{{ text.success }}</p>
+        <p class="text-muted">{{ text.success }}</p>
         <a appButton variant="secondary" routerLink="/" class="mt-8">
           {{ errors.notFoundBack }}
         </a>
       } @else {
-        <p class="mb-8 text-stone-600">{{ text.intro }}</p>
+        <p class="mb-8 text-muted">{{ text.intro }}</p>
 
         <form
           [formGroup]="form"
@@ -60,7 +69,7 @@ const completePhone = (mask: string): ValidatorFn => {
           class="space-y-6"
         >
           <div>
-            <label for="name" class="mb-1 block text-sm font-medium">
+            <label for="name" appFieldLabel>
               {{ text.name }}
               <span class="text-accent" aria-hidden="true">*</span>
             </label>
@@ -69,7 +78,8 @@ const completePhone = (mask: string): ValidatorFn => {
               type="text"
               formControlName="name"
               aria-required="true"
-              [class]="inputClass"
+              appInput
+              class="w-full"
               [attr.aria-invalid]="isInvalid('name') || null"
             />
             @if (isInvalid('name')) {
@@ -80,12 +90,12 @@ const completePhone = (mask: string): ValidatorFn => {
           </div>
 
           <fieldset>
-            <legend class="mb-1 block text-sm font-medium">
+            <legend appFieldLabel>
               {{ text.preferredContact }}
             </legend>
             <div
               role="radiogroup"
-              class="inline-flex gap-1 rounded-lg border border-stone-300 p-1"
+              class="inline-flex gap-1 rounded-lg border border-border-strong bg-white p-1"
             >
               <label [class]="segClass('email')">
                 <input
@@ -109,7 +119,7 @@ const completePhone = (mask: string): ValidatorFn => {
           </fieldset>
 
           <div>
-            <label for="email" class="mb-1 block text-sm font-medium">
+            <label for="email" appFieldLabel>
               {{ text.email }}
               @if (preferred() === 'email') {
                 <span class="text-accent" aria-hidden="true">*</span>
@@ -119,7 +129,8 @@ const completePhone = (mask: string): ValidatorFn => {
               id="email"
               type="email"
               formControlName="email"
-              [class]="inputClass"
+              appInput
+              class="w-full"
               [attr.aria-required]="preferred() === 'email' || null"
               [attr.aria-invalid]="isInvalid('email') || null"
             />
@@ -135,7 +146,7 @@ const completePhone = (mask: string): ValidatorFn => {
           </div>
 
           <div>
-            <label for="phone" class="mb-1 block text-sm font-medium">
+            <label for="phone" appFieldLabel>
               {{ text.phone }}
               @if (preferred() === 'phone') {
                 <span class="text-accent" aria-hidden="true">*</span>
@@ -144,7 +155,7 @@ const completePhone = (mask: string): ValidatorFn => {
             @if (phoneInput) {
               <div class="flex">
                 <span
-                  class="inline-flex items-center rounded-l-md border border-r-0 border-stone-300 bg-stone-100 px-3 text-stone-600"
+                  class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
                 >
                   {{ phoneInput.countryCode }}
                 </span>
@@ -154,7 +165,8 @@ const completePhone = (mask: string): ValidatorFn => {
                   appPhoneMask
                   [mask]="phoneInput.mask ?? ''"
                   formControlName="phone"
-                  class="block w-full rounded-r-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
+                  appInput
+                  class="w-full rounded-l-none"
                   [attr.aria-required]="preferred() === 'phone' || null"
                   [attr.aria-invalid]="isInvalid('phone') || null"
                 />
@@ -164,7 +176,8 @@ const completePhone = (mask: string): ValidatorFn => {
                 id="phone"
                 type="tel"
                 formControlName="phone"
-                [class]="inputClass"
+                appInput
+                class="w-full"
                 [attr.aria-required]="preferred() === 'phone' || null"
                 [attr.aria-invalid]="isInvalid('phone') || null"
               />
@@ -181,14 +194,15 @@ const completePhone = (mask: string): ValidatorFn => {
           </div>
 
           <div>
-            <label for="message" class="mb-1 block text-sm font-medium">
+            <label for="message" appFieldLabel>
               {{ text.message }}
             </label>
             <textarea
               id="message"
               rows="5"
               formControlName="message"
-              [class]="inputClass"
+              appInput
+              class="w-full"
             ></textarea>
           </div>
 
@@ -206,10 +220,13 @@ const completePhone = (mask: string): ValidatorFn => {
 
           <div>
             <label class="flex items-start gap-2 text-sm">
+              <!-- Sized explicitly so the nudge is exact: a 16px box in the 20px
+                   line box of text-sm sits 2px down. At the browser's default
+                   size (~13px) the same nudge reads as too high. -->
               <input
                 type="checkbox"
                 formControlName="acceptPrivacy"
-                class="mt-0.5 accent-primary"
+                class="mt-0.5 h-4 w-4 shrink-0 accent-primary"
                 aria-required="true"
                 [attr.aria-invalid]="isInvalid('acceptPrivacy') || null"
               />
@@ -254,9 +271,6 @@ export class InquiryPage {
   protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly status = signal<Status>('idle');
   protected readonly preferred = signal<PreferredContact>('email');
-
-  protected readonly inputClass =
-    'block w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none';
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],

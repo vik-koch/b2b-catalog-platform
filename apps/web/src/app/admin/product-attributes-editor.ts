@@ -9,11 +9,13 @@ import {
 import {
   Component,
   ElementRef,
+  HostListener,
   afterRenderEffect,
   computed,
   inject,
   input,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import {
@@ -22,6 +24,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
 import {
   applyPastedGrid,
   clearRange,
@@ -49,14 +52,21 @@ import {
  */
 @Component({
   selector: 'app-product-attributes-editor',
-  imports: [LucideIcon, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview],
+  imports: [
+    LucideIcon,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    CdkDragPreview,
+    FieldLabel,
+  ],
   template: `
     <fieldset>
-      <legend class="mb-1 block text-sm font-medium">{{ text.heading }}</legend>
+      <legend appFieldLabel>{{ text.heading }}</legend>
 
       <table class="w-full max-w-2xl border-collapse text-sm">
         <thead>
-          <tr class="text-left text-stone-500">
+          <tr class="text-left text-subtle">
             <th class="w-1/3 pb-1 font-medium">{{ text.key }}</th>
             <th class="pb-1 font-medium">{{ text.value }}</th>
             <th class="w-24"></th>
@@ -79,19 +89,21 @@ import {
                    floating drag preview is a plain labelled chip instead. -->
               <div
                 *cdkDragPreview
-                class="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm shadow-md"
+                class="rounded-md border border-border-strong bg-white px-3 py-1.5 text-sm shadow-md"
               >
                 {{ row.key || text.key }}
               </div>
               <td
                 [attr.data-row]="$index"
                 data-col="0"
-                class="h-10 border border-stone-300 px-2 py-1.5 align-top"
+                class="h-10 border border-border-strong bg-white px-2 py-1.5 align-center"
+                [class]="cellFocus($index, 0)"
               ></td>
               <td
                 [attr.data-row]="$index"
                 data-col="1"
-                class="h-10 border border-stone-300 px-2 py-1.5 align-top"
+                class="h-10 border border-border-strong bg-white px-2 py-1.5 align-center"
+                [class]="cellFocus($index, 1)"
               ></td>
               <td
                 contenteditable="false"
@@ -101,14 +113,14 @@ import {
                   <button
                     type="button"
                     cdkDragHandle
-                    class="cursor-grab p-1 text-stone-300 hover:text-stone-500 active:cursor-grabbing"
+                    class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
                     [attr.aria-label]="common.reorder"
                   >
                     <app-lucide-icon name="grip-vertical" class="h-5 w-5" />
                   </button>
                   <button
                     type="button"
-                    class="p-1 text-stone-400 hover:text-primary"
+                    class="p-1 text-stone-400 hover:text-accent"
                     [attr.aria-label]="text.add"
                     (click)="addBelow($index)"
                   >
@@ -160,6 +172,41 @@ export class ProductAttributesEditor {
         this.writeCell(tr, 1, row.value);
       });
     });
+  }
+
+  /**
+   * The cell the caret sits in, as "row:col". The grid is a single
+   * contenteditable region, so no individual cell ever takes DOM focus and
+   * `:focus` cannot reach one — the selection is the only signal for which cell
+   * is being edited, and without it the grid is the one control in the app that
+   * shows nothing on focus.
+   */
+  private readonly activeCell = signal<string | null>(null);
+
+  @HostListener('document:selectionchange')
+  protected onSelectionChange(): void {
+    const tbody = this.grid()?.nativeElement;
+    const anchor = document.getSelection()?.anchorNode;
+    if (!tbody || !anchor || !tbody.contains(anchor)) {
+      this.activeCell.set(null);
+      return;
+    }
+    const element =
+      anchor instanceof Element ? anchor : (anchor.parentElement ?? null);
+    const cell = element?.closest('td[data-col]');
+    this.activeCell.set(
+      cell
+        ? `${cell.getAttribute('data-row')}:${cell.getAttribute('data-col')}`
+        : null,
+    );
+  }
+
+  /** Matches the focus outline of a normal input, drawn inside the cell's own
+   * border so it never overlaps its neighbours. */
+  protected cellFocus(row: number, col: number): string {
+    return this.activeCell() === `${row}:${col}`
+      ? 'outline-2 -outline-offset-2 outline-primary'
+      : '';
   }
 
   // --- Row actions ---------------------------------------------------------

@@ -1,6 +1,6 @@
 {
-  "brand": {
-    "tagline": "wholesale specialty coffee, Hamburg."
+  "footer": {
+    "copyright": "© {name} {years}"
   },
   "nav": {
     "about": "About us",
@@ -9,6 +9,14 @@
     "imprint": "Imprint",
     "contact": "Contact",
     "inquiry": "Get in touch"
+  },
+  "a11y": {
+    "homeLink": "{name} — home",
+    "callPhone": "Call {phone}",
+    "toggleMenu": "Toggle menu",
+    "utilityNav": "Utility",
+    "legalNav": "Legal",
+    "consentBanner": "Cookie consent"
   },
   "contact": {
     "intro": "Visit us or get in touch — find our offices below."
@@ -29,6 +37,8 @@
     "pageStatus": "Page {page} of {total}",
     "specifications": "Specifications",
     "productNotFound": "This product could not be found. It may have been removed.",
+    "categoryNotFound": "This category could not be found. It may have been removed.",
+    "backToCatalog": "Back to the catalogue",
     "viewImage": "Show image {n}",
     "imagePlaceholder": "No image available"
   },

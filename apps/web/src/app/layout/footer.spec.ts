@@ -11,6 +11,7 @@ function config(cookieConsentEnabled: boolean): DeploymentConfig {
     branding: {
       name: 'Test',
       title: 'Test',
+      startYear: 2021,
       theme: {
         primary: 'red',
         secondary: 'green',
@@ -54,6 +55,13 @@ describe('Footer', () => {
   it('hides the "Cookie settings" control when consent is disabled', async () => {
     const el = await render(false);
     expect(buttonLabels(el)).not.toContain(defaultAppText.consent.settings);
+  });
+
+  it('renders the copyright as a range ending in the current year', async () => {
+    const el = await render(false);
+    expect(el.textContent).toContain(
+      `© Test 2021–${new Date().getFullYear()}`,
+    );
   });
 
   it('always renders the legal nav links', async () => {

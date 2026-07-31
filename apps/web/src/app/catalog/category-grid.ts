@@ -9,6 +9,8 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { delayedLoading } from '../core/delayed-loading';
+import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
@@ -16,8 +18,10 @@ import { CategoryDeleteDialog } from '../admin/category-delete-dialog';
 import { ProductDeleteDialog } from '../admin/product-delete-dialog';
 import { DeletedProductsSection } from '../admin/deleted-products-section';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
+import { Button } from '../ui/button';
 import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
 import { PricePipe } from './price.pipe';
 import { TileGallery } from './tile-gallery';
@@ -39,19 +43,25 @@ const SUBS_COLLAPSED = 4;
     ChevronRightIcon,
     TileGallery,
     LucideIcon,
+    Button,
     IconButton,
     ProductDeleteDialog,
     CategoryDeleteDialog,
     DeletedProductsSection,
+    NotFoundView,
   ],
   template: `
     <section class="relative pb-8 sm:pb-12">
       @if (products.error()) {
-        <p class="text-stone-600">{{ text.loadError }}</p>
+        <p class="text-muted">{{ text.loadError }}</p>
       } @else if (products.hasValue()) {
         @let data = products.value();
         @if (!data) {
-          <p class="text-stone-600">{{ text.emptyCategories }}</p>
+          <app-not-found-view
+            [body]="text.categoryNotFound"
+            backLink="/catalog"
+            [backLabel]="text.backToCatalog"
+          />
         } @else {
           @if (editControls(); as editText) {
             <div class="absolute top-0 right-0 z-10 flex gap-2">
@@ -60,6 +70,7 @@ const SUBS_COLLAPSED = 4;
                 [routerLink]="['/admin/categories', data.category.slug, 'edit']"
                 [attr.aria-label]="editText.editCategory"
                 [attr.title]="editText.editCategory"
+                [queryParams]="editorFrom"
               >
                 <app-lucide-icon name="pencil" class="h-5 w-5" />
               </a>
@@ -82,7 +93,7 @@ const SUBS_COLLAPSED = 4;
           }
           <nav [attr.aria-label]="text.catalogRoot">
             <ol
-              class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-stone-500"
+              class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-subtle"
             >
               <li>
                 <a routerLink="/catalog" class="hover:text-accent">
@@ -117,8 +128,8 @@ const SUBS_COLLAPSED = 4;
             {{ data.category.name }}
           </h1>
 
-          @if (data.category.subcategories.length) {
-            <ul class="mt-5 flex flex-wrap items-stretch gap-2.5">
+          @if (data.category.subcategories.length || editControls()) {
+            <ul class="mt-5 flex flex-wrap items-stretch gap-3">
               @for (
                 sub of visibleSubs(data.category.subcategories);
                 track sub.slug
@@ -126,7 +137,7 @@ const SUBS_COLLAPSED = 4;
                 <li class="flex">
                   <a
                     [routerLink]="['/catalog', sub.slug]"
-                    class="flex max-w-52 items-center rounded-xl border border-accent/30 bg-accent/5 px-4 py-2.5 text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:bg-accent/10 hover:text-accent"
+                    class="flex max-w-52 items-center rounded-xl border border-border bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:text-accent"
                   >
                     <span class="line-clamp-2">{{ sub.name }}</span>
                   </a>
@@ -143,6 +154,24 @@ const SUBS_COLLAPSED = 4;
                   </button>
                 </li>
               }
+              <!-- Symmetric with the add-product tile below: subcategories are
+                   created from where they will appear, with this category
+                   already chosen as the parent. -->
+              @if (editControls(); as editText) {
+                <li class="flex">
+                  <a
+                    [routerLink]="['/admin/categories/new']"
+                    [queryParams]="{
+                      parent: data.category.slug,
+                      from: editorFrom.from,
+                    }"
+                    class="flex items-center gap-1.5 rounded-xl border border-dashed border-border-strong px-4 py-2.5 text-sm font-medium text-subtle transition-colors hover:border-primary hover:text-accent"
+                  >
+                    <app-lucide-icon name="plus" class="h-4 w-4" />
+                    {{ editText.addCategory }}
+                  </a>
+                </li>
+              }
             </ul>
           }
 
@@ -154,8 +183,11 @@ const SUBS_COLLAPSED = 4;
                 <li class="h-full">
                   <a
                     [routerLink]="['/admin/products/new']"
-                    [queryParams]="{ category: data.category.slug }"
-                    class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-stone-300 text-stone-500 transition-colors hover:border-primary hover:text-primary"
+                    [queryParams]="{
+                      category: data.category.slug,
+                      from: editorFrom.from,
+                    }"
+                    class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent"
                   >
                     <app-lucide-icon name="plus" class="h-8 w-8" />
                     <span class="text-sm font-medium">{{
@@ -167,13 +199,14 @@ const SUBS_COLLAPSED = 4;
               @for (item of data.items; track item.slug) {
                 <li class="h-full">
                   <div
-                    class="group relative flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white transition-shadow hover:shadow-md"
+                    class="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-white transition-shadow hover:shadow-md"
                   >
                     @if (editControls(); as editText) {
                       <div class="absolute top-2 right-2 z-10 flex gap-1.5">
                         <a
                           appIconButton
                           [routerLink]="['/admin/products', item.slug, 'edit']"
+                          [queryParams]="editorFrom"
                           [attr.aria-label]="editText.editProduct"
                         >
                           <app-lucide-icon name="pencil" class="h-4 w-4" />
@@ -224,7 +257,9 @@ const SUBS_COLLAPSED = 4;
                   <a
                     [routerLink]="['/catalog', slug()]"
                     [queryParams]="{ page: data.pagination.page - 1 }"
-                    class="rounded-md px-3 py-1.5 text-stone-700 hover:bg-stone-100 hover:text-accent"
+                    appButton
+                    variant="ghost"
+                    size="sm"
                     >{{ text.prevPage }}</a
                   >
                 } @else {
@@ -232,14 +267,16 @@ const SUBS_COLLAPSED = 4;
                     text.prevPage
                   }}</span>
                 }
-                <span class="text-stone-500">{{
+                <span class="text-subtle">{{
                   pageStatus(data.pagination)
                 }}</span>
                 @if (data.pagination.page < data.pagination.totalPages) {
                   <a
                     [routerLink]="['/catalog', slug()]"
                     [queryParams]="{ page: data.pagination.page + 1 }"
-                    class="rounded-md px-3 py-1.5 text-stone-700 hover:bg-stone-100 hover:text-accent"
+                    appButton
+                    variant="ghost"
+                    size="sm"
                     >{{ text.nextPage }}</a
                   >
                 } @else {
@@ -250,7 +287,7 @@ const SUBS_COLLAPSED = 4;
               </nav>
             }
           } @else {
-            <p class="mt-8 text-stone-600">{{ text.emptyProducts }}</p>
+            <p class="mt-8 text-muted">{{ text.emptyProducts }}</p>
           }
 
           @defer (when editMode.enabled()) {
@@ -288,7 +325,7 @@ const SUBS_COLLAPSED = 4;
             }
           }
         }
-      } @else {
+      } @else if (showSkeleton()) {
         <div class="animate-pulse space-y-8" aria-hidden="true">
           <div class="h-8 w-1/3 rounded bg-stone-200"></div>
           <div
@@ -308,6 +345,7 @@ export class CategoryGrid {
   private readonly router = inject(Router);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly editorFrom = injectEditorReturnParams();
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
   protected readonly SUBS_COLLAPSED = SUBS_COLLAPSED;
 
@@ -352,6 +390,9 @@ export class CategoryGrid {
     loader: ({ params }) =>
       this.catalog.getCategoryProducts(params.slug, params.page),
   });
+
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.products.isLoading);
 
   constructor() {
     usePageSeo({ name: () => this.products.value()?.category.name });

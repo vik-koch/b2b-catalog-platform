@@ -20,7 +20,7 @@ import { ProductGallery } from './product-gallery';
   template: `
     <nav [attr.aria-label]="text.catalogRoot">
       <ol
-        class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-stone-500"
+        class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-subtle"
       >
         <li>
           <a routerLink="/catalog" class="hover:text-accent">
@@ -72,20 +72,20 @@ import { ProductGallery } from './product-gallery';
 
         @if (item().attributes.length) {
           <h2
-            class="mt-8 text-xs font-semibold tracking-wide text-stone-500 uppercase"
+            class="mt-8 text-xs font-semibold tracking-wide text-subtle uppercase"
           >
             {{ text.specifications }}
           </h2>
           <!-- A real table (not a dl) so selecting rows and copying yields
                tab-separated key/value pairs — paste-ready into a spreadsheet or
                the product editor's attribute grid. -->
-          <table class="mt-3 w-full border-t border-stone-200 text-sm">
-            <tbody class="divide-y divide-stone-200">
+          <table class="mt-3 w-full border-t border-border text-sm">
+            <tbody class="divide-y divide-border">
               @for (attr of item().attributes; track $index) {
                 <tr>
                   <th
                     scope="row"
-                    class="py-2 pr-4 text-left font-normal text-stone-500"
+                    class="py-2 pr-4 text-left font-normal text-subtle"
                   >
                     {{ attr.key }}
                   </th>

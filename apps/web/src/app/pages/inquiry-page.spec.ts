@@ -13,6 +13,7 @@ const testConfig: DeploymentConfig = {
   branding: {
     name: 'Test',
     title: 'Test',
+    startYear: 2021,
     theme: {
       primary: '',
       secondary: '',

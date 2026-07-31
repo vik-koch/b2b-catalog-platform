@@ -9,17 +9,23 @@ import {
   slugify,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { usePageSeo } from '../core/page-seo';
+import { Skeleton } from '../ui/skeleton';
+import { delayedLoading } from '../core/delayed-loading';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { majorToMinor, minorToMajor } from '../catalog/price';
 import { ProductDetailView } from '../catalog/product-detail-view';
 import { UnsavedChangesAware } from '../pages/unsaved-changes.guard';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { RichTextEditor } from './rich-text-editor';
 import { CategoryPicker } from './category-picker';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { ProductImageGallery } from './product-image-gallery';
 import { AdminCatalogService } from './admin-catalog.service';
+import { injectEditorReturn } from './editor-return';
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
@@ -37,6 +43,9 @@ import { AdminCatalogService } from './admin-catalog.service';
     ProductAttributesEditor,
     ProductImageGallery,
     ProductDetailView,
+    FieldLabel,
+    Input,
+    Skeleton,
   ],
   template: `
     <h1 class="mb-6 text-3xl font-bold tracking-tight">
@@ -44,12 +53,14 @@ import { AdminCatalogService } from './admin-catalog.service';
     </h1>
 
     @if (loading()) {
-      <p class="text-stone-500" role="status">…</p>
+      @if (showSkeleton()) {
+        <app-skeleton [lines]="4" />
+      }
     } @else if (notFound()) {
-      <p class="text-stone-600" role="alert">{{ text.saveError }}</p>
+      <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else if (previewing()) {
       <p
-        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-stone-600"
+        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
         role="status"
       >
         {{ text.previewNotice }}
@@ -58,10 +69,11 @@ import { AdminCatalogService } from './admin-catalog.service';
     } @else {
       <div class="space-y-6">
         <label class="block">
-          <span class="mb-1 block text-sm font-medium">{{ text.name }}</span>
+          <span appFieldLabel>{{ text.name }}</span>
           <input
             type="text"
-            class="w-full rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
+            appInput
+            class="w-full"
             [value]="name()"
             (input)="name.set($any($event.target).value)"
           />
@@ -69,21 +81,20 @@ import { AdminCatalogService } from './admin-catalog.service';
 
         <div class="flex flex-wrap gap-6">
           <label class="block">
-            <span class="mb-1 block text-sm font-medium">{{ text.price }}</span>
+            <span appFieldLabel>{{ text.price }}</span>
             <input
               type="number"
               min="0"
               step="0.01"
-              class="w-40 rounded-md border border-stone-300 px-3 py-2 focus:border-primary focus:outline-none"
+              appInput
+              class="w-40"
               [value]="priceInput()"
               (input)="priceInput.set($any($event.target).value)"
             />
           </label>
 
           <div class="flex-1">
-            <span class="mb-1 block text-sm font-medium">{{
-              text.category
-            }}</span>
+            <span appFieldLabel>{{ text.category }}</span>
             <app-category-picker
               [categories]="categories()"
               [value]="categoryId()"
@@ -95,22 +106,21 @@ import { AdminCatalogService } from './admin-catalog.service';
         </div>
 
         <label class="block">
-          <span class="mb-1 block text-sm font-medium">{{ text.slug }}</span>
+          <span appFieldLabel>{{ text.slug }}</span>
           <input
             type="text"
-            class="w-full rounded-md border border-stone-300 px-3 py-2 font-mono text-sm focus:border-primary focus:outline-none"
+            appInput
+            class="w-full font-mono text-sm"
             [value]="effectiveSlug()"
             (input)="onSlugInput($any($event.target).value)"
           />
-          <span class="mt-1 block text-xs text-stone-500">{{
+          <span class="mt-1 block text-xs text-subtle">{{
             text.slugHint
           }}</span>
         </label>
 
         <div>
-          <span class="mb-1 block text-sm font-medium">{{
-            text.description
-          }}</span>
+          <span appFieldLabel>{{ text.description }}</span>
           <app-rich-text-editor
             preset="product"
             [value]="description()"
@@ -133,16 +143,15 @@ import { AdminCatalogService } from './admin-catalog.service';
         </div>
 
         <label class="block">
-          <span class="mb-1 block text-sm font-medium">{{
-            text.sourceId
-          }}</span>
+          <span appFieldLabel>{{ text.sourceId }}</span>
           <input
             type="text"
-            class="w-full rounded-md border border-stone-300 px-3 py-2 font-mono text-sm focus:border-primary focus:outline-none"
+            appInput
+            class="w-full font-mono text-sm"
             [value]="sourceId()"
             (input)="sourceId.set($any($event.target).value)"
           />
-          <span class="mt-1 block text-xs text-stone-500">{{
+          <span class="mt-1 block text-xs text-subtle">{{
             text.sourceIdHint
           }}</span>
         </label>
@@ -205,6 +214,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly isNew = this.slugParam === null;
 
   protected readonly loading = signal(true);
+  protected readonly showSkeleton = delayedLoading(this.loading);
   protected readonly notFound = signal(false);
   protected readonly categories = signal<AdminCategory[]>([]);
 
@@ -225,6 +235,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   // JSON snapshot of the form at load, for dirty detection.
   private original = '';
   private navigatingAway = false;
+  private readonly close = injectEditorReturn();
 
   /** For a new product the slug tracks the name until the admin edits it. */
   protected readonly effectiveSlug = computed(() =>
@@ -258,6 +269,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private readonly dirty = computed(() => this.snapshot() !== this.original);
 
   constructor() {
+    // Admin screens are client-rendered, so this is for the browser tab
+    // rather than for crawlers — but it is the same one-line contract.
+    usePageSeo({
+      name: () => (this.isNew ? this.text.newTitle : this.text.editTitle),
+    });
     void this.load();
   }
 
@@ -368,8 +384,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected cancel(): void {
     // The route's canDeactivate guard confirms if there are unsaved changes.
     const existingSlug = this.slugParam;
-    void this.router.navigate(
-      existingSlug === null ? ['/catalog'] : ['/product', existingSlug],
+    void this.close(
+      existingSlug === null ? '/catalog' : `/product/${existingSlug}`,
     );
   }
 }

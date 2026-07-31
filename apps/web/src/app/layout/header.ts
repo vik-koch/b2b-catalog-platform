@@ -41,28 +41,30 @@ import { NAV_ACTION } from './nav-action';
   host: { class: 'contents' },
   selector: 'app-header',
   template: `
+    <!-- Collapsing slides the whole header up by the utility bar's height
+         (h-10) rather than shrinking it. Its box in the layout therefore always
+         reserves both rows, so the page content below never moves: collapsed,
+         the freed strip simply sits empty above the main bar, and expanding
+         slides the header back down over it. Transform only — no reflow. -->
     <header
-      class="sticky top-0 z-20 border-b border-stone-200 bg-surface/90 backdrop-blur"
+      class="sticky top-0 z-20 border-b border-border bg-surface/90 backdrop-blur transition-transform duration-300"
+      [class]="collapsed() ? 'md:-translate-y-10' : ''"
     >
-      <!-- Utility bar; collapses on scroll so only the main bar keeps sticking.
-           Everything in it is reachable from the footer and the mobile panel
-           too, which is what makes collapsing it safe. -->
-      <div
-        class="hidden overflow-hidden transition-all duration-300 md:block"
-        [class.max-h-0]="collapsed()"
-        [class.opacity-0]="collapsed()"
-        [class.max-h-12]="!collapsed()"
-      >
+      <!-- Utility bar; it is what slides out of view. Everything in it is
+           reachable from the footer and the mobile panel too, which is what
+           makes hiding it safe. -->
+      <div class="hidden md:block">
         <div
           class="mx-auto flex h-10 w-full max-w-7xl items-center justify-between gap-6 px-4"
         >
-          <nav class="flex gap-5 text-sm" aria-label="Utility">
+          <nav class="flex gap-5 text-sm" [attr.aria-label]="a11y.utilityNav">
             @for (route of utilityRoutes; track route) {
               <a
                 [routerLink]="'/' + route"
                 routerLinkActive
                 ariaCurrentWhenActive="page"
-                class="text-stone-500 transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                [attr.data-label]="text.nav[route]"
+                class="text-stable text-subtle transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
               >
                 {{ text.nav[route] }}
               </a>
@@ -75,11 +77,11 @@ import { NAV_ACTION } from './nav-action';
       </div>
 
       <div
-        class="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4"
+        class="mx-auto flex h-15 w-full max-w-7xl items-center justify-between px-4"
       >
         <a
           routerLink="/"
-          [attr.aria-label]="branding.name + ' — home'"
+          [attr.aria-label]="homeLabel"
           (click)="menuOpen.set(false)"
         >
           <!-- Plain <img>: NgOptimizedImage adds nothing for a local SVG.
@@ -89,7 +91,7 @@ import { NAV_ACTION } from './nav-action';
             alt=""
             width="180"
             height="40"
-            class="h-8 w-auto"
+            class="h-10 w-auto transition-opacity hover:opacity-75"
           />
         </a>
 
@@ -100,7 +102,7 @@ import { NAV_ACTION } from './nav-action';
                  out in the utility bar, so this label is never visible. -->
             <a [href]="telHref(phone)" [class]="navAction + ' md:hidden'">
               <app-icon-phone class="h-6 w-6" />
-              <span class="sr-only">Call {{ phone }}</span>
+              <span class="sr-only">{{ callLabel(phone) }}</span>
             </a>
           }
           <app-catalog-link />
@@ -117,7 +119,7 @@ import { NAV_ACTION } from './nav-action';
             } @else {
               <app-icon-menu class="h-6 w-6" />
             }
-            <span class="sr-only">Toggle menu</span>
+            <span class="sr-only">{{ a11y.toggleMenu }}</span>
           </button>
         </div>
       </div>
@@ -125,15 +127,15 @@ import { NAV_ACTION } from './nav-action';
       @if (menuOpen()) {
         <nav
           id="mobile-menu"
-          class="border-t border-stone-200 md:hidden"
-          aria-label="Utility"
+          class="border-t border-border md:hidden"
+          [attr.aria-label]="a11y.utilityNav"
         >
           @for (route of utilityRoutes; track route) {
             <a
               [routerLink]="'/' + route"
               routerLinkActive
               ariaCurrentWhenActive="page"
-              class="block px-4 py-3 text-stone-600 hover:bg-stone-100 aria-[current=page]:font-medium aria-[current=page]:text-primary"
+              class="block px-4 py-3 text-muted hover:bg-stone-100 aria-[current=page]:font-medium aria-[current=page]:text-primary"
               (click)="menuOpen.set(false)"
             >
               {{ text.nav[route] }}
@@ -155,26 +157,25 @@ export class Header {
   protected readonly branding = this.config.branding;
   protected readonly contact = this.config.contact;
   protected readonly navAction = NAV_ACTION;
+  protected readonly a11y = this.text.a11y;
+  protected readonly homeLabel = this.text.a11y.homeLink.replace(
+    '{name}',
+    this.config.branding.name,
+  );
   protected readonly utilityRoutes: readonly string[] = ['about', 'contact'];
 
-  // Collapse the utility bar once scrolled off the top. Never fires on the
-  // server; the initial render is expanded and matches hydration.
-  //
-  // The two thresholds must straddle by more than the utility bar's own height
-  // (max-h-12 = 48px): collapsing removes that height, dropping window.scrollY
-  // by up to as much, and if that lands below the expand threshold the bar
-  // reopens, re-adds the height, and the page shakes forever (a click can never
-  // land on a never-stable target). Keeping COLLAPSE_AT − EXPAND_AT > 48 means a
-  // collapse can never cross back over the expand line. On pages too short to
-  // reach COLLAPSE_AT the bar simply stays open — the collapse is cosmetic.
+  // Collapse the utility bar once scrolled well off the top, and bring it back
+  // only at the very top — mid-page it would slide down over content the reader
+  // is looking at. Never fires on the server; the initial render is expanded and
+  // matches hydration. Since nothing reflows, neither threshold can feed back
+  // into window.scrollY, so no hysteresis gap is needed.
   @HostListener('window:scroll')
   protected onScroll(): void {
     const COLLAPSE_AT = 96;
-    const EXPAND_AT = 32;
     const currentScroll = window.scrollY;
     if (!this.collapsed() && currentScroll > COLLAPSE_AT) {
       this.collapsed.set(true);
-    } else if (this.collapsed() && currentScroll < EXPAND_AT) {
+    } else if (this.collapsed() && currentScroll <= 0) {
       this.collapsed.set(false);
     }
   }
@@ -192,6 +193,10 @@ export class Header {
   @HostListener('document:keydown.escape')
   protected onEscape(): void {
     this.menuOpen.set(false);
+  }
+
+  protected callLabel(phone: string): string {
+    return this.a11y.callPhone.replace('{phone}', phone);
   }
 
   /** tel: for the mobile call icon; dial characters only. */

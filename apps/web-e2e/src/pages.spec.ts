@@ -28,11 +28,20 @@ test('renders the about page from SSR without a browser refetch', async ({
   expect(apiCalls).toEqual([]);
 });
 
-test('unknown routes render the 404 page with a real 404 status', async ({
-  page,
-}) => {
-  const response = await page.goto('/definitely-not-a-page');
+// Unknown routes and unknown catalog slugs share one 404 screen, and each of
+// them must reach a crawler as a real 404 rather than a styled 200.
+for (const [what, path] of [
+  ['routes', '/definitely-not-a-page'],
+  ['products', '/product/definitely-not-a-product'],
+  ['categories', '/catalog/definitely-not-a-category'],
+] as const) {
+  test(`unknown ${what} render the 404 page with a real 404 status`, async ({
+    page,
+  }) => {
+    const response = await page.goto(path);
 
-  expect(response?.status()).toBe(404);
-  await expect(page.locator('h1')).toHaveText('Page not found');
-});
+    expect(response?.status()).toBe(404);
+    await expect(page.locator('h1')).toHaveText('Page not found');
+    await expect(page.getByRole('link', { name: /^Back to/ })).toBeVisible();
+  });
+}

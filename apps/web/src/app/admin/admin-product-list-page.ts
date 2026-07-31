@@ -9,10 +9,14 @@ import {
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { usePageSeo } from '../core/page-seo';
+import { Skeleton } from '../ui/skeleton';
+import { delayedLoading } from '../core/delayed-loading';
 import { PricePipe } from '../catalog/price.pipe';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
+import { injectEditorReturnParams } from './editor-return';
 import { ProductDeleteDialog } from './product-delete-dialog';
 
 /**
@@ -24,26 +28,38 @@ import { ProductDeleteDialog } from './product-delete-dialog';
  */
 @Component({
   selector: 'app-admin-product-list-page',
-  imports: [RouterLink, PricePipe, Button, LucideIcon, ProductDeleteDialog],
+  imports: [
+    RouterLink,
+    PricePipe,
+    Button,
+    LucideIcon,
+    ProductDeleteDialog,
+    Skeleton,
+  ],
   template: `
     <div class="mb-6 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-      <a appButton routerLink="/admin/products/new" class="gap-2">
+      <a
+        appButton
+        routerLink="/admin/products/new"
+        [queryParams]="editorFrom"
+        class="gap-2"
+      >
         <app-lucide-icon name="plus" class="h-4 w-4" />
         {{ editText.addProduct }}
       </a>
     </div>
 
     @if (products.error()) {
-      <p class="text-stone-600" role="alert">{{ catalogText.loadError }}</p>
+      <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
     } @else if (products.hasValue()) {
       @let data = products.value();
       @if (data.items.length === 0) {
-        <p class="text-stone-600">{{ text.empty }}</p>
+        <p class="text-muted">{{ text.empty }}</p>
       } @else {
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-stone-200 text-left text-stone-500">
+            <tr class="border-b border-border text-left text-subtle">
               <th class="w-14 py-2"></th>
               <th class="py-2 font-medium">{{ productText.name }}</th>
               <th class="py-2 font-medium">{{ productText.category }}</th>
@@ -58,7 +74,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
               <tr [class.opacity-50]="item.deletedAt">
                 <td class="py-2">
                   <div
-                    class="h-10 w-10 overflow-hidden rounded border border-stone-200 bg-stone-100"
+                    class="h-10 w-10 overflow-hidden rounded border border-border bg-stone-100"
                   >
                     @if (item.thumb) {
                       <img
@@ -72,19 +88,20 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                 <td class="py-2">
                   <a
                     [routerLink]="['/admin/products', item.slug, 'edit']"
-                    class="font-medium text-stone-700 hover:text-primary"
+                    [queryParams]="editorFrom"
+                    class="font-medium text-stone-700 hover:text-accent"
                   >
                     {{ item.name }}
                   </a>
                   @if (item.deletedAt) {
                     <span
-                      class="ml-2 rounded bg-stone-200 px-1.5 py-0.5 text-xs text-stone-600"
+                      class="ml-2 rounded bg-stone-200 px-1.5 py-0.5 text-xs text-muted"
                     >
                       {{ text.deletedBadge }}
                     </span>
                   }
                 </td>
-                <td class="py-2 text-stone-500">
+                <td class="py-2 text-subtle">
                   {{ categoryName().get(item.categoryId) }}
                 </td>
                 <td class="py-2 text-right text-stone-700">
@@ -94,7 +111,8 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                   <div class="flex items-center justify-end gap-1">
                     <a
                       [routerLink]="['/admin/products', item.slug, 'edit']"
-                      class="p-1.5 text-stone-500 hover:text-primary"
+                      [queryParams]="editorFrom"
+                      class="p-1.5 text-subtle hover:text-accent"
                       [attr.aria-label]="editText.editProduct"
                     >
                       <app-lucide-icon name="pencil" class="h-4 w-4" />
@@ -102,7 +120,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                     @if (item.deletedAt) {
                       <button
                         type="button"
-                        class="p-1.5 text-stone-500 hover:text-primary"
+                        class="p-1.5 text-subtle hover:text-accent"
                         [attr.aria-label]="common.restore"
                         (click)="restore(item)"
                       >
@@ -111,7 +129,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                     } @else {
                       <button
                         type="button"
-                        class="p-1.5 text-stone-500 hover:text-red-700"
+                        class="p-1.5 text-subtle hover:text-red-700"
                         [attr.aria-label]="editText.deleteProduct"
                         (click)="deletingProduct.set(item)"
                       >
@@ -134,7 +152,9 @@ import { ProductDeleteDialog } from './product-delete-dialog';
               <a
                 routerLink="/admin/products"
                 [queryParams]="{ page: data.pagination.page - 1 }"
-                class="rounded-md px-3 py-1.5 text-stone-700 hover:bg-stone-100 hover:text-primary"
+                appButton
+                variant="ghost"
+                size="sm"
                 >{{ catalogText.prevPage }}</a
               >
             } @else {
@@ -142,14 +162,14 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                 catalogText.prevPage
               }}</span>
             }
-            <span class="text-stone-500">{{
-              pageStatus(data.pagination)
-            }}</span>
+            <span class="text-subtle">{{ pageStatus(data.pagination) }}</span>
             @if (data.pagination.page < data.pagination.totalPages) {
               <a
                 routerLink="/admin/products"
                 [queryParams]="{ page: data.pagination.page + 1 }"
-                class="rounded-md px-3 py-1.5 text-stone-700 hover:bg-stone-100 hover:text-primary"
+                appButton
+                variant="ghost"
+                size="sm"
                 >{{ catalogText.nextPage }}</a
               >
             } @else {
@@ -160,8 +180,8 @@ import { ProductDeleteDialog } from './product-delete-dialog';
           </nav>
         }
       }
-    } @else {
-      <p class="text-stone-500" role="status">…</p>
+    } @else if (showSkeleton()) {
+      <app-skeleton [lines]="6" />
     }
 
     @if (deletingProduct(); as target) {
@@ -181,6 +201,7 @@ export class AdminProductListPage {
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly editorFrom = injectEditorReturnParams();
 
   /** Bound from the `page` query param (a string); coerced and floored to 1. */
   page = input('1');
@@ -200,6 +221,9 @@ export class AdminProductListPage {
     params: () => ({ page: this.currentPage() }),
     loader: ({ params }) => this.admin.listProducts({ page: params.page }),
   });
+
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.products.isLoading);
 
   /** The product whose delete confirmation modal is open, if any. */
   protected readonly deletingProduct = signal<{
@@ -221,5 +245,11 @@ export class AdminProductListPage {
     return this.catalogText.pageStatus
       .replace('{page}', String(p.page))
       .replace('{total}', String(p.totalPages));
+  }
+
+  constructor() {
+    // Admin screens are client-rendered, so this is for the browser tab
+    // rather than for crawlers — but it is the same one-line contract.
+    usePageSeo({ name: () => this.text.title });
   }
 }

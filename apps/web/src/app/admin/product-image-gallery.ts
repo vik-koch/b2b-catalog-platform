@@ -12,6 +12,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
 import { MediaService } from './media.service';
 
 /**
@@ -22,10 +23,10 @@ import { MediaService } from './media.service';
  */
 @Component({
   selector: 'app-product-image-gallery',
-  imports: [LucideIcon, CdkDropList, CdkDrag, CdkDragPlaceholder],
+  imports: [LucideIcon, CdkDropList, CdkDrag, CdkDragPlaceholder, FieldLabel],
   template: `
     <fieldset>
-      <legend class="mb-1 block text-sm font-medium">{{ text.heading }}</legend>
+      <legend appFieldLabel>{{ text.heading }}</legend>
 
       <ul
         class="flex flex-wrap items-stretch gap-3"
@@ -37,7 +38,7 @@ import { MediaService } from './media.service';
           <li
             cdkDrag
             [cdkDragData]="image"
-            class="relative h-28 w-28 cursor-grab overflow-hidden rounded-md border border-stone-200 active:cursor-grabbing"
+            class="relative h-28 w-28 cursor-grab overflow-hidden rounded-md border border-border active:cursor-grabbing"
             [attr.aria-label]="common.reorder"
           >
             <img
@@ -81,7 +82,7 @@ import { MediaService } from './media.service';
           />
           <button
             type="button"
-            class="flex h-28 w-28 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-stone-300 text-stone-500 transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
+            class="flex h-28 w-28 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent disabled:opacity-50"
             [disabled]="uploading()"
             (click)="fileInput.click()"
           >

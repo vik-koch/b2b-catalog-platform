@@ -26,6 +26,10 @@ export const adminTextSchema = z
         cancel: z.string(),
         preview: z.string(),
         resumeEditing: z.string(),
+        /** Heading and confirm label of the discard-changes modal. */
+        discardTitle: z.string(),
+        discard: z.string(),
+        keepEditing: z.string(),
         remove: z.string(),
         restore: z.string(),
         reorder: z.string(),
@@ -33,11 +37,17 @@ export const adminTextSchema = z
         uploadError: z.string(),
       })
       .strict(),
-    /** Section headings on the admin dashboard (FR-ADM-01/03/04). */
+    /**
+     * Headings on the admin dashboard (FR-ADM-01/03/04). `manage` and `site`
+     * label the two cards; the rest label the tiers inside the manage card,
+     * ordered ingest → catalog → content.
+     */
     panel: z
       .object({
+        manage: z.string(),
+        sync: z.string(),
         catalog: z.string(),
-        content: z.string(),
+        pages: z.string(),
         site: z.string(),
       })
       .strict(),
@@ -52,6 +62,7 @@ export const adminTextSchema = z
         deleteConfirm: z.string(),
         editCategory: z.string(),
         editCategories: z.string(),
+        addCategory: z.string(),
         deleteCategory: z.string(),
         deletedHeading: z.string(),
         restoring: z.string(),
@@ -160,20 +171,17 @@ export const adminTextSchema = z
         empty: z.string(),
       })
       .strict(),
-    /** Category management (FR-ADM-01): tree CRUD, ordering, reassign-delete. */
-    categories: z
+    /** The category list screen (FR-ADM-01): the tree, its row actions and the
+     * reassign-then-delete dialog. */
+    categoryList: z
       .object({
         title: z.string(),
-        editTitle: z.string(),
         add: z.string(),
         addChild: z.string(),
-        parent: z.string(),
-        noParent: z.string(),
-        image: z.string(),
-        removeImage: z.string(),
         edit: z.string(),
         delete: z.string(),
         deleting: z.string(),
+        empty: z.string(),
         /** Delete-confirmation modal. `{name}`/`{count}` substituted at render. */
         deleteTitle: z.string(),
         deleteConfirm: z.string(),
@@ -182,14 +190,28 @@ export const adminTextSchema = z
         reassignPlaceholder: z.string(),
         deleteBlockedChildren: z.string(),
         deleteError: z.string(),
-        discardConfirm: z.string(),
-        saveError: z.string(),
-        empty: z.string(),
-        defaultName: z.string(),
+      })
+      .strict(),
+    /**
+     * The category Add/Edit screen (FR-ADM-01) — its own block, mirroring
+     * productEditor. It carries its own field labels rather than borrowing the
+     * product editor's: they are different screens, and sharing them is how the
+     * category slug hint ended up describing a product's web address.
+     */
+    categoryEditor: z
+      .object({
+        newTitle: z.string(),
+        editTitle: z.string(),
         name: z.string(),
+        parent: z.string(),
+        noParent: z.string(),
         slug: z.string(),
         slugHint: z.string(),
         description: z.string(),
+        image: z.string(),
+        discardConfirm: z.string(),
+        nameRequired: z.string(),
+        saveError: z.string(),
       })
       .strict(),
     /**

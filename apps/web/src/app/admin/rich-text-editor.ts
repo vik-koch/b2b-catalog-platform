@@ -21,6 +21,8 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { LucideIcon, LucideIconName } from '../ui/icons/lucide-icon';
+import { FieldLabel } from '../ui/field-label';
+import { Input } from '../ui/input';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from './media.service';
 
@@ -41,16 +43,16 @@ interface ToolbarAction {
  */
 @Component({
   selector: 'app-rich-text-editor',
-  imports: [LucideIcon],
+  imports: [LucideIcon, FieldLabel, Input],
   template: `
     <div class="relative">
       <div
-        class="overflow-hidden rounded-md border border-stone-300 focus-within:border-primary"
+        class="overflow-hidden rounded-md border border-border-strong bg-white focus-within:border-primary focus-within:outline-1 focus-within:outline-offset-0 focus-within:outline-primary"
       >
         <div
           role="toolbar"
           [attr.aria-label]="text.toolbar.label"
-          class="flex flex-wrap items-center gap-0.5 border-b border-stone-200 bg-stone-50 p-1.5"
+          class="flex flex-wrap items-center gap-0.5 border-b border-border bg-stone-100 p-1.5"
         >
           @for (action of visibleActions(); track action.id) {
             <button
@@ -65,6 +67,9 @@ interface ToolbarAction {
             </button>
           }
         </div>
+        <!-- Typography's direct-child rules do not survive the .ProseMirror
+             wrapper; styles.css re-applies them so the editing surface matches
+             the saved page exactly. -->
         <div
           #host
           class="prose prose-stone max-w-none p-4 [&_.ProseMirror]:min-h-64 [&_.ProseMirror]:outline-none"
@@ -80,7 +85,7 @@ interface ToolbarAction {
       />
 
       @if (uploading()) {
-        <p class="mt-2 text-sm text-stone-600" role="status">
+        <p class="mt-2 text-sm text-muted" role="status">
           {{ common.uploading }}
         </p>
       }
@@ -92,18 +97,18 @@ interface ToolbarAction {
 
       @if (linkPanelOpen()) {
         <div
-          class="absolute left-2 top-14 z-10 w-72 rounded-md border border-stone-300 bg-white p-3 shadow-lg"
+          class="absolute left-2 top-14 z-10 w-72 rounded-md border border-border-strong bg-white p-3 shadow-lg"
           role="dialog"
           [attr.aria-label]="link.heading"
         >
           <label class="block">
-            <span class="mb-1 block text-sm font-medium">{{
-              link.urlLabel
-            }}</span>
+            <span appFieldLabel>{{ link.urlLabel }}</span>
             <input
               #linkInput
               type="text"
-              class="w-full rounded-md border border-stone-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+              appInput
+              size="sm"
+              class="w-full"
               [placeholder]="link.placeholder"
               [value]="linkDraft()"
               (input)="linkDraft.set($any($event.target).value)"
@@ -142,33 +147,33 @@ interface ToolbarAction {
 
       @if (imagePanelOpen()) {
         <div
-          class="absolute right-2 top-14 z-10 w-72 rounded-md border border-stone-300 bg-white p-3 shadow-lg"
+          class="absolute right-2 top-14 z-10 w-72 rounded-md border border-border-strong bg-white p-3 shadow-lg"
           role="dialog"
           [attr.aria-label]="image.heading"
         >
           <label class="block">
-            <span class="mb-1 block text-sm font-medium">{{
-              image.altLabel
-            }}</span>
+            <span appFieldLabel>{{ image.altLabel }}</span>
             <input
               type="text"
-              class="w-full rounded-md border border-stone-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+              appInput
+              size="sm"
+              class="w-full"
               [placeholder]="image.altPlaceholder"
               [value]="imageAlt()"
               (input)="onImageAltInput($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-stone-500">{{
+            <span class="mt-1 block text-xs text-subtle">{{
               image.altHint
             }}</span>
           </label>
 
           <label class="mt-3 block">
-            <span class="mb-1 block text-sm font-medium">{{
-              image.linkLabel
-            }}</span>
+            <span appFieldLabel>{{ image.linkLabel }}</span>
             <input
               type="text"
-              class="w-full rounded-md border border-stone-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+              appInput
+              size="sm"
+              class="w-full"
               [placeholder]="image.linkPlaceholder"
               [value]="imageHref()"
               (input)="onImageHrefInput($any($event.target).value)"
@@ -176,9 +181,7 @@ interface ToolbarAction {
           </label>
 
           <div class="mt-3">
-            <span class="mb-1 block text-sm font-medium">{{
-              image.alignLabel
-            }}</span>
+            <span appFieldLabel>{{ image.alignLabel }}</span>
             <div class="flex gap-1">
               <button
                 type="button"
@@ -202,7 +205,7 @@ interface ToolbarAction {
           <label class="mt-3 block">
             <span class="mb-1 flex justify-between text-sm font-medium">
               <span>{{ image.widthLabel }}</span>
-              <span class="text-stone-500">{{ imageSize() }}%</span>
+              <span class="text-subtle">{{ imageSize() }}%</span>
             </span>
             <input
               type="range"
@@ -281,6 +284,8 @@ export class RichTextEditor {
   );
 
   private editor?: Editor;
+  /** Whether a caret has ever been placed; gates the toolbar's active states. */
+  private focused = false;
   protected readonly activeIds = signal<string[]>([]);
   protected readonly linkPanelOpen = signal(false);
   protected readonly linkDraft = signal('');
@@ -441,6 +446,24 @@ export class RichTextEditor {
             // Same-origin uploaded images only; base64 would defeat the store.
             RichTextImage.configure({ inline: false, allowBase64: false }),
           ],
+      editorProps: {
+        // Pasted (or dragged-in) image files must go through the media store
+        // like any other image — otherwise the browser drops in a blob/data URL
+        // that dies with the tab and never survives a save. Swallowed entirely
+        // in the product preset, whose schema has no image node.
+        handlePaste: (_view, event) =>
+          this.handleImageFiles(event.clipboardData?.files),
+        handleDrop: (_view, event) =>
+          this.handleImageFiles((event as DragEvent).dataTransfer?.files),
+      },
+      onFocus: () => {
+        // Until the user actually puts a caret in the document, the toolbar
+        // reflects nothing: ProseMirror's initial selection sits at the start of
+        // the first block, which would light up its buttons (a list, a quote)
+        // with no visible caret to explain why.
+        this.focused = true;
+        if (this.editor) this.refreshActive(this.editor);
+      },
       onUpdate: ({ editor }) => {
         this.contentChange.emit(editor.getHTML());
         this.refreshActive(editor);
@@ -452,7 +475,9 @@ export class RichTextEditor {
 
   private refreshActive(editor: Editor): void {
     this.activeIds.set(
-      this.actions.filter((a) => a.isActive?.(editor)).map((a) => a.id),
+      this.focused
+        ? this.actions.filter((a) => a.isActive?.(editor)).map((a) => a.id)
+        : [],
     );
     // Mirror the selected image's attributes into the panel signals, but only
     // when the *selected image changes* — re-seeding them on every keystroke
@@ -591,7 +616,33 @@ export class RichTextEditor {
     const file = input.files?.[0];
     // Reset so picking the same file again still fires a change event.
     input.value = '';
-    if (!file || !this.editor) {
+    if (file) {
+      await this.uploadAndInsert(file);
+    }
+  }
+
+  /**
+   * Takes over a paste or drop that carries an image file, routing it through
+   * the same upload as the toolbar button. Returns true when it handled the
+   * event (ProseMirror then leaves the clipboard content alone), false to let
+   * normal handling continue — text pastes are untouched. The product preset
+   * has no image node, so there it only blocks the file.
+   */
+  private handleImageFiles(files: FileList | null | undefined): boolean {
+    const accepted: readonly string[] = ACCEPTED_IMAGE_MIME_TYPES;
+    const file = [...(files ?? [])].find((f) => accepted.includes(f.type));
+    if (!file) {
+      return false;
+    }
+    if (this.preset() !== 'product') {
+      void this.uploadAndInsert(file);
+    }
+    return true;
+  }
+
+  /** Uploads an image and inserts it at the caret, then selects it. */
+  private async uploadAndInsert(file: File): Promise<void> {
+    if (!this.editor) {
       return;
     }
 

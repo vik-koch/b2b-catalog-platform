@@ -1,6 +1,7 @@
 import { Component, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { delayedLoading } from '../core/delayed-loading';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
 
@@ -16,13 +17,13 @@ import { ImagePlaceholder } from './image-placeholder';
   imports: [RouterLink, ImagePlaceholder],
   template: `
     @if (categories.error()) {
-      <p class="text-stone-600">{{ text.loadError }}</p>
+      <p class="text-muted">{{ text.loadError }}</p>
     } @else if (categories.value(); as cats) {
       @if (cats.length) {
         <div class="gap-5 columns-2 sm:columns-3 lg:columns-4">
           @for (cat of cats; track cat.slug) {
             <div
-              class="mb-5 break-inside-avoid overflow-hidden rounded-xl border border-stone-200 bg-surface"
+              class="mb-5 break-inside-avoid overflow-hidden rounded-xl border border-border bg-surface"
             >
               <a
                 [routerLink]="['/catalog', cat.slug]"
@@ -54,7 +55,7 @@ import { ImagePlaceholder } from './image-placeholder';
                     <li>
                       <a
                         [routerLink]="['/catalog', child.slug]"
-                        class="inline-block rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700 transition-colors hover:bg-accent hover:text-white"
+                        class="inline-block rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700 transition-colors hover:bg-stone-200"
                       >
                         {{ child.name }}
                       </a>
@@ -68,13 +69,13 @@ import { ImagePlaceholder } from './image-placeholder';
           }
         </div>
       } @else {
-        <p class="text-stone-600">{{ text.emptyCategories }}</p>
+        <p class="text-muted">{{ text.emptyCategories }}</p>
       }
-    } @else {
+    } @else if (showSkeleton()) {
       <div class="gap-5 columns-2 sm:columns-3 lg:columns-4" aria-hidden="true">
         @for (i of skeletons; track i) {
           <div
-            class="mb-5 break-inside-avoid overflow-hidden rounded-xl border border-stone-200"
+            class="mb-5 break-inside-avoid overflow-hidden rounded-xl border border-border"
           >
             <div class="aspect-video animate-pulse bg-stone-200"></div>
             <div class="m-4 h-4 w-2/3 animate-pulse rounded bg-stone-200"></div>
@@ -92,6 +93,9 @@ export class CategoryShowcase {
   protected categories = resource({
     loader: () => this.catalog.getCategoryTree(),
   });
+
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.categories.isLoading);
 
   /** Category image URLs that failed to load — shown as the placeholder instead
    * of the browser's broken-image icon. Keyed by URL. */

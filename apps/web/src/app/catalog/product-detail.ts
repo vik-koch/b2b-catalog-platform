@@ -9,12 +9,15 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { delayedLoading } from '../core/delayed-loading';
+import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
 import { ProductDeleteDialog } from '../admin/product-delete-dialog';
 import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
 import { ProductDetailView } from './product-detail-view';
 
@@ -31,6 +34,7 @@ import { ProductDetailView } from './product-detail-view';
   imports: [
     ProductDetailView,
     ProductDeleteDialog,
+    NotFoundView,
     RouterLink,
     IconButton,
     LucideIcon,
@@ -38,17 +42,22 @@ import { ProductDetailView } from './product-detail-view';
   template: `
     <section class="relative pb-8 sm:pb-12">
       @if (product.error()) {
-        <p class="text-stone-600">{{ text.loadError }}</p>
+        <p class="text-muted">{{ text.loadError }}</p>
       } @else if (product.hasValue()) {
         @let item = product.value();
         @if (!item) {
-          <p class="text-stone-600">{{ text.productNotFound }}</p>
+          <app-not-found-view
+            [body]="text.productNotFound"
+            backLink="/catalog"
+            [backLabel]="text.backToCatalog"
+          />
         } @else {
           @if (editText(); as editText) {
             <div class="absolute top-0 right-0 z-10 flex gap-2">
               <a
                 appIconButton
                 [routerLink]="['/admin/products', item.slug, 'edit']"
+                [queryParams]="editorFrom"
                 [attr.aria-label]="editText.editProduct"
                 [attr.title]="editText.editProduct"
               >
@@ -80,7 +89,7 @@ import { ProductDetailView } from './product-detail-view';
             }
           }
         }
-      } @else {
+      } @else if (showSkeleton()) {
         <div class="grid animate-pulse gap-8 lg:grid-cols-2" aria-hidden="true">
           <div class="aspect-square rounded-xl bg-stone-200"></div>
           <div class="space-y-4">
@@ -99,6 +108,7 @@ export class ProductDetail {
   private readonly router = inject(Router);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly editorFrom = injectEditorReturnParams();
   /**
    * Edit-mode wording, non-null only once edit mode is on — which implies the
    * admin text has arrived (see EditModeService). Read as a signal rather than
@@ -116,6 +126,9 @@ export class ProductDetail {
     params: () => ({ slug: this.slug() }),
     loader: ({ params }) => this.catalog.getProduct(params.slug),
   });
+
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.product.isLoading);
 
   /** After a soft-delete from the product page, return to its category (the
    * product's public page will now 404). Restore lives in the admin panel. */

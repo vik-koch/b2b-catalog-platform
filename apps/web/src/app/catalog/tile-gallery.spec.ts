@@ -27,6 +27,13 @@ function render(images: CatalogImage[]): ComponentFixture<TileGallery> {
   return fixture;
 }
 
+/** A touch event carrying just the one coordinate the component reads. */
+function touchEvent(type: string, clientX: number): Event {
+  const event = new Event(type);
+  Object.defineProperty(event, 'changedTouches', { value: [{ clientX }] });
+  return event;
+}
+
 /** Index of the currently-visible (opacity-100) image. */
 function activeIndex(f: ComponentFixture<TileGallery>): number {
   const imgs = [...(f.nativeElement as HTMLElement).querySelectorAll('img')];
@@ -77,9 +84,88 @@ describe('TileGallery', () => {
     f.detectChanges();
     expect(activeIndex(f)).toBe(1);
 
-    anchor.dispatchEvent(new PointerEvent('pointerleave'));
+    anchor.dispatchEvent(
+      new PointerEvent('pointerleave', { pointerType: 'mouse' }),
+    );
     f.detectChanges();
     expect(activeIndex(f)).toBe(0);
+  });
+
+  /**
+   * Every photo used to get a src up front. The extra copies sit in the
+   * viewport at opacity 0, and opacity does not stop a download, so a category
+   * page fetched one image per photo to show one per product.
+   */
+  it('gives a source only to images that have been revealed', () => {
+    const f = render([img(1), img(2), img(3)]);
+    const sources = () =>
+      [...(f.nativeElement as HTMLElement).querySelectorAll('img')].map((el) =>
+        el.getAttribute('src'),
+      );
+
+    expect(sources()).toEqual([img(1).thumb, null, null]);
+  });
+
+  it('reveals the next image when a pointer enters the tile', () => {
+    const f = render([img(1), img(2), img(3)]);
+    const anchor = (f.nativeElement as HTMLElement).querySelector(
+      'a',
+    ) as HTMLAnchorElement;
+
+    anchor.dispatchEvent(new PointerEvent('pointerenter'));
+    f.detectChanges();
+
+    const sources = [
+      ...(f.nativeElement as HTMLElement).querySelectorAll('img'),
+    ].map((el) => el.getAttribute('src'));
+    // The one after the current, so the fade has something to show; the third
+    // stays unfetched until the gesture actually reaches it.
+    expect(sources).toEqual([img(1).thumb, img(2).thumb, null]);
+  });
+
+  it('reveals an image when a swipe selects it', () => {
+    const f = render([img(1), img(2), img(3)]);
+    const anchor = (f.nativeElement as HTMLElement).querySelector(
+      'a',
+    ) as HTMLAnchorElement;
+
+    anchor.dispatchEvent(touchEvent('touchstart', 200));
+    anchor.dispatchEvent(touchEvent('touchend', 100));
+    f.detectChanges();
+
+    expect(activeIndex(f)).toBe(1);
+    expect(
+      [
+        ...(f.nativeElement as HTMLElement).querySelectorAll('img'),
+      ][1].getAttribute('src'),
+    ).toBe(img(2).thumb);
+  });
+
+  /**
+   * A touch pointer fires pointerleave *before* the touchend that ends the
+   * swipe. While that reset the selection, every swipe restarted from image 0
+   * and the third image was unreachable.
+   */
+  it('keeps stepping forward across successive touch swipes', () => {
+    const f = render([img(1), img(2), img(3)]);
+    const anchor = (f.nativeElement as HTMLElement).querySelector(
+      'a',
+    ) as HTMLAnchorElement;
+
+    const swipeLeft = () => {
+      anchor.dispatchEvent(touchEvent('touchstart', 200));
+      anchor.dispatchEvent(
+        new PointerEvent('pointerleave', { pointerType: 'touch' }),
+      );
+      anchor.dispatchEvent(touchEvent('touchend', 100));
+      f.detectChanges();
+    };
+
+    swipeLeft();
+    expect(activeIndex(f)).toBe(1);
+
+    swipeLeft();
+    expect(activeIndex(f)).toBe(2);
   });
 
   it('renders a progress segment per image when there is more than one', () => {

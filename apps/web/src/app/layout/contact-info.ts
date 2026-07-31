@@ -12,7 +12,7 @@ import { PhoneIcon } from '../ui/icons/phone-icon';
 @Component({
   selector: 'app-contact-info',
   imports: [PhoneIcon, MailIcon],
-  host: { class: 'flex flex-wrap items-center gap-5' },
+  host: { class: 'flex flex-wrap items-center gap-4' },
   template: `
     @if (contact?.phone; as phone) {
       <a [href]="telHref(phone)" [class]="pillClass()">
@@ -40,8 +40,8 @@ export class ContactInfo {
 
   protected readonly pillClass = computed(() => {
     return this.variant() === 'primary'
-      ? `inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-colors border border-stone-200 bg-white text-ink hover:bg-stone-100`
-      : `text-sm text-stone-500 transition-colors hover:text-accent`;
+      ? `inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-colors border border-border bg-white text-ink hover:text-accent hover:ring-primary/40`
+      : `text-sm text-subtle transition-colors hover:text-accent`;
   });
 
   /** tel: needs dial characters only; the displayed value keeps its spacing. */

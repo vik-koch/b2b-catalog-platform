@@ -10,9 +10,13 @@ import { RouterLink } from '@angular/router';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { usePageSeo } from '../core/page-seo';
+import { Skeleton } from '../ui/skeleton';
+import { delayedLoading } from '../core/delayed-loading';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { AdminCatalogService } from './admin-catalog.service';
+import { injectEditorReturnParams } from './editor-return';
 import { CategoryDeleteDialog } from './category-delete-dialog';
 import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
 
@@ -37,28 +41,34 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
     CdkDropList,
     CdkDrag,
     NgTemplateOutlet,
+    Skeleton,
   ],
   template: `
     <div class="mb-6 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-      <button appButton type="button" class="gap-2" (click)="addRoot()">
+      <a
+        appButton
+        routerLink="/admin/categories/new"
+        [queryParams]="editorFrom"
+        class="gap-2"
+      >
         <app-lucide-icon name="plus" class="h-4 w-4" />
         {{ text.add }}
-      </button>
+      </a>
     </div>
 
     @if (categories.error()) {
-      <p class="text-stone-600" role="alert">{{ catalogText.loadError }}</p>
+      <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
     } @else if (categories.hasValue()) {
       @if (tree().length === 0) {
-        <p class="text-stone-600">{{ text.empty }}</p>
+        <p class="text-muted">{{ text.empty }}</p>
       } @else {
         <ng-container
           *ngTemplateOutlet="group; context: { $implicit: tree() }"
         />
       }
-    } @else {
-      <p class="text-stone-500" role="status">…</p>
+    } @else if (showSkeleton()) {
+      <app-skeleton [lines]="5" />
     }
 
     <!-- One drop list per sibling group; recurses for each branch's children. -->
@@ -74,7 +84,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
             <div class="flex items-center gap-2 py-2">
               <span
                 cdkDragHandle
-                class="cursor-grab p-1 text-stone-300 hover:text-stone-500 active:cursor-grabbing"
+                class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
                 [attr.aria-label]="common.reorder"
               >
                 <app-lucide-icon name="grip-vertical" class="h-4 w-4" />
@@ -82,21 +92,25 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
               <span class="flex-1 font-medium text-stone-700">
                 {{ branch.category.name }}
               </span>
-              <button
-                type="button"
-                class="p-1 text-stone-400 hover:text-primary"
+              <a
+                routerLink="/admin/categories/new"
+                [queryParams]="{
+                  parent: branch.category.slug,
+                  from: editorFrom.from,
+                }"
+                class="p-1 text-stone-400 hover:text-accent"
                 [attr.aria-label]="text.addChild"
-                (click)="addChild(branch.category)"
               >
                 <app-lucide-icon name="plus" class="h-4 w-4" />
-              </button>
+              </a>
               <a
                 [routerLink]="[
                   '/admin/categories',
                   branch.category.slug,
                   'edit',
                 ]"
-                class="p-1 text-stone-400 hover:text-primary"
+                [queryParams]="editorFrom"
+                class="p-1 text-stone-400 hover:text-accent"
                 [attr.aria-label]="text.edit"
               >
                 <app-lucide-icon name="pencil" class="h-4 w-4" />
@@ -138,8 +152,9 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
 export class AdminCategoryListPage {
   private readonly admin = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).categories;
+  protected readonly text = inject(ADMIN_TEXT).categoryList;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly editorFrom = injectEditorReturnParams();
 
   /** The category whose delete confirmation modal is open, if any. */
   protected readonly deletingCategory = signal<AdminCategory | null>(null);
@@ -148,6 +163,9 @@ export class AdminCategoryListPage {
     loader: () => this.admin.listCategories(),
   });
 
+  /** Delayed so a quick load never flashes a skeleton. */
+  protected readonly showSkeleton = delayedLoading(this.categories.isLoading);
+
   /** Nested branches (by sortOrder then name) for the drag-drop tree. */
   protected readonly tree = computed<CategoryTreeBranch[]>(() =>
     buildCategoryTree(this.categories.value() ?? []),
@@ -155,26 +173,6 @@ export class AdminCategoryListPage {
 
   protected onCategoryDeleted(): void {
     this.deletingCategory.set(null);
-    this.categories.reload();
-  }
-
-  protected async addRoot(): Promise<void> {
-    await this.admin.createCategory({
-      name: this.text.defaultName,
-      parentId: null,
-      image: null,
-      description: null,
-    });
-    this.categories.reload();
-  }
-
-  protected async addChild(parent: AdminCategory): Promise<void> {
-    await this.admin.createCategory({
-      name: this.text.defaultName,
-      parentId: parent.id,
-      image: null,
-      description: null,
-    });
     this.categories.reload();
   }
 
@@ -193,5 +191,11 @@ export class AdminCategoryListPage {
       })),
     });
     this.categories.reload();
+  }
+
+  constructor() {
+    // Admin screens are client-rendered, so this is for the browser tab
+    // rather than for crawlers — but it is the same one-line contract.
+    usePageSeo({ name: () => this.text.title });
   }
 }

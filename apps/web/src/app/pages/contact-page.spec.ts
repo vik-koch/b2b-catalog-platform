@@ -13,6 +13,7 @@ function config(locations: readonly ContactLocation[]): DeploymentConfig {
     branding: {
       name: 'Test',
       title: 'Test',
+      startYear: 2021,
       theme: {
         primary: 'red',
         secondary: 'green',
