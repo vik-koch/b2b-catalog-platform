@@ -72,7 +72,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                 <td class="py-2">
                   <a
                     [routerLink]="['/admin/products', item.slug, 'edit']"
-                    class="font-medium text-stone-700 hover:text-primary"
+                    class="font-medium text-stone-700 hover:text-accent"
                   >
                     {{ item.name }}
                   </a>
@@ -94,7 +94,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                   <div class="flex items-center justify-end gap-1">
                     <a
                       [routerLink]="['/admin/products', item.slug, 'edit']"
-                      class="p-1.5 text-subtle hover:text-primary"
+                      class="p-1.5 text-subtle hover:text-accent"
                       [attr.aria-label]="editText.editProduct"
                     >
                       <app-lucide-icon name="pencil" class="h-4 w-4" />
@@ -102,7 +102,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                     @if (item.deletedAt) {
                       <button
                         type="button"
-                        class="p-1.5 text-subtle hover:text-primary"
+                        class="p-1.5 text-subtle hover:text-accent"
                         [attr.aria-label]="common.restore"
                         (click)="restore(item)"
                       >

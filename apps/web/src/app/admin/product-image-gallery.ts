@@ -82,7 +82,7 @@ import { MediaService } from './media.service';
           />
           <button
             type="button"
-            class="flex h-28 w-28 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
+            class="flex h-28 w-28 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent disabled:opacity-50"
             [disabled]="uploading()"
             (click)="fileInput.click()"
           >

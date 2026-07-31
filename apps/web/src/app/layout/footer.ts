@@ -55,7 +55,7 @@ import { ContactInfo } from './contact-info';
           </div>
         </div>
 
-        <p class="mt-6 pt-4 text-xs text-subtle">
+        <p class="mt-4 pt-4 text-xs text-subtle">
           {{ copyright }}
         </p>
       </div>

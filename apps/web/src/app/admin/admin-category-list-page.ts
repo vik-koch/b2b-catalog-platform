@@ -84,7 +84,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
               </span>
               <button
                 type="button"
-                class="p-1 text-stone-400 hover:text-primary"
+                class="p-1 text-stone-400 hover:text-accent"
                 [attr.aria-label]="text.addChild"
                 (click)="addChild(branch.category)"
               >
@@ -96,7 +96,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
                   branch.category.slug,
                   'edit',
                 ]"
-                class="p-1 text-stone-400 hover:text-primary"
+                class="p-1 text-stone-400 hover:text-accent"
                 [attr.aria-label]="text.edit"
               >
                 <app-lucide-icon name="pencil" class="h-4 w-4" />

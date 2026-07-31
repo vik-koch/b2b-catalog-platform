@@ -47,12 +47,12 @@ interface ToolbarAction {
   template: `
     <div class="relative">
       <div
-        class="overflow-hidden rounded-md border border-border-strong focus-within:border-primary"
+        class="overflow-hidden rounded-md border bg-white border-border-strong focus-within:border-primary"
       >
         <div
           role="toolbar"
           [attr.aria-label]="text.toolbar.label"
-          class="flex flex-wrap items-center gap-0.5 border-b border-border bg-stone-50 p-1.5"
+          class="flex flex-wrap items-center gap-0.5 border-b border-border bg-stone-100 p-1.5"
         >
           @for (action of visibleActions(); track action.id) {
             <button

@@ -90,7 +90,7 @@ import { NAV_ACTION } from './nav-action';
             alt=""
             width="180"
             height="40"
-            class="h-10 w-auto"
+            class="h-10 w-auto hover:text-accent"
           />
         </a>
 

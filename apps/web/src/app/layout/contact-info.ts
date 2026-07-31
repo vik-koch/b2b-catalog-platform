@@ -40,7 +40,7 @@ export class ContactInfo {
 
   protected readonly pillClass = computed(() => {
     return this.variant() === 'primary'
-      ? `inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-colors border border-border bg-white text-ink hover:bg-stone-100`
+      ? `inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition-colors border border-border bg-white text-ink hover:text-accent hover:ring-primary/40`
       : `text-sm text-subtle transition-colors hover:text-accent`;
   });
 

@@ -126,7 +126,7 @@ const SUBS_COLLAPSED = 4;
           </h1>
 
           @if (data.category.subcategories.length) {
-            <ul class="mt-5 flex flex-wrap items-stretch gap-2.5">
+            <ul class="mt-5 flex flex-wrap items-stretch gap-3">
               @for (
                 sub of visibleSubs(data.category.subcategories);
                 track sub.slug
@@ -134,7 +134,7 @@ const SUBS_COLLAPSED = 4;
                 <li class="flex">
                   <a
                     [routerLink]="['/catalog', sub.slug]"
-                    class="flex max-w-52 items-center rounded-xl border border-accent/30 bg-accent/5 px-4 py-2.5 text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:bg-accent/10 hover:text-accent"
+                    class="flex max-w-52 items-center rounded-xl border border-border bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:text-accent"
                   >
                     <span class="line-clamp-2">{{ sub.name }}</span>
                   </a>
@@ -163,7 +163,7 @@ const SUBS_COLLAPSED = 4;
                   <a
                     [routerLink]="['/admin/products/new']"
                     [queryParams]="{ category: data.category.slug }"
-                    class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-primary"
+                    class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent"
                   >
                     <app-lucide-icon name="plus" class="h-8 w-8" />
                     <span class="text-sm font-medium">{{

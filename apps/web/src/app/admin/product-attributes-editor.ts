@@ -94,12 +94,12 @@ import {
               <td
                 [attr.data-row]="$index"
                 data-col="0"
-                class="h-10 border border-border-strong px-2 py-1.5 align-top"
+                class="h-10 border border-border-strong bg-white px-2 py-1.5 align-center"
               ></td>
               <td
                 [attr.data-row]="$index"
                 data-col="1"
-                class="h-10 border border-border-strong px-2 py-1.5 align-top"
+                class="h-10 border border-border-strong bg-white px-2 py-1.5 align-center"
               ></td>
               <td
                 contenteditable="false"
@@ -116,7 +116,7 @@ import {
                   </button>
                   <button
                     type="button"
-                    class="p-1 text-stone-400 hover:text-primary"
+                    class="p-1 text-stone-400 hover:text-accent"
                     [attr.aria-label]="text.add"
                     (click)="addBelow($index)"
                   >

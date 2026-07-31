@@ -95,7 +95,7 @@ const completePhone = (mask: string): ValidatorFn => {
             </legend>
             <div
               role="radiogroup"
-              class="inline-flex gap-1 rounded-lg border border-border-strong p-1"
+              class="inline-flex gap-1 rounded-lg border border-border-strong bg-white p-1"
             >
               <label [class]="segClass('email')">
                 <input

@@ -5,8 +5,8 @@ const base =
   'inline-flex cursor-pointer items-center justify-center rounded-full bg-surface p-2 text-muted shadow-sm ring-1 ring-border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed';
 
 const variants = {
-  default: 'hover:text-accent hover:bg-stone-100 hover:ring-primary/40',
-  danger: 'hover:text-red-700 hover:bg-stone-100 hover:ring-primary/40',
+  default: 'hover:text-accent',
+  danger: 'hover:text-red-700',
 } as const;
 
 /**

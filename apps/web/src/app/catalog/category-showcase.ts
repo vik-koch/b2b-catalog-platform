@@ -54,7 +54,7 @@ import { ImagePlaceholder } from './image-placeholder';
                     <li>
                       <a
                         [routerLink]="['/catalog', child.slug]"
-                        class="inline-block rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700 transition-colors hover:bg-accent hover:text-white"
+                        class="inline-block rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700 transition-colors hover:bg-stone-200"
                       >
                         {{ child.name }}
                       </a>

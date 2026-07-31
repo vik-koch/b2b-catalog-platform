@@ -18,7 +18,7 @@ const sizes = {
 } as const;
 
 const variants = {
-  primary: 'bg-primary text-white hover:bg-primary/90',
+  primary: 'bg-primary text-white hover:bg-accent',
   // Hover recolors border and text rather than the background: this variant
   // appears both on the white page and inside stone-100 blocks (the signed-in
   // bar), where a stone background change is invisible. Accent is the app's
