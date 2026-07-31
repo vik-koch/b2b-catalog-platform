@@ -138,7 +138,11 @@ test.describe('as an admin', () => {
     page,
   }) => {
     await page.goto('/admin/categories');
+    // This screen is client-rendered and fetches its tree after activating, so
+    // wait for a known row before counting — `count()` does not retry, and a
+    // count taken mid-load would be compared against the loaded one below.
     const rows = page.getByRole('listitem');
+    await expect(rows.filter({ hasText: category.name }).first()).toBeVisible();
     const before = await rows.count();
 
     await page.getByRole('link', { name: 'Add category', exact: true }).click();
