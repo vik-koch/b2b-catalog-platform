@@ -21,7 +21,11 @@ const about: PageContent = {
 
 /** The pencil is an edit-mode affordance; who may enable edit mode (admin only)
  * is EditModeService's concern, so the component test just drives `enabled`. */
-async function render(editModeEnabled: boolean) {
+/** `null` models a page the deployment publishes but nobody has written yet. */
+async function render(
+  editModeEnabled: boolean,
+  page: PageContent | null = about,
+) {
   TestBed.configureTestingModule({
     imports: [Page],
     providers: [
@@ -37,7 +41,7 @@ async function render(editModeEnabled: boolean) {
         provide: EditModeService,
         useValue: { enabled: signal(editModeEnabled) },
       },
-      { provide: PageService, useValue: { getPage: async () => about } },
+      { provide: PageService, useValue: { getPage: async () => page } },
     ],
   });
   const fixture = TestBed.createComponent(Page);
@@ -85,5 +89,43 @@ describe('Page', () => {
 
     expect(url.pathname).toBe('/admin/pages/about/edit');
     expect(url.searchParams.get('from')).not.toBeNull();
+  });
+});
+
+/**
+ * Nothing seeds the pages table outside the demo, so on a real deployment every
+ * published page starts with no row. That is a state the admin resolves by
+ * writing the page — not an error, and not something a crawler should index.
+ */
+describe('Page — before it has been written', () => {
+  beforeAll(async () => {
+    vi.stubGlobal('fetch', () =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(defaultAdminText),
+      }),
+    );
+    await loadAdminText();
+  });
+
+  it('shows the 404 view to a visitor', async () => {
+    const el = await render(false, null);
+
+    expect(el.querySelector('app-not-found-view')).not.toBeNull();
+    expect(el.querySelector('.prose')).toBeNull();
+  });
+
+  it('shows an admin the page shell and a link to write it', async () => {
+    const el = await render(true, null);
+
+    expect(el.querySelector('app-not-found-view')).toBeNull();
+    // Headed by its navigation label, so the page is named before it exists.
+    expect(el.querySelector('h1')?.textContent).toContain(
+      defaultAppText.nav['about'],
+    );
+    expect(el.textContent).toContain(defaultAdminText.pageEditor.emptyNotice);
+    expect(editLink(el)?.getAttribute('href')).toContain(
+      '/admin/pages/about/edit',
+    );
   });
 });

@@ -53,10 +53,14 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
   Prices resolve via tier→price-list mapping; guests see lowest-tier price.
 - Single-language throughout (product content and UI), no i18n framework, no locale keys.
   Each deployment ships one locale's text; i18n is explicitly out of scope (see roadmap).
-- Static page content (privacy, imprint, about, conditions) = generic `Page` entity
-  (slug/title/rich-text body), admin-editable. Fixed slug set — no page create/delete.
-  Navigation, header/footer, and interactive widgets (contact form, map embed) are code;
-  the map embed URL and header contact info come from deployment config, not CMS content.
+- Static page content (privacy, imprint, about, conditions, contact) = generic `Page`
+  entity (slug/title/rich-text body), admin-editable. Fixed slug set — no page
+  create/delete (ADR 0027). Which pages a deployment publishes and where they are linked
+  is deployment config (`pages.published`/`headerNav`/`footerNav`); `contact` has an
+  editable body but a code route, so its office list and map embeds stay structured
+  config. Navigation, header/footer, and interactive widgets (contact form, map embed)
+  are code; the map embed URL and header contact info come from deployment config, not
+  CMS content.
 - Catalog sync: manual file-based, upsert by SKU, soft-delete missing, diff preview before
   commit, audit-logged. No live sync with the legacy source system.
 - Account deletion anonymizes past orders, never deletes them.

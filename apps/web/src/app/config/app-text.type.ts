@@ -53,11 +53,6 @@ export const appTextSchema = z
         consentBanner: z.string(),
       })
       .strict(),
-    contact: z
-      .object({
-        intro: z.string(),
-      })
-      .strict(),
     /** Storefront catalog chrome (FR-CAT). */
     catalog: z
       .object({

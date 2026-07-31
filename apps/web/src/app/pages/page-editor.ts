@@ -43,7 +43,9 @@ import { trustedRichText } from './trusted-rich-text';
         [innerHTML]="safeBody(body())"
       ></div>
     } @else {
-      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.edit }}</h1>
+      <h1 class="mb-6 text-3xl font-bold tracking-tight">
+        {{ isNew() ? text.newTitle : text.editTitle }}
+      </h1>
       <label class="mb-6 block">
         <span appFieldLabel>{{ text.pageTitle }}</span>
         <input
@@ -113,6 +115,8 @@ export class PageEditor {
 
   readonly slug = input.required<PageSlug>();
   readonly page = input.required<Page>();
+  /** True when the page has no row yet, so this save creates it. */
+  readonly isNew = input(false);
 
   /** Emits the saved page so the host can render the server's stored form. */
   readonly saved = output<Page>();

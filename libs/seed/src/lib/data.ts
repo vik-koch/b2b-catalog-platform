@@ -87,9 +87,24 @@ export const imprintPageSeed: PageSeed = {
   ].join('\n'),
 };
 
+/**
+ * The contact page's prose. The office list and maps around it are deployment
+ * config rendered by the code route; only this part is editable content.
+ */
+export const contactPageSeed: PageSeed = {
+  slug: 'contact',
+  title: 'Contact',
+  bodyHtml: [
+    '<p>Visit us or get in touch — find our offices below.</p>',
+    '<p>Our wholesale team answers enquiries within one working day. For',
+    'existing accounts, please quote your customer number.</p>',
+  ].join('\n'),
+};
+
 export const pageSeeds: PageSeed[] = [
   aboutPageSeed,
   conditionsPageSeed,
   privacyPageSeed,
   imprintPageSeed,
+  contactPageSeed,
 ];

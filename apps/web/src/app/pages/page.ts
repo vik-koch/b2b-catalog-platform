@@ -11,15 +11,22 @@ import { LucideIcon } from '../ui/icons/lucide-icon';
 import { PageService } from './page.service';
 import { trustedRichText } from './trusted-rich-text';
 import { IconButton } from '../ui/icon-button';
+import { NotFoundView } from './not-found-view';
 
 @Component({
   selector: 'app-page',
-  imports: [LucideIcon, IconButton, RouterLink],
+  imports: [LucideIcon, IconButton, RouterLink, NotFoundView],
   template: `
-    @if (page(); as content) {
+    <!-- A published page with no row yet: an admin gets the shell and the
+         pencil so they can write it, everyone else gets a real 404 rather than
+         an empty page a crawler would index. -->
+    @if (page() === null && !canEdit()) {
+      <app-not-found-view />
+    } @else if (page() !== undefined) {
+      @let content = page();
       <div class="flex items-start justify-between gap-4">
         <h1 class="mb-6 text-3xl font-bold tracking-tight">
-          {{ content.title }}
+          {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {
           <!-- Editing happens on its own admin route, like products and
@@ -36,10 +43,14 @@ import { IconButton } from '../ui/icon-button';
           </a>
         }
       </div>
-      <div
-        class="prose prose-stone max-w-none"
-        [innerHTML]="safeBody(content.bodyHtml)"
-      ></div>
+      @if (content) {
+        <div
+          class="prose prose-stone max-w-none"
+          [innerHTML]="safeBody(content.bodyHtml)"
+        ></div>
+      } @else if (canEdit(); as editorText) {
+        <p class="text-muted">{{ editorText.emptyNotice }}</p>
+      }
     } @else if (pageResource.error()) {
       <h1 class="text-3xl font-bold tracking-tight">
         {{ text.cannotLoadTitle }}
@@ -59,6 +70,7 @@ export class Page {
   private readonly editMode = inject(EditModeService);
 
   protected readonly text = inject(APP_TEXT).errors;
+  private readonly navText = inject(APP_TEXT).nav;
   protected readonly editorFrom = injectEditorReturnParams();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * page body — see trustedRichText. */
@@ -73,7 +85,13 @@ export class Page {
   /** Delayed so a quick load never flashes a skeleton. */
   protected readonly showSkeleton = delayedLoading(this.pageResource.isLoading);
 
+  /** `undefined` while loading, `null` when the page has no row yet. */
   protected readonly page = computed(() => this.pageResource.value());
+
+  /** Heading for a page that has no stored title yet. */
+  protected get navLabel(): string {
+    return this.navText[this.slug()] ?? '';
+  }
 
   constructor() {
     usePageSeo({ name: () => this.page()?.title });

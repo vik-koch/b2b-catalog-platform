@@ -1,5 +1,7 @@
-import { Route, UrlSegment } from '@angular/router';
-import { PAGE_SLUGS } from '@b2b-catalog-platform/shared';
+import { inject } from '@angular/core';
+import { CanMatchFn, Route, UrlSegment } from '@angular/router';
+import { PageSlug, STANDALONE_PAGE_SLUGS } from '@b2b-catalog-platform/shared';
+import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 import { guestOnly, requireAuth } from './auth/auth.guard';
 import { adminTextGuard } from './config/admin-text';
 import { maintenanceGate } from './admin/maintenance.guard';
@@ -16,8 +18,28 @@ import { ProductDetail } from './catalog/product-detail';
 import { Page } from './pages/page';
 import { unsavedChangesGuard } from './pages/unsaved-changes.guard';
 
-const isPageSlug = (_: Route, [first]: UrlSegment[]) =>
-  (PAGE_SLUGS as readonly string[]).includes(first?.path ?? '');
+/**
+ * The generic page route serves a slug only when the deployment publishes it,
+ * so an unpublished page 404s rather than lingering unlinked but reachable.
+ */
+const publishes = (slug: PageSlug): boolean =>
+  (inject(DEPLOYMENT_CONFIG).pages.published as readonly string[]).includes(
+    slug,
+  );
+
+/** Gate for a code route whose body is a page: unpublishing removes it too. */
+const publishesPage =
+  (slug: PageSlug): CanMatchFn =>
+  () =>
+    publishes(slug);
+
+const isPublishedPage: CanMatchFn = (_: Route, [first]: UrlSegment[]) => {
+  const slug = first?.path ?? '';
+  return (
+    (STANDALONE_PAGE_SLUGS as readonly string[]).includes(slug) &&
+    publishes(slug as PageSlug)
+  );
+};
 
 export const appRoutes: Route[] = [
   { path: '', component: Home, canActivate: [maintenanceGate] },
@@ -120,7 +142,14 @@ export const appRoutes: Route[] = [
   { path: 'maintenance', component: MaintenanceScreen },
   // Code pages are declared before the generic :slug route. Each public route
   // carries the maintenance gate so the storefront is hidden when it is on.
-  { path: 'contact', component: ContactPage, canActivate: [maintenanceGate] },
+  // A code route, but its prose is a page body — so publishing governs it the
+  // same way, and a deployment without a contact page has no dangling route.
+  {
+    path: 'contact',
+    component: ContactPage,
+    canMatch: [publishesPage('contact')],
+    canActivate: [maintenanceGate],
+  },
   { path: 'inquiry', component: InquiryPage, canActivate: [maintenanceGate] },
   {
     path: 'catalog',
@@ -140,7 +169,7 @@ export const appRoutes: Route[] = [
   {
     path: ':slug',
     component: Page,
-    canMatch: [isPageSlug],
+    canMatch: [isPublishedPage],
     canActivate: [maintenanceGate],
   },
   { path: '**', component: NotFoundPage },
