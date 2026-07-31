@@ -37,11 +37,17 @@ export const adminTextSchema = z
         uploadError: z.string(),
       })
       .strict(),
-    /** Section headings on the admin dashboard (FR-ADM-01/03/04). */
+    /**
+     * Headings on the admin dashboard (FR-ADM-01/03/04). `manage` and `site`
+     * label the two cards; the rest label the tiers inside the manage card,
+     * ordered ingest → catalog → content.
+     */
     panel: z
       .object({
+        manage: z.string(),
+        sync: z.string(),
         catalog: z.string(),
-        content: z.string(),
+        pages: z.string(),
         site: z.string(),
       })
       .strict(),

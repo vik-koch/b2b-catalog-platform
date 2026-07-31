@@ -11,10 +11,10 @@ import { MaintenanceToggle } from './maintenance-toggle';
 import { SyncService } from './sync.service';
 
 /**
- * Admin panel — a small dashboard grouping the editable surfaces into sections:
- * Catalog (products, categories), Content (the fixed static pages), and Site
- * (maintenance mode). Everything an admin can change is discoverable from here,
- * consistent with the storefront edit-mode affordances.
+ * Admin panel — a small dashboard over two cards: everything that changes shop
+ * content (the catalog import, products and categories, the fixed static
+ * pages), and site state (maintenance mode). Everything an admin can change is
+ * discoverable from here, consistent with the storefront edit-mode affordances.
  */
 @Component({
   selector: 'app-admin-page',
@@ -25,57 +25,78 @@ import { SyncService } from './sync.service';
     </h1>
     <app-signed-in-as />
 
+    <!-- Everything that changes shop content lives in one card, in three tiers:
+         ingest, then the catalog, then the static pages. The card is what makes
+         them read as one block; the tiers keep the bulk import distinct from
+         "open a thing and change it". No pencils — the whole card edits, so an
+         icon on every button carries no information. -->
     <section class="mt-10">
       <h2
         class="mb-3 text-xs font-semibold tracking-wide text-stone-500 uppercase"
       >
-        {{ panelText.catalog }}
+        {{ panelText.manage }}
       </h2>
-      <div class="flex flex-wrap gap-3">
-        <a appButton routerLink="/admin/products" class="gap-2">
-          <app-lucide-icon name="pencil" class="h-4 w-4" />
-          {{ productText.title }}
-        </a>
-        <a
-          appButton
-          variant="secondary"
-          routerLink="/admin/categories"
-          class="gap-2"
-        >
-          <app-lucide-icon name="pencil" class="h-4 w-4" />
-          {{ categoryText.title }}
-        </a>
-        <a appButton variant="secondary" routerLink="/admin/sync" class="gap-2">
-          <app-lucide-icon name="upload" class="h-4 w-4" />
-          {{ syncText.title }}
-        </a>
-      </div>
-      <!-- The audit trail's newest applied run is the last-sync answer; there
-           is no separate setting to keep in step. -->
-      <p class="mt-3 text-sm text-stone-500">{{ lastSync() }}</p>
-    </section>
+      <div class="divide-y divide-stone-200 rounded-lg border border-stone-200">
+        <div class="p-5">
+          <h3 class="mb-3 text-sm font-semibold">{{ panelText.sync }}</h3>
+          <a appButton routerLink="/admin/sync" class="gap-2">
+            <app-lucide-icon name="upload" class="h-4 w-4" />
+            {{ syncText.title }}
+          </a>
+          <!-- The audit trail's newest applied run is the last-sync answer;
+               there is no separate setting to keep in step. -->
+          <p class="mt-3 text-sm text-stone-500">{{ lastSync() }}</p>
+        </div>
 
-    <section class="mt-10">
-      <h2
-        class="mb-3 text-xs font-semibold tracking-wide text-stone-500 uppercase"
-      >
-        {{ panelText.content }}
-      </h2>
-      <ul class="flex flex-wrap gap-3">
-        @for (slug of pageSlugs; track slug) {
-          <li>
-            <a
-              appButton
-              variant="secondary"
-              [routerLink]="['/', slug]"
-              class="gap-2"
-            >
-              <app-lucide-icon name="pencil" class="h-4 w-4" />
-              {{ navText[slug] }}
-            </a>
-          </li>
-        }
-      </ul>
+        <div class="p-5">
+          <h3 id="admin-catalog-heading" class="mb-3 text-sm font-semibold">
+            {{ panelText.catalog }}
+          </h3>
+          <ul
+            class="flex flex-wrap gap-3"
+            aria-labelledby="admin-catalog-heading"
+          >
+            <li>
+              <a appButton variant="secondary" routerLink="/admin/products">
+                {{ productText.title }}
+              </a>
+            </li>
+            <li>
+              <a appButton variant="secondary" routerLink="/admin/categories">
+                {{ categoryText.title }}
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="p-5">
+          <h3 id="admin-pages-heading" class="mb-3 text-sm font-semibold">
+            {{ panelText.pages }}
+          </h3>
+          <!-- Named after its heading: several of these labels ("About us")
+               also appear in the site header, so the group needs to be
+               distinguishable to a screen reader moving through the page. -->
+          <ul
+            class="flex flex-wrap gap-3"
+            aria-labelledby="admin-pages-heading"
+          >
+            @for (slug of pageSlugs; track slug) {
+              <li>
+                <!-- Straight into the editor: linking to the public page would
+                     land an admin on a read-only view whose pencil only appears
+                     when storefront edit mode happens to be on. -->
+                <a
+                  appButton
+                  variant="secondary"
+                  [routerLink]="['/admin/pages', slug, 'edit']"
+                >
+                  {{ navText[slug] }}
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
     </section>
 
     <section class="mt-10">

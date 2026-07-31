@@ -1,11 +1,18 @@
 import { computed, Directive, input } from '@angular/core';
 
+// Tailwind's preflight resets <button> to the default cursor, so buttons need
+// `cursor-pointer` spelled out to feel clickable the way the <a> uses do.
 const base =
-  'inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors';
+  'inline-flex cursor-pointer items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed';
 
 const variants = {
   primary: 'bg-primary text-white hover:bg-primary/90',
-  secondary: 'border border-stone-300 text-ink hover:bg-stone-100',
+  // Hover recolors border and text rather than the background: this variant
+  // appears both on the white page and inside stone-100 blocks (the signed-in
+  // bar), where a stone background change is invisible. Accent is the app's
+  // interactive-hover color throughout.
+  secondary:
+    'border border-stone-300 text-ink hover:border-accent hover:text-accent',
   danger: 'bg-red-700 text-white hover:bg-red-800',
 } as const;
 

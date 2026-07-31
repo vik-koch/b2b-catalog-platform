@@ -15,8 +15,10 @@
     "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB."
   },
   "panel": {
+    "manage": "Catalog & content",
+    "sync": "Import",
     "catalog": "Catalog",
-    "content": "Content pages",
+    "pages": "Content pages",
     "site": "Site"
   },
   "editMode": {

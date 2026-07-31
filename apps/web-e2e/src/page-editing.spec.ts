@@ -48,6 +48,24 @@ test('a signed-out visitor sees no edit affordance', async ({ page }) => {
   await expect(editButton(page)).toBeHidden();
 });
 
+// The admin panel's second entry point: it links straight into the editor
+// rather than to the public page, which would only show a read-only view.
+test('the admin panel opens a static page in edit mode', async ({ page }) => {
+  await logIn(page);
+
+  await page
+    .getByRole('list', { name: 'Content pages' })
+    .getByRole('link', { name: 'About us' })
+    .click();
+
+  await expect(page).toHaveURL(/\/admin\/pages\/about\/edit$/);
+  await expect(page.getByLabel('Page title')).toHaveValue(aboutPageSeed.title);
+
+  // Leaving an untouched editor returns to the panel without a prompt.
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+});
+
 test.describe('as an admin', () => {
   test.beforeEach(async ({ page }) => {
     await logIn(page);

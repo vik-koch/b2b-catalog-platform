@@ -79,6 +79,18 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/product-editor-page').then((m) => m.ProductEditorPage),
   },
+  // Static-page editing as an admin route, alongside the catalog editors. The
+  // storefront pencil still opens the same editor inline on the public page;
+  // this is the entry point the admin panel links to.
+  {
+    path: 'admin/pages/:slug/edit',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    canDeactivate: [unsavedChangesGuard],
+    loadComponent: () =>
+      import('./admin/admin-page-editor-page').then(
+        (m) => m.AdminPageEditorPage,
+      ),
+  },
   {
     path: 'account',
     canActivate: [requireAuth()],

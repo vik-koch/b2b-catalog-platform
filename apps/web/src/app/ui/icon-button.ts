@@ -1,7 +1,8 @@
 import { computed, Directive, input } from '@angular/core';
 
+// See Button: preflight drops the pointer cursor on <button>.
 const base =
-  'inline-flex items-center justify-center rounded-full bg-surface p-2 text-stone-600 shadow-sm ring-1 ring-stone-200 transition-colors';
+  'inline-flex cursor-pointer items-center justify-center rounded-full bg-surface p-2 text-stone-600 shadow-sm ring-1 ring-stone-200 transition-colors disabled:cursor-not-allowed';
 
 const variants = {
   default: 'hover:text-accent hover:bg-stone-100 hover:ring-primary/40',
