@@ -2,6 +2,7 @@ import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PAGE_SLUGS } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { SignedInAs } from '../auth/signed-in-as';
@@ -125,7 +126,7 @@ export class AdminPage {
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly panelText = inject(ADMIN_TEXT).panel;
   protected readonly productText = inject(ADMIN_TEXT).productList;
-  protected readonly categoryText = inject(ADMIN_TEXT).categories;
+  protected readonly categoryText = inject(ADMIN_TEXT).categoryList;
   protected readonly navText = inject(APP_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
   protected readonly pageSlugs = PAGE_SLUGS;
@@ -147,4 +148,10 @@ export class AdminPage {
     }).format(new Date(applied.finishedAt));
     return this.syncText.lastSync.replace('{date}', date);
   });
+
+  constructor() {
+    // Admin screens are client-rendered, so this is for the browser tab
+    // rather than for crawlers — but it is the same one-line contract.
+    usePageSeo({ name: () => this.text.adminPanel });
+  }
 }

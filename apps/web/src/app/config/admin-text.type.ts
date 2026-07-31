@@ -171,21 +171,17 @@ export const adminTextSchema = z
         empty: z.string(),
       })
       .strict(),
-    /** Category management (FR-ADM-01): tree CRUD, ordering, reassign-delete. */
-    categories: z
+    /** The category list screen (FR-ADM-01): the tree, its row actions and the
+     * reassign-then-delete dialog. */
+    categoryList: z
       .object({
         title: z.string(),
-        editTitle: z.string(),
-        /** Heading of the same screen when it is creating one. */
-        addTitle: z.string(),
         add: z.string(),
         addChild: z.string(),
-        parent: z.string(),
-        noParent: z.string(),
-        image: z.string(),
         edit: z.string(),
         delete: z.string(),
         deleting: z.string(),
+        empty: z.string(),
         /** Delete-confirmation modal. `{name}`/`{count}` substituted at render. */
         deleteTitle: z.string(),
         deleteConfirm: z.string(),
@@ -194,14 +190,28 @@ export const adminTextSchema = z
         reassignPlaceholder: z.string(),
         deleteBlockedChildren: z.string(),
         deleteError: z.string(),
-        discardConfirm: z.string(),
-        saveError: z.string(),
-        nameRequired: z.string(),
-        empty: z.string(),
+      })
+      .strict(),
+    /**
+     * The category Add/Edit screen (FR-ADM-01) — its own block, mirroring
+     * productEditor. It carries its own field labels rather than borrowing the
+     * product editor's: they are different screens, and sharing them is how the
+     * category slug hint ended up describing a product's web address.
+     */
+    categoryEditor: z
+      .object({
+        newTitle: z.string(),
+        editTitle: z.string(),
         name: z.string(),
+        parent: z.string(),
+        noParent: z.string(),
         slug: z.string(),
         slugHint: z.string(),
         description: z.string(),
+        image: z.string(),
+        discardConfirm: z.string(),
+        nameRequired: z.string(),
+        saveError: z.string(),
       })
       .strict(),
     /**

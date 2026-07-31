@@ -9,6 +9,8 @@ import {
   slugify,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { usePageSeo } from '../core/page-seo';
+import { Skeleton } from '../ui/skeleton';
 import { delayedLoading } from '../core/delayed-loading';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { majorToMinor, minorToMajor } from '../catalog/price';
@@ -43,6 +45,7 @@ import { injectEditorReturn } from './editor-return';
     ProductDetailView,
     FieldLabel,
     Input,
+    Skeleton,
   ],
   template: `
     <h1 class="mb-6 text-3xl font-bold tracking-tight">
@@ -51,7 +54,7 @@ import { injectEditorReturn } from './editor-return';
 
     @if (loading()) {
       @if (showSkeleton()) {
-        <p class="text-subtle" role="status">…</p>
+        <app-skeleton [lines]="4" />
       }
     } @else if (notFound()) {
       <p class="text-muted" role="alert">{{ text.saveError }}</p>
@@ -266,6 +269,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private readonly dirty = computed(() => this.snapshot() !== this.original);
 
   constructor() {
+    // Admin screens are client-rendered, so this is for the browser tab
+    // rather than for crawlers — but it is the same one-line contract.
+    usePageSeo({
+      name: () => (this.isNew ? this.text.newTitle : this.text.editTitle),
+    });
     void this.load();
   }
 

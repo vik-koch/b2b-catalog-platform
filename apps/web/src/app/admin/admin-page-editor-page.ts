@@ -2,6 +2,7 @@ import { Component, inject, resource, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PageSlug } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { usePageSeo } from '../core/page-seo';
 import { delayedLoading } from '../core/delayed-loading';
 import { PageEditor } from '../pages/page-editor';
 import { PageService } from '../pages/page.service';
@@ -68,5 +69,11 @@ export class AdminPageEditorPage implements UnsavedChangesAware {
   protected leave(): void {
     this.navigatingAway = true;
     void this.close('/admin');
+  }
+
+  constructor() {
+    // Admin screens are client-rendered, so this is for the browser tab
+    // rather than for crawlers — but it is the same one-line contract.
+    usePageSeo({ name: () => this.text.edit });
   }
 }

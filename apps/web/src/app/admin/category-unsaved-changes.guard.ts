@@ -11,5 +11,5 @@ export const categoryUnsavedChangesGuard: CanDeactivateFn<
   if (!component.hasUnsavedChanges()) {
     return true;
   }
-  return confirmDiscard(inject(ADMIN_TEXT).categories.discardConfirm);
+  return confirmDiscard(inject(ADMIN_TEXT).categoryEditor.discardConfirm);
 };

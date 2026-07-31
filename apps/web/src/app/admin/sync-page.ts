@@ -10,6 +10,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { usePageSeo } from '../core/page-seo';
 import { AdminText } from '../config/admin-text.type';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPriceMinor } from '../catalog/price';
@@ -352,6 +353,12 @@ export class SyncPage {
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
   protected readonly text = inject(ADMIN_TEXT).sync;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+
+  constructor() {
+    // Admin screens are client-rendered, so this is for the browser tab
+    // rather than for crawlers — but it is the same one-line contract.
+    usePageSeo({ name: () => this.text.title });
+  }
 
   protected readonly presets = SYNC_PRESETS;
   protected readonly flags = FLAGS;

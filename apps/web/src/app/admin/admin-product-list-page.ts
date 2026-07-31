@@ -9,6 +9,8 @@ import {
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { usePageSeo } from '../core/page-seo';
+import { Skeleton } from '../ui/skeleton';
 import { delayedLoading } from '../core/delayed-loading';
 import { PricePipe } from '../catalog/price.pipe';
 import { Button } from '../ui/button';
@@ -26,7 +28,14 @@ import { ProductDeleteDialog } from './product-delete-dialog';
  */
 @Component({
   selector: 'app-admin-product-list-page',
-  imports: [RouterLink, PricePipe, Button, LucideIcon, ProductDeleteDialog],
+  imports: [
+    RouterLink,
+    PricePipe,
+    Button,
+    LucideIcon,
+    ProductDeleteDialog,
+    Skeleton,
+  ],
   template: `
     <div class="mb-6 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
@@ -172,7 +181,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
         }
       }
     } @else if (showSkeleton()) {
-      <p class="text-subtle" role="status">…</p>
+      <app-skeleton [lines]="6" />
     }
 
     @if (deletingProduct(); as target) {
@@ -236,5 +245,11 @@ export class AdminProductListPage {
     return this.catalogText.pageStatus
       .replace('{page}', String(p.page))
       .replace('{total}', String(p.totalPages));
+  }
+
+  constructor() {
+    // Admin screens are client-rendered, so this is for the browser tab
+    // rather than for crawlers — but it is the same one-line contract.
+    usePageSeo({ name: () => this.text.title });
   }
 }

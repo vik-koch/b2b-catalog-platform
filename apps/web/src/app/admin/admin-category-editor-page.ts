@@ -2,6 +2,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AdminCategory, CatalogImage } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { usePageSeo } from '../core/page-seo';
+import { Skeleton } from '../ui/skeleton';
 import { delayedLoading } from '../core/delayed-loading';
 import { UnsavedChangesAware } from '../pages/unsaved-changes.guard';
 import { Button } from '../ui/button';
@@ -25,22 +27,30 @@ import { CategoryPicker } from './category-picker';
  */
 @Component({
   selector: 'app-admin-category-editor-page',
-  imports: [Button, LucideIcon, CategoryPicker, FieldLabel, Input, ImagePicker],
+  imports: [
+    Button,
+    LucideIcon,
+    CategoryPicker,
+    FieldLabel,
+    Input,
+    ImagePicker,
+    Skeleton,
+  ],
   template: `
     <h1 class="mb-6 text-3xl font-bold tracking-tight">
-      {{ isNew ? text.addTitle : text.editTitle }}
+      {{ isNew ? text.newTitle : text.editTitle }}
     </h1>
 
     @if (loading()) {
       @if (showSkeleton()) {
-        <p class="text-subtle" role="status">…</p>
+        <app-skeleton [lines]="4" />
       }
     } @else if (!isNew && !category()) {
       <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else {
       <div class="space-y-6">
         <label class="block">
-          <span appFieldLabel>{{ productText.name }}</span>
+          <span appFieldLabel>{{ text.name }}</span>
           <input
             type="text"
             appInput
@@ -62,7 +72,7 @@ import { CategoryPicker } from './category-picker';
         </div>
 
         <label class="block">
-          <span appFieldLabel>{{ productText.slug }}</span>
+          <span appFieldLabel>{{ text.slug }}</span>
           <input
             type="text"
             appInput
@@ -70,10 +80,13 @@ import { CategoryPicker } from './category-picker';
             [value]="slug()"
             (input)="slug.set($any($event.target).value)"
           />
+          <span class="mt-1 block text-xs text-subtle">{{
+            text.slugHint
+          }}</span>
         </label>
 
         <label class="block">
-          <span appFieldLabel>{{ productText.description }}</span>
+          <span appFieldLabel>{{ text.description }}</span>
           <textarea
             rows="3"
             appInput
@@ -125,9 +138,8 @@ import { CategoryPicker } from './category-picker';
 export class AdminCategoryEditorPage implements UnsavedChangesAware {
   private readonly admin = inject(AdminCatalogService);
   private readonly route = inject(ActivatedRoute);
-  protected readonly text = inject(ADMIN_TEXT).categories;
+  protected readonly text = inject(ADMIN_TEXT).categoryEditor;
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly productText = inject(ADMIN_TEXT).productEditor;
 
   // No :slug segment means this is `/admin/categories/new` — the same screen,
   // creating instead of updating, mirroring the product editor.
@@ -179,6 +191,11 @@ export class AdminCategoryEditorPage implements UnsavedChangesAware {
   });
 
   constructor() {
+    // Admin screens are client-rendered, so this is for the browser tab
+    // rather than for crawlers — but it is the same one-line contract.
+    usePageSeo({
+      name: () => (this.isNew ? this.text.newTitle : this.text.editTitle),
+    });
     void this.load();
   }
 

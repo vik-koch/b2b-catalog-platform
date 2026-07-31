@@ -119,33 +119,35 @@
     "deletedBadge": "Deleted",
     "empty": "No products yet."
   },
-  "categories": {
+  "categoryList": {
     "title": "Categories",
-    "editTitle": "Edit category",
-    "addTitle": "New category",
     "add": "Add category",
     "addChild": "Add subcategory",
-    "parent": "Parent category",
-    "noParent": "— Top level —",
-    "image": "Image",
     "edit": "Edit",
     "delete": "Delete",
     "deleting": "Deleting…",
+    "empty": "No categories yet.",
     "deleteTitle": "Delete category",
     "deleteConfirm": "Delete “{name}”?",
     "deleteReassignIntro": "“{name}” still has {count} product(s). Choose a category to move them to, then delete.",
     "reassignLabel": "Move products to",
     "reassignPlaceholder": "Select a category…",
     "deleteBlockedChildren": "“{name}” has subcategories. Delete or move those first.",
-    "deleteError": "This category could not be deleted. Please try again.",
-    "discardConfirm": "Discard your unsaved changes to this category?",
-    "saveError": "This category could not be saved. Please try again.",
-    "nameRequired": "Please enter a category name.",
-    "empty": "No categories yet.",
+    "deleteError": "This category could not be deleted. Please try again."
+  },
+  "categoryEditor": {
+    "newTitle": "Add category",
+    "editTitle": "Edit category",
     "name": "Name",
+    "parent": "Parent category",
+    "noParent": "— Top level —",
     "slug": "URL slug",
-    "slugHint": "Used in the product's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
-    "description": "Description"
+    "slugHint": "Used in the category's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
+    "description": "Description",
+    "image": "Image",
+    "discardConfirm": "Discard your unsaved changes to this category?",
+    "nameRequired": "Please enter a category name.",
+    "saveError": "This category could not be saved. Please try again."
   },
   "sync": {
     "title": "Catalog sync",

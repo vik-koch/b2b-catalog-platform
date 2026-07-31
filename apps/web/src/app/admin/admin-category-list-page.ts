@@ -10,6 +10,8 @@ import { RouterLink } from '@angular/router';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { ADMIN_TEXT } from '../config/admin-text';
+import { usePageSeo } from '../core/page-seo';
+import { Skeleton } from '../ui/skeleton';
 import { delayedLoading } from '../core/delayed-loading';
 import { Button } from '../ui/button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
@@ -39,6 +41,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
     CdkDropList,
     CdkDrag,
     NgTemplateOutlet,
+    Skeleton,
   ],
   template: `
     <div class="mb-6 flex items-center justify-between gap-4">
@@ -65,7 +68,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
         />
       }
     } @else if (showSkeleton()) {
-      <p class="text-subtle" role="status">…</p>
+      <app-skeleton [lines]="5" />
     }
 
     <!-- One drop list per sibling group; recurses for each branch's children. -->
@@ -149,7 +152,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
 export class AdminCategoryListPage {
   private readonly admin = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).categories;
+  protected readonly text = inject(ADMIN_TEXT).categoryList;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
 
@@ -188,5 +191,11 @@ export class AdminCategoryListPage {
       })),
     });
     this.categories.reload();
+  }
+
+  constructor() {
+    // Admin screens are client-rendered, so this is for the browser tab
+    // rather than for crawlers — but it is the same one-line contract.
+    usePageSeo({ name: () => this.text.title });
   }
 }

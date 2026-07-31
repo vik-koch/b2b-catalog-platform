@@ -138,16 +138,20 @@ test.describe('as an admin', () => {
     page,
   }) => {
     await page.goto('/admin/categories');
+    const rows = page.getByRole('listitem');
+    const before = await rows.count();
+
     await page.getByRole('link', { name: 'Add category', exact: true }).click();
 
     await expect(page).toHaveURL(/\/admin\/categories\/new\b/);
     await expect(
-      page.getByRole('heading', { name: 'New category' }),
+      page.getByRole('heading', { name: 'Add category' }),
     ).toBeVisible();
 
     await page.getByRole('button', { name: 'Cancel' }).click();
     await expect(page).toHaveURL(/\/admin\/categories$/);
-    await expect(page.getByText('New category')).toHaveCount(0);
+    // The tree is exactly as it was — no row was created by opening the editor.
+    await expect(rows).toHaveCount(before);
   });
 
   test('links to the product and category management screens', async ({
