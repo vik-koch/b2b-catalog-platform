@@ -1,25 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { ContactInfo } from './contact-info';
 
 async function render(contact: DeploymentConfig['contact']) {
-  const config: DeploymentConfig = {
-    branding: {
-      name: 'Test',
-      title: 'Test',
-      startYear: 2021,
-      theme: {
-        primary: 'red',
-        secondary: 'green',
-        accent: 'black',
-      },
-    },
-    cookieConsentEnabled: false,
-    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
-    locations: [],
-    contact,
-  };
+  const config: DeploymentConfig = { ...defaultDeploymentConfig, contact };
   TestBed.configureTestingModule({
     imports: [ContactInfo],
     providers: [{ provide: DEPLOYMENT_CONFIG, useValue: config }],

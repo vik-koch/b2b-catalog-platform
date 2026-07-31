@@ -162,7 +162,8 @@ export class Header {
     '{name}',
     this.config.branding.name,
   );
-  protected readonly utilityRoutes: readonly string[] = ['about', 'contact'];
+  /** Which company pages sit in the utility bar, and in what order. */
+  protected readonly utilityRoutes = this.config.pages.headerNav;
 
   // Collapse the utility bar once scrolled well off the top, and bring it back
   // only at the very top — mid-page it would slide down over content the reader

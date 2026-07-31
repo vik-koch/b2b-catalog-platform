@@ -67,6 +67,26 @@ test('the admin panel opens a static page in edit mode', async ({ page }) => {
   await expect(page).toHaveURL(/\/admin$/);
 });
 
+// Contact is a code route with an editable body: the office list and maps stay
+// config, the prose is a page like any other.
+test('edits the contact page prose from the contact page itself', async ({
+  page,
+}) => {
+  await logIn(page);
+  await page.goto('/contact');
+  await enableEditMode(page);
+  await editLink(page).click();
+
+  await expect(page).toHaveURL(/\/admin\/pages\/contact\/edit\b/);
+  await expect(page.getByLabel('Page title')).toHaveValue(/.+/);
+
+  // Cancelling returns to the contact page, and its maps are still there —
+  // proving the body is only part of what that route renders.
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await expect(page).toHaveURL(/\/contact$/);
+  await expect(page.locator('iframe').first()).toBeVisible();
+});
+
 test.describe('as an admin', () => {
   test.beforeEach(async ({ page }) => {
     await logIn(page);

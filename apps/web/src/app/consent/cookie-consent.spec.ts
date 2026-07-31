@@ -4,26 +4,13 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { CookieConsent } from './cookie-consent';
 
 const BANNER = 'aside[aria-label="Cookie consent"]';
 
 function config(cookieConsentEnabled: boolean): DeploymentConfig {
-  return {
-    branding: {
-      name: 'Test',
-      title: 'Test',
-      startYear: 2021,
-      theme: {
-        primary: 'red',
-        secondary: 'green',
-        accent: 'black',
-      },
-    },
-    cookieConsentEnabled,
-    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
-    locations: [],
-  };
+  return { ...defaultDeploymentConfig, cookieConsentEnabled };
 }
 
 async function render(enabled: boolean) {

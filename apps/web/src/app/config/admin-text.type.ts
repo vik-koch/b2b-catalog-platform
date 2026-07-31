@@ -72,7 +72,13 @@ export const adminTextSchema = z
     /** Inline static-page editing (FR-ADM-03). */
     pageEditor: z
       .object({
+        /** The storefront pencil's label. */
         edit: z.string(),
+        /** Editor headings: a page with no row yet vs one being changed. */
+        newTitle: z.string(),
+        editTitle: z.string(),
+        /** Shown in place of a body an admin has not written yet. */
+        emptyNotice: z.string(),
         pageTitle: z.string(),
         previewNotice: z.string(),
         discardConfirm: z.string(),

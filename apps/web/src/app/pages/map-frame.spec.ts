@@ -3,6 +3,7 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig, MapEmbed } from '../config/deployment-config.type';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { MapFrame } from './map-frame';
 
 interface ConsentState {
@@ -22,20 +23,11 @@ async function render(map: MapEmbed, consent: ConsentState = {}) {
       }),
     );
   }
+  // The consent gate only applies where the deployment enforces consent, which
+  // is what each case sets via `consent.enabled`.
   const config: DeploymentConfig = {
-    branding: {
-      name: 'Test',
-      title: 'Test',
-      startYear: 2021,
-      theme: {
-        primary: 'red',
-        secondary: 'green',
-        accent: 'black',
-      },
-    },
+    ...defaultDeploymentConfig,
     cookieConsentEnabled: consent.enabled ?? false,
-    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
-    locations: [],
   };
   TestBed.configureTestingModule({
     imports: [MapFrame],

@@ -38,6 +38,9 @@
   },
   "pageEditor": {
     "edit": "Edit page",
+    "newTitle": "Add page content",
+    "editTitle": "Edit page",
+    "emptyNotice": "This page has no content yet.",
     "pageTitle": "Page title",
     "previewNotice": "Preview — this is how the page will look once saved.",
     "discardConfirm": "Discard your unsaved changes to this page?",

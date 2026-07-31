@@ -2,6 +2,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { ConsentDecision, ConsentService } from './consent.service';
 
 const STORAGE_KEY = 'cookie-consent';
@@ -12,19 +13,8 @@ function service(
   platformId = 'browser',
 ): ConsentService {
   const config: DeploymentConfig = {
-    branding: {
-      name: 'Test',
-      title: 'Test',
-      startYear: 2021,
-      theme: {
-        primary: 'red',
-        secondary: 'green',
-        accent: 'black',
-      },
-    },
+    ...defaultDeploymentConfig,
     cookieConsentEnabled,
-    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
-    locations: [],
   };
   TestBed.configureTestingModule({
     providers: [

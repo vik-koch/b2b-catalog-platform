@@ -4,27 +4,13 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { InquiryPage } from './inquiry-page';
 import { InquiryService } from './inquiry.service';
 
 const text = defaultAppText.inquiry;
 
-const testConfig: DeploymentConfig = {
-  branding: {
-    name: 'Test',
-    title: 'Test',
-    startYear: 2021,
-    theme: {
-      primary: '',
-      secondary: '',
-      accent: '',
-    },
-  },
-  cookieConsentEnabled: false,
-  catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
-  locations: [],
-  phoneInput: { countryCode: '+49', mask: '(###) ###-####' },
-};
+const testConfig: DeploymentConfig = { ...defaultDeploymentConfig };
 
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement | HTMLTextAreaElement>(

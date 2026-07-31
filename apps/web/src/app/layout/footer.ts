@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { ConsentService } from '../consent/consent.service';
@@ -70,11 +69,8 @@ export class Footer {
   protected readonly consent = inject(ConsentService);
   protected readonly branding = this.config.branding;
   protected readonly contact = this.config.contact;
-  protected readonly legalSlugs: readonly PageSlug[] = [
-    'conditions',
-    'privacy',
-    'imprint',
-  ];
+  /** Which pages the legal nav links, and in what order. */
+  protected readonly legalSlugs = this.config.pages.footerNav;
 
   /**
    * "© Coffee Kontor 2025–2026" — the end of the range is always the current

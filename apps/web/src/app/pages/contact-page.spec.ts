@@ -6,24 +6,20 @@ import {
   ContactLocation,
   DeploymentConfig,
 } from '../config/deployment-config.type';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
+import { EditModeService } from '../admin/edit-mode.service';
 import { ContactPage } from './contact-page';
+import { PageService } from './page.service';
+
+/** The page's prose is a Page body now; the locations around it stay config. */
+const contactBody = {
+  title: 'Contact',
+  bodyHtml: '<p>Visit us or get in touch.</p>',
+  updatedAt: '2026-07-31T10:00:00.000Z',
+};
 
 function config(locations: readonly ContactLocation[]): DeploymentConfig {
-  return {
-    branding: {
-      name: 'Test',
-      title: 'Test',
-      startYear: 2021,
-      theme: {
-        primary: 'red',
-        secondary: 'green',
-        accent: 'black',
-      },
-    },
-    cookieConsentEnabled: false,
-    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
-    locations,
-  };
+  return { ...defaultDeploymentConfig, locations };
 }
 
 async function render(locations: readonly ContactLocation[]) {
@@ -32,10 +28,13 @@ async function render(locations: readonly ContactLocation[]) {
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: config(locations) },
+      { provide: PageService, useValue: { getPage: async () => contactBody } },
+      { provide: EditModeService, useValue: { enabled: () => false } },
     ],
   });
   const fixture = TestBed.createComponent(ContactPage);
   await fixture.whenStable();
+  fixture.detectChanges();
   return fixture.nativeElement as HTMLElement;
 }
 
@@ -58,6 +57,16 @@ describe('ContactPage', () => {
     const iframe = el.querySelector('iframe');
     expect(iframe?.getAttribute('src')).toBe('https://maps.example/hq');
     expect(iframe?.getAttribute('title')).toContain('HQ');
+  });
+
+  it('renders the editable page body above the office list', async () => {
+    const el = await render([
+      { name: 'HQ', map: { url: 'https://maps.example/hq' } },
+    ]);
+
+    expect(el.querySelector('.prose')?.innerHTML).toContain(
+      'Visit us or get in touch.',
+    );
   });
 
   it('renders one map per location, so multi-location needs no code change', async () => {

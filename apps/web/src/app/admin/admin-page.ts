@@ -1,6 +1,5 @@
 import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { PAGE_SLUGS } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
 import { ADMIN_TEXT } from '../config/admin-text';
@@ -129,7 +128,9 @@ export class AdminPage {
   protected readonly categoryText = inject(ADMIN_TEXT).categoryList;
   protected readonly navText = inject(APP_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
-  protected readonly pageSlugs = PAGE_SLUGS;
+  // Only what this deployment publishes: an unpublished page has no route to
+  // edit it against, so offering it here would be a dead end.
+  protected readonly pageSlugs = inject(DEPLOYMENT_CONFIG).pages.published;
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
   protected readonly editorFrom = injectEditorReturnParams();
 
