@@ -61,10 +61,14 @@ import { ImagePlaceholder } from './image-placeholder';
             @if (failed().has(img.full)) {
               <app-image-placeholder [label]="productName()" />
             } @else {
+              <!-- The page's largest element, and server-rendered: telling the
+                   browser so lets it start the fetch ahead of the other
+                   in-body images instead of at their priority. -->
               <img
                 [src]="img.full"
                 [alt]="productName()"
                 class="h-full w-full object-cover"
+                fetchpriority="high"
                 (error)="markFailed(img.full)"
               />
             }

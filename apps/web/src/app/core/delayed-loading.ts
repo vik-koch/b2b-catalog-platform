@@ -13,7 +13,7 @@ import {
  * content usually arrives within a frame or two of the skeleton, and the
  * skeleton reads as a flicker rather than as feedback.
  */
-export const LOADING_FEEDBACK_DELAY_MS = 200;
+export const LOADING_FEEDBACK_DELAY_MS = 500;
 
 /**
  * Wraps a loading flag so it only turns true once loading has actually lasted a

@@ -28,6 +28,7 @@ const SWIPE_THRESHOLD_PX = 30;
       [routerLink]="link()"
       [attr.aria-label]="productName()"
       class="relative block aspect-square overflow-hidden bg-stone-100"
+      (pointerenter)="revealNext()"
       (pointermove)="onScrub($event)"
       (pointerleave)="onPointerLeave($event)"
       (touchstart)="onTouchStart($event)"
@@ -43,8 +44,11 @@ const SWIPE_THRESHOLD_PX = 30;
             [class.opacity-0]="$index !== selected()"
           />
         } @else {
+          <!-- attr.src, so an unrevealed photo renders with no source at all
+               rather than an empty one (which the browser would resolve against
+               the page URL and fetch). -->
           <img
-            [src]="img.thumb"
+            [attr.src]="sourceFor($index)"
             [alt]="productName()"
             class="absolute inset-0 h-full w-full object-cover transition-opacity duration-200"
             [class.opacity-100]="$index === selected()"
@@ -87,6 +91,51 @@ export class TileGallery {
     computation: () => 0,
   });
 
+  /**
+   * Indices that have been asked for. Every photo of every product used to get a
+   * `src` up front — the extra copies are stacked in the viewport at
+   * `opacity: 0`, and opacity does not stop a download, so a category page
+   * fetched roughly three images per tile to show one. Only the first is
+   * fetched now; the rest are attached the moment they are wanted, which the
+   * pointer/touch entering the tile gets a head start on.
+   */
+  private readonly revealed = linkedSignal<
+    readonly CatalogImage[],
+    Set<number>
+  >({
+    source: this.images,
+    computation: () => new Set([0]),
+  });
+
+  /** The image's URL once it has been revealed, else null (no src attribute). */
+  protected sourceFor(index: number): string | null {
+    return this.revealed().has(index)
+      ? (this.images()[index]?.thumb ?? null)
+      : null;
+  }
+
+  private reveal(index: number): void {
+    if (
+      index < 0 ||
+      index >= this.images().length ||
+      this.revealed().has(index)
+    ) {
+      return;
+    }
+    this.revealed.update((set) => new Set(set).add(index));
+  }
+
+  /** Warms the next photo before the gesture that would show it completes. */
+  protected revealNext(): void {
+    if (this.hasMultiple()) this.reveal(this.selected() + 1);
+  }
+
+  /** Selecting an image is also what makes it load. */
+  private select(index: number): void {
+    this.reveal(index);
+    this.selected.set(index);
+  }
+
   protected hasMultiple = computed(() => this.images().length > 1);
 
   /** Thumb URLs that failed to load — rendered as the placeholder instead of
@@ -108,7 +157,7 @@ export class TileGallery {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     if (rect.width === 0) return;
     const fraction = (event.clientX - rect.left) / rect.width;
-    this.selected.set(this.clamp(Math.floor(fraction * this.images().length)));
+    this.select(this.clamp(Math.floor(fraction * this.images().length)));
   }
 
   /**
@@ -125,13 +174,14 @@ export class TileGallery {
   protected onTouchStart(event: TouchEvent): void {
     this.touchStartX = event.changedTouches[0]?.clientX ?? 0;
     this.swiped = false;
+    this.revealNext();
   }
 
   protected onTouchEnd(event: TouchEvent): void {
     const dx = (event.changedTouches[0]?.clientX ?? 0) - this.touchStartX;
     if (!this.hasMultiple() || Math.abs(dx) < SWIPE_THRESHOLD_PX) return;
     this.swiped = true;
-    this.selected.set(this.clamp(this.selected() + (dx < 0 ? 1 : -1)));
+    this.select(this.clamp(this.selected() + (dx < 0 ? 1 : -1)));
   }
 
   protected onClick(event: MouseEvent): void {
