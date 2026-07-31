@@ -31,8 +31,8 @@ import { AdminCatalogService } from './admin-catalog.service';
   template: `
     @if (deleted.value(); as items) {
       @if (items.length) {
-        <section class="mt-12 border-t border-stone-200 pt-8">
-          <h2 class="text-lg font-semibold text-stone-500">
+        <section class="mt-12 border-t border-border pt-8">
+          <h2 class="text-lg font-semibold text-subtle">
             {{ text.deletedHeading }}
           </h2>
           <ul
@@ -41,7 +41,7 @@ import { AdminCatalogService } from './admin-catalog.service';
             @for (item of items; track item.slug) {
               <li class="h-full">
                 <div
-                  class="flex h-full flex-col overflow-hidden rounded-lg border border-dashed border-stone-300 bg-stone-50"
+                  class="flex h-full flex-col overflow-hidden rounded-lg border border-dashed border-border-strong bg-stone-50"
                 >
                   <div class="aspect-square overflow-hidden bg-stone-100">
                     @if (item.images[0]; as image) {
@@ -54,7 +54,7 @@ import { AdminCatalogService } from './admin-catalog.service';
                   </div>
                   <div class="flex flex-1 flex-col p-3">
                     <h3
-                      class="line-clamp-2 text-sm text-stone-500"
+                      class="line-clamp-2 text-sm text-subtle"
                       [title]="item.name"
                     >
                       {{ item.name }}

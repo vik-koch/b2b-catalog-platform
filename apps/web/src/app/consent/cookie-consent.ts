@@ -21,12 +21,12 @@ import { ConsentService } from './consent.service';
     @if (ready() && consent.needsDecision()) {
       <aside
         aria-label="Cookie consent"
-        class="fixed inset-x-4 bottom-4 z-20 mx-auto max-w-3xl rounded-xl border border-stone-200 bg-surface shadow-xl"
+        class="fixed inset-x-4 bottom-4 z-20 mx-auto max-w-3xl rounded-xl border border-border bg-surface shadow-xl"
       >
         <div
           class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"
         >
-          <p class="text-sm text-stone-600">
+          <p class="text-sm text-muted">
             {{ text.message }}
             <a routerLink="/privacy" class="text-primary hover:underline">{{
               text.policyLink

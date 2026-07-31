@@ -32,9 +32,9 @@ import { CategoryPicker } from './category-picker';
     <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.editTitle }}</h1>
 
     @if (loading()) {
-      <p class="text-stone-500" role="status">…</p>
+      <p class="text-subtle" role="status">…</p>
     } @else if (!category()) {
-      <p class="text-stone-600" role="alert">{{ text.saveError }}</p>
+      <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else {
       <div class="space-y-6">
         <label class="block">
@@ -88,7 +88,7 @@ import { CategoryPicker } from './category-picker';
               <img
                 [src]="img.thumb"
                 alt=""
-                class="h-16 w-16 rounded border border-stone-200 object-cover"
+                class="h-16 w-16 rounded border border-border object-cover"
               />
               <button
                 appButton

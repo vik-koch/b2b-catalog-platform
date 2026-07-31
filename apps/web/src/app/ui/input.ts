@@ -7,7 +7,7 @@ import { computed, Directive, input } from '@angular/core';
  * and on the stone-100 blocks alike.
  */
 const base =
-  'block rounded-md border border-stone-300 bg-white focus:border-primary focus:outline-2 focus:outline-offset-0 focus:outline-primary disabled:cursor-not-allowed disabled:bg-stone-100';
+  'block rounded-md border border-border-strong bg-white focus:border-primary focus:outline-2 focus:outline-offset-0 focus:outline-primary disabled:cursor-not-allowed disabled:bg-stone-100';
 
 const sizes = {
   md: 'px-3 py-2',

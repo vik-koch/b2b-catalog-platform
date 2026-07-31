@@ -47,12 +47,12 @@ interface ToolbarAction {
   template: `
     <div class="relative">
       <div
-        class="overflow-hidden rounded-md border border-stone-300 focus-within:border-primary"
+        class="overflow-hidden rounded-md border border-border-strong focus-within:border-primary"
       >
         <div
           role="toolbar"
           [attr.aria-label]="text.toolbar.label"
-          class="flex flex-wrap items-center gap-0.5 border-b border-stone-200 bg-stone-50 p-1.5"
+          class="flex flex-wrap items-center gap-0.5 border-b border-border bg-stone-50 p-1.5"
         >
           @for (action of visibleActions(); track action.id) {
             <button
@@ -86,7 +86,7 @@ interface ToolbarAction {
       />
 
       @if (uploading()) {
-        <p class="mt-2 text-sm text-stone-600" role="status">
+        <p class="mt-2 text-sm text-muted" role="status">
           {{ common.uploading }}
         </p>
       }
@@ -98,7 +98,7 @@ interface ToolbarAction {
 
       @if (linkPanelOpen()) {
         <div
-          class="absolute left-2 top-14 z-10 w-72 rounded-md border border-stone-300 bg-white p-3 shadow-lg"
+          class="absolute left-2 top-14 z-10 w-72 rounded-md border border-border-strong bg-white p-3 shadow-lg"
           role="dialog"
           [attr.aria-label]="link.heading"
         >
@@ -148,7 +148,7 @@ interface ToolbarAction {
 
       @if (imagePanelOpen()) {
         <div
-          class="absolute right-2 top-14 z-10 w-72 rounded-md border border-stone-300 bg-white p-3 shadow-lg"
+          class="absolute right-2 top-14 z-10 w-72 rounded-md border border-border-strong bg-white p-3 shadow-lg"
           role="dialog"
           [attr.aria-label]="image.heading"
         >
@@ -163,7 +163,7 @@ interface ToolbarAction {
               [value]="imageAlt()"
               (input)="onImageAltInput($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-stone-500">{{
+            <span class="mt-1 block text-xs text-subtle">{{
               image.altHint
             }}</span>
           </label>
@@ -206,7 +206,7 @@ interface ToolbarAction {
           <label class="mt-3 block">
             <span class="mb-1 flex justify-between text-sm font-medium">
               <span>{{ image.widthLabel }}</span>
-              <span class="text-stone-500">{{ imageSize() }}%</span>
+              <span class="text-subtle">{{ imageSize() }}%</span>
             </span>
             <input
               type="range"

@@ -62,7 +62,7 @@ import { IconButton } from '../ui/icon-button';
       <h1 class="text-3xl font-bold tracking-tight">
         {{ text.cannotLoadTitle }}
       </h1>
-      <p class="mt-4 text-stone-600">{{ text.cannotLoadBody }}</p>
+      <p class="mt-4 text-muted">{{ text.cannotLoadBody }}</p>
     } @else {
       <div class="animate-pulse space-y-4" aria-hidden="true">
         <div class="h-8 w-1/3 rounded bg-stone-200"></div>

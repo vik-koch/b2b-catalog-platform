@@ -77,7 +77,7 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null => {
           [attr.aria-invalid]="isInvalid('newPassword') || null"
           [attr.aria-describedby]="id('new-hint')"
         />
-        <p [id]="id('new-hint')" class="mt-1 text-sm text-stone-600">
+        <p [id]="id('new-hint')" class="mt-1 text-sm text-muted">
           {{ minLengthHint }}
         </p>
         @if (isInvalid('newPassword')) {

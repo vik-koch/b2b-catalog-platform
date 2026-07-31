@@ -24,7 +24,7 @@ const variants = {
   // bar), where a stone background change is invisible. Accent is the app's
   // interactive-hover color throughout.
   secondary:
-    'border border-stone-300 text-ink hover:border-accent hover:text-accent',
+    'border border-border-strong text-ink hover:border-accent hover:text-accent',
   danger: 'bg-red-700 text-white hover:bg-red-800',
   /**
    * Chromeless until hovered — for controls that repeat in a row and would be

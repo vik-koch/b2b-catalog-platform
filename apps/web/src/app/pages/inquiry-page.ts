@@ -55,12 +55,12 @@ const completePhone = (mask: string): ValidatorFn => {
       <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
 
       @if (status() === 'success') {
-        <p class="text-stone-600">{{ text.success }}</p>
+        <p class="text-muted">{{ text.success }}</p>
         <a appButton variant="secondary" routerLink="/" class="mt-8">
           {{ errors.notFoundBack }}
         </a>
       } @else {
-        <p class="mb-8 text-stone-600">{{ text.intro }}</p>
+        <p class="mb-8 text-muted">{{ text.intro }}</p>
 
         <form
           [formGroup]="form"
@@ -95,7 +95,7 @@ const completePhone = (mask: string): ValidatorFn => {
             </legend>
             <div
               role="radiogroup"
-              class="inline-flex gap-1 rounded-lg border border-stone-300 p-1"
+              class="inline-flex gap-1 rounded-lg border border-border-strong p-1"
             >
               <label [class]="segClass('email')">
                 <input
@@ -155,7 +155,7 @@ const completePhone = (mask: string): ValidatorFn => {
             @if (phoneInput) {
               <div class="flex">
                 <span
-                  class="inline-flex items-center rounded-l-md border border-r-0 border-stone-300 bg-stone-100 px-3 text-stone-600"
+                  class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
                 >
                   {{ phoneInput.countryCode }}
                 </span>

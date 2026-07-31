@@ -36,7 +36,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
   imports: [RouterLink, Button, LucideIcon, FieldLabel, Input],
   template: `
     <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-    <p class="mb-8 max-w-2xl text-stone-600">{{ text.description }}</p>
+    <p class="mb-8 max-w-2xl text-muted">{{ text.description }}</p>
 
     <!-- Step 1: what is this file? -->
     <section class="mb-8">
@@ -46,7 +46,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
           <label
             class="flex cursor-pointer gap-3 rounded-md border p-3"
             [class.border-primary]="preset() === option.name"
-            [class.border-stone-200]="preset() !== option.name"
+            [class.border-border]="preset() !== option.name"
           >
             <input
               type="radio"
@@ -60,7 +60,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
                 text.mode[option.label]
               }}</span>
               @if (option.hint) {
-                <span class="block text-sm text-stone-500">{{
+                <span class="block text-sm text-subtle">{{
                   text.mode[option.hint]
                 }}</span>
               }
@@ -70,7 +70,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
       </div>
 
       <details class="mt-4">
-        <summary class="cursor-pointer text-sm text-stone-600">
+        <summary class="cursor-pointer text-sm text-muted">
           {{ text.advanced }}
         </summary>
         <div class="mt-3 space-y-2 border-l-2 border-stone-100 pl-4">
@@ -89,7 +89,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
               <span>
                 {{ text.option[flag.label] }}
                 @if (flag.hint) {
-                  <span class="block text-stone-500">{{
+                  <span class="block text-subtle">{{
                     text.option[flag.hint]
                   }}</span>
                 }
@@ -125,13 +125,13 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
         <app-lucide-icon name="upload" class="h-6 w-6 text-stone-400" />
         @if (file(); as chosen) {
           <span class="font-medium">{{ chosen.name }}</span>
-          <span class="text-sm text-stone-500">{{ text.changeFile }}</span>
+          <span class="text-sm text-subtle">{{ text.changeFile }}</span>
         } @else {
           <span class="font-medium">{{ text.dropHint }}</span>
           <span class="text-sm text-primary underline">{{ text.browse }}</span>
         }
       </button>
-      <p class="mt-1 text-sm text-stone-500">{{ text.fileHint }}</p>
+      <p class="mt-1 text-sm text-subtle">{{ text.fileHint }}</p>
 
       <div class="mt-4 flex items-center gap-3">
         <button
@@ -159,13 +159,13 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
     <!-- Step 3: the diff -->
     @if (previewed(); as response) {
       @let plan = response.plan;
-      <section class="mb-8 rounded-md border border-stone-200 p-4">
+      <section class="mb-8 rounded-md border border-border p-4">
         <h2 class="mb-4 text-lg font-semibold">{{ text.summaryTitle }}</h2>
 
         <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
           @for (tile of summaryTiles(plan); track tile.label) {
             <div>
-              <dt class="text-stone-500">{{ text.count[tile.label] }}</dt>
+              <dt class="text-subtle">{{ text.count[tile.label] }}</dt>
               <dd
                 class="text-lg font-semibold"
                 [class.text-red-700]="tile.danger"
@@ -177,7 +177,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
         </dl>
 
         @if (isNoop(plan)) {
-          <p class="text-stone-600">{{ text.nothingToApply }}</p>
+          <p class="text-muted">{{ text.nothingToApply }}</p>
         }
 
         @if (plan.rowErrors.length > 0) {
@@ -187,7 +187,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
           <ul class="space-y-1 text-sm text-stone-700">
             @for (error of plan.rowErrors; track $index) {
               <li>
-                <span class="text-stone-500">{{ rowLabel(error.row) }}</span>
+                <span class="text-subtle">{{ rowLabel(error.row) }}</span>
                 — {{ error.message }}
               </li>
             }
@@ -198,14 +198,12 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
           <h3 class="mt-6 mb-1 text-sm font-semibold">
             {{ text.categoriesTitle }}
           </h3>
-          <p class="mb-2 text-sm text-stone-500">{{ text.categoriesHint }}</p>
+          <p class="mb-2 text-sm text-subtle">{{ text.categoriesHint }}</p>
           <ul class="space-y-1 text-sm">
             @for (category of plan.categories; track category.name) {
               <li>
                 {{ category.name }}
-                <span class="text-stone-500"
-                  >({{ category.productCount }})</span
-                >
+                <span class="text-subtle">({{ category.productCount }})</span>
               </li>
             }
           </ul>
@@ -226,7 +224,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
                 </span>
                 <span class="font-medium">{{ product.name }}</span>
                 @for (change of product.changes; track change.field) {
-                  <span class="text-stone-500">
+                  <span class="text-subtle">
                     {{ change.field }}:
                     <span class="line-through">{{
                       display(change.field, change.from)
@@ -246,7 +244,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
           <h3 class="mt-6 mb-1 text-sm font-semibold">
             {{ text.emptiedTitle }}
           </h3>
-          <p class="mb-2 text-sm text-stone-500">{{ text.emptiedHint }}</p>
+          <p class="mb-2 text-sm text-subtle">{{ text.emptiedHint }}</p>
           <ul class="space-y-1 text-sm">
             @for (category of plan.emptiedCategories; track category.slug) {
               <li>{{ category.name }}</li>
@@ -256,7 +254,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
 
         @if (plan.keptManual.length > 0) {
           <h3 class="mt-6 mb-1 text-sm font-semibold">{{ text.keptTitle }}</h3>
-          <p class="mb-2 text-sm text-stone-500">{{ text.keptHint }}</p>
+          <p class="mb-2 text-sm text-subtle">{{ text.keptHint }}</p>
           <ul class="space-y-1 text-sm">
             @for (kept of plan.keptManual; track kept.sourceId) {
               <li>{{ kept.name }}</li>
@@ -265,7 +263,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
         }
 
         @if (plan.truncated) {
-          <p class="mt-4 text-sm text-stone-500">{{ text.truncated }}</p>
+          <p class="mt-4 text-sm text-subtle">{{ text.truncated }}</p>
         }
 
         <!-- The delete gate: typed confirmation, and only when it applies. -->
@@ -323,7 +321,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
       @if (runs.hasValue() && runs.value().runs.length > 0) {
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-stone-200 text-left text-stone-500">
+            <tr class="border-b border-border text-left text-subtle">
               <th class="py-2 font-medium">{{ text.col.date }}</th>
               <th class="py-2 font-medium">{{ text.col.file }}</th>
               <th class="py-2 font-medium">{{ text.col.actor }}</th>
@@ -335,16 +333,16 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
             @for (run of runs.value().runs; track run.id) {
               <tr>
                 <td class="py-2">{{ formatDate(run.startedAt) }}</td>
-                <td class="py-2 text-stone-500">{{ run.filename }}</td>
-                <td class="py-2 text-stone-500">{{ run.actorEmail }}</td>
+                <td class="py-2 text-subtle">{{ run.filename }}</td>
+                <td class="py-2 text-subtle">{{ run.actorEmail }}</td>
                 <td class="py-2">{{ text.status[run.status] }}</td>
-                <td class="py-2 text-stone-500">{{ changeSummary(run) }}</td>
+                <td class="py-2 text-subtle">{{ changeSummary(run) }}</td>
               </tr>
             }
           </tbody>
         </table>
       } @else {
-        <p class="text-stone-600">{{ text.historyEmpty }}</p>
+        <p class="text-muted">{{ text.historyEmpty }}</p>
       }
     </section>
   `,
@@ -425,8 +423,8 @@ export class SyncPage {
   protected dropZoneClass(): string {
     if (this.dragging()) return 'border-primary bg-primary/5';
     return this.file()
-      ? 'border-stone-300 bg-stone-50'
-      : 'border-stone-300 hover:border-primary hover:bg-stone-50';
+      ? 'border-border-strong bg-stone-50'
+      : 'border-border-strong hover:border-primary hover:bg-stone-50';
   }
 
   private setFile(file: File | null): void {

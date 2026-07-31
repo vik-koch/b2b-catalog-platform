@@ -32,7 +32,7 @@ import { trustedRichText } from './trusted-rich-text';
   template: `
     @if (previewing()) {
       <p
-        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-stone-600"
+        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
         role="status"
       >
         {{ text.previewNotice }}

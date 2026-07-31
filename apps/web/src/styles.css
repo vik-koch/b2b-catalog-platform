@@ -21,6 +21,21 @@
   /* Page background (stone-50) and default text (stone-900) */
   --color-surface: #fafaf9;
   --color-ink: #1c1917;
+  /*
+   * The two quieter text levels below `ink`, kept apart because the app really
+   * does use both: `muted` is secondary body copy (descriptions, help text),
+   * `subtle` is meta text (eyebrows, table headers, counts, timestamps).
+   * stone-600 / stone-500 — 7.0:1 and 4.8:1 on surface.
+   */
+  --color-muted: #57534e;
+  --color-subtle: #78716c;
+  /*
+   * Lines. `border` is structural — card edges, dividers, table rules;
+   * `border-strong` is the heavier edge that makes a control look operable
+   * (inputs, secondary buttons). stone-200 / stone-300.
+   */
+  --color-border: #e7e5e4;
+  --color-border-strong: #d6d3d1;
 }
 
 /* Rich-text page bodies: brand the links, keep the rest prose-stone. */

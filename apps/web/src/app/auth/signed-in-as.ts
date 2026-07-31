@@ -21,9 +21,9 @@ import { AuthService } from './auth.service';
   template: `
     @if (auth.user(); as user) {
       <div
-        class="flex flex-wrap items-center justify-between gap-3 rounded-md border border-stone-200 bg-stone-100 px-4 py-3"
+        class="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-stone-100 px-4 py-3"
       >
-        <p class="text-sm text-stone-600">
+        <p class="text-sm text-muted">
           {{ text.signedInAs }}
           <span class="font-medium text-ink">{{ user.email }}</span>
         </p>

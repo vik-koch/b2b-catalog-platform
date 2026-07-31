@@ -15,7 +15,7 @@ import { SignedInAs } from '../auth/signed-in-as';
   template: `
     <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ text.account }}</h1>
     <app-signed-in-as />
-    <p class="mt-4 text-stone-600">{{ text.underConstruction }}</p>
+    <p class="mt-4 text-muted">{{ text.underConstruction }}</p>
   `,
 })
 export class AccountPage {

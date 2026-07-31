@@ -26,7 +26,7 @@ import { DialogPanel } from './dialog-panel';
       <h2 id="confirm-dialog-heading" class="text-xl font-bold tracking-tight">
         {{ heading() }}
       </h2>
-      <p class="mt-3 text-stone-600">{{ message() }}</p>
+      <p class="mt-3 text-muted">{{ message() }}</p>
 
       <div class="mt-6 flex flex-wrap justify-end gap-3">
         <button

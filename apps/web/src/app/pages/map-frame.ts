@@ -16,13 +16,13 @@ import { ConsentService } from '../consent/consent.service';
       <iframe
         [src]="safeUrl()"
         [title]="title()"
-        class="aspect-video w-full rounded-lg border border-stone-200"
+        class="aspect-video w-full rounded-lg border border-border"
         loading="lazy"
         referrerpolicy="strict-origin-when-cross-origin"
       ></iframe>
     } @else {
       <div
-        class="flex aspect-video w-full items-center justify-center rounded-lg border border-stone-200 bg-stone-100 p-6 text-center text-sm text-stone-500"
+        class="flex aspect-video w-full items-center justify-center rounded-lg border border-border bg-stone-100 p-6 text-center text-sm text-subtle"
       >
         {{ consentNotice }}
       </div>

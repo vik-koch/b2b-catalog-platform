@@ -35,15 +35,15 @@ import { ProductDeleteDialog } from './product-delete-dialog';
     </div>
 
     @if (products.error()) {
-      <p class="text-stone-600" role="alert">{{ catalogText.loadError }}</p>
+      <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
     } @else if (products.hasValue()) {
       @let data = products.value();
       @if (data.items.length === 0) {
-        <p class="text-stone-600">{{ text.empty }}</p>
+        <p class="text-muted">{{ text.empty }}</p>
       } @else {
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-stone-200 text-left text-stone-500">
+            <tr class="border-b border-border text-left text-subtle">
               <th class="w-14 py-2"></th>
               <th class="py-2 font-medium">{{ productText.name }}</th>
               <th class="py-2 font-medium">{{ productText.category }}</th>
@@ -58,7 +58,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
               <tr [class.opacity-50]="item.deletedAt">
                 <td class="py-2">
                   <div
-                    class="h-10 w-10 overflow-hidden rounded border border-stone-200 bg-stone-100"
+                    class="h-10 w-10 overflow-hidden rounded border border-border bg-stone-100"
                   >
                     @if (item.thumb) {
                       <img
@@ -78,13 +78,13 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                   </a>
                   @if (item.deletedAt) {
                     <span
-                      class="ml-2 rounded bg-stone-200 px-1.5 py-0.5 text-xs text-stone-600"
+                      class="ml-2 rounded bg-stone-200 px-1.5 py-0.5 text-xs text-muted"
                     >
                       {{ text.deletedBadge }}
                     </span>
                   }
                 </td>
-                <td class="py-2 text-stone-500">
+                <td class="py-2 text-subtle">
                   {{ categoryName().get(item.categoryId) }}
                 </td>
                 <td class="py-2 text-right text-stone-700">
@@ -94,7 +94,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                   <div class="flex items-center justify-end gap-1">
                     <a
                       [routerLink]="['/admin/products', item.slug, 'edit']"
-                      class="p-1.5 text-stone-500 hover:text-primary"
+                      class="p-1.5 text-subtle hover:text-primary"
                       [attr.aria-label]="editText.editProduct"
                     >
                       <app-lucide-icon name="pencil" class="h-4 w-4" />
@@ -102,7 +102,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                     @if (item.deletedAt) {
                       <button
                         type="button"
-                        class="p-1.5 text-stone-500 hover:text-primary"
+                        class="p-1.5 text-subtle hover:text-primary"
                         [attr.aria-label]="common.restore"
                         (click)="restore(item)"
                       >
@@ -111,7 +111,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                     } @else {
                       <button
                         type="button"
-                        class="p-1.5 text-stone-500 hover:text-red-700"
+                        class="p-1.5 text-subtle hover:text-red-700"
                         [attr.aria-label]="editText.deleteProduct"
                         (click)="deletingProduct.set(item)"
                       >
@@ -144,9 +144,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
                 catalogText.prevPage
               }}</span>
             }
-            <span class="text-stone-500">{{
-              pageStatus(data.pagination)
-            }}</span>
+            <span class="text-subtle">{{ pageStatus(data.pagination) }}</span>
             @if (data.pagination.page < data.pagination.totalPages) {
               <a
                 routerLink="/admin/products"
@@ -165,7 +163,7 @@ import { ProductDeleteDialog } from './product-delete-dialog';
         }
       }
     } @else {
-      <p class="text-stone-500" role="status">…</p>
+      <p class="text-subtle" role="status">…</p>
     }
 
     @if (deletingProduct(); as target) {

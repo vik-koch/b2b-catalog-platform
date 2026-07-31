@@ -47,7 +47,7 @@ import { NAV_ACTION } from './nav-action';
          the freed strip simply sits empty above the main bar, and expanding
          slides the header back down over it. Transform only — no reflow. -->
     <header
-      class="sticky top-0 z-20 border-b border-stone-200 bg-surface/90 backdrop-blur transition-transform duration-300"
+      class="sticky top-0 z-20 border-b border-border bg-surface/90 backdrop-blur transition-transform duration-300"
       [class]="collapsed() ? 'md:-translate-y-10' : ''"
     >
       <!-- Utility bar; it is what slides out of view. Everything in it is
@@ -63,7 +63,7 @@ import { NAV_ACTION } from './nav-action';
                 [routerLink]="'/' + route"
                 routerLinkActive
                 ariaCurrentWhenActive="page"
-                class="text-stone-500 transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                class="text-subtle transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
               >
                 {{ text.nav[route] }}
               </a>
@@ -126,7 +126,7 @@ import { NAV_ACTION } from './nav-action';
       @if (menuOpen()) {
         <nav
           id="mobile-menu"
-          class="border-t border-stone-200 md:hidden"
+          class="border-t border-border md:hidden"
           aria-label="Utility"
         >
           @for (route of utilityRoutes; track route) {
@@ -134,7 +134,7 @@ import { NAV_ACTION } from './nav-action';
               [routerLink]="'/' + route"
               routerLinkActive
               ariaCurrentWhenActive="page"
-              class="block px-4 py-3 text-stone-600 hover:bg-stone-100 aria-[current=page]:font-medium aria-[current=page]:text-primary"
+              class="block px-4 py-3 text-muted hover:bg-stone-100 aria-[current=page]:font-medium aria-[current=page]:text-primary"
               (click)="menuOpen.set(false)"
             >
               {{ text.nav[route] }}

@@ -22,7 +22,7 @@ import { EditModeService } from './edit-mode.service';
         [class]="
           editMode.enabled()
             ? 'bg-primary text-white hover:bg-primary/90'
-            : 'border border-stone-300 bg-white text-ink hover:bg-stone-50'
+            : 'border border-border-strong bg-white text-ink hover:bg-stone-50'
         "
         [attr.aria-pressed]="editMode.enabled()"
         (click)="editMode.toggle()"

@@ -48,17 +48,17 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
     </div>
 
     @if (categories.error()) {
-      <p class="text-stone-600" role="alert">{{ catalogText.loadError }}</p>
+      <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
     } @else if (categories.hasValue()) {
       @if (tree().length === 0) {
-        <p class="text-stone-600">{{ text.empty }}</p>
+        <p class="text-muted">{{ text.empty }}</p>
       } @else {
         <ng-container
           *ngTemplateOutlet="group; context: { $implicit: tree() }"
         />
       }
     } @else {
-      <p class="text-stone-500" role="status">…</p>
+      <p class="text-subtle" role="status">…</p>
     }
 
     <!-- One drop list per sibling group; recurses for each branch's children. -->
@@ -74,7 +74,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
             <div class="flex items-center gap-2 py-2">
               <span
                 cdkDragHandle
-                class="cursor-grab p-1 text-stone-300 hover:text-stone-500 active:cursor-grabbing"
+                class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
                 [attr.aria-label]="common.reorder"
               >
                 <app-lucide-icon name="grip-vertical" class="h-4 w-4" />

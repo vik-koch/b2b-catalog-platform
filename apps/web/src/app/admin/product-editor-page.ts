@@ -48,12 +48,12 @@ import { AdminCatalogService } from './admin-catalog.service';
     </h1>
 
     @if (loading()) {
-      <p class="text-stone-500" role="status">…</p>
+      <p class="text-subtle" role="status">…</p>
     } @else if (notFound()) {
-      <p class="text-stone-600" role="alert">{{ text.saveError }}</p>
+      <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else if (previewing()) {
       <p
-        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-stone-600"
+        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
         role="status"
       >
         {{ text.previewNotice }}
@@ -107,7 +107,7 @@ import { AdminCatalogService } from './admin-catalog.service';
             [value]="effectiveSlug()"
             (input)="onSlugInput($any($event.target).value)"
           />
-          <span class="mt-1 block text-xs text-stone-500">{{
+          <span class="mt-1 block text-xs text-subtle">{{
             text.slugHint
           }}</span>
         </label>
@@ -144,7 +144,7 @@ import { AdminCatalogService } from './admin-catalog.service';
             [value]="sourceId()"
             (input)="sourceId.set($any($event.target).value)"
           />
-          <span class="mt-1 block text-xs text-stone-500">{{
+          <span class="mt-1 block text-xs text-subtle">{{
             text.sourceIdHint
           }}</span>
         </label>

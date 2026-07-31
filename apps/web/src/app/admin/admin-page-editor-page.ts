@@ -26,7 +26,7 @@ import { UnsavedChangesAware } from '../pages/unsaved-changes.guard';
         (dirtyChange)="editorDirty.set($event)"
       />
     } @else if (page.error()) {
-      <p class="text-stone-600" role="alert">{{ text.saveError }}</p>
+      <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else {
       <div class="animate-pulse space-y-4" aria-hidden="true">
         <div class="h-8 w-1/3 rounded bg-stone-200"></div>

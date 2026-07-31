@@ -42,7 +42,7 @@ import { ChangePasswordForm } from './change-password-form';
         #dialog
         (cancel)="$event.preventDefault()"
         aria-labelledby="force-password-change-heading"
-        class="m-auto max-w-md rounded-xl border border-stone-200 bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50"
+        class="m-auto max-w-md rounded-xl border border-border bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50"
       >
         @if (changed()) {
           <h2
@@ -51,7 +51,7 @@ import { ChangePasswordForm } from './change-password-form';
           >
             {{ text.heading }}
           </h2>
-          <p class="mb-6 text-sm text-stone-600" role="status">
+          <p class="mb-6 text-sm text-muted" role="status">
             {{ text.success }}
           </p>
           <button appButton type="button" (click)="changed.set(false)">
@@ -64,7 +64,7 @@ import { ChangePasswordForm } from './change-password-form';
           >
             {{ text.forcedHeading }}
           </h2>
-          <p class="mb-6 text-sm text-stone-600">{{ text.forcedIntro }}</p>
+          <p class="mb-6 text-sm text-muted">{{ text.forcedIntro }}</p>
 
           <app-change-password-form
             idPrefix="forced-change-password"

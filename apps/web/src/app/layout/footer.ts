@@ -11,7 +11,7 @@ import { ContactInfo } from './contact-info';
   imports: [RouterLink, RouterLinkActive, Button, ContactInfo],
   selector: 'app-footer',
   template: `
-    <footer class="border-t border-stone-200 bg-stone-100">
+    <footer class="border-t border-border bg-stone-100">
       <div class="mx-auto w-full max-w-7xl px-4 py-6 text-sm">
         <div
           class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
@@ -27,7 +27,7 @@ import { ContactInfo } from './contact-info';
           >
             <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
             <nav
-              class="flex flex-wrap items-center gap-x-4 gap-y-2 text-stone-500"
+              class="flex flex-wrap items-center gap-x-4 gap-y-2 text-subtle"
               aria-label="Legal"
             >
               @for (slug of legalSlugs; track slug) {
@@ -55,7 +55,7 @@ import { ContactInfo } from './contact-info';
           </div>
         </div>
 
-        <p class="mt-6 border-t border-stone-200 pt-4 text-xs text-stone-500">
+        <p class="mt-6 pt-4 text-xs text-subtle">
           {{ copyright }}
         </p>
       </div>

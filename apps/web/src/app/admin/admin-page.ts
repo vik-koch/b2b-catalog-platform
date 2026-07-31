@@ -32,11 +32,11 @@ import { SyncService } from './sync.service';
          icon on every button carries no information. -->
     <section class="mt-10">
       <h2
-        class="mb-3 text-xs font-semibold tracking-wide text-stone-500 uppercase"
+        class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
       >
         {{ panelText.manage }}
       </h2>
-      <div class="divide-y divide-stone-200 rounded-lg border border-stone-200">
+      <div class="divide-y divide-border rounded-lg border border-border">
         <div class="p-5">
           <h3 class="mb-3 text-sm font-semibold">{{ panelText.sync }}</h3>
           <a appButton routerLink="/admin/sync" class="gap-2">
@@ -45,7 +45,7 @@ import { SyncService } from './sync.service';
           </a>
           <!-- The audit trail's newest applied run is the last-sync answer;
                there is no separate setting to keep in step. -->
-          <p class="mt-3 text-sm text-stone-500">{{ lastSync() }}</p>
+          <p class="mt-3 text-sm text-subtle">{{ lastSync() }}</p>
         </div>
 
         <div class="p-5">
@@ -101,7 +101,7 @@ import { SyncService } from './sync.service';
 
     <section class="mt-10">
       <h2
-        class="mb-3 text-xs font-semibold tracking-wide text-stone-500 uppercase"
+        class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
       >
         {{ panelText.site }}
       </h2>

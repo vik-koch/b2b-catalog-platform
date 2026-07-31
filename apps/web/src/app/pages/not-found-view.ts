@@ -20,7 +20,7 @@ import { Button } from '../ui/button';
       <h1 class="mt-3 text-3xl font-bold tracking-tight">
         {{ heading() ?? text.notFoundTitle }}
       </h1>
-      <p class="mt-4 text-stone-600">{{ body() ?? text.notFoundBody }}</p>
+      <p class="mt-4 text-muted">{{ body() ?? text.notFoundBody }}</p>
       <a appButton variant="secondary" [routerLink]="backLink()" class="mt-8">
         {{ backLabel() ?? text.notFoundBack }}
       </a>

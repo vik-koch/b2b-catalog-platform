@@ -40,7 +40,7 @@ import { ProductDetailView } from './product-detail-view';
   template: `
     <section class="relative pb-8 sm:pb-12">
       @if (product.error()) {
-        <p class="text-stone-600">{{ text.loadError }}</p>
+        <p class="text-muted">{{ text.loadError }}</p>
       } @else if (product.hasValue()) {
         @let item = product.value();
         @if (!item) {

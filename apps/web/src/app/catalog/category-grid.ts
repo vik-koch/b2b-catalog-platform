@@ -51,7 +51,7 @@ const SUBS_COLLAPSED = 4;
   template: `
     <section class="relative pb-8 sm:pb-12">
       @if (products.error()) {
-        <p class="text-stone-600">{{ text.loadError }}</p>
+        <p class="text-muted">{{ text.loadError }}</p>
       } @else if (products.hasValue()) {
         @let data = products.value();
         @if (!data) {
@@ -90,7 +90,7 @@ const SUBS_COLLAPSED = 4;
           }
           <nav [attr.aria-label]="text.catalogRoot">
             <ol
-              class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-stone-500"
+              class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-subtle"
             >
               <li>
                 <a routerLink="/catalog" class="hover:text-accent">
@@ -163,7 +163,7 @@ const SUBS_COLLAPSED = 4;
                   <a
                     [routerLink]="['/admin/products/new']"
                     [queryParams]="{ category: data.category.slug }"
-                    class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-stone-300 text-stone-500 transition-colors hover:border-primary hover:text-primary"
+                    class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-primary"
                   >
                     <app-lucide-icon name="plus" class="h-8 w-8" />
                     <span class="text-sm font-medium">{{
@@ -175,7 +175,7 @@ const SUBS_COLLAPSED = 4;
               @for (item of data.items; track item.slug) {
                 <li class="h-full">
                   <div
-                    class="group relative flex h-full flex-col overflow-hidden rounded-lg border border-stone-200 bg-white transition-shadow hover:shadow-md"
+                    class="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-white transition-shadow hover:shadow-md"
                   >
                     @if (editControls(); as editText) {
                       <div class="absolute top-2 right-2 z-10 flex gap-1.5">
@@ -242,7 +242,7 @@ const SUBS_COLLAPSED = 4;
                     text.prevPage
                   }}</span>
                 }
-                <span class="text-stone-500">{{
+                <span class="text-subtle">{{
                   pageStatus(data.pagination)
                 }}</span>
                 @if (data.pagination.page < data.pagination.totalPages) {
@@ -262,7 +262,7 @@ const SUBS_COLLAPSED = 4;
               </nav>
             }
           } @else {
-            <p class="mt-8 text-stone-600">{{ text.emptyProducts }}</p>
+            <p class="mt-8 text-muted">{{ text.emptyProducts }}</p>
           }
 
           @defer (when editMode.enabled()) {

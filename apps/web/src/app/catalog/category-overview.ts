@@ -45,12 +45,12 @@ const MAX_CHILD_LINKS = 3;
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         {{ text.overviewTitle }}
       </h1>
-      <p class="mt-3 max-w-xl text-lg text-stone-600">
+      <p class="mt-3 max-w-xl text-lg text-muted">
         {{ text.overviewIntro }}
       </p>
 
       @if (categories.error()) {
-        <p class="mt-10 text-stone-600">{{ text.loadError }}</p>
+        <p class="mt-10 text-muted">{{ text.loadError }}</p>
       } @else if (categories.value(); as cats) {
         @if (cats.length) {
           <ul
@@ -109,7 +109,7 @@ const MAX_CHILD_LINKS = 3;
                 @if (cat.children.length) {
                   @let preview = childPreview(cat);
                   <ul
-                    class="mt-1 hidden flex-wrap gap-x-2 gap-y-0.5 text-xs text-stone-500 sm:flex"
+                    class="mt-1 hidden flex-wrap gap-x-2 gap-y-0.5 text-xs text-subtle sm:flex"
                   >
                     @for (child of preview.shown; track child.slug) {
                       <li>
@@ -130,7 +130,7 @@ const MAX_CHILD_LINKS = 3;
             }
           </ul>
         } @else {
-          <p class="mt-10 text-stone-600">{{ text.emptyCategories }}</p>
+          <p class="mt-10 text-muted">{{ text.emptyCategories }}</p>
         }
       } @else {
         <div

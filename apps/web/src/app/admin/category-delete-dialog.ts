@@ -47,11 +47,11 @@ import { categoryDescendantIds } from './category-tree';
       </h2>
 
       @if (mode() === 'loading') {
-        <p class="mt-3 text-stone-500" role="status">…</p>
+        <p class="mt-3 text-subtle" role="status">…</p>
       } @else if (mode() === 'blocked-children') {
-        <p class="mt-3 text-stone-600">{{ blockedChildrenMessage() }}</p>
+        <p class="mt-3 text-muted">{{ blockedChildrenMessage() }}</p>
       } @else if (mode() === 'reassign') {
-        <p class="mt-3 text-stone-600">{{ reassignIntro() }}</p>
+        <p class="mt-3 text-muted">{{ reassignIntro() }}</p>
         <div class="mt-4">
           <span appFieldLabel>{{ text.reassignLabel }}</span>
           <app-category-picker
@@ -63,7 +63,7 @@ import { categoryDescendantIds } from './category-tree';
           />
         </div>
       } @else {
-        <p class="mt-3 text-stone-600">{{ confirmMessage() }}</p>
+        <p class="mt-3 text-muted">{{ confirmMessage() }}</p>
       }
 
       @if (error()) {

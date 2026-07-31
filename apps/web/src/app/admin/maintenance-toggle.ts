@@ -12,9 +12,9 @@ import { MaintenanceService } from './maintenance.service';
   selector: 'app-maintenance-toggle',
   imports: [Button],
   template: `
-    <section class="rounded-lg border border-stone-200 p-5">
+    <section class="rounded-lg border border-border p-5">
       <h2 class="text-lg font-semibold">{{ text.heading }}</h2>
-      <p class="mt-1 text-sm text-stone-600">{{ text.description }}</p>
+      <p class="mt-1 text-sm text-muted">{{ text.description }}</p>
 
       @if (enabled() !== undefined) {
         <p class="mt-4 text-sm font-medium">

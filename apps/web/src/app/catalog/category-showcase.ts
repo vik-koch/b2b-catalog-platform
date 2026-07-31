@@ -16,13 +16,13 @@ import { ImagePlaceholder } from './image-placeholder';
   imports: [RouterLink, ImagePlaceholder],
   template: `
     @if (categories.error()) {
-      <p class="text-stone-600">{{ text.loadError }}</p>
+      <p class="text-muted">{{ text.loadError }}</p>
     } @else if (categories.value(); as cats) {
       @if (cats.length) {
         <div class="gap-5 columns-2 sm:columns-3 lg:columns-4">
           @for (cat of cats; track cat.slug) {
             <div
-              class="mb-5 break-inside-avoid overflow-hidden rounded-xl border border-stone-200 bg-surface"
+              class="mb-5 break-inside-avoid overflow-hidden rounded-xl border border-border bg-surface"
             >
               <a
                 [routerLink]="['/catalog', cat.slug]"
@@ -68,13 +68,13 @@ import { ImagePlaceholder } from './image-placeholder';
           }
         </div>
       } @else {
-        <p class="text-stone-600">{{ text.emptyCategories }}</p>
+        <p class="text-muted">{{ text.emptyCategories }}</p>
       }
     } @else {
       <div class="gap-5 columns-2 sm:columns-3 lg:columns-4" aria-hidden="true">
         @for (i of skeletons; track i) {
           <div
-            class="mb-5 break-inside-avoid overflow-hidden rounded-xl border border-stone-200"
+            class="mb-5 break-inside-avoid overflow-hidden rounded-xl border border-border"
           >
             <div class="aspect-video animate-pulse bg-stone-200"></div>
             <div class="m-4 h-4 w-2/3 animate-pulse rounded bg-stone-200"></div>

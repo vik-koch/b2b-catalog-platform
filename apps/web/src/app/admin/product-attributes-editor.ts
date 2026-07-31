@@ -64,7 +64,7 @@ import {
 
       <table class="w-full max-w-2xl border-collapse text-sm">
         <thead>
-          <tr class="text-left text-stone-500">
+          <tr class="text-left text-subtle">
             <th class="w-1/3 pb-1 font-medium">{{ text.key }}</th>
             <th class="pb-1 font-medium">{{ text.value }}</th>
             <th class="w-24"></th>
@@ -87,19 +87,19 @@ import {
                    floating drag preview is a plain labelled chip instead. -->
               <div
                 *cdkDragPreview
-                class="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm shadow-md"
+                class="rounded-md border border-border-strong bg-white px-3 py-1.5 text-sm shadow-md"
               >
                 {{ row.key || text.key }}
               </div>
               <td
                 [attr.data-row]="$index"
                 data-col="0"
-                class="h-10 border border-stone-300 px-2 py-1.5 align-top"
+                class="h-10 border border-border-strong px-2 py-1.5 align-top"
               ></td>
               <td
                 [attr.data-row]="$index"
                 data-col="1"
-                class="h-10 border border-stone-300 px-2 py-1.5 align-top"
+                class="h-10 border border-border-strong px-2 py-1.5 align-top"
               ></td>
               <td
                 contenteditable="false"
@@ -109,7 +109,7 @@ import {
                   <button
                     type="button"
                     cdkDragHandle
-                    class="cursor-grab p-1 text-stone-300 hover:text-stone-500 active:cursor-grabbing"
+                    class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
                     [attr.aria-label]="common.reorder"
                   >
                     <app-lucide-icon name="grip-vertical" class="h-5 w-5" />

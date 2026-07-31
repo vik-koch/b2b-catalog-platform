@@ -16,7 +16,7 @@ import { usePageSeo } from '../core/page-seo';
       <h1 class="mt-3 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
         {{ text.home.title }}
       </h1>
-      <p class="mt-4 max-w-xl text-lg text-stone-600">
+      <p class="mt-4 max-w-xl text-lg text-muted">
         {{ text.home.intro }}
       </p>
     </section>

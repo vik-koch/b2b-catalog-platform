@@ -12,7 +12,7 @@ import { Directive } from '@angular/core';
   selector: '[appDialogPanel]',
   host: {
     class:
-      'm-auto max-w-md rounded-lg border border-stone-200 bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50',
+      'm-auto max-w-md rounded-lg border border-border bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50',
   },
 })
 export class DialogPanel {}

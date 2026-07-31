@@ -36,7 +36,7 @@ import { AdminCatalogService } from './admin-catalog.service';
       <h2 id="product-delete-heading" class="text-xl font-bold tracking-tight">
         {{ text.deleteProduct }}
       </h2>
-      <p class="mt-3 text-stone-600">{{ confirmMessage() }}</p>
+      <p class="mt-3 text-muted">{{ confirmMessage() }}</p>
 
       @if (error()) {
         <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>

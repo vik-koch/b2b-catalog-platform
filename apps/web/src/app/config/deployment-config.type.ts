@@ -60,6 +60,11 @@ export const deploymentConfigSchema = z
          * launched this year shows a single year rather than a range.
          */
         startYear: z.number().int(),
+        /**
+         * Semantic color tokens. The three brand colors are required; the
+         * neutrals default to the stone ramp in styles.css and are only worth
+         * setting for a deployment whose palette is not warm-gray.
+         */
         theme: z
           .object({
             primary: z.string(),
@@ -67,6 +72,14 @@ export const deploymentConfigSchema = z
             accent: z.string(),
             surface: z.string().optional(),
             ink: z.string().optional(),
+            /** Secondary body copy. */
+            muted: z.string().optional(),
+            /** Meta text: eyebrows, table headers, counts. */
+            subtle: z.string().optional(),
+            /** Structural lines: card edges, dividers, table rules. */
+            border: z.string().optional(),
+            /** Control edges: inputs, secondary buttons. */
+            borderStrong: z.string().optional(),
           })
           .strict(),
       })
