@@ -58,6 +58,9 @@ export const appTextSchema = z
         /** Product detail (FR-CAT-05). */
         specifications: z.string(),
         productNotFound: z.string(),
+        categoryNotFound: z.string(),
+        /** Back link on the catalogue's 404 screens. */
+        backToCatalog: z.string(),
         /** Gallery thumbnail label; `{n}` is substituted. */
         viewImage: z.string(),
         /** Caption shown on the fallback tile when a product has no photo. */

@@ -15,6 +15,7 @@ import { EditModeService } from '../admin/edit-mode.service';
 import { ProductDeleteDialog } from '../admin/product-delete-dialog';
 import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
 import { ProductDetailView } from './product-detail-view';
 
@@ -31,6 +32,7 @@ import { ProductDetailView } from './product-detail-view';
   imports: [
     ProductDetailView,
     ProductDeleteDialog,
+    NotFoundView,
     RouterLink,
     IconButton,
     LucideIcon,
@@ -42,7 +44,11 @@ import { ProductDetailView } from './product-detail-view';
       } @else if (product.hasValue()) {
         @let item = product.value();
         @if (!item) {
-          <p class="text-stone-600">{{ text.productNotFound }}</p>
+          <app-not-found-view
+            [body]="text.productNotFound"
+            backLink="/catalog"
+            [backLabel]="text.backToCatalog"
+          />
         } @else {
           @if (editText(); as editText) {
             <div class="absolute top-0 right-0 z-10 flex gap-2">

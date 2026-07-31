@@ -18,6 +18,7 @@ import { DeletedProductsSection } from '../admin/deleted-products-section';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
 import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
+import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
 import { PricePipe } from './price.pipe';
 import { TileGallery } from './tile-gallery';
@@ -43,6 +44,7 @@ const SUBS_COLLAPSED = 4;
     ProductDeleteDialog,
     CategoryDeleteDialog,
     DeletedProductsSection,
+    NotFoundView,
   ],
   template: `
     <section class="relative pb-8 sm:pb-12">
@@ -51,7 +53,11 @@ const SUBS_COLLAPSED = 4;
       } @else if (products.hasValue()) {
         @let data = products.value();
         @if (!data) {
-          <p class="text-stone-600">{{ text.emptyCategories }}</p>
+          <app-not-found-view
+            [body]="text.categoryNotFound"
+            backLink="/catalog"
+            [backLabel]="text.backToCatalog"
+          />
         } @else {
           @if (editControls(); as editText) {
             <div class="absolute top-0 right-0 z-10 flex gap-2">
