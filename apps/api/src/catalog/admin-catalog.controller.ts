@@ -1,7 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { adminCatalogContract } from '@b2b-catalog-platform/shared';
+import { adminCatalogContract, AuthUser } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { AuditLogger } from '../audit/audit.logger';
 import { AdminCatalogService } from './admin-catalog.service';
 
 /**
@@ -13,7 +15,10 @@ import { AdminCatalogService } from './admin-catalog.service';
 @Auth('admin')
 @Controller()
 export class AdminCatalogController {
-  constructor(private readonly service: AdminCatalogService) {}
+  constructor(
+    private readonly service: AdminCatalogService,
+    private readonly audit: AuditLogger,
+  ) {}
 
   @TsRestHandler(adminCatalogContract.listProducts, { validateResponses: true })
   listProducts() {
@@ -47,11 +52,12 @@ export class AdminCatalogController {
   @TsRestHandler(adminCatalogContract.createProduct, {
     validateResponses: true,
   })
-  createProduct() {
+  createProduct(@CurrentUser() user: AuthUser) {
     return tsRestHandler(
       adminCatalogContract.createProduct,
       async ({ body }) => {
-        const product = await this.service.createProduct(body);
+        const product = await this.service.createProduct(body, user.id);
+        this.audit.record('product.created', user, product);
         return { status: 201, body: product };
       },
     );
@@ -60,11 +66,12 @@ export class AdminCatalogController {
   @TsRestHandler(adminCatalogContract.updateProduct, {
     validateResponses: true,
   })
-  updateProduct() {
+  updateProduct(@CurrentUser() user: AuthUser) {
     return tsRestHandler(
       adminCatalogContract.updateProduct,
       async ({ params: { slug }, body }) => {
-        const product = await this.service.updateProduct(slug, body);
+        const product = await this.service.updateProduct(slug, body, user.id);
+        this.audit.record('product.updated', user, product);
         return { status: 200, body: product };
       },
     );
@@ -73,11 +80,12 @@ export class AdminCatalogController {
   @TsRestHandler(adminCatalogContract.deleteProduct, {
     validateResponses: true,
   })
-  deleteProduct() {
+  deleteProduct(@CurrentUser() user: AuthUser) {
     return tsRestHandler(
       adminCatalogContract.deleteProduct,
       async ({ params: { slug } }) => {
-        const product = await this.service.deleteProduct(slug);
+        const product = await this.service.deleteProduct(slug, user.id);
+        this.audit.record('product.deleted', user, product);
         return { status: 200, body: product };
       },
     );
@@ -86,11 +94,12 @@ export class AdminCatalogController {
   @TsRestHandler(adminCatalogContract.restoreProduct, {
     validateResponses: true,
   })
-  restoreProduct() {
+  restoreProduct(@CurrentUser() user: AuthUser) {
     return tsRestHandler(
       adminCatalogContract.restoreProduct,
       async ({ params: { slug } }) => {
-        const product = await this.service.restoreProduct(slug);
+        const product = await this.service.restoreProduct(slug, user.id);
+        this.audit.record('product.restored', user, product);
         return { status: 200, body: product };
       },
     );
@@ -122,11 +131,12 @@ export class AdminCatalogController {
   @TsRestHandler(adminCatalogContract.createCategory, {
     validateResponses: true,
   })
-  createCategory() {
+  createCategory(@CurrentUser() user: AuthUser) {
     return tsRestHandler(
       adminCatalogContract.createCategory,
       async ({ body }) => {
-        const category = await this.service.createCategory(body);
+        const category = await this.service.createCategory(body, user.id);
+        this.audit.record('category.created', user, category);
         return { status: 201, body: category };
       },
     );
@@ -135,11 +145,12 @@ export class AdminCatalogController {
   @TsRestHandler(adminCatalogContract.updateCategory, {
     validateResponses: true,
   })
-  updateCategory() {
+  updateCategory(@CurrentUser() user: AuthUser) {
     return tsRestHandler(
       adminCatalogContract.updateCategory,
       async ({ params: { id }, body }) => {
-        const category = await this.service.updateCategory(id, body);
+        const category = await this.service.updateCategory(id, body, user.id);
+        this.audit.record('category.updated', user, category);
         return { status: 200, body: category };
       },
     );
@@ -148,11 +159,12 @@ export class AdminCatalogController {
   @TsRestHandler(adminCatalogContract.deleteCategory, {
     validateResponses: true,
   })
-  deleteCategory() {
+  deleteCategory(@CurrentUser() user: AuthUser) {
     return tsRestHandler(
       adminCatalogContract.deleteCategory,
       async ({ params: { id }, query }) => {
         const body = await this.service.deleteCategory(id, query.reassignTo);
+        this.audit.record('category.deleted', user, { id });
         return { status: 200, body };
       },
     );
@@ -161,11 +173,12 @@ export class AdminCatalogController {
   @TsRestHandler(adminCatalogContract.reorderCategories, {
     validateResponses: true,
   })
-  reorderCategories() {
+  reorderCategories(@CurrentUser() user: AuthUser) {
     return tsRestHandler(
       adminCatalogContract.reorderCategories,
       async ({ body }) => {
         const categories = await this.service.reorderCategories(body);
+        this.audit.record('category.reordered', user, {});
         return { status: 200, body: { categories } };
       },
     );

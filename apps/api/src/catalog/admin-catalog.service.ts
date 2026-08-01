@@ -125,7 +125,10 @@ export class AdminCatalogService {
     return row ? toAdminProduct(row) : null;
   }
 
-  async createProduct(input: ProductInput): Promise<AdminProduct> {
+  async createProduct(
+    input: ProductInput,
+    actorId: string,
+  ): Promise<AdminProduct> {
     await this.ensureCategoryExists(input.categoryId);
     const slug = await this.resolveNewSlug(
       products,
@@ -147,6 +150,7 @@ export class AdminCatalogService {
           descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
           attributes: input.attributes,
           images: input.images,
+          updatedBy: actorId,
         })
         .returning(adminProductColumns),
     );
@@ -156,6 +160,7 @@ export class AdminCatalogService {
   async updateProduct(
     slug: string,
     input: ProductInput,
+    actorId: string,
   ): Promise<AdminProduct> {
     const existing = await this.productBySlug(slug);
     if (!existing) throw new NotFoundException('Product not found');
@@ -184,6 +189,7 @@ export class AdminCatalogService {
           images: input.images,
           sourceId: newSourceId,
           updatedAt: new Date(),
+          updatedBy: actorId,
         })
         .where(eq(products.id, existing.id))
         .returning(adminProductColumns),
@@ -197,13 +203,16 @@ export class AdminCatalogService {
    * its original `deletedAt`/`updatedAt` untouched (coalesce keeps the first
    * timestamp; `updatedAt` only moves on the live→deleted transition).
    */
-  async deleteProduct(slug: string): Promise<AdminProduct> {
+  async deleteProduct(slug: string, actorId: string): Promise<AdminProduct> {
     const now = new Date();
     const rows = await this.db
       .update(products)
       .set({
         deletedAt: sql`coalesce(${products.deletedAt}, ${now})`,
         updatedAt: sql`case when ${products.deletedAt} is null then ${now} else ${products.updatedAt} end`,
+        // Attributed on the live->deleted transition only, so a repeat delete
+        // does not rewrite who actually removed it.
+        deletedBy: sql`case when ${products.deletedAt} is null then ${actorId}::uuid else ${products.deletedBy} end`,
       })
       .where(eq(products.slug, slug))
       .returning(adminProductColumns);
@@ -211,10 +220,15 @@ export class AdminCatalogService {
     return toAdminProduct(rows[0]);
   }
 
-  async restoreProduct(slug: string): Promise<AdminProduct> {
+  async restoreProduct(slug: string, actorId: string): Promise<AdminProduct> {
     const rows = await this.db
       .update(products)
-      .set({ deletedAt: null, updatedAt: new Date() })
+      .set({
+        deletedAt: null,
+        deletedBy: null,
+        updatedAt: new Date(),
+        updatedBy: actorId,
+      })
       .where(eq(products.slug, slug))
       .returning(adminProductColumns);
     if (!rows[0]) throw new NotFoundException('Product not found');
@@ -286,7 +300,10 @@ export class AdminCatalogService {
     );
   }
 
-  async createCategory(input: CategoryInput): Promise<AdminCategory> {
+  async createCategory(
+    input: CategoryInput,
+    actorId: string,
+  ): Promise<AdminCategory> {
     if (input.parentId) await this.ensureCategoryExists(input.parentId);
     const slug = await this.resolveNewSlug(
       categories,
@@ -308,6 +325,7 @@ export class AdminCatalogService {
           sortOrder,
           image: input.image,
           description: input.description,
+          updatedBy: actorId,
         })
         .returning(),
     );
@@ -317,6 +335,7 @@ export class AdminCatalogService {
   async updateCategory(
     id: string,
     input: CategoryInput,
+    actorId: string,
   ): Promise<AdminCategory> {
     const existing = await this.categoryById(id);
     if (!existing) throw new NotFoundException('Category not found');
@@ -343,6 +362,7 @@ export class AdminCatalogService {
           image: input.image,
           description: input.description,
           updatedAt: new Date(),
+          updatedBy: actorId,
         })
         .where(eq(categories.id, id)),
     );
