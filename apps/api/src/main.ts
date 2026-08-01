@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { ConsoleLogger, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { runBootstrapAdmin, runSeed } from '@b2b-catalog-platform/seed';
@@ -11,8 +11,20 @@ import { env } from './env';
 // Let the server settle and serve traffic before the first maintenance sweep.
 const PRUNE_STARTUP_DELAY_MS = 60_000;
 
+/**
+ * Container logs are read by Loki, not by a person at a terminal (ADR 0016), so
+ * in a deployed stack they are emitted as JSON and never colorized: ANSI escape
+ * codes end up embedded in the stored line, where they defeat LogQL matching and
+ * show up as noise in Grafana. Locally (`nx serve`, no NODE_ENV) the readable
+ * console format stays.
+ */
+function logger(): ConsoleLogger {
+  const deployed = process.env['NODE_ENV'] === 'production';
+  return new ConsoleLogger({ colors: !deployed, json: deployed });
+}
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { logger: logger() });
 
   // Populates req.cookies so the auth guard can read the httpOnly session
   // cookie. No secret: the JWT is self-verifying, so cookie signing adds nothing.
@@ -50,6 +62,10 @@ async function bootstrap() {
 }
 
 async function main() {
+  // The one-shot modes below log without an app instance, so the global logger
+  // needs the same treatment as the server's.
+  Logger.overrideLogger(logger());
+
   // One-shot tool containers (compose.yml) that do their job and exit instead
   // of starting the server:
   //   migrate         — apply pending migrations; api waits on it completing.
