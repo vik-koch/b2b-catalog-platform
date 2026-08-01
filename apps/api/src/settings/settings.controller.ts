@@ -23,6 +23,16 @@ export class SettingsController {
     });
   }
 
+  // Managers reach the admin panel too, and "what is deployed" is not an admin
+  // secret — it is the first thing either role needs when reporting a problem.
+  @Auth('admin', 'manager')
+  @TsRestHandler(settingsContract.getBuildInfo, { validateResponses: true })
+  async getBuildInfo() {
+    return tsRestHandler(settingsContract.getBuildInfo, async () => {
+      return { status: 200, body: this.settings.getBuildInfo() };
+    });
+  }
+
   @Auth('admin')
   @TsRestHandler(settingsContract.getMaintenance, { validateResponses: true })
   async getMaintenance() {

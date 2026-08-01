@@ -61,6 +61,18 @@ put "$traefik_env" /srv/b2b/traefik/.env
 put "$repo_root/compose.yml" "/srv/b2b/$stack/compose.yml"
 put "$app_env" "/srv/b2b/$stack/.env"
 
+# What is deployed, for the admin panel. Derived here rather than baked into the
+# image: release.yml promotes a release by retagging the very image main already
+# built, so a build-time value could only ever be the commit sha, never the
+# version. The image tag is the honest answer — "1.2.3" for prod, "sha-<commit>"
+# for dev — and every caller already pins API_IMAGE. Appended to the copied .env
+# (never to the caller's file), so each deploy restamps both.
+api_image=$(sed -n 's/^API_IMAGE=//p' "$app_env")
+app_version=${api_image##*:}
+deployed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+echo "==> Deploying version '$app_version' at $deployed_at"
+run "printf 'APP_VERSION=%s\nAPP_DEPLOYED_AT=%s\n' '$app_version' '$deployed_at' >> /srv/b2b/$stack/.env"
+
 # The media nginx service bind-mounts this config file (0021). It must exist on
 # the host as a file before `up`, or Docker auto-creates the missing path as a
 # directory and the file-onto-file mount fails.

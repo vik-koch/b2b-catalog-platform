@@ -30,6 +30,20 @@ export const maintenanceCheckSchema = z.object({
 });
 export type MaintenanceCheck = z.infer<typeof maintenanceCheckSchema>;
 
+/**
+ * What is actually running, for the admin panel. Both fields are stamped onto
+ * the stack at deploy time (infra/deploy.sh), not baked into the image: a
+ * release retags the very image main already built, so anything baked at build
+ * time could only ever report the commit sha, never the released version.
+ */
+export const buildInfoSchema = z.object({
+  /** The deployed image tag — a semver for prod, `sha-<commit>` for dev. */
+  version: z.string().nullable(),
+  /** ISO 8601. When the running stack was deployed. */
+  deployedAt: z.string().datetime().nullable(),
+});
+export type BuildInfo = z.infer<typeof buildInfoSchema>;
+
 export const settingsContract = c.router({
   checkMaintenance: {
     method: 'GET',
@@ -38,6 +52,16 @@ export const settingsContract = c.router({
       200: maintenanceCheckSchema,
     },
     summary: 'Public: is the storefront in maintenance mode?',
+  },
+  getBuildInfo: {
+    method: 'GET',
+    path: '/settings/build-info',
+    responses: {
+      200: buildInfoSchema,
+      401: z.object({ message: z.string() }),
+      403: z.object({ message: z.string() }),
+    },
+    summary: 'What version is deployed, and since when (admin/manager only)',
   },
   getMaintenance: {
     method: 'GET',

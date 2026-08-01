@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+/** Treats an empty variable as an unset one, then applies the schema. */
+const emptyAsUndefined = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    schema.optional(),
+  );
+
 const EnvSchema = z
   .object({
     API_PORT: z.coerce.number().int().positive(),
@@ -47,6 +54,15 @@ const EnvSchema = z
     // drives dozens of logins from one address in well under a minute and would
     // otherwise throttle its own test run. Raise it there, never in prod.
     AUTH_RATE_LIMIT: z.coerce.number().int().positive().default(10),
+    // What is running, shown in the admin panel. Stamped onto the stack by
+    // infra/deploy.sh rather than baked into the image (a release retags the
+    // image main built, so a baked value could only ever be the commit sha).
+    // Optional: a local `docker compose up` or a bare `nx serve` has neither,
+    // and the panel simply says so.
+    // Empty-to-absent: compose always sets these two (with a `:-` fallback), so
+    // an undeployed stack passes "" rather than leaving them unset.
+    APP_VERSION: emptyAsUndefined(z.string().min(1)),
+    APP_DEPLOYED_AT: emptyAsUndefined(z.string().datetime()),
   })
   .superRefine((val, ctx) => {
     // Only the running server sends mail; require its config there, not on the

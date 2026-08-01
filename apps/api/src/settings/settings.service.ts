@@ -1,7 +1,8 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
-import { MaintenanceStatus } from '@b2b-catalog-platform/shared';
+import { BuildInfo, MaintenanceStatus } from '@b2b-catalog-platform/shared';
+import { env } from '../env';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { appSettings } from '../db/schema';
@@ -64,6 +65,18 @@ export class SettingsService implements OnModuleInit {
   /** Synchronous cached read for the hot path (the maintenance guard). */
   isMaintenanceEnabled(): boolean {
     return this.maintenanceEnabled;
+  }
+
+  /**
+   * What is deployed. Straight from the environment the stack was started
+   * with — no database, nothing to cache; both are absent outside a deployed
+   * stack (local dev), which the panel renders as "unknown".
+   */
+  getBuildInfo(): BuildInfo {
+    return {
+      version: env.APP_VERSION ?? null,
+      deployedAt: env.APP_DEPLOYED_AT ?? null,
+    };
   }
 
   async getMaintenance(): Promise<MaintenanceStatus> {
