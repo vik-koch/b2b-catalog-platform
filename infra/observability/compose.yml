@@ -109,8 +109,13 @@ services:
       GF_SMTP_FROM_ADDRESS: ${SMTP_FROM:-}
       GF_SMTP_FROM_NAME: ${GRAFANA_DOMAIN:?} alerts
       GF_SMTP_SKIP_VERIFY: ${SMTP_SKIP_VERIFY:-false}
-      # Read by the provisioned contact point below.
-      ALERT_EMAIL: ${ALERT_EMAIL:-}
+      # Read by the provisioned contact point below. Never empty: Grafana
+      # *refuses to start* if a provisioned email contact point has no
+      # addresses, so an unconfigured VM would crash-loop rather than simply
+      # run without alerting. `.invalid` is reserved by RFC 2606 and cannot
+      # resolve, so the placeholder can never mail a real person; with
+      # SMTP_ENABLED=false nothing is attempted anyway.
+      ALERT_EMAIL: ${ALERT_EMAIL:-alerts-not-configured@invalid}
     volumes:
       - grafana:/var/lib/grafana
     configs:
