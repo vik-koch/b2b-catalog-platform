@@ -70,6 +70,12 @@ run "cd $remote && gunzip -c restore/dump.sql.gz | docker compose exec -T postgr
 # is resolved by the project itself — no guessing at the generated volume name.
 # The api image mounts it read-write and ships busybox tar.
 echo "==> Restoring media volume"
+# Load-bearing: this runs through the *api service*, so it runs as the app's
+# unprivileged uid. That is what protects the volume. As root, tar would apply
+# the archive's own root-owned root-directory metadata to /media, leaving it
+# unwritable by the app — the next upload and the media prune (which swallows
+# its errors) would then fail silently. A non-root tar cannot chown, so the
+# target directory's ownership and mode survive.
 run "cd $remote && docker compose run --rm --no-deps --entrypoint sh \
   -v $remote/restore:/restore:ro api \
   -c 'rm -rf /media/* && tar xzf /restore/media.tar.gz -C /media --strip-components=2'"

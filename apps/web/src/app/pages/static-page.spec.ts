@@ -137,3 +137,45 @@ describe('StaticPage — before it has been written', () => {
     );
   });
 });
+
+/**
+ * A failing page load must not render an apology inside a 200 — LoadErrorView
+ * owns the 503, and the component has to reach it. `value()` throws on an
+ * errored resource, so the error branch has to be checked before anything reads
+ * the value; an unguarded read killed the SSR render instead of setting a
+ * status.
+ */
+describe('StaticPage — when the API cannot be reached', () => {
+  it('renders the load-error view rather than the page or a 404', async () => {
+    TestBed.configureTestingModule({
+      imports: [StaticPage],
+      providers: [
+        provideRouter([]),
+        { provide: APP_TEXT, useValue: defaultAppText },
+        {
+          provide: DEPLOYMENT_CONFIG,
+          useValue: {
+            branding: { title: 'Test Shop' },
+          } as unknown as DeploymentConfig,
+        },
+        { provide: EditModeService, useValue: { enabled: signal(false) } },
+        {
+          provide: PageService,
+          useValue: {
+            getPage: async () => {
+              throw new Error('API unreachable');
+            },
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(StaticPage);
+    fixture.componentRef.setInput('slug', 'about');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('app-load-error-view')).not.toBeNull();
+    expect(el.querySelector('app-not-found-view')).toBeNull();
+  });
+});

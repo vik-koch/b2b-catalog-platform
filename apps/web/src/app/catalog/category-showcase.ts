@@ -1,6 +1,7 @@
 import { Component, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { LoadErrorView } from '../pages/load-error-view';
 import { delayedLoading } from '../core/delayed-loading';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
@@ -14,10 +15,10 @@ import { ImagePlaceholder } from './image-placeholder';
  */
 @Component({
   selector: 'app-category-showcase',
-  imports: [RouterLink, ImagePlaceholder],
+  imports: [RouterLink, ImagePlaceholder, LoadErrorView],
   template: `
     @if (categories.error()) {
-      <p class="text-muted">{{ text.loadError }}</p>
+      <app-load-error-view [message]="text.loadError" />
     } @else if (categories.value(); as cats) {
       @if (cats.length) {
         <div class="gap-5 columns-2 sm:columns-3 lg:columns-4">

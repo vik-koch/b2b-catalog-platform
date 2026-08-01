@@ -2,6 +2,7 @@ import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CategoryNode } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { LoadErrorView } from '../pages/load-error-view';
 import { delayedLoading } from '../core/delayed-loading';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
@@ -30,6 +31,7 @@ const MAX_CHILD_LINKS = 3;
     LucideIcon,
     IconButton,
     CategoryDeleteDialog,
+    LoadErrorView,
   ],
   template: `
     <section class="relative pb-12 sm:pb-16">
@@ -52,7 +54,7 @@ const MAX_CHILD_LINKS = 3;
       </p>
 
       @if (categories.error()) {
-        <p class="mt-10 text-muted">{{ text.loadError }}</p>
+        <app-load-error-view class="mt-10 block" [message]="text.loadError" />
       } @else if (categories.value(); as cats) {
         @if (cats.length) {
           <ul
