@@ -1,7 +1,8 @@
 import { requireEnv } from '../../env';
 
 /**
- * Server-side maintenance gate (FR-ADM-04, ADR 0022 — the SSR mirror). The Node
+ * Server-side maintenance gate (FR-ADM-04, ADR 0023 — the SSR mirror of the
+ * API's MaintenanceGuard; the two exemption lists must stay in step). The Node
  * process asks the API whether the storefront is gated and, if so, serves the
  * maintenance screen with a real 503 at the requested URL — no redirect, which
  * an SSR response cannot combine with a 503 anyway.
