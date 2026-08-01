@@ -12,12 +12,16 @@ function config(cookieConsentEnabled: boolean): DeploymentConfig {
 }
 
 async function render(enabled: boolean) {
+  return renderWith(config(enabled));
+}
+
+async function renderWith(deployment: DeploymentConfig) {
   TestBed.configureTestingModule({
     imports: [Footer],
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: DEPLOYMENT_CONFIG, useValue: config(enabled) },
+      { provide: DEPLOYMENT_CONFIG, useValue: deployment },
     ],
   });
   const fixture = TestBed.createComponent(Footer);
@@ -56,5 +60,26 @@ describe('Footer', () => {
     const el = await render(false);
     expect(el.textContent).toContain(defaultAppText.nav['privacy']);
     expect(el.textContent).toContain(defaultAppText.nav['imprint']);
+  });
+
+  // The attribution page is a code route, not a published page, so the only
+  // thing that decides whether it is advertised is its place in footerNav — a
+  // deployment with no obligation to show it drops it there.
+  it('links the license notice when the deployment lists it', async () => {
+    const el = await render(false);
+    expect(el.textContent).toContain(defaultAppText.nav['licenses']);
+  });
+
+  it('omits the license notice link when the deployment drops it', async () => {
+    const { pages } = defaultDeploymentConfig;
+    const el = await renderWith({
+      ...defaultDeploymentConfig,
+      pages: {
+        ...pages,
+        footerNav: pages.footerNav.filter((segment) => segment !== 'licenses'),
+      },
+    });
+
+    expect(el.textContent).not.toContain(defaultAppText.nav['licenses']);
   });
 });

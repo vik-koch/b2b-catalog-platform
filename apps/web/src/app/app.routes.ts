@@ -155,6 +155,16 @@ export const appRoutes: Route[] = [
     canActivate: [maintenanceGate],
   },
   { path: 'inquiry', component: InquiryPage, canActivate: [maintenanceGate] },
+  // Open-source attribution (see LicensesPage). Not a page slug and not
+  // deployment-configurable: it attributes the code every deployment ships, so
+  // it is present wherever the app is. Lazy — a footer link nobody follows
+  // twice has no business in the bundle every visitor downloads.
+  {
+    path: 'licenses',
+    canActivate: [maintenanceGate],
+    loadComponent: () =>
+      import('./pages/licenses-page').then((m) => m.LicensesPage),
+  },
   {
     path: 'catalog',
     component: CategoryOverview,

@@ -116,3 +116,28 @@ test('collapsing and restoring the utility bar never moves the page content', as
   await expect.poll(headerOffset).toBe('none');
   expect(await headingTop()).toBe(atRest);
 });
+
+// The attribution page and the file behind it only exist in a production
+// build: `extractLicenses` writes 3rdpartylicenses.txt beside the server
+// bundle, and the SSR tier serves it. Nothing below the container boundary
+// proves that — the unit tests stub the fetch — so the smoke test is where the
+// wiring is actually checked.
+test('serves the third-party license notice behind the footer link', async ({
+  page,
+  request,
+}) => {
+  const notice = await request.get('/licenses.txt');
+  expect(notice.status()).toBe(200);
+  expect(await notice.text()).toContain('Package: ');
+
+  await page.goto('/');
+  await page
+    .getByRole('navigation', { name: 'Legal' })
+    .getByRole('link', { name: 'Open source licenses' })
+    .click();
+
+  await expect(page).toHaveURL(/\/licenses$/);
+  await expect(page.locator('h1')).toHaveText('Open source licenses');
+  // The list is fetched on hydration, so any entry proves the round trip.
+  await expect(page.getByText('@angular/core', { exact: true })).toBeVisible();
+});

@@ -8,7 +8,8 @@
     "privacy": "Privacy",
     "imprint": "Imprint",
     "contact": "Contact",
-    "inquiry": "Get in touch"
+    "inquiry": "Get in touch",
+    "licenses": "Licenses"
   },
   "a11y": {
     "homeLink": "{name} — home",
@@ -105,6 +106,11 @@
       "phoneIncomplete": "Please enter a complete phone number.",
       "privacyRequired": "Please accept the privacy policy to continue."
     }
+  },
+  "licenses": {
+    "intro": "This site is built with open source software. The packages below are part of the code your browser downloads, and are used under the licenses shown.",
+    "unavailable": "The license list is only generated for production builds and is not available here.",
+    "unknownLicense": "License not declared"
   },
   "map": {
     "consentNotice": "This map is hidden until you accept cookies."

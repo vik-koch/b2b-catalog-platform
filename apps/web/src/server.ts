@@ -115,6 +115,32 @@ app.get('/admin-text.json', (_req, res, next) => {
   }
 });
 
+/**
+ * Third-party attribution for the code this deployment ships to browsers.
+ *
+ * The build produces it: `extractLicenses` (on for production configurations)
+ * writes `3rdpartylicenses.txt` covering exactly the packages esbuild put into
+ * the bundle. That makes the bundler the source of truth — nothing is generated
+ * into the repo, nothing can go stale, and the notice can never claim a package
+ * the build did not actually ship. It lands beside `browser/` rather than in
+ * it, so it needs this route to be reachable; the /licenses page fetches it.
+ *
+ * Development builds turn extraction off, so the file is simply absent there —
+ * a 404 the page renders as "not available in this build" rather than an error.
+ */
+const licenseNoticeFile = resolve(serverDistFolder, '../3rdpartylicenses.txt');
+
+app.get('/licenses.txt', (_req, res, next) => {
+  if (!existsSync(licenseNoticeFile)) {
+    res.status(404).end();
+    return;
+  }
+  res.set('Cache-Control', 'public, max-age=300');
+  res.sendFile(licenseNoticeFile, (error) => {
+    if (error) next(error);
+  });
+});
+
 app.get('/sitemap.xml', async (_req, res, next) => {
   try {
     const result = await renderSitemap();
