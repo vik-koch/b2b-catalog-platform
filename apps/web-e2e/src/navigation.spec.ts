@@ -133,11 +133,11 @@ test('serves the third-party license notice behind the footer link', async ({
   await page.goto('/');
   await page
     .getByRole('navigation', { name: 'Legal' })
-    .getByRole('link', { name: 'Open source licenses' })
+    .getByRole('link', { name: 'Licenses' })
     .click();
 
   await expect(page).toHaveURL(/\/licenses$/);
-  await expect(page.locator('h1')).toHaveText('Open source licenses');
+  await expect(page.locator('h1')).toHaveText('Licenses');
   // The list is fetched on hydration, so any entry proves the round trip.
   await expect(page.getByText('@angular/core', { exact: true })).toBeVisible();
 });
