@@ -13,7 +13,7 @@ import { ContactInfo } from './contact-info';
     <footer class="border-t border-border bg-stone-100">
       <div class="mx-auto w-full max-w-7xl px-4 py-6 text-sm">
         <div
-          class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
         >
           @if (contact?.phone || contact?.email) {
             <app-contact-info />
@@ -22,7 +22,7 @@ import { ContactInfo } from './contact-info';
                outside the <nav>: it is not a legal link, and a nav of three
                quiet links plus one filled button reads as one row either way. -->
           <div
-            class="flex flex-wrap items-center gap-x-4 gap-y-2 sm:justify-end"
+            class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end"
           >
             <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
             <nav

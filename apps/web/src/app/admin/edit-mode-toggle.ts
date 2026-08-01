@@ -21,7 +21,7 @@ import { EditModeService } from './edit-mode.service';
         class="fixed right-4 bottom-4 z-40 flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-lg transition-colors cursor-pointer"
         [class]="
           editMode.enabled()
-            ? 'border border-primary bg-primary text-white hover:bg-accent hover:text-white'
+            ? 'border border-primary bg-primary text-white hover:border-accent hover:bg-accent hover:text-white'
             : 'border border-border-strong bg-white text-ink hover:text-accent'
         "
         [attr.aria-pressed]="editMode.enabled()"

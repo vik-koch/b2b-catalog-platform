@@ -1,6 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AdminCategory, CatalogImage } from '@b2b-catalog-platform/shared';
+import {
+  AdminCategory,
+  CatalogImage,
+  slugify,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { usePageSeo } from '../../core/page-seo';
 import { Skeleton } from '../../ui/skeleton';
@@ -77,8 +81,8 @@ import { CategoryPicker } from './category-picker';
             type="text"
             appInput
             class="w-full font-mono text-sm"
-            [value]="slug()"
-            (input)="slug.set($any($event.target).value)"
+            [value]="effectiveSlug()"
+            (input)="onSlugInput($any($event.target).value)"
           />
           <span class="mt-1 block text-xs text-subtle">{{
             text.slugHint
@@ -163,6 +167,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
 
   protected readonly name = signal('');
   protected readonly slug = signal('');
+  private readonly slugTouched = signal(false);
   protected readonly parentId = signal('');
   protected readonly description = signal('');
   protected readonly image = signal<CatalogImage | null>(null);
@@ -172,6 +177,11 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private navigatingAway = false;
   private readonly close = injectEditorReturn();
   private readonly dirty = computed(() => this.snapshot() !== this.original);
+
+  /** For a new category the slug tracks the name until the admin edits it. */
+  protected readonly effectiveSlug = computed(() =>
+    this.isNew && !this.slugTouched() ? slugify(this.name()) : this.slug(),
+  );
 
   /** Parents this category may move under: everyone except itself and its
    * descendants (which would form a cycle). */
@@ -231,11 +241,16 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private snapshot(): string {
     return JSON.stringify({
       name: this.name(),
-      slug: this.slug(),
+      slug: this.effectiveSlug(),
       parentId: this.parentId(),
       description: this.description(),
       image: this.image(),
     });
+  }
+
+  protected onSlugInput(value: string): void {
+    this.slugTouched.set(true);
+    this.slug.set(value);
   }
 
   protected async save(): Promise<void> {
@@ -249,12 +264,19 @@ export class CategoryEditorPage implements UnsavedChangesAware {
     }
     this.saving.set(true);
     this.error.set(null);
+    // A hand-typed slug is sent as an override; for a new category left
+    // untouched we omit it so the server derives and de-duplicates it.
+    const slug = this.isNew
+      ? this.slugTouched() && this.slug().trim()
+        ? this.slug().trim()
+        : undefined
+      : this.slug().trim() || undefined;
     const body = {
       name: this.name().trim(),
       parentId: this.parentId() || null,
       description: this.description().trim() || null,
       image: this.image(),
-      ...(this.slug().trim() ? { slug: this.slug().trim() } : {}),
+      ...(slug ? { slug } : {}),
     };
     try {
       if (current) {
