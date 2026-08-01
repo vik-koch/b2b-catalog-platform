@@ -52,6 +52,8 @@ export const inquiryRequestSchema = z
     message: messageSchema,
     website: honeypotSchema,
   })
+  // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
+  .strict()
   .refine((data) => Boolean(data.email) || Boolean(data.phone), {
     message: 'Provide an email address or a phone number.',
     path: ['email'],

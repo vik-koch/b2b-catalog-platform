@@ -207,6 +207,17 @@ describe('PUT /pages/:slug (FR-ADM-03)', () => {
     expect(rows[0].count).toBe(0);
   });
 
+  it('rejects an unknown field on the body (strict contract)', async () => {
+    // A read-only field is the realistic case: posting `slug` must fail rather
+    // than be quietly dropped, so no client can believe it renamed the page.
+    const res = await put(
+      { title: 'About', bodyHtml: '<p>x</p>', slug: 'imprint' },
+      adminCookie,
+    );
+
+    expect(res.status).toBe(400);
+  });
+
   it('rejects an empty title', async () => {
     const res = await put({ title: '   ', bodyHtml: '<p>x</p>' }, adminCookie);
 
