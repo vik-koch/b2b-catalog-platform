@@ -117,15 +117,20 @@ export const pageSchema = z.object({
 });
 export type Page = z.infer<typeof pageSchema>;
 
-export const updatePageSchema = z.object({
-  title: z.string().trim().min(1).max(PAGE_TITLE_MAX_LENGTH),
-  /**
-   * Accepted as-is and sanitized server-side before it is stored, so what the
-   * client sent is never what gets persisted. May legitimately be empty: an
-   * emptied editor posts `''`.
-   */
-  bodyHtml: z.string().max(PAGE_BODY_MAX_LENGTH),
-});
+// strict: unknown keys are rejected, not stripped (NFR-SEC-05). It also stops a
+// client from posting a read-only field (`slug`, `updatedAt`) and assuming it
+// took effect.
+export const updatePageSchema = z
+  .object({
+    title: z.string().trim().min(1).max(PAGE_TITLE_MAX_LENGTH),
+    /**
+     * Accepted as-is and sanitized server-side before it is stored, so what the
+     * client sent is never what gets persisted. May legitimately be empty: an
+     * emptied editor posts `''`.
+     */
+    bodyHtml: z.string().max(PAGE_BODY_MAX_LENGTH),
+  })
+  .strict();
 export type UpdatePageRequest = z.infer<typeof updatePageSchema>;
 
 export const pageContract = c.router({

@@ -19,7 +19,9 @@ import { MAINTENANCE_EXEMPT } from './maintenance-exempt.decorator';
 const RETRY_AFTER_SECONDS = 3600;
 
 /**
- * Global gate for maintenance mode (FR-ADM-04, ADR 0022). When the flag is off
+ * Global gate for maintenance mode (FR-ADM-04, ADR 0023). The SSR tier mirrors
+ * this for documents rather than API calls (see web's maintenance.server.ts);
+ * an exemption added here usually needs its counterpart there. When the flag is off
  * it does nothing. When on, it answers a request with 503 unless the request is
  * exempt on one of these grounds:
  *

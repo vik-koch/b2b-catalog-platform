@@ -28,10 +28,13 @@ export const authUserSchema = z.object({
 });
 export type AuthUser = z.infer<typeof authUserSchema>;
 
-export const loginSchema = z.object({
-  email: z.string().trim().email(),
-  password: z.string().min(1),
-});
+// strict: unknown keys are rejected, not stripped (NFR-SEC-05).
+export const loginSchema = z
+  .object({
+    email: z.string().trim().email(),
+    password: z.string().min(1),
+  })
+  .strict();
 export type LoginRequest = z.infer<typeof loginSchema>;
 
 /**
@@ -42,10 +45,12 @@ export type LoginRequest = z.infer<typeof loginSchema>;
 export const PASSWORD_MIN_LENGTH = 8;
 export const newPasswordSchema = z.string().min(PASSWORD_MIN_LENGTH).max(200);
 
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1),
-  newPassword: newPasswordSchema,
-});
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1),
+    newPassword: newPasswordSchema,
+  })
+  .strict();
 export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
 
 /**

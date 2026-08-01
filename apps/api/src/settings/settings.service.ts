@@ -5,7 +5,7 @@ import { BuildInfo, MaintenanceStatus } from '@b2b-catalog-platform/shared';
 import { env } from '../env';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { appSettings } from '../db/schema';
+import { appSettings, pages } from '../db/schema';
 
 /** The singleton row's fixed primary key (see the `id = 1` check constraint). */
 const SETTINGS_ID = 1;
@@ -87,18 +87,24 @@ export class SettingsService implements OnModuleInit {
     enabled: boolean,
     userId: string,
   ): Promise<MaintenanceStatus> {
+    const settings = {
+      maintenanceMode: enabled,
+      updatedAt: new Date(),
+      updatedBy: userId,
+    };
+
     const [row] = await this.db
-      .update(appSettings)
-      .set({
-        maintenanceMode: enabled,
-        updatedAt: new Date(),
-        updatedBy: userId,
+      .insert(appSettings)
+      .values(settings)
+      .onConflictDoUpdate({
+        target: appSettings.id,
+        set: settings,
       })
-      .where(eq(appSettings.id, SETTINGS_ID))
       .returning({
         enabled: appSettings.maintenanceMode,
         updatedAt: appSettings.updatedAt,
       });
+
     this.maintenanceEnabled = row.enabled;
     this.logger.log(`Maintenance mode turned ${enabled ? 'ON' : 'off'}`);
     return toStatus(row);

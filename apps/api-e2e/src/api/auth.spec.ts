@@ -67,6 +67,18 @@ describe('auth (session cookie)', () => {
     expect(unknown.data).toEqual(wrongPassword.data);
   });
 
+  it('rejects an unknown field on the login body (strict contract)', async () => {
+    const res = await axios.post(
+      '/auth/login',
+      { email: TEST_EMAIL, password: TEST_PASSWORD, role: 'admin' },
+      { validateStatus: () => true },
+    );
+
+    // 400, not a 200 that silently ignored the extra field (NFR-SEC-05).
+    expect(res.status).toBe(400);
+    expect(res.headers['set-cookie']).toBeUndefined();
+  });
+
   it('logs in, returns the identity, and sets an httpOnly session cookie', async () => {
     const res = await login(TEST_PASSWORD);
 

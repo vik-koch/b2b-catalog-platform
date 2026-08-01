@@ -1,7 +1,8 @@
 import { requireEnv } from '../../env';
 
 /**
- * Server-side maintenance gate (FR-ADM-04, ADR 0022 — the SSR mirror). The Node
+ * Server-side maintenance gate (FR-ADM-04, ADR 0023 — the SSR mirror of the
+ * API's MaintenanceGuard; the two exemption lists must stay in step). The Node
  * process asks the API whether the storefront is gated and, if so, serves the
  * maintenance screen with a real 503 at the requested URL — no redirect, which
  * an SSR response cannot combine with a 503 anyway.
@@ -35,20 +36,29 @@ export async function isMaintenanceOn(): Promise<boolean> {
   return value;
 }
 
-// The client-rendered, session-scoped routes plus the maintenance screen itself.
-// Everything else the Node process server-renders is public storefront content
-// and is gated. Keyed off this small closed set rather than re-listing every
-// public route, so a new public page is gated by default.
-const UNGATED = new Set([
+// The client-rendered, session-scoped route *roots* plus the maintenance screen
+// itself. Everything else the Node process server-renders is public storefront
+// content and is gated. Keyed off this small closed set rather than re-listing
+// every public route, so a new public page is gated by default.
+//
+// These are prefixes, not exact paths: the admin routes are flat siblings
+// (`/admin/products/:slug/edit`, `/admin/sync`, …), and gating them would 503 a
+// cold load of an editor during exactly the window they exist for — the admin
+// populates catalog and content behind a gated storefront (FR-ADM-01…03).
+const UNGATED_ROOTS = [
   '/login',
   '/admin',
   '/account',
   '/change-password',
   '/maintenance',
-]);
+];
 
 /** Whether a request path is public storefront content that maintenance hides. */
 export function isGatedPath(path: string): boolean {
   const normalized = path !== '/' ? path.replace(/\/+$/, '') : path;
-  return !UNGATED.has(normalized);
+  // `startsWith(root + '/')` and not a bare prefix test, so `/logins` — a public
+  // path that merely begins with an ungated root — stays gated.
+  return !UNGATED_ROOTS.some(
+    (root) => normalized === root || normalized.startsWith(`${root}/`),
+  );
 }
