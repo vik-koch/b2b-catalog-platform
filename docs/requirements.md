@@ -101,6 +101,7 @@ without renumbering.
 | NFR-LEGAL-03 | Where required by the deployment's jurisdiction, a cookie consent mechanism gates non-essential cookies.                                                  |
 | NFR-LEGAL-04 | Where required by the deployment's jurisdiction, a right-of-withdrawal / cancellation page is provided for paid orders.                                   |
 | NFR-LEGAL-05 | Personal data is stored on infrastructure satisfying the operating business's applicable data-residency requirements, per deployment.                     |
+| NFR-LEGAL-06 | The open-source components delivered to the browser are attributed, with their license texts, on a dedicated page.                                        |
 
 ### Security (NFR-SEC)
 
