@@ -5,57 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1784972303890,
+      "when": 1785609148100,
       "tag": "0000_baseline",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1785003750819,
-      "tag": "0001_users",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1785007396003,
-      "tag": "0002_pages_updated_at",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1785189665690,
-      "tag": "0003_catalog",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1785237518835,
-      "tag": "0004_maintenance_settings",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1785418031955,
-      "tag": "0005_category_source_id",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1785419218465,
-      "tag": "0006_sync_runs",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1785562892216,
-      "tag": "0007_catalog_audit_columns",
       "breakpoints": true
     }
   ]
