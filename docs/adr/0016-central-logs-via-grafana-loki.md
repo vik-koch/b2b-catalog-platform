@@ -1,6 +1,8 @@
 # 0016 — Central application logs via Grafana Loki
 
-**Status:** accepted · **Date:** 2026-07-22
+**Status:** accepted · **Date:** 2026-07-22 · **Amended:** 2026-08-01 (app logs
+are JSON and carry admin audit events; the fields Traefik writes are trimmed;
+dashboards and alerts are provisioned) — see the _Amendment_ below
 
 ## Context
 
@@ -44,7 +46,8 @@ Loki** + a collector + Grafana.
 - **Turn on Traefik access logs** (JSON, no headers) so request-level lines —
   method, path, status, latency for every stack — reach Loki **without any
   application code**. No per-controller `Logger` calls, no request-logging
-  interceptor, no structured (JSON) app logging for now.
+  interceptor, no structured (JSON) app logging for now. (The last two clauses
+  were revisited; see the _Amendment_.)
 - The stack is **opt-in per VM** (`OBSERVABILITY_ENV` handed to `deploy.sh`):
   long-lived **dev/prod** run it; the **ephemeral demo** omits it (its logs die
   with the VM anyway, and it avoids a per-run DNS record); **local testing**
@@ -93,3 +96,63 @@ later.
   object storage); operational, not a data-durability, guarantee.
 - (−) A new ops secret + hostname per VM (`GRAFANA_ADMIN_PASSWORD`,
   `GRAFANA_DOMAIN`, one DNS record) to wire dev/prod.
+
+## Amendment — 2026-08-01: what the logs carry, and what watches them
+
+Four of the original decisions have moved. The core one has not: Traefik still
+supplies request-level data and the app still does no request logging.
+
+**1. Traefik writes seven fields, not thirty.** The default set carries TLS
+ciphers, byte counts and retry overhead that no query has ever used, and it is
+stored for 14 days. `accesslog.fields.defaultmode=drop` plus a keep-list
+(host, method, path, status, duration, service, retries) makes a line readable
+without a parser.
+
+`ClientHost`/`ClientAddr` are **not** kept. A client IP is personal data, and
+retaining it needs a purpose this deployment does not have — there is nobody
+here to run an abuse investigation with it. Re-enable temporarily, and say so
+in the privacy text, if that ever changes.
+
+**2. App logs are JSON in a deployed stack.** "No structured app logging for
+now" was right while the only consumer was a person reading `docker compose
+logs`. Once Loki is the consumer, ANSI escape codes end up _inside_ the stored
+line, where they defeat LogQL matching. Nest's own `ConsoleLogger` does both —
+`{ colors: false, json: true }` when `NODE_ENV=production`, the readable format
+locally. No new dependency.
+
+**3. Admin mutations are logged as domain events.** "No per-controller `Logger`
+calls" was aimed at request logging, and that still holds. But an access log
+answers `DELETE /api/admin/products/abc 200`; it cannot answer _who_ deleted it
+or _which product that was_, because the actor is in a cookie and the path
+carries a slug. A closed set of eight events (product/category created,
+updated, deleted, restored, reordered) records action, actor and entity.
+
+This is the searchable half of a trail whose durable half is in the database:
+the same change also added `updatedBy`/`deletedBy` to the catalog tables, for
+parity with `pages` and `app_settings`. Loki's window is 14 days; a column is
+not.
+
+**4. Dashboards and alerts are provisioned from files.** A dashboard that only
+exists in Grafana's volume is one VM rebuild from gone. Both now live in
+`infra/observability/compose.yml` with `allowUiUpdates: false`.
+
+Alerts cover the three failures that actually end this deployment — disk above
+80%, the backup job erroring, a spike of 5xx — and all three are answered from
+**logs**. This VM still runs no metrics store, deliberately: a CPU/memory
+dashboard on a box using ~10% of its RAM would show flat lines while the disk
+quietly fills. Disk usage reaches Loki as a log line from a small sidecar
+rather than as a metric, which is what keeps one pipeline sufficient.
+
+Two details worth keeping written down, because both were bugs first:
+
+- Loki **derives `service_name` from `service`** on its own. Queries that
+  assumed the `stack/service` form this amendment introduces matched nothing;
+  dashboards therefore key on `service`, which has existed since this ADR.
+- For the backup and error rules, _no matching log lines_ is the healthy state,
+  so they treat no-data as OK. The disk rule does the opposite — silence there
+  means the reporter died.
+
+Alert mail is opt-in and unset in CI: dev and public prod send through Mailpit,
+which Grafana cannot reach across compose projects. A deployment with real SMTP
+configures it in the observability `.env`, and `infra/alert-test.sh` proves the
+channel works — alerting is otherwise silent whether it works or not.

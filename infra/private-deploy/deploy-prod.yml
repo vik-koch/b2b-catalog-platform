@@ -85,6 +85,10 @@ jobs:
           # Optional central logs — set both to turn the shared stack on.
           GRAFANA_DOMAIN: ${{ vars.GRAFANA_DOMAIN }}
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          # Who receives ops alerts (disk filling, backups failing, error
+          # spikes). The operator, not MAIL_CONTACT_TO — that address is where
+          # customer enquiries land. Unset -> Grafana runs without mail.
+          ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
           # STACK_NAME defaults to prod; override only if this VM already runs
           # another stack named prod (then pick a distinct name + domain).
           STACK_NAME: ${{ vars.STACK_NAME }}
@@ -138,9 +142,21 @@ jobs:
 
           # Opt-in observability, same contract as the public repo.
           if [ -n "$GRAFANA_DOMAIN" ] && [ -n "$GRAFANA_ADMIN_PASSWORD" ]; then
+            # Alerts go out over the same SMTP account the shop sends with, so
+            # a real deployment needs no second mail provider. Grafana wants a
+            # bare address in FROM, while MAIL_FROM may carry a display name
+            # ("Shop <no-reply@...>"), so unwrap it when it has one.
+            alert_from=$(printf '%s' "$MAIL_FROM" | sed -n 's/.*<\(.*\)>.*/\1/p')
+            [ -n "$alert_from" ] || alert_from=$MAIL_FROM
             cat > "$RUNNER_TEMP/observability.env" <<EOF
           GRAFANA_DOMAIN=$GRAFANA_DOMAIN
           GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD
+          SMTP_ENABLED=$([ -n "$ALERT_EMAIL" ] && echo true || echo false)
+          SMTP_HOST=$MAIL_HOST:${MAIL_PORT:-587}
+          SMTP_USER=$MAIL_USER
+          SMTP_PASSWORD=$MAIL_PASSWORD
+          SMTP_FROM=$alert_from
+          ALERT_EMAIL=$ALERT_EMAIL
           EOF
             export OBSERVABILITY_ENV="$RUNNER_TEMP/observability.env"
           fi

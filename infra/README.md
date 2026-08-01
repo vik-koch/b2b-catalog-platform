@@ -34,10 +34,34 @@ There are two ways to get such a VM:
 
 Whatever the provider, the VM needs:
 
-- **2 vCPU / 4 GB RAM, ≥ 40 GB disk** — sized for one compose stack
-  (Postgres + API + SSR + Traefik); the Hetzner `cx23` used by the demo is
-  exactly this. Add headroom if you run several stacks on one VM, or the shared
-  observability stack (Loki + Alloy + Grafana, ~300–450 MB RAM) on dev/prod.
+- **2 vCPU / 2 GB RAM, ≥ 40 GB disk** for a single production stack with the
+  observability stack alongside it; **4 GB** once a VM carries several app
+  stacks (the dev+prod box). Measured resident memory, after driving 200
+  server-rendered page loads through the stack:
+
+  |                                        | idle  | under load |
+  | -------------------------------------- | ----- | ---------- |
+  | web (Angular SSR)                      | 46 MB | **271 MB** |
+  | api (NestJS)                           | 48 MB | 60 MB      |
+  | postgres                               | 30 MB | 33 MB      |
+  | media (nginx)                          | 13 MB | 13 MB      |
+  | traefik (one per VM)                   |       | 12 MB      |
+  | observability (Loki + Alloy + Grafana) |       | 202 MB     |
+
+  A client production VM — one stack, no Mailpit, plus Traefik and
+  observability — measures ~590 MB, so with Ubuntu and dockerd it sits near
+  1 GB. That fits 2 GB, with two things worth doing at that size:
+  - **Cap the SSR heap** (`NODE_OPTIONS=--max-old-space-size=192` on `web`).
+    The 271 MB above is V8 heap growth, which Node does not return eagerly;
+    capping it makes the process collect earlier instead of expanding into
+    memory Postgres needs.
+  - **Configure swap.** The spiky moments are not page loads but image uploads
+    (libvips allocates outside the V8 heap) and a large catalog sync. Swap
+    turns a spike into slowness rather than an OOM kill.
+
+  With neither, prefer 4 GB. The demo/dev box (Oracle Always Free, 24 GB) is
+  not memory-constrained and needs none of this.
+
 - **amd64 or arm64** — CI publishes multi-arch images
   (`linux/amd64` + `linux/arm64`), the VM pulls its native variant.
 - **Ubuntu LTS (24.04)** — cloud-init.yml is only tested on Ubuntu and leans on
@@ -105,6 +129,16 @@ Whatever the provider, the VM needs:
    | `PROD_APP_DOMAIN` | Hostname of the public-prod stack (A record → `DEPLOY_HOST`, DNS-only), e.g. b2b.…                                                                                    |
    | `GRAFANA_DOMAIN`  | Ops hostname for Grafana (A record → `DEPLOY_HOST`, DNS-only). Set this + the `GRAFANA_ADMIN_PASSWORD` secret to turn on central logs (ADR 0016); leave unset to skip |
 
+   Alert mail is **not** configured through CI. Dev and the public prod send
+   application mail via Mailpit, which sits in the app stack's network where
+   Grafana cannot reach it, so alerting stays dormant there. A deployment with
+   real SMTP — the private repo — sets `SMTP_ENABLED`, `SMTP_HOST`, `SMTP_USER`,
+   `SMTP_PASSWORD`, `SMTP_FROM` and `ALERT_EMAIL` directly in the stack's
+   `observability/.env` (see
+   [.env.example](observability/.env.example) and [Alerting](#alerting)).
+   Without them Grafana still runs and still evaluates the rules — it just
+   cannot mail, so nothing fails to boot.
+
 ## Environments & deploys
 
 Two long-lived stacks share the one pet VM (`DEPLOY_HOST`), each with its own
@@ -154,6 +188,50 @@ it into an SHA1 htpasswd entry at deploy time, never logging the plaintext).
 A real **client prod** (private repo) gets no overlay — it ships no Mailpit and
 sets `MAIL_*` to a real SMTP provider (see
 [.env.stack.example](../.env.stack.example)).
+
+## Alerting
+
+Grafana mails alerts for the three failures that actually end a deployment.
+They are provisioned from files alongside the dashboard, and every one is
+answered from **logs** — this VM runs no metrics store, deliberately: a
+CPU/memory dashboard on a box using ~10% of its RAM would show flat lines, while
+the disk quietly fills.
+
+| alert                       | fires when                                             | why it is the one that matters                                                                 |
+| --------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| Disk above 80%              | a `disk-usage` sidecar reports >80% for 10m            | uploads only grow, backups keep two retention policies, Loki holds 14 days                     |
+| Backup job reporting errors | `db-backup`/`media-backup` log an error within an hour | a backup nobody checks is not a backup                                                         |
+| Elevated server errors      | >20 responses ≥500 in 10 minutes                       | a page that cannot load its data answers 503, so an outage is visible rather than a silent 200 |
+
+Set `SMTP_*` and `ALERT_EMAIL` in the observability `.env` (see
+[.env.example](observability/.env.example)). Disk usage reaches Loki as a log
+line every five minutes rather than as a metric, which is what lets a single
+log pipeline carry it.
+
+**Prove the channel works once, after configuring it:**
+
+```bash
+infra/alert-test.sh <host> prod
+```
+
+It reads the VM's own SMTP settings and sends one mail through them, so it
+tests the credentials the alerts will actually use. Worth doing because
+alerting is silent when it works _and_ silent when it is broken: Grafana logs a
+notify error and carries on, so a blocked port or a rejected sender looks
+exactly like a quiet week. (Grafana's UI has a **Test** button on the contact
+point that does the same thing interactively.)
+
+There is deliberately no "stack started" notification. Anything that mails on
+every deploy trains you to ignore it, and an always-firing watchdog alert costs
+a mail a day to tell you what one run of the script above already told you.
+
+Two behaviours worth knowing before you tune them:
+
+- **Silence is healthy for two of the three.** No backup errors and no 5xx mean
+  no matching log lines at all, so those rules treat "no data" as OK. The disk
+  rule does the opposite — silence there means the reporter died, which is worth
+  a mail.
+- A firing alert re-sends once a day, not once an interval.
 
 ## Backups & restore
 
