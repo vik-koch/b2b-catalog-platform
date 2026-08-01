@@ -55,9 +55,9 @@ describe('SettingsService', () => {
             Promise.resolve([{ enabled: false, updatedAt: new Date() }]),
         }),
       }),
-      update: () => ({
-        set: () => ({
-          where: () => ({
+      insert: () => ({
+        values: () => ({
+          onConflictDoUpdate: () => ({
             returning: () =>
               Promise.resolve([{ enabled: true, updatedAt: new Date() }]),
           }),
