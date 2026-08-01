@@ -1,6 +1,7 @@
 # CI:
 #   PR           -> checks + smoke test (nothing pushed)
 #   push to main -> checks + smoke test + build/push images (:main, :sha-<sha>)
+#                   + prune GHCR versions nothing can deploy any more
 # Release tags are handled by release.yml (promotes existing images, no rebuild).
 #
 # Images are built natively per architecture (amd64 + arm64 runners — no
@@ -309,3 +310,77 @@ jobs:
 
           infra/deploy.sh "$DEPLOY_HOST" "$RUNNER_TEMP/dev.env" \
             "$RUNNER_TEMP/traefik.env" compose.mailpit.yml
+
+  # GHCR keeps every push forever, so main builds pile up. Retain the tags that
+  # something can still deploy — releases, latest, main, and a window of recent
+  # sha- builds (demo-up.yml accepts any of them) — and drop the rest.
+  #
+  # Care is needed with untagged versions: build-images pushes the per-arch
+  # images by digest, so the children of every multi-arch manifest are untagged.
+  # Deleting untagged versions wholesale would break the manifests we keep, so
+  # the children of kept manifests are resolved and kept too; only versions
+  # nothing references are deleted.
+  prune-images:
+    if: github.event_name == 'push'
+    needs: deploy-dev
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [api, web]
+    steps:
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prune old versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Newest sha- builds to retain, beyond the tags above.
+          KEEP_SHA_TAGS: '10'
+        run: |
+          set -euo pipefail
+          repo="${GITHUB_REPOSITORY,,}"
+          package="${repo#*/}-${{ matrix.app }}"
+          image="ghcr.io/$repo-${{ matrix.app }}"
+
+          # Personal and organization accounts have different package endpoints.
+          owner_type=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.owner.type')
+          if [ "$owner_type" = "Organization" ]; then
+            base="orgs/${GITHUB_REPOSITORY%%/*}/packages/container/$package"
+          else
+            base="users/${GITHUB_REPOSITORY%%/*}/packages/container/$package"
+          fi
+
+          gh api --paginate "$base/versions?per_page=100" \
+            --jq '.[] | {id, digest: .name, tags: .metadata.container.tags}' \
+            | jq -s 'sort_by(.id) | reverse' > versions.json
+
+          # Tags worth keeping: releases (1.2.3), latest, main, newest N shas.
+          jq -r --argjson n "$KEEP_SHA_TAGS" '
+            [ .[] | select((.tags // []) | any(test("^(latest|main|[0-9]+\\.[0-9]+\\.[0-9]+)$"))) ]
+            + ([ .[] | select((.tags // []) | any(test("^sha-"))) ][:$n])
+            | unique_by(.id) | .[].digest
+          ' versions.json | sort -u > keep-roots.txt
+
+          # Plus every per-arch child those manifests point at.
+          cp keep-roots.txt keep-digests.txt
+          while read -r digest; do
+            docker buildx imagetools inspect --raw "$image@$digest" \
+              | jq -r '.manifests[]?.digest' >> keep-digests.txt
+          done < keep-roots.txt
+          sort -u keep-digests.txt -o keep-digests.txt
+
+          echo "Keeping $(wc -l < keep-digests.txt) version(s) of $package"
+
+          jq -r '.[] | "\(.id) \(.digest)"' versions.json | while read -r id digest; do
+            if grep -qxF "$digest" keep-digests.txt; then continue; fi
+            echo "Deleting $package $digest (id $id)"
+            gh api -X DELETE "$base/versions/$id"
+          done
