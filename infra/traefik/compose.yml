@@ -32,6 +32,23 @@ services:
       - --accesslog=true
       - --accesslog.format=json
       - --accesslog.fields.headers.defaultmode=drop
+      # Traefik's default field set is ~30 columns per line — TLS ciphers, byte
+      # counts, retry overhead — of which a handful are ever queried. Drop
+      # everything, then keep the ones the dashboards and an on-call read
+      # actually use. Fewer fields is also less to store for 14 days.
+      #
+      # ClientHost/ClientAddr are deliberately NOT kept: a client IP is personal
+      # data, and retaining it needs a purpose this deployment does not have —
+      # there is no one here to run an abuse investigation with it. Re-enable
+      # temporarily (and say so in the privacy text) if that ever changes.
+      - --accesslog.fields.defaultmode=drop
+      - --accesslog.fields.names.RequestHost=keep
+      - --accesslog.fields.names.RequestMethod=keep
+      - --accesslog.fields.names.RequestPath=keep
+      - --accesslog.fields.names.DownstreamStatus=keep
+      - --accesslog.fields.names.Duration=keep
+      - --accesslog.fields.names.ServiceName=keep
+      - --accesslog.fields.names.RetryAttempts=keep
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
