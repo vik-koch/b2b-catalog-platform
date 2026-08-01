@@ -179,6 +179,19 @@ export const appTextSchema = z
           .strict(),
       })
       .strict(),
+    /**
+     * The open-source attribution page. Its list is the build's own notice
+     * file, so only the framing is text: `unavailable` covers a build that
+     * extracted no licenses (development), `unknownLicense` a package that
+     * declared no SPDX id.
+     */
+    licenses: z
+      .object({
+        intro: z.string(),
+        unavailable: z.string(),
+        unknownLicense: z.string(),
+      })
+      .strict(),
     map: z
       .object({
         consentNotice: z.string(),

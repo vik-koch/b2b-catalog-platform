@@ -12,7 +12,7 @@
   "pages": {
     "published": ["about", "conditions", "privacy", "imprint", "contact"],
     "headerNav": ["about", "contact"],
-    "footerNav": ["conditions", "privacy", "imprint"]
+    "footerNav": ["conditions", "privacy", "imprint", "licenses"]
   },
   "cookieConsentEnabled": false,
   "catalog": {
