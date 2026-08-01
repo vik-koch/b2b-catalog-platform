@@ -76,6 +76,10 @@ services:
     configs:
       - source: grafana_datasource
         target: /etc/grafana/provisioning/datasources/loki.yaml
+      - source: grafana_dashboard_provider
+        target: /etc/grafana/provisioning/dashboards/provider.yaml
+      - source: grafana_dashboard_traffic
+        target: /var/lib/grafana/dashboards/traffic.json
     depends_on:
       - loki
     networks:
@@ -151,6 +155,18 @@ configs:
           source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
           target_label  = "service"
         }
+        // Grafana's Logs Drilldown groups by `service_name`; without it every
+        // container on the VM collapses into a single entry and the dev/prod
+        // split is invisible there (Explore can still filter on `stack`).
+        // Qualified by stack, so `dev/api` and `prod/api` stay distinct.
+        rule {
+          source_labels = [
+            "__meta_docker_container_label_com_docker_compose_project",
+            "__meta_docker_container_label_com_docker_compose_service",
+          ]
+          separator    = "/"
+          target_label = "service_name"
+        }
       }
 
       loki.source.docker "containers" {
@@ -172,12 +188,230 @@ configs:
       datasources:
         - name: Loki
           type: loki
+          uid: loki
           access: proxy
           url: http://loki:3100
           isDefault: true
           jsonData:
             maxLines: 1000
 
+  # Dashboards are provisioned from files, not clicked together in the UI: the
+  # Grafana volume is disposable, and a dashboard that only exists in it is one
+  # VM rebuild from gone. `allowUiUpdates: false` keeps the file authoritative —
+  # edits in the UI are for exploring, and have to come back here to survive.
+  grafana_dashboard_provider:
+    content: |
+      apiVersion: 1
+      providers:
+        - name: b2b
+          type: file
+          allowUiUpdates: false
+          options:
+            path: /var/lib/grafana/dashboards
+
+  # Request-level view, entirely from Traefik's access logs — no app code feeds
+  # it (ADR 0016). Fields are trimmed at the source (infra/traefik/compose.yml);
+  # this only decides how they are read.
+  # Request-level view, entirely from Traefik's access logs — no app code feeds
+  # it (ADR 0016). Fields are trimmed at the source (infra/traefik/compose.yml);
+  # this only decides how they are read.
+  #
+  # `$$` throughout: Compose interpolates `$` inside a config's content, and the
+  # dashboard is full of Grafana macros ($__auto, $__range) and a regex group
+  # reference. Compose writes them back out as a single `$`.
+  grafana_dashboard_traffic:
+    content: |
+      {
+        "uid": "b2b-traffic",
+        "title": "B2B \u2014 traffic & errors",
+        "description": "Request-level view built from Traefik access logs (ADR 0016). No application code feeds this.",
+        "tags": [
+          "b2b"
+        ],
+        "timezone": "browser",
+        "schemaVersion": 39,
+        "version": 1,
+        "refresh": "1m",
+        "time": {
+          "from": "now-24h",
+          "to": "now"
+        },
+        "panels": [
+          {
+            "id": 1,
+            "title": "Access log",
+            "type": "logs",
+            "description": "Traefik access logs, one readable line per request. The JSON fields are still underneath for filtering \u2014 this only changes how they read.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 10,
+              "w": 24,
+              "x": 0,
+              "y": 0
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "{service_name=~\"traefik/.+\"} | json | line_format \"{{.RequestMethod}} {{.RequestPath}} -> {{.DownstreamStatus}} ({{ div .Duration 1000000 }}ms) {{.ServiceName}}\"",
+                "queryType": "range"
+              }
+            ],
+            "options": {
+              "showTime": true,
+              "wrapLogMessage": false,
+              "sortOrder": "Descending",
+              "enableLogDetails": true
+            }
+          },
+          {
+            "id": 2,
+            "title": "Requests by status",
+            "type": "timeseries",
+            "description": "Every response Traefik served, grouped by status.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 10
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "sum by (DownstreamStatus) (count_over_time(({service_name=~\"traefik/.+\"} | json)[$$__auto]))",
+                "queryType": "range",
+                "legendFormat": "{{DownstreamStatus}}"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "title": "Server errors (5xx)",
+            "type": "timeseries",
+            "description": "A page that cannot load its data answers 503 rather than 200 (LoadErrorView), so an outage shows up here instead of passing silently.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 10
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "sum(count_over_time(({service_name=~\"traefik/.+\"} | json | DownstreamStatus >= 500)[$$__auto]))",
+                "queryType": "range",
+                "legendFormat": "5xx"
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "title": "Latency p95 (ms)",
+            "type": "timeseries",
+            "description": "`by ()` collapses the per-path series into one figure; Traefik reports Duration in nanoseconds.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 18
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "quantile_over_time(0.95, ({service_name=~\"traefik/.+\"} | json | unwrap Duration)[$$__auto]) by () / 1e6",
+                "queryType": "range",
+                "legendFormat": "p95"
+              }
+            ]
+          },
+          {
+            "id": 5,
+            "title": "Most viewed products",
+            "type": "barchart",
+            "description": "A product view takes two shapes: the server-rendered page request, and the /api call a client-side navigation makes instead. The slug is normalised out of both so they sum instead of splitting. Crawlers are included \u2014 headers are dropped, so there is no User-Agent to exclude them by.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 18
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "topk(10, sum by (product) (count_over_time(({service_name=~\"traefik/.+\"} | json | RequestPath=~\"/product/.+|/api/catalog/products/.+\" | label_format product=`{{ regexReplaceAll \".*/products?/([^/?]+).*\" .RequestPath \"$${1}\" }}`)[$$__range])))",
+                "queryType": "instant",
+                "legendFormat": "{{product}}"
+              }
+            ]
+          },
+          {
+            "id": 6,
+            "title": "Most viewed pages",
+            "type": "barchart",
+            "description": "Assets and API calls excluded, so this is pages a person asked for.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 24,
+              "x": 0,
+              "y": 26
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "topk(10, sum by (RequestPath) (count_over_time(({service_name=~\"traefik/.+\"} | json | RequestPath!~\"/api/.*\" | RequestPath!~\"/media/.*\" | RequestPath!~\".*\\\\.(js|css|ico|png|webp|svg|json|txt|xml)\")[$$__range])))",
+                "queryType": "instant",
+                "legendFormat": "{{RequestPath}}"
+              }
+            ]
+          }
+        ]
+      }
 networks:
   observability:
   traefik:

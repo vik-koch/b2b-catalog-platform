@@ -66,6 +66,11 @@ export const categories = pgTable('categories', {
   updatedAt: timestamp('updatedAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
+  // Who last edited the admin overlay, for audit — the same trail `pages` and
+  // `app_settings` keep. Null for rows only ever written by the sync.
+  updatedBy: uuid('updatedBy').references(() => users.id, {
+    onDelete: 'set null',
+  }),
 });
 
 /** A product's freetext characteristics — plain key/value, detail page only. */
@@ -114,6 +119,15 @@ export const products = pgTable('products', {
   updatedAt: timestamp('updatedAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
+  // Audit, matching `pages`/`app_settings`. `deletedBy` is separate from
+  // `updatedBy` because removal is the one action worth attributing on its own:
+  // deletion is soft, so "who hid this product" stays answerable after the fact.
+  updatedBy: uuid('updatedBy').references(() => users.id, {
+    onDelete: 'set null',
+  }),
+  deletedBy: uuid('deletedBy').references(() => users.id, {
+    onDelete: 'set null',
+  }),
 });
 
 // New signups default to `user`; `admin`/`manager` are assigned deliberately.

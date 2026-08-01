@@ -3,6 +3,7 @@ import { CatalogController } from './catalog.controller';
 import { CatalogService } from './catalog.service';
 import { AdminCatalogController } from './admin-catalog.controller';
 import { AdminCatalogService } from './admin-catalog.service';
+import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 
 /**
@@ -15,6 +16,6 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [AuthModule],
   controllers: [CatalogController, AdminCatalogController],
-  providers: [CatalogService, AdminCatalogService],
+  providers: [CatalogService, AdminCatalogService, AuditLogger],
 })
 export class CatalogModule {}
