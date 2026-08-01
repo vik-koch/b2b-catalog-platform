@@ -293,6 +293,11 @@ jobs:
             cat > "$RUNNER_TEMP/observability.env" <<EOF
           GRAFANA_DOMAIN=$GRAFANA_DOMAIN
           GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD
+          # Alert mail is deliberately absent here: dev and the public prod send
+          # through Mailpit, which lives in the app stack's network and is not
+          # reachable from Grafana. A deployment with real SMTP (the private
+          # repo) sets SMTP_* + ALERT_EMAIL in this file — see
+          # infra/observability/.env.example. Unset -> Grafana runs without mail.
           EOF
             export OBSERVABILITY_ENV="$RUNNER_TEMP/observability.env"
           fi
