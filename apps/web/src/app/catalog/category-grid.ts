@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { LoadErrorView } from '../pages/load-error-view';
 import { delayedLoading } from '../core/delayed-loading';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
@@ -49,11 +50,12 @@ const SUBS_COLLAPSED = 4;
     CategoryDeleteDialog,
     DeletedProductsSection,
     NotFoundView,
+    LoadErrorView,
   ],
   template: `
     <section class="relative pb-8 sm:pb-12">
       @if (products.error()) {
-        <p class="text-muted">{{ text.loadError }}</p>
+        <app-load-error-view [message]="text.loadError" />
       } @else if (products.hasValue()) {
         @let data = products.value();
         @if (!data) {
@@ -395,7 +397,13 @@ export class CategoryGrid {
   protected readonly showSkeleton = delayedLoading(this.products.isLoading);
 
   constructor() {
-    usePageSeo({ name: () => this.products.value()?.category.name });
+    usePageSeo({
+      // Guarded: `value()` throws on an errored resource.
+      name: () =>
+        this.products.hasValue()
+          ? this.products.value()?.category.name
+          : undefined,
+    });
     // Re-arm the gate each time edit mode turns off, so re-entering waits for a
     // fresh overlay load rather than showing the controls from the last session.
     effect(() => {

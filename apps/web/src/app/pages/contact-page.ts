@@ -91,7 +91,12 @@ export class ContactPage {
     loader: () => this.pageService.getPage('contact'),
   });
 
-  protected readonly page = computed(() => this.pageResource.value());
+  // Guarded: `value()` throws on an errored resource. The page still stands
+  // without its prose — the office list is config — so a failed body is not an
+  // outage here, just a missing block.
+  protected readonly page = computed(() =>
+    this.pageResource.hasValue() ? this.pageResource.value() : undefined,
+  );
 
   /** Delayed so a quick load never flashes a skeleton. */
   protected readonly showSkeleton = delayedLoading(this.pageResource.isLoading);

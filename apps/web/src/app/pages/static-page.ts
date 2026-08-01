@@ -12,15 +12,18 @@ import { PageService } from './page.service';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { IconButton } from '../ui/icon-button';
 import { NotFoundView } from './not-found-view';
+import { LoadErrorView } from './load-error-view';
 
 @Component({
   selector: 'app-static-page',
-  imports: [LucideIcon, IconButton, RouterLink, NotFoundView],
+  imports: [LucideIcon, IconButton, RouterLink, NotFoundView, LoadErrorView],
   template: `
     <!-- A published page with no row yet: an admin gets the shell and the
          pencil so they can write it, everyone else gets a real 404 rather than
          an empty page a crawler would index. -->
-    @if (page() === null && !canEdit()) {
+    @if (pageResource.error()) {
+      <app-load-error-view [heading]="text.cannotLoadTitle" />
+    } @else if (page() === null && !canEdit()) {
       <app-not-found-view />
     } @else if (page() !== undefined) {
       @let content = page();
@@ -51,11 +54,6 @@ import { NotFoundView } from './not-found-view';
       } @else if (canEdit(); as editorText) {
         <p class="text-muted">{{ editorText.emptyNotice }}</p>
       }
-    } @else if (pageResource.error()) {
-      <h1 class="text-3xl font-bold tracking-tight">
-        {{ text.cannotLoadTitle }}
-      </h1>
-      <p class="mt-4 text-muted">{{ text.cannotLoadBody }}</p>
     } @else if (showSkeleton()) {
       <div class="animate-pulse space-y-4" aria-hidden="true">
         <div class="h-8 w-1/3 rounded bg-stone-200"></div>
@@ -85,8 +83,14 @@ export class StaticPage {
   /** Delayed so a quick load never flashes a skeleton. */
   protected readonly showSkeleton = delayedLoading(this.pageResource.isLoading);
 
-  /** `undefined` while loading, `null` when the page has no row yet. */
-  protected readonly page = computed(() => this.pageResource.value());
+  /**
+   * `undefined` while loading *or failed*, `null` when the page has no row yet.
+   * Guarded: `value()` throws on an errored resource, and an unguarded read
+   * during SSR kills the render before it can set a status.
+   */
+  protected readonly page = computed(() =>
+    this.pageResource.hasValue() ? this.pageResource.value() : undefined,
+  );
 
   /** Heading for a page that has no stored title yet. */
   protected get navLabel(): string {

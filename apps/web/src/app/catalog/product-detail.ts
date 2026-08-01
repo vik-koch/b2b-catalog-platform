@@ -9,6 +9,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { LoadErrorView } from '../pages/load-error-view';
 import { delayedLoading } from '../core/delayed-loading';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
@@ -38,11 +39,12 @@ import { ProductDetailView } from './product-detail-view';
     RouterLink,
     IconButton,
     LucideIcon,
+    LoadErrorView,
   ],
   template: `
     <section class="relative pb-8 sm:pb-12">
       @if (product.error()) {
-        <p class="text-muted">{{ text.loadError }}</p>
+        <app-load-error-view [message]="text.loadError" />
       } @else if (product.hasValue()) {
         @let item = product.value();
         @if (!item) {
@@ -136,11 +138,15 @@ export class ProductDetail {
     void this.router.navigate(['/catalog', item.category.slug]);
   }
 
+  /** Value only when there is one — `value()` throws on an errored resource. */
+  private readonly loaded = computed(() =>
+    this.product.hasValue() ? this.product.value() : undefined,
+  );
+
   constructor() {
     usePageSeo({
-      name: () => this.product.value()?.name,
-      description: () =>
-        plainTextExcerpt(this.product.value()?.descriptionHtml),
+      name: () => this.loaded()?.name,
+      description: () => plainTextExcerpt(this.loaded()?.descriptionHtml),
     });
   }
 }
