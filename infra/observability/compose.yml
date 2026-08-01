@@ -261,9 +261,12 @@ configs:
   # Request-level view, entirely from Traefik's access logs — no app code feeds
   # it (ADR 0016). Fields are trimmed at the source (infra/traefik/compose.yml);
   # this only decides how they are read.
-  # Request-level view, entirely from Traefik's access logs — no app code feeds
-  # it (ADR 0016). Fields are trimmed at the source (infra/traefik/compose.yml);
-  # this only decides how they are read.
+  #
+  # One Traefik fronts every stack on the VM, so every panel scopes itself by
+  # ServiceName — otherwise dev, prod and Grafana's own UI are summed into one
+  # figure, and "most viewed pages" reports whoever last opened this dashboard.
+  # The `stack` variable picks dev/prod/demo; the ops stack is excluded outright
+  # rather than being one more thing to remember to deselect.
   #
   # `$$` throughout: Compose interpolates `$` inside a config's content, and the
   # dashboard is full of Grafana macros ($__auto, $__range) and a regex group
@@ -284,6 +287,41 @@ configs:
         "time": {
           "from": "now-24h",
           "to": "now"
+        },
+        "templating": {
+          "list": [
+            {
+              "name": "stack",
+              "label": "Stack",
+              "type": "custom",
+              "description": "Which stack's traffic to show. Traefik names its services `<STACK_NAME>-<service>@docker`, so the stack is readable off every access log line. A fixed list rather than a query: RequestHost and ServiceName are fields extracted by `| json` at query time, not indexed Loki labels, and label_values can only enumerate the latter. A deployment whose STACK_NAME is not listed here is still covered by All.",
+              "query": "dev,prod,demo",
+              "options": [
+                {
+                  "text": "dev",
+                  "value": "dev",
+                  "selected": false
+                },
+                {
+                  "text": "prod",
+                  "value": "prod",
+                  "selected": false
+                },
+                {
+                  "text": "demo",
+                  "value": "demo",
+                  "selected": false
+                }
+              ],
+              "includeAll": true,
+              "allValue": ".+",
+              "multi": true,
+              "current": {
+                "text": "All",
+                "value": "$$__all"
+              }
+            }
+          ]
         },
         "panels": [
           {
@@ -308,7 +346,7 @@ configs:
                   "type": "loki",
                   "uid": "loki"
                 },
-                "expr": "{service=\"traefik\"} | json | line_format \"{{.RequestMethod}} {{.RequestPath}} -> {{.DownstreamStatus}} ({{ div .Duration 1000000 }}ms) {{.ServiceName}}\"",
+                "expr": "{service=\"traefik\"} | json | ServiceName=~\"($$stack)-.*\" | ServiceName!~\"observability-.*\" | line_format \"{{.RequestMethod}} {{.RequestPath}} -> {{.DownstreamStatus}} ({{ div .Duration 1000000 }}ms) {{.ServiceName}}\"",
                 "queryType": "range"
               }
             ],
@@ -341,7 +379,7 @@ configs:
                   "type": "loki",
                   "uid": "loki"
                 },
-                "expr": "sum by (DownstreamStatus) (count_over_time(({service=\"traefik\"} | json)[$$__auto]))",
+                "expr": "sum by (DownstreamStatus) (count_over_time(({service=\"traefik\"} | json | ServiceName=~\"($$stack)-.*\" | ServiceName!~\"observability-.*\")[$$__auto]))",
                 "queryType": "range",
                 "legendFormat": "{{DownstreamStatus}}"
               }
@@ -369,7 +407,7 @@ configs:
                   "type": "loki",
                   "uid": "loki"
                 },
-                "expr": "sum(count_over_time(({service=\"traefik\"} | json | DownstreamStatus >= 500)[$$__auto]))",
+                "expr": "sum(count_over_time(({service=\"traefik\"} | json | ServiceName=~\"($$stack)-.*\" | ServiceName!~\"observability-.*\" | DownstreamStatus >= 500)[$$__auto]))",
                 "queryType": "range",
                 "legendFormat": "5xx"
               }
@@ -397,7 +435,7 @@ configs:
                   "type": "loki",
                   "uid": "loki"
                 },
-                "expr": "quantile_over_time(0.95, ({service=\"traefik\"} | json | unwrap Duration)[$$__auto]) by () / 1e6",
+                "expr": "quantile_over_time(0.95, ({service=\"traefik\"} | json | ServiceName=~\"($$stack)-.*\" | ServiceName!~\"observability-.*\" | unwrap Duration)[$$__auto]) by () / 1e6",
                 "queryType": "range",
                 "legendFormat": "p95"
               }
@@ -425,7 +463,7 @@ configs:
                   "type": "loki",
                   "uid": "loki"
                 },
-                "expr": "topk(10, sum by (product) (count_over_time(({service=\"traefik\"} | json | RequestPath=~\"/product/.+|/api/catalog/products/.+\" | label_format product=`{{ regexReplaceAll \".*/products?/([^/?]+).*\" .RequestPath \"$${1}\" }}`)[$$__range])))",
+                "expr": "topk(10, sum by (product) (count_over_time(({service=\"traefik\"} | json | ServiceName=~\"($$stack)-.*\" | ServiceName!~\"observability-.*\" | RequestPath=~\"/product/.+|/api/catalog/products/.+\" | label_format product=`{{ regexReplaceAll \".*/products?/([^/?]+).*\" .RequestPath \"$${1}\" }}`)[$$__range])))",
                 "queryType": "instant",
                 "legendFormat": "{{product}}"
               }
@@ -435,7 +473,7 @@ configs:
             "id": 6,
             "title": "Most viewed pages",
             "type": "barchart",
-            "description": "Assets and API calls excluded, so this is pages a person asked for.",
+            "description": "Assets and API calls excluded, so this is pages a person asked for. Query strings are trimmed, so `/products` and `/products?page=2` count as one page. Crawlers and vulnerability scanners are still included — headers are dropped, so there is no User-Agent to exclude them by, and `/.env`-style probes will show up here.",
             "datasource": {
               "type": "loki",
               "uid": "loki"
@@ -453,9 +491,9 @@ configs:
                   "type": "loki",
                   "uid": "loki"
                 },
-                "expr": "topk(10, sum by (RequestPath) (count_over_time(({service=\"traefik\"} | json | RequestPath!~\"/api/.*\" | RequestPath!~\"/media/.*\" | RequestPath!~\".*\\\\.(js|css|ico|png|webp|svg|json|txt|xml)\")[$$__range])))",
+                "expr": "topk(10, sum by (page) (count_over_time(({service=\"traefik\"} | json | ServiceName=~\"($$stack)-.*\" | ServiceName!~\"observability-.*\" | RequestPath!~\"/api/.*\" | RequestPath!~\"/media/.*\" | RequestPath!~\".*\\\\.(js|css|map|ico|png|jpg|jpeg|webp|avif|svg|json|txt|xml|woff|woff2|ttf)([?].*)?\" | label_format page=`{{ regexReplaceAll \"[?].*\" .RequestPath \"\" }}`)[$$__range])))",
                 "queryType": "instant",
-                "legendFormat": "{{RequestPath}}"
+                "legendFormat": "{{page}}"
               }
             ]
           }
