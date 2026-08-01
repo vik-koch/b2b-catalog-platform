@@ -5,7 +5,7 @@ as priorities shift; the requirements doc stays stable. Live per-iteration track
 Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 
 | #   | Milestone                                                                                      | Requirements                                                                          |
-| --- | ---------------------------------------------------------------------------------------------- |---------------------------------------------------------------------------------------|
+| --- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | 1   | Static pages, compliance scaffolding, base infra (walking skeleton, CI/CD, IaC, dev+prod)      | FR-NAV-\*, NFR-LEGAL-01/02/03/05, NFR-SEC-01, NFR-SEO-03, NFR-OPS-\*                  |
 | 2   | Catalog display + admin login, management & sync → **tag v1.0.0**, client starts content entry | FR-CAT-01…05, FR-ADM-\*, FR-AUTH-07/08, NFR-SEC-02/03/05, NFR-SEO-01/02, NFR-LEGAL-06 |
 | 3   | Search                                                                                         | FR-SEARCH-01…03                                                                       |
