@@ -67,6 +67,11 @@ services:
       MEDIA_PRUNE_INTERVAL_HOURS: ${MEDIA_PRUNE_INTERVAL_HOURS:-24}
       MEDIA_PRUNE_GRACE_HOURS: ${MEDIA_PRUNE_GRACE_HOURS:-24}
       MEDIA_PRUNE_DRY_RUN: ${MEDIA_PRUNE_DRY_RUN:-false}
+      # What is deployed, shown in the admin panel. Written into the stack's
+      # .env by infra/deploy.sh (derived from the image tag), so a plain local
+      # `up` leaves them empty and the panel reports "unknown".
+      APP_VERSION: ${APP_VERSION:-}
+      APP_DEPLOYED_AT: ${APP_DEPLOYED_AT:-}
     volumes:
       - ./config:/config:ro
       - mediadata:/media

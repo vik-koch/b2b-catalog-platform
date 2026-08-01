@@ -1,4 +1,4 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
@@ -10,6 +10,7 @@ import { LucideIcon } from '../ui/icons/lucide-icon';
 import { MaintenanceToggle } from './maintenance/maintenance-toggle';
 import { SyncService } from './sync/sync.service';
 import { injectEditorReturnParams } from './editor-return';
+import { BuildInfoService } from './build-info.service';
 
 /**
  * Admin panel — a small dashboard over two cards: everything that changes shop
@@ -118,10 +119,20 @@ import { injectEditorReturnParams } from './editor-return';
       </h2>
       <app-maintenance-toggle />
     </section>
+
+    <!-- What is running, in the quietest possible place: nobody comes to the
+         panel for it, but it is the first thing asked when reporting a problem.
+         Absent until it arrives — an empty footer line needs no placeholder. -->
+    @if (buildInfo(); as info) {
+      <p class="mt-10 text-xs text-subtle" [title]="info.title">
+        {{ info.line }}
+      </p>
+    }
   `,
 })
 export class AdminPanelPage {
   private readonly sync = inject(SyncService);
+  private readonly build = inject(BuildInfoService);
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly panelText = inject(ADMIN_TEXT).panel;
   protected readonly productText = inject(ADMIN_TEXT).productList;
@@ -150,7 +161,46 @@ export class AdminPanelPage {
     return this.syncText.lastSync.replace('{date}', date);
   });
 
+  // A dev deployment's version is the full `sha-<40 hex>` image tag — unreadable
+  // inline, so it is shortened to the length people actually quote, with the
+  // whole tag kept in the title for copying.
+  private shorten(version: string): string {
+    const sha = /^sha-([0-9a-f]{40})$/.exec(version);
+    return sha ? `sha-${sha[1].slice(0, 7)}` : version;
+  }
+
+  protected readonly buildInfo = signal<{
+    line: string;
+    title: string;
+  } | null>(null);
+
+  private async loadBuildInfo(): Promise<void> {
+    // Never worth an error state: the panel's own job is unaffected.
+    const info = await this.build.get().catch(() => null);
+    if (!info) return;
+
+    const version = info.version
+      ? this.panelText.version.replace('{version}', this.shorten(info.version))
+      : this.panelText.versionUnknown;
+    const deployed = info.deployedAt
+      ? this.panelText.deployedAt.replace(
+          '{date}',
+          new Intl.DateTimeFormat(this.currency.locale, {
+            dateStyle: 'medium',
+            timeStyle: 'short',
+          }).format(new Date(info.deployedAt)),
+        )
+      : null;
+
+    this.buildInfo.set({
+      line: deployed ? `${version} — ${deployed}` : version,
+      title: info.version ?? '',
+    });
+  }
+
   constructor() {
+    void this.loadBuildInfo();
+
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({ name: () => this.text.adminPanel });

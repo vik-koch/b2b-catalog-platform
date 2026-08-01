@@ -49,6 +49,10 @@ export const adminTextSchema = z
         catalog: z.string(),
         pages: z.string(),
         site: z.string(),
+        /** Deployed version line. `{version}` / `{date}` are substituted. */
+        version: z.string(),
+        versionUnknown: z.string(),
+        deployedAt: z.string(),
       })
       .strict(),
     /** The storefront edit-mode toggle and its inline controls (FR-ADM-01). */

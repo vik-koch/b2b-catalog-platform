@@ -19,7 +19,10 @@
     "sync": "Import",
     "catalog": "Catalog",
     "pages": "Content pages",
-    "site": "Site"
+    "site": "Site",
+    "version": "Version {version}",
+    "versionUnknown": "Version unknown",
+    "deployedAt": "deployed {date}"
   },
   "editMode": {
     "enable": "Edit mode",
