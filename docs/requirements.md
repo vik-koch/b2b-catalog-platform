@@ -31,11 +31,13 @@ without renumbering.
 
 ### Search (FR-SEARCH)
 
-| ID           | Requirement                                                                                                         |
-| ------------ | ------------------------------------------------------------------------------------------------------------------- |
-| FR-SEARCH-01 | A product search bar is available in the site header on every page.                                                 |
-| FR-SEARCH-02 | Search matches on product name only. Matching is word-order independent and tolerates minor typos (fuzzy matching). |
-| FR-SEARCH-03 | Search results are ordered by relevance (match score), best match first.                                            |
+| ID           | Requirement                                                                                                                                                                                                                                        |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FR-SEARCH-01 | A product search bar is available in the site header on every page.                                                                                                                                                                                |
+| FR-SEARCH-02 | Search matches on product name only. Matching is word-order independent and tolerates minor typos (fuzzy matching).                                                                                                                                |
+| FR-SEARCH-03 | Search results are ordered by relevance (match score), best match first.                                                                                                                                                                           |
+| FR-SEARCH-04 | Product listings offer sort controls (name, price). Search results additionally offer relevance, and default to it; category listings default to name. The chosen sort and page are part of the URL, so a listing view can be shared and restored. |
+| FR-SEARCH-05 | As a query is typed into the search bar, a short list of matching product names is suggested; picking one goes straight to that product. Suggestions are an accelerator only — the full result list stays reachable by submitting the query.       |
 
 ### Admin & Catalog Sync (FR-ADM)
 
@@ -45,6 +47,7 @@ without renumbering.
 | FR-ADM-02 | Admin can trigger a bulk sync (file upload or endpoint) that upserts products by SKU and deletes products missing from the source. Intended for periodic price/availability updates.                                                                                                     |
 | FR-ADM-03 | Admin can edit the rich-text content of a fixed set of static pages (about, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content. |
 | FR-ADM-04 | Admin can toggle a site-wide maintenance mode from the admin panel. While active, the public storefront (catalog, product, and static pages) and its read APIs are unavailable to visitors and crawlers — served with an HTTP 503 status and a minimal maintenance notice.               |
+| FR-ADM-05 | The admin product list can be filtered by publication state (all / live / soft-deleted) and by category, searched by name or by the private sync key, and sorted (name, price, most recently updated).                                                                                   |
 
 ### Accounts, Roles & Pricing (FR-AUTH)
 
@@ -105,22 +108,24 @@ without renumbering.
 
 ### Security (NFR-SEC)
 
-| ID         | Requirement                                                                                       |
-| ---------- | ------------------------------------------------------------------------------------------------- |
-| NFR-SEC-01 | All traffic is served over HTTPS.                                                                 |
-| NFR-SEC-02 | Authentication endpoints are rate-limited to mitigate brute-force attempts.                       |
-| NFR-SEC-03 | Passwords are stored using a salted hash (e.g. bcrypt/argon2), never in plaintext.                |
-| NFR-SEC-04 | Role-based access control is enforced server-side on every relevant endpoint, not only in the UI. |
-| NFR-SEC-05 | All incoming request payloads are validated and unexpected fields rejected at the API boundary.   |
-| NFR-SEC-06 | The guest (unauthenticated) checkout endpoint is rate-limited to mitigate spam order submissions. |
+| ID         | Requirement                                                                                                  |
+| ---------- | ------------------------------------------------------------------------------------------------------------ |
+| NFR-SEC-01 | All traffic is served over HTTPS.                                                                            |
+| NFR-SEC-02 | Authentication endpoints are rate-limited to mitigate brute-force attempts.                                  |
+| NFR-SEC-03 | Passwords are stored using a salted hash (e.g. bcrypt/argon2), never in plaintext.                           |
+| NFR-SEC-04 | Role-based access control is enforced server-side on every relevant endpoint, not only in the UI.            |
+| NFR-SEC-05 | All incoming request payloads are validated and unexpected fields rejected at the API boundary.              |
+| NFR-SEC-06 | The guest (unauthenticated) checkout endpoint is rate-limited to mitigate spam order submissions.            |
+| NFR-SEC-07 | The public search endpoint is rate-limited, and bounds the length and term count of a query it will execute. |
 
 ### SEO & Accessibility (NFR-SEO)
 
-| ID         | Requirement                                                                                                                                                            |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| NFR-SEO-01 | All indexable pages (catalog, product, and static pages) deliver their full content in the initial HTML response, so crawlers receive it without executing JavaScript. |
-| NFR-SEO-02 | A sitemap.xml is generated from current catalog content; robots.txt is provided.                                                                                       |
-| NFR-SEO-03 | The platform displays correctly on mobile devices (responsive layout).                                                                                                 |
+| ID         | Requirement                                                                                                                                                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| NFR-SEO-01 | All indexable pages (catalog, product, and static pages) deliver their full content in the initial HTML response, so crawlers receive it without executing JavaScript.                                                               |
+| NFR-SEO-02 | A sitemap.xml is generated from current catalog content; robots.txt is provided.                                                                                                                                                     |
+| NFR-SEO-03 | The platform displays correctly on mobile devices (responsive layout).                                                                                                                                                               |
+| NFR-SEO-04 | Listing views that are not content in their own right — search results, and sorted or paginated variants of a category — are kept out of the index: search results are `noindex`, and sorted/paged variants declare a canonical URL. |
 
 ### Operability (NFR-OPS)
 
@@ -130,3 +135,4 @@ without renumbering.
 | NFR-OPS-02 | Separate dev and prod environments exist with independent data and configuration.                                                 |
 | NFR-OPS-03 | Application logs are centrally accessible for debugging.                                                                          |
 | NFR-OPS-04 | Database and uploaded-media backups are taken on a defined schedule, and can be copied off the host and restored by the operator. |
+| NFR-OPS-05 | Search usage is observable centrally.                                                                                             |
