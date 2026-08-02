@@ -5,7 +5,7 @@ import { BuildInfo, MaintenanceStatus } from '@b2b-catalog-platform/shared';
 import { env } from '../env';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { appSettings, pages } from '../db/schema';
+import { appSettings } from '../db/schema';
 
 /** The singleton row's fixed primary key (see the `id = 1` check constraint). */
 const SETTINGS_ID = 1;

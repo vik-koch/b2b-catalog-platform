@@ -48,10 +48,10 @@ export class MediaController {
   async upload(
     @UploadedFile() file: Express.Multer.File | undefined,
   ): Promise<UploadMediaResponse> {
-    const mime = await this.validate(file);
+    const { mime, validatedFile } = await this.validate(file);
 
     // Re-encode to a single capped WebP, then store by content hash.
-    const processed = await processImage(file!.buffer, mime);
+    const processed = await processImage(validatedFile.buffer, mime);
     return this.store.put({ bytes: processed, ext: STORED_IMAGE_EXT });
   }
 
@@ -68,11 +68,11 @@ export class MediaController {
   async uploadCatalogImage(
     @UploadedFile() file: Express.Multer.File | undefined,
   ): Promise<UploadCatalogImageResponse> {
-    const mime = await this.validate(file);
+    const { mime, validatedFile } = await this.validate(file);
 
     const [fullBytes, thumbBytes] = await Promise.all([
-      processImage(file!.buffer, mime, MEDIA_CATALOG_FULL_WIDTH),
-      processImage(file!.buffer, mime, MEDIA_CATALOG_THUMB_WIDTH),
+      processImage(validatedFile.buffer, mime, MEDIA_CATALOG_FULL_WIDTH),
+      processImage(validatedFile.buffer, mime, MEDIA_CATALOG_THUMB_WIDTH),
     ]);
     const [full, thumb] = await Promise.all([
       this.store.put({ bytes: fullBytes, ext: STORED_IMAGE_EXT }),
@@ -89,7 +89,7 @@ export class MediaController {
    */
   private async validate(
     file: Express.Multer.File | undefined,
-  ): Promise<AcceptedImageMime> {
+  ): Promise<{ mime: AcceptedImageMime; validatedFile: Express.Multer.File }> {
     if (!file) {
       throw new BadRequestException('No file uploaded (field "file")');
     }
@@ -102,6 +102,6 @@ export class MediaController {
         'Unsupported image type (allowed: PNG, JPEG, WebP, GIF)',
       );
     }
-    return mime;
+    return { mime, validatedFile: file };
   }
 }
