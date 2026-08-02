@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { catalogContract } from '@b2b-catalog-platform/shared';
+import {
+  catalogContract,
+  SearchSuggestion,
+} from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../core/api-client';
 
 @Injectable({ providedIn: 'root' })
@@ -41,6 +44,17 @@ export class CatalogService {
       return response.body;
     }
     throw new Error(`Search failed (status ${response.status})`);
+  }
+
+  /**
+   * Type-ahead suggestions for the search bar (FR-SEARCH-05). Failures are
+   * answered with an empty list rather than thrown: suggestions are an
+   * accelerator, and a dropdown that cannot load is a reason to show nothing,
+   * not to interrupt someone mid-query.
+   */
+  async getSearchSuggestions(q: string): Promise<SearchSuggestion[]> {
+    const response = await this.client.getSearchSuggestions({ query: { q } });
+    return response.status === 200 ? response.body.items : [];
   }
 
   /** A single product (FR-CAT-05). `null` when it does not exist. */
