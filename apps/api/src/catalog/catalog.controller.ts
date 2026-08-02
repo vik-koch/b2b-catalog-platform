@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { catalogContract } from '@b2b-catalog-platform/shared';
 import { CatalogService } from './catalog.service';
+import { SearchThrottle } from '../throttling/throttle-presets';
 
 /**
  * The storefront read API (FR-CAT-01…05), backed by the database. Response
@@ -33,6 +34,18 @@ export class CatalogController {
         }
         return { status: 200, body: result };
       },
+    );
+  }
+
+  @SearchThrottle()
+  @TsRestHandler(catalogContract.searchProducts, { validateResponses: true })
+  async searchProducts() {
+    return tsRestHandler(
+      catalogContract.searchProducts,
+      async ({ query: { q, page } }) => ({
+        status: 200,
+        body: await this.catalog.searchProducts(q, page),
+      }),
     );
   }
 

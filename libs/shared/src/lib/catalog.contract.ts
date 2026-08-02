@@ -155,6 +155,27 @@ export const productListQuerySchema = z.object({
 });
 
 /**
+ * Upper bound on a search term. Longer than any real product query,
+ * short enough that no caller can hand the matcher an expensive string.
+ * Rejected at the contract rather than truncated, so an over-long query is an
+ * explainable 400 instead of silently searching for something else — the search
+ * bar caps its own input at the same number.
+ */
+export const SEARCH_QUERY_MAX_LENGTH = 100;
+
+/**
+ * Search query (FR-SEARCH-01…03). `q` is free text and may be anything a
+ * visitor types: the server tokenizes it, and a query with nothing searchable
+ * in it (blank, punctuation only, one character) is answered with an empty
+ * page, not an error — an empty result is the honest answer to "no matches",
+ * and the UI renders it the same way either way.
+ */
+export const productSearchQuerySchema = z.object({
+  q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
+  page: z.coerce.number().int().positive().optional().default(1),
+});
+
+/**
  * One indexable URL for the sitemap (NFR-SEO-02): a slug and the row's
  * `updatedAt` as an ISO string, used for `<lastmod>`. The SSR server turns
  * these into absolute `/catalog/:slug` and `/product/:slug` URLs;
@@ -202,6 +223,26 @@ export const catalogContract = c.router({
       404: notFoundSchema,
     },
     summary: 'List products in a category (paginated)',
+  },
+  /**
+   * Product search by name (FR-SEARCH-01…03), ordered by relevance. Its own
+   * endpoint rather than a mode of the category listing: there is no category
+   * to describe, so the response carries no breadcrumb or subcategory envelope
+   * — just the same product tiles the grid renders, in match order.
+   */
+  searchProducts: {
+    method: 'GET',
+    path: '/catalog/search',
+    query: productSearchQuerySchema,
+    responses: {
+      200: z
+        .object({
+          items: z.array(productListItemSchema),
+          pagination: paginationSchema,
+        })
+        .strict(),
+    },
+    summary: 'Search products by name, best match first',
   },
   /**
    * Every indexable slug for the sitemap (NFR-SEO-02) — all categories and all
