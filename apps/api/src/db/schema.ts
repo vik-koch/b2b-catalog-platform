@@ -9,6 +9,8 @@ import {
   AnyPgColumn,
   boolean,
   check,
+  customType,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -18,6 +20,15 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+
+/**
+ * Postgres `tsvector`, which drizzle has no built-in type for. Only ever
+ * written by the database (generated column) and read by the index, so the
+ * TypeScript side is a plain string and no parsing is needed.
+ */
+const tsvector = customType<{ data: string; driverData: string }>({
+  dataType: () => 'tsvector',
+});
 
 export const pages = pgTable('pages', {
   // The primary key IS the public slug (fixed set, see shared PAGE_SLUGS).
@@ -90,45 +101,64 @@ export type ProductImageRef = { full: string; thumb: string };
  * (see product_images) are admin overlay that a re-sync leaves untouched.
  * Missing-from-source rows are soft-deleted via `deletedAt`, never removed.
  */
-export const products = pgTable('products', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  sourceId: varchar('sourceId', { length: 255 }).notNull().unique(),
-  slug: varchar('slug', { length: 255 }).notNull().unique(),
-  name: varchar('name', { length: 512 }).notNull(),
-  priceMinor: integer('priceMinor').notNull(),
-  categoryId: uuid('categoryId')
-    .notNull()
-    .references(() => categories.id, { onDelete: 'restrict' }),
-  // Overlay fields.
-  descriptionHtml: text('descriptionHtml').notNull().default(''),
-  attributes: jsonb('attributes')
-    .$type<ProductAttribute[]>()
-    .notNull()
-    .default(sql`'[]'::jsonb`),
-  // Ordered gallery, each with a full and a thumb media-store URL. The
-  // media-prune reference scan must include these URLs (and categories.image)
-  // so seeded/uploaded images are not swept.
-  images: jsonb('images')
-    .$type<ProductImageRef[]>()
-    .notNull()
-    .default(sql`'[]'::jsonb`),
-  deletedAt: timestamp('deletedAt', { withTimezone: true }),
-  createdAt: timestamp('createdAt', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updatedAt', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  // Audit, matching `pages`/`app_settings`. `deletedBy` is separate from
-  // `updatedBy` because removal is the one action worth attributing on its own:
-  // deletion is soft, so "who hid this product" stays answerable after the fact.
-  updatedBy: uuid('updatedBy').references(() => users.id, {
-    onDelete: 'set null',
-  }),
-  deletedBy: uuid('deletedBy').references(() => users.id, {
-    onDelete: 'set null',
-  }),
-});
+export const products = pgTable(
+  'products',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    sourceId: varchar('sourceId', { length: 255 }).notNull().unique(),
+    slug: varchar('slug', { length: 255 }).notNull().unique(),
+    name: varchar('name', { length: 512 }).notNull(),
+    priceMinor: integer('priceMinor').notNull(),
+    categoryId: uuid('categoryId')
+      .notNull()
+      .references(() => categories.id, { onDelete: 'restrict' }),
+    // Overlay fields.
+    descriptionHtml: text('descriptionHtml').notNull().default(''),
+    attributes: jsonb('attributes')
+      .$type<ProductAttribute[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    // Ordered gallery, each with a full and a thumb media-store URL. The
+    // media-prune reference scan must include these URLs (and categories.image)
+    // so seeded/uploaded images are not swept.
+    images: jsonb('images')
+      .$type<ProductImageRef[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    deletedAt: timestamp('deletedAt', { withTimezone: true }),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updatedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    // Audit, matching `pages`/`app_settings`. `deletedBy` is separate from
+    // `updatedBy` because removal is the one action worth attributing on its own:
+    // deletion is soft, so "who hid this product" stays answerable after the fact.
+    updatedBy: uuid('updatedBy').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    deletedBy: uuid('deletedBy').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    // Search index over the product name (FR-SEARCH-02), maintained by the
+    // database itself, so neither a sync nor an admin rename can leave it
+    // stale. Never selected — it exists only for the GIN index below, which is
+    // why every products query lists its columns explicitly.
+    nameTsv: tsvector('nameTsv').generatedAlwaysAs(
+      sql`to_tsvector('simple', search_unaccent("name"))`,
+    ),
+  },
+  (t) => [
+    index('products_nameTsv_idx').using('gin', t.nameTsv),
+    // The trigram half of the score. An expression index, so it must spell the
+    // unaccent wrapper exactly as the query does or the query will not use it.
+    index('products_name_trgm_idx').using(
+      'gin',
+      sql`search_unaccent("name") gin_trgm_ops`,
+    ),
+  ],
+);
 
 // New signups default to `user`; `admin`/`manager` are assigned deliberately.
 export const userRole = pgEnum('user_role', ['admin', 'manager', 'user']);
