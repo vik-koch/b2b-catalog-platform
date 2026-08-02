@@ -7,6 +7,8 @@ import {
   CategoryNode,
   ProductDetail,
   ProductListItem,
+  ProductSort,
+  SearchSort,
   SearchSuggestion,
   SEARCH_SUGGESTION_LIMIT,
   SitemapEntry,
@@ -28,6 +30,7 @@ import {
   searchCondition,
   setSearchThreshold,
 } from './product-search';
+import { productOrderBy } from './product-sort';
 
 interface SearchResult {
   items: ProductListItem[];
@@ -89,6 +92,7 @@ export class CatalogService {
   async getCategoryProducts(
     slug: string,
     page: number,
+    sort: ProductSort,
   ): Promise<CategoryProductsResult | null> {
     const rows = await this.categoryRows();
     const category = categoryBySlug(rows, slug);
@@ -115,7 +119,7 @@ export class CatalogService {
       })
       .from(products)
       .where(where)
-      .orderBy(asc(products.name))
+      .orderBy(...productOrderBy(sort))
       .limit(pageSize)
       .offset((page - 1) * pageSize);
 
@@ -141,11 +145,15 @@ export class CatalogService {
    * because the trigram threshold is set with `SET LOCAL`; a query too short to
    * be worth running returns an empty page without touching the database.
    *
-   * Ordering closes with `name, id`: without a total order two rows of equal
-   * score could swap between page requests and be shown twice, or not at all.
-   * Sort controls (FR-SEARCH-04) reuse this candidate set and land separately.
+   * `sort` (FR-SEARCH-04) only reorders the rows — which rows match is the
+   * matcher's business, so a name or price sort still searches, it just does
+   * not rank. See product-sort.ts for the ordering itself.
    */
-  async searchProducts(rawQuery: string, page: number): Promise<SearchResult> {
+  async searchProducts(
+    rawQuery: string,
+    page: number,
+    sort: SearchSort,
+  ): Promise<SearchResult> {
     const pageSize = CATALOG_PAGE_SIZE;
     const query = parseSearchQuery(rawQuery);
     if (!query) {
@@ -174,11 +182,7 @@ export class CatalogService {
         })
         .from(products)
         .where(where)
-        .orderBy(
-          desc(relevanceScore(query)),
-          asc(products.name),
-          asc(products.id),
-        )
+        .orderBy(...productOrderBy(sort, relevanceScore(query)))
         .limit(pageSize)
         .offset((page - 1) * pageSize);
 

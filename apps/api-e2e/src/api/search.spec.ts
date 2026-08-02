@@ -101,6 +101,71 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
     expect(res.status).toBe(400);
   });
 
+  /**
+   * FR-SEARCH-04 on search. The point of these is that a sort reorders the
+   * matches without changing which rows matched — a price-sorted search is
+   * still a search, not a listing.
+   */
+  describe('sort controls (FR-SEARCH-04)', () => {
+    // Over-matching on purpose, so there is more than one row to order.
+    const many = 'espresso kontor reserve';
+    const sorted = (sort: string, q = many) =>
+      get(`/catalog/search?q=${encodeURIComponent(q)}&sort=${sort}`);
+    const slugs = (res: { data: { items: { slug: string }[] } }) =>
+      res.data.items.map((i) => i.slug);
+
+    it('defaults to relevance', async () => {
+      const [implicit, explicit] = await Promise.all([
+        search(many),
+        sorted('relevance'),
+      ]);
+
+      expect(slugs(explicit)).toEqual(slugs(implicit));
+    });
+
+    it.each([
+      ['price', (a: number, b: number) => a - b],
+      ['price_desc', (a: number, b: number) => b - a],
+    ])('orders the matches by %s', async (sort, compare) => {
+      const res = await sorted(sort);
+
+      const prices = res.data.items.map(
+        (i: { priceMinor: number }) => i.priceMinor,
+      );
+      expect(res.status).toBe(200);
+      expect(prices).toEqual([...prices].sort(compare));
+    });
+
+    it('changes the order but not the matched set', async () => {
+      const [byRelevance, byPrice] = await Promise.all([
+        sorted('relevance'),
+        sorted('price'),
+      ]);
+
+      expect(byPrice.data.pagination.total).toBe(
+        byRelevance.data.pagination.total,
+      );
+      expect(new Set(slugs(byPrice))).toEqual(new Set(slugs(byRelevance)));
+    });
+
+    it('reverses the result set on name_desc', async () => {
+      // A narrow query on purpose: within a single page the two directions are
+      // exact mirrors, which says more than re-sorting the names in JS (whose
+      // collation does not agree with the database's on the seed names).
+      const [ascending, descending] = await Promise.all([
+        sorted('name', 'kontor'),
+        sorted('name_desc', 'kontor'),
+      ]);
+
+      expect(ascending.data.pagination.totalPages).toBe(1);
+      expect(slugs(descending)).toEqual([...slugs(ascending)].reverse());
+    });
+
+    it('rejects an unknown sort key at the contract', async () => {
+      expect((await sorted('cheapest')).status).toBe(400);
+    });
+  });
+
   it('cannot be steered by tsquery syntax in the input', async () => {
     // Operator characters are stripped in tokenization, so this is searched
     // for as the words it contains rather than parsed — and never 500s.
