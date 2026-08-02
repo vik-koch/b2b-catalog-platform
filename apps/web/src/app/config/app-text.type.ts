@@ -98,6 +98,20 @@ export const appTextSchema = z
         clear: z.string(),
         /** Landmark name for the search form. */
         searchNav: z.string(),
+        /** Accessible name of the suggestion list (FR-SEARCH-05). */
+        suggestionsLabel: z.string(),
+        /**
+         * Announced to screen readers when suggestions appear; `{count}` is
+         * substituted. Never shown on screen — the list itself is the visual
+         * form of this message.
+         */
+        suggestionCount: z.string(),
+        /**
+         * Shown in the suggestion panel when a typed query matched no product
+         * name. Deliberately terse: it is a status inside a dropdown, not the
+         * results page's fuller "nothing matched" explanation.
+         */
+        noSuggestions: z.string(),
         /** Results heading; `{query}` is substituted. */
         resultsTitle: z.string(),
         /** Result count; `{count}` is substituted. Shown for one or more hits. */

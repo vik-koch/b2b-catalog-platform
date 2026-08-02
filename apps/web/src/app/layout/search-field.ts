@@ -1,3 +1,4 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   afterNextRender,
   Component,
@@ -6,27 +7,58 @@ import {
   inject,
   input,
   linkedSignal,
+  PLATFORM_ID,
+  resource,
+  signal,
   viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
+import {
+  SEARCH_QUERY_MAX_LENGTH,
+  SearchSuggestion,
+} from '@b2b-catalog-platform/shared';
+import { CatalogService } from '../catalog/catalog.service';
 import { APP_TEXT } from '../config/app-text';
 import { currentUrl } from '../core/current-url';
+import { debounced } from '../core/debounced';
 import { CloseIcon } from '../ui/icons/close-icon';
 import { SearchIcon } from '../ui/icons/search-icon';
+import { matchSegments } from './match-segments';
+
+/** Long enough that a fast typist produces one request per word rather than
+ * one per letter, short enough that a pause feels answered immediately. */
+const SUGGEST_DEBOUNCE_MS = 200;
+
+/** Ids have to be unique per instance: the header renders this field twice —
+ * inline on desktop, inside the panel on mobile — and `aria-controls` pointing
+ * at a duplicated id would name the wrong list. */
+let nextId = 0;
 
 /**
  * The search field itself (FR-SEARCH-01) — a real `<form>` around a real
  * `search` input, so Enter submits and the control degrades to a working search
  * box without JavaScript. Submitting navigates to `/search?q=…`.
+ *
+ * With JavaScript it is also a combobox (FR-SEARCH-05): typing offers a short
+ * list of matching product names, and picking one goes straight to that
+ * product. Suggestions are an accelerator layered on top and never become the
+ * only way through — which is why the form underneath is untouched, and why
+ * Enter still submits the typed query whenever no suggestion is selected.
  */
 @Component({
   selector: 'app-search-field',
   imports: [SearchIcon, CloseIcon],
   host: { class: 'block' },
   template: `
+    <!-- action and method are what make the no-JS path real rather than
+         nominal: a form without them submits to the *current* URL, so the
+         search box on the home page would navigate to /?q=… and drop the
+         visitor back where they started. With JavaScript the submit handler
+         preempts this and the router does the navigating instead. -->
     <form
       role="search"
+      action="/search"
+      method="get"
       [attr.aria-label]="text.searchNav"
       (submit)="submit($event)"
     >
@@ -38,8 +70,10 @@ import { SearchIcon } from '../ui/icons/search-icon';
            closes around its control instead of stopping short of the seam.
            Both stretch to the row's height, which keeps them the same size. -->
       <div class="flex items-stretch">
-        <!-- The border lives on the wrapper, not the input, so the leading
-             glyph sits inside it. -->
+        <!-- Also the positioning context for the dropdown, which hangs off the
+             field rather than off the whole row: it lines up with the text
+             being typed, not with the submit button. The border lives on the
+             wrapper, not the input, so the leading glyph sits inside it. -->
         <div
           class="peer relative flex min-w-0 flex-1 items-center rounded-l-md border-2 border-r-0 border-primary bg-white hover:border-accent focus-within:border-accent"
         >
@@ -54,11 +88,18 @@ import { SearchIcon } from '../ui/icons/search-icon';
             name="q"
             enterkeyhint="search"
             autocomplete="off"
+            role="combobox"
+            aria-autocomplete="list"
+            [attr.aria-expanded]="panelOpen()"
+            [attr.aria-controls]="listId"
+            [attr.aria-activedescendant]="activeOptionId()"
             [maxLength]="maxLength"
             [attr.aria-label]="text.placeholder"
             [placeholder]="text.placeholder"
             [value]="value()"
-            (input)="value.set($any($event.target).value)"
+            (input)="type($any($event.target).value)"
+            (keydown)="keydown($event)"
+            (blur)="close()"
             class="min-w-0 flex-1 bg-transparent py-2 pr-1 pl-9 text-sm text-stone-800 placeholder:text-subtle focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
           @if (value()) {
@@ -74,6 +115,55 @@ import { SearchIcon } from '../ui/icons/search-icon';
               <span class="sr-only">{{ text.clear }}</span>
             </button>
           }
+
+          <!-- Kept in the DOM and hidden rather than removed: the element
+               aria-controls names should not vanish from under the input
+               between queries. The message is a sibling of the listbox, not a
+               row inside it — a listbox may only contain options, and
+               "nothing found" is not something to pick. -->
+          <div
+            [class.hidden]="!panelOpen()"
+            class="absolute top-full right-0 left-0 z-20 mt-1 overflow-hidden rounded-md border border-border-strong bg-white py-1 shadow-lg"
+          >
+            @if (noMatches()) {
+              <p class="px-3 py-2 text-sm text-subtle">
+                {{ text.noSuggestions }}
+              </p>
+            }
+            <ul
+              [id]="listId"
+              role="listbox"
+              [attr.aria-label]="text.suggestionsLabel"
+            >
+              @for (item of suggestions(); track item.slug; let i = $index) {
+                <li
+                  [id]="listId + '-' + i"
+                  role="option"
+                  [attr.aria-selected]="i === activeIndex()"
+                  class="cursor-pointer truncate px-3 py-2 text-sm text-stone-800"
+                  [class.bg-stone-100]="i === activeIndex()"
+                  (mouseenter)="activeIndex.set(i)"
+                  (mousedown)="pick($event, item.slug)"
+                >
+                  <!-- The matched run is emboldened in place, as segments rather
+                     than as markup — see match-segments.ts. Weight only: a
+                     bolded fragment of a name is a visual cue, not emphasis,
+                     so this is a span and not <strong>.
+
+                     Every part must be an element. A highlight can end
+                     mid-word ("Grinde|r"), and the compiler only drops the
+                     newlines between the parts while they are whitespace-only
+                     nodes — put bare interpolation here and the word comes
+                     out split by a space. A test holds this. -->
+                  @for (part of segments(item.name); track $index) {
+                    <span [class.font-semibold]="part.match">{{
+                      part.text
+                    }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
         </div>
         <button
           type="submit"
@@ -83,10 +173,16 @@ import { SearchIcon } from '../ui/icons/search-icon';
         </button>
       </div>
     </form>
+
+    <!-- Sighted visitors watch the list appear; this is the same event for
+         anyone who cannot. Polite, so it waits for a pause in the typing. -->
+    <p aria-live="polite" class="sr-only">{{ announcement() }}</p>
   `,
 })
 export class SearchField {
   private readonly router = inject(Router);
+  private readonly catalog = inject(CatalogService);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
 
   // Read off the URL rather than from `ActivatedRoute`: the field lives in the
@@ -100,6 +196,7 @@ export class SearchField {
 
   protected readonly text = inject(APP_TEXT).search;
   protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;
+  protected readonly listId = `search-suggestions-${nextId++}`;
 
   /** Focus on first render — set by the mobile panel, which opens on demand. */
   readonly autoFocus = input(false);
@@ -111,10 +208,168 @@ export class SearchField {
    */
   protected readonly value = linkedSignal(() => this.routeQuery());
 
+  /**
+   * Whether the visitor is composing a query, as opposed to looking at one
+   * they already submitted. Only typing opens the list: arriving on
+   * `/search?q=…` fills the field from the URL, and a dropdown covering the
+   * results someone just asked for would be in their way.
+   */
+  private readonly typing = signal(false);
+  /** Which option the keyboard is on; -1 is "none, Enter submits the query". */
+  protected readonly activeIndex = signal(-1);
+
+  /**
+   * Suggestions for the settled query. Idle unless the visitor is typing,
+   * which is what keeps this off the server during SSR and off the first
+   * render. Superseded responses are dropped by `resource` itself, so a slow
+   * answer for an early prefix cannot overwrite a later one.
+   */
+  private readonly query = debounced(this.value, SUGGEST_DEBOUNCE_MS);
+  private readonly suggested = resource({
+    params: () => {
+      const q = this.query().trim();
+      return this.isBrowser && this.typing() && q ? q : undefined;
+    },
+    loader: ({ params }) => this.catalog.getSearchSuggestions(params),
+  });
+
+  /**
+   * The names on screen. A loading `resource` reports no value at all, and
+   * rendering that directly makes the panel vanish and come back on every
+   * keystroke — the previous answer is a far better placeholder for the next
+   * one than nothing is, since one more letter usually narrows the same list.
+   * So the last answer stays up until the new one replaces it, and only an
+   * idle resource (nothing being asked) clears it.
+   */
+  protected readonly suggestions = linkedSignal<
+    SearchSuggestion[] | undefined,
+    SearchSuggestion[]
+  >({
+    source: () =>
+      this.suggested.status() === 'idle' ? [] : this.suggested.value(),
+    computation: (value, previous) => value ?? previous?.value ?? [],
+  });
+
+  /**
+   * Whether the query on screen has been answered. Distinguishes "no matches"
+   * from "not back yet", which is what stops a first query from flashing
+   * "nothing found" on its way to a full list.
+   */
+  private readonly answered = computed(
+    () => this.suggested.status() !== 'idle' && !this.suggested.isLoading(),
+  );
+  protected readonly noMatches = computed(
+    () => this.answered() && this.suggestions().length === 0,
+  );
+
+  /**
+   * The panel is up whenever a typed query has something to say — names, or
+   * the fact that there are none. Saying so beats vanishing: the box
+   * disappearing mid-word reads as a glitch rather than as an answer.
+   */
+  protected readonly panelOpen = computed(
+    () => this.typing() && (this.suggestions().length > 0 || this.noMatches()),
+  );
+  protected readonly activeOptionId = computed(() =>
+    this.panelOpen() && this.activeIndex() >= 0
+      ? `${this.listId}-${this.activeIndex()}`
+      : null,
+  );
+  protected readonly announcement = computed(() => {
+    if (!this.panelOpen()) return '';
+    return this.noMatches()
+      ? this.text.noSuggestions
+      : this.text.suggestionCount.replace(
+          '{count}',
+          String(this.suggestions().length),
+        );
+  });
+
   constructor() {
     afterNextRender(() => {
       if (this.autoFocus()) this.input()?.nativeElement.focus();
     });
+  }
+
+  /** Highlighted against the settled query, not the live one: the names on
+   * screen answered that query, and bolding them against later keystrokes
+   * would flicker a highlight the list has not caught up with. */
+  protected segments(name: string) {
+    return matchSegments(name, this.query());
+  }
+
+  /** Every keystroke reopens the list and drops the keyboard selection — the
+   * option that was highlighted answered the previous query, not this one. */
+  protected type(value: string): void {
+    this.value.set(value);
+    this.typing.set(true);
+    this.activeIndex.set(-1);
+  }
+
+  protected keydown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'ArrowDown':
+        this.move(1, event);
+        break;
+      case 'ArrowUp':
+        this.move(-1, event);
+        break;
+      case 'Enter':
+        // Intercepted only when an option is selected; otherwise the form
+        // submits the typed query, which is what keeps the full result list
+        // reachable from the keyboard alone.
+        {
+          // Read through the list rather than trusting the index: names on
+          // screen can be replaced by a later answer, and Enter must never
+          // reach for a row that is no longer there.
+          const selected = this.suggestions()[this.activeIndex()];
+          if (selected) {
+            event.preventDefault();
+            this.go(selected.slug);
+          }
+        }
+        break;
+      case 'Escape':
+        // Dismisses the list without touching the query. Swallowed only while
+        // the list is open, so a second press still reaches the browser's own
+        // "clear the search input" behaviour.
+        if (this.panelOpen()) {
+          event.preventDefault();
+          this.close();
+        }
+        break;
+      case 'Tab':
+        this.close();
+        break;
+    }
+  }
+
+  /** Moves the selection, wrapping at both ends and passing through "nothing
+   * selected" on the way — so the typed query is always one key away again. */
+  private move(delta: number, event: KeyboardEvent): void {
+    if (!this.panelOpen() || !this.suggestions().length) return;
+    event.preventDefault();
+
+    const count = this.suggestions().length;
+    const next = this.activeIndex() + delta;
+    this.activeIndex.set(next < -1 ? count - 1 : next >= count ? -1 : next);
+  }
+
+  /** `mousedown`, not `click`: the field would otherwise blur first, close the
+   * list, and take the option out from under the pointer before it lands. */
+  protected pick(event: MouseEvent, slug: string): void {
+    event.preventDefault();
+    this.go(slug);
+  }
+
+  private go(slug: string): void {
+    this.close();
+    void this.router.navigate(['/product', slug]);
+  }
+
+  protected close(): void {
+    this.typing.set(false);
+    this.activeIndex.set(-1);
   }
 
   protected submit(event: Event): void {
@@ -124,6 +379,7 @@ export class SearchField {
     event.preventDefault();
     const q = this.value().trim();
     if (!q) return;
+    this.close();
     void this.router.navigate(['/search'], { queryParams: { q } });
   }
 
@@ -131,6 +387,7 @@ export class SearchField {
    * without reaching for the input again. */
   protected clear(): void {
     this.value.set('');
+    this.close();
     this.input()?.nativeElement.focus();
   }
 }
