@@ -33,6 +33,16 @@ export class CatalogService {
     );
   }
 
+  /** A page of search results, best match first (FR-SEARCH-01…03). An
+   * unsearchable query is an empty page, not an error — see the contract. */
+  async searchProducts(q: string, page: number) {
+    const response = await this.client.searchProducts({ query: { q, page } });
+    if (response.status === 200) {
+      return response.body;
+    }
+    throw new Error(`Search failed (status ${response.status})`);
+  }
+
   /** A single product (FR-CAT-05). `null` when it does not exist. */
   async getProduct(slug: string) {
     const response = await this.client.getProduct({ params: { slug } });

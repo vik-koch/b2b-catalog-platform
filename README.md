@@ -4,9 +4,8 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** early stage — requirements and roadmap defined; iteration 1 (static pages,
-> compliance scaffolding, base infra: walking skeleton, CI/CD, dev + prod) implemented,
-> first release (`v0.1.0`) imminent.
+> **Status:** first major release — platform ready for catalog content population; iteration 2
+> (catalog, admin panel, SEO, maintenance mode) implemented.
 
 ## Environments
 

@@ -1,4 +1,4 @@
-import { effect, inject } from '@angular/core';
+import { DestroyRef, effect, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 
@@ -13,6 +13,12 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 export function usePageSeo(opts: {
   name: () => string | null | undefined;
   description?: () => string | null | undefined;
+  /**
+   * Keeps this route out of the index (NFR-SEO-04) — for views that are a lens
+   * on content indexed elsewhere, like search results. Set once per component,
+   * not reactive: a route either is such a view or it is not.
+   */
+  noindex?: boolean;
 }): void {
   const title = inject(Title);
   const meta = inject(Meta);
@@ -23,6 +29,16 @@ export function usePageSeo(opts: {
     const name = opts.name();
     title.setTitle(name ? `${name} — ${brandingName}` : brandingTitle);
   });
+
+  if (opts.noindex) {
+    // `updateTag` rather than `addTag`: a deployment that is itself
+    // non-indexable already injects a robots tag (see seo.server.ts), and two
+    // of them on one page is worse than the strictest one winning. Removed on
+    // the way out so a client-side navigation to an ordinary page does not
+    // inherit it.
+    meta.updateTag({ name: 'robots', content: 'noindex' });
+    inject(DestroyRef).onDestroy(() => meta.removeTag('name="robots"'));
+  }
 
   const describe = opts.description;
   if (describe) {

@@ -14,6 +14,7 @@ import { MaintenanceScreen } from './pages/maintenance-screen';
 import { Home } from './home/home';
 import { CategoryOverview } from './catalog/category-overview';
 import { CategoryGrid } from './catalog/category-grid';
+import { SearchResults } from './catalog/search-results';
 import { ProductDetail } from './catalog/product-detail';
 import { StaticPage } from './pages/static-page';
 import { unsavedChangesGuard } from './core/unsaved-changes.guard';
@@ -173,6 +174,14 @@ export const appRoutes: Route[] = [
   {
     path: 'catalog/:slug',
     component: CategoryGrid,
+    canActivate: [maintenanceGate],
+  },
+  // Server-rendered like the rest of the storefront so a shared result link
+  // resolves without JavaScript, but kept out of the index (NFR-SEO-04) via the
+  // robots meta the component sets.
+  {
+    path: 'search',
+    component: SearchResults,
     canActivate: [maintenanceGate],
   },
   {

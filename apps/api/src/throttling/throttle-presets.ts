@@ -22,6 +22,19 @@ export const PublicFormThrottle = () =>
   );
 
 /**
+ * Product search: the only unauthenticated endpoint that runs a user-supplied
+ * expression against the catalog, so it gets a ceiling of its own even though
+ * the query itself is bounded and indexed. One a second over a minute is far
+ * more than a person browsing produces, and still caps how fast a single
+ * address can drive the matcher.
+ */
+export const SearchThrottle = () =>
+  applyDecorators(
+    UseGuards(ThrottlerGuard),
+    Throttle({ default: { limit: 60, ttl: seconds(60) } }),
+  );
+
+/**
  * Authentication endpoints (login). A handful of tries a minute per IP is
  * sufficient for a human and throttles credential-stuffing / brute force.
  * Traefik also rate-limits at the edge.
