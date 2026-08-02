@@ -24,8 +24,7 @@ import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
-import { PricePipe } from './price.pipe';
-import { TileGallery } from './tile-gallery';
+import { ProductTile } from './product-tile';
 
 /** Subcategory chips shown before the "show more" toggle reveals the rest. */
 const SUBS_COLLAPSED = 4;
@@ -40,9 +39,8 @@ const SUBS_COLLAPSED = 4;
   selector: 'app-category-grid',
   imports: [
     RouterLink,
-    PricePipe,
     ChevronRightIcon,
-    TileGallery,
+    ProductTile,
     LucideIcon,
     Button,
     IconButton,
@@ -200,9 +198,7 @@ const SUBS_COLLAPSED = 4;
               }
               @for (item of data.items; track item.slug) {
                 <li class="h-full">
-                  <div
-                    class="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-white transition-shadow hover:shadow-md"
-                  >
+                  <app-product-tile [item]="item">
                     @if (editControls(); as editText) {
                       <div class="absolute top-2 right-2 z-10 flex gap-1.5">
                         <a
@@ -224,28 +220,7 @@ const SUBS_COLLAPSED = 4;
                         </button>
                       </div>
                     }
-                    <app-tile-gallery
-                      [images]="item.images"
-                      [link]="['/product', item.slug]"
-                      [productName]="item.name"
-                    />
-                    <div class="flex flex-1 flex-col p-3">
-                      <a [routerLink]="['/product', item.slug]" class="block">
-                        <h2
-                          class="line-clamp-2 text-sm text-stone-700 group-hover:text-accent"
-                          [title]="item.name"
-                        >
-                          {{ item.name }}
-                        </h2>
-                      </a>
-                      <!-- Price anchored to the card bottom so it lines up
-                           across tiles regardless of name length; future
-                           stock / add-to-cart sit beneath it. -->
-                      <p class="mt-auto pt-2 font-bold text-primary">
-                        {{ item.priceMinor | price }}
-                      </p>
-                    </div>
-                  </div>
+                  </app-product-tile>
                 </li>
               }
             </ul>

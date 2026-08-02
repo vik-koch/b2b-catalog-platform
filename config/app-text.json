@@ -40,6 +40,20 @@
     "viewImage": "Show image {n}",
     "imagePlaceholder": "No image available"
   },
+  "search": {
+    "placeholder": "Search products",
+    "submit": "Search",
+    "openSearch": "Open search",
+    "closeSearch": "Close search",
+    "clear": "Clear search",
+    "searchNav": "Product search",
+    "resultsTitle": "Results for “{query}”",
+    "resultCount": "{count} products found",
+    "noResults": "Nothing matched “{query}”.",
+    "noResultsHint": "Check the spelling, or try fewer words.",
+    "emptyQuery": "Type a product name to search the catalogue.",
+    "loadError": "Something went wrong searching — please try again later."
+  },
   "auth": {
     "login": "Log in",
     "logout": "Log out",

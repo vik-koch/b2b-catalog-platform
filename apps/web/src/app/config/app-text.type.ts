@@ -86,6 +86,31 @@ export const appTextSchema = z
         imagePlaceholder: z.string(),
       })
       .strict(),
+    /** Product search: the navbar bar and its results page (FR-SEARCH). */
+    search: z
+      .object({
+        /** Placeholder in the navbar field, and its accessible name. */
+        placeholder: z.string(),
+        /** Accessible name of the submit control and the mobile toggle. */
+        submit: z.string(),
+        openSearch: z.string(),
+        closeSearch: z.string(),
+        clear: z.string(),
+        /** Landmark name for the search form. */
+        searchNav: z.string(),
+        /** Results heading; `{query}` is substituted. */
+        resultsTitle: z.string(),
+        /** Result count; `{count}` is substituted. Shown for one or more hits. */
+        resultCount: z.string(),
+        /** Shown when a query matched nothing; `{query}` is substituted. */
+        noResults: z.string(),
+        /** Advice under the no-results line — spelling, fewer words. */
+        noResultsHint: z.string(),
+        /** Shown when the page is opened with no query at all. */
+        emptyQuery: z.string(),
+        loadError: z.string(),
+      })
+      .strict(),
     /**
      * Login form, the navbar account link and the signed-in block on its
      * destination page. One vocabulary for all roles — the only thing that
