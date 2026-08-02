@@ -92,6 +92,78 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
     expect(res.status).toBe(404);
     expect(res.data).toEqual({ message: 'Category not found' });
   });
+
+  /**
+   * FR-SEARCH-04 on the category listing. Name order is asserted against the
+   * endpoint's own opposite direction rather than against a JS `sort()`:
+   * the database orders by its collation, which does not agree with JS on the
+   * accented and mixed-case seed names. Price is an integer, so it can be
+   * compared directly.
+   */
+  describe('sort controls (FR-SEARCH-04)', () => {
+    /** Both pages of the espresso category, concatenated, for one sort. */
+    const allNames = async (sort?: string): Promise<string[]> => {
+      const url = (page: number) =>
+        `/catalog/categories/espresso/products?page=${page}` +
+        (sort ? `&sort=${sort}` : '');
+      const [first, second] = await Promise.all([get(url(1)), get(url(2))]);
+      return [...first.data.items, ...second.data.items].map(
+        (i: { name: string }) => i.name,
+      );
+    };
+    const prices = (res: { data: { items: { priceMinor: number }[] } }) =>
+      res.data.items.map((i) => i.priceMinor);
+
+    it('defaults to name', async () => {
+      expect(await allNames()).toEqual(await allNames('name'));
+    });
+
+    it('reverses the whole listing on name_desc', async () => {
+      const ascending = await allNames('name');
+
+      expect(await allNames('name_desc')).toEqual([...ascending].reverse());
+    });
+
+    it.each([
+      ['price', (a: number, b: number) => a - b],
+      ['price_desc', (a: number, b: number) => b - a],
+    ])('orders by %s', async (sort, compare) => {
+      const res = await get(
+        `/catalog/categories/espresso/products?sort=${sort}`,
+      );
+
+      expect(res.status).toBe(200);
+      expect(prices(res)).toEqual([...prices(res)].sort(compare));
+    });
+
+    it('rejects an unknown sort key at the contract', async () => {
+      const res = await get(
+        '/catalog/categories/espresso/products?sort=cheapest',
+      );
+
+      expect(res.status).toBe(400);
+    });
+
+    it('rejects relevance, which only a query can rank', async () => {
+      const res = await get(
+        '/catalog/categories/espresso/products?sort=relevance',
+      );
+
+      expect(res.status).toBe(400);
+    });
+
+    it('keeps a product on exactly one page across a sorted pagination', async () => {
+      const [first, second] = await Promise.all([
+        get('/catalog/categories/espresso/products?sort=price'),
+        get('/catalog/categories/espresso/products?sort=price&page=2'),
+      ]);
+
+      const slugs = [...first.data.items, ...second.data.items].map(
+        (i: { slug: string }) => i.slug,
+      );
+      expect(new Set(slugs).size).toBe(slugs.length);
+    });
+  });
 });
 
 describe('GET /catalog/products/:slug (FR-CAT-05)', () => {

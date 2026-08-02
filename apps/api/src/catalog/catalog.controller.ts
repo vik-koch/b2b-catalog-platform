@@ -30,8 +30,8 @@ export class CatalogController {
   async getCategoryProducts() {
     return tsRestHandler(
       catalogContract.getCategoryProducts,
-      async ({ params: { slug }, query: { page } }) => {
-        const result = await this.catalog.getCategoryProducts(slug, page);
+      async ({ params: { slug }, query: { page, sort } }) => {
+        const result = await this.catalog.getCategoryProducts(slug, page, sort);
         if (!result) {
           return { status: 404, body: { message: 'Category not found' } };
         }
@@ -45,9 +45,9 @@ export class CatalogController {
   async searchProducts() {
     return tsRestHandler(
       catalogContract.searchProducts,
-      async ({ query: { q, page } }) => ({
+      async ({ query: { q, page, sort } }) => ({
         status: 200,
-        body: await this.catalog.searchProducts(q, page),
+        body: await this.catalog.searchProducts(q, page, sort),
       }),
     );
   }

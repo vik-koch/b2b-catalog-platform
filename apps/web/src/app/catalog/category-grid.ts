@@ -11,6 +11,7 @@ import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
 import { delayedLoading } from '../core/delayed-loading';
+import { stableValue } from '../core/stable-value';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { adminText } from '../config/admin-text';
 import { usePageSeo } from '../core/page-seo';
@@ -25,6 +26,11 @@ import { LucideIcon } from '../ui/icons/lucide-icon';
 import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
 import { ProductTile } from './product-tile';
+import {
+  ProductSortSelect,
+  resolveCategorySort,
+  sortParam,
+} from './product-sort-select';
 
 /** Subcategory chips shown before the "show more" toggle reveals the rest. */
 const SUBS_COLLAPSED = 4;
@@ -41,6 +47,7 @@ const SUBS_COLLAPSED = 4;
     RouterLink,
     ChevronRightIcon,
     ProductTile,
+    ProductSortSelect,
     LucideIcon,
     Button,
     IconButton,
@@ -51,11 +58,14 @@ const SUBS_COLLAPSED = 4;
     LoadErrorView,
   ],
   template: `
-    <section class="relative pb-8 sm:pb-12">
+    <section
+      class="relative pb-8 sm:pb-12"
+      [attr.aria-busy]="products.isLoading() ? 'true' : null"
+    >
       @if (products.error()) {
         <app-load-error-view [message]="text.loadError" />
-      } @else if (products.hasValue()) {
-        @let data = products.value();
+      } @else if (loaded()) {
+        @let data = shown();
         @if (!data) {
           <app-not-found-view
             [body]="text.categoryNotFound"
@@ -124,9 +134,23 @@ const SUBS_COLLAPSED = 4;
             </ol>
           </nav>
 
-          <h1 class="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-            {{ data.category.name }}
-          </h1>
+          <div class="flex flex-wrap items-center justify-between gap-y-3">
+            <h1 class="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+              {{ data.category.name }}
+            </h1>
+
+            <!-- Right-aligned above the grid rather than beside the title: the
+                title row belongs to the breadcrumb and, in edit mode, to the
+                category controls pinned top-right. -->
+            @if (data.items.length) {
+              <div class="mt-2 flex justify-end">
+                <app-product-sort-select
+                  [value]="sortKey()"
+                  defaultSort="name"
+                />
+              </div>
+            }
+          </div>
 
           @if (data.category.subcategories.length || editControls()) {
             <ul class="mt-5 flex flex-wrap items-stretch gap-3">
@@ -233,7 +257,10 @@ const SUBS_COLLAPSED = 4;
                 @if (data.pagination.page > 1) {
                   <a
                     [routerLink]="['/catalog', slug()]"
-                    [queryParams]="{ page: data.pagination.page - 1 }"
+                    [queryParams]="{
+                      page: data.pagination.page - 1,
+                      sort: sortParam(),
+                    }"
                     appButton
                     variant="ghost"
                     size="sm"
@@ -250,7 +277,10 @@ const SUBS_COLLAPSED = 4;
                 @if (data.pagination.page < data.pagination.totalPages) {
                   <a
                     [routerLink]="['/catalog', slug()]"
-                    [queryParams]="{ page: data.pagination.page + 1 }"
+                    [queryParams]="{
+                      page: data.pagination.page + 1,
+                      sort: sortParam(),
+                    }"
                     appButton
                     variant="ghost"
                     size="sm"
@@ -333,6 +363,14 @@ export class CategoryGrid {
     const n = Number(this.page());
     return Number.isInteger(n) && n > 0 ? n : 1;
   });
+  /** Bound from the `sort` query param; an unknown key falls back to the
+   * default rather than being sent on to the API (FR-SEARCH-04). */
+  sort = input('');
+  protected readonly sortKey = computed(() => resolveCategorySort(this.sort()));
+  /** The sort as pagination links should carry it — absent when default. */
+  protected readonly sortParam = computed(() =>
+    sortParam(this.sortKey(), 'name'),
+  );
 
   protected showAllSubs = signal(false);
   /** The product whose delete confirmation is open, if any. */
@@ -363,12 +401,22 @@ export class CategoryGrid {
   );
 
   protected products = resource({
-    params: () => ({ slug: this.slug(), page: this.currentPage() }),
+    params: () => ({
+      slug: this.slug(),
+      page: this.currentPage(),
+      sort: this.sortKey(),
+    }),
     loader: ({ params }) =>
-      this.catalog.getCategoryProducts(params.slug, params.page),
+      this.catalog.getCategoryProducts(params.slug, params.page, params.sort),
   });
 
-  /** Delayed so a quick load never flashes a skeleton. */
+  /** Held across reloads, so re-sorting swaps the grid instead of blanking it. */
+  protected readonly shown = stableValue(this.products);
+  /** A missing category is a loaded `null`, so emptiness is not the test. */
+  protected readonly loaded = computed(() => this.shown() !== undefined);
+
+  /** Delayed so a quick load never flashes a skeleton. Only the first load can
+   * reach it now — a reload still has the previous grid on screen. */
   protected readonly showSkeleton = delayedLoading(this.products.isLoading);
 
   constructor() {

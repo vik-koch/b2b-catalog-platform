@@ -31,7 +31,18 @@ const page = (items: ProductListItem[], totalPages = 1): SearchResponse => ({
   pagination: { page: 1, pageSize: 24, total: items.length, totalPages },
 });
 
-async function render(query: string, response: SearchResponse) {
+interface SortOptions {
+  /** The raw `sort` query parameter, as the router would bind it. */
+  sort?: string;
+  /** Records what the component actually asked the API to sort by. */
+  spy?: (sort: string) => void;
+}
+
+async function render(
+  query: string,
+  response: SearchResponse,
+  { sort, spy }: SortOptions = {},
+) {
   TestBed.configureTestingModule({
     imports: [SearchResults],
     providers: [
@@ -46,12 +57,18 @@ async function render(query: string, response: SearchResponse) {
       },
       {
         provide: CatalogService,
-        useValue: { searchProducts: async () => response },
+        useValue: {
+          searchProducts: async (_q: string, _page: number, s: string) => {
+            spy?.(s);
+            return response;
+          },
+        },
       },
     ],
   });
   const fixture = TestBed.createComponent(SearchResults);
   fixture.componentRef.setInput('q', query);
+  if (sort !== undefined) fixture.componentRef.setInput('sort', sort);
   await fixture.whenStable();
   fixture.detectChanges();
   return fixture.nativeElement as HTMLElement;
@@ -110,5 +127,54 @@ describe('SearchResults', () => {
     );
     expect(next?.getAttribute('href')).toContain('q=espresso');
     expect(next?.getAttribute('href')).toContain('page=2');
+  });
+
+  describe('sorting (FR-SEARCH-04)', () => {
+    it('asks the API for the sort in the URL', async () => {
+      const asked: string[] = [];
+      const el = await render('espresso', page([item('a', 'A')]), {
+        sort: 'price_desc',
+        spy: (sort) => asked.push(sort),
+      });
+
+      expect(asked).toEqual(['price_desc']);
+      expect(el.querySelector('select')?.value).toBe('price_desc');
+    });
+
+    it('falls back to relevance rather than forwarding an unknown key', async () => {
+      const asked: string[] = [];
+      await render('espresso', page([item('a', 'A')]), {
+        sort: 'cheapest',
+        spy: (sort) => asked.push(sort),
+      });
+
+      expect(asked).toEqual(['relevance']);
+    });
+
+    it('carries a non-default sort into the pagination links', async () => {
+      const el = await render('espresso', page([item('a', 'A')], 3), {
+        sort: 'price',
+      });
+
+      const next = [...el.querySelectorAll('a')].find((a) =>
+        a.textContent?.includes(defaultAppText.catalog.nextPage),
+      );
+      expect(next?.getAttribute('href')).toContain('sort=price');
+    });
+
+    it('leaves the default sort out of the pagination links', async () => {
+      const el = await render('espresso', page([item('a', 'A')], 3));
+
+      const next = [...el.querySelectorAll('a')].find((a) =>
+        a.textContent?.includes(defaultAppText.catalog.nextPage),
+      );
+      expect(next?.getAttribute('href')).not.toContain('sort=');
+    });
+
+    it('offers no sort control when nothing matched', async () => {
+      const el = await render('zzzz', page([]));
+
+      expect(el.querySelector('select')).toBeNull();
+    });
   });
 });

@@ -149,9 +149,40 @@ export const paginationSchema = z
   .strict();
 export type Pagination = z.infer<typeof paginationSchema>;
 
-/** Query for the grid: 1-based page. Coerced — query values arrive as strings. */
+/**
+ * How a product listing is ordered (FR-SEARCH-04). Name and price, each in both
+ * directions — the only two fields a tile shows that a visitor can meaningfully
+ * order by. Every sort is total: the server appends name and id as tiebreakers,
+ * so a row cannot swap pages between requests.
+ */
+export const productSortSchema = z.enum([
+  'name',
+  'name_desc',
+  'price',
+  'price_desc',
+]);
+export type ProductSort = z.infer<typeof productSortSchema>;
+
+/**
+ * The same, plus relevance — only meaningful where there is a query to be
+ * relevant to, so it exists on the search endpoint alone rather than as a
+ * fourth option the category listing has to reject.
+ */
+export const searchSortSchema = z.enum([
+  'relevance',
+  ...productSortSchema.options,
+]);
+export type SearchSort = z.infer<typeof searchSortSchema>;
+
+/**
+ * Query for the grid: 1-based page and a sort. Coerced — query values arrive as
+ * strings. Both default here rather than in the UI, so an omitted parameter and
+ * an explicit default mean the same thing and the shared default sort has one
+ * definition. A category listing defaults to name (FR-SEARCH-04).
+ */
 export const productListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
+  sort: productSortSchema.optional().default('name'),
 });
 
 /**
@@ -173,6 +204,7 @@ export const SEARCH_QUERY_MAX_LENGTH = 100;
 export const productSearchQuerySchema = z.object({
   q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
   page: z.coerce.number().int().positive().optional().default(1),
+  sort: searchSortSchema.optional().default('relevance'),
 });
 
 /**
@@ -252,7 +284,8 @@ export const catalogContract = c.router({
     summary: 'List products in a category (paginated)',
   },
   /**
-   * Product search by name (FR-SEARCH-01…03), ordered by relevance. Its own
+   * Product search by name (FR-SEARCH-01…03), ordered by relevance unless the
+   * caller asks for another sort (FR-SEARCH-04). Its own
    * endpoint rather than a mode of the category listing: there is no category
    * to describe, so the response carries no breadcrumb or subcategory envelope
    * — just the same product tiles the grid renders, in match order.

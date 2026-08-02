@@ -38,8 +38,16 @@ function response(overrides: Partial<Products> = {}): Products {
   };
 }
 
+interface SortOptions {
+  /** The raw `sort` query parameter, as the router would bind it. */
+  sort?: string;
+  /** Records what the component actually asked the API to sort by. */
+  spy?: (sort: string) => void;
+}
+
 async function render(
   result: Products | null,
+  { sort, spy }: SortOptions = {},
 ): Promise<ComponentFixture<CategoryGrid>> {
   const config = {
     branding: { title: 'Test Shop' },
@@ -53,12 +61,22 @@ async function render(
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       {
         provide: CatalogService,
-        useValue: { getCategoryProducts: async () => result },
+        useValue: {
+          getCategoryProducts: async (
+            _slug: string,
+            _page: number,
+            s: string,
+          ) => {
+            spy?.(s);
+            return result;
+          },
+        },
       },
     ],
   });
   const fixture = TestBed.createComponent(CategoryGrid);
   fixture.componentRef.setInput('slug', 'coffee-beans');
+  if (sort !== undefined) fixture.componentRef.setInput('sort', sort);
   await fixture.whenStable();
   fixture.detectChanges();
   return fixture;
@@ -158,6 +176,67 @@ describe('CategoryGrid', () => {
     );
 
     expect(el(f).textContent).toContain(defaultAppText.catalog.emptyProducts);
+  });
+
+  describe('sorting (FR-SEARCH-04)', () => {
+    it('asks the API for the sort in the URL', async () => {
+      const asked: string[] = [];
+      const f = await render(response(), {
+        sort: 'price',
+        spy: (s) => asked.push(s),
+      });
+
+      expect(asked).toEqual(['price']);
+      expect(el(f).querySelector('select')?.value).toBe('price');
+    });
+
+    it('defaults to name, and offers no relevance option without a query', async () => {
+      const asked: string[] = [];
+      const f = await render(response(), { spy: (s) => asked.push(s) });
+
+      expect(asked).toEqual(['name']);
+      expect(
+        [...(el(f).querySelector('select')?.options ?? [])].map((o) => o.value),
+      ).not.toContain('relevance');
+    });
+
+    it('falls back to the default rather than forwarding an unknown key', async () => {
+      const asked: string[] = [];
+      await render(response(), {
+        // Relevance included: the category endpoint would reject it, so the
+        // page must not pass it on just because it is a valid search sort.
+        sort: 'relevance',
+        spy: (s) => asked.push(s),
+      });
+
+      expect(asked).toEqual(['name']);
+    });
+
+    it('carries a non-default sort into the pagination links', async () => {
+      const f = await render(
+        response({
+          pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+        }),
+        { sort: 'price_desc' },
+      );
+
+      const next = [...el(f).querySelectorAll('a')].find((a) =>
+        a.textContent?.includes(defaultAppText.catalog.nextPage),
+      );
+      expect(next?.getAttribute('href')).toContain('page=3');
+      expect(next?.getAttribute('href')).toContain('sort=price_desc');
+    });
+
+    it('offers no sort control on an empty category', async () => {
+      const f = await render(
+        response({
+          items: [],
+          pagination: { page: 1, pageSize: 24, total: 0, totalPages: 0 },
+        }),
+      );
+
+      expect(el(f).querySelector('select')).toBeNull();
+    });
   });
 
   it('shows a not-found message when the category does not exist', async () => {
