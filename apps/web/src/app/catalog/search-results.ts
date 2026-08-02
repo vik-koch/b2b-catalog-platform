@@ -136,7 +136,7 @@ export class SearchResults {
   protected readonly showSkeleton = delayedLoading(this.results.isLoading);
 
   constructor() {
-    usePageSeo({ name: () => this.heading() });
+    usePageSeo({ name: () => this.heading(), noindex: true });
   }
 
   protected readonly noResults = computed(() =>
