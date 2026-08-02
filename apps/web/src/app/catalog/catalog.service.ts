@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import {
   catalogContract,
+  ProductSort,
+  SearchSort,
   SearchSuggestion,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../core/api-client';
@@ -20,10 +22,10 @@ export class CatalogService {
 
   /** A page of products in a category (FR-CAT-03/04). `null` when the category
    * does not exist, so the caller can render a not-found rather than throw. */
-  async getCategoryProducts(slug: string, page: number) {
+  async getCategoryProducts(slug: string, page: number, sort: ProductSort) {
     const response = await this.client.getCategoryProducts({
       params: { slug },
-      query: { page },
+      query: { page, sort },
     });
     if (response.status === 200) {
       return response.body;
@@ -38,8 +40,10 @@ export class CatalogService {
 
   /** A page of search results, best match first (FR-SEARCH-01…03). An
    * unsearchable query is an empty page, not an error — see the contract. */
-  async searchProducts(q: string, page: number) {
-    const response = await this.client.searchProducts({ query: { q, page } });
+  async searchProducts(q: string, page: number, sort: SearchSort) {
+    const response = await this.client.searchProducts({
+      query: { q, page, sort },
+    });
     if (response.status === 200) {
       return response.body;
     }

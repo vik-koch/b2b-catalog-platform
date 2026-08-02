@@ -33,6 +33,14 @@
     "prevPage": "Previous",
     "nextPage": "Next",
     "pageStatus": "Page {page} of {total}",
+    "sort": {
+      "label": "Sort by",
+      "relevance": "Best match",
+      "name": "Name (A–Z)",
+      "name_desc": "Name (Z–A)",
+      "price": "Price (low to high)",
+      "price_desc": "Price (high to low)"
+    },
     "specifications": "Specifications",
     "productNotFound": "This product could not be found. It may have been removed.",
     "categoryNotFound": "This category could not be found. It may have been removed.",

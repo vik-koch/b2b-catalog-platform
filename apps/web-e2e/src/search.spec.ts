@@ -131,3 +131,73 @@ test.describe('without JavaScript', () => {
     ).toBeVisible();
   });
 });
+
+/**
+ * FR-SEARCH-04. The control is one native <select> shared by both listings, so
+ * these cover the two things that are not the API's job: the choice reaches the
+ * URL, and the URL is what the page reads back — which is what makes a sorted
+ * listing shareable.
+ */
+test.describe('sort controls (FR-SEARCH-04)', () => {
+  const sortBy = (page: Page) =>
+    page.getByRole('combobox', { name: 'Sort by' });
+
+  /**
+   * Tile prices in render order. Read off the rendered text and stripped back
+   * to digits — the formatting is a deployment concern, the ordering is not.
+   */
+  async function prices(page: Page): Promise<number[]> {
+    const texts = await page.locator('li p.font-bold').allTextContents();
+    return texts.map((t) => Number(t.replace(/\D/g, '')));
+  }
+
+  test('sorts a category listing and keeps the choice in the URL', async ({
+    page,
+  }) => {
+    await page.goto('/catalog/espresso');
+
+    await sortBy(page).selectOption('price');
+
+    await expect(page).toHaveURL(/sort=price/);
+    const ascending = await prices(page);
+    expect(ascending).toEqual([...ascending].sort((a, b) => a - b));
+
+    // The shareable half: the same URL, opened cold, renders the same order.
+    await page.reload();
+    await expect(sortBy(page)).toHaveValue('price');
+    expect(await prices(page)).toEqual(ascending);
+  });
+
+  test('returns to the first page, which the new order has renumbered', async ({
+    page,
+  }) => {
+    await page.goto('/catalog/espresso?page=2');
+
+    await sortBy(page).selectOption('price_desc');
+
+    await expect(page).toHaveURL(/sort=price_desc/);
+    await expect(page).not.toHaveURL(/page=/);
+  });
+
+  test('sorts search results without losing the query', async ({ page }) => {
+    await page.goto('/search?q=espresso');
+
+    await sortBy(page).selectOption('price');
+
+    await expect(page).toHaveURL(/q=espresso/);
+    const ascending = await prices(page);
+    expect(ascending).toEqual([...ascending].sort((a, b) => a - b));
+  });
+
+  test('offers relevance on search only, where a query can rank it', async ({
+    page,
+  }) => {
+    await page.goto('/search?q=espresso');
+    await expect(sortBy(page)).toHaveValue('relevance');
+
+    await page.goto('/catalog/espresso');
+    await expect(
+      sortBy(page).getByRole('option', { name: 'Best match' }),
+    ).toHaveCount(0);
+  });
+});

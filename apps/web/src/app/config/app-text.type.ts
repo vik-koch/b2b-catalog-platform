@@ -74,6 +74,23 @@ export const appTextSchema = z
         nextPage: z.string(),
         /** `{page}` and `{total}` substituted at render. */
         pageStatus: z.string(),
+        /**
+         * Sort control (FR-SEARCH-04). Keyed by the sort values the contract
+         * defines, so the option list is a lookup rather than a mapping the UI
+         * has to maintain. `relevance` is offered on search results only, but
+         * lives here with the rest so a deployment has one place to word them.
+         */
+        sort: z
+          .object({
+            /** Caption beside the control. */
+            label: z.string(),
+            relevance: z.string(),
+            name: z.string(),
+            name_desc: z.string(),
+            price: z.string(),
+            price_desc: z.string(),
+          })
+          .strict(),
         /** Product detail (FR-CAT-05). */
         specifications: z.string(),
         productNotFound: z.string(),
