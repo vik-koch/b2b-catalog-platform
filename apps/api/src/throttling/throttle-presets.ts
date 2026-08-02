@@ -35,6 +35,19 @@ export const SearchThrottle = () =>
   );
 
 /**
+ * Search suggestions (FR-SEARCH-05). Its own ceiling rather than the search
+ * one: this endpoint is called while the visitor types, so several requests per
+ * query is normal traffic and not a signal of abuse. The query is the cheaper
+ * half of the matcher — no count, no offset, five rows — so a higher limit
+ * costs less than the search page's does.
+ */
+export const SuggestionThrottle = () =>
+  applyDecorators(
+    UseGuards(ThrottlerGuard),
+    Throttle({ default: { limit: 180, ttl: seconds(60) } }),
+  );
+
+/**
  * Authentication endpoints (login). A handful of tries a minute per IP is
  * sufficient for a human and throttles credential-stuffing / brute force.
  * Traefik also rate-limits at the edge.

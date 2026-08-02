@@ -176,6 +176,33 @@ export const productSearchQuerySchema = z.object({
 });
 
 /**
+ * How many names the search bar's suggestion list offers (FR-SEARCH-05).
+ * Enforced server-side and exported so the UI can size the list without
+ * guessing. Short on purpose: suggestions are an accelerator, and a list long
+ * enough to need scanning is slower than reading the result page.
+ */
+export const SEARCH_SUGGESTION_LIMIT = 5;
+
+/**
+ * Query for the suggestion list. Just `q`: there is no paging past the first
+ * few matches, and the limit is not the caller's to choose.
+ */
+export const searchSuggestionQuerySchema = z.object({
+  q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
+});
+
+/**
+ * One suggestion: the name to show and the slug to go to. No price or image —
+ * picking a suggestion navigates straight to the product, so the row only has
+ * to be recognizable, and keeping it this narrow is what makes the query cheap
+ * enough to run while the visitor is still typing.
+ */
+export const searchSuggestionSchema = z
+  .object({ slug: z.string(), name: z.string() })
+  .strict();
+export type SearchSuggestion = z.infer<typeof searchSuggestionSchema>;
+
+/**
  * One indexable URL for the sitemap (NFR-SEO-02): a slug and the row's
  * `updatedAt` as an ISO string, used for `<lastmod>`. The SSR server turns
  * these into absolute `/catalog/:slug` and `/product/:slug` URLs;
@@ -243,6 +270,23 @@ export const catalogContract = c.router({
         .strict(),
     },
     summary: 'Search products by name, best match first',
+  },
+  /**
+   * Type-ahead suggestions for the search bar (FR-SEARCH-05). The same matcher
+   * and the same ordering as `searchProducts`, so the list is a truthful prefix
+   * of what submitting the query would show — but without the total count or
+   * the tile payload, which is what keeps it cheap enough to call per
+   * keystroke. Suggestions are an accelerator only: the full result list stays
+   * reachable by submitting.
+   */
+  getSearchSuggestions: {
+    method: 'GET',
+    path: '/catalog/search/suggestions',
+    query: searchSuggestionQuerySchema,
+    responses: {
+      200: z.object({ items: z.array(searchSuggestionSchema) }).strict(),
+    },
+    summary: 'Suggest product names for a partial query',
   },
   /**
    * Every indexable slug for the sitemap (NFR-SEO-02) — all categories and all

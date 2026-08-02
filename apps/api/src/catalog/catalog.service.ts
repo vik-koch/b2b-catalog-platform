@@ -7,6 +7,8 @@ import {
   CategoryNode,
   ProductDetail,
   ProductListItem,
+  SearchSuggestion,
+  SEARCH_SUGGESTION_LIMIT,
   SitemapEntry,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
@@ -189,6 +191,33 @@ export class CatalogService {
           totalPages: Math.ceil(Number(total) / pageSize),
         },
       };
+    });
+  }
+
+  /**
+   * Type-ahead suggestions for the search bar (FR-SEARCH-05). Deliberately the
+   * same candidate set and the same ordering as `searchProducts`, so the
+   * dropdown is a truthful prefix of the result page — only the count, the
+   * offset and the tile columns are dropped, which is what makes this cheap
+   * enough to run per keystroke.
+   */
+  async getSearchSuggestions(rawQuery: string): Promise<SearchSuggestion[]> {
+    const query = parseSearchQuery(rawQuery);
+    if (!query) return [];
+
+    return this.db.transaction(async (tx) => {
+      await tx.execute(setSearchThreshold);
+
+      return tx
+        .select({ slug: products.slug, name: products.name })
+        .from(products)
+        .where(and(isNull(products.deletedAt), searchCondition(query)))
+        .orderBy(
+          desc(relevanceScore(query)),
+          asc(products.name),
+          asc(products.id),
+        )
+        .limit(SEARCH_SUGGESTION_LIMIT);
     });
   }
 

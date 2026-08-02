@@ -1,5 +1,8 @@
 import { SQL, sql } from 'drizzle-orm';
-import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
+import {
+  SEARCH_QUERY_MAX_LENGTH,
+  searchTerms,
+} from '@b2b-catalog-platform/shared';
 import { products } from '../db/schema';
 
 /**
@@ -41,19 +44,18 @@ export interface SearchQuery {
 /**
  * Normalizes raw user input into something safe to run, or null when there is
  * nothing worth searching for (empty, punctuation only, or below the minimum
- * length). Splitting on everything that is not a letter or digit is what makes
- * the result safe to interpolate into a `tsquery` — no operator character can
- * survive tokenization — and it is why the caller never needs to escape.
- * Accents are folded in the database (`search_unaccent`), so both sides of the
- * comparison fold identically and this stays a pure string function.
+ * length). Tokenization is `searchTerms` — shared with the search bar's
+ * highlighter so both split a query the same way — and it is what makes the
+ * result safe to interpolate into a `tsquery`: no operator character survives
+ * it, so the caller never needs to escape. Accents are folded in the database
+ * (`search_unaccent`), so both sides of the comparison fold identically and
+ * this stays a pure string function.
  */
 export function parseSearchQuery(input: string): SearchQuery | null {
-  const terms = input
-    .slice(0, SEARCH_QUERY_MAX_LENGTH)
-    .toLowerCase()
-    .split(/[^\p{L}\p{N}]+/u)
-    .filter(Boolean)
-    .slice(0, SEARCH_MAX_TERMS);
+  const terms = searchTerms(input.slice(0, SEARCH_QUERY_MAX_LENGTH)).slice(
+    0,
+    SEARCH_MAX_TERMS,
+  );
 
   const normalized = terms.join(' ');
   if (normalized.length < SEARCH_MIN_LENGTH) return null;
