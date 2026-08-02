@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, asc, count, eq, inArray, isNull } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, isNull } from 'drizzle-orm';
 import {
   CatalogImage,
   CATALOG_PAGE_SIZE,
@@ -20,6 +20,22 @@ import {
   descendantIds,
   directChildren,
 } from './catalog-tree';
+import {
+  parseSearchQuery,
+  relevanceScore,
+  searchCondition,
+  setSearchThreshold,
+} from './product-search';
+
+interface SearchResult {
+  items: ProductListItem[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
 
 interface CategoryProductsResult {
   category: {
@@ -116,6 +132,64 @@ export class CatalogService {
         totalPages: Math.ceil(Number(total) / pageSize),
       },
     };
+  }
+
+  /**
+   * Product search by name (FR-SEARCH-01…03). Runs in a transaction only
+   * because the trigram threshold is set with `SET LOCAL`; a query too short to
+   * be worth running returns an empty page without touching the database.
+   *
+   * Ordering closes with `name, id`: without a total order two rows of equal
+   * score could swap between page requests and be shown twice, or not at all.
+   * Sort controls (FR-SEARCH-04) reuse this candidate set and land separately.
+   */
+  async searchProducts(rawQuery: string, page: number): Promise<SearchResult> {
+    const pageSize = CATALOG_PAGE_SIZE;
+    const query = parseSearchQuery(rawQuery);
+    if (!query) {
+      return {
+        items: [],
+        pagination: { page, pageSize, total: 0, totalPages: 0 },
+      };
+    }
+
+    const where = and(isNull(products.deletedAt), searchCondition(query));
+
+    return this.db.transaction(async (tx) => {
+      await tx.execute(setSearchThreshold);
+
+      const [{ value: total }] = await tx
+        .select({ value: count() })
+        .from(products)
+        .where(where);
+
+      const items = await tx
+        .select({
+          slug: products.slug,
+          name: products.name,
+          priceMinor: products.priceMinor,
+          images: products.images,
+        })
+        .from(products)
+        .where(where)
+        .orderBy(
+          desc(relevanceScore(query)),
+          asc(products.name),
+          asc(products.id),
+        )
+        .limit(pageSize)
+        .offset((page - 1) * pageSize);
+
+      return {
+        items,
+        pagination: {
+          page,
+          pageSize,
+          total: Number(total),
+          totalPages: Math.ceil(Number(total) / pageSize),
+        },
+      };
+    });
   }
 
   /**
