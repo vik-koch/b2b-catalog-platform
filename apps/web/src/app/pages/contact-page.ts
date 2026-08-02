@@ -38,7 +38,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
           [attr.aria-label]="editorText.edit"
           [attr.title]="editorText.edit"
         >
-          <app-lucide-icon name="pencil" class="h-4 w-4" />
+          <app-lucide-icon name="pencil" class="h-5 w-5" />
         </a>
       }
     </div>
