@@ -1,6 +1,7 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../db/schema';
 import { CatalogService } from './catalog.service';
+import { SearchLogger } from './search.logger';
 
 /**
  * A drizzle stand-in for the sitemap selects. Each chain ends in `.orderBy(...)`,
@@ -31,6 +32,7 @@ describe('CatalogService.getSitemap', () => {
         ],
         [{ slug: 'about', updatedAt: new Date('2026-04-04T08:00:00Z') }],
       ]),
+      new SearchLogger(),
     );
 
     const result = await service.getSitemap();
@@ -49,7 +51,10 @@ describe('CatalogService.getSitemap', () => {
   });
 
   it('yields empty lists when there is no catalog content', async () => {
-    const service = new CatalogService(dbReturning([[], [], []]));
+    const service = new CatalogService(
+      dbReturning([[], [], []]),
+      new SearchLogger(),
+    );
 
     await expect(service.getSitemap()).resolves.toEqual({
       categories: [],

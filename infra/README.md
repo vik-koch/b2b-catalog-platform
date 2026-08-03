@@ -189,6 +189,31 @@ A real **client prod** (private repo) gets no overlay — it ships no Mailpit an
 sets `MAIL_*` to a real SMTP provider (see
 [.env.stack.example](../.env.stack.example)).
 
+## Dashboards
+
+Two, both provisioned from files in
+[observability/compose.yml](observability/compose.yml) with
+`allowUiUpdates: false` — Grafana's volume is disposable, and a dashboard that
+only exists in it is one VM rebuild from gone. Each has a **Stack** variable so
+one Grafana can serve dev and prod without summing them.
+
+| dashboard              | fed by                           | answers                                                                                  |
+| ---------------------- | -------------------------------- | ---------------------------------------------------------------------------------------- |
+| B2B — traffic & errors | Traefik access logs, no app code | requests by status, 5xx, latency p95, most-viewed products and pages                     |
+| B2B — search usage     | the api's `[Search]` log lines   | which searches come back empty, what is searched most, search volume and matcher latency |
+
+The search one (NFR-OPS-05) is the exception to "the edge supplies the data":
+Traefik does not keep query strings, and no access log knows how many rows a
+search returned. The api logs one line per executed search — normalised query,
+term count, hit count, page, milliseconds — and nothing identifying: no address,
+no session, so a query cannot be traced back to whoever typed it. The line's
+shape is parsed by a regex in the dashboard and asserted in
+`search.logger.spec.ts`, so the two move together.
+
+Its top panel, **searches with no results**, is the one meant for the shop
+owner rather than the operator: each empty query is either a product the
+catalog does not carry, or one it carries under a name nobody searches by.
+
 ## Alerting
 
 Grafana mails alerts for the three failures that actually end a deployment.

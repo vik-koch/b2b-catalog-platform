@@ -5,6 +5,7 @@ import { AdminCatalogController } from './admin-catalog.controller';
 import { AdminCatalogService } from './admin-catalog.service';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
+import { SearchLogger } from './search.logger';
 
 /**
  * Catalog: the read-only storefront (FR-CAT, CatalogController/Service) and the
@@ -16,6 +17,6 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [AuthModule],
   controllers: [CatalogController, AdminCatalogController],
-  providers: [CatalogService, AdminCatalogService, AuditLogger],
+  providers: [CatalogService, AdminCatalogService, AuditLogger, SearchLogger],
 })
 export class CatalogModule {}
