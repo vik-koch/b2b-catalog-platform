@@ -173,12 +173,30 @@ export const adminTextSchema = z
           .strict(),
       })
       .strict(),
-    /** The product-list screen (FR-ADM-01): includes soft-deleted rows. */
+    /** The product-list screen (FR-ADM-01): includes soft-deleted rows, and
+     * carries the grid's filters, search box and sortable headings
+     * (FR-ADM-05). */
     productList: z
       .object({
         title: z.string(),
         deletedBadge: z.string(),
+        liveBadge: z.string(),
         empty: z.string(),
+        /** Shown instead of `empty` when filters are what emptied the list. */
+        noResults: z.string(),
+        updated: z.string(),
+        sourceId: z.string(),
+        searchLabel: z.string(),
+        searchPlaceholder: z.string(),
+        clearSearch: z.string(),
+        /** Accessible names for the two column-heading filters, whose visible
+         * text is the selected value rather than a label. */
+        filterState: z.string(),
+        filterCategory: z.string(),
+        stateAll: z.string(),
+        stateLive: z.string(),
+        stateDeleted: z.string(),
+        allCategories: z.string(),
       })
       .strict(),
     /** The category list screen (FR-ADM-01): the tree, its row actions and the

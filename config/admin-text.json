@@ -123,7 +123,20 @@
   "productList": {
     "title": "Products",
     "deletedBadge": "Deleted",
-    "empty": "No products yet."
+    "liveBadge": "Live",
+    "empty": "No products yet.",
+    "noResults": "No products match these filters.",
+    "updated": "Updated",
+    "sourceId": "Sync key",
+    "searchLabel": "Search products",
+    "searchPlaceholder": "Search by name or sync key",
+    "clearSearch": "Clear the search",
+    "filterState": "Filter by status",
+    "filterCategory": "Filter by category",
+    "stateAll": "All",
+    "stateLive": "Live only",
+    "stateDeleted": "Deleted only",
+    "allCategories": "All categories"
   },
   "categoryList": {
     "title": "Categories",

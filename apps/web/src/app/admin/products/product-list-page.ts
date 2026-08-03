@@ -1,23 +1,36 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   resource,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AdminProductSort } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { usePageSeo } from '../../core/page-seo';
 import { Skeleton } from '../../ui/skeleton';
 import { delayedLoading } from '../../core/delayed-loading';
+import { stableValue } from '../../core/stable-value';
 import { PricePipe } from '../../catalog/price.pipe';
 import { Button } from '../../ui/button';
 import { LucideIcon } from '../../ui/icons/lucide-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
+import { flattenCategoryTree } from '../categories/category-tree';
 import { injectEditorReturnParams } from '../editor-return';
+import { GridFilterOption, GridFilterSelect } from './grid-filter-select';
+import {
+  DEFAULT_ADMIN_STATE,
+  resolveAdminSort,
+  resolveAdminState,
+} from './grid-query';
+import { GridSortHeader } from './grid-sort-header';
 import { ProductDeleteDialog } from './product-delete-dialog';
+import { ProductSearchField } from './product-search-field';
 
 /**
  * The admin product list: every product including soft-deleted ones
@@ -34,11 +47,15 @@ import { ProductDeleteDialog } from './product-delete-dialog';
     Button,
     LucideIcon,
     ProductDeleteDialog,
+    ProductSearchField,
+    GridSortHeader,
+    GridFilterSelect,
     Skeleton,
   ],
   template: `
-    <div class="mb-6 flex items-center justify-between gap-4">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
+      <app-product-search-field [query]="query() ?? ''" />
       <a
         appButton
         routerLink="/admin/products/new"
@@ -52,133 +69,210 @@ import { ProductDeleteDialog } from './product-delete-dialog';
 
     @if (products.error()) {
       <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
-    } @else if (products.hasValue()) {
-      @let data = products.value();
-      @if (data.items.length === 0) {
-        <p class="text-muted">{{ text.empty }}</p>
-      } @else {
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border text-left text-subtle">
-              <th class="w-14 py-2"></th>
-              <th class="py-2 font-medium">{{ productText.name }}</th>
-              <th class="py-2 font-medium">{{ productText.category }}</th>
-              <th class="py-2 text-right font-medium">
-                {{ productText.price }}
-              </th>
-              <th class="w-32 py-2"></th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-stone-100">
-            @for (item of data.items; track item.slug) {
-              <tr [class.opacity-50]="item.deletedAt">
-                <td class="py-2">
-                  <div
-                    class="h-10 w-10 overflow-hidden rounded border border-border bg-stone-100"
-                  >
-                    @if (item.thumb) {
-                      <img
-                        [src]="item.thumb"
-                        alt=""
-                        class="h-full w-full object-cover"
-                      />
-                    }
-                  </div>
-                </td>
-                <td class="py-2">
-                  <a
-                    [routerLink]="['/admin/products', item.slug, 'edit']"
-                    [queryParams]="editorFrom"
-                    class="font-medium text-stone-700 hover:text-accent"
-                  >
-                    {{ item.name }}
-                  </a>
-                  @if (item.deletedAt) {
-                    <span
-                      class="ml-2 rounded bg-stone-200 px-1.5 py-0.5 text-xs text-muted"
-                    >
-                      {{ text.deletedBadge }}
-                    </span>
+    } @else if (shown(); as data) {
+      <!-- The table renders even with no rows: its header carries the filters
+           that produced the empty result, and taking them away with the rows
+           would leave nothing to undo them with. -->
+      <table
+        class="w-full text-sm table-fixed [&_th,&_td]:py-2 [&_th,&_td]:pr-4 [&_th:last-child,&_td:last-child]:pr-0"
+        [attr.aria-busy]="products.isLoading() ? 'true' : null"
+      >
+        <thead>
+          <tr class="border-b border-border text-left text-subtle">
+            <th class="w-10"></th>
+            <th class="w-70 pl-2">
+              <app-grid-sort
+                asc="name"
+                desc="name_desc"
+                [label]="productText.name"
+                [sort]="headerSort()"
+              />
+            </th>
+            <th class="font-medium w-20">{{ text.sourceId }}</th>
+            <th class="font-medium w-50">
+              <app-grid-filter-select
+                param="categoryId"
+                [options]="categoryOptions()"
+                [value]="categoryId()"
+                [ariaLabel]="text.filterCategory"
+              />
+            </th>
+            <th class="w-20">
+              <app-grid-sort
+                asc="price"
+                desc="price_desc"
+                [label]="productText.price"
+                [sort]="headerSort()"
+              />
+            </th>
+            <th class="w-20">
+              <app-grid-sort
+                asc="updated"
+                desc="updated_desc"
+                [label]="text.updated"
+                [descFirst]="true"
+                [sort]="headerSort()"
+              />
+            </th>
+            <th class="font-medium w-10">
+              <app-grid-filter-select
+                param="state"
+                [options]="stateOptions"
+                [value]="stateParam()"
+                [ariaLabel]="text.filterState"
+              />
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-stone-100">
+          @for (item of data.items; track item.slug) {
+            <tr [class.opacity-50]="item.deletedAt">
+              <td>
+                <div
+                  class="h-10 w-10 overflow-hidden rounded border border-border bg-stone-100"
+                >
+                  @if (item.thumb) {
+                    <img
+                      [src]="item.thumb"
+                      alt=""
+                      class="h-full w-full object-cover"
+                    />
                   }
-                </td>
-                <td class="py-2 text-subtle">
-                  {{ categoryName().get(item.categoryId) }}
-                </td>
-                <td class="py-2 text-right text-stone-700">
-                  {{ item.priceMinor | price }}
-                </td>
-                <td class="py-2">
-                  <div class="flex items-center justify-end gap-1">
+                </div>
+              </td>
+              <td class="pl-2">
+                <div class="flex items-center">
+                  <span class="line-clamp-2 wrap-break-word text-subtle">
+                    @if (item.deletedAt) {
+                      <span
+                        class="rounded bg-stone-200 px-1.5 py-0.5 text-xs text-muted mr-2"
+                      >
+                        {{ text.deletedBadge }}
+                      </span>
+                    }
                     <a
                       [routerLink]="['/admin/products', item.slug, 'edit']"
                       [queryParams]="editorFrom"
-                      class="p-1.5 text-subtle hover:text-accent"
-                      [attr.aria-label]="editText.editProduct"
+                      class="font-medium text-stone-700 hover:text-accent"
                     >
-                      <app-lucide-icon name="pencil" class="h-4 w-4" />
+                      {{ item.name }}
                     </a>
-                    @if (item.deletedAt) {
-                      <button
-                        type="button"
-                        class="p-1.5 text-subtle hover:text-accent"
-                        [attr.aria-label]="common.restore"
-                        (click)="restore(item)"
-                      >
-                        <app-lucide-icon name="rotate-ccw" class="h-4 w-4" />
-                      </button>
-                    } @else {
-                      <button
-                        type="button"
-                        class="p-1.5 text-subtle hover:text-red-700"
-                        [attr.aria-label]="editText.deleteProduct"
-                        (click)="deletingProduct.set(item)"
-                      >
-                        <app-lucide-icon name="trash-2" class="h-4 w-4" />
-                      </button>
-                    }
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+                  </span>
+                </div>
+              </td>
+              <td class="text-subtle">
+                <!-- The sync key, shown because the search box matches it: an
+                     admin who searched for a key should see the key they
+                     found. Monospaced — an identifier to compare character by
+                     character, not prose — and truncated, since a legacy key
+                     can be long and the full value is one hover away. -->
+                <span
+                  class="block max-w-20 truncate font-mono text-xs"
+                  [title]="item.sourceId"
+                  >{{ item.sourceId }}</span
+                >
+              </td>
+              <td>
+                <div class="flex items-center">
+                  <span class="line-clamp-2 wrap-break-word text-subtle">
+                    {{ categoryName().get(item.categoryId) }}
+                  </span>
+                </div>
+              </td>
+              <td class="text-stone-700">
+                {{ item.priceMinor | price }}
+              </td>
+              <td class="py-2 text-subtle ">
+                <div>{{ formatTime(item.updatedAt) }}</div>
+                <div class="text-[0.675rem]">
+                  {{ formatDate(item.updatedAt) }}
+                </div>
+              </td>
+              <td>
+                <div class="flex items-center justify-end gap-1">
+                  <a
+                    [routerLink]="['/admin/products', item.slug, 'edit']"
+                    [queryParams]="editorFrom"
+                    class="p-1.5 text-subtle hover:text-accent"
+                    [attr.aria-label]="editText.editProduct"
+                  >
+                    <app-lucide-icon name="pencil" class="h-4 w-4" />
+                  </a>
+                  @if (item.deletedAt) {
+                    <button
+                      type="button"
+                      class="p-1.5 text-subtle hover:text-accent"
+                      [attr.aria-label]="common.restore"
+                      (click)="restore(item)"
+                    >
+                      <app-lucide-icon name="rotate-ccw" class="h-4 w-4" />
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="p-1.5 text-subtle hover:text-red-700"
+                      [attr.aria-label]="editText.deleteProduct"
+                      (click)="deletingProduct.set(item)"
+                    >
+                      <app-lucide-icon name="trash-2" class="h-4 w-4" />
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
 
-        @if (data.pagination.totalPages > 1) {
-          <nav
-            class="mt-8 flex items-center justify-center gap-4 text-sm"
-            [attr.aria-label]="catalogText.pageStatus"
-          >
-            @if (data.pagination.page > 1) {
-              <a
-                routerLink="/admin/products"
-                [queryParams]="{ page: data.pagination.page - 1 }"
-                appButton
-                variant="ghost"
-                size="sm"
-                >{{ catalogText.prevPage }}</a
-              >
-            } @else {
-              <span class="px-3 py-1.5 text-stone-300">{{
-                catalogText.prevPage
-              }}</span>
-            }
-            <span class="text-subtle">{{ pageStatus(data.pagination) }}</span>
-            @if (data.pagination.page < data.pagination.totalPages) {
-              <a
-                routerLink="/admin/products"
-                [queryParams]="{ page: data.pagination.page + 1 }"
-                appButton
-                variant="ghost"
-                size="sm"
-                >{{ catalogText.nextPage }}</a
-              >
-            } @else {
-              <span class="px-3 py-1.5 text-stone-300">{{
-                catalogText.nextPage
-              }}</span>
-            }
-          </nav>
-        }
+      @if (data.items.length === 0) {
+        <!-- Two different nothings: an empty catalogue is a state to fix by
+             adding a product, an empty result is one to fix by widening the
+             filters — so they cannot share a sentence. -->
+        <p class="mt-6 text-muted">
+          {{ filtered() ? text.noResults : text.empty }}
+        </p>
+      }
+
+      @if (data.pagination.totalPages > 1) {
+        <nav
+          class="mt-8 flex items-center justify-center gap-4 text-sm"
+          [attr.aria-label]="catalogText.pageStatus"
+        >
+          <!-- Every page link merges: the filters, the search and the sort are
+               all in the URL now, and a link carrying page alone would drop
+               them and page through a different list than the one on screen. -->
+          @if (data.pagination.page > 1) {
+            <a
+              routerLink="/admin/products"
+              [queryParams]="{ page: data.pagination.page - 1 }"
+              queryParamsHandling="merge"
+              appButton
+              variant="ghost"
+              size="sm"
+              >{{ catalogText.prevPage }}</a
+            >
+          } @else {
+            <span class="px-3 py-1.5 text-stone-300">{{
+              catalogText.prevPage
+            }}</span>
+          }
+          <span class="text-subtle">{{ pageStatus(data.pagination) }}</span>
+          @if (data.pagination.page < data.pagination.totalPages) {
+            <a
+              routerLink="/admin/products"
+              [queryParams]="{ page: data.pagination.page + 1 }"
+              queryParamsHandling="merge"
+              appButton
+              variant="ghost"
+              size="sm"
+              >{{ catalogText.nextPage }}</a
+            >
+          } @else {
+            <span class="px-3 py-1.5 text-stone-300">{{
+              catalogText.nextPage
+            }}</span>
+          }
+        </nav>
       }
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
@@ -196,12 +290,26 @@ import { ProductDeleteDialog } from './product-delete-dialog';
 })
 export class ProductListPage {
   private readonly admin = inject(AdminCatalogService);
+  private readonly router = inject(Router);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productList;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
+
+  /** Built once: a formatter is expensive to construct and the grid renders one
+   * date per row. Date only — the grid is scanned, and a row's exact minute is
+   * detail for the editor rather than for the list. */
+  private readonly dateFormat = new Intl.DateTimeFormat(
+    inject(DEPLOYMENT_CONFIG).catalog.currency.locale,
+    { dateStyle: 'medium' },
+  );
+
+  private readonly timeFormat = new Intl.DateTimeFormat(
+    inject(DEPLOYMENT_CONFIG).catalog.currency.locale,
+    { timeStyle: 'medium' },
+  );
 
   /** Bound from the `page` query param (a string); coerced and floored to 1. */
   page = input('1');
@@ -210,6 +318,54 @@ export class ProductListPage {
     return Number.isInteger(n) && n > 0 ? n : 1;
   });
 
+  /*
+   * The rest of the grid's state, likewise bound from query parameters
+   * (FR-ADM-05) — the inputs are named for the parameters, since router input
+   * binding matches on the parameter's name. Each is narrowed before it reaches
+   * the API, so a hand-edited URL falls back to the default instead of becoming
+   * a request the server would reject.
+   */
+  readonly searchTerm = input('');
+  protected readonly query = computed(() =>
+    this.searchTerm() ? this.searchTerm().trim() : undefined,
+  );
+
+  private x = effect(() => console.log('searchTerm: ', this.searchTerm()));
+
+  readonly sort = input('');
+  protected readonly sortKey = computed(() => resolveAdminSort(this.sort()));
+  /**
+   * The sort as the column headings should show it. `relevance` is not a column
+   * — with a query it is the ranking, and with none the API orders by name, so
+   * that is the header to light up. Display only: the request still sends the
+   * key that was resolved.
+   */
+  protected readonly headerSort = computed<AdminProductSort | null>(() => {
+    if (this.sortKey() !== 'relevance') return this.sortKey();
+    return this.query() ? null : 'name';
+  });
+
+  readonly state = input('');
+  protected readonly stateKey = computed(() => resolveAdminState(this.state()));
+  /** The select's value: the default is the unfiltered choice, whose option
+   * carries the empty value that clears the parameter. */
+  protected readonly stateParam = computed(() =>
+    this.stateKey() === DEFAULT_ADMIN_STATE ? '' : this.stateKey(),
+  );
+
+  /** Not narrowed here — an unknown id is a uuid the API answers with an empty
+   * page, and anything that is not one fails contract validation. */
+  readonly categoryId = input('');
+
+  /** Whether anything is narrowing the list, which is what separates "no
+   * products" from "no matches". */
+  protected readonly filtered = computed(
+    () =>
+      !!this.query() ||
+      !!this.categoryId() ||
+      this.stateKey() !== DEFAULT_ADMIN_STATE,
+  );
+
   private readonly categories = resource({
     loader: () => this.admin.listCategories(),
   });
@@ -217,12 +373,41 @@ export class ProductListPage {
     () => new Map((this.categories.value() ?? []).map((c) => [c.id, c.name])),
   );
 
+  /** The category filter's options: the tree flattened depth-first and
+   * indented, same as the editor's picker, led by the unfiltered choice. */
+  protected readonly categoryOptions = computed<GridFilterOption[]>(() => [
+    { value: '', label: this.text.allCategories },
+    ...flattenCategoryTree(this.categories.value() ?? []).map((node) => ({
+      value: node.category.id,
+      label: node.category.name,
+      depth: node.depth,
+    })),
+  ]);
+
+  protected readonly stateOptions: GridFilterOption[] = [
+    { value: '', label: this.text.stateAll },
+    { value: 'live', label: this.text.stateLive },
+    { value: 'deleted', label: this.text.stateDeleted },
+  ];
+
   protected products = resource({
-    params: () => ({ page: this.currentPage() }),
-    loader: ({ params }) => this.admin.listProducts({ page: params.page }),
+    params: () => ({
+      page: this.currentPage(),
+      q: this.query(),
+      sort: this.sortKey(),
+      state: this.stateKey(),
+      categoryId: this.categoryId() || undefined,
+    }),
+    loader: ({ params }) => this.admin.listProducts(params),
   });
 
-  /** Delayed so a quick load never flashes a skeleton. */
+  /** Held across reloads, so filtering, sorting or typing swaps the rows
+   * instead of blanking the table — and the header that carries the controls
+   * stays put while the next page is in flight. */
+  protected readonly shown = stableValue(this.products);
+
+  /** Delayed so a quick load never flashes a skeleton. Only the first load can
+   * reach it — a reload still has the previous rows on screen. */
   protected readonly showSkeleton = delayedLoading(this.products.isLoading);
 
   /** The product whose delete confirmation modal is open, if any. */
@@ -239,6 +424,15 @@ export class ProductListPage {
   protected async restore(item: { slug: string }): Promise<void> {
     await this.admin.restoreProduct(item.slug);
     this.products.reload();
+  }
+
+  /** Dates follow the deployment's locale, like prices do. */
+  protected formatDate(iso: string): string {
+    return this.dateFormat.format(new Date(iso));
+  }
+
+  protected formatTime(iso: string): string {
+    return this.timeFormat.format(new Date(iso));
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {
