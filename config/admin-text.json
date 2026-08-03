@@ -164,6 +164,8 @@
     "noParent": "— Top level —",
     "slug": "URL slug",
     "slugHint": "Used in the category's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
+    "sourceId": "Category number (optional)",
+    "sourceIdHint": "The legacy/import key. Leave empty for a category created here; set it to match a future import.",
     "description": "Description",
     "image": "Image",
     "discardConfirm": "Discard your unsaved changes to this category?",

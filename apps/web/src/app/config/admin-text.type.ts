@@ -237,6 +237,8 @@ export const adminTextSchema = z
         noParent: z.string(),
         slug: z.string(),
         slugHint: z.string(),
+        sourceId: z.string(),
+        sourceIdHint: z.string(),
         description: z.string(),
         image: z.string(),
         discardConfirm: z.string(),

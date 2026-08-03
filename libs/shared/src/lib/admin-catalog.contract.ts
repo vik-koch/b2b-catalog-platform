@@ -196,6 +196,7 @@ export const adminCategorySchema = z
     parentId: z.string().uuid().nullable(),
     sortOrder: z.number().int(),
     image: catalogImageSchema.nullable(),
+    sourceId: z.string(),
     description: z.string().nullable(),
     productCount: z.number().int().nonnegative(),
     childCount: z.number().int().nonnegative(),
@@ -214,6 +215,9 @@ export const categoryInputSchema = z
     slug: slugSchema.optional(),
     parentId: z.string().uuid().nullable().default(null),
     image: catalogImageSchema.nullable().default(null),
+    /** Private sync key. Admin-settable to pre-assign a legacy key for future
+     * file reconciliation; omit to let the server generate `manual:<uuid>`. */
+    sourceId: z.string().trim().min(1).max(SOURCE_ID_MAX_LENGTH).optional(),
     description: z
       .string()
       .max(PRODUCT_DESCRIPTION_MAX_LENGTH)

@@ -395,6 +395,11 @@ export class AdminCatalogService {
       existing.slug,
     );
 
+    const newSourceId = await this.resolveSourceIdOverride(
+      input.sourceId,
+      existing.sourceId,
+    );
+
     await this.runUnique(() =>
       this.db
         .update(categories)
@@ -403,6 +408,7 @@ export class AdminCatalogService {
           slug: newSlug,
           parentId: input.parentId,
           image: input.image,
+          sourceId: newSourceId,
           description: input.description,
           updatedAt: new Date(),
           updatedBy: actorId,
@@ -702,6 +708,7 @@ function toAdminCategory(
     parentId: row.parentId,
     sortOrder: row.sortOrder,
     image: row.image,
+    sourceId: row.sourceId,
     description: row.description,
     productCount,
     childCount,

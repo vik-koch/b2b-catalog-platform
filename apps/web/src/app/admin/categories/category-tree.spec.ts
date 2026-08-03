@@ -17,6 +17,7 @@ const cat = (
   parentId,
   sortOrder,
   image: null,
+  sourceId: 'manual:x',
   description: null,
   productCount: 0,
   childCount: 0,

@@ -24,6 +24,7 @@ const category: AdminCategory = {
   parentId: null,
   sortOrder: 0,
   image: null,
+  sourceId: 'manual:x',
   description: null,
   productCount: 3,
   childCount: 0,
