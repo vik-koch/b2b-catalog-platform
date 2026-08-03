@@ -104,6 +104,23 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
                 <app-lucide-icon name="plus" class="h-4 w-4" />
               </a>
               <a
+                [routerLink]="['/catalog', branch.category.slug]"
+                class="p-1 text-stone-400 hover:text-accent"
+                [attr.aria-label]="text.seeProducts"
+              >
+                <app-lucide-icon name="eye" class="h-4 w-4" />
+              </a>
+              <a
+                routerLink="/admin/products"
+                [queryParams]="{
+                  categoryId: branch.category.id,
+                }"
+                class="p-1 text-stone-400 hover:text-accent"
+                [attr.aria-label]="text.editProducts"
+              >
+                <app-lucide-icon name="square-chart-gantt" class="h-4 w-4" />
+              </a>
+              <a
                 [routerLink]="[
                   '/admin/categories',
                   branch.category.slug,

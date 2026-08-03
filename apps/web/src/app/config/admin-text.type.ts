@@ -206,6 +206,8 @@ export const adminTextSchema = z
         title: z.string(),
         add: z.string(),
         addChild: z.string(),
+        seeProducts: z.string(),
+        editProducts: z.string(),
         edit: z.string(),
         delete: z.string(),
         deleting: z.string(),

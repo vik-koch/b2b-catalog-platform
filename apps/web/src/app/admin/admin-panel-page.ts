@@ -68,13 +68,13 @@ import { BuildInfoService } from './build-info.service';
             aria-labelledby="admin-catalog-heading"
           >
             <li>
-              <a appButton variant="secondary" routerLink="/admin/products">
-                {{ productText.title }}
+              <a appButton variant="secondary" routerLink="/admin/categories">
+                {{ categoryText.title }}
               </a>
             </li>
             <li>
-              <a appButton variant="secondary" routerLink="/admin/categories">
-                {{ categoryText.title }}
+              <a appButton variant="secondary" routerLink="/admin/products">
+                {{ productText.title }}
               </a>
             </li>
           </ul>

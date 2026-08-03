@@ -142,6 +142,8 @@
     "title": "Categories",
     "add": "Add category",
     "addChild": "Add subcategory",
+    "seeProducts": "See category products",
+    "editProducts": "Edit category products",
     "edit": "Edit",
     "delete": "Delete",
     "deleting": "Deleting…",
