@@ -5,6 +5,7 @@ import {
   priceMinorSchema,
   productAttributeSchema,
   productListItemSchema,
+  SEARCH_QUERY_MAX_LENGTH,
 } from './catalog.contract';
 import { slugSchema } from './slug';
 
@@ -116,25 +117,70 @@ export const adminProductSchema = z
   .strict();
 export type AdminProduct = z.infer<typeof adminProductSchema>;
 
-/** A lighter row for the admin grid (includes deleted; one thumb for preview). */
+/** A lighter row for the admin grid (includes deleted; one thumb for preview).
+ * Carries `sourceId` and `updatedAt` because the grid can filter and sort on
+ * both — a column the admin can order by has to be one they can also see. */
 export const adminProductListItemSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
     priceMinor: priceMinorSchema,
     categoryId: z.string().uuid(),
+    sourceId: z.string(),
     thumb: z.string().nullable(),
     deletedAt: z.string().datetime().nullable(),
+    updatedAt: z.string().datetime(),
   })
   .strict();
 export type AdminProductListItem = z.infer<typeof adminProductListItemSchema>;
 
-/** Admin grid query: 1-based page, optional category filter. Deleted rows are
- * always included — the admin sees the whole catalog. */
+/**
+ * Which publication states the grid shows (FR-ADM-05). `all` is the default —
+ * the admin sees the whole catalog, soft-deleted rows included and greyed out —
+ * with `live`/`deleted` as narrowing filters rather than the storefront's
+ * implicit "live only".
+ */
+export const adminProductStateSchema = z.enum(['all', 'live', 'deleted']);
+export type AdminProductState = z.infer<typeof adminProductStateSchema>;
+
+/**
+ * Grid sort keys (FR-ADM-05): the storefront's name/price pairs, plus recency
+ * for "what did I just touch", plus relevance.
+ *
+ * `relevance` is the default and does double duty: with a search box entry it
+ * ranks by match score, and with an empty box there is nothing to score against
+ * so it degrades to name order — which is what an unsearched grid wants anyway.
+ * That way the UI never has to switch the sort key when a query appears.
+ */
+export const adminProductSortSchema = z.enum([
+  'relevance',
+  'name',
+  'name_desc',
+  'price',
+  'price_desc',
+  /** Least recently updated first; `updated_desc` is the useful one. */
+  'updated',
+  'updated_desc',
+]);
+export type AdminProductSort = z.infer<typeof adminProductSortSchema>;
+
+/**
+ * Admin grid query (FR-ADM-05): 1-based page, publication state, category, a
+ * free-text box and a sort.
+ *
+ * `q` matches the product name with the same matcher the storefront search uses
+ * (word-order independent, typo tolerant) *or* the private `sourceId` as a
+ * substring — the admin either remembers roughly what a product is called or
+ * has the sync key in hand, and one box serves both.
+ */
 export const adminProductListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   categoryId: z.string().uuid().optional(),
+  state: adminProductStateSchema.optional().default('all'),
+  q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
+  sort: adminProductSortSchema.optional().default('relevance'),
 });
+export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 
 /**
  * A category as the management screen sees it: the structural fields plus the

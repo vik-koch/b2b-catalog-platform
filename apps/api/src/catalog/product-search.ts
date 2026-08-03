@@ -79,13 +79,20 @@ export function searchCondition(query: SearchQuery): SQL {
   const fuzzy = query.terms.map(
     (term) => sql`search_unaccent(${products.name}) %> ${term}`,
   );
-  return sql.join(
-    [
-      sql`(${products.nameTsv} @@ to_tsquery('simple', search_unaccent(${query.tsquery})))`,
-      ...fuzzy,
-    ],
-    sql` or `,
-  );
+  return or([
+    sql`(${products.nameTsv} @@ to_tsquery('simple', search_unaccent(${query.tsquery})))`,
+    ...fuzzy,
+  ]);
+}
+
+/**
+ * ORs a list of predicates into one *parenthesized* condition. The parentheses
+ * are the point: drizzle's `and()` splices a raw `SQL` fragment in as-is, so an
+ * unwrapped `a or b` next to a `deletedAt is null` filter would bind as
+ * `(filter and a) or b` and let unfiltered rows through.
+ */
+function or(conditions: SQL[]): SQL {
+  return sql`(${sql.join(conditions, sql` or `)})`;
 }
 
 /**
@@ -111,6 +118,33 @@ export function relevanceScore(query: SearchQuery): SQL<number> {
     + (case when ${products.nameTsv} @@ to_tsquery('simple', search_unaccent(${query.tsquery})) then 1 else 0 end)
     + (${perTerm}) / ${query.terms.length}
   `;
+}
+
+/**
+ * The admin grid's box also matches the private sync key (FR-ADM-05), as a
+ * case-insensitive substring of the raw input rather than through the name
+ * matcher: a key like `legacy:AB-1200/3` is punctuation, which tokenization
+ * would throw away, and an admin holding a key wants that exact row, not
+ * something spelled similarly. LIKE metacharacters are escaped so a pasted `%`
+ * cannot turn into a wildcard scan.
+ */
+export function sourceIdCondition(raw: string): SQL {
+  const escaped = raw.trim().replace(/[\\%_]/g, (ch) => `\\${ch}`);
+  return sql`${products.sourceId} ilike ${'%' + escaped + '%'}`;
+}
+
+/**
+ * What the admin grid's single search box matches: the product name (same
+ * matcher as the storefront, so "matches this name" has one definition) or the
+ * sync key. Returns null when the input is blank — an unfiltered grid — but a
+ * one-character entry still filters, because it is a valid key fragment even
+ * though it is too short to run the name matcher on.
+ */
+export function adminSearchCondition(raw: string): SQL | null {
+  if (!raw.trim()) return null;
+  const query = parseSearchQuery(raw);
+  const byName = query ? [searchCondition(query)] : [];
+  return or([...byName, sourceIdCondition(raw)]);
 }
 
 /**

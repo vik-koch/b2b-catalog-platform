@@ -364,6 +364,125 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
+  /**
+   * The grid's filter/search/sort surface (FR-ADM-05). Every case scopes to the
+   * test parent category, so the assertions hold no matter what else the seeded
+   * catalog contains — the point is which of *these* rows come back and in what
+   * order, not global counts.
+   */
+  describe('GET /admin/catalog/products (FR-ADM-05)', () => {
+    let liveSlug: string;
+    let deletedSlug: string;
+    let gridCategoryId: string;
+
+    const grid = async (params: string) => {
+      const res = await adminGet(
+        `/admin/catalog/products?categoryId=${gridCategoryId}&${params}`,
+      );
+      expect(res.status).toBe(200);
+      return res.data as {
+        items: { slug: string; name: string; sourceId: string }[];
+        pagination: { total: number };
+      };
+    };
+
+    beforeAll(async () => {
+      // A category of this suite's own, so paging and totals are predictable.
+      const category = await createCategory({ name: `Grid ${R}` });
+      gridCategoryId = category.data.id;
+
+      const live = await createProduct({
+        name: `Grid Espresso Roast ${R}`,
+        categoryId: gridCategoryId,
+        priceMinor: 500,
+        sourceId: `grid:${R}-KEEP/1`,
+      });
+      liveSlug = live.data.slug;
+
+      const deleted = await createProduct({
+        name: `Grid Filter Blend ${R}`,
+        categoryId: gridCategoryId,
+        priceMinor: 900,
+        sourceId: `grid:${R}-GONE/2`,
+      });
+      deletedSlug = deleted.data.slug;
+      await del(`/admin/catalog/products/${deletedSlug}`);
+    });
+
+    it('shows both live and soft-deleted rows by default', async () => {
+      const body = await grid('state=all');
+      expect(body.items.map((i) => i.slug).sort()).toEqual(
+        [liveSlug, deletedSlug].sort(),
+      );
+    });
+
+    it.each([
+      ['live', () => liveSlug, () => deletedSlug],
+      ['deleted', () => deletedSlug, () => liveSlug],
+    ])('filters to %s only', async (state, wanted, excluded) => {
+      const body = await grid(`state=${state}`);
+      expect(body.items.map((i) => i.slug)).toEqual([wanted()]);
+      expect(body.items.map((i) => i.slug)).not.toContain(excluded());
+      expect(body.pagination.total).toBe(1);
+    });
+
+    it('searches by name, typo included, across the delete state', async () => {
+      // "esspreso" is a misspelling — the fuzzy half has to carry it.
+      const body = await grid('q=esspreso');
+      expect(body.items.map((i) => i.slug)).toEqual([liveSlug]);
+    });
+
+    it('searches by the private sync key, punctuation and all', async () => {
+      // A key fragment the name half cannot match on any term — the point is
+      // that the slashes and the case survive to reach the sourceId.
+      const body = await grid(`q=${encodeURIComponent('GONE/2')}`);
+      expect(body.items.map((i) => i.slug)).toEqual([deletedSlug]);
+    });
+
+    it('combines the search box with the state filter', async () => {
+      // The name matches both rows; the state filter is what narrows it.
+      const body = await grid('q=Grid&state=live');
+      expect(body.items.map((i) => i.slug)).toEqual([liveSlug]);
+    });
+
+    it.each([
+      ['price', ['Espresso', 'Filter']],
+      ['price_desc', ['Filter', 'Espresso']],
+      ['name', ['Espresso', 'Filter']],
+      ['name_desc', ['Filter', 'Espresso']],
+    ])('sorts by %s', async (sort, expected) => {
+      const body = await grid(`sort=${sort}`);
+      expect(
+        body.items.map((i) =>
+          i.name.includes('Espresso') ? 'Espresso' : 'Filter',
+        ),
+      ).toEqual(expected);
+    });
+
+    it('sorts by recency, most recently updated first', async () => {
+      // The deleted row was touched last (the delete moved its updatedAt).
+      const body = await grid('sort=updated_desc');
+      expect(body.items[0].slug).toBe(deletedSlug);
+      const oldest = await grid('sort=updated');
+      expect(oldest.items[0].slug).toBe(liveSlug);
+    });
+
+    it('never leaks a match from another category', async () => {
+      // The same query, unscoped, does find rows outside the grid category —
+      // so the category filter is doing the narrowing above, not the query.
+      const scoped = await grid('q=Grid');
+      const unscoped = await adminGet(
+        `/admin/catalog/products?q=${encodeURIComponent(`Grid ${R}`)}`,
+      );
+      expect(unscoped.data.pagination.total).toBeGreaterThanOrEqual(
+        scoped.pagination.total,
+      );
+      for (const item of scoped.items) {
+        expect([liveSlug, deletedSlug]).toContain(item.slug);
+      }
+    });
+  });
+
   describe('GET /admin/catalog/categories/:slug/deleted-products', () => {
     it('lists soft-deleted products across the subtree, excluding live ones', async () => {
       // A deleted product directly under the parent, and one deleted under a

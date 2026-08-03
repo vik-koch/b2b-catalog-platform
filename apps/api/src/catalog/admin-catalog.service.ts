@@ -5,11 +5,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, asc, count, eq, inArray, isNotNull, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  sql,
+} from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import {
   ADMIN_CATALOG_PAGE_SIZE,
   AdminCategory,
+  AdminProductListQuery,
   AdminProduct,
   AdminProductListItem,
   CategoryInput,
@@ -22,6 +32,13 @@ import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { categories, products } from '../db/schema';
 import { categoryBySlug, descendantIds } from './catalog-tree';
+import {
+  adminSearchCondition,
+  parseSearchQuery,
+  relevanceScore,
+  setSearchThreshold,
+} from './product-search';
+import { adminProductOrderBy } from './product-sort';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 
 /** The editable product shape the admin contract returns. */
@@ -67,7 +84,18 @@ export class AdminCatalogService {
 
   // --- Products -----------------------------------------------------------
 
-  async listProducts(query: { page: number; categoryId?: string }): Promise<{
+  /**
+   * The admin grid (FR-ADM-05): filtered by publication state and category,
+   * searched by name or sync key, sorted. Unlike the storefront listing this
+   * shows soft-deleted rows by default — `state` narrows, it does not widen.
+   *
+   * Runs in a transaction for the same reason the storefront search does: the
+   * trigram threshold is set with `SET LOCAL`, so the matcher's recall cannot
+   * depend on the server default. Not logged as a search (NFR-OPS-05) — the
+   * search log measures what customers look for, and an admin looking up a row
+   * they are about to edit would poison that.
+   */
+  async listProducts(query: AdminProductListQuery): Promise<{
     items: AdminProductListItem[];
     pagination: {
       page: number;
@@ -77,46 +105,61 @@ export class AdminCatalogService {
     };
   }> {
     const pageSize = ADMIN_CATALOG_PAGE_SIZE;
-    const where = query.categoryId
-      ? eq(products.categoryId, query.categoryId)
-      : undefined;
+    const search = parseSearchQuery(query.q);
+    const where = and(
+      query.categoryId ? eq(products.categoryId, query.categoryId) : undefined,
+      query.state === 'live' ? isNull(products.deletedAt) : undefined,
+      query.state === 'deleted' ? isNotNull(products.deletedAt) : undefined,
+      adminSearchCondition(query.q) ?? undefined,
+    );
+    // Only rank when the box holds something the name matcher could score; a
+    // sync-key-only lookup has no meaningful relevance and falls back to name.
+    const score = search ? relevanceScore(search) : undefined;
 
-    const [{ value: total }] = await this.db
-      .select({ value: count() })
-      .from(products)
-      .where(where);
+    return this.db.transaction(async (tx) => {
+      await tx.execute(setSearchThreshold);
 
-    const rows = await this.db
-      .select({
-        slug: products.slug,
-        name: products.name,
-        priceMinor: products.priceMinor,
-        categoryId: products.categoryId,
-        images: products.images,
-        deletedAt: products.deletedAt,
-      })
-      .from(products)
-      .where(where)
-      .orderBy(asc(products.name))
-      .limit(pageSize)
-      .offset((query.page - 1) * pageSize);
+      const [{ value: total }] = await tx
+        .select({ value: count() })
+        .from(products)
+        .where(where);
 
-    return {
-      items: rows.map((r) => ({
-        slug: r.slug,
-        name: r.name,
-        priceMinor: r.priceMinor,
-        categoryId: r.categoryId,
-        thumb: r.images[0]?.thumb ?? null,
-        deletedAt: r.deletedAt?.toISOString() ?? null,
-      })),
-      pagination: {
-        page: query.page,
-        pageSize,
-        total: Number(total),
-        totalPages: Math.ceil(Number(total) / pageSize),
-      },
-    };
+      const rows = await tx
+        .select({
+          slug: products.slug,
+          name: products.name,
+          priceMinor: products.priceMinor,
+          categoryId: products.categoryId,
+          sourceId: products.sourceId,
+          images: products.images,
+          deletedAt: products.deletedAt,
+          updatedAt: products.updatedAt,
+        })
+        .from(products)
+        .where(where)
+        .orderBy(...adminProductOrderBy(query.sort, score))
+        .limit(pageSize)
+        .offset((query.page - 1) * pageSize);
+
+      return {
+        items: rows.map((r) => ({
+          slug: r.slug,
+          name: r.name,
+          priceMinor: r.priceMinor,
+          categoryId: r.categoryId,
+          sourceId: r.sourceId,
+          thumb: r.images[0]?.thumb ?? null,
+          deletedAt: r.deletedAt?.toISOString() ?? null,
+          updatedAt: r.updatedAt.toISOString(),
+        })),
+        pagination: {
+          page: query.page,
+          pageSize,
+          total: Number(total),
+          totalPages: Math.ceil(Number(total) / pageSize),
+        },
+      };
+    });
   }
 
   /** Loads a product in editable form regardless of soft-delete state. */

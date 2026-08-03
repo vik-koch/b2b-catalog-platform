@@ -190,9 +190,13 @@ export class SearchField {
   // root route reports blank params on the first render, which would show an
   // empty field for a frame before filling it in.
   private readonly url = currentUrl();
-  private readonly routeQuery = computed(
-    () => this.router.parseUrl(this.url()).queryParams['q'] ?? '',
-  );
+  private readonly routeQuery = computed(() => {
+    const urlTree = this.router.parseUrl(this.url());
+    if (urlTree.root.children['primary']?.segments[0]?.path === 'search') {
+      return urlTree.queryParams['q'] ?? '';
+    }
+    return '';
+  });
 
   protected readonly text = inject(APP_TEXT).search;
   protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;

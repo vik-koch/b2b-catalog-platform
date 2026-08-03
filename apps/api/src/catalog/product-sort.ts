@@ -1,6 +1,6 @@
 import { asc, desc, SQL } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
-import { SearchSort } from '@b2b-catalog-platform/shared';
+import { AdminProductSort, SearchSort } from '@b2b-catalog-platform/shared';
 import { products } from '../db/schema';
 
 /**
@@ -28,6 +28,7 @@ const priceColumn = products.priceMinor;
  * one (the category listing) cannot ask for it, because its contract does not
  * offer the key.
  */
+
 export function productOrderBy(sort: SearchSort, score?: SQL<number>): OrderBy {
   const tiebreak: OrderBy = [asc(products.name), asc(products.id)];
 
@@ -44,5 +45,26 @@ export function productOrderBy(sort: SearchSort, score?: SQL<number>): OrderBy {
       return [asc(priceColumn), ...tiebreak];
     case 'price_desc':
       return [desc(priceColumn), ...tiebreak];
+  }
+}
+
+/**
+ * The admin grid's ordering (FR-ADM-05): the storefront's keys plus recency,
+ * which only the admin has a use for. Everything else — including relevance
+ * degrading to name order when there is nothing to score — is the shared
+ * behaviour, so the two grids never disagree about what "by price" means.
+ */
+export function adminProductOrderBy(
+  sort: AdminProductSort,
+  score?: SQL<number>,
+): OrderBy {
+  const tiebreak: OrderBy = [asc(products.name), asc(products.id)];
+  switch (sort) {
+    case 'updated':
+      return [asc(products.updatedAt), ...tiebreak];
+    case 'updated_desc':
+      return [desc(products.updatedAt), ...tiebreak];
+    default:
+      return productOrderBy(sort, score);
   }
 }

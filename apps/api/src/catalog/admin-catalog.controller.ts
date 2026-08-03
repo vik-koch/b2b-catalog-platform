@@ -25,11 +25,15 @@ export class AdminCatalogController {
     return tsRestHandler(
       adminCatalogContract.listProducts,
       async ({ query }) => {
-        // page carries a zod default; the pre-parse handler type still sees it as
-        // optional, so re-apply the default here for the service's required param.
+        // page/state/q/sort carry zod defaults; the pre-parse handler type still
+        // sees them as optional, so re-apply them here for the service's
+        // required params.
         const body = await this.service.listProducts({
           page: query.page ?? 1,
           categoryId: query.categoryId,
+          state: query.state ?? 'all',
+          q: query.q ?? '',
+          sort: query.sort ?? 'relevance',
         });
         return { status: 200, body };
       },

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import {
   adminCatalogContract,
   AdminProduct,
+  AdminProductSort,
+  AdminProductState,
   CategoryInput,
   ProductInput,
   ProductListItem,
@@ -21,7 +23,9 @@ export class AdminCatalogService {
 
   // --- Products ---------------------------------------------------------
 
-  async listProducts(query: { page?: number; categoryId?: string } = {}) {
+  /** The grid's filter/search/sort surface (FR-ADM-05). Every part is optional:
+   * an omitted parameter and the contract's default mean the same thing. */
+  async listProducts(query: ProductGridQuery = {}) {
     const response = await this.client.listProducts({ query });
     if (response.status === 200) return response.body;
     throw new Error(`Failed to list products (status ${response.status})`);
@@ -138,6 +142,15 @@ export class AdminCatalogService {
     if (response.status === 200) return response.body.categories;
     throw new Error(`Failed to reorder categories (status ${response.status})`);
   }
+}
+
+/** What the admin grid may ask for (FR-ADM-05). */
+export interface ProductGridQuery {
+  page?: number;
+  categoryId?: string;
+  state?: AdminProductState;
+  q?: string;
+  sort?: AdminProductSort;
 }
 
 /** A create/update outcome: the stored product, or a message to show inline. */

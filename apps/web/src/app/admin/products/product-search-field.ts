@@ -1,0 +1,119 @@
+import {
+  Component,
+  ElementRef,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  untracked,
+  viewChild,
+} from '@angular/core';
+import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
+import { ADMIN_TEXT } from '../../config/admin-text';
+import { debounced } from '../../core/debounced';
+import { CloseIcon } from '../../ui/icons/close-icon';
+import { SearchIcon } from '../../ui/icons/search-icon';
+import { Input } from '../../ui/input';
+import { injectGridNav } from './grid-query';
+
+/** Long enough that a fast typist produces one request per word rather than one
+ * per letter, short enough that a pause feels answered immediately. The same
+ * number the storefront's search field uses. */
+const SEARCH_DEBOUNCE_MS = 200;
+
+/**
+ * The grid's find-a-product box (FR-ADM-05): matches a product name — typos
+ * and word order included, the same matcher the storefront search uses — or the
+ * private sync key.
+ *
+ * Deliberately a plain field rather than the storefront's search bar: this one
+ * filters a table the admin is already looking at, and the heavy bordered bar
+ * with its own submit button and suggestion dropdown would out-shout the "Add
+ * product" action it sits beside. No combobox either — the table below *is* the
+ * result list, and suggesting rows over it would only cover them up.
+ *
+ * There is no submit: typing filters, after a pause. The query goes into the
+ * URL like every other grid parameter, so a filtered view is shareable, but as
+ * a replaced history entry — one back-button step per keystroke would make the
+ * back button useless.
+ */
+@Component({
+  selector: 'app-product-search-field',
+  imports: [Input, SearchIcon, CloseIcon],
+  template: `
+    <div class="relative">
+      <!-- Leading glyph: a label for the field rather than a control, so it is
+           muted and takes no pointer events. -->
+      <app-icon-search
+        class="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-subtle"
+      />
+      <input
+        #input
+        appInput
+        type="search"
+        autocomplete="off"
+        [maxLength]="maxLength"
+        [attr.aria-label]="text.searchLabel"
+        [placeholder]="text.searchPlaceholder"
+        [value]="value()"
+        (input)="value.set($any($event.target).value)"
+        (keydown.escape)="clear()"
+        class="w-56 pr-8 pl-9 sm:w-72 [&::-webkit-search-cancel-button]:hidden text-sm"
+      />
+      @if (value()) {
+        <button
+          type="button"
+          class="absolute top-1/2 right-1.5 flex -translate-y-1/2 cursor-pointer items-center rounded-full p-1 text-subtle hover:text-accent"
+          (click)="clear()"
+        >
+          <app-icon-close class="h-4 w-4" />
+          <span class="sr-only">{{ text.clearSearch }}</span>
+        </button>
+      }
+    </div>
+  `,
+})
+export class ProductSearchField {
+  private readonly navigate = injectGridNav();
+  private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
+  protected readonly text = inject(ADMIN_TEXT).productList;
+  protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;
+
+  /** The query in the URL. */
+  readonly query = input('');
+
+  /**
+   * Seeded from the URL rather than bound to it: the field is the admin's to
+   * edit between navigations, and re-reading the parameter this component just
+   * wrote would fight the cursor. A query that changed elsewhere — a shared
+   * link, the back button — still takes it back, while the navigation this
+   * field itself caused leaves the typed text exactly as typed (trailing space
+   * included, which the URL does not carry).
+   */
+  protected readonly value = linkedSignal<string, string>({
+    source: () => this.query(),
+    computation: (query, previous) =>
+      previous && query === previous.value.trim() ? previous.value : query,
+  });
+
+  private readonly settled = debounced(this.value, SEARCH_DEBOUNCE_MS);
+
+  constructor() {
+    effect(() => {
+      const q = this.settled().trim();
+      // Guarded, because this effect also runs on the navigation it caused (and
+      // on arrival at an already-filtered URL) — navigating again there would
+      // be a redundant round trip, and would reset the page of a URL that was
+      // just opened on page 3.
+      if (untracked(this.value).trim() === untracked(this.query).trim()) return;
+      this.navigate({ searchTerm: q || null }, { replaceUrl: true });
+    });
+  }
+
+  /** Empties the field and hands focus back, so the next query can be typed
+   * without reaching for the input again. */
+  protected clear(): void {
+    this.value.set('');
+    this.input()?.nativeElement.focus();
+  }
+}
