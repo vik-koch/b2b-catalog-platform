@@ -1,10 +1,11 @@
 import { sql } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import {
+  adminProductSortSchema,
   productSortSchema,
   searchSortSchema,
 } from '@b2b-catalog-platform/shared';
-import { productOrderBy } from './product-sort';
+import { adminProductOrderBy, productOrderBy } from './product-sort';
 
 /** Renders an order-by list the way the query builder would, as one string. */
 function render(clauses: ReturnType<typeof productOrderBy>): string {
@@ -66,4 +67,31 @@ describe('productOrderBy', () => {
       new RegExp(`^"products"\\."${column}" ${direction}`),
     );
   });
+});
+
+describe('adminProductOrderBy', () => {
+  it.each(adminProductSortSchema.options)(
+    'ends %s with the id tiebreak, so no row can swap pages',
+    (option) => {
+      expect(render(adminProductOrderBy(option, score))).toMatch(/"id" asc$/);
+    },
+  );
+
+  it.each([
+    ['updated', 'asc'],
+    ['updated_desc', 'desc'],
+  ] as const)('sorts %s on updatedAt %s', (option, direction) => {
+    expect(render(adminProductOrderBy(option))).toMatch(
+      new RegExp(`^"products"\\."updatedAt" ${direction}`),
+    );
+  });
+
+  it.each(searchSortSchema.options)(
+    'delegates %s to the shared ordering, so both grids agree',
+    (option) => {
+      expect(render(adminProductOrderBy(option, score))).toBe(
+        render(productOrderBy(option, score)),
+      );
+    },
+  );
 });

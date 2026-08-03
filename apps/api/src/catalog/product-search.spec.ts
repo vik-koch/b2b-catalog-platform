@@ -1,10 +1,34 @@
 import { PgDialect } from 'drizzle-orm/pg-core';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
 import {
+  adminSearchCondition,
   parseSearchQuery,
   SEARCH_MAX_TERMS,
   searchCondition,
 } from './product-search';
+
+/** Renders a condition to SQL text plus its bound parameters. */
+function toQuery(condition: ReturnType<typeof searchCondition>) {
+  return new PgDialect().sqlToQuery(condition);
+}
+
+function fixtureQuery() {
+  const query = parseSearchQuery('hafen espresso');
+  if (!query) throw new Error('fixture query should parse');
+  return query;
+}
+
+/** True if the whole expression sits inside one outer paren group, so a caller
+ * can AND it with anything without the ORs escaping. */
+function isOneGroup(text: string): boolean {
+  let depth = 0;
+  for (const [i, ch] of [...text].entries()) {
+    if (ch === '(') depth++;
+    if (ch === ')') depth--;
+    if (depth === 0 && i < text.length - 1) return false;
+  }
+  return depth === 0;
+}
 
 /**
  * The parser is the whole security boundary in front of `to_tsquery`:
@@ -89,5 +113,59 @@ describe('searchCondition', () => {
     // separately index-backed, which is what keeps this a bitmap OR.
     expect(sql).toContain('to_tsquery');
     expect(sql.match(/%>/g)).toHaveLength(query.terms.length);
+  });
+
+  it.each([
+    ['searchCondition', () => searchCondition(fixtureQuery())],
+    ['adminSearchCondition', () => adminSearchCondition('hafen espresso')],
+  ])('wraps %s in parentheses', (_label, build) => {
+    // Not cosmetic: drizzle's `and()` splices a raw fragment in as-is, so an
+    // unwrapped `a or b` would bind as `(deletedAt is null and a) or b` and let
+    // soft-deleted rows through the caller's filter.
+    const condition = build();
+    if (!condition) throw new Error('fixture should produce a condition');
+    expect(isOneGroup(toQuery(condition).sql)).toBe(true);
+  });
+});
+
+describe('adminSearchCondition', () => {
+  it.each([
+    ['empty', ''],
+    ['blank', '   '],
+  ])('returns null for %s input, leaving the grid unfiltered', (_l, input) => {
+    expect(adminSearchCondition(input)).toBeNull();
+  });
+
+  it('matches the name or the sync key', () => {
+    const condition = adminSearchCondition('hafen');
+    if (!condition) throw new Error('fixture should produce a condition');
+    const { sql, params } = toQuery(condition);
+
+    expect(sql).toContain('to_tsquery');
+    expect(sql).toContain('ilike');
+    expect(params).toContain('%hafen%');
+  });
+
+  it('still filters on a query too short for the name matcher', () => {
+    // One character cannot run the name matcher, but it is a valid key
+    // fragment — dropping the filter would show the whole catalog instead.
+    const condition = adminSearchCondition('7');
+    if (!condition) throw new Error('fixture should produce a condition');
+    const { sql, params } = toQuery(condition);
+
+    expect(sql).not.toContain('to_tsquery');
+    expect(params).toContain('%7%');
+  });
+
+  it('keeps punctuation in the key half, which tokenization would drop', () => {
+    const condition = adminSearchCondition('legacy:AB-1200/3');
+    if (!condition) throw new Error('fixture should produce a condition');
+    expect(toQuery(condition).params).toContain('%legacy:AB-1200/3%');
+  });
+
+  it('escapes LIKE metacharacters, so a pasted % is not a wildcard', () => {
+    const condition = adminSearchCondition('50%_off\\x');
+    if (!condition) throw new Error('fixture should produce a condition');
+    expect(toQuery(condition).params).toContain('%50\\%\\_off\\\\x%');
   });
 });
