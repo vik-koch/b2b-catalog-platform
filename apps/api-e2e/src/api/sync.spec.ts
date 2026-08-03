@@ -24,6 +24,7 @@ const PASSWORD = 'e2e-sync-password';
 const R = Date.now().toString(36);
 const CATEGORY_NAME = `E2E Sync Category ${R}`;
 const SOURCE_PREFIX = `e2e-sync-${R}`;
+const CATEGORY_SOURCE_ID = `e2e-sync-cat-${R}`;
 
 function sessionCookie(setCookie: string[] | undefined): string {
   const cookie = setCookie
@@ -110,8 +111,8 @@ describe('Catalog sync (FR-ADM-02)', () => {
     await client.query('DELETE FROM products WHERE "sourceId" LIKE $1', [
       `${SOURCE_PREFIX}%`,
     ]);
-    await client.query('DELETE FROM categories WHERE name = $1', [
-      CATEGORY_NAME,
+    await client.query('DELETE FROM categories WHERE "sourceId" = $1', [
+      CATEGORY_SOURCE_ID,
     ]);
     await client.query('DELETE FROM sync_runs WHERE "actorEmail" = $1', [
       ADMIN_EMAIL,
@@ -165,8 +166,8 @@ describe('Catalog sync (FR-ADM-02)', () => {
   describe('preview then commit', () => {
     it('previews without writing anything, then applies on commit', async () => {
       const csv = [
-        'sourceId,name,category,price',
-        `${SOURCE_PREFIX}-1,Sync Beans,${CATEGORY_NAME},1890`,
+        'sourceId,name,categorySourceId,categoryName,price',
+        `${SOURCE_PREFIX}-1,Sync Beans,${CATEGORY_SOURCE_ID},${CATEGORY_NAME},1890`,
         '',
       ].join('\n');
 
@@ -180,7 +181,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
         errors: 0,
       });
       expect(previewed.data.plan.categories).toEqual([
-        { kind: 'create', name: CATEGORY_NAME, productCount: 1 },
+        { kind: 'create', name: CATEGORY_NAME, from: null, productCount: 1 },
       ]);
       // The preview is a dry run: nothing exists yet.
       expect(await productBySourceId(`${SOURCE_PREFIX}-1`)).toBeUndefined();
@@ -204,7 +205,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
         [CATEGORY_NAME],
       );
       expect(rows[0].parentId).toBeNull();
-      expect(rows[0].sourceId).toBe(CATEGORY_NAME.toLowerCase());
+      expect(rows[0].sourceId).toBe(CATEGORY_SOURCE_ID);
     });
 
     it('refuses to commit the same run twice', async () => {
@@ -251,8 +252,8 @@ describe('Catalog sync (FR-ADM-02)', () => {
     it('keeps the slug fixed when the file renames a product', async () => {
       await run(
         [
-          'sourceId,name,category,price',
-          `${SOURCE_PREFIX}-1,Sync Beans Reserve,${CATEGORY_NAME},2490`,
+          'sourceId,name,categorySourceId,categoryName,price',
+          `${SOURCE_PREFIX}-1,Sync Beans Reserve,${CATEGORY_SOURCE_ID},${CATEGORY_NAME},2490`,
           '',
         ].join('\n'),
       );
@@ -264,12 +265,54 @@ describe('Catalog sync (FR-ADM-02)', () => {
       });
     });
 
+    it('renames a category in place rather than creating a second one', async () => {
+      const renamed = `${CATEGORY_NAME} Reserve`;
+      const before = await client.query(
+        'SELECT slug FROM categories WHERE "sourceId" = $1',
+        [CATEGORY_SOURCE_ID],
+      );
+      const { plan, applied } = await run(
+        [
+          'sourceId,name,categorySourceId,categoryName,price',
+          `${SOURCE_PREFIX}-1,Sync Beans Reserve,${CATEGORY_SOURCE_ID},${renamed},2490`,
+          '',
+        ].join('\n'),
+      );
+
+      expect(plan.categories).toEqual([
+        {
+          kind: 'rename',
+          name: renamed,
+          from: CATEGORY_NAME,
+          productCount: 1,
+        },
+      ]);
+      expect(applied).toMatchObject({ categoriesRenamed: 1 });
+
+      const { rows } = await client.query(
+        'SELECT name, slug FROM categories WHERE "sourceId" = $1',
+        [CATEGORY_SOURCE_ID],
+      );
+      expect(rows).toHaveLength(1);
+      // The name moves; the URL does not.
+      expect(rows[0]).toMatchObject({
+        name: renamed,
+        slug: before.rows[0].slug,
+      });
+
+      // Put it back, so the rest of the spec sees the original name.
+      await client.query(
+        'UPDATE categories SET name = $1 WHERE "sourceId" = $2',
+        [CATEGORY_NAME, CATEGORY_SOURCE_ID],
+      );
+    });
+
     it('skips a bad row and applies the good ones', async () => {
       const { plan, applied } = await run(
         [
-          'sourceId,name,category,price',
-          `${SOURCE_PREFIX}-2,Sync Grinder,${CATEGORY_NAME},4900`,
-          `${SOURCE_PREFIX}-3,Broken,${CATEGORY_NAME},19.90`,
+          'sourceId,name,categorySourceId,categoryName,price',
+          `${SOURCE_PREFIX}-2,Sync Grinder,${CATEGORY_SOURCE_ID},${CATEGORY_NAME},4900`,
+          `${SOURCE_PREFIX}-3,Broken,${CATEGORY_SOURCE_ID},${CATEGORY_NAME},19.90`,
           '',
         ].join('\n'),
       );

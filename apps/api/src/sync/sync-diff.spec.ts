@@ -12,13 +12,13 @@ import {
 
 const beans: ExistingCategory = {
   id: 'cat-1',
-  sourceId: 'coffee-beans',
+  sourceId: 'C-1',
   slug: 'coffee-beans',
   name: 'Coffee Beans',
 };
 const gear: ExistingCategory = {
   id: 'cat-2',
-  sourceId: 'equipment',
+  sourceId: 'C-2',
   slug: 'equipment',
   name: 'Equipment',
 };
@@ -103,6 +103,7 @@ describe('planSync', () => {
         row({
           sourceId: 'A-9',
           name: 'Chemex',
+          categorySourceId: 'C-2',
           categoryName: 'Equipment',
           prices: { default: 4500 },
         }),
@@ -121,7 +122,14 @@ describe('planSync', () => {
     ]);
 
     const priceless = planSync(
-      [row({ sourceId: 'A-9', name: 'Chemex', categoryName: 'Equipment' })],
+      [
+        row({
+          sourceId: 'A-9',
+          name: 'Chemex',
+          categorySourceId: 'C-2',
+          categoryName: 'Equipment',
+        }),
+      ],
       options(),
       state(),
     );
@@ -131,9 +139,9 @@ describe('planSync', () => {
     );
   });
 
-  it('matches categories by name, case- and whitespace-insensitively', () => {
+  it('matches a category by source id, whatever the file calls it', () => {
     const { actions, plan } = planSync(
-      [row({ categoryName: '  equipment ' })],
+      [row({ categorySourceId: 'C-2', categoryName: 'Equipment' })],
       options(),
       state(),
     );
@@ -142,17 +150,50 @@ describe('planSync', () => {
       { id: 'p-1', categoryId: 'cat-2', categorySourceId: null },
     ]);
     expect(plan.products[0].changes).toEqual([
-      { field: 'category', from: 'Coffee Beans', to: '  equipment ' },
+      { field: 'category', from: 'Coffee Beans', to: 'Equipment' },
     ]);
+  });
+
+  it('renames a known category instead of creating a second one', () => {
+    const { actions, plan } = planSync(
+      [row({ categorySourceId: 'C-1', categoryName: 'Beans' })],
+      options(),
+      state(),
+    );
+
+    expect(actions.createCategories).toEqual([]);
+    expect(actions.updateCategories).toEqual([{ id: 'cat-1', name: 'Beans' }]);
+    expect(plan.categories).toEqual([
+      { kind: 'rename', name: 'Beans', from: 'Coffee Beans', productCount: 1 },
+    ]);
+    expect(plan.summary).toMatchObject({
+      categoriesCreated: 0,
+      categoriesRenamed: 1,
+    });
+  });
+
+  it('leaves the category alone when the run does not write categories', () => {
+    const { actions } = planSync(
+      [row({ categorySourceId: 'C-1', categoryName: 'Beans' })],
+      options({ fields: ['name'] }),
+      state(),
+    );
+
+    expect(actions.updateCategories).toEqual([]);
   });
 
   it('creates an unknown category once, unparented, and counts its rows', () => {
     const { actions, plan } = planSync(
       [
-        row({ sourceId: 'A-1', categoryName: 'Grinders' }),
+        row({
+          sourceId: 'A-1',
+          categorySourceId: 'C-3',
+          categoryName: 'Grinders',
+        }),
         row({
           sourceId: 'A-2',
           name: 'Hand Grinder',
+          categorySourceId: 'C-3',
           categoryName: 'Grinders',
           prices: { default: 8900 },
         }),
@@ -162,33 +203,89 @@ describe('planSync', () => {
     );
 
     expect(actions.createCategories).toEqual([
-      { sourceId: 'grinders', name: 'Grinders' },
+      { sourceId: 'C-3', name: 'Grinders' },
     ]);
     expect(plan.categories).toEqual([
-      { kind: 'create', name: 'Grinders', productCount: 2 },
+      { kind: 'create', name: 'Grinders', from: null, productCount: 2 },
     ]);
   });
 
   it('fails the row when categories may not be created', () => {
     const { plan, actions } = planSync(
-      [row({ categoryName: 'Grinders' })],
+      [row({ categorySourceId: 'C-3', categoryName: 'Grinders' })],
       options({ createCategories: false }),
       state(),
     );
 
     expect(actions.createCategories).toEqual([]);
-    expect(plan.rowErrors[0].message).toMatch(/Unknown category "Grinders"/);
+    expect(plan.rowErrors[0].message).toMatch(
+      /Unknown category "Grinders" \(C-3\)/,
+    );
   });
 
-  it('fails the row when two categories share the name the file uses', () => {
-    const twin: ExistingCategory = { ...gear, id: 'cat-3', slug: 'gear-2' };
-    const { plan } = planSync(
-      [row({ categoryName: 'Equipment' })],
+  it('fails the row when the file gives one category id two names', () => {
+    const { plan, actions } = planSync(
+      [
+        row({
+          sourceId: 'A-1',
+          categorySourceId: 'C-1',
+          categoryName: 'Beans',
+        }),
+        row({
+          sourceId: 'A-2',
+          categorySourceId: 'C-1',
+          categoryName: 'Green Beans',
+        }),
+      ],
       options(),
-      state({ categories: [beans, gear, twin] }),
+      state(),
     );
 
-    expect(plan.rowErrors[0].message).toMatch(/ambiguous/);
+    expect(plan.rowErrors).toEqual([
+      {
+        row: 2,
+        sourceId: 'A-2',
+        message:
+          'Category "C-1" is named both "Beans" and "Green Beans" in this file',
+      },
+    ]);
+    expect(actions.updateCategories).toEqual([{ id: 'cat-1', name: 'Beans' }]);
+  });
+
+  it('tolerates incidental case and spacing differences within the file', () => {
+    const { plan } = planSync(
+      [
+        row({
+          sourceId: 'A-1',
+          categorySourceId: 'C-1',
+          categoryName: 'Beans',
+        }),
+        row({
+          sourceId: 'A-2',
+          name: 'Green Beans',
+          categorySourceId: 'C-1',
+          categoryName: 'beans',
+          prices: { default: 1200 },
+        }),
+      ],
+      options(),
+      state(),
+    );
+
+    expect(plan.rowErrors).toEqual([]);
+  });
+
+  it('allows two categories to share a name, since ids differ', () => {
+    const { plan, actions } = planSync(
+      [row({ categorySourceId: 'C-2', categoryName: 'Coffee Beans' })],
+      options(),
+      state(),
+    );
+
+    expect(plan.rowErrors).toEqual([]);
+    expect(actions.updateCategories).toEqual([
+      { id: 'cat-2', name: 'Coffee Beans' },
+    ]);
   });
 
   describe('the delete sweep', () => {

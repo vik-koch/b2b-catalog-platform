@@ -25,6 +25,7 @@ const emptySummary = {
   restore: 0,
   unchanged: 0,
   categoriesCreated: 0,
+  categoriesRenamed: 0,
   keptManual: 0,
   errors: 0,
 };

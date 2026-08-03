@@ -42,7 +42,8 @@ const PRICE_COLUMNS = new Map<string, SyncPriceListKey>([
 const KNOWN_COLUMNS = new Set<string>([
   SYNC_CSV_COLUMNS.sourceId,
   SYNC_CSV_COLUMNS.name,
-  SYNC_CSV_COLUMNS.category,
+  SYNC_CSV_COLUMNS.categorySourceId,
+  SYNC_CSV_COLUMNS.categoryName,
   ...PRICE_COLUMNS.keys(),
 ]);
 
@@ -145,8 +146,26 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
     // sync can set a value or leave it alone, never blank it.
     const name = value(SYNC_CSV_COLUMNS.name);
     if (name) row.name = name;
-    const category = value(SYNC_CSV_COLUMNS.category);
-    if (category) row.categoryName = category;
+
+    // A category is identified by its own source id and named by the file;
+    // half of that pair says nothing usable, so it is a row error rather than
+    // a silently ignored cell.
+    const categorySourceId = value(SYNC_CSV_COLUMNS.categorySourceId);
+    const categoryName = value(SYNC_CSV_COLUMNS.categoryName);
+    if (Boolean(categorySourceId) !== Boolean(categoryName)) {
+      errors.push({
+        row: rowNumber,
+        sourceId,
+        message: categorySourceId
+          ? `Category "${categorySourceId}" has no ${SYNC_CSV_COLUMNS.categoryName}`
+          : `Category "${categoryName}" has no ${SYNC_CSV_COLUMNS.categorySourceId}`,
+      });
+      return;
+    }
+    if (categorySourceId && categoryName) {
+      row.categorySourceId = categorySourceId;
+      row.categoryName = categoryName;
+    }
 
     const prices: Partial<Record<SyncPriceListKey, number>> = {};
     let priceError: string | null = null;

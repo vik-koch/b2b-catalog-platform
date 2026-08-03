@@ -195,19 +195,43 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
           </ul>
         }
 
-        @if (plan.categories.length > 0) {
-          <h3 class="mt-6 mb-1 text-sm font-semibold">
-            {{ text.categoriesTitle }}
-          </h3>
-          <p class="mb-2 text-sm text-subtle">{{ text.categoriesHint }}</p>
-          <ul class="space-y-1 text-sm">
-            @for (category of plan.categories; track category.name) {
-              <li>
-                {{ category.name }}
-                <span class="text-subtle">({{ category.productCount }})</span>
-              </li>
-            }
-          </ul>
+        @if (categoriesOfKind(plan, 'create'); as created) {
+          @if (created.length > 0) {
+            <h3 class="mt-6 mb-1 text-sm font-semibold">
+              {{ text.categoriesTitle }}
+            </h3>
+            <p class="mb-2 text-sm text-subtle">{{ text.categoriesHint }}</p>
+            <ul class="space-y-1 text-sm">
+              @for (category of created; track category.name) {
+                <li>
+                  {{ category.name }}
+                  <span class="text-subtle">({{ category.productCount }})</span>
+                </li>
+              }
+            </ul>
+          }
+        }
+
+        @if (categoriesOfKind(plan, 'rename'); as renamed) {
+          @if (renamed.length > 0) {
+            <h3 class="mt-6 mb-1 text-sm font-semibold">
+              {{ text.renamedCategoriesTitle }}
+            </h3>
+            <p class="mb-2 text-sm text-subtle">
+              {{ text.renamedCategoriesHint }}
+            </p>
+            <ul class="space-y-1 text-sm">
+              @for (category of renamed; track category.name) {
+                <li>
+                  <span class="line-through text-subtle">{{
+                    category.from
+                  }}</span>
+                  → {{ category.name }}
+                  <span class="text-subtle">({{ category.productCount }})</span>
+                </li>
+              }
+            </ul>
+          }
         }
 
         @if (plan.products.length > 0) {
@@ -488,9 +512,30 @@ export class SyncPage {
   // --- Rendering helpers -------------------------------------------------
 
   protected isNoop(plan: SyncPlan): boolean {
-    const { create, update, softDelete, restore, categoriesCreated } =
-      plan.summary;
-    return create + update + softDelete + restore + categoriesCreated === 0;
+    const {
+      create,
+      update,
+      softDelete,
+      restore,
+      categoriesCreated,
+      categoriesRenamed,
+    } = plan.summary;
+    return (
+      create +
+        update +
+        softDelete +
+        restore +
+        categoriesCreated +
+        categoriesRenamed ===
+      0
+    );
+  }
+
+  protected categoriesOfKind(
+    plan: SyncPlan,
+    kind: SyncPlan['categories'][number]['kind'],
+  ): SyncPlan['categories'] {
+    return plan.categories.filter((category) => category.kind === kind);
   }
 
   /** A run that hides products needs the confirmation word typed exactly. */
@@ -513,6 +558,11 @@ export class SyncPage {
       {
         label: 'categories' as const,
         value: s.categoriesCreated,
+        danger: false,
+      },
+      {
+        label: 'renamedCategories' as const,
+        value: s.categoriesRenamed,
         danger: false,
       },
       { label: 'unchanged' as const, value: s.unchanged, danger: false },

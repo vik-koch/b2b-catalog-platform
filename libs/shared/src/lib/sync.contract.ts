@@ -47,14 +47,22 @@ export type SyncPriceListKey = z.infer<typeof syncPriceListKeySchema>;
  * and no minor-unit exponent — so major→minor conversion belongs to the
  * converter, which does know the deployment's currency.
  *
- * `categoryName` is the *leaf* name: today's export carries no category id and
- * no parent path, so the name is the category's identity and its parent is
- * assigned by hand in the admin UI.
+ * A category is identified by its own private `categorySourceId`; the export
+ * carries no parent path, so `categoryName` is the *leaf* name and the parent
+ * is assigned by hand in the admin UI. The two travel together — an id without
+ * a name cannot create the category, and a name without an id cannot say which
+ * category it renames — so a row carries both or neither.
  */
 export const syncRowSchema = z
   .object({
     sourceId: z.string().trim().min(1).max(SOURCE_ID_MAX_LENGTH),
     name: z.string().trim().min(1).max(PRODUCT_NAME_MAX_LENGTH).optional(),
+    categorySourceId: z
+      .string()
+      .trim()
+      .min(1)
+      .max(SOURCE_ID_MAX_LENGTH)
+      .optional(),
     categoryName: z
       .string()
       .trim()
@@ -64,7 +72,16 @@ export const syncRowSchema = z
     /** Per price list, in minor units. Only the keys present are written. */
     prices: z.record(syncPriceListKeySchema, priceMinorSchema).optional(),
   })
-  .strict();
+  .strict()
+  .refine(
+    (row) =>
+      (row.categorySourceId === undefined) === (row.categoryName === undefined),
+    {
+      message:
+        'categorySourceId and categoryName must both be present or both absent',
+      path: ['categoryName'],
+    },
+  );
 export type SyncRow = z.infer<typeof syncRowSchema>;
 
 /** A whole catalog in one request, with a DoS bound well above any real one. */
@@ -84,7 +101,8 @@ export const SYNC_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 export const SYNC_CSV_COLUMNS = {
   sourceId: 'sourceId',
   name: 'name',
-  category: 'category',
+  categorySourceId: 'categorySourceId',
+  categoryName: 'categoryName',
   price: 'price',
   pricePrefix: 'price:',
 } as const;
@@ -180,9 +198,13 @@ export type SyncProductChange = z.infer<typeof syncProductChangeSchema>;
 
 export const syncCategoryChangeSchema = z
   .object({
-    /** Only `create` — a sync never renames or deletes a category. */
-    kind: z.literal('create'),
+    /** `create` or `rename` — a sync never deletes a category. Renaming is
+     * safe because identity is the `categorySourceId`, not the name. */
+    kind: z.enum(['create', 'rename']),
+    /** The name after the run. */
     name: z.string(),
+    /** The name before the run; null for a category this run creates. */
+    from: z.string().nullable(),
     /** How many of the file's rows land in it. */
     productCount: z.number().int().nonnegative(),
   })
@@ -216,6 +238,8 @@ export const syncSummarySchema = z
     restore: z.number().int().nonnegative(),
     unchanged: z.number().int().nonnegative(),
     categoriesCreated: z.number().int().nonnegative(),
+    /** Defaulted, so summaries stored before renaming existed still parse. */
+    categoriesRenamed: z.number().int().nonnegative().default(0),
     /** Live products absent from the file but kept because they are `manual:`. */
     keptManual: z.number().int().nonnegative(),
     errors: z.number().int().nonnegative(),

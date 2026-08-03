@@ -300,6 +300,7 @@ export const adminTextSchema = z
             restore: z.string(),
             unchanged: z.string(),
             categories: z.string(),
+            renamedCategories: z.string(),
             kept: z.string(),
             errors: z.string(),
           })
@@ -307,6 +308,8 @@ export const adminTextSchema = z
         productsTitle: z.string(),
         categoriesTitle: z.string(),
         categoriesHint: z.string(),
+        renamedCategoriesTitle: z.string(),
+        renamedCategoriesHint: z.string(),
         emptiedTitle: z.string(),
         emptiedHint: z.string(),
         keptTitle: z.string(),

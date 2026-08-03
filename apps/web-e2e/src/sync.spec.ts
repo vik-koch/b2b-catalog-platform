@@ -73,7 +73,7 @@ test('a preview shows the diff without writing, and hiding needs a typed confirm
 
   await upload(
     page,
-    'sourceId,name,category,price\nE2E-1,Preview Only,Preview Category,1000\n',
+    'sourceId,name,categorySourceId,categoryName,price\nE2E-1,Preview Only,E2E-C1,Preview Category,1000\n',
   );
 
   await expect(page.getByText('What this file would change')).toBeVisible();

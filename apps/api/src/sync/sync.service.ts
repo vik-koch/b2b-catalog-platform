@@ -251,6 +251,15 @@ export class SyncService {
         }
       }
 
+      // A rename keeps the slug (a changed URL breaks links) and the tree
+      // position — only the display name moves.
+      for (const category of actions.updateCategories) {
+        await tx
+          .update(categories)
+          .set({ name: category.name, updatedAt: new Date() })
+          .where(eq(categories.id, category.id));
+      }
+
       const resolveCategory = (
         categoryId: string | null | undefined,
         categorySourceId: string | null | undefined,
