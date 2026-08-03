@@ -125,6 +125,8 @@ services:
         target: /etc/grafana/provisioning/dashboards/provider.yaml
       - source: grafana_dashboard_traffic
         target: /var/lib/grafana/dashboards/traffic.json
+      - source: grafana_dashboard_search
+        target: /var/lib/grafana/dashboards/search.json
       - source: grafana_contact_points
         target: /etc/grafana/provisioning/alerting/contact-points.yaml
       - source: grafana_alert_rules
@@ -496,6 +498,229 @@ configs:
                 "legendFormat": "{{page}}"
               }
             ]
+          }
+        ]
+      }
+  # Search usage (NFR-OPS-05), the one dashboard fed by application logs rather
+  # than by the edge: Traefik does not keep query strings, and no access log
+  # knows how many rows a search returned. The api container emits one
+  # `[Search]` line per executed search (apps/api/src/catalog/search.logger.ts);
+  # the `q=/results=/ms=` shape of that line is what the regexp below parses, so
+  # the two change together.
+  #
+  # Scoped by the `stack` label rather than by a JSON field: unlike the traffic
+  # dashboard's Traefik lines, these come from the app container directly, and
+  # Alloy labels every line with its compose project.
+  #
+  # `$$` throughout, as in the traffic dashboard: Compose interpolates `$`
+  # inside a config's content and writes `$$` back out as one `$`.
+  grafana_dashboard_search:
+    content: |
+      {
+        "uid": "b2b-search",
+        "title": "B2B — search usage",
+        "description": "What visitors search for and what the catalog answers (NFR-OPS-05). Built from the api container's [Search] log lines; every panel but the log one counts first-page requests only, so paging through results does not inflate a query's count.",
+        "tags": [
+          "b2b"
+        ],
+        "timezone": "browser",
+        "schemaVersion": 39,
+        "version": 1,
+        "refresh": "5m",
+        "time": {
+          "from": "now-7d",
+          "to": "now"
+        },
+        "templating": {
+          "list": [
+            {
+              "name": "stack",
+              "label": "Stack",
+              "type": "custom",
+              "description": "Which deployment's searches to show. `stack` is the compose project name, applied as a Loki label by Alloy, so dev and prod stay separable. A deployment whose STACK_NAME is not listed here is still covered by All.",
+              "query": "dev,prod,demo",
+              "options": [
+                {
+                  "text": "dev",
+                  "value": "dev",
+                  "selected": false
+                },
+                {
+                  "text": "prod",
+                  "value": "prod",
+                  "selected": false
+                },
+                {
+                  "text": "demo",
+                  "value": "demo",
+                  "selected": false
+                }
+              ],
+              "includeAll": true,
+              "allValue": ".+",
+              "multi": true,
+              "current": {
+                "text": "All",
+                "value": "$$__all"
+              }
+            }
+          ]
+        },
+        "panels": [
+          {
+            "id": 1,
+            "title": "Searches with no results",
+            "type": "barchart",
+            "description": "The panel this dashboard exists for: queries a visitor typed and got an empty page for. Each one is either a product the catalog does not carry, or one it carries under a name nobody searches by — the first is a buying decision, the second a renaming one. Queries are normalised (lower-cased, punctuation dropped), so spelling variants group.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 9,
+              "w": 24,
+              "x": 0,
+              "y": 0
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "topk(10, sum by (query) (count_over_time(({service=\"api\", stack=~\"($$stack)\"} | json | context=\"Search\" | line_format `{{.message}}` | regexp `q=\"(?P<query>[^\"]*)\" terms=(?P<terms>\\d+) results=(?P<results>\\d+) page=(?P<page>\\d+) ms=(?P<ms>\\d+)` | page=\"1\" | results=\"0\")[$$__range])))",
+                "queryType": "instant",
+                "legendFormat": "{{query}}"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Most searched terms",
+            "type": "barchart",
+            "description": "What the shop is asked for, hits or not. Read next to the panel above: a query that is both frequent and empty is the most expensive gap in the catalog.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 9,
+              "w": 12,
+              "x": 0,
+              "y": 9
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "topk(10, sum by (query) (count_over_time(({service=\"api\", stack=~\"($$stack)\"} | json | context=\"Search\" | line_format `{{.message}}` | regexp `q=\"(?P<query>[^\"]*)\" terms=(?P<terms>\\d+) results=(?P<results>\\d+) page=(?P<page>\\d+) ms=(?P<ms>\\d+)` | page=\"1\")[$$__range])))",
+                "queryType": "instant",
+                "legendFormat": "{{query}}"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "title": "Search volume",
+            "type": "timeseries",
+            "description": "Searches run, and how many of them came back empty. A rising empty share is the signal to open the panel above; a flat total says the search bar is simply not being used.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 9,
+              "w": 12,
+              "x": 12,
+              "y": 9
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "sum(count_over_time(({service=\"api\", stack=~\"($$stack)\"} | json | context=\"Search\" | line_format `{{.message}}` | regexp `q=\"(?P<query>[^\"]*)\" terms=(?P<terms>\\d+) results=(?P<results>\\d+) page=(?P<page>\\d+) ms=(?P<ms>\\d+)` | page=\"1\")[$$__auto]))",
+                "queryType": "range",
+                "legendFormat": "searches"
+              },
+              {
+                "refId": "B",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "sum(count_over_time(({service=\"api\", stack=~\"($$stack)\"} | json | context=\"Search\" | line_format `{{.message}}` | regexp `q=\"(?P<query>[^\"]*)\" terms=(?P<terms>\\d+) results=(?P<results>\\d+) page=(?P<page>\\d+) ms=(?P<ms>\\d+)` | page=\"1\" | results=\"0\")[$$__auto]))",
+                "queryType": "range",
+                "legendFormat": "no results"
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "title": "Search latency p95 (ms)",
+            "type": "timeseries",
+            "description": "Time spent in the matcher itself — count plus page, measured in the API around the transaction, so it excludes rendering and the network. NFR-PERF's budget is a page-load one; this is the half the search code owns. `by ()` collapses the per-query series into one figure.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 18
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "quantile_over_time(0.95, ({service=\"api\", stack=~\"($$stack)\"} | json | context=\"Search\" | line_format `{{.message}}` | regexp `q=\"(?P<query>[^\"]*)\" terms=(?P<terms>\\d+) results=(?P<results>\\d+) page=(?P<page>\\d+) ms=(?P<ms>\\d+)` | page=\"1\" | unwrap ms)[$$__auto]) by ()",
+                "queryType": "range",
+                "legendFormat": "p95"
+              }
+            ]
+          },
+          {
+            "id": 5,
+            "title": "Recent searches",
+            "type": "logs",
+            "description": "Every executed search, including paging requests. Nothing identifying is recorded — no address, no session — so a query cannot be traced back to the visitor who typed it.",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "gridPos": {
+              "h": 10,
+              "w": 12,
+              "x": 12,
+              "y": 18
+            },
+            "targets": [
+              {
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "expr": "{service=\"api\", stack=~\"($$stack)\"} | json | context=\"Search\" | line_format `{{.message}}` | regexp `q=\"(?P<query>[^\"]*)\" terms=(?P<terms>\\d+) results=(?P<results>\\d+) page=(?P<page>\\d+) ms=(?P<ms>\\d+)` | line_format `{{.query}} → {{.results}} hits ({{.ms}}ms) page {{.page}}`",
+                "queryType": "range"
+              }
+            ],
+            "options": {
+              "showTime": true,
+              "wrapLogMessage": false,
+              "sortOrder": "Descending",
+              "enableLogDetails": true
+            }
           }
         ]
       }

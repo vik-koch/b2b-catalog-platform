@@ -2,7 +2,8 @@
 
 **Status:** accepted · **Date:** 2026-07-22 · **Amended:** 2026-08-01 (app logs
 are JSON and carry admin audit events; the fields Traefik writes are trimmed;
-dashboards and alerts are provisioned) — see the _Amendment_ below
+dashboards and alerts are provisioned) · 2026-08-03 (search usage is logged as a
+domain event and dashboarded) — see the _Amendments_ below
 
 ## Context
 
@@ -156,3 +157,37 @@ Alert mail is opt-in and unset in CI: dev and public prod send through Mailpit,
 which Grafana cannot reach across compose projects. A deployment with real SMTP
 configures it in the observability `.env`, and `infra/alert-test.sh` proves the
 channel works — alerting is otherwise silent whether it works or not.
+
+## Amendment — 2026-08-03: search usage as a domain event (NFR-OPS-05)
+
+NFR-OPS-05 asks for search usage to be **observable centrally**, and the
+existing pipeline answers it with one addition rather than a new one — no
+analytics product, no metrics store, no events table.
+
+The edge cannot supply this. Traefik keeps seven fields and the query string is
+not among them (amendment 1 above), and no access log knows how many rows came
+back — which is the only figure that makes the data actionable. So search joins
+admin mutations as the second **domain event** the app logs (amendment 3): one
+`[Search]` line per executed search, carrying the normalised query, its term
+count, the hit count, the page and the elapsed milliseconds. A query too short
+to run is not a search and is not logged; suggestions are not logged either, or
+every committed query would be buried under its own prefixes.
+
+**Nothing identifying is recorded** — no address, no session, no account. That
+is the same reasoning that dropped `ClientHost` from the access log: retaining
+personal data needs a purpose this deployment does not have. What is left is a
+picture of what the catalog is asked for, not of who asked, which is what the
+shop owner actually wants to read.
+
+The consumer is a second provisioned dashboard, _B2B — search usage_, whose top
+panel is **searches with no results**. That panel is the requirement's point:
+an empty query is either a product the catalog does not carry or one it carries
+under a name nobody searches by — a buying decision or a renaming one, both
+invisible in any request-level view. The rest (top queries, volume, matcher
+p95) is context for reading it, and the p95 is also what would show ADR 0030's
+`word_similarity` fan-out starting to bite.
+
+Loki's 14-day window applies, so this is a "what are people looking for lately"
+view, not a trend archive. If the client ever wants seasonality, the query would
+have to be persisted in the database — a different decision, and one worth
+taking only when asked for.

@@ -31,6 +31,7 @@ import {
   setSearchThreshold,
 } from './product-search';
 import { productOrderBy } from './product-sort';
+import { SearchLogger } from './search.logger';
 
 interface SearchResult {
   items: ProductListItem[];
@@ -69,7 +70,10 @@ interface CategoryProductsResult {
  */
 @Injectable()
 export class CatalogService {
-  constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
+  constructor(
+    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    private readonly searchLog: SearchLogger,
+  ) {}
 
   private categoryRows(): Promise<CategoryRow[]> {
     return this.db
@@ -148,6 +152,9 @@ export class CatalogService {
    * `sort` (FR-SEARCH-04) only reorders the rows — which rows match is the
    * matcher's business, so a name or price sort still searches, it just does
    * not rank. See product-sort.ts for the ordering itself.
+   *
+   * Every executed search is logged (NFR-OPS-05); a query too short to run is
+   * not a search and is not recorded.
    */
   async searchProducts(
     rawQuery: string,
@@ -164,6 +171,7 @@ export class CatalogService {
     }
 
     const where = and(isNull(products.deletedAt), searchCondition(query));
+    const startedAt = Date.now();
 
     return this.db.transaction(async (tx) => {
       await tx.execute(setSearchThreshold);
@@ -185,6 +193,14 @@ export class CatalogService {
         .orderBy(...productOrderBy(sort, relevanceScore(query)))
         .limit(pageSize)
         .offset((page - 1) * pageSize);
+
+      this.searchLog.record({
+        query: query.normalized,
+        terms: query.terms.length,
+        results: Number(total),
+        page,
+        durationMs: Date.now() - startedAt,
+      });
 
       return {
         items,
