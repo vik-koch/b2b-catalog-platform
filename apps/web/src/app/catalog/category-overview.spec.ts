@@ -12,6 +12,7 @@ const tree: CategoryNode[] = [
   {
     slug: 'coffee-beans',
     name: 'Coffee Beans',
+    shortName: null,
     image: {
       full: 'https://img.example/full.jpg',
       thumb: 'https://img.example/thumb.jpg',
@@ -20,13 +21,20 @@ const tree: CategoryNode[] = [
       {
         slug: 'espresso',
         name: 'Espresso Roasts',
+        shortName: 'Espresso',
         image: null,
         children: [],
       },
-      { slug: 'filter', name: 'Filter Roasts', image: null, children: [] },
+      {
+        slug: 'filter',
+        name: 'Filter Roasts',
+        shortName: null,
+        image: null,
+        children: [],
+      },
     ],
   },
-  { slug: 'tea', name: 'Tea', image: null, children: [] },
+  { slug: 'tea', name: 'Tea', shortName: null, image: null, children: [] },
 ];
 
 async function render(
@@ -65,13 +73,16 @@ describe('CategoryOverview', () => {
     expect(link).not.toBeNull();
   });
 
-  it('renders subcategories as quick links', async () => {
+  it('renders subcategories as quick links, short name first', async () => {
     const el = await render(async () => tree);
 
+    // 'Espresso Roasts' has a short name; 'Filter Roasts' falls back.
     expect(
       el.querySelector('a[href="/catalog/espresso"]')?.textContent,
-    ).toContain('Espresso Roasts');
-    expect(el.querySelector('a[href="/catalog/filter"]')).not.toBeNull();
+    ).toContain('Espresso');
+    expect(
+      el.querySelector('a[href="/catalog/filter"]')?.textContent,
+    ).toContain('Filter Roasts');
   });
 
   it('shows the placeholder for a category with no image', async () => {

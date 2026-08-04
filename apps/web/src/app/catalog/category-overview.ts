@@ -1,6 +1,9 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CategoryNode } from '@b2b-catalog-platform/shared';
+import {
+  categoryDisplayName,
+  CategoryNode,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
 import { delayedLoading } from '../core/delayed-loading';
@@ -139,7 +142,7 @@ const MAX_CHILD_LINKS = 3;
                           [routerLink]="['/catalog', child.slug]"
                           class="hover:text-accent"
                         >
-                          {{ child.name }}
+                          {{ displayName(child) }}
                         </a>
                       </li>
                     }
@@ -200,6 +203,9 @@ export class CategoryOverview {
     this.editMode.enabled() ? (adminText()?.editMode ?? null) : null,
   );
   protected readonly skeletons = Array.from({ length: 12 }, (_, i) => i);
+  /** The quick links sit under their parent tile, so they may use the short
+   * name; the tile heading stays the full one. */
+  protected readonly displayName = categoryDisplayName;
   /** The top-level category whose delete confirmation is open, if any. */
   protected readonly deletingCategory = signal<{
     slug: string;

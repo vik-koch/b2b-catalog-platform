@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { categoryDisplayName } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
 import { delayedLoading } from '../core/delayed-loading';
@@ -119,7 +120,7 @@ const SUBS_COLLAPSED = 4;
                     [routerLink]="['/catalog', crumb.slug]"
                     class="hover:text-accent"
                   >
-                    {{ crumb.name }}
+                    {{ displayName(crumb) }}
                   </a>
                 </li>
               }
@@ -128,7 +129,7 @@ const SUBS_COLLAPSED = 4;
               </li>
               <li>
                 <span aria-current="page" class="font-medium text-stone-700">
-                  {{ data.category.name }}
+                  {{ displayName(data.category) }}
                 </span>
               </li>
             </ol>
@@ -163,7 +164,7 @@ const SUBS_COLLAPSED = 4;
                     [routerLink]="['/catalog', sub.slug]"
                     class="flex max-w-52 items-center rounded-xl border border-border bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:text-accent"
                   >
-                    <span class="line-clamp-2">{{ sub.name }}</span>
+                    <span class="line-clamp-2">{{ displayName(sub) }}</span>
                   </a>
                 </li>
               }
@@ -355,6 +356,10 @@ export class CategoryGrid {
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
   protected readonly SUBS_COLLAPSED = SUBS_COLLAPSED;
+  /** Breadcrumb crumbs and subcategory chips are read in the context of their
+   * parent, so they may use the short name; the page heading stays the full
+   * one, which is also what SEO and the delete confirmation use. */
+  protected readonly displayName = categoryDisplayName;
 
   slug = input.required<string>();
   /** Bound from the `page` query param (a string); coerced and floored to 1. */
