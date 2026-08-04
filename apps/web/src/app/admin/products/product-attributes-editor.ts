@@ -93,16 +93,22 @@ import {
               >
                 {{ row.key || text.key }}
               </div>
+              <!-- An explicit line-height, not just a cell height: an empty cell
+                   otherwise has a zero-height line box, so the caret sits at the
+                   top on the first click and only drops into place once a
+                   character gives the line something to measure. It has to stay
+                   under the cell's content box (h-10 less padding and borders),
+                   or the first character grows the row instead. -->
               <td
                 [attr.data-row]="$index"
                 data-col="0"
-                class="h-10 border border-border-strong bg-white px-2 py-1.5 align-center"
+                class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle"
                 [class]="cellFocus($index, 0)"
               ></td>
               <td
                 [attr.data-row]="$index"
                 data-col="1"
-                class="h-10 border border-border-strong bg-white px-2 py-1.5 align-center"
+                class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle"
                 [class]="cellFocus($index, 1)"
               ></td>
               <td
