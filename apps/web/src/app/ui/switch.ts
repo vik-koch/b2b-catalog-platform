@@ -29,7 +29,7 @@ import { Component, input, output } from '@angular/core';
       [attr.aria-checked]="checked()"
       [attr.aria-label]="label()"
       [disabled]="disabled()"
-      class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-60"
+      class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary disabled:cursor-not-allowed disabled:opacity-60"
       [class]="checked() ? 'bg-primary' : 'bg-border-strong'"
       (click)="toggled.emit(!checked())"
     >

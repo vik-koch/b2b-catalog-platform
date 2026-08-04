@@ -2,7 +2,7 @@ import { computed, Directive, input } from '@angular/core';
 
 // See Button for the cursor and focus-outline reasoning.
 const base =
-  'inline-flex cursor-pointer items-center justify-center rounded-full bg-surface p-2 text-muted shadow-sm ring-1 ring-border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed';
+  'inline-flex cursor-pointer items-center justify-center rounded-full bg-surface p-2 text-muted shadow-sm ring-1 ring-border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary disabled:cursor-not-allowed';
 
 const variants = {
   default: 'hover:text-accent',
