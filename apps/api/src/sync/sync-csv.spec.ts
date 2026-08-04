@@ -3,7 +3,7 @@ import { SyncFormatError, parseSyncCsv } from './sync-csv';
 describe('parseSyncCsv', () => {
   it('parses the documented columns', () => {
     const { rows, errors } = parseSyncCsv(
-      'sourceId,name,category,price\nA-1,Espresso Blend,Coffee Beans,1890\n',
+      'sourceId,name,categorySourceId,categoryName,price\nA-1,Espresso Blend,C-1,Coffee Beans,1890\n',
     );
 
     expect(errors).toEqual([]);
@@ -11,6 +11,7 @@ describe('parseSyncCsv', () => {
       {
         sourceId: 'A-1',
         name: 'Espresso Blend',
+        categorySourceId: 'C-1',
         categoryName: 'Coffee Beans',
         prices: { default: 1890 },
       },
@@ -31,8 +32,24 @@ describe('parseSyncCsv', () => {
   });
 
   it('treats an empty cell as absent, never as a value to clear', () => {
-    const { rows } = parseSyncCsv('sourceId,name,category,price\nA-1,,,\n');
+    const { rows } = parseSyncCsv(
+      'sourceId,name,categorySourceId,categoryName,price\nA-1,,,,\n',
+    );
     expect(rows).toEqual([{ sourceId: 'A-1' }]);
+  });
+
+  it('fails a row carrying only half of the category pair', () => {
+    const idOnly = parseSyncCsv(
+      'sourceId,categorySourceId,categoryName\nA-1,C-1,\n',
+    );
+    expect(idOnly.rows).toEqual([]);
+    expect(idOnly.errors[0].message).toMatch(/has no categoryName/);
+
+    const nameOnly = parseSyncCsv(
+      'sourceId,categorySourceId,categoryName\nA-1,,Coffee Beans\n',
+    );
+    expect(nameOnly.rows).toEqual([]);
+    expect(nameOnly.errors[0].message).toMatch(/has no categorySourceId/);
   });
 
   it('refuses a file with an unknown column rather than ignoring it', () => {

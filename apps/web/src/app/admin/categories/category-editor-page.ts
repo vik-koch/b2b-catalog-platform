@@ -108,6 +108,20 @@ import { CategoryPicker } from './category-picker';
             (valueChange)="image.set($event)"
           />
         </div>
+
+        <label class="block">
+          <span appFieldLabel>{{ text.sourceId }}</span>
+          <input
+            type="text"
+            appInput
+            class="w-full font-mono text-sm"
+            [value]="sourceId()"
+            (input)="sourceId.set($any($event.target).value)"
+          />
+          <span class="mt-1 block text-xs text-subtle">{{
+            text.sourceIdHint
+          }}</span>
+        </label>
       </div>
 
       @if (error()) {
@@ -169,6 +183,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   protected readonly slug = signal('');
   private readonly slugTouched = signal(false);
   protected readonly parentId = signal('');
+  protected readonly sourceId = signal('');
   protected readonly description = signal('');
   protected readonly image = signal<CatalogImage | null>(null);
 
@@ -231,6 +246,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       this.name.set(match.name);
       this.slug.set(match.slug);
       this.parentId.set(match.parentId ?? '');
+      this.sourceId.set(match.sourceId);
       this.description.set(match.description ?? '');
       this.image.set(match.image);
       this.original = this.snapshot();
@@ -271,12 +287,15 @@ export class CategoryEditorPage implements UnsavedChangesAware {
         ? this.slug().trim()
         : undefined
       : this.slug().trim() || undefined;
+    const sourceId = this.sourceId().trim() || undefined;
+
     const body = {
       name: this.name().trim(),
       parentId: this.parentId() || null,
       description: this.description().trim() || null,
       image: this.image(),
       ...(slug ? { slug } : {}),
+      ...(sourceId ? { sourceId } : {}),
     };
     try {
       if (current) {

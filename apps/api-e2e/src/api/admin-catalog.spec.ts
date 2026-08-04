@@ -46,6 +46,7 @@ const CATEGORY_KEYS = [
   'productCount',
   'slug',
   'sortOrder',
+  'sourceId',
 ];
 
 function sessionCookie(setCookie: string[] | undefined): string {

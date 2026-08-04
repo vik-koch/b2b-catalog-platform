@@ -46,6 +46,9 @@ export interface ExistingCategory {
  * so the UI shape can change without touching the write path. */
 export interface SyncActions {
   createCategories: { sourceId: string; name: string }[];
+  /** Categories the file renames. Identity is the source id, so a renamed
+   * category is updated in place rather than created anew. */
+  updateCategories: { id: string; name: string }[];
   createProducts: {
     sourceId: string;
     name: string;
@@ -71,10 +74,11 @@ export interface SyncPlanResult {
 }
 
 /**
- * A category's identity in today's export is its leaf name — there is no id and
- * no parent path — so matching is by name, normalized for the incidental
- * differences a hand-maintained source produces: surrounding space, repeated
- * space, and case.
+ * A category's identity is its `categorySourceId`, so a name is free to change
+ * — but two rows claiming the same id under *different* names contradict each
+ * other. Comparing normalized names keeps the incidental differences a
+ * hand-maintained source produces (surrounding space, repeated space, case)
+ * from being read as a contradiction.
  */
 export function normalizeCategoryName(name: string): string {
   return name.trim().replace(/\s+/g, ' ').toLowerCase();
@@ -98,22 +102,15 @@ export function planSync(
     state.products.map((p) => [p.sourceId, p]),
   );
 
-  // Category lookup by normalized name. A duplicate name is ambiguous: the
-  // export cannot say which one it means, so rows landing on it are errors
-  // rather than a coin flip (ADR 0026 — names are currently unique, and the
-  // converter must disambiguate if that ever stops being true).
-  const categoriesByName = new Map<string, ExistingCategory[]>();
-  for (const category of state.categories) {
-    const key = normalizeCategoryName(category.name);
-    const bucket = categoriesByName.get(key);
-    if (bucket) bucket.push(category);
-    else categoriesByName.set(key, [category]);
-  }
+  const categoriesBySourceId = new Map(
+    state.categories.map((c) => [c.sourceId, c]),
+  );
 
   const rowErrors: SyncRowError[] = [...parseErrors];
   const productChanges: SyncProductChange[] = [];
   const actions: SyncActions = {
     createCategories: [],
+    updateCategories: [],
     createProducts: [],
     updateProducts: [],
     softDeleteProductIds: [],
@@ -122,6 +119,14 @@ export function planSync(
 
   // Categories this run would create, and how many rows land in each.
   const newCategories = new Map<string, { name: string; count: number }>();
+  // Categories the file renames, keyed by source id.
+  const renamedCategories = new Map<
+    string,
+    { id: string; from: string; name: string; count: number }
+  >();
+  // The name each source id claimed the first time it appeared in this file,
+  // so a later row contradicting it can be caught.
+  const claimedNames = new Map<string, string>();
   // Post-run live product count per existing category id, to spot emptied ones.
   const liveCountByCategory = new Map<string, number>();
   for (const product of state.products) {
@@ -150,30 +155,54 @@ export function planSync(
     // before anything else is decided about it.
     let categoryId: string | null | undefined;
     let categorySourceId: string | null | undefined;
-    if (row.categoryName !== undefined && writesCategory) {
-      const key = normalizeCategoryName(row.categoryName);
-      const matches = categoriesByName.get(key) ?? [];
-      if (matches.length > 1) {
-        rowErrors.push({
-          row: rowNumber,
-          sourceId: row.sourceId,
-          message: `Category "${row.categoryName}" is ambiguous — ${matches.length} categories share that name`,
-        });
-        continue;
+    // The contract guarantees the two category fields travel together.
+    if (row.categorySourceId !== undefined && writesCategory) {
+      const key = row.categorySourceId;
+      const name = row.categoryName as string;
+
+      // One id, one name — a file disagreeing with itself cannot say which
+      // name it means, so the row is an error rather than a coin flip.
+      const claimed = claimedNames.get(key);
+      if (claimed !== undefined) {
+        if (normalizeCategoryName(claimed) !== normalizeCategoryName(name)) {
+          rowErrors.push({
+            row: rowNumber,
+            sourceId: row.sourceId,
+            message: `Category "${key}" is named both "${claimed}" and "${name}" in this file`,
+          });
+          continue;
+        }
+      } else {
+        claimedNames.set(key, name);
       }
-      if (matches.length === 1) {
-        categoryId = matches[0].id;
+
+      const existingCategory = categoriesBySourceId.get(key);
+      if (existingCategory !== undefined) {
+        categoryId = existingCategory.id;
+        // A renamed category is updated in place: identity is the source id,
+        // so a new name is a rename, never a second category.
+        if (name !== existingCategory.name) {
+          const pending = renamedCategories.get(key);
+          if (pending) pending.count += 1;
+          else
+            renamedCategories.set(key, {
+              id: existingCategory.id,
+              from: existingCategory.name,
+              name,
+              count: 1,
+            });
+        }
       } else if (options.createCategories) {
         categoryId = null;
         categorySourceId = key;
         const pending = newCategories.get(key);
         if (pending) pending.count += 1;
-        else newCategories.set(key, { name: row.categoryName, count: 1 });
+        else newCategories.set(key, { name, count: 1 });
       } else {
         rowErrors.push({
           row: rowNumber,
           sourceId: row.sourceId,
-          message: `Unknown category "${row.categoryName}"`,
+          message: `Unknown category "${name}" (${key})`,
         });
         continue;
       }
@@ -323,6 +352,9 @@ export function planSync(
   for (const [sourceId, { name }] of newCategories) {
     actions.createCategories.push({ sourceId, name });
   }
+  for (const { id, name } of renamedCategories.values()) {
+    actions.updateCategories.push({ id, name });
+  }
 
   const summary: SyncSummary = {
     rows: rows.length,
@@ -332,17 +364,25 @@ export function planSync(
     restore: actions.restoreProductIds.length,
     unchanged,
     categoriesCreated: actions.createCategories.length,
+    categoriesRenamed: actions.updateCategories.length,
     keptManual: keptManual.length,
     errors: rowErrors.length,
   };
 
-  const categoryChanges = [...newCategories.entries()].map(
-    ([, { name, count }]) => ({
+  const categoryChanges = [
+    ...[...newCategories.values()].map(({ name, count }) => ({
       kind: 'create' as const,
       name,
+      from: null,
       productCount: count,
-    }),
-  );
+    })),
+    ...[...renamedCategories.values()].map(({ from, name, count }) => ({
+      kind: 'rename' as const,
+      name,
+      from,
+      productCount: count,
+    })),
+  ];
 
   // Lists are capped so a first import stays a response rather than a download;
   // the summary above counts everything regardless.

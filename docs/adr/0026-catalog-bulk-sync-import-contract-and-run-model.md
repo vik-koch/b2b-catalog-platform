@@ -18,6 +18,7 @@ Four properties of the real source constrain the answer:
 - The export is a **complete catalog** with all fields, produced periodically.
   It is not an incremental extract.
 - Its **category column is the leaf name only** — no id, no parent path (ADR 0022).
+  (Superseded by the 2026-08-03 amendment below: the export does carry a category id.)
   Category names are currently unique across the whole catalog.
 - Top-level categories **do not exist in the file at all**; the tree's upper levels
   are created by hand in the admin UI (FR-ADM-01).
@@ -154,3 +155,25 @@ symmetrically with products.
   iteration**: it needs a non-cookie credential, since the session JWT is
   browser-shaped and rotates with `tokenVersion`. API tokens are deferred to the
   stock/frequent-sync work (iteration 7 or later) and will carry their own ADR.
+
+## Amendment — 2026-08-03: categories are keyed by a source id
+
+The export turned out to carry a category id after all, which is the "cheap exit"
+rationale 5 above reserved. Taken:
+
+- A row carries **`categorySourceId` + `categoryName`**, replacing the single
+  `category` column. Identity is the id; the name is content.
+- **Both or neither.** Half a pair cannot create a category (no name) or say
+  which one it renames (no id), so a row carrying one is a row error.
+- **One id, one name per file.** Two rows giving the same `categorySourceId`
+  different names contradict each other; the later row is a row error rather
+  than a coin flip. Case and spacing differences are normalized away first.
+- **A renamed category is updated in place**, keeping its slug, its parent and
+  its overlay fields — the delete-plus-create consequence recorded above is gone.
+  A sync still never deletes a category.
+- Two categories may now legitimately share a **name**, since the name is no
+  longer the key. `categories.sourceId` holding a normalized name applies only
+  to rows imported before this amendment and to admin-created categories.
+
+Unchanged: new categories are still created unparented, the export still carries
+no hierarchy, and parent assignment stays admin-owned.
