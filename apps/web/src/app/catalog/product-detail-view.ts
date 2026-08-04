@@ -1,6 +1,9 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ProductDetail } from '@b2b-catalog-platform/shared';
+import {
+  categoryDisplayName,
+  ProductDetail,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
@@ -27,6 +30,19 @@ import { ProductGallery } from './product-gallery';
             {{ text.catalogRoot }}
           </a>
         </li>
+        @for (crumb of item().category.ancestors; track crumb.slug) {
+          <li aria-hidden="true" class="flex items-center">
+            <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
+          </li>
+          <li>
+            <a
+              [routerLink]="['/catalog', crumb.slug]"
+              class="hover:text-accent"
+            >
+              {{ displayName(crumb) }}
+            </a>
+          </li>
+        }
         <li aria-hidden="true" class="flex items-center">
           <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
         </li>
@@ -35,7 +51,7 @@ import { ProductGallery } from './product-gallery';
             [routerLink]="['/catalog', item().category.slug]"
             class="hover:text-accent"
           >
-            {{ item().category.name }}
+            {{ displayName(item().category) }}
           </a>
         </li>
         <li aria-hidden="true" class="flex items-center">
@@ -107,4 +123,7 @@ export class ProductDetailView {
   protected readonly safeDescription = trustedRichText();
 
   readonly item = input.required<ProductDetail>();
+
+  /** Crumbs sit next to their parent, so the nickname is enough. */
+  protected readonly displayName = categoryDisplayName;
 }

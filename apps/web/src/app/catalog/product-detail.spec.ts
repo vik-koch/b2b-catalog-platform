@@ -25,7 +25,12 @@ const product: Product = {
     { key: 'Net weight', value: '1 kg' },
     { key: 'Count per package', value: '200' },
   ],
-  category: { slug: 'espresso', name: 'Espresso Roasts', shortName: null },
+  category: {
+    slug: 'espresso',
+    name: 'Espresso Roasts',
+    shortName: null,
+    ancestors: [{ slug: 'coffee', name: 'Coffee', shortName: null }],
+  },
 };
 
 async function render(
@@ -67,6 +72,35 @@ describe('ProductDetail', () => {
     expect(
       root.querySelector('a[href="/catalog/espresso"]')?.textContent,
     ).toContain('Espresso Roasts');
+  });
+
+  it('walks the whole category path in the breadcrumb, nicknames included', async () => {
+    const root = el(
+      await render({
+        ...product,
+        category: {
+          slug: 'espresso',
+          name: 'Espresso Roasts',
+          shortName: 'Roasts',
+          ancestors: [
+            { slug: 'coffee', name: 'Coffee', shortName: null },
+            { slug: 'beans', name: 'Coffee Beans', shortName: 'Beans' },
+          ],
+        },
+      }),
+    );
+
+    const crumbs = [...root.querySelectorAll('nav ol li')]
+      .map((n) => n.textContent?.trim())
+      .filter((text) => text);
+    expect(crumbs).toEqual([
+      defaultAppText.catalog.catalogRoot,
+      'Coffee',
+      'Beans',
+      'Roasts',
+      'Hafen Espresso',
+    ]);
+    expect(root.querySelector('a[href="/catalog/beans"]')).toBeTruthy();
   });
 
   it('renders the attributes as a specifications table', async () => {

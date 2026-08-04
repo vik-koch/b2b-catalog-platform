@@ -22,6 +22,7 @@ import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { CategoryPicker } from '../categories/category-picker';
+import { categoryAncestors } from '../categories/category-tree';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { ProductImageGallery } from './product-image-gallery';
 import { AdminCatalogService } from '../admin-catalog.service';
@@ -265,8 +266,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
             slug: category.slug,
             name: category.name,
             shortName: category.shortName,
+            ancestors: categoryAncestors(this.categories(), category.id),
           }
-        : { slug: '', name: '—', shortName: null },
+        : { slug: '', name: '—', shortName: null, ancestors: [] },
     };
   });
 

@@ -294,15 +294,9 @@ export class CatalogService {
       .limit(1);
     if (!product) return null;
 
-    const [category] = await this.db
-      .select({
-        slug: categories.slug,
-        name: categories.name,
-        shortName: categories.shortName,
-      })
-      .from(categories)
-      .where(eq(categories.id, product.categoryId))
-      .limit(1);
+    const rows = await this.categoryRows();
+    const category = rows.find((row) => row.id === product.categoryId);
+    if (!category) return null;
 
     return {
       slug: product.slug,
@@ -311,7 +305,12 @@ export class CatalogService {
       descriptionHtml: product.descriptionHtml,
       images: product.images,
       attributes: product.attributes,
-      category,
+      category: {
+        slug: category.slug,
+        name: category.name,
+        shortName: category.shortName,
+        ancestors: ancestorsOf(category.id, rows),
+      },
     };
   }
 }

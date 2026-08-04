@@ -115,8 +115,11 @@ export const productDetailSchema = z
     descriptionHtml: z.string(),
     images: z.array(catalogImageSchema),
     attributes: z.array(productAttributeSchema),
-    /** The single category this product belongs to — for the breadcrumb. */
-    category: categoryCrumbSchema,
+    /** The single category this product belongs to, with its own ancestors —
+     * the breadcrumb shows the whole path, not just the leaf. */
+    category: categoryCrumbSchema.extend({
+      ancestors: z.array(categoryCrumbSchema),
+    }),
   })
   .strict();
 export type ProductDetail = z.infer<typeof productDetailSchema>;
