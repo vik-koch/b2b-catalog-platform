@@ -46,7 +46,7 @@ const adminProductColumns = {
   id: products.id,
   slug: products.slug,
   name: products.name,
-  priceMinor: products.priceMinor,
+  priceMinor: products.defaultPriceMinor,
   categoryId: products.categoryId,
   sourceId: products.sourceId,
   descriptionHtml: products.descriptionHtml,
@@ -128,7 +128,7 @@ export class AdminCatalogService {
         .select({
           slug: products.slug,
           name: products.name,
-          priceMinor: products.priceMinor,
+          priceMinor: products.defaultPriceMinor,
           categoryId: products.categoryId,
           sourceId: products.sourceId,
           images: products.images,
@@ -188,7 +188,7 @@ export class AdminCatalogService {
           sourceId,
           slug,
           name: input.name,
-          priceMinor: input.priceMinor,
+          defaultPriceMinor: input.priceMinor,
           categoryId: input.categoryId,
           descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
           attributes: input.attributes,
@@ -225,7 +225,7 @@ export class AdminCatalogService {
         .set({
           slug: newSlug,
           name: input.name,
-          priceMinor: input.priceMinor,
+          defaultPriceMinor: input.priceMinor,
           categoryId: input.categoryId,
           descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
           attributes: input.attributes,
@@ -303,7 +303,7 @@ export class AdminCatalogService {
       .select({
         slug: products.slug,
         name: products.name,
-        priceMinor: products.priceMinor,
+        priceMinor: products.defaultPriceMinor,
         images: products.images,
       })
       .from(products)

@@ -101,7 +101,7 @@ export type ProductImageRef = { full: string; thumb: string };
 
 /**
  * Catalog products. `sourceId` (the legacy system's private id) is the sync
- * upsert key and is never serialized to the API. `name`, `priceMinor` and
+ * upsert key and is never serialized to the API. `name`, `defaultPriceMinor` and
  * `categoryId` are file-owned; `descriptionHtml`, `attributes` and the images
  * (see product_images) are admin overlay that a re-sync leaves untouched.
  * Missing-from-source rows are soft-deleted via `deletedAt`, never removed.
@@ -113,7 +113,9 @@ export const products = pgTable(
     sourceId: varchar('sourceId', { length: 255 }).notNull().unique(),
     slug: varchar('slug', { length: 255 }).notNull().unique(),
     name: varchar('name', { length: 512 }).notNull(),
-    priceMinor: integer('priceMinor').notNull(),
+    // The default (lowest-rank) tier's price. Every other tier's price lives in
+    // product_prices, which falls back to this one where it has no row.
+    defaultPriceMinor: integer('defaultPriceMinor').notNull(),
     categoryId: uuid('categoryId')
       .notNull()
       .references(() => categories.id, { onDelete: 'restrict' }),

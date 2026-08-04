@@ -117,7 +117,7 @@ export class CatalogService {
       .select({
         slug: products.slug,
         name: products.name,
-        priceMinor: products.priceMinor,
+        priceMinor: products.defaultPriceMinor,
         images: products.images,
       })
       .from(products)
@@ -185,7 +185,7 @@ export class CatalogService {
         .select({
           slug: products.slug,
           name: products.name,
-          priceMinor: products.priceMinor,
+          priceMinor: products.defaultPriceMinor,
           images: products.images,
         })
         .from(products)
@@ -283,7 +283,7 @@ export class CatalogService {
       .select({
         slug: products.slug,
         name: products.name,
-        priceMinor: products.priceMinor,
+        priceMinor: products.defaultPriceMinor,
         descriptionHtml: products.descriptionHtml,
         images: products.images,
         attributes: products.attributes,

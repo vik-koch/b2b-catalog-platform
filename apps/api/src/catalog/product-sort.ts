@@ -16,11 +16,12 @@ import { products } from '../db/schema';
 type OrderBy = (SQL | PgColumn)[];
 
 /**
- * Price sorts on the stored column. Tier-based price lists (FR-AUTH-05) will
- * make the price a resolved value rather than a column, and this is the place
- * that has to follow — the sort keys in the contract stay as they are.
+ * Price sorts on the default tier's stored column. A caller resolving a
+ * non-default tier (FR-AUTH-05) must sort on the *resolved* price instead, or
+ * the page is ordered by prices that customer never sees — the sort keys in the
+ * contract stay as they are either way.
  */
-const priceColumn = products.priceMinor;
+const priceColumn = products.defaultPriceMinor;
 
 /**
  * `score` is the relevance expression, present only on the search path. It is
