@@ -1,7 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { IconButton } from '../ui/icon-button';
-import { LucideIcon } from '../ui/icons/lucide-icon';
+import { Icon } from '../ui/icons/icon';
 
 /**
  * Where a cluster sits, which is the only thing that differs between them:
@@ -32,7 +32,7 @@ const variants = {
  */
 @Component({
   selector: 'app-edit-actions',
-  imports: [RouterLink, IconButton, LucideIcon],
+  imports: [RouterLink, IconButton, Icon],
   template: `
     <div [class]="style().box">
       @if (editLink(); as link) {
@@ -43,7 +43,7 @@ const variants = {
           [attr.aria-label]="editLabel()"
           [attr.title]="editLabel()"
         >
-          <app-lucide-icon name="pencil" [class]="style().icon" />
+          <app-icon name="pencil" [class]="style().icon" />
         </a>
       }
       @if (deleteLabel(); as label) {
@@ -55,7 +55,7 @@ const variants = {
           [attr.title]="label"
           (click)="remove.emit()"
         >
-          <app-lucide-icon name="trash-2" [class]="style().icon" />
+          <app-icon name="trash-2" [class]="style().icon" />
         </button>
       }
     </div>

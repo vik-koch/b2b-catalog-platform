@@ -11,10 +11,9 @@ import {
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { debounced } from '../../core/debounced';
-import { CloseIcon } from '../../ui/icons/close-icon';
-import { SearchIcon } from '../../ui/icons/search-icon';
 import { Input } from '../../ui/input';
 import { injectGridNav } from './grid-query';
+import { Icon } from '../../ui/icons/icon';
 
 /** Long enough that a fast typist produces one request per word rather than one
  * per letter, short enough that a pause feels answered immediately. The same
@@ -39,12 +38,13 @@ const SEARCH_DEBOUNCE_MS = 200;
  */
 @Component({
   selector: 'app-product-search-field',
-  imports: [Input, SearchIcon, CloseIcon],
+  imports: [Input, Icon],
   template: `
     <div class="relative">
       <!-- Leading glyph: a label for the field rather than a control, so it is
            muted and takes no pointer events. -->
-      <app-icon-search
+      <app-icon
+        name="search"
         class="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-subtle"
       />
       <input
@@ -66,7 +66,7 @@ const SEARCH_DEBOUNCE_MS = 200;
           class="absolute top-1/2 right-1.5 flex -translate-y-1/2 cursor-pointer items-center rounded-full p-1 text-subtle hover:text-accent"
           (click)="clear()"
         >
-          <app-icon-close class="h-4 w-4" />
+          <app-icon name="close" class="h-4 w-4" />
           <span class="sr-only">{{ text.clearSearch }}</span>
         </button>
       }

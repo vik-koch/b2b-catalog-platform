@@ -15,7 +15,7 @@ import { AdminText } from '../../config/admin-text.type';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { formatPriceMinor } from '../../catalog/price';
 import { Button } from '../../ui/button';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { SyncService } from './sync.service';
@@ -34,7 +34,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
  */
 @Component({
   selector: 'app-sync-page',
-  imports: [RouterLink, Button, LucideIcon, FieldLabel, Input],
+  imports: [RouterLink, Button, AdminIcon, FieldLabel, Input],
   template: `
     <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
     <p class="mb-8 max-w-2xl text-muted">{{ text.description }}</p>
@@ -123,7 +123,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
         (dragleave)="dragging.set(false)"
         (drop)="onDrop($event)"
       >
-        <app-lucide-icon name="upload" class="h-6 w-6 text-stone-400" />
+        <app-admin-icon name="upload" class="h-6 w-6 text-stone-400" />
         @if (file(); as chosen) {
           <span class="font-medium">{{ chosen.name }}</span>
           <span class="text-sm text-subtle">{{ text.changeFile }}</span>

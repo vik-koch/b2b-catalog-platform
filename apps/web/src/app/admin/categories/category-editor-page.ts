@@ -11,7 +11,7 @@ import { Skeleton } from '../../ui/skeleton';
 import { delayedLoading } from '../../core/delayed-loading';
 import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
 import { Button } from '../../ui/button';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { AdminCatalogService } from '../admin-catalog.service';
@@ -33,7 +33,7 @@ import { CategoryPicker } from './category-picker';
   selector: 'app-category-editor-page',
   imports: [
     Button,
-    LucideIcon,
+    AdminIcon,
     CategoryPicker,
     FieldLabel,
     Input,
@@ -150,7 +150,7 @@ import { CategoryPicker } from './category-picker';
           [disabled]="saving()"
           (click)="save()"
         >
-          <app-lucide-icon name="save" class="h-4 w-4" />
+          <app-admin-icon name="save" class="h-4 w-4" />
           {{ saving() ? common.saving : common.save }}
         </button>
         <button
@@ -160,7 +160,7 @@ import { CategoryPicker } from './category-picker';
           class="gap-2"
           (click)="cancel()"
         >
-          <app-lucide-icon name="x" class="h-4 w-4" />
+          <app-admin-icon name="x" class="h-4 w-4" />
           {{ common.cancel }}
         </button>
       </div>

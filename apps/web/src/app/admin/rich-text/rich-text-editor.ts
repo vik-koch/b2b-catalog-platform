@@ -20,7 +20,7 @@ import {
   RICH_TEXT_LINK_SCHEMES,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
-import { LucideIcon, LucideIconName } from '../../ui/icons/lucide-icon';
+import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { RichTextImage } from './rich-text-image';
@@ -31,7 +31,7 @@ type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 interface ToolbarAction {
   id: string;
   label: string;
-  icon: LucideIconName;
+  icon: AdminIconName;
   run: (editor: Editor) => void;
   isActive?: (editor: Editor) => boolean;
 }
@@ -43,7 +43,7 @@ interface ToolbarAction {
  */
 @Component({
   selector: 'app-rich-text-editor',
-  imports: [LucideIcon, FieldLabel, Input],
+  imports: [AdminIcon, FieldLabel, Input],
   template: `
     <div class="relative">
       <div
@@ -63,7 +63,7 @@ interface ToolbarAction {
               [class]="buttonClass(activeIds().includes(action.id))"
               (click)="run(action)"
             >
-              <app-lucide-icon [name]="action.icon" class="h-4 w-4" />
+              <app-admin-icon [name]="action.icon" class="h-4 w-4" />
             </button>
           }
         </div>

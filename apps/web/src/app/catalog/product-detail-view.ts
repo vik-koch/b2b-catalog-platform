@@ -19,9 +19,9 @@ import {
 import { APP_TEXT } from '../config/app-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { Button } from '../ui/button';
-import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
 import { PricePipe } from './price.pipe';
 import { ProductGallery } from './product-gallery';
+import { Icon } from '../ui/icons/icon';
 
 /**
  * The two-column breakpoint (Tailwind `lg`). Above it the specifications table
@@ -44,7 +44,7 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
     RouterLink,
     PricePipe,
     ProductGallery,
-    ChevronRightIcon,
+    Icon,
     NgTemplateOutlet,
     Button,
   ],
@@ -60,7 +60,7 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
         </li>
         @for (crumb of item().category.ancestors; track crumb.slug) {
           <li aria-hidden="true" class="flex items-center">
-            <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
+            <app-icon name="chevron-right" class="h-4 w-4 text-stone-300" />
           </li>
           <li>
             <a
@@ -72,7 +72,7 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
           </li>
         }
         <li aria-hidden="true" class="flex items-center">
-          <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
+          <app-icon name="chevron-right" class="h-4 w-4 text-stone-300" />
         </li>
         <li>
           <a
@@ -83,7 +83,7 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
           </a>
         </li>
         <li aria-hidden="true" class="flex items-center">
-          <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
+          <app-icon name="chevron-right" class="h-4 w-4 text-stone-300" />
         </li>
         <li>
           <span aria-current="page" class="font-medium text-stone-700">

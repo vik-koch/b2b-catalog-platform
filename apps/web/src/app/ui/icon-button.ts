@@ -15,8 +15,8 @@ const variants = {
  * overview). Applies to <button> and <a> so links and actions look identical,
  * keeping their native semantics and router integration.
  *
- *   <a appIconButton routerLink="…"><app-lucide-icon name="pencil" /></a>
- *   <button appIconButton variant="danger" (click)="…"><app-lucide-icon name="trash-2" /></button>
+ *   <a appIconButton routerLink="…"><app-icon name="pencil" /></a>
+ *   <button appIconButton variant="danger" (click)="…"><app-icon name="trash-2" /></button>
  */
 @Directive({
   selector: '[appIconButton]',

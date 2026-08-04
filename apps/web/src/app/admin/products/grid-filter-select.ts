@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { injectGridNav } from './grid-query';
 
 export interface GridFilterOption {
@@ -26,7 +26,7 @@ export interface GridFilterOption {
  */
 @Component({
   selector: 'app-grid-filter-select',
-  imports: [LucideIcon],
+  imports: [AdminIcon],
   template: `
     <div class="relative inline-flex">
       <!-- Selection is marked on the option rather than bound on the <select>:
@@ -48,7 +48,7 @@ export interface GridFilterOption {
           </option>
         }
       </select>
-      <app-lucide-icon
+      <app-admin-icon
         name="chevron-down"
         class="pointer-events-none absolute top-1/2 right-1 h-3.5 w-3.5 -translate-y-1/2 text-stone-400"
       />

@@ -10,15 +10,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { currentUrl } from '../core/current-url';
-import { CloseIcon } from '../ui/icons/close-icon';
-import { MenuIcon } from '../ui/icons/menu-icon';
-import { PhoneIcon } from '../ui/icons/phone-icon';
-import { SearchIcon } from '../ui/icons/search-icon';
 import { AccountLink } from './account-link';
 import { CatalogLink } from './catalog-link';
 import { ContactInfo } from './contact-info';
 import { NAV_ACTION } from './nav-action';
 import { SearchField } from './search-field';
+import { Icon } from '../ui/icons/icon';
 
 /**
  * Two-row header, the conventional B2B/e-commerce split: a slim utility bar
@@ -39,10 +36,7 @@ import { SearchField } from './search-field';
     AccountLink,
     CatalogLink,
     ContactInfo,
-    PhoneIcon,
-    MenuIcon,
-    CloseIcon,
-    SearchIcon,
+    Icon,
     SearchField,
   ],
   // display:contents so the sticky <header> is a direct child of the tall page
@@ -116,7 +110,7 @@ import { SearchField } from './search-field';
             <!-- One-tap call, mobile only — on desktop the number is spelled
                  out in the utility bar, so this label is never visible. -->
             <a [href]="telHref(phone)" [class]="navAction + ' md:hidden'">
-              <app-icon-phone class="h-6 w-6" />
+              <app-icon name="phone" class="h-6 w-6" />
               <span class="sr-only">{{ callLabel(phone) }}</span>
             </a>
           }
@@ -138,9 +132,9 @@ import { SearchField } from './search-field';
             (click)="toggleSearch()"
           >
             @if (searchOpen()) {
-              <app-icon-close class="h-6 w-6" />
+              <app-icon name="close" class="h-6 w-6" />
             } @else {
-              <app-icon-search class="h-6 w-6" />
+              <app-icon name="search" class="h-6 w-6" />
             }
             <span class="sr-only">{{
               searchOpen() ? search.closeSearch : search.openSearch
@@ -156,9 +150,9 @@ import { SearchField } from './search-field';
             (click)="toggleMenu()"
           >
             @if (menuOpen()) {
-              <app-icon-close class="h-6 w-6" />
+              <app-icon name="close" class="h-6 w-6" />
             } @else {
-              <app-icon-menu class="h-6 w-6" />
+              <app-icon name="menu" class="h-6 w-6" />
             }
             <span class="sr-only">{{ a11y.toggleMenu }}</span>
           </button>

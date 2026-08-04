@@ -4,7 +4,7 @@ import {
   CatalogImage,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { MediaService } from './media.service';
 
 /**
@@ -16,7 +16,7 @@ import { MediaService } from './media.service';
  */
 @Component({
   selector: 'app-image-picker',
-  imports: [LucideIcon],
+  imports: [AdminIcon],
   template: `
     @if (value(); as image) {
       <div
@@ -32,7 +32,7 @@ import { MediaService } from './media.service';
             [attr.aria-label]="common.remove"
             (click)="valueChange.emit(null)"
           >
-            <app-lucide-icon name="trash-2" class="h-4 w-4" />
+            <app-admin-icon name="trash-2" class="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -50,7 +50,7 @@ import { MediaService } from './media.service';
         [disabled]="uploading()"
         (click)="fileInput.click()"
       >
-        <app-lucide-icon name="image-plus" class="h-6 w-6" />
+        <app-admin-icon name="image-plus" class="h-6 w-6" />
         <span class="text-xs">{{
           uploading() ? common.uploading : label()
         }}</span>

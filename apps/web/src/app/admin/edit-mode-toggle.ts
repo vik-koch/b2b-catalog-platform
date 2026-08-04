@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { adminText } from '../config/admin-text';
-import { LucideIcon } from '../ui/icons/lucide-icon';
+import { Icon } from '../ui/icons/icon';
 import { EditModeService } from './edit-mode.service';
 
 /**
@@ -13,7 +13,7 @@ import { EditModeService } from './edit-mode.service';
  */
 @Component({
   selector: 'app-edit-mode-toggle',
-  imports: [LucideIcon],
+  imports: [Icon],
   template: `
     @if (editMode.isAdmin() && text(); as text) {
       <button
@@ -27,7 +27,7 @@ import { EditModeService } from './edit-mode.service';
         [attr.aria-pressed]="editMode.enabled()"
         (click)="editMode.toggle()"
       >
-        <app-lucide-icon name="pencil" class="h-5 w-5" />
+        <app-icon name="pencil" class="h-5 w-5" />
         {{ editMode.enabled() ? text.editMode.disable : text.editMode.enable }}
       </button>
     }

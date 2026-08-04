@@ -20,9 +20,8 @@ import { EditModeService } from '../admin/edit-mode.service';
 import { CategoryDeleteDialog } from '../admin/categories/category-delete-dialog';
 import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
 import { DeletedProductsSection } from '../admin/products/deleted-products-section';
-import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
 import { Button } from '../ui/button';
-import { LucideIcon } from '../ui/icons/lucide-icon';
+import { Icon } from '../ui/icons/icon';
 import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
 import { ProductTile } from './product-tile';
@@ -45,10 +44,9 @@ const SUBS_COLLAPSED = 4;
   selector: 'app-category-grid',
   imports: [
     RouterLink,
-    ChevronRightIcon,
+    Icon,
     ProductTile,
     ProductSortSelect,
-    LucideIcon,
     Button,
     EditActions,
     ProductDeleteDialog,
@@ -88,7 +86,10 @@ const SUBS_COLLAPSED = 4;
                 </li>
                 @for (crumb of data.category.ancestors; track crumb.slug) {
                   <li aria-hidden="true" class="flex items-center">
-                    <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
+                    <app-icon
+                      name="chevron-right"
+                      class="h-4 w-4 text-stone-300"
+                    />
                   </li>
                   <li>
                     <a
@@ -100,7 +101,10 @@ const SUBS_COLLAPSED = 4;
                   </li>
                 }
                 <li aria-hidden="true" class="flex items-center">
-                  <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
+                  <app-icon
+                    name="chevron-right"
+                    class="h-4 w-4 text-stone-300"
+                  />
                 </li>
                 <li>
                   <span aria-current="page" class="font-medium text-stone-700">
@@ -183,7 +187,7 @@ const SUBS_COLLAPSED = 4;
                     }"
                     class="flex items-center gap-1.5 rounded-xl border border-dashed border-border-strong px-4 py-2.5 text-sm font-medium text-subtle transition-colors hover:border-primary hover:text-accent"
                   >
-                    <app-lucide-icon name="plus" class="h-4 w-4" />
+                    <app-icon name="plus" class="h-4 w-4" />
                     {{ editText.addCategory }}
                   </a>
                 </li>
@@ -205,7 +209,7 @@ const SUBS_COLLAPSED = 4;
                     }"
                     class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent"
                   >
-                    <app-lucide-icon name="plus" class="h-8 w-8" />
+                    <app-icon name="plus" class="h-8 w-8" />
                     <span class="text-sm font-medium">{{
                       editText.addProduct
                     }}</span>

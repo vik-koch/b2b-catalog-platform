@@ -22,9 +22,8 @@ import { CatalogService } from '../catalog/catalog.service';
 import { APP_TEXT } from '../config/app-text';
 import { currentUrl } from '../core/current-url';
 import { debounced } from '../core/debounced';
-import { CloseIcon } from '../ui/icons/close-icon';
-import { SearchIcon } from '../ui/icons/search-icon';
 import { matchSegments } from './match-segments';
+import { Icon } from '../ui/icons/icon';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */
@@ -48,7 +47,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-search-field',
-  imports: [SearchIcon, CloseIcon],
+  imports: [Icon],
   host: { class: 'block' },
   template: `
     <!-- action and method are what make the no-JS path real rather than
@@ -80,7 +79,8 @@ let nextId = 0;
         >
           <!-- Leading glyph: a label for the field rather than a control, so it
                is muted and takes no pointer events. -->
-          <app-icon-search
+          <app-icon
+            name="search"
             class="pointer-events-none absolute left-2.5 h-4 w-4 text-subtle"
           />
           <input
@@ -112,7 +112,7 @@ let nextId = 0;
               class="mr-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-subtle transition-colors hover:text-accent"
               (click)="clear()"
             >
-              <app-icon-close class="h-4 w-4" />
+              <app-icon name="close" class="h-4 w-4" />
               <span class="sr-only">{{ text.clear }}</span>
             </button>
           }

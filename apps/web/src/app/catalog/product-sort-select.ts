@@ -7,7 +7,7 @@ import {
   searchSortSchema,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
-import { LucideIcon } from '../ui/icons/lucide-icon';
+import { Icon } from '../ui/icons/icon';
 import { Input } from '../ui/input';
 
 /**
@@ -34,7 +34,7 @@ const SORT_FIELD_ID = 'product-sort';
  */
 @Component({
   selector: 'app-product-sort-select',
-  imports: [Input, LucideIcon],
+  imports: [Input, Icon],
   template: `
     <div class="flex items-center gap-2">
       <label [attr.for]="id" class="text-sm whitespace-nowrap text-subtle">{{
@@ -72,7 +72,7 @@ const SORT_FIELD_ID = 'product-sort';
             </option>
           }
         </select>
-        <app-lucide-icon
+        <app-icon
           name="chevron-down"
           class="pointer-events-none absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 text-stone-400"
         />

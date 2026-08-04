@@ -11,7 +11,7 @@ import {
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
 import { DialogPanel } from '../../ui/dialog-panel';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
 
 /**
@@ -25,7 +25,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
  */
 @Component({
   selector: 'app-product-delete-dialog',
-  imports: [Button, LucideIcon, DialogPanel],
+  imports: [Button, AdminIcon, DialogPanel],
   template: `
     <dialog
       #dialog
@@ -59,7 +59,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
           [disabled]="deleting()"
           (click)="confirm()"
         >
-          <app-lucide-icon name="trash-2" class="h-4 w-4" />
+          <app-admin-icon name="trash-2" class="h-4 w-4" />
           {{ text.deleteProduct }}
         </button>
       </div>

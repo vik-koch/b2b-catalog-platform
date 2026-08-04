@@ -1,7 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { MailIcon } from '../ui/icons/mail-icon';
-import { PhoneIcon } from '../ui/icons/phone-icon';
+import { Icon } from '../ui/icons/icon';
 
 /**
  * Phone/email as pills with tel:/mailto: links. Each is shown only when
@@ -11,13 +10,13 @@ import { PhoneIcon } from '../ui/icons/phone-icon';
  */
 @Component({
   selector: 'app-contact-info',
-  imports: [PhoneIcon, MailIcon],
+  imports: [Icon],
   host: { class: 'flex flex-wrap items-center gap-4' },
   template: `
     @if (contact?.phone; as phone) {
       <a [href]="telHref(phone)" [class]="pillClass()">
         @if (this.variant() === 'primary') {
-          <app-icon-phone class="h-4 w-4" />
+          <app-icon name="phone" class="h-4 w-4" />
         }
         {{ phone }}
       </a>
@@ -25,7 +24,7 @@ import { PhoneIcon } from '../ui/icons/phone-icon';
     @if (contact?.email; as email) {
       <a [href]="'mailto:' + email" [class]="pillClass()">
         @if (this.variant() === 'primary') {
-          <app-icon-mail class="h-4 w-4" />
+          <app-icon name="mail" class="h-4 w-4" />
         }
         {{ email }}
       </a>

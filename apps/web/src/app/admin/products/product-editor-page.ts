@@ -17,7 +17,7 @@ import { majorToMinor, minorToMajor } from '../../catalog/price';
 import { ProductDetailView } from '../../catalog/product-detail-view';
 import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
 import { Button } from '../../ui/button';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
@@ -38,7 +38,7 @@ import { injectEditorReturn } from '../editor-return';
   selector: 'app-product-editor-page',
   imports: [
     Button,
-    LucideIcon,
+    AdminIcon,
     RichTextEditor,
     CategoryPicker,
     ProductAttributesEditor,
@@ -172,7 +172,7 @@ import { injectEditorReturn } from '../editor-return';
           [disabled]="saving()"
           (click)="save()"
         >
-          <app-lucide-icon name="save" class="h-4 w-4" />
+          <app-admin-icon name="save" class="h-4 w-4" />
           {{ saving() ? common.saving : common.save }}
         </button>
         <button
@@ -182,7 +182,7 @@ import { injectEditorReturn } from '../editor-return';
           class="gap-2"
           (click)="previewing.set(!previewing())"
         >
-          <app-lucide-icon
+          <app-admin-icon
             [name]="previewing() ? 'pencil' : 'eye'"
             class="h-4 w-4"
           />
@@ -195,7 +195,7 @@ import { injectEditorReturn } from '../editor-return';
           class="gap-2"
           (click)="cancel()"
         >
-          <app-lucide-icon name="x" class="h-4 w-4" />
+          <app-admin-icon name="x" class="h-4 w-4" />
           {{ common.cancel }}
         </button>
       </div>

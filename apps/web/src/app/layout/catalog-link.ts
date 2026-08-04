@@ -2,8 +2,8 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { currentUrl } from '../core/current-url';
-import { StoreIcon } from '../ui/icons/store-icon';
 import { NAV_ACTION, NAV_ACTION_LABEL } from './nav-action';
+import { Icon } from '../ui/icons/icon';
 
 /** Routes that count as "browsing the catalogue" for the navbar's active state. */
 const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
@@ -20,14 +20,14 @@ const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
  */
 @Component({
   selector: 'app-catalog-link',
-  imports: [RouterLink, StoreIcon],
+  imports: [RouterLink, Icon],
   template: `
     <a
       routerLink="/catalog"
       [attr.aria-current]="active() ? 'page' : null"
       [class]="navAction"
     >
-      <app-icon-store class="h-6 w-6" />
+      <app-icon name="store" class="h-6 w-6" />
       <span [class]="labelClass" [attr.data-label]="text.navLabel">{{
         text.navLabel
       }}</span>

@@ -1,6 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
 import { flattenCategoryTree } from './category-tree';
 
@@ -11,7 +11,7 @@ import { flattenCategoryTree } from './category-tree';
  */
 @Component({
   selector: 'app-category-picker',
-  imports: [LucideIcon, Input],
+  imports: [AdminIcon, Input],
   template: `
     <div class="relative">
       <select
@@ -34,7 +34,7 @@ import { flattenCategoryTree } from './category-tree';
           </option>
         }
       </select>
-      <app-lucide-icon
+      <app-admin-icon
         name="chevron-down"
         class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-stone-400"
       />
