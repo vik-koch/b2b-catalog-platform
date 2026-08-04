@@ -14,6 +14,7 @@ import { LoadErrorView } from '../pages/load-error-view';
 import { stableValue } from '../core/stable-value';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
+import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
 import { CategoryDeleteDialog } from '../admin/categories/category-delete-dialog';
@@ -21,7 +22,6 @@ import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
 import { DeletedProductsSection } from '../admin/products/deleted-products-section';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
 import { Button } from '../ui/button';
-import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
@@ -50,7 +50,7 @@ const SUBS_COLLAPSED = 4;
     ProductSortSelect,
     LucideIcon,
     Button,
-    IconButton,
+    EditActions,
     ProductDeleteDialog,
     CategoryDeleteDialog,
     DeletedProductsSection,
@@ -73,66 +73,58 @@ const SUBS_COLLAPSED = 4;
             [backLabel]="text.backToCatalog"
           />
         } @else {
-          @if (editControls(); as editText) {
-            <div class="absolute top-0 right-0 z-10 flex gap-2">
-              <a
-                appIconButton
-                [routerLink]="['/admin/categories', data.category.slug, 'edit']"
-                [attr.aria-label]="editText.editCategory"
-                [attr.title]="editText.editCategory"
-                [queryParams]="editorFrom"
+          <!-- The category's controls share the breadcrumb's row rather than
+               being pinned to the section corner: pinned, they landed on top of
+               the sort control that sits at the right of the row below. -->
+          <div class="flex items-start justify-between gap-4">
+            <nav [attr.aria-label]="text.catalogRoot">
+              <ol
+                class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-subtle"
               >
-                <app-lucide-icon name="pencil" class="h-5 w-5" />
-              </a>
-              <button
-                appIconButton
-                variant="danger"
-                type="button"
-                [attr.aria-label]="editText.deleteCategory"
-                [attr.title]="editText.deleteCategory"
-                (click)="
+                <li>
+                  <a routerLink="/catalog" class="hover:text-accent">
+                    {{ text.catalogRoot }}
+                  </a>
+                </li>
+                @for (crumb of data.category.ancestors; track crumb.slug) {
+                  <li aria-hidden="true" class="flex items-center">
+                    <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
+                  </li>
+                  <li>
+                    <a
+                      [routerLink]="['/catalog', crumb.slug]"
+                      class="hover:text-accent"
+                    >
+                      {{ displayName(crumb) }}
+                    </a>
+                  </li>
+                }
+                <li aria-hidden="true" class="flex items-center">
+                  <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
+                </li>
+                <li>
+                  <span aria-current="page" class="font-medium text-stone-700">
+                    {{ displayName(data.category) }}
+                  </span>
+                </li>
+              </ol>
+            </nav>
+            @if (editControls(); as editText) {
+              <app-edit-actions
+                variant="inline"
+                [editLink]="['/admin/categories', data.category.slug, 'edit']"
+                [editParams]="editorFrom"
+                [editLabel]="editText.editCategory"
+                [deleteLabel]="editText.deleteCategory"
+                (remove)="
                   deletingCategory.set({
                     slug: data.category.slug,
                     name: data.category.name,
                   })
                 "
-              >
-                <app-lucide-icon name="trash-2" class="h-5 w-5" />
-              </button>
-            </div>
-          }
-          <nav [attr.aria-label]="text.catalogRoot">
-            <ol
-              class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-subtle"
-            >
-              <li>
-                <a routerLink="/catalog" class="hover:text-accent">
-                  {{ text.catalogRoot }}
-                </a>
-              </li>
-              @for (crumb of data.category.ancestors; track crumb.slug) {
-                <li aria-hidden="true" class="flex items-center">
-                  <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
-                </li>
-                <li>
-                  <a
-                    [routerLink]="['/catalog', crumb.slug]"
-                    class="hover:text-accent"
-                  >
-                    {{ displayName(crumb) }}
-                  </a>
-                </li>
-              }
-              <li aria-hidden="true" class="flex items-center">
-                <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
-              </li>
-              <li>
-                <span aria-current="page" class="font-medium text-stone-700">
-                  {{ displayName(data.category) }}
-                </span>
-              </li>
-            </ol>
-          </nav>
+              />
+            }
+          </div>
 
           <div class="flex flex-wrap items-center justify-between gap-y-3">
             <h1 class="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
@@ -224,25 +216,14 @@ const SUBS_COLLAPSED = 4;
                 <li class="h-full">
                   <app-product-tile [item]="item">
                     @if (editControls(); as editText) {
-                      <div class="absolute top-2 right-2 z-10 flex gap-1.5">
-                        <a
-                          appIconButton
-                          [routerLink]="['/admin/products', item.slug, 'edit']"
-                          [queryParams]="editorFrom"
-                          [attr.aria-label]="editText.editProduct"
-                        >
-                          <app-lucide-icon name="pencil" class="h-4 w-4" />
-                        </a>
-                        <button
-                          appIconButton
-                          variant="danger"
-                          type="button"
-                          [attr.aria-label]="editText.deleteProduct"
-                          (click)="deletingProduct.set(item)"
-                        >
-                          <app-lucide-icon name="trash-2" class="h-4 w-4" />
-                        </button>
-                      </div>
+                      <app-edit-actions
+                        variant="tile"
+                        [editLink]="['/admin/products', item.slug, 'edit']"
+                        [editParams]="editorFrom"
+                        [editLabel]="editText.editProduct"
+                        [deleteLabel]="editText.deleteProduct"
+                        (remove)="deletingProduct.set(item)"
+                      />
                     }
                   </app-product-tile>
                 </li>

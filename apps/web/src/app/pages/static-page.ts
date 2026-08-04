@@ -1,19 +1,17 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
+import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
-import { LucideIcon } from '../ui/icons/lucide-icon';
 import { PageService } from './page.service';
 import { trustedRichText } from '../core/trusted-rich-text';
-import { IconButton } from '../ui/icon-button';
 import { LoadErrorView } from './load-error-view';
 
 @Component({
   selector: 'app-static-page',
-  imports: [LucideIcon, IconButton, RouterLink, LoadErrorView],
+  imports: [EditActions, LoadErrorView],
   template: `
     <!-- A published page with no row yet: an admin gets the shell and the
          pencil so they can write it, everyone else gets the load error rather
@@ -35,18 +33,12 @@ import { LoadErrorView } from './load-error-view';
           {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {
-          <!-- Editing happens on its own admin route, like products and
-               categories; this is the storefront's shortcut into it, so the
-               editor bundle never loads for a public visitor. -->
-          <a
-            appIconButton
-            [routerLink]="['/admin/pages', slug(), 'edit']"
-            [queryParams]="editorFrom"
-            [attr.aria-label]="editorText.edit"
-            [attr.title]="editorText.edit"
-          >
-            <app-lucide-icon name="pencil" class="h-5 w-5" />
-          </a>
+          <app-edit-actions
+            variant="inline"
+            [editLink]="['/admin/pages', slug(), 'edit']"
+            [editParams]="editorFrom"
+            [editLabel]="editorText.edit"
+          />
         }
       </div>
       @if (content) {

@@ -1,12 +1,10 @@
 import { Component, computed, inject, resource } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
+import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
-import { IconButton } from '../ui/icon-button';
-import { LucideIcon } from '../ui/icons/lucide-icon';
 import { MapFrame } from './map-frame';
 import { PageService } from './page.service';
 import { LoadErrorView } from './load-error-view';
@@ -24,7 +22,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
  */
 @Component({
   selector: 'app-contact-page',
-  imports: [MapFrame, IconButton, LucideIcon, RouterLink, LoadErrorView],
+  imports: [MapFrame, EditActions, LoadErrorView],
   template: `
     <!-- Nothing renders before the body arrives, heading included. The office
          list comes from deployment config and would otherwise paint instantly,
@@ -46,15 +44,12 @@ import { trustedRichText } from '../core/trusted-rich-text';
       <div class="flex items-start justify-between gap-4">
         <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ heading }}</h1>
         @if (canEdit(); as editorText) {
-          <a
-            appIconButton
-            [routerLink]="['/admin/pages', 'contact', 'edit']"
-            [queryParams]="editorFrom"
-            [attr.aria-label]="editorText.edit"
-            [attr.title]="editorText.edit"
-          >
-            <app-lucide-icon name="pencil" class="h-5 w-5" />
-          </a>
+          <app-edit-actions
+            variant="inline"
+            [editLink]="['/admin/pages', 'contact', 'edit']"
+            [editParams]="editorFrom"
+            [editLabel]="editorText.edit"
+          />
         }
       </div>
 

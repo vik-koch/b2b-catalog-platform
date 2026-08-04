@@ -6,16 +6,15 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
+import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
 import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
-import { IconButton } from '../ui/icon-button';
-import { LucideIcon } from '../ui/icons/lucide-icon';
 import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
 import { ProductDetailView } from './product-detail-view';
@@ -34,9 +33,7 @@ import { ProductDetailView } from './product-detail-view';
     ProductDetailView,
     ProductDeleteDialog,
     NotFoundView,
-    RouterLink,
-    IconButton,
-    LucideIcon,
+    EditActions,
     LoadErrorView,
   ],
   template: `
@@ -53,27 +50,13 @@ import { ProductDetailView } from './product-detail-view';
           />
         } @else {
           @if (editText(); as editText) {
-            <div class="absolute top-0 right-0 z-10 flex gap-2">
-              <a
-                appIconButton
-                [routerLink]="['/admin/products', item.slug, 'edit']"
-                [queryParams]="editorFrom"
-                [attr.aria-label]="editText.editProduct"
-                [attr.title]="editText.editProduct"
-              >
-                <app-lucide-icon name="pencil" class="h-5 w-5" />
-              </a>
-              <button
-                appIconButton
-                variant="danger"
-                type="button"
-                [attr.aria-label]="editText.deleteProduct"
-                [attr.title]="editText.deleteProduct"
-                (click)="confirmingDelete.set(true)"
-              >
-                <app-lucide-icon name="trash-2" class="h-5 w-5" />
-              </button>
-            </div>
+            <app-edit-actions
+              [editLink]="['/admin/products', item.slug, 'edit']"
+              [editParams]="editorFrom"
+              [editLabel]="editText.editProduct"
+              [deleteLabel]="editText.deleteProduct"
+              (remove)="confirmingDelete.set(true)"
+            />
           }
 
           <app-product-detail-view [item]="item" />

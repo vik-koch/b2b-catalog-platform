@@ -8,9 +8,9 @@ import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
+import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
 import { CategoryDeleteDialog } from '../admin/categories/category-delete-dialog';
-import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
@@ -30,22 +30,17 @@ const MAX_CHILD_LINKS = 3;
     RouterLink,
     ImagePlaceholder,
     LucideIcon,
-    IconButton,
+    EditActions,
     CategoryDeleteDialog,
     LoadErrorView,
   ],
   template: `
     <section class="relative pb-12 sm:pb-16">
       @if (editControls(); as editText) {
-        <a
-          appIconButton
-          class="absolute top-0 right-0 z-10"
-          [routerLink]="['/admin/categories']"
-          [attr.aria-label]="editText.editCategories"
-          [attr.title]="editText.editCategories"
-        >
-          <app-lucide-icon name="pencil" class="h-5 w-5" />
-        </a>
+        <app-edit-actions
+          [editLink]="['/admin/categories']"
+          [editLabel]="editText.editCategories"
+        />
       }
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         {{ text.overviewTitle }}
@@ -81,27 +76,16 @@ const MAX_CHILD_LINKS = 3;
             @for (cat of cats; track cat.slug) {
               <li class="group relative">
                 @if (editControls(); as editText) {
-                  <div class="absolute top-2 right-2 z-10 flex gap-1.5">
-                    <a
-                      appIconButton
-                      [routerLink]="['/admin/categories', cat.slug, 'edit']"
-                      [queryParams]="editorFrom"
-                      [attr.aria-label]="editText.editCategory"
-                    >
-                      <app-lucide-icon name="pencil" class="h-4 w-4" />
-                    </a>
-                    <button
-                      appIconButton
-                      variant="danger"
-                      type="button"
-                      [attr.aria-label]="editText.deleteCategory"
-                      (click)="
-                        deletingCategory.set({ slug: cat.slug, name: cat.name })
-                      "
-                    >
-                      <app-lucide-icon name="trash-2" class="h-4 w-4" />
-                    </button>
-                  </div>
+                  <app-edit-actions
+                    variant="tile"
+                    [editLink]="['/admin/categories', cat.slug, 'edit']"
+                    [editParams]="editorFrom"
+                    [editLabel]="editText.editCategory"
+                    [deleteLabel]="editText.deleteCategory"
+                    (remove)="
+                      deletingCategory.set({ slug: cat.slug, name: cat.name })
+                    "
+                  />
                 }
                 <a
                   [routerLink]="['/catalog', cat.slug]"
