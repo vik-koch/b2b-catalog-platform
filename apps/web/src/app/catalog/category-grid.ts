@@ -335,7 +335,13 @@ const SUBS_COLLAPSED = 4;
         }
       } @else if (showSkeleton()) {
         <div class="animate-pulse space-y-8" aria-hidden="true">
-          <div class="h-8 w-1/3 rounded bg-stone-200"></div>
+          <!-- The breadcrumb is part of the loaded page, so it is part of the
+               placeholder too — otherwise the title jumps down a row when the
+               real content arrives. -->
+          <div class="space-y-3">
+            <div class="h-4 w-1/2 rounded bg-stone-200 sm:w-1/3"></div>
+            <div class="h-8 w-1/3 rounded bg-stone-200"></div>
+          </div>
           <div
             class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
           >

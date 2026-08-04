@@ -92,13 +92,19 @@ import { ProductDetailView } from './product-detail-view';
           }
         }
       } @else if (showSkeleton()) {
-        <div class="grid animate-pulse gap-8 lg:grid-cols-2" aria-hidden="true">
-          <div class="aspect-square rounded-xl bg-stone-200"></div>
-          <div class="space-y-4">
-            <div class="h-8 w-2/3 rounded bg-stone-200"></div>
-            <div class="h-6 w-1/4 rounded bg-stone-200"></div>
-            <div class="h-4 w-full rounded bg-stone-200"></div>
-            <div class="h-4 w-5/6 rounded bg-stone-200"></div>
+        <div class="animate-pulse" aria-hidden="true">
+          <!-- The breadcrumb is part of the loaded page, so it is part of the
+               placeholder too — otherwise everything below shifts up a row
+               when the real content arrives. -->
+          <div class="mb-6 h-4 w-2/3 rounded bg-stone-200 sm:w-2/5"></div>
+          <div class="grid gap-8 lg:grid-cols-2">
+            <div class="aspect-square rounded-xl bg-stone-200"></div>
+            <div class="space-y-4">
+              <div class="h-8 w-2/3 rounded bg-stone-200"></div>
+              <div class="h-6 w-1/4 rounded bg-stone-200"></div>
+              <div class="h-4 w-full rounded bg-stone-200"></div>
+              <div class="h-4 w-5/6 rounded bg-stone-200"></div>
+            </div>
           </div>
         </div>
       }

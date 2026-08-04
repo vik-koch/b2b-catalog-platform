@@ -6,6 +6,7 @@ import {
   provideRouter,
   RouteReuseStrategy,
   withComponentInputBinding,
+  withInMemoryScrolling,
   withViewTransitions,
 } from '@angular/router';
 import { appRoutes } from './app.routes';
@@ -29,6 +30,14 @@ export const appConfig: ApplicationConfig = {
       appRoutes,
       withComponentInputBinding(),
       withViewTransitions({ skipInitialTransition: true }),
+      // Every navigation starts at the top — paging through a grid otherwise
+      // leaves the visitor halfway down the next page. `top` rather than
+      // `enabled` on purpose: the pages here are lists whose content changes
+      // under the same route, so a restored offset points at nothing.
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'top',
+        anchorScrolling: 'enabled',
+      }),
     ),
     { provide: RouteReuseStrategy, useClass: StaticPageReuseStrategy },
     // Browser reads config + copy from the script the Node process injects into

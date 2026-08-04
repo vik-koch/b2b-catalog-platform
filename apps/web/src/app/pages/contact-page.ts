@@ -9,9 +9,9 @@ import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
 import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
-import { Skeleton } from '../ui/skeleton';
 import { MapFrame } from './map-frame';
 import { PageService } from './page.service';
+import { LoadErrorView } from './load-error-view';
 import { trustedRichText } from '../core/trusted-rich-text';
 
 /**
@@ -26,53 +26,68 @@ import { trustedRichText } from '../core/trusted-rich-text';
  */
 @Component({
   selector: 'app-contact-page',
-  imports: [MapFrame, IconButton, LucideIcon, RouterLink, Skeleton],
+  imports: [MapFrame, IconButton, LucideIcon, RouterLink, LoadErrorView],
   template: `
-    <div class="flex items-start justify-between gap-4">
-      <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
-      @if (canEdit(); as editorText) {
-        <a
-          appIconButton
-          [routerLink]="['/admin/pages', 'contact', 'edit']"
-          [queryParams]="editorFrom"
-          [attr.aria-label]="editorText.edit"
-          [attr.title]="editorText.edit"
-        >
-          <app-lucide-icon name="pencil" class="h-5 w-5" />
-        </a>
-      }
-    </div>
+    <!-- Nothing renders before the body arrives, heading included. The office
+         list comes from deployment config and would otherwise paint instantly,
+         then be shoved down when the prose lands — the page appears in one
+         piece instead of assembling itself in front of the visitor.
 
-    <!-- No body yet is fine here: the office list below is real content in its
-         own right, so the page stands without prose. Only an admin is told. -->
-    @if (page(); as content) {
-      <div
-        class="prose prose-stone mb-8 max-w-none"
-        [innerHTML]="safeBody(content.bodyHtml)"
-      ></div>
-    } @else if (page() === null) {
-      @if (canEdit(); as editorText) {
+         A body that failed or was never written takes the whole page down with
+         it, rather than leaving the office list standing under an empty
+         heading: the prose is what /contact is, and a page missing it is not
+         serving its content. LoadErrorView owns the 503 that says so. -->
+    @if (failed() && !canEdit()) {
+      <app-load-error-view [heading]="errorText.cannotLoadTitle" />
+    } @else if (settled()) {
+      <div class="flex items-start justify-between gap-4">
+        <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
+        @if (canEdit(); as editorText) {
+          <a
+            appIconButton
+            [routerLink]="['/admin/pages', 'contact', 'edit']"
+            [queryParams]="editorFrom"
+            [attr.aria-label]="editorText.edit"
+            [attr.title]="editorText.edit"
+          >
+            <app-lucide-icon name="pencil" class="h-5 w-5" />
+          </a>
+        }
+      </div>
+
+      <!-- Only an admin reaches this without a body — the shell and the pencil
+           are how they get one written. -->
+      @if (page(); as content) {
+        <div
+          class="prose prose-stone mb-8 max-w-none"
+          [innerHTML]="safeBody(content.bodyHtml)"
+        ></div>
+      } @else if (canEdit(); as editorText) {
         <p class="mb-8 text-muted">{{ editorText.emptyNotice }}</p>
       }
-    } @else if (showSkeleton()) {
-      <app-skeleton class="mb-8" [lines]="2" />
-    }
 
-    <div class="space-y-10">
-      @for (location of locations; track location.name) {
-        <section>
-          <h2 class="text-xl font-semibold">{{ location.name }}</h2>
-          @if (location.description) {
-            <p class="mt-1 text-muted">{{ location.description }}</p>
-          }
-          <app-map-frame
-            class="mt-4 block"
-            [map]="location.map"
-            [title]="location.name + ' map'"
-          />
-        </section>
-      }
-    </div>
+      <div class="space-y-10">
+        @for (location of locations; track location.name) {
+          <section>
+            <h2 class="text-xl font-semibold">{{ location.name }}</h2>
+            @if (location.description) {
+              <p class="mt-1 text-muted">{{ location.description }}</p>
+            }
+            <app-map-frame
+              class="mt-4 block"
+              [map]="location.map"
+              [title]="location.name + ' map'"
+            />
+          </section>
+        }
+      </div>
+    } @else if (showSkeleton()) {
+      <div class="animate-pulse space-y-4" aria-hidden="true">
+        <div class="h-8 w-1/3 rounded bg-stone-200"></div>
+        <div class="h-4 w-full rounded bg-stone-200"></div>
+        <div class="h-4 w-5/6 rounded bg-stone-200"></div>
+      </div>
+    }
   `,
 })
 export class ContactPage {
@@ -81,6 +96,7 @@ export class ContactPage {
   private readonly editMode = inject(EditModeService);
 
   protected readonly heading = this.appText.nav['contact'];
+  protected readonly errorText = this.appText.errors;
   protected readonly locations = inject(DEPLOYMENT_CONFIG).locations;
   protected readonly editorFrom = injectEditorReturnParams();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
@@ -91,12 +107,22 @@ export class ContactPage {
     loader: () => this.pageService.getPage('contact'),
   });
 
-  // Guarded: `value()` throws on an errored resource. The page still stands
-  // without its prose — the office list is config — so a failed body is not an
-  // outage here, just a missing block.
+  // `undefined` while loading *or failed*, `null` when the page has no row yet.
+  // Guarded: `value()` throws on an errored resource, and an unguarded read
+  // during SSR kills the render before it can set a status.
   protected readonly page = computed(() =>
     this.pageResource.hasValue() ? this.pageResource.value() : undefined,
   );
+
+  /** Whether the body request is done, either way. */
+  protected readonly settled = computed(
+    () =>
+      !this.pageResource.isLoading() && this.pageResource.status() !== 'idle',
+  );
+
+  /** No prose to show: the request errored, or the page has no row yet. Both
+   * are the same thing to a visitor — the page cannot be served. */
+  protected readonly failed = computed(() => this.settled() && !this.page());
 
   /** Delayed so a quick load never flashes a skeleton. */
   protected readonly showSkeleton = delayedLoading(this.pageResource.isLoading);
