@@ -3,6 +3,7 @@ import {
   afterNextRender,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   input,
@@ -262,18 +263,25 @@ export class SearchField {
   private readonly answered = computed(
     () => this.suggested.status() !== 'idle' && !this.suggested.isLoading(),
   );
+  /**
+   * Whether anything has come back at all during this typing session. Once it
+   * has, the panel stays up until the session ends — it is what keeps the box
+   * from closing and reopening between two answers, which is the same reason
+   * `suggestions` holds the previous list rather than blanking.
+   */
+  private readonly opened = signal(false);
+  /** An empty list, once the panel is up — a pending first query is neither
+   * open nor "nothing found", and must not say so before the reply lands. */
   protected readonly noMatches = computed(
-    () => this.answered() && this.suggestions().length === 0,
+    () => this.panelOpen() && this.suggestions().length === 0,
   );
 
   /**
-   * The panel is up whenever a typed query has something to say — names, or
-   * the fact that there are none. Saying so beats vanishing: the box
-   * disappearing mid-word reads as a glitch rather than as an answer.
+   * The panel is up from the first answer to the end of the typing session.
+   * Anything narrower flickers: "nothing found" giving way to a pending request
+   * would close the box for a beat and reopen it with the results.
    */
-  protected readonly panelOpen = computed(
-    () => this.typing() && (this.suggestions().length > 0 || this.noMatches()),
-  );
+  protected readonly panelOpen = computed(() => this.typing() && this.opened());
   protected readonly activeOptionId = computed(() =>
     this.panelOpen() && this.activeIndex() >= 0
       ? `${this.listId}-${this.activeIndex()}`
@@ -292,6 +300,12 @@ export class SearchField {
   constructor() {
     afterNextRender(() => {
       if (this.autoFocus()) this.input()?.nativeElement.focus();
+    });
+    // Opens on the first answer, and closes again only when there is nothing
+    // being asked at all — an emptied field, or a session the visitor ended.
+    effect(() => {
+      if (this.suggested.status() === 'idle') this.opened.set(false);
+      else if (this.answered()) this.opened.set(true);
     });
   }
 
@@ -373,6 +387,7 @@ export class SearchField {
 
   protected close(): void {
     this.typing.set(false);
+    this.opened.set(false);
     this.activeIndex.set(-1);
   }
 

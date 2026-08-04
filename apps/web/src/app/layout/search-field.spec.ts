@@ -460,4 +460,33 @@ describe('SearchField suggestions (FR-SEARCH-05)', () => {
       ),
     ).toBe('false');
   });
+
+  it('stays open across the gap between "nothing found" and the next answer', async () => {
+    // Closing while the next request is in flight would blink the box out and
+    // back for a beat — a glitch, not an answer.
+    const { el, fixture } = await render();
+
+    suggestions = [];
+    await typeQuery(fixture, el, 'zzz');
+    expect(el.textContent).toContain(defaultAppText.search.noSuggestions);
+
+    holdNext = true;
+    await typePending(el, 'zzz espresso');
+    fixture.detectChanges();
+
+    expect(
+      (el.querySelector('input') as HTMLInputElement).getAttribute(
+        'aria-expanded',
+      ),
+    ).toBe('true');
+
+    holdNext = false;
+    hold?.([{ slug: 'espresso-dolce', name: 'Espresso Dolce' }]);
+    await fixture.whenStable();
+    await TestBed.inject(ApplicationRef).whenStable();
+
+    expect(options(el).map((o) => o.textContent?.trim())).toEqual([
+      'Espresso Dolce',
+    ]);
+  });
 });
