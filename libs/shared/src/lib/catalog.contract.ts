@@ -79,6 +79,32 @@ export const PRODUCT_RICH_TEXT_TAGS = [
   'hr',
 ] as const;
 
+/**
+ * An optional admin-set nickname, shown wherever the owning parent category is
+ * already on screen — subcategory tiles and chips, breadcrumbs.
+ */
+export const shortNameSchema = z.string().nullable();
+
+/** The name to display where the parent is visible: the nickname, or the full
+ * name when there is none. */
+export function categoryDisplayName(category: {
+  name: string;
+  shortName?: string | null;
+}): string {
+  return category.shortName || category.name;
+}
+
+/** A breadcrumb ancestor of the selected category, root-first. Carries the
+ * nickname too: a crumb always sits next to its parent. */
+export const categoryCrumbSchema = z
+  .object({
+    slug: z.string(),
+    name: z.string(),
+    shortName: shortNameSchema,
+  })
+  .strict();
+export type CategoryCrumb = z.infer<typeof categoryCrumbSchema>;
+
 /** The full product page (FR-CAT-05). */
 export const productDetailSchema = z
   .object({
@@ -90,20 +116,21 @@ export const productDetailSchema = z
     images: z.array(catalogImageSchema),
     attributes: z.array(productAttributeSchema),
     /** The single category this product belongs to — for the breadcrumb. */
-    category: z.object({ slug: z.string(), name: z.string() }).strict(),
+    category: categoryCrumbSchema,
   })
   .strict();
 export type ProductDetail = z.infer<typeof productDetailSchema>;
 
 /**
  * A node in the category tree (FR-CAT-01/02). The structure (name/hierarchy)
- * comes from the sync; `image` is the admin presentation overlay (a full+thumb
- * pair) and may be absent until one is attached. Recursive: subcategories nest
+ * comes from the sync; `image` and `shortName` are the admin presentation
+ * overlay and may be absent. Recursive: subcategories nest
  * arbitrarily, though the UI may render only the depth it needs.
  */
 export interface CategoryNode {
   slug: string;
   name: string;
+  shortName: string | null;
   image: CatalogImage | null;
   children: CategoryNode[];
 }
@@ -113,6 +140,7 @@ export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
       .object({
         slug: z.string(),
         name: z.string(),
+        shortName: shortNameSchema,
         image: catalogImageSchema.nullable(),
         children: z.array(categoryNodeSchema),
       })
@@ -121,11 +149,6 @@ export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
   // optional; the explicit interface above is the real shape.
 ) as z.ZodType<CategoryNode>;
 
-/** A breadcrumb ancestor of the selected category, root-first. */
-export const categoryCrumbSchema = z
-  .object({ slug: z.string(), name: z.string() })
-  .strict();
-
 /** A direct child of the selected category, for the drill-down nav
  * (FR-CAT-02). `image` lets the nav render as tiles if wanted; the current grid
  * uses chips and ignores it. */
@@ -133,6 +156,7 @@ export const subcategoryLinkSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
+    shortName: shortNameSchema,
     image: catalogImageSchema.nullable(),
   })
   .strict();
@@ -270,6 +294,7 @@ export const catalogContract = c.router({
             .object({
               slug: z.string(),
               name: z.string(),
+              shortName: shortNameSchema,
               ancestors: z.array(categoryCrumbSchema),
               /** Direct children, for the drill-down nav. Empty on a leaf. */
               subcategories: z.array(subcategoryLinkSchema),

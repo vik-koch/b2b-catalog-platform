@@ -186,6 +186,7 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
     expect(res.data.category).toEqual({
       slug: 'espresso',
       name: 'Espresso Roasts',
+      shortName: null,
     });
     expect(res.data.attributes).toEqual(seed.attributes);
     // The private sync key must never be serialized.

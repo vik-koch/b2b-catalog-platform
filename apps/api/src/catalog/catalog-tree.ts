@@ -1,10 +1,16 @@
-import { CatalogImage, CategoryNode } from '@b2b-catalog-platform/shared';
+import {
+  CatalogImage,
+  CategoryCrumb,
+  CategoryNode,
+  SubcategoryLink,
+} from '@b2b-catalog-platform/shared';
 
 /** A flat category row as stored, the input to every tree computation below. */
 export interface CategoryRow {
   id: string;
   slug: string;
   name: string;
+  shortName: string | null;
   parentId: string | null;
   image: CatalogImage | null;
   sortOrder: number;
@@ -20,6 +26,7 @@ export function buildCategoryTree(rows: CategoryRow[]): CategoryNode[] {
     nodes.set(row.id, {
       slug: row.slug,
       name: row.name,
+      shortName: row.shortName,
       image: row.image,
       children: [],
     });
@@ -68,14 +75,18 @@ export function descendantIds(rootId: string, rows: CategoryRow[]): string[] {
 export function ancestorsOf(
   categoryId: string,
   rows: CategoryRow[],
-): { slug: string; name: string }[] {
+): CategoryCrumb[] {
   const byId = new Map(rows.map((row) => [row.id, row]));
-  const crumbs: { slug: string; name: string }[] = [];
+  const crumbs: CategoryCrumb[] = [];
   let current = byId.get(categoryId)?.parentId ?? null;
   while (current) {
     const row = byId.get(current);
     if (!row) break;
-    crumbs.unshift({ slug: row.slug, name: row.name });
+    crumbs.unshift({
+      slug: row.slug,
+      name: row.name,
+      shortName: row.shortName,
+    });
     current = row.parentId;
   }
   return crumbs;
@@ -85,8 +96,13 @@ export function ancestorsOf(
 export function directChildren(
   categoryId: string,
   rows: CategoryRow[],
-): { slug: string; name: string; image: CatalogImage | null }[] {
+): SubcategoryLink[] {
   return rows
     .filter((row) => row.parentId === categoryId)
-    .map((row) => ({ slug: row.slug, name: row.name, image: row.image }));
+    .map((row) => ({
+      slug: row.slug,
+      name: row.name,
+      shortName: row.shortName,
+      image: row.image,
+    }));
 }

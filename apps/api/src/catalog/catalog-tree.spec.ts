@@ -12,10 +12,12 @@ const cat = (
   slug: string,
   parentId: string | null,
   sortOrder: number,
+  shortName: string | null = null,
 ): CategoryRow => ({
   id,
   slug,
   name: slug.toUpperCase(),
+  shortName,
   parentId,
   image: null,
   sortOrder,
@@ -24,7 +26,7 @@ const cat = (
 // coffee-beans › { espresso, filter }, and a flat tea category.
 const rows: CategoryRow[] = [
   cat('cb', 'coffee-beans', null, 0),
-  cat('esp', 'espresso', 'cb', 1),
+  cat('esp', 'espresso', 'cb', 1, 'Esp'),
   cat('fil', 'filter', 'cb', 2),
   cat('tea', 'tea', null, 3),
 ];
@@ -47,7 +49,7 @@ describe('catalog-tree', () => {
 
   it('walks ancestors root-first, excluding the category itself', () => {
     expect(ancestorsOf('esp', rows)).toEqual([
-      { slug: 'coffee-beans', name: 'COFFEE-BEANS' },
+      { slug: 'coffee-beans', name: 'COFFEE-BEANS', shortName: null },
     ]);
     expect(ancestorsOf('cb', rows)).toEqual([]);
   });
@@ -58,6 +60,22 @@ describe('catalog-tree', () => {
       'filter',
     ]);
     expect(directChildren('esp', rows)).toEqual([]);
+  });
+
+  it('carries the short name through crumbs, children and the tree', () => {
+    expect(
+      ancestorsOf(
+        'esp',
+        rows.map((r) => (r.id === 'cb' ? { ...r, shortName: 'Beans' } : r)),
+      ),
+    ).toEqual([
+      { slug: 'coffee-beans', name: 'COFFEE-BEANS', shortName: 'Beans' },
+    ]);
+    expect(directChildren('cb', rows).map((c) => c.shortName)).toEqual([
+      'Esp',
+      null,
+    ]);
+    expect(buildCategoryTree(rows)[0].children[0].shortName).toBe('Esp');
   });
 
   it('finds a category by slug', () => {

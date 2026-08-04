@@ -2,14 +2,15 @@ import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, count, desc, eq, inArray, isNull } from 'drizzle-orm';
 import {
-  CatalogImage,
   CATALOG_PAGE_SIZE,
+  CategoryCrumb,
   CategoryNode,
   ProductDetail,
   ProductListItem,
   ProductSort,
   SearchSort,
   SearchSuggestion,
+  SubcategoryLink,
   SEARCH_SUGGESTION_LIMIT,
   SitemapEntry,
 } from '@b2b-catalog-platform/shared';
@@ -47,12 +48,9 @@ interface CategoryProductsResult {
   category: {
     slug: string;
     name: string;
-    ancestors: { slug: string; name: string }[];
-    subcategories: {
-      slug: string;
-      name: string;
-      image: CatalogImage | null;
-    }[];
+    shortName: string | null;
+    ancestors: CategoryCrumb[];
+    subcategories: SubcategoryLink[];
   };
   items: ProductListItem[];
   pagination: {
@@ -81,6 +79,7 @@ export class CatalogService {
         id: categories.id,
         slug: categories.slug,
         name: categories.name,
+        shortName: categories.shortName,
         parentId: categories.parentId,
         image: categories.image,
         sortOrder: categories.sortOrder,
@@ -131,6 +130,7 @@ export class CatalogService {
       category: {
         slug: category.slug,
         name: category.name,
+        shortName: category.shortName,
         ancestors: ancestorsOf(category.id, rows),
         subcategories: directChildren(category.id, rows),
       },
@@ -295,7 +295,11 @@ export class CatalogService {
     if (!product) return null;
 
     const [category] = await this.db
-      .select({ slug: categories.slug, name: categories.name })
+      .select({
+        slug: categories.slug,
+        name: categories.name,
+        shortName: categories.shortName,
+      })
       .from(categories)
       .where(eq(categories.id, product.categoryId))
       .limit(1);
