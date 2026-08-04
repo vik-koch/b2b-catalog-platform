@@ -1,4 +1,4 @@
-import { AdminCategory } from '@b2b-catalog-platform/shared';
+import { AdminCategory, CategoryCrumb } from '@b2b-catalog-platform/shared';
 
 export interface CategoryTreeNode {
   category: AdminCategory;
@@ -33,6 +33,27 @@ export function flattenCategoryTree(
   };
   walk(null, 0);
   return out;
+}
+
+/**
+ * The ancestors of a category, root-first, excluding it — the same crumb chain
+ * the storefront gets from the API, rebuilt locally for the product editor's
+ * live preview.
+ */
+export function categoryAncestors(
+  categories: readonly AdminCategory[],
+  categoryId: string,
+): CategoryCrumb[] {
+  const byId = new Map(categories.map((c) => [c.id, c]));
+  const crumbs: CategoryCrumb[] = [];
+  let current = byId.get(categoryId)?.parentId ?? null;
+  while (current) {
+    const c = byId.get(current);
+    if (!c) break;
+    crumbs.unshift({ slug: c.slug, name: c.name, shortName: c.shortName });
+    current = c.parentId;
+  }
+  return crumbs;
 }
 
 export interface CategoryTreeBranch {
