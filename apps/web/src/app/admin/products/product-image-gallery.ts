@@ -11,7 +11,7 @@ import {
   CatalogImage,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import { MediaService } from '../media/media.service';
 
@@ -23,7 +23,7 @@ import { MediaService } from '../media/media.service';
  */
 @Component({
   selector: 'app-product-image-gallery',
-  imports: [LucideIcon, CdkDropList, CdkDrag, CdkDragPlaceholder, FieldLabel],
+  imports: [AdminIcon, CdkDropList, CdkDrag, CdkDragPlaceholder, FieldLabel],
   template: `
     <fieldset>
       <legend appFieldLabel>{{ text.heading }}</legend>
@@ -57,7 +57,7 @@ import { MediaService } from '../media/media.service';
               class="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 p-1"
             >
               <span class="p-0.5 text-white/70">
-                <app-lucide-icon name="grip-vertical" class="h-4 w-4" />
+                <app-admin-icon name="grip-vertical" class="h-4 w-4" />
               </span>
               <button
                 type="button"
@@ -65,7 +65,7 @@ import { MediaService } from '../media/media.service';
                 [attr.aria-label]="common.remove"
                 (click)="remove($index)"
               >
-                <app-lucide-icon name="trash-2" class="h-4 w-4" />
+                <app-admin-icon name="trash-2" class="h-4 w-4" />
               </button>
             </div>
           </li>
@@ -86,7 +86,7 @@ import { MediaService } from '../media/media.service';
             [disabled]="uploading()"
             (click)="fileInput.click()"
           >
-            <app-lucide-icon name="image-plus" class="h-6 w-6" />
+            <app-admin-icon name="image-plus" class="h-6 w-6" />
             <span class="text-xs">
               {{ uploading() ? common.uploading : text.add }}
             </span>

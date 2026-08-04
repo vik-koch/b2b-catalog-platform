@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { AdminProductSort } from '@b2b-catalog-platform/shared';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
 
 /**
@@ -10,7 +10,7 @@ import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
  */
 @Component({
   selector: 'app-grid-sort',
-  imports: [LucideIcon],
+  imports: [AdminIcon],
   host: {
     // `group` so the affordance chevron can appear on hover; see the icon.
     class: 'group py-2 font-medium',
@@ -27,7 +27,7 @@ import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
            the one in effect (or under the pointer): a row of permanent arrows
            reads as noise, and a header that gains an icon on hover says
            "clickable" without claiming to be sorted. -->
-      <app-lucide-icon
+      <app-admin-icon
         [name]="descending() ? 'chevron-down' : 'chevron-up'"
         [class]="iconClass()"
       />

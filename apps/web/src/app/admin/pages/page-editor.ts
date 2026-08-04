@@ -13,7 +13,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { injectConfirmDiscard } from '../confirm-discard';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { PageService } from '../../pages/page.service';
@@ -26,7 +26,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
  */
 @Component({
   selector: 'app-page-editor',
-  imports: [Button, RichTextEditor, LucideIcon, FieldLabel, Input],
+  imports: [Button, RichTextEditor, AdminIcon, FieldLabel, Input],
   // Neutralize link navigation from the preview at the host: a native click on
   // a rendered link would leave the page without the unsaved-changes guard.
   host: { '(click)': 'onPreviewClick($event)' },
@@ -76,7 +76,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         [disabled]="saving()"
         (click)="save()"
       >
-        <app-lucide-icon name="save" class="h-4 w-4" />
+        <app-admin-icon name="save" class="h-4 w-4" />
         {{ saving() ? common.saving : common.save }}
       </button>
       <button
@@ -86,7 +86,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         class="gap-2"
         (click)="previewing.set(!previewing())"
       >
-        <app-lucide-icon
+        <app-admin-icon
           [name]="previewing() ? 'pencil' : 'eye'"
           class="h-4 w-4"
         />
@@ -99,7 +99,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         class="gap-2"
         (click)="cancel()"
       >
-        <app-lucide-icon name="x" class="h-4 w-4" />
+        <app-admin-icon name="x" class="h-4 w-4" />
         {{ common.cancel }}
       </button>
     </div>

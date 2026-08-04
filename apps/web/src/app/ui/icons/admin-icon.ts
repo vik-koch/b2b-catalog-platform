@@ -1,12 +1,16 @@
 import { Component, input } from '@angular/core';
 
 /**
- * Owned Lucide SVGs (ISC), one switch so the rich-text toolbar can name an icon
- * instead of importing a component per glyph. Only used inside the deferred
- * editor, so the whole set stays out of the public bundle. Page-level chrome
- * keeps its per-file icon components.
+ * Every glyph only an admin ever sees: the rich-text toolbar, the editors, the
+ * management screens. Owned Lucide SVGs (ISC); see ADR 0008 (owned primitives).
+ *
+ * Kept apart from Icon because a `@switch` ships every case it contains, and
+ * this set is far the larger of the two. Every component that names one of
+ * these is lazy or deferred, which is what keeps the whole thing out of the
+ * bundle a visitor downloads — naming one from an eagerly loaded storefront
+ * component would drag all of them along, so add the glyph to Icon instead.
  */
-export type LucideIconName =
+export type AdminIconName =
   | 'bold'
   | 'italic'
   | 'underline'
@@ -40,7 +44,7 @@ export type LucideIconName =
   | 'square-chart-gantt';
 
 @Component({
-  selector: 'app-lucide-icon',
+  selector: 'app-admin-icon',
   host: { class: 'inline-flex' },
   template: `
     <svg
@@ -243,6 +247,6 @@ export type LucideIconName =
     </svg>
   `,
 })
-export class LucideIcon {
-  readonly name = input.required<LucideIconName>();
+export class AdminIcon {
+  readonly name = input.required<AdminIconName>();
 }

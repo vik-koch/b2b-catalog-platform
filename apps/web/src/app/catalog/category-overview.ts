@@ -11,7 +11,7 @@ import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
 import { CategoryDeleteDialog } from '../admin/categories/category-delete-dialog';
-import { LucideIcon } from '../ui/icons/lucide-icon';
+import { Icon } from '../ui/icons/icon';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
 
@@ -29,7 +29,7 @@ const MAX_CHILD_LINKS = 3;
   imports: [
     RouterLink,
     ImagePlaceholder,
-    LucideIcon,
+    Icon,
     EditActions,
     CategoryDeleteDialog,
     LoadErrorView,
@@ -66,7 +66,7 @@ const MAX_CHILD_LINKS = 3;
                   [queryParams]="editorFrom"
                   class="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent"
                 >
-                  <app-lucide-icon name="plus" class="h-8 w-8" />
+                  <app-icon name="plus" class="h-8 w-8" />
                   <span class="text-sm font-medium">{{
                     editText.addCategory
                   }}</span>

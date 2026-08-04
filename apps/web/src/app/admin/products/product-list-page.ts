@@ -18,7 +18,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { stableValue } from '../../core/stable-value';
 import { PricePipe } from '../../catalog/price.pipe';
 import { Button } from '../../ui/button';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { injectEditorReturnParams } from '../editor-return';
@@ -45,7 +45,7 @@ import { ProductSearchField } from './product-search-field';
     RouterLink,
     PricePipe,
     Button,
-    LucideIcon,
+    AdminIcon,
     ProductDeleteDialog,
     ProductSearchField,
     GridSortHeader,
@@ -62,7 +62,7 @@ import { ProductSearchField } from './product-search-field';
         [queryParams]="editorFrom"
         class="gap-2"
       >
-        <app-lucide-icon name="plus" class="h-4 w-4" />
+        <app-admin-icon name="plus" class="h-4 w-4" />
         {{ editText.addProduct }}
       </a>
     </div>
@@ -196,7 +196,7 @@ import { ProductSearchField } from './product-search-field';
                     class="p-1.5 text-subtle hover:text-accent"
                     [attr.aria-label]="editText.editProduct"
                   >
-                    <app-lucide-icon name="pencil" class="h-4 w-4" />
+                    <app-admin-icon name="pencil" class="h-4 w-4" />
                   </a>
                   @if (item.deletedAt) {
                     <button
@@ -205,7 +205,7 @@ import { ProductSearchField } from './product-search-field';
                       [attr.aria-label]="common.restore"
                       (click)="restore(item)"
                     >
-                      <app-lucide-icon name="rotate-ccw" class="h-4 w-4" />
+                      <app-admin-icon name="rotate-ccw" class="h-4 w-4" />
                     </button>
                   } @else {
                     <button
@@ -214,7 +214,7 @@ import { ProductSearchField } from './product-search-field';
                       [attr.aria-label]="editText.deleteProduct"
                       (click)="deletingProduct.set(item)"
                     >
-                      <app-lucide-icon name="trash-2" class="h-4 w-4" />
+                      <app-admin-icon name="trash-2" class="h-4 w-4" />
                     </button>
                   }
                 </div>

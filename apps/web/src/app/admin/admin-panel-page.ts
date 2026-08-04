@@ -6,7 +6,7 @@ import { ADMIN_TEXT } from '../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { SignedInAs } from '../auth/signed-in-as';
 import { Button } from '../ui/button';
-import { LucideIcon } from '../ui/icons/lucide-icon';
+import { AdminIcon } from '../ui/icons/admin-icon';
 import { MaintenanceToggle } from './maintenance/maintenance-toggle';
 import { SyncService } from './sync/sync.service';
 import { injectEditorReturnParams } from './editor-return';
@@ -20,7 +20,7 @@ import { BuildInfoService } from './build-info.service';
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [SignedInAs, MaintenanceToggle, RouterLink, Button, LucideIcon],
+  imports: [SignedInAs, MaintenanceToggle, RouterLink, Button, AdminIcon],
   template: `
     <h1 class="mb-4 text-3xl font-bold tracking-tight">
       {{ text.adminPanel }}
@@ -42,7 +42,7 @@ import { BuildInfoService } from './build-info.service';
         <div class="p-5">
           <h3 class="mb-3 text-sm font-semibold">{{ panelText.sync }}</h3>
           <a appButton routerLink="/admin/sync" class="gap-2">
-            <app-lucide-icon name="upload" class="h-4 w-4" />
+            <app-admin-icon name="upload" class="h-4 w-4" />
             {{ syncText.title }}
           </a>
           <!-- The audit trail's newest applied run is the last-sync answer;

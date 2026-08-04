@@ -13,7 +13,7 @@ import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
 import { DialogPanel } from '../../ui/dialog-panel';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { CategoryPicker } from './category-picker';
@@ -34,7 +34,7 @@ import { categoryDescendantIds } from './category-tree';
  */
 @Component({
   selector: 'app-category-delete-dialog',
-  imports: [Button, LucideIcon, CategoryPicker, FieldLabel, DialogPanel],
+  imports: [Button, AdminIcon, CategoryPicker, FieldLabel, DialogPanel],
   template: `
     <dialog
       #dialog
@@ -88,7 +88,7 @@ import { categoryDescendantIds } from './category-tree';
             [disabled]="deleting() || (mode() === 'reassign' && !reassignTo())"
             (click)="confirm()"
           >
-            <app-lucide-icon name="trash-2" class="h-4 w-4" />
+            <app-admin-icon name="trash-2" class="h-4 w-4" />
             {{ deleting() ? text.deleting : text.delete }}
           </button>
         }

@@ -14,7 +14,7 @@ import { usePageSeo } from '../../core/page-seo';
 import { Skeleton } from '../../ui/skeleton';
 import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../editor-return';
 import { CategoryDeleteDialog } from './category-delete-dialog';
@@ -36,7 +36,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
   imports: [
     RouterLink,
     Button,
-    LucideIcon,
+    AdminIcon,
     CategoryDeleteDialog,
     CdkDropList,
     CdkDrag,
@@ -52,7 +52,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
         [queryParams]="editorFrom"
         class="gap-2"
       >
-        <app-lucide-icon name="plus" class="h-4 w-4" />
+        <app-admin-icon name="plus" class="h-4 w-4" />
         {{ text.add }}
       </a>
     </div>
@@ -87,7 +87,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
                 class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
                 [attr.aria-label]="common.reorder"
               >
-                <app-lucide-icon name="grip-vertical" class="h-4 w-4" />
+                <app-admin-icon name="grip-vertical" class="h-4 w-4" />
               </span>
               <span class="flex-1 font-medium text-stone-700">
                 {{ branch.category.name }}
@@ -101,14 +101,14 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
                 class="p-1 text-stone-400 hover:text-accent"
                 [attr.aria-label]="text.addChild"
               >
-                <app-lucide-icon name="plus" class="h-4 w-4" />
+                <app-admin-icon name="plus" class="h-4 w-4" />
               </a>
               <a
                 [routerLink]="['/catalog', branch.category.slug]"
                 class="p-1 text-stone-400 hover:text-accent"
                 [attr.aria-label]="text.seeProducts"
               >
-                <app-lucide-icon name="eye" class="h-4 w-4" />
+                <app-admin-icon name="eye" class="h-4 w-4" />
               </a>
               <a
                 routerLink="/admin/products"
@@ -118,7 +118,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
                 class="p-1 text-stone-400 hover:text-accent"
                 [attr.aria-label]="text.editProducts"
               >
-                <app-lucide-icon name="square-chart-gantt" class="h-4 w-4" />
+                <app-admin-icon name="square-chart-gantt" class="h-4 w-4" />
               </a>
               <a
                 [routerLink]="[
@@ -130,7 +130,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
                 class="p-1 text-stone-400 hover:text-accent"
                 [attr.aria-label]="text.edit"
               >
-                <app-lucide-icon name="pencil" class="h-4 w-4" />
+                <app-admin-icon name="pencil" class="h-4 w-4" />
               </a>
               <button
                 type="button"
@@ -138,7 +138,7 @@ import { buildCategoryTree, CategoryTreeBranch } from './category-tree';
                 [attr.aria-label]="text.delete"
                 (click)="deletingCategory.set(branch.category)"
               >
-                <app-lucide-icon name="trash-2" class="h-4 w-4" />
+                <app-admin-icon name="trash-2" class="h-4 w-4" />
               </button>
             </div>
             @if (branch.children.length > 0) {

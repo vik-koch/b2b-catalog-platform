@@ -23,7 +23,7 @@ import {
   ProductAttribute,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import {
   applyPastedGrid,
@@ -53,7 +53,7 @@ import {
 @Component({
   selector: 'app-product-attributes-editor',
   imports: [
-    LucideIcon,
+    AdminIcon,
     CdkDropList,
     CdkDrag,
     CdkDragHandle,
@@ -122,7 +122,7 @@ import {
                     class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
                     [attr.aria-label]="common.reorder"
                   >
-                    <app-lucide-icon name="grip-vertical" class="h-5 w-5" />
+                    <app-admin-icon name="grip-vertical" class="h-5 w-5" />
                   </button>
                   <button
                     type="button"
@@ -130,7 +130,7 @@ import {
                     [attr.aria-label]="text.add"
                     (click)="addBelow($index)"
                   >
-                    <app-lucide-icon name="plus" class="h-5 w-5" />
+                    <app-admin-icon name="plus" class="h-5 w-5" />
                   </button>
                   <button
                     type="button"
@@ -138,7 +138,7 @@ import {
                     [attr.aria-label]="common.remove"
                     (click)="remove($index)"
                   >
-                    <app-lucide-icon name="trash-2" class="h-5 w-5" />
+                    <app-admin-icon name="trash-2" class="h-5 w-5" />
                   </button>
                 </div>
               </td>

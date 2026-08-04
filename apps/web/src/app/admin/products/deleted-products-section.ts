@@ -11,7 +11,7 @@ import { ProductListItem } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { PricePipe } from '../../catalog/price.pipe';
 import { Button } from '../../ui/button';
-import { LucideIcon } from '../../ui/icons/lucide-icon';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
 
 /**
@@ -27,7 +27,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
  */
 @Component({
   selector: 'app-deleted-products-section',
-  imports: [PricePipe, Button, LucideIcon],
+  imports: [PricePipe, Button, AdminIcon],
   template: `
     @if (deleted.value(); as items) {
       @if (items.length) {
@@ -70,7 +70,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
                       [disabled]="restoring() === item.slug"
                       (click)="restore(item)"
                     >
-                      <app-lucide-icon name="rotate-ccw" class="h-4 w-4" />
+                      <app-admin-icon name="rotate-ccw" class="h-4 w-4" />
                       {{
                         restoring() === item.slug
                           ? text.restoring

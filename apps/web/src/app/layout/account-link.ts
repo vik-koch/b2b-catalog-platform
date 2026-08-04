@@ -3,8 +3,8 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { AuthService } from '../auth/auth.service';
 import { landingFor } from '../auth/auth.guard';
-import { UserIcon } from '../ui/icons/user-icon';
 import { NAV_ACTION, NAV_ACTION_LABEL } from './nav-action';
+import { Icon } from '../ui/icons/icon';
 
 /**
  * The person icon in the main navbar — one control for every role, and a plain
@@ -18,7 +18,7 @@ import { NAV_ACTION, NAV_ACTION_LABEL } from './nav-action';
  */
 @Component({
   selector: 'app-account-link',
-  imports: [RouterLink, RouterLinkActive, UserIcon],
+  imports: [RouterLink, RouterLinkActive, Icon],
   template: `
     <a
       [routerLink]="target()"
@@ -26,7 +26,7 @@ import { NAV_ACTION, NAV_ACTION_LABEL } from './nav-action';
       ariaCurrentWhenActive="page"
       [class]="navAction"
     >
-      <app-icon-user class="h-6 w-6" />
+      <app-icon name="user" class="h-6 w-6" />
       <span [class]="labelClass" [attr.data-label]="text.accountNav">{{
         text.accountNav
       }}</span>
