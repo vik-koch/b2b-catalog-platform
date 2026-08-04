@@ -21,10 +21,13 @@ const about: PageContent = {
 
 /** The pencil is an edit-mode affordance; who may enable edit mode (admin only)
  * is EditModeService's concern, so the component test just drives `enabled`. */
-/** `null` models a page the deployment publishes but nobody has written yet. */
+/** `null` models a page the deployment publishes but nobody has written yet.
+ * `settled` is what the component waits on before telling a visitor the page
+ * cannot be served; false models the gap before /auth/me answers. */
 async function render(
   editModeEnabled: boolean,
   page: PageContent | null = about,
+  settled = true,
 ) {
   TestBed.configureTestingModule({
     imports: [StaticPage],
@@ -39,7 +42,10 @@ async function render(
       },
       {
         provide: EditModeService,
-        useValue: { enabled: signal(editModeEnabled) },
+        useValue: {
+          enabled: signal(editModeEnabled),
+          settled: signal(settled),
+        },
       },
       { provide: PageService, useValue: { getPage: async () => page } },
     ],
@@ -99,7 +105,9 @@ describe('StaticPage', () => {
 /**
  * Nothing seeds the pages table outside the demo, so on a real deployment every
  * published page starts with no row. That is a state the admin resolves by
- * writing the page — not an error, and not something a crawler should index.
+ * writing the page, and to a visitor it is indistinguishable from a page that
+ * failed to load — either way the content is not being served, and neither is
+ * something a crawler should index.
  */
 describe('StaticPage — before it has been written', () => {
   // The stub is global; leaving it installed would hand every later spec in
@@ -116,17 +124,29 @@ describe('StaticPage — before it has been written', () => {
     await loadAdminText();
   });
 
-  it('shows the 404 view to a visitor', async () => {
+  // 503 rather than 404: the route exists because the deployment publishes the
+  // slug, so the URL is real and only its content is missing. An unpublished
+  // slug never matches this route at all, which is where the 404s come from.
+  it('shows the load-error view to a visitor', async () => {
     const el = await render(false, null);
 
-    expect(el.querySelector('app-not-found-view')).not.toBeNull();
+    expect(el.querySelector('app-load-error-view')).not.toBeNull();
     expect(el.querySelector('.prose')).toBeNull();
+  });
+
+  // The session arrives after the body does, so for a moment the component
+  // knows the page is unwritten but not yet who is asking. Answering "cannot
+  // load" there flashes an error at the one visitor who can fix it.
+  it('says nothing until it knows whether the visitor may write the page', async () => {
+    const el = await render(false, null, false);
+
+    expect(el.querySelector('app-load-error-view')).toBeNull();
   });
 
   it('shows an admin the page shell and a link to write it', async () => {
     const el = await render(true, null);
 
-    expect(el.querySelector('app-not-found-view')).toBeNull();
+    expect(el.querySelector('app-load-error-view')).toBeNull();
     // Headed by its navigation label, so the page is named before it exists.
     expect(el.querySelector('h1')?.textContent).toContain(
       defaultAppText.nav['about'],
@@ -158,7 +178,10 @@ describe('StaticPage — when the API cannot be reached', () => {
             branding: { title: 'Test Shop' },
           } as unknown as DeploymentConfig,
         },
-        { provide: EditModeService, useValue: { enabled: signal(false) } },
+        {
+          provide: EditModeService,
+          useValue: { enabled: signal(false), settled: signal(true) },
+        },
         {
           provide: PageService,
           useValue: {
@@ -176,6 +199,6 @@ describe('StaticPage — when the API cannot be reached', () => {
 
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('app-load-error-view')).not.toBeNull();
-    expect(el.querySelector('app-not-found-view')).toBeNull();
+    expect(el.querySelector('.prose')).toBeNull();
   });
 });

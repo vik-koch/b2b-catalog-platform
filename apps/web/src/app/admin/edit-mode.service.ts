@@ -50,6 +50,23 @@ export class EditModeService {
     () => this.isAdmin() && this.wanted() && this.textLoaded(),
   );
 
+  /**
+   * Whether `enabled` is a final answer rather than "not yet". It is false for
+   * the moment between bootstrap and `/auth/me`, and — for an admin who left
+   * edit mode on — until the wording it waits for has arrived.
+   *
+   * A page that would otherwise tell the visitor something is wrong reads this
+   * first: an admin arriving at a page they can still write must not be shown
+   * the error on the way. Always true on the server, which has no session and
+   * never renders edit affordances.
+   */
+  readonly settled = computed(
+    () =>
+      !this.isBrowser ||
+      (this.auth.resolved() &&
+        (!(this.isAdmin() && this.wanted()) || this.textLoaded())),
+  );
+
   toggle(): void {
     const next = !this.wanted();
     this.wanted.set(next);

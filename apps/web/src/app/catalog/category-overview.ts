@@ -6,13 +6,11 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
-import { delayedLoading } from '../core/delayed-loading';
 import { injectEditorReturnParams } from '../admin/editor-return';
-import { adminText } from '../config/admin-text';
+import { editAwareContent } from '../admin/edit-aware-content';
+import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
-import { EditModeService } from '../admin/edit-mode.service';
 import { CategoryDeleteDialog } from '../admin/categories/category-delete-dialog';
-import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
@@ -32,22 +30,17 @@ const MAX_CHILD_LINKS = 3;
     RouterLink,
     ImagePlaceholder,
     LucideIcon,
-    IconButton,
+    EditActions,
     CategoryDeleteDialog,
     LoadErrorView,
   ],
   template: `
     <section class="relative pb-12 sm:pb-16">
-      @if (editText(); as editText) {
-        <a
-          appIconButton
-          class="absolute top-0 right-0 z-10"
-          [routerLink]="['/admin/categories']"
-          [attr.aria-label]="editText.editCategories"
-          [attr.title]="editText.editCategories"
-        >
-          <app-lucide-icon name="pencil" class="h-5 w-5" />
-        </a>
+      @if (editControls(); as editText) {
+        <app-edit-actions
+          [editLink]="['/admin/categories']"
+          [editLabel]="editText.editCategories"
+        />
       }
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         {{ text.overviewTitle }}
@@ -58,7 +51,7 @@ const MAX_CHILD_LINKS = 3;
 
       @if (categories.error()) {
         <app-load-error-view class="mt-10 block" [message]="text.loadError" />
-      } @else if (categories.value(); as cats) {
+      } @else if (shown(); as cats) {
         @if (cats.length) {
           <ul
             class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
@@ -66,7 +59,7 @@ const MAX_CHILD_LINKS = 3;
             <!-- Top-level categories are created from here, the same gesture
                  as adding a product from a category page. No parent: this grid
                  is the top level. -->
-            @if (editText(); as editText) {
+            @if (editControls(); as editText) {
               <li>
                 <a
                   [routerLink]="['/admin/categories/new']"
@@ -82,28 +75,17 @@ const MAX_CHILD_LINKS = 3;
             }
             @for (cat of cats; track cat.slug) {
               <li class="group relative">
-                @if (editText(); as editText) {
-                  <div class="absolute top-2 right-2 z-10 flex gap-1.5">
-                    <a
-                      appIconButton
-                      [routerLink]="['/admin/categories', cat.slug, 'edit']"
-                      [queryParams]="editorFrom"
-                      [attr.aria-label]="editText.editCategory"
-                    >
-                      <app-lucide-icon name="pencil" class="h-4 w-4" />
-                    </a>
-                    <button
-                      appIconButton
-                      variant="danger"
-                      type="button"
-                      [attr.aria-label]="editText.deleteCategory"
-                      (click)="
-                        deletingCategory.set({ slug: cat.slug, name: cat.name })
-                      "
-                    >
-                      <app-lucide-icon name="trash-2" class="h-4 w-4" />
-                    </button>
-                  </div>
+                @if (editControls(); as editText) {
+                  <app-edit-actions
+                    variant="tile"
+                    [editLink]="['/admin/categories', cat.slug, 'edit']"
+                    [editParams]="editorFrom"
+                    [editLabel]="editText.editCategory"
+                    [deleteLabel]="editText.deleteCategory"
+                    (remove)="
+                      deletingCategory.set({ slug: cat.slug, name: cat.name })
+                    "
+                  />
                 }
                 <a
                   [routerLink]="['/catalog', cat.slug]"
@@ -190,18 +172,8 @@ const MAX_CHILD_LINKS = 3;
 })
 export class CategoryOverview {
   private catalog = inject(CatalogService);
-  protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
-  /**
-   * Edit-mode wording, non-null only once edit mode is on — which implies the
-   * admin text has arrived (see EditModeService). Read as a signal rather than
-   * injected, because this component also renders for anonymous visitors, who
-   * never fetch that text.
-   */
-  protected readonly editText = computed(() =>
-    this.editMode.enabled() ? (adminText()?.editMode ?? null) : null,
-  );
   protected readonly skeletons = Array.from({ length: 12 }, (_, i) => i);
   /** The quick links sit under their parent tile, so they may use the short
    * name; the tile heading stays the full one. */
@@ -216,8 +188,18 @@ export class CategoryOverview {
     loader: () => this.catalog.getCategoryTree(),
   });
 
-  /** Delayed so a quick load never flashes a skeleton. */
-  protected readonly showSkeleton = delayedLoading(this.categories.isLoading);
+  /** The tiles and the edit affordances appear together, once the tree and the
+   * visitor's role are both known — see editAwareContent. */
+  private readonly content = editAwareContent({
+    ready: computed(() => this.categories.hasValue()),
+    section: 'editMode',
+  });
+  protected readonly editControls = this.content.controls;
+  protected readonly showSkeleton = this.content.showSkeleton;
+  /** The tree, once it may be shown. */
+  protected readonly shown = computed(() =>
+    this.content.ready() ? this.categories.value() : undefined,
+  );
 
   protected onCategoryDeleted(): void {
     this.deletingCategory.set(null);

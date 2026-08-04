@@ -6,18 +6,15 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
-import { delayedLoading } from '../core/delayed-loading';
 import { injectEditorReturnParams } from '../admin/editor-return';
-import { adminText } from '../config/admin-text';
+import { editAwareContent } from '../admin/edit-aware-content';
+import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
-import { EditModeService } from '../admin/edit-mode.service';
 import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
-import { IconButton } from '../ui/icon-button';
-import { LucideIcon } from '../ui/icons/lucide-icon';
 import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
 import { ProductDetailView } from './product-detail-view';
@@ -36,17 +33,15 @@ import { ProductDetailView } from './product-detail-view';
     ProductDetailView,
     ProductDeleteDialog,
     NotFoundView,
-    RouterLink,
-    IconButton,
-    LucideIcon,
+    EditActions,
     LoadErrorView,
   ],
   template: `
     <section class="relative pb-8 sm:pb-12">
       @if (product.error()) {
         <app-load-error-view [message]="text.loadError" />
-      } @else if (product.hasValue()) {
-        @let item = product.value();
+      } @else if (shown(); as loaded) {
+        @let item = loaded.item;
         @if (!item) {
           <app-not-found-view
             [body]="text.productNotFound"
@@ -55,27 +50,13 @@ import { ProductDetailView } from './product-detail-view';
           />
         } @else {
           @if (editText(); as editText) {
-            <div class="absolute top-0 right-0 z-10 flex gap-2">
-              <a
-                appIconButton
-                [routerLink]="['/admin/products', item.slug, 'edit']"
-                [queryParams]="editorFrom"
-                [attr.aria-label]="editText.editProduct"
-                [attr.title]="editText.editProduct"
-              >
-                <app-lucide-icon name="pencil" class="h-5 w-5" />
-              </a>
-              <button
-                appIconButton
-                variant="danger"
-                type="button"
-                [attr.aria-label]="editText.deleteProduct"
-                [attr.title]="editText.deleteProduct"
-                (click)="confirmingDelete.set(true)"
-              >
-                <app-lucide-icon name="trash-2" class="h-5 w-5" />
-              </button>
-            </div>
+            <app-edit-actions
+              [editLink]="['/admin/products', item.slug, 'edit']"
+              [editParams]="editorFrom"
+              [editLabel]="editText.editProduct"
+              [deleteLabel]="editText.deleteProduct"
+              (remove)="confirmingDelete.set(true)"
+            />
           }
 
           <app-product-detail-view [item]="item" />
@@ -114,18 +95,8 @@ import { ProductDetailView } from './product-detail-view';
 export class ProductDetail {
   private catalog = inject(CatalogService);
   private readonly router = inject(Router);
-  protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
-  /**
-   * Edit-mode wording, non-null only once edit mode is on — which implies the
-   * admin text has arrived (see EditModeService). Read as a signal rather than
-   * injected, because this component also renders for anonymous visitors, who
-   * never fetch that text.
-   */
-  protected readonly editText = computed(() =>
-    this.editMode.enabled() ? (adminText()?.editMode ?? null) : null,
-  );
 
   slug = input.required<string>();
   protected readonly confirmingDelete = signal(false);
@@ -135,8 +106,21 @@ export class ProductDetail {
     loader: ({ params }) => this.catalog.getProduct(params.slug),
   });
 
-  /** Delayed so a quick load never flashes a skeleton. */
-  protected readonly showSkeleton = delayedLoading(this.product.isLoading);
+  /** The product and its edit affordances appear together, once the product
+   * and the visitor's role are both known — see editAwareContent. */
+  private readonly content = editAwareContent({
+    ready: computed(() => this.product.hasValue()),
+    section: 'editMode',
+  });
+  protected readonly editText = this.content.controls;
+  protected readonly showSkeleton = this.content.showSkeleton;
+  /**
+   * The answer, once it may be shown — boxed, because the answer itself may be
+   * `null` (no such product) and a bare null would read as "not ready".
+   */
+  protected readonly shown = computed(() =>
+    this.content.ready() ? { item: this.product.value() } : undefined,
+  );
 
   /** After a soft-delete from the product page, return to its category (the
    * product's public page will now 404). Restore lives in the admin panel. */

@@ -1,49 +1,44 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
-import { delayedLoading } from '../core/delayed-loading';
 import { injectEditorReturnParams } from '../admin/editor-return';
-import { adminText } from '../config/admin-text';
+import { editAwareContent } from '../admin/edit-aware-content';
+import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
-import { EditModeService } from '../admin/edit-mode.service';
-import { LucideIcon } from '../ui/icons/lucide-icon';
 import { PageService } from './page.service';
 import { trustedRichText } from '../core/trusted-rich-text';
-import { IconButton } from '../ui/icon-button';
-import { NotFoundView } from './not-found-view';
 import { LoadErrorView } from './load-error-view';
 
 @Component({
   selector: 'app-static-page',
-  imports: [LucideIcon, IconButton, RouterLink, NotFoundView, LoadErrorView],
+  imports: [EditActions, LoadErrorView],
   template: `
     <!-- A published page with no row yet: an admin gets the shell and the
-         pencil so they can write it, everyone else gets a real 404 rather than
-         an empty page a crawler would index. -->
+         pencil so they can write it, everyone else gets the load error rather
+         than an empty page a crawler would index.
+         503 and not 404, matching a failed load: the route only exists because
+         the deployment publishes this slug, so the URL is real and the content
+         is missing — "temporarily unavailable" is the true answer, and it is
+         the one that shows up in the access logs as something to fix. An
+         unpublished slug never reaches here; its route does not match, and that
+         is where the honest 404 comes from. -->
     @if (pageResource.error()) {
       <app-load-error-view [heading]="text.cannotLoadTitle" />
-    } @else if (page() === null && !canEdit()) {
-      <app-not-found-view />
-    } @else if (page() !== undefined) {
+    } @else if (missing()) {
+      <app-load-error-view [heading]="text.cannotLoadTitle" />
+    } @else if (ready()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
         <h1 class="mb-6 text-3xl font-bold tracking-tight">
           {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {
-          <!-- Editing happens on its own admin route, like products and
-               categories; this is the storefront's shortcut into it, so the
-               editor bundle never loads for a public visitor. -->
-          <a
-            appIconButton
-            [routerLink]="['/admin/pages', slug(), 'edit']"
-            [queryParams]="editorFrom"
-            [attr.aria-label]="editorText.edit"
-            [attr.title]="editorText.edit"
-          >
-            <app-lucide-icon name="pencil" class="h-5 w-5" />
-          </a>
+          <app-edit-actions
+            variant="inline"
+            [editLink]="['/admin/pages', slug(), 'edit']"
+            [editParams]="editorFrom"
+            [editLabel]="editorText.edit"
+          />
         }
       </div>
       @if (content) {
@@ -65,7 +60,6 @@ import { LoadErrorView } from './load-error-view';
 })
 export class StaticPage {
   private pageService = inject(PageService);
-  private readonly editMode = inject(EditModeService);
 
   protected readonly text = inject(APP_TEXT).errors;
   private readonly navText = inject(APP_TEXT).nav;
@@ -80,8 +74,22 @@ export class StaticPage {
     loader: ({ params }) => this.pageService.getPage(params.slug),
   });
 
-  /** Delayed so a quick load never flashes a skeleton. */
-  protected readonly showSkeleton = delayedLoading(this.pageResource.isLoading);
+  /** The body and the pencil appear together, once the page and the visitor's
+   * role are both known — see editAwareContent. */
+  private readonly content = editAwareContent({
+    ready: computed(() => this.page() !== undefined),
+    section: 'pageEditor',
+  });
+  protected readonly ready = this.content.ready;
+  protected readonly canEdit = this.content.controls;
+  protected readonly showSkeleton = this.content.showSkeleton;
+
+  /** No row, and nobody here who could write one: the page cannot be served.
+   * Waits on `ready`, so an admin is never shown the error on their way to the
+   * shell they would write it in. */
+  protected readonly missing = computed(
+    () => this.ready() && this.page() === null && !this.canEdit(),
+  );
 
   /**
    * `undefined` while loading *or failed*, `null` when the page has no row yet.
@@ -100,14 +108,4 @@ export class StaticPage {
   constructor() {
     usePageSeo({ name: () => this.page()?.title });
   }
-
-  /**
-   * The editing affordance, carrying its own wording: this is a public route,
-   * so the admin text is fetched rather than injected and is null until edit
-   * mode is on (see EditModeService). Absent during SSR and before the session
-   * resolves, consistent with products and categories.
-   */
-  protected readonly canEdit = computed(() =>
-    this.editMode.enabled() ? (adminText()?.pageEditor ?? null) : null,
-  );
 }

@@ -11,10 +11,10 @@ import { Router, RouterLink } from '@angular/router';
 import { categoryDisplayName } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
-import { delayedLoading } from '../core/delayed-loading';
 import { stableValue } from '../core/stable-value';
 import { injectEditorReturnParams } from '../admin/editor-return';
-import { adminText } from '../config/admin-text';
+import { editAwareContent } from '../admin/edit-aware-content';
+import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
 import { CategoryDeleteDialog } from '../admin/categories/category-delete-dialog';
@@ -22,7 +22,6 @@ import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
 import { DeletedProductsSection } from '../admin/products/deleted-products-section';
 import { ChevronRightIcon } from '../ui/icons/chevron-right-icon';
 import { Button } from '../ui/button';
-import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
 import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
@@ -51,7 +50,7 @@ const SUBS_COLLAPSED = 4;
     ProductSortSelect,
     LucideIcon,
     Button,
-    IconButton,
+    EditActions,
     ProductDeleteDialog,
     CategoryDeleteDialog,
     DeletedProductsSection,
@@ -65,7 +64,7 @@ const SUBS_COLLAPSED = 4;
     >
       @if (products.error()) {
         <app-load-error-view [message]="text.loadError" />
-      } @else if (loaded()) {
+      } @else if (ready()) {
         @let data = shown();
         @if (!data) {
           <app-not-found-view
@@ -74,66 +73,58 @@ const SUBS_COLLAPSED = 4;
             [backLabel]="text.backToCatalog"
           />
         } @else {
-          @if (editControls(); as editText) {
-            <div class="absolute top-0 right-0 z-10 flex gap-2">
-              <a
-                appIconButton
-                [routerLink]="['/admin/categories', data.category.slug, 'edit']"
-                [attr.aria-label]="editText.editCategory"
-                [attr.title]="editText.editCategory"
-                [queryParams]="editorFrom"
+          <!-- The category's controls share the breadcrumb's row rather than
+               being pinned to the section corner: pinned, they landed on top of
+               the sort control that sits at the right of the row below. -->
+          <div class="flex items-start justify-between gap-4">
+            <nav [attr.aria-label]="text.catalogRoot">
+              <ol
+                class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-subtle"
               >
-                <app-lucide-icon name="pencil" class="h-5 w-5" />
-              </a>
-              <button
-                appIconButton
-                variant="danger"
-                type="button"
-                [attr.aria-label]="editText.deleteCategory"
-                [attr.title]="editText.deleteCategory"
-                (click)="
+                <li>
+                  <a routerLink="/catalog" class="hover:text-accent">
+                    {{ text.catalogRoot }}
+                  </a>
+                </li>
+                @for (crumb of data.category.ancestors; track crumb.slug) {
+                  <li aria-hidden="true" class="flex items-center">
+                    <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
+                  </li>
+                  <li>
+                    <a
+                      [routerLink]="['/catalog', crumb.slug]"
+                      class="hover:text-accent"
+                    >
+                      {{ displayName(crumb) }}
+                    </a>
+                  </li>
+                }
+                <li aria-hidden="true" class="flex items-center">
+                  <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
+                </li>
+                <li>
+                  <span aria-current="page" class="font-medium text-stone-700">
+                    {{ displayName(data.category) }}
+                  </span>
+                </li>
+              </ol>
+            </nav>
+            @if (editControls(); as editText) {
+              <app-edit-actions
+                variant="inline"
+                [editLink]="['/admin/categories', data.category.slug, 'edit']"
+                [editParams]="editorFrom"
+                [editLabel]="editText.editCategory"
+                [deleteLabel]="editText.deleteCategory"
+                (remove)="
                   deletingCategory.set({
                     slug: data.category.slug,
                     name: data.category.name,
                   })
                 "
-              >
-                <app-lucide-icon name="trash-2" class="h-5 w-5" />
-              </button>
-            </div>
-          }
-          <nav [attr.aria-label]="text.catalogRoot">
-            <ol
-              class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-subtle"
-            >
-              <li>
-                <a routerLink="/catalog" class="hover:text-accent">
-                  {{ text.catalogRoot }}
-                </a>
-              </li>
-              @for (crumb of data.category.ancestors; track crumb.slug) {
-                <li aria-hidden="true" class="flex items-center">
-                  <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
-                </li>
-                <li>
-                  <a
-                    [routerLink]="['/catalog', crumb.slug]"
-                    class="hover:text-accent"
-                  >
-                    {{ displayName(crumb) }}
-                  </a>
-                </li>
-              }
-              <li aria-hidden="true" class="flex items-center">
-                <app-icon-chevron-right class="h-4 w-4 text-stone-300" />
-              </li>
-              <li>
-                <span aria-current="page" class="font-medium text-stone-700">
-                  {{ displayName(data.category) }}
-                </span>
-              </li>
-            </ol>
-          </nav>
+              />
+            }
+          </div>
 
           <div class="flex flex-wrap items-center justify-between gap-y-3">
             <h1 class="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
@@ -225,25 +216,14 @@ const SUBS_COLLAPSED = 4;
                 <li class="h-full">
                   <app-product-tile [item]="item">
                     @if (editControls(); as editText) {
-                      <div class="absolute top-2 right-2 z-10 flex gap-1.5">
-                        <a
-                          appIconButton
-                          [routerLink]="['/admin/products', item.slug, 'edit']"
-                          [queryParams]="editorFrom"
-                          [attr.aria-label]="editText.editProduct"
-                        >
-                          <app-lucide-icon name="pencil" class="h-4 w-4" />
-                        </a>
-                        <button
-                          appIconButton
-                          variant="danger"
-                          type="button"
-                          [attr.aria-label]="editText.deleteProduct"
-                          (click)="deletingProduct.set(item)"
-                        >
-                          <app-lucide-icon name="trash-2" class="h-4 w-4" />
-                        </button>
-                      </div>
+                      <app-edit-actions
+                        variant="tile"
+                        [editLink]="['/admin/products', item.slug, 'edit']"
+                        [editParams]="editorFrom"
+                        [editLabel]="editText.editProduct"
+                        [deleteLabel]="editText.deleteProduct"
+                        (remove)="deletingProduct.set(item)"
+                      />
                     }
                   </app-product-tile>
                 </li>
@@ -298,17 +278,6 @@ const SUBS_COLLAPSED = 4;
             <p class="mt-8 text-muted">{{ text.emptyProducts }}</p>
           }
 
-          @defer (when editMode.enabled()) {
-            @if (editMode.enabled()) {
-              <app-deleted-products-section
-                [categorySlug]="data.category.slug"
-                [reloadToken]="deletedReload()"
-                (loaded)="deletedReady.set(true)"
-                (restored)="onProductRestored()"
-              />
-            }
-          }
-
           @defer (when deletingProduct()) {
             @if (deletingProduct(); as target) {
               <app-product-delete-dialog
@@ -350,6 +319,20 @@ const SUBS_COLLAPSED = 4;
             }
           </div>
         </div>
+      }
+
+      <!-- Outside the branch above on purpose: its fetch is what the grid waits
+           for before drawing the edit affordances, so it must not in turn wait
+           for the grid. The slug comes from the route, which is known at once. -->
+      @defer (when editMode.enabled()) {
+        @if (editMode.enabled()) {
+          <app-deleted-products-section
+            [categorySlug]="slug()"
+            [reloadToken]="deletedReload()"
+            (loaded)="deletedReady.set(true)"
+            (restored)="onProductRestored()"
+          />
+        }
       }
     </section>
   `,
@@ -400,17 +383,6 @@ export class CategoryGrid {
    * session; re-armed whenever edit mode turns off. */
   protected readonly deletedReady = signal(false);
 
-  /** Gate for the in-place edit affordances (＋ tile, per-item and category
-   * controls). Held back until the "Deleted" overlay has loaded so entering edit
-   * mode reveals everything at once instead of flashing the controls first.
-   * Also carries the edit-mode wording, which is fetched rather than injected:
-   * this component renders for anonymous visitors too, who never load it. */
-  protected readonly editControls = computed(() =>
-    this.editMode.enabled() && this.deletedReady()
-      ? (adminText()?.editMode ?? null)
-      : null,
-  );
-
   protected products = resource({
     params: () => ({
       slug: this.slug(),
@@ -423,12 +395,24 @@ export class CategoryGrid {
 
   /** Held across reloads, so re-sorting swaps the grid instead of blanking it. */
   protected readonly shown = stableValue(this.products);
-  /** A missing category is a loaded `null`, so emptiness is not the test. */
-  protected readonly loaded = computed(() => this.shown() !== undefined);
 
-  /** Delayed so a quick load never flashes a skeleton. Only the first load can
-   * reach it now — a reload still has the previous grid on screen. */
-  protected readonly showSkeleton = delayedLoading(this.products.isLoading);
+  /**
+   * The grid, its ＋ tiles and the per-item controls all appear together, once
+   * the products, the visitor's role and — in edit mode — the "Deleted" overlay
+   * are known (see editAwareContent). A missing category is a loaded `null`, so
+   * emptiness is not the test for having an answer.
+   *
+   * The skeleton is reachable only on a first load; a reload still has the
+   * previous grid on screen.
+   */
+  private readonly content = editAwareContent({
+    ready: computed(() => this.shown() !== undefined),
+    section: 'editMode',
+    alsoWaitFor: this.deletedReady,
+  });
+  protected readonly ready = this.content.ready;
+  protected readonly editControls = this.content.controls;
+  protected readonly showSkeleton = this.content.showSkeleton;
 
   constructor() {
     usePageSeo({
