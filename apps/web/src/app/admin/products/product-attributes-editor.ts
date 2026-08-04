@@ -211,7 +211,7 @@ export class ProductAttributesEditor {
    * border so it never overlaps its neighbours. */
   protected cellFocus(row: number, col: number): string {
     return this.activeCell() === `${row}:${col}`
-      ? 'outline-2 -outline-offset-2 outline-primary'
+      ? 'outline-2 -outline-offset-2 outline-secondary'
       : '';
   }
 

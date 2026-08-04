@@ -9,7 +9,7 @@ import { computed, Directive, input } from '@angular/core';
  *   fill. An outline with an offset just shows whatever is behind it.
  */
 const base =
-  'inline-flex cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed';
+  'inline-flex cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary disabled:cursor-not-allowed';
 
 const sizes = {
   md: 'px-4 py-2',
@@ -17,20 +17,28 @@ const sizes = {
   sm: 'px-3 py-1.5',
 } as const;
 
+/*
+ * Press deepens rather than lightens, which is why `active:` lands back on
+ * primary instead of on secondary: secondary is the *lighter* roast, so a
+ * button that switched to it under the cursor would look like it was rising
+ * out of the page at the exact moment it was being pushed into it. Hover goes
+ * outward to accent, press comes back down.
+ */
 const variants = {
-  primary: 'bg-primary text-white hover:bg-accent',
+  primary: 'bg-primary text-white hover:bg-accent active:bg-primary',
   // Hover recolors border and text rather than the background: this variant
   // appears both on the white page and inside stone-100 blocks (the signed-in
   // bar), where a stone background change is invisible. Accent is the app's
   // interactive-hover color throughout.
   secondary:
-    'border border-border-strong text-ink hover:border-accent hover:text-accent',
-  danger: 'bg-red-700 text-white hover:bg-red-800',
+    'border border-border-strong text-ink hover:border-accent hover:text-accent active:border-primary active:text-primary',
+  danger: 'bg-red-700 text-white hover:bg-red-800 active:bg-red-900',
   /**
    * Chromeless until hovered — for controls that repeat in a row and would be
    * noisy as outlined buttons: pagination, table row actions.
    */
-  ghost: 'text-stone-700 hover:bg-stone-100 hover:text-accent',
+  ghost:
+    'text-stone-700 hover:bg-stone-100 hover:text-accent active:text-primary',
 } as const;
 
 /**
