@@ -22,6 +22,7 @@ function response(overrides: Partial<Products> = {}): Products {
     category: {
       slug: 'coffee-beans',
       name: 'Coffee Beans',
+      shortName: null,
       ancestors: [],
       subcategories: [],
     },
@@ -103,7 +104,10 @@ describe('CategoryGrid', () => {
         category: {
           slug: 'espresso',
           name: 'Espresso Roasts',
-          ancestors: [{ slug: 'coffee-beans', name: 'Coffee Beans' }],
+          shortName: null,
+          ancestors: [
+            { slug: 'coffee-beans', name: 'Coffee Beans', shortName: null },
+          ],
           subcategories: [],
         },
       }),
@@ -116,10 +120,57 @@ describe('CategoryGrid', () => {
     ).not.toBeNull();
   });
 
+  it('shows short names in the breadcrumb, chips and headings', async () => {
+    const f = await render(
+      response({
+        category: {
+          slug: 'espresso',
+          name: 'Espresso Roasts',
+          shortName: 'Espresso',
+          ancestors: [
+            { slug: 'coffee-beans', name: 'Coffee Beans', shortName: 'Beans' },
+          ],
+          subcategories: [
+            {
+              slug: 'dark',
+              name: 'Espresso Roasts Dark',
+              shortName: 'Dark',
+              image: null,
+            },
+            {
+              slug: 'light',
+              name: 'Espresso Roasts Light',
+              shortName: null,
+              image: null,
+            },
+          ],
+        },
+      }),
+    );
+    const root = el(f);
+
+    const nav = root.querySelector('nav');
+    expect(nav?.textContent).toContain('Beans');
+    expect(nav?.textContent).toContain('Espresso');
+    expect(nav?.textContent).not.toContain('Coffee Beans');
+    // The heading keeps the full name — it stands on its own.
+    expect(root.querySelector('h1')?.textContent?.trim()).toBe(
+      'Espresso Roasts',
+    );
+    expect(
+      root.querySelector('a[href="/catalog/dark"]')?.textContent?.trim(),
+    ).toBe('Dark');
+    // No short name set → the chip falls back to the full name.
+    expect(
+      root.querySelector('a[href="/catalog/light"]')?.textContent?.trim(),
+    ).toBe('Espresso Roasts Light');
+  });
+
   it('collapses subcategories to four and reveals the rest on show-more', async () => {
     const subcategories = ['a', 'b', 'c', 'd', 'e', 'f'].map((s) => ({
       slug: s,
       name: s.toUpperCase(),
+      shortName: null,
       image: null,
     }));
     const f = await render(
@@ -127,6 +178,7 @@ describe('CategoryGrid', () => {
         category: {
           slug: 'coffee-beans',
           name: 'Coffee Beans',
+          shortName: null,
           ancestors: [],
           subcategories,
         },

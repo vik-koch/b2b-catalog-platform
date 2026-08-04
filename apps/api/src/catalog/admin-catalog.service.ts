@@ -289,6 +289,7 @@ export class AdminCatalogService {
         id: categories.id,
         slug: categories.slug,
         name: categories.name,
+        shortName: categories.shortName,
         parentId: categories.parentId,
         image: categories.image,
         sortOrder: categories.sortOrder,
@@ -364,6 +365,7 @@ export class AdminCatalogService {
           sourceId: `manual:${randomUUID()}`,
           slug,
           name: input.name,
+          shortName: input.shortName,
           parentId: input.parentId,
           sortOrder,
           image: input.image,
@@ -405,6 +407,7 @@ export class AdminCatalogService {
         .update(categories)
         .set({
           name: input.name,
+          shortName: input.shortName,
           slug: newSlug,
           parentId: input.parentId,
           image: input.image,
@@ -710,6 +713,7 @@ function toAdminCategory(
     image: row.image,
     sourceId: row.sourceId,
     description: row.description,
+    shortName: row.shortName,
     productCount,
     childCount,
   };

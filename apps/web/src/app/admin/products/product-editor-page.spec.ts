@@ -21,6 +21,7 @@ const category: AdminCategory = {
   id: 'cat-1',
   slug: 'espresso',
   name: 'Espresso Roasts',
+  shortName: null,
   parentId: null,
   sortOrder: 0,
   image: null,

@@ -25,7 +25,7 @@ const product: Product = {
     { key: 'Net weight', value: '1 kg' },
     { key: 'Count per package', value: '200' },
   ],
-  category: { slug: 'espresso', name: 'Espresso Roasts' },
+  category: { slug: 'espresso', name: 'Espresso Roasts', shortName: null },
 };
 
 async function render(

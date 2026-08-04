@@ -31,6 +31,7 @@ describe('GET /catalog/categories (FR-CAT-01/02)', () => {
       'children',
       'image',
       'name',
+      'shortName',
       'slug',
     ]);
   });
@@ -63,9 +64,15 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
     );
     expect(Object.keys(withImage.images[0]).sort()).toEqual(['full', 'thumb']);
 
-    // A leaf: ancestors up to the root, no subcategories.
+    // A leaf: ancestors up to the root, no subcategories. The nickname is an
+    // admin overlay, so assert that a crumb carries the field, not its value.
+    expect(Object.keys(res.data.category.ancestors[0]).sort()).toEqual([
+      'name',
+      'shortName',
+      'slug',
+    ]);
     expect(res.data.category.ancestors).toEqual([
-      { slug: 'coffee-beans', name: 'Coffee Beans' },
+      expect.objectContaining({ slug: 'coffee-beans', name: 'Coffee Beans' }),
     ]);
     expect(res.data.category.subcategories).toEqual([]);
   });
@@ -183,10 +190,25 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
     ]);
     expect(res.data.name).toBe(seed.name);
     expect(res.data.priceMinor).toBe(seed.priceMinor);
-    expect(res.data.category).toEqual({
-      slug: 'espresso',
-      name: 'Espresso Roasts',
-    });
+    expect(Object.keys(res.data.category).sort()).toEqual([
+      'ancestors',
+      'name',
+      'shortName',
+      'slug',
+    ]);
+    expect(res.data.category).toEqual(
+      expect.objectContaining({
+        slug: 'espresso',
+        name: 'Espresso Roasts',
+        // The breadcrumb walks the whole path, not just the leaf.
+        ancestors: [
+          expect.objectContaining({
+            slug: 'coffee-beans',
+            name: 'Coffee Beans',
+          }),
+        ],
+      }),
+    );
     expect(res.data.attributes).toEqual(seed.attributes);
     // The private sync key must never be serialized.
     expect(res.data).not.toHaveProperty('sourceId');

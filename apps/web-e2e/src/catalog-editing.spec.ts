@@ -124,7 +124,9 @@ test.describe('as an admin', () => {
     await expect(page).toHaveURL(
       new RegExp(`/admin/categories/new\\?parent=${category.slug}\\b`),
     );
-    await expect(page.getByLabel('Parent category')).toHaveValue(/.+/);
+    await expect(
+      page.getByRole('combobox', { name: 'Parent category' }),
+    ).toHaveValue(/.+/);
 
     await page.getByRole('button', { name: 'Cancel' }).click();
     await expect(page).toHaveURL(new RegExp(`/catalog/${category.slug}$`));

@@ -233,6 +233,8 @@ export const adminTextSchema = z
         newTitle: z.string(),
         editTitle: z.string(),
         name: z.string(),
+        shortName: z.string(),
+        shortNameHint: z.string(),
         parent: z.string(),
         noParent: z.string(),
         slug: z.string(),

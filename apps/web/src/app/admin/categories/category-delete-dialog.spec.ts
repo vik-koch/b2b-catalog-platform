@@ -18,6 +18,7 @@ function cat(over: Partial<AdminCategory>): AdminCategory {
     id: 'id',
     slug: 'slug',
     name: 'Name',
+    shortName: null,
     parentId: null,
     sortOrder: 0,
     image: null,

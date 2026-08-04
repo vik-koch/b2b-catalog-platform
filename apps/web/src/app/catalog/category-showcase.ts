@@ -1,5 +1,6 @@
 import { Component, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { categoryDisplayName } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
 import { delayedLoading } from '../core/delayed-loading';
@@ -58,7 +59,7 @@ import { ImagePlaceholder } from './image-placeholder';
                         [routerLink]="['/catalog', child.slug]"
                         class="inline-block rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700 transition-colors hover:bg-stone-200"
                       >
-                        {{ child.name }}
+                        {{ displayName(child) }}
                       </a>
                     </li>
                   }
@@ -90,6 +91,9 @@ export class CategoryShowcase {
   private catalog = inject(CatalogService);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly skeletons = Array.from({ length: 6 }, (_, i) => i);
+  /** Subcategory pills sit under their parent's title, so they may use the
+   * short name; the card title itself stays the full one. */
+  protected readonly displayName = categoryDisplayName;
 
   protected categories = resource({
     loader: () => this.catalog.getCategoryTree(),

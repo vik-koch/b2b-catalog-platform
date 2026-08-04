@@ -160,6 +160,8 @@
     "newTitle": "Add category",
     "editTitle": "Edit category",
     "name": "Name",
+    "shortName": "Short name (optional)",
+    "shortNameHint": "A shorter label used where the parent category is already shown. Leave empty to always use the full name.",
     "parent": "Parent category",
     "noParent": "— Top level —",
     "slug": "URL slug",
