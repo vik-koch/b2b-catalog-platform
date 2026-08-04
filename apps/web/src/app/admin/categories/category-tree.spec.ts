@@ -14,6 +14,7 @@ const cat = (
   id,
   slug: id,
   name,
+  shortName: null,
   parentId,
   sortOrder,
   image: null,

@@ -261,8 +261,12 @@ export class ProductEditorPage implements UnsavedChangesAware {
         (a) => a.key.trim() !== '' || a.value.trim() !== '',
       ),
       category: category
-        ? { slug: category.slug, name: category.name }
-        : { slug: '', name: '—' },
+        ? {
+            slug: category.slug,
+            name: category.name,
+            shortName: category.shortName,
+          }
+        : { slug: '', name: '—', shortName: null },
     };
   });
 

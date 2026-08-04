@@ -64,6 +64,20 @@ import { CategoryPicker } from './category-picker';
           />
         </label>
 
+        <label class="block">
+          <span appFieldLabel>{{ text.shortName }}</span>
+          <input
+            type="text"
+            appInput
+            class="w-full"
+            [value]="shortName()"
+            (input)="shortName.set($any($event.target).value)"
+          />
+          <span class="mt-1 block text-xs text-subtle">{{
+            text.shortNameHint
+          }}</span>
+        </label>
+
         <div class="block">
           <span appFieldLabel>{{ text.parent }}</span>
           <app-category-picker
@@ -180,6 +194,9 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   protected readonly category = signal<AdminCategory | null>(null);
 
   protected readonly name = signal('');
+  /** Optional nickname for contexts where the parent is visible; empty means
+   * "fall back to the full name". */
+  protected readonly shortName = signal('');
   protected readonly slug = signal('');
   private readonly slugTouched = signal(false);
   protected readonly parentId = signal('');
@@ -244,6 +261,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
     this.category.set(match);
     if (match) {
       this.name.set(match.name);
+      this.shortName.set(match.shortName ?? '');
       this.slug.set(match.slug);
       this.parentId.set(match.parentId ?? '');
       this.sourceId.set(match.sourceId);
@@ -257,6 +275,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private snapshot(): string {
     return JSON.stringify({
       name: this.name(),
+      shortName: this.shortName(),
       slug: this.effectiveSlug(),
       parentId: this.parentId(),
       description: this.description(),
@@ -291,6 +310,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
 
     const body = {
       name: this.name().trim(),
+      shortName: this.shortName().trim() || null,
       parentId: this.parentId() || null,
       description: this.description().trim() || null,
       image: this.image(),
