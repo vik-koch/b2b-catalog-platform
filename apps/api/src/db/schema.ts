@@ -15,8 +15,10 @@ import {
   jsonb,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -167,6 +169,81 @@ export const products = pgTable(
   ],
 );
 
+/**
+ * The **additional** customer tiers of FR-AUTH-05 — rows rather than a
+ * code-level enum, because tier names are a deployment's own commercial
+ * vocabulary and adding one must not be a release.
+ *
+ * Tiers are **unordered**. They are distinct customer kinds (wholesale,
+ * partner, …), not steps on a scale, so nothing ranks them and none inherits
+ * from another.
+ *
+ * The default tier is deliberately **not a row here**. It is
+ * `products.defaultPriceMinor` itself: the list served to guests, crawlers, and
+ * every account without a `tierId`. Modelling it as data would invite a
+ * deployment to have two of them or none, and would need a guard to stop it
+ * being deleted; as a column it simply always exists, exactly once. The admin
+ * UI presents it alongside these rows, labelled from the deployment's text
+ * config rather than from the database.
+ *
+ * `key` is the stable machine identifier the bulk import addresses a price list
+ * by (`price:<key>` columns); `label` is what staff see. `key` cannot be
+ * `default` — that name addresses the base list, which is not one of these
+ * rows.
+ */
+export const customerTiers = pgTable(
+  'customer_tiers',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    key: varchar('key', { length: 64 }).notNull().unique(),
+    label: varchar('label', { length: 255 }).notNull(),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updatedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedBy: uuid('updatedBy').references((): AnyPgColumn => users.id, {
+      onDelete: 'set null',
+    }),
+  },
+  (t) => [check('customer_tiers_key_not_default', sql`${t.key} <> 'default'`)],
+);
+
+/**
+ * A product's price in one of the additional tiers. The default list is
+ * `products.defaultPriceMinor`, so the guest path needs no join at all and the
+ * base price can never be missing. A tier with no row here for a product falls
+ * back to that column, which is what lets a tier carry only its exceptions;
+ * since tiers are unordered, that fallback is always to the base list, never to
+ * some neighbouring tier.
+ *
+ * `tierId` restricts rather than cascades: dropping a tier would silently
+ * re-price every product that had an override, so a tier still holding prices
+ * cannot be deleted until they are cleared.
+ */
+export const productPrices = pgTable(
+  'product_prices',
+  {
+    productId: uuid('productId')
+      .notNull()
+      .references(() => products.id, { onDelete: 'cascade' }),
+    tierId: uuid('tierId')
+      .notNull()
+      .references(() => customerTiers.id, { onDelete: 'restrict' }),
+    priceMinor: integer('priceMinor').notNull(),
+    updatedAt: timestamp('updatedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.productId, t.tierId] }),
+    // The PK covers product-leading lookups (resolving one listing page); this
+    // covers tier-leading ones (the delete guard, per-tier admin views).
+    index('product_prices_tierId_idx').on(t.tierId),
+  ],
+);
+
 // New signups default to `user`; `admin`/`manager` are assigned deliberately.
 export const userRole = pgEnum('user_role', ['admin', 'manager', 'user']);
 
@@ -191,6 +268,15 @@ export const users = pgTable('users', {
   // the bootstrap admin's seeded one, and later any admin-issue reset.
   // Cleared by setPassword.
   mustChangePassword: boolean('mustChangePassword').notNull().default(false),
+  // The pricing group (FR-AUTH-05) — independent of `role`, which is
+  // authorization only. Null is a normal, permanent state, not a placeholder:
+  // it means the default list (`products.defaultPriceMinor`), which is what
+  // staff and any customer not put in a specific tier get.
+  // Restricted, not nulled, on tier delete: silently moving a customer onto
+  // default prices is worse than refusing the delete.
+  tierId: uuid('tierId').references(() => customerTiers.id, {
+    onDelete: 'restrict',
+  }),
 });
 
 /**
