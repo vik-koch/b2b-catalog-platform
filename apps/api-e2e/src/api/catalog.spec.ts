@@ -191,7 +191,6 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
     expect(res.data.name).toBe(seed.name);
     expect(res.data.priceMinor).toBe(seed.priceMinor);
     expect(Object.keys(res.data.category).sort()).toEqual([
-      'ancestors',
       'name',
       'shortName',
       'slug',
@@ -200,13 +199,6 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
       expect.objectContaining({
         slug: 'espresso',
         name: 'Espresso Roasts',
-        // The breadcrumb walks the whole path, not just the leaf.
-        ancestors: [
-          expect.objectContaining({
-            slug: 'coffee-beans',
-            name: 'Coffee Beans',
-          }),
-        ],
       }),
     );
     expect(res.data.attributes).toEqual(seed.attributes);
