@@ -115,8 +115,9 @@ export const products = pgTable(
     sourceId: varchar('sourceId', { length: 255 }).notNull().unique(),
     slug: varchar('slug', { length: 255 }).notNull().unique(),
     name: varchar('name', { length: 512 }).notNull(),
-    // The default (lowest-rank) tier's price. Every other tier's price lives in
-    // product_prices, which falls back to this one where it has no row.
+    // The default list's price — the base every product has. The additional
+    // tiers' prices live in product_prices and fall back to this one wherever
+    // they have no row.
     defaultPriceMinor: integer('defaultPriceMinor').notNull(),
     categoryId: uuid('categoryId')
       .notNull()

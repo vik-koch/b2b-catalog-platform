@@ -16,21 +16,22 @@ import { products } from '../db/schema';
 type OrderBy = (SQL | PgColumn)[];
 
 /**
- * Price sorts on the default tier's stored column. A caller resolving a
- * non-default tier (FR-AUTH-05) must sort on the *resolved* price instead, or
- * the page is ordered by prices that customer never sees — the sort keys in the
- * contract stay as they are either way.
- */
-const priceColumn = products.defaultPriceMinor;
-
-/**
  * `score` is the relevance expression, present only on the search path. It is
  * required for the `relevance` sort and ignored by the others; a caller without
  * one (the category listing) cannot ask for it, because its contract does not
  * offer the key.
+ *
+ * `price` is the caller's resolved price expression (FR-AUTH-05). It must be
+ * the same one the caller selects, or the page is ordered by prices that
+ * customer never sees. Omitted, it is the base column — the guest case, and the
+ * only one that can use the column's index.
  */
 
-export function productOrderBy(sort: SearchSort, score?: SQL<number>): OrderBy {
+export function productOrderBy(
+  sort: SearchSort,
+  score?: SQL<number>,
+  price: SQL<number> | PgColumn = products.defaultPriceMinor,
+): OrderBy {
   const tiebreak: OrderBy = [asc(products.name), asc(products.id)];
 
   switch (sort) {
@@ -43,9 +44,9 @@ export function productOrderBy(sort: SearchSort, score?: SQL<number>): OrderBy {
     case 'name_desc':
       return [desc(products.name), asc(products.id)];
     case 'price':
-      return [asc(priceColumn), ...tiebreak];
+      return [asc(price), ...tiebreak];
     case 'price_desc':
-      return [desc(priceColumn), ...tiebreak];
+      return [desc(price), ...tiebreak];
   }
 }
 
