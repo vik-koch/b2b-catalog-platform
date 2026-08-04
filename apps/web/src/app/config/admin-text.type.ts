@@ -212,6 +212,10 @@ export const adminTextSchema = z
         delete: z.string(),
         deleting: z.string(),
         empty: z.string(),
+        /** Drag-and-drop: what a drop does, and that it commits immediately. */
+        reorderHint: z.string(),
+        undo: z.string(),
+        reorderError: z.string(),
         /** Delete-confirmation modal. `{name}`/`{count}` substituted at render. */
         deleteTitle: z.string(),
         deleteConfirm: z.string(),

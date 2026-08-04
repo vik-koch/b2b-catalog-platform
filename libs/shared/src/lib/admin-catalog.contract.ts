@@ -252,6 +252,7 @@ export const categoryOrderEntrySchema = z
     sortOrder: z.number().int().nonnegative(),
   })
   .strict();
+export type CategoryOrderEntry = z.infer<typeof categoryOrderEntrySchema>;
 
 export const reorderCategoriesSchema = z
   .object({ order: z.array(categoryOrderEntrySchema) })
