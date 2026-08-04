@@ -52,7 +52,8 @@ export const pages = pgTable('pages', {
 /**
  * Catalog categories, an adjacency-list tree. Structure (name, hierarchy) is
  * file-owned — derived from the import's category paths and keyed by
- * `sourceId` — while `sortOrder`, `image` and `description` are admin overlay
+ * `sourceId` — while `sortOrder`, `image`, `description` and `shortName` are
+ * admin overlay
  * that survives a re-sync. `slug` is the public URL handle, generated once and
  * kept stable.
  */
@@ -71,6 +72,10 @@ export const categories = pgTable('categories', {
   sortOrder: integer('sortOrder').notNull().default(0),
   image: jsonb('image').$type<ProductImageRef>(),
   description: text('description'),
+  // An optional nickname shown where the parent category is already visible
+  // (tiles, subcategory chips, breadcrumbs) — "Arabica" under "Coffee Beans"
+  // for an imported "Coffee Beans Arabica". Null means: use `name`.
+  shortName: varchar('shortName', { length: 255 }),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
