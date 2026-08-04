@@ -145,8 +145,14 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
   /**
    * Tile prices in render order. Read off the rendered text and stripped back
    * to digits — the formatting is a deployment concern, the ordering is not.
+   *
+   * Waits for the listing to stop loading first: re-sorting keeps the previous
+   * results on screen while the new page is fetched, and allTextContents takes
+   * one snapshot without retrying, so an unguarded read can catch the old
+   * order — or a half-patched list.
    */
   async function prices(page: Page): Promise<number[]> {
+    await expect(page.locator('section[aria-busy="true"]')).toHaveCount(0);
     const texts = await page.locator('li p.font-bold').allTextContents();
     return texts.map((t) => Number(t.replace(/\D/g, '')));
   }

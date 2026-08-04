@@ -4,7 +4,9 @@ import axios from 'axios';
 
 const get = (url: string) => axios.get(url, { validateStatus: () => true });
 
-const topLevel = categorySeeds.filter((c) => c.parentKey === null);
+const topLevel = categorySeeds
+  .filter((c) => c.parentKey === null)
+  .map((c) => c.slug);
 const coffeeChildren = categorySeeds
   .filter((c) => c.parentKey === 'coffee-beans')
   .map((c) => c.slug);
@@ -18,7 +20,11 @@ describe('GET /catalog/categories (FR-CAT-01/02)', () => {
     const res = await get('/catalog/categories');
 
     expect(res.status).toBe(200);
-    expect(res.data.categories).toHaveLength(topLevel.length);
+    // Seeded roots only, in seed order: sibling specs share this database and
+    // an import creates its category unparented, so a bare count of the roots
+    // is a race against whatever else is mid-run.
+    const roots = res.data.categories.map((c: { slug: string }) => c.slug);
+    expect(roots.filter((s: string) => topLevel.includes(s))).toEqual(topLevel);
 
     const coffee = res.data.categories.find(
       (c: { slug: string }) => c.slug === 'coffee-beans',
