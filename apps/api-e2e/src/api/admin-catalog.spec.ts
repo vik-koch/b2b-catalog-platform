@@ -44,6 +44,7 @@ const CATEGORY_KEYS = [
   'name',
   'parentId',
   'productCount',
+  'shortName',
   'slug',
   'sortOrder',
   'sourceId',
@@ -542,6 +543,24 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(res.data.parentId).toBe(parentId);
       expect(res.data.productCount).toBe(0);
       expect(res.data.childCount).toBe(0);
+    });
+
+    it('round-trips the optional short name, empty meaning none', async () => {
+      const created = await createCategory({
+        name: `Coffee Beans Arabica ${R}`,
+        shortName: 'Arabica',
+      });
+      expect(created.status).toBe(201);
+      expect(created.data.shortName).toBe('Arabica');
+
+      // Cleared from the editor as an empty string → stored as null, so the
+      // storefront's fallback to the full name has one representation.
+      const cleared = await put(
+        `/admin/catalog/categories/${created.data.id}`,
+        { name: created.data.name, shortName: '' },
+      );
+      expect(cleared.status).toBe(200);
+      expect(cleared.data.shortName).toBeNull();
     });
 
     it('404s a create under an unknown parent', async () => {

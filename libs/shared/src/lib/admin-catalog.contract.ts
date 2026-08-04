@@ -198,6 +198,9 @@ export const adminCategorySchema = z
     image: catalogImageSchema.nullable(),
     sourceId: z.string(),
     description: z.string().nullable(),
+    /** Optional nickname for contexts where the parent is visible; see the
+     * public contract's `shortNameSchema`. */
+    shortName: z.string().nullable(),
     productCount: z.number().int().nonnegative(),
     childCount: z.number().int().nonnegative(),
   })
@@ -211,6 +214,15 @@ export type AdminCategory = z.infer<typeof adminCategorySchema>;
 export const categoryInputSchema = z
   .object({
     name: z.string().trim().min(1).max(CATEGORY_NAME_MAX_LENGTH),
+    /** Optional nickname, admin-owned overlay. Empty means "no nickname" and is
+     * normalized to null, so the fallback to `name` has one representation. */
+    shortName: z
+      .string()
+      .trim()
+      .max(CATEGORY_NAME_MAX_LENGTH)
+      .nullable()
+      .default(null)
+      .transform((value) => value || null),
     /** Optional slug override; see the product schema doc. */
     slug: slugSchema.optional(),
     parentId: z.string().uuid().nullable().default(null),
