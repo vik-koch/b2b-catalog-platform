@@ -60,8 +60,8 @@ describe('productOrderBy', () => {
   it.each([
     ['name', 'name', 'asc'],
     ['name_desc', 'name', 'desc'],
-    ['price', 'priceMinor', 'asc'],
-    ['price_desc', 'priceMinor', 'desc'],
+    ['price', 'defaultPriceMinor', 'asc'],
+    ['price_desc', 'defaultPriceMinor', 'desc'],
   ] as const)('sorts %s on %s %s', (option, column, direction) => {
     expect(render(productOrderBy(option))).toMatch(
       new RegExp(`^"products"\\."${column}" ${direction}`),

@@ -8,4 +8,11 @@ import { AuthUser } from '@b2b-catalog-platform/shared';
  */
 export interface AuthenticatedRequest extends Request {
   user?: AuthUser;
+  /**
+   * The caller's pricing tier, set by OptionalAuthGuard on public routes; null
+   * means the default list. Deliberately kept off `AuthUser`: a customer's tier
+   * is staff-facing data and must never be serialized to them, and `AuthUser`
+   * is exactly what `/auth/me` returns.
+   */
+  pricingTierId?: string | null;
 }

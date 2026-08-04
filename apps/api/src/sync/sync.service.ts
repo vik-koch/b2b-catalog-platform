@@ -193,7 +193,8 @@ export class SyncService {
           sourceId: products.sourceId,
           slug: products.slug,
           name: products.name,
-          priceMinor: products.priceMinor,
+
+          priceMinor: products.defaultPriceMinor,
           categoryId: products.categoryId,
           deletedAt: products.deletedAt,
         })
@@ -286,7 +287,7 @@ export class SyncService {
           sourceId: product.sourceId,
           slug: allocateSlug(product.name, 'product', takenProductSlugs),
           name: product.name,
-          priceMinor: product.priceMinor,
+          defaultPriceMinor: product.priceMinor,
           categoryId: categoryId as string,
         });
       }
@@ -301,7 +302,7 @@ export class SyncService {
           .set({
             ...(update.name !== undefined ? { name: update.name } : {}),
             ...(update.priceMinor !== undefined
-              ? { priceMinor: update.priceMinor }
+              ? { defaultPriceMinor: update.priceMinor }
               : {}),
             ...(categoryId !== undefined ? { categoryId } : {}),
             updatedAt: new Date(),

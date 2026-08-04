@@ -82,7 +82,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
 
   const productBySourceId = async (sourceId: string) => {
     const { rows } = await client.query(
-      'SELECT name, "priceMinor", slug, "deletedAt", "categoryId" FROM products WHERE "sourceId" = $1',
+      'SELECT name, "defaultPriceMinor" AS "priceMinor", slug, "deletedAt", "categoryId" FROM products WHERE "sourceId" = $1',
       [sourceId],
     );
     return rows[0];

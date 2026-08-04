@@ -31,6 +31,7 @@ import {
   searchCondition,
   setSearchThreshold,
 } from './product-search';
+import { resolvedPriceMinor } from './product-price';
 import { productOrderBy } from './product-sort';
 import { SearchLogger } from './search.logger';
 
@@ -96,7 +97,9 @@ export class CatalogService {
     slug: string,
     page: number,
     sort: ProductSort,
+    tierId: string | null = null,
   ): Promise<CategoryProductsResult | null> {
+    const price = resolvedPriceMinor(tierId);
     const rows = await this.categoryRows();
     const category = categoryBySlug(rows, slug);
     if (!category) return null;
@@ -117,12 +120,12 @@ export class CatalogService {
       .select({
         slug: products.slug,
         name: products.name,
-        priceMinor: products.priceMinor,
+        priceMinor: price,
         images: products.images,
       })
       .from(products)
       .where(where)
-      .orderBy(...productOrderBy(sort))
+      .orderBy(...productOrderBy(sort, undefined, price))
       .limit(pageSize)
       .offset((page - 1) * pageSize);
 
@@ -160,7 +163,9 @@ export class CatalogService {
     rawQuery: string,
     page: number,
     sort: SearchSort,
+    tierId: string | null = null,
   ): Promise<SearchResult> {
+    const price = resolvedPriceMinor(tierId);
     const pageSize = CATALOG_PAGE_SIZE;
     const query = parseSearchQuery(rawQuery);
     if (!query) {
@@ -185,12 +190,12 @@ export class CatalogService {
         .select({
           slug: products.slug,
           name: products.name,
-          priceMinor: products.priceMinor,
+          priceMinor: price,
           images: products.images,
         })
         .from(products)
         .where(where)
-        .orderBy(...productOrderBy(sort, relevanceScore(query)))
+        .orderBy(...productOrderBy(sort, relevanceScore(query), price))
         .limit(pageSize)
         .offset((page - 1) * pageSize);
 
@@ -278,12 +283,15 @@ export class CatalogService {
     };
   }
 
-  async getProduct(slug: string): Promise<ProductDetail | null> {
+  async getProduct(
+    slug: string,
+    tierId: string | null = null,
+  ): Promise<ProductDetail | null> {
     const [product] = await this.db
       .select({
         slug: products.slug,
         name: products.name,
-        priceMinor: products.priceMinor,
+        priceMinor: resolvedPriceMinor(tierId),
         descriptionHtml: products.descriptionHtml,
         images: products.images,
         attributes: products.attributes,

@@ -22,6 +22,20 @@
       "when": 1785826710783,
       "tag": "0002_category_short_name",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785872840123,
+      "tag": "0003_default_price_rename",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785874598955,
+      "tag": "0004_customer_tiers",
+      "breakpoints": true
     }
   ]
 }

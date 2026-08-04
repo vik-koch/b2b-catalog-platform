@@ -61,11 +61,11 @@ export async function seedCatalog(
 
     await client.query(
       `INSERT INTO products
-         ("sourceId", slug, name, "priceMinor", "categoryId", "descriptionHtml", attributes, images)
+         ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "descriptionHtml", attributes, images)
        VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb)
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
-         "priceMinor" = EXCLUDED."priceMinor", "categoryId" = EXCLUDED."categoryId",
+         "defaultPriceMinor" = EXCLUDED."defaultPriceMinor", "categoryId" = EXCLUDED."categoryId",
          "descriptionHtml" = EXCLUDED."descriptionHtml",
          attributes = EXCLUDED.attributes, images = EXCLUDED.images`,
       [
