@@ -22,13 +22,16 @@ function config(locations: readonly ContactLocation[]): DeploymentConfig {
   return { ...defaultDeploymentConfig, locations };
 }
 
-async function render(locations: readonly ContactLocation[]) {
+async function render(
+  locations: readonly ContactLocation[],
+  getPage: () => Promise<typeof contactBody | null> = async () => contactBody,
+) {
   TestBed.configureTestingModule({
     imports: [ContactPage],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: config(locations) },
-      { provide: PageService, useValue: { getPage: async () => contactBody } },
+      { provide: PageService, useValue: { getPage } },
       { provide: EditModeService, useValue: { enabled: () => false } },
     ],
   });
@@ -78,5 +81,23 @@ describe('ContactPage', () => {
     expect(el.querySelectorAll('iframe').length).toBe(2);
     expect(el.textContent).toContain('North');
     expect(el.textContent).toContain('South');
+  });
+
+  const locations = [{ name: 'HQ', map: { url: 'https://maps.example/hq' } }];
+
+  it('shows the load error instead of a half page when the body fails', async () => {
+    // The office list alone under an empty heading would look like the page,
+    // in a 200 — LoadErrorView says the site is broken and answers 503.
+    const el = await render(locations, () => Promise.reject(new Error('down')));
+
+    expect(el.textContent).toContain(defaultAppText.errors.cannotLoadTitle);
+    expect(el.querySelector('iframe')).toBeNull();
+  });
+
+  it('shows the load error when the page has no body yet', async () => {
+    const el = await render(locations, async () => null);
+
+    expect(el.textContent).toContain(defaultAppText.errors.cannotLoadTitle);
+    expect(el.querySelector('iframe')).toBeNull();
   });
 });
