@@ -11,21 +11,26 @@ import { LucideIcon } from '../ui/icons/lucide-icon';
 import { PageService } from './page.service';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { IconButton } from '../ui/icon-button';
-import { NotFoundView } from './not-found-view';
 import { LoadErrorView } from './load-error-view';
 
 @Component({
   selector: 'app-static-page',
-  imports: [LucideIcon, IconButton, RouterLink, NotFoundView, LoadErrorView],
+  imports: [LucideIcon, IconButton, RouterLink, LoadErrorView],
   template: `
     <!-- A published page with no row yet: an admin gets the shell and the
-         pencil so they can write it, everyone else gets a real 404 rather than
-         an empty page a crawler would index. -->
+         pencil so they can write it, everyone else gets the load error rather
+         than an empty page a crawler would index.
+         503 and not 404, matching a failed load: the route only exists because
+         the deployment publishes this slug, so the URL is real and the content
+         is missing — "temporarily unavailable" is the true answer, and it is
+         the one that shows up in the access logs as something to fix. An
+         unpublished slug never reaches here; its route does not match, and that
+         is where the honest 404 comes from. -->
     @if (pageResource.error()) {
       <app-load-error-view [heading]="text.cannotLoadTitle" />
-    } @else if (page() === null && !canEdit()) {
-      <app-not-found-view />
-    } @else if (page() !== undefined) {
+    } @else if (missing()) {
+      <app-load-error-view [heading]="text.cannotLoadTitle" />
+    } @else if (page() !== undefined && !awaitingRole()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
         <h1 class="mb-6 text-3xl font-bold tracking-tight">
@@ -80,8 +85,25 @@ export class StaticPage {
     loader: ({ params }) => this.pageService.getPage(params.slug),
   });
 
-  /** Delayed so a quick load never flashes a skeleton. */
-  protected readonly showSkeleton = delayedLoading(this.pageResource.isLoading);
+  /**
+   * A page with no row yet, while it is still unknown whether this visitor is
+   * an admin who could write one. The body has loaded, so the resource is no
+   * longer the thing being waited on — the session is.
+   */
+  protected readonly awaitingRole = computed(
+    () => this.page() === null && !this.editMode.settled(),
+  );
+
+  /** No row, and nobody here who could write one: the page cannot be served. */
+  protected readonly missing = computed(
+    () => this.page() === null && this.editMode.settled() && !this.canEdit(),
+  );
+
+  /** Delayed so a quick load never flashes a skeleton — and covering the wait
+   * on the session too, so that gap is a placeholder rather than a blank. */
+  protected readonly showSkeleton = delayedLoading(
+    computed(() => this.pageResource.isLoading() || this.awaitingRole()),
+  );
 
   /**
    * `undefined` while loading *or failed*, `null` when the page has no row yet.

@@ -36,12 +36,17 @@ import { trustedRichText } from '../core/trusted-rich-text';
          A body that failed or was never written takes the whole page down with
          it, rather than leaving the office list standing under an empty
          heading: the prose is what /contact is, and a page missing it is not
-         serving its content. LoadErrorView owns the 503 that says so. -->
-    @if (failed() && !canEdit()) {
+         serving its content. LoadErrorView owns the 503 that says so, as it
+         does for every other page slug. An admin is spared only the unwritten
+         case — the shell and the pencil are how they write it — never the
+         failure, which is as much an outage for them as for anyone. -->
+    @if (pageResource.error()) {
       <app-load-error-view [heading]="errorText.cannotLoadTitle" />
-    } @else if (settled()) {
+    } @else if (missing()) {
+      <app-load-error-view [heading]="errorText.cannotLoadTitle" />
+    } @else if (settled() && !awaitingRole()) {
       <div class="flex items-start justify-between gap-4">
-        <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
+        <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ heading }}</h1>
         @if (canEdit(); as editorText) {
           <a
             appIconButton
@@ -103,7 +108,7 @@ export class ContactPage {
    * page body — see trustedRichText. */
   protected readonly safeBody = trustedRichText();
 
-  private readonly pageResource = resource({
+  protected readonly pageResource = resource({
     loader: () => this.pageService.getPage('contact'),
   });
 
@@ -120,12 +125,25 @@ export class ContactPage {
       !this.pageResource.isLoading() && this.pageResource.status() !== 'idle',
   );
 
-  /** No prose to show: the request errored, or the page has no row yet. Both
-   * are the same thing to a visitor — the page cannot be served. */
-  protected readonly failed = computed(() => this.settled() && !this.page());
+  /**
+   * A page with no row yet, while it is still unknown whether this visitor is
+   * an admin who could write one — the session is what is being waited on here,
+   * not the body.
+   */
+  protected readonly awaitingRole = computed(
+    () => this.page() === null && !this.editMode.settled(),
+  );
 
-  /** Delayed so a quick load never flashes a skeleton. */
-  protected readonly showSkeleton = delayedLoading(this.pageResource.isLoading);
+  /** No row, and nobody here who could write one: the page cannot be served. */
+  protected readonly missing = computed(
+    () => this.page() === null && this.editMode.settled() && !this.canEdit(),
+  );
+
+  /** Delayed so a quick load never flashes a skeleton — and covering the wait
+   * on the session too, so that gap is a placeholder rather than a blank. */
+  protected readonly showSkeleton = delayedLoading(
+    computed(() => this.pageResource.isLoading() || this.awaitingRole()),
+  );
 
   /**
    * The editing affordance, carrying its own wording: this is a public route,

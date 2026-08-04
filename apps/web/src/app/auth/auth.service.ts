@@ -44,6 +44,14 @@ export class AuthService {
   /** The signed-in user, or `null` when signed out (or not yet resolved). */
   readonly user = computed(() => this.session() ?? null);
 
+  /**
+   * Whether `user()` is an answer rather than a placeholder. `user()` folds
+   * "not known yet" into "signed out", which is right for chrome that must
+   * match the server's render — but a page deciding whether to show a visitor
+   * an error has to be able to wait for the real answer instead.
+   */
+  readonly resolved = computed(() => this.session() !== undefined);
+
   // Kicked off once, at app start, and only in the browser. The server is
   // deliberately left session-blind: it would have to forward the visitor's
   // cookie to the API, and the answer would then land in the SSR HTML — making

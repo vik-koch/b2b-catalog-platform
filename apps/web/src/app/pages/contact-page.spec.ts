@@ -32,7 +32,10 @@ async function render(
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: config(locations) },
       { provide: PageService, useValue: { getPage } },
-      { provide: EditModeService, useValue: { enabled: () => false } },
+      {
+        provide: EditModeService,
+        useValue: { enabled: () => false, settled: () => true },
+      },
     ],
   });
   const fixture = TestBed.createComponent(ContactPage);
