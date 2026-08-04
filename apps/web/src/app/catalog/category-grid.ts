@@ -11,10 +11,9 @@ import { Router, RouterLink } from '@angular/router';
 import { categoryDisplayName } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
-import { delayedLoading } from '../core/delayed-loading';
 import { stableValue } from '../core/stable-value';
 import { injectEditorReturnParams } from '../admin/editor-return';
-import { adminText } from '../config/admin-text';
+import { editAwareContent } from '../admin/edit-aware-content';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
 import { CategoryDeleteDialog } from '../admin/categories/category-delete-dialog';
@@ -65,7 +64,7 @@ const SUBS_COLLAPSED = 4;
     >
       @if (products.error()) {
         <app-load-error-view [message]="text.loadError" />
-      } @else if (loaded()) {
+      } @else if (ready()) {
         @let data = shown();
         @if (!data) {
           <app-not-found-view
@@ -298,17 +297,6 @@ const SUBS_COLLAPSED = 4;
             <p class="mt-8 text-muted">{{ text.emptyProducts }}</p>
           }
 
-          @defer (when editMode.enabled()) {
-            @if (editMode.enabled()) {
-              <app-deleted-products-section
-                [categorySlug]="data.category.slug"
-                [reloadToken]="deletedReload()"
-                (loaded)="deletedReady.set(true)"
-                (restored)="onProductRestored()"
-              />
-            }
-          }
-
           @defer (when deletingProduct()) {
             @if (deletingProduct(); as target) {
               <app-product-delete-dialog
@@ -350,6 +338,20 @@ const SUBS_COLLAPSED = 4;
             }
           </div>
         </div>
+      }
+
+      <!-- Outside the branch above on purpose: its fetch is what the grid waits
+           for before drawing the edit affordances, so it must not in turn wait
+           for the grid. The slug comes from the route, which is known at once. -->
+      @defer (when editMode.enabled()) {
+        @if (editMode.enabled()) {
+          <app-deleted-products-section
+            [categorySlug]="slug()"
+            [reloadToken]="deletedReload()"
+            (loaded)="deletedReady.set(true)"
+            (restored)="onProductRestored()"
+          />
+        }
       }
     </section>
   `,
@@ -400,17 +402,6 @@ export class CategoryGrid {
    * session; re-armed whenever edit mode turns off. */
   protected readonly deletedReady = signal(false);
 
-  /** Gate for the in-place edit affordances (＋ tile, per-item and category
-   * controls). Held back until the "Deleted" overlay has loaded so entering edit
-   * mode reveals everything at once instead of flashing the controls first.
-   * Also carries the edit-mode wording, which is fetched rather than injected:
-   * this component renders for anonymous visitors too, who never load it. */
-  protected readonly editControls = computed(() =>
-    this.editMode.enabled() && this.deletedReady()
-      ? (adminText()?.editMode ?? null)
-      : null,
-  );
-
   protected products = resource({
     params: () => ({
       slug: this.slug(),
@@ -423,12 +414,24 @@ export class CategoryGrid {
 
   /** Held across reloads, so re-sorting swaps the grid instead of blanking it. */
   protected readonly shown = stableValue(this.products);
-  /** A missing category is a loaded `null`, so emptiness is not the test. */
-  protected readonly loaded = computed(() => this.shown() !== undefined);
 
-  /** Delayed so a quick load never flashes a skeleton. Only the first load can
-   * reach it now — a reload still has the previous grid on screen. */
-  protected readonly showSkeleton = delayedLoading(this.products.isLoading);
+  /**
+   * The grid, its ＋ tiles and the per-item controls all appear together, once
+   * the products, the visitor's role and — in edit mode — the "Deleted" overlay
+   * are known (see editAwareContent). A missing category is a loaded `null`, so
+   * emptiness is not the test for having an answer.
+   *
+   * The skeleton is reachable only on a first load; a reload still has the
+   * previous grid on screen.
+   */
+  private readonly content = editAwareContent({
+    ready: computed(() => this.shown() !== undefined),
+    section: 'editMode',
+    alsoWaitFor: this.deletedReady,
+  });
+  protected readonly ready = this.content.ready;
+  protected readonly editControls = this.content.controls;
+  protected readonly showSkeleton = this.content.showSkeleton;
 
   constructor() {
     usePageSeo({

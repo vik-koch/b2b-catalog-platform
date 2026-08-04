@@ -1,11 +1,9 @@
 import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
-import { adminText } from '../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { EditModeService } from '../admin/edit-mode.service';
 import { injectEditorReturnParams } from '../admin/editor-return';
-import { delayedLoading } from '../core/delayed-loading';
+import { editAwareContent } from '../admin/edit-aware-content';
 import { usePageSeo } from '../core/page-seo';
 import { IconButton } from '../ui/icon-button';
 import { LucideIcon } from '../ui/icons/lucide-icon';
@@ -44,7 +42,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
       <app-load-error-view [heading]="errorText.cannotLoadTitle" />
     } @else if (missing()) {
       <app-load-error-view [heading]="errorText.cannotLoadTitle" />
-    } @else if (settled() && !awaitingRole()) {
+    } @else if (ready()) {
       <div class="flex items-start justify-between gap-4">
         <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ heading }}</h1>
         @if (canEdit(); as editorText) {
@@ -98,7 +96,6 @@ import { trustedRichText } from '../core/trusted-rich-text';
 export class ContactPage {
   private readonly appText = inject(APP_TEXT);
   private readonly pageService = inject(PageService);
-  private readonly editMode = inject(EditModeService);
 
   protected readonly heading = this.appText.nav['contact'];
   protected readonly errorText = this.appText.errors;
@@ -119,39 +116,24 @@ export class ContactPage {
     this.pageResource.hasValue() ? this.pageResource.value() : undefined,
   );
 
-  /** Whether the body request is done, either way. */
-  protected readonly settled = computed(
-    () =>
-      !this.pageResource.isLoading() && this.pageResource.status() !== 'idle',
-  );
+  /** The body, the office list and the pencil appear together, once the page
+   * and the visitor's role are both known — see editAwareContent. */
+  private readonly content = editAwareContent({
+    ready: computed(
+      () =>
+        !this.pageResource.isLoading() && this.pageResource.status() !== 'idle',
+    ),
+    section: 'pageEditor',
+  });
+  protected readonly ready = this.content.ready;
+  protected readonly canEdit = this.content.controls;
+  protected readonly showSkeleton = this.content.showSkeleton;
 
-  /**
-   * A page with no row yet, while it is still unknown whether this visitor is
-   * an admin who could write one — the session is what is being waited on here,
-   * not the body.
-   */
-  protected readonly awaitingRole = computed(
-    () => this.page() === null && !this.editMode.settled(),
-  );
-
-  /** No row, and nobody here who could write one: the page cannot be served. */
+  /** No row, and nobody here who could write one: the page cannot be served.
+   * Waits on `ready`, so an admin is never shown the error on their way to the
+   * shell they would write it in. */
   protected readonly missing = computed(
-    () => this.page() === null && this.editMode.settled() && !this.canEdit(),
-  );
-
-  /** Delayed so a quick load never flashes a skeleton — and covering the wait
-   * on the session too, so that gap is a placeholder rather than a blank. */
-  protected readonly showSkeleton = delayedLoading(
-    computed(() => this.pageResource.isLoading() || this.awaitingRole()),
-  );
-
-  /**
-   * The editing affordance, carrying its own wording: this is a public route,
-   * so the admin text is fetched rather than injected and is null until edit
-   * mode is on (see EditModeService).
-   */
-  protected readonly canEdit = computed(() =>
-    this.editMode.enabled() ? (adminText()?.pageEditor ?? null) : null,
+    () => this.ready() && this.page() === null && !this.canEdit(),
   );
 
   constructor() {
