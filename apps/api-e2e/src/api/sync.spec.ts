@@ -25,6 +25,7 @@ const R = Date.now().toString(36);
 const CATEGORY_NAME = `E2E Sync Category ${R}`;
 const SOURCE_PREFIX = `e2e-sync-${R}`;
 const CATEGORY_SOURCE_ID = `e2e-sync-cat-${R}`;
+const TIER_KEY = `e2e-sync-tier-${R}`;
 
 function sessionCookie(setCookie: string[] | undefined): string {
   const cookie = setCookie
@@ -88,6 +89,23 @@ describe('Catalog sync (FR-ADM-02)', () => {
     return rows[0];
   };
 
+  /** A product's overrides, keyed by tier key — what a customer would be charged. */
+  const tierPricesOf = async (sourceId: string) => {
+    const { rows } = await client.query(
+      `SELECT t.key, pp."priceMinor" FROM product_prices pp
+         JOIN products p ON p.id = pp."productId"
+         JOIN customer_tiers t ON t.id = pp."tierId"
+        WHERE p."sourceId" = $1`,
+      [sourceId],
+    );
+    return Object.fromEntries(
+      rows.map((r: { key: string; priceMinor: number }) => [
+        r.key,
+        r.priceMinor,
+      ]),
+    );
+  };
+
   beforeAll(async () => {
     client = new Client({ connectionString: requireEnv('DATABASE_URL') });
     await client.connect();
@@ -105,6 +123,12 @@ describe('Catalog sync (FR-ADM-02)', () => {
     }
     adminCookie = await loginAs(ADMIN_EMAIL);
     managerCookie = await loginAs(MANAGER_EMAIL);
+
+    await client.query('DELETE FROM customer_tiers WHERE key = $1', [TIER_KEY]);
+    await client.query(
+      'INSERT INTO customer_tiers (key, label) VALUES ($1, $2)',
+      [TIER_KEY, `E2E sync tier ${R}`],
+    );
   });
 
   afterAll(async () => {
@@ -114,6 +138,8 @@ describe('Catalog sync (FR-ADM-02)', () => {
     await client.query('DELETE FROM categories WHERE "sourceId" = $1', [
       CATEGORY_SOURCE_ID,
     ]);
+    // Products go first: their overrides cascade, and the tier's FK restricts.
+    await client.query('DELETE FROM customer_tiers WHERE key = $1', [TIER_KEY]);
     await client.query('DELETE FROM sync_runs WHERE "actorEmail" = $1', [
       ADMIN_EMAIL,
     ]);
@@ -397,6 +423,65 @@ describe('Catalog sync (FR-ADM-02)', () => {
         '/admin/sync/runs/00000000-0000-0000-0000-000000000000',
       );
       expect(res.status).toBe(404);
+    });
+  });
+  describe('tier price lists (FR-AUTH-05)', () => {
+    const sourceId = `${SOURCE_PREFIX}-tier`;
+
+    it('creates a product with a base price and a tier price in one row', async () => {
+      const { applied } = await run(
+        [
+          `sourceId,name,categorySourceId,categoryName,price,price:${TIER_KEY}`,
+          `${sourceId},Tiered Beans,${CATEGORY_SOURCE_ID},${CATEGORY_NAME},1890,1500`,
+        ].join('\n'),
+      );
+
+      expect(applied.create).toBe(1);
+      expect((await productBySourceId(sourceId)).priceMinor).toBe(1890);
+      expect(await tierPricesOf(sourceId)).toEqual({ [TIER_KEY]: 1500 });
+    });
+
+    it('updates one list without disturbing the other', async () => {
+      await run(`sourceId,price:${TIER_KEY}\n${sourceId},1400\n`);
+
+      // The file carried no base price, so the base price is where it was.
+      expect((await productBySourceId(sourceId)).priceMinor).toBe(1890);
+      expect(await tierPricesOf(sourceId)).toEqual({ [TIER_KEY]: 1400 });
+    });
+
+    it('leaves an override alone when the file no longer mentions its list', async () => {
+      await run(`sourceId,price\n${sourceId},1990\n`);
+
+      // Absent is not empty: a partial export must not silently un-price a
+      // tier. Clearing an override is an admin action in the product editor.
+      expect((await productBySourceId(sourceId)).priceMinor).toBe(1990);
+      expect(await tierPricesOf(sourceId)).toEqual({ [TIER_KEY]: 1400 });
+    });
+
+    it('shows the change per list in the preview, before anything is written', async () => {
+      const previewed = await preview(
+        csvForm(`sourceId,price:${TIER_KEY}\n${sourceId},1300\n`),
+      );
+
+      expect(previewed.status).toBe(201);
+      const change = previewed.data.plan.products[0];
+      expect(change.changes).toEqual([
+        { field: `price:${TIER_KEY}`, from: 1400, to: 1300 },
+      ]);
+      // Previewed only — nothing committed, so the stored price has not moved.
+      expect(await tierPricesOf(sourceId)).toEqual({ [TIER_KEY]: 1400 });
+    });
+
+    it('skips a row naming a price list this deployment does not have', async () => {
+      const { plan, applied } = await run(
+        `sourceId,price:no-such-list\n${sourceId},1\n`,
+      );
+
+      expect(applied.errors).toBe(1);
+      expect(plan.rowErrors[0].message).toContain('no-such-list');
+      // The message names the keys that would have worked.
+      expect(plan.rowErrors[0].message).toContain(TIER_KEY);
+      expect(await tierPricesOf(sourceId)).toEqual({ [TIER_KEY]: 1400 });
     });
   });
 });

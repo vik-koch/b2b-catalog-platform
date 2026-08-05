@@ -47,7 +47,10 @@ symmetrically with products.
   Prices are a **map** from day one — `prices: Record<PriceListKey, minorUnits>`,
   CSV headers `price:<key>`, with a bare `price` accepted as an alias for
   `price:default`. Iteration 2 knows only the key `default`; tier keys are added
-  later as a semver-minor enum extension. **Only keys present in the payload are
+  later as a semver-minor enum extension. _(Superseded by ADR 0031: the key is a
+  plain string validated against `customer_tiers` at run time, not an enum —
+  tier keys are deployment data, so the contract never has to change again.)_
+  **Only keys present in the payload are
   written**; an absent key is left untouched, never cleared. A price is an
   **integer in the currency's minor unit**, as in the read contract and storage;
   a decimal in the file is a row error, not a rounding.
