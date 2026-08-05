@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AdminCategory,
   CatalogImage,
+  CustomerTier,
   ProductAttribute,
   ProductDetail,
   ProductInput,
@@ -29,8 +30,13 @@ import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { CategoryPicker } from '../categories/category-picker';
 import { categoryAncestors } from '../categories/category-tree';
 import { ProductAttributesEditor } from './product-attributes-editor';
+import {
+  ProductTierPricesEditor,
+  TierPriceDraft,
+} from './product-tier-prices-editor';
 import { ProductImageGallery } from './product-image-gallery';
 import { AdminCatalogService } from '../admin-catalog.service';
+import { TiersService } from '../tiers/tiers.service';
 import { injectEditorReturn } from '../editor-return';
 
 /**
@@ -47,6 +53,7 @@ import { injectEditorReturn } from '../editor-return';
     RichTextEditor,
     CategoryPicker,
     ProductAttributesEditor,
+    ProductTierPricesEditor,
     ProductImageGallery,
     ProductDetailView,
     FieldLabel,
@@ -116,6 +123,19 @@ import { injectEditorReturn } from '../editor-return';
             />
           </div>
         </div>
+
+        <!-- Only where the deployment actually has tiers: with none, the base
+             price is the whole pricing story and an empty section would only
+             raise a question the admin cannot act on. -->
+        @if (tiers().length > 0) {
+          <div>
+            <app-product-tier-prices-editor
+              [tiers]="tiers()"
+              [value]="tierPrices()"
+              (valueChange)="tierPrices.set($event)"
+            />
+          </div>
+        }
 
         <label class="block">
           <span appFieldLabel>{{ text.slug }}</span>
@@ -215,6 +235,7 @@ import { injectEditorReturn } from '../editor-return';
 })
 export class ProductEditorPage implements UnsavedChangesAware {
   private readonly service = inject(AdminCatalogService);
+  private readonly tiersService = inject(TiersService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
@@ -229,6 +250,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly showSkeleton = delayedLoading(this.loading);
   protected readonly notFound = signal(false);
   protected readonly categories = signal<AdminCategory[]>([]);
+  protected readonly tiers = signal<CustomerTier[]>([]);
 
   protected readonly name = signal('');
   protected readonly slug = signal('');
@@ -238,6 +260,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly sourceId = signal('');
   protected readonly description = signal('');
   protected readonly attributes = signal<ProductAttribute[]>([]);
+  protected readonly tierPrices = signal<TierPriceDraft[]>([]);
   protected readonly images = signal<CatalogImage[]>([]);
 
   protected readonly previewing = signal(false);
@@ -301,7 +324,14 @@ export class ProductEditorPage implements UnsavedChangesAware {
   }
 
   private async load(): Promise<void> {
-    this.categories.set(await this.service.listCategories());
+    const [categories, tiers] = await Promise.all([
+      this.service.listCategories(),
+      // The tier list is small and admin-only, like the categories above; both
+      // are needed before the form can render its pickers.
+      this.tiersService.list().then((r) => r.tiers),
+    ]);
+    this.categories.set(categories);
+    this.tiers.set(tiers);
     const existingSlug = this.slugParam;
     if (existingSlug !== null) {
       const product = await this.service.getProduct(existingSlug);
@@ -318,6 +348,14 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.description.set(product.descriptionHtml);
       this.attributes.set(product.attributes);
       this.images.set(product.images);
+      this.tierPrices.set(
+        product.tierPrices
+          .map((p) => ({
+            tierId: p.tierId,
+            value: formatPriceInput(p.priceMinor, this.currency),
+          }))
+          .sort((a, b) => a.tierId.localeCompare(b.tierId)),
+      );
     } else {
       // "Add product in this category" preselects it (by slug) — set before the
       // snapshot so the default doesn't count as an unsaved change.
@@ -339,6 +377,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       description: this.description(),
       attributes: this.attributes(),
       images: this.images(),
+      tierPrices: this.tierPrices(),
     });
   }
 
@@ -352,6 +391,19 @@ export class ProductEditorPage implements UnsavedChangesAware {
     if (!this.categoryId()) return this.error.set(this.text.categoryRequired);
     const priceMinor = parsePriceInput(this.priceInput(), this.currency);
     if (priceMinor === null) return this.error.set(this.text.priceInvalid);
+
+    // Each tier field is validated against its own name, since "invalid price"
+    // on a screen with several price fields does not say which one.
+    const tierPrices = [];
+    for (const draft of this.tierPrices()) {
+      const tierMinor = parsePriceInput(draft.value, this.currency);
+      if (tierMinor === null) {
+        const tier = this.tiers().find((t) => t.id === draft.tierId);
+        return this.error.set(
+          this.text.tierPrices.invalid.replace('{tier}', tier?.label ?? ''),
+        );
+      }
+      tierPrices.push({ tierId: draft.tierId, priceMinor: tierMinor });
     }
 
     // A hand-typed slug (or, when new, the name-derived one) is sent as an
@@ -372,6 +424,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // Drop rows with no key — a value without a name is meaningless.
       attributes: this.attributes().filter((a) => a.key.trim() !== ''),
       images: this.images(),
+      // The full set: a tier the admin cleared is absent here, and the server
+      // takes that as "remove the override".
+      tierPrices,
       ...(slug ? { slug } : {}),
       ...(sourceId ? { sourceId } : {}),
     };

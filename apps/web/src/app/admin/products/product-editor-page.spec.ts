@@ -5,7 +5,11 @@ import {
   ParamMap,
   Router,
 } from '@angular/router';
-import { AdminCategory, AdminProduct } from '@b2b-catalog-platform/shared';
+import {
+  AdminCategory,
+  AdminProduct,
+  CustomerTier,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAppText } from '../../config/app-text.fixture';
@@ -13,6 +17,7 @@ import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { DeploymentConfig } from '../../config/deployment-config.type';
 import { AdminCatalogService } from '../admin-catalog.service';
+import { TiersService } from '../tiers/tiers.service';
 import { ProductEditorPage } from './product-editor-page';
 
 const text = defaultAdminText.productEditor;
@@ -40,6 +45,7 @@ const storedProduct: AdminProduct = {
   descriptionHtml: '<p>Dark.</p>',
   attributes: [],
   images: [],
+  tierPrices: [],
   deletedAt: null,
   updatedAt: '2026-07-30T10:00:00.000Z',
 };
@@ -55,9 +61,20 @@ interface Harness {
   navigate: ReturnType<typeof vi.fn>;
 }
 
+const wholesale: CustomerTier = {
+  id: 'tier-w',
+  key: 'wholesale',
+  label: 'Wholesale',
+  userCount: 2,
+  priceCount: 1,
+  sortOrder: 0,
+  updatedAt: '2026-08-01T00:00:00.000Z',
+};
+
 async function render(
   params: Record<string, string | null>,
   query: Record<string, string> = {},
+  options: { tiers?: CustomerTier[]; product?: AdminProduct } = {},
 ): Promise<{
   fixture: ReturnType<typeof TestBed.createComponent<ProductEditorPage>>;
   el: HTMLElement;
@@ -90,9 +107,19 @@ async function render(
         provide: AdminCatalogService,
         useValue: {
           listCategories: () => Promise.resolve([category]),
-          getProduct: () => Promise.resolve(storedProduct),
+          getProduct: () => Promise.resolve(options.product ?? storedProduct),
           createProduct: h.createProduct,
           updateProduct: h.updateProduct,
+        },
+      },
+      {
+        provide: TiersService,
+        useValue: {
+          list: () =>
+            Promise.resolve({
+              tiers: options.tiers ?? [],
+              defaultUserCount: 0,
+            }),
         },
       },
     ],
@@ -116,6 +143,15 @@ function inputByLabel(el: HTMLElement, label: string): HTMLInputElement {
 function setInput(input: HTMLInputElement, value: string): void {
   input.value = value;
   input.dispatchEvent(new Event('input'));
+}
+
+/** A tier's price field, found by the aria-label the editor gives it. */
+function tierInput(el: HTMLElement, tierLabel: string): HTMLInputElement {
+  const input = el.querySelector<HTMLInputElement>(
+    `input[aria-label="${tierLabel}"]`,
+  );
+  if (!input) throw new Error(`no price field for tier "${tierLabel}"`);
+  return input;
 }
 
 function saveButton(el: HTMLElement): HTMLButtonElement {
@@ -211,6 +247,92 @@ describe('ProductEditorPage', () => {
     expect(h.updateProduct.mock.calls[0][0]).toBe('hafen-espresso');
     expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
       name: 'Hafen Espresso Reserve',
+    });
+  });
+  describe('tier prices (FR-AUTH-05)', () => {
+    it('shows no tier section when the deployment has no tiers', async () => {
+      const { el } = await render({ slug: 'hafen-espresso' });
+
+      expect(el.textContent).not.toContain(text.tierPrices.heading);
+    });
+
+    it('sends a typed tier price as minor units alongside the base price', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          tiers: [wholesale],
+        },
+      );
+
+      setInput(tierInput(el, wholesale.label), '9,50');
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+        priceMinor: 1890,
+        tierPrices: [{ tierId: 'tier-w', priceMinor: 950 }],
+      });
+    });
+
+    it('loads an existing override into its field', async () => {
+      const { el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          tiers: [wholesale],
+          product: {
+            ...storedProduct,
+            tierPrices: [{ tierId: 'tier-w', priceMinor: 950 }],
+          },
+        },
+      );
+
+      // Shown in the deployment locale (de-DE here) at full precision, so the
+      // field reads the way the storefront prints prices.
+      expect(tierInput(el, wholesale.label).value).toBe('9,50');
+    });
+
+    it('clearing a field drops the override rather than sending a zero', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          tiers: [wholesale],
+          product: {
+            ...storedProduct,
+            tierPrices: [{ tierId: 'tier-w', priceMinor: 950 }],
+          },
+        },
+      );
+
+      setInput(tierInput(el, wholesale.label), '');
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      // An empty field means "charge this tier the base price", which is the
+      // absence of a row — not a price of nothing.
+      expect(h.updateProduct.mock.calls[0][1].tierPrices).toEqual([]);
+    });
+
+    it('names the tier when its price is invalid', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          tiers: [wholesale],
+        },
+      );
+
+      setInput(tierInput(el, wholesale.label), '-5');
+      saveButton(el).click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(h.updateProduct).not.toHaveBeenCalled();
+      expect(el.textContent).toContain(
+        text.tierPrices.invalid.replace('{tier}', wholesale.label),
+      );
     });
   });
 });

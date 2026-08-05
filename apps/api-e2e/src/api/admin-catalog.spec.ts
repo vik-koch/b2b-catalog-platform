@@ -24,6 +24,8 @@ const PASSWORD = 'e2e-admincat-password';
 // run's slugs/sourceIds.
 const R = Date.now().toString(36);
 
+const TIER_KEY = `e2e-admincat-${R}`;
+
 const PRODUCT_KEYS = [
   'attributes',
   'categoryId',
@@ -34,6 +36,7 @@ const PRODUCT_KEYS = [
   'priceMinor',
   'slug',
   'sourceId',
+  'tierPrices',
   'updatedAt',
 ];
 const CATEGORY_KEYS = [
@@ -67,6 +70,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
   let client: Client;
   let adminCookie: string;
   let parentId: string;
+  let tierId: string;
   const createdProductSlugs: string[] = [];
   const createdCategoryIds: string[] = [];
 
@@ -141,13 +145,22 @@ describe('Admin catalog (FR-ADM-01)', () => {
       ['cleaning'],
     );
     parentId = rows[0].id;
+
+    await client.query('DELETE FROM customer_tiers WHERE key = $1', [TIER_KEY]);
+    const { rows: tierRows } = await client.query(
+      'INSERT INTO customer_tiers (key, label) VALUES ($1, $2) RETURNING id',
+      [TIER_KEY, `E2E admin tier ${R}`],
+    );
+    tierId = tierRows[0].id;
   });
 
   afterAll(async () => {
-    // Products first (categoryId FK is `restrict`), then categories.
+    // Products first (categoryId FK is `restrict`), then categories. Tier
+    // prices cascade with their product, so the tier can only go last.
     for (const slug of createdProductSlugs) {
       await client.query('DELETE FROM products WHERE slug = $1', [slug]);
     }
+    await client.query('DELETE FROM customer_tiers WHERE key = $1', [TIER_KEY]);
     for (const id of createdCategoryIds) {
       await client.query('DELETE FROM categories WHERE id = $1', [id]);
     }
@@ -531,6 +544,136 @@ describe('Admin catalog (FR-ADM-01)', () => {
         '',
       );
       expect(res.status).toBe(401);
+    });
+  });
+
+  describe('tier prices (FR-AUTH-05)', () => {
+    it('stores an override and returns it with the product', async () => {
+      const created = await createProduct({
+        priceMinor: 1000,
+        tierPrices: [{ tierId, priceMinor: 700 }],
+      });
+
+      expect(created.status).toBe(201);
+      expect(created.data.priceMinor).toBe(1000);
+      expect(created.data.tierPrices).toEqual([{ tierId, priceMinor: 700 }]);
+
+      // Read back, so this proves storage rather than an echo of the request.
+      const fetched = await adminGet(
+        `/admin/catalog/products/${created.data.slug}`,
+      );
+      expect(fetched.data.tierPrices).toEqual([{ tierId, priceMinor: 700 }]);
+    });
+
+    it('a product with no overrides carries an empty list, not a null', async () => {
+      const created = await createProduct({ priceMinor: 1000 });
+      expect(created.data.tierPrices).toEqual([]);
+    });
+
+    it('replaces the whole set — an omitted tier loses its override', async () => {
+      const created = await createProduct({
+        priceMinor: 1000,
+        tierPrices: [{ tierId, priceMinor: 700 }],
+      });
+
+      const updated = await put(
+        `/admin/catalog/products/${created.data.slug}`,
+        {
+          name: created.data.name,
+          priceMinor: 1000,
+          categoryId: parentId,
+          tierPrices: [],
+        },
+      );
+
+      expect(updated.status).toBe(200);
+      expect(updated.data.tierPrices).toEqual([]);
+      // Scoped to this product: the other tests in this block price the same
+      // tier on products of their own.
+      const { rows } = await client.query(
+        `SELECT count(*)::int AS n FROM product_prices pp
+           JOIN products p ON p.id = pp."productId"
+          WHERE pp."tierId" = $1 AND p.slug = $2`,
+        [tierId, created.data.slug],
+      );
+      // Removed, not merely hidden: the row is gone, so the tier is back on the
+      // base price.
+      expect(rows[0].n).toBe(0);
+    });
+
+    it('changes an existing override in place', async () => {
+      const created = await createProduct({
+        priceMinor: 1000,
+        tierPrices: [{ tierId, priceMinor: 700 }],
+      });
+
+      const updated = await put(
+        `/admin/catalog/products/${created.data.slug}`,
+        {
+          name: created.data.name,
+          priceMinor: 1000,
+          categoryId: parentId,
+          tierPrices: [{ tierId, priceMinor: 650 }],
+        },
+      );
+
+      expect(updated.data.tierPrices).toEqual([{ tierId, priceMinor: 650 }]);
+    });
+
+    it('404s an unknown tier instead of failing on the foreign key', async () => {
+      const res = await createProduct({
+        priceMinor: 1000,
+        tierPrices: [
+          { tierId: '00000000-0000-4000-8000-000000000000', priceMinor: 1 },
+        ],
+      });
+
+      expect(res.status).toBe(404);
+    });
+
+    it('rejects pricing the same tier twice', async () => {
+      const res = await createProduct({
+        priceMinor: 1000,
+        tierPrices: [
+          { tierId, priceMinor: 1 },
+          { tierId, priceMinor: 2 },
+        ],
+      });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('keeps a hidden product\u2019s override on the books', async () => {
+      const created = await createProduct({
+        priceMinor: 1000,
+        tierPrices: [{ tierId, priceMinor: 700 }],
+      });
+      await del(`/admin/catalog/products/${created.data.slug}`);
+
+      // Soft delete hides a product from the storefront; it does not release
+      // the tier. The count staff see says so, and the tier stays undeletable —
+      // the honest answer, since the foreign key would refuse it anyway.
+      const tiers = await adminGet('/admin/tiers');
+      const row = tiers.data.tiers.find((t: { id: string }) => t.id === tierId);
+      expect(row.priceCount).toBeGreaterThan(0);
+      expect((await del(`/admin/tiers/${tierId}`)).status).toBe(409);
+    });
+
+    it('keeps the overrides through a soft delete and restore', async () => {
+      const created = await createProduct({
+        priceMinor: 1000,
+        tierPrices: [{ tierId, priceMinor: 700 }],
+      });
+      const slug = created.data.slug;
+
+      const deleted = await del(`/admin/catalog/products/${slug}`);
+      expect(deleted.data.tierPrices).toEqual([{ tierId, priceMinor: 700 }]);
+
+      const restored = await post(
+        `/admin/catalog/products/${slug}/restore`,
+        undefined,
+      );
+      expect(restored.data.tierPrices).toEqual([{ tierId, priceMinor: 700 }]);
     });
   });
 

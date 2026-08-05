@@ -165,6 +165,21 @@ export const adminTextSchema = z
             empty: z.string(),
           })
           .strict(),
+        /**
+         * Per-tier prices (FR-AUTH-05). The section is only rendered when the
+         * deployment has tiers, but the wording is required all the same —
+         * config is complete-or-die, not conditionally complete.
+         */
+        tierPrices: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            /** Placeholder on an empty tier field: it charges the base price. */
+            usesBase: z.string(),
+            /** `{tier}` is substituted with the tier's name. */
+            invalid: z.string(),
+          })
+          .strict(),
         images: z
           .object({
             heading: z.string(),

@@ -44,6 +44,29 @@ export const PRODUCT_ATTRIBUTE_VALUE_MAX_LENGTH = 2000;
 /** A gallery is a short ordered list, not an archive. */
 export const PRODUCT_IMAGES_MAX = 20;
 
+/**
+ * A bound, not a business rule: a deployment sells to a handful of customer
+ * kinds, and a product can be priced in each at most once.
+ */
+export const PRODUCT_TIER_PRICES_MAX = 50;
+
+/**
+ * One tier's price for this product (FR-AUTH-05). Tiers are addressed by id
+ * here rather than by their sync key: the editor already has the tier list in
+ * hand, and an id survives a key being renamed mid-edit.
+ *
+ * The base price is **not** in this list — it is the product's own
+ * `priceMinor`. A tier absent from the list has no override and falls back to
+ * it, which is how a tier carries only its exceptions.
+ */
+export const productTierPriceSchema = z
+  .object({
+    tierId: z.string().uuid(),
+    priceMinor: priceMinorSchema,
+  })
+  .strict();
+export type ProductTierPrice = z.infer<typeof productTierPriceSchema>;
+
 /** Matches the `products.sourceId` / `categories.sourceId` varchar(255). */
 export const SOURCE_ID_MAX_LENGTH = 255;
 
@@ -92,6 +115,21 @@ export const productInputSchema = z
     /** Private sync key. Admin-settable to pre-assign a legacy key for future
      * file reconciliation; omit to let the server generate `manual:<uuid>`. */
     sourceId: z.string().trim().min(1).max(SOURCE_ID_MAX_LENGTH).optional(),
+    /**
+     * The product's tier overrides, in full: what is sent replaces what is
+     * stored, so dropping an entry removes that tier's override and returns it
+     * to the base price. An unknown `tierId` is a 404, like an unknown
+     * category.
+     */
+    tierPrices: z
+      .array(productTierPriceSchema)
+      .max(PRODUCT_TIER_PRICES_MAX)
+      .refine(
+        (entries) =>
+          new Set(entries.map((e) => e.tierId)).size === entries.length,
+        'A tier can only be priced once',
+      )
+      .default([]),
   })
   .strict();
 export type ProductInput = z.infer<typeof productInputSchema>;
@@ -110,6 +148,8 @@ export const adminProductSchema = z
     descriptionHtml: z.string(),
     attributes: z.array(productAttributeSchema),
     images: z.array(catalogImageSchema),
+    /** Only the tiers that override the base price; never the base itself. */
+    tierPrices: z.array(productTierPriceSchema),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
     deletedAt: z.string().datetime().nullable(),
     updatedAt: z.string().datetime(),

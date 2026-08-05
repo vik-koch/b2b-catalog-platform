@@ -119,6 +119,12 @@
       "heading": "Images",
       "add": "Add images",
       "empty": "No images yet."
+    },
+    "tierPrices": {
+      "heading": "Tier prices",
+      "hint": "Leave a tier empty to charge it the price above.",
+      "usesBase": "Base price",
+      "invalid": "Please enter a valid price for “{tier}”."
     }
   },
   "productList": {
