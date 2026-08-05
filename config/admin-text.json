@@ -22,7 +22,8 @@
     "site": "Site",
     "version": "Version {version}",
     "versionUnknown": "Version unknown",
-    "deployedAt": "deployed {date}"
+    "deployedAt": "deployed {date}",
+    "pricing": "Pricing"
   },
   "editMode": {
     "enable": "Edit mode",
@@ -272,5 +273,29 @@
     "enable": "Turn on maintenance",
     "disable": "Turn off maintenance",
     "error": "Something went wrong changing maintenance mode. Please try again."
+  },
+  "tierList": {
+    "title": "Customer tiers",
+    "intro": "A tier is a price list. Products carry the base price; a tier only carries the products it prices differently. Customers are put on a tier when their account is approved.",
+    "add": "Add tier",
+    "label": "Name",
+    "labelPlaceholder": "Wholesale",
+    "key": "Sync key",
+    "keyPlaceholder": "wholesale",
+    "keyHint": "The catalog file addresses this list as a “price:wholesale” column. Lowercase letters, digits and hyphens.",
+    "accounts": "{count} account(s)",
+    "prices": "{count} product price(s)",
+    "defaultLabel": "Base price list",
+    "defaultHint": "Every product's own price. Guests, staff and customers without a tier see it.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "empty": "No extra price lists yet — every customer sees the base price.",
+    "saveError": "This tier could not be saved. Please try again.",
+    "labelRequired": "A name is required.",
+    "keyInvalid": "Use lowercase letters, digits and hyphens, e.g. “wholesale”.",
+    "deleteTitle": "Delete tier",
+    "deleteConfirm": "Delete “{name}”? The catalog sync will stop recognising its “price:{key}” column.",
+    "deleteBlocked": "“{name}” is still in use: {reason}",
+    "deleteError": "This tier could not be deleted. Please try again."
   }
 }

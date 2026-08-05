@@ -88,8 +88,8 @@ export class TiersService {
   }
 
   /**
-   * Renaming is free; changing the `key` is not, because the key is what an
-   * import file addresses the list by — the next sync run has to use the new
+   * Renaming is free; changing the `key` is not, because the key is what a
+   * catalog sync file addresses the list by — the next sync run has to use the new
    * one. That is the admin's call to make, so it is allowed, not blocked.
    */
   async updateTier(

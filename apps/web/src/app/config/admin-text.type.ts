@@ -48,6 +48,7 @@ export const adminTextSchema = z
         sync: z.string(),
         catalog: z.string(),
         pages: z.string(),
+        pricing: z.string(),
         site: z.string(),
         /** Deployed version line. `{version}` / `{date}` are substituted. */
         version: z.string(),
@@ -363,6 +364,40 @@ export const adminTextSchema = z
           .strict(),
         lastSync: z.string(),
         lastSyncNever: z.string(),
+      })
+      .strict(),
+    /**
+     * Customer tiers, i.e. price lists (FR-AUTH-05). The base list is not a
+     * stored tier, so its name and explanation are deployment wording rather
+     * than data — `defaultLabel`/`defaultHint` are what the list's first,
+     * uneditable row shows.
+     */
+    tierList: z
+      .object({
+        title: z.string(),
+        intro: z.string(),
+        add: z.string(),
+        label: z.string(),
+        labelPlaceholder: z.string(),
+        key: z.string(),
+        keyPlaceholder: z.string(),
+        keyHint: z.string(),
+        /** Reference counts per row. `{count}` substituted at render. */
+        accounts: z.string(),
+        prices: z.string(),
+        defaultLabel: z.string(),
+        defaultHint: z.string(),
+        edit: z.string(),
+        delete: z.string(),
+        empty: z.string(),
+        saveError: z.string(),
+        labelRequired: z.string(),
+        keyInvalid: z.string(),
+        /** Delete confirmation. `{name}`/`{key}`/`{reason}` substituted. */
+        deleteTitle: z.string(),
+        deleteConfirm: z.string(),
+        deleteBlocked: z.string(),
+        deleteError: z.string(),
       })
       .strict(),
     /** The admin-panel control that gates the storefront (FR-ADM-04). */

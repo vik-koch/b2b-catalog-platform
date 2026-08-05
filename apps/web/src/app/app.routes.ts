@@ -73,6 +73,14 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/sync/sync-page').then((m) => m.SyncPage),
   },
+  // Tiers edit in place on one screen — two fields per tier, so no editor
+  // route to pair with this one.
+  {
+    path: 'admin/tiers',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/tiers/tier-list-page').then((m) => m.TierListPage),
+  },
   {
     path: 'admin/categories',
     canActivate: [requireAuth('admin'), adminTextGuard],

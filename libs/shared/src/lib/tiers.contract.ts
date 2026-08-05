@@ -17,10 +17,10 @@ export const TIER_KEY_MAX_LENGTH = 64;
 export const TIER_LABEL_MAX_LENGTH = 255;
 
 /**
- * The key the import addresses a price list by (`price:<key>` columns), so it
- * has to survive a spreadsheet round-trip: lowercase, no spaces, no quoting
- * rules of its own. `default` is refused here as well as by a check
- * constraint — that key already names the base list.
+ * The key a catalog sync file addresses a price list by (`price:<key>`
+ * columns), so it has to survive a spreadsheet round-trip: lowercase, no
+ * spaces, no quoting rules of its own. `default` is refused here as well as by
+ * a check constraint — that key already names the base list.
  */
 export const tierKeySchema = z
   .string()
@@ -106,7 +106,7 @@ export const tiersContract = c.router(
         // Key already taken by another tier.
         409: messageSchema,
       },
-      summary: 'Rename a customer tier or change its import key (admin)',
+      summary: 'Rename a customer tier or change its sync key (admin)',
     },
     deleteTier: {
       method: 'DELETE',
