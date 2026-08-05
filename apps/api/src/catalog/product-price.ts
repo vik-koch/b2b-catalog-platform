@@ -1,4 +1,4 @@
-import { SQL, sql } from 'drizzle-orm';
+import { getTableName, SQL, sql } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { productPrices, products } from '../db/schema';
 
@@ -28,5 +28,14 @@ export function resolvedPriceMinor(
 ): SQL<number> | PgColumn {
   if (!tierId) return products.defaultPriceMinor;
 
-  return sql<number>`coalesce((select ${productPrices.priceMinor} from ${productPrices} where ${productPrices.productId} = ${products.id} and ${productPrices.tierId} = ${tierId}), ${products.defaultPriceMinor})`;
+  // Table-qualified by hand: inside an `sql` template drizzle emits bare
+  // column names, and in the subquery's scope `"id"` would resolve to whatever
+  // column happens to exist — today the outer product, but a future `id` on
+  // product_prices would silently capture it and re-price the catalog.
+  return sql<number>`coalesce((select ${productPrices.priceMinor} from ${productPrices} where ${qualified(productPrices.productId)} = ${qualified(products.id)} and ${qualified(productPrices.tierId)} = ${tierId}), ${products.defaultPriceMinor})`;
+}
+
+/** `"table"."column"` — an unambiguous reference inside a raw subquery. */
+function qualified(column: PgColumn): SQL {
+  return sql.raw(`"${getTableName(column.table)}"."${column.name}"`);
 }

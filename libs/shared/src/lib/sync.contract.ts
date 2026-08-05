@@ -6,6 +6,7 @@ import {
   PRODUCT_NAME_MAX_LENGTH,
   SOURCE_ID_MAX_LENGTH,
 } from './admin-catalog.contract';
+import { TIER_KEY_MAX_LENGTH } from './tiers.contract';
 
 const c = initContract();
 
@@ -26,15 +27,29 @@ const c = initContract();
 // --- The row -------------------------------------------------------------
 
 /**
- * Price lists a row may carry. Today the catalog has exactly one price per
- * product (the default list); FR-AUTH-05 adds tier→price-list resolution in
- * iteration 4, at which point tier keys are appended here — a semver-minor,
- * backwards-compatible extension, which is the whole reason prices are a map
- * rather than a scalar field.
+ * The key that addresses the base price list — `products.defaultPriceMinor`,
+ * which is a column rather than a tier row, so no tier may claim this name.
  */
-export const SYNC_PRICE_LIST_KEYS = ['default'] as const;
-export const syncPriceListKeySchema = z.enum(SYNC_PRICE_LIST_KEYS);
-export type SyncPriceListKey = z.infer<typeof syncPriceListKeySchema>;
+export const DEFAULT_PRICE_LIST_KEY = 'default';
+
+/**
+ * A price-list key: `default` for the base list, otherwise a
+ * `customer_tiers.key`.
+ *
+ * Deliberately **not** an enum. Tier keys are a deployment's own commercial
+ * vocabulary, so listing them here would put client business terms in the
+ * public repo and make "the client added a price list" a code change and a
+ * release. This validates only the *shape* a key can have; whether it names
+ * something is settled against the database by the sync validator, exactly as
+ * `categorySourceId` is. That is what lets this contract stay stable for good,
+ * which is what 0026 promised.
+ */
+export const syncPriceListKeySchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(TIER_KEY_MAX_LENGTH);
+export type SyncPriceListKey = string;
 
 /**
  * One product from the source, keyed by the private `sourceId` (ADR 0022).
@@ -69,7 +84,11 @@ export const syncRowSchema = z
       .min(1)
       .max(CATEGORY_NAME_MAX_LENGTH)
       .optional(),
-    /** Per price list, in minor units. Only the keys present are written. */
+    /**
+     * Per price list, in minor units. Only the keys present are written: a
+     * file that carries `price:wholesale` and nothing else leaves the base
+     * price and every other list untouched.
+     */
     prices: z.record(syncPriceListKeySchema, priceMinorSchema).optional(),
   })
   .strict()
@@ -97,6 +116,8 @@ export const SYNC_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
  * agree on one spelling. The header row is required and order-independent;
  * price columns are `price:<listKey>`, with a bare `price` accepted as an alias
  * for `price:default` so a single-price export stays readable in a spreadsheet.
+ * Which list keys exist is a per-deployment question, so the parser accepts any
+ * `price:` column and the validator decides whether it names a tier.
  */
 export const SYNC_CSV_COLUMNS = {
   sourceId: 'sourceId',

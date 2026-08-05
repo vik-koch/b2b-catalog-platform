@@ -1,6 +1,6 @@
 {
-  "id": "f31e0403-beb4-405c-be57-706d0eced584",
-  "prevId": "772f3d87-0082-449c-883a-9103599ce511",
+  "id": "04dcffc9-97e0-44dc-959f-1b48481fae1b",
+  "prevId": "f31e0403-beb4-405c-be57-706d0eced584",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -216,6 +216,13 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "sortOrder": {
+          "name": "sortOrder",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         },
         "createdAt": {
           "name": "createdAt",

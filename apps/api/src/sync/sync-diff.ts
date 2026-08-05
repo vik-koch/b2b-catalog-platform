@@ -1,4 +1,5 @@
 import {
+  DEFAULT_PRICE_LIST_KEY,
   MANUAL_SOURCE_ID_PREFIX,
   SYNC_PREVIEW_MAX_ITEMS,
   SyncOptions,
@@ -23,6 +24,14 @@ import {
 export interface SyncCatalogState {
   products: ExistingProduct[];
   categories: ExistingCategory[];
+  /** The deployment's additional price lists. The base list is not among them:
+   * it is a column, addressed by the reserved `default` key. */
+  tiers: ExistingTier[];
+}
+
+export interface ExistingTier {
+  id: string;
+  key: string;
 }
 
 export interface ExistingProduct {
@@ -31,6 +40,9 @@ export interface ExistingProduct {
   slug: string;
   name: string;
   priceMinor: number;
+  /** Current overrides by tier key — only the lists this product departs from
+   * the base price in, so an absent key means "same as the base price". */
+  tierPrices: Record<string, number>;
   categoryId: string;
   deletedAt: Date | null;
 }
@@ -56,6 +68,7 @@ export interface SyncActions {
     /** Resolved at apply time: an existing id, or a category this run creates. */
     categoryId: string | null;
     categorySourceId: string | null;
+    tierPrices: TierPriceWrite[];
   }[];
   updateProducts: {
     id: string;
@@ -63,9 +76,22 @@ export interface SyncActions {
     priceMinor?: number;
     categoryId?: string | null;
     categorySourceId?: string | null;
+    /**
+     * Overrides to write, **upsert only**. A sync writes the lists its file
+     * carries and leaves the others alone — the same "absent is not empty"
+     * rule the rest of a row follows, and the reason this differs from the
+     * product editor, where the posted set is the whole truth.
+     */
+    tierPrices?: TierPriceWrite[];
   }[];
   softDeleteProductIds: string[];
   restoreProductIds: string[];
+}
+
+/** One tier's price for one product, resolved to the tier's id. */
+export interface TierPriceWrite {
+  tierId: string;
+  priceMinor: number;
 }
 
 export interface SyncPlanResult {
@@ -84,7 +110,6 @@ export function normalizeCategoryName(name: string): string {
   return name.trim().replace(/\s+/g, ' ').toLowerCase();
 }
 
-/** Only the default list has a column today; FR-AUTH-05 adds the rest. */
 function priceOf(row: SyncRow, key: SyncPriceListKey): number | undefined {
   return row.prices?.[key];
 }
@@ -105,6 +130,14 @@ export function planSync(
   const categoriesBySourceId = new Map(
     state.categories.map((c) => [c.sourceId, c]),
   );
+
+  // Price-list keys are validated here rather than in the contract: they are
+  // rows, not code, so only the database knows which exist.
+  const tierIdByKey = new Map(state.tiers.map((t) => [t.key, t.id]));
+  const knownPriceListKeys = [
+    DEFAULT_PRICE_LIST_KEY,
+    ...state.tiers.map((t) => t.key),
+  ];
 
   const rowErrors: SyncRowError[] = [...parseErrors];
   const productChanges: SyncProductChange[] = [];
@@ -143,6 +176,15 @@ export function planSync(
       (liveCountByCategory.get(categoryId) ?? 0) + delta,
     );
 
+  /** A row's non-default prices, resolved to tier ids. */
+  const tierPricesOf = (row: SyncRow): TierPriceWrite[] =>
+    Object.entries(row.prices ?? {})
+      .filter(([key]) => key !== DEFAULT_PRICE_LIST_KEY)
+      .map(([key, priceMinor]) => ({
+        tierId: tierIdByKey.get(key) as string,
+        priceMinor: priceMinor as number,
+      }));
+
   let unchanged = 0;
   const seenSourceIds = new Set<string>();
 
@@ -150,6 +192,23 @@ export function planSync(
     const rowNumber = index + 1;
     seenSourceIds.add(row.sourceId);
     const existing = productsBySourceId.get(row.sourceId);
+
+    // A price for a list this deployment does not have is a converter bug, not
+    // something to guess at: the row is skipped and the message names the keys
+    // that would have worked, the same treatment an unknown category gets.
+    const unknownKey = Object.keys(row.prices ?? {}).find(
+      (key) => key !== DEFAULT_PRICE_LIST_KEY && !tierIdByKey.has(key),
+    );
+    if (unknownKey !== undefined) {
+      rowErrors.push({
+        row: rowNumber,
+        sourceId: row.sourceId,
+        message: `Unknown price list "${unknownKey}" — this catalog has ${knownPriceListKeys
+          .map((k) => `"${k}"`)
+          .join(', ')}`,
+      });
+      continue;
+    }
 
     // Resolve the row's category first: an unresolvable one fails the row
     // before anything else is decided about it.
@@ -232,6 +291,7 @@ export function planSync(
         priceMinor,
         categoryId,
         categorySourceId: categorySourceId ?? null,
+        tierPrices: tierPricesOf(row),
       });
       productChanges.push({
         kind: 'create',
@@ -257,15 +317,36 @@ export function planSync(
       update.name = row.name;
     }
 
-    const price = priceOf(row, 'default');
+    const price = priceOf(row, DEFAULT_PRICE_LIST_KEY);
     if (price !== undefined && price !== existing.priceMinor) {
       changes.push({
-        field: syncPriceColumn('default'),
+        field: syncPriceColumn(DEFAULT_PRICE_LIST_KEY),
         from: existing.priceMinor,
         to: price,
       });
       update.priceMinor = price;
     }
+
+    // Each additional list the file carries, against what that list holds
+    // today. A tier with no override falls back to the base price, so that is
+    // what the diff shows it moving *from* — the number the customer sees now,
+    // not a blank.
+    const tierWrites = tierPricesOf(row).filter((write) => {
+      const key = state.tiers.find((t) => t.id === write.tierId)?.key as string;
+      const current = existing.tierPrices[key] ?? existing.priceMinor;
+      if (current === write.priceMinor && key in existing.tierPrices) {
+        return false;
+      }
+      // An override equal to the base price is still worth writing: it pins
+      // that tier's price against a later change to the base.
+      changes.push({
+        field: syncPriceColumn(key),
+        from: current,
+        to: write.priceMinor,
+      });
+      return true;
+    });
+    if (tierWrites.length > 0) update.tierPrices = tierWrites;
 
     if (categoryId !== undefined && categoryId !== existing.categoryId) {
       const fromCategory = state.categories.find(

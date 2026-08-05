@@ -1,12 +1,11 @@
 import Papa from 'papaparse';
 import {
+  DEFAULT_PRICE_LIST_KEY,
   SYNC_CSV_COLUMNS,
   SYNC_MAX_ROWS,
-  SYNC_PRICE_LIST_KEYS,
   SyncPriceListKey,
   SyncRow,
   SyncRowError,
-  syncPriceColumn,
 } from '@b2b-catalog-platform/shared';
 
 /**
@@ -29,23 +28,33 @@ export interface ParsedSyncRows {
   errors: SyncRowError[];
 }
 
-/** Every header the parser accepts, matched case-insensitively. */
-const PRICE_COLUMNS = new Map<string, SyncPriceListKey>([
-  // A bare `price` is the alias for the default list, so a single-price export
-  // stays readable in a spreadsheet.
-  [SYNC_CSV_COLUMNS.price, 'default'],
-  ...SYNC_PRICE_LIST_KEYS.map(
-    (key) => [syncPriceColumn(key), key] as [string, SyncPriceListKey],
-  ),
-]);
-
-const KNOWN_COLUMNS = new Set<string>([
+/** The headers that are always the same, whatever a deployment sells. */
+const FIXED_COLUMNS = new Set<string>([
   SYNC_CSV_COLUMNS.sourceId,
   SYNC_CSV_COLUMNS.name,
   SYNC_CSV_COLUMNS.categorySourceId,
   SYNC_CSV_COLUMNS.categoryName,
-  ...PRICE_COLUMNS.keys(),
 ]);
+
+/**
+ * The price list a header addresses, or null if it is not a price column.
+ *
+ * Price columns cannot be enumerated here: their keys are `customer_tiers`
+ * rows, which differ per deployment and change without a release (ADR 0031).
+ * So the parser settles the *shape* — `price` or `price:<key>` — and the
+ * validator, which can see the database, decides whether the key names a list.
+ * Keys are lowercased because that is the only form a tier key can take, which
+ * also makes `price:Wholesale` and `price:wholesale` the duplicate they are.
+ */
+function priceListKeyOf(header: string): SyncPriceListKey | null {
+  const normalized = header.trim().toLowerCase();
+  // A bare `price` is the alias for the base list, so a single-price export
+  // stays readable in a spreadsheet.
+  if (normalized === SYNC_CSV_COLUMNS.price) return DEFAULT_PRICE_LIST_KEY;
+  if (!normalized.startsWith(SYNC_CSV_COLUMNS.pricePrefix)) return null;
+  const key = normalized.slice(SYNC_CSV_COLUMNS.pricePrefix.length);
+  return key === '' ? null : key;
+}
 
 export function parseSyncCsv(text: string): ParsedSyncRows {
   // Strip a UTF-8 BOM: Excel writes one, and it would otherwise become part of
@@ -73,11 +82,17 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
   // ambiguous (which one wins?) and a typo'd one is almost certainly a
   // converter bug — both are refused rather than ignored.
   const canonical = new Map<string, string>();
+  // Header → the price list it writes; the rest of the parser treats these
+  // like any other column, keyed by its canonical `price:<key>` name.
+  const priceKeys = new Map<string, SyncPriceListKey>();
   const unknown: string[] = [];
   for (const header of headers) {
-    const match = [...KNOWN_COLUMNS].find(
+    const fixed = [...FIXED_COLUMNS].find(
       (known) => known.toLowerCase() === header.toLowerCase(),
     );
+    const priceKey = fixed ? null : priceListKeyOf(header);
+    const match =
+      fixed ?? (priceKey ? `${SYNC_CSV_COLUMNS.pricePrefix}${priceKey}` : null);
     if (!match) {
       unknown.push(header);
       continue;
@@ -86,12 +101,15 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
       throw new SyncFormatError(`Duplicate column "${match}"`);
     }
     canonical.set(header, match);
+    if (priceKey) priceKeys.set(match, priceKey);
   }
   if (unknown.length > 0) {
     throw new SyncFormatError(
       `Unknown column${unknown.length > 1 ? 's' : ''} ${unknown
         .map((u) => `"${u}"`)
-        .join(', ')} — expected any of ${[...KNOWN_COLUMNS].join(', ')}`,
+        .join(', ')} — expected any of ${[...FIXED_COLUMNS].join(', ')}, ${
+        SYNC_CSV_COLUMNS.price
+      }, ${SYNC_CSV_COLUMNS.pricePrefix}<price list>`,
     );
   }
   if (![...canonical.values()].includes(SYNC_CSV_COLUMNS.sourceId)) {
@@ -167,9 +185,9 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
       row.categoryName = categoryName;
     }
 
-    const prices: Partial<Record<SyncPriceListKey, number>> = {};
+    const prices: Record<SyncPriceListKey, number> = {};
     let priceError: string | null = null;
-    for (const [column, key] of PRICE_COLUMNS) {
+    for (const [column, key] of priceKeys) {
       const raw = value(column);
       if (raw === undefined || raw === '') continue;
       // Minor units, so an integer: the API is currency-agnostic and does no

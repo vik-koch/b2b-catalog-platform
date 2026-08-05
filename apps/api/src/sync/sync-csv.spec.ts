@@ -92,4 +92,56 @@ describe('parseSyncCsv', () => {
       { row: 3, sourceId: 'A-1', message: 'Duplicate sourceId in this file' },
     ]);
   });
+
+  describe('tier price columns (FR-AUTH-05)', () => {
+    it('accepts any price:<key> column — the keys are deployment data', () => {
+      const { rows, errors } = parseSyncCsv(
+        'sourceId,price,price:wholesale,price:trade\nA-1,1890,1500,1600\n',
+      );
+
+      expect(errors).toEqual([]);
+      // Whether these keys name real price lists is the validator's question;
+      // the parser only settles the shape, so a deployment can add a list
+      // without a release.
+      expect(rows[0].prices).toEqual({
+        default: 1890,
+        wholesale: 1500,
+        trade: 1600,
+      });
+    });
+
+    it('lower-cases the key, so one list cannot arrive as two columns', () => {
+      expect(() =>
+        parseSyncCsv('sourceId,price:Wholesale,price:wholesale\nA-1,1,2\n'),
+      ).toThrow(SyncFormatError);
+    });
+
+    it('reads a header case-insensitively, key included', () => {
+      const { rows } = parseSyncCsv('sourceId,PRICE:Wholesale\nA-1,1500\n');
+      expect(rows[0].prices).toEqual({ wholesale: 1500 });
+    });
+
+    it('refuses a price: column with no key at all', () => {
+      expect(() => parseSyncCsv('sourceId,price:\nA-1,1500\n')).toThrow(
+        SyncFormatError,
+      );
+    });
+
+    it('skips a row whose tier price is not whole minor units, naming the column', () => {
+      const { rows, errors } = parseSyncCsv(
+        'sourceId,price:wholesale\nA-1,15.00\nA-2,1500\n',
+      );
+
+      expect(errors[0]).toMatchObject({ row: 1, sourceId: 'A-1' });
+      expect(errors[0].message).toContain('price:wholesale');
+      // One bad line never fails the whole catalog.
+      expect(rows).toEqual([{ sourceId: 'A-2', prices: { wholesale: 1500 } }]);
+    });
+
+    it('still refuses a column that is not a price column at all', () => {
+      expect(() => parseSyncCsv('sourceId,pricewholesale\nA-1,1\n')).toThrow(
+        SyncFormatError,
+      );
+    });
+  });
 });

@@ -13,6 +13,7 @@ import {
   inArray,
   isNotNull,
   isNull,
+  notInArray,
   sql,
 } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
@@ -24,13 +25,19 @@ import {
   AdminProductListItem,
   CategoryInput,
   ProductInput,
+  ProductTierPrice,
   ReorderCategoriesRequest,
   slugify,
 } from '@b2b-catalog-platform/shared';
 import { sanitizeProductRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { categories, products } from '../db/schema';
+import {
+  categories,
+  customerTiers,
+  productPrices,
+  products,
+} from '../db/schema';
 import { categoryBySlug, descendantIds } from './catalog-tree';
 import {
   adminSearchCondition,
@@ -165,7 +172,8 @@ export class AdminCatalogService {
   /** Loads a product in editable form regardless of soft-delete state. */
   async getProduct(slug: string): Promise<AdminProduct | null> {
     const row = await this.productBySlug(slug);
-    return row ? toAdminProduct(row) : null;
+    if (!row) return null;
+    return toAdminProduct(row, await this.tierPricesFor(row.id));
   }
 
   async createProduct(
@@ -181,23 +189,30 @@ export class AdminCatalogService {
     );
     const sourceId = await this.resolveSourceId(input.sourceId);
 
-    const row = await this.runUnique(() =>
-      this.db
-        .insert(products)
-        .values({
-          sourceId,
-          slug,
-          name: input.name,
-          defaultPriceMinor: input.priceMinor,
-          categoryId: input.categoryId,
-          descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
-          attributes: input.attributes,
-          images: input.images,
-          updatedBy: actorId,
-        })
-        .returning(adminProductColumns),
-    );
-    return toAdminProduct(row[0]);
+    await this.ensureTiersExist(input.tierPrices);
+
+    // One transaction, because a product and its tier prices are one edit: a
+    // half-applied save would leave a price on the wrong product's row set.
+    return this.db.transaction(async (tx) => {
+      const row = await this.runUnique(() =>
+        tx
+          .insert(products)
+          .values({
+            sourceId,
+            slug,
+            name: input.name,
+            defaultPriceMinor: input.priceMinor,
+            categoryId: input.categoryId,
+            descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
+            attributes: input.attributes,
+            images: input.images,
+            updatedBy: actorId,
+          })
+          .returning(adminProductColumns),
+      );
+      await this.replaceTierPrices(tx, row[0].id, input.tierPrices);
+      return toAdminProduct(row[0], input.tierPrices);
+    });
   }
 
   async updateProduct(
@@ -219,25 +234,30 @@ export class AdminCatalogService {
       existing.sourceId,
     );
 
-    const row = await this.runUnique(() =>
-      this.db
-        .update(products)
-        .set({
-          slug: newSlug,
-          name: input.name,
-          defaultPriceMinor: input.priceMinor,
-          categoryId: input.categoryId,
-          descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
-          attributes: input.attributes,
-          images: input.images,
-          sourceId: newSourceId,
-          updatedAt: new Date(),
-          updatedBy: actorId,
-        })
-        .where(eq(products.id, existing.id))
-        .returning(adminProductColumns),
-    );
-    return toAdminProduct(row[0]);
+    await this.ensureTiersExist(input.tierPrices);
+
+    return this.db.transaction(async (tx) => {
+      const row = await this.runUnique(() =>
+        tx
+          .update(products)
+          .set({
+            slug: newSlug,
+            name: input.name,
+            defaultPriceMinor: input.priceMinor,
+            categoryId: input.categoryId,
+            descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
+            attributes: input.attributes,
+            images: input.images,
+            sourceId: newSourceId,
+            updatedAt: new Date(),
+            updatedBy: actorId,
+          })
+          .where(eq(products.id, existing.id))
+          .returning(adminProductColumns),
+      );
+      await this.replaceTierPrices(tx, existing.id, input.tierPrices);
+      return toAdminProduct(row[0], input.tierPrices);
+    });
   }
 
   /**
@@ -260,7 +280,9 @@ export class AdminCatalogService {
       .where(eq(products.slug, slug))
       .returning(adminProductColumns);
     if (!rows[0]) throw new NotFoundException('Product not found');
-    return toAdminProduct(rows[0]);
+    // Soft delete leaves the tier prices alone — they belong to the product,
+    // and hiding it is reversible.
+    return toAdminProduct(rows[0], await this.tierPricesFor(rows[0].id));
   }
 
   async restoreProduct(slug: string, actorId: string): Promise<AdminProduct> {
@@ -275,7 +297,7 @@ export class AdminCatalogService {
       .where(eq(products.slug, slug))
       .returning(adminProductColumns);
     if (!rows[0]) throw new NotFoundException('Product not found');
-    return toAdminProduct(rows[0]);
+    return toAdminProduct(rows[0], await this.tierPricesFor(rows[0].id));
   }
 
   /**
@@ -537,6 +559,77 @@ export class AdminCatalogService {
     return row;
   }
 
+  /**
+   * The tier overrides stored for a product. The base price is never in here —
+   * it is `products.defaultPriceMinor` — so an empty result means "this product
+   * costs the same in every tier".
+   */
+  private async tierPricesFor(productId: string): Promise<ProductTierPrice[]> {
+    return this.db
+      .select({
+        tierId: productPrices.tierId,
+        priceMinor: productPrices.priceMinor,
+      })
+      .from(productPrices)
+      .where(eq(productPrices.productId, productId))
+      .orderBy(asc(productPrices.tierId));
+  }
+
+  /**
+   * The single write path for tier prices. The posted list is the whole truth:
+   * what is missing from it is deleted, so removing a product's override in the
+   * editor returns that tier to the base price.
+   */
+  private async replaceTierPrices(
+    tx: NodePgDatabase<typeof schema>,
+    productId: string,
+    entries: ProductTierPrice[],
+  ): Promise<void> {
+    const keep = entries.map((e) => e.tierId);
+    await tx
+      .delete(productPrices)
+      .where(
+        and(
+          eq(productPrices.productId, productId),
+          keep.length > 0 ? notInArray(productPrices.tierId, keep) : undefined,
+        ),
+      );
+    if (entries.length === 0) return;
+
+    await tx
+      .insert(productPrices)
+      .values(
+        entries.map((e) => ({
+          productId,
+          tierId: e.tierId,
+          priceMinor: e.priceMinor,
+        })),
+      )
+      .onConflictDoUpdate({
+        target: [productPrices.productId, productPrices.tierId],
+        set: {
+          priceMinor: sql`excluded."priceMinor"`,
+          updatedAt: new Date(),
+        },
+      });
+  }
+
+  /**
+   * A 404 rather than a foreign-key error: an unknown tier is the same class of
+   * mistake as an unknown category, and the editor renders that message.
+   */
+  private async ensureTiersExist(entries: ProductTierPrice[]): Promise<void> {
+    if (entries.length === 0) return;
+    const ids = [...new Set(entries.map((e) => e.tierId))];
+    const rows = await this.db
+      .select({ id: customerTiers.id })
+      .from(customerTiers)
+      .where(inArray(customerTiers.id, ids));
+    if (rows.length !== ids.length) {
+      throw new NotFoundException('Customer tier not found');
+    }
+  }
+
   private async categoryById(id: string) {
     const [row] = await this.db
       .select()
@@ -684,7 +777,10 @@ export class AdminCatalogService {
   }
 }
 
-function toAdminProduct(row: ProductRow): AdminProduct {
+function toAdminProduct(
+  row: ProductRow,
+  tierPrices: ProductTierPrice[],
+): AdminProduct {
   return {
     slug: row.slug,
     name: row.name,
@@ -694,6 +790,7 @@ function toAdminProduct(row: ProductRow): AdminProduct {
     descriptionHtml: row.descriptionHtml,
     attributes: row.attributes,
     images: row.images,
+    tierPrices,
     deletedAt: row.deletedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),
   };

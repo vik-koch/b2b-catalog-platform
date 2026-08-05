@@ -6,9 +6,13 @@ import {
 import {
   ExistingCategory,
   ExistingProduct,
+  ExistingTier,
   SyncCatalogState,
   planSync,
 } from './sync-diff';
+
+/** The demo's one extra price list; the base list is a column, not a row. */
+const wholesale: ExistingTier = { id: 'tier-w', key: 'wholesale' };
 
 const beans: ExistingCategory = {
   id: 'cat-1',
@@ -29,6 +33,7 @@ const product = (over: Partial<ExistingProduct> = {}): ExistingProduct => ({
   slug: 'espresso-blend',
   name: 'Espresso Blend',
   priceMinor: 1890,
+  tierPrices: {},
   categoryId: beans.id,
   deletedAt: null,
   ...over,
@@ -37,6 +42,7 @@ const product = (over: Partial<ExistingProduct> = {}): ExistingProduct => ({
 const state = (over: Partial<SyncCatalogState> = {}): SyncCatalogState => ({
   products: [product()],
   categories: [beans, gear],
+  tiers: [wholesale],
   ...over,
 });
 
@@ -118,6 +124,7 @@ describe('planSync', () => {
         priceMinor: 4500,
         categoryId: 'cat-2',
         categorySourceId: null,
+        tierPrices: [],
       },
     ]);
 
@@ -389,5 +396,109 @@ describe('planSync', () => {
 
     expect(plan.summary.errors).toBe(1);
     expect(plan.rowErrors).toHaveLength(1);
+  });
+
+  describe('tier prices (FR-AUTH-05)', () => {
+    it('writes an additional list without touching the base price', () => {
+      const result = planSync(
+        [row({ prices: { wholesale: 1500 } })],
+        options(),
+        state(),
+      );
+
+      expect(result.actions.updateProducts).toEqual([
+        { id: 'p-1', tierPrices: [{ tierId: 'tier-w', priceMinor: 1500 }] },
+      ]);
+      // The base price is absent from the file, so it is left alone — the same
+      // "absent is not empty" rule every other field follows.
+      expect(result.actions.updateProducts[0].priceMinor).toBeUndefined();
+    });
+
+    it('shows the base price as what a tier moves away from', () => {
+      const result = planSync(
+        [row({ prices: { wholesale: 1500 } })],
+        options(),
+        state(),
+      );
+
+      // A tier with no override charges the base price today, so that is the
+      // number the admin is comparing against — not a blank.
+      expect(result.plan.products[0].changes).toEqual([
+        { field: 'price:wholesale', from: 1890, to: 1500 },
+      ]);
+    });
+
+    it('leaves an unchanged override alone', () => {
+      const result = planSync(
+        [row({ prices: { wholesale: 1500 } })],
+        options(),
+        state({ products: [product({ tierPrices: { wholesale: 1500 } })] }),
+      );
+
+      expect(result.actions.updateProducts).toEqual([]);
+      expect(result.plan.summary.unchanged).toBe(1);
+    });
+
+    it('still writes an override that equals the base price', () => {
+      const result = planSync(
+        [row({ prices: { wholesale: 1890 } })],
+        options(),
+        state(),
+      );
+
+      // Not a no-op: it pins that tier's price, so a later change to the base
+      // price leaves this list where the file put it.
+      expect(result.actions.updateProducts).toEqual([
+        { id: 'p-1', tierPrices: [{ tierId: 'tier-w', priceMinor: 1890 }] },
+      ]);
+    });
+
+    it('carries a new product’s tier prices into its creation', () => {
+      const result = planSync(
+        [
+          row({
+            sourceId: 'A-9',
+            name: 'Chemex',
+            categorySourceId: 'C-2',
+            categoryName: 'Equipment',
+            prices: { default: 4500, wholesale: 4000 },
+          }),
+        ],
+        options(),
+        state(),
+      );
+
+      expect(result.actions.createProducts[0]).toMatchObject({
+        priceMinor: 4500,
+        tierPrices: [{ tierId: 'tier-w', priceMinor: 4000 }],
+      });
+    });
+
+    it('skips a row naming a price list this catalog does not have', () => {
+      const result = planSync(
+        [row({ prices: { retail: 1500 } })],
+        options(),
+        state(),
+      );
+
+      // Named, not guessed at: the message lists what would have worked, the
+      // same treatment an unknown category gets.
+      expect(result.plan.rowErrors[0].message).toContain('"retail"');
+      expect(result.plan.rowErrors[0].message).toContain('"default"');
+      expect(result.plan.rowErrors[0].message).toContain('"wholesale"');
+      expect(result.actions.updateProducts).toEqual([]);
+    });
+
+    it('refuses the whole row, base price included, on an unknown list', () => {
+      const result = planSync(
+        [row({ prices: { default: 999, retail: 1500 } })],
+        options(),
+        state(),
+      );
+
+      // Half-applying a row whose converter is evidently broken would be worse
+      // than skipping it.
+      expect(result.actions.updateProducts).toEqual([]);
+    });
   });
 });

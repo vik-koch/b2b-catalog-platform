@@ -18,7 +18,13 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { categories, products, syncRuns } from '../db/schema';
+import {
+  categories,
+  customerTiers,
+  productPrices,
+  products,
+  syncRuns,
+} from '../db/schema';
 import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
 
 /** Staged rows and finished runs are audit data, not archive data. */
@@ -186,7 +192,7 @@ export class SyncService {
    * lets the differ stay pure.
    */
   private async readState(): Promise<SyncCatalogState> {
-    const [productRows, categoryRows] = await Promise.all([
+    const [productRows, categoryRows, tierRows, priceRows] = await Promise.all([
       this.db
         .select({
           id: products.id,
@@ -207,8 +213,38 @@ export class SyncService {
           name: categories.name,
         })
         .from(categories),
+      this.db
+        .select({ id: customerTiers.id, key: customerTiers.key })
+        .from(customerTiers),
+      // Every override in the catalog. A tier carries only its exceptions, so
+      // this table is far smaller than the product list it belongs to.
+      this.db
+        .select({
+          productId: productPrices.productId,
+          tierId: productPrices.tierId,
+          priceMinor: productPrices.priceMinor,
+        })
+        .from(productPrices),
     ]);
-    return { products: productRows, categories: categoryRows };
+
+    const tierKeyById = new Map(tierRows.map((t) => [t.id, t.key]));
+    const pricesByProduct = new Map<string, Record<string, number>>();
+    for (const price of priceRows) {
+      const key = tierKeyById.get(price.tierId);
+      if (!key) continue;
+      const forProduct = pricesByProduct.get(price.productId) ?? {};
+      forProduct[key] = price.priceMinor;
+      pricesByProduct.set(price.productId, forProduct);
+    }
+
+    return {
+      products: productRows.map((p) => ({
+        ...p,
+        tierPrices: pricesByProduct.get(p.id) ?? {},
+      })),
+      categories: categoryRows,
+      tiers: tierRows,
+    };
   }
 
   /**
@@ -278,18 +314,45 @@ export class SyncService {
         return undefined;
       };
 
+      /**
+       * Upsert, never delete: a run writes the price lists its file carries and
+       * leaves every other list where it was. Clearing an override is an admin
+       * action in the product editor, not something a partial export does by
+       * omission.
+       */
+      const writeTierPrices = async (
+        productId: string,
+        entries: { tierId: string; priceMinor: number }[],
+      ) => {
+        if (entries.length === 0) return;
+        await tx
+          .insert(productPrices)
+          .values(entries.map((e) => ({ productId, ...e })))
+          .onConflictDoUpdate({
+            target: [productPrices.productId, productPrices.tierId],
+            set: {
+              priceMinor: sql`excluded."priceMinor"`,
+              updatedAt: new Date(),
+            },
+          });
+      };
+
       for (const product of actions.createProducts) {
         const categoryId = resolveCategory(
           product.categoryId,
           product.categorySourceId,
         );
-        await tx.insert(products).values({
-          sourceId: product.sourceId,
-          slug: allocateSlug(product.name, 'product', takenProductSlugs),
-          name: product.name,
-          defaultPriceMinor: product.priceMinor,
-          categoryId: categoryId as string,
-        });
+        const [created] = await tx
+          .insert(products)
+          .values({
+            sourceId: product.sourceId,
+            slug: allocateSlug(product.name, 'product', takenProductSlugs),
+            name: product.name,
+            defaultPriceMinor: product.priceMinor,
+            categoryId: categoryId as string,
+          })
+          .returning({ id: products.id });
+        await writeTierPrices(created.id, product.tierPrices);
       }
 
       for (const update of actions.updateProducts) {
@@ -308,6 +371,7 @@ export class SyncService {
             updatedAt: new Date(),
           })
           .where(eq(products.id, update.id));
+        await writeTierPrices(update.id, update.tierPrices ?? []);
       }
 
       // Slug stays fixed across a rename (a changed URL breaks links), so

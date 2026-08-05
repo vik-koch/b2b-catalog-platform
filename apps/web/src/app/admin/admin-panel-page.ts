@@ -81,6 +81,13 @@ import { BuildInfoService } from './build-info.service';
         </div>
 
         <div class="p-5">
+          <h3 class="mb-3 text-sm font-semibold">{{ panelText.pricing }}</h3>
+          <a appButton variant="secondary" routerLink="/admin/tiers">
+            {{ tierText.title }}
+          </a>
+        </div>
+
+        <div class="p-5">
           <h3 id="admin-pages-heading" class="mb-3 text-sm font-semibold">
             {{ panelText.pages }}
           </h3>
@@ -137,6 +144,7 @@ export class AdminPanelPage {
   protected readonly panelText = inject(ADMIN_TEXT).panel;
   protected readonly productText = inject(ADMIN_TEXT).productList;
   protected readonly categoryText = inject(ADMIN_TEXT).categoryList;
+  protected readonly tierText = inject(ADMIN_TEXT).tierList;
   protected readonly navText = inject(APP_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
   // Only what this deployment publishes: an unpublished page has no route to
