@@ -1,3 +1,4 @@
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, resource, signal } from '@angular/core';
 import { CustomerTier, tierKeySchema } from '@b2b-catalog-platform/shared';
@@ -49,14 +50,24 @@ type EditTarget = { id: string } | { id: null } | null;
     </div>
 
     <p class="mb-6 max-w-2xl text-sm text-muted">{{ text.intro }}</p>
+    @if (reorderError()) {
+      <p class="mb-4 text-sm text-red-700" role="alert">
+        {{ text.reorderError }}
+      </p>
+    }
 
     @if (tiers.error()) {
       <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
     } @else if (tiers.hasValue()) {
-      <ul class="divide-y divide-border rounded-lg border border-border">
+      <!-- overflow-hidden so a row's own background cannot square off the
+           card's rounded corners. -->
+      <div
+        class="divide-y divide-border overflow-hidden rounded-lg border border-border"
+      >
         <!-- The base list, pinned first and inert: nothing about it is stored,
-             so there is nothing here to change. -->
-        <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1 p-4">
+             so there is nothing here to change. It sits outside the drop list
+             too — it is not a row anyone can move. -->
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 p-4">
           <span class="font-medium text-stone-700">
             {{ text.defaultLabel }}
           </span>
@@ -64,60 +75,92 @@ type EditTarget = { id: string } | { id: null } | null;
             {{ accountsLabel(tiers.value().defaultUserCount) }}
           </span>
           <p class="w-full text-sm text-muted">{{ text.defaultHint }}</p>
-        </li>
+        </div>
 
-        @for (tier of tiers.value().tiers; track tier.id) {
-          <li class="p-4">
-            @if (isEditing(tier.id)) {
-              <ng-container [ngTemplateOutlet]="form" />
-            } @else {
-              <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span class="font-medium text-stone-700">{{ tier.label }}</span>
-                <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
-                  {{ tier.key }}
-                </code>
-                <span class="text-sm text-subtle">
-                  {{ accountsLabel(tier.userCount) }} ·
-                  {{ pricesLabel(tier.priceCount) }}
-                </span>
-                <span class="ml-auto flex items-center gap-1">
-                  <button
-                    type="button"
-                    class="p-1 text-stone-400 hover:text-accent"
-                    [attr.aria-label]="text.edit"
-                    [disabled]="editing() !== null"
-                    (click)="startEdit(tier)"
-                  >
-                    <app-admin-icon name="pencil" class="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    class="p-1 text-stone-400 hover:text-red-700"
-                    [attr.aria-label]="text.delete"
-                    [disabled]="busy()"
-                    (click)="remove(tier)"
-                  >
-                    <app-admin-icon name="trash-2" class="h-4 w-4" />
-                  </button>
-                </span>
-              </div>
-              @if (rowError()?.id === tier.id) {
-                <p class="mt-2 text-sm text-red-700" role="alert">
-                  {{ rowError()?.message }}
-                </p>
+        <ul class="divide-y divide-border">
+          @for (tier of tiers.value().tiers; track tier.id; let i = $index) {
+            <li class="p-4">
+              @if (isEditing(tier.id)) {
+                <ng-container [ngTemplateOutlet]="form" />
+              } @else {
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <!-- Ordering is for staff eyes only, so the handle sits with
+                       the row's other affordances and carries no explanation
+                       beyond its label. -->
+                  <span class="font-medium text-stone-700">{{
+                    tier.label
+                  }}</span>
+                  <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
+                    {{ tier.key }}
+                  </code>
+                  <span class="text-sm text-subtle">
+                    {{ accountsLabel(tier.userCount) }} ·
+                    {{ pricesLabel(tier.priceCount) }}
+                  </span>
+                  <span class="ml-auto flex items-center gap-1">
+                    <!-- Ordering is a secondary concern on this screen, so it
+                         sits with the row's other actions rather than claiming
+                         a handle column of its own. -->
+                    <button
+                      type="button"
+                      class="p-1 text-stone-400 hover:text-accent disabled:invisible"
+                      [attr.aria-label]="text.moveUp"
+                      [disabled]="i === 0 || busy() || editing() !== null"
+                      (click)="move(i, i - 1)"
+                    >
+                      <app-admin-icon name="chevron-up" class="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      class="p-1 text-stone-400 hover:text-accent disabled:invisible"
+                      [attr.aria-label]="text.moveDown"
+                      [disabled]="
+                        i === tiers.value().tiers.length - 1 ||
+                        busy() ||
+                        editing() !== null
+                      "
+                      (click)="move(i, i + 1)"
+                    >
+                      <app-admin-icon name="chevron-down" class="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      class="p-1 text-stone-400 hover:text-accent"
+                      [attr.aria-label]="text.edit"
+                      [disabled]="editing() !== null"
+                      (click)="startEdit(tier)"
+                    >
+                      <app-admin-icon name="pencil" class="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      class="p-1 text-stone-400 hover:text-red-700"
+                      [attr.aria-label]="text.delete"
+                      [disabled]="busy()"
+                      (click)="remove(tier)"
+                    >
+                      <app-admin-icon name="trash-2" class="h-4 w-4" />
+                    </button>
+                  </span>
+                </div>
+                @if (rowError()?.id === tier.id) {
+                  <p class="mt-2 text-sm text-red-700" role="alert">
+                    {{ rowError()?.message }}
+                  </p>
+                }
               }
-            }
-          </li>
-        }
+            </li>
+          }
+        </ul>
 
         @if (isEditing(null)) {
-          <li class="p-4">
+          <div class="p-4">
             <ng-container [ngTemplateOutlet]="form" />
-          </li>
+          </div>
         } @else if (tiers.value().tiers.length === 0) {
-          <li class="p-4 text-sm text-muted">{{ text.empty }}</li>
+          <p class="p-4 text-sm text-muted">{{ text.empty }}</p>
         }
-      </ul>
+      </div>
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="4" />
     }
@@ -211,6 +254,37 @@ export class TierListPage {
     null,
   );
   protected readonly busy = signal(false);
+  protected readonly reorderError = signal(false);
+
+  /**
+   * Moves a tier one place and commits immediately — the click *is* the save,
+   * so there is nothing to confirm.
+   */
+  protected async move(from: number, to: number): Promise<void> {
+    const current = this.tiers.value();
+    if (!current || to < 0 || to >= current.tiers.length) return;
+
+    const ordered = [...current.tiers];
+    moveItemInArray(ordered, from, to);
+    // Positions are re-numbered from zero on every drop: the numbers carry no
+    // meaning of their own, only the sequence does.
+    const order = ordered.map((tier, index) => ({
+      id: tier.id,
+      sortOrder: index,
+    }));
+
+    this.busy.set(true);
+    this.reorderError.set(false);
+    try {
+      const tiers = await this.service.reorder({ order });
+      this.tiers.set({ ...current, tiers });
+    } catch {
+      this.reorderError.set(true);
+      this.tiers.reload();
+    } finally {
+      this.busy.set(false);
+    }
+  }
 
   protected isEditing(id: string | null): boolean {
     const target = this.editing();

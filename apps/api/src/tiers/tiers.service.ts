@@ -5,8 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, asc, eq, isNull, ne } from 'drizzle-orm';
-import { CustomerTier, TierInput } from '@b2b-catalog-platform/shared';
+import { and, asc, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
+import {
+  CustomerTier,
+  ReorderTiersRequest,
+  TierInput,
+} from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { customerTiers, productPrices, users } from '../db/schema';
@@ -34,8 +38,9 @@ export class TiersService {
   ) {}
 
   /**
-   * Tiers with their reference counts, ordered by label — the order staff
-   * scan by. Correlated subqueries rather than grouped joins: two independent
+   * Tiers with their reference counts, in the display order staff chose
+   * (`sortOrder`, label as the tiebreak so a fresh deployment still reads
+   * sensibly). Correlated subqueries rather than grouped joins: two independent
    * one-to-many counts in one query would otherwise multiply each other.
    *
    * `defaultUserCount` accompanies them because the admin list draws the base
@@ -52,6 +57,7 @@ export class TiersService {
           id: customerTiers.id,
           key: customerTiers.key,
           label: customerTiers.label,
+          sortOrder: customerTiers.sortOrder,
           updatedAt: customerTiers.updatedAt,
           // `$count` rather than a hand-written subquery: inside an `sql`
           // template drizzle emits column names unqualified, so the outer
@@ -66,7 +72,7 @@ export class TiersService {
           ),
         })
         .from(customerTiers)
-        .orderBy(asc(customerTiers.label)),
+        .orderBy(asc(customerTiers.sortOrder), asc(customerTiers.label)),
       this.db.$count(users, and(isNull(users.tierId), isCustomer)),
     ]);
 
@@ -76,12 +82,27 @@ export class TiersService {
     };
   }
 
+  /** A new tier goes last: it is the one nobody has placed yet. */
   async createTier(input: TierInput, actorId: string): Promise<CustomerTier> {
     await this.assertKeyFree(input.key);
 
+    const [{ value: maxOrder }] = await this.db
+      .select({
+        value:
+          sql<number>`coalesce(max(${customerTiers.sortOrder}), -1)`.mapWith(
+            Number,
+          ),
+      })
+      .from(customerTiers);
+
     const [created] = await this.db
       .insert(customerTiers)
-      .values({ key: input.key, label: input.label, updatedBy: actorId })
+      .values({
+        key: input.key,
+        label: input.label,
+        sortOrder: maxOrder + 1,
+        updatedBy: actorId,
+      })
       .returning();
 
     return this.toTier(created, 0, 0);
@@ -142,6 +163,37 @@ export class TiersService {
     return { message: 'Tier deleted' };
   }
 
+  /**
+   * Applies a whole ordering in one transaction.
+   * Display only — no price resolves through this number.
+   */
+  async reorderTiers(
+    request: ReorderTiersRequest,
+    actorId: string,
+  ): Promise<CustomerTier[]> {
+    const ids = request.order.map((entry) => entry.id);
+    if (ids.length > 0) {
+      const rows = await this.db
+        .select({ id: customerTiers.id })
+        .from(customerTiers)
+        .where(inArray(customerTiers.id, ids));
+      if (rows.length !== new Set(ids).size) {
+        throw new NotFoundException('Tier not found');
+      }
+    }
+
+    await this.db.transaction(async (tx) => {
+      for (const entry of request.order) {
+        await tx
+          .update(customerTiers)
+          .set({ sortOrder: entry.sortOrder, updatedBy: actorId })
+          .where(eq(customerTiers.id, entry.id));
+      }
+    });
+
+    return (await this.listTiers()).tiers;
+  }
+
   /** The tier row behind a session's `tierId`, or undefined. */
   async tierById(id: string) {
     const rows = await this.db
@@ -190,6 +242,7 @@ export class TiersService {
       id: row.id,
       key: row.key,
       label: row.label,
+      sortOrder: row.sortOrder,
       userCount,
       priceCount,
       updatedAt: row.updatedAt.toISOString(),

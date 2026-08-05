@@ -130,10 +130,10 @@ list, rows for the rest — so any code that writes a price must know which it i
 addressing, and the default tier is the one thing in the pricing UI that has no
 database id.
 
-Not decided here: whether tiers ever need to be ordered for _display_ (a fixed
-sequence in admin lists). They are sorted by label today. Adding a presentation
-`sortOrder` later would be additive and would not resurrect the pricing
-hierarchy this ADR rejects.
+Tiers are sorted by `customer_tiers.sortOrder`, set by drag-and-drop in the
+admin tier list and applied wherever staff see tiers — the list itself and the
+per-tier price fields in the product editor — so the tier a deployment works
+with most sits first instead of wherever the alphabet puts it.
 
 ## Consequences
 

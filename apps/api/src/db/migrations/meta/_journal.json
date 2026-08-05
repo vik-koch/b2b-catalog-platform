@@ -36,6 +36,13 @@
       "when": 1785874598955,
       "tag": "0004_customer_tiers",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785951525740,
+      "tag": "0005_customer_tier_sort_order",
+      "breakpoints": true
     }
   ]
 }

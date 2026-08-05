@@ -13,6 +13,7 @@ export type AuditAction =
   | 'category.reordered'
   | 'tier.created'
   | 'tier.updated'
+  | 'tier.reordered'
   | 'tier.deleted';
 
 /**

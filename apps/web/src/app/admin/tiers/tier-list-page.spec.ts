@@ -19,6 +19,7 @@ function tier(overrides: Partial<CustomerTier> = {}): CustomerTier {
     label: 'Wholesale',
     userCount: 0,
     priceCount: 0,
+    sortOrder: 0,
     updatedAt: '2026-08-01T00:00:00.000Z',
     ...overrides,
   };
@@ -32,6 +33,7 @@ async function render(
     create?: Awaited<ReturnType<TiersService['create']>>;
     update?: Awaited<ReturnType<TiersService['update']>>;
     remove?: Awaited<ReturnType<TiersService['remove']>>;
+    reorder?: CustomerTier[];
     confirmed?: boolean;
   } = {},
 ) {
@@ -43,6 +45,7 @@ async function render(
     create: vi.fn(async () => options.create ?? { ok: true, tier: tier() }),
     update: vi.fn(async () => options.update ?? { ok: true, tier: tier() }),
     remove: vi.fn(async () => options.remove ?? { ok: true }),
+    reorder: vi.fn(async () => options.reorder ?? []),
   };
   const confirm = { ask: vi.fn(async () => options.confirmed ?? true) };
 
@@ -84,7 +87,25 @@ async function render(
   const byLabel = (label: string) =>
     el.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`);
 
-  return { el, service, confirm, click, type, submit, byLabel, fixture };
+  /** Clicks a row's move button; `row` is the tier's position in the list. */
+  const move = async (row: number, direction: 'up' | 'down') => {
+    const label = direction === 'up' ? text.moveUp : text.moveDown;
+    const buttons = el.querySelectorAll<HTMLButtonElement>(
+      `[aria-label="${label}"]`,
+    );
+    buttons[row].click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  return { el, service, confirm, click, type, submit, byLabel, move, fixture };
+}
+
+/** The pinned, non-draggable base-list block: the card's first child. */
+function baseRow(el: HTMLElement): HTMLElement {
+  const row = el.querySelector<HTMLElement>('.rounded-lg > div:first-child');
+  if (!row) throw new Error('no base price list row');
+  return row;
 }
 
 describe('TierListPage', () => {
@@ -94,18 +115,19 @@ describe('TierListPage', () => {
       defaultUserCount: 7,
     });
 
-    const rows = el.querySelectorAll('li');
     // The base list is not a tier and has no id, but it is the first thing an
-    // admin looking at price lists needs to see.
-    expect(rows[0].textContent).toContain(text.defaultLabel);
-    expect(rows[0].textContent).toContain('7 account(s)');
-    expect(rows[1].textContent).toContain('Wholesale');
+    // admin looking at price lists needs to see — and it sits outside the
+    // draggable list, since it is not a row anyone can move.
+    const base = baseRow(el);
+    expect(base.textContent).toContain(text.defaultLabel);
+    expect(base.textContent).toContain('7 account(s)');
+    expect(el.querySelectorAll('li')[0].textContent).toContain('Wholesale');
   });
 
   it('offers no actions on the base list — there is nothing stored to change', async () => {
     const { el } = await render({ tiers: [] });
 
-    expect(el.querySelector('li')?.querySelector('button')).toBeNull();
+    expect(baseRow(el).querySelector('button')).toBeNull();
     expect(el.textContent).toContain(text.empty);
   });
 
@@ -218,5 +240,78 @@ describe('TierListPage', () => {
     fixture.detectChanges();
 
     expect(service.remove).not.toHaveBeenCalled();
+  });
+
+  describe('display order', () => {
+    const a = tier({ id: 'a', key: 'a', label: 'A', sortOrder: 0 });
+    const b = tier({ id: 'b', key: 'b', label: 'B', sortOrder: 1 });
+    const c = tier({ id: 'c', key: 'c', label: 'C', sortOrder: 2 });
+
+    it('renders tiers in the order the server sent, not alphabetically', async () => {
+      const { el } = await render({ tiers: [c, a, b] });
+
+      const labels = [...el.querySelectorAll('li')].map((li) =>
+        li.textContent?.trim().charAt(0),
+      );
+      expect(labels).toEqual(['C', 'A', 'B']);
+    });
+
+    it('commits a move as a re-numbered sequence from zero', async () => {
+      const { service, move } = await render({ tiers: [a, b, c] });
+
+      await move(2, 'up');
+
+      // Positions carry no meaning of their own — only the sequence does — so
+      // every row is renumbered rather than given a fractional index.
+      // Positions carry no meaning of their own — only the sequence does — so
+      // every row is renumbered rather than given a fractional index.
+      expect(service.reorder).toHaveBeenCalledWith({
+        order: [
+          { id: 'a', sortOrder: 0 },
+          { id: 'c', sortOrder: 1 },
+          { id: 'b', sortOrder: 2 },
+        ],
+      });
+    });
+
+    it('offers no move out of the list at its ends', async () => {
+      const { el } = await render({ tiers: [a, b, c] });
+
+      const up = el.querySelectorAll<HTMLButtonElement>(
+        `[aria-label="${text.moveUp}"]`,
+      );
+      const down = el.querySelectorAll<HTMLButtonElement>(
+        `[aria-label="${text.moveDown}"]`,
+      );
+      expect(up[0].disabled).toBe(true);
+      expect(up[2].disabled).toBe(false);
+      expect(down[2].disabled).toBe(true);
+      expect(down[0].disabled).toBe(false);
+    });
+
+    it('adopts the server’s answer rather than the locally moved array', async () => {
+      const { el, move } = await render({
+        tiers: [a, b, c],
+        // The server is the authority on order; say it settled differently.
+        reorder: [b, c, a],
+      });
+
+      await move(0, 'down');
+
+      const labels = [...el.querySelectorAll('li')].map((li) =>
+        li.textContent?.trim().charAt(0),
+      );
+      expect(labels).toEqual(['B', 'C', 'A']);
+    });
+
+    it('reports a failed move and reloads what is actually stored', async () => {
+      const { el, service, move } = await render({ tiers: [a, b, c] });
+      service.reorder.mockRejectedValueOnce(new Error('boom'));
+
+      await move(0, 'down');
+
+      expect(el.textContent).toContain(text.reorderError);
+      expect(service.list).toHaveBeenCalledTimes(2);
+    });
   });
 });

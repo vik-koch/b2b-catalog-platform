@@ -197,6 +197,14 @@ export const customerTiers = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     key: varchar('key', { length: 64 }).notNull().unique(),
     label: varchar('label', { length: 255 }).notNull(),
+    /**
+     * Display order for staff screens only — the tier list and the per-tier
+     * price fields in the product editor, so the tier an admin edits most sits
+     * first. It carries no pricing meaning whatsoever: tiers do not rank, none
+     * inherits from another, and nothing resolves a price by position. Same
+     * column, same intent as `categories.sortOrder`.
+     */
+    sortOrder: integer('sortOrder').notNull().default(0),
     createdAt: timestamp('createdAt', { withTimezone: true })
       .notNull()
       .defaultNow(),

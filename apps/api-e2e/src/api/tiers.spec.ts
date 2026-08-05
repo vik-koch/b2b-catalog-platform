@@ -42,6 +42,11 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
       headers: cookie ? { Cookie: cookie } : {},
       validateStatus: () => true,
     });
+  const patch = (url: string, body: unknown, cookie = adminCookie) =>
+    axios.patch(url, body, {
+      headers: cookie ? { Cookie: cookie } : {},
+      validateStatus: () => true,
+    });
   const put = (url: string, body: unknown, cookie = adminCookie) =>
     axios.put(url, body, {
       headers: cookie ? { Cookie: cookie } : {},
@@ -141,6 +146,7 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
         label: 'E2E Wholesale',
         userCount: 0,
         priceCount: 0,
+        sortOrder: expect.any(Number),
         updatedAt: expect.any(String),
       });
     });
@@ -158,7 +164,7 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
       expect(res.status).toBe(400);
     });
 
-    it('refuses a key that would not survive an import column', async () => {
+    it('refuses a key that would not survive a sync column', async () => {
       for (const key of ['Wholesale', 'whole sale', '-leading', 'ümlaut']) {
         expect((await createTier({ key, label: 'x' })).status).toBe(400);
       }
@@ -166,7 +172,7 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
   });
 
   describe('update', () => {
-    it('renames a tier and changes its import key', async () => {
+    it('renames a tier and changes its sync key', async () => {
       const created = await createTier({
         key: keyFor('rename'),
         label: 'Before',
@@ -339,16 +345,103 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
     });
   });
 
-  it('lists tiers ordered by label', async () => {
-    await createTier({ key: keyFor('zzz'), label: `E2E ${R} Zulu` });
-    await createTier({ key: keyFor('aaa'), label: `E2E ${R} Alpha` });
+  it('falls back to the label when two tiers share a position', async () => {
+    const zulu = await createTier({
+      key: keyFor('zzz'),
+      label: `E2E ${R} zzZulu`,
+    });
+    const alpha = await createTier({
+      key: keyFor('aaa'),
+      label: `E2E ${R} zzAlpha`,
+    });
+    // Creation appends, so these differ by position; flatten them to make the
+    // tiebreak the only thing left to order by.
+    await client.query(
+      'UPDATE customer_tiers SET "sortOrder" = 0 WHERE id = ANY($1)',
+      [[zulu.data.id, alpha.data.id]],
+    );
 
     const res = await get('/admin/tiers');
     expect(res.status).toBe(200);
 
     const labels = res.data.tiers
       .map((t: { label: string }) => t.label)
-      .filter((l: string) => l.startsWith(`E2E ${R} `));
+      .filter((l: string) => l.startsWith(`E2E ${R} zz`));
     expect(labels).toEqual([...labels].sort());
+  });
+
+  describe('display order', () => {
+    it('appends a new tier after the ones already placed', async () => {
+      const first = await createTier({
+        key: keyFor('order-1'),
+        label: `E2E ${R} order one`,
+      });
+      const second = await createTier({
+        key: keyFor('order-2'),
+        label: `E2E ${R} order two`,
+      });
+
+      expect(second.data.sortOrder).toBeGreaterThan(first.data.sortOrder);
+    });
+
+    it('applies a posted order and lists tiers in it', async () => {
+      const one = await createTier({
+        key: keyFor('seq-a'),
+        label: `E2E ${R} seq A`,
+      });
+      const two = await createTier({
+        key: keyFor('seq-b'),
+        label: `E2E ${R} seq B`,
+      });
+
+      // Deliberately against the alphabet, so the assertion cannot pass by
+      // falling back to the label tiebreak.
+      const res = await patch('/admin/tiers/order', {
+        order: [
+          { id: two.data.id, sortOrder: -2 },
+          { id: one.data.id, sortOrder: -1 },
+        ],
+      });
+      expect(res.status).toBe(200);
+
+      const ids = res.data.tiers
+        .map((t: { id: string }) => t.id)
+        .filter((id: string) => id === one.data.id || id === two.data.id);
+      expect(ids).toEqual([two.data.id, one.data.id]);
+
+      const listed = (await get('/admin/tiers')).data.tiers
+        .map((t: { id: string }) => t.id)
+        .filter((id: string) => id === one.data.id || id === two.data.id);
+      expect(listed).toEqual([two.data.id, one.data.id]);
+    });
+
+    it('404s an unknown tier and changes nothing', async () => {
+      const existing = await createTier({
+        key: keyFor('seq-guard'),
+        label: `E2E ${R} seq guard`,
+      });
+      const before = existing.data.sortOrder;
+
+      const res = await patch('/admin/tiers/order', {
+        order: [
+          { id: existing.data.id, sortOrder: 99 },
+          { id: '00000000-0000-4000-8000-000000000000', sortOrder: 100 },
+        ],
+      });
+      expect(res.status).toBe(404);
+
+      // The whole order is refused, not partly applied.
+      const listed = (await get('/admin/tiers')).data.tiers.find(
+        (t: { id: string }) => t.id === existing.data.id,
+      );
+      expect(listed.sortOrder).toBe(before);
+    });
+
+    it('is admin-only like the rest of the surface', async () => {
+      expect(
+        (await patch('/admin/tiers/order', { order: [] }, managerCookie))
+          .status,
+      ).toBe(403);
+    });
   });
 });

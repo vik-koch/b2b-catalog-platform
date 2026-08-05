@@ -53,6 +53,15 @@ export class TiersController {
     );
   }
 
+  @TsRestHandler(tiersContract.reorderTiers, { validateResponses: true })
+  reorderTiers(@CurrentUser() user: AuthUser) {
+    return tsRestHandler(tiersContract.reorderTiers, async ({ body }) => {
+      const tiers = await this.service.reorderTiers(body, user.id);
+      this.audit.record('tier.reordered', user, {});
+      return { status: 200, body: { tiers } };
+    });
+  }
+
   @TsRestHandler(tiersContract.deleteTier, { validateResponses: true })
   deleteTier(@CurrentUser() user: AuthUser) {
     return tsRestHandler(

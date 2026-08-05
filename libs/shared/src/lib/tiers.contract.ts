@@ -55,10 +55,27 @@ export const customerTierSchema = z
     userCount: z.number().int().nonnegative(),
     /** Products with a price override in this tier. */
     priceCount: z.number().int().nonnegative(),
+    /**
+     * Where this tier sits in staff screens — the tier list and the product
+     * editor's price fields. **Presentation only.** Tiers do not rank: nothing
+     * about a price depends on this number, and "the tier above" is not a
+     * question the pricing model can answer.
+     */
+    sortOrder: z.number().int(),
     updatedAt: z.string().datetime(),
   })
   .strict();
 export type CustomerTier = z.infer<typeof customerTierSchema>;
+
+/** One tier's new place in the list. */
+export const tierOrderEntrySchema = z
+  .object({ id: z.string().uuid(), sortOrder: z.number().int() })
+  .strict();
+
+export const reorderTiersSchema = z
+  .object({ order: z.array(tierOrderEntrySchema) })
+  .strict();
+export type ReorderTiersRequest = z.infer<typeof reorderTiersSchema>;
 
 const messageSchema = z.object({ message: z.string() });
 
@@ -107,6 +124,16 @@ export const tiersContract = c.router(
         409: messageSchema,
       },
       summary: 'Rename a customer tier or change its sync key (admin)',
+    },
+    reorderTiers: {
+      method: 'PATCH',
+      path: '/admin/tiers/order',
+      body: reorderTiersSchema,
+      responses: {
+        200: z.object({ tiers: z.array(customerTierSchema) }).strict(),
+        404: messageSchema,
+      },
+      summary: 'Set the display order of the tier list (admin)',
     },
     deleteTier: {
       method: 'DELETE',

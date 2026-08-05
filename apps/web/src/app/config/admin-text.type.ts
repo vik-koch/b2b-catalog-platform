@@ -376,6 +376,7 @@ export const adminTextSchema = z
       .object({
         title: z.string(),
         intro: z.string(),
+        reorderError: z.string(),
         add: z.string(),
         label: z.string(),
         labelPlaceholder: z.string(),
@@ -388,6 +389,9 @@ export const adminTextSchema = z
         defaultLabel: z.string(),
         defaultHint: z.string(),
         edit: z.string(),
+        /** The one-place-at-a-time move buttons on each row. */
+        moveUp: z.string(),
+        moveDown: z.string(),
         delete: z.string(),
         empty: z.string(),
         saveError: z.string(),

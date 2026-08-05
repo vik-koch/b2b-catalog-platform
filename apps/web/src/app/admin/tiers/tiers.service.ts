@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
   CustomerTier,
+  ReorderTiersRequest,
   TierInput,
   tiersContract,
 } from '@b2b-catalog-platform/shared';
@@ -43,6 +44,13 @@ export class TiersService {
       return { ok: false, message: response.body.message };
     }
     throw new Error(`Failed to save tier (status ${response.status})`);
+  }
+
+  /** Commits a whole display order; returns the list as stored. */
+  async reorder(body: ReorderTiersRequest): Promise<CustomerTier[]> {
+    const response = await this.client.reorderTiers({ body });
+    if (response.status === 200) return response.body.tiers;
+    throw new Error(`Failed to reorder tiers (status ${response.status})`);
   }
 
   /**
