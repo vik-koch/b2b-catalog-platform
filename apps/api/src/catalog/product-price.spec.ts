@@ -1,5 +1,8 @@
 import { sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { PgDialect } from 'drizzle-orm/pg-core';
+import * as schema from '../db/schema';
+import { products } from '../db/schema';
 import { resolvedPriceMinor } from './product-price';
 import { productOrderBy } from './product-sort';
 
@@ -47,6 +50,19 @@ describe('resolvedPriceMinor', () => {
 
     expect(text).toContain('"product_prices"."productId" = "products"."id"');
     expect(text).not.toContain('join');
+  });
+
+  it('keeps the correlation table-qualified inside a real query', () => {
+    // Rendered on its own, drizzle qualifies every column; rendered as part of
+    // a query it emits bare names, and a bare `"id"` in the subquery would bind
+    // to whichever table in scope owns one. Only this form catches that.
+    const db = drizzle({ client: {} as never, schema });
+    const { sql: text } = db
+      .select({ price: resolvedPriceMinor('tier-1') })
+      .from(products)
+      .toSQL();
+
+    expect(text).toContain('"product_prices"."productId" = "products"."id"');
   });
 });
 

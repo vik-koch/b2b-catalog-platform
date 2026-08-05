@@ -10,7 +10,10 @@ export type AuditAction =
   | 'category.created'
   | 'category.updated'
   | 'category.deleted'
-  | 'category.reordered';
+  | 'category.reordered'
+  | 'tier.created'
+  | 'tier.updated'
+  | 'tier.deleted';
 
 /**
  * Domain events for admin mutations — who changed what.

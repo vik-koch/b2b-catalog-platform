@@ -8,6 +8,7 @@ import { MediaModule } from '../media/media.module';
 import { ThrottlingModule } from '../throttling/throttling.module';
 import { SettingsModule } from '../settings/settings.module';
 import { SyncModule } from '../sync/sync.module';
+import { TiersModule } from '../tiers/tiers.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SyncModule } from '../sync/sync.module';
     InquiryModule,
     SettingsModule,
     SyncModule,
+    TiersModule,
   ],
 })
 export class AppModule {}

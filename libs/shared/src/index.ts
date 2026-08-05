@@ -8,4 +8,5 @@ export * from './lib/search-terms';
 export * from './lib/settings.contract';
 export * from './lib/slug';
 export * from './lib/sync.contract';
+export * from './lib/tiers.contract';
 export * from './lib/slugify';
