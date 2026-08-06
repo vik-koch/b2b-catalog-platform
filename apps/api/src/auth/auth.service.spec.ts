@@ -10,6 +10,7 @@ const user = (overrides: Partial<UserRow> = {}): UserRow =>
     email: 'admin@example.com',
     passwordHash: '$argon2id$stored',
     role: 'admin',
+    status: 'active',
     tokenVersion: 2,
     mustChangePassword: false,
     createdAt: new Date(),
@@ -65,6 +66,18 @@ describe('AuthService', () => {
       // A hash was still verified rather than short-circuiting on the miss.
       expect(passwords.verify).toHaveBeenCalledWith('$argon2id$dummy', 'x');
     });
+
+    it.each(['pending', 'anonymized'] as const)(
+      'returns null for a %s account even with the right password',
+      async (status) => {
+        users.findByEmail.mockResolvedValue(user({ status }));
+        passwords.verify.mockResolvedValue(true);
+
+        await expect(
+          service.validate('admin@example.com', 'right'),
+        ).resolves.toBeNull();
+      },
+    );
   });
 
   describe('signToken', () => {

@@ -31,12 +31,17 @@ export class AuthService {
    * Verify credentials, returning the user or null. A hash is always verified —
    * a dummy one when the email is unknown — so a wrong email and a wrong
    * password take the same time and don't reveal which emails exist.
+   *
+   * An account that is not `active` fails the same way, for the same reason: a
+   * distinct "awaiting approval" answer would confirm the address is registered.
+   * The registration mail is where that gets explained, to the address itself.
    */
   async validate(email: string, password: string): Promise<UserRow | null> {
     const user = await this.users.findByEmail(email);
     const hash = user?.passwordHash ?? (await this.timingDummyHash());
     const ok = await this.passwords.verify(hash, password);
-    return ok && user ? user : null;
+    if (!ok || !user || user.status !== 'active') return null;
+    return user;
   }
 
   /** Sign a session token carrying the identity and the current tokenVersion. */

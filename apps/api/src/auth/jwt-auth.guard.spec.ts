@@ -11,6 +11,7 @@ const userRow = (overrides: Partial<UserRow> = {}): UserRow =>
     email: 'admin@example.com',
     passwordHash: '$argon2id$stored',
     role: 'admin',
+    status: 'active',
     tokenVersion: 0,
     mustChangePassword: false,
     createdAt: new Date(),
@@ -84,6 +85,19 @@ describe('JwtAuthGuard', () => {
       UnauthorizedException,
     );
   });
+
+  it.each(['pending', 'anonymized'] as const)(
+    'rejects a %s account holding an otherwise valid session',
+    async (status) => {
+      verifyAsync.mockResolvedValue(validClaims);
+      findById.mockResolvedValue(userRow({ status }));
+      const { context } = contextWith({ [AUTH_COOKIE]: 'token' });
+
+      await expect(guard.canActivate(context)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    },
+  );
 
   it('uses the DB role, not the token role, on success', async () => {
     // Token was issued while the user was admin; the DB has since demoted them.

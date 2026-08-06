@@ -23,8 +23,8 @@ export async function bootstrapAdmin(
     // admin. The app forces a change on first sign-in and clears the flag then;
     // because this INSERT is create-if-missing, a later deploy never re-raises
     // it on an admin who has already changed theirs.
-    `INSERT INTO users (email, "passwordHash", role, "mustChangePassword")
-     VALUES ($1, $2, 'admin', true)
+    `INSERT INTO users (email, "passwordHash", role, "mustChangePassword", status)
+     VALUES ($1, $2, 'admin', true, 'active')
      ON CONFLICT (email) DO NOTHING`,
     [normalizedEmail, passwordHash],
   );

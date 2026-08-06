@@ -13,6 +13,7 @@ const userRow = (overrides: Partial<UserRow> = {}): UserRow =>
     email: 'customer@example.com',
     passwordHash: '$argon2id$stored',
     role: 'user',
+    status: 'active',
     tokenVersion: 0,
     mustChangePassword: false,
     tierId: TIER,
@@ -90,6 +91,19 @@ describe('OptionalAuthGuard', () => {
     expect(request.pricingTierId).toBeNull();
     expect(request.user).toBeUndefined();
   });
+
+  it.each(['pending', 'anonymized'] as const)(
+    'serves the default list to a %s account, without rejecting it',
+    async (status) => {
+      verifyAsync.mockResolvedValue(validClaims);
+      findById.mockResolvedValue(userRow({ status }));
+      const { context, request } = contextWith({ [AUTH_COOKIE]: 'token' });
+
+      await expect(guard.canActivate(context)).resolves.toBe(true);
+      expect(request.pricingTierId).toBeNull();
+      expect(request.user).toBeUndefined();
+    },
+  );
 
   it('takes the tier from the database row, so a re-tiering applies at once', async () => {
     const moved = '00000000-0000-0000-0000-0000000000bb';

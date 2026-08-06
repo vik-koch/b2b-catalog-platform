@@ -32,8 +32,8 @@ describe('auth (session cookie)', () => {
     await client.query('DELETE FROM users WHERE email = $1', [TEST_EMAIL]);
     const passwordHash = await hash(TEST_PASSWORD);
     const { rows } = await client.query(
-      `INSERT INTO users (email, "passwordHash", role)
-       VALUES ($1, $2, 'admin') RETURNING id`,
+      `INSERT INTO users (email, "passwordHash", role, status)
+       VALUES ($1, $2, 'admin', 'active') RETURNING id`,
       [TEST_EMAIL, passwordHash],
     );
     userId = rows[0].id;
