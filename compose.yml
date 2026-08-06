@@ -43,6 +43,8 @@ services:
       # Login attempts per IP per minute. The default is the real policy;
       # only the e2e stack raises it (see .env.localtest).
       AUTH_RATE_LIMIT: ${AUTH_RATE_LIMIT:-10}
+      # Inquiry + registration posts per IP per minute. Same story.
+      PUBLIC_FORM_RATE_LIMIT: ${PUBLIC_FORM_RATE_LIMIT:-10}
       # Signs the session JWT. Required — no default, so a stack
       # without it fails fast rather than booting with a guessable key.
       JWT_SECRET: ${JWT_SECRET:?}

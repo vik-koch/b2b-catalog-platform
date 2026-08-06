@@ -61,6 +61,11 @@ const EnvSchema = z
     // drives dozens of logins from one address in well under a minute and would
     // otherwise throttle its own test run. Raise it there, never in prod.
     AUTH_RATE_LIMIT: z.coerce.number().int().positive().default(10),
+    // Public form posts (inquiry, registration) allowed per IP per minute.
+    // Same reasoning as AUTH_RATE_LIMIT: the default is the real policy, and
+    // only the e2e stack lifts it — that suite drives every registration and
+    // inquiry path from one address inside a single window.
+    PUBLIC_FORM_RATE_LIMIT: z.coerce.number().int().positive().default(10),
     // What is running, shown in the admin panel. Stamped onto the stack by
     // infra/deploy.sh rather than baked into the image (a release retags the
     // image main built, so a baked value could only ever be the commit sha).
