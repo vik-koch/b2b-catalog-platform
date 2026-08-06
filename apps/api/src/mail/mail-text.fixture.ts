@@ -9,6 +9,7 @@ import { MailText } from './mail-text';
 export const demoMailText: MailText = {
   common: {
     footerNote: 'This message was sent automatically. Please do not reply.',
+    linkExpiry: 'This link works once and expires after seven days.',
   },
   inquiry: {
     subject: 'Inquiry',
@@ -27,6 +28,20 @@ export const demoMailText: MailText = {
     body: 'We have received your registration and passed it to our team.',
     nextSteps:
       'A colleague will review it and set up your account. You will receive a second email with your password as soon as it is ready.',
+  },
+  accountApproved: {
+    subject: 'Your account is ready',
+    preheader: 'Choose a password to start ordering.',
+    heading: 'Your account is ready',
+    body: 'Your registration has been approved. Choose a password to finish setting up your account.',
+    action: 'Choose your password',
+  },
+  accountCreated: {
+    subject: 'An account has been created for you',
+    preheader: 'Choose a password to start ordering.',
+    heading: 'An account has been created for you',
+    body: 'We have set up a customer account for you. Choose a password to start using it.',
+    action: 'Choose your password',
   },
   newRegistration: {
     subject: 'New registration',

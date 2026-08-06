@@ -9,6 +9,7 @@ import { ThrottlingModule } from '../throttling/throttling.module';
 import { SettingsModule } from '../settings/settings.module';
 import { SyncModule } from '../sync/sync.module';
 import { TiersModule } from '../tiers/tiers.module';
+import { StaffUsersModule } from '../users/staff-users.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TiersModule } from '../tiers/tiers.module';
     SettingsModule,
     SyncModule,
     TiersModule,
+    StaffUsersModule,
   ],
 })
 export class AppModule {}

@@ -23,6 +23,8 @@ export const mailTextSchema = z
       .object({
         /** Small print under the card, e.g. why this mail was received. */
         footerNote: z.string(),
+        /** Shown under any set-a-password link, next to its button. */
+        linkExpiry: z.string(),
       })
       .strict(),
     /** The email the inquiry form sends to the shop (FR-NAV-06). */
@@ -50,6 +52,27 @@ export const mailTextSchema = z
         body: z.string(),
         /** What happens next: staff review, then a second mail with the password. */
         nextSteps: z.string(),
+      })
+      .strict(),
+    /** The invitation an approved registration receives (FR-NOTIF-02). */
+    accountApproved: z
+      .object({
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        body: z.string(),
+        /** Button label on the set-your-password link. */
+        action: z.string(),
+      })
+      .strict(),
+    /** The same invitation, for an account staff created unprompted. */
+    accountCreated: z
+      .object({
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        body: z.string(),
+        action: z.string(),
       })
       .strict(),
     /** Sent to the shop when a registration arrives (FR-NOTIF-04). */

@@ -1,6 +1,7 @@
 {
   "common": {
-    "footerNote": "This message was sent automatically by our online shop. Please do not reply to this address."
+    "footerNote": "This message was sent automatically by our online shop. Please do not reply to this address.",
+    "linkExpiry": "This link can be used once, and expires seven days after it was sent."
   },
   "inquiry": {
     "subject": "Inquiry",
@@ -18,6 +19,20 @@
     "heading": "Thank you for registering",
     "body": "We have received your registration and passed it to our team.",
     "nextSteps": "A colleague will review it and set up your account. You will receive a second email with your password as soon as it is ready. Until then you cannot sign in yet."
+  },
+  "accountApproved": {
+    "subject": "Your account is ready",
+    "preheader": "Choose a password to start ordering.",
+    "heading": "Your account is ready",
+    "body": "Your registration has been approved and your customer account is set up. Choose a password and you can start ordering right away.",
+    "action": "Choose your password"
+  },
+  "accountCreated": {
+    "subject": "An account has been created for you",
+    "preheader": "Choose a password to start ordering.",
+    "heading": "An account has been created for you",
+    "body": "We have set up a customer account for you at our online shop. Choose a password and you can start ordering right away.",
+    "action": "Choose your password"
   },
   "newRegistration": {
     "subject": "New registration",
