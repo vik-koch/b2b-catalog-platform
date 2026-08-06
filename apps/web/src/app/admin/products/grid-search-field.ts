@@ -2,14 +2,12 @@ import {
   Component,
   ElementRef,
   effect,
-  inject,
   input,
   linkedSignal,
   untracked,
   viewChild,
 } from '@angular/core';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
 import { debounced } from '../../core/debounced';
 import { Input } from '../../ui/input';
 import { injectGridNav } from './grid-query';
@@ -21,23 +19,20 @@ import { Icon } from '../../ui/icons/icon';
 const SEARCH_DEBOUNCE_MS = 200;
 
 /**
- * The grid's find-a-product box (FR-ADM-05): matches a product name — typos
- * and word order included, the same matcher the storefront search uses — or the
- * private sync key.
+ * A grid's find-a-row box (FR-ADM-05): typing filters the table after a pause,
+ * with no submit. The query goes into the URL like every other grid parameter —
+ * so a filtered view is shareable — but as a *replaced* history entry, since one
+ * back-button step per keystroke would make the back button useless.
  *
- * Deliberately a plain field rather than the storefront's search bar: this one
- * filters a table the admin is already looking at, and the heavy bordered bar
- * with its own submit button and suggestion dropdown would out-shout the "Add
- * product" action it sits beside. No combobox either — the table below *is* the
- * result list, and suggesting rows over it would only cover them up.
+ * Deliberately a plain field, not the storefront's search bar with its submit
+ * button and suggestion dropdown: this one filters a table already on screen and
+ * must not out-shout the "Add" action beside it, nor cover the rows it produces.
  *
- * There is no submit: typing filters, after a pause. The query goes into the
- * URL like every other grid parameter, so a filtered view is shareable, but as
- * a replaced history entry — one back-button step per keystroke would make the
- * back button useless.
+ * The wording is passed in rather than injected, so the same field serves any
+ * admin grid — its labels are the caller's.
  */
 @Component({
-  selector: 'app-product-search-field',
+  selector: 'app-grid-search-field',
   imports: [Input, Icon],
   template: `
     <div class="relative">
@@ -53,8 +48,8 @@ const SEARCH_DEBOUNCE_MS = 200;
         type="search"
         autocomplete="off"
         [maxLength]="maxLength"
-        [attr.aria-label]="text.searchLabel"
-        [placeholder]="text.searchPlaceholder"
+        [attr.aria-label]="searchLabel()"
+        [placeholder]="searchPlaceholder()"
         [value]="value()"
         (input)="value.set($any($event.target).value)"
         (keydown.escape)="clear()"
@@ -67,20 +62,22 @@ const SEARCH_DEBOUNCE_MS = 200;
           (click)="clear()"
         >
           <app-icon name="close" class="h-4 w-4" />
-          <span class="sr-only">{{ text.clearSearch }}</span>
+          <span class="sr-only">{{ clearLabel() }}</span>
         </button>
       }
     </div>
   `,
 })
-export class ProductSearchField {
+export class GridSearchField {
   private readonly navigate = injectGridNav();
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
-  protected readonly text = inject(ADMIN_TEXT).productList;
   protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;
 
   /** The query in the URL. */
   readonly query = input('');
+  readonly searchLabel = input('');
+  readonly searchPlaceholder = input('');
+  readonly clearLabel = input('');
 
   /**
    * Seeded from the URL rather than bound to it: the field is the admin's to

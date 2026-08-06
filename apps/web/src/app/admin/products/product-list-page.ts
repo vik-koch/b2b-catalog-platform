@@ -1,7 +1,6 @@
 import {
   Component,
   computed,
-  effect,
   inject,
   input,
   resource,
@@ -30,7 +29,7 @@ import {
 } from './grid-query';
 import { GridSortHeader } from './grid-sort-header';
 import { ProductDeleteDialog } from './product-delete-dialog';
-import { ProductSearchField } from './product-search-field';
+import { GridSearchField } from './grid-search-field';
 
 /**
  * The admin product list: every product including soft-deleted ones
@@ -47,7 +46,7 @@ import { ProductSearchField } from './product-search-field';
     Button,
     AdminIcon,
     ProductDeleteDialog,
-    ProductSearchField,
+    GridSearchField,
     GridSortHeader,
     GridFilterSelect,
     Skeleton,
@@ -55,7 +54,12 @@ import { ProductSearchField } from './product-search-field';
   template: `
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-      <app-product-search-field [query]="query() ?? ''" />
+      <app-grid-search-field
+        [query]="query() ?? ''"
+        [searchLabel]="text.searchLabel"
+        [searchPlaceholder]="text.searchPlaceholder"
+        [clearLabel]="text.clearSearch"
+      />
       <a
         appButton
         routerLink="/admin/products/new"
@@ -329,8 +333,6 @@ export class ProductListPage {
   protected readonly query = computed(() =>
     this.searchTerm() ? this.searchTerm().trim() : undefined,
   );
-
-  private x = effect(() => console.log('searchTerm: ', this.searchTerm()));
 
   readonly sort = input('');
   protected readonly sortKey = computed(() => resolveAdminSort(this.sort()));
