@@ -1,0 +1,15 @@
+{
+  "common": {
+    "footerNote": "This message was sent automatically by our online shop. Please do not reply to this address."
+  },
+  "inquiry": {
+    "subject": "Inquiry",
+    "preheader": "A visitor sent an inquiry through the contact form.",
+    "heading": "New inquiry",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "preferredContact": "Preferred contact",
+    "message": "Message"
+  }
+}

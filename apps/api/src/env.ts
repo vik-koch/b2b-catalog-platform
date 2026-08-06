@@ -32,6 +32,10 @@ const EnvSchema = z
     MAIL_SECURE: z.enum(['true', 'false']).optional(),
     // Where the inquiry form is delivered (FR-NAV-06).
     MAIL_CONTACT_TO: z.string().optional(),
+    // Public origin of this deployment (the same value the web app gets), used
+    // to build the absolute links every email needs — mail is read outside the
+    // app, so nothing relative resolves. Required in server mode.
+    APP_ORIGIN: z.string().url().optional(),
     // Secret that signs the session JWT. Required in server mode
     // (see refinement below); the migrate/seed one-shots never sign tokens.
     // Min length keeps a weak/short key from being accepted.
@@ -73,6 +77,7 @@ const EnvSchema = z
         'MAIL_PORT',
         'MAIL_FROM',
         'MAIL_CONTACT_TO',
+        'APP_ORIGIN',
         'JWT_SECRET',
         'MEDIA_ROOT',
       ] as const;

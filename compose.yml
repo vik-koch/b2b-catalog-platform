@@ -55,9 +55,12 @@ services:
       MAIL_USER: ${MAIL_USER:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_SECURE: ${MAIL_SECURE:-false}
-      # Server-only inquiry email wording, loaded whole from a file in the
-      # ./config mount below.
-      INQUIRY_TEXT_FILE: ${INQUIRY_TEXT_FILE:-/config/inquiry-text.json}
+      # Server-only email wording, loaded whole from a file in the ./config
+      # mount below; the branding on those mails comes from the same mount's
+      # deployment.json, and APP_ORIGIN makes their links absolute.
+      MAIL_TEXT_FILE: ${MAIL_TEXT_FILE:-/config/mail-text.json}
+      DEPLOYMENT_CONFIG_FILE: ${DEPLOYMENT_CONFIG_FILE:-/config/deployment.json}
+      APP_ORIGIN: https://${APP_DOMAIN:?}
       # Uploaded images land on the shared media volume; the media service
       # serves them read-only at /media.
       MEDIA_ROOT: /media

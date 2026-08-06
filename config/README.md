@@ -21,17 +21,19 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   **Browser-delivered on demand**: fetched from `/admin-text.json` once an admin
   needs it, rather than injected into every visitor's document (ADR 0009,
   amendment 2). Non-secret, like everything else on this side of the line.
-- `inquiry-text.json` → `InquiryText`, the inquiry email wording. **Server-only**
-  — rendered in the API, never sent to a browser.
+- `mail-text.json` → `MailText`, the wording of every email the app sends, one
+  section per message. **Server-only** — rendered in the API, never sent to a
+  browser. The mails' branding (shop name, header colour) is read from
+  `deployment.json`, which the API therefore also loads.
 
 Each container is pointed at its file by the stack `.env` (compose defaults them
 to the paths below, so this is only needed to rename a file):
 
 ```
-DEPLOYMENT_CONFIG_FILE=/config/deployment.json   # web
+DEPLOYMENT_CONFIG_FILE=/config/deployment.json   # web + api (mail branding)
 APP_TEXT_FILE=/config/app-text.json              # web
 ADMIN_TEXT_FILE=/config/admin-text.json          # web
-INQUIRY_TEXT_FILE=/config/inquiry-text.json      # api
+MAIL_TEXT_FILE=/config/mail-text.json            # api
 ```
 
 > The browser-delivered vs server-only split is deliberate: values on the web
@@ -41,7 +43,7 @@ INQUIRY_TEXT_FILE=/config/inquiry-text.json      # api
 Each file must be **complete** (no partial overrides). The authoritative shape of
 each is its Zod schema: `apps/web/src/app/config/deployment-config.type.ts`,
 `.../app-text.type.ts`, `.../admin-text.type.ts`, and
-`apps/api/src/inquiry/inquiry-text.ts`. The committed demo
+`apps/api/src/mail/mail-text.ts`. The committed demo
 files are the worked example to copy from.
 
 ## Assets (logo, favicon)
@@ -50,10 +52,10 @@ Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:
 
 ```
 config/
-  deployment.json      # web config        (browser-delivered)
+  deployment.json      # web config        (browser-delivered; api reads branding)
   app-text.json        # web public text   (browser-delivered)
   admin-text.json      # web admin text    (fetched by admins)
-  inquiry-text.json    # api email wording (server-only)
+  mail-text.json       # api email wording (server-only)
   assets/
     logo.svg
     favicon.svg
@@ -70,7 +72,7 @@ The web SSR server serves `assets/` ahead of the baked static files: a request
 for `/logo.svg` or `/favicon.svg` is answered from `config/assets/`.
 
 > Only `assets/` is web-served — never the mount root. The `*.json` (especially
-> the **server-only** `inquiry-text.json`) sit beside it and are never reachable
+> the **server-only** `mail-text.json`) sit beside it and are never reachable
 > from a browser.
 
 The document `<title>` is not an asset: it is `branding.title` in

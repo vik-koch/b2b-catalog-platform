@@ -5,6 +5,7 @@ import { requireEnv } from '../support/env';
 const mailpit = axios.create({ baseURL: 'http://localhost:8025/api/v1' });
 
 interface CaughtMessage {
+  readonly ID: string;
   readonly Subject: string;
   readonly To: readonly { readonly Address: string }[];
 }
@@ -12,6 +13,12 @@ interface CaughtMessage {
 async function caughtMessages(): Promise<CaughtMessage[]> {
   const res = await mailpit.get('/messages');
   return res.data.messages as CaughtMessage[];
+}
+
+/** The delivered body, as the recipient's client would receive both parts. */
+async function caughtBody(id: string): Promise<{ HTML: string; Text: string }> {
+  const res = await mailpit.get(`/message/${id}`);
+  return res.data as { HTML: string; Text: string };
 }
 
 const validSubmission = {
@@ -38,6 +45,20 @@ describe('POST /inquiry', () => {
     expect(messages[0].To.map((t) => t.Address)).toContain(
       requireEnv('MAIL_CONTACT_TO'),
     );
+  });
+
+  // The round trip through the real transport: what actually arrives is the
+  // branded layout, with a plain-text alternative beside it.
+  it('delivers both a branded HTML part and a plain-text one', async () => {
+    await axios.post('/inquiry', validSubmission);
+
+    const [message] = await caughtMessages();
+    const body = await caughtBody(message.ID);
+
+    expect(body.HTML).toContain('Do you deliver to Altona?');
+    expect(body.HTML).toContain('<table');
+    expect(body.Text).toContain('Do you deliver to Altona?');
+    expect(body.Text).not.toContain('<table');
   });
 
   it('rejects a submission without a name', async () => {
