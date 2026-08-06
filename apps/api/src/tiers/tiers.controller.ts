@@ -7,11 +7,12 @@ import { AuditLogger } from '../audit/audit.logger';
 import { TiersService } from './tiers.service';
 
 /**
- * Admin-only throughout: a tier is a pricing decision, and creating one is how
- * a deployment's price lists come into existence. Managers assign a customer
- * to a tier (phase 3) but do not define the set.
+ * Defining the set of price lists is admin-only — a tier is a pricing decision.
+ * A manager may *read* the list, because assigning a customer to a tier on
+ * approval (phase 3) needs the names and ids; each mutation narrows back to
+ * admin on the method.
  */
-@Auth('admin')
+@Auth('admin', 'manager')
 @Controller()
 export class TiersController {
   constructor(
@@ -19,6 +20,7 @@ export class TiersController {
     private readonly audit: AuditLogger,
   ) {}
 
+  // Readable by managers (the class guard); the writes below are admin-only.
   @TsRestHandler(tiersContract.listTiers, { validateResponses: true })
   listTiers() {
     return tsRestHandler(tiersContract.listTiers, async () => {
@@ -26,6 +28,7 @@ export class TiersController {
     });
   }
 
+  @Auth('admin')
   @TsRestHandler(tiersContract.createTier, { validateResponses: true })
   createTier(@CurrentUser() user: AuthUser) {
     return tsRestHandler(tiersContract.createTier, async ({ body }) => {
@@ -38,6 +41,7 @@ export class TiersController {
     });
   }
 
+  @Auth('admin')
   @TsRestHandler(tiersContract.updateTier, { validateResponses: true })
   updateTier(@CurrentUser() user: AuthUser) {
     return tsRestHandler(
@@ -53,6 +57,7 @@ export class TiersController {
     );
   }
 
+  @Auth('admin')
   @TsRestHandler(tiersContract.reorderTiers, { validateResponses: true })
   reorderTiers(@CurrentUser() user: AuthUser) {
     return tsRestHandler(tiersContract.reorderTiers, async ({ body }) => {
@@ -62,6 +67,7 @@ export class TiersController {
     });
   }
 
+  @Auth('admin')
   @TsRestHandler(tiersContract.deleteTier, { validateResponses: true })
   deleteTier(@CurrentUser() user: AuthUser) {
     return tsRestHandler(

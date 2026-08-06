@@ -116,8 +116,10 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
       expect((await get('/admin/tiers', '')).status).toBe(401);
     });
 
-    it('rejects a manager with 403 — defining price lists is admin-only', async () => {
-      expect((await get('/admin/tiers', managerCookie)).status).toBe(403);
+    it('lets a manager read the list but not define one — that is admin-only', async () => {
+      // A manager assigns customers to tiers, so they must be able to read the
+      // set; creating one is still admin-only.
+      expect((await get('/admin/tiers', managerCookie)).status).toBe(200);
       expect(
         (
           await post(
