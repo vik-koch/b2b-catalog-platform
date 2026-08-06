@@ -155,6 +155,9 @@ export const appTextSchema = z
         accountNav: z.string(),
         signedInAs: z.string(),
         adminPanel: z.string(),
+        /** The same landing for a manager, whose panel holds only the accounts
+         * they approve — no catalog, pricing or site controls. */
+        staffArea: z.string(),
         account: z.string(),
         email: z.string(),
         password: z.string(),

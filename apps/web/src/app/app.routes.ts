@@ -94,6 +94,24 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/tiers/tier-list-page').then((m) => m.TierListPage),
   },
+  // Account management, one component in two views. Customers: admin and
+  // manager both, since the permission split is on the row actions, not on
+  // reaching the list. Staff: admin only — a manager may not even see who the
+  // admins are. `kind` reaches the component through route input binding.
+  {
+    path: 'admin/users',
+    data: { kind: 'customer' },
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/users/user-list-page').then((m) => m.UserListPage),
+  },
+  {
+    path: 'admin/users/staff',
+    data: { kind: 'staff' },
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/users/user-list-page').then((m) => m.UserListPage),
+  },
   {
     path: 'admin/categories',
     canActivate: [requireAuth('admin'), adminTextGuard],

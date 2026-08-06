@@ -97,15 +97,28 @@ export const createUserSchema = z
   .strict();
 export type CreateUserRequest = z.infer<typeof createUserSchema>;
 
+/**
+ * Which side of the account list a request wants: `customer` accounts (`user`
+ * role) or `staff` (admin and manager). The split is a real permission boundary,
+ * not just a view — a manager may only ever see customers, enforced server-side
+ * regardless of what is asked for (see StaffUsersController).
+ */
+export const USER_KINDS = ['customer', 'staff'] as const;
+export type UserKind = (typeof USER_KINDS)[number];
+export const userKindSchema = z.enum(USER_KINDS);
+
 /** Filters for the account list — the admin-grid pattern (FR-ADM-05). */
 export const listUsersQuerySchema = z.object({
+  kind: userKindSchema.optional(),
   status: userStatusSchema.optional(),
+  /** Narrows within `staff` (admin vs manager); customers are all one role. */
   role: userRoleSchema.optional(),
   /** `null` is not expressible in a query string; `default` means the base list. */
   tierId: z.union([z.string().uuid(), z.literal('default')]).optional(),
   /** Matches email, first or last name, or the registration number. */
   q: z.string().trim().max(200).optional(),
 });
+export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
 
 const messageSchema = z.object({ message: z.string() });
 

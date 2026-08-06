@@ -159,6 +159,30 @@ describe('/admin/users', () => {
         tierId: null,
       });
     });
+
+    // A manager must not be able to enumerate staff — not even by asking for it
+    // directly, past the UI that would never offer the option.
+    it('scopes a manager to customers, whatever kind is requested', async () => {
+      const res = await request(
+        'get',
+        '/admin/users?kind=staff',
+        managerCookie,
+      );
+
+      expect(res.status).toBe(200);
+      const roles = res.data.users.map((u: { role: string }) => u.role);
+      expect(roles).not.toContain('admin');
+      expect(roles).not.toContain('manager');
+    });
+
+    it('lets an admin list staff, and only staff', async () => {
+      const res = await request('get', '/admin/users?kind=staff', adminCookie);
+
+      expect(res.status).toBe(200);
+      const roles = res.data.users.map((u: { role: string }) => u.role);
+      expect(roles).toContain('admin');
+      expect(roles).not.toContain('user');
+    });
   });
 
   describe('approval', () => {

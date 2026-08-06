@@ -23,7 +23,8 @@
     "version": "Version {version}",
     "versionUnknown": "Version unknown",
     "deployedAt": "deployed {date}",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "accounts": "Accounts"
   },
   "editMode": {
     "enable": "Edit mode",
@@ -306,5 +307,37 @@
     "deleteBlocked": "“{name}” is still in use: {reason}",
     "deleteError": "This tier could not be deleted. Please try again.",
     "reorderError": "This move could not be saved. Please try again."
+  },
+  "userList": {
+    "title": "Accounts",
+    "tabCustomers": "Customers",
+    "tabStaff": "Staff",
+    "searchLabel": "Search accounts",
+    "searchPlaceholder": "Name, email or registration number",
+    "clearSearch": "Clear search",
+    "empty": "No accounts yet.",
+    "noResults": "No accounts match these filters.",
+    "loadError": "The account list could not be loaded. Please try again.",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "type": "Type",
+    "companyId": "Company ID",
+    "registered": "Registered",
+    "filterRole": "Filter by role",
+    "filterTier": "Filter by tier",
+    "filterStatus": "Filter by status",
+    "roleAll": "All roles",
+    "roleAdmin": "Admin",
+    "roleManager": "Manager",
+    "roleUser": "Customer",
+    "tierAll": "All tiers",
+    "statusAll": "All statuses",
+    "statusPending": "Pending",
+    "statusInvited": "Invited",
+    "statusActive": "Active",
+    "statusAnonymized": "Closed",
+    "typePerson": "Person",
+    "typeCompany": "Company"
   }
 }

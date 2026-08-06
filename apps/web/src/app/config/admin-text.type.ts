@@ -49,6 +49,7 @@ export const adminTextSchema = z
         catalog: z.string(),
         pages: z.string(),
         pricing: z.string(),
+        accounts: z.string(),
         site: z.string(),
         /** Deployed version line. `{version}` / `{date}` are substituted. */
         version: z.string(),
@@ -417,6 +418,51 @@ export const adminTextSchema = z
         deleteConfirm: z.string(),
         deleteBlocked: z.string(),
         deleteError: z.string(),
+      })
+      .strict(),
+    /**
+     * The staff account list (FR-AUTH-03/04). Column headings double as the
+     * sort/filter controls, so several of these are the accessible names of a
+     * control whose visible text is the value in effect rather than a label.
+     * The base price list's name is not here — it is the tier list's
+     * `defaultLabel`, shared so the two screens name it identically.
+     */
+    userList: z
+      .object({
+        title: z.string(),
+        /** The two views: customer accounts and staff accounts. */
+        tabCustomers: z.string(),
+        tabStaff: z.string(),
+        searchLabel: z.string(),
+        searchPlaceholder: z.string(),
+        clearSearch: z.string(),
+        empty: z.string(),
+        /** Shown instead of `empty` when filters are what emptied the list. */
+        noResults: z.string(),
+        loadError: z.string(),
+        /** Column headings. */
+        name: z.string(),
+        email: z.string(),
+        phone: z.string(),
+        type: z.string(),
+        companyId: z.string(),
+        registered: z.string(),
+        /** Accessible names for the three column-heading filters. */
+        filterRole: z.string(),
+        filterTier: z.string(),
+        filterStatus: z.string(),
+        roleAll: z.string(),
+        roleAdmin: z.string(),
+        roleManager: z.string(),
+        roleUser: z.string(),
+        tierAll: z.string(),
+        statusAll: z.string(),
+        statusPending: z.string(),
+        statusInvited: z.string(),
+        statusActive: z.string(),
+        statusAnonymized: z.string(),
+        typePerson: z.string(),
+        typeCompany: z.string(),
       })
       .strict(),
     /** The admin-panel control that gates the storefront (FR-ADM-04). */

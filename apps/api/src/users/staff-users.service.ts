@@ -4,11 +4,23 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, desc, eq, ilike, isNull, ne, or, SQL } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  ne,
+  or,
+  SQL,
+} from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   CreateUserRequest,
   StaffUser,
+  UserKind,
   UserRole,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
@@ -37,6 +49,8 @@ type StaffUserRow = {
 };
 
 export interface ListUsersFilters {
+  /** `customer` = the `user` role; `staff` = admin and manager. */
+  readonly kind?: UserKind;
   readonly status?: StaffUser['status'];
   readonly role?: UserRole;
   /** A tier id, or `'default'` for the base price list (a null `tierId`). */
@@ -58,7 +72,15 @@ export class StaffUsersService {
 
   async list(filters: ListUsersFilters): Promise<StaffUser[]> {
     const conditions: SQL[] = [];
+    // The customer/staff boundary. A manager only ever reaches this with
+    // `customer` (the controller forces it), so staff stay invisible to them.
+    if (filters.kind === 'customer') {
+      conditions.push(eq(users.role, 'user'));
+    } else if (filters.kind === 'staff') {
+      conditions.push(inArray(users.role, ['admin', 'manager']));
+    }
     if (filters.status) conditions.push(eq(users.status, filters.status));
+    // Narrows within the staff view; harmless-but-empty alongside `customer`.
     if (filters.role) conditions.push(eq(users.role, filters.role));
     if (filters.tierId) {
       conditions.push(

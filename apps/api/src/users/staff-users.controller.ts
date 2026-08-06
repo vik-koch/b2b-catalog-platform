@@ -25,9 +25,16 @@ export class StaffUsersController {
   ) {}
 
   @TsRestHandler(usersContract.listUsers, { validateResponses: true })
-  listUsers() {
+  listUsers(@CurrentUser() actor: AuthUser) {
     return tsRestHandler(usersContract.listUsers, async ({ query }) => {
-      return { status: 200, body: { users: await this.service.list(query) } };
+      // A manager may only ever see customers. Forced here, not just hidden in
+      // the UI: the route guard stops an honest click, this stops a crafted
+      // request that asks for `kind=staff` or filters by an admin role.
+      const scoped =
+        actor.role === 'manager'
+          ? { ...query, kind: 'customer' as const, role: undefined }
+          : query;
+      return { status: 200, body: { users: await this.service.list(scoped) } };
     });
   }
 
