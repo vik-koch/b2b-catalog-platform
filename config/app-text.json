@@ -80,15 +80,34 @@
     "error": "Something went wrong logging you in. Please try again.",
     "underConstruction": "This area is under construction.",
     "register": {
-      "link": "Create an account",
+      "noAccount": "New here? Request a customer account.",
+      "signUp": "Sign up",
       "heading": "Create an account",
-      "intro": "Tell us your email address and we will set up your customer account. A colleague reviews every request, so this is not instant — you will receive your password by email once your account is ready.",
+      "intro": "Tell us about yourself and we will set up your customer account. A colleague reviews every request, so this is not instant — you will receive your password by email once your account is ready.",
+      "customerType": "I am registering as",
+      "person": "A private person",
+      "company": "A company",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone",
+      "companyId": "Company registration number",
       "submit": "Request an account",
       "submitting": "Sending…",
       "successHeading": "Thank you",
       "success": "If we can set up an account for this address, you will receive an email shortly. Our team reviews every request, so your password may take a little while to arrive.",
       "error": "Something went wrong sending your request. Please try again.",
-      "haveAccount": "Already have an account?"
+      "haveAccount": "Already have an account?",
+      "privacyConsent": "I agree that my details will be used to set up and manage my customer account. See our",
+      "privacyLink": "privacy policy",
+      "validation": {
+        "firstNameRequired": "Please enter your first name.",
+        "lastNameRequired": "Please enter your last name.",
+        "phoneRequired": "Please enter your phone number.",
+        "phoneIncomplete": "Please enter a complete phone number.",
+        "companyIdRequired": "Please enter your company registration number.",
+        "companyIdFormat": "Please enter it in the expected format, e.g. {example}.",
+        "privacyRequired": "Please accept the privacy policy to continue."
+      }
     },
     "changePassword": {
       "heading": "Change password",

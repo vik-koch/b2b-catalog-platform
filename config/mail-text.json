@@ -24,7 +24,13 @@
     "preheader": "Someone requested a customer account.",
     "heading": "New registration",
     "body": "Someone has requested a customer account. Review the request and, if it is genuine, approve it and assign the customer a price tier.",
+    "nameLabel": "Name",
     "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "customerTypeLabel": "Registering as",
+    "customerTypePerson": "Private person",
+    "customerTypeCompany": "Company",
+    "companyIdLabel": "Company registration number",
     "action": "Open the account list"
   }
 }

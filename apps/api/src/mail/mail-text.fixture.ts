@@ -33,7 +33,13 @@ export const demoMailText: MailText = {
     preheader: 'Someone requested a customer account.',
     heading: 'New registration',
     body: 'Someone has requested a customer account.',
+    nameLabel: 'Name',
     emailLabel: 'Email',
+    phoneLabel: 'Phone',
+    customerTypeLabel: 'Registering as',
+    customerTypePerson: 'Private person',
+    customerTypeCompany: 'Company',
+    companyIdLabel: 'Company registration number',
     action: 'Open the account list',
   },
 };

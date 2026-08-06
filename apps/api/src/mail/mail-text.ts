@@ -59,7 +59,14 @@ export const mailTextSchema = z
         preheader: z.string(),
         heading: z.string(),
         body: z.string(),
+        nameLabel: z.string(),
         emailLabel: z.string(),
+        phoneLabel: z.string(),
+        customerTypeLabel: z.string(),
+        /** The two customer kinds, worded for staff reading the mail. */
+        customerTypePerson: z.string(),
+        customerTypeCompany: z.string(),
+        companyIdLabel: z.string(),
         /** Button into the admin account list, where it is approved. */
         action: z.string(),
       })

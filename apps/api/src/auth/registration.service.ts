@@ -1,6 +1,12 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
 import { RegisterRequest } from '@b2b-catalog-platform/shared';
+import { COMPANY_ID_RULE, CompanyIdRule } from '../config/deployment-config';
 import { env } from '../env';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { MailService } from '../mail/mail.service';
@@ -26,6 +32,7 @@ export class RegistrationService {
     private readonly passwords: PasswordService,
     private readonly mail: MailService,
     @Inject(MAIL_TEXT) private readonly text: MailText,
+    @Inject(COMPANY_ID_RULE) private readonly companyIdMatches: CompanyIdRule,
   ) {}
 
   async register(request: RegisterRequest): Promise<void> {
@@ -35,6 +42,19 @@ export class RegistrationService {
     if (request.website) {
       this.logger.warn('Rejected registration: honeypot field populated');
       return;
+    }
+
+    // The shared contract settles the envelope; the *format* of a registration
+    // number is jurisdiction-specific deployment config, so it is checked here
+    // as well as in the browser. A rejected format is a real 400: unlike an
+    // address that already has an account, it reveals nothing about anyone.
+    if (
+      request.companyRegistrationId &&
+      !this.companyIdMatches(request.companyRegistrationId)
+    ) {
+      throw new BadRequestException(
+        'That does not look like a valid company registration number',
+      );
     }
 
     const email = request.email.trim().toLowerCase();
@@ -55,9 +75,17 @@ export class RegistrationService {
     const unusablePassword = await this.passwords.hash(
       randomBytes(32).toString('hex'),
     );
-    await this.users.createPending(email, unusablePassword);
+    await this.users.createPending({
+      email,
+      passwordHash: unusablePassword,
+      firstName: request.firstName.trim(),
+      lastName: request.lastName.trim(),
+      phone: request.phone.trim(),
+      customerType: request.customerType,
+      companyRegistrationId: request.companyRegistrationId ?? null,
+    });
 
-    await this.notify(email);
+    await this.notify(email, request);
   }
 
   /**
@@ -65,7 +93,7 @@ export class RegistrationService {
    * to fail the request: the account row is what matters, and staff can see and
    * approve it from the admin panel whether or not SMTP was reachable.
    */
-  private async notify(email: string): Promise<void> {
+  private async notify(email: string, request: RegisterRequest): Promise<void> {
     await this.send(
       () => this.mail.send(registrationReceivedMail(this.text), { to: email }),
       'registration confirmation',
@@ -78,7 +106,7 @@ export class RegistrationService {
     }
     await this.send(
       () =>
-        this.mail.send(newRegistrationMail(email, this.text), {
+        this.mail.send(newRegistrationMail({ ...request, email }, this.text), {
           to: staffInbox,
         }),
       'staff notification',

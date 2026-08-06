@@ -29,6 +29,21 @@ async function expectNoMail(): Promise<void> {
 const register = (body: unknown) =>
   axios.post('/auth/register', body, { validateStatus: () => true });
 
+/** A complete private-person registration; specs override what they test. */
+const person = {
+  email: NEW_EMAIL,
+  firstName: 'Jane',
+  lastName: 'Doe',
+  phone: '+49 40 1234567',
+  customerType: 'person',
+};
+// The demo deployment's format is a German VAT number: DE + nine digits.
+const company = {
+  ...person,
+  customerType: 'company',
+  companyRegistrationId: 'DE123456789',
+};
+
 /**
  * FR-AUTH-01 end to end. The rule under test throughout: the response is the
  * same whatever happened, and what actually happened shows up in the database
@@ -39,7 +54,9 @@ describe('POST /auth/register', () => {
 
   const rowsFor = async (email: string) => {
     const { rows } = await client.query(
-      'SELECT status, role, "tierId", "approvedAt" FROM users WHERE email = $1',
+      `SELECT status, role, "tierId", "approvedAt", "firstName", "lastName",
+              phone, "customerType", "companyRegistrationId"
+         FROM users WHERE email = $1`,
       [email],
     );
     return rows;
@@ -75,13 +92,25 @@ describe('POST /auth/register', () => {
   });
 
   it('creates a pending, untiered account and mails the registrant and the shop', async () => {
-    const res = await register({ email: NEW_EMAIL });
+    const res = await register(person);
 
     expect(res.status).toBe(200);
     expect(res.data).toEqual({ ok: true });
 
+    // Everything the approving manager needs is on the row, and nothing that
+    // only approval may set (tier, approvedAt) is.
     expect(await rowsFor(NEW_EMAIL)).toEqual([
-      { status: 'pending', role: 'user', tierId: null, approvedAt: null },
+      {
+        status: 'pending',
+        role: 'user',
+        tierId: null,
+        approvedAt: null,
+        firstName: 'Jane',
+        lastName: 'Doe',
+        phone: '+49 40 1234567',
+        customerType: 'person',
+        companyRegistrationId: null,
+      },
     ]);
 
     expect(await messagesMatching(REGISTRANT_MAIL)).toHaveLength(1);
@@ -90,7 +119,7 @@ describe('POST /auth/register', () => {
 
   // The account exists but is not usable yet: approval is what makes it one.
   it('leaves the new account unable to sign in', async () => {
-    await register({ email: NEW_EMAIL });
+    await register(person);
 
     const res = await axios.post(
       '/auth/login',
@@ -103,7 +132,7 @@ describe('POST /auth/register', () => {
   });
 
   it('answers a known address identically, without a second row or a mail', async () => {
-    const res = await register({ email: KNOWN_EMAIL });
+    const res = await register({ ...person, email: KNOWN_EMAIL });
 
     expect(res.status).toBe(200);
     expect(res.data).toEqual({ ok: true });
@@ -112,17 +141,14 @@ describe('POST /auth/register', () => {
   });
 
   it('normalizes the address, so a differently-cased retry is not a new account', async () => {
-    await register({ email: NEW_EMAIL });
-    await register({ email: NEW_EMAIL.toUpperCase() });
+    await register(person);
+    await register({ ...person, email: NEW_EMAIL.toUpperCase() });
 
     expect(await rowsFor(NEW_EMAIL)).toHaveLength(1);
   });
 
   it('silently drops a submission with the honeypot filled', async () => {
-    const res = await register({
-      email: NEW_EMAIL,
-      website: 'http://spam.example',
-    });
+    const res = await register({ ...person, website: 'http://spam.example' });
 
     expect(res.status).toBe(200);
     expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
@@ -130,14 +156,46 @@ describe('POST /auth/register', () => {
   });
 
   it('rejects a malformed address with a 400 and writes nothing', async () => {
-    const res = await register({ email: 'not-an-address' });
+    const res = await register({ ...person, email: 'not-an-address' });
 
     expect(res.status).toBe(400);
     await expectNoMail();
   });
 
+  it('stores a company registration, unmasked', async () => {
+    const res = await register(company);
+
+    expect(res.status).toBe(200);
+    const [row] = await rowsFor(NEW_EMAIL);
+    expect(row.customerType).toBe('company');
+    expect(row.companyRegistrationId).toBe('DE123456789');
+  });
+
+  // The format is deployment configuration, so the contract cannot check it —
+  // the API applies the deployment's own pattern on top.
+  it('rejects a number the deployment pattern refuses', async () => {
+    const res = await register({
+      ...company,
+      companyRegistrationId: 'DE12345',
+    });
+
+    expect(res.status).toBe(400);
+    expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
+    await expectNoMail();
+  });
+
+  it('refuses a company with no number, and a person carrying one', async () => {
+    const { companyRegistrationId: _omitted, ...noNumber } = company;
+    expect((await register(noNumber)).status).toBe(400);
+    expect(
+      (await register({ ...person, companyRegistrationId: 'DE123456789' }))
+        .status,
+    ).toBe(400);
+    expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
+  });
+
   it('rejects an unknown field on the submission (strict contract)', async () => {
-    const res = await register({ email: NEW_EMAIL, role: 'admin' });
+    const res = await register({ ...person, role: 'admin' });
 
     expect(res.status).toBe(400);
     expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);

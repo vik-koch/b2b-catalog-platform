@@ -1,5 +1,9 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import {
+  COMPANY_ID_RULE,
+  loadCompanyIdRule,
+} from '../config/deployment-config';
 import { env } from '../env';
 import { MailModule } from '../mail/mail.module';
 import { UsersModule } from '../users/users.module';
@@ -45,6 +49,9 @@ function jwtSecret(): string {
   providers: [
     AuthService,
     RegistrationService,
+    // The deployment's company-number format, compiled once at boot: a bad
+    // pattern fails the startup rather than every registration.
+    { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
     PasswordService,
     JwtAuthGuard,
     OptionalAuthGuard,

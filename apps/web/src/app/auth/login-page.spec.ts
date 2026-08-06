@@ -150,4 +150,14 @@ describe('LoginPage', () => {
     expect(el.textContent).toContain(text.error);
     expect(el.textContent).not.toContain(text.invalid);
   });
+
+  // The only route to registration: a visitor who has no account has to be
+  // offered one here, not left to guess the URL.
+  it('offers signing up, as a link to the register page', async () => {
+    const { el } = await render();
+
+    const cta = el.querySelector<HTMLAnchorElement>('a[href="/register"]');
+    expect(cta?.textContent).toContain(text.register.signUp);
+    expect(el.textContent).toContain(text.register.noAccount);
+  });
 });

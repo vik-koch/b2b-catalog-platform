@@ -170,10 +170,22 @@ export const appTextSchema = z
          */
         register: z
           .object({
-            /** Link on the login page, and the page's own heading. */
-            link: z.string(),
+            /** The login page's call to action, and the line above it. */
+            noAccount: z.string(),
+            signUp: z.string(),
             heading: z.string(),
             intro: z.string(),
+            /** The person/company choice staff use to read the request. */
+            customerType: z.string(),
+            person: z.string(),
+            company: z.string(),
+            firstName: z.string(),
+            lastName: z.string(),
+            phone: z.string(),
+            /** Business registration number; its format is deployment config. */
+            companyId: z.string(),
+            privacyConsent: z.string(),
+            privacyLink: z.string(),
             submit: z.string(),
             submitting: z.string(),
             /** Shown in place of the form once the request is in. */
@@ -182,6 +194,18 @@ export const appTextSchema = z
             error: z.string(),
             /** Link back to the login page from the register page. */
             haveAccount: z.string(),
+            validation: z
+              .object({
+                firstNameRequired: z.string(),
+                lastNameRequired: z.string(),
+                phoneRequired: z.string(),
+                phoneIncomplete: z.string(),
+                companyIdRequired: z.string(),
+                /** Carries the deployment's own example; `{example}` is substituted. */
+                companyIdFormat: z.string(),
+                privacyRequired: z.string(),
+              })
+              .strict(),
           })
           .strict(),
         /**

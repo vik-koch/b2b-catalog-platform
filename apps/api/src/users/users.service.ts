@@ -1,11 +1,26 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq, sql } from 'drizzle-orm';
+import { CustomerType } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { users } from '../db/schema';
 
 export type UserRow = typeof users.$inferSelect;
+
+/**
+ * What a self-registration writes: the identity staff need to decide on it, and
+ * an unusable password hash standing in until they do.
+ */
+export interface PendingRegistration {
+  readonly email: string;
+  readonly passwordHash: string;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly phone: string;
+  readonly customerType: CustomerType;
+  readonly companyRegistrationId: string | null;
+}
 
 @Injectable()
 export class UsersService {
@@ -33,12 +48,12 @@ export class UsersService {
    * in, with no tier — staff assign one when they approve it. The hash is an
    * argon2 hash of a random secret nobody holds, rather than a placeholder.
    */
-  async createPending(email: string, passwordHash: string): Promise<UserRow> {
+  async createPending(registration: PendingRegistration): Promise<UserRow> {
     const [created] = await this.db
       .insert(users)
       .values({
-        email: email.trim().toLowerCase(),
-        passwordHash,
+        ...registration,
+        email: registration.email.trim().toLowerCase(),
         role: 'user',
         status: 'pending',
       })

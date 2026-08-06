@@ -37,5 +37,11 @@
   "phoneInput": {
     "countryCode": "+49",
     "mask": "(###) ###-####"
+  },
+  "companyIdInput": {
+    "prefix": "DE",
+    "pattern": "^DE[0-9]{9}$",
+    "mask": "#########",
+    "example": "DE123456789"
   }
 }

@@ -53,15 +53,44 @@ export const changePasswordSchema = z
   .strict();
 export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
 
+/** What kind of customer is registering. Kept in sync with the `customer_type` pg enum. */
+export const CUSTOMER_TYPES = ['person', 'company'] as const;
+export type CustomerType = (typeof CUSTOMER_TYPES)[number];
+export const customerTypeSchema = z.enum(CUSTOMER_TYPES);
+
 /**
- * Registration (FR-AUTH-01). The address is all that is asked for: a
- * registration is a request to become a customer, and everything else about the
- * customer — their name, their tier — is settled by staff on approval or at
- * checkout. `website` is the honeypot the real form hides from humans.
+ * A company's business registration number. The *format* is jurisdiction-
+ * specific and therefore deployment configuration (`companyIdInput.pattern` in
+ * deployment.json), not something this contract can know — so all it enforces
+ * is the envelope. The value travels unmasked; the deployment's own pattern is
+ * applied on top, on both sides.
+ */
+export const companyRegistrationIdSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9-]+$/);
+
+/**
+ * Registration (FR-AUTH-01). A registration is a *request* to become a
+ * customer, and staff have no way to ask the applicant anything — a pending
+ * account cannot sign in — so it has to carry what makes the approval decision
+ * possible: who this is, how to reach them to verify it, and, for a business,
+ * the registration number staff match against their own records.
+ *
+ * What it deliberately does not carry: a tier (staff assign it on approval, ADR
+ * 0031) and any delivery detail (that belongs to an order, not an account).
+ * `website` is the honeypot the real form hides from humans.
  */
 export const registerSchema = z
   .object({
     email: z.string().trim().email().max(320),
+    firstName: z.string().trim().min(1).max(200),
+    lastName: z.string().trim().min(1).max(200),
+    phone: z.string().trim().min(1).max(50),
+    customerType: customerTypeSchema,
+    companyRegistrationId: companyRegistrationIdSchema.optional(),
     website: z.preprocess(
       (value) =>
         typeof value === 'string' && value.trim() === '' ? undefined : value,
@@ -69,7 +98,19 @@ export const registerSchema = z
     ),
   })
   // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
-  .strict();
+  .strict()
+  // A company is identified by its registration number, so it is required
+  // exactly when the registrant says they are one — and refused when they do
+  // not, rather than being silently stored against a private person.
+  .refine(
+    (data) =>
+      (data.customerType === 'company') === Boolean(data.companyRegistrationId),
+    {
+      message:
+        'A company registration number is required for a company, and only for a company.',
+      path: ['companyRegistrationId'],
+    },
+  );
 export type RegisterRequest = z.infer<typeof registerSchema>;
 
 /**

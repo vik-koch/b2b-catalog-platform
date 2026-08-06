@@ -184,6 +184,34 @@ export const deploymentConfigSchema = z
       })
       .strict()
       .optional(),
+    /**
+     * The business registration number a company gives when it registers
+     * (FR-AUTH-01). Its format is jurisdiction-specific, so it is configured per
+     * deployment rather than encoded in the shared contract: `pattern` is the
+     * rule (applied to the unmasked value, and re-applied server-side), `mask`
+     * formats entry the way `phoneInput.mask` does, and `example` is what the
+     * validation hint shows the visitor.
+     */
+    companyIdInput: z
+      .object({
+        /**
+         * Fixed leading characters the visitor does not type — a country code
+         * like `DE` on a VAT number. Shown as a prefix on the field the way
+         * `phoneInput.countryCode` is, and part of the stored value, because
+         * that is how such a number is written and matched.
+         */
+        prefix: z.string().optional(),
+        /**
+         * Anchored regular expression for the **stored** value, prefix
+         * included: `^DE[0-9]{9}$`, not `^[0-9]{9}$`.
+         */
+        pattern: z.string(),
+        /** Digit mask for the typed part, `#` per digit (see DigitMask). */
+        mask: z.string().optional(),
+        example: z.string().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 
