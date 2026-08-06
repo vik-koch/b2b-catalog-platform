@@ -429,10 +429,11 @@ export const adminTextSchema = z
      */
     userList: z
       .object({
-        title: z.string(),
-        /** The two views: customer accounts and staff accounts. */
-        tabCustomers: z.string(),
-        tabStaff: z.string(),
+        /** The two lists, each reached from its own button on the admin panel;
+         * a manager only ever sees the customer one, so neither heading has to
+         * name the distinction. */
+        titleCustomers: z.string(),
+        titleStaff: z.string(),
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
         clearSearch: z.string(),
@@ -460,6 +461,7 @@ export const adminTextSchema = z
         statusPending: z.string(),
         statusInvited: z.string(),
         statusActive: z.string(),
+        statusDisabled: z.string(),
         statusAnonymized: z.string(),
         typePerson: z.string(),
         typeCompany: z.string(),
@@ -472,6 +474,13 @@ export const adminTextSchema = z
         decline: z.string(),
         declineTitle: z.string(),
         declineConfirm: z.string(),
+        /** Switching an account off and on again. `{name}` is substituted. */
+        deactivate: z.string(),
+        deactivateTitle: z.string(),
+        deactivateConfirm: z.string(),
+        reactivate: z.string(),
+        reactivateTitle: z.string(),
+        reactivateConfirm: z.string(),
         saveError: z.string(),
         /** The two Add buttons — one per tab, since they create different
          * things and land on different forms. */
@@ -505,6 +514,11 @@ export const adminTextSchema = z
         role: z.string(),
         /** Said on the create form: nobody is ever sent a password (ADR 0034). */
         inviteHint: z.string(),
+        /** Re-sending the set-your-password link, for a mail that never
+         * arrived. Only ever shown while the account is still `invited`. */
+        resend: z.string(),
+        resendSent: z.string(),
+        status: z.string(),
         create: z.string(),
         approve: z.string(),
         notFound: z.string(),

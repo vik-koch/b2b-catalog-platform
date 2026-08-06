@@ -1,5 +1,5 @@
 CREATE TYPE "public"."customer_type" AS ENUM('person', 'company');--> statement-breakpoint
-CREATE TYPE "public"."user_status" AS ENUM('pending', 'invited', 'active', 'anonymized');--> statement-breakpoint
+CREATE TYPE "public"."user_status" AS ENUM('pending', 'invited', 'active', 'disabled', 'anonymized');--> statement-breakpoint
 CREATE TABLE "password_tokens" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"userId" uuid NOT NULL,

@@ -20,6 +20,9 @@ export type AuditAction =
   | 'user.approved'
   | 'user.created'
   | 'user.updated'
+  | 'user.invited'
+  | 'user.deactivated'
+  | 'user.reactivated'
   | 'user.tierChanged'
   | 'user.roleChanged'
   | 'user.declined';

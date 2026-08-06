@@ -270,6 +270,11 @@ export const userStatus = pgEnum('user_status', [
   'pending',
   'invited',
   'active',
+  // Switched off by staff and switchable back on: the person who left, the
+  // customer who stopped ordering. Distinct from `anonymized`, which erases
+  // who they were — a deactivated account keeps its name so the audit trail
+  // and every approvedBy/updatedBy reference still point at somebody.
+  'disabled',
   'anonymized',
 ]);
 

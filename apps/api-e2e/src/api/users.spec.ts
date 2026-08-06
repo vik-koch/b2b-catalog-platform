@@ -434,6 +434,168 @@ describe('/admin/users', () => {
     });
   });
 
+  // The colleague who left: switched off, not erased. The name stays, so the
+  // audit trail and every approvedBy reference still point at somebody.
+  describe('deactivating an account', () => {
+    const off = (id: string, cookie = adminCookie) =>
+      request('patch', `/admin/users/${id}/active`, cookie, { active: false });
+    const on = (id: string, cookie = adminCookie) =>
+      request('patch', `/admin/users/${id}/active`, cookie, { active: true });
+
+    const seed = async (label: string, role: string, status: string) => {
+      const email = `e2e-users-${label}-${SUFFIX}@example.com`;
+      seeded.push(email);
+      return { email, id: await seedUser(email, role, status) };
+    };
+
+    it('blocks sign-in and ends sessions already in flight', async () => {
+      const { email, id } = await seed('off', 'manager', 'active');
+      const theirCookie = await signIn(email);
+
+      const res = await off(id);
+
+      expect(res.status).toBe(200);
+      expect(res.data.status).toBe('disabled');
+      // Not just the next sign-in — the cookie they already hold stops working.
+      expect((await request('get', '/auth/me', theirCookie)).status).toBe(401);
+      expect((await request('get', '/admin/users', theirCookie)).status).toBe(
+        401,
+      );
+      const login = await axios.post(
+        '/auth/login',
+        { email, password: PASSWORD },
+        { validateStatus: () => true },
+      );
+      expect(login.status).toBe(401);
+    });
+
+    it('retires the password, and any link that was still out', async () => {
+      const { id } = await seed('off-link', 'user', 'invited');
+      // A live invitation would otherwise be a working key to an account
+      // nobody is supposed to be able to sign into any more.
+      await request('post', `/admin/users/${id}/invite`, adminCookie, {});
+      const { rows: before } = await client.query(
+        'SELECT "passwordHash" FROM users WHERE id = $1',
+        [id],
+      );
+
+      expect((await off(id)).status).toBe(200);
+
+      const { rows: after } = await client.query(
+        'SELECT "passwordHash" FROM users WHERE id = $1',
+        [id],
+      );
+      expect(after[0].passwordHash).not.toBe(before[0].passwordHash);
+      const { rows: live } = await client.query(
+        `SELECT id FROM password_tokens
+         WHERE "userId" = $1 AND "usedAt" IS NULL AND "expiresAt" > now()`,
+        [id],
+      );
+      expect(live).toHaveLength(0);
+    });
+
+    it('switches back on to `invited`, with a fresh link and the account intact', async () => {
+      const { email, id } = await seed('back', 'user', 'active');
+      await off(id);
+      await deleteMatching(`to:"${email}"`);
+
+      const res = await on(id);
+
+      expect(res.status).toBe(200);
+      // Not `active`: deactivation took the password with it, so there is
+      // nothing to sign in with until a new one is chosen. Everything the
+      // approval decided is untouched.
+      expect(res.data).toMatchObject({ status: 'invited', firstName: 'Jane' });
+      const login = await axios.post(
+        '/auth/login',
+        { email, password: PASSWORD },
+        { validateStatus: () => true },
+      );
+      expect(login.status).toBe(401);
+
+      // The link is the only way back in, so the reactivation sends it.
+      expect(await messagesMatching(`to:"${email}"`)).toHaveLength(1);
+      const { rows } = await client.query(
+        `SELECT id FROM password_tokens
+         WHERE "userId" = $1 AND "usedAt" IS NULL AND "expiresAt" > now()`,
+        [id],
+      );
+      expect(rows).toHaveLength(1);
+    });
+
+    it('refuses your own account and the last admin', async () => {
+      const { id: mine } = await statusOf(ADMIN_EMAIL);
+
+      expect((await off(mine)).status).toBe(409);
+      expect((await statusOf(ADMIN_EMAIL)).status).toBe('active');
+    });
+
+    it('refuses an account nobody has approved, and one that is closed', async () => {
+      // Its own registration rather than the suite's, which an earlier case
+      // has already approved.
+      const { id: undecided } = await seed('undecided', 'user', 'pending');
+      // A registration is approved or declined, never switched off — and
+      // `pending` is not somewhere a real customer may be parked, because
+      // declining a pending row deletes it.
+      expect((await off(undecided)).status).toBe(409);
+
+      const { id: closed } = await seed('closed', 'user', 'anonymized');
+      expect((await off(closed)).status).toBe(409);
+      expect((await on(closed)).status).toBe(409);
+    });
+
+    it('keeps a manager away from staff here too', async () => {
+      const { id } = await seed('mgr-scope', 'user', 'active');
+      const { id: adminId } = await statusOf(ADMIN_EMAIL);
+
+      expect((await off(id, managerCookie)).status).toBe(200);
+      expect((await off(adminId, managerCookie)).status).toBe(404);
+    });
+  });
+
+  describe('re-sending an invitation', () => {
+    it('sends a fresh link, and retires the one before it', async () => {
+      const email = `e2e-users-resend-${SUFFIX}@example.com`;
+      seeded.push(email);
+      const id = await seedUser(email, 'user', 'invited');
+      await deleteMatching(`to:"${email}"`);
+
+      const res = await request(
+        'post',
+        `/admin/users/${id}/invite`,
+        adminCookie,
+        {},
+      );
+
+      expect(res.status).toBe(200);
+      const messages = await messagesMatching(`to:"${email}"`);
+      expect(messages).toHaveLength(1);
+
+      // Two links must never be live at once: issuing one expires the rest.
+      const { rows } = await client.query(
+        `SELECT id FROM password_tokens
+         WHERE "userId" = $1 AND "usedAt" IS NULL AND "expiresAt" > now()`,
+        [id],
+      );
+      expect(rows).toHaveLength(1);
+    });
+
+    it('refuses once a password has been chosen', async () => {
+      const { id } = await statusOf(CUSTOMER_EMAIL);
+
+      const res = await request(
+        'post',
+        `/admin/users/${id}/invite`,
+        adminCookie,
+        {},
+      );
+
+      // From here it is a password reset, not an invitation — the mail would
+      // tell an active customer to "choose a password" they already have.
+      expect(res.status).toBe(409);
+    });
+  });
+
   describe('the account list', () => {
     it('filters by status, role and tier', async () => {
       const byStatus = await request(

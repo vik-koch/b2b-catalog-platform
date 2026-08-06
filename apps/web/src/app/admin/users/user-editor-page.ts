@@ -35,6 +35,7 @@ import { Skeleton } from '../../ui/skeleton';
 import { injectEditorReturn } from '../editor-return';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';
+import { SelectField } from '../../ui/select-field';
 
 /**
  * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,
@@ -61,6 +62,7 @@ import { StaffUsersService } from './users.service';
     FieldLabel,
     Input,
     Skeleton,
+    SelectField,
   ],
   template: `
     <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ title() }}</h1>
@@ -82,6 +84,14 @@ import { StaffUsersService } from './users.service';
             <dd class="font-medium text-stone-700">{{ user.email }}</dd>
             <dt class="text-subtle">{{ listText.registered }}</dt>
             <dd class="text-subtle">{{ registered() }}</dd>
+            <dt class="text-subtle">{{ text.status }}</dt>
+            <dd>
+              <span
+                class="rounded px-1.5 py-0.5 text-xs"
+                [class]="statusClass(user.status)"
+                >{{ statusLabel(user.status) }}</span
+              >
+            </dd>
           </dl>
         }
 
@@ -202,48 +212,6 @@ import { StaffUsersService } from './users.service';
             </div>
           </div>
 
-          <!-- Optional here, unlike on the registration form: staff often set
-               an account up from an email alone, and a phone number they do
-               not have is not a reason to block the account. -->
-          <div>
-            <label for="phone" appFieldLabel>{{ text.phone }}</label>
-            @if (phoneInput; as config) {
-              <div class="flex">
-                <span
-                  class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
-                >
-                  {{ config.countryCode }}
-                </span>
-                <input
-                  id="phone"
-                  type="tel"
-                  appDigitMask
-                  [mask]="config.mask ?? ''"
-                  formControlName="phone"
-                  autocomplete="off"
-                  appInput
-                  class="w-full rounded-l-none"
-                  [attr.aria-invalid]="isInvalid('phone') || null"
-                />
-              </div>
-            } @else {
-              <input
-                id="phone"
-                type="tel"
-                formControlName="phone"
-                autocomplete="off"
-                appInput
-                class="w-full"
-                [attr.aria-invalid]="isInvalid('phone') || null"
-              />
-            }
-            @if (isInvalid('phone')) {
-              <p class="mt-1 text-sm text-red-600">
-                {{ text.validation.phoneIncomplete }}
-              </p>
-            }
-          </div>
-
           @if (isCompany()) {
             <div>
               <label for="companyRegistrationId" appFieldLabel>
@@ -303,6 +271,48 @@ import { StaffUsersService } from './users.service';
             </div>
           }
 
+          <!-- Optional here, unlike on the registration form: staff often set
+               an account up from an email alone, and a phone number they do
+               not have is not a reason to block the account. -->
+          <div>
+            <label for="phone" appFieldLabel>{{ text.phone }}</label>
+            @if (phoneInput; as config) {
+              <div class="flex">
+                <span
+                  class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
+                >
+                  {{ config.countryCode }}
+                </span>
+                <input
+                  id="phone"
+                  type="tel"
+                  appDigitMask
+                  [mask]="config.mask ?? ''"
+                  formControlName="phone"
+                  autocomplete="off"
+                  appInput
+                  class="w-full rounded-l-none"
+                  [attr.aria-invalid]="isInvalid('phone') || null"
+                />
+              </div>
+            } @else {
+              <input
+                id="phone"
+                type="tel"
+                formControlName="phone"
+                autocomplete="off"
+                appInput
+                class="w-full"
+                [attr.aria-invalid]="isInvalid('phone') || null"
+              />
+            }
+            @if (isInvalid('phone')) {
+              <p class="mt-1 text-sm text-red-600">
+                {{ text.validation.phoneIncomplete }}
+              </p>
+            }
+          </div>
+
           @if (isCustomer()) {
             <div>
               <label for="tier" appFieldLabel>
@@ -311,23 +321,25 @@ import { StaffUsersService } from './users.service';
                   <span class="text-accent" aria-hidden="true">*</span>
                 }
               </label>
-              <select
-                id="tier"
-                formControlName="tierId"
-                appInput
-                class="w-full sm:w-72"
-                [attr.aria-invalid]="isInvalid('tierId') || null"
-              >
-                <!-- No tier is a default anywhere (ADR 0031), so an approval
-                     has nothing to fall back on and must be chosen. -->
-                @if (isApproval()) {
-                  <option value="">{{ text.tierChoose }}</option>
-                }
-                <option value="default">{{ baseTierLabel }}</option>
-                @for (tier of tiers(); track tier.id) {
-                  <option [value]="tier.id">{{ tier.label }}</option>
-                }
-              </select>
+              <app-select-field class="max-w-72">
+                <select
+                  appInput
+                  id="tier"
+                  formControlName="tierId"
+                  class="w-full"
+                  [attr.aria-invalid]="isInvalid('tierId') || null"
+                >
+                  <!-- No tier is a default anywhere (ADR 0031), so an approval
+                       has nothing to fall back on and must be chosen. -->
+                  @if (isApproval()) {
+                    <option value="">{{ text.tierChoose }}</option>
+                  }
+                  <option value="default">{{ baseTierLabel }}</option>
+                  @for (tier of tiers(); track tier.id) {
+                    <option [value]="tier.id">{{ tier.label }}</option>
+                  }
+                </select>
+              </app-select-field>
               @if (isInvalid('tierId')) {
                 <p class="mt-1 text-sm text-red-600">
                   {{ text.validation.tierRequired }}
@@ -361,6 +373,11 @@ import { StaffUsersService } from './users.service';
           @if (error()) {
             <p class="text-sm text-red-700" role="alert">{{ error() }}</p>
           }
+          @if (resent()) {
+            <p class="text-sm text-green-700" role="status">
+              {{ text.resendSent }}
+            </p>
+          }
 
           <div class="flex flex-wrap gap-3">
             @if (!closed()) {
@@ -389,6 +406,21 @@ import { StaffUsersService } from './users.service';
                   {{ common.save }}
                 </button>
               }
+            }
+            <!-- Only while the account has not chosen a password: after that
+                 the way back in is a password reset, not this mail. -->
+            @if (canResend()) {
+              <button
+                appButton
+                variant="secondary"
+                type="button"
+                class="gap-2"
+                [disabled]="saving()"
+                (click)="resendInvitation()"
+              >
+                <app-admin-icon name="send" class="h-4 w-4" />
+                {{ text.resend }}
+              </button>
             }
             <button
               appButton
@@ -458,6 +490,11 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly closed = computed(
     () => this.account()?.status === 'anonymized',
   );
+  protected readonly canResend = computed(
+    () => this.account()?.status === 'invited',
+  );
+  /** Cleared on the next action, so it never outlives what it reports. */
+  protected readonly resent = signal(false);
 
   protected readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
@@ -588,6 +625,49 @@ export class UserEditorPage implements UnsavedChangesAware {
         ? 'bg-primary text-white'
         : 'text-ink hover:bg-stone-100';
     return `${base} ${state}`;
+  }
+
+  /**
+   * Send the set-your-password link again — the mail was lost, filed as spam,
+   * or its seven days ran out. Issuing a new link retires the old one, so
+   * there is never more than one live way into the account.
+   */
+  protected async resendInvitation(): Promise<void> {
+    const account = this.account();
+    if (!account) return;
+    this.error.set(null);
+    this.resent.set(false);
+    this.saving.set(true);
+    try {
+      const result = await this.service.resendInvitation(account.id);
+      if (result.ok) this.resent.set(true);
+      else this.error.set(result.message);
+    } catch {
+      this.error.set(this.text.saveError);
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  /** The same words and colours the list gives these states. */
+  protected statusLabel(status: StaffUser['status']): string {
+    return {
+      pending: this.listText.statusPending,
+      invited: this.listText.statusInvited,
+      active: this.listText.statusActive,
+      disabled: this.listText.statusDisabled,
+      anonymized: this.listText.statusAnonymized,
+    }[status];
+  }
+
+  protected statusClass(status: StaffUser['status']): string {
+    return {
+      pending: 'bg-amber-100 text-amber-800',
+      invited: 'bg-sky-100 text-sky-800',
+      active: 'bg-green-100 text-green-800',
+      disabled: 'bg-red-100 text-red-800',
+      anonymized: 'bg-stone-200 text-muted',
+    }[status];
   }
 
   protected companyIdHint(): string {

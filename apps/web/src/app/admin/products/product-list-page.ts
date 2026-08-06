@@ -52,9 +52,10 @@ import { GridSearchField } from './grid-search-field';
     Skeleton,
   ],
   template: `
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div class="mb-6 grid grid-cols-2 md:grid-cols-3 gap-4 items-center">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
       <app-grid-search-field
+        class="md:justify-self-center"
         [query]="query() ?? ''"
         [searchLabel]="text.searchLabel"
         [searchPlaceholder]="text.searchPlaceholder"
@@ -64,7 +65,7 @@ import { GridSearchField } from './grid-search-field';
         appButton
         routerLink="/admin/products/new"
         [queryParams]="editorFrom"
-        class="gap-2"
+        class="md:justify-self-end gap-2"
       >
         <app-admin-icon name="plus" class="h-4 w-4" />
         {{ editText.addProduct }}

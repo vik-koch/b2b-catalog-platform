@@ -1013,6 +1013,7 @@
         "pending",
         "invited",
         "active",
+        "disabled",
         "anonymized"
       ]
     }

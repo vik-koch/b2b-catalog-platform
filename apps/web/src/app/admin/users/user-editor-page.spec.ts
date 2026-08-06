@@ -76,6 +76,11 @@ async function render(
       ok: true,
       user: user({ status: 'invited' }),
     })),
+    resendInvitation: vi.fn<StaffUsersService['resendInvitation']>(
+      async () => ({
+        ok: true,
+      }),
+    ),
   };
   const tiers = {
     list: vi.fn(async () => ({
@@ -318,6 +323,25 @@ describe('UserEditorPage', () => {
 
     expect(el.textContent).toContain(text.closed);
     expect(button(defaultAdminText.common.save)).toBeUndefined();
+  });
+
+  it('re-sends the invitation only while there is one to re-send', async () => {
+    const invited = await render({ account: user({ status: 'invited' }) });
+    await invited.press(text.resend);
+
+    expect(invited.service.resendInvitation).toHaveBeenCalledWith('u1');
+    expect(invited.el.textContent).toContain(text.resendSent);
+
+    // Once a password has been chosen the way back in is a reset, and the
+    // invitation wording ("choose a password") would no longer be true.
+    const active = await render({ account: user({ status: 'active' }) });
+    expect(active.button(text.resend)).toBeUndefined();
+  });
+
+  it('shows where the account stands, in the list\u2019s own words', async () => {
+    const { el } = await render({ account: user({ status: 'disabled' }) });
+
+    expect(el.textContent).toContain(defaultAdminText.userList.statusDisabled);
   });
 
   it('says so when the account is not there (or not the caller’s to see)', async () => {

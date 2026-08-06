@@ -164,6 +164,55 @@ export class StaffUsersController {
     return actor.role === 'admin' || target.role === 'user';
   }
 
+  /**
+   * Switching an account off, and back on. Both directions go through
+   * AccountInvitations rather than the service alone: off has to retire the
+   * links that are out, and on has to send a new one, because the account
+   * comes back with no password of its own.
+   */
+  @TsRestHandler(usersContract.setUserActive, { validateResponses: true })
+  setUserActive(@CurrentUser() actor: AuthUser) {
+    return tsRestHandler(
+      usersContract.setUserActive,
+      async ({ params: { id }, body }) => {
+        const target = await this.service.findById(id);
+        if (!target || !this.mayManage(actor, target)) {
+          return { status: 404, body: { message: 'Account not found' } };
+        }
+        const user = body.active
+          ? await this.invitations.reactivate(id)
+          : await this.invitations.deactivate(id, actor.id);
+        this.audit.record(
+          body.active ? 'user.reactivated' : 'user.deactivated',
+          actor,
+          { id: user.id, name: user.email },
+        );
+        return { status: 200, body: user };
+      },
+    );
+  }
+
+  @TsRestHandler(usersContract.resendInvitation, { validateResponses: true })
+  resendInvitation(@CurrentUser() actor: AuthUser) {
+    return tsRestHandler(
+      usersContract.resendInvitation,
+      async ({ params: { id } }) => {
+        const user = await this.service.findById(id);
+        if (!user || !this.mayManage(actor, user)) {
+          return { status: 404, body: { message: 'Account not found' } };
+        }
+        // Unlike an approval, the mail *is* the request: a failure here is
+        // reported rather than swallowed, because nothing else happened.
+        await this.invitations.resend(user);
+        this.audit.record('user.invited', actor, {
+          id: user.id,
+          name: user.email,
+        });
+        return { status: 200, body: { message: 'Invitation sent' } };
+      },
+    );
+  }
+
   @TsRestHandler(usersContract.deleteUser, { validateResponses: true })
   deleteUser(@CurrentUser() actor: AuthUser) {
     return tsRestHandler(

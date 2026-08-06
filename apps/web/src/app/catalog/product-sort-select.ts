@@ -7,8 +7,8 @@ import {
   searchSortSchema,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
-import { Icon } from '../ui/icons/icon';
 import { Input } from '../ui/input';
+import { SelectField } from '../ui/select-field';
 
 /**
  * Ties the visible label to the field. A constant rather than a generated id:
@@ -34,16 +34,13 @@ const SORT_FIELD_ID = 'product-sort';
  */
 @Component({
   selector: 'app-product-sort-select',
-  imports: [Input, Icon],
+  imports: [Input, SelectField],
   template: `
     <div class="flex items-center gap-2">
       <label [attr.for]="id" class="text-sm whitespace-nowrap text-subtle">{{
         text.sort.label
       }}</label>
-      <!-- The chevron replaces the platform's own arrow (appearance-none), so
-           the control looks the same on every browser and matches the pickers
-           in the editors. -->
-      <div class="relative">
+      <app-select-field class="max-w-52">
         <!-- Selection is marked on the option rather than bound on the <select>:
              a value binding is applied before the options exist, and the element
              silently falls back to the first one.
@@ -60,7 +57,7 @@ const SORT_FIELD_ID = 'product-sort';
           size="sm"
           [id]="id"
           (change)="onSelect($event)"
-          class="w-full max-w-52 appearance-none pr-9 pl-3"
+          class="w-full"
         >
           @for (option of options(); track option) {
             <option
@@ -72,11 +69,7 @@ const SORT_FIELD_ID = 'product-sort';
             </option>
           }
         </select>
-        <app-icon
-          name="chevron-down"
-          class="pointer-events-none absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 text-stone-400"
-        />
-      </div>
+      </app-select-field>
     </div>
   `,
 })

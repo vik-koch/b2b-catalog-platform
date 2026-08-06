@@ -61,6 +61,10 @@ async function render(
   const service = {
     list: vi.fn(async () => options.users ?? []),
     remove: vi.fn<StaffUsersService['remove']>(async () => ({ ok: true })),
+    setActive: vi.fn<StaffUsersService['setActive']>(async () => ({
+      ok: true,
+      user: user(),
+    })),
   };
   const tiers = {
     list: vi.fn(async () => ({
@@ -349,11 +353,66 @@ describe('UserListPage', () => {
     expect(addLink(staff.el)).toBe('/admin/users/staff/new');
   });
 
-  it('hides the Staff tab from a manager', async () => {
-    const asManager = await render({ role: 'manager', users: [] });
-    expect(asManager.el.textContent).not.toContain(text.tabStaff);
+  it('names itself for the list it is, without offering the other one', async () => {
+    // The two lists are reached from two admin-panel buttons, so a manager
+    // never sees a control naming a list they may not open.
+    const customers = await render({ users: [] });
+    expect(customers.el.querySelector('h1')?.textContent).toContain(
+      text.titleCustomers,
+    );
+    expect(customers.el.textContent).not.toContain(text.titleStaff);
 
-    const asAdmin = await render({ role: 'admin', users: [] });
-    expect(asAdmin.el.textContent).toContain(text.tabStaff);
+    const staff = await render({ kind: 'staff', users: [] });
+    expect(staff.el.querySelector('h1')?.textContent).toContain(
+      text.titleStaff,
+    );
+  });
+
+  it('deactivates an approved account, and switches a deactivated one back on', async () => {
+    const off = await render({ users: [user({ id: 'u1', status: 'active' })] });
+    await off.rowAction(text.deactivate);
+    expect(off.confirm.ask).toHaveBeenCalled();
+    expect(off.service.setActive).toHaveBeenCalledWith('u1', false);
+
+    // Approved but never signed in: a colleague who left before opening the
+    // mail still needs the account stopped.
+    const invited = await render({
+      users: [user({ id: 'u2', status: 'invited' })],
+    });
+    await invited.rowAction(text.deactivate);
+    expect(invited.service.setActive).toHaveBeenCalledWith('u2', false);
+
+    const on = await render({
+      users: [user({ id: 'u1', status: 'disabled' })],
+    });
+    await on.rowAction(text.reactivate);
+    expect(on.service.setActive).toHaveBeenCalledWith('u1', true);
+  });
+
+  it('offers neither switch on a registration or a closed account', async () => {
+    const pending = await render({
+      users: [user({ status: 'pending' })],
+    });
+    // Nobody has decided on it yet: the actions are approve and decline.
+    expect(pending.el.textContent).not.toContain(text.deactivate);
+
+    const closed = await render({ users: [user({ status: 'anonymized' })] });
+    expect(closed.el.querySelectorAll('tbody button')).toHaveLength(0);
+  });
+
+  it('reports a refused deactivation', async () => {
+    const { el, service, rowAction } = await render({
+      users: [user({ id: 'a1', status: 'active' })],
+    });
+    service.setActive.mockResolvedValueOnce({
+      ok: false,
+      message: 'This is the last admin account; promote another one first',
+    });
+
+    await rowAction(text.deactivate);
+
+    expect(el.querySelector('[role="alert"]')?.textContent).toContain(
+      'last admin',
+    );
   });
 });

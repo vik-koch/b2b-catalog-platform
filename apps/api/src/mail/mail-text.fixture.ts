@@ -43,6 +43,13 @@ export const demoMailText: MailText = {
     body: 'We have set up a customer account for you. Choose a password to start using it.',
     action: 'Choose your password',
   },
+  accountReactivated: {
+    subject: 'Your account is active again',
+    preheader: 'Choose a new password to start ordering again.',
+    heading: 'Your account is active again',
+    body: 'Your account has been switched back on. The old password no longer works — choose a new one.',
+    action: 'Choose your password',
+  },
   newRegistration: {
     subject: 'New registration',
     preheader: 'Someone requested a customer account.',

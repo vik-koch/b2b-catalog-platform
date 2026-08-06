@@ -12,6 +12,14 @@ been for decades. So there is no self-service path from "filled in a form" to
 "sees wholesale prices", and no tier can be inferred from anything the
 registrant types.
 
+There is also a third thing that has to be expressible, and it is the one the
+shop will use most often after approval: an account that must stop working
+_without_ being erased. A colleague leaves; a customer's account is suspected
+compromised; a business stops trading. FR-AUTH-06's anonymization is the wrong
+tool for all three — it is final, and it destroys the name that the audit trail
+and every `approvedBy` reference depend on. What is needed is a switch, and a
+switch has to have a defined way back.
+
 That makes an account's _state_ a first-class thing, distinct from its role and
 from its tier: a registered-but-not-yet-a-customer account must exist (so the
 address is reserved and staff can see the request) while being unable to sign
@@ -36,16 +44,28 @@ leaves no trace and the same address can retry endlessly unnoticed); hard
 deletion with FK nulling for FR-AUTH-06 (erases who did what from the audit
 trail, which NFR-SEC and the sync audit model both depend on).
 
+For the switch specifically: reactivating straight back to `active` (leaves a
+dormant password that outlives the reason the account was switched off, and
+makes `active` mean two different things depending on how the row got there);
+and returning a reactivated account to `pending` (the state means "a
+registration nobody has decided on yet", so a real customer would land in the
+review queue among new signups — where the staff action on offer is _decline_,
+which hard-deletes the row).
+
 ## Decision
 
-`users.status` is an enum — `pending | invited | active | anonymized` —
-defaulting to `pending`; a registration carries first name, last name, phone, a
-`customerType` of `person | company` and, for a company, its business
-registration number; approval by staff sets **`invited`** together with
+`users.status` is an enum — `pending | invited | active | disabled |
+anonymized` — defaulting to `pending`; a registration carries first name, last
+name, phone, a `customerType` of `person | company` and, for a company, its
+business registration number; approval by staff sets **`invited`** together with
 `approvedAt`, `approvedBy` and an explicitly chosen tier, and sends a
 set-your-own-password link (ADR 0034) whose redemption is what makes the account
-`active`; self-deletion sets `anonymized` and tombstones the identifying fields,
-keeping the row and its foreign-key references intact.
+`active`; staff may switch any approved account (`invited` or `active`) to
+**`disabled`**, which replaces its password with an unusable hash, bumps
+`tokenVersion` and revokes outstanding links, and may switch it back — to
+**`invited`**, never to `active`, with a fresh link sent; self-deletion sets
+`anonymized` and tombstones the identifying fields, keeping the row and its
+foreign-key references intact.
 
 ## Rationale
 
@@ -55,6 +75,29 @@ creates `pending`, staff create `invited`, the account holder creates `active`
 by choosing a password and `anonymized` by leaving. There is no route back from
 `anonymized`, and a `pending` account that is never approved simply stays a
 visible request.
+
+`disabled` is a separate state rather than a reuse of `pending` or a second
+`anonymized`, because it is the only one of the three that is _reversible_ and
+the only one that keeps the person's identity intact. Its transitions carry the
+weight, not the label: deactivation is three writes, and each answers a
+different failure. The status is what login and the guards read. The
+`tokenVersion` bump is what matters on the day it is used — somebody who has
+just left holds a session cookie good for another seven days, and a status
+change alone would not touch it. And the password is replaced with an unusable
+hash rather than left dormant, together with revoking any link still out, so
+"switched off" means the credential is gone rather than parked.
+
+Reactivation therefore lands on `invited`. This is forced rather than chosen:
+once deactivation has retired the password, there is nothing to sign in with,
+and `invited` is precisely the existing state for "staff have said yes, no
+password yet". It keeps `active` meaning exactly one thing everywhere — an
+account holding a password its owner chose — and it means the affordance the
+account needs on the way back, the re-sendable invitation, is already there.
+Nothing about the approval is revisited: role, tier, `approvedAt` and
+`approvedBy` all survive, because none of them stopped being true. The cost is
+that switching an account back on needs its owner to act, which is why the
+reactivation mail is sent by the same request rather than left as a second
+staff click.
 
 `invited` is a state rather than a flag or a derived condition because it
 answers a question the other two cannot: staff have decided, and the account
@@ -119,6 +162,9 @@ survives.
   the admin panel or emailing the applicant by hand.
 - (+) Audit trails and `updatedBy` references survive account deletion, with no
   FK nulling and no orphan handling anywhere in the schema.
+- (+) Offboarding is one click and takes effect at once: no waiting out a
+  session's seven days, no password left dormant, no invitation link still live
+  in a mailbox.
 - (+) Approval is the natural moment to force a deliberate tier choice, which is
   what ADR 0031 needs (there is no default-tier row to fall into).
 - (+) No password is ever generated for someone else: staff decide _whether_,
@@ -131,9 +177,20 @@ survives.
 - (−) An approved account can sit `invited` indefinitely if its owner never
   opens the mail, which reads as "approved but absent" in the account list and
   is a state staff have to understand.
+- (−) Deactivation is not undo. Switching an account back on cannot restore the
+  password it destroyed, so a mis-click costs its owner a trip through the
+  set-your-password link — recoverable, but not free. Both directions are
+  therefore confirmed in the admin UI, and the confirmation says what it does.
+- (−) A reactivated account can sit `invited` indefinitely if its owner never
+  opens the mail, which is the same "approved but absent" state an unopened
+  first invitation produces, reached by a second route.
+- (−) An invitation re-sent to a reactivated account uses the wording of the
+  account's origin (approved, or staff-created) rather than of the
+  reactivation: nothing records that the account has been round the loop, and
+  storing that would be state kept solely to pick an email subject line.
 - (−) Every future guard, and any query that lists "users", must remember that
-  `pending`, `invited` and `anonymized` rows exist and are not customers. The tier account
-  counts already filter on both role and status.
+  `pending`, `invited`, `disabled` and `anonymized` rows exist and are not
+  customers. The tier account counts already filter on both role and status.
 - (−) An unapproved registration occupies its email address indefinitely. There
   is no expiry sweep; if pending rows pile up, that is a staff workflow signal,
   and a cleanup job can be added later without touching this model.

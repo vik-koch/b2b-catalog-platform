@@ -84,6 +84,40 @@ export class StaffUsersService {
     throw new Error(`Failed to create the account (status ${response.status})`);
   }
 
+  /** Switch an account off, or back on. 409 is the guard: your own account,
+   * the last admin, or one that was never approved to begin with. Switching on
+   * returns an `invited` account, not an `active` one — the password went with
+   * the deactivation, and the API mails a fresh link. */
+  async setActive(id: string, active: boolean): Promise<UserActionResult> {
+    const response = await this.client.setUserActive({
+      params: { id },
+      body: { active },
+    });
+    if (response.status === 200) return { ok: true, user: response.body };
+    if (response.status === 404 || response.status === 409) {
+      return { ok: false, message: response.body.message };
+    }
+    throw new Error(`Failed to change the status (status ${response.status})`);
+  }
+
+  /** Send the set-your-password link again. 409 once a password has been
+   * chosen — from there it is a password reset, not an invitation. */
+  async resendInvitation(
+    id: string,
+  ): Promise<{ ok: true } | { ok: false; message: string }> {
+    const response = await this.client.resendInvitation({
+      params: { id },
+      body: {},
+    });
+    if (response.status === 200) return { ok: true };
+    if (response.status === 404 || response.status === 409) {
+      return { ok: false, message: response.body.message };
+    }
+    throw new Error(
+      `Failed to send the invitation (status ${response.status})`,
+    );
+  }
+
   /** Decline and purge a pending registration. 409 when it is no longer
    * pending (an approved account is anonymized, never deleted). */
   async remove(

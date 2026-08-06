@@ -75,6 +75,18 @@ export const mailTextSchema = z
         action: z.string(),
       })
       .strict(),
+    /** The same invitation again, for an account staff switched back on:
+     * deactivation retires the password, so returning means choosing a new
+     * one rather than remembering the old. */
+    accountReactivated: z
+      .object({
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        body: z.string(),
+        action: z.string(),
+      })
+      .strict(),
     /** Sent to the shop when a registration arrives (FR-NOTIF-04). */
     newRegistration: z
       .object({

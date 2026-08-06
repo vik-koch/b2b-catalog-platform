@@ -6,7 +6,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import {
   StaffUser,
   UserKind,
@@ -15,7 +15,6 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { AuthService } from '../../auth/auth.service';
 import { usePageSeo } from '../../core/page-seo';
 import { delayedLoading } from '../../core/delayed-loading';
 import { stableValue } from '../../core/stable-value';
@@ -36,8 +35,10 @@ import { StaffUsersService } from './users.service';
 /**
  * The staff account list (FR-AUTH-03/04). One component, two views chosen by the
  * route's `kind`: **Customers** (the `user` role) and **Staff** (admin and
- * manager). The split is a permission boundary — a manager only ever reaches the
- * customer view, enforced by the API, not just by hiding a tab.
+ * manager). They are two screens reached from two buttons on the admin panel,
+ * not two tabs on one screen: the split is a permission boundary, and a manager
+ * who can only ever see customers should not be shown a switch that names a
+ * second list they may not open — for them this is simply "Customers".
  *
  * Every row action but one is a link into the account editor, which is where
  * approving, re-tiering and correcting details all happen. Declining stays
@@ -77,7 +78,6 @@ const typeRank = (t: StaffUser['customerType']): number =>
   selector: 'app-user-list-page',
   imports: [
     RouterLink,
-    RouterLinkActive,
     Button,
     AdminIcon,
     GridSearchField,
@@ -86,15 +86,18 @@ const typeRank = (t: StaffUser['customerType']): number =>
     Skeleton,
   ],
   template: `
-    <div class="mb-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-      <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
+    <div class="mb-6 grid grid-cols-2 md:grid-cols-3 gap-4 items-center">
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ title() }}
+      </h1>
       <app-grid-search-field
+        class="md:justify-self-center"
         [query]="query() ?? ''"
         [searchLabel]="text.searchLabel"
         [searchPlaceholder]="text.searchPlaceholder"
         [clearLabel]="text.clearSearch"
       />
-      <div class="justify-self-end">
+      <div class="md:justify-self-end">
         <a
           appButton
           class="gap-2"
@@ -108,27 +111,6 @@ const typeRank = (t: StaffUser['customerType']): number =>
         </a>
       </div>
     </div>
-
-    <!-- Customers and Staff are two routes, not a filter, so the switch is
-         navigation. The Staff view is admin-only, so its tab is absent for a
-         manager rather than shown-then-refused. -->
-    <nav class="mb-6 flex gap-6 border-b border-border text-sm">
-      <a
-        routerLink="/admin/users"
-        routerLinkActive="border-primary text-stone-700"
-        [routerLinkActiveOptions]="{ exact: true }"
-        class="-mb-px border-b-2 border-transparent px-1 pb-2 text-subtle hover:text-accent"
-        >{{ text.tabCustomers }}</a
-      >
-      @if (isAdmin()) {
-        <a
-          routerLink="/admin/users/staff"
-          routerLinkActive="border-primary text-stone-700"
-          class="-mb-px border-b-2 border-transparent px-1 pb-2 text-subtle hover:text-accent"
-          >{{ text.tabStaff }}</a
-        >
-      }
-    </nav>
 
     <!-- Where a decline that raced with another change reports itself: every
          other action is a navigation, and reports from the editor. -->
@@ -296,6 +278,11 @@ const typeRank = (t: StaffUser['customerType']): number =>
                         />
                       </a>
                     }
+                    <!-- One slot for "stop this account", with the meaning the
+                         row's state gives it: an undecided registration is
+                         thrown away, an approved account is switched off
+                         (whether or not its owner ever signed in), and a
+                         switched-off one is switched back on. -->
                     @if (user.status === 'pending') {
                       <button
                         type="button"
@@ -304,6 +291,24 @@ const typeRank = (t: StaffUser['customerType']): number =>
                         (click)="decline(user)"
                       >
                         <app-admin-icon name="trash-2" class="h-4 w-4" />
+                      </button>
+                    } @else if (user.status === 'disabled') {
+                      <button
+                        type="button"
+                        class="p-1.5 text-subtle hover:text-accent"
+                        [attr.aria-label]="text.reactivate"
+                        (click)="setActive(user, true)"
+                      >
+                        <app-admin-icon name="rotate-ccw" class="h-4 w-4" />
+                      </button>
+                    } @else if (user.status !== 'anonymized') {
+                      <button
+                        type="button"
+                        class="p-1.5 text-subtle hover:text-red-700"
+                        [attr.aria-label]="text.deactivate"
+                        (click)="setActive(user, false)"
+                      >
+                        <app-admin-icon name="circle-slash" class="h-4 w-4" />
                       </button>
                     }
                   </div>
@@ -327,7 +332,6 @@ const typeRank = (t: StaffUser['customerType']): number =>
 export class UserListPage {
   private readonly service = inject(StaffUsersService);
   private readonly tiers = inject(TiersService);
-  private readonly auth = inject(AuthService);
   protected readonly text = inject(ADMIN_TEXT).userList;
   protected readonly defaultSort = DEFAULT_USER_SORT;
   protected readonly dash = '—';
@@ -344,8 +348,8 @@ export class UserListPage {
   readonly kind = input<UserKind>('customer');
   protected readonly isCustomers = computed(() => this.kind() === 'customer');
   protected readonly isStaff = computed(() => this.kind() === 'staff');
-  protected readonly isAdmin = computed(
-    () => this.auth.user()?.role === 'admin',
+  protected readonly title = computed(() =>
+    this.isStaff() ? this.text.titleStaff : this.text.titleCustomers,
   );
 
   /*
@@ -434,6 +438,7 @@ export class UserListPage {
     { value: 'pending', label: this.text.statusPending },
     { value: 'invited', label: this.text.statusInvited },
     { value: 'active', label: this.text.statusActive },
+    { value: 'disabled', label: this.text.statusDisabled },
     { value: 'anonymized', label: this.text.statusAnonymized },
   ];
 
@@ -457,6 +462,36 @@ export class UserListPage {
 
   /** For the one action that is not a navigation: a declined row that raced. */
   protected readonly pageError = signal<string | null>(null);
+
+  /**
+   * Switch an account off or back on. Both directions are confirmed, because
+   * neither is only a flag: switching off ends the person's session mid-work
+   * and retires their password, and switching back on mails them a link. No
+   * data is destroyed either way, and the wording says so.
+   */
+  protected async setActive(user: StaffUser, active: boolean): Promise<void> {
+    this.pageError.set(null);
+    const off = !active;
+    const ok = await this.confirm.ask({
+      heading: off ? this.text.deactivateTitle : this.text.reactivateTitle,
+      message: (off
+        ? this.text.deactivateConfirm
+        : this.text.reactivateConfirm
+      ).replace('{name}', this.name(user)),
+      confirmLabel: off ? this.text.deactivate : this.text.reactivate,
+      cancelLabel: this.common.cancel,
+      confirmVariant: off ? 'danger' : 'primary',
+    });
+    if (!ok) return;
+
+    try {
+      const result = await this.service.setActive(user.id, active);
+      if (!result.ok) this.pageError.set(result.message);
+    } catch {
+      this.pageError.set(this.text.saveError);
+    }
+    this.users.reload();
+  }
 
   /** Decline a pending registration — a yes/no, so the shared confirm dialog.
    * On the rare race (already approved) the reload corrects the row and the
@@ -517,17 +552,21 @@ export class UserListPage {
       pending: this.text.statusPending,
       invited: this.text.statusInvited,
       active: this.text.statusActive,
+      disabled: this.text.statusDisabled,
       anonymized: this.text.statusAnonymized,
     }[status];
   }
 
   /** A muted badge per state: amber for waiting, blue for invited-not-yet-in,
-   * green for active, grey for a closed account. */
+   * green for active, red for switched off, grey for a closed account. */
   protected statusClass(status: StaffUser['status']): string {
     return {
       pending: 'bg-amber-100 text-amber-800',
       invited: 'bg-sky-100 text-sky-800',
       active: 'bg-green-100 text-green-800',
+      // Red, not grey: a deactivated account is a deliberate block somebody
+      // has to notice, where a closed one is just history.
+      disabled: 'bg-red-100 text-red-800',
       anonymized: 'bg-stone-200 text-muted',
     }[status];
   }
@@ -560,6 +599,6 @@ export class UserListPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.title() });
   }
 }

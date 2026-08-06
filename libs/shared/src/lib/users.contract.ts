@@ -21,11 +21,23 @@ const c = initContract();
  * Account lifecycle, mirroring the `user_status` pg enum. `invited` is a real
  * state rather than a derived one: staff have approved the account and a
  * set-your-password link is out, but nothing can sign in until it is redeemed.
+ *
+ * `disabled` and `anonymized` are the two ways an account stops being usable,
+ * and they are not interchangeable: **disabled** is a switch staff can flip
+ * back (the colleague who left, the customer who stopped ordering) and keeps
+ * the person's name, so the audit trail and every `approvedBy` reference still
+ * name somebody; **anonymized** erases who they were and is final.
+ *
+ * Switching an account off retires its password, so the way back on is
+ * `invited` — never straight to `active`. That keeps every status honest about
+ * one thing: an account is `active` exactly when it holds a password its owner
+ * chose.
  */
 export const USER_STATUSES = [
   'pending',
   'invited',
   'active',
+  'disabled',
   'anonymized',
 ] as const;
 export type UserStatus = (typeof USER_STATUSES)[number];
@@ -128,6 +140,20 @@ export const createUserSchema = z
 export type CreateUserRequest = z.infer<typeof createUserSchema>;
 
 /**
+ * Switching an account off, and back on again (FR-AUTH-04). A lifecycle
+ * transition rather than a field, which is why it is not part of `updateUser`:
+ * it ends sessions, retires the password, and the two directions are separate
+ * decisions with separate audit lines.
+ *
+ * The request names the *direction*, not a target status, because switching
+ * back on does not land where the account came from: it lands on `invited`,
+ * with a fresh set-your-password link out. The response says where it actually
+ * ended up.
+ */
+export const setUserActiveSchema = z.object({ active: z.boolean() }).strict();
+export type SetUserActiveRequest = z.infer<typeof setUserActiveSchema>;
+
+/**
  * Which side of the account list a request wants: `customer` accounts (`user`
  * role) or `staff` (admin and manager). The split is a real permission boundary,
  * not just a view — a manager may only ever see customers, enforced server-side
@@ -210,6 +236,37 @@ export const usersContract = c.router(
         409: messageSchema,
       },
       summary: 'Edit an account; role is admin only (admin, manager)',
+    },
+    setUserActive: {
+      method: 'PATCH',
+      path: '/admin/users/:id/active',
+      pathParams: z.object({ id: z.string().uuid() }),
+      body: setUserActiveSchema,
+      responses: {
+        200: staffUserSchema,
+        404: messageSchema,
+        // Your own account, the last admin, a registration nobody has decided
+        // on yet, or an anonymized one — which has nothing left to switch on.
+        409: messageSchema,
+      },
+      summary: 'Deactivate or reactivate an account (admin, manager)',
+    },
+    resendInvitation: {
+      method: 'POST',
+      path: '/admin/users/:id/invite',
+      pathParams: z.object({ id: z.string().uuid() }),
+      // No payload; an empty object is the repo's no-body POST convention
+      // (a POST body is parsed to `{}`, which `z.void()` would reject).
+      body: z.object({}),
+      responses: {
+        200: messageSchema,
+        404: messageSchema,
+        // Nothing to send to: a pending, disabled or anonymized account.
+        409: messageSchema,
+      },
+      // The first link expires, and mail gets lost; this is the way back
+      // without touching the account itself.
+      summary: 'Send a fresh set-your-password link (admin, manager)',
     },
     deleteUser: {
       method: 'DELETE',

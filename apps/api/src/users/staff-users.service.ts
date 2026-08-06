@@ -15,6 +15,7 @@ import {
   ne,
   or,
   SQL,
+  sql,
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
@@ -61,9 +62,11 @@ export interface ListUsersFilters {
 
 /**
  * The staff view of accounts (FR-AUTH-03/04). Reads and writes the columns an
- * approving manager works with; it never touches `passwordHash` — a password
- * is only ever set by its own owner, through a token (see
- * PasswordTokenService), so there is nothing here that could set one.
+ * approving manager works with. It never sets a *password* — that is only ever
+ * done by the account's own owner, through a token (see PasswordTokenService),
+ * and there is nothing here that could hash one. The single write to
+ * `passwordHash` is `deactivate`, which takes the unusable hash it stores as an
+ * argument: taking a password away is a staff decision, choosing one is not.
  */
 @Injectable()
 export class StaffUsersService {
@@ -222,6 +225,93 @@ export class StaffUsersService {
         role,
         updatedAt: new Date(),
       })
+      .where(eq(users.id, id))
+      .returning(staffUserColumns);
+    return toStaffUser(updated);
+  }
+
+  /**
+   * Switch an account off: the colleague who left, the customer who stopped
+   * ordering. Everything that identifies them survives, so the audit trail and
+   * every `approvedBy` reference still point at somebody — this is not
+   * anonymization (FR-AUTH-06), which is final.
+   *
+   * Three writes, and each is load-bearing. The status is what login and the
+   * guards read. The `tokenVersion` bump is the part that matters on the day
+   * it is used: somebody who has just left holds a session cookie good for
+   * another seven days, and a status change alone would not touch it. And the
+   * password is replaced with an unusable hash, so "switched off" means the
+   * credential is gone rather than dormant — which is why coming back is
+   * `reactivate`'s job and lands on `invited`.
+   *
+   * Both `active` and `invited` accounts can be switched off: a colleague who
+   * never opened their invitation still needs the account stopped. A `pending`
+   * registration cannot — nobody has decided on it yet, so the actions are
+   * approve and decline. Neither can an `anonymized` one.
+   *
+   * The guards mirror the role change's: you cannot switch yourself off, and
+   * the last admin cannot be switched off by anyone.
+   */
+  async deactivate(
+    id: string,
+    actorId: string,
+    unusableHash: string,
+  ): Promise<StaffUser> {
+    const current = await this.findById(id);
+    if (!current) throw new NotFoundException('Account not found');
+    if (current.status !== 'active' && current.status !== 'invited') {
+      throw new ConflictException(
+        'Only an approved account can be switched off',
+      );
+    }
+    if (id === actorId) {
+      throw new ConflictException('You cannot deactivate your own account');
+    }
+    if (current.role === 'admin' && !(await this.hasAnotherAdmin(id))) {
+      throw new ConflictException(
+        'This is the last admin account; promote another one first',
+      );
+    }
+
+    const [updated] = await this.db
+      .update(users)
+      .set({
+        status: 'disabled',
+        // Not a sentinel — see PasswordService.unusableHash. Passed in rather
+        // than made here so this class still has no way to *set* a password.
+        passwordHash: unusableHash,
+        // Ends every session already in flight, not just the next sign-in.
+        tokenVersion: sql`${users.tokenVersion} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning(staffUserColumns);
+    return toStaffUser(updated);
+  }
+
+  /**
+   * Switch it back on — to `invited`, not `active`. Deactivation retired the
+   * password, so there is nothing to sign in with; the account holder chooses
+   * a new one from a fresh link, exactly as they did the first time. Approval
+   * is not revisited: role, tier, `approvedAt` and `approvedBy` are untouched,
+   * because none of them stopped being true.
+   *
+   * That also keeps `active` meaning one thing everywhere — an account holding
+   * a password its owner chose — and keeps a real customer out of `pending`,
+   * where the staff action on offer is a purge.
+   */
+  async reactivate(id: string): Promise<StaffUser> {
+    const current = await this.findById(id);
+    if (!current) throw new NotFoundException('Account not found');
+    if (current.status !== 'disabled') {
+      throw new ConflictException(
+        'Only a deactivated account can be switched back on',
+      );
+    }
+
+    const [updated] = await this.db
+      .update(users)
+      .set({ status: 'invited', updatedAt: new Date() })
       .where(eq(users.id, id))
       .returning(staffUserColumns);
     return toStaffUser(updated);

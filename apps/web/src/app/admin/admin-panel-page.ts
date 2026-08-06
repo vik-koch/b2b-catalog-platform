@@ -127,10 +127,17 @@ import { BuildInfoService } from './build-info.service';
       >
         {{ panelText.accounts }}
       </h2>
-      <div class="rounded-lg border border-border p-5">
+      <!-- Two buttons rather than one screen with tabs: they are two
+           permissions, and a manager is only ever offered the one they have. -->
+      <div class="flex flex-wrap gap-3 rounded-lg border border-border p-5">
         <a appButton variant="secondary" routerLink="/admin/users">
-          {{ userText.title }}
+          {{ userText.titleCustomers }}
         </a>
+        @if (isAdmin()) {
+          <a appButton variant="secondary" routerLink="/admin/users/staff">
+            {{ userText.titleStaff }}
+          </a>
+        }
       </div>
     </section>
 

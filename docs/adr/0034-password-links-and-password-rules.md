@@ -78,6 +78,13 @@ it is noise. Equalling the current password is refused because FR-AUTH-08's
 forced change exists precisely to replace a handed-out password, and a change
 that changes nothing would defeat it.
 
+A link outlives the reason it was sent, so anything that ends an account's
+ability to sign in revokes the outstanding ones too: a password change by any
+route, and deactivating the account (ADR 0032). Otherwise the strongest thing
+the platform does — retiring the password and ending the sessions — is undone
+by a mail nobody has read yet, and a deactivated account walks back to `active`
+through its own inbox.
+
 The policy is applied wherever a password is set — the link and the
 change-password form both — because a rule that guards one of two doors guards
 neither. That surface has two distinct 400s (the _current_ password was wrong;
