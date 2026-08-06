@@ -71,14 +71,17 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
   it('keeps a result on exactly one page', async () => {
     // The `name, id` tiebreak exists for this: without a total order, rows of
     // equal score can swap between requests and be duplicated or skipped.
-    const [first, second] = await Promise.all([
-      search('espresso', 1),
-      search('espresso', 2),
-    ]);
+    //
+    // Sequential, and seeded rows only: another suite creating a matching
+    // product between the two requests would shift rows across the page
+    // boundary, which is a different (and expected) effect entirely.
+    const first = await search('espresso', 1);
+    const second = await search('espresso', 2);
 
-    const slugs = [...first.data.items, ...second.data.items].map(
-      (i: { slug: string }) => i.slug,
-    );
+    const seeded = new Set(productSeeds.map((p) => p.slug));
+    const slugs = [...first.data.items, ...second.data.items]
+      .map((i: { slug: string }) => i.slug)
+      .filter((slug: string) => seeded.has(slug));
     expect(new Set(slugs).size).toBe(slugs.length);
   });
 
@@ -111,16 +114,32 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
     const many = 'espresso kontor reserve';
     const sorted = (sort: string, q = many) =>
       get(`/catalog/search?q=${encodeURIComponent(q)}&sort=${sort}`);
-    const slugs = (res: { data: { items: { slug: string }[] } }) =>
-      res.data.items.map((i) => i.slug);
+
+    /**
+     * Only the seeded products, in the order the response gave them.
+     *
+     * The suites share one database and run in parallel, and this query
+     * deliberately over-matches: the admin-catalog suite creates products named
+     * "Grid Espresso Roast …" and the sync suite creates "Sync Beans Reserve",
+     * both of which match it and both of which come and go while these
+     * assertions run. Comparing raw result lists therefore compares two
+     * different moments of the catalog. Restricting to the seeded rows — the
+     * only ones this suite owns — tests the ordering rule without depending on
+     * what else exists.
+     */
+    const seededSlugs = (res: { data: { items: { slug: string }[] } }) => {
+      const seeded = new Set(productSeeds.map((p) => p.slug));
+      return res.data.items.map((i) => i.slug).filter((s) => seeded.has(s));
+    };
 
     it('defaults to relevance', async () => {
-      const [implicit, explicit] = await Promise.all([
-        search(many),
-        sorted('relevance'),
-      ]);
+      // Sequential, not concurrent: two requests in flight at once can straddle
+      // another suite's write, which shifts what lands on page one.
+      const implicit = await search(many);
+      const explicit = await sorted('relevance');
 
-      expect(slugs(explicit)).toEqual(slugs(implicit));
+      expect(seededSlugs(explicit)).toEqual(seededSlugs(implicit));
+      expect(seededSlugs(explicit).length).toBeGreaterThan(1);
     });
 
     it.each([
@@ -137,28 +156,28 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
     });
 
     it('changes the order but not the matched set', async () => {
-      const [byRelevance, byPrice] = await Promise.all([
-        sorted('relevance'),
-        sorted('price'),
-      ]);
+      const byRelevance = await sorted('relevance');
+      const byPrice = await sorted('price');
 
-      expect(byPrice.data.pagination.total).toBe(
-        byRelevance.data.pagination.total,
+      // The seeded rows are the ones this suite owns; the totals themselves
+      // move as other suites create and remove matching products.
+      expect(new Set(seededSlugs(byPrice))).toEqual(
+        new Set(seededSlugs(byRelevance)),
       );
-      expect(new Set(slugs(byPrice))).toEqual(new Set(slugs(byRelevance)));
+      expect(seededSlugs(byPrice).length).toBeGreaterThan(1);
     });
 
     it('reverses the result set on name_desc', async () => {
       // A narrow query on purpose: within a single page the two directions are
       // exact mirrors, which says more than re-sorting the names in JS (whose
       // collation does not agree with the database's on the seed names).
-      const [ascending, descending] = await Promise.all([
-        sorted('name', 'kontor'),
-        sorted('name_desc', 'kontor'),
-      ]);
+      const ascending = await sorted('name', 'kontor');
+      const descending = await sorted('name_desc', 'kontor');
 
       expect(ascending.data.pagination.totalPages).toBe(1);
-      expect(slugs(descending)).toEqual([...slugs(ascending)].reverse());
+      expect(seededSlugs(descending)).toEqual(
+        [...seededSlugs(ascending)].reverse(),
+      );
     });
 
     it('rejects an unknown sort key at the contract', async () => {
@@ -204,10 +223,8 @@ describe('GET /catalog/search/suggestions (FR-SEARCH-05)', () => {
   const overMatching = 'espresso kontor reserve';
 
   it('caps the list even when far more products match', async () => {
-    const [suggestions, results] = await Promise.all([
-      suggest(overMatching),
-      search(overMatching),
-    ]);
+    const suggestions = await suggest(overMatching);
+    const results = await search(overMatching);
 
     expect(results.data.pagination.total).toBeGreaterThan(
       SEARCH_SUGGESTION_LIMIT,
@@ -216,10 +233,10 @@ describe('GET /catalog/search/suggestions (FR-SEARCH-05)', () => {
   });
 
   it('is the leading slice of the result page, in the same order', async () => {
-    const [suggestions, results] = await Promise.all([
-      suggest(overMatching),
-      search(overMatching),
-    ]);
+    // Sequential: this compares two responses row for row, so a product another
+    // suite creates between them would show up as a ranking bug that is not one.
+    const suggestions = await suggest(overMatching);
+    const results = await search(overMatching);
 
     expect(suggestions.data.items.map((i: { slug: string }) => i.slug)).toEqual(
       results.data.items
