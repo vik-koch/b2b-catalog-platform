@@ -1,5 +1,5 @@
 {
-  "id": "e613139f-17a5-48ec-aa11-32a4284f6ea6",
+  "id": "1d3c1b39-789d-47d5-8748-6e36c9e2b1b7",
   "prevId": "04dcffc9-97e0-44dc-959f-1b48481fae1b",
   "version": "7",
   "dialect": "postgresql",
@@ -776,6 +776,37 @@
           "notNull": true,
           "default": "'pending'"
         },
+        "firstName": {
+          "name": "firstName",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lastName": {
+          "name": "lastName",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "customerType": {
+          "name": "customerType",
+          "type": "customer_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "companyRegistrationId": {
+          "name": "companyRegistrationId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "approvedAt": {
           "name": "approvedAt",
           "type": "timestamp with time zone",
@@ -868,6 +899,14 @@
     }
   },
   "enums": {
+    "public.customer_type": {
+      "name": "customer_type",
+      "schema": "public",
+      "values": [
+        "person",
+        "company"
+      ]
+    },
     "public.sync_run_source": {
       "name": "sync_run_source",
       "schema": "public",

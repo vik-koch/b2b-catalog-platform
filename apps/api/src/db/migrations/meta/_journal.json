@@ -47,8 +47,8 @@
     {
       "idx": 6,
       "version": "7",
-      "when": 1785959342439,
-      "tag": "0006_account_lifecycle",
+      "when": 1786002602427,
+      "tag": "0006_account_lifecycle_and_registration",
       "breakpoints": true
     }
   ]

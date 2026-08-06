@@ -1,5 +1,11 @@
+CREATE TYPE "public"."customer_type" AS ENUM('person', 'company');--> statement-breakpoint
 CREATE TYPE "public"."user_status" AS ENUM('pending', 'active', 'anonymized');--> statement-breakpoint
 ALTER TABLE "users" ADD COLUMN "status" "user_status" DEFAULT 'pending' NOT NULL;--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "firstName" varchar(200);--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "lastName" varchar(200);--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "phone" varchar(50);--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "customerType" "customer_type";--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "companyRegistrationId" varchar(64);--> statement-breakpoint
 ALTER TABLE "users" ADD COLUMN "approvedAt" timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "users" ADD COLUMN "approvedBy" uuid;--> statement-breakpoint
 ALTER TABLE "users" ADD CONSTRAINT "users_approvedBy_users_id_fk" FOREIGN KEY ("approvedBy") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint

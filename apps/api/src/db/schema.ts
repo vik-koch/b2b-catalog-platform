@@ -265,6 +265,12 @@ export const userStatus = pgEnum('user_status', [
   'anonymized',
 ]);
 
+// What kind of customer registered (FR-AUTH-01). Declared by the registrant and
+// left as declared: it is evidence for the staff member approving the account,
+// never an automatic tier assignment (ADR 0031 — a company can buy at retail
+// volumes, and no tier is a default).
+export const customerType = pgEnum('customer_type', ['person', 'company']);
+
 // Plural table name (the singular `user` is a Postgres reserved word, awkward in
 // the raw-SQL seed/bootstrap statements). Email is the login identifier.
 export const users = pgTable('users', {
@@ -276,6 +282,21 @@ export const users = pgTable('users', {
   // something sets `active` deliberately (staff approval, or the bootstrap
   // admin insert). A forgotten status can lock an account out, never let one in.
   status: userStatus('status').notNull().default('pending'),
+  // Who registered, as they described themselves. This is what makes approval a
+  // decidable act: staff match these against their own customer records, and a
+  // pending account has no way to be asked anything. All nullable — staff
+  // accounts are created by other staff and describe nobody, and phase 5's
+  // anonymization clears every one of them.
+  firstName: varchar('firstName', { length: 200 }),
+  lastName: varchar('lastName', { length: 200 }),
+  phone: varchar('phone', { length: 50 }),
+  customerType: customerType('customerType'),
+  // Business registration number, stored unmasked (digits or whatever the
+  // deployment's pattern accepts) so it matches the legacy system's records
+  // regardless of how it is displayed. Required for `company` registrations —
+  // enforced by the registration contract and the deployment's own pattern,
+  // not by the column, since staff-created accounts have neither.
+  companyRegistrationId: varchar('companyRegistrationId', { length: 64 }),
   // Set together when staff approve a pending account. Null on the bootstrap
   // admin and on rows that predate registration.
   approvedAt: timestamp('approvedAt', { withTimezone: true }),
