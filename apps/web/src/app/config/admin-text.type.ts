@@ -463,6 +463,68 @@ export const adminTextSchema = z
         statusAnonymized: z.string(),
         typePerson: z.string(),
         typeCompany: z.string(),
+        /** Row actions (FR-AUTH-03/04). `actions` names the column for a screen
+         * reader; the rest are the icon buttons' accessible names. `{name}` in
+         * `declineConfirm` is substituted at render. */
+        actions: z.string(),
+        approve: z.string(),
+        edit: z.string(),
+        decline: z.string(),
+        declineTitle: z.string(),
+        declineConfirm: z.string(),
+        saveError: z.string(),
+        /** The two Add buttons — one per tab, since they create different
+         * things and land on different forms. */
+        addCustomer: z.string(),
+        addStaff: z.string(),
+      })
+      .strict(),
+    /**
+     * The account editor (FR-AUTH-03/04) — add, edit and approve on one screen.
+     * Status, role, tier and customer-type *labels* are read from `userList`
+     * rather than repeated here: they name the same things, and two copies is
+     * how they drift apart.
+     */
+    userEditor: z
+      .object({
+        newCustomerTitle: z.string(),
+        newStaffTitle: z.string(),
+        editTitle: z.string(),
+        /** Heading while the account is still awaiting a decision. */
+        approveTitle: z.string(),
+        email: z.string(),
+        /** Why the address is shown but not editable. */
+        emailFixed: z.string(),
+        firstName: z.string(),
+        lastName: z.string(),
+        phone: z.string(),
+        companyId: z.string(),
+        customerType: z.string(),
+        tier: z.string(),
+        tierChoose: z.string(),
+        role: z.string(),
+        /** Said on the create form: nobody is ever sent a password (ADR 0034). */
+        inviteHint: z.string(),
+        create: z.string(),
+        approve: z.string(),
+        notFound: z.string(),
+        /** An anonymized account is a record, not an editable one. */
+        closed: z.string(),
+        saveError: z.string(),
+        discardConfirm: z.string(),
+        validation: z
+          .object({
+            firstNameRequired: z.string(),
+            lastNameRequired: z.string(),
+            emailRequired: z.string(),
+            emailInvalid: z.string(),
+            phoneIncomplete: z.string(),
+            companyIdRequired: z.string(),
+            /** `{example}` is the deployment's own sample number. */
+            companyIdFormat: z.string(),
+            tierRequired: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /** The admin-panel control that gates the storefront (FR-ADM-04). */

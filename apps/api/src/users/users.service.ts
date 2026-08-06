@@ -87,7 +87,9 @@ export class UsersService {
         mustChangePassword: false,
         updatedAt: new Date(),
       })
-      .where(and(eq(users.id, id), inArray(users.status, ['invited', 'active'])))
+      .where(
+        and(eq(users.id, id), inArray(users.status, ['invited', 'active'])),
+      )
       .returning();
     return updated;
   }

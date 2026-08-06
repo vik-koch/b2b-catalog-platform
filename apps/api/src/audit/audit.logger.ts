@@ -19,6 +19,7 @@ export type AuditAction =
   // them, and — the one an auditor actually asks about — who granted a role.
   | 'user.approved'
   | 'user.created'
+  | 'user.updated'
   | 'user.tierChanged'
   | 'user.roleChanged'
   | 'user.declined';

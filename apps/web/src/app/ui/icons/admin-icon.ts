@@ -39,6 +39,7 @@ export type AdminIconName =
   | 'trash-2'
   | 'image-plus'
   | 'grip-vertical'
+  | 'circle-check'
   | 'rotate-ccw'
   | 'upload'
   | 'square-chart-gantt';
@@ -227,6 +228,10 @@ export type AdminIconName =
           <circle cx="15" cy="12" r="1" />
           <circle cx="15" cy="5" r="1" />
           <circle cx="15" cy="19" r="1" />
+        }
+        @case ('circle-check') {
+          <circle cx="12" cy="12" r="10" />
+          <path d="m9 12 2 2 4-4" />
         }
         @case ('rotate-ccw') {
           <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />

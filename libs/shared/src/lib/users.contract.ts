@@ -67,15 +67,45 @@ export const approveUserSchema = z
   .strict();
 export type ApproveUserRequest = z.infer<typeof approveUserSchema>;
 
-/** Re-tiering an existing customer (admin and manager). */
-export const setUserTierSchema = z
-  .object({ tierId: z.string().uuid().nullable() })
-  .strict();
-export type SetUserTierRequest = z.infer<typeof setUserTierSchema>;
-
-/** Promoting or demoting an account (admin only). */
-export const setUserRoleSchema = z.object({ role: userRoleSchema }).strict();
-export type SetUserRoleRequest = z.infer<typeof setUserRoleSchema>;
+/**
+ * Editing an account (FR-AUTH-04). One request for the whole editable set,
+ * because it is one screen: a manager correcting a mistyped digit and re-tiering
+ * the same customer is a single decision, and two endpoints would make it two
+ * requests with a half-applied state in between.
+ *
+ * **`email` is absent by design** — it is the login and the identity the audit
+ * trail points at, so changing it is an account-recovery flow (with a
+ * confirmation to the new address), not a field edit.
+ *
+ * `role` is optional because it is the one field a *manager* may not touch: the
+ * API rejects it from anyone but an admin rather than silently ignoring it, so
+ * a refused change is never mistaken for a saved one.
+ */
+export const updateUserSchema = z
+  .object({
+    firstName: z.string().trim().min(1).max(200),
+    lastName: z.string().trim().min(1).max(200),
+    /** Null clears it; staff accounts often have none. */
+    phone: z.string().trim().max(50).nullable(),
+    customerType: customerTypeSchema.nullable(),
+    companyRegistrationId: companyRegistrationIdSchema.nullable(),
+    /** Null is the base price list — a real choice, not an omission. */
+    tierId: z.string().uuid().nullable(),
+    role: userRoleSchema.optional(),
+  })
+  .strict()
+  // The same pairing the registration form enforces: a registration number
+  // belongs to a company and only to a company.
+  .refine(
+    (data) =>
+      (data.customerType === 'company') === Boolean(data.companyRegistrationId),
+    {
+      message:
+        'A company registration number is required for a company, and only for a company.',
+      path: ['companyRegistrationId'],
+    },
+  );
+export type UpdateUserRequest = z.infer<typeof updateUserSchema>;
 
 /**
  * An account staff create themselves — a colleague, or a customer who
@@ -157,29 +187,29 @@ export const usersContract = c.router(
       },
       summary: 'Create an account and invite it (admin, manager)',
     },
-    setUserTier: {
-      method: 'PATCH',
-      path: '/admin/users/:id/tier',
+    getUser: {
+      method: 'GET',
+      path: '/admin/users/:id',
       pathParams: z.object({ id: z.string().uuid() }),
-      body: setUserTierSchema,
       responses: {
         200: staffUserSchema,
         404: messageSchema,
       },
-      summary: "Change a customer's price tier (admin, manager)",
+      // The editor is a route, so a reload of it has no list to read from.
+      summary: 'One account (admin, manager)',
     },
-    setUserRole: {
+    updateUser: {
       method: 'PATCH',
-      path: '/admin/users/:id/role',
+      path: '/admin/users/:id',
       pathParams: z.object({ id: z.string().uuid() }),
-      body: setUserRoleSchema,
+      body: updateUserSchema,
       responses: {
         200: staffUserSchema,
         404: messageSchema,
         // Would leave the deployment with no admin, or demote yourself.
         409: messageSchema,
       },
-      summary: "Change an account's role (admin only)",
+      summary: 'Edit an account; role is admin only (admin, manager)',
     },
     deleteUser: {
       method: 'DELETE',

@@ -1,4 +1,11 @@
-import { Component, computed, inject, input, resource } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  resource,
+  signal,
+} from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   StaffUser,
@@ -12,6 +19,9 @@ import { AuthService } from '../../auth/auth.service';
 import { usePageSeo } from '../../core/page-seo';
 import { delayedLoading } from '../../core/delayed-loading';
 import { stableValue } from '../../core/stable-value';
+import { Button } from '../../ui/button';
+import { ConfirmService } from '../../ui/confirm.service';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
 import {
   GridFilterOption,
@@ -20,6 +30,7 @@ import {
 import { GridSearchField } from '../products/grid-search-field';
 import { GridSortHeader } from '../products/grid-sort-header';
 import { TiersService } from '../tiers/tiers.service';
+import { injectEditorReturnParams } from '../editor-return';
 import { StaffUsersService } from './users.service';
 
 /**
@@ -27,6 +38,11 @@ import { StaffUsersService } from './users.service';
  * route's `kind`: **Customers** (the `user` role) and **Staff** (admin and
  * manager). The split is a permission boundary — a manager only ever reaches the
  * customer view, enforced by the API, not just by hiding a tab.
+ *
+ * Every row action but one is a link into the account editor, which is where
+ * approving, re-tiering and correcting details all happen. Declining stays
+ * here: it destroys a row rather than opening it, so a confirm is the whole
+ * interaction.
  *
  * Filters and search are server-side (the URL is the state, same as the product
  * grid); sorting is done here over the fetched rows, because the list is a few
@@ -62,6 +78,8 @@ const typeRank = (t: StaffUser['customerType']): number =>
   imports: [
     RouterLink,
     RouterLinkActive,
+    Button,
+    AdminIcon,
     GridSearchField,
     GridSortHeader,
     GridFilterSelect,
@@ -76,8 +94,19 @@ const typeRank = (t: StaffUser['customerType']): number =>
         [searchPlaceholder]="text.searchPlaceholder"
         [clearLabel]="text.clearSearch"
       />
-      <!-- Reserved for the Add button (5b). -->
-      <div></div>
+      <div class="justify-self-end">
+        <a
+          appButton
+          class="gap-2"
+          [routerLink]="
+            isStaff() ? '/admin/users/staff/new' : '/admin/users/new'
+          "
+          [queryParams]="editorFrom"
+        >
+          <app-admin-icon name="plus" class="h-4 w-4" />
+          {{ isStaff() ? text.addStaff : text.addCustomer }}
+        </a>
+      </div>
     </div>
 
     <!-- Customers and Staff are two routes, not a filter, so the switch is
@@ -101,12 +130,19 @@ const typeRank = (t: StaffUser['customerType']): number =>
       }
     </nav>
 
+    <!-- Where a decline that raced with another change reports itself: every
+         other action is a navigation, and reports from the editor. -->
+    @if (pageError()) {
+      <p class="mb-4 text-sm text-red-700" role="alert">{{ pageError() }}</p>
+    }
+
     @if (users.error()) {
       <p class="text-muted" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
       <!-- The table renders even when empty: its header carries the filters that
            produced the empty result. table-fixed so a filter never reflows the
-           columns. -->
+           columns — in percentages, because rem widths summed past the shell's
+           content box and put a scrollbar under every screen size. -->
       <div class="overflow-x-auto">
         <table
           class="w-full table-fixed text-sm text-left [&_th,&_td]:py-2 [&_th,&_td]:pr-4 [&_th:last-child,&_td:last-child]:pr-0"
@@ -114,7 +150,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
         >
           <thead>
             <tr class="border-b border-border text-subtle">
-              <th class="w-44">
+              <th class="w-[18%]">
                 <app-grid-sort
                   asc="name"
                   desc="name_desc"
@@ -123,7 +159,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
                   [defaultSort]="defaultSort"
                 />
               </th>
-              <th class="w-56">
+              <th class="w-[20%]">
                 <app-grid-sort
                   asc="email"
                   desc="email_desc"
@@ -132,9 +168,9 @@ const typeRank = (t: StaffUser['customerType']): number =>
                   [defaultSort]="defaultSort"
                 />
               </th>
-              <th class="w-36 font-medium">{{ text.phone }}</th>
+              <th class="w-[13%] font-medium">{{ text.phone }}</th>
               @if (isCustomers()) {
-                <th class="w-24">
+                <th class="w-[8%]">
                   <app-grid-sort
                     asc="type"
                     desc="type_desc"
@@ -143,10 +179,10 @@ const typeRank = (t: StaffUser['customerType']): number =>
                     [defaultSort]="defaultSort"
                   />
                 </th>
-                <th class="w-32 font-medium">{{ text.companyId }}</th>
+                <th class="w-[11%] font-medium">{{ text.companyId }}</th>
               }
               @if (isStaff()) {
-                <th class="w-32">
+                <th class="w-[19%]">
                   <app-grid-filter-select
                     param="role"
                     [options]="staffRoleOptions"
@@ -156,7 +192,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
                 </th>
               }
               @if (isCustomers()) {
-                <th class="w-36">
+                <th class="w-[12%]">
                   <app-grid-filter-select
                     param="tier"
                     [options]="tierOptions()"
@@ -165,7 +201,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
                   />
                 </th>
               }
-              <th class="w-28">
+              <th class="w-[10%]">
                 <app-grid-filter-select
                   param="status"
                   [options]="statusOptions"
@@ -173,7 +209,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
                   [ariaLabel]="text.filterStatus"
                 />
               </th>
-              <th class="w-28">
+              <th class="w-[10%]">
                 <app-grid-sort
                   asc="registered"
                   desc="registered_desc"
@@ -182,6 +218,9 @@ const typeRank = (t: StaffUser['customerType']): number =>
                   [sort]="sortKey()"
                   [defaultSort]="defaultSort"
                 />
+              </th>
+              <th class="w-[8%] text-right">
+                <span class="sr-only">{{ text.actions }}</span>
               </th>
             </tr>
           </thead>
@@ -227,6 +266,48 @@ const typeRank = (t: StaffUser['customerType']): number =>
                   >
                 </td>
                 <td class="text-subtle">{{ formatDate(user.createdAt) }}</td>
+                <!-- Both actions open the same editor; only the glyph differs,
+                     because on a pending row the job is a decision and not a
+                     correction. The check carries the accent colour so that
+                     intent reads at a glance down a column of grey pencils. -->
+                <td>
+                  <div class="flex items-center justify-end gap-1">
+                    @if (user.status !== 'anonymized') {
+                      <a
+                        [routerLink]="['/admin/users', user.id, 'edit']"
+                        [queryParams]="editorFrom"
+                        class="p-1.5"
+                        [class]="
+                          user.status === 'pending'
+                            ? 'text-accent hover:text-primary'
+                            : 'text-subtle hover:text-accent'
+                        "
+                        [attr.aria-label]="
+                          user.status === 'pending' ? text.approve : text.edit
+                        "
+                      >
+                        <app-admin-icon
+                          [name]="
+                            user.status === 'pending'
+                              ? 'circle-check'
+                              : 'pencil'
+                          "
+                          class="h-4 w-4"
+                        />
+                      </a>
+                    }
+                    @if (user.status === 'pending') {
+                      <button
+                        type="button"
+                        class="p-1.5 text-subtle hover:text-red-700"
+                        [attr.aria-label]="text.decline"
+                        (click)="decline(user)"
+                      >
+                        <app-admin-icon name="trash-2" class="h-4 w-4" />
+                      </button>
+                    }
+                  </div>
+                </td>
               </tr>
             }
           </tbody>
@@ -366,6 +447,39 @@ export class UserListPage {
   /** The base price list's name is deployment wording, not a stored tier — the
    * same label the tier list gives its uneditable first row. */
   private readonly baseTierLabel = inject(ADMIN_TEXT).tierList.defaultLabel;
+
+  // --- Row actions -------------------------------------------------------
+
+  private readonly confirm = inject(ConfirmService);
+  protected readonly common = inject(ADMIN_TEXT).common;
+  /** So an editor opened from here returns to this list, filters and all. */
+  protected readonly editorFrom = injectEditorReturnParams();
+
+  /** For the one action that is not a navigation: a declined row that raced. */
+  protected readonly pageError = signal<string | null>(null);
+
+  /** Decline a pending registration — a yes/no, so the shared confirm dialog.
+   * On the rare race (already approved) the reload corrects the row and the
+   * server's reason shows in the page banner. */
+  protected async decline(user: StaffUser): Promise<void> {
+    this.pageError.set(null);
+    const ok = await this.confirm.ask({
+      heading: this.text.declineTitle,
+      message: this.text.declineConfirm.replace('{name}', this.name(user)),
+      confirmLabel: this.text.decline,
+      cancelLabel: this.common.cancel,
+      confirmVariant: 'danger',
+    });
+    if (!ok) return;
+
+    try {
+      const result = await this.service.remove(user.id);
+      if (!result.ok) this.pageError.set(result.message);
+    } catch {
+      this.pageError.set(this.text.saveError);
+    }
+    this.users.reload();
+  }
 
   // --- Rendering helpers -------------------------------------------------
 

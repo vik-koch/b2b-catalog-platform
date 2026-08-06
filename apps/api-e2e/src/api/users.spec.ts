@@ -20,6 +20,19 @@ const seeded = [
   CREATED_EMAIL,
 ];
 
+/**
+ * The unchanged half of an edit. `updateUser` carries the whole editable set,
+ * so a test about one field still has to send the rest — spreading this keeps
+ * each case about the field it is actually testing.
+ */
+const edits = () => ({
+  firstName: 'Jane',
+  lastName: 'Doe',
+  phone: '+49 40 1234567',
+  customerType: 'person' as const,
+  companyRegistrationId: null,
+});
+
 const request = (
   method: 'get' | 'post' | 'patch' | 'delete',
   url: string,
@@ -121,14 +134,13 @@ describe('/admin/users', () => {
     it('rejects a customer on every action', async () => {
       const responses = await Promise.all([
         request('get', '/admin/users', customerCookie),
+        request('get', `/admin/users/${pendingId}`, customerCookie),
         request('post', `/admin/users/${pendingId}/approve`, customerCookie, {
           tierId: null,
         }),
-        request('patch', `/admin/users/${pendingId}/tier`, customerCookie, {
+        request('patch', `/admin/users/${pendingId}`, customerCookie, {
+          ...edits(),
           tierId: null,
-        }),
-        request('patch', `/admin/users/${pendingId}/role`, customerCookie, {
-          role: 'admin',
         }),
         request('delete', `/admin/users/${pendingId}`, customerCookie),
       ]);
@@ -140,24 +152,59 @@ describe('/admin/users', () => {
     it('lets a manager re-tier a customer but not grant a role', async () => {
       const tier = await request(
         'patch',
-        `/admin/users/${pendingId}/tier`,
+        `/admin/users/${pendingId}`,
         managerCookie,
-        { tierId },
+        { ...edits(), tierId },
       );
       const role = await request(
         'patch',
-        `/admin/users/${pendingId}/role`,
+        `/admin/users/${pendingId}`,
         managerCookie,
-        { role: 'admin' },
+        { ...edits(), tierId, role: 'admin' },
       );
 
       expect(tier.status).toBe(200);
+      // The whole request is refused, not quietly stripped of the one field —
+      // a refusal that looked like a save is the dangerous outcome here.
       expect(role.status).toBe(403);
       expect((await statusOf(PENDING_EMAIL)).role).toBe('user');
 
-      await request('patch', `/admin/users/${pendingId}/tier`, managerCookie, {
+      await request('patch', `/admin/users/${pendingId}`, managerCookie, {
+        ...edits(),
         tierId: null,
       });
+    });
+
+    // The other half of that boundary: staff are not merely hidden from a
+    // manager's list, they are unreachable by id.
+    it('hides a staff account from a manager even by direct id', async () => {
+      const { id } = await statusOf(ADMIN_EMAIL);
+
+      const read = await request('get', `/admin/users/${id}`, managerCookie);
+      const write = await request(
+        'patch',
+        `/admin/users/${id}`,
+        managerCookie,
+        {
+          ...edits(),
+          tierId: null,
+        },
+      );
+
+      expect(read.status).toBe(404);
+      expect(write.status).toBe(404);
+    });
+
+    it('will not let a manager create a staff account', async () => {
+      const res = await request('post', '/admin/users', managerCookie, {
+        email: `e2e-users-blocked-${SUFFIX}@example.com`,
+        role: 'manager',
+        tierId: null,
+        firstName: 'Nope',
+        lastName: 'Nope',
+      });
+
+      expect(res.status).toBe(403);
     });
 
     // A manager must not be able to enumerate staff — not even by asking for it
@@ -282,22 +329,80 @@ describe('/admin/users', () => {
     });
   });
 
-  describe('roles', () => {
-    it('promotes and demotes for an admin', async () => {
+  describe('editing an account', () => {
+    it('saves the details staff correct, and never the address', async () => {
+      const { id, status } = await statusOf(PENDING_EMAIL);
+
+      const res = await request('patch', `/admin/users/${id}`, adminCookie, {
+        firstName: 'Janine',
+        lastName: 'Doe-Smith',
+        phone: '+49 40 7654321',
+        customerType: 'company',
+        companyRegistrationId: 'DE123456789',
+        tierId,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data).toMatchObject({
+        firstName: 'Janine',
+        companyRegistrationId: 'DE123456789',
+        tierId,
+        // The login stays what it was: it is not a field on this request.
+        email: PENDING_EMAIL,
+      });
+      // …and editing is not a lifecycle change: the account stands where it did.
+      expect((await statusOf(PENDING_EMAIL)).status).toBe(status);
+    });
+
+    it('refuses a registration number without a company, and the reverse', async () => {
+      const { id } = await statusOf(PENDING_EMAIL);
+
+      const orphan = await request('patch', `/admin/users/${id}`, adminCookie, {
+        ...edits(),
+        customerType: 'person',
+        companyRegistrationId: 'DE123456789',
+        tierId: null,
+      });
+      const missing = await request(
+        'patch',
+        `/admin/users/${id}`,
+        adminCookie,
+        {
+          ...edits(),
+          customerType: 'company',
+          companyRegistrationId: null,
+          tierId: null,
+        },
+      );
+
+      expect(orphan.status).toBe(400);
+      expect(missing.status).toBe(400);
+    });
+
+    it('promotes and demotes for an admin, and drops the tier on the way out', async () => {
       const { id } = await statusOf(CUSTOMER_EMAIL);
 
-      expect(
-        (
-          await request('patch', `/admin/users/${id}/role`, adminCookie, {
-            role: 'manager',
-          })
-        ).status,
-      ).toBe(200);
-      expect((await statusOf(CUSTOMER_EMAIL)).role).toBe('manager');
+      const promoted = await request(
+        'patch',
+        `/admin/users/${id}`,
+        adminCookie,
+        {
+          ...edits(),
+          tierId,
+          role: 'manager',
+        },
+      );
 
-      await request('patch', `/admin/users/${id}/role`, adminCookie, {
+      expect(promoted.status).toBe(200);
+      // A price group on somebody who never sees prices is a contradiction.
+      expect(promoted.data).toMatchObject({ role: 'manager', tierId: null });
+
+      await request('patch', `/admin/users/${id}`, adminCookie, {
+        ...edits(),
+        tierId: null,
         role: 'user',
       });
+      expect((await statusOf(CUSTOMER_EMAIL)).role).toBe('user');
     });
 
     // Locking yourself out of your own admin panel is the one mistake this
@@ -305,17 +410,27 @@ describe('/admin/users', () => {
     it('refuses to take the admin role from your own account', async () => {
       const { id } = await statusOf(ADMIN_EMAIL);
 
-      const res = await request(
-        'patch',
-        `/admin/users/${id}/role`,
-        adminCookie,
-        {
-          role: 'manager',
-        },
-      );
+      const res = await request('patch', `/admin/users/${id}`, adminCookie, {
+        ...edits(),
+        customerType: null,
+        tierId: null,
+        role: 'manager',
+      });
 
       expect(res.status).toBe(409);
       expect((await statusOf(ADMIN_EMAIL)).role).toBe('admin');
+    });
+
+    it('serves one account to the editor by id', async () => {
+      const res = await request(
+        'get',
+        `/admin/users/${pendingId}`,
+        managerCookie,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.email).toBe(PENDING_EMAIL);
+      expect(res.data).not.toHaveProperty('passwordHash');
     });
   });
 

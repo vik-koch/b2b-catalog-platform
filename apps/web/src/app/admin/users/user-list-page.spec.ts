@@ -10,6 +10,7 @@ import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
 import { AuthService } from '../../auth/auth.service';
+import { ConfirmService } from '../../ui/confirm.service';
 import { TiersService } from '../tiers/tiers.service';
 import { UserListPage } from './user-list-page';
 import { StaffUsersService } from './users.service';
@@ -54,9 +55,13 @@ async function render(
     tiers?: CustomerTier[];
     kind?: UserKind;
     role?: 'admin' | 'manager';
+    confirmed?: boolean;
   } = {},
 ) {
-  const service = { list: vi.fn(async () => options.users ?? []) };
+  const service = {
+    list: vi.fn(async () => options.users ?? []),
+    remove: vi.fn<StaffUsersService['remove']>(async () => ({ ok: true })),
+  };
   const tiers = {
     list: vi.fn(async () => ({
       tiers: options.tiers ?? [],
@@ -64,6 +69,7 @@ async function render(
     })),
   };
   const auth = { user: () => ({ role: options.role ?? 'admin' }) };
+  const confirm = { ask: vi.fn(async () => options.confirmed ?? true) };
 
   // Some cases render both views to compare them, so start each render from a
   // clean module rather than reconfiguring an instantiated one.
@@ -75,6 +81,7 @@ async function render(
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: auth },
+      { provide: ConfirmService, useValue: confirm },
       { provide: StaffUsersService, useValue: service },
       { provide: TiersService, useValue: tiers },
     ],
@@ -85,17 +92,56 @@ async function render(
   fixture.detectChanges();
 
   const el = fixture.nativeElement as HTMLElement;
-  const setInput = async (name: string, value: string) => {
-    fixture.componentRef.setInput(name, value);
+  const settle = async () => {
     await fixture.whenStable();
     fixture.detectChanges();
+  };
+  const setInput = async (name: string, value: string) => {
+    fixture.componentRef.setInput(name, value);
+    await settle();
   };
   const names = () =>
     [...el.querySelectorAll('tbody tr')].map((row) =>
       row.querySelector('td')?.textContent?.trim(),
     );
 
-  return { el, service, tiers, fixture, setInput, names };
+  /** Click a row action button by its text or aria-label. */
+  const rowAction = async (label: string) => {
+    const button = [...el.querySelectorAll('tbody button')].find(
+      (b) =>
+        b.textContent?.trim() === label ||
+        b.getAttribute('aria-label') === label,
+    ) as HTMLButtonElement | undefined;
+    if (!button) throw new Error(`no row action "${label}"`);
+    button.click();
+    await settle();
+  };
+
+  /** Where a link-shaped row action points, by accessible name. The `?from=`
+   * return param is asserted on its own, not repeated in every path. */
+  const rowLink = (label: string) => {
+    const link = [...el.querySelectorAll('tbody a')].find(
+      (a) => a.getAttribute('aria-label') === label,
+    ) as HTMLAnchorElement | undefined;
+    return (
+      link && {
+        path: link.getAttribute('href')?.split('?')[0],
+        href: link.getAttribute('href'),
+      }
+    );
+  };
+
+  return {
+    el,
+    service,
+    tiers,
+    confirm,
+    fixture,
+    setInput,
+    names,
+    rowAction,
+    rowLink,
+  };
 }
 
 describe('UserListPage', () => {
@@ -219,6 +265,88 @@ describe('UserListPage', () => {
     });
     expect(staff.el.textContent).not.toContain(text.companyId);
     expect(staff.el.textContent).toContain(text.roleAll);
+  });
+
+  it('sends a pending row to the editor to be reviewed and approved', async () => {
+    const { rowLink } = await render({
+      users: [user({ id: 'p1', status: 'pending', tierId: null })],
+    });
+
+    // Approving is a decision made in the editor, where the details that
+    // justify it are on screen — the row only points at it.
+    const approve = rowLink(text.approve);
+    expect(approve?.path).toBe('/admin/users/p1/edit');
+    // …and carries the way back to this list, filters and all.
+    expect(approve?.href).toContain('from=');
+    expect(rowLink(text.edit)).toBeUndefined();
+  });
+
+  it('offers a plain edit once an account is past pending', async () => {
+    const { rowLink } = await render({ users: [user({ id: 'u1' })] });
+
+    expect(rowLink(text.edit)?.path).toBe('/admin/users/u1/edit');
+    expect(rowLink(text.approve)).toBeUndefined();
+  });
+
+  it('leaves a closed account with no actions at all', async () => {
+    const { el } = await render({
+      users: [user({ id: 'x1', status: 'anonymized' })],
+    });
+
+    expect(el.querySelectorAll('tbody a')).toHaveLength(0);
+    expect(el.querySelectorAll('tbody button')).toHaveLength(0);
+  });
+
+  it('declines a pending registration after a confirmation', async () => {
+    const { service, confirm, rowAction } = await render({
+      users: [user({ id: 'p1', status: 'pending' })],
+    });
+
+    await rowAction(text.decline);
+
+    expect(confirm.ask).toHaveBeenCalled();
+    expect(service.remove).toHaveBeenCalledWith('p1');
+  });
+
+  it('keeps the row when the decline confirmation is declined', async () => {
+    const { service, rowAction } = await render({
+      users: [user({ id: 'p1', status: 'pending' })],
+      confirmed: false,
+    });
+
+    await rowAction(text.decline);
+
+    expect(service.remove).not.toHaveBeenCalled();
+  });
+
+  it('reports a decline that raced with another change', async () => {
+    const { el, service, rowAction } = await render({
+      users: [user({ id: 'p1', status: 'pending' })],
+    });
+    service.remove.mockResolvedValueOnce({
+      ok: false,
+      message: 'Only a pending registration can be deleted',
+    });
+
+    await rowAction(text.decline);
+
+    // No dialog is left to carry it, so the page says so itself.
+    expect(el.querySelector('[role="alert"]')?.textContent).toContain(
+      'Only a pending registration',
+    );
+  });
+
+  it('points Add at the form for the view it is on', async () => {
+    const addLink = (el: HTMLElement) =>
+      (el.querySelector('a[href^="/admin/users"]') as HTMLAnchorElement)
+        .getAttribute('href')
+        ?.split('?')[0];
+
+    const customers = await render({ users: [] });
+    expect(addLink(customers.el)).toBe('/admin/users/new');
+
+    const staff = await render({ kind: 'staff', users: [] });
+    expect(addLink(staff.el)).toBe('/admin/users/staff/new');
   });
 
   it('hides the Staff tab from a manager', async () => {

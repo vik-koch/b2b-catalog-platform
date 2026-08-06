@@ -1,17 +1,17 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CustomerType, emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import {
+  canonicalCompanyId,
+  canonicalPhone,
+  companyIdPattern,
+} from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
-import { completeMask, digitsOf } from '../core/masked-input';
+import { completeMask } from '../core/masked-input';
 import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
@@ -439,11 +439,10 @@ export class RegisterPage {
   private applyValidators(type: CustomerType): void {
     const control = this.form.controls.companyRegistrationId;
     if (type === 'company') {
-      const pattern = this.companyIdInput?.pattern;
       control.setValidators([
         Validators.required,
         // The deployment's own rule, applied to the value as it will be sent.
-        ...(pattern ? [this.canonicalPattern(pattern)] : []),
+        ...(this.companyIdInput ? [companyIdPattern(this.companyIdInput)] : []),
         ...(this.companyIdMask ? [completeMask(this.companyIdMask)] : []),
       ]);
     } else {
@@ -453,42 +452,18 @@ export class RegisterPage {
     control.updateValueAndValidity({ emitEvent: false });
   }
 
-  // Validates the canonical (unmasked) value, which is what the server sees.
-  private canonicalPattern(pattern: string): ValidatorFn {
-    const regex = new RegExp(pattern);
-    return (control) => {
-      const value = this.canonicalCompanyId(String(control.value ?? ''));
-      return !value || regex.test(value) ? null : { companyIdFormat: true };
-    };
-  }
-
-  /**
-   * What actually travels and gets stored. A configured mask only groups digits
-   * for readability, and a configured prefix (a VAT country code) is shown
-   * rather than typed — so both are resolved here into the one canonical form
-   * the deployment's pattern describes and the shop's own records use.
-   */
-  private canonicalCompanyId(value: string): string {
-    const typed = this.companyIdMask ? digitsOf(value) : value.trim();
-    return typed ? `${this.companyIdPrefix ?? ''}${typed}` : '';
-  }
-
   private toRequest() {
     const value = this.form.getRawValue();
-    const national = value.phone.trim();
-    const phone = this.phoneInput
-      ? `${this.phoneInput.countryCode} ${national}`
-      : national;
 
     return {
       email: value.email,
       firstName: value.firstName.trim(),
       lastName: value.lastName.trim(),
-      phone,
+      phone: canonicalPhone(value.phone, this.phoneInput),
       customerType: value.customerType,
       companyRegistrationId:
         value.customerType === 'company'
-          ? this.canonicalCompanyId(value.companyRegistrationId)
+          ? canonicalCompanyId(value.companyRegistrationId, this.companyIdInput)
           : undefined,
       // Honeypot.
       website: value.website || undefined,

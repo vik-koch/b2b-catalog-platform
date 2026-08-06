@@ -20,6 +20,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   CreateUserRequest,
   StaffUser,
+  UpdateUserRequest,
   UserKind,
   UserRole,
 } from '@b2b-catalog-platform/shared';
@@ -185,53 +186,70 @@ export class StaffUsersService {
     return toStaffUser(created);
   }
 
-  /** Re-tier a customer. Staff accounts carry a null tier and are left alone. */
-  async setTier(id: string, tierId: string | null): Promise<StaffUser> {
+  /**
+   * Edit an account: the whole editable set in one write, so the screen that
+   * shows these fields together saves them together.
+   *
+   * The role is applied only when the caller passed one — the controller has
+   * already refused it from a manager, and an omitted role means "leave it",
+   * not "make them a customer". A tier is meaningless on a staff account, so
+   * promoting one out of `user` clears it rather than leaving a price group
+   * attached to somebody who never sees prices.
+   */
+  async update(
+    id: string,
+    input: UpdateUserRequest,
+    actorId: string,
+  ): Promise<StaffUser> {
+    const current = await this.findById(id);
+    if (!current) throw new NotFoundException('Account not found');
+    if (current.status === 'anonymized') {
+      throw new ConflictException('A closed account can no longer be edited');
+    }
+
+    const role = input.role ?? current.role;
+    if (input.role) await this.assertRoleChangeAllowed(current, role, actorId);
+
     const [updated] = await this.db
       .update(users)
-      .set({ tierId, updatedAt: new Date() })
+      .set({
+        firstName: input.firstName,
+        lastName: input.lastName,
+        phone: input.phone,
+        customerType: input.customerType,
+        companyRegistrationId: input.companyRegistrationId,
+        tierId: role === 'user' ? input.tierId : null,
+        role,
+        updatedAt: new Date(),
+      })
       .where(eq(users.id, id))
       .returning(staffUserColumns);
-    if (!updated) throw new NotFoundException('Account not found');
     return toStaffUser(updated);
   }
 
   /**
-   * Promote or demote. Two refusals, both about not locking the deployment out
-   * of its own admin panel: an admin cannot demote themselves (a slip that
-   * would take their own access with it), and the last admin cannot be demoted
-   * by anyone.
+   * The two refusals behind a role change, both about not locking the
+   * deployment out of its own admin panel: an admin cannot demote themselves (a
+   * slip that would take their own access with it), and the last admin cannot
+   * be demoted by anyone.
    */
-  async setRole(
-    id: string,
+  private async assertRoleChangeAllowed(
+    current: StaffUser,
     role: UserRole,
     actorId: string,
-  ): Promise<StaffUser> {
-    const current = await this.db
-      .select({ role: users.role })
-      .from(users)
-      .where(eq(users.id, id));
-    if (!current.length) throw new NotFoundException('Account not found');
+  ): Promise<void> {
+    if (current.role !== 'admin' || role === 'admin') return;
 
-    if (current[0].role === 'admin' && role !== 'admin') {
-      if (id === actorId) {
-        throw new ConflictException(
-          'You cannot take the admin role from your own account',
-        );
-      }
-      if (!(await this.hasAnotherAdmin(id))) {
-        throw new ConflictException(
-          'This is the last admin account; promote another one first',
-        );
-      }
+    if (current.id === actorId) {
+      throw new ConflictException(
+        'You cannot take the admin role from your own account',
+      );
     }
-
-    const [updated] = await this.db
-      .update(users)
-      .set({ role, updatedAt: new Date() })
-      .where(eq(users.id, id))
-      .returning(staffUserColumns);
-    return toStaffUser(updated);
+    if (!(await this.hasAnotherAdmin(current.id))) {
+      throw new ConflictException(
+        'This is the last admin account; promote another one first',
+      );
+    }
   }
 
   /**

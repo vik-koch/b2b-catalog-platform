@@ -6,6 +6,7 @@ import { guestOnly, requireAuth } from './auth/auth.guard';
 import { adminTextGuard } from './config/admin-text';
 import { maintenanceGate } from './admin/maintenance/maintenance.guard';
 import { productUnsavedChangesGuard } from './admin/products/unsaved-changes.guard';
+import { userUnsavedChangesGuard } from './admin/users/unsaved-changes.guard';
 import { categoryUnsavedChangesGuard } from './admin/categories/unsaved-changes.guard';
 import { NotFoundPage } from './pages/not-found-page';
 import { ContactPage } from './pages/contact-page';
@@ -111,6 +112,33 @@ export const appRoutes: Route[] = [
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
       import('./admin/users/user-list-page').then((m) => m.UserListPage),
+  },
+  // Adding, editing and approving share one screen. The literal `staff/new`
+  // stays ahead of `:id/edit` so it is never read as an account id.
+  {
+    path: 'admin/users/new',
+    data: { kind: 'customer' },
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    canDeactivate: [userUnsavedChangesGuard],
+    loadComponent: () =>
+      import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
+  },
+  {
+    path: 'admin/users/staff/new',
+    data: { kind: 'staff' },
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    canDeactivate: [userUnsavedChangesGuard],
+    loadComponent: () =>
+      import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
+  },
+  {
+    // Admin and manager both: which accounts a manager may open is the API's
+    // call (a staff account is 404 for them), not a second list of rules here.
+    path: 'admin/users/:id/edit',
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    canDeactivate: [userUnsavedChangesGuard],
+    loadComponent: () =>
+      import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
   },
   {
     path: 'admin/categories',
