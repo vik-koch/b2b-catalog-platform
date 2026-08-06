@@ -43,6 +43,13 @@
       "when": 1785951525740,
       "tag": "0005_customer_tier_sort_order",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785959342439,
+      "tag": "0006_account_lifecycle",
+      "breakpoints": true
     }
   ]
 }

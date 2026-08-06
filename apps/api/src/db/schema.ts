@@ -255,6 +255,16 @@ export const productPrices = pgTable(
 // New signups default to `user`; `admin`/`manager` are assigned deliberately.
 export const userRole = pgEnum('user_role', ['admin', 'manager', 'user']);
 
+// Account lifecycle. `pending` = self-registered, waiting for staff approval —
+// it cannot sign in and has no usable password yet. `active` = approved.
+// `anonymized` = self-deleted: the row survives because audit entries
+// and the `updatedBy` columns point at it, but it can never sign in again.
+export const userStatus = pgEnum('user_status', [
+  'pending',
+  'active',
+  'anonymized',
+]);
+
 // Plural table name (the singular `user` is a Postgres reserved word, awkward in
 // the raw-SQL seed/bootstrap statements). Email is the login identifier.
 export const users = pgTable('users', {
@@ -262,6 +272,16 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: text('passwordHash').notNull(),
   role: userRole('role').notNull().default('user'),
+  // Defaults to `pending`, the safe end: an account only becomes usable when
+  // something sets `active` deliberately (staff approval, or the bootstrap
+  // admin insert). A forgotten status can lock an account out, never let one in.
+  status: userStatus('status').notNull().default('pending'),
+  // Set together when staff approve a pending account. Null on the bootstrap
+  // admin and on rows that predate registration.
+  approvedAt: timestamp('approvedAt', { withTimezone: true }),
+  approvedBy: uuid('approvedBy').references((): AnyPgColumn => users.id, {
+    onDelete: 'set null',
+  }),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
