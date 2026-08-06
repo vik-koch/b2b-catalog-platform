@@ -16,6 +16,12 @@ function setInput(root: HTMLElement, selector: string, value: string): void {
   input.dispatchEvent(new Event('input'));
 }
 
+function blur(root: HTMLElement, selector: string): void {
+  const input = root.querySelector<HTMLInputElement>(selector);
+  if (!input) throw new Error(`no element for ${selector}`);
+  input.dispatchEvent(new Event('blur'));
+}
+
 function check(root: HTMLElement, selector: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);
   if (!input) throw new Error(`no element for ${selector}`);
@@ -96,6 +102,57 @@ describe('RegisterPage', () => {
     expect(el.textContent).toContain(
       defaultAppText.auth.validation.emailInvalid,
     );
+  });
+
+  // Half an address is unfinished, not wrong: judging it on the first letter
+  // is the "scolding form" everyone hates.
+  it('does not judge an address while it is still being typed', async () => {
+    const { el, sync } = await render();
+
+    setInput(el, '#email', 'j');
+    await sync();
+
+    expect(el.textContent).not.toContain(
+      defaultAppText.auth.validation.emailInvalid,
+    );
+  });
+
+  it('reports a malformed address once the field is left', async () => {
+    const { el, sync } = await render();
+
+    setInput(el, '#email', 'jane@example');
+    blur(el, '#email');
+    await sync();
+
+    expect(el.textContent).toContain(
+      defaultAppText.auth.validation.emailInvalid,
+    );
+  });
+
+  // Reward the correction: the message goes on the keystroke that fixes it.
+  it('clears the message as soon as the address becomes valid', async () => {
+    const { el, sync } = await render();
+
+    setInput(el, '#email', 'jane@example');
+    blur(el, '#email');
+    await sync();
+
+    setInput(el, '#email', 'jane@example.com');
+    await sync();
+
+    expect(el.textContent).not.toContain(
+      defaultAppText.auth.validation.emailInvalid,
+    );
+  });
+
+  // Tabbing through to see what the form asks for is not a mistake.
+  it('stays quiet about a required field that was only visited', async () => {
+    const { el, sync } = await render();
+
+    blur(el, '#firstName');
+    await sync();
+
+    expect(el.textContent).not.toContain(text.validation.firstNameRequired);
   });
 
   it('sends a private person, with the country code on the phone', async () => {
@@ -183,6 +240,20 @@ describe('RegisterPage', () => {
     expect(el.textContent).toContain(text.successHeading);
     expect(el.textContent).toContain(text.success);
     expect(el.textContent).not.toContain('jane@example.com');
+  });
+
+  // The mask says how many digits this deployment expects; half of them is the
+  // most likely way to end up with a customer nobody can call.
+  it('refuses a phone number that does not fill the mask', async () => {
+    const { el, register, sync, submit, fillPerson } = await render();
+
+    await fillPerson();
+    setInput(el, '#phone', '4012');
+    submit();
+    await sync();
+
+    expect(register).not.toHaveBeenCalled();
+    expect(el.textContent).toContain(text.validation.phoneIncomplete);
   });
 
   it('passes the honeypot along when a bot fills it', async () => {

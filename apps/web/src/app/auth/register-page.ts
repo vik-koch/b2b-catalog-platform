@@ -10,6 +10,8 @@ import { RouterLink } from '@angular/router';
 import { CustomerType, emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { FieldErrors } from '../core/form-errors';
+import { completeMask, digitsOf } from '../core/masked-input';
 import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
@@ -18,21 +20,6 @@ import { DigitMask } from '../ui/digit-mask';
 import { AuthService } from './auth.service';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
-
-const digits = (value: string | null | undefined): string =>
-  (value ?? '').replace(/\D/g, '');
-
-// A masked number must be filled to its full length; empty is left to the
-// `required` validator so the two errors stay distinct.
-const completeMasked = (mask: string): ValidatorFn => {
-  const expected = (mask.match(/#/g) ?? []).length;
-  return (control) => {
-    const entered = digits(control.value);
-    return !entered || entered.length === expected
-      ? null
-      : { incomplete: true };
-  };
-};
 
 /**
  * Self-registration (FR-AUTH-01). A registration is a *request* to become a
@@ -160,25 +147,25 @@ const completeMasked = (mask: string): ValidatorFn => {
                 <span class="text-accent" aria-hidden="true">*</span>
               </label>
               <div class="flex">
-                @if (companyIdInput?.prefix) {
+                @if (companyIdPrefix) {
                   <span
                     class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
                   >
-                    {{ companyIdInput?.prefix }}
+                    {{ companyIdPrefix }}
                   </span>
                 }
-                @if (companyIdInput?.mask) {
+                @if (companyIdMask; as mask) {
                   <input
                     id="companyRegistrationId"
                     type="text"
                     appDigitMask
-                    [mask]="companyIdInput?.mask ?? ''"
+                    [mask]="mask"
                     formControlName="companyRegistrationId"
                     inputmode="numeric"
                     aria-required="true"
                     appInput
                     class="w-full"
-                    [class.rounded-l-none]="!!companyIdInput?.prefix"
+                    [class.rounded-l-none]="!!companyIdPrefix"
                     [attr.aria-invalid]="
                       isInvalid('companyRegistrationId') || null
                     "
@@ -191,7 +178,7 @@ const completeMasked = (mask: string): ValidatorFn => {
                     aria-required="true"
                     appInput
                     class="w-full"
-                    [class.rounded-l-none]="!!companyIdInput?.prefix"
+                    [class.rounded-l-none]="!!companyIdPrefix"
                     [attr.aria-invalid]="
                       isInvalid('companyRegistrationId') || null
                     "
@@ -206,7 +193,7 @@ const completeMasked = (mask: string): ValidatorFn => {
                       : companyIdHint()
                   }}
                 </p>
-              } @else if (companyIdInput?.example) {
+              } @else if (companyIdExample) {
                 <p class="mt-1 text-sm text-muted">{{ companyIdHint() }}</p>
               }
             </div>
@@ -359,7 +346,12 @@ export class RegisterPage {
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;
   protected readonly phoneInput = this.config.phoneInput;
-  protected readonly companyIdInput = this.config.companyIdInput;
+  private readonly companyIdInput = this.config.companyIdInput;
+  // Read out once: the template narrows each optional access otherwise, and
+  // `companyIdInput?.x` inside a block that already tested it trips NG8107.
+  protected readonly companyIdPrefix = this.companyIdInput?.prefix;
+  protected readonly companyIdMask = this.companyIdInput?.mask;
+  protected readonly companyIdExample = this.companyIdInput?.example;
   protected readonly status = signal<Status>('idle');
   protected readonly customerType = signal<CustomerType>('person');
   protected readonly isCompany = computed(
@@ -373,7 +365,15 @@ export class RegisterPage {
     // The contract's own rule, so client and server agree on what a valid
     // address is.
     email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
-    phone: ['', Validators.required],
+    // A masked number has to be *complete*, not merely non-empty: the mask
+    // says how many digits this deployment expects, and half of them is the
+    // most likely way to get an unreachable customer.
+    phone: [
+      '',
+      this.phoneInput?.mask
+        ? [Validators.required, completeMask(this.phoneInput.mask)]
+        : [Validators.required],
+    ],
     companyRegistrationId: [''],
     website: [''],
     acceptPrivacy: [false, Validators.requiredTrue],
@@ -402,23 +402,27 @@ export class RegisterPage {
 
   /** The format hint, worded from the deployment's own example. */
   protected companyIdHint(): string {
-    const example = this.companyIdInput?.example;
-    return example
+    return this.companyIdExample
       ? this.text.register.validation.companyIdFormat.replace(
           '{example}',
-          example,
+          this.companyIdExample,
         )
       : this.text.register.validation.companyIdRequired;
   }
 
+  /**
+   * Error visibility, not validity: revealed on blur, hidden again while the
+   * field is being retyped, and everything shown once submit is attempted.
+   */
+  protected readonly fieldErrors = new FieldErrors(this.form);
+
   protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    const c = this.form.controls[control];
-    return c.invalid && (c.touched || c.dirty);
+    return this.fieldErrors.show(this.form.controls[control]);
   }
 
   protected async submit(): Promise<void> {
+    this.fieldErrors.markSubmitted();
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
 
@@ -436,12 +440,11 @@ export class RegisterPage {
     const control = this.form.controls.companyRegistrationId;
     if (type === 'company') {
       const pattern = this.companyIdInput?.pattern;
-      const mask = this.companyIdInput?.mask;
       control.setValidators([
         Validators.required,
         // The deployment's own rule, applied to the value as it will be sent.
         ...(pattern ? [this.canonicalPattern(pattern)] : []),
-        ...(mask ? [completeMasked(mask)] : []),
+        ...(this.companyIdMask ? [completeMask(this.companyIdMask)] : []),
       ]);
     } else {
       control.setValidators([]);
@@ -466,8 +469,8 @@ export class RegisterPage {
    * the deployment's pattern describes and the shop's own records use.
    */
   private canonicalCompanyId(value: string): string {
-    const typed = this.companyIdInput?.mask ? digits(value) : value.trim();
-    return typed ? `${this.companyIdInput?.prefix ?? ''}${typed}` : '';
+    const typed = this.companyIdMask ? digitsOf(value) : value.trim();
+    return typed ? `${this.companyIdPrefix ?? ''}${typed}` : '';
   }
 
   private toRequest() {

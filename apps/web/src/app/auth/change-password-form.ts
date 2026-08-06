@@ -12,6 +12,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { zodValidator } from '../core/zod-validator';
+import { FieldErrors } from '../core/form-errors';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
@@ -170,9 +171,14 @@ export class ChangePasswordForm {
     { validators: passwordsMatch },
   );
 
+  /**
+   * Error visibility, not validity: revealed on blur, hidden again while the
+   * field is being retyped, and everything shown once submit is attempted.
+   */
+  protected readonly fieldErrors = new FieldErrors(this.form);
+
   protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    const c = this.form.controls[control];
-    return c.invalid && (c.touched || c.dirty);
+    return this.fieldErrors.show(this.form.controls[control]);
   }
 
   /**
@@ -181,13 +187,15 @@ export class ChangePasswordForm {
    * confirmation as "does not match".
    */
   protected showMismatch(): boolean {
-    const c = this.form.controls.confirmPassword;
-    return this.form.hasError('mismatch') && (c.touched || c.dirty);
+    return this.fieldErrors.showGroupError(
+      'mismatch',
+      this.form.controls.confirmPassword,
+    );
   }
 
   protected async submit(): Promise<void> {
+    this.fieldErrors.markSubmitted();
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
 
