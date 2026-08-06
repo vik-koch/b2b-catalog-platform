@@ -14,7 +14,7 @@ import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
-import { PhoneMask } from '../ui/phone-mask';
+import { DigitMask } from '../ui/digit-mask';
 import { InquiryService } from './inquiry.service';
 
 type PreferredContact = InquiryRequest['preferredContact'];
@@ -46,7 +46,7 @@ const completePhone = (mask: string): ValidatorFn => {
     ReactiveFormsModule,
     RouterLink,
     Button,
-    PhoneMask,
+    DigitMask,
     FieldLabel,
     Input,
   ],
@@ -162,7 +162,7 @@ const completePhone = (mask: string): ValidatorFn => {
                 <input
                   id="phone"
                   type="tel"
-                  appPhoneMask
+                  appDigitMask
                   [mask]="phoneInput.mask ?? ''"
                   formControlName="phone"
                   appInput

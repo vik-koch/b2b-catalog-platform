@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { PhoneMask } from './phone-mask';
+import { DigitMask } from './digit-mask';
 
 @Component({
-  imports: [ReactiveFormsModule, PhoneMask],
-  template: `<input appPhoneMask [mask]="mask" [formControl]="control" />`,
+  imports: [ReactiveFormsModule, DigitMask],
+  template: `<input appDigitMask [mask]="mask" [formControl]="control" />`,
 })
 class Host {
   mask = '(###) ###-####';
@@ -28,7 +28,7 @@ async function render(mask?: string) {
   return { fixture, input, type };
 }
 
-describe('PhoneMask', () => {
+describe('DigitMask', () => {
   it('formats digits into the mask and writes the formatted value to the control', async () => {
     const { fixture, input, type } = await render();
 
