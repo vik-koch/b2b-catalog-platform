@@ -51,7 +51,8 @@ services:
       MAIL_HOST: ${MAIL_HOST:?}
       MAIL_PORT: ${MAIL_PORT:?}
       MAIL_FROM: ${MAIL_FROM:?}
-      MAIL_CONTACT_TO: ${MAIL_CONTACT_TO:?}
+      # Staff inbox: inquiries and new-registration notices.
+      MAIL_STAFF_TO: ${MAIL_STAFF_TO:?}
       MAIL_USER: ${MAIL_USER:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_SECURE: ${MAIL_SECURE:-false}

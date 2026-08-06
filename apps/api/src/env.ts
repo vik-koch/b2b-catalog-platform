@@ -30,8 +30,11 @@ const EnvSchema = z
     MAIL_USER: z.string().optional(),
     MAIL_PASSWORD: z.string().optional(),
     MAIL_SECURE: z.enum(['true', 'false']).optional(),
-    // Where the inquiry form is delivered (FR-NAV-06).
-    MAIL_CONTACT_TO: z.string().optional(),
+    // The shop's staff inbox: where the inquiry form is delivered (FR-NAV-06)
+    // and where a new registration is announced (FR-NOTIF-04). One address,
+    // because both are the same job — a person answering prospective and
+    // existing customers. Split it only if a deployment says otherwise.
+    MAIL_STAFF_TO: z.string().optional(),
     // Public origin of this deployment (the same value the web app gets), used
     // to build the absolute links every email needs — mail is read outside the
     // app, so nothing relative resolves. Required in server mode.
@@ -76,7 +79,7 @@ const EnvSchema = z
         'MAIL_HOST',
         'MAIL_PORT',
         'MAIL_FROM',
-        'MAIL_CONTACT_TO',
+        'MAIL_STAFF_TO',
         'APP_ORIGIN',
         'JWT_SECRET',
         'MEDIA_ROOT',

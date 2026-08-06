@@ -43,7 +43,7 @@ describe('POST /inquiry', () => {
     expect(messages).toHaveLength(1);
     expect(messages[0].Subject).toContain('Jane Doe');
     expect(messages[0].To.map((t) => t.Address)).toContain(
-      requireEnv('MAIL_CONTACT_TO'),
+      requireEnv('MAIL_STAFF_TO'),
     );
   });
 

@@ -9,7 +9,7 @@ process.env['DATABASE_URL'] ??= 'postgresql://user:pass@localhost:5432/test';
 process.env['MAIL_HOST'] ??= 'localhost';
 process.env['MAIL_PORT'] ??= '1025';
 process.env['MAIL_FROM'] ??= 'Test Shop <no-reply@example.test>';
-process.env['MAIL_CONTACT_TO'] ??= 'shop@example.test';
+process.env['MAIL_STAFF_TO'] ??= 'shop@example.test';
 process.env['JWT_SECRET'] ??= 'test-only-jwt-secret-at-least-32-chars-long';
 // A throwaway dir for the LocalMediaStore; its spec writes and cleans up here.
 process.env['MEDIA_ROOT'] ??= join(tmpdir(), 'b2b-media-test');

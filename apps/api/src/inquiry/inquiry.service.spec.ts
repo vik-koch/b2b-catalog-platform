@@ -38,7 +38,7 @@ describe('InquiryService', () => {
     await service.submit(base);
 
     expect(send).toHaveBeenCalledTimes(1);
-    // The recipient is deployment config (MAIL_CONTACT_TO); this test only
+    // The recipient is deployment config (MAIL_STAFF_TO); this test only
     // cares that a clean submission is delivered with the sender as reply-to.
     const [message] = send.mock.calls[0] as [{ to: string; replyTo?: string }];
     expect(message.to).toBeTruthy();

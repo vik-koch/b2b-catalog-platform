@@ -24,10 +24,10 @@ export class InquiryService {
       return;
     }
 
-    const to = env.MAIL_CONTACT_TO;
+    const to = env.MAIL_STAFF_TO;
     if (!to) {
       // env.ts requires this in server mode; this narrows the type.
-      throw new Error('MAIL_CONTACT_TO is not configured');
+      throw new Error('MAIL_STAFF_TO is not configured');
     }
 
     await this.mail.send(inquiryMail(submission, this.text), {

@@ -131,7 +131,7 @@ jobs:
           MAIL_HOST=mailpit
           MAIL_PORT=1025
           MAIL_FROM=Coffee Kontor <no-reply@coffee-kontor.example>
-          MAIL_CONTACT_TO=hallo@coffee-kontor.example
+          MAIL_STAFF_TO=hallo@coffee-kontor.example
           INBOX_BASICAUTH=reviewer:{SHA}$inbox_hash
           # Portfolio stack, not a real shop — keep it out of search results.
           # Only a real client prod (private repo) sets this true.
