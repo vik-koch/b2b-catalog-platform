@@ -40,6 +40,30 @@ export const mailTextSchema = z
         message: z.string(),
       })
       .strict(),
+    /** Sent to the visitor who registered (FR-NOTIF-01). */
+    registrationReceived: z
+      .object({
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        /** Confirms the request arrived. */
+        body: z.string(),
+        /** What happens next: staff review, then a second mail with the password. */
+        nextSteps: z.string(),
+      })
+      .strict(),
+    /** Sent to the shop when a registration arrives (FR-NOTIF-04). */
+    newRegistration: z
+      .object({
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        body: z.string(),
+        emailLabel: z.string(),
+        /** Button into the admin account list, where it is approved. */
+        action: z.string(),
+      })
+      .strict(),
   })
   .strict();
 

@@ -20,6 +20,22 @@ export const demoMailText: MailText = {
     preferredContact: 'Preferred contact',
     message: 'Message',
   },
+  registrationReceived: {
+    subject: 'We received your registration',
+    preheader: 'Your registration is with our team.',
+    heading: 'Thank you for registering',
+    body: 'We have received your registration and passed it to our team.',
+    nextSteps:
+      'A colleague will review it and set up your account. You will receive a second email with your password as soon as it is ready.',
+  },
+  newRegistration: {
+    subject: 'New registration',
+    preheader: 'Someone requested a customer account.',
+    heading: 'New registration',
+    body: 'Someone has requested a customer account.',
+    emailLabel: 'Email',
+    action: 'Open the account list',
+  },
 };
 
 /** Demo branding for tests, mirroring config/deployment.json. */

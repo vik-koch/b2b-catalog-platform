@@ -54,11 +54,43 @@ export const changePasswordSchema = z
 export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
 
 /**
+ * Registration (FR-AUTH-01). The address is all that is asked for: a
+ * registration is a request to become a customer, and everything else about the
+ * customer — their name, their tier — is settled by staff on approval or at
+ * checkout. `website` is the honeypot the real form hides from humans.
+ */
+export const registerSchema = z
+  .object({
+    email: z.string().trim().email().max(320),
+    website: z.preprocess(
+      (value) =>
+        typeof value === 'string' && value.trim() === '' ? undefined : value,
+      z.string().max(2000).optional(),
+    ),
+  })
+  // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
+  .strict();
+export type RegisterRequest = z.infer<typeof registerSchema>;
+
+/**
  * Session auth. Login/logout manage an httpOnly session cookie set
  * by the server, so the token never touches client JavaScript; the contract
  * carries only the user identity, not the token.
  */
 export const authContract = c.router({
+  register: {
+    method: 'POST',
+    path: '/auth/register',
+    body: registerSchema,
+    responses: {
+      // Always the same answer, whether the address was new, already
+      // registered, or a honeypot hit: the response must not reveal which
+      // addresses have accounts. What actually happened is explained by mail,
+      // to the address itself.
+      200: z.object({ ok: z.literal(true) }),
+    },
+    summary: 'Request an account (creates a pending registration)',
+  },
   login: {
     method: 'POST',
     path: '/auth/login',

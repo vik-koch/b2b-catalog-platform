@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { env } from '../env';
+import { MailModule } from '../mail/mail.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { RegistrationService } from './registration.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { OptionalAuthGuard } from './optional-auth.guard';
 import { PasswordService } from './password.service';
@@ -31,6 +33,7 @@ function jwtSecret(): string {
 @Module({
   imports: [
     UsersModule,
+    MailModule,
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: jwtSecret(),
@@ -41,6 +44,7 @@ function jwtSecret(): string {
   controllers: [AuthController],
   providers: [
     AuthService,
+    RegistrationService,
     PasswordService,
     JwtAuthGuard,
     OptionalAuthGuard,

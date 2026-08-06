@@ -7,7 +7,7 @@ const content: MailContent = {
   heading: 'Heading',
   paragraphs: ['First paragraph.', 'Second paragraph.'],
   rows: [{ label: 'Name', value: 'Jane Doe' }],
-  action: { label: 'Open the shop', url: 'https://shop.example/account' },
+  action: { label: 'Open the shop', path: '/account' },
 };
 
 const render = (overrides: Partial<MailContent> = {}) =>
@@ -44,6 +44,17 @@ describe('renderMail', () => {
     // No image, stylesheet, font or script may be fetched when the mail opens;
     // the only outbound URL is the link the reader chooses to click.
     expect(html).not.toMatch(/<img|<script|<link|@import|url\(/i);
+  });
+
+  it('resolves an action path against the deployment origin', () => {
+    const { html, text } = render({
+      action: { label: 'Open the shop', path: '/admin/users' },
+    });
+
+    // Templates give a path; a mail is read outside the app, so what ships is
+    // the absolute URL.
+    expect(html).toContain('https://shop.example/admin/users');
+    expect(text).toContain('https://shop.example/admin/users');
   });
 
   it('renders the same content as plain text, not stripped HTML', () => {

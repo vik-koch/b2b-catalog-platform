@@ -25,8 +25,13 @@ export interface MailRow {
 /** A single call to action. At most one per message, by design. */
 export interface MailAction {
   readonly label: string;
-  /** Absolute URL — mail is read outside the app, so nothing relative works. */
-  readonly url: string;
+  /**
+   * A path in the app, like `/admin/users`. The layout resolves it against the
+   * deployment's public origin, for the same reason it escapes: mail is read
+   * outside the app, where nothing relative works, and a template that had to
+   * build the absolute URL itself is a template that can get it wrong.
+   */
+  readonly path: string;
 }
 
 /**
@@ -75,6 +80,10 @@ export function renderMail(
   };
 }
 
+/** `siteUrl` never ends in a slash (see loadMailBranding), a path always starts with one. */
+const actionUrl = (path: string, branding: MailBranding): string =>
+  `${branding.siteUrl}${path.startsWith('/') ? path : `/${path}`}`;
+
 const FONT =
   "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 
@@ -115,13 +124,14 @@ function renderHtml(
   }
 
   if (content.action) {
+    const url = actionUrl(content.action.path, branding);
     parts.push(
       `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 16px;">` +
         `<tr><td style="border-radius:6px;background:${escapeHtml(
           branding.primaryColor,
         )};">` +
         `<a href="${escapeHtml(
-          content.action.url,
+          url,
         )}" style="display:inline-block;padding:12px 22px;font-family:${FONT};font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">${escapeHtml(
           content.action.label,
         )}</a>` +
@@ -129,7 +139,7 @@ function renderHtml(
         // Buttons are unreliable (some clients strip the styling, some readers
         // copy links out), so the URL is always readable as text too.
         `<p style="margin:0 0 16px;font-size:13px;line-height:1.6;color:#6b7280;word-break:break-all;">${escapeHtml(
-          content.action.url,
+          url,
         )}</p>`,
     );
   }
@@ -195,7 +205,9 @@ function renderText(
     );
   }
   if (content.action) {
-    blocks.push(`${content.action.label}: ${content.action.url}`);
+    blocks.push(
+      `${content.action.label}: ${actionUrl(content.action.path, branding)}`,
+    );
   }
   blocks.push(`--\n${branding.name}\n${footerNote}\n${branding.siteUrl}`);
 

@@ -29,6 +29,24 @@ export class UsersService {
   }
 
   /**
+   * Create a self-registered account (FR-AUTH-01): `pending`, so it cannot sign
+   * in, with no tier — staff assign one when they approve it. The hash is an
+   * argon2 hash of a random secret nobody holds, rather than a placeholder.
+   */
+  async createPending(email: string, passwordHash: string): Promise<UserRow> {
+    const [created] = await this.db
+      .insert(users)
+      .values({
+        email: email.trim().toLowerCase(),
+        passwordHash,
+        role: 'user',
+        status: 'pending',
+      })
+      .returning();
+    return created;
+  }
+
+  /**
    * Replace the password hash and bump `tokenVersion` in one statement, so the
    * change atomically invalidates every session issued before it. Clears
    * `mustChangePassword` in the same write: whatever was handed to the account,
