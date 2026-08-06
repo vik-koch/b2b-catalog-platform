@@ -36,6 +36,14 @@ ADMIN_TEXT_FILE=/config/admin-text.json          # web
 MAIL_TEXT_FILE=/config/mail-text.json            # api
 ```
 
+A deployment may also mount a **common-password blocklist** — a plain
+newline-separated file of passwords to refuse, named by `PASSWORD_BLOCKLIST_FILE`
+(api). It is optional and has no default: which passwords are common depends on
+the language a deployment's customers think in, so the list belongs to the
+deployment rather than to this repo. Published top-N lists are the usual source.
+Without one, the length floor and the pattern rules still apply. The committed
+demo list is deliberately short; replace it, do not extend it in this repo.
+
 > The browser-delivered vs server-only split is deliberate: values on the web
 > tokens end up in page source, so never put anything sensitive there. Keeping
 > the files separate keeps that line visible (ADR 0018).
@@ -56,6 +64,7 @@ config/
   app-text.json        # web public text   (browser-delivered)
   admin-text.json      # web admin text    (fetched by admins)
   mail-text.json       # api email wording (server-only)
+  password-blocklist.txt # api password rules  (server-only)
   assets/
     logo.svg
     favicon.svg

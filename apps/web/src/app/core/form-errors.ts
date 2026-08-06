@@ -61,6 +61,17 @@ export class FieldErrors {
     this.form.markAllAsTouched();
   }
 
+  /**
+   * Back to silence — for a form that stays on screen after a successful
+   * submit and is emptied for reuse. `form.reset()` alone is not enough:
+   * `markSubmitted` latches deliberately, so without this the freshly cleared
+   * required fields would all light up red beside the success message.
+   */
+  reset(): void {
+    this.submitted.set(false);
+    this.revealed.set(new Set());
+  }
+
   /** Whether this control's error message belongs on screen right now. */
   show(control: AbstractControl): boolean {
     if (control.valid) return false;

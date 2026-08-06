@@ -29,7 +29,7 @@ function fill(
   setInput(root, '#change-password-confirm', confirm);
 }
 
-async function render(result: ChangePasswordResult = 'ok') {
+async function render(result: ChangePasswordResult = { result: 'ok' }) {
   const changePassword = vi
     .fn<AuthService['changePassword']>()
     .mockResolvedValue(result);
@@ -113,7 +113,7 @@ describe('ChangePasswordForm', () => {
   });
 
   it('confirms success, clears the fields and announces the change', async () => {
-    const { el, changed, submit, sync } = await render('ok');
+    const { el, changed, submit, sync } = await render({ result: 'ok' });
 
     fill(el, {});
     submit();
@@ -128,7 +128,9 @@ describe('ChangePasswordForm', () => {
   });
 
   it('reports a wrong current password as a correctable mistake', async () => {
-    const { el, changed, submit, sync } = await render('wrong-current');
+    const { el, changed, submit, sync } = await render({
+      result: 'wrong-current',
+    });
 
     fill(el, { current: 'not-my-password' });
     submit();
@@ -140,7 +142,7 @@ describe('ChangePasswordForm', () => {
   });
 
   it('distinguishes a failure that is not the current password', async () => {
-    const { el, changed, submit, sync } = await render('error');
+    const { el, changed, submit, sync } = await render({ result: 'error' });
 
     fill(el, {});
     submit();
@@ -160,5 +162,48 @@ describe('ChangePasswordForm', () => {
     expect(
       el.querySelector<HTMLLabelElement>('label[for="forced-current"]'),
     ).not.toBeNull();
+  });
+
+  // The form stays on screen for reuse after a success, so the fields it just
+  // emptied must not accuse the user of leaving them blank.
+  it('shows no errors beside its own success message', async () => {
+    const { el, sync, submit } = await render();
+
+    fill(el, {});
+    submit();
+    await sync();
+
+    expect(el.textContent).toContain(text.success);
+    expect(el.textContent).not.toContain(validation.currentPasswordRequired);
+    expect(el.textContent).not.toContain(validation.newPasswordRequired);
+  });
+
+  // Two different 400s. Showing "that is not your current password" because
+  // the *new* one was refused is exactly the confusion this distinction is
+  // for — it sends the user to correct a field that was never wrong.
+  it('shows the policy’s reason when the new password is refused', async () => {
+    const { el, sync, submit } = await render({
+      result: 'rejected',
+      message: 'Please choose a password different from your current one.',
+    });
+
+    fill(el, {});
+    submit();
+    await sync();
+
+    expect(el.textContent).toContain(
+      'Please choose a password different from your current one.',
+    );
+    expect(el.textContent).not.toContain(text.wrongCurrent);
+  });
+
+  it('still says so when the current password is what was wrong', async () => {
+    const { el, sync, submit } = await render({ result: 'wrong-current' });
+
+    fill(el, {});
+    submit();
+    await sync();
+
+    expect(el.textContent).toContain(text.wrongCurrent);
   });
 });

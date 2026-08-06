@@ -108,6 +108,22 @@ describe('FieldErrors', () => {
     expect(host.errors.show(email)).toBe(false);
   });
 
+  // A form that stays on screen after a successful submit is emptied for
+  // reuse; the emptied required fields must not accuse the user of anything.
+  it('goes quiet again when the form is reset after a success', () => {
+    const { host, email, name, type } = setUp();
+    type('jane@example');
+    host.errors.markSubmitted();
+    expect(host.errors.show(email)).toBe(true);
+    expect(host.errors.show(name)).toBe(true);
+
+    host.form.reset();
+    host.errors.reset();
+
+    expect(host.errors.show(email)).toBe(false);
+    expect(host.errors.show(name)).toBe(false);
+  });
+
   // After a failed submit the form speaks for every field, including ones the
   // visitor is in the middle of retyping — they have asked for the verdict.
   it('keeps reporting after a submit, even mid-retype', () => {

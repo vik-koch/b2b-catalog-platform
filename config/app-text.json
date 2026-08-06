@@ -109,6 +109,27 @@
         "privacyRequired": "Please accept the privacy policy to continue."
       }
     },
+    "setPassword": {
+      "checking": "Checking your link…",
+      "setHeading": "Choose your password",
+      "setIntro": "Your account is ready. Choose a password and you can start ordering right away.",
+      "resetHeading": "Choose a new password",
+      "resetIntro": "Choose a new password for your account. Anywhere you are still signed in will be signed out.",
+      "forAccount": "For",
+      "password": "Password",
+      "confirmPassword": "Repeat password",
+      "show": "Show",
+      "hide": "Hide",
+      "generate": "Suggest a strong password",
+      "generated": "We filled in a strong password. Save it in your password manager before continuing.",
+      "submit": "Save password and continue",
+      "submitting": "Saving…",
+      "successHeading": "You are all set",
+      "success": "Your password is saved and you are signed in.",
+      "expiredHeading": "This link no longer works",
+      "expired": "Links can only be used once, and expire after a while. Ask us for a new one, or use “Forgot password” on the login page.",
+      "error": "Something went wrong saving your password. Please try again."
+    },
     "changePassword": {
       "heading": "Change password",
       "currentPassword": "Current password",

@@ -38,21 +38,29 @@ trail, which NFR-SEC and the sync audit model both depend on).
 
 ## Decision
 
-`users.status` is an enum — `pending | active | anonymized` — defaulting to
-`pending`; a registration carries first name, last name, phone, a
+`users.status` is an enum — `pending | invited | active | anonymized` —
+defaulting to `pending`; a registration carries first name, last name, phone, a
 `customerType` of `person | company` and, for a company, its business
-registration number; approval by staff sets `active` together with `approvedAt`,
-`approvedBy` and an explicitly chosen tier; self-deletion sets `anonymized` and
-tombstones the identifying fields, keeping the row and its foreign-key
-references intact.
+registration number; approval by staff sets **`invited`** together with
+`approvedAt`, `approvedBy` and an explicitly chosen tier, and sends a
+set-your-own-password link (ADR 0034) whose redemption is what makes the account
+`active`; self-deletion sets `anonymized` and tombstones the identifying fields,
+keeping the row and its foreign-key references intact.
 
 ## Rationale
 
 One enum rather than flags because the states are mutually exclusive by nature
 and each transition is a distinct event with a distinct actor: the registrant
-creates `pending`, staff create `active`, the account holder creates
-`anonymized`. There is no route back from `anonymized`, and a `pending` account
-that is never approved simply stays a visible request.
+creates `pending`, staff create `invited`, the account holder creates `active`
+by choosing a password and `anonymized` by leaving. There is no route back from
+`anonymized`, and a `pending` account that is never approved simply stays a
+visible request.
+
+`invited` is a state rather than a flag or a derived condition because it
+answers a question the other two cannot: staff have decided, and the account
+still cannot sign in. It also removes the need for a token to record what it is
+_for_ — a link redeemed by an `invited` account sets a first password, one
+redeemed by an `active` account replaces an existing one (ADR 0034).
 
 The default is `pending`, the state that _cannot_ sign in. A column default is
 what applies when a code path forgets to set the field, so the default has to be
@@ -113,13 +121,18 @@ survives.
   FK nulling and no orphan handling anywhere in the schema.
 - (+) Approval is the natural moment to force a deliberate tier choice, which is
   what ADR 0031 needs (there is no default-tier row to fall into).
+- (+) No password is ever generated for someone else: staff decide _whether_,
+  the account holder decides _when_ and _what_ (ADR 0034).
 - (+) Nothing jurisdiction-specific reaches the codebase: a deployment in
   another country configures a different pattern and mask.
 - (−) A pending row now holds real personal data, which makes purging a declined
   registration an obligation rather than housekeeping. A pending account has no
   audit references yet, so it can be hard-deleted — staff get that action.
+- (−) An approved account can sit `invited` indefinitely if its owner never
+  opens the mail, which reads as "approved but absent" in the account list and
+  is a state staff have to understand.
 - (−) Every future guard, and any query that lists "users", must remember that
-  `pending` and `anonymized` rows exist and are not customers. The tier account
+  `pending`, `invited` and `anonymized` rows exist and are not customers. The tier account
   counts already filter on both role and status.
 - (−) An unapproved registration occupies its email address indefinitely. There
   is no expiry sweep; if pending rows pile up, that is a staff workflow signal,

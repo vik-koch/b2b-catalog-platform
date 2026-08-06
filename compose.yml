@@ -62,6 +62,8 @@ services:
       # mount below; the branding on those mails comes from the same mount's
       # deployment.json, and APP_ORIGIN makes their links absolute.
       MAIL_TEXT_FILE: ${MAIL_TEXT_FILE:-/config/mail-text.json}
+      # Optional common-password blocklist; unset means none (see .env.example).
+      PASSWORD_BLOCKLIST_FILE: ${PASSWORD_BLOCKLIST_FILE:-/config/password-blocklist.txt}
       DEPLOYMENT_CONFIG_FILE: ${DEPLOYMENT_CONFIG_FILE:-/config/deployment.json}
       APP_ORIGIN: https://${APP_DOMAIN:?}
       # Uploaded images land on the shared media volume; the media service

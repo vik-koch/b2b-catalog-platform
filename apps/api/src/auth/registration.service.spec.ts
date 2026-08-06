@@ -51,7 +51,7 @@ describe('RegistrationService', () => {
         {
           provide: PasswordService,
           useValue: {
-            hash: jest.fn().mockResolvedValue('$argon2id$generated'),
+            unusableHash: jest.fn().mockResolvedValue('$argon2id$generated'),
           },
         },
       ],

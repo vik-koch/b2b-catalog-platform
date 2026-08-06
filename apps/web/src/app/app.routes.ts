@@ -59,6 +59,13 @@ export const appRoutes: Route[] = [
       import('./auth/register-page').then((m) => m.RegisterPage),
   },
   {
+    // Reached from an invitation or a reset mail; the link is in the query
+    // string, bound to the page's `token` input by withComponentInputBinding.
+    path: 'set-password',
+    loadComponent: () =>
+      import('./auth/set-password-page').then((m) => m.SetPasswordPage),
+  },
+  {
     path: 'admin',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>

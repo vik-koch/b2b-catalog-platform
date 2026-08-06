@@ -344,6 +344,101 @@ describe('/admin/users', () => {
     });
   });
 
+  // 4b end to end: the link in the mail is the credential, and redeeming it is
+  // what turns an approved account into one that can sign in.
+  describe('redeeming the invitation', () => {
+    const passwordOf = (email: string) =>
+      client.query(
+        'SELECT "passwordHash", status FROM users WHERE email = $1',
+        [email],
+      );
+
+    /** The token as it left the app, read out of the delivered mail. */
+    const tokenFor = async (email: string): Promise<string> => {
+      const [mail] = await messagesMatching(`to:"${email}"`);
+      const body = await axios.get(
+        `http://localhost:8025/api/v1/message/${mail.ID}`,
+      );
+      const match = /set-password\?token=([A-Za-z0-9_-]+)/.exec(
+        body.data.Text as string,
+      );
+      if (!match) throw new Error('no set-password link in the invitation');
+      return match[1];
+    };
+
+    it('reports what the link is for before anything is typed', async () => {
+      const token = await tokenFor(CREATED_EMAIL);
+
+      const res = await axios.get(`/auth/password-token/${token}`, {
+        validateStatus: () => true,
+      });
+
+      expect(res.status).toBe(200);
+      // Never had a password, so this is "choose one", not "reset".
+      expect(res.data).toEqual({ purpose: 'set', email: CREATED_EMAIL });
+    });
+
+    it('refuses a password the policy rejects, without spending the link', async () => {
+      const token = await tokenFor(CREATED_EMAIL);
+
+      const res = await axios.post(
+        '/auth/set-password',
+        { token, password: 'password1234' },
+        { validateStatus: () => true },
+      );
+
+      expect(res.status).toBe(400);
+      // Still usable: a refused password must not cost the visitor their link.
+      expect(
+        (
+          await axios.get(`/auth/password-token/${token}`, {
+            validateStatus: () => true,
+          })
+        ).status,
+      ).toBe(200);
+    });
+
+    it('sets the password, activates the account and signs it in — once', async () => {
+      const token = await tokenFor(CREATED_EMAIL);
+      const password = 'a stubbornly long passphrase';
+
+      const res = await axios.post(
+        '/auth/set-password',
+        { token, password },
+        { validateStatus: () => true },
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.email).toBe(CREATED_EMAIL);
+      expect(res.headers['set-cookie']).toBeDefined();
+      expect((await passwordOf(CREATED_EMAIL)).rows[0].status).toBe('active');
+
+      // The password now works where it did not before.
+      const login = await axios.post(
+        '/auth/login',
+        { email: CREATED_EMAIL, password },
+        { validateStatus: () => true },
+      );
+      expect(login.status).toBe(200);
+
+      // And the link is spent: single-use is the whole security model.
+      const reuse = await axios.post(
+        '/auth/set-password',
+        { token, password: 'another perfectly long one' },
+        { validateStatus: () => true },
+      );
+      expect(reuse.status).toBe(404);
+    });
+
+    it('answers an unknown link exactly as it answers a used one', async () => {
+      const res = await axios.get('/auth/password-token/not-a-real-token', {
+        validateStatus: () => true,
+      });
+
+      expect(res.status).toBe(404);
+    });
+  });
+
   describe('declining a registration', () => {
     it('purges a pending row outright, and refuses anything else', async () => {
       const declineId = await seedUser(

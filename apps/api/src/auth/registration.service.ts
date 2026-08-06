@@ -4,7 +4,6 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { randomBytes } from 'node:crypto';
 import { RegisterRequest } from '@b2b-catalog-platform/shared';
 import { COMPANY_ID_RULE, CompanyIdRule } from '../config/deployment-config';
 import { env } from '../env';
@@ -72,9 +71,7 @@ export class RegistrationService {
 
     // A hash of a secret nobody holds — the account gets its real password when
     // staff approve it. See UsersService.createPending.
-    const unusablePassword = await this.passwords.hash(
-      randomBytes(32).toString('hex'),
-    );
+    const unusablePassword = await this.passwords.unusableHash();
     await this.users.createPending({
       email,
       passwordHash: unusablePassword,

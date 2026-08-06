@@ -27,7 +27,7 @@ beforeAll(() => {
 
 async function render(
   initial: AuthUser | null,
-  result: ChangePasswordResult = 'ok',
+  result: ChangePasswordResult = { result: 'ok' },
 ) {
   const user: WritableSignal<AuthUser | null> = signal(initial);
   // Mirrors the real service: the success response carries the refreshed
@@ -35,7 +35,7 @@ async function render(
   const changePassword = vi
     .fn<AuthService['changePassword']>()
     .mockImplementation(async () => {
-      if (result === 'ok') {
+      if (result.result === 'ok') {
         const current = user();
         if (current) user.set({ ...current, mustChangePassword: false });
       }

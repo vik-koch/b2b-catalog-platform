@@ -209,6 +209,40 @@ export const appTextSchema = z
           })
           .strict(),
         /**
+         * Redeeming a set-a-password link (FR-AUTH-01/02) — the page an
+         * invitation or a reset mail lands on.
+         */
+        setPassword: z
+          .object({
+            /** Heading while the link is being checked. */
+            checking: z.string(),
+            /** First password, i.e. an invitation. */
+            setHeading: z.string(),
+            setIntro: z.string(),
+            /** Replacing an existing one, i.e. a reset. */
+            resetHeading: z.string(),
+            resetIntro: z.string(),
+            /** Which account this link belongs to. */
+            forAccount: z.string(),
+            password: z.string(),
+            confirmPassword: z.string(),
+            /** Reveal toggle on the password field. */
+            show: z.string(),
+            hide: z.string(),
+            /** Offers a strong password to anyone who does not want to invent one. */
+            generate: z.string(),
+            generated: z.string(),
+            submit: z.string(),
+            submitting: z.string(),
+            successHeading: z.string(),
+            success: z.string(),
+            /** The link was expired, already used, or never valid. */
+            expiredHeading: z.string(),
+            expired: z.string(),
+            error: z.string(),
+          })
+          .strict(),
+        /**
          * The change-password form, plus the modal that forces it on an account
          * still using a password it was handed rather than chose.
          */

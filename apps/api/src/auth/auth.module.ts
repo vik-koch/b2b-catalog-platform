@@ -14,6 +14,8 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { OptionalAuthGuard } from './optional-auth.guard';
 import { PasswordService } from './password.service';
 import { PasswordTokenService } from './password-token.service';
+import { PasswordPolicy } from './password-policy';
+import { PasswordSetupService } from './password-setup.service';
 import { RolesGuard } from './roles.guard';
 
 // env.ts requires JWT_SECRET in server mode; this narrows the optional type and
@@ -55,6 +57,8 @@ function jwtSecret(): string {
     { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
     PasswordService,
     PasswordTokenService,
+    PasswordPolicy,
+    PasswordSetupService,
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
@@ -63,6 +67,8 @@ function jwtSecret(): string {
     AuthService,
     PasswordService,
     PasswordTokenService,
+    PasswordPolicy,
+    PasswordSetupService,
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,

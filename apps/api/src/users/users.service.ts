@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { CustomerType } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
@@ -59,6 +59,37 @@ export class UsersService {
       })
       .returning();
     return created;
+  }
+
+  /**
+   * Set the password behind a redeemed link, and make the account usable: an
+   * `invited` one becomes `active` here, which is the whole point of the
+   * invitation — approval decides *whether*, this decides *when*.
+   *
+   * Only an `invited` (first password) or already-`active` (reset) account is
+   * touched. That upper bound is what tokens are minted for anyway — but naming
+   * it here means a link can never move any *other* status into `active`: it
+   * cannot activate a still-`pending` registration that skipped approval, nor
+   * bring an `anonymized` tombstone back. Everything `setPassword` does applies
+   * too: the tokenVersion bump invalidates other sessions, and
+   * `mustChangePassword` clears because the account has now chosen its own.
+   */
+  async setPasswordFromToken(
+    id: string,
+    passwordHash: string,
+  ): Promise<UserRow | undefined> {
+    const [updated] = await this.db
+      .update(users)
+      .set({
+        passwordHash,
+        status: 'active',
+        tokenVersion: sql`${users.tokenVersion} + 1`,
+        mustChangePassword: false,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(users.id, id), inArray(users.status, ['invited', 'active'])))
+      .returning();
+    return updated;
   }
 
   /**

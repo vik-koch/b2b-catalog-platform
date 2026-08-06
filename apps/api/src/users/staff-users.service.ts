@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { randomBytes } from 'node:crypto';
 import { and, asc, desc, eq, ilike, isNull, ne, or, SQL } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
@@ -282,6 +281,3 @@ const toStaffUser = (row: StaffUserRow): StaffUser => ({
   createdAt: row.createdAt.toISOString(),
   approvedAt: row.approvedAt?.toISOString() ?? null,
 });
-
-/** An argon2 hash of a secret nobody holds — see UsersService.createPending. */
-export const unusableSecret = (): string => randomBytes(32).toString('hex');
