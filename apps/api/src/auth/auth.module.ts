@@ -13,6 +13,7 @@ import { RegistrationService } from './registration.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { OptionalAuthGuard } from './optional-auth.guard';
 import { PasswordService } from './password.service';
+import { PasswordTokenService } from './password-token.service';
 import { RolesGuard } from './roles.guard';
 
 // env.ts requires JWT_SECRET in server mode; this narrows the optional type and
@@ -53,6 +54,7 @@ function jwtSecret(): string {
     // pattern fails the startup rather than every registration.
     { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
     PasswordService,
+    PasswordTokenService,
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
@@ -60,6 +62,7 @@ function jwtSecret(): string {
   exports: [
     AuthService,
     PasswordService,
+    PasswordTokenService,
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
