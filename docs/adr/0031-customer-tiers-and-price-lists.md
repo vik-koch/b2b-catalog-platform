@@ -1,6 +1,7 @@
 # 0031 — Customer tiers are database rows; a product's non-default prices live in a side table
 
-**Status:** accepted · **Date:** 2026-08-04
+**Status:** accepted · **Date:** 2026-08-04 · **Amended:** 2026-08-06 (how a
+customer's prices reach the browser)
 
 ## Context
 
@@ -130,7 +131,7 @@ list, rows for the rest — so any code that writes a price must know which it i
 addressing, and the default tier is the one thing in the pricing UI that has no
 database id.
 
-Tiers are sorted by `customer_tiers.sortOrder`, set by drag-and-drop in the
+Tiers are sorted by `customer_tiers.sortOrder`, set by up/down buttons in the
 admin tier list and applied wherever staff see tiers — the list itself and the
 per-tier price fields in the product editor — so the tier a deployment works
 with most sits first instead of wherever the alphabet puts it.
@@ -162,3 +163,50 @@ with most sits first instead of wherever the alphabet puts it.
 - (⚠) `default` is a reserved price-list key, enforced by a check constraint. A
   deployment cannot name an additional tier `default`, because that key already
   addresses the base list in the import.
+
+## Amendment — 2026-08-06: how a customer's prices actually reach the browser
+
+The decision above said a signed-in customer's own prices "arrive on the client
+refresh that `AuthService` already performs". They do not, and could not:
+`AuthService` refreshes the _session_, never the catalog. What actually happens
+on a cold load is that Angular's hydration transfer cache replays the response
+the server-rendered document already carries — the session-blind, default-price
+one — so the browser never asks the API at all, and the customer keeps looking
+at the default list until they navigate. Session-blind SSR is kept; what changes
+is how the browser is made to ask.
+
+- **A price-bearing read is marked session-sensitive** (`createApiClient`'s
+  `sessionSensitive` option; `catalog.service.ts` uses one such client for
+  `getCategoryProducts`, `searchProducts` and `getProduct`). On the server, such
+  a read is kept out of the transfer cache **whenever the document request
+  carries the session cookie** — the SSR tier tests for the cookie's presence
+  only, never reads it. The browser then fetches those endpoints itself, with
+  the cookie, and gets the customer's prices before the page paints them.
+- **A guest's document is untouched**: cookie absent, response cached and
+  replayed exactly as before. Guests and crawlers — the overwhelming majority
+  of catalog traffic, rationale 2 — pay nothing for this.
+- **Rejected: correcting the prices after hydration.** Re-reading once the
+  session resolves means either showing the default price and swapping it, or
+  holding the content back anyway; and the trigger cannot be "the session was
+  not yet known when the page was built", because route activation already
+  waits on the maintenance guard's request, by which time it is. Not asking for
+  the wrong answer in the first place is both simpler and never briefly wrong.
+- **Cache headers are the endpoint's, not the render's** (`@TierPriced()`):
+  `Vary: Cookie` on every response, so no shared cache can hand the guest
+  variant to a customer or the reverse, and `Cache-Control: private, no-store`
+  only when a session actually shaped the response. Marking the guest variant
+  private would be self-defeating — Angular refuses to transfer-cache anything
+  marked private, which would cost every visitor the second fetch this
+  amendment exists to avoid for all but one of them.
+
+Concession: a signed-in customer's cold load costs one API request the SSR
+render also made. The alternative — forwarding the cookie from the SSR tier —
+buys that request back at the price of a per-visitor document, which is what
+rationale 9 declined.
+
+Trap for whoever caches storefront HTML (nothing does today): the documents are
+no longer identical for everyone. They carry the same _markup_, but a guest's
+also carries the catalog response for hydration and a signed-in visitor's
+deliberately does not. Serving a guest's document to a customer would put them
+straight back on the default prices, so such a cache has to vary on the session
+cookie's presence — or price-bearing routes have to stay out of it.

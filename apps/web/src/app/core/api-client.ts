@@ -4,7 +4,8 @@ import {
   HttpErrorResponse,
   HttpHeaders,
 } from '@angular/common/http';
-import { DOCUMENT, inject, PLATFORM_ID } from '@angular/core';
+import { DOCUMENT, inject, PLATFORM_ID, REQUEST } from '@angular/core';
+import { AUTH_COOKIE } from '@b2b-catalog-platform/shared';
 import { AppRouter, initClient } from '@ts-rest/core';
 import { lastValueFrom } from 'rxjs';
 import { requireEnv } from '../../env';
@@ -18,6 +19,32 @@ function toFetchHeaders(headers: HttpHeaders): Headers {
   );
 }
 
+export interface ApiClientOptions {
+  /**
+   * Set for reads whose body depends on who is asking — today the catalog's
+   * tier prices (FR-AUTH-05).
+   *
+   * Such a read is kept out of the hydration transfer cache whenever the
+   * document request carries a session cookie. The SSR tier never forwards
+   * that cookie, so what it would put in the document is the default-price
+   * answer, and the browser would replay it instead of asking the API for the
+   * customer's own — leaving a signed-in visitor on the wrong prices until
+   * they navigated. Skipping the cache costs them one request and gets it
+   * right; a guest's document is unaffected, cache and all.
+   */
+  sessionSensitive?: boolean;
+}
+
+/**
+ * Whether the visitor this render is for has a session — the cookie's presence,
+ * never its value, which is httpOnly and the API's business. Always false in
+ * the browser, where there is no incoming request and nothing to decide.
+ */
+function hasSessionCookie(): boolean {
+  const cookies = inject(REQUEST)?.headers.get('cookie');
+  return !!cookies && new RegExp(`(?:^|;\\s*)${AUTH_COOKIE}=`).test(cookies);
+}
+
 /**
  * Builds a ts-rest client over Angular's HttpClient. Must be called in an
  * injection context (e.g. a service field initializer).
@@ -29,11 +56,21 @@ function toFetchHeaders(headers: HttpHeaders): Headers {
  * `/api` would never match a mapped key and every SSR'd response would be
  * refetched on hydration.
  */
-export function createApiClient<T extends AppRouter>(contract: T) {
+export function createApiClient<T extends AppRouter>(
+  contract: T,
+  options: ApiClientOptions = {},
+) {
   const http = inject(HttpClient);
-  const baseUrl = isPlatformServer(inject(PLATFORM_ID))
+  const isServer = isPlatformServer(inject(PLATFORM_ID));
+  const baseUrl = isServer
     ? requireEnv('API_URL')
     : `${inject(DOCUMENT).location.origin}/api`;
+  // Undefined leaves Angular's default (cache it) in place; only a
+  // session-sensitive read on a server render for a signed-in visitor opts out.
+  const transferCache =
+    isServer && options.sessionSensitive && hasSessionCookie()
+      ? false
+      : undefined;
 
   return initClient(contract, {
     baseUrl,
@@ -45,6 +82,7 @@ export function createApiClient<T extends AppRouter>(contract: T) {
             headers,
             observe: 'response',
             responseType: 'json',
+            transferCache,
           }),
         );
 

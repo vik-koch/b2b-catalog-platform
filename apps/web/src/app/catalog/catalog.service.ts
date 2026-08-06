@@ -10,6 +10,14 @@ import { createApiClient } from '../core/api-client';
 @Injectable({ providedIn: 'root' })
 export class CatalogService {
   private client = createApiClient(catalogContract);
+  /**
+   * The same endpoints for the reads that carry prices. Marked session
+   * sensitive so a signed-in customer's browser fetches them itself instead of
+   * replaying the session-blind render's default prices (FR-AUTH-05).
+   */
+  private pricedClient = createApiClient(catalogContract, {
+    sessionSensitive: true,
+  });
 
   /** The full category tree for the main-page overview (FR-CAT-01/02). */
   async getCategoryTree() {
@@ -23,7 +31,7 @@ export class CatalogService {
   /** A page of products in a category (FR-CAT-03/04). `null` when the category
    * does not exist, so the caller can render a not-found rather than throw. */
   async getCategoryProducts(slug: string, page: number, sort: ProductSort) {
-    const response = await this.client.getCategoryProducts({
+    const response = await this.pricedClient.getCategoryProducts({
       params: { slug },
       query: { page, sort },
     });
@@ -41,7 +49,7 @@ export class CatalogService {
   /** A page of search results, best match first (FR-SEARCH-01…03). An
    * unsearchable query is an empty page, not an error — see the contract. */
   async searchProducts(q: string, page: number, sort: SearchSort) {
-    const response = await this.client.searchProducts({
+    const response = await this.pricedClient.searchProducts({
       query: { q, page, sort },
     });
     if (response.status === 200) {
@@ -63,7 +71,7 @@ export class CatalogService {
 
   /** A single product (FR-CAT-05). `null` when it does not exist. */
   async getProduct(slug: string) {
-    const response = await this.client.getProduct({ params: { slug } });
+    const response = await this.pricedClient.getProduct({ params: { slug } });
     if (response.status === 200) {
       return response.body;
     }

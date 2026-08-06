@@ -4,6 +4,14 @@ import { z } from 'zod';
 const c = initContract();
 
 /**
+ * Name of the httpOnly cookie carrying the session JWT. Shared because it is
+ * not only the API's business: the SSR tier looks for it by name to tell
+ * whether the visitor it is rendering for has a session at all (it never reads
+ * the value — it cannot, and does not need to).
+ */
+export const AUTH_COOKIE = 'session';
+
+/**
  * Authorization roles.
  * Kept in sync with the `user_role` pg enum in the API schema.
  */

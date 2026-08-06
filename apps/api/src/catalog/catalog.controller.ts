@@ -1,9 +1,9 @@
-import { Controller, UseGuards } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import { catalogContract } from '@b2b-catalog-platform/shared';
 import { CatalogService } from './catalog.service';
-import { OptionalAuthGuard } from '../auth/optional-auth.guard';
 import { PricingTier } from '../auth/pricing-tier.decorator';
+import { TierPriced } from '../auth/tier-priced.decorator';
 import {
   SearchThrottle,
   SuggestionThrottle,
@@ -14,9 +14,10 @@ import {
  * validation (`validateResponses`) enforces the contract on the way out, so no
  * internal column (e.g. a product's private `sourceId`) can leak.
  *
- * Public, but not session-blind: OptionalAuthGuard reads a session if one is
- * offered so a signed-in customer gets their tier's prices (FR-AUTH-05). It
- * never rejects, and a request without the cookie does no extra work.
+ * Public, but not session-blind: `@TierPriced()` reads a session if one is
+ * offered so a signed-in customer gets their tier's prices (FR-AUTH-05), and
+ * marks those responses so no cache serves them to anyone else. It never
+ * rejects, and a request without the cookie does no extra work.
  */
 @Controller()
 export class CatalogController {
@@ -30,7 +31,7 @@ export class CatalogController {
     }));
   }
 
-  @UseGuards(OptionalAuthGuard)
+  @TierPriced()
   @TsRestHandler(catalogContract.getCategoryProducts, {
     validateResponses: true,
   })
@@ -53,7 +54,7 @@ export class CatalogController {
   }
 
   @SearchThrottle()
-  @UseGuards(OptionalAuthGuard)
+  @TierPriced()
   @TsRestHandler(catalogContract.searchProducts, { validateResponses: true })
   async searchProducts(@PricingTier() tierId: string | null) {
     return tsRestHandler(
@@ -87,7 +88,7 @@ export class CatalogController {
     }));
   }
 
-  @UseGuards(OptionalAuthGuard)
+  @TierPriced()
   @TsRestHandler(catalogContract.getProduct, { validateResponses: true })
   async getProduct(@PricingTier() tierId: string | null) {
     return tsRestHandler(
