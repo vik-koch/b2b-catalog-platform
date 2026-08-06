@@ -11,6 +11,7 @@ import {
   AuthUser,
   ChangePasswordRequest,
   LoginRequest,
+  RegisterRequest,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../core/api-client';
 
@@ -64,6 +65,22 @@ export class AuthService {
   /** Resolves once the session is known either way; awaited by the guards. */
   whenResolved(): Promise<void> {
     return this.ready;
+  }
+
+  /**
+   * Request an account (FR-AUTH-01). Deliberately learns nothing: the server
+   * answers the same whether the address was new or already registered, so
+   * there is no result to distinguish beyond "the request went through".
+   * Nothing about the session changes — the account cannot sign in until staff
+   * approve it.
+   */
+  async register(request: RegisterRequest): Promise<'ok' | 'error'> {
+    try {
+      const response = await this.client.register({ body: request });
+      return response.status === 200 ? 'ok' : 'error';
+    } catch {
+      return 'error';
+    }
   }
 
   async login(credentials: LoginRequest): Promise<LoginResult> {

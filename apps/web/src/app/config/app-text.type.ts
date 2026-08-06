@@ -164,6 +164,27 @@ export const appTextSchema = z
         error: z.string(),
         underConstruction: z.string(),
         /**
+         * Self-registration (FR-AUTH-01). An account is a request, not a
+         * signup: the copy has to set that expectation before the visitor
+         * submits, and the success state has to explain the wait.
+         */
+        register: z
+          .object({
+            /** Link on the login page, and the page's own heading. */
+            link: z.string(),
+            heading: z.string(),
+            intro: z.string(),
+            submit: z.string(),
+            submitting: z.string(),
+            /** Shown in place of the form once the request is in. */
+            successHeading: z.string(),
+            success: z.string(),
+            error: z.string(),
+            /** Link back to the login page from the register page. */
+            haveAccount: z.string(),
+          })
+          .strict(),
+        /**
          * The change-password form, plus the modal that forces it on an account
          * still using a password it was handed rather than chose.
          */

@@ -8,6 +8,7 @@ export const serverRoutes: ServerRoute[] = [
   // settle the session *before* the page is activated, which is why these
   // routes need no gate component and no hydration dance.
   { path: 'login', renderMode: RenderMode.Client },
+  { path: 'register', renderMode: RenderMode.Client },
   { path: 'admin', renderMode: RenderMode.Client },
   { path: 'admin/products', renderMode: RenderMode.Client },
   { path: 'admin/categories', renderMode: RenderMode.Client },

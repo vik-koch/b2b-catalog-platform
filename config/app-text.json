@@ -79,6 +79,17 @@
     "invalid": "Invalid email or password.",
     "error": "Something went wrong logging you in. Please try again.",
     "underConstruction": "This area is under construction.",
+    "register": {
+      "link": "Create an account",
+      "heading": "Create an account",
+      "intro": "Tell us your email address and we will set up your customer account. A colleague reviews every request, so this is not instant — you will receive your password by email once your account is ready.",
+      "submit": "Request an account",
+      "submitting": "Sending…",
+      "successHeading": "Thank you",
+      "success": "If we can set up an account for this address, you will receive an email shortly. Our team reviews every request, so your password may take a little while to arrive.",
+      "error": "Something went wrong sending your request. Please try again.",
+      "haveAccount": "Already have an account?"
+    },
     "changePassword": {
       "heading": "Change password",
       "currentPassword": "Current password",

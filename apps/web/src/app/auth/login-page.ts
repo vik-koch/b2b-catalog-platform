@@ -1,6 +1,6 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { zodValidator } from '../core/zod-validator';
@@ -17,7 +17,7 @@ import { landingFor } from './auth.guard';
  */
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, Button, FieldLabel, Input],
+  imports: [ReactiveFormsModule, RouterLink, Button, FieldLabel, Input],
   template: `
     <div class="mx-auto max-w-sm">
       <h1 class="mb-8 text-3xl font-bold tracking-tight">{{ text.login }}</h1>
@@ -84,6 +84,12 @@ import { landingFor } from './auth.guard';
           {{ status() === 'submitting' ? text.submitting : text.submit }}
         </button>
       </form>
+
+      <p class="mt-8 text-sm text-muted">
+        <a routerLink="/register" class="text-primary underline">{{
+          text.register.link
+        }}</a>
+      </p>
     </div>
   `,
 })

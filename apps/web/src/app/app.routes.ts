@@ -53,6 +53,12 @@ export const appRoutes: Route[] = [
     loadComponent: () => import('./auth/login-page').then((m) => m.LoginPage),
   },
   {
+    path: 'register',
+    canActivate: [guestOnly],
+    loadComponent: () =>
+      import('./auth/register-page').then((m) => m.RegisterPage),
+  },
+  {
     path: 'admin',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
