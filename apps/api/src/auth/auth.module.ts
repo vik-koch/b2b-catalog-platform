@@ -1,12 +1,21 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import {
+  COMPANY_ID_RULE,
+  loadCompanyIdRule,
+} from '../config/deployment-config';
 import { env } from '../env';
+import { MailModule } from '../mail/mail.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { RegistrationService } from './registration.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { OptionalAuthGuard } from './optional-auth.guard';
 import { PasswordService } from './password.service';
+import { PasswordTokenService } from './password-token.service';
+import { PasswordPolicy } from './password-policy';
+import { PasswordSetupService } from './password-setup.service';
 import { RolesGuard } from './roles.guard';
 
 // env.ts requires JWT_SECRET in server mode; this narrows the optional type and
@@ -31,6 +40,7 @@ function jwtSecret(): string {
 @Module({
   imports: [
     UsersModule,
+    MailModule,
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: jwtSecret(),
@@ -41,7 +51,14 @@ function jwtSecret(): string {
   controllers: [AuthController],
   providers: [
     AuthService,
+    RegistrationService,
+    // The deployment's company-number format, compiled once at boot: a bad
+    // pattern fails the startup rather than every registration.
+    { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
     PasswordService,
+    PasswordTokenService,
+    PasswordPolicy,
+    PasswordSetupService,
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
@@ -49,6 +66,9 @@ function jwtSecret(): string {
   exports: [
     AuthService,
     PasswordService,
+    PasswordTokenService,
+    PasswordPolicy,
+    PasswordSetupService,
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,

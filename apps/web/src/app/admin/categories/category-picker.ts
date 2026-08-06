@@ -1,7 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
-import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
+import { SelectField } from '../../ui/select-field';
 import { flattenCategoryTree } from './category-tree';
 
 /**
@@ -11,12 +11,12 @@ import { flattenCategoryTree } from './category-tree';
  */
 @Component({
   selector: 'app-category-picker',
-  imports: [AdminIcon, Input],
+  imports: [Input, SelectField],
   template: `
-    <div class="relative">
+    <app-select-field>
       <select
         appInput
-        class="w-full appearance-none pr-10 pl-3"
+        class="w-full"
         [attr.aria-label]="ariaLabel() || placeholder()"
         (change)="onChange($event)"
       >
@@ -34,11 +34,7 @@ import { flattenCategoryTree } from './category-tree';
           </option>
         }
       </select>
-      <app-admin-icon
-        name="chevron-down"
-        class="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-stone-400"
-      />
-    </div>
+    </app-select-field>
   `,
 })
 export class CategoryPicker {

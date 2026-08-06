@@ -14,7 +14,18 @@ export type AuditAction =
   | 'tier.created'
   | 'tier.updated'
   | 'tier.reordered'
-  | 'tier.deleted';
+  | 'tier.deleted'
+  // Account management (FR-AUTH-03/04). Who let a customer in, who priced
+  // them, and — the one an auditor actually asks about — who granted a role.
+  | 'user.approved'
+  | 'user.created'
+  | 'user.updated'
+  | 'user.invited'
+  | 'user.deactivated'
+  | 'user.reactivated'
+  | 'user.tierChanged'
+  | 'user.roleChanged'
+  | 'user.declined';
 
 /**
  * Domain events for admin mutations — who changed what.

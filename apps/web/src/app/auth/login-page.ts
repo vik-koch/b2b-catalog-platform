@@ -1,9 +1,10 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { zodValidator } from '../core/zod-validator';
+import { FieldErrors } from '../core/form-errors';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
@@ -17,7 +18,7 @@ import { landingFor } from './auth.guard';
  */
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, Button, FieldLabel, Input],
+  imports: [ReactiveFormsModule, RouterLink, Button, FieldLabel, Input],
   template: `
     <div class="mx-auto max-w-sm">
       <h1 class="mb-8 text-3xl font-bold tracking-tight">{{ text.login }}</h1>
@@ -84,6 +85,13 @@ import { landingFor } from './auth.guard';
           {{ status() === 'submitting' ? text.submitting : text.submit }}
         </button>
       </form>
+
+      <div class="mt-10 border-t border-border pt-6">
+        <p class="mb-3 text-sm text-muted">{{ text.register.noAccount }}</p>
+        <a appButton variant="secondary" routerLink="/register">
+          {{ text.register.signUp }}
+        </a>
+      </div>
     </div>
   `,
 })
@@ -108,14 +116,19 @@ export class LoginPage {
     password: ['', Validators.required],
   });
 
+  /**
+   * Error visibility, not validity: revealed on blur, hidden again while the
+   * field is being retyped, and everything shown once submit is attempted.
+   */
+  protected readonly fieldErrors = new FieldErrors(this.form);
+
   protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    const c = this.form.controls[control];
-    return c.invalid && (c.touched || c.dirty);
+    return this.fieldErrors.show(this.form.controls[control]);
   }
 
   protected async submit(): Promise<void> {
+    this.fieldErrors.markSubmitted();
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
 

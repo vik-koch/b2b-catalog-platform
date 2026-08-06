@@ -8,11 +8,18 @@ export const serverRoutes: ServerRoute[] = [
   // settle the session *before* the page is activated, which is why these
   // routes need no gate component and no hydration dance.
   { path: 'login', renderMode: RenderMode.Client },
+  { path: 'register', renderMode: RenderMode.Client },
+  { path: 'set-password', renderMode: RenderMode.Client },
   { path: 'admin', renderMode: RenderMode.Client },
   { path: 'admin/products', renderMode: RenderMode.Client },
   { path: 'admin/categories', renderMode: RenderMode.Client },
   { path: 'admin/sync', renderMode: RenderMode.Client },
   { path: 'admin/tiers', renderMode: RenderMode.Client },
+  { path: 'admin/users', renderMode: RenderMode.Client },
+  { path: 'admin/users/staff', renderMode: RenderMode.Client },
+  { path: 'admin/users/new', renderMode: RenderMode.Client },
+  { path: 'admin/users/staff/new', renderMode: RenderMode.Client },
+  { path: 'admin/users/:id/edit', renderMode: RenderMode.Client },
   { path: 'admin/categories/new', renderMode: RenderMode.Client },
   { path: 'admin/categories/:slug/edit', renderMode: RenderMode.Client },
   { path: 'admin/products/new', renderMode: RenderMode.Client },

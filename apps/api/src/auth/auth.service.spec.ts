@@ -1,7 +1,8 @@
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRow, UsersService } from '../users/users.service';
-import { AuthService } from './auth.service';
+import { AuthService, WrongCurrentPasswordError } from './auth.service';
+import { PasswordPolicy, PasswordRejectedError } from './password-policy';
 import { PasswordService } from './password.service';
 
 const user = (overrides: Partial<UserRow> = {}): UserRow =>
@@ -10,6 +11,7 @@ const user = (overrides: Partial<UserRow> = {}): UserRow =>
     email: 'admin@example.com',
     passwordHash: '$argon2id$stored',
     role: 'admin',
+    status: 'active',
     tokenVersion: 2,
     mustChangePassword: false,
     createdAt: new Date(),
@@ -26,10 +28,15 @@ describe('AuthService', () => {
   const passwords = { hash: jest.fn(), verify: jest.fn() };
   const jwt = { signAsync: jest.fn() };
 
+  // A policy that accepts everything: what it refuses is PasswordPolicy's own
+  // spec, and this one is about credentials and session state.
+  const policy = { assertAcceptable: jest.fn() } as unknown as PasswordPolicy;
+
   const service = new AuthService(
     users as unknown as UsersService,
     passwords as unknown as PasswordService,
     jwt as unknown as JwtService,
+    policy,
   );
 
   beforeEach(() => jest.clearAllMocks());
@@ -65,6 +72,18 @@ describe('AuthService', () => {
       // A hash was still verified rather than short-circuiting on the miss.
       expect(passwords.verify).toHaveBeenCalledWith('$argon2id$dummy', 'x');
     });
+
+    it.each(['pending', 'anonymized'] as const)(
+      'returns null for a %s account even with the right password',
+      async (status) => {
+        users.findByEmail.mockResolvedValue(user({ status }));
+        passwords.verify.mockResolvedValue(true);
+
+        await expect(
+          service.validate('admin@example.com', 'right'),
+        ).resolves.toBeNull();
+      },
+    );
   });
 
   describe('signToken', () => {
@@ -83,13 +102,25 @@ describe('AuthService', () => {
   });
 
   describe('changePassword', () => {
+    // The forced first change (FR-AUTH-08) exists so a handed-out password is
+    // replaced; keeping it would defeat the whole mechanism.
+    it('refuses a new password identical to the current one', async () => {
+      users.findById.mockResolvedValue(user());
+      passwords.verify.mockResolvedValue(true);
+
+      await expect(
+        service.changePassword(user().id, 'same-password', 'same-password'),
+      ).rejects.toThrow(PasswordRejectedError);
+      expect(users.setPassword).not.toHaveBeenCalled();
+    });
+
     it('rejects when the current password is wrong', async () => {
       users.findById.mockResolvedValue(user());
       passwords.verify.mockResolvedValue(false);
 
       await expect(
         service.changePassword(user().id, 'wrong', 'new-password'),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow(WrongCurrentPasswordError);
       expect(users.setPassword).not.toHaveBeenCalled();
     });
 
@@ -114,6 +145,23 @@ describe('AuthService', () => {
         user().id,
         '$argon2id$new',
       );
+    });
+
+    // The same policy the invitation link applies: a rule that guards only one
+    // of the two doors guards nothing.
+    it('refuses a password the policy rejects, and stores nothing', async () => {
+      users.findById.mockResolvedValue(user());
+      passwords.verify.mockResolvedValue(true);
+      // Once: `clearAllMocks` clears calls but keeps implementations, so a
+      // persistent throw here would fail every later test in this block.
+      (policy.assertAcceptable as jest.Mock).mockImplementationOnce(() => {
+        throw new PasswordRejectedError('too common');
+      });
+
+      await expect(
+        service.changePassword(user().id, 'current', 'password1234'),
+      ).rejects.toThrow(PasswordRejectedError);
+      expect(users.setPassword).not.toHaveBeenCalled();
     });
 
     it('returns the updated row, so the caller can re-issue its own cookie', async () => {

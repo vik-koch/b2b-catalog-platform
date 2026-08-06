@@ -1,0 +1,58 @@
+{
+  "common": {
+    "footerNote": "This message was sent automatically by our online shop. Please do not reply to this address.",
+    "linkExpiry": "This link can be used once, and expires seven days after it was sent."
+  },
+  "inquiry": {
+    "subject": "Inquiry",
+    "preheader": "A visitor sent an inquiry through the contact form.",
+    "heading": "New inquiry",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "preferredContact": "Preferred contact",
+    "message": "Message"
+  },
+  "registrationReceived": {
+    "subject": "We received your registration",
+    "preheader": "Your registration is with our team.",
+    "heading": "Thank you for registering",
+    "body": "We have received your registration and passed it to our team.",
+    "nextSteps": "A colleague will review it and set up your account. You will receive a second email with your password as soon as it is ready. Until then you cannot sign in yet."
+  },
+  "accountApproved": {
+    "subject": "Your account is ready",
+    "preheader": "Choose a password to start ordering.",
+    "heading": "Your account is ready",
+    "body": "Your registration has been approved and your customer account is set up. Choose a password and you can start ordering right away.",
+    "action": "Choose your password"
+  },
+  "accountCreated": {
+    "subject": "An account has been created for you",
+    "preheader": "Choose a password to start ordering.",
+    "heading": "An account has been created for you",
+    "body": "We have set up a customer account for you at our online shop. Choose a password and you can start ordering right away.",
+    "action": "Choose your password"
+  },
+  "accountReactivated": {
+    "subject": "Your account is active again",
+    "preheader": "Choose a new password to start ordering again.",
+    "heading": "Your account is active again",
+    "body": "Your customer account has been switched back on. For security, the old password no longer works — choose a new one and you can start ordering again.",
+    "action": "Choose your password"
+  },
+  "newRegistration": {
+    "subject": "New registration",
+    "preheader": "Someone requested a customer account.",
+    "heading": "New registration",
+    "body": "Someone has requested a customer account. Review the request and, if it is genuine, approve it and assign the customer a price tier.",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "customerTypeLabel": "Registering as",
+    "customerTypePerson": "Private person",
+    "customerTypeCompany": "Company",
+    "companyIdLabel": "Company registration number",
+    "action": "Open the account list"
+  }
+}

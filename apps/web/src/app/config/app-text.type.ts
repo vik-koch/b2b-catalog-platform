@@ -155,6 +155,9 @@ export const appTextSchema = z
         accountNav: z.string(),
         signedInAs: z.string(),
         adminPanel: z.string(),
+        /** The same landing for a manager, whose panel holds only the accounts
+         * they approve — no catalog, pricing or site controls. */
+        staffArea: z.string(),
         account: z.string(),
         email: z.string(),
         password: z.string(),
@@ -163,6 +166,85 @@ export const appTextSchema = z
         invalid: z.string(),
         error: z.string(),
         underConstruction: z.string(),
+        /**
+         * Self-registration (FR-AUTH-01). An account is a request, not a
+         * signup: the copy has to set that expectation before the visitor
+         * submits, and the success state has to explain the wait.
+         */
+        register: z
+          .object({
+            /** The login page's call to action, and the line above it. */
+            noAccount: z.string(),
+            signUp: z.string(),
+            heading: z.string(),
+            intro: z.string(),
+            /** The person/company choice staff use to read the request. */
+            customerType: z.string(),
+            person: z.string(),
+            company: z.string(),
+            firstName: z.string(),
+            lastName: z.string(),
+            phone: z.string(),
+            /** Business registration number; its format is deployment config. */
+            companyId: z.string(),
+            privacyConsent: z.string(),
+            privacyLink: z.string(),
+            submit: z.string(),
+            submitting: z.string(),
+            /** Shown in place of the form once the request is in. */
+            successHeading: z.string(),
+            success: z.string(),
+            error: z.string(),
+            /** Link back to the login page from the register page. */
+            haveAccount: z.string(),
+            validation: z
+              .object({
+                firstNameRequired: z.string(),
+                lastNameRequired: z.string(),
+                phoneRequired: z.string(),
+                phoneIncomplete: z.string(),
+                companyIdRequired: z.string(),
+                /** Carries the deployment's own example; `{example}` is substituted. */
+                companyIdFormat: z.string(),
+                privacyRequired: z.string(),
+              })
+              .strict(),
+          })
+          .strict(),
+        /**
+         * Redeeming a set-a-password link (FR-AUTH-01/02) — the page an
+         * invitation or a reset mail lands on.
+         */
+        setPassword: z
+          .object({
+            /** Heading while the link is being checked. */
+            checking: z.string(),
+            /** First password, i.e. an invitation. */
+            setHeading: z.string(),
+            setIntro: z.string(),
+            /** Replacing an existing one, i.e. a reset. */
+            resetHeading: z.string(),
+            resetIntro: z.string(),
+            /** Which account this link belongs to. */
+            forAccount: z.string(),
+            password: z.string(),
+            confirmPassword: z.string(),
+            /** Reveal toggle on the password field. */
+            show: z.string(),
+            hide: z.string(),
+            /** Offers a strong password to anyone who does not want to invent one. */
+            generate: z.string(),
+            generated: z.string(),
+            submit: z.string(),
+            submitting: z.string(),
+            successHeading: z.string(),
+            success: z.string(),
+            /** The link was expired, already used, or never valid. */
+            expiredHeading: z.string(),
+            expired: z.string(),
+            error: z.string(),
+          })
+          .strict(),
         /**
          * The change-password form, plus the modal that forces it on an account
          * still using a password it was handed rather than chose.

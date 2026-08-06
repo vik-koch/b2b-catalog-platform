@@ -11,6 +11,9 @@ import {
   AuthUser,
   ChangePasswordRequest,
   LoginRequest,
+  PasswordTokenPurpose,
+  RegisterRequest,
+  SetPasswordRequest,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../core/api-client';
 
@@ -18,11 +21,17 @@ import { createApiClient } from '../core/api-client';
 export type LoginResult = 'ok' | 'invalid' | 'error';
 
 /**
- * What the change-password form needs to distinguish. `wrong-current` is the
- * only failure the user can act on by correcting a field; `error` covers the
- * rest (expired session, server trouble).
+ * What the change-password form needs to distinguish. Two of these are 400s
+ * the user can act on — the current password was wrong, or the new one was
+ * refused — and the API tells them apart with a `code` so the form never has
+ * to guess which message to show.
  */
-export type ChangePasswordResult = 'ok' | 'wrong-current' | 'error';
+export type ChangePasswordResult =
+  | { result: 'ok' }
+  | { result: 'wrong-current' }
+  /** The policy refused the *new* password; `message` says why, in its words. */
+  | { result: 'rejected'; message: string }
+  | { result: 'error' };
 
 /**
  * The browser's view of the session. The token itself lives in an
@@ -66,6 +75,65 @@ export class AuthService {
     return this.ready;
   }
 
+  /**
+   * Request an account (FR-AUTH-01). Deliberately learns nothing: the server
+   * answers the same whether the address was new or already registered, so
+   * there is no result to distinguish beyond "the request went through".
+   * Nothing about the session changes — the account cannot sign in until staff
+   * approve it.
+   */
+  async register(request: RegisterRequest): Promise<'ok' | 'error'> {
+    try {
+      const response = await this.client.register({ body: request });
+      return response.status === 200 ? 'ok' : 'error';
+    } catch {
+      return 'error';
+    }
+  }
+
+  /**
+   * What a set-a-password link is for, or null when it is no good — expired,
+   * already used, or never issued, which the API deliberately does not
+   * distinguish.
+   */
+  async checkPasswordToken(
+    token: string,
+  ): Promise<{ purpose: PasswordTokenPurpose; email: string } | null> {
+    try {
+      const response = await this.client.checkPasswordToken({
+        params: { token },
+      });
+      return response.status === 200 ? response.body : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Redeem the link. On success the server signs the visitor in, so the local
+   * session state comes straight from the response — they are already through.
+   * A rejected password comes back as its own message, because it is the one
+   * failure the visitor can act on by typing something else.
+   */
+  async setPassword(request: SetPasswordRequest): Promise<{
+    result: 'ok' | 'rejected' | 'expired' | 'error';
+    message?: string;
+  }> {
+    try {
+      const response = await this.client.setPassword({ body: request });
+      if (response.status === 200) {
+        this.session.set(response.body);
+        return { result: 'ok' };
+      }
+      if (response.status === 400) {
+        return { result: 'rejected', message: response.body.message };
+      }
+      return { result: response.status === 404 ? 'expired' : 'error' };
+    } catch {
+      return { result: 'error' };
+    }
+  }
+
   async login(credentials: LoginRequest): Promise<LoginResult> {
     try {
       const response = await this.client.login({ body: credentials });
@@ -94,14 +162,16 @@ export class AuthService {
       const response = await this.client.changePassword({ body: request });
       if (response.status === 200) {
         this.session.set(response.body);
-        return 'ok';
+        return { result: 'ok' };
       }
-      // 400 is specifically "current password is incorrect" — the only field
-      // error this endpoint reports, since the new password's rules are checked
-      // client-side and by the contract before the request goes out.
-      return response.status === 400 ? 'wrong-current' : 'error';
+      if (response.status === 400) {
+        return response.body.code === 'rejected'
+          ? { result: 'rejected', message: response.body.message }
+          : { result: 'wrong-current' };
+      }
+      return { result: 'error' };
     } catch {
-      return 'error';
+      return { result: 'error' };
     }
   }
 

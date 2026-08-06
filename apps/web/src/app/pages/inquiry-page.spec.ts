@@ -148,6 +148,22 @@ describe('InquiryPage', () => {
     expect(el.textContent).toContain(text.success);
   });
 
+  // A number typed into the field that is not the chosen channel is still a
+  // number the shop will dial, so half of one is refused there too.
+  it('refuses a half-typed phone even when email is the chosen channel', async () => {
+    const { el, submit, sync } = await render();
+
+    setInput(el, '#name', 'Jane Doe');
+    setInput(el, '#email', 'jane@example.com');
+    setInput(el, '#phone', '4012');
+    acceptPrivacy(el);
+    submitForm(el);
+    await sync();
+
+    expect(submit).not.toHaveBeenCalled();
+    expect(el.textContent).toContain(text.validation.phoneIncomplete);
+  });
+
   it('masks the phone and submits it with the configured country code', async () => {
     const { el, submit, sync } = await render();
 

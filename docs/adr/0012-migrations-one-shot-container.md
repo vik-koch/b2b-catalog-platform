@@ -1,6 +1,6 @@
 # 0012 — Apply migrations via a one-shot container; run them from the app bundle
 
-**Status:** proposed · **Date:** 2026-07-21
+**Status:** accepted · **Date:** 2026-07-21
 
 ## Context
 

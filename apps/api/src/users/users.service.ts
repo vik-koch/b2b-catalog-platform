@@ -1,11 +1,26 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+import { CustomerType } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { users } from '../db/schema';
 
 export type UserRow = typeof users.$inferSelect;
+
+/**
+ * What a self-registration writes: the identity staff need to decide on it, and
+ * an unusable password hash standing in until they do.
+ */
+export interface PendingRegistration {
+  readonly email: string;
+  readonly passwordHash: string;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly phone: string;
+  readonly customerType: CustomerType;
+  readonly companyRegistrationId: string | null;
+}
 
 @Injectable()
 export class UsersService {
@@ -26,6 +41,57 @@ export class UsersService {
       .from(users)
       .where(eq(users.email, email.trim().toLowerCase()));
     return rows[0];
+  }
+
+  /**
+   * Create a self-registered account (FR-AUTH-01): `pending`, so it cannot sign
+   * in, with no tier — staff assign one when they approve it. The hash is an
+   * argon2 hash of a random secret nobody holds, rather than a placeholder.
+   */
+  async createPending(registration: PendingRegistration): Promise<UserRow> {
+    const [created] = await this.db
+      .insert(users)
+      .values({
+        ...registration,
+        email: registration.email.trim().toLowerCase(),
+        role: 'user',
+        status: 'pending',
+      })
+      .returning();
+    return created;
+  }
+
+  /**
+   * Set the password behind a redeemed link, and make the account usable: an
+   * `invited` one becomes `active` here, which is the whole point of the
+   * invitation — approval decides *whether*, this decides *when*.
+   *
+   * Only an `invited` (first password) or already-`active` (reset) account is
+   * touched. That upper bound is what tokens are minted for anyway — but naming
+   * it here means a link can never move any *other* status into `active`: it
+   * cannot activate a still-`pending` registration that skipped approval, nor
+   * bring an `anonymized` tombstone back. Everything `setPassword` does applies
+   * too: the tokenVersion bump invalidates other sessions, and
+   * `mustChangePassword` clears because the account has now chosen its own.
+   */
+  async setPasswordFromToken(
+    id: string,
+    passwordHash: string,
+  ): Promise<UserRow | undefined> {
+    const [updated] = await this.db
+      .update(users)
+      .set({
+        passwordHash,
+        status: 'active',
+        tokenVersion: sql`${users.tokenVersion} + 1`,
+        mustChangePassword: false,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(eq(users.id, id), inArray(users.status, ['invited', 'active'])),
+      )
+      .returning();
+    return updated;
   }
 
   /**

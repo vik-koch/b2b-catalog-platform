@@ -52,6 +52,12 @@ export class JwtAuthGuard implements CanActivate {
     if (user.tokenVersion !== payload.tokenVersion) {
       throw new UnauthorizedException('Session expired');
     }
+    // Not (or no longer) an account that may sign in: awaiting approval, or
+    // anonymized after self-deletion. Checked here as well as at login, so a
+    // session already in flight when the status changes stops working too.
+    if (user.status !== 'active') {
+      throw new UnauthorizedException('Session no longer valid');
+    }
 
     // Role comes from the DB, not the token, so a role change takes effect now.
     request.user = {

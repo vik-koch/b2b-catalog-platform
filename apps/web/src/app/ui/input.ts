@@ -1,4 +1,4 @@
-import { computed, Directive, input } from '@angular/core';
+import { computed, Directive, ElementRef, inject, input } from '@angular/core';
 
 /*
  * Focus is a real outline rather than a border-color change: a 1px border
@@ -25,6 +25,17 @@ const sizes = {
   sm: 'px-2 py-1.5 text-sm',
 } as const;
 
+/*
+ * What a <select> needs on top, decided here rather than repeated at each
+ * picker: the platform arrow is dropped so the control looks the same on every
+ * browser, and the right padding reserves exactly the room SelectField's
+ * chevron is drawn in. Keeping the two in one place is the point — they only
+ * ever change together, and drifting apart is what makes a chevron sit on top
+ * of a long option label. `pr-*` beats the size's `px-*` on Tailwind's own
+ * ordering, so no call site has to restate its padding.
+ */
+const selectExtras = 'appearance-none pr-9';
+
 /**
  * Styling-only form-field directive (shadcn-style owned primitive), the input
  * counterpart to Button. Applies to <input>, <textarea> and <select> so every
@@ -36,13 +47,28 @@ const sizes = {
  *
  *   <input appInput class="w-full" [value]="…" />
  *   <textarea appInput size="sm" class="w-full font-mono"></textarea>
+ *
+ * A <select> additionally needs SelectField around it to get its chevron back:
+ *
+ *   <app-select-field class="max-w-72">
+ *     <select appInput class="w-full">…</select>
+ *   </app-select-field>
  */
 @Directive({
   selector: '[appInput]',
   host: { '[class]': 'classes()' },
 })
 export class Input {
+  /** Read once: an element does not change tag. Works under SSR too — the
+   * server's DOM implementation reports `tagName` just as the browser does. */
+  private readonly isSelect =
+    inject<ElementRef<HTMLElement>>(ElementRef).nativeElement.tagName ===
+    'SELECT';
+
   size = input<keyof typeof sizes>('md');
 
-  protected classes = computed(() => `${base} ${sizes[this.size()]}`);
+  protected classes = computed(
+    () =>
+      `${base} ${sizes[this.size()]}${this.isSelect ? ` ${selectExtras}` : ''}`,
+  );
 }

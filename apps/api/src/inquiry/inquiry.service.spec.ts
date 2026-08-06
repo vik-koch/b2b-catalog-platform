@@ -1,8 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { InquiryRequest } from '@b2b-catalog-platform/shared';
 import { MAILER, Mailer } from '../mail/mailer';
-import { INQUIRY_TEXT } from './inquiry-text';
-import { demoInquiryText } from './inquiry-text.fixture';
+import { MAIL_BRANDING } from '../mail/mail-branding';
+import { MAIL_TEXT } from '../mail/mail-text';
+import { demoMailBranding, demoMailText } from '../mail/mail-text.fixture';
+import { MailService } from '../mail/mail.service';
 import { InquiryService } from './inquiry.service';
 
 // Honeypot behaviour: the service is the last line — even if a bot
@@ -23,8 +25,10 @@ describe('InquiryService', () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         InquiryService,
+        MailService,
         { provide: MAILER, useValue: { send } satisfies Mailer },
-        { provide: INQUIRY_TEXT, useValue: demoInquiryText },
+        { provide: MAIL_TEXT, useValue: demoMailText },
+        { provide: MAIL_BRANDING, useValue: demoMailBranding },
       ],
     }).compile();
     service = moduleRef.get(InquiryService);
@@ -34,7 +38,7 @@ describe('InquiryService', () => {
     await service.submit(base);
 
     expect(send).toHaveBeenCalledTimes(1);
-    // The recipient is deployment config (MAIL_CONTACT_TO); this test only
+    // The recipient is deployment config (MAIL_STAFF_TO); this test only
     // cares that a clean submission is delivered with the sender as reply-to.
     const [message] = send.mock.calls[0] as [{ to: string; replyTo?: string }];
     expect(message.to).toBeTruthy();

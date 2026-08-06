@@ -10,7 +10,7 @@ interface CaughtMessage {
 }
 
 // Where the api sends inquiries in the localtest stack (see .env.localtest).
-const contactTo = localtestEnv()['MAIL_CONTACT_TO'];
+const contactTo = localtestEnv()['MAIL_STAFF_TO'];
 
 // FR-NAV-06 — end-to-end proof that filling and submitting the inquiry page
 // delivers an email to the shop, exercising the real web -> api -> SMTP path

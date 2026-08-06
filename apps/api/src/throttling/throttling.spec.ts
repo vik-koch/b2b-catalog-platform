@@ -3,8 +3,9 @@ import { Test } from '@nestjs/testing';
 import { InquiryModule } from '../inquiry/inquiry.module';
 import { MAILER, Mailer } from '../mail/mailer';
 import { ThrottlingModule } from './throttling.module';
-import { INQUIRY_TEXT } from '../inquiry/inquiry-text';
-import { demoInquiryText } from '../inquiry/inquiry-text.fixture';
+import { MAIL_TEXT } from '../mail/mail-text';
+import { MAIL_BRANDING } from '../mail/mail-branding';
+import { demoMailBranding, demoMailText } from '../mail/mail-text.fixture';
 
 // Proves the shared limiter actually blocks a flood, exercised
 // through the real inquiry route (PublicFormThrottle = 10/min) with the mailer
@@ -26,8 +27,10 @@ describe('Throttling', () => {
     })
       .overrideProvider(MAILER)
       .useValue({ send } satisfies Mailer)
-      .overrideProvider(INQUIRY_TEXT)
-      .useValue(demoInquiryText)
+      .overrideProvider(MAIL_TEXT)
+      .useValue(demoMailText)
+      .overrideProvider(MAIL_BRANDING)
+      .useValue(demoMailBranding)
       .compile();
 
     app = moduleRef.createNestApplication();
@@ -48,7 +51,8 @@ describe('Throttling', () => {
 
   it('allows requests up to the limit, then answers 429', async () => {
     const statuses: number[] = [];
-    // One over the limit of 10: the first ten pass, the eleventh is throttled.
+    // One over the limit (pinned to 10 in test-setup): the first ten pass and
+    // the eleventh is throttled.
     for (let i = 0; i < 11; i++) {
       statuses.push((await post(validSubmission)).status);
     }

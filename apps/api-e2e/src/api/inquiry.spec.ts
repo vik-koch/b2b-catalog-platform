@@ -1,18 +1,14 @@
 import axios from 'axios';
 import { requireEnv } from '../support/env';
+import {
+  deleteMatching,
+  messageBody,
+  messagesMatching,
+} from '../support/mailpit';
 
-// Mailpit's REST API (see compose.db.yml) — the dev/e2e email sink.
-const mailpit = axios.create({ baseURL: 'http://localhost:8025/api/v1' });
-
-interface CaughtMessage {
-  readonly Subject: string;
-  readonly To: readonly { readonly Address: string }[];
-}
-
-async function caughtMessages(): Promise<CaughtMessage[]> {
-  const res = await mailpit.get('/messages');
-  return res.data.messages as CaughtMessage[];
-}
+// Scoped to this suite's own mail: the staff inbox also receives registration
+// notifications from another suite running at the same time.
+const INQUIRY_MAIL = `to:"${requireEnv('MAIL_STAFF_TO')}" subject:Inquiry`;
 
 const validSubmission = {
   name: 'Jane Doe',
@@ -23,7 +19,7 @@ const validSubmission = {
 
 describe('POST /inquiry', () => {
   beforeEach(async () => {
-    await mailpit.delete('/messages');
+    await deleteMatching(INQUIRY_MAIL);
   });
 
   it('accepts a valid submission and emails the shop', async () => {
@@ -32,12 +28,26 @@ describe('POST /inquiry', () => {
     expect(res.status).toBe(200);
     expect(res.data).toEqual({ ok: true });
 
-    const messages = await caughtMessages();
+    const messages = await messagesMatching(INQUIRY_MAIL);
     expect(messages).toHaveLength(1);
     expect(messages[0].Subject).toContain('Jane Doe');
     expect(messages[0].To.map((t) => t.Address)).toContain(
-      requireEnv('MAIL_CONTACT_TO'),
+      requireEnv('MAIL_STAFF_TO'),
     );
+  });
+
+  // The round trip through the real transport: what actually arrives is the
+  // branded layout, with a plain-text alternative beside it.
+  it('delivers both a branded HTML part and a plain-text one', async () => {
+    await axios.post('/inquiry', validSubmission);
+
+    const [message] = await messagesMatching(INQUIRY_MAIL);
+    const body = await messageBody(message.ID);
+
+    expect(body.HTML).toContain('Do you deliver to Altona?');
+    expect(body.HTML).toContain('<table');
+    expect(body.Text).toContain('Do you deliver to Altona?');
+    expect(body.Text).not.toContain('<table');
   });
 
   it('rejects a submission without a name', async () => {
@@ -48,7 +58,7 @@ describe('POST /inquiry', () => {
     );
 
     expect(res.status).toBe(400);
-    expect(await caughtMessages()).toHaveLength(0);
+    expect(await messagesMatching(INQUIRY_MAIL)).toHaveLength(0);
   });
 
   it('rejects a submission with neither email nor phone', async () => {
@@ -58,7 +68,7 @@ describe('POST /inquiry', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(await caughtMessages()).toHaveLength(0);
+    expect(await messagesMatching(INQUIRY_MAIL)).toHaveLength(0);
   });
 
   // Honeypot: a filled decoy field looks like success to the bot
@@ -71,7 +81,7 @@ describe('POST /inquiry', () => {
     );
 
     expect(res.status).toBe(400);
-    expect(await caughtMessages()).toHaveLength(0);
+    expect(await messagesMatching(INQUIRY_MAIL)).toHaveLength(0);
   });
 
   it('silently drops a submission with the honeypot filled', async () => {
@@ -82,6 +92,6 @@ describe('POST /inquiry', () => {
 
     expect(res.status).toBe(200);
     expect(res.data).toEqual({ ok: true });
-    expect(await caughtMessages()).toHaveLength(0);
+    expect(await messagesMatching(INQUIRY_MAIL)).toHaveLength(0);
   });
 });

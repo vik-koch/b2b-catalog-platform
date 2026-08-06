@@ -117,7 +117,8 @@ describe('Catalog sync (FR-ADM-02)', () => {
     ] as const) {
       await client.query('DELETE FROM users WHERE email = $1', [email]);
       await client.query(
-        `INSERT INTO users (email, "passwordHash", role) VALUES ($1, $2, $3)`,
+        `INSERT INTO users (email, "passwordHash", role, status)
+         VALUES ($1, $2, $3, 'active')`,
         [email, passwordHash, role],
       );
     }

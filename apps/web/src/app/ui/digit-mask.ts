@@ -9,11 +9,15 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
- * Formats a phone input as the visitor types, per a configurable mask where
- * `#` is one digit and every other character is a literal separator (e.g.
- * `(###) ###-####`). An empty mask means "digits only" — no grouping and no
- * length limit. The control value is the formatted national part; the country
- * code is a fixed prefix owned by the form, not entered here.
+ * Formats a digit-only field as the visitor types, per a configurable mask
+ * where `#` is one digit and every other character is a literal separator
+ * (e.g. `(###) ###-####`). An empty mask means "digits only" — no grouping and
+ * no length limit. Used by the phone fields and by the company registration
+ * number (FR-AUTH-01), whose masks are both deployment config.
+ *
+ * The control value is the formatted, typed part only. Any fixed prefix — a
+ * phone country code, a VAT country code — is owned and displayed by the form
+ * and prepended when the value is submitted, never entered here.
  *
  * Implemented as a ControlValueAccessor so it drops into reactive forms via
  * `formControlName`. Deliberately simple: it reformats on input and leaves the
@@ -21,16 +25,16 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * library would only be worth it if we needed mid-string editing.
  */
 @Directive({
-  selector: 'input[appPhoneMask]',
+  selector: 'input[appDigitMask]',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => PhoneMask),
+      useExisting: forwardRef(() => DigitMask),
       multi: true,
     },
   ],
 })
-export class PhoneMask implements ControlValueAccessor {
+export class DigitMask implements ControlValueAccessor {
   readonly mask = input('');
 
   private readonly el =

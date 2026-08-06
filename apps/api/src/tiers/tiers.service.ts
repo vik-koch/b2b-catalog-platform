@@ -18,9 +18,13 @@ import { customerTiers, productPrices, users } from '../db/schema';
 /**
  * Only customers are counted against a price list. Staff carry a null `tierId`
  * too, so an unfiltered "on the base list" figure would quietly include every
- * admin and manager.
+ * admin and manager — and since registration exists, every pending request and
+ * every anonymized ex-account as well. None of those is somebody being sold to
+ * at that list's prices, which is what the number is meant to answer.
+ *
+ * The delete guard counts differently on purpose — see `countsFor`.
  */
-const isCustomer = eq(users.role, 'user');
+const isCustomer = and(eq(users.role, 'user'), eq(users.status, 'active'));
 
 /**
  * The additional customer tiers. The base list is a column on `products`,

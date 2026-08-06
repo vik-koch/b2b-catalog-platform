@@ -49,6 +49,8 @@ export class OptionalAuthGuard implements CanActivate {
     const user = await this.users.findById(payload.sub);
     if (!user) return true;
     if (user.tokenVersion !== payload.tokenVersion) return true;
+    // Pending or anonymized: treated as a guest here, rejected in JwtAuthGuard.
+    if (user.status !== 'active') return true;
 
     request.user = {
       id: user.id,

@@ -1,39 +1,21 @@
 import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { emailSchema, InquiryRequest } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { zodValidator } from '../core/zod-validator';
+import { FieldErrors } from '../core/form-errors';
+import { completeMask } from '../core/masked-input';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
-import { PhoneMask } from '../ui/phone-mask';
+import { DigitMask } from '../ui/digit-mask';
 import { InquiryService } from './inquiry.service';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'submitting' | 'success' | 'error';
-
-const digits = (value: string | null | undefined): string =>
-  (value ?? '').replace(/\D/g, '');
-
-// A masked number must be filled to its full length; empty is left to the
-// `required` validator so the two errors stay distinct.
-const completePhone = (mask: string): ValidatorFn => {
-  const expected = (mask.match(/#/g) ?? []).length;
-  return (control) => {
-    const entered = digits(control.value);
-    return !entered || entered.length === expected
-      ? null
-      : { phoneIncomplete: true };
-  };
-};
 
 /**
  * Inquiry form (FR-NAV-06) — a code page, not a CMS Page. The visitor picks a
@@ -46,7 +28,7 @@ const completePhone = (mask: string): ValidatorFn => {
     ReactiveFormsModule,
     RouterLink,
     Button,
-    PhoneMask,
+    DigitMask,
     FieldLabel,
     Input,
   ],
@@ -162,7 +144,7 @@ const completePhone = (mask: string): ValidatorFn => {
                 <input
                   id="phone"
                   type="tel"
-                  appPhoneMask
+                  appDigitMask
                   [mask]="phoneInput.mask ?? ''"
                   formControlName="phone"
                   appInput
@@ -310,14 +292,19 @@ export class InquiryPage {
     return `${base} ${state}`;
   }
 
+  /**
+   * Error visibility, not validity: revealed on blur, hidden again while the
+   * field is being retyped, and everything shown once submit is attempted.
+   */
+  protected readonly fieldErrors = new FieldErrors(this.form);
+
   protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    const c = this.form.controls[control];
-    return c.invalid && (c.touched || c.dirty);
+    return this.fieldErrors.show(this.form.controls[control]);
   }
 
   protected async submit(): Promise<void> {
+    this.fieldErrors.markSubmitted();
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
 
@@ -338,17 +325,17 @@ export class InquiryPage {
     const { email, phone } = this.form.controls;
     const emailFormat = zodValidator(emailSchema, 'email');
 
+    // Completeness applies either way: the chosen channel must be filled in,
+    // but a number typed into the *other* field is still going to be dialled,
+    // so half of one is no more use there than here.
+    const mask = this.phoneInput?.mask;
+    const complete = mask ? [completeMask(mask)] : [];
     if (preferred === 'phone') {
-      const mask = this.phoneInput?.mask;
-      phone.setValidators(
-        mask
-          ? [Validators.required, completePhone(mask)]
-          : [Validators.required],
-      );
+      phone.setValidators([Validators.required, ...complete]);
       email.setValidators([emailFormat]);
     } else {
       email.setValidators([Validators.required, emailFormat]);
-      phone.setValidators([]);
+      phone.setValidators(complete);
     }
 
     email.updateValueAndValidity({ emitEvent: false });

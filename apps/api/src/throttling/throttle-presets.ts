@@ -11,14 +11,21 @@ import { env } from '../env';
  */
 
 /**
- * Public, unauthenticated form posts. Generous enough that no human hits it,
- * low enough that a single IP cannot flood the shop with spam.
- * Numbers should be tuned here globally.
+ * Public, unauthenticated form posts — the inquiry form (FR-NAV-06) and
+ * registration (FR-AUTH-01). Generous enough that no human hits it, low enough
+ * that a single IP cannot flood the shop with spam or with pending accounts.
+ *
+ * The limit comes from the environment (default 10) for the same reason the
+ * auth one does: the e2e suite drives every public-form path from a single
+ * address inside one window, and a hardcoded ceiling would cap how many such
+ * tests may ever exist. Deployments keep the default.
  */
 export const PublicFormThrottle = () =>
   applyDecorators(
     UseGuards(ThrottlerGuard),
-    Throttle({ default: { limit: 10, ttl: seconds(60) } }),
+    Throttle({
+      default: { limit: env.PUBLIC_FORM_RATE_LIMIT, ttl: seconds(60) },
+    }),
   );
 
 /**

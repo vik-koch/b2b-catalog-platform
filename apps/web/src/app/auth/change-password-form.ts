@@ -1,17 +1,13 @@
 import { Component, inject, input, output, signal } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   newPasswordSchema,
   PASSWORD_MIN_LENGTH,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { zodValidator } from '../core/zod-validator';
+import { FieldErrors } from '../core/form-errors';
+import { passwordsMatch } from '../core/password';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
@@ -22,12 +18,6 @@ import { AuthService, ChangePasswordResult } from './auth.service';
  * because neither control can see the other, and reports on the group so the
  * confirm field's own required/length errors stay independent of it.
  */
-const passwordsMatch = (group: AbstractControl): ValidationErrors | null => {
-  const password = group.get('newPassword')?.value;
-  const confirmation = group.get('confirmPassword')?.value;
-  return password === confirmation ? null : { mismatch: true };
-};
-
 /**
  * Reusable change-password form.
  */
@@ -112,10 +102,8 @@ const passwordsMatch = (group: AbstractControl): ValidationErrors | null => {
         }
       </div>
 
-      @if (status() === 'wrong-current' || status() === 'error') {
-        <p class="text-sm text-red-600" role="alert">
-          {{ status() === 'wrong-current' ? text.wrongCurrent : text.error }}
-        </p>
+      @if (failure(); as message) {
+        <p class="text-sm text-red-600" role="alert">{{ message }}</p>
       }
       @if (status() === 'ok') {
         <p class="text-sm text-green-700" role="status">{{ text.success }}</p>
@@ -147,8 +135,29 @@ export class ChangePasswordForm {
   readonly idPrefix = input('change-password');
 
   protected readonly status = signal<
-    'idle' | 'submitting' | ChangePasswordResult
+    'idle' | 'submitting' | ChangePasswordResult['result']
   >('idle');
+  /** The policy's own words for a refused new password. */
+  private readonly rejection = signal<string | null>(null);
+
+  /**
+   * The message for whichever failure happened. `wrong-current` is about the
+   * field above and has its own wording; a refused *new* password comes back
+   * with the server's explanation, which is the only thing that knows which
+   * rule was broken.
+   */
+  protected failure(): string | null {
+    switch (this.status()) {
+      case 'wrong-current':
+        return this.text.wrongCurrent;
+      case 'rejected':
+        return this.rejection();
+      case 'error':
+        return this.text.error;
+      default:
+        return null;
+    }
+  }
 
   protected readonly minLengthHint =
     this.validation.newPasswordTooShort.replace(
@@ -170,9 +179,14 @@ export class ChangePasswordForm {
     { validators: passwordsMatch },
   );
 
+  /**
+   * Error visibility, not validity: revealed on blur, hidden again while the
+   * field is being retyped, and everything shown once submit is attempted.
+   */
+  protected readonly fieldErrors = new FieldErrors(this.form);
+
   protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    const c = this.form.controls[control];
-    return c.invalid && (c.touched || c.dirty);
+    return this.fieldErrors.show(this.form.controls[control]);
   }
 
   /**
@@ -181,29 +195,37 @@ export class ChangePasswordForm {
    * confirmation as "does not match".
    */
   protected showMismatch(): boolean {
-    const c = this.form.controls.confirmPassword;
-    return this.form.hasError('mismatch') && (c.touched || c.dirty);
+    return this.fieldErrors.showGroupError(
+      'mismatch',
+      this.form.controls.confirmPassword,
+    );
   }
 
   protected async submit(): Promise<void> {
+    this.fieldErrors.markSubmitted();
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
 
     this.status.set('submitting');
+    this.rejection.set(null);
     const { currentPassword, newPassword } = this.form.getRawValue();
-    const result = await this.auth.changePassword({
+    const outcome = await this.auth.changePassword({
       currentPassword,
       newPassword,
     });
-    this.status.set(result);
+    this.status.set(outcome.result);
+    if (outcome.result === 'rejected') {
+      this.rejection.set(outcome.message);
+    }
 
-    if (result === 'ok') {
+    if (outcome.result === 'ok') {
       // Nothing typed here should survive a success — least of all in a form
-      // the user may leave open. reset() also clears touched, so the emptied
-      // required fields don't immediately light up red.
+      // the user may leave open. The error state is reset with it: the fields
+      // are empty and required, so anything still latched from the submit
+      // would paint the form red next to its own success message.
       this.form.reset();
+      this.fieldErrors.reset();
       this.changed.emit();
     }
   }

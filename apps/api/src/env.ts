@@ -30,8 +30,15 @@ const EnvSchema = z
     MAIL_USER: z.string().optional(),
     MAIL_PASSWORD: z.string().optional(),
     MAIL_SECURE: z.enum(['true', 'false']).optional(),
-    // Where the inquiry form is delivered (FR-NAV-06).
-    MAIL_CONTACT_TO: z.string().optional(),
+    // The shop's staff inbox: where the inquiry form is delivered (FR-NAV-06)
+    // and where a new registration is announced (FR-NOTIF-04). One address,
+    // because both are the same job — a person answering prospective and
+    // existing customers. Split it only if a deployment says otherwise.
+    MAIL_STAFF_TO: z.string().optional(),
+    // Public origin of this deployment (the same value the web app gets), used
+    // to build the absolute links every email needs — mail is read outside the
+    // app, so nothing relative resolves. Required in server mode.
+    APP_ORIGIN: z.string().url().optional(),
     // Secret that signs the session JWT. Required in server mode
     // (see refinement below); the migrate/seed one-shots never sign tokens.
     // Min length keeps a weak/short key from being accepted.
@@ -54,6 +61,11 @@ const EnvSchema = z
     // drives dozens of logins from one address in well under a minute and would
     // otherwise throttle its own test run. Raise it there, never in prod.
     AUTH_RATE_LIMIT: z.coerce.number().int().positive().default(10),
+    // Public form posts (inquiry, registration) allowed per IP per minute.
+    // Same reasoning as AUTH_RATE_LIMIT: the default is the real policy, and
+    // only the e2e stack lifts it — that suite drives every registration and
+    // inquiry path from one address inside a single window.
+    PUBLIC_FORM_RATE_LIMIT: z.coerce.number().int().positive().default(10),
     // What is running, shown in the admin panel. Stamped onto the stack by
     // infra/deploy.sh rather than baked into the image (a release retags the
     // image main built, so a baked value could only ever be the commit sha).
@@ -72,7 +84,8 @@ const EnvSchema = z
         'MAIL_HOST',
         'MAIL_PORT',
         'MAIL_FROM',
-        'MAIL_CONTACT_TO',
+        'MAIL_STAFF_TO',
+        'APP_ORIGIN',
         'JWT_SECRET',
         'MEDIA_ROOT',
       ] as const;

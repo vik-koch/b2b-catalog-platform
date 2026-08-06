@@ -1,12 +1,15 @@
 import { Component, computed, input } from '@angular/core';
-import { AdminProductSort } from '@b2b-catalog-platform/shared';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
 
 /**
- * A sortable column heading for the admin product grid (FR-ADM-05) — the
- * ordering control lives in the header the column belongs to, which is where a
- * table's sort belongs and where an admin looks for it.
+ * A sortable column heading for an admin grid (FR-ADM-05) — the ordering control
+ * lives in the header the column belongs to, which is where a table's sort
+ * belongs and where an admin looks for it.
+ *
+ * The sort keys are plain strings so the same header serves any grid; the
+ * default (the key written as an *absent* parameter) is the product grid's
+ * unless a caller names its own.
  */
 @Component({
   selector: 'app-grid-sort',
@@ -38,11 +41,13 @@ export class GridSortHeader {
   private readonly navigate = injectGridNav();
 
   /** The sort key this column applies when first clicked, and its reverse. */
-  readonly asc = input.required<AdminProductSort>();
-  readonly desc = input.required<AdminProductSort>();
+  readonly asc = input.required<string>();
+  readonly desc = input.required<string>();
   /** The sort in effect, already resolved — null when no column owns it. */
-  readonly sort = input.required<AdminProductSort | null>();
+  readonly sort = input.required<string | null>();
   readonly label = input.required<string>();
+  /** The key written as an absent parameter, so its column reads as unsorted. */
+  readonly defaultSort = input<string>(DEFAULT_ADMIN_SORT);
   /**
    * Which direction a first click takes. Ascending everywhere except recency,
    * where "most recently updated" is the whole reason to sort by the column and
@@ -70,6 +75,6 @@ export class GridSortHeader {
       ? [this.desc(), this.asc()]
       : [this.asc(), this.desc()];
     const next = this.sort() === first ? second : first;
-    this.navigate({ sort: gridParam(next, DEFAULT_ADMIN_SORT) });
+    this.navigate({ sort: gridParam(next, this.defaultSort()) });
   }
 }

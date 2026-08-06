@@ -4,6 +4,7 @@ import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
 import { Button } from '../ui/button';
 import { AdminIcon } from '../ui/icons/admin-icon';
@@ -23,109 +24,133 @@ import { BuildInfoService } from './build-info.service';
   imports: [SignedInAs, MaintenanceToggle, RouterLink, Button, AdminIcon],
   template: `
     <h1 class="mb-4 text-3xl font-bold tracking-tight">
-      {{ text.adminPanel }}
+      {{ isAdmin() ? text.adminPanel : text.staffArea }}
     </h1>
     <app-signed-in-as />
 
     <!-- Everything that changes shop content lives in one card, in three tiers:
-         ingest, then the catalog, then the static pages. The card is what makes
-         them read as one block; the tiers keep the bulk import distinct from
-         "open a thing and change it". No pencils — the whole card edits, so an
-         icon on every button carries no information. -->
-    <section class="mt-10">
-      <h2
-        class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
-      >
-        {{ panelText.manage }}
-      </h2>
-      <div class="divide-y divide-border rounded-lg border border-border">
-        <div class="p-5">
-          <h3 class="mb-3 text-sm font-semibold">{{ panelText.sync }}</h3>
-          <a appButton routerLink="/admin/sync" class="gap-2">
-            <app-admin-icon name="upload" class="h-4 w-4" />
-            {{ syncText.title }}
-          </a>
-          <!-- The audit trail's newest applied run is the last-sync answer;
+         ingest, then the catalog, then the static pages. Admin-only — a
+         manager's panel holds only the accounts card below. -->
+    @if (isAdmin()) {
+      <section class="mt-10">
+        <h2
+          class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
+        >
+          {{ panelText.manage }}
+        </h2>
+        <div class="divide-y divide-border rounded-lg border border-border">
+          <div class="p-5">
+            <h3 class="mb-3 text-sm font-semibold">{{ panelText.sync }}</h3>
+            <a appButton routerLink="/admin/sync" class="gap-2">
+              <app-admin-icon name="upload" class="h-4 w-4" />
+              {{ syncText.title }}
+            </a>
+            <!-- The audit trail's newest applied run is the last-sync answer;
                there is no separate setting to keep in step. Until it arrives,
                hold the line's space rather than showing "never synced" and
                correcting it a moment later. -->
-          @if (runs.isLoading()) {
-            <div
-              class="mt-3 h-5 w-48 animate-pulse rounded bg-stone-200"
-              aria-hidden="true"
-            ></div>
-          } @else {
-            <p class="mt-3 text-sm text-subtle">{{ lastSync() }}</p>
-          }
-        </div>
+            @if (runs.isLoading()) {
+              <div
+                class="mt-3 h-5 w-48 animate-pulse rounded bg-stone-200"
+                aria-hidden="true"
+              ></div>
+            } @else {
+              <p class="mt-3 text-sm text-subtle">{{ lastSync() }}</p>
+            }
+          </div>
 
-        <div class="p-5">
-          <h3 id="admin-catalog-heading" class="mb-3 text-sm font-semibold">
-            {{ panelText.catalog }}
-          </h3>
-          <ul
-            class="flex flex-wrap gap-3"
-            aria-labelledby="admin-catalog-heading"
-          >
-            <li>
-              <a appButton variant="secondary" routerLink="/admin/categories">
-                {{ categoryText.title }}
-              </a>
-            </li>
-            <li>
-              <a appButton variant="secondary" routerLink="/admin/products">
-                {{ productText.title }}
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <div class="p-5">
-          <h3 class="mb-3 text-sm font-semibold">{{ panelText.pricing }}</h3>
-          <a appButton variant="secondary" routerLink="/admin/tiers">
-            {{ tierText.title }}
-          </a>
-        </div>
-
-        <div class="p-5">
-          <h3 id="admin-pages-heading" class="mb-3 text-sm font-semibold">
-            {{ panelText.pages }}
-          </h3>
-          <!-- Named after its heading: several of these labels ("About us")
-               also appear in the site header, so the group needs to be
-               distinguishable to a screen reader moving through the page. -->
-          <ul
-            class="flex flex-wrap gap-3"
-            aria-labelledby="admin-pages-heading"
-          >
-            @for (slug of pageSlugs; track slug) {
+          <div class="p-5">
+            <h3 id="admin-catalog-heading" class="mb-3 text-sm font-semibold">
+              {{ panelText.catalog }}
+            </h3>
+            <ul
+              class="flex flex-wrap gap-3"
+              aria-labelledby="admin-catalog-heading"
+            >
               <li>
-                <!-- Straight into the editor: linking to the public page would
-                     land an admin on a read-only view whose pencil only appears
-                     when storefront edit mode happens to be on. -->
-                <a
-                  appButton
-                  variant="secondary"
-                  [routerLink]="['/admin/pages', slug, 'edit']"
-                  [queryParams]="editorFrom"
-                >
-                  {{ navText[slug] }}
+                <a appButton variant="secondary" routerLink="/admin/categories">
+                  {{ categoryText.title }}
                 </a>
               </li>
-            }
-          </ul>
-        </div>
-      </div>
-    </section>
+              <li>
+                <a appButton variant="secondary" routerLink="/admin/products">
+                  {{ productText.title }}
+                </a>
+              </li>
+            </ul>
+          </div>
 
+          <div class="p-5">
+            <h3 class="mb-3 text-sm font-semibold">{{ panelText.pricing }}</h3>
+            <a appButton variant="secondary" routerLink="/admin/tiers">
+              {{ tierText.title }}
+            </a>
+          </div>
+
+          <div class="p-5">
+            <h3 id="admin-pages-heading" class="mb-3 text-sm font-semibold">
+              {{ panelText.pages }}
+            </h3>
+            <!-- Named after its heading: several of these labels ("About us")
+               also appear in the site header, so the group needs to be
+               distinguishable to a screen reader moving through the page. -->
+            <ul
+              class="flex flex-wrap gap-3"
+              aria-labelledby="admin-pages-heading"
+            >
+              @for (slug of pageSlugs; track slug) {
+                <li>
+                  <!-- Straight into the editor: linking to the public page would
+                     land an admin on a read-only view whose pencil only appears
+                     when storefront edit mode happens to be on. -->
+                  <a
+                    appButton
+                    variant="secondary"
+                    [routerLink]="['/admin/pages', slug, 'edit']"
+                    [queryParams]="editorFrom"
+                  >
+                    {{ navText[slug] }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- Accounts is its own section, shown to managers too: approving and
+         tiering customers is the whole of a manager's panel. -->
     <section class="mt-10">
       <h2
         class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
       >
-        {{ panelText.site }}
+        {{ panelText.accounts }}
       </h2>
-      <app-maintenance-toggle />
+      <!-- Two buttons rather than one screen with tabs: they are two
+           permissions, and a manager is only ever offered the one they have. -->
+      <div class="flex flex-wrap gap-3 rounded-lg border border-border p-5">
+        <a appButton variant="secondary" routerLink="/admin/users">
+          {{ userText.titleCustomers }}
+        </a>
+        @if (isAdmin()) {
+          <a appButton variant="secondary" routerLink="/admin/users/staff">
+            {{ userText.titleStaff }}
+          </a>
+        }
+      </div>
     </section>
+
+    @if (isAdmin()) {
+      <section class="mt-10">
+        <h2
+          class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
+        >
+          {{ panelText.site }}
+        </h2>
+        <app-maintenance-toggle />
+      </section>
+    }
 
     <!-- What is running, in the quietest possible place: nobody comes to the
          panel for it, but it is the first thing asked when reporting a problem.
@@ -140,11 +165,17 @@ import { BuildInfoService } from './build-info.service';
 export class AdminPanelPage {
   private readonly sync = inject(SyncService);
   private readonly build = inject(BuildInfoService);
+  private readonly auth = inject(AuthService);
+  // A manager's panel is only the accounts card; everything else is admin-only.
+  protected readonly isAdmin = computed(
+    () => this.auth.user()?.role === 'admin',
+  );
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly panelText = inject(ADMIN_TEXT).panel;
   protected readonly productText = inject(ADMIN_TEXT).productList;
   protected readonly categoryText = inject(ADMIN_TEXT).categoryList;
   protected readonly tierText = inject(ADMIN_TEXT).tierList;
+  protected readonly userText = inject(ADMIN_TEXT).userList;
   protected readonly navText = inject(APP_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
   // Only what this deployment publishes: an unpublished page has no route to
@@ -211,6 +242,8 @@ export class AdminPanelPage {
 
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
-    usePageSeo({ name: () => this.text.adminPanel });
+    usePageSeo({
+      name: () => (this.isAdmin() ? this.text.adminPanel : this.text.staffArea),
+    });
   }
 }

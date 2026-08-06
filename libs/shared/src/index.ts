@@ -9,4 +9,5 @@ export * from './lib/settings.contract';
 export * from './lib/slug';
 export * from './lib/sync.contract';
 export * from './lib/tiers.contract';
+export * from './lib/users.contract';
 export * from './lib/slugify';

@@ -68,7 +68,7 @@ jobs:
           MAIL_HOST: ${{ vars.MAIL_HOST }}
           MAIL_PORT: ${{ vars.MAIL_PORT }}
           MAIL_FROM: ${{ vars.MAIL_FROM }}
-          MAIL_CONTACT_TO: ${{ vars.MAIL_CONTACT_TO }}
+          MAIL_STAFF_TO: ${{ vars.MAIL_STAFF_TO }}
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_SECURE: ${{ vars.MAIL_SECURE }}
@@ -86,7 +86,7 @@ jobs:
           GRAFANA_DOMAIN: ${{ vars.GRAFANA_DOMAIN }}
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
           # Who receives ops alerts (disk filling, backups failing, error
-          # spikes). The operator, not MAIL_CONTACT_TO — that address is where
+          # spikes). The operator, not MAIL_STAFF_TO — that address is where
           # customer enquiries land. Unset -> Grafana runs without mail.
           ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
           # STACK_NAME defaults to prod; override only if this VM already runs
@@ -132,7 +132,7 @@ jobs:
           MAIL_HOST=$MAIL_HOST
           MAIL_PORT=${MAIL_PORT:-587}
           MAIL_FROM=$MAIL_FROM
-          MAIL_CONTACT_TO=$MAIL_CONTACT_TO
+          MAIL_STAFF_TO=$MAIL_STAFF_TO
           MAIL_USER=$MAIL_USER
           MAIL_PASSWORD=$MAIL_PASSWORD
           MAIL_SECURE=${MAIL_SECURE:-false}

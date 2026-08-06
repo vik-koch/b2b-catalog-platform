@@ -94,12 +94,13 @@ describe('Tier prices (FR-AUTH-05)', () => {
       [CUSTOMER, PLAIN_CUSTOMER],
     ]);
     await client.query(
-      `INSERT INTO users (email, "passwordHash", role, "tierId")
-       VALUES ($1, $2, 'user', $3)`,
+      `INSERT INTO users (email, "passwordHash", role, "tierId", status)
+       VALUES ($1, $2, 'user', $3, 'active')`,
       [CUSTOMER, passwordHash, tierId],
     );
     await client.query(
-      `INSERT INTO users (email, "passwordHash", role) VALUES ($1, $2, 'user')`,
+      `INSERT INTO users (email, "passwordHash", role, status)
+       VALUES ($1, $2, 'user', 'active')`,
       [PLAIN_CUSTOMER, passwordHash],
     );
 

@@ -4,8 +4,12 @@ import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
 const TEST_EMAIL = 'e2e-admin@example.com';
-const TEST_PASSWORD = 'e2e-admin-password';
-const NEW_PASSWORD = 'e2e-admin-new-password';
+// Neither password may contain the account's own address: the policy
+// refuses that, and both are used as a *new* password here.
+const TEST_PASSWORD = 'harbour lantern initial pass';
+// Deliberately unrelated to TEST_EMAIL: the policy refuses a password
+// containing the account's own address.
+const NEW_PASSWORD = 'rotated storm lantern harbour';
 
 // Pull the `session=<jwt>` pair out of a Set-Cookie header, ready to send back
 // as a Cookie header (axios does not keep a cookie jar).
@@ -32,8 +36,8 @@ describe('auth (session cookie)', () => {
     await client.query('DELETE FROM users WHERE email = $1', [TEST_EMAIL]);
     const passwordHash = await hash(TEST_PASSWORD);
     const { rows } = await client.query(
-      `INSERT INTO users (email, "passwordHash", role)
-       VALUES ($1, $2, 'admin') RETURNING id`,
+      `INSERT INTO users (email, "passwordHash", role, status)
+       VALUES ($1, $2, 'admin', 'active') RETURNING id`,
       [TEST_EMAIL, passwordHash],
     );
     userId = rows[0].id;

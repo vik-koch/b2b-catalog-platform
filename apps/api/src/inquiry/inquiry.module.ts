@@ -1,22 +1,13 @@
 import { Module } from '@nestjs/common';
-import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { MailModule } from '../mail/mail.module';
 import { InquiryController } from './inquiry.controller';
 import { InquiryService } from './inquiry.service';
-import { INQUIRY_TEXT, inquiryTextSchema } from './inquiry-text';
 
+// Wording and rendering both come from MailModule now: the inquiry is one
+// template among the app's messages, not a mechanism of its own.
 @Module({
   imports: [MailModule],
   controllers: [InquiryController],
-  providers: [
-    InquiryService,
-    {
-      // Loaded whole from the mounted JSON named by INQUIRY_TEXT_FILE.
-      // No built-in default: an unset var or a bad/incomplete file fails
-      // the boot rather than silently sending demo-worded email.
-      provide: INQUIRY_TEXT,
-      useFactory: () => loadConfig(inquiryTextSchema, 'INQUIRY_TEXT_FILE'),
-    },
-  ],
+  providers: [InquiryService],
 })
 export class InquiryModule {}

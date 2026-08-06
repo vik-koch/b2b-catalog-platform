@@ -43,6 +43,8 @@ services:
       # Login attempts per IP per minute. The default is the real policy;
       # only the e2e stack raises it (see .env.localtest).
       AUTH_RATE_LIMIT: ${AUTH_RATE_LIMIT:-10}
+      # Inquiry + registration posts per IP per minute. Same story.
+      PUBLIC_FORM_RATE_LIMIT: ${PUBLIC_FORM_RATE_LIMIT:-10}
       # Signs the session JWT. Required — no default, so a stack
       # without it fails fast rather than booting with a guessable key.
       JWT_SECRET: ${JWT_SECRET:?}
@@ -51,13 +53,19 @@ services:
       MAIL_HOST: ${MAIL_HOST:?}
       MAIL_PORT: ${MAIL_PORT:?}
       MAIL_FROM: ${MAIL_FROM:?}
-      MAIL_CONTACT_TO: ${MAIL_CONTACT_TO:?}
+      # Staff inbox: inquiries and new-registration notices.
+      MAIL_STAFF_TO: ${MAIL_STAFF_TO:?}
       MAIL_USER: ${MAIL_USER:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_SECURE: ${MAIL_SECURE:-false}
-      # Server-only inquiry email wording, loaded whole from a file in the
-      # ./config mount below.
-      INQUIRY_TEXT_FILE: ${INQUIRY_TEXT_FILE:-/config/inquiry-text.json}
+      # Server-only email wording, loaded whole from a file in the ./config
+      # mount below; the branding on those mails comes from the same mount's
+      # deployment.json, and APP_ORIGIN makes their links absolute.
+      MAIL_TEXT_FILE: ${MAIL_TEXT_FILE:-/config/mail-text.json}
+      # Optional common-password blocklist; unset means none (see .env.example).
+      PASSWORD_BLOCKLIST_FILE: ${PASSWORD_BLOCKLIST_FILE:-/config/password-blocklist.txt}
+      DEPLOYMENT_CONFIG_FILE: ${DEPLOYMENT_CONFIG_FILE:-/config/deployment.json}
+      APP_ORIGIN: https://${APP_DOMAIN:?}
       # Uploaded images land on the shared media volume; the media service
       # serves them read-only at /media.
       MEDIA_ROOT: /media

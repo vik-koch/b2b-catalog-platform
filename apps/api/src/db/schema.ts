@@ -255,6 +255,35 @@ export const productPrices = pgTable(
 // New signups default to `user`; `admin`/`manager` are assigned deliberately.
 export const userRole = pgEnum('user_role', ['admin', 'manager', 'user']);
 
+// Account lifecycle. `pending` = self-registered, waiting for staff approval.
+// `invited` = staff approved it and a set-your-password link is out; the tier
+// is assigned but the account still has no password of its own. `active` = the
+// link was redeemed and the account can sign in. `anonymized` = self-deleted:
+// the row survives because audit entries and the `updatedBy` columns point at
+// it, but it can never sign in again.
+//
+// Only `active` may authenticate — see JwtAuthGuard. The state also tells a
+// password token what it is *for* without the token carrying a purpose: a link
+// redeemed by an `invited` account sets a first password, one redeemed by an
+// `active` account resets an existing one.
+export const userStatus = pgEnum('user_status', [
+  'pending',
+  'invited',
+  'active',
+  // Switched off by staff and switchable back on: the person who left, the
+  // customer who stopped ordering. Distinct from `anonymized`, which erases
+  // who they were — a deactivated account keeps its name so the audit trail
+  // and every approvedBy/updatedBy reference still point at somebody.
+  'disabled',
+  'anonymized',
+]);
+
+// What kind of customer registered (FR-AUTH-01). Declared by the registrant and
+// left as declared: it is evidence for the staff member approving the account,
+// never an automatic tier assignment (ADR 0031 — a company can buy at retail
+// volumes, and no tier is a default).
+export const customerType = pgEnum('customer_type', ['person', 'company']);
+
 // Plural table name (the singular `user` is a Postgres reserved word, awkward in
 // the raw-SQL seed/bootstrap statements). Email is the login identifier.
 export const users = pgTable('users', {
@@ -262,6 +291,31 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: text('passwordHash').notNull(),
   role: userRole('role').notNull().default('user'),
+  // Defaults to `pending`, the safe end: an account only becomes usable when
+  // something sets `active` deliberately (staff approval, or the bootstrap
+  // admin insert). A forgotten status can lock an account out, never let one in.
+  status: userStatus('status').notNull().default('pending'),
+  // Who registered, as they described themselves. This is what makes approval a
+  // decidable act: staff match these against their own customer records, and a
+  // pending account has no way to be asked anything. All nullable — staff
+  // accounts are created by other staff and describe nobody, and phase 5's
+  // anonymization clears every one of them.
+  firstName: varchar('firstName', { length: 200 }),
+  lastName: varchar('lastName', { length: 200 }),
+  phone: varchar('phone', { length: 50 }),
+  customerType: customerType('customerType'),
+  // Business registration number, stored unmasked (digits or whatever the
+  // deployment's pattern accepts) so it matches the legacy system's records
+  // regardless of how it is displayed. Required for `company` registrations —
+  // enforced by the registration contract and the deployment's own pattern,
+  // not by the column, since staff-created accounts have neither.
+  companyRegistrationId: varchar('companyRegistrationId', { length: 64 }),
+  // Set together when staff approve an account (or create one outright). Null
+  // on the bootstrap admin and on rows that predate registration.
+  approvedAt: timestamp('approvedAt', { withTimezone: true }),
+  approvedBy: uuid('approvedBy').references((): AnyPgColumn => users.id, {
+    onDelete: 'set null',
+  }),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -285,6 +339,36 @@ export const users = pgTable('users', {
   tierId: uuid('tierId').references(() => customerTiers.id, {
     onDelete: 'restrict',
   }),
+});
+
+/**
+ * Single-use links that let someone set a password without one being mailed to
+ * them: the invitation staff send on approval (FR-AUTH-01/03) and the reset a
+ * visitor asks for (FR-AUTH-02). One table for both — what a link *means* is
+ * read from the account's status, not stored here, so an expired invitation
+ * followed by a reset request still lands on "choose your password".
+ *
+ * Only the SHA-256 of the token is stored, never the token: whoever holds the
+ * link holds the credential, and a leaked database must not yield working
+ * links. SHA-256 rather than argon2 precisely because it is deterministic —
+ * the token is 256 bits of randomness, so it needs no slow KDF, and a
+ * deterministic hash is what lets the link be looked up by itself instead of
+ * carrying a row id beside the secret.
+ */
+export const passwordTokens = pgTable('password_tokens', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('userId')
+    .notNull()
+    // A purged registration takes its unredeemed invitation with it.
+    .references(() => users.id, { onDelete: 'cascade' }),
+  tokenHash: varchar('tokenHash', { length: 64 }).notNull().unique(),
+  expiresAt: timestamp('expiresAt', { withTimezone: true }).notNull(),
+  // Set on redemption. Kept rather than deleted so a second click on the same
+  // link can say "already used" instead of "never existed".
+  usedAt: timestamp('usedAt', { withTimezone: true }),
+  createdAt: timestamp('createdAt', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 /**

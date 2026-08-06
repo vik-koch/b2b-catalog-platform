@@ -14,6 +14,7 @@ import { requireEnv } from '../support/env';
 const ADMIN_EMAIL = 'e2e-tiers-admin@example.com';
 const MANAGER_EMAIL = 'e2e-tiers-manager@example.com';
 const USER_EMAIL = 'e2e-tiers-user@example.com';
+const PENDING_EMAIL = 'e2e-tiers-pending@example.com';
 const PASSWORD = 'e2e-tiers-password';
 
 // Per-run suffix, so leftovers from a crashed run cannot collide with this
@@ -81,7 +82,8 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
     ] as const) {
       await client.query('DELETE FROM users WHERE email = $1', [email]);
       await client.query(
-        `INSERT INTO users (email, "passwordHash", role) VALUES ($1, $2, $3)`,
+        `INSERT INTO users (email, "passwordHash", role, status)
+         VALUES ($1, $2, $3, 'active')`,
         [email, passwordHash, role],
       );
     }
@@ -104,7 +106,7 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
       createdTierIds,
     ]);
     await client.query('DELETE FROM users WHERE email = ANY($1)', [
-      [ADMIN_EMAIL, MANAGER_EMAIL, USER_EMAIL],
+      [ADMIN_EMAIL, MANAGER_EMAIL, USER_EMAIL, PENDING_EMAIL],
     ]);
     await client.end();
   });
@@ -114,8 +116,10 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
       expect((await get('/admin/tiers', '')).status).toBe(401);
     });
 
-    it('rejects a manager with 403 — defining price lists is admin-only', async () => {
-      expect((await get('/admin/tiers', managerCookie)).status).toBe(403);
+    it('lets a manager read the list but not define one — that is admin-only', async () => {
+      // A manager assigns customers to tiers, so they must be able to read the
+      // set; creating one is still admin-only.
+      expect((await get('/admin/tiers', managerCookie)).status).toBe(200);
       expect(
         (
           await post(
@@ -315,6 +319,22 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
         USER_EMAIL,
       ]);
       expect((await get('/admin/tiers')).data.defaultUserCount).toBe(before);
+    });
+
+    it('leaves a pending registration out of the count', async () => {
+      const before = (await get('/admin/tiers')).data.defaultUserCount;
+
+      // A registration is a request, not a customer: it carries no tier and
+      // nobody sells to it at the base list's prices yet.
+      await client.query(
+        `INSERT INTO users (email, "passwordHash", role, status)
+         VALUES ($1, $2, 'user', 'pending')`,
+        [PENDING_EMAIL, '$argon2id$placeholder'],
+      );
+
+      expect((await get('/admin/tiers')).data.defaultUserCount).toBe(before);
+
+      await client.query('DELETE FROM users WHERE email = $1', [PENDING_EMAIL]);
     });
 
     it('leaves staff out of a tier count as well', async () => {
