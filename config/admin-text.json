@@ -12,7 +12,20 @@
     "restore": "Restore",
     "reorder": "Drag to reorder",
     "uploading": "Uploading…",
-    "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB."
+    "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB.",
+    "catalogErrors": {
+      "product-not-found": "This product no longer exists. Reload the page to see the current catalogue.",
+      "category-not-found": "That category no longer exists. Reload the page to see the current categories.",
+      "reassign-target-not-found": "The category you picked to move the products into no longer exists.",
+      "category-has-subcategories": "This category still has subcategories. Delete or move those first.",
+      "category-has-products": "This category still has products. Pick a category to move them into.",
+      "category-reassign-to-self": "The products cannot be moved into the category being deleted.",
+      "category-cycle": "A category cannot be moved inside one of its own subcategories.",
+      "slug-taken": "That web address is already used by something else. Please pick another.",
+      "source-id-taken": "That catalogue ID is already used by another product.",
+      "tier-not-found": "One of the price lists on this product no longer exists. Reload the page and set its prices again.",
+      "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again."
+    }
   },
   "panel": {
     "manage": "Catalog & content",
@@ -198,6 +211,17 @@
     "preview": "Preview changes",
     "previewing": "Reading the file…",
     "previewError": "That file could not be read.",
+    "formatErrors": {
+      "no-file": "No file was sent. Please choose a file and try again.",
+      "file-too-large": "That file is too large to upload. Split the export into smaller files.",
+      "file-empty": "That file is empty.",
+      "no-header-row": "That file has no header row, so its columns cannot be read.",
+      "duplicate-column": "The column “{column}” appears more than once, so it is unclear which one counts.",
+      "unknown-columns": "These columns are not recognised: {columns}. Expected any of: {expected}.",
+      "missing-required-column": "The file needs a “{column}” column.",
+      "too-many-rows": "That file has {rows} rows; the limit is {limit}. Split it into smaller files.",
+      "options-invalid": "The options sent with this file were not valid. Reload the page and try again."
+    },
     "summaryTitle": "What this file would change",
     "productsTitle": "Products",
     "categoriesTitle": "New categories",
@@ -210,6 +234,17 @@
     "keptHint": "These products were created in the admin panel, so they are not in the export and are never hidden by a sync.",
     "errorsTitle": "Skipped rows",
     "errorRow": "Row {row}",
+    "rowErrors": {
+      "missing-source-id": "This row has no sourceId, so there is no product to match it to.",
+      "duplicate-source-id": "This sourceId appears earlier in the file; only the first row for it is used.",
+      "category-id-without-name": "The category “{category}” has an ID but no name, so it cannot be created or renamed.",
+      "category-name-without-id": "The category “{category}” has a name but no ID, so it is unclear which category it means.",
+      "price-not-an-integer": "The price “{price}” in column “{column}” is not a whole number of cents.",
+      "unknown-price-list": "There is no price list “{key}” — this catalogue has {known}.",
+      "category-name-conflict": "The category “{key}” is called both “{first}” and “{second}” in this file.",
+      "unknown-category": "The category “{name}” ({key}) is not in the catalogue, and this run does not create categories.",
+      "cannot-create-product": "This product is new, and a new product needs a name, a price and a category."
+    },
     "truncated": "Only the first entries are listed; the counts above cover the whole file.",
     "nothingToApply": "This file changes nothing.",
     "deleteWarning": "{count} product(s) will be hidden from the storefront. They stay in the catalog and can be restored.",
@@ -218,6 +253,12 @@
     "apply": "Apply these changes",
     "applying": "Applying…",
     "applyError": "These changes could not be applied. Please try again.",
+    "applyErrors": {
+      "run-not-found": "This run no longer exists. Upload the file again.",
+      "run-already-applied": "These changes have already been applied.",
+      "run-failed": "This run failed earlier and cannot be applied. Upload the file again.",
+      "run-rows-pruned": "This preview has expired. Upload the file again to see the current changes."
+    },
     "applied": "Applied.",
     "discard": "Discard",
     "historyTitle": "Previous runs",

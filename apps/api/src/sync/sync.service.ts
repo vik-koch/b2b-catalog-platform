@@ -30,6 +30,13 @@ import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
 /** Staged rows and finished runs are audit data, not archive data. */
 const RUN_RETENTION_DAYS = 90;
 
+/** The one 404 here; a function so each throw gets its own stack. */
+const runNotFound = () =>
+  new NotFoundException({
+    code: 'run-not-found',
+    message: 'Sync run not found',
+  });
+
 interface Actor {
   id: string;
   email: string;
@@ -83,16 +90,18 @@ export class SyncService {
       .select()
       .from(syncRuns)
       .where(eq(syncRuns.id, id));
-    if (!run) throw new NotFoundException('Sync run not found');
+    if (!run) throw runNotFound();
     if (run.status !== 'previewed') {
-      throw new ConflictException(
-        `This run is already ${run.status} and cannot be applied again`,
-      );
+      throw new ConflictException({
+        code: run.status === 'applied' ? 'run-already-applied' : 'run-failed',
+        message: `This run is already ${run.status} and cannot be applied again`,
+      });
     }
     if (!run.rows) {
-      throw new ConflictException(
-        'This run’s staged rows have been pruned; upload the file again',
-      );
+      throw new ConflictException({
+        code: 'run-rows-pruned',
+        message: 'This run’s staged rows have been pruned',
+      });
     }
 
     // Re-diff against current state: the catalog may have moved since the
@@ -140,7 +149,7 @@ export class SyncService {
       .select()
       .from(syncRuns)
       .where(eq(syncRuns.id, id));
-    if (!run) throw new NotFoundException('Sync run not found');
+    if (!run) throw runNotFound();
 
     // A previewed run can still show its diff (its rows are staged); a finished
     // one has only its summary, which is what the audit trail needs.

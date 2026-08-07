@@ -203,9 +203,11 @@ export function planSync(
       rowErrors.push({
         row: rowNumber,
         sourceId: row.sourceId,
-        message: `Unknown price list "${unknownKey}" — this catalog has ${knownPriceListKeys
-          .map((k) => `"${k}"`)
-          .join(', ')}`,
+        code: 'unknown-price-list',
+        params: {
+          key: unknownKey,
+          known: knownPriceListKeys.map((k) => `"${k}"`).join(', '),
+        },
       });
       continue;
     }
@@ -227,7 +229,8 @@ export function planSync(
           rowErrors.push({
             row: rowNumber,
             sourceId: row.sourceId,
-            message: `Category "${key}" is named both "${claimed}" and "${name}" in this file`,
+            code: 'category-name-conflict',
+            params: { key, first: claimed, second: name },
           });
           continue;
         }
@@ -261,7 +264,8 @@ export function planSync(
         rowErrors.push({
           row: rowNumber,
           sourceId: row.sourceId,
-          message: `Unknown category "${name}" (${key})`,
+          code: 'unknown-category',
+          params: { name, key },
         });
         continue;
       }
@@ -280,8 +284,7 @@ export function planSync(
         rowErrors.push({
           row: rowNumber,
           sourceId: row.sourceId,
-          message:
-            'Cannot create this product — a new product needs a name, a price and a category',
+          code: 'cannot-create-product',
         });
         continue;
       }

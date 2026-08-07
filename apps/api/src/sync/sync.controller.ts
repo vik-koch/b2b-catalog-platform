@@ -54,10 +54,17 @@ export class SyncController {
     @CurrentUser() user: AuthUser,
   ): Promise<SyncPreviewResponse> {
     if (!file) {
-      throw new BadRequestException('No file uploaded (field "file")');
+      throw new BadRequestException({
+        code: 'no-file',
+        message: 'No file uploaded (field "file")',
+      });
     }
     if (file.size > SYNC_MAX_UPLOAD_BYTES) {
-      throw new PayloadTooLargeException('The file exceeds the size limit');
+      throw new PayloadTooLargeException({
+        code: 'file-too-large',
+        message: 'The file exceeds the size limit',
+        params: { limit: String(SYNC_MAX_UPLOAD_BYTES) },
+      });
     }
 
     const options = this.parseOptions(rawOptions);
@@ -67,7 +74,11 @@ export class SyncController {
       parsed = parseSyncCsv(file.buffer.toString('utf8'));
     } catch (error) {
       if (error instanceof SyncFormatError) {
-        throw new BadRequestException(error.message);
+        throw new BadRequestException({
+          code: error.code,
+          message: error.message,
+          params: error.params,
+        });
       }
       throw error;
     }
@@ -119,14 +130,18 @@ export class SyncController {
       try {
         value = JSON.parse(raw);
       } catch {
-        throw new BadRequestException('The "options" field is not valid JSON');
+        throw new BadRequestException({
+          code: 'options-invalid',
+          message: 'The "options" field is not valid JSON',
+        });
       }
     }
     const result = syncOptionsSchema.safeParse(value);
     if (!result.success) {
-      throw new BadRequestException(
-        result.error.issues.map((i) => i.message).join('; '),
-      );
+      throw new BadRequestException({
+        code: 'options-invalid',
+        message: result.error.issues.map((i) => i.message).join('; '),
+      });
     }
     return result.data;
   }

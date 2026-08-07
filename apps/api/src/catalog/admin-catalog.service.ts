@@ -48,6 +48,20 @@ import {
 import { adminProductOrderBy } from './product-sort';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 
+/**
+ * The two 404s this surface has. Functions rather than constants so each throw
+ * gets its own stack; the message varies where naming the row helps a log
+ * reader, while the code — the only part a screen reads — does not.
+ */
+const productNotFound = () =>
+  new NotFoundException({
+    code: 'product-not-found',
+    message: 'Product not found',
+  });
+
+const categoryNotFound = (message = 'Category not found') =>
+  new NotFoundException({ code: 'category-not-found', message });
+
 /** The editable product shape the admin contract returns. */
 const adminProductColumns = {
   id: products.id,
@@ -221,7 +235,7 @@ export class AdminCatalogService {
     actorId: string,
   ): Promise<AdminProduct> {
     const existing = await this.productBySlug(slug);
-    if (!existing) throw new NotFoundException('Product not found');
+    if (!existing) throw productNotFound();
     await this.ensureCategoryExists(input.categoryId);
 
     const newSlug = await this.resolveSlugOverride(
@@ -279,7 +293,7 @@ export class AdminCatalogService {
       })
       .where(eq(products.slug, slug))
       .returning(adminProductColumns);
-    if (!rows[0]) throw new NotFoundException('Product not found');
+    if (!rows[0]) throw productNotFound();
     // Soft delete leaves the tier prices alone — they belong to the product,
     // and hiding it is reversible.
     return toAdminProduct(rows[0], await this.tierPricesFor(rows[0].id));
@@ -296,7 +310,7 @@ export class AdminCatalogService {
       })
       .where(eq(products.slug, slug))
       .returning(adminProductColumns);
-    if (!rows[0]) throw new NotFoundException('Product not found');
+    if (!rows[0]) throw productNotFound();
     return toAdminProduct(rows[0], await this.tierPricesFor(rows[0].id));
   }
 
@@ -318,7 +332,7 @@ export class AdminCatalogService {
       })
       .from(categories);
     const category = categoryBySlug(rows, slug);
-    if (!category) throw new NotFoundException('Category not found');
+    if (!category) throw categoryNotFound();
 
     const ids = descendantIds(category.id, rows);
     return this.db
@@ -405,7 +419,7 @@ export class AdminCatalogService {
     actorId: string,
   ): Promise<AdminCategory> {
     const existing = await this.categoryById(id);
-    if (!existing) throw new NotFoundException('Category not found');
+    if (!existing) throw categoryNotFound();
 
     // PUT is a full replace, so parentId is always authoritative. Guard the
     // reparent against cycles before touching the row.
@@ -469,14 +483,17 @@ export class AdminCatalogService {
     reassignToId?: string,
   ): Promise<{ message: string }> {
     const existing = await this.categoryById(id);
-    if (!existing) throw new NotFoundException('Category not found');
+    if (!existing) throw categoryNotFound();
 
     const [{ value: childCount }] = await this.db
       .select({ value: count() })
       .from(categories)
       .where(eq(categories.parentId, id));
     if (Number(childCount) > 0) {
-      throw new ConflictException('Category still has subcategories');
+      throw new ConflictException({
+        code: 'category-has-subcategories',
+        message: 'Category still has subcategories',
+      });
     }
 
     const [{ value: productCount }] = await this.db
@@ -490,13 +507,24 @@ export class AdminCatalogService {
     }
 
     if (!reassignToId) {
-      throw new ConflictException('Category still has products');
+      throw new ConflictException({
+        code: 'category-has-products',
+        message: 'Category still has products',
+      });
     }
     if (reassignToId === id) {
-      throw new ConflictException('Cannot reassign a category to itself');
+      throw new ConflictException({
+        code: 'category-reassign-to-self',
+        message: 'Cannot reassign a category to itself',
+      });
     }
     const target = await this.categoryById(reassignToId);
-    if (!target) throw new NotFoundException('Target category not found');
+    if (!target) {
+      throw new NotFoundException({
+        code: 'reassign-target-not-found',
+        message: 'Target category not found',
+      });
+    }
 
     await this.db.transaction(async (tx) => {
       // No deletedAt filter: soft-deleted products carry the FK too, so they
@@ -522,15 +550,18 @@ export class AdminCatalogService {
     const parentById = new Map(all.map((c) => [c.id, c.parentId]));
     for (const entry of body.order) {
       if (!known.has(entry.id)) {
-        throw new NotFoundException(`Unknown category ${entry.id}`);
+        throw categoryNotFound(`Unknown category ${entry.id}`);
       }
       if (entry.parentId !== null && !known.has(entry.parentId)) {
-        throw new NotFoundException(`Unknown parent ${entry.parentId}`);
+        throw categoryNotFound(`Unknown parent ${entry.parentId}`);
       }
       parentById.set(entry.id, entry.parentId);
     }
     if (hasCycle(parentById)) {
-      throw new ConflictException('Reorder would create a category cycle');
+      throw new ConflictException({
+        code: 'category-cycle',
+        message: 'Reorder would create a category cycle',
+      });
     }
 
     await this.db.transaction(async (tx) => {
@@ -626,7 +657,10 @@ export class AdminCatalogService {
       .from(customerTiers)
       .where(inArray(customerTiers.id, ids));
     if (rows.length !== ids.length) {
-      throw new NotFoundException('Customer tier not found');
+      throw new NotFoundException({
+        code: 'tier-not-found',
+        message: 'Customer tier not found',
+      });
     }
   }
 
@@ -645,7 +679,7 @@ export class AdminCatalogService {
       .from(categories)
       .where(eq(categories.id, id))
       .limit(1);
-    if (!row) throw new NotFoundException('Category not found');
+    if (!row) throw categoryNotFound();
   }
 
   private async nextSortOrder(parentId: string | null): Promise<number> {
@@ -675,7 +709,10 @@ export class AdminCatalogService {
   ): Promise<string> {
     if (provided) {
       if (await this.slugExists(table, provided)) {
-        throw new ConflictException(`Slug '${provided}' is already in use`);
+        throw new ConflictException({
+          code: 'slug-taken',
+          message: `Slug '${provided}' is already in use`,
+        });
       }
       return provided;
     }
@@ -695,7 +732,10 @@ export class AdminCatalogService {
   ): Promise<string> {
     if (!provided || provided === current) return current;
     if (await this.slugExists(table, provided)) {
-      throw new ConflictException(`Slug '${provided}' is already in use`);
+      throw new ConflictException({
+        code: 'slug-taken',
+        message: `Slug '${provided}' is already in use`,
+      });
     }
     return provided;
   }
@@ -715,7 +755,10 @@ export class AdminCatalogService {
   private async resolveSourceId(provided: string | undefined): Promise<string> {
     if (!provided) return `manual:${randomUUID()}`;
     if (await this.sourceIdExists(provided)) {
-      throw new ConflictException(`Source id '${provided}' is already in use`);
+      throw new ConflictException({
+        code: 'source-id-taken',
+        message: `Source id '${provided}' is already in use`,
+      });
     }
     return provided;
   }
@@ -726,7 +769,10 @@ export class AdminCatalogService {
   ): Promise<string> {
     if (!provided || provided === current) return current;
     if (await this.sourceIdExists(provided)) {
-      throw new ConflictException(`Source id '${provided}' is already in use`);
+      throw new ConflictException({
+        code: 'source-id-taken',
+        message: `Source id '${provided}' is already in use`,
+      });
     }
     return provided;
   }
@@ -753,7 +799,10 @@ export class AdminCatalogService {
     const parentById = new Map(all.map((c) => [c.id, c.parentId]));
     parentById.set(id, newParentId);
     if (hasCycle(parentById)) {
-      throw new ConflictException('Move would create a category cycle');
+      throw new ConflictException({
+        code: 'category-cycle',
+        message: 'Move would create a category cycle',
+      });
     }
   }
 
@@ -770,7 +819,10 @@ export class AdminCatalogService {
         e !== null &&
         (e as { code?: string }).code === '23505'
       ) {
-        throw new ConflictException('A slug or source id conflict occurred');
+        throw new ConflictException({
+          code: 'slug-or-source-id-taken',
+          message: 'A slug or source id conflict occurred',
+        });
       }
       throw e;
     }

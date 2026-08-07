@@ -443,7 +443,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.navigatingAway = true; // let the unsaved-changes guard pass
       await this.router.navigate(['/product', result.product.slug]);
     } else {
-      this.error.set(result.message);
+      this.error.set(this.common.catalogErrors[result.code]);
       this.saving.set(false);
     }
   }
