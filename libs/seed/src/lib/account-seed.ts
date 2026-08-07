@@ -141,7 +141,12 @@ async function insertAccount(
        $6, $7, $8, $9, $10,
        $11, $12, $13, now() - make_interval(days => $14::int),
        now() - make_interval(days => $14::int))
-     ON CONFLICT (email) DO NOTHING`,
+     -- Untargeted, because an account is identified by two unique columns and
+     -- create-if-missing means "leave whatever is already there" for either.
+     -- The tombstone carries a fixed id, so a stack seeded before its address
+     -- was last edited holds that id under the old email: an (email) arbiter
+     -- finds nothing to skip, inserts, and dies on the primary key instead.
+     ON CONFLICT DO NOTHING`,
     [
       account.id ?? null,
       account.email,
