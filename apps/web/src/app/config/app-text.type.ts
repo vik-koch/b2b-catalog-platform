@@ -153,7 +153,12 @@ export const appTextSchema = z
         logout: z.string(),
         /** Static navbar label — deliberately role-independent, see accountNav usage. */
         accountNav: z.string(),
-        signedInAs: z.string(),
+        /** `{name}` — the account holder's first name, or their address when
+         * the account carries no name (staff, the bootstrap admin). */
+        greeting: z.string(),
+        /** Heading of the change-password section, on /account and /admin
+         * alike — the session's own password, not an account-page topic. */
+        securityHeading: z.string(),
         adminPanel: z.string(),
         /** The same landing for a manager, whose panel holds only the accounts
          * they approve — no catalog, pricing or site controls. */
@@ -165,7 +170,26 @@ export const appTextSchema = z
         submitting: z.string(),
         invalid: z.string(),
         error: z.string(),
-        underConstruction: z.string(),
+        /**
+         * The account holder's own area. Sections rather than one flat list,
+         * because this is where addresses and order history land next.
+         */
+        myAccount: z
+          .object({
+            detailsHeading: z.string(),
+            name: z.string(),
+            email: z.string(),
+            phone: z.string(),
+            customerType: z.string(),
+            person: z.string(),
+            company: z.string(),
+            companyId: z.string(),
+            memberSince: z.string(),
+            /** Shown against a field the account holder cannot edit here. */
+            changeHint: z.string(),
+            error: z.string(),
+          })
+          .strict(),
         /**
          * Self-registration (FR-AUTH-01). An account is a request, not a
          * signup: the copy has to set that expectation before the visitor

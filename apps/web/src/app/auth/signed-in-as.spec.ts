@@ -6,7 +6,7 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { AuthService } from './auth.service';
 import { SignedInAs } from './signed-in-as';
-import { adminUser as admin } from './auth-user.fixture';
+import { adminUser as admin, plainUser as customer } from './auth-user.fixture';
 
 const text = defaultAppText.auth;
 
@@ -41,21 +41,26 @@ async function render(initial: AuthUser | null) {
 }
 
 describe('SignedInAs', () => {
+  // No name to greet by: the address is the greeting, and is not repeated
+  // underneath it.
   it('shows who is signed in and the way out', async () => {
     const { el } = await render(admin);
 
-    expect(el.textContent).toContain(text.signedInAs);
-    expect(el.textContent).toContain(admin.email);
+    expect(el.textContent).toContain(
+      text.greeting.replace('{name}', admin.email),
+    );
+    // Once, not twice: the greeting is the only place it appears.
+    expect(el.textContent?.split(admin.email)).toHaveLength(2);
     expect(el.querySelector('button')?.textContent).toContain(text.logout);
   });
 
-  // The only route to the change-password form until the account menu exists.
-  it('links to the change-password page', async () => {
-    const { el } = await render(admin);
-    const link = el.querySelector('a');
+  it('greets a customer by first name, over their address', async () => {
+    const { el } = await render(customer);
 
-    expect(link?.getAttribute('href')).toBe('/change-password');
-    expect(link?.textContent).toContain(text.changePassword.heading);
+    expect(el.textContent).toContain(
+      text.greeting.replace('{name}', customer.firstName ?? ''),
+    );
+    expect(el.textContent).toContain(customer.email);
   });
 
   // Matches what the server renders before /auth/me answers, so hydration has
