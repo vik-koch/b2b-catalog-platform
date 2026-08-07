@@ -149,10 +149,39 @@ fi
 # window: DNS propagation + cert order can take a minute or two on a fresh VM.
 # When seeded, require a seeded API page too, so a routing or seed failure fails
 # loudly; unseeded (prod) only asserts the app is reachable — no content yet.
+#
+# Maintenance mode (FR-ADM-04) is the reason this asks for status codes rather
+# than using `curl -f`: while the gate is on, the storefront and every public
+# API route answer a deliberate 503, which is a correctly deployed stack, not a
+# failed one. So the probe is /api/maintenance — exempt from the gate, hence a
+# 200 either way — and the public checks accept 503 as well as 200 once that
+# endpoint says the gate is on.
 echo "==> Smoke check https://$domain"
+
+status() { curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$1" 2>/dev/null; }
+
+# 200 always, or — when the storefront is gated — 503 as well.
+up_or_gated() {
+  local code
+  code=$(status "$1")
+  [ "$code" = 200 ] || { [ "$gated" = 1 ] && [ "$code" = 503 ]; }
+}
+
 for _ in $(seq 1 36); do
-  if curl -fsS --max-time 10 "https://$domain/" >/dev/null 2>&1 &&
-    { [ -z "$seed" ] || curl -fsS --max-time 10 "https://$domain/api/pages/about" >/dev/null 2>&1; }; then
+  # Re-read each round: an admin may flip the gate while a deploy is running,
+  # and the answer also proves the api is reachable through the proxy at all.
+  gated=0
+  case "$(curl -s --max-time 10 "https://$domain/api/maintenance" 2>/dev/null)" in
+    *'"enabled":true'*) gated=1 ;;
+    *'"enabled":false'*) ;;
+    *) sleep 5; continue ;;
+  esac
+
+  if up_or_gated "https://$domain/" &&
+    { [ -z "$seed" ] || up_or_gated "https://$domain/api/pages/about"; }; then
+    if [ "$gated" = 1 ]; then
+      echo "NOTE: maintenance mode is on — public routes answered 503 as expected"
+    fi
     echo "OK: https://$domain is up"
     exit 0
   fi
