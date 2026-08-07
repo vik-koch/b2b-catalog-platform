@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AccountModule } from '../account/account.module';
 import { AuthModule } from '../auth/auth.module';
 import { InquiryModule } from '../inquiry/inquiry.module';
 import { DatabaseModule } from '../db/database.module';
@@ -24,6 +25,7 @@ import { StaffUsersModule } from '../users/staff-users.module';
     SyncModule,
     TiersModule,
     StaffUsersModule,
+    AccountModule,
   ],
 })
 export class AppModule {}

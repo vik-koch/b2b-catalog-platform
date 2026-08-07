@@ -1,3 +1,4 @@
+export * from './lib/account.contract';
 export * from './lib/admin-catalog.contract';
 export * from './lib/auth.contract';
 export * from './lib/catalog.contract';

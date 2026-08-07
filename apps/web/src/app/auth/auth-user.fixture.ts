@@ -9,6 +9,9 @@ export const adminUser: AuthUser = {
   id: 'a',
   email: 'admin@example.com',
   role: 'admin',
+  // Staff accounts often carry no name — the bootstrap admin is a config value,
+  // not a person — so the default identity is the one that has to fall back.
+  firstName: null,
   mustChangePassword: false,
 };
 
@@ -16,5 +19,6 @@ export const plainUser: AuthUser = {
   id: 'u',
   email: 'user@example.com',
   role: 'user',
+  firstName: 'Alex',
   mustChangePassword: false,
 };

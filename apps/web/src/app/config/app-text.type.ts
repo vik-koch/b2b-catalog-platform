@@ -153,7 +153,12 @@ export const appTextSchema = z
         logout: z.string(),
         /** Static navbar label — deliberately role-independent, see accountNav usage. */
         accountNav: z.string(),
-        signedInAs: z.string(),
+        /** `{name}` — the account holder's first name, or their address when
+         * the account carries no name (staff, the bootstrap admin). */
+        greeting: z.string(),
+        /** Heading of the change-password section, on /account and /admin
+         * alike — the session's own password, not an account-page topic. */
+        securityHeading: z.string(),
         adminPanel: z.string(),
         /** The same landing for a manager, whose panel holds only the accounts
          * they approve — no catalog, pricing or site controls. */
@@ -165,7 +170,69 @@ export const appTextSchema = z
         submitting: z.string(),
         invalid: z.string(),
         error: z.string(),
-        underConstruction: z.string(),
+        /**
+         * The account holder's own area. Sections rather than one flat list,
+         * because this is where addresses and order history land next.
+         */
+        myAccount: z
+          .object({
+            detailsHeading: z.string(),
+            name: z.string(),
+            email: z.string(),
+            phone: z.string(),
+            customerType: z.string(),
+            person: z.string(),
+            company: z.string(),
+            companyId: z.string(),
+            memberSince: z.string(),
+            /** Shown against the fields the account holder cannot edit here —
+             * the ones staff approved the account on. */
+            changeHint: z.string(),
+            error: z.string(),
+            /** Correcting your own name and phone number. */
+            edit: z
+              .object({
+                action: z.string(),
+                heading: z.string(),
+                intro: z.string(),
+                firstName: z.string(),
+                lastName: z.string(),
+                submit: z.string(),
+                submitting: z.string(),
+                cancel: z.string(),
+                error: z.string(),
+              })
+              .strict(),
+            /**
+             * Deleting your own account (FR-AUTH-06). The copy carries the
+             * honest reading of "delete": the row survives so past orders keep
+             * their history, and registering again is a new account rather
+             * than an undo.
+             */
+            delete: z
+              .object({
+                action: z.string(),
+                heading: z.string(),
+                intro: z.string(),
+                /** What is kept and what goes, in the visitor's own terms. */
+                consequences: z.array(z.string()),
+                password: z.string(),
+                passwordHint: z.string(),
+                submit: z.string(),
+                submitting: z.string(),
+                cancel: z.string(),
+                wrongPassword: z.string(),
+                /** The last admin cannot leave; staff-only, but it must say so
+                 * rather than fail silently. */
+                lastAdmin: z.string(),
+                error: z.string(),
+                /** Shown on the public site once the account is gone. */
+                doneHeading: z.string(),
+                done: z.string(),
+              })
+              .strict(),
+          })
+          .strict(),
         /**
          * Self-registration (FR-AUTH-01). An account is a request, not a
          * signup: the copy has to set that expectation before the visitor

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import { CustomerType } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
@@ -111,6 +111,93 @@ export class UsersService {
         updatedAt: new Date(),
       })
       .where(eq(users.id, id))
+      .returning();
+    return updated;
+  }
+
+  /**
+   * Whether any *other* admin account exists that could still sign in. The rule
+   * behind every "not the last admin" refusal — role changes, deactivation and
+   * self-deletion alike — so it lives here rather than with any one of them.
+   *
+   * An anonymized admin does not count: the row is a tombstone, and nobody can
+   * sign in as it to let anyone back in.
+   */
+  async hasAnotherAdmin(excludingId: string): Promise<boolean> {
+    const [row] = await this.db
+      .select({ id: users.id })
+      .from(users)
+      .where(
+        and(
+          eq(users.role, 'admin'),
+          ne(users.id, excludingId),
+          ne(users.status, 'anonymized'),
+        ),
+      );
+    return Boolean(row);
+  }
+
+  /**
+   * Self-deletion (FR-AUTH-06): the row stays, everything identifying about it
+   * goes. It is kept because `users.id` is an FK target — the audit trail's
+   * actor, the `updatedBy` columns, and the orders this deliberately does not
+   * delete — so removing it would erase who did what, not just who they were.
+   *
+   * The address is replaced rather than kept, which **frees it**: the person
+   * can register again later, as a genuinely new account with nothing linking
+   * it to this one. The tombstone keeps the unique slot instead.
+   *
+   * The credential goes the way deactivation retires it (unusable hash, bumped
+   * `tokenVersion`), so every session issued before this stops working — the
+   * caller's own included, which is why the controller clears the cookie too.
+   */
+  async anonymize(id: string, unusableHash: string): Promise<UserRow> {
+    const [updated] = await this.db
+      .update(users)
+      .set({
+        status: 'anonymized',
+        email: sql`concat('deleted-', ${users.id}::text, '@invalid')`,
+        firstName: null,
+        lastName: null,
+        phone: null,
+        customerType: null,
+        companyRegistrationId: null,
+        // The pricing group is personal data of a kind: it says what this
+        // customer was charged.
+        tierId: null,
+        passwordHash: unusableHash,
+        tokenVersion: sql`${users.tokenVersion} + 1`,
+        mustChangePassword: false,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return updated;
+  }
+
+  /**
+   * The account holder correcting their own name and phone number. Narrow by
+   * construction — the columns are named here rather than spread from the
+   * request — so this can never become the path by which a self-service form
+   * writes a role, a tier or a status.
+   *
+   * Guarded on `active`: the same accounts that may sign in are the ones that
+   * may edit, so a session in flight when staff deactivate the account cannot
+   * still write to it.
+   */
+  async updateOwnProfile(
+    id: string,
+    profile: { firstName: string; lastName: string; phone: string | null },
+  ): Promise<UserRow | undefined> {
+    const [updated] = await this.db
+      .update(users)
+      .set({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        phone: profile.phone,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(users.id, id), eq(users.status, 'active')))
       .returning();
     return updated;
   }

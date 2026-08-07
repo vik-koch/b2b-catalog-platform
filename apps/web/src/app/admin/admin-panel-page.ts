@@ -152,6 +152,20 @@ import { BuildInfoService } from './build-info.service';
       </section>
     }
 
+    <!-- The session's own password, in the same place a customer finds it. -->
+    <section class="mt-10">
+      <h2
+        class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
+      >
+        {{ text.securityHeading }}
+      </h2>
+      <div class="rounded-lg border border-border p-5">
+        <a appButton variant="secondary" routerLink="/change-password">
+          {{ text.changePassword.heading }}
+        </a>
+      </div>
+    </section>
+
     <!-- What is running, in the quietest possible place: nobody comes to the
          panel for it, but it is the first thing asked when reporting a problem.
          Absent until it arrives — an empty footer line needs no placeholder. -->

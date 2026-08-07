@@ -28,6 +28,7 @@ import {
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { users } from '../db/schema';
+import { UsersService } from './users.service';
 
 /** What the account list and every mutation answer with. */
 const staffUserColumns = {
@@ -72,6 +73,7 @@ export interface ListUsersFilters {
 export class StaffUsersService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    private readonly users: UsersService,
   ) {}
 
   async list(filters: ListUsersFilters): Promise<StaffUser[]> {
@@ -83,7 +85,15 @@ export class StaffUsersService {
     } else if (filters.kind === 'staff') {
       conditions.push(inArray(users.role, ['admin', 'manager']));
     }
-    if (filters.status) conditions.push(eq(users.status, filters.status));
+    // Tombstones are out of the default list: no row action applies to one
+    // (approve, deactivate and reactivate all refuse them), so they would be
+    // noise a manager has to scroll past. Still reachable by asking for them
+    // explicitly, which is what an auditor does.
+    conditions.push(
+      filters.status
+        ? eq(users.status, filters.status)
+        : ne(users.status, 'anonymized'),
+    );
     // Narrows within the staff view; harmless-but-empty alongside `customer`.
     if (filters.role) conditions.push(eq(users.role, filters.role));
     if (filters.tierId) {
@@ -390,19 +400,10 @@ export class StaffUsersService {
     return Boolean(row);
   }
 
-  private async hasAnotherAdmin(id: string): Promise<boolean> {
-    const [row] = await this.db
-      .select({ id: users.id })
-      .from(users)
-      .where(
-        and(
-          eq(users.role, 'admin'),
-          ne(users.id, id),
-          // An anonymized admin is not somebody who can sign in and help.
-          ne(users.status, 'anonymized'),
-        ),
-      );
-    return Boolean(row);
+  // One definition of "not the last admin", shared with self-deletion — a
+  // security rule with two copies is a security rule with two behaviours.
+  private hasAnotherAdmin(id: string): Promise<boolean> {
+    return this.users.hasAnotherAdmin(id);
   }
 }
 

@@ -188,7 +188,13 @@ export class AuthService {
     }
   }
 
-  private async refresh(): Promise<void> {
+  /**
+   * Re-read the identity from the server. Called at app start, and again
+   * whenever something changes what the session *says* rather than who it is —
+   * an account holder editing their own first name changes the greeting, and
+   * the response to that edit is a profile, not an identity.
+   */
+  async refresh(): Promise<void> {
     try {
       const response = await this.client.me();
       this.session.set(response.status === 200 ? response.body : null);

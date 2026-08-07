@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { AUTH_COOKIE } from './auth.constants';
+import { toAuthUser } from './auth-user';
 import { AuthenticatedRequest } from './authenticated-request';
 import { JwtPayload } from './jwt-payload';
 
@@ -60,12 +61,7 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     // Role comes from the DB, not the token, so a role change takes effect now.
-    request.user = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      mustChangePassword: user.mustChangePassword,
-    };
+    request.user = toAuthUser(user);
     return true;
   }
 }
