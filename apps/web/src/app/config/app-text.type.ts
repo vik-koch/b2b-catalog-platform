@@ -185,9 +185,24 @@ export const appTextSchema = z
             company: z.string(),
             companyId: z.string(),
             memberSince: z.string(),
-            /** Shown against a field the account holder cannot edit here. */
+            /** Shown against the fields the account holder cannot edit here —
+             * the ones staff approved the account on. */
             changeHint: z.string(),
             error: z.string(),
+            /** Correcting your own name and phone number. */
+            edit: z
+              .object({
+                action: z.string(),
+                heading: z.string(),
+                intro: z.string(),
+                firstName: z.string(),
+                lastName: z.string(),
+                submit: z.string(),
+                submitting: z.string(),
+                cancel: z.string(),
+                error: z.string(),
+              })
+              .strict(),
           })
           .strict(),
         /**

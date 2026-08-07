@@ -46,6 +46,14 @@ interface DetailRow {
             }
           </dl>
           <p class="mt-5 text-sm text-subtle">{{ accountText.changeHint }}</p>
+          <a
+            appButton
+            variant="secondary"
+            routerLink="/account/edit"
+            class="mt-5"
+          >
+            {{ accountText.edit.action }}
+          </a>
         } @else if (profile.error()) {
           <p class="text-sm text-red-600" role="alert">
             {{ accountText.error }}

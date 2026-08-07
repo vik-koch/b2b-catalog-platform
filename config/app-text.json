@@ -90,8 +90,19 @@
       "company": "Company",
       "companyId": "Company registration number",
       "memberSince": "Customer since",
-      "changeHint": "Need something changed? Get in touch and we will update your details.",
-      "error": "We could not load your details right now. Please try again later."
+      "changeHint": "To change your email address, or the details your account was set up with, get in touch and we will update them for you.",
+      "error": "We could not load your details right now. Please try again later.",
+      "edit": {
+        "action": "Edit details",
+        "heading": "Edit my details",
+        "intro": "Change how you are called and how we reach you. To change anything else, get in touch and we will update it for you.",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "submit": "Save changes",
+        "submitting": "Saving…",
+        "cancel": "Cancel",
+        "error": "Something went wrong saving your details. Please try again."
+      }
     },
     "register": {
       "noAccount": "New here? Request a customer account.",

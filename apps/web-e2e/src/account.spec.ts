@@ -11,10 +11,13 @@ import { localtestDbClient } from './support/localtest';
 
 const PASSWORD = 'e2e-account-password';
 
+// The phone number is stored the way the form composes it: the deployment's
+// country code, then the national part grouped by its mask. A number that
+// predates the mask still displays, but cannot be re-saved without retyping.
 const DETAILS = {
   firstName: 'Alex',
   lastName: 'Fischer',
-  phone: '+49 40 1234567',
+  phone: '+49 (401) 234-5678',
 };
 
 // Per worker, not per project: the suite is fully parallel, so an address
@@ -22,8 +25,13 @@ const DETAILS = {
 const emailFor = ({ project, workerIndex }: TestInfo) =>
   `e2e-${project.name}-${workerIndex}-account@example.com`;
 
+/** Every account a test makes, torn down even when it fails. Per worker, since
+ * each Playwright worker is its own process. */
+const created: string[] = [];
+
 async function arrange(testInfo: TestInfo): Promise<string> {
   const email = emailFor(testInfo);
+  created.push(email);
   const client = localtestDbClient();
   await client.connect();
   try {
@@ -54,15 +62,15 @@ async function logIn(page: Page, email: string) {
 }
 
 test.describe('my account', () => {
-  test.afterEach(async (_fixtures, testInfo) => {
+  test.afterEach(async () => {
+    if (created.length === 0) return;
     const client = localtestDbClient();
     await client.connect();
     try {
-      await client.query('DELETE FROM users WHERE email = $1', [
-        emailFor(testInfo),
-      ]);
+      await client.query('DELETE FROM users WHERE email = ANY($1)', [created]);
     } finally {
       await client.end();
+      created.length = 0;
     }
   });
 
@@ -100,5 +108,45 @@ test.describe('my account', () => {
     await page.getByRole('link', { name: 'Change password' }).click();
 
     await expect(page).toHaveURL(/\/change-password$/);
+  });
+
+  test('edits the name, and the greeting follows it', async ({
+    page,
+  }, testInfo) => {
+    const email = await arrange(testInfo);
+
+    await logIn(page, email);
+    await page.getByRole('link', { name: 'Edit details' }).click();
+    await expect(page).toHaveURL(/\/account\/edit$/);
+
+    await page.getByLabel('First name').fill('Alexa');
+    await page.getByRole('button', { name: 'Save changes' }).click();
+
+    // Straight back to the record — the new values are the confirmation, so
+    // there is no notice to dismiss.
+    await expect(page).toHaveURL(/\/account$/);
+    await expect(
+      page.getByRole('definition').getByText('Alexa Fischer'),
+    ).toBeVisible();
+    // The greeting is built from the session, not from the save's response, so
+    // it only follows the new name if /auth/me was re-asked.
+    await expect(page.getByText('Hello, Alexa')).toBeVisible();
+  });
+
+  // What staff approved the account on is not the account holder's to change.
+  test('offers no way to change the account type or address', async ({
+    page,
+  }, testInfo) => {
+    const email = await arrange(testInfo);
+
+    await logIn(page, email);
+    // The landing first: a `goto` issued while the login is still in flight
+    // races the session, and the guard bounces the cold load to /login.
+    await expect(page).toHaveURL(/\/account$/);
+    await page.goto('/account/edit');
+
+    await expect(page.getByLabel('First name')).toBeVisible();
+    await expect(page.getByLabel('Account type')).toHaveCount(0);
+    await expect(page.getByLabel('Email')).toHaveCount(0);
   });
 });
