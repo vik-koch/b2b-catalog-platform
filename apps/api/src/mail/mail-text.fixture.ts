@@ -50,6 +50,16 @@ export const demoMailText: MailText = {
     body: 'Your account has been switched back on. The old password no longer works — choose a new one.',
     action: 'Choose your password',
   },
+  passwordReset: {
+    subject: 'Reset your password',
+    preheader: 'Choose a new password for your account.',
+    heading: 'Reset your password',
+    body: 'Someone asked to reset the password for your account.',
+    expiry:
+      'This link can be used once, and expires an hour after it was sent.',
+    ignore: 'If this was not you, you can ignore this message.',
+    action: 'Choose a new password',
+  },
   accountDeleted: {
     subject: 'Your account has been deleted',
     preheader: 'Your account and personal details have been removed.',

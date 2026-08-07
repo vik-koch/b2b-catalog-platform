@@ -15,6 +15,7 @@ import { OptionalAuthGuard } from './optional-auth.guard';
 import { PasswordService } from './password.service';
 import { PasswordTokenService } from './password-token.service';
 import { PasswordPolicy } from './password-policy';
+import { PasswordResetService } from './password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RolesGuard } from './roles.guard';
 import { SessionVaryingInterceptor } from './session-varying.interceptor';
@@ -60,6 +61,7 @@ function jwtSecret(): string {
     PasswordTokenService,
     PasswordPolicy,
     PasswordSetupService,
+    PasswordResetService,
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
