@@ -166,7 +166,7 @@ describe('RegisterPage', () => {
       email: 'jane@example.com',
       firstName: 'Jane',
       lastName: 'Doe',
-      phone: `${defaultDeploymentConfig.phoneInput?.countryCode} (401) 234-5678`,
+      phone: `${defaultDeploymentConfig.phoneInput?.countryCode}4012345678`,
       customerType: 'person',
       companyRegistrationId: undefined,
       website: undefined,

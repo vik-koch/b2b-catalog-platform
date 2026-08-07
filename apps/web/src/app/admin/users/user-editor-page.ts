@@ -16,19 +16,21 @@ import { AuthService } from '../../auth/auth.service';
 import {
   canonicalCompanyId,
   canonicalPhone,
-  companyIdPattern,
+  companyIdValidators,
+  phoneValidators,
   typedCompanyId,
   typedPhone,
 } from '../../core/contact-fields';
 import { delayedLoading } from '../../core/delayed-loading';
 import { FieldErrors } from '../../core/form-errors';
-import { completeMask } from '../../core/masked-input';
 import { usePageSeo } from '../../core/page-seo';
 import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
 import { zodValidator } from '../../core/zod-validator';
 import { Button } from '../../ui/button';
-import { DigitMask } from '../../ui/digit-mask';
+import { CompanyIdField } from '../../ui/company-id-field';
+import { EmailField } from '../../ui/email-field';
 import { FieldLabel } from '../../ui/field-label';
+import { PhoneField } from '../../ui/phone-field';
 import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
 import { Skeleton } from '../../ui/skeleton';
@@ -58,9 +60,11 @@ import { SelectField } from '../../ui/select-field';
     ReactiveFormsModule,
     Button,
     AdminIcon,
-    DigitMask,
+    CompanyIdField,
+    EmailField,
     FieldLabel,
     Input,
+    PhoneField,
     Skeleton,
     SelectField,
   ],
@@ -108,31 +112,14 @@ import { SelectField } from '../../ui/select-field';
           class="space-y-6"
         >
           @if (isNew) {
-            <div>
-              <label for="email" appFieldLabel>
-                {{ text.email }}
-                <span class="text-accent" aria-hidden="true">*</span>
-              </label>
-              <input
-                id="email"
-                type="email"
-                formControlName="email"
-                autocomplete="off"
-                aria-required="true"
-                appInput
-                class="w-full"
-                [attr.aria-invalid]="isInvalid('email') || null"
-              />
-              @if (isInvalid('email')) {
-                <p class="mt-1 text-sm text-red-600">
-                  {{
-                    form.controls.email.hasError('required')
-                      ? text.validation.emailRequired
-                      : text.validation.emailInvalid
-                  }}
-                </p>
-              }
-            </div>
+            <app-email-field
+              [control]="form.controls.email"
+              [label]="text.email"
+              [text]="emailText"
+              [required]="true"
+              [invalid]="isInvalid('email')"
+              autocomplete="off"
+            />
           } @else {
             <p class="text-sm text-muted">{{ text.emailFixed }}</p>
           }
@@ -213,105 +200,24 @@ import { SelectField } from '../../ui/select-field';
           </div>
 
           @if (isCompany()) {
-            <div>
-              <label for="companyRegistrationId" appFieldLabel>
-                {{ text.companyId }}
-                <span class="text-accent" aria-hidden="true">*</span>
-              </label>
-              <div class="flex">
-                @if (companyIdPrefix) {
-                  <span
-                    class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
-                  >
-                    {{ companyIdPrefix }}
-                  </span>
-                }
-                @if (companyIdMask; as mask) {
-                  <input
-                    id="companyRegistrationId"
-                    type="text"
-                    appDigitMask
-                    [mask]="mask"
-                    formControlName="companyRegistrationId"
-                    inputmode="numeric"
-                    aria-required="true"
-                    appInput
-                    class="w-full"
-                    [class.rounded-l-none]="!!companyIdPrefix"
-                    [attr.aria-invalid]="
-                      isInvalid('companyRegistrationId') || null
-                    "
-                  />
-                } @else {
-                  <input
-                    id="companyRegistrationId"
-                    type="text"
-                    formControlName="companyRegistrationId"
-                    aria-required="true"
-                    appInput
-                    class="w-full"
-                    [class.rounded-l-none]="!!companyIdPrefix"
-                    [attr.aria-invalid]="
-                      isInvalid('companyRegistrationId') || null
-                    "
-                  />
-                }
-              </div>
-              @if (isInvalid('companyRegistrationId')) {
-                <p class="mt-1 text-sm text-red-600">
-                  {{
-                    form.controls.companyRegistrationId.hasError('required')
-                      ? text.validation.companyIdRequired
-                      : companyIdHint()
-                  }}
-                </p>
-              } @else if (companyIdExample) {
-                <p class="mt-1 text-sm text-muted">{{ companyIdHint() }}</p>
-              }
-            </div>
+            <app-company-id-field
+              [control]="form.controls.companyRegistrationId"
+              [label]="text.companyId"
+              [text]="companyIdText"
+              [invalid]="isInvalid('companyRegistrationId')"
+            />
           }
 
           <!-- Optional here, unlike on the registration form: staff often set
                an account up from an email alone, and a phone number they do
                not have is not a reason to block the account. -->
-          <div>
-            <label for="phone" appFieldLabel>{{ text.phone }}</label>
-            @if (phoneInput; as config) {
-              <div class="flex">
-                <span
-                  class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
-                >
-                  {{ config.countryCode }}
-                </span>
-                <input
-                  id="phone"
-                  type="tel"
-                  appDigitMask
-                  [mask]="config.mask ?? ''"
-                  formControlName="phone"
-                  autocomplete="off"
-                  appInput
-                  class="w-full rounded-l-none"
-                  [attr.aria-invalid]="isInvalid('phone') || null"
-                />
-              </div>
-            } @else {
-              <input
-                id="phone"
-                type="tel"
-                formControlName="phone"
-                autocomplete="off"
-                appInput
-                class="w-full"
-                [attr.aria-invalid]="isInvalid('phone') || null"
-              />
-            }
-            @if (isInvalid('phone')) {
-              <p class="mt-1 text-sm text-red-600">
-                {{ text.validation.phoneIncomplete }}
-              </p>
-            }
-          </div>
+          <app-phone-field
+            [control]="form.controls.phone"
+            [label]="text.phone"
+            [text]="phoneText"
+            [invalid]="isInvalid('phone')"
+            autocomplete="off"
+          />
 
           @if (isCustomer()) {
             <div>
@@ -354,15 +260,17 @@ import { SelectField } from '../../ui/select-field';
           @if (showsRole()) {
             <div>
               <label for="role" appFieldLabel>{{ text.role }}</label>
-              <select
-                id="role"
-                formControlName="role"
-                appInput
-                class="w-full sm:w-72"
-              >
-                <option value="manager">{{ listText.roleManager }}</option>
-                <option value="admin">{{ listText.roleAdmin }}</option>
-              </select>
+              <app-select-field class="w-full sm:w-72">
+                <select
+                  id="role"
+                  formControlName="role"
+                  appInput
+                  class="w-full"
+                >
+                  <option value="manager">{{ listText.roleManager }}</option>
+                  <option value="admin">{{ listText.roleAdmin }}</option>
+                </select>
+              </app-select-field>
             </div>
           }
 
@@ -453,13 +361,25 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly baseTierLabel = inject(ADMIN_TEXT).tierList.defaultLabel;
 
-  protected readonly phoneInput = this.config.phoneInput;
+  private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
-  // Read out once: `companyIdInput?.x` inside a block that already tested it
-  // trips NG8107.
-  protected readonly companyIdPrefix = this.companyIdInput?.prefix;
-  protected readonly companyIdMask = this.companyIdInput?.mask;
-  protected readonly companyIdExample = this.companyIdInput?.example;
+
+  // What the shared fields put under themselves — the admin's wording, not the
+  // storefront's. Held as fields so the object identity is stable across change
+  // detection.
+  protected readonly emailText = {
+    required: this.text.validation.emailRequired,
+    invalid: this.text.validation.emailInvalid,
+  };
+  // No `required` wording: the number is optional on this screen, so there is
+  // no such refusal to word.
+  protected readonly phoneText = {
+    incomplete: this.text.validation.phoneIncomplete,
+  };
+  protected readonly companyIdText = {
+    required: this.text.validation.companyIdRequired,
+    format: this.text.validation.companyIdFormat,
+  };
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.idParam === null;
@@ -501,12 +421,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     customerType: ['person' as CustomerType],
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
-    // Optional, but a masked number still has to be whole: half a number is
-    // the most likely way to end up with an unreachable customer.
-    phone: [
-      '',
-      this.phoneInput?.mask ? [completeMask(this.phoneInput.mask)] : [],
-    ],
+    phone: ['', phoneValidators(this.phoneInput, false)],
     companyRegistrationId: [''],
     /** `default` is the base price list; `''` only exists before an approval. */
     tierId: ['default'],
@@ -670,15 +585,6 @@ export class UserEditorPage implements UnsavedChangesAware {
     }[status];
   }
 
-  protected companyIdHint(): string {
-    return this.companyIdExample
-      ? this.text.validation.companyIdFormat.replace(
-          '{example}',
-          this.companyIdExample,
-        )
-      : this.text.validation.companyIdRequired;
-  }
-
   protected isInvalid(control: keyof typeof this.form.controls): boolean {
     return this.fieldErrors.show(this.form.controls[control]);
   }
@@ -786,11 +692,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     this.isCompany.set(this.isCustomer() && type === 'company');
     const control = this.form.controls.companyRegistrationId;
     if (this.isCompany()) {
-      control.setValidators([
-        Validators.required,
-        ...(this.companyIdInput ? [companyIdPattern(this.companyIdInput)] : []),
-        ...(this.companyIdMask ? [completeMask(this.companyIdMask)] : []),
-      ]);
+      control.setValidators(companyIdValidators(this.companyIdInput));
     } else {
       control.setValidators([]);
       control.setValue('', { emitEvent: false });

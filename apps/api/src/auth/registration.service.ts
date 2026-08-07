@@ -4,8 +4,16 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { RegisterRequest } from '@b2b-catalog-platform/shared';
-import { COMPANY_ID_RULE, CompanyIdRule } from '../config/deployment-config';
+import {
+  formatPhone,
+  PhoneConfig,
+  RegisterRequest,
+} from '@b2b-catalog-platform/shared';
+import {
+  COMPANY_ID_RULE,
+  CompanyIdRule,
+  PHONE_INPUT,
+} from '../config/deployment-config';
 import { env } from '../env';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { MailService } from '../mail/mail.service';
@@ -32,6 +40,7 @@ export class RegistrationService {
     private readonly mail: MailService,
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(COMPANY_ID_RULE) private readonly companyIdMatches: CompanyIdRule,
+    @Inject(PHONE_INPUT) private readonly phoneInput: PhoneConfig | undefined,
   ) {}
 
   async register(request: RegisterRequest): Promise<void> {
@@ -105,9 +114,19 @@ export class RegistrationService {
     }
     await this.send(
       () =>
-        this.mail.send(newRegistrationMail({ ...request, email }, this.text), {
-          to: staffInbox,
-        }),
+        this.mail.send(
+          newRegistrationMail(
+            {
+              ...request,
+              email,
+              // Stored unmasked; a manager reading this on a phone gets it
+              // grouped the way this deployment writes numbers.
+              phone: formatPhone(request.phone, this.phoneInput),
+            },
+            this.text,
+          ),
+          { to: staffInbox },
+        ),
       'staff notification',
     );
   }

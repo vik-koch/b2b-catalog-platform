@@ -7,6 +7,7 @@ import {
   input,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { applyMask } from '@b2b-catalog-platform/shared';
 
 /**
  * Formats a digit-only field as the visitor types, per a configurable mask
@@ -71,21 +72,6 @@ export class DigitMask implements ControlValueAccessor {
   }
 
   private format(value: string): string {
-    const mask = this.mask();
-    const digits = value.replace(/\D/g, '');
-    if (!mask) {
-      return digits;
-    }
-
-    const maxDigits = (mask.match(/#/g) ?? []).length;
-    const capped = digits.slice(0, maxDigits);
-
-    let out = '';
-    let next = 0;
-    for (const ch of mask) {
-      if (next >= capped.length) break;
-      out += ch === '#' ? capped[next++] : ch;
-    }
-    return out;
+    return applyMask(value, this.mask());
   }
 }

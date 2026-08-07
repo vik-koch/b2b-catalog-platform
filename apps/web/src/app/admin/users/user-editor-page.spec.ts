@@ -31,7 +31,7 @@ function user(overrides: Partial<StaffUser> = {}): StaffUser {
     lastName: 'Doe',
     // Stored the way the registration form composes it: country code, then
     // the masked national part.
-    phone: '+49 (040) 123-4567',
+    phone: '+490401234567',
     customerType: 'person',
     companyRegistrationId: null,
     tierId: null,
@@ -196,7 +196,7 @@ describe('UserEditorPage', () => {
     expect(service.update).toHaveBeenCalledWith('u1', {
       firstName: 'Jane',
       lastName: 'Doe-Smith',
-      phone: '+49 (040) 123-4567',
+      phone: '+490401234567',
       customerType: 'company',
       companyRegistrationId: 'DE123456789',
       tierId: 'tier-w',

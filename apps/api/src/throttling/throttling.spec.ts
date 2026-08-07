@@ -4,8 +4,13 @@ import { InquiryModule } from '../inquiry/inquiry.module';
 import { MAILER, Mailer } from '../mail/mailer';
 import { ThrottlingModule } from './throttling.module';
 import { MAIL_TEXT } from '../mail/mail-text';
+import { PHONE_INPUT } from '../config/deployment-config';
 import { MAIL_BRANDING } from '../mail/mail-branding';
-import { demoMailBranding, demoMailText } from '../mail/mail-text.fixture';
+import {
+  demoMailBranding,
+  demoMailText,
+  demoPhoneInput,
+} from '../mail/mail-text.fixture';
 
 // Proves the shared limiter actually blocks a flood, exercised
 // through the real inquiry route (PublicFormThrottle = 10/min) with the mailer
@@ -31,6 +36,8 @@ describe('Throttling', () => {
       .useValue(demoMailText)
       .overrideProvider(MAIL_BRANDING)
       .useValue(demoMailBranding)
+      .overrideProvider(PHONE_INPUT)
+      .useValue(demoPhoneInput)
       .compile();
 
     app = moduleRef.createNestApplication();

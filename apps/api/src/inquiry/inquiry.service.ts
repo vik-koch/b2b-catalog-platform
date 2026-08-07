@@ -1,5 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { InquiryRequest } from '@b2b-catalog-platform/shared';
+import {
+  formatPhone,
+  InquiryRequest,
+  PhoneConfig,
+} from '@b2b-catalog-platform/shared';
+import { PHONE_INPUT } from '../config/deployment-config';
 import { env } from '../env';
 import { MailService } from '../mail/mail.service';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
@@ -12,6 +17,7 @@ export class InquiryService {
   constructor(
     private readonly mail: MailService,
     @Inject(MAIL_TEXT) private readonly text: MailText,
+    @Inject(PHONE_INPUT) private readonly phoneInput: PhoneConfig | undefined,
   ) {}
 
   async submit(submission: InquiryRequest): Promise<void> {
@@ -30,7 +36,15 @@ export class InquiryService {
       throw new Error('MAIL_STAFF_TO is not configured');
     }
 
-    await this.mail.send(inquiryMail(submission, this.text), {
+    const readable = {
+      ...submission,
+      // Sent unmasked; grouped again for whoever reads the mail.
+      phone: submission.phone
+        ? formatPhone(submission.phone, this.phoneInput)
+        : undefined,
+    };
+
+    await this.mail.send(inquiryMail(readable, this.text), {
       to,
       // The submitter, so the shop can answer by hitting reply.
       replyTo: submission.email,

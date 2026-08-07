@@ -68,16 +68,19 @@ import { AuthService, ChangePasswordResult } from './auth.service';
           [attr.aria-invalid]="isInvalid('newPassword') || null"
           [attr.aria-describedby]="id('new-hint')"
         />
-        <p [id]="id('new-hint')" class="mt-1 text-sm text-muted">
-          {{ minLengthHint }}
-        </p>
+        <!-- One line, not two: the rule and the refusal are the same sentence,
+             so it changes colour rather than being printed twice. -->
         @if (isInvalid('newPassword')) {
-          <p class="mt-1 text-sm text-red-600">
+          <p [id]="id('new-hint')" class="mt-1 text-sm text-red-600">
             {{
               form.controls.newPassword.hasError('required')
                 ? validation.newPasswordRequired
                 : minLengthHint
             }}
+          </p>
+        } @else {
+          <p [id]="id('new-hint')" class="mt-1 text-sm text-muted">
+            {{ minLengthHint }}
           </p>
         }
       </div>

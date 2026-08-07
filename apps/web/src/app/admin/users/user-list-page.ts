@@ -15,6 +15,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { formatPhone } from '../../core/contact-fields';
 import { usePageSeo } from '../../core/page-seo';
 import { delayedLoading } from '../../core/delayed-loading';
 import { stableValue } from '../../core/stable-value';
@@ -218,8 +219,8 @@ const typeRank = (t: StaffUser['customerType']): number =>
                 <td class="truncate text-subtle" [title]="user.email">
                   {{ user.email }}
                 </td>
-                <td class="truncate text-subtle" [title]="user.phone">
-                  {{ user.phone || dash }}
+                <td class="truncate text-subtle" [title]="phone(user)">
+                  {{ phone(user) || dash }}
                 </td>
                 @if (isCustomers()) {
                   <td class="text-subtle">
@@ -337,6 +338,7 @@ export class UserListPage {
   protected readonly dash = '—';
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   private readonly dateFormat = new Intl.DateTimeFormat(this.locale, {
     dateStyle: 'medium',
   });
@@ -526,6 +528,11 @@ export class UserListPage {
   protected name(user: StaffUser): string {
     const parts = [user.lastName, user.firstName].filter(Boolean);
     return parts.length ? parts.join(', ') : this.dash;
+  }
+
+  /** Stored as bare digits; the column reads it with this deployment's grouping. */
+  protected phone(user: StaffUser): string {
+    return formatPhone(user.phone, this.phoneInput);
   }
 
   protected tierName(tierId: string | null): string {

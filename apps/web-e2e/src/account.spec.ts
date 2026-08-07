@@ -11,13 +11,14 @@ import { localtestDbClient } from './support/localtest';
 
 const PASSWORD = 'e2e-account-password';
 
-// The phone number is stored the way the form composes it: the deployment's
-// country code, then the national part grouped by its mask. A number that
-// predates the mask still displays, but cannot be re-saved without retyping.
+// A phone number is stored unmasked — country code plus bare national digits —
+// and grouped by the deployment's mask only when it is read back. Seeding the
+// stored form and asserting the displayed one is what proves the pair agree.
 const DETAILS = {
   firstName: 'Alex',
   lastName: 'Fischer',
-  phone: '+49 (401) 234-5678',
+  phone: '+494012345678',
+  phoneDisplayed: '+49 (401) 234-5678',
 };
 
 // Per worker, not per project: the suite is fully parallel, so an address
@@ -97,7 +98,7 @@ test.describe('my account', () => {
     await expect(
       details.getByText(`${DETAILS.firstName} ${DETAILS.lastName}`),
     ).toBeVisible();
-    await expect(details.getByText(DETAILS.phone)).toBeVisible();
+    await expect(details.getByText(DETAILS.phoneDisplayed)).toBeVisible();
     await expect(details.getByText('Private person')).toBeVisible();
 
     // The pricing tier is staff's to know: no label of any kind for it.

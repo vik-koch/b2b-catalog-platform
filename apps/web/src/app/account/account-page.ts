@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { SignedInAs } from '../auth/signed-in-as';
+import { formatPhone } from '../core/contact-fields';
 import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
@@ -98,6 +99,7 @@ interface DetailRow {
 export class AccountPage {
   private readonly account = inject(AccountService);
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly accountText = inject(APP_TEXT).auth.myAccount;
@@ -131,7 +133,8 @@ export class AccountPage {
     return [
       { label: t.name, value: name },
       { label: t.email, value: profile.email },
-      { label: t.phone, value: profile.phone ?? '' },
+      // Stored as bare digits; read back with the deployment's own grouping.
+      { label: t.phone, value: formatPhone(profile.phone, this.phoneInput) },
       { label: t.customerType, value: type ?? '' },
       { label: t.companyId, value: profile.companyRegistrationId ?? '' },
       { label: t.memberSince, value: this.formatDate(profile.createdAt) },

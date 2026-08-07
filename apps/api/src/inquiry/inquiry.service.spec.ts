@@ -1,9 +1,14 @@
 import { Test } from '@nestjs/testing';
 import { InquiryRequest } from '@b2b-catalog-platform/shared';
 import { MAILER, Mailer } from '../mail/mailer';
+import { PHONE_INPUT } from '../config/deployment-config';
 import { MAIL_BRANDING } from '../mail/mail-branding';
 import { MAIL_TEXT } from '../mail/mail-text';
-import { demoMailBranding, demoMailText } from '../mail/mail-text.fixture';
+import {
+  demoMailBranding,
+  demoMailText,
+  demoPhoneInput,
+} from '../mail/mail-text.fixture';
 import { MailService } from '../mail/mail.service';
 import { InquiryService } from './inquiry.service';
 
@@ -29,6 +34,7 @@ describe('InquiryService', () => {
         { provide: MAILER, useValue: { send } satisfies Mailer },
         { provide: MAIL_TEXT, useValue: demoMailText },
         { provide: MAIL_BRANDING, useValue: demoMailBranding },
+        { provide: PHONE_INPUT, useValue: demoPhoneInput },
       ],
     }).compile();
     service = moduleRef.get(InquiryService);

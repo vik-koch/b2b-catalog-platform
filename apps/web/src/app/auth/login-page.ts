@@ -6,6 +6,7 @@ import { APP_TEXT } from '../config/app-text';
 import { zodValidator } from '../core/zod-validator';
 import { FieldErrors } from '../core/form-errors';
 import { Button } from '../ui/button';
+import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { AuthService, LoginResult } from './auth.service';
@@ -18,7 +19,14 @@ import { landingFor } from './auth.guard';
  */
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, RouterLink, Button, FieldLabel, Input],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    Button,
+    EmailField,
+    FieldLabel,
+    Input,
+  ],
   template: `
     <div class="mx-auto max-w-sm">
       <h1 class="mb-8 text-3xl font-bold tracking-tight">{{ text.login }}</h1>
@@ -29,30 +37,16 @@ import { landingFor } from './auth.guard';
         novalidate
         class="space-y-6"
       >
-        <div>
-          <label for="email" appFieldLabel>
-            {{ text.email }}
-          </label>
-          <input
-            id="email"
-            type="email"
-            formControlName="email"
-            autocomplete="email"
-            aria-required="true"
-            appInput
-            class="w-full"
-            [attr.aria-invalid]="isInvalid('email') || null"
-          />
-          @if (isInvalid('email')) {
-            <p class="mt-1 text-sm text-red-600">
-              {{
-                form.controls.email.hasError('required')
-                  ? text.validation.emailRequired
-                  : text.validation.emailInvalid
-              }}
-            </p>
-          }
-        </div>
+        <!-- No required-marker beside either label: both fields are required,
+             and marking every field on a form marks none of them. -->
+        <app-email-field
+          [control]="form.controls.email"
+          [label]="text.email"
+          [text]="emailText"
+          [required]="true"
+          [marker]="false"
+          [invalid]="isInvalid('email')"
+        />
 
         <div>
           <label for="password" appFieldLabel>
@@ -116,6 +110,10 @@ export class LoginPage {
   private readonly router = inject(Router);
 
   protected readonly text = inject(APP_TEXT).auth;
+  protected readonly emailText = {
+    required: this.text.validation.emailRequired,
+    invalid: this.text.validation.emailInvalid,
+  };
   protected readonly status = signal<'idle' | 'submitting' | LoginResult>(
     'idle',
   );

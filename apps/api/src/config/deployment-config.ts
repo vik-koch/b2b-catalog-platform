@@ -1,3 +1,4 @@
+import { PhoneConfig } from '@b2b-catalog-platform/shared';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { z } from 'zod';
 
@@ -31,6 +32,18 @@ export const apiDeploymentConfigSchema = z
       })
       .passthrough()
       .optional(),
+    /**
+     * How this deployment groups a phone number. Numbers are stored unmasked,
+     * so the API needs the mask for the same reason the browser does: a staff
+     * notification has to be readable by whoever it wakes up.
+     */
+    phoneInput: z
+      .object({
+        countryCode: z.string(),
+        mask: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
   })
   .passthrough();
 
@@ -52,6 +65,17 @@ export function loadApiDeploymentConfig(): ApiDeploymentConfig {
 /** Test seam: drops the memoized config so a spec can load a different file. */
 export function resetApiDeploymentConfig(): void {
   cached = undefined;
+}
+
+/**
+ * The deployment's phone grouping, for the mails that quote a number back at
+ * staff. Injected rather than read where it is used, so a spec can hand over a
+ * mask without a config file — the same shape as COMPANY_ID_RULE below.
+ */
+export const PHONE_INPUT = 'PHONE_INPUT';
+
+export function loadPhoneInput(): PhoneConfig | undefined {
+  return loadApiDeploymentConfig().phoneInput;
 }
 
 /**

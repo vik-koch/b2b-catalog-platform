@@ -3,6 +3,8 @@ import { JwtModule } from '@nestjs/jwt';
 import {
   COMPANY_ID_RULE,
   loadCompanyIdRule,
+  loadPhoneInput,
+  PHONE_INPUT,
 } from '../config/deployment-config';
 import { env } from '../env';
 import { MailModule } from '../mail/mail.module';
@@ -57,6 +59,8 @@ function jwtSecret(): string {
     // The deployment's company-number format, compiled once at boot: a bad
     // pattern fails the startup rather than every registration.
     { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
+    // The grouping the staff notification puts back on a stored number.
+    { provide: PHONE_INPUT, useFactory: loadPhoneInput },
     PasswordService,
     PasswordTokenService,
     PasswordPolicy,

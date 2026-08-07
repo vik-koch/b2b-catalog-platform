@@ -23,7 +23,7 @@ const stored: AccountProfile = {
   // Stored canonically: the country code the form shows as a prefix, then the
   // national part it owns, grouped by the deployment's own mask — which is
   // also what makes it *complete*, and so saveable without being retyped.
-  phone: `${config.phoneInput?.countryCode} (401) 234-5678`,
+  phone: `${config.phoneInput?.countryCode}4012345678`,
   customerType: 'company',
   companyRegistrationId: '12345678',
   createdAt: '2026-02-01T10:00:00.000Z',

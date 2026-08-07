@@ -97,15 +97,23 @@ type Status = 'checking' | 'ready' | 'expired' | 'submitting' | 'done';
                 aria-required="true"
                 appInput
                 class="w-full"
+                aria-describedby="newPassword-hint"
                 [attr.aria-invalid]="isInvalid('newPassword') || null"
               />
+              <!-- The length rule is stated up front, as on the change-password
+                   form: it is the same sentence before and after the refusal,
+                   and only its colour changes. -->
               @if (isInvalid('newPassword')) {
-                <p class="mt-1 text-sm text-red-600">
+                <p id="newPassword-hint" class="mt-1 text-sm text-red-600">
                   {{
                     form.controls.newPassword.hasError('required')
                       ? validation.newPasswordRequired
                       : tooShort
                   }}
+                </p>
+              } @else {
+                <p id="newPassword-hint" class="mt-1 text-sm text-muted">
+                  {{ tooShort }}
                 </p>
               }
               <button
