@@ -1,6 +1,7 @@
 import { Client } from 'pg';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { pageSeeds } from './data';
+import { seedAccounts } from './account-seed';
 import { seedCatalog } from './catalog-seed';
 
 /**
@@ -29,6 +30,8 @@ export async function seedDatabase(
 ): Promise<void> {
   await seedPages(client);
   await seedCatalog(client, mediaRoot);
+  // Last: the wholesale price list needs the products it prices to exist.
+  await seedAccounts(client);
 }
 
 /**
