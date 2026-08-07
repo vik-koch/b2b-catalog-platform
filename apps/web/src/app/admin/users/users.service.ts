@@ -4,19 +4,45 @@ import {
   ListUsersQuery,
   StaffUser,
   UpdateUserRequest,
+  UserErrorCode,
+  UserForbiddenCode,
   usersContract,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../../core/api-client';
 
 /**
- * The outcome of a row action: the updated account, or a message the server
- * refused with that is worth showing verbatim — an approval that was already
- * done, or a role change the server would not make (the last admin, or your own
- * demotion). Only the unexpected throws.
+ * The refusals a screen renders. The account codes, plus the two a manager is
+ * refused by name — those reach a form (next to the field that was refused),
+ * where the guards' own `insufficient-role` reaches a redirect instead and so
+ * is left to throw like any other unexpected answer.
+ */
+export type UserActionError =
+  | UserErrorCode
+  | 'role-change-admin-only'
+  | 'staff-create-admin-only';
+
+/**
+ * The outcome of a row action: the updated account, or the code the server
+ * refused with — an approval that was already done, or a role change it would
+ * not make (the last admin, or your own demotion). The wording for each code is
+ * the admin text's. Only the unexpected throws.
  */
 export type UserActionResult =
   | { ok: true; user: StaffUser }
-  | { ok: false; message: string };
+  | { ok: false; code: UserActionError };
+
+/**
+ * A 403 is two different things. The two role rules are answers to what was
+ * asked and belong on the form; `not-authenticated`/`insufficient-role` mean
+ * the session itself is wrong, which is not this screen's problem to phrase.
+ */
+function renderableForbidden(
+  code: UserForbiddenCode,
+): code is 'role-change-admin-only' | 'staff-create-admin-only' {
+  return (
+    code === 'role-change-admin-only' || code === 'staff-create-admin-only'
+  );
+}
 
 /**
  * The staff account client — the counterpart to the API's StaffUsersController.
@@ -44,7 +70,7 @@ export class StaffUsersService {
     });
     if (response.status === 200) return { ok: true, user: response.body };
     if (response.status === 404 || response.status === 409) {
-      return { ok: false, message: response.body.message };
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to approve account (status ${response.status})`);
   }
@@ -64,12 +90,11 @@ export class StaffUsersService {
   async update(id: string, body: UpdateUserRequest): Promise<UserActionResult> {
     const response = await this.client.updateUser({ params: { id }, body });
     if (response.status === 200) return { ok: true, user: response.body };
-    if (
-      response.status === 403 ||
-      response.status === 404 ||
-      response.status === 409
-    ) {
-      return { ok: false, message: response.body.message };
+    if (response.status === 404 || response.status === 409) {
+      return { ok: false, code: response.body.code };
+    }
+    if (response.status === 403 && renderableForbidden(response.body.code)) {
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to save the account (status ${response.status})`);
   }
@@ -78,8 +103,9 @@ export class StaffUsersService {
   async create(body: CreateUserRequest): Promise<UserActionResult> {
     const response = await this.client.createUser({ body });
     if (response.status === 201) return { ok: true, user: response.body };
-    if (response.status === 403 || response.status === 409) {
-      return { ok: false, message: response.body.message };
+    if (response.status === 409) return { ok: false, code: response.body.code };
+    if (response.status === 403 && renderableForbidden(response.body.code)) {
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to create the account (status ${response.status})`);
   }
@@ -95,7 +121,7 @@ export class StaffUsersService {
     });
     if (response.status === 200) return { ok: true, user: response.body };
     if (response.status === 404 || response.status === 409) {
-      return { ok: false, message: response.body.message };
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to change the status (status ${response.status})`);
   }
@@ -104,14 +130,14 @@ export class StaffUsersService {
    * chosen — from there it is a password reset, not an invitation. */
   async resendInvitation(
     id: string,
-  ): Promise<{ ok: true } | { ok: false; message: string }> {
+  ): Promise<{ ok: true } | { ok: false; code: UserActionError }> {
     const response = await this.client.resendInvitation({
       params: { id },
       body: {},
     });
     if (response.status === 200) return { ok: true };
     if (response.status === 404 || response.status === 409) {
-      return { ok: false, message: response.body.message };
+      return { ok: false, code: response.body.code };
     }
     throw new Error(
       `Failed to send the invitation (status ${response.status})`,
@@ -122,14 +148,14 @@ export class StaffUsersService {
    * pending (an approved account is anonymized, never deleted). */
   async remove(
     id: string,
-  ): Promise<{ ok: true } | { ok: false; message: string }> {
+  ): Promise<{ ok: true } | { ok: false; code: UserActionError }> {
     const response = await this.client.deleteUser({
       params: { id },
       body: undefined,
     });
     if (response.status === 200) return { ok: true };
     if (response.status === 404 || response.status === 409) {
-      return { ok: false, message: response.body.message };
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to decline account (status ${response.status})`);
   }

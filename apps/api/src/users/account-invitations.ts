@@ -61,9 +61,11 @@ export class AccountInvitations {
    */
   async resend(user: StaffUser): Promise<void> {
     if (user.status !== 'invited') {
-      throw new ConflictException(
-        'Only an account that has not yet chosen a password can be invited again',
-      );
+      throw new ConflictException({
+        code: 'account-not-invited',
+        message:
+          'Only an account that has not yet chosen a password can be invited again',
+      });
     }
     const token = await this.tokens.issue(user.id, INVITE_TTL_MS);
     await this.mail.send(invitationMail(token, this.text, kindFor(user)), {

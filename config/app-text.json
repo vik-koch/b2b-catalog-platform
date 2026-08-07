@@ -209,6 +209,13 @@
       "newPasswordRequired": "Please enter a new password.",
       "newPasswordTooShort": "Please use at least {min} characters.",
       "confirmPasswordMismatch": "The two passwords do not match."
+    },
+    "passwordRejected": {
+      "password-common": "That is one of the most commonly used passwords. Please choose something less predictable.",
+      "password-predictable": "That is too simple a pattern. Please choose something less predictable.",
+      "password-contains-email": "Please choose a password that does not contain your email address.",
+      "password-contains-shop-name": "Please choose a password that does not contain the name of this shop.",
+      "password-unchanged": "Please choose a password different from your current one."
     }
   },
   "home": {

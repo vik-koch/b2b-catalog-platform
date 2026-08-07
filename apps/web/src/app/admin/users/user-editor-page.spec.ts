@@ -354,15 +354,12 @@ describe('UserEditorPage', () => {
     const { el, service, navigateByUrl, press } = await render({
       account: user({ role: 'admin', customerType: null }),
     });
-    service.update.mockResolvedValueOnce({
-      ok: false,
-      message: 'This is the last admin account; promote another one first',
-    });
+    service.update.mockResolvedValueOnce({ ok: false, code: 'last-admin' });
 
     await press(defaultAdminText.common.save);
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      'last admin',
+      defaultAdminText.userList.errors['last-admin'],
     );
     expect(navigateByUrl).not.toHaveBeenCalled();
   });

@@ -171,15 +171,18 @@ export class CategoryDeleteDialog {
     if (!self) return;
     this.deleting.set(true);
     this.error.set(null);
-    const result = await this.admin.deleteCategory(
-      self.id,
-      this.reassignTo() || undefined,
-    );
-    if (result.ok) {
-      this.deleted.emit();
-    } else {
-      this.error.set(result.message || this.text.deleteError);
-      this.deleting.set(false);
+    try {
+      const result = await this.admin.deleteCategory(
+        self.id,
+        this.reassignTo() || undefined,
+      );
+      if (result.ok) return this.deleted.emit();
+      this.error.set(this.common.catalogErrors[result.code]);
+    } catch {
+      // An unexpected status used to reject unhandled, leaving the dialog
+      // spinning on "deleting" with nothing said.
+      this.error.set(this.text.deleteError);
     }
+    this.deleting.set(false);
   }
 }

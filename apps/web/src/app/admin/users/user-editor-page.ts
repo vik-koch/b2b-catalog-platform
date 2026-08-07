@@ -641,7 +641,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     try {
       const result = await this.service.resendInvitation(account.id);
       if (result.ok) this.resent.set(true);
-      else this.error.set(result.message);
+      else this.error.set(this.listText.errors[result.code]);
     } catch {
       this.error.set(this.text.saveError);
     } finally {
@@ -707,7 +707,9 @@ export class UserEditorPage implements UnsavedChangesAware {
       // re-reading it here would only invite the two to disagree.
       if (user && approve) {
         const approved = await this.service.approve(user.id, this.tierId());
-        if (!approved.ok) return this.error.set(approved.message);
+        if (!approved.ok) {
+          return this.error.set(this.listText.errors[approved.code]);
+        }
       }
       if (user) await this.leave();
     } catch {
@@ -728,7 +730,7 @@ export class UserEditorPage implements UnsavedChangesAware {
       ...this.contactFields(),
     });
     if (result.ok) return result.user;
-    this.error.set(result.message);
+    this.error.set(this.listText.errors[result.code]);
     return null;
   }
 
@@ -747,7 +749,7 @@ export class UserEditorPage implements UnsavedChangesAware {
       ...(this.showsRole() ? { role: value.role } : {}),
     });
     if (result.ok) return result.user;
-    this.error.set(result.message);
+    this.error.set(this.listText.errors[result.code]);
     return null;
   }
 

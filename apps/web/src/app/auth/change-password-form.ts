@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   newPasswordSchema,
   PASSWORD_MIN_LENGTH,
+  PasswordRejectionCode,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { zodValidator } from '../core/zod-validator';
@@ -122,6 +123,8 @@ export class ChangePasswordForm {
   private readonly authText = inject(APP_TEXT).auth;
   protected readonly text = this.authText.changePassword;
   protected readonly validation = this.authText.validation;
+  /** One line per policy rule, so the code the API sends is the whole lookup. */
+  private readonly rejected = this.authText.passwordRejected;
 
   /** Emitted after the password was actually changed — the modal closes on it. */
   readonly changed = output<void>();
@@ -137,21 +140,22 @@ export class ChangePasswordForm {
   protected readonly status = signal<
     'idle' | 'submitting' | ChangePasswordResult['result']
   >('idle');
-  /** The policy's own words for a refused new password. */
-  private readonly rejection = signal<string | null>(null);
+  /** Which policy rule refused the new password, when one did. */
+  private readonly rejection = signal<PasswordRejectionCode | null>(null);
 
   /**
    * The message for whichever failure happened. `wrong-current` is about the
-   * field above and has its own wording; a refused *new* password comes back
-   * with the server's explanation, which is the only thing that knows which
-   * rule was broken.
+   * field above and has its own wording; a refused *new* password names the
+   * rule that refused it, and the wording for each rule is the deployment's.
    */
   protected failure(): string | null {
     switch (this.status()) {
       case 'wrong-current':
         return this.text.wrongCurrent;
-      case 'rejected':
-        return this.rejection();
+      case 'rejected': {
+        const code = this.rejection();
+        return code ? this.rejected[code] : this.text.error;
+      }
       case 'error':
         return this.text.error;
       default:
@@ -216,7 +220,7 @@ export class ChangePasswordForm {
     });
     this.status.set(outcome.result);
     if (outcome.result === 'rejected') {
-      this.rejection.set(outcome.message);
+      this.rejection.set(outcome.code);
     }
 
     if (outcome.result === 'ok') {

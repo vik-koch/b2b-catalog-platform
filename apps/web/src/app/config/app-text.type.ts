@@ -366,6 +366,24 @@ export const appTextSchema = z
             confirmPasswordMismatch: z.string(),
           })
           .strict(),
+        /**
+         * What the server refused a password for, one line per rule the API
+         * can answer with. Keyed by the API's own `code` so the lookup is the
+         * code itself — nothing in the browser restates the server's wording,
+         * and a deployment can phrase every refusal in its own voice.
+         *
+         * Both password forms read this: choosing a first password and
+         * changing an existing one hit the same policy.
+         */
+        passwordRejected: z
+          .object({
+            'password-common': z.string(),
+            'password-predictable': z.string(),
+            'password-contains-email': z.string(),
+            'password-contains-shop-name': z.string(),
+            'password-unchanged': z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /** Storefront landing (FR-CAT-01): intro above the category showcase. */

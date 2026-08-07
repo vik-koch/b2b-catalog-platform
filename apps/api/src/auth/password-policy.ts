@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { Injectable } from '@nestjs/common';
+import { PasswordRejectionCode } from '@b2b-catalog-platform/shared';
 import { loadApiDeploymentConfig } from '../config/deployment-config';
 
 /**
@@ -30,13 +31,22 @@ function loadBlocklist(): ReadonlySet<string> {
 }
 
 /**
- * A password the policy refuses, carrying the reason in words the form shows
- * verbatim. Its own type rather than a BadRequestException, because the two
- * endpoints that set passwords answer it differently — and because
- * change-password already has a *different* 400 ("wrong current password") that
- * callers must be able to tell apart.
+ * A password the policy refuses, carrying the rule that refused it. The code is
+ * what the browser shows a sentence for; the message is for the log.
+ *
+ * Its own type rather than a BadRequestException, because the two endpoints
+ * that set passwords answer it differently — and because change-password
+ * already has a *different* 400 ("wrong current password") that callers must be
+ * able to tell apart.
  */
-export class PasswordRejectedError extends Error {}
+export class PasswordRejectedError extends Error {
+  constructor(
+    readonly code: PasswordRejectionCode,
+    message: string,
+  ) {
+    super(message);
+  }
+}
 
 /**
  * Mailbox names that identify a role rather than a person. Refusing every
@@ -119,21 +129,23 @@ export class PasswordPolicy {
   }
 
   /**
-   * Throws with a message the form can show verbatim. Each refusal says what
-   * is wrong rather than restating the rules, so somebody who typed their own
-   * email address is told that, not "invalid password".
+   * Throws with the code of the rule that refused. Each refusal names what is
+   * actually wrong rather than restating the rules, so somebody who typed their
+   * own email address is told that, not "invalid password".
    */
   assertAcceptable(password: string, email: string): void {
     const normalized = normalize(password);
 
     if (this.isCommon(password, normalized)) {
       throw new PasswordRejectedError(
-        'That is one of the most commonly used passwords. Please choose something less predictable.',
+        'password-common',
+        'Password is on the common-password blocklist',
       );
     }
     if (isSequence(normalized) || isRepetition(normalized)) {
       throw new PasswordRejectedError(
-        'That is too simple a pattern. Please choose something less predictable.',
+        'password-predictable',
+        'Password is a sequence or a repetition',
       );
     }
 
@@ -144,12 +156,14 @@ export class PasswordPolicy {
       normalized.includes(localPart)
     ) {
       throw new PasswordRejectedError(
-        'Please choose a password that does not contain your email address.',
+        'password-contains-email',
+        'Password contains the mailbox name of its own account',
       );
     }
     if (this.shopName.length >= 4 && normalized.includes(this.shopName)) {
       throw new PasswordRejectedError(
-        'Please choose a password that does not contain the name of this shop.',
+        'password-contains-shop-name',
+        "Password contains the deployment's own name",
       );
     }
   }

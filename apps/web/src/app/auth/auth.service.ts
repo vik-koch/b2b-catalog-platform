@@ -11,6 +11,7 @@ import {
   AuthUser,
   ChangePasswordRequest,
   LoginRequest,
+  PasswordRejectionCode,
   PasswordTokenPurpose,
   RegisterRequest,
   SetPasswordRequest,
@@ -29,8 +30,8 @@ export type LoginResult = 'ok' | 'invalid' | 'error';
 export type ChangePasswordResult =
   | { result: 'ok' }
   | { result: 'wrong-current' }
-  /** The policy refused the *new* password; `message` says why, in its words. */
-  | { result: 'rejected'; message: string }
+  /** The policy refused the *new* password; the code says which rule did. */
+  | { result: 'rejected'; code: PasswordRejectionCode }
   | { result: 'error' };
 
 /**
@@ -126,12 +127,12 @@ export class AuthService {
   /**
    * Redeem the link. On success the server signs the visitor in, so the local
    * session state comes straight from the response — they are already through.
-   * A rejected password comes back as its own message, because it is the one
-   * failure the visitor can act on by typing something else.
+   * A rejected password comes back with the rule that refused it, because it is
+   * the one failure the visitor can act on by typing something else.
    */
   async setPassword(request: SetPasswordRequest): Promise<{
     result: 'ok' | 'rejected' | 'expired' | 'error';
-    message?: string;
+    code?: PasswordRejectionCode;
   }> {
     try {
       const response = await this.client.setPassword({ body: request });
@@ -140,7 +141,7 @@ export class AuthService {
         return { result: 'ok' };
       }
       if (response.status === 400) {
-        return { result: 'rejected', message: response.body.message };
+        return { result: 'rejected', code: response.body.code };
       }
       return { result: response.status === 404 ? 'expired' : 'error' };
     } catch {
@@ -179,9 +180,10 @@ export class AuthService {
         return { result: 'ok' };
       }
       if (response.status === 400) {
-        return response.body.code === 'rejected'
-          ? { result: 'rejected', message: response.body.message }
-          : { result: 'wrong-current' };
+        const { code } = response.body;
+        return code === 'wrong-current-password'
+          ? { result: 'wrong-current' }
+          : { result: 'rejected', code };
       }
       return { result: 'error' };
     } catch {

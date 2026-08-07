@@ -237,7 +237,7 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
       );
     });
 
-    it('refuses a tier that still has accounts, and reports the count', async () => {
+    it('refuses a tier that still has accounts, and says which guard', async () => {
       const created = await createTier({
         key: keyFor('with-users'),
         label: 'With users',
@@ -249,7 +249,7 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
 
       const res = await del(`/admin/tiers/${created.data.id}`);
       expect(res.status).toBe(409);
-      expect(res.data.message).toContain('1');
+      expect(res.data.code).toBe('tier-has-accounts');
 
       // The list keeps reporting why, so the admin can act on it.
       const list = await get('/admin/tiers');

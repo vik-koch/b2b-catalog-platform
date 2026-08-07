@@ -3,6 +3,7 @@ import {
   DEFAULT_PRICE_LIST_KEY,
   SYNC_CSV_COLUMNS,
   SYNC_MAX_ROWS,
+  SyncFormatCode,
   SyncPriceListKey,
   SyncRow,
   SyncRowError,
@@ -21,7 +22,16 @@ import {
  */
 
 /** The file as a whole is unusable — no header, wrong columns, not CSV. */
-export class SyncFormatError extends Error {}
+export class SyncFormatError extends Error {
+  constructor(
+    readonly code: SyncFormatCode,
+    message: string,
+    /** Names from the admin's own file, for their wording to substitute. */
+    readonly params?: Record<string, string>,
+  ) {
+    super(message);
+  }
+}
 
 export interface ParsedSyncRows {
   rows: SyncRow[];
@@ -61,7 +71,7 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
   // the first header's name.
   const source = text.replace(/^\uFEFF/, '').trim();
   if (!source) {
-    throw new SyncFormatError('The file is empty');
+    throw new SyncFormatError('file-empty', 'The file is empty');
   }
 
   const parsed = Papa.parse<Record<string, string>>(source, {
@@ -75,7 +85,7 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
 
   const headers = (parsed.meta.fields ?? []).map((h) => h);
   if (headers.length === 0) {
-    throw new SyncFormatError('The file has no header row');
+    throw new SyncFormatError('no-header-row', 'The file has no header row');
   }
 
   // Header names are matched case-insensitively, but a *duplicated* column is
@@ -98,30 +108,43 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
       continue;
     }
     if ([...canonical.values()].includes(match)) {
-      throw new SyncFormatError(`Duplicate column "${match}"`);
+      throw new SyncFormatError(
+        'duplicate-column',
+        `Duplicate column "${match}"`,
+        { column: match },
+      );
     }
     canonical.set(header, match);
     if (priceKey) priceKeys.set(match, priceKey);
   }
   if (unknown.length > 0) {
+    const expected = `${[...FIXED_COLUMNS].join(', ')}, ${
+      SYNC_CSV_COLUMNS.price
+    }, ${SYNC_CSV_COLUMNS.pricePrefix}<price list>`;
     throw new SyncFormatError(
-      `Unknown column${unknown.length > 1 ? 's' : ''} ${unknown
-        .map((u) => `"${u}"`)
-        .join(', ')} — expected any of ${[...FIXED_COLUMNS].join(', ')}, ${
-        SYNC_CSV_COLUMNS.price
-      }, ${SYNC_CSV_COLUMNS.pricePrefix}<price list>`,
+      'unknown-columns',
+      `Unknown columns ${unknown.join(', ')} — expected any of ${expected}`,
+      {
+        columns: unknown.map((u) => `"${u}"`).join(', '),
+        count: String(unknown.length),
+        expected,
+      },
     );
   }
   if (![...canonical.values()].includes(SYNC_CSV_COLUMNS.sourceId)) {
     throw new SyncFormatError(
+      'missing-required-column',
       `Missing the required "${SYNC_CSV_COLUMNS.sourceId}" column`,
+      { column: SYNC_CSV_COLUMNS.sourceId },
     );
   }
 
   const data = parsed.data;
   if (data.length > SYNC_MAX_ROWS) {
     throw new SyncFormatError(
+      'too-many-rows',
       `The file has ${data.length} rows; the limit is ${SYNC_MAX_ROWS}`,
+      { rows: String(data.length), limit: String(SYNC_MAX_ROWS) },
     );
   }
 
@@ -144,16 +167,12 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
       errors.push({
         row: rowNumber,
         sourceId: null,
-        message: 'Missing sourceId',
+        code: 'missing-source-id',
       });
       return;
     }
     if (seen.has(sourceId)) {
-      errors.push({
-        row: rowNumber,
-        sourceId,
-        message: 'Duplicate sourceId in this file',
-      });
+      errors.push({ row: rowNumber, sourceId, code: 'duplicate-source-id' });
       return;
     }
     seen.add(sourceId);
@@ -174,9 +193,11 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
       errors.push({
         row: rowNumber,
         sourceId,
-        message: categorySourceId
-          ? `Category "${categorySourceId}" has no ${SYNC_CSV_COLUMNS.categoryName}`
-          : `Category "${categoryName}" has no ${SYNC_CSV_COLUMNS.categorySourceId}`,
+        code: categorySourceId
+          ? 'category-id-without-name'
+          : 'category-name-without-id',
+        // The half that *is* there — the other one is what is missing.
+        params: { category: (categorySourceId || categoryName) as string },
       });
       return;
     }
@@ -186,20 +207,25 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
     }
 
     const prices: Record<SyncPriceListKey, number> = {};
-    let priceError: string | null = null;
+    let priceError: { price: string; column: string } | null = null;
     for (const [column, key] of priceKeys) {
       const raw = value(column);
       if (raw === undefined || raw === '') continue;
       // Minor units, so an integer: the API is currency-agnostic and does no
       // decimal scaling (ADR 0026) — "18.90" is the converter's job to resolve.
       if (!/^\d+$/.test(raw)) {
-        priceError = `Price "${raw}" in column "${column}" is not a whole number of minor units`;
+        priceError = { price: raw, column };
         break;
       }
       prices[key] = Number(raw);
     }
     if (priceError) {
-      errors.push({ row: rowNumber, sourceId, message: priceError });
+      errors.push({
+        row: rowNumber,
+        sourceId,
+        code: 'price-not-an-integer',
+        params: priceError,
+      });
       return;
     }
     if (Object.keys(prices).length > 0) row.prices = prices;

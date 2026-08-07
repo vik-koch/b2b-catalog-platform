@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   adminCatalogContract,
   AdminProduct,
+  CatalogErrorCode,
   AdminProductSort,
   AdminProductState,
   CategoryInput,
@@ -48,7 +49,7 @@ export class AdminCatalogService {
     const response = await this.client.createProduct({ body });
     if (response.status === 201) return { ok: true, product: response.body };
     if (response.status === 409 || response.status === 404) {
-      return { ok: false, message: response.body.message };
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to create product (status ${response.status})`);
   }
@@ -60,7 +61,7 @@ export class AdminCatalogService {
     });
     if (response.status === 200) return { ok: true, product: response.body };
     if (response.status === 409 || response.status === 404) {
-      return { ok: false, message: response.body.message };
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to save product "${slug}" (${response.status})`);
   }
@@ -132,7 +133,7 @@ export class AdminCatalogService {
     });
     if (response.status === 200) return { ok: true };
     if (response.status === 409 || response.status === 404) {
-      return { ok: false, message: response.body.message };
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to delete category "${id}" (${response.status})`);
   }
@@ -153,12 +154,16 @@ export interface ProductGridQuery {
   sort?: AdminProductSort;
 }
 
-/** A create/update outcome: the stored product, or a message to show inline. */
+/**
+ * A create/update outcome: the stored product, or the code the server refused
+ * with. The editor looks the wording up in the admin text — nothing the server
+ * wrote is shown.
+ */
 export type SaveResult =
   | { ok: true; product: AdminProduct }
-  | { ok: false; message: string };
+  | { ok: false; code: CatalogErrorCode };
 
-/** A category delete outcome: done, or blocked with a message to show. */
+/** A category delete outcome: done, or blocked with a code to explain. */
 export type CategoryDeleteResult =
   | { ok: true }
-  | { ok: false; message: string };
+  | { ok: false; code: CatalogErrorCode };

@@ -329,14 +329,14 @@ describe('UserListPage', () => {
     });
     service.remove.mockResolvedValueOnce({
       ok: false,
-      message: 'Only a pending registration can be deleted',
+      code: 'account-not-purgeable',
     });
 
     await rowAction(text.decline);
 
     // No dialog is left to carry it, so the page says so itself.
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      'Only a pending registration',
+      text.errors['account-not-purgeable'],
     );
   });
 
@@ -404,15 +404,12 @@ describe('UserListPage', () => {
     const { el, service, rowAction } = await render({
       users: [user({ id: 'a1', status: 'active' })],
     });
-    service.setActive.mockResolvedValueOnce({
-      ok: false,
-      message: 'This is the last admin account; promote another one first',
-    });
+    service.setActive.mockResolvedValueOnce({ ok: false, code: 'last-admin' });
 
     await rowAction(text.deactivate);
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      'last admin',
+      text.errors['last-admin'],
     );
   });
 });

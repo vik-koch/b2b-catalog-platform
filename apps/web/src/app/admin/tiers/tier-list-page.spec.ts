@@ -160,9 +160,9 @@ describe('TierListPage', () => {
     expect(el.textContent).toContain(text.keyInvalid);
   });
 
-  it("shows the server's message when a key is already taken", async () => {
+  it('shows the deployment\u2019s wording when a key is already taken', async () => {
     const { el, click, type, submit } = await render({
-      create: { ok: false, message: "Tier key 'wholesale' is already in use" },
+      create: { ok: false, code: 'tier-key-taken' },
     });
 
     await click('button.gap-2');
@@ -170,7 +170,7 @@ describe('TierListPage', () => {
     await type('#tier-key', 'wholesale');
     await submit();
 
-    expect(el.textContent).toContain('already in use');
+    expect(el.textContent).toContain(text.errors['tier-key-taken']);
   });
 
   it('edits a tier in place, prefilled with its current values', async () => {

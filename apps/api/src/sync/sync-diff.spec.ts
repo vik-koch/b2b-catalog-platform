@@ -141,9 +141,7 @@ describe('planSync', () => {
       state(),
     );
     expect(priceless.actions.createProducts).toEqual([]);
-    expect(priceless.plan.rowErrors[0].message).toMatch(
-      /needs a name, a price/,
-    );
+    expect(priceless.plan.rowErrors[0].code).toBe('cannot-create-product');
   });
 
   it('matches a category by source id, whatever the file calls it', () => {
@@ -225,9 +223,10 @@ describe('planSync', () => {
     );
 
     expect(actions.createCategories).toEqual([]);
-    expect(plan.rowErrors[0].message).toMatch(
-      /Unknown category "Grinders" \(C-3\)/,
-    );
+    expect(plan.rowErrors[0]).toMatchObject({
+      code: 'unknown-category',
+      params: { name: 'Grinders', key: 'C-3' },
+    });
   });
 
   it('fails the row when the file gives one category id two names', () => {
@@ -252,8 +251,8 @@ describe('planSync', () => {
       {
         row: 2,
         sourceId: 'A-2',
-        message:
-          'Category "C-1" is named both "Beans" and "Green Beans" in this file',
+        code: 'category-name-conflict',
+        params: { key: 'C-1', first: 'Beans', second: 'Green Beans' },
       },
     ]);
     expect(actions.updateCategories).toEqual([{ id: 'cat-1', name: 'Beans' }]);
@@ -391,7 +390,7 @@ describe('planSync', () => {
 
   it('carries parse errors into the plan and counts them', () => {
     const { plan } = planSync([row()], options(), state(), [
-      { row: 4, sourceId: null, message: 'Missing sourceId' },
+      { row: 4, sourceId: null, code: 'missing-source-id' },
     ]);
 
     expect(plan.summary.errors).toBe(1);
@@ -481,11 +480,16 @@ describe('planSync', () => {
         state(),
       );
 
-      // Named, not guessed at: the message lists what would have worked, the
+      // Named, not guessed at: the params list what would have worked, the
       // same treatment an unknown category gets.
-      expect(result.plan.rowErrors[0].message).toContain('"retail"');
-      expect(result.plan.rowErrors[0].message).toContain('"default"');
-      expect(result.plan.rowErrors[0].message).toContain('"wholesale"');
+      expect(result.plan.rowErrors[0]).toMatchObject({
+        code: 'unknown-price-list',
+        params: { key: 'retail' },
+      });
+      expect(result.plan.rowErrors[0].params?.['known']).toContain('"default"');
+      expect(result.plan.rowErrors[0].params?.['known']).toContain(
+        '"wholesale"',
+      );
       expect(result.actions.updateProducts).toEqual([]);
     });
 

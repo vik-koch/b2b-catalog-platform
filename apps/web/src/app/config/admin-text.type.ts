@@ -35,6 +35,28 @@ export const adminTextSchema = z
         reorder: z.string(),
         uploading: z.string(),
         uploadError: z.string(),
+        /**
+         * Every refusal a catalog write can answer with, keyed by the API's own
+         * `code`. Shared rather than per-screen because it genuinely is: the
+         * product editor and the category delete dialog can both be told a slug
+         * is taken or a category is gone, and one copy is how the two stay
+         * saying the same thing.
+         */
+        catalogErrors: z
+          .object({
+            'product-not-found': z.string(),
+            'category-not-found': z.string(),
+            'reassign-target-not-found': z.string(),
+            'category-has-subcategories': z.string(),
+            'category-has-products': z.string(),
+            'category-reassign-to-self': z.string(),
+            'category-cycle': z.string(),
+            'slug-taken': z.string(),
+            'source-id-taken': z.string(),
+            'tier-not-found': z.string(),
+            'slug-or-source-id-taken': z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**
@@ -312,7 +334,27 @@ export const adminTextSchema = z
         changeFile: z.string(),
         preview: z.string(),
         previewing: z.string(),
+        /** Shown alone when the server said nothing usable about why. */
         previewError: z.string(),
+        /**
+         * Why the whole file was refused, keyed by the API's own `code`. The
+         * substitutions name things in the admin's own file — `{column}`,
+         * `{columns}`, `{expected}`, `{rows}`, `{limit}` — and are supplied by
+         * the response, so the sentence around them stays the deployment's.
+         */
+        formatErrors: z
+          .object({
+            'no-file': z.string(),
+            'file-too-large': z.string(),
+            'file-empty': z.string(),
+            'no-header-row': z.string(),
+            'duplicate-column': z.string(),
+            'unknown-columns': z.string(),
+            'missing-required-column': z.string(),
+            'too-many-rows': z.string(),
+            'options-invalid': z.string(),
+          })
+          .strict(),
         /** The diff. `{count}` substituted at render. */
         summaryTitle: z.string(),
         count: z
@@ -339,6 +381,25 @@ export const adminTextSchema = z
         keptHint: z.string(),
         errorsTitle: z.string(),
         errorRow: z.string(),
+        /**
+         * Why a single row was skipped, keyed by the API's own `code`. The
+         * substitutions quote the admin's file back at them — `{category}`,
+         * `{price}`, `{column}`, `{key}`, `{known}`, `{first}`, `{second}`,
+         * `{name}` — and come from the response.
+         */
+        rowErrors: z
+          .object({
+            'missing-source-id': z.string(),
+            'duplicate-source-id': z.string(),
+            'category-id-without-name': z.string(),
+            'category-name-without-id': z.string(),
+            'price-not-an-integer': z.string(),
+            'unknown-price-list': z.string(),
+            'category-name-conflict': z.string(),
+            'unknown-category': z.string(),
+            'cannot-create-product': z.string(),
+          })
+          .strict(),
         truncated: z.string(),
         nothingToApply: z.string(),
         /** Change kinds, used as row badges. */
@@ -357,6 +418,15 @@ export const adminTextSchema = z
         apply: z.string(),
         applying: z.string(),
         applyError: z.string(),
+        /** Why a previewed run could not be applied, keyed by the API's code. */
+        applyErrors: z
+          .object({
+            'run-not-found': z.string(),
+            'run-already-applied': z.string(),
+            'run-failed': z.string(),
+            'run-rows-pruned': z.string(),
+          })
+          .strict(),
         applied: z.string(),
         discard: z.string(),
         /** Run history + the dashboard's last-sync line. */
@@ -418,6 +488,19 @@ export const adminTextSchema = z
         deleteConfirm: z.string(),
         deleteBlocked: z.string(),
         deleteError: z.string(),
+        /**
+         * What the server refused, keyed by its own `code`. Mostly races: the
+         * list checks the same things from the counts it already has, so these
+         * are what somebody else changed in between.
+         */
+        errors: z
+          .object({
+            'tier-not-found': z.string(),
+            'tier-key-taken': z.string(),
+            'tier-has-accounts': z.string(),
+            'tier-has-prices': z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**
@@ -486,6 +569,30 @@ export const adminTextSchema = z
          * things and land on different forms. */
         addCustomer: z.string(),
         addStaff: z.string(),
+        /**
+         * Every refusal the account surface can answer with, keyed by the API's
+         * own `code`. The editor reads these too, like the status and role
+         * labels above: a refused approval says the same thing wherever the
+         * click came from.
+         */
+        errors: z
+          .object({
+            'account-not-found': z.string(),
+            'account-not-pending': z.string(),
+            'account-closed': z.string(),
+            'email-taken': z.string(),
+            'account-not-approved': z.string(),
+            'account-not-disabled': z.string(),
+            'account-not-invited': z.string(),
+            'self-deactivate': z.string(),
+            'self-demote': z.string(),
+            'last-admin': z.string(),
+            'account-not-purgeable': z.string(),
+            /** The two a manager is refused, shown next to the field. */
+            'role-change-admin-only': z.string(),
+            'staff-create-admin-only': z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**

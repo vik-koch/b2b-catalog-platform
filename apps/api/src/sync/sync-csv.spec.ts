@@ -43,13 +43,19 @@ describe('parseSyncCsv', () => {
       'sourceId,categorySourceId,categoryName\nA-1,C-1,\n',
     );
     expect(idOnly.rows).toEqual([]);
-    expect(idOnly.errors[0].message).toMatch(/has no categoryName/);
+    expect(idOnly.errors[0]).toMatchObject({
+      code: 'category-id-without-name',
+      params: { category: 'C-1' },
+    });
 
     const nameOnly = parseSyncCsv(
       'sourceId,categorySourceId,categoryName\nA-1,,Coffee Beans\n',
     );
     expect(nameOnly.rows).toEqual([]);
-    expect(nameOnly.errors[0].message).toMatch(/has no categorySourceId/);
+    expect(nameOnly.errors[0]).toMatchObject({
+      code: 'category-name-without-id',
+      params: { category: 'Coffee Beans' },
+    });
   });
 
   it('refuses a file with an unknown column rather than ignoring it', () => {
@@ -77,8 +83,14 @@ describe('parseSyncCsv', () => {
   it('reports a decimal price as a row error, not a silent rounding', () => {
     const { rows, errors } = parseSyncCsv('sourceId,price\nA-1,18.90\n');
     expect(rows).toEqual([]);
-    expect(errors[0]).toMatchObject({ row: 1, sourceId: 'A-1' });
-    expect(errors[0].message).toMatch(/minor units/);
+    expect(errors[0]).toMatchObject({
+      row: 1,
+      sourceId: 'A-1',
+      code: 'price-not-an-integer',
+      // The canonical column name: a bare `price` header is an alias for the
+      // base list, and the parser has already resolved it.
+      params: { price: '18.90', column: 'price:default' },
+    });
   });
 
   it('reports a missing sourceId and a duplicate one, keeping the good rows', () => {
@@ -88,8 +100,8 @@ describe('parseSyncCsv', () => {
 
     expect(rows.map((r) => r.sourceId)).toEqual(['A-1', 'A-2']);
     expect(errors).toEqual([
-      { row: 2, sourceId: null, message: 'Missing sourceId' },
-      { row: 3, sourceId: 'A-1', message: 'Duplicate sourceId in this file' },
+      { row: 2, sourceId: null, code: 'missing-source-id' },
+      { row: 3, sourceId: 'A-1', code: 'duplicate-source-id' },
     ]);
   });
 
@@ -132,8 +144,12 @@ describe('parseSyncCsv', () => {
         'sourceId,price:wholesale\nA-1,15.00\nA-2,1500\n',
       );
 
-      expect(errors[0]).toMatchObject({ row: 1, sourceId: 'A-1' });
-      expect(errors[0].message).toContain('price:wholesale');
+      expect(errors[0]).toMatchObject({
+        row: 1,
+        sourceId: 'A-1',
+        code: 'price-not-an-integer',
+        params: { column: 'price:wholesale' },
+      });
       // One bad line never fails the whole catalog.
       expect(rows).toEqual([{ sourceId: 'A-2', prices: { wholesale: 1500 } }]);
     });

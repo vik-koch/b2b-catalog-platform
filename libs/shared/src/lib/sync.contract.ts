@@ -1,5 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 import { priceMinorSchema } from './catalog.contract';
 import {
   CATEGORY_NAME_MAX_LENGTH,
@@ -238,6 +239,30 @@ export const syncEmptiedCategorySchema = z
   .object({ slug: z.string(), name: z.string() })
   .strict();
 
+/**
+ * Why one row was skipped. Same discipline as every other refusal: a code the
+ * screen switches on, with `params` naming the things in the admin's own file
+ * that the sentence has to quote back at them.
+ */
+export const SYNC_ROW_ERROR_CODES = [
+  'missing-source-id',
+  /** The same sourceId twice in one file. */
+  'duplicate-source-id',
+  /** `{category}` — one half of the category pair without the other. */
+  'category-id-without-name',
+  'category-name-without-id',
+  /** `{price}` and `{column}` */
+  'price-not-an-integer',
+  /** `{key}` and `{known}` */
+  'unknown-price-list',
+  /** `{key}`, `{first}` and `{second}` — the file names one category twice. */
+  'category-name-conflict',
+  /** `{name}` and `{key}` — and the run does not create categories. */
+  'unknown-category',
+  'cannot-create-product',
+] as const;
+export type SyncRowErrorCode = (typeof SYNC_ROW_ERROR_CODES)[number];
+
 /** A row that could not be applied. The run still previews and commits; these
  * rows are skipped, so one bad line never fails a whole catalog. */
 export const syncRowErrorSchema = z
@@ -245,7 +270,9 @@ export const syncRowErrorSchema = z
     /** 1-based line number in the uploaded file (header excluded). */
     row: z.number().int().positive(),
     sourceId: z.string().nullable(),
-    message: z.string(),
+    code: z.enum(SYNC_ROW_ERROR_CODES),
+    /** Substituted into the deployment's wording; absent where none is needed. */
+    params: z.record(z.string(), z.string()).optional(),
   })
   .strict();
 export type SyncRowError = z.infer<typeof syncRowErrorSchema>;
@@ -315,6 +342,45 @@ export const syncRunSchema = z
   .strict();
 export type SyncRun = z.infer<typeof syncRunSchema>;
 
+/**
+ * Why a whole file was refused before any row was read. The upload is
+ * multipart, so it is not part of the router below — but its refusal shape is
+ * the same as every other one here, and the browser needs it typed.
+ *
+ * These are the one place a code is not the whole story: what an admin needs
+ * to see is *which* column is duplicated in the file on their screen. So the
+ * body carries `params` for the deployment's own sentence to substitute, and
+ * the values are the admin's own data (their column names, their row count) —
+ * never wording of ours.
+ */
+export const SYNC_FORMAT_CODES = [
+  'no-file',
+  'file-too-large',
+  'file-empty',
+  'no-header-row',
+  /** `{column}` */
+  'duplicate-column',
+  /** `{columns}` and `{expected}` */
+  'unknown-columns',
+  /** `{column}` */
+  'missing-required-column',
+  /** `{rows}` and `{limit}` */
+  'too-many-rows',
+  /** The options field the upload form sends alongside; a client bug. */
+  'options-invalid',
+] as const;
+export type SyncFormatCode = (typeof SYNC_FORMAT_CODES)[number];
+
+export const syncFormatErrorSchema = z
+  .object({
+    code: z.enum(SYNC_FORMAT_CODES),
+    message: z.string(),
+    /** Substituted into the deployment's wording; absent where none is needed. */
+    params: z.record(z.string(), z.string()).optional(),
+  })
+  .strict();
+export type SyncFormatErrorBody = z.infer<typeof syncFormatErrorSchema>;
+
 /** What a preview returns: the staged run plus the plan it computed. */
 export const syncPreviewResponseSchema = z
   .object({ run: syncRunSchema, plan: syncPlanSchema })
@@ -331,7 +397,21 @@ export type SyncCommitResponse = z.infer<typeof syncCommitResponseSchema>;
 /** How many runs the history screen lists. */
 export const SYNC_RUNS_PAGE_SIZE = 20;
 
-const messageSchema = z.object({ message: z.string() }).strict();
+/**
+ * Why a previewed run could not be applied. `run-already-applied` and
+ * `run-failed` are separate codes rather than one carrying the status, because
+ * they are separate sentences: one says the work is already done, the other
+ * that it went wrong and the file has to go up again.
+ */
+export const SYNC_COMMIT_CODES = [
+  'run-not-found',
+  'run-already-applied',
+  'run-failed',
+  /** Staged rows pruned; the diff cannot be recomputed, so re-upload. */
+  'run-rows-pruned',
+] as const;
+export type SyncCommitCode = (typeof SYNC_COMMIT_CODES)[number];
+const commitErrorSchema = apiErrorSchema(SYNC_COMMIT_CODES);
 
 /**
  * The JSON half of the sync surface. The preview *upload* is not here: it is
@@ -349,9 +429,9 @@ export const syncContract = c.router(
       body: z.object({}),
       responses: {
         200: syncCommitResponseSchema,
-        404: messageSchema,
+        404: commitErrorSchema,
         // Already committed, failed, or its staged rows were pruned.
-        409: messageSchema,
+        409: commitErrorSchema,
       },
       summary: 'Apply a previewed run in one transaction (admin)',
     },
@@ -363,7 +443,7 @@ export const syncContract = c.router(
         200: z
           .object({ run: syncRunSchema, plan: syncPlanSchema.nullable() })
           .strict(),
-        404: messageSchema,
+        404: commitErrorSchema,
       },
       summary: 'Fetch one run and its plan (admin; plan is null once pruned)',
     },
@@ -385,6 +465,6 @@ export const syncContract = c.router(
     },
   },
   {
-    commonResponses: { 401: messageSchema, 403: messageSchema },
+    commonResponses: { 401: commonAuthErrorSchema, 403: commonAuthErrorSchema },
   },
 );

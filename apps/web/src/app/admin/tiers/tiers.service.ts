@@ -2,15 +2,20 @@ import { Injectable } from '@angular/core';
 import {
   CustomerTier,
   ReorderTiersRequest,
+  TierErrorCode,
   TierInput,
   tiersContract,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../../core/api-client';
 
-/** A save/delete that the server refused for a reason worth showing inline. */
+/**
+ * A save or delete the server refused. The refusal travels as the API's own
+ * code; the list looks its wording up in the admin text, so nothing the server
+ * wrote reaches the screen.
+ */
 export type TierResult =
   | { ok: true; tier: CustomerTier }
-  | { ok: false; message: string };
+  | { ok: false; code: TierErrorCode };
 
 /**
  * The customer-tier admin client. Same discipline as `AdminCatalogService`:
@@ -32,7 +37,7 @@ export class TiersService {
     const response = await this.client.createTier({ body });
     if (response.status === 201) return { ok: true, tier: response.body };
     if (response.status === 409) {
-      return { ok: false, message: response.body.message };
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to create tier (status ${response.status})`);
   }
@@ -41,7 +46,7 @@ export class TiersService {
     const response = await this.client.updateTier({ params: { id }, body });
     if (response.status === 200) return { ok: true, tier: response.body };
     if (response.status === 409 || response.status === 404) {
-      return { ok: false, message: response.body.message };
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to save tier (status ${response.status})`);
   }
@@ -54,19 +59,20 @@ export class TiersService {
   }
 
   /**
-   * The 409 here is the delete guard (accounts or prices still reference the
-   * tier) and carries the count, so its message is worth showing verbatim.
+   * The 409 here is the delete guard: accounts or prices still reference the
+   * tier. The list checks the same thing from the counts it already has, so
+   * reaching this means somebody else changed one in between.
    */
   async remove(
     id: string,
-  ): Promise<{ ok: true } | { ok: false; message: string }> {
+  ): Promise<{ ok: true } | { ok: false; code: TierErrorCode }> {
     const response = await this.client.deleteTier({
       params: { id },
       body: undefined,
     });
     if (response.status === 200) return { ok: true };
     if (response.status === 409 || response.status === 404) {
-      return { ok: false, message: response.body.message };
+      return { ok: false, code: response.body.code };
     }
     throw new Error(`Failed to delete tier (status ${response.status})`);
   }

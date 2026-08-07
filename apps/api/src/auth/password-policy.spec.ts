@@ -54,6 +54,20 @@ describe('PasswordPolicy', () => {
     () =>
       policy.assertAcceptable(password, email);
 
+  /**
+   * The code the policy refused with, or null if it accepted. Asserted instead
+   * of the message: the code is the contract, and the wording the account
+   * holder reads is the deployment's, not this file's.
+   */
+  const codeFor = (password: string, email = 'jane@example.com') => {
+    try {
+      policy.assertAcceptable(password, email);
+      return null;
+    } catch (error) {
+      return (error as PasswordRejectedError).code;
+    }
+  };
+
   it('accepts an ordinary passphrase', () => {
     expect(check('correct horse battery staple')).not.toThrow();
     expect(check('rainy tuesday in hamburg')).not.toThrow();
@@ -71,21 +85,21 @@ describe('PasswordPolicy', () => {
 
   it('refuses the passwords everyone tries first', () => {
     expect(check('password')).toThrow(PasswordRejectedError);
-    expect(check('Qwertzuiop')).toThrow(/commonly used/i);
+    expect(codeFor('Qwertzuiop')).toBe('password-common');
   });
 
   // A blocklist that only matches whole strings stops nobody: the first thing
   // anyone does when refused is add a number to the end.
   it('sees a blocklisted password through the decoration around it', () => {
-    expect(check('password1234')).toThrow(/commonly used/i);
-    expect(check('Passwort.2026')).toThrow(/commonly used/i);
-    expect(check('l-e-t-m-e-i-n-!')).toThrow(/commonly used/i);
+    expect(codeFor('password1234')).toBe('password-common');
+    expect(codeFor('Passwort.2026')).toBe('password-common');
+    expect(codeFor('l-e-t-m-e-i-n-!')).toBe('password-common');
   });
 
   it('refuses straight runs and repetition, however long', () => {
-    expect(check('345678901234')).toThrow(/too simple/i);
-    expect(check('abcdefghijkl')).toThrow(/too simple/i);
-    expect(check('aaaaaaaaaaaa')).toThrow(/too simple/i);
+    expect(codeFor('345678901234')).toBe('password-predictable');
+    expect(codeFor('abcdefghijkl')).toBe('password-predictable');
+    expect(codeFor('aaaaaaaaaaaa')).toBe('password-predictable');
   });
 
   // Separators do not make a pattern less predictable. Which rule catches it —
@@ -104,8 +118,8 @@ describe('PasswordPolicy', () => {
   });
 
   it('refuses a password containing the account address', () => {
-    expect(check('jane-is-here-2026', 'jane@example.com')).toThrow(
-      /email address/i,
+    expect(codeFor('jane-is-here-2026', 'jane@example.com')).toBe(
+      'password-contains-email',
     );
     // A short local part is not distinctive enough to forbid.
     expect(check('jo-is-here-today', 'jo@example.com')).not.toThrow();
@@ -113,6 +127,6 @@ describe('PasswordPolicy', () => {
 
   it('refuses a password containing the shop name', () => {
     // The demo deployment is "Coffee Kontor" (config/deployment.json).
-    expect(check('coffeekontor2026')).toThrow(/name of this shop/i);
+    expect(codeFor('coffeekontor2026')).toBe('password-contains-shop-name');
   });
 });

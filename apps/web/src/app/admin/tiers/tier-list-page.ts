@@ -347,9 +347,9 @@ export class TierListPage {
         this.reset();
         this.tiers.reload();
       } else {
-        // The server's message names the conflicting key; it is more use than
-        // a generic "could not save".
-        this.formError.set(result.message || this.text.saveError);
+        // Which refusal, in the deployment's own words — a duplicate sync key
+        // is worth naming rather than a generic "could not save".
+        this.formError.set(this.text.errors[result.code]);
       }
     } catch {
       this.formError.set(this.text.saveError);
@@ -396,7 +396,10 @@ export class TierListPage {
       if (result.ok) {
         this.tiers.reload();
       } else {
-        this.rowError.set({ id: tier.id, message: result.message });
+        this.rowError.set({
+          id: tier.id,
+          message: this.text.errors[result.code],
+        });
       }
     } catch {
       this.rowError.set({ id: tier.id, message: this.text.deleteError });

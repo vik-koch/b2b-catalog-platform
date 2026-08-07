@@ -171,7 +171,10 @@ describe('Catalog sync (FR-ADM-02)', () => {
     it('refuses a file with no sourceId column', async () => {
       const res = await preview(csvForm('name,price\nBeans,100\n'));
       expect(res.status).toBe(400);
-      expect(res.data.message).toMatch(/sourceId/);
+      expect(res.data).toMatchObject({
+        code: 'missing-required-column',
+        params: { column: 'sourceId' },
+      });
     });
 
     it('refuses a request with no file at all', async () => {
@@ -186,7 +189,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
         }),
       );
       expect(res.status).toBe(400);
-      expect(res.data.message).toMatch(/complete catalog export/);
+      expect(res.data.code).toBe('options-invalid');
     });
   });
 
@@ -243,7 +246,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
 
       const again = await commit(previewed.data.run.id);
       expect(again.status).toBe(409);
-      expect(again.data.message).toMatch(/already applied/);
+      expect(again.data.code).toBe('run-already-applied');
     });
 
     it('404s on an unknown run', async () => {
@@ -479,9 +482,12 @@ describe('Catalog sync (FR-ADM-02)', () => {
       );
 
       expect(applied.errors).toBe(1);
-      expect(plan.rowErrors[0].message).toContain('no-such-list');
-      // The message names the keys that would have worked.
-      expect(plan.rowErrors[0].message).toContain(TIER_KEY);
+      expect(plan.rowErrors[0]).toMatchObject({
+        code: 'unknown-price-list',
+        params: { key: 'no-such-list' },
+      });
+      // The params name the keys that would have worked.
+      expect(plan.rowErrors[0].params?.known).toContain(TIER_KEY);
       expect(await tierPricesOf(sourceId)).toEqual({ [TIER_KEY]: 1400 });
     });
   });

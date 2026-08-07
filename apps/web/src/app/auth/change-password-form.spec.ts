@@ -7,6 +7,7 @@ import { ChangePasswordForm } from './change-password-form';
 
 const text = defaultAppText.auth.changePassword;
 const validation = defaultAppText.auth.validation;
+const rejected = defaultAppText.auth.passwordRejected;
 
 const tooShort = 'x'.repeat(PASSWORD_MIN_LENGTH - 1);
 const longEnough = 'x'.repeat(PASSWORD_MIN_LENGTH);
@@ -184,16 +185,14 @@ describe('ChangePasswordForm', () => {
   it('shows the policy’s reason when the new password is refused', async () => {
     const { el, sync, submit } = await render({
       result: 'rejected',
-      message: 'Please choose a password different from your current one.',
+      code: 'password-unchanged',
     });
 
     fill(el, {});
     submit();
     await sync();
 
-    expect(el.textContent).toContain(
-      'Please choose a password different from your current one.',
-    );
+    expect(el.textContent).toContain(rejected['password-unchanged']);
     expect(el.textContent).not.toContain(text.wrongCurrent);
   });
 

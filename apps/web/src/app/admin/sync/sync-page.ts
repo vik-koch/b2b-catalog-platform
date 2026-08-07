@@ -2,10 +2,12 @@ import { Component, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   SYNC_ALL_FIELDS,
+  SyncFormatErrorBody,
   SyncOptions,
   SyncPlan,
   SyncPreviewResponse,
   SyncProductChange,
+  SyncRowError,
   SyncRun,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
@@ -20,6 +22,21 @@ import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { SyncService } from './sync.service';
 import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
+
+/**
+ * Fills `{placeholders}` in a line of admin text with the names the API sent
+ * back from the admin's own file. The values are their data — a column header,
+ * a price they typed — never wording of ours.
+ */
+function substitute(
+  sentence: string,
+  params: Record<string, string> | undefined,
+): string {
+  return Object.entries(params ?? {}).reduce(
+    (text, [key, value]) => text.replace(`{${key}}`, value),
+    sentence,
+  );
+}
 
 /**
  * Bulk catalog sync (FR-ADM-02) at `/admin/sync`: pick what the file is, upload
@@ -151,9 +168,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
       </div>
 
       @if (previewError(); as message) {
-        <p class="mt-3 text-sm text-red-700" role="alert">
-          {{ text.previewError }} {{ message }}
-        </p>
+        <p class="mt-3 text-sm text-red-700" role="alert">{{ message }}</p>
       }
     </section>
 
@@ -189,7 +204,7 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
             @for (error of plan.rowErrors; track $index) {
               <li>
                 <span class="text-subtle">{{ rowLabel(error.row) }}</span>
-                — {{ error.message }}
+                — {{ rowErrorText(error) }}
               </li>
             }
           </ul>
@@ -323,9 +338,9 @@ import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
           </div>
         }
 
-        @if (applyError()) {
+        @if (applyError(); as message) {
           <p class="mt-3 text-sm text-red-700" role="alert">
-            {{ text.applyError }}
+            {{ message }}
           </p>
         }
       </section>
@@ -394,7 +409,7 @@ export class SyncPage {
   protected readonly previewed = signal<SyncPreviewResponse | null>(null);
   protected readonly previewError = signal<string | null>(null);
   protected readonly applying = signal(false);
-  protected readonly applyError = signal(false);
+  protected readonly applyError = signal<string | null>(null);
   protected readonly appliedRun = signal<SyncRun | null>(null);
   protected readonly confirmation = signal('');
   protected readonly dragging = signal(false);
@@ -474,19 +489,34 @@ export class SyncPage {
     try {
       const result = await this.sync.preview(file, this.options());
       if (result.ok) this.previewed.set(result.preview);
-      else this.previewError.set(result.message);
+      else this.previewError.set(this.formatFailure(result.failure));
     } finally {
       this.previewing.set(false);
     }
   }
 
+  /** The sentence for a skipped row, in this deployment's wording. */
+  protected rowErrorText(error: SyncRowError): string {
+    return substitute(this.text.rowErrors[error.code], error.params);
+  }
+
+  /**
+   * The sentence for a refused file: this deployment's wording for the code,
+   * with the names from the admin's own file substituted into it. A response
+   * the client could not read at all falls back to the generic line.
+   */
+  private formatFailure(failure: SyncFormatErrorBody | null): string {
+    if (!failure) return this.text.previewError;
+    return substitute(this.text.formatErrors[failure.code], failure.params);
+  }
+
   protected async apply(runId: string): Promise<void> {
     this.applying.set(true);
-    this.applyError.set(false);
+    this.applyError.set(null);
     try {
       const result = await this.sync.commit(runId);
       if (!result.ok) {
-        this.applyError.set(true);
+        this.applyError.set(this.text.applyErrors[result.code]);
         return;
       }
       this.appliedRun.set(result.result.run);
@@ -506,7 +536,7 @@ export class SyncPage {
     this.previewed.set(null);
     this.previewError.set(null);
     this.confirmation.set('');
-    this.applyError.set(false);
+    this.applyError.set(null);
   }
 
   // --- Rendering helpers -------------------------------------------------

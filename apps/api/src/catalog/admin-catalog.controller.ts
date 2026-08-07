@@ -48,7 +48,13 @@ export class AdminCatalogController {
         const product = await this.service.getProduct(slug);
         return product
           ? { status: 200 as const, body: product }
-          : { status: 404 as const, body: { message: 'Product not found' } };
+          : {
+              status: 404 as const,
+              body: {
+                code: 'product-not-found' as const,
+                message: 'Product not found',
+              },
+            };
       },
     );
   }

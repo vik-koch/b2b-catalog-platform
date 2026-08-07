@@ -67,7 +67,10 @@ export class AuthService {
   ): Promise<UserRow> {
     const user = await this.users.findById(userId);
     if (!user) {
-      throw new UnauthorizedException('Not authenticated');
+      throw new UnauthorizedException({
+        code: 'not-authenticated',
+        message: 'Not authenticated',
+      });
     }
     const ok = await this.passwords.verify(user.passwordHash, currentPassword);
     if (!ok) {
@@ -78,7 +81,8 @@ export class AuthService {
     // password is exactly what must not be possible.
     if (newPassword === currentPassword) {
       throw new PasswordRejectedError(
-        'Please choose a password different from your current one.',
+        'password-unchanged',
+        'New password is the same as the current one',
       );
     }
     // The same policy the set-a-password link applies. A password is a

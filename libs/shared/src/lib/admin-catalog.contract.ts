@@ -1,5 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 import {
   catalogImageSchema,
   priceMinorSchema,
@@ -299,7 +300,35 @@ export const reorderCategoriesSchema = z
   .strict();
 export type ReorderCategoriesRequest = z.infer<typeof reorderCategoriesSchema>;
 
-const messageSchema = z.object({ message: z.string() });
+/**
+ * Why a catalog write was refused. The slug and source-id conflicts are the
+ * ones an editor acts on directly — the field it names is on screen — and the
+ * category guards are what the delete dialog explains before offering a
+ * reassign target.
+ */
+export const CATALOG_ERROR_CODES = [
+  'product-not-found',
+  'category-not-found',
+  /** The category a delete would move products into is gone. */
+  'reassign-target-not-found',
+  'category-has-subcategories',
+  'category-has-products',
+  'category-reassign-to-self',
+  /** A reparent (single or in a reorder) that would make a category its own ancestor. */
+  'category-cycle',
+  'slug-taken',
+  'source-id-taken',
+  /** A tier price naming a price list that no longer exists. */
+  'tier-not-found',
+  /**
+   * A unique violation that got past the pre-checks — two admins saving the
+   * same slug at once. Which of the two columns collided is not worth a round
+   * trip to find out, so it is one code.
+   */
+  'slug-or-source-id-taken',
+] as const;
+export type CatalogErrorCode = (typeof CATALOG_ERROR_CODES)[number];
+const catalogErrorSchema = apiErrorSchema(CATALOG_ERROR_CODES);
 
 export const adminCatalogContract = c.router(
   {
@@ -328,7 +357,7 @@ export const adminCatalogContract = c.router(
     getProduct: {
       method: 'GET',
       path: '/admin/catalog/products/:slug',
-      responses: { 200: adminProductSchema, 404: messageSchema },
+      responses: { 200: adminProductSchema, 404: catalogErrorSchema },
       summary: 'Get a product in editable form (admin)',
     },
     createProduct: {
@@ -338,9 +367,9 @@ export const adminCatalogContract = c.router(
       responses: {
         201: adminProductSchema,
         // Category not found.
-        404: messageSchema,
+        404: catalogErrorSchema,
         // Duplicate sourceId.
-        409: messageSchema,
+        409: catalogErrorSchema,
       },
       summary: 'Create a product (admin; body sanitized, slug generated)',
     },
@@ -350,8 +379,8 @@ export const adminCatalogContract = c.router(
       body: productInputSchema,
       responses: {
         200: adminProductSchema,
-        404: messageSchema,
-        409: messageSchema,
+        404: catalogErrorSchema,
+        409: catalogErrorSchema,
       },
       summary: 'Replace a product (admin; slug stays fixed)',
     },
@@ -360,7 +389,7 @@ export const adminCatalogContract = c.router(
       path: '/admin/catalog/products/:slug',
       // No body; soft delete only (sets deletedAt).
       body: z.void(),
-      responses: { 200: adminProductSchema, 404: messageSchema },
+      responses: { 200: adminProductSchema, 404: catalogErrorSchema },
       summary: 'Soft-delete a product (admin; reversible via restore)',
     },
     restoreProduct: {
@@ -370,7 +399,7 @@ export const adminCatalogContract = c.router(
       // (cf. auth logout) — a POST body is parsed to `{}`, which `z.void()`
       // would reject.
       body: z.object({}),
-      responses: { 200: adminProductSchema, 404: messageSchema },
+      responses: { 200: adminProductSchema, 404: catalogErrorSchema },
       summary: 'Restore a soft-deleted product (admin)',
     },
     listDeletedProducts: {
@@ -383,7 +412,7 @@ export const adminCatalogContract = c.router(
       // an admin has edit mode on, so the public read path stays untouched.
       responses: {
         200: z.object({ items: z.array(productListItemSchema) }).strict(),
-        404: messageSchema,
+        404: catalogErrorSchema,
       },
       summary: 'List soft-deleted products in a category subtree (admin)',
     },
@@ -401,7 +430,7 @@ export const adminCatalogContract = c.router(
       method: 'POST',
       path: '/admin/catalog/categories',
       body: categoryInputSchema,
-      responses: { 201: adminCategorySchema, 404: messageSchema },
+      responses: { 201: adminCategorySchema, 404: catalogErrorSchema },
       summary: 'Create a category (admin; slug/sourceId generated)',
     },
     updateCategory: {
@@ -409,7 +438,7 @@ export const adminCatalogContract = c.router(
       path: '/admin/catalog/categories/:id',
       pathParams: z.object({ id: z.string().uuid() }),
       body: categoryInputSchema,
-      responses: { 200: adminCategorySchema, 404: messageSchema },
+      responses: { 200: adminCategorySchema, 404: catalogErrorSchema },
       summary: 'Update a category name/overlay (admin)',
     },
     deleteCategory: {
@@ -425,11 +454,11 @@ export const adminCatalogContract = c.router(
       query: z.object({ reassignTo: z.string().uuid().optional() }),
       body: z.void(),
       responses: {
-        200: messageSchema,
+        200: z.object({ message: z.string() }),
         // Category (or the reassign target) not found.
-        404: messageSchema,
+        404: catalogErrorSchema,
         // Blocked: has subcategories, or has products and no `reassignTo`.
-        409: messageSchema,
+        409: catalogErrorSchema,
       },
       summary:
         'Delete a category (admin; optionally reassign its products first)',
@@ -440,7 +469,7 @@ export const adminCatalogContract = c.router(
       body: reorderCategoriesSchema,
       responses: {
         200: z.object({ categories: z.array(adminCategorySchema) }).strict(),
-        404: messageSchema,
+        404: catalogErrorSchema,
       },
       summary: 'Reparent/reorder categories in one transaction (admin)',
     },
@@ -448,6 +477,6 @@ export const adminCatalogContract = c.router(
   {
     // Every admin catalog route can be rejected by the auth guards; declare the
     // shared statuses once rather than on each route.
-    commonResponses: { 401: messageSchema, 403: messageSchema },
+    commonResponses: { 401: commonAuthErrorSchema, 403: commonAuthErrorSchema },
   },
 );
