@@ -148,6 +148,7 @@
       "lastName": "Last name",
       "phone": "Phone",
       "companyId": "Company registration number",
+      "companyIdFormat": "Kind of registration number",
       "submit": "Request an account",
       "submitting": "Sending…",
       "successHeading": "Thank you",

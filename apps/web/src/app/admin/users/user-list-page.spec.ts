@@ -56,6 +56,8 @@ async function render(
     kind?: UserKind;
     role?: 'admin' | 'manager';
     confirmed?: boolean;
+    /** Overrides the demo deployment, for the multi-format cases. */
+    config?: unknown;
   } = {},
 ) {
   const service = {
@@ -83,7 +85,10 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: options.config ?? defaultDeploymentConfig,
+      },
       { provide: AuthService, useValue: auth },
       { provide: ConfirmService, useValue: confirm },
       { provide: StaffUsersService, useValue: service },
@@ -258,17 +263,89 @@ describe('UserListPage', () => {
 
   it('shows company ID for customers and a role filter for staff', async () => {
     const customers = await render({ users: [user()] });
-    // Company ID is a customer column; the role filter (its "All roles" option
-    // is visible text) is not offered where every row is one role.
-    expect(customers.el.textContent).toContain(text.companyId);
+    // Company ID is a customer column — a filter, so its "all" option is what
+    // names it. The role filter is not offered where every row is one role.
+    expect(customers.el.textContent).toContain(text.companyIdFormatAll);
     expect(customers.el.textContent).not.toContain(text.roleAll);
 
     const staff = await render({
       kind: 'staff',
       users: [user({ role: 'manager', customerType: null, tierId: null })],
     });
-    expect(staff.el.textContent).not.toContain(text.companyId);
+    expect(staff.el.textContent).not.toContain(text.companyIdFormatAll);
     expect(staff.el.textContent).toContain(text.roleAll);
+  });
+
+  /**
+   * The registration-number column becomes a filter exactly when there is
+   * something to narrow to — which is the same rule the entry field uses for
+   * its picker: one configured shape is no choice at all.
+   */
+  describe('the kind-of-number filter', () => {
+    const twoFormats = {
+      ...defaultDeploymentConfig,
+      companyIdInput: {
+        formats: [
+          { key: 'sole', label: 'Sole trader', pattern: '^[0-9]{10}$' },
+          { key: 'company', label: 'Company', pattern: '^[0-9]{12}$' },
+        ],
+      },
+    };
+
+    /**
+     * Even one configured shape is worth a filter, because the option no format
+     * describes is always there: the customers with no number at all.
+     */
+    it('offers "no company ID" alongside a single configured shape', async () => {
+      const { el } = await render({ users: [user()] });
+
+      expect(el.textContent).toContain(text.companyIdFormatAll);
+      expect(el.textContent).toContain(text.companyIdFormatNone);
+    });
+
+    it('falls back to a plain heading with no formats configured', async () => {
+      const { el } = await render({
+        users: [user()],
+        config: { ...defaultDeploymentConfig, companyIdInput: undefined },
+      });
+
+      expect(el.textContent).toContain(text.companyId);
+      expect(el.textContent).not.toContain(text.companyIdFormatAll);
+    });
+
+    it('offers each configured shape by its own label', async () => {
+      const { el } = await render({ users: [user()], config: twoFormats });
+
+      expect(el.textContent).toContain(text.companyIdFormatAll);
+      expect(el.textContent).toContain(text.companyIdFormatNone);
+      expect(el.textContent).toContain('Sole trader');
+      expect(el.textContent).toContain('Company');
+    });
+
+    // Server-side, like every other filter here: the URL is the state.
+    it('asks the API for the chosen shape', async () => {
+      const { service, setInput } = await render({
+        users: [user()],
+        config: twoFormats,
+      });
+
+      await setInput('companyIdFormat', 'company');
+
+      expect(service.list).toHaveBeenLastCalledWith(
+        expect.objectContaining({ companyIdFormat: 'company' }),
+      );
+    });
+
+    // Otherwise an empty result reads as "this shop has no customers at all".
+    it('counts as a filter, so an empty result says no matches', async () => {
+      const { el, setInput } = await render({ users: [], config: twoFormats });
+      expect(el.textContent).toContain(text.empty);
+
+      await setInput('companyIdFormat', 'sole');
+
+      expect(el.textContent).toContain(text.noResults);
+      expect(el.textContent).not.toContain(text.empty);
+    });
   });
 
   it('sends a pending row to the editor to be reviewed and approved', async () => {

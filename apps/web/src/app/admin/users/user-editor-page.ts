@@ -16,10 +16,12 @@ import { AuthService } from '../../auth/auth.service';
 import {
   canonicalCompanyId,
   canonicalPhone,
+  companyIdFormatOf,
   companyIdValidators,
   phoneValidators,
   typedCompanyId,
   typedPhone,
+  type CompanyIdFormat,
 } from '../../core/contact-fields';
 import { delayedLoading } from '../../core/delayed-loading';
 import { FieldErrors } from '../../core/form-errors';
@@ -202,6 +204,7 @@ import { SelectField } from '../../ui/select-field';
           @if (isCompany()) {
             <app-company-id-field
               [control]="form.controls.companyRegistrationId"
+              [formatControl]="form.controls.companyIdFormat"
               [label]="text.companyId"
               [text]="companyIdText"
               [invalid]="isInvalid('companyRegistrationId')"
@@ -379,6 +382,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly companyIdText = {
     required: this.text.validation.companyIdRequired,
     format: this.text.validation.companyIdFormat,
+    formatLabel: this.text.companyIdFormat,
   };
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
@@ -423,6 +427,9 @@ export class UserEditorPage implements UnsavedChangesAware {
     lastName: ['', Validators.required],
     phone: ['', phoneValidators(this.phoneInput, false)],
     companyRegistrationId: [''],
+    // Which shape the number is entered in. Never sent — it decides the prefix,
+    // the mask and the rule, and the stored value is the result.
+    companyIdFormat: [this.companyIdInput?.formats[0]?.key ?? ''],
     /** `default` is the base price list; `''` only exists before an approval. */
     tierId: ['default'],
     role: ['manager' as UserRole],
@@ -469,6 +476,13 @@ export class UserEditorPage implements UnsavedChangesAware {
     this.form.controls.customerType.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((type) => this.applyCompanyValidators(type));
+    // A different shape is a different rule, so the validators follow the
+    // picker as well as the account type.
+    this.form.controls.companyIdFormat.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() =>
+        this.applyCompanyValidators(this.form.controls.customerType.value),
+      );
     this.applyCompanyValidators('person');
 
     void this.load();
@@ -507,6 +521,11 @@ export class UserEditorPage implements UnsavedChangesAware {
    * masked fields are entered in. */
   private seed(user: StaffUser): void {
     const type: CustomerType = user.customerType ?? 'person';
+    const storedFormat =
+      companyIdFormatOf(
+        user.companyRegistrationId,
+        this.companyIdInput?.formats,
+      ) ?? this.companyIdInput?.formats[0];
     this.form.patchValue(
       {
         email: user.email,
@@ -514,9 +533,13 @@ export class UserEditorPage implements UnsavedChangesAware {
         firstName: user.firstName ?? '',
         lastName: user.lastName ?? '',
         phone: typedPhone(user.phone, this.phoneInput),
+        // The picker follows the number rather than the other way round: a
+        // stored value says which shape it is in, and one that says none of
+        // them is shown as it is (see CompanyIdField).
+        companyIdFormat: storedFormat?.key ?? '',
         companyRegistrationId: typedCompanyId(
           user.companyRegistrationId,
-          this.companyIdInput,
+          storedFormat,
         ),
         // A pending account has no tier yet and must be given one explicitly.
         tierId: user.status === 'pending' ? '' : (user.tierId ?? 'default'),
@@ -675,7 +698,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     const phone = canonicalPhone(value.phone, this.phoneInput);
     const companyId =
       this.isCustomer() && value.customerType === 'company'
-        ? canonicalCompanyId(value.companyRegistrationId, this.companyIdInput)
+        ? canonicalCompanyId(value.companyRegistrationId, this.chosenFormat())
         : '';
     return {
       ...(phone ? { phone } : {}),
@@ -692,12 +715,18 @@ export class UserEditorPage implements UnsavedChangesAware {
     this.isCompany.set(this.isCustomer() && type === 'company');
     const control = this.form.controls.companyRegistrationId;
     if (this.isCompany()) {
-      control.setValidators(companyIdValidators(this.companyIdInput));
+      control.setValidators(companyIdValidators(this.chosenFormat()));
     } else {
       control.setValidators([]);
       control.setValue('', { emitEvent: false });
     }
     control.updateValueAndValidity({ emitEvent: false });
+  }
+
+  /** The shape the number is being entered in. */
+  private chosenFormat(): CompanyIdFormat | undefined {
+    const key = this.form.controls.companyIdFormat.value;
+    return this.companyIdInput?.formats.find((format) => format.key === key);
   }
 
   private async leave(): Promise<void> {

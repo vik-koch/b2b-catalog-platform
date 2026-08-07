@@ -274,6 +274,12 @@ export const appTextSchema = z
             phone: z.string(),
             /** Business registration number; its format is deployment config. */
             companyId: z.string(),
+            /**
+             * Names the format picker, for deployments whose jurisdiction
+             * accepts several shapes of registration number. Unused where only
+             * one is configured — the picker is not drawn.
+             */
+            companyIdFormat: z.string(),
             privacyConsent: z.string(),
             privacyLink: z.string(),
             submit: z.string(),

@@ -531,15 +531,20 @@ export const adminTextSchema = z
         type: z.string(),
         companyId: z.string(),
         registered: z.string(),
-        /** Accessible names for the three column-heading filters. */
+        /** Accessible names for the column-heading filters. */
         filterRole: z.string(),
         filterTier: z.string(),
+        /** Only rendered where the deployment configures several formats. */
+        filterCompanyIdFormat: z.string(),
         filterStatus: z.string(),
         roleAll: z.string(),
         roleAdmin: z.string(),
         roleManager: z.string(),
         roleUser: z.string(),
         tierAll: z.string(),
+        companyIdFormatAll: z.string(),
+        /** The accounts carrying no registration number — private persons. */
+        companyIdFormatNone: z.string(),
         statusAll: z.string(),
         statusPending: z.string(),
         statusInvited: z.string(),
@@ -615,6 +620,8 @@ export const adminTextSchema = z
         lastName: z.string(),
         phone: z.string(),
         companyId: z.string(),
+        /** Names the format picker; see the public text of the same name. */
+        companyIdFormat: z.string(),
         customerType: z.string(),
         tier: z.string(),
         tierChoose: z.string(),

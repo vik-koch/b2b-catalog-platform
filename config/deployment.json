@@ -39,9 +39,15 @@
     "mask": "(###) ###-####"
   },
   "companyIdInput": {
-    "prefix": "DE",
-    "pattern": "^DE[0-9]{9}$",
-    "mask": "#########",
-    "example": "DE123456789"
+    "formats": [
+      {
+        "key": "vat",
+        "label": "VAT number",
+        "pattern": "^DE[0-9]{9}$",
+        "prefix": "DE",
+        "mask": "#########",
+        "example": "DE123456789"
+      }
+    ]
   }
 }

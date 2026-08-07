@@ -1,4 +1,8 @@
-import { PhoneConfig } from '@b2b-catalog-platform/shared';
+import {
+  CompanyIdFormat,
+  companyIdInputSchema,
+  PhoneConfig,
+} from '@b2b-catalog-platform/shared';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { z } from 'zod';
 
@@ -20,18 +24,13 @@ export const apiDeploymentConfigSchema = z
       // belong to the web app, and a key added there must not fail the API.
       .passthrough(),
     /**
-     * The company registration number's format. Jurisdiction-specific, so it
-     * lives here rather than in the shared contract, and the API applies it as
-     * well as the browser — a rule enforced only client-side is not a rule.
+     * The shapes a company registration number may take. Jurisdiction-specific,
+     * so it lives here rather than in the shared contract, and the API applies
+     * them as well as the browser — a rule enforced only client-side is not a
+     * rule. The schema is the shared one, so the two apps cannot drift about
+     * what a format is or which ones are coherent.
      */
-    companyIdInput: z
-      .object({
-        pattern: z.string(),
-        mask: z.string().optional(),
-        example: z.string().optional(),
-      })
-      .passthrough()
-      .optional(),
+    companyIdInput: companyIdInputSchema.optional(),
     /**
      * How this deployment groups a phone number. Numbers are stored unmasked,
      * so the API needs the mask for the same reason the browser does: a staff
@@ -79,18 +78,32 @@ export function loadPhoneInput(): PhoneConfig | undefined {
 }
 
 /**
- * Validates a company registration number against the deployment's own pattern.
- * A deployment that configures no pattern gets no format rule — the contract's
+ * Validates a company registration number against the deployment's own formats.
+ * **Any** of them is enough — that is what several accepted shapes means — and
+ * the API takes no interest in which one the browser's picker was set to: the
+ * picker is an entry aid, the patterns are the rule.
+ *
+ * A deployment that configures no formats gets no format rule; the contract's
  * envelope (present, trimmed, length-capped, alphanumeric) still applies.
  *
- * The pattern comes from a file the deployment owner wrote, so it is trusted —
- * but it is still compiled at runtime against user input, so it must be
- * anchored and short. An unanchored or oversized pattern is a configuration
- * error and fails the boot rather than being silently ignored.
+ * Patterns come from a file the deployment owner wrote, so they are trusted —
+ * but they are still compiled at runtime against user input, so each must be
+ * anchored and short. That is checked when the config is parsed, so a bad one
+ * fails the boot rather than being silently ignored here.
  */
 export const COMPANY_ID_RULE = 'COMPANY_ID_RULE';
 
 export type CompanyIdRule = (value: string) => boolean;
+
+/**
+ * The formats themselves, for the one caller that needs to tell them apart
+ * rather than just accept or refuse: the account list's "which shape" filter.
+ */
+export const COMPANY_ID_FORMATS = 'COMPANY_ID_FORMATS';
+
+export function loadCompanyIdFormats(): readonly CompanyIdFormat[] {
+  return loadApiDeploymentConfig().companyIdInput?.formats ?? [];
+}
 
 export function loadCompanyIdRule(): CompanyIdRule {
   const configured = loadApiDeploymentConfig().companyIdInput;
@@ -98,16 +111,8 @@ export function loadCompanyIdRule(): CompanyIdRule {
     return () => true;
   }
 
-  const { pattern } = configured;
-  if (pattern.length > 200) {
-    throw new Error('companyIdInput.pattern is too long (max 200 characters)');
-  }
-  if (!pattern.startsWith('^') || !pattern.endsWith('$')) {
-    throw new Error(
-      'companyIdInput.pattern must be anchored with ^ and $ so it matches the whole value',
-    );
-  }
-
-  const regex = new RegExp(pattern);
-  return (value: string) => regex.test(value);
+  const patterns = configured.formats.map(
+    (format) => new RegExp(format.pattern),
+  );
+  return (value: string) => patterns.some((pattern) => pattern.test(value));
 }

@@ -133,13 +133,24 @@ both invites two spellings of one company. It can be added later without
 touching this model.
 
 The number's _format_ is jurisdiction-specific, so it is deployment
-configuration (`companyIdInput.pattern`/`mask`/`example` in `deployment.json`),
-never the shared contract — which enforces only the envelope: required exactly
-when the type is `company`, trimmed, length-capped. The value is stored
-unmasked, so it stays comparable with whatever the shop already has on file
-regardless of how it is displayed, and the deployment's pattern is applied in
-the API as well as in the browser, because a rule enforced only client-side is
-not a rule.
+configuration (`companyIdInput.formats` in `deployment.json`), never the shared
+contract — which enforces only the envelope: required exactly when the type is
+`company`, trimmed, length-capped. The value is stored unmasked, so it stays
+comparable with whatever the shop already has on file regardless of how it is
+displayed, and the deployment's patterns are applied in the API as well as in
+the browser, because a rule enforced only client-side is not a rule.
+
+A jurisdiction may accept **several** shapes — a sole trader's ten digits and a
+registered company's twelve, a domestic number and a VAT number — so `formats`
+is a list, and each entry carries its own pattern, prefix, mask, label and
+example. Those cannot be averaged: a prefix is the affordance for the part the
+visitor never types and stops being fixed the moment two shapes disagree about
+it, and a mask caps entry at its own length, so one mask cannot serve both a
+ten- and a twelve-digit number. The field therefore asks _which shape_ first,
+and the answer decides prefix, mask and rule. Validity server-side is matching
+**any** configured pattern: the picker is an entry aid, the patterns are the
+rule. With one configured format nothing is asked and the field is what it
+always was.
 
 `approvedBy` is a self-referencing FK with `ON DELETE SET NULL`, not a stored
 name: staff accounts are themselves users, and the approver may later be

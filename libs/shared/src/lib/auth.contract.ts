@@ -137,11 +137,13 @@ export type CustomerType = (typeof CUSTOMER_TYPES)[number];
 export const customerTypeSchema = z.enum(CUSTOMER_TYPES);
 
 /**
- * A company's business registration number. The *format* is jurisdiction-
- * specific and therefore deployment configuration (`companyIdInput.pattern` in
- * deployment.json), not something this contract can know — so all it enforces
- * is the envelope. The value travels unmasked; the deployment's own pattern is
- * applied on top, on both sides.
+ * A company's business registration number. The accepted *formats* are
+ * jurisdiction-specific and therefore deployment configuration
+ * (`companyIdInput.formats` in deployment.json) — plural, because a
+ * jurisdiction can take more than one shape — not something this contract can
+ * know, so all it enforces is the envelope. The value travels unmasked; the
+ * deployment's own patterns are applied on top, on both sides, and matching any
+ * one of them is enough.
  */
 export const companyRegistrationIdSchema = z
   .string()
