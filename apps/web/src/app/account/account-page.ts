@@ -3,11 +3,8 @@ import { APP_TEXT } from '../config/app-text';
 import { SignedInAs } from '../auth/signed-in-as';
 
 /**
- * The `user` role's landing page. A stub on purpose: in this iteration the
- * bootstrap admin is the only account that exists (FR-AUTH-07), so nothing can
- * reach it yet. It is here so login has one destination per role from the
- * start, rather than a conditional page that grows a second mode in iteration 4
- * when real user accounts (FR-AUTH-01…06) arrive.
+ * The `user` role's landing page. Still a stub — it exists so login has one
+ * destination per role rather than a conditional page.
  */
 @Component({
   selector: 'app-account-page',

@@ -19,30 +19,25 @@ function toFetchHeaders(headers: HttpHeaders): Headers {
   );
 }
 
-export interface ApiClientOptions {
-  /**
-   * Set for reads whose body depends on who is asking — today the catalog's
-   * tier prices (FR-AUTH-05).
-   *
-   * Such a read is kept out of the hydration transfer cache whenever the
-   * document request carries a session cookie. The SSR tier never forwards
-   * that cookie, so what it would put in the document is the default-price
-   * answer, and the browser would replay it instead of asking the API for the
-   * customer's own — leaving a signed-in visitor on the wrong prices until
-   * they navigated. Skipping the cache costs them one request and gets it
-   * right; a guest's document is unaffected, cache and all.
-   */
-  sessionSensitive?: boolean;
-}
-
-/**
- * Whether the visitor this render is for has a session — the cookie's presence,
- * never its value, which is httpOnly and the API's business. Always false in
- * the browser, where there is no incoming request and nothing to decide.
- */
+/** Whether this render's visitor has a session — the cookie's presence only;
+ * its value is httpOnly and the API's business. False in the browser. */
 function hasSessionCookie(): boolean {
   const cookies = inject(REQUEST)?.headers.get('cookie');
   return !!cookies && new RegExp(`(?:^|;\\s*)${AUTH_COOKIE}=`).test(cookies);
+}
+
+/**
+ * Whether a read whose answer depends on the visitor must be left to the
+ * browser: true when the server is rendering for someone with a session. It
+ * never forwards the cookie, so the only answer it could get is the guest one —
+ * rendering that would paint default prices at a customer. The page is served
+ * in its loading state and the browser, which does send the cookie, fills it in.
+ * Guests and crawlers keep the full server render.
+ *
+ * Call in an injection context; hold the answer, it cannot change for a render.
+ */
+export function deferSessionReads(): boolean {
+  return isPlatformServer(inject(PLATFORM_ID)) && hasSessionCookie();
 }
 
 /**
@@ -56,21 +51,11 @@ function hasSessionCookie(): boolean {
  * `/api` would never match a mapped key and every SSR'd response would be
  * refetched on hydration.
  */
-export function createApiClient<T extends AppRouter>(
-  contract: T,
-  options: ApiClientOptions = {},
-) {
+export function createApiClient<T extends AppRouter>(contract: T) {
   const http = inject(HttpClient);
-  const isServer = isPlatformServer(inject(PLATFORM_ID));
-  const baseUrl = isServer
+  const baseUrl = isPlatformServer(inject(PLATFORM_ID))
     ? requireEnv('API_URL')
     : `${inject(DOCUMENT).location.origin}/api`;
-  // Undefined leaves Angular's default (cache it) in place; only a
-  // session-sensitive read on a server render for a signed-in visitor opts out.
-  const transferCache =
-    isServer && options.sessionSensitive && hasSessionCookie()
-      ? false
-      : undefined;
 
   return initClient(contract, {
     baseUrl,
@@ -82,7 +67,6 @@ export function createApiClient<T extends AppRouter>(
             headers,
             observe: 'response',
             responseType: 'json',
-            transferCache,
           }),
         );
 

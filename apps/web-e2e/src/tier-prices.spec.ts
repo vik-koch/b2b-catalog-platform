@@ -5,12 +5,12 @@ import { join } from 'node:path';
 import { localtestDbClient, workspaceRoot } from './support/localtest';
 
 /**
- * A customer's own prices on a *server-rendered* page (FR-AUTH-05).
+ * A customer's own prices on a cold-loaded page (FR-AUTH-05) — a click from
+ * another page already asked the API with the cookie and was never wrong.
  *
- * The SSR tier never sees the visitor's session, so every document it renders
- * carries the default price list. The browser is what corrects that, and only
- * a real one proves it: a cold load of a catalog URL, not a click from another
- * page, because the two take different paths through the transfer cache.
+ * Asserted twice over, because a locator only sees what the page settles on.
+ * What it *paints first* is in the HTML the server sent, and painting the
+ * default price before correcting it is the failure this spec exists for.
  */
 
 const PASSWORD = 'e2e-tier-price-password';
@@ -23,13 +23,25 @@ const { code, locale } = JSON.parse(
   readFileSync(join(workspaceRoot, 'config/deployment.json'), 'utf8'),
 ).catalog.currency;
 
+const currency = new Intl.NumberFormat(locale, {
+  style: 'currency',
+  currency: code,
+});
+/** The currency's minor-unit exponent — 2 for EUR, 0 for JPY. */
+const DIGITS = currency.resolvedOptions().maximumFractionDigits ?? 2;
+
 function money(priceMinor: number): string {
-  const formatter = new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: code,
-  });
-  const digits = formatter.resolvedOptions().maximumFractionDigits ?? 2;
-  return formatter.format(priceMinor / 10 ** digits);
+  return currency.format(priceMinor / 10 ** DIGITS);
+}
+
+/** The amount as the markup carries it, without the currency symbol: what
+ * separates the two is a non-breaking space whose exact codepoint is the
+ * formatter's business and not this spec's. */
+function amount(priceMinor: number): string {
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: DIGITS,
+    maximumFractionDigits: DIGITS,
+  }).format(priceMinor / 10 ** DIGITS);
 }
 
 // Every worker arranges its own tier and account: the projects (desktop,
@@ -134,9 +146,14 @@ test.describe('tier prices on a server-rendered page', () => {
     await cleanUp(test.info());
   });
 
-  test('shows a guest the default price', async ({ page }) => {
-    await page.goto(`/product/${fixture.slug}`);
+  test('server-renders the default price for a guest', async ({ page }) => {
+    const response = await page.goto(`/product/${fixture.slug}`);
 
+    // In the document itself, not merely on screen once JavaScript has run:
+    // this is the render a crawler indexes and the one everyone else paints
+    // immediately. Deferring it to the browser for *everybody* would make the
+    // customer assertion below pass for the wrong reason.
+    expect(await response!.text()).toContain(amount(fixture.basePriceMinor));
     await expect(page.getByText(money(fixture.basePriceMinor))).toBeVisible();
   });
 
@@ -145,12 +162,16 @@ test.describe('tier prices on a server-rendered page', () => {
   }, testInfo) => {
     await logIn(page, testInfo);
 
-    // A fresh document, so what arrives is the session-blind render.
-    await page.goto(`/product/${fixture.slug}`);
+    // A fresh document — the server render, which cannot know their tier.
+    const response = await page.goto(`/product/${fixture.slug}`);
 
+    // Never painted, not even for a frame: the price this customer must not be
+    // shown is absent from the markup, so the first thing they see is their own
+    // price arriving rather than the default one being taken back.
+    expect(await response!.text()).not.toContain(
+      amount(fixture.basePriceMinor),
+    );
     await expect(page.getByText(money(OVERRIDE_MINOR))).toBeVisible();
-    // The default price must not be left anywhere on the page: a corrected
-    // price beside the one it replaced is worse than either alone.
     await expect(page.getByText(money(fixture.basePriceMinor))).toHaveCount(0);
   });
 
