@@ -76,6 +76,23 @@ interface DetailRow {
         </a>
       </div>
     </section>
+
+    <!-- Last, and quiet: leaving is a real thing to be able to do, but it is
+         nobody's reason for coming here. The consequences live on its own
+         page rather than being crammed in beside the link. -->
+    <section class="mt-10">
+      <h2
+        class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
+      >
+        {{ deleteText.heading }}
+      </h2>
+      <div class="rounded-lg border border-border p-5">
+        <p class="mb-4 text-sm text-muted">{{ deleteText.intro }}</p>
+        <a appButton variant="secondary" routerLink="/account/delete">
+          {{ deleteText.action }}
+        </a>
+      </div>
+    </section>
   `,
 })
 export class AccountPage {
@@ -84,6 +101,7 @@ export class AccountPage {
 
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly accountText = inject(APP_TEXT).auth.myAccount;
+  protected readonly deleteText = inject(APP_TEXT).auth.myAccount.delete;
 
   protected readonly profile = resource({
     loader: () => this.account.getProfile(),

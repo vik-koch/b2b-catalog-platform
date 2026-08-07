@@ -27,6 +27,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'admin/pages/:slug/edit', renderMode: RenderMode.Client },
   { path: 'account', renderMode: RenderMode.Client },
   { path: 'account/edit', renderMode: RenderMode.Client },
+  { path: 'account/delete', renderMode: RenderMode.Client },
   { path: 'change-password', renderMode: RenderMode.Client },
   // Everything else is content, and server-rendered. The per-deployment config
   // and UI text reach the browser the same way in both modes: injected into the

@@ -102,6 +102,27 @@
         "submitting": "Saving…",
         "cancel": "Cancel",
         "error": "Something went wrong saving your details. Please try again."
+      },
+      "delete": {
+        "action": "Delete my account",
+        "heading": "Delete my account",
+        "intro": "This closes your account and removes your personal details from our records. It cannot be undone.",
+        "consequences": [
+          "You will be signed out and will not be able to sign in again.",
+          "Your name, phone number and other details are removed.",
+          "Past orders are kept for our bookkeeping, with your details removed from them.",
+          "You can register again later, but it will be a new account — your earlier orders will not appear in it."
+        ],
+        "password": "Your password",
+        "passwordHint": "Confirm with your password to show this is you.",
+        "submit": "Delete my account",
+        "submitting": "Deleting…",
+        "cancel": "Keep my account",
+        "wrongPassword": "That is not your password.",
+        "lastAdmin": "This is the only administrator account. Another administrator must exist before it can be deleted.",
+        "error": "Something went wrong deleting your account. Please try again.",
+        "doneHeading": "Your account has been deleted",
+        "done": "Your account is closed and your personal details have been removed. We have sent a confirmation to your email address."
       }
     },
     "register": {

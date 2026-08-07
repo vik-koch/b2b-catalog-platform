@@ -25,21 +25,25 @@ const DETAILS = {
 const emailFor = ({ project, workerIndex }: TestInfo) =>
   `e2e-${project.name}-${workerIndex}-account@example.com`;
 
-/** Every account a test makes, torn down even when it fails. Per worker, since
- * each Playwright worker is its own process. */
+/**
+ * Every account a test makes, torn down even when it fails. By **id**, not by
+ * address: a deleted account keeps its row under a tombstoned address, so an
+ * address is not a handle that survives what these tests do. Per worker, since
+ * each Playwright worker is its own process.
+ */
 const created: string[] = [];
 
 async function arrange(testInfo: TestInfo): Promise<string> {
   const email = emailFor(testInfo);
-  created.push(email);
   const client = localtestDbClient();
   await client.connect();
   try {
     await client.query('DELETE FROM users WHERE email = $1', [email]);
     // `status` must be named: it defaults to `pending`, which cannot log in.
-    await client.query(
+    const { rows } = await client.query(
       `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType")
-       VALUES ($1, $2, 'user', 'active', $3, $4, $5, 'person')`,
+       VALUES ($1, $2, 'user', 'active', $3, $4, $5, 'person')
+       RETURNING id`,
       [
         email,
         await hash(PASSWORD),
@@ -48,6 +52,7 @@ async function arrange(testInfo: TestInfo): Promise<string> {
         DETAILS.phone,
       ],
     );
+    created.push(rows[0].id);
   } finally {
     await client.end();
   }
@@ -67,7 +72,7 @@ test.describe('my account', () => {
     const client = localtestDbClient();
     await client.connect();
     try {
-      await client.query('DELETE FROM users WHERE email = ANY($1)', [created]);
+      await client.query('DELETE FROM users WHERE id = ANY($1)', [created]);
     } finally {
       await client.end();
       created.length = 0;
@@ -131,6 +136,56 @@ test.describe('my account', () => {
     // The greeting is built from the session, not from the save's response, so
     // it only follows the new name if /auth/me was re-asked.
     await expect(page.getByText('Hello, Alexa')).toBeVisible();
+  });
+
+  test('deletes the account, and the address can be registered again', async ({
+    page,
+  }, testInfo) => {
+    const email = await arrange(testInfo);
+
+    await logIn(page, email);
+    await expect(page).toHaveURL(/\/account$/);
+    await page.getByRole('link', { name: 'Delete my account' }).click();
+
+    // The consequences are on the page before anything is typed.
+    await expect(
+      page.getByText('your earlier orders will not appear in it'),
+    ).toBeVisible();
+
+    await page.getByLabel('Your password').fill('not-my-password');
+    await page.getByRole('button', { name: 'Delete my account' }).click();
+    await expect(page.getByRole('alert')).toContainText('not your password');
+
+    await page.getByLabel('Your password').fill(PASSWORD);
+    await page.getByRole('button', { name: 'Delete my account' }).click();
+    await expect(
+      page.getByRole('heading', { name: 'Your account has been deleted' }),
+    ).toBeVisible();
+
+    // Signed out for real: the navbar's account link points at /login again,
+    // and the old credentials no longer work.
+    await expect(page.getByRole('link', { name: 'Account' })).toHaveAttribute(
+      'href',
+      '/login',
+    );
+    await logIn(page, email);
+    await expect(page.getByRole('alert')).toHaveText(
+      'Invalid email or password.',
+    );
+
+    // The tombstone gave the address up: the row that held it is gone from
+    // under it, and a new registration is a new account.
+    const client = localtestDbClient();
+    await client.connect();
+    try {
+      const { rows } = await client.query(
+        'SELECT status FROM users WHERE email = $1',
+        [email],
+      );
+      expect(rows).toHaveLength(0);
+    } finally {
+      await client.end();
+    }
   });
 
   // What staff approved the account on is not the account holder's to change.

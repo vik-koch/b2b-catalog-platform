@@ -210,6 +210,12 @@ export const appRoutes: Route[] = [
       import('./account/account-edit-page').then((m) => m.AccountEditPage),
   },
   {
+    path: 'account/delete',
+    canActivate: [requireAuth()],
+    loadComponent: () =>
+      import('./account/account-delete-page').then((m) => m.AccountDeletePage),
+  },
+  {
     path: 'change-password',
     canActivate: [requireAuth()],
     loadComponent: () =>

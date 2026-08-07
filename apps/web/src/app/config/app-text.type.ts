@@ -203,6 +203,34 @@ export const appTextSchema = z
                 error: z.string(),
               })
               .strict(),
+            /**
+             * Deleting your own account (FR-AUTH-06). The copy carries the
+             * honest reading of "delete": the row survives so past orders keep
+             * their history, and registering again is a new account rather
+             * than an undo.
+             */
+            delete: z
+              .object({
+                action: z.string(),
+                heading: z.string(),
+                intro: z.string(),
+                /** What is kept and what goes, in the visitor's own terms. */
+                consequences: z.array(z.string()),
+                password: z.string(),
+                passwordHint: z.string(),
+                submit: z.string(),
+                submitting: z.string(),
+                cancel: z.string(),
+                wrongPassword: z.string(),
+                /** The last admin cannot leave; staff-only, but it must say so
+                 * rather than fail silently. */
+                lastAdmin: z.string(),
+                error: z.string(),
+                /** Shown on the public site once the account is gone. */
+                doneHeading: z.string(),
+                done: z.string(),
+              })
+              .strict(),
           })
           .strict(),
         /**
