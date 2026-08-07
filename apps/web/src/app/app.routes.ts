@@ -48,14 +48,20 @@ export const appRoutes: Route[] = [
   // Session-scoped routes, lazy so the public bundle carries none of them.
   // Admin routes also wait on adminTextGuard: their wording is fetched rather
   // than injected into the document (see config/admin-text.ts).
+  // `layout: 'centered'` is the signed-out treatment: the shell paints a stone
+  // background (see app.ts) and the page draws its form in an AuthCard on top.
+  // These four are the whole of it — every other route is a page of the app,
+  // with content around it that the card would fight.
   {
     path: 'login',
     canActivate: [guestOnly],
+    data: { layout: 'centered' },
     loadComponent: () => import('./auth/login-page').then((m) => m.LoginPage),
   },
   {
     path: 'register',
     canActivate: [guestOnly],
+    data: { layout: 'centered' },
     loadComponent: () =>
       import('./auth/register-page').then((m) => m.RegisterPage),
   },
@@ -64,6 +70,7 @@ export const appRoutes: Route[] = [
     // change-password form, which does not need a mailbox round trip.
     path: 'forgot-password',
     canActivate: [guestOnly],
+    data: { layout: 'centered' },
     loadComponent: () =>
       import('./auth/forgot-password-page').then((m) => m.ForgotPasswordPage),
   },
@@ -71,6 +78,7 @@ export const appRoutes: Route[] = [
     // Reached from an invitation or a reset mail; the link is in the query
     // string, bound to the page's `token` input by withComponentInputBinding.
     path: 'set-password',
+    data: { layout: 'centered' },
     loadComponent: () =>
       import('./auth/set-password-page').then((m) => m.SetPasswordPage),
   },

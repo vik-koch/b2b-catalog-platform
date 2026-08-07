@@ -10,6 +10,7 @@ import { APP_TEXT } from '../config/app-text';
 import { FieldErrors } from '../core/form-errors';
 import { generatePassword, passwordsMatch } from '../core/password';
 import { zodValidator } from '../core/zod-validator';
+import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
@@ -31,9 +32,16 @@ type Status = 'checking' | 'ready' | 'expired' | 'submitting' | 'done';
  */
 @Component({
   selector: 'app-set-password-page',
-  imports: [ReactiveFormsModule, RouterLink, Button, FieldLabel, Input],
+  imports: [
+    AuthCard,
+    ReactiveFormsModule,
+    RouterLink,
+    Button,
+    FieldLabel,
+    Input,
+  ],
   template: `
-    <div class="mx-auto max-w-sm">
+    <app-auth-card>
       @switch (status()) {
         @case ('checking') {
           <p class="text-muted">{{ text.checking }}</p>
@@ -163,7 +171,7 @@ type Status = 'checking' | 'ready' | 'expired' | 'submitting' | 'done';
           </form>
         }
       }
-    </div>
+    </app-auth-card>
   `,
 })
 export class SetPasswordPage implements OnInit {

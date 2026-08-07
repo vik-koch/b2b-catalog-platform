@@ -43,7 +43,7 @@ import { LoadErrorView } from './load-error-view';
       </div>
       @if (content) {
         <div
-          class="prose prose-stone max-w-none"
+          class="prose prose-stone max-w-3xl"
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
       } @else if (canEdit(); as editorText) {

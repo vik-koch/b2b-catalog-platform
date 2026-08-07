@@ -43,7 +43,7 @@ export interface GridFilterOption {
       <select
         [attr.aria-label]="ariaLabel()"
         (change)="onSelect($event)"
-        class="w-full cursor-pointer appearance-none truncate rounded border border-transparent bg-transparent py-1 pr-7 pl-1 font-medium hover:border-border-strong hover:bg-white focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-secondary"
+        class="w-full cursor-pointer appearance-none truncate rounded border border-transparent bg-transparent py-1 pr-7 pl-1 font-medium hover:border-border-strong hover:bg-white"
         [class.text-stone-700]="value()"
       >
         @for (option of options(); track option.value) {

@@ -57,7 +57,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
            are how they get one written. -->
       @if (page(); as content) {
         <div
-          class="prose prose-stone mb-8 max-w-none"
+          class="prose prose-stone mb-8 max-w-3xl"
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
       } @else if (canEdit(); as editorText) {

@@ -49,7 +49,7 @@ type EditTarget = { id: string } | { id: null } | null;
       </button>
     </div>
 
-    <p class="mb-6 max-w-2xl text-sm text-muted">{{ text.intro }}</p>
+    <p class="mb-6 max-w-xl text-sm text-muted">{{ text.intro }}</p>
     @if (reorderError()) {
       <p class="mb-4 text-sm text-red-700" role="alert">
         {{ text.reorderError }}

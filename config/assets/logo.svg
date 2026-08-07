@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40" width="180" height="40">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 40" width="166" height="40">
   <!-- Deployment branding asset: colors are baked in on purpose (an external
        <img> SVG cannot inherit CSS custom properties); keep in sync with the
        theme tokens in styles.css. Websafe serif stack — no font embedding. -->

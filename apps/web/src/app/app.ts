@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 import { CookieConsent } from './consent/cookie-consent';
 import { ForcePasswordChange } from './auth/force-password-change';
@@ -19,12 +21,24 @@ import { EditModeToggle } from './admin/edit-mode-toggle';
   ],
   selector: 'app-root',
   template: `
-    <div class="flex min-h-dvh flex-col bg-surface text-ink">
+    <!-- Stone behind the signed-out screens, so the white card the auth pages
+         draw has something to sit on; the ordinary page background otherwise.
+         Bound rather than toggled with a second class: two background
+         utilities on one element would be decided by stylesheet order. -->
+    <div class="flex min-h-dvh flex-col text-ink" [class]="pageBackground()">
       <app-header />
+      <!-- The wide frame, and one of only two page widths. Anything
+           multi-column — catalog grids, admin tables, dashboards — fills it;
+           a single-column form or reading column takes max-w-xl inside it.
+           Those narrow columns are centered only on the signed-out screens
+           (login, register, password reset), where the page is the whole task;
+           inside the app they stay left, under a left-aligned heading. -->
       <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
         <router-outlet />
       </main>
-      <app-footer />
+      <!-- No top border where the page behind it is already stone: the line
+           would divide two areas of the same colour. -->
+      <app-footer [seamless]="centered()" />
     </div>
     <app-cookie-consent />
     <!-- Renders nothing unless a signed-in account still owes a password
@@ -47,7 +61,37 @@ import { EditModeToggle } from './admin/edit-mode-toggle';
 })
 export class App {
   protected branding = inject(DEPLOYMENT_CONFIG).branding;
+  private readonly router = inject(Router);
+
+  /**
+   * Whether the active route asked for the signed-out treatment. Seeded from
+   * the router's own snapshot rather than waiting for a navigation event, so
+   * the first render already has it — a page that arrived white and turned
+   * stone would flash.
+   */
+  protected readonly centered = signal(this.isCenteredRoute());
+
+  /** Stone behind the auth card, the ordinary page background otherwise. */
+  protected readonly pageBackground = computed(() =>
+    this.centered() ? 'bg-stone-100' : 'bg-surface',
+  );
+
+  private isCenteredRoute(): boolean {
+    let route = this.router.routerState.snapshot.root;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    return route.data['layout'] === 'centered';
+  }
+
   constructor() {
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.centered.set(this.isCenteredRoute()));
+
     // Set the document title from the per-deployment config rather than the
     // baked index.html, so overriding branding needs no rebuild. Runs during
     // SSR too, so the served HTML (and crawlers) get the right title.

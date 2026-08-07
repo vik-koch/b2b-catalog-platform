@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -10,7 +10,11 @@ import { ContactInfo } from './contact-info';
   imports: [RouterLink, RouterLinkActive, Button, ContactInfo],
   selector: 'app-footer',
   template: `
-    <footer class="border-t border-border bg-stone-100">
+    <footer
+      class="bg-stone-100"
+      [class.border-t]="!seamless()"
+      [class.border-border]="!seamless()"
+    >
       <div class="mx-auto w-full max-w-7xl px-4 py-6 text-sm">
         <div
           class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
@@ -63,6 +67,13 @@ import { ContactInfo } from './contact-info';
   `,
 })
 export class Footer {
+  /**
+   * Drops the top border, for the pages whose own background is already the
+   * footer's stone (the signed-out screens). Set by the shell, which is the
+   * only thing that knows which those are.
+   */
+  readonly seamless = input(false);
+
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
   protected readonly text = inject(APP_TEXT);

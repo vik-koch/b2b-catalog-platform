@@ -26,12 +26,7 @@ import { AuthService, ChangePasswordResult } from './auth.service';
   selector: 'app-change-password-form',
   imports: [ReactiveFormsModule, Button, FieldLabel, Input],
   template: `
-    <form
-      [formGroup]="form"
-      (ngSubmit)="submit()"
-      novalidate
-      class="max-w-sm space-y-6"
-    >
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-6">
       <div>
         <label [for]="id('current')" appFieldLabel>
           {{ text.currentPassword }}

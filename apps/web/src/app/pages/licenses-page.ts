@@ -39,7 +39,7 @@ import { LicenseNotice, parseLicenseNotices } from './license-notice';
   imports: [Skeleton],
   template: `
     <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
-    <p class="mb-8 max-w-prose text-muted">{{ text.intro }}</p>
+    <p class="mb-8 max-w-xl text-muted">{{ text.intro }}</p>
 
     @if (notices(); as list) {
       @if (list.length === 0) {

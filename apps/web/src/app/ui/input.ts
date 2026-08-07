@@ -1,23 +1,13 @@
 import { computed, Directive, ElementRef, inject, input } from '@angular/core';
 
 /*
- * Focus is a real outline rather than a border-color change: a 1px border
- * recolor is not a perceivable focus indicator (WCAG 2.4.7 / 1.4.11). An
- * outline needs no ring-offset color, so it reads correctly on the white page
- * and on the stone-100 blocks alike.
- *
- * The width is set explicitly. `outline-secondary` alone only sets the color,
- * and browsers ignore it while the outline style is still the UA's `auto` —
- * the field would keep the default platform ring.
- *
- * The offset is negative so the outline is drawn inside the border box rather
- * than around it: at offset 0 the field visibly grows by the outline's width
- * the moment it is focused. Inset by 1px it lands flush against the inner edge
- * of the border, reading as one thicker brand-colored edge that costs no
- * layout.
+ * Focus is the app-wide outline from styles.css and nothing of its own — not a
+ * border recolor, which at 1px is not a perceivable focus indicator (WCAG
+ * 2.4.7 / 1.4.11), and no inset offset either: a field that ringed itself
+ * differently from the button beside it is the inconsistency this replaced.
  */
 const base =
-  'block rounded-md border border-border-strong bg-white focus:border-secondary focus:outline-2 focus:-outline-offset-1 focus:outline-secondary disabled:cursor-not-allowed disabled:bg-stone-100';
+  'block rounded-md border border-border-strong bg-white disabled:cursor-not-allowed disabled:bg-stone-100';
 
 const sizes = {
   md: 'px-3 py-2',

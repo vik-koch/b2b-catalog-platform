@@ -1,15 +1,14 @@
 import { computed, Directive, input } from '@angular/core';
 
 /*
- * Two things worth knowing about the base:
- * - Tailwind's preflight resets <button> to the default cursor, so
- *   `cursor-pointer` is spelled out to match the <a> uses.
- * - Focus is an outline, not a ring: a ring needs a matching ring-offset color
- *   to look right, and these appear on white, on stone-100 and on the primary
- *   fill. An outline with an offset just shows whatever is behind it.
+ * Tailwind's preflight resets <button> to the default cursor, so
+ * `cursor-pointer` is spelled out to match the <a> uses.
+ *
+ * Focus carries no classes at all: the app's one focus outline is a base rule
+ * in styles.css, so a button looks focused exactly like a link or a field.
  */
 const base =
-  'inline-flex cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary disabled:cursor-not-allowed';
+  'inline-flex cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-colors disabled:cursor-not-allowed';
 
 const sizes = {
   md: 'px-4 py-2',
@@ -33,6 +32,14 @@ const variants = {
   secondary:
     'border border-border-strong text-ink hover:border-accent hover:text-accent active:border-primary active:text-primary',
   danger: 'bg-red-700 text-white hover:bg-red-800 active:bg-red-900',
+  /**
+   * The way *into* a destructive flow — a link that only opens the page
+   * explaining what would be lost. Outlined like secondary so it stays a
+   * navigation, red so it reads as one of these, and filling on hover so the
+   * solid variant above is left to the click that cannot be taken back.
+   */
+  dangerOutline:
+    'border border-red-300 text-red-700 hover:border-red-700 hover:bg-red-700 hover:text-white active:bg-red-900 active:border-red-900',
   /**
    * Chromeless until hovered — for controls that repeat in a row and would be
    * noisy as outlined buttons: pagination, table row actions.

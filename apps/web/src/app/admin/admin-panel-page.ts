@@ -28,66 +28,92 @@ import { BuildInfoService } from './build-info.service';
     </h1>
     <app-signed-in-as />
 
-    <!-- Everything that changes shop content lives in one card, in three tiers:
-         ingest, then the catalog, then the static pages. Admin-only — a
-         manager's panel holds only the accounts card below. -->
+    <!-- Everything that changes shop content lives in one card: the three
+         catalog-side groups side by side (ingest, catalog, pricing), the static
+         pages on a row of their own beneath — they are a different kind of
+         content and there are more of them than fit a third of the card.
+         Admin-only — a manager's panel holds only the accounts card below. -->
     @if (isAdmin()) {
       <section class="mt-10">
+        <!-- Section headings carry a muted glyph for the topic: the panel is a
+             list of unrelated destinations, and the icon is what makes one
+             findable at a glance. Only at this level — one per card. -->
         <h2
-          class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
+          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
         >
+          <app-admin-icon name="package" class="h-4 w-4" />
           {{ panelText.manage }}
         </h2>
-        <div class="divide-y divide-border rounded-lg border border-border">
-          <div class="p-5">
-            <h3 class="mb-3 text-sm font-semibold">{{ panelText.sync }}</h3>
-            <a appButton routerLink="/admin/sync" class="gap-2">
-              <app-admin-icon name="upload" class="h-4 w-4" />
-              {{ syncText.title }}
-            </a>
-            <!-- The audit trail's newest applied run is the last-sync answer;
-               there is no separate setting to keep in step. Until it arrives,
-               hold the line's space rather than showing "never synced" and
-               correcting it a moment later. -->
-            @if (runs.isLoading()) {
-              <div
-                class="mt-3 h-5 w-48 animate-pulse rounded bg-stone-200"
-                aria-hidden="true"
-              ></div>
-            } @else {
-              <p class="mt-3 text-sm text-subtle">{{ lastSync() }}</p>
-            }
+        <div class="rounded-lg border border-border">
+          <!-- Stacked below sm, where three columns would leave each too narrow
+               for its buttons; the divider turns with them. -->
+          <div
+            class="grid divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0"
+          >
+            <div class="p-5">
+              <!-- The status rides on the heading line rather than under the
+                   button: it describes the column, not the action, and up here
+                   it leaves all three columns ending on their button.
+                   Wraps to its own line where the column is too narrow. -->
+              <div class="mb-3 flex flex-wrap items-center gap-2">
+                <h3 class="text-sm font-semibold">{{ panelText.sync }}</h3>
+                <!-- The audit trail's newest applied run is the last-sync
+                     answer; there is no separate setting to keep in step. Until
+                     it arrives, hold the chip's space rather than showing
+                     "never synced" and correcting it a moment later. -->
+                @if (runs.isLoading()) {
+                  <div
+                    class="h-6 w-32 animate-pulse rounded bg-stone-200"
+                    aria-hidden="true"
+                  ></div>
+                } @else {
+                  <p class="rounded bg-stone-100 px-2 py-1 text-xs text-muted">
+                    {{ lastSync() }}
+                  </p>
+                }
+              </div>
+              <a appButton routerLink="/admin/sync" class="gap-2">
+                <app-admin-icon name="upload" class="h-4 w-4" />
+                {{ syncText.title }}
+              </a>
+            </div>
+
+            <div class="p-5">
+              <h3 id="admin-catalog-heading" class="mb-3 text-sm font-semibold">
+                {{ panelText.catalog }}
+              </h3>
+              <ul
+                class="flex flex-wrap gap-3"
+                aria-labelledby="admin-catalog-heading"
+              >
+                <li>
+                  <a
+                    appButton
+                    variant="secondary"
+                    routerLink="/admin/categories"
+                  >
+                    {{ categoryText.title }}
+                  </a>
+                </li>
+                <li>
+                  <a appButton variant="secondary" routerLink="/admin/products">
+                    {{ productText.title }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-5">
+              <h3 class="mb-3 text-sm font-semibold">
+                {{ panelText.pricing }}
+              </h3>
+              <a appButton variant="secondary" routerLink="/admin/tiers">
+                {{ tierText.title }}
+              </a>
+            </div>
           </div>
 
-          <div class="p-5">
-            <h3 id="admin-catalog-heading" class="mb-3 text-sm font-semibold">
-              {{ panelText.catalog }}
-            </h3>
-            <ul
-              class="flex flex-wrap gap-3"
-              aria-labelledby="admin-catalog-heading"
-            >
-              <li>
-                <a appButton variant="secondary" routerLink="/admin/categories">
-                  {{ categoryText.title }}
-                </a>
-              </li>
-              <li>
-                <a appButton variant="secondary" routerLink="/admin/products">
-                  {{ productText.title }}
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div class="p-5">
-            <h3 class="mb-3 text-sm font-semibold">{{ panelText.pricing }}</h3>
-            <a appButton variant="secondary" routerLink="/admin/tiers">
-              {{ tierText.title }}
-            </a>
-          </div>
-
-          <div class="p-5">
+          <div class="border-t border-border p-5">
             <h3 id="admin-pages-heading" class="mb-3 text-sm font-semibold">
               {{ panelText.pages }}
             </h3>
@@ -123,8 +149,9 @@ import { BuildInfoService } from './build-info.service';
          tiering customers is the whole of a manager's panel. -->
     <section class="mt-10">
       <h2
-        class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
+        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
       >
+        <app-admin-icon name="users" class="h-4 w-4" />
         {{ panelText.accounts }}
       </h2>
       <!-- Two buttons rather than one screen with tabs: they are two
@@ -144,8 +171,9 @@ import { BuildInfoService } from './build-info.service';
     @if (isAdmin()) {
       <section class="mt-10">
         <h2
-          class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
+          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
         >
+          <app-admin-icon name="wrench" class="h-4 w-4" />
           {{ panelText.site }}
         </h2>
         <app-maintenance-toggle />
@@ -155,8 +183,9 @@ import { BuildInfoService } from './build-info.service';
     <!-- The session's own password, in the same place a customer finds it. -->
     <section class="mt-10">
       <h2
-        class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
+        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
       >
+        <app-admin-icon name="lock" class="h-4 w-4" />
         {{ text.securityHeading }}
       </h2>
       <div class="rounded-lg border border-border p-5">
@@ -207,8 +236,10 @@ export class AdminPanelPage {
   protected readonly lastSync = computed(() => {
     const applied = this.runs.value()?.lastApplied;
     if (!applied?.finishedAt) return this.syncText.lastSyncNever;
+    // Numeric and short: it sits in a chip, where a spelled-out month would
+    // wrap. The sync screen itself carries the full timestamps.
     const date = new Intl.DateTimeFormat(this.currency.locale, {
-      dateStyle: 'medium',
+      dateStyle: 'short',
       timeStyle: 'short',
     }).format(new Date(applied.finishedAt));
     return this.syncText.lastSync.replace('{date}', date);

@@ -14,9 +14,13 @@
  * `routerLinkActive` classes: an attribute selector outranks a plain class, so
  * it wins regardless of the order Tailwind emits utilities in — and it is the
  * signal a screen reader announces as "current page".
+ *
+ * `active:` is the press, and it is secondary rather than primary: primary is
+ * where the control already rests, so pressing it would look like nothing
+ * happened, and it is what the current page's own label uses.
  */
 export const NAV_ACTION =
-  'flex flex-col items-center gap-0.5 rounded-lg p-3 text-primary transition-colors hover:text-accent md:px-3 md:py-1.5 aria-[current=page]:stroke-3 aria-[current=page]:font-medium';
+  'flex flex-col items-center gap-0.5 rounded-lg p-3 text-primary transition-colors hover:text-accent active:text-secondary md:px-3 md:py-1.5 aria-[current=page]:stroke-3 aria-[current=page]:font-medium';
 
 /**
  * Label inside a NAV_ACTION control that has a desktop counterpart. `text-stable`

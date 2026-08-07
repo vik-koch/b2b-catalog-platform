@@ -39,8 +39,11 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         {{ text.previewNotice }}
       </p>
       <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ title() }}</h1>
+      <!-- The published width, so the preview shows the line breaks the visitor
+           will get. The editing surface below stays full-width: it is a field,
+           not the page. -->
       <div
-        class="prose prose-stone max-w-none"
+        class="prose prose-stone max-w-3xl"
         [innerHTML]="safeBody(body())"
       ></div>
     } @else {
