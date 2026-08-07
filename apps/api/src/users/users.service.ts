@@ -156,7 +156,10 @@ export class UsersService {
       .update(users)
       .set({
         status: 'anonymized',
-        email: sql`concat('deleted-', ${users.id}::text, '@invalid')`,
+        // `.invalid` is reserved and undeliverable (RFC 2606), and the dotted
+        // form is a *syntactically* valid address — which it has to be, because
+        // the tombstone still goes out over `staffUserSchema` to the staff list.
+        email: sql`concat('deleted-', ${users.id}::text, '@deleted.invalid')`,
         firstName: null,
         lastName: null,
         phone: null,

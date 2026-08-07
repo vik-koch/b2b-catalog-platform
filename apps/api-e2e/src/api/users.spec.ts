@@ -232,6 +232,48 @@ describe('/admin/users', () => {
     });
   });
 
+  describe('filters', () => {
+    /**
+     * Every status the admin grid offers has to come back as a list. Asking for
+     * `anonymized` used to answer 500: the tombstone address anonymization
+     * writes has to survive `staffUserSchema`'s own email rule on the way out,
+     * and a response the contract refuses takes the whole table down rather
+     * than one row.
+     */
+    it('answers with a list for every status a filter can name', async () => {
+      const label = `e2e-users-tomb-${SUFFIX}@example.com`;
+      const id = await seedUser(label, 'user', 'anonymized');
+      // Written the way `UsersService.anonymize` leaves it, because the shape of
+      // that address is exactly what the regression is about.
+      const { rows } = await client.query(
+        `UPDATE users
+         SET email = concat('deleted-', id::text, '@deleted.invalid'),
+             "firstName" = NULL, "lastName" = NULL, phone = NULL,
+             "customerType" = NULL
+         WHERE id = $1 RETURNING email`,
+        [id],
+      );
+      seeded.push(label, rows[0].email);
+
+      const statuses = [
+        'pending',
+        'invited',
+        'active',
+        'disabled',
+        'anonymized',
+      ];
+      const responses = await Promise.all(
+        statuses.map((status) =>
+          request('get', `/admin/users?status=${status}`, adminCookie),
+        ),
+      );
+
+      expect(responses.map((r) => r.status)).toEqual(statuses.map(() => 200));
+      const tombstones = responses[4].data.users;
+      expect(tombstones.some((u: { id: string }) => u.id === id)).toBe(true);
+    });
+  });
+
   describe('approval', () => {
     const invitationTo = (email: string) => `to:"${email}" subject:"ready"`;
 

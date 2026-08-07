@@ -181,7 +181,7 @@ const customers: AccountSeed[] = [
  */
 const anonymized: AccountSeed = {
   id: '00000000-0000-4000-8000-00000000d001',
-  email: 'deleted-00000000-0000-4000-8000-00000000d001@invalid',
+  email: 'deleted-00000000-0000-4000-8000-00000000d001@deleted.invalid',
   role: 'user',
   status: 'anonymized',
   firstName: null,

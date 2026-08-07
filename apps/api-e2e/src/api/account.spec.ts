@@ -296,7 +296,7 @@ describe('/account/profile', () => {
       // orders, which are anonymized rather than deleted.
       expect(rows[0]).toEqual({
         status: 'anonymized',
-        email: `deleted-${leaverId}@invalid`,
+        email: `deleted-${leaverId}@deleted.invalid`,
         firstName: null,
         lastName: null,
         phone: null,

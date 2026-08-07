@@ -27,7 +27,7 @@ function build(options: {
     hasAnotherAdmin: jest.fn(async () => options.anotherAdmin ?? true),
     anonymize: jest.fn(async () => {
       calls.push('anonymize');
-      return row({ status: 'anonymized', email: 'deleted-u1@invalid' });
+      return row({ status: 'anonymized', email: 'deleted-u1@deleted.invalid' });
     }),
   };
   const passwords = {
