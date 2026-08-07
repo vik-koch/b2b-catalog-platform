@@ -5,9 +5,9 @@ import { TiersController } from './tiers.controller';
 import { TiersService } from './tiers.service';
 
 /**
- * Customer tiers (FR-AUTH-05). Its own module rather than part of the catalog:
- * tiers are referenced by users as much as by prices, and phase 3's user
- * administration needs the service without the catalog write surface.
+ * Customer tiers. Its own module rather than part of the catalog: tiers are
+ * referenced by users as much as by prices, and user administration needs the
+ * service without the catalog write surface.
  */
 @Module({
   imports: [AuthModule],

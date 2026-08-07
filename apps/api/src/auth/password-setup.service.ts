@@ -6,9 +6,8 @@ import { PasswordTokenService } from './password-token.service';
 import { PasswordService } from './password.service';
 
 /**
- * Redeeming a set-a-password link — the invitation staff send (FR-AUTH-01/03)
- * and, once phase 4 adds the request form, the reset a visitor asks for
- * (FR-AUTH-02).
+ * Redeeming a set-a-password link — the invitation staff send, and the reset a
+ * visitor asks for.
  *
  * The link is the whole credential: it went to an address only that account's
  * owner reads, it is single-use and it expires. So nothing else is asked for,

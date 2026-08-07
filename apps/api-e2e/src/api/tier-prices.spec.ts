@@ -178,6 +178,25 @@ describe('Tier prices (FR-AUTH-05)', () => {
     expect(res.data.items[0].slug).toBe(pricedSlug);
   });
 
+  it('tells caches that a price-bearing response depends on the session', async () => {
+    const guest = await get(`/catalog/products/${pricedSlug}`);
+    const customer = await get(
+      `/catalog/categories/${categorySlug}/products`,
+      tierCookie,
+    );
+
+    // Vary on both variants: without it a shared cache is free to hand the one
+    // it stored to the other kind of visitor.
+    expect(guest.headers['vary']).toMatch(/cookie/i);
+    expect(customer.headers['vary']).toMatch(/cookie/i);
+
+    // Only the session-shaped one is private. The guest variant stays
+    // ordinarily cacheable, which is what lets the session-blind SSR tier put
+    // it in the document for hydration (see the web app's api-client.ts).
+    expect(customer.headers['cache-control']).toBe('private, no-store');
+    expect(guest.headers['cache-control']).toBeUndefined();
+  });
+
   it('never leaks a tier price into a guest listing', async () => {
     const res = await get(
       `/catalog/categories/${categorySlug}/products?sort=price`,

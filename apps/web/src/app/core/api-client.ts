@@ -4,7 +4,8 @@ import {
   HttpErrorResponse,
   HttpHeaders,
 } from '@angular/common/http';
-import { DOCUMENT, inject, PLATFORM_ID } from '@angular/core';
+import { DOCUMENT, inject, PLATFORM_ID, REQUEST } from '@angular/core';
+import { AUTH_COOKIE } from '@b2b-catalog-platform/shared';
 import { AppRouter, initClient } from '@ts-rest/core';
 import { lastValueFrom } from 'rxjs';
 import { requireEnv } from '../../env';
@@ -16,6 +17,27 @@ function toFetchHeaders(headers: HttpHeaders): Headers {
       .keys()
       .map((key): [string, string] => [key, headers.get(key) ?? '']),
   );
+}
+
+/** Whether this render's visitor has a session — the cookie's presence only;
+ * its value is httpOnly and the API's business. False in the browser. */
+function hasSessionCookie(): boolean {
+  const cookies = inject(REQUEST)?.headers.get('cookie');
+  return !!cookies && new RegExp(`(?:^|;\\s*)${AUTH_COOKIE}=`).test(cookies);
+}
+
+/**
+ * Whether a read whose answer depends on the visitor must be left to the
+ * browser: true when the server is rendering for someone with a session. It
+ * never forwards the cookie, so the only answer it could get is the guest one —
+ * rendering that would paint default prices at a customer. The page is served
+ * in its loading state and the browser, which does send the cookie, fills it in.
+ * Guests and crawlers keep the full server render.
+ *
+ * Call in an injection context; hold the answer, it cannot change for a render.
+ */
+export function deferSessionReads(): boolean {
+  return isPlatformServer(inject(PLATFORM_ID)) && hasSessionCookie();
 }
 
 /**

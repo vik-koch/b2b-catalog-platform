@@ -17,6 +17,7 @@ import { PasswordTokenService } from './password-token.service';
 import { PasswordPolicy } from './password-policy';
 import { PasswordSetupService } from './password-setup.service';
 import { RolesGuard } from './roles.guard';
+import { SessionVaryingInterceptor } from './session-varying.interceptor';
 
 // env.ts requires JWT_SECRET in server mode; this narrows the optional type and
 // fails fast if the module is ever instantiated without it. Called from a
@@ -62,6 +63,7 @@ function jwtSecret(): string {
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
+    SessionVaryingInterceptor,
   ],
   exports: [
     AuthService,
@@ -72,6 +74,7 @@ function jwtSecret(): string {
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
+    SessionVaryingInterceptor,
     JwtModule,
     UsersModule,
   ],

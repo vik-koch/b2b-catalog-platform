@@ -5,11 +5,18 @@ import {
   SearchSort,
   SearchSuggestion,
 } from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../core/api-client';
+import { createApiClient, deferSessionReads } from '../core/api-client';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogService {
   private client = createApiClient(catalogContract);
+  /**
+   * Prices depend on the caller's tier (FR-AUTH-05), so the reads carrying them
+   * answer `undefined` on a server render for a signed-in visitor: the browser
+   * fills the page in with their own prices instead of the default ones being
+   * painted first. Guests and crawlers are unaffected.
+   */
+  private readonly deferPrices = deferSessionReads();
 
   /** The full category tree for the main-page overview (FR-CAT-01/02). */
   async getCategoryTree() {
@@ -21,8 +28,10 @@ export class CatalogService {
   }
 
   /** A page of products in a category (FR-CAT-03/04). `null` when the category
-   * does not exist, so the caller can render a not-found rather than throw. */
+   * does not exist, so the caller can render a not-found rather than throw;
+   * `undefined` when this render defers prices — see `deferPrices`. */
   async getCategoryProducts(slug: string, page: number, sort: ProductSort) {
+    if (this.deferPrices) return undefined;
     const response = await this.client.getCategoryProducts({
       params: { slug },
       query: { page, sort },
@@ -41,6 +50,7 @@ export class CatalogService {
   /** A page of search results, best match first (FR-SEARCH-01…03). An
    * unsearchable query is an empty page, not an error — see the contract. */
   async searchProducts(q: string, page: number, sort: SearchSort) {
+    if (this.deferPrices) return undefined;
     const response = await this.client.searchProducts({
       query: { q, page, sort },
     });
@@ -61,8 +71,10 @@ export class CatalogService {
     return response.status === 200 ? response.body.items : [];
   }
 
-  /** A single product (FR-CAT-05). `null` when it does not exist. */
+  /** A single product (FR-CAT-05). `null` when it does not exist, `undefined`
+   * when this render defers prices — see `deferPrices`. */
   async getProduct(slug: string) {
+    if (this.deferPrices) return undefined;
     const response = await this.client.getProduct({ params: { slug } });
     if (response.status === 200) {
       return response.body;

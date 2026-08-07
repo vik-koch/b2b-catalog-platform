@@ -1,6 +1,7 @@
 # 0031 — Customer tiers are database rows; a product's non-default prices live in a side table
 
-**Status:** accepted · **Date:** 2026-08-04
+**Status:** accepted · **Date:** 2026-08-04 · **Amended:** 2026-08-06 (how a
+customer's prices reach the browser)
 
 ## Context
 
@@ -130,7 +131,7 @@ list, rows for the rest — so any code that writes a price must know which it i
 addressing, and the default tier is the one thing in the pricing UI that has no
 database id.
 
-Tiers are sorted by `customer_tiers.sortOrder`, set by drag-and-drop in the
+Tiers are sorted by `customer_tiers.sortOrder`, set by up/down buttons in the
 admin tier list and applied wherever staff see tiers — the list itself and the
 per-tier price fields in the product editor — so the tier a deployment works
 with most sits first instead of wherever the alphabet puts it.
@@ -162,3 +163,57 @@ with most sits first instead of wherever the alphabet puts it.
 - (⚠) `default` is a reserved price-list key, enforced by a check constraint. A
   deployment cannot name an additional tier `default`, because that key already
   addresses the base list in the import.
+
+## Amendment — 2026-08-06: a signed-in visitor's catalog pages are client-rendered
+
+The decision above said a signed-in customer's own prices "arrive on the client
+refresh that `AuthService` already performs". They do not, and could not:
+`AuthService` refreshes the _session_, never the catalog. What a cold load
+actually did was paint the default price and keep it — Angular's hydration
+transfer cache replays the response the server-rendered document carries, so the
+browser never asked the API at all, and the customer stayed on the default list
+until they navigated.
+
+The fix is not to correct the render but to decline it. **A read whose answer
+depends on the visitor is not made during SSR when the request carries a session
+cookie** (`deferSessionReads()`; `catalog.service.ts` applies it to
+`getCategoryProducts`, `searchProducts` and `getProduct`). The page is served in
+its loading state, and the browser — whose request does carry the cookie — fills
+it in. For a signed-in visitor these pages are therefore client-rendered in
+effect, which is the rule 0009 already applies to session-scoped routes.
+
+- **The server tests for the cookie's presence, never its value.** It cannot
+  read it (httpOnly) and does not need to: presence alone says "this render
+  cannot produce what this visitor should see".
+- **A guest's document is untouched** — full server render, prices in the
+  markup, response transferred for hydration. Guests and crawlers are the
+  overwhelming majority of catalog traffic (rationale 2) and pay nothing.
+- **Rejected: correcting the prices after hydration.** It leaves the default
+  price painted first, and the trigger cannot be "the session was not yet known
+  when the page was built" — route activation already waits on the maintenance
+  guard's request, by which time it is.
+- **Rejected: forwarding the cookie so SSR renders the real prices.** It would
+  make the paint correct, but the browser refetches anyway (Angular will not
+  transfer a response that is `private` or whose request carried a cookie), so
+  it buys a correct first paint only with a hand-rolled TransferState channel
+  on top — and it puts customer-specific prices in a document, which
+  rationale 9 declined.
+- **Cache headers are the endpoint's, not the render's** (`@TierPriced()`):
+  `Vary: Cookie` on every response, so no shared cache can hand the guest
+  variant to a customer or the reverse, and `Cache-Control: private, no-store`
+  only when a session actually shaped the response. Marking the guest variant
+  private would be self-defeating — Angular refuses to transfer-cache anything
+  marked private, and every visitor would pay a second fetch.
+
+Concessions: a signed-in customer waits one API round trip for catalog content
+that a guest gets in the document, and sees the page's loading state first.
+Their cold load of a product that does not exist answers **200**, not 404 —
+`NotFoundView` sets the status while rendering, and nothing renders it server-
+side any more for that visitor. Crawlers, which carry no cookie, still get a
+real 404, so NFR-SEO is unaffected.
+
+Trap for whoever caches storefront HTML (nothing does today): the documents are
+no longer the same for everyone — a guest's carries prices and the hydration
+data, a signed-in visitor's deliberately carries neither. Serving one to the
+other puts a customer straight back on the default prices, so such a cache must
+vary on the session cookie's presence, or keep price-bearing routes out.

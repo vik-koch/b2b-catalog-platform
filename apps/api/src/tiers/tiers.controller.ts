@@ -9,8 +9,8 @@ import { TiersService } from './tiers.service';
 /**
  * Defining the set of price lists is admin-only — a tier is a pricing decision.
  * A manager may *read* the list, because assigning a customer to a tier on
- * approval (phase 3) needs the names and ids; each mutation narrows back to
- * admin on the method.
+ * approval needs the names and ids; each mutation narrows back to admin on the
+ * method.
  */
 @Auth('admin', 'manager')
 @Controller()

@@ -298,7 +298,7 @@ export const users = pgTable('users', {
   // Who registered, as they described themselves. This is what makes approval a
   // decidable act: staff match these against their own customer records, and a
   // pending account has no way to be asked anything. All nullable — staff
-  // accounts are created by other staff and describe nobody, and phase 5's
+  // accounts are created by other staff and describe nobody, and
   // anonymization clears every one of them.
   firstName: varchar('firstName', { length: 200 }),
   lastName: varchar('lastName', { length: 200 }),

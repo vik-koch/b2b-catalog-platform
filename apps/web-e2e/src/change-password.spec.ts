@@ -26,9 +26,10 @@ async function createAccount(
   await client.connect();
   try {
     await client.query('DELETE FROM users WHERE email = $1', [email]);
+    // `status` must be named: it defaults to `pending`, which cannot log in.
     await client.query(
-      `INSERT INTO users (email, "passwordHash", role, "mustChangePassword")
-       VALUES ($1, $2, 'admin', $3)`,
+      `INSERT INTO users (email, "passwordHash", role, status, "mustChangePassword")
+       VALUES ($1, $2, 'admin', 'active', $3)`,
       [email, await hash(password), mustChangePassword],
     );
   } finally {
