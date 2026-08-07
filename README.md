@@ -4,8 +4,9 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** first major release — platform ready for catalog content population; iteration 2
-> (catalog, admin panel, SEO, maintenance mode) implemented.
+> **Status:** `v1.2.0` — customer accounts and tiered pricing are live. Iterations 1–4 are
+> delivered (static pages and infrastructure, catalog + admin panel, search, accounts); cart and
+> order-request checkout are next.
 
 ## Environments
 
@@ -31,21 +32,32 @@ This repo serves two purposes:
 2. **A portfolio piece** — demonstrating requirements engineering, documented architecture
    decisions (ADRs), disciplined AI-assisted development, and phased backward-compatible delivery.
 
-## Key features (planned)
+## Key features
+
+Shipped:
 
 - **Catalog** — category tree, paginated product grids, rich product pages, tokenized/ranked
-  search (Postgres FTS)
-- **Tiered pricing** — customer tiers map to price lists; guests see the default price list
-- **Accounts & roles** — admin / manager / user, registration with manager approval
-- **Ordering** — cart, order-request checkout with manager review, bank transfer or card payment
-- **Admin panel** — product CRUD plus file-based bulk sync (upsert by SKU, diff preview,
+  search with typo tolerance (Postgres FTS + trigram)
+- **Tiered pricing** — customer tiers map to price lists; guests and untiered accounts see the
+  default one
+- **Accounts & roles** — admin / manager / user; registration with staff approval, invitation
+  and reset links, self-service profile, and account deletion that anonymizes rather than erases
+- **Admin panel** — product and category CRUD, static-page editing, customer and staff
+  administration, maintenance mode, plus file-based bulk sync (upsert by SKU, diff preview,
   audit-logged)
-- **Compliance** — configurable legal pages, cookie consent
+- **Compliance** — configurable legal pages, cookie consent, third-party licence attribution
+
+Planned:
+
+- **Ordering** — cart, order-request checkout with manager review
+- **Payment** — bank transfer or card, with manual delivery/pickup coordination
 
 ## Documentation
 
 - [`docs/requirements.md`](docs/requirements.md) — requirements to the project
 - [`docs/roadmap.md`](docs/roadmap.md) — iteration plan mapping requirements to delivery order
+- [`docs/adr/`](docs/adr) — architecture decision records, one per decision, in the order they
+  were taken; each states the alternatives weighed and what the choice costs
 
 ## Workflow
 

@@ -1,6 +1,6 @@
 # 0014 — Assemble email bodies from a per-feature text file now, defer a configurable HTML template
 
-**Status:** accepted · **Date:** 2026-07-22
+**Status:** superseded by 0033 · **Date:** 2026-07-22
 
 ## Context
 
