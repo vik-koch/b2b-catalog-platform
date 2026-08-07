@@ -28,6 +28,7 @@ export type IconName =
   | 'search'
   | 'store'
   | 'user'
+  | 'lock'
   | 'pencil'
   | 'trash-2'
   | 'plus';
@@ -87,6 +88,10 @@ export type IconName =
         @case ('user') {
           <circle cx="12" cy="8" r="5" />
           <path d="M20 21a8 8 0 0 0-16 0" />
+        }
+        @case ('lock') {
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
         }
         @case ('pencil') {
           <path

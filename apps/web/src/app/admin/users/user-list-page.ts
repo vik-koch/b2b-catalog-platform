@@ -209,7 +209,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
                   [defaultSort]="defaultSort"
                 />
               </th>
-              <th class="w-[8%] text-right">
+              <th class="w-[4%] text-right">
                 <span class="sr-only">{{ text.actions }}</span>
               </th>
             </tr>

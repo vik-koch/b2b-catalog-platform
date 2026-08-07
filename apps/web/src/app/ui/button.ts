@@ -34,6 +34,14 @@ const variants = {
     'border border-border-strong text-ink hover:border-accent hover:text-accent active:border-primary active:text-primary',
   danger: 'bg-red-700 text-white hover:bg-red-800 active:bg-red-900',
   /**
+   * The way *into* a destructive flow — a link that only opens the page
+   * explaining what would be lost. Outlined like secondary so it stays a
+   * navigation, red so it reads as one of these, and filling on hover so the
+   * solid variant above is left to the click that cannot be taken back.
+   */
+  dangerOutline:
+    'border border-red-300 text-red-700 hover:border-red-700 hover:bg-red-700 hover:text-white active:bg-red-900 active:border-red-900',
+  /**
    * Chromeless until hovered — for controls that repeat in a row and would be
    * noisy as outlined buttons: pagination, table row actions.
    */

@@ -7,6 +7,7 @@ import { formatPhone } from '../core/contact-fields';
 import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
+import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
 import { AccountService } from './account.service';
 
@@ -27,15 +28,18 @@ interface DetailRow {
  */
 @Component({
   selector: 'app-account-page',
-  imports: [SignedInAs, Skeleton, Button, RouterLink],
+  imports: [SignedInAs, Skeleton, Button, RouterLink, Icon],
   template: `
     <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ text.account }}</h1>
     <app-signed-in-as />
 
+    <!-- Section headings carry a muted glyph for the topic, as the admin panel's
+         do — one per card, at this level only. -->
     <section class="mt-10">
       <h2
-        class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
+        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
       >
+        <app-icon name="user" class="h-4 w-4" />
         {{ accountText.detailsHeading }}
       </h2>
       <div class="rounded-lg border border-border p-5">
@@ -65,33 +69,34 @@ interface DetailRow {
       </div>
     </section>
 
+    <!-- Everything you can do to the account itself, in one card: two rows, not
+         two cards holding one button each. Deleting stays the last row and
+         keeps its own heading — it is a different weight of decision, and the
+         divider is what says so. Its consequences still live on their own page
+         rather than being crammed in beside the link. -->
     <section class="mt-10">
       <h2
-        class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
+        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
       >
+        <app-icon name="lock" class="h-4 w-4" />
         {{ text.securityHeading }}
       </h2>
-      <div class="rounded-lg border border-border p-5">
-        <a appButton variant="secondary" routerLink="/change-password">
-          {{ text.changePassword.heading }}
-        </a>
-      </div>
-    </section>
+      <div class="divide-y divide-border rounded-lg border border-border">
+        <div class="p-5">
+          <a appButton variant="secondary" routerLink="/change-password">
+            {{ text.changePassword.heading }}
+          </a>
+        </div>
 
-    <!-- Last, and quiet: leaving is a real thing to be able to do, but it is
-         nobody's reason for coming here. The consequences live on its own
-         page rather than being crammed in beside the link. -->
-    <section class="mt-10">
-      <h2
-        class="mb-3 text-xs font-semibold tracking-wide text-subtle uppercase"
-      >
-        {{ deleteText.heading }}
-      </h2>
-      <div class="rounded-lg border border-border p-5">
-        <p class="mb-4 text-sm text-muted">{{ deleteText.intro }}</p>
-        <a appButton variant="secondary" routerLink="/account/delete">
-          {{ deleteText.action }}
-        </a>
+        <div class="p-5">
+          <h3 class="mb-2 text-sm font-semibold">{{ deleteText.heading }}</h3>
+          <p class="mb-4 text-sm text-muted">{{ deleteText.intro }}</p>
+          <!-- Outlined, not solid: this only opens the page that explains what
+               would be lost. The solid red belongs to the click that confirms. -->
+          <a appButton variant="dangerOutline" routerLink="/account/delete">
+            {{ deleteText.action }}
+          </a>
+        </div>
       </div>
     </section>
   `,
