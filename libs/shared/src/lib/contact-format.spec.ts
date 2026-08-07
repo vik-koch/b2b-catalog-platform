@@ -13,7 +13,9 @@ const unmasked: PhoneConfig = { countryCode: '+49' };
 describe('applyMask', () => {
   it('groups digits and drops anything past the mask', () => {
     expect(applyMask('4012345678', '(###) ###-####')).toBe('(401) 234-5678');
-    expect(applyMask('40123456789999', '(###) ###-####')).toBe('(401) 234-5678');
+    expect(applyMask('40123456789999', '(###) ###-####')).toBe(
+      '(401) 234-5678',
+    );
   });
 
   it('groups a partial value as far as it goes', () => {
@@ -22,7 +24,9 @@ describe('applyMask', () => {
   });
 
   it('reformats an already-grouped value rather than doubling its separators', () => {
-    expect(applyMask('(401) 234-5678', '(###) ###-####')).toBe('(401) 234-5678');
+    expect(applyMask('(401) 234-5678', '(###) ###-####')).toBe(
+      '(401) 234-5678',
+    );
   });
 
   it('means digits-only when empty, with no length limit', () => {

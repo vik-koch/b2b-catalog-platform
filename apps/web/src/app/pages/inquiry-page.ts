@@ -281,7 +281,9 @@ export class InquiryPage {
     // Completeness applies either way: the chosen channel must be filled in,
     // but a number typed into the *other* field is still going to be dialled,
     // so half of one is no more use there than here.
-    phone.setValidators(phoneValidators(this.phoneInput, preferred === 'phone'));
+    phone.setValidators(
+      phoneValidators(this.phoneInput, preferred === 'phone'),
+    );
     email.setValidators(
       preferred === 'email'
         ? [Validators.required, emailFormat]

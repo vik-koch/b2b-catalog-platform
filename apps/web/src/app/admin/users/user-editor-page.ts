@@ -261,7 +261,12 @@ import { SelectField } from '../../ui/select-field';
             <div>
               <label for="role" appFieldLabel>{{ text.role }}</label>
               <app-select-field class="w-full sm:w-72">
-                <select id="role" formControlName="role" appInput class="w-full">
+                <select
+                  id="role"
+                  formControlName="role"
+                  appInput
+                  class="w-full"
+                >
                   <option value="manager">{{ listText.roleManager }}</option>
                   <option value="admin">{{ listText.roleAdmin }}</option>
                 </select>
