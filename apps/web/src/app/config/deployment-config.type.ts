@@ -1,4 +1,8 @@
-import { PAGE_SLUGS, pageSlugSchema } from '@b2b-catalog-platform/shared';
+import {
+  companyIdInputSchema,
+  PAGE_SLUGS,
+  pageSlugSchema,
+} from '@b2b-catalog-platform/shared';
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
 import { z } from 'zod';
 
@@ -186,32 +190,19 @@ export const deploymentConfigSchema = z
       .optional(),
     /**
      * The business registration number a company gives when it registers
-     * (FR-AUTH-01). Its format is jurisdiction-specific, so it is configured per
-     * deployment rather than encoded in the shared contract: `pattern` is the
-     * rule (applied to the unmasked value, and re-applied server-side), `mask`
-     * formats entry the way `phoneInput.mask` does, and `example` is what the
-     * validation hint shows the visitor.
+     * (FR-AUTH-01). Jurisdiction-specific, so it is deployment config rather
+     * than something the shared contract could encode — and plural, because a
+     * jurisdiction can accept more than one shape (a sole trader's ten digits
+     * and a company's twelve, a domestic number and a VAT number).
+     *
+     * One format means the field looks exactly as it always has. Several means
+     * it leads with a picker, and the chosen format decides the prefix, the
+     * mask and the rule. The full shape, and the checks that keep a format's
+     * prefix/mask/example honest about its own pattern, are in
+     * `companyIdInputSchema` — shared, because the API re-applies the same
+     * rule.
      */
-    companyIdInput: z
-      .object({
-        /**
-         * Fixed leading characters the visitor does not type — a country code
-         * like `DE` on a VAT number. Shown as a prefix on the field the way
-         * `phoneInput.countryCode` is, and part of the stored value, because
-         * that is how such a number is written and matched.
-         */
-        prefix: z.string().optional(),
-        /**
-         * Anchored regular expression for the **stored** value, prefix
-         * included: `^DE[0-9]{9}$`, not `^[0-9]{9}$`.
-         */
-        pattern: z.string(),
-        /** Digit mask for the typed part, `#` per digit (see DigitMask). */
-        mask: z.string().optional(),
-        example: z.string().optional(),
-      })
-      .strict()
-      .optional(),
+    companyIdInput: companyIdInputSchema.optional(),
   })
   .strict();
 

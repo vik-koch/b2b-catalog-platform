@@ -428,6 +428,7 @@
     "lastName": "Last name",
     "phone": "Phone",
     "companyId": "Company ID",
+    "companyIdFormat": "Kind of registration number",
     "customerType": "Customer type",
     "tier": "Tier",
     "tierChoose": "Select a tier…",

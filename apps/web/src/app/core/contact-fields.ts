@@ -1,5 +1,9 @@
 import { ValidatorFn, Validators } from '@angular/forms';
-import { digitsOf, type PhoneConfig } from '@b2b-catalog-platform/shared';
+import {
+  type CompanyIdFormat,
+  digitsOf,
+  type PhoneConfig,
+} from '@b2b-catalog-platform/shared';
 import { completeMask } from './masked-input';
 
 /**
@@ -23,68 +27,69 @@ import { completeMask } from './masked-input';
  */
 export {
   canonicalPhone,
+  companyIdFormatOf,
   formatPhone,
   typedPhone,
+  type CompanyIdFormat,
   type PhoneConfig,
 } from '@b2b-catalog-platform/shared';
-
-export interface CompanyIdConfig {
-  readonly prefix?: string;
-  readonly pattern: string;
-  readonly mask?: string;
-}
 
 /**
  * What travels and gets stored. A mask only groups digits for readability, and
  * a prefix is shown rather than typed, so both are resolved away here into the
- * one form the deployment's pattern describes and the shop's records use.
+ * one form the chosen format's pattern describes and the shop's records use.
+ *
+ * Everything below takes **one format**, not the whole config: with several
+ * accepted shapes there is no deployment-wide prefix, mask or rule to speak of,
+ * only whichever shape this number is being entered in.
  */
 export function canonicalCompanyId(
   typed: string,
-  config: CompanyIdConfig | undefined,
+  format: CompanyIdFormat | undefined,
 ): string {
-  const body = config?.mask ? digitsOf(typed) : typed.trim();
-  return body ? `${config?.prefix ?? ''}${body}` : '';
+  const body = format?.mask ? digitsOf(typed) : typed.trim();
+  return body ? `${format?.prefix ?? ''}${body}` : '';
 }
 
 /** The inverse: the part the field owns, with the displayed prefix removed. */
 export function typedCompanyId(
   stored: string | null,
-  config: CompanyIdConfig | undefined,
+  format: CompanyIdFormat | undefined,
 ): string {
   const value = stored?.trim() ?? '';
-  const prefix = config?.prefix;
+  const prefix = format?.prefix;
   return prefix && value.startsWith(prefix)
     ? value.slice(prefix.length)
     : value;
 }
 
 /**
- * The deployment's own rule, applied to the value **as it will be sent** —
+ * The chosen format's rule, applied to the value **as it will be sent** —
  * `pattern` is anchored on the stored form, prefix included, so validating the
  * typed part against it would never match.
+ *
+ * The pattern already pins the length, so there is no separate completeness
+ * check: a half-typed number fails it, and the message that follows is the
+ * format hint, which is the one worth reading either way.
  */
-export function companyIdPattern(config: CompanyIdConfig): ValidatorFn {
-  const regex = new RegExp(config.pattern);
+export function companyIdPattern(format: CompanyIdFormat): ValidatorFn {
+  const regex = new RegExp(format.pattern);
   return (control) => {
-    const value = canonicalCompanyId(String(control.value ?? ''), config);
+    const value = canonicalCompanyId(String(control.value ?? ''), format);
     return !value || regex.test(value) ? null : { companyIdFormat: true };
   };
 }
 
 /**
  * The rules a registration-number field carries when it applies at all — it is
- * required exactly when the account is a company, so both forms that have one
- * swap this set in and out as the customer type changes.
+ * required exactly when the account is a company, and it is checked against the
+ * format the visitor said they were entering. Both forms that have one swap
+ * this set in and out as the customer type or the chosen format changes.
  */
 export function companyIdValidators(
-  config: CompanyIdConfig | undefined,
+  format: CompanyIdFormat | undefined,
 ): ValidatorFn[] {
-  return [
-    Validators.required,
-    ...(config ? [companyIdPattern(config)] : []),
-    ...(config?.mask ? [completeMask(config.mask)] : []),
-  ];
+  return [Validators.required, ...(format ? [companyIdPattern(format)] : [])];
 }
 
 /**

@@ -223,7 +223,7 @@ describe('RegisterPage', () => {
 
     expect(register).not.toHaveBeenCalled();
     expect(el.textContent).toContain(
-      defaultDeploymentConfig.companyIdInput?.example ?? '',
+      defaultDeploymentConfig.companyIdInput?.formats[0].example ?? '',
     );
   });
 

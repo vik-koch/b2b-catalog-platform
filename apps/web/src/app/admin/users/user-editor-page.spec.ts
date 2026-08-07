@@ -19,7 +19,7 @@ const text = defaultAdminText.userEditor;
 
 /** The demo deployment's own rules, which the form is built from. */
 const phone = defaultDeploymentConfig.phoneInput;
-const companyId = defaultDeploymentConfig.companyIdInput;
+const companyId = defaultDeploymentConfig.companyIdInput?.formats[0];
 
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {
