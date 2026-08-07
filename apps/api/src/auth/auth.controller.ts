@@ -14,10 +14,7 @@ import { PasswordRejectedError } from './password-policy';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
 import { MaintenanceExempt } from '../settings/maintenance-exempt.decorator';
-
-// Matches the JWT expiry (7d) so the browser drops the cookie around the time
-// the token stops verifying.
-const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+import { sessionCookie, sessionCookieAttributes } from './session-cookie';
 
 @Controller()
 export class AuthController {
@@ -88,7 +85,7 @@ export class AuthController {
       // Straight into a session: they have just proved control of the address
       // and chosen the password, so asking them to log in would be ceremony.
       const token = await this.auth.signToken(user);
-      res.cookie(AUTH_COOKIE, token, this.sessionCookie(req));
+      res.cookie(AUTH_COOKIE, token, sessionCookie(req));
       return { status: 200, body: this.auth.toAuthUser(user) };
     });
   }
@@ -105,7 +102,7 @@ export class AuthController {
         return { status: 401, body: { message: 'Invalid email or password' } };
       }
       const token = await this.auth.signToken(user);
-      res.cookie(AUTH_COOKIE, token, this.sessionCookie(req));
+      res.cookie(AUTH_COOKIE, token, sessionCookie(req));
       return { status: 200, body: this.auth.toAuthUser(user) };
     });
   }
@@ -115,7 +112,7 @@ export class AuthController {
   logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     return tsRestHandler(authContract.logout, async () => {
       // Same attributes (minus maxAge) so the browser matches and clears it.
-      res.clearCookie(AUTH_COOKIE, this.cookieAttributes(req));
+      res.clearCookie(AUTH_COOKIE, sessionCookieAttributes(req));
       return { status: 200, body: { message: 'Logged out' } };
     });
   }
@@ -166,26 +163,8 @@ export class AuthController {
       }
       // Update token so the user is not logged out.
       const token = await this.auth.signToken(updated);
-      res.cookie(AUTH_COOKIE, token, this.sessionCookie(req));
+      res.cookie(AUTH_COOKIE, token, sessionCookie(req));
       return { status: 200, body: this.auth.toAuthUser(updated) };
     });
-  }
-
-  // httpOnly: never readable by page JS. secure: HTTPS-only, derived from
-  // req.secure — true behind Traefik's TLS (trust proxy set), false for the
-  // plain-HTTP dev/e2e server, so the cookie is usable in both. sameSite lax:
-  // sent on top-level navigations (SSR sees it) but not on cross-site POSTs,
-  // which blocks CSRF against the mutating endpoints.
-  private cookieAttributes(req: Request) {
-    return {
-      httpOnly: true,
-      secure: req.secure,
-      sameSite: 'lax' as const,
-      path: '/',
-    };
-  }
-
-  private sessionCookie(req: Request) {
-    return { ...this.cookieAttributes(req), maxAge: SESSION_MAX_AGE_MS };
   }
 }

@@ -29,7 +29,8 @@ export type AuditAction =
   // Self-service (FR-AUTH-06's neighbourhood). Named apart from `user.updated`
   // so the log distinguishes staff correcting a customer's details from the
   // customer correcting their own.
-  | 'account.updated';
+  | 'account.updated'
+  | 'account.deleted';
 
 /**
  * Domain events for admin mutations — who changed what.

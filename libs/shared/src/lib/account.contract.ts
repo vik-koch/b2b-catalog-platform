@@ -53,6 +53,16 @@ export type UpdateAccountProfileRequest = z.infer<
 >;
 
 /**
+ * Deleting your own account (FR-AUTH-06). The current password is required for
+ * the same reason it is on a password change: this is irreversible, and an
+ * unlocked laptop should not be enough to do it.
+ */
+export const deleteAccountSchema = z
+  .object({ password: z.string().min(1) })
+  .strict();
+export type DeleteAccountRequest = z.infer<typeof deleteAccountSchema>;
+
+/**
  * The signed-in account's own surface. Read and correct your own details today;
  * addresses and order history land here rather than on the staff contract,
  * because the question "what is on my account" is the account holder's,
@@ -77,5 +87,22 @@ export const accountContract = c.router({
       401: z.object({ message: z.string() }),
     },
     summary: "Correct the signed-in account's own name and phone number",
+  },
+  deleteAccount: {
+    method: 'POST',
+    path: '/account/delete',
+    // A POST with a body rather than DELETE: the request carries the password
+    // that authorises it, and a body on DELETE is the kind of thing
+    // intermediaries feel free to drop.
+    body: deleteAccountSchema,
+    responses: {
+      200: z.object({ message: z.string() }),
+      /** The password did not match. The only refusal the form can act on. */
+      400: z.object({ message: z.string() }),
+      401: z.object({ message: z.string() }),
+      /** The last admin. Deleting it would leave nobody able to let anyone in. */
+      409: z.object({ message: z.string() }),
+    },
+    summary: 'Delete your own account, anonymizing it (FR-AUTH-06)',
   },
 });

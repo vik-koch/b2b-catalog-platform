@@ -50,6 +50,14 @@ export const demoMailText: MailText = {
     body: 'Your account has been switched back on. The old password no longer works — choose a new one.',
     action: 'Choose your password',
   },
+  accountDeleted: {
+    subject: 'Your account has been deleted',
+    preheader: 'Your account and personal details have been removed.',
+    heading: 'Your account has been deleted',
+    body: 'Your account is closed and your personal details have been removed.',
+    orders:
+      'Past orders are kept for bookkeeping, with your details removed. Registering again starts a new account.',
+  },
   newRegistration: {
     subject: 'New registration',
     preheader: 'Someone requested a customer account.',

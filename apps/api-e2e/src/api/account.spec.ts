@@ -2,6 +2,7 @@ import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
+import { deleteMatching, messagesMatching } from '../support/mailpit';
 
 const SUFFIX = Math.random().toString(36).slice(2, 10);
 const CUSTOMER_EMAIL = `e2e-account-customer-${SUFFIX}@example.com`;
@@ -229,6 +230,138 @@ describe('/account/profile', () => {
       const res = await patch('/account/profile', customerCookie, edits());
 
       expect(res.status).toBe(401);
+    });
+  });
+
+  describe('deleting your own account (FR-AUTH-06)', () => {
+    const DELETE_EMAIL = `e2e-account-leaver-${SUFFIX}@example.com`;
+    let leaverCookie: string;
+    let leaverId: string;
+
+    // Its own account per case: deletion is one-way, so a shared one would
+    // only work for whichever test ran first.
+    beforeEach(async () => {
+      await client.query('DELETE FROM users WHERE email = $1', [DELETE_EMAIL]);
+      const { rows } = await client.query(
+        `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType", "companyRegistrationId", "tierId")
+         VALUES ($1, $2, 'user', 'active', 'Jane', 'Doe', '+49 40 1234567', 'company', '12345678', $3)
+         RETURNING id`,
+        [DELETE_EMAIL, await hash(PASSWORD), tierId],
+      );
+      leaverId = rows[0].id;
+      leaverCookie = await signIn(DELETE_EMAIL);
+      await deleteMatching(DELETE_EMAIL);
+    });
+
+    afterEach(async () => {
+      await client.query('DELETE FROM users WHERE id = $1', [leaverId]);
+    });
+
+    const remove = (cookie: string | undefined, password: unknown) =>
+      axios.post(
+        '/account/delete',
+        { password },
+        {
+          headers: cookie ? { Cookie: cookie } : {},
+          validateStatus: () => true,
+        },
+      );
+
+    it('rejects an anonymous caller', async () => {
+      expect((await remove(undefined, PASSWORD)).status).toBe(401);
+    });
+
+    it('refuses a wrong password and leaves the account alone', async () => {
+      const res = await remove(leaverCookie, 'not-the-password');
+
+      expect(res.status).toBe(400);
+      const { rows } = await client.query(
+        'SELECT status, email FROM users WHERE id = $1',
+        [leaverId],
+      );
+      expect(rows[0]).toEqual({ status: 'active', email: DELETE_EMAIL });
+    });
+
+    it('anonymizes the row, keeping it, and frees the address', async () => {
+      const res = await remove(leaverCookie, PASSWORD);
+
+      expect(res.status).toBe(200);
+      const { rows } = await client.query(
+        `SELECT status, email, "firstName", "lastName", phone, "customerType",
+                "companyRegistrationId", "tierId"
+         FROM users WHERE id = $1`,
+        [leaverId],
+      );
+      // The row survives — it is an FK target for the audit trail and for
+      // orders, which are anonymized rather than deleted.
+      expect(rows[0]).toEqual({
+        status: 'anonymized',
+        email: `deleted-${leaverId}@invalid`,
+        firstName: null,
+        lastName: null,
+        phone: null,
+        customerType: null,
+        companyRegistrationId: null,
+        tierId: null,
+      });
+    });
+
+    it('frees the address for a genuinely new account', async () => {
+      await remove(leaverCookie, PASSWORD);
+
+      // Nothing links the two: the old row no longer carries the address, so
+      // the unique index does not object and the new row is its own account.
+      const { rows } = await client.query(
+        `INSERT INTO users (email, "passwordHash", role, status)
+         VALUES ($1, $2, 'user', 'pending') RETURNING id`,
+        [DELETE_EMAIL, await hash(PASSWORD)],
+      );
+      expect(rows[0].id).not.toBe(leaverId);
+
+      await client.query('DELETE FROM users WHERE id = $1', [rows[0].id]);
+    });
+
+    it('ends the session it was called with', async () => {
+      await remove(leaverCookie, PASSWORD);
+
+      // The cookie is cleared on the response, but the token is dead either
+      // way: `tokenVersion` moved, so a copy of it is no use.
+      expect((await request('/account/profile', leaverCookie)).status).toBe(
+        401,
+      );
+    });
+
+    it('refuses the login afterwards', async () => {
+      await remove(leaverCookie, PASSWORD);
+
+      const res = await axios.post(
+        '/auth/login',
+        { email: DELETE_EMAIL, password: PASSWORD },
+        { validateStatus: () => true },
+      );
+      expect(res.status).toBe(401);
+    });
+
+    it('confirms it to the address that asked, before it is overwritten', async () => {
+      await remove(leaverCookie, PASSWORD);
+
+      const messages = await messagesMatching(DELETE_EMAIL);
+      expect(messages).toHaveLength(1);
+      expect(messages[0].Subject).toContain('deleted');
+    });
+
+    // The last-admin refusal is *not* tested here: making an account the last
+    // admin means disabling every other one, and the suite is parallel — it
+    // would pull the rug from under whatever else is signed in as an admin.
+    // AccountDeletion's own spec covers the rule.
+
+    // Staff leave like anyone else — the last-admin rule is the only limit.
+    it('lets a manager delete their own account', async () => {
+      await client.query(`UPDATE users SET role = 'manager' WHERE id = $1`, [
+        leaverId,
+      ]);
+
+      expect((await remove(leaverCookie, PASSWORD)).status).toBe(200);
     });
   });
 });
