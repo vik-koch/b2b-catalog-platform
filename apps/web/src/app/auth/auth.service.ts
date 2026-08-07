@@ -92,6 +92,20 @@ export class AuthService {
   }
 
   /**
+   * Ask for a reset link (FR-AUTH-02). Learns nothing, like `register`: the
+   * server answers the same for an address it knows and one it does not, so
+   * the only failure worth reporting is the request not going through at all.
+   */
+  async forgotPassword(email: string): Promise<'ok' | 'error'> {
+    try {
+      const response = await this.client.forgotPassword({ body: { email } });
+      return response.status === 200 ? 'ok' : 'error';
+    } catch {
+      return 'error';
+    }
+  }
+
+  /**
    * What a set-a-password link is for, or null when it is no good — expired,
    * already used, or never issued, which the API deliberately does not
    * distinguish.

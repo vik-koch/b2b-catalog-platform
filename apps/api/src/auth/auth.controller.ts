@@ -11,6 +11,7 @@ import { Auth } from './auth.decorator';
 import { CurrentUser } from './current-user.decorator';
 import { AuthService, WrongCurrentPasswordError } from './auth.service';
 import { PasswordRejectedError } from './password-policy';
+import { PasswordResetService } from './password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
 import { MaintenanceExempt } from '../settings/maintenance-exempt.decorator';
@@ -22,6 +23,7 @@ export class AuthController {
     private readonly auth: AuthService,
     private readonly registration: RegistrationService,
     private readonly passwordSetup: PasswordSetupService,
+    private readonly passwordReset: PasswordResetService,
   ) {}
 
   // Not maintenance-exempt, unlike login: while the storefront is down there is
@@ -33,6 +35,22 @@ export class AuthController {
       await this.registration.register(body);
       // The same answer for a new address, a known one and a honeypot hit —
       // the response must not reveal which addresses have accounts.
+      return { status: 200, body: { ok: true as const } };
+    });
+  }
+
+  /**
+   * Maintenance-exempt and throttled, like login: somebody locked out while the
+   * storefront is down still needs the way back in, and an unauthenticated form
+   * that sends mail is exactly what a rate limit is for.
+   */
+  @MaintenanceExempt()
+  @AuthThrottle()
+  @TsRestHandler(authContract.forgotPassword)
+  forgotPassword() {
+    return tsRestHandler(authContract.forgotPassword, async ({ body }) => {
+      await this.passwordReset.request(body.email);
+      // Uniform by design — see the contract.
       return { status: 200, body: { ok: true as const } };
     });
   }

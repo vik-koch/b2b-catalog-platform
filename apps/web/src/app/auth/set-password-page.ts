@@ -43,9 +43,17 @@ type Status = 'checking' | 'ready' | 'expired' | 'submitting' | 'done';
             {{ text.expiredHeading }}
           </h1>
           <p class="text-muted">{{ text.expired }}</p>
-          <a appButton variant="secondary" routerLink="/login" class="mt-8">
-            {{ auth.login }}
-          </a>
+          <!-- The copy has always told them to ask for a new link; now there
+               is one to click. Primary, because it is the way out of here —
+               signing in is what they could not do in the first place. -->
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a appButton routerLink="/forgot-password">
+              {{ auth.forgotPassword.submit }}
+            </a>
+            <a appButton variant="secondary" routerLink="/login">
+              {{ auth.login }}
+            </a>
+          </div>
         }
         @case ('done') {
           <h1 class="mb-4 text-3xl font-bold tracking-tight">

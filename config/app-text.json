@@ -125,6 +125,17 @@
         "done": "Your account is closed and your personal details have been removed. We have sent a confirmation to your email address."
       }
     },
+    "forgotPassword": {
+      "link": "Forgot your password?",
+      "heading": "Reset your password",
+      "intro": "Enter the email address you sign in with and we will send you a link to choose a new password.",
+      "submit": "Send me a link",
+      "submitting": "Sending…",
+      "successHeading": "Check your email",
+      "success": "If there is an account for this address, a link to choose a new password is on its way. It can be used once, and expires an hour after it was sent.",
+      "error": "Something went wrong sending your link. Please try again.",
+      "backToLogin": "Back to sign in"
+    },
     "register": {
       "noAccount": "New here? Request a customer account.",
       "signUp": "Sign up",
@@ -173,7 +184,7 @@
       "successHeading": "You are all set",
       "success": "Your password is saved and you are signed in.",
       "expiredHeading": "This link no longer works",
-      "expired": "Links can only be used once, and expire after a while. Ask us for a new one, or use “Forgot password” on the login page.",
+      "expired": "Links can only be used once, and expire after a while. Ask for a new one below, or use “Forgot your password?” on the sign-in page.",
       "error": "Something went wrong saving your password. Please try again."
     },
     "changePassword": {

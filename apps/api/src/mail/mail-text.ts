@@ -88,6 +88,23 @@ export const mailTextSchema = z
       })
       .strict(),
     /**
+     * The reset link somebody asked for from the login page (FR-AUTH-02).
+     * Carries its own `expiry` rather than `common.linkExpiry`: a reset link
+     * lives an hour, an invitation a week.
+     */
+    passwordReset: z
+      .object({
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        body: z.string(),
+        expiry: z.string(),
+        /** For the recipient who did not ask: doing nothing changes nothing. */
+        ignore: z.string(),
+        action: z.string(),
+      })
+      .strict(),
+    /**
      * Confirms a self-deletion (FR-AUTH-06), to the address that asked for it —
      * the last message it gets, since the record no longer carries it. No
      * action: there is nothing to sign in to, and registering again starts a

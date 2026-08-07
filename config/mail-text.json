@@ -41,6 +41,15 @@
     "body": "Your customer account has been switched back on. For security, the old password no longer works — choose a new one and you can start ordering again.",
     "action": "Choose your password"
   },
+  "passwordReset": {
+    "subject": "Reset your password",
+    "preheader": "Choose a new password for your account.",
+    "heading": "Reset your password",
+    "body": "Someone asked to reset the password for your customer account. Choose a new one and you can sign in again straight away.",
+    "expiry": "This link can be used once, and expires an hour after it was sent.",
+    "ignore": "If this was not you, you can ignore this message — your password stays as it is, and nobody can use this link without your mailbox.",
+    "action": "Choose a new password"
+  },
   "accountDeleted": {
     "subject": "Your account has been deleted",
     "preheader": "Your customer account and personal details have been removed.",

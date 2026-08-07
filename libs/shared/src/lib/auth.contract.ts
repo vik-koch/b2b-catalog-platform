@@ -96,6 +96,15 @@ export const changePasswordSchema = z
   .strict();
 export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
 
+/**
+ * Asking for a reset link (FR-AUTH-02). An address and nothing else — there is
+ * nothing to prove yet, and the proof is that the mail arrives.
+ */
+export const forgotPasswordSchema = z
+  .object({ email: z.string().trim().email().max(320) })
+  .strict();
+export type ForgotPasswordRequest = z.infer<typeof forgotPasswordSchema>;
+
 /** What kind of customer is registering. Kept in sync with the `customer_type` pg enum. */
 export const CUSTOMER_TYPES = ['person', 'company'] as const;
 export type CustomerType = (typeof CUSTOMER_TYPES)[number];
@@ -174,6 +183,19 @@ export const authContract = c.router({
       200: z.object({ ok: z.literal(true) }),
     },
     summary: 'Request an account (creates a pending registration)',
+  },
+  forgotPassword: {
+    method: 'POST',
+    path: '/auth/forgot-password',
+    body: forgotPasswordSchema,
+    responses: {
+      // The same answer for an address with an account, one without, and one
+      // whose account may not sign in — for the same reason `register` gives
+      // one answer: this form must not become a way to test which addresses
+      // are customers. What happened is explained by mail, to the address.
+      200: z.object({ ok: z.literal(true) }),
+    },
+    summary: 'Ask for a password-reset link (FR-AUTH-02)',
   },
   checkPasswordToken: {
     method: 'GET',

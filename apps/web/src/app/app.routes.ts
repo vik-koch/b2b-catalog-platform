@@ -60,6 +60,14 @@ export const appRoutes: Route[] = [
       import('./auth/register-page').then((m) => m.RegisterPage),
   },
   {
+    // Guest-only like login: somebody already signed in has the
+    // change-password form, which does not need a mailbox round trip.
+    path: 'forgot-password',
+    canActivate: [guestOnly],
+    loadComponent: () =>
+      import('./auth/forgot-password-page').then((m) => m.ForgotPasswordPage),
+  },
+  {
     // Reached from an invitation or a reset mail; the link is in the query
     // string, bound to the page's `token` input by withComponentInputBinding.
     path: 'set-password',
