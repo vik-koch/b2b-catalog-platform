@@ -8,12 +8,14 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   canonicalCompanyId,
   canonicalPhone,
+  companyIdValidators,
   phoneValidators,
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
-import { completeMask } from '../core/masked-input';
 import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
+import { CompanyIdField } from '../ui/company-id-field';
+import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
@@ -41,6 +43,8 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     ReactiveFormsModule,
     RouterLink,
     Button,
+    CompanyIdField,
+    EmailField,
     FieldLabel,
     Input,
     PhoneField,
@@ -141,89 +145,21 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           </div>
 
           @if (isCompany()) {
-            <div>
-              <label for="companyRegistrationId" appFieldLabel>
-                {{ text.register.companyId }}
-                <span class="text-accent" aria-hidden="true">*</span>
-              </label>
-              <div class="flex">
-                @if (companyIdPrefix) {
-                  <span
-                    class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
-                  >
-                    {{ companyIdPrefix }}
-                  </span>
-                }
-                @if (companyIdMask; as mask) {
-                  <input
-                    id="companyRegistrationId"
-                    type="text"
-                    appDigitMask
-                    [mask]="mask"
-                    formControlName="companyRegistrationId"
-                    inputmode="numeric"
-                    aria-required="true"
-                    appInput
-                    class="w-full"
-                    [class.rounded-l-none]="!!companyIdPrefix"
-                    [attr.aria-invalid]="
-                      isInvalid('companyRegistrationId') || null
-                    "
-                  />
-                } @else {
-                  <input
-                    id="companyRegistrationId"
-                    type="text"
-                    formControlName="companyRegistrationId"
-                    aria-required="true"
-                    appInput
-                    class="w-full"
-                    [class.rounded-l-none]="!!companyIdPrefix"
-                    [attr.aria-invalid]="
-                      isInvalid('companyRegistrationId') || null
-                    "
-                  />
-                }
-              </div>
-              @if (isInvalid('companyRegistrationId')) {
-                <p class="mt-1 text-sm text-red-600">
-                  {{
-                    form.controls.companyRegistrationId.hasError('required')
-                      ? text.register.validation.companyIdRequired
-                      : companyIdHint()
-                  }}
-                </p>
-              } @else if (companyIdExample) {
-                <p class="mt-1 text-sm text-muted">{{ companyIdHint() }}</p>
-              }
-            </div>
+            <app-company-id-field
+              [control]="form.controls.companyRegistrationId"
+              [label]="text.register.companyId"
+              [text]="companyIdText"
+              [invalid]="isInvalid('companyRegistrationId')"
+            />
           }
 
-          <div>
-            <label for="email" appFieldLabel>
-              {{ text.email }}
-              <span class="text-accent" aria-hidden="true">*</span>
-            </label>
-            <input
-              id="email"
-              type="email"
-              formControlName="email"
-              autocomplete="email"
-              aria-required="true"
-              appInput
-              class="w-full"
-              [attr.aria-invalid]="isInvalid('email') || null"
-            />
-            @if (isInvalid('email')) {
-              <p class="mt-1 text-sm text-red-600">
-                {{
-                  form.controls.email.hasError('required')
-                    ? text.validation.emailRequired
-                    : text.validation.emailInvalid
-                }}
-              </p>
-            }
-          </div>
+          <app-email-field
+            [control]="form.controls.email"
+            [label]="text.email"
+            [text]="emailText"
+            [required]="true"
+            [invalid]="isInvalid('email')"
+          />
 
           <app-phone-field
             [control]="form.controls.phone"
@@ -307,15 +243,23 @@ export class RegisterPage {
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;
   private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
-  // Read out once: the template narrows each optional access otherwise, and
-  // `companyIdInput?.x` inside a block that already tested it trips NG8107.
-  protected readonly companyIdPrefix = this.companyIdInput?.prefix;
-  protected readonly companyIdMask = this.companyIdInput?.mask;
-  protected readonly companyIdExample = this.companyIdInput?.example;
+
+  // The wording each shared field puts under itself. Held as fields rather than
+  // built in the template so the object identity is stable across change
+  // detection.
+  protected readonly emailText = {
+    required: this.text.validation.emailRequired,
+    invalid: this.text.validation.emailInvalid,
+  };
   protected readonly phoneText = {
     required: this.text.register.validation.phoneRequired,
     incomplete: this.text.register.validation.phoneIncomplete,
   };
+  protected readonly companyIdText = {
+    required: this.text.register.validation.companyIdRequired,
+    format: this.text.register.validation.companyIdFormat,
+  };
+
   protected readonly status = signal<Status>('idle');
   protected readonly customerType = signal<CustomerType>('person');
   protected readonly isCompany = computed(
@@ -356,16 +300,6 @@ export class RegisterPage {
     return `${base} ${state}`;
   }
 
-  /** The format hint, worded from the deployment's own example. */
-  protected companyIdHint(): string {
-    return this.companyIdExample
-      ? this.text.register.validation.companyIdFormat.replace(
-          '{example}',
-          this.companyIdExample,
-        )
-      : this.text.register.validation.companyIdRequired;
-  }
-
   /**
    * Error visibility, not validity: revealed on blur, hidden again while the
    * field is being retyped, and everything shown once submit is attempted.
@@ -395,12 +329,7 @@ export class RegisterPage {
   private applyValidators(type: CustomerType): void {
     const control = this.form.controls.companyRegistrationId;
     if (type === 'company') {
-      control.setValidators([
-        Validators.required,
-        // The deployment's own rule, applied to the value as it will be sent.
-        ...(this.companyIdInput ? [companyIdPattern(this.companyIdInput)] : []),
-        ...(this.companyIdMask ? [completeMask(this.companyIdMask)] : []),
-      ]);
+      control.setValidators(companyIdValidators(this.companyIdInput));
     } else {
       control.setValidators([]);
       control.setValue('', { emitEvent: false });

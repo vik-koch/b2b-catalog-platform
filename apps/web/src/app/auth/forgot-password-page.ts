@@ -7,8 +7,7 @@ import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
 import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
-import { FieldLabel } from '../ui/field-label';
-import { Input } from '../ui/input';
+import { EmailField } from '../ui/email-field';
 import { AuthService } from './auth.service';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -25,7 +24,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
  */
 @Component({
   selector: 'app-forgot-password-page',
-  imports: [ReactiveFormsModule, RouterLink, Button, FieldLabel, Input],
+  imports: [ReactiveFormsModule, RouterLink, Button, EmailField],
   template: `
     <div class="mx-auto max-w-md">
       @if (status() === 'success') {
@@ -48,31 +47,13 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           (ngSubmit)="submit()"
           [formGroup]="form"
         >
-          <div>
-            <label for="email" appFieldLabel>
-              {{ authText.email }}
-              <span class="text-accent" aria-hidden="true">*</span>
-            </label>
-            <input
-              id="email"
-              type="email"
-              formControlName="email"
-              autocomplete="email"
-              aria-required="true"
-              appInput
-              class="w-full"
-              [attr.aria-invalid]="isInvalid() || null"
-            />
-            @if (isInvalid()) {
-              <p class="mt-1 text-sm text-red-600">
-                {{
-                  form.controls.email.hasError('required')
-                    ? validation.emailRequired
-                    : validation.emailInvalid
-                }}
-              </p>
-            }
-          </div>
+          <app-email-field
+            [control]="form.controls.email"
+            [label]="authText.email"
+            [text]="emailText"
+            [required]="true"
+            [invalid]="isInvalid()"
+          />
 
           <div class="flex flex-wrap items-center gap-4">
             <button
@@ -105,6 +86,10 @@ export class ForgotPasswordPage {
   protected readonly authText = inject(APP_TEXT).auth;
   protected readonly text = inject(APP_TEXT).auth.forgotPassword;
   protected readonly validation = inject(APP_TEXT).auth.validation;
+  protected readonly emailText = {
+    required: this.validation.emailRequired,
+    invalid: this.validation.emailInvalid,
+  };
   protected readonly status = signal<Status>('idle');
 
   protected readonly form = this.fb.nonNullable.group({

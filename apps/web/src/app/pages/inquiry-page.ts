@@ -6,12 +6,13 @@ import { emailSchema, InquiryRequest } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { zodValidator } from '../core/zod-validator';
+import { canonicalPhone, phoneValidators } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
-import { completeMask } from '../core/masked-input';
 import { Button } from '../ui/button';
+import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
-import { DigitMask } from '../ui/digit-mask';
+import { PhoneField } from '../ui/phone-field';
 import { InquiryService } from './inquiry.service';
 
 type PreferredContact = InquiryRequest['preferredContact'];
@@ -28,9 +29,10 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     ReactiveFormsModule,
     RouterLink,
     Button,
-    DigitMask,
+    EmailField,
     FieldLabel,
     Input,
+    PhoneField,
   ],
   template: `
     <div class="mx-auto max-w-xl">
@@ -100,80 +102,23 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             </div>
           </fieldset>
 
-          <div>
-            <label for="email" appFieldLabel>
-              {{ text.email }}
-              @if (preferred() === 'email') {
-                <span class="text-accent" aria-hidden="true">*</span>
-              }
-            </label>
-            <input
-              id="email"
-              type="email"
-              formControlName="email"
-              appInput
-              class="w-full"
-              [attr.aria-required]="preferred() === 'email' || null"
-              [attr.aria-invalid]="isInvalid('email') || null"
-            />
-            @if (isInvalid('email')) {
-              <p class="mt-1 text-sm text-red-600">
-                {{
-                  form.controls.email.hasError('required')
-                    ? text.validation.emailRequired
-                    : text.validation.emailInvalid
-                }}
-              </p>
-            }
-          </div>
+          <!-- Whichever channel was picked is the required one; the other stays
+               offered, because a visitor who gives both is being helpful. -->
+          <app-email-field
+            [control]="form.controls.email"
+            [label]="text.email"
+            [text]="emailText"
+            [required]="preferred() === 'email'"
+            [invalid]="isInvalid('email')"
+          />
 
-          <div>
-            <label for="phone" appFieldLabel>
-              {{ text.phone }}
-              @if (preferred() === 'phone') {
-                <span class="text-accent" aria-hidden="true">*</span>
-              }
-            </label>
-            @if (phoneInput) {
-              <div class="flex">
-                <span
-                  class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
-                >
-                  {{ phoneInput.countryCode }}
-                </span>
-                <input
-                  id="phone"
-                  type="tel"
-                  appDigitMask
-                  [mask]="phoneInput.mask ?? ''"
-                  formControlName="phone"
-                  appInput
-                  class="w-full rounded-l-none"
-                  [attr.aria-required]="preferred() === 'phone' || null"
-                  [attr.aria-invalid]="isInvalid('phone') || null"
-                />
-              </div>
-            } @else {
-              <input
-                id="phone"
-                type="tel"
-                formControlName="phone"
-                appInput
-                class="w-full"
-                [attr.aria-required]="preferred() === 'phone' || null"
-                [attr.aria-invalid]="isInvalid('phone') || null"
-              />
-            }
-            @if (isInvalid('phone')) {
-              <p class="mt-1 text-sm text-red-600">
-                {{
-                  form.controls.phone.hasError('required')
-                    ? text.validation.phoneRequired
-                    : text.validation.phoneIncomplete
-                }}
-              </p>
-            }
-          </div>
+          <app-phone-field
+            [control]="form.controls.phone"
+            [label]="text.phone"
+            [text]="phoneText"
+            [required]="preferred() === 'phone'"
+            [invalid]="isInvalid('phone')"
+          />
 
           <div>
             <label for="message" appFieldLabel>
@@ -250,7 +195,15 @@ export class InquiryPage {
   protected readonly text = inject(APP_TEXT).inquiry;
   protected readonly errors = inject(APP_TEXT).errors;
   protected readonly heading = inject(APP_TEXT).nav['inquiry'];
-  protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  protected readonly emailText = {
+    required: this.text.validation.emailRequired,
+    invalid: this.text.validation.emailInvalid,
+  };
+  protected readonly phoneText = {
+    required: this.text.validation.phoneRequired,
+    incomplete: this.text.validation.phoneIncomplete,
+  };
   protected readonly status = signal<Status>('idle');
   protected readonly preferred = signal<PreferredContact>('email');
 
@@ -328,15 +281,12 @@ export class InquiryPage {
     // Completeness applies either way: the chosen channel must be filled in,
     // but a number typed into the *other* field is still going to be dialled,
     // so half of one is no more use there than here.
-    const mask = this.phoneInput?.mask;
-    const complete = mask ? [completeMask(mask)] : [];
-    if (preferred === 'phone') {
-      phone.setValidators([Validators.required, ...complete]);
-      email.setValidators([emailFormat]);
-    } else {
-      email.setValidators([Validators.required, emailFormat]);
-      phone.setValidators(complete);
-    }
+    phone.setValidators(phoneValidators(this.phoneInput, preferred === 'phone'));
+    email.setValidators(
+      preferred === 'email'
+        ? [Validators.required, emailFormat]
+        : [emailFormat],
+    );
 
     email.updateValueAndValidity({ emitEvent: false });
     phone.updateValueAndValidity({ emitEvent: false });
@@ -344,17 +294,11 @@ export class InquiryPage {
 
   private toRequest(): InquiryRequest {
     const value = this.form.getRawValue();
-    const national = value.phone.trim();
-    const phone = national
-      ? this.phoneInput
-        ? `${this.phoneInput.countryCode} ${national}`
-        : national
-      : undefined;
 
     return {
       name: value.name,
       email: value.email || undefined,
-      phone,
+      phone: canonicalPhone(value.phone, this.phoneInput) || undefined,
       preferredContact: value.preferredContact,
       message: value.message || undefined,
       // Honeypot.
