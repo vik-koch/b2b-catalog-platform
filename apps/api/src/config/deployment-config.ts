@@ -1,4 +1,5 @@
 import {
+  CompanyIdFormat,
   companyIdInputSchema,
   PhoneConfig,
 } from '@b2b-catalog-platform/shared';
@@ -93,6 +94,16 @@ export function loadPhoneInput(): PhoneConfig | undefined {
 export const COMPANY_ID_RULE = 'COMPANY_ID_RULE';
 
 export type CompanyIdRule = (value: string) => boolean;
+
+/**
+ * The formats themselves, for the one caller that needs to tell them apart
+ * rather than just accept or refuse: the account list's "which shape" filter.
+ */
+export const COMPANY_ID_FORMATS = 'COMPANY_ID_FORMATS';
+
+export function loadCompanyIdFormats(): readonly CompanyIdFormat[] {
+  return loadApiDeploymentConfig().companyIdInput?.formats ?? [];
+}
 
 export function loadCompanyIdRule(): CompanyIdRule {
   const configured = loadApiDeploymentConfig().companyIdInput;

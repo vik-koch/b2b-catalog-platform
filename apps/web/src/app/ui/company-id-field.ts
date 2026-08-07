@@ -56,66 +56,73 @@ export interface CompanyIdFieldText {
       <span class="text-accent" aria-hidden="true">*</span>
     </label>
 
-    @if (formats.length > 1) {
-      <app-select-field class="mb-2 w-full sm:w-72">
-        <!-- Selection is marked on the option rather than bound on the
-             <select>, as everywhere else in the app: a property binding on the
-             element races the @for that fills it. -->
-        <select
-          appInput
-          class="w-full"
-          (change)="chooseFormat($event)"
-          [attr.aria-label]="text().formatLabel"
-        >
-          @for (option of formats; track option.key) {
-            <option
-              [value]="option.key"
-              [selected]="option.key === formatKey()"
-            >
-              {{ option.label }}
-            </option>
-          }
-        </select>
-      </app-select-field>
-    }
+    <!-- Two columns at every width, never a stack that splits at a breakpoint:
+         the shape and the number are one answer given in two parts, and the
+         picker read as a separate question of its own when it sat on a line by
+         itself. Narrow screens keep the pair rather than collapsing it,
+         because a mask that changes under you is worth seeing the cause of. -->
+    <div [class]="formats.length > 1 ? 'grid gap-6 sm:grid-cols-2' : ''">
+      @if (formats.length > 1) {
+        <app-select-field>
+          <!-- Selection is marked on the option rather than bound on the
+               <select>, as everywhere else in the app: a property binding on
+               the element races the @for that fills it. -->
+          <select
+            appInput
+            class="w-full"
+            (change)="chooseFormat($event)"
+            [attr.aria-label]="text().formatLabel"
+          >
+            @for (option of formats; track option.key) {
+              <option
+                [value]="option.key"
+                [selected]="option.key === formatKey()"
+              >
+                {{ option.label }}
+              </option>
+            }
+          </select>
+        </app-select-field>
+      }
 
-    <div class="flex">
-      @if (format()?.prefix; as prefix) {
-        <span appFieldPrefix>{{ prefix }}</span>
-      }
-      <!-- Two inputs rather than one with a bound mask: DigitMask is a value
-           accessor, and swapping it in and out under a live control is not
-           something a directive can do. The pair is keyed by whether the
-           chosen format groups its digits, so switching format re-creates the
-           right one. -->
-      @if (format()?.mask; as mask) {
-        <input
-          [id]="inputId()"
-          type="text"
-          appDigitMask
-          [mask]="mask"
-          [formControl]="control()"
-          inputmode="numeric"
-          autocomplete="off"
-          aria-required="true"
-          appInput
-          class="w-full"
-          [class.rounded-l-none]="!!format()?.prefix"
-          [attr.aria-invalid]="invalid() || null"
-        />
-      } @else {
-        <input
-          [id]="inputId()"
-          type="text"
-          [formControl]="control()"
-          autocomplete="off"
-          aria-required="true"
-          appInput
-          class="w-full"
-          [class.rounded-l-none]="!!format()?.prefix"
-          [attr.aria-invalid]="invalid() || null"
-        />
-      }
+      <div class="flex">
+        @if (format()?.prefix; as prefix) {
+          <span appFieldPrefix>{{ prefix }}</span>
+        }
+        <!-- Two inputs rather than one with a bound mask: DigitMask is a value
+             accessor, and swapping it in and out under a live control is not
+             something a directive can do. The pair is keyed by whether the
+             chosen format groups its digits, so switching format re-creates
+             the right one. -->
+        @if (format()?.mask; as mask) {
+          <input
+            [id]="inputId()"
+            type="text"
+            appDigitMask
+            [mask]="mask"
+            [formControl]="control()"
+            inputmode="numeric"
+            autocomplete="off"
+            aria-required="true"
+            appInput
+            class="w-full min-w-0"
+            [class.rounded-l-none]="!!format()?.prefix"
+            [attr.aria-invalid]="invalid() || null"
+          />
+        } @else {
+          <input
+            [id]="inputId()"
+            type="text"
+            [formControl]="control()"
+            autocomplete="off"
+            aria-required="true"
+            appInput
+            class="w-full min-w-0"
+            [class.rounded-l-none]="!!format()?.prefix"
+            [attr.aria-invalid]="invalid() || null"
+          />
+        }
+      </div>
     </div>
 
     @if (invalid()) {

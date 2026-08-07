@@ -272,6 +272,57 @@ describe('/admin/users', () => {
       const tombstones = responses[4].data.users;
       expect(tombstones.some((u: { id: string }) => u.id === id)).toBe(true);
     });
+
+    /**
+     * Which *shape* of registration number an account carries — the demo
+     * deployment configures one (`vat`, a DE VAT number), and the value that
+     * describes no shape at all is always on offer beside it.
+     */
+    it('narrows the list to one shape of registration number', async () => {
+      const withNumber = `e2e-users-vat-${SUFFIX}@example.com`;
+      const withoutNumber = `e2e-users-person-${SUFFIX}@example.com`;
+      seeded.push(withNumber, withoutNumber);
+      const companyId = await seedUser(withNumber, 'user', 'active');
+      const personId = await seedUser(withoutNumber, 'user', 'active');
+      await client.query(
+        `UPDATE users SET "customerType" = 'company',
+                          "companyRegistrationId" = 'DE811234599'
+         WHERE id = $1`,
+        [companyId],
+      );
+
+      const shaped = await request(
+        'get',
+        '/admin/users?kind=customer&companyIdFormat=vat',
+        adminCookie,
+      );
+      const none = await request(
+        'get',
+        '/admin/users?kind=customer&companyIdFormat=none',
+        adminCookie,
+      );
+
+      const ids = (res: { data: { users: { id: string }[] } }) =>
+        res.data.users.map((u) => u.id);
+      expect(shaped.status).toBe(200);
+      expect(ids(shaped)).toContain(companyId);
+      expect(ids(shaped)).not.toContain(personId);
+      expect(ids(none)).toContain(personId);
+      expect(ids(none)).not.toContain(companyId);
+    });
+
+    // A shape this deployment does not have describes no account, rather than
+    // being ignored and quietly answering with everything.
+    it('answers empty for a format the deployment does not configure', async () => {
+      const res = await request(
+        'get',
+        '/admin/users?companyIdFormat=no-such-format',
+        adminCookie,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.users).toEqual([]);
+    });
   });
 
   describe('approval', () => {

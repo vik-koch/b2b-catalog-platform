@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
+import {
+  COMPANY_ID_FORMATS,
+  loadCompanyIdFormats,
+} from '../config/deployment-config';
 import { MailModule } from '../mail/mail.module';
 import { AccountInvitations } from './account-invitations';
 import { StaffUsersController } from './staff-users.controller';
@@ -17,7 +21,13 @@ import { StaffUsersService } from './staff-users.service';
 @Module({
   imports: [AuthModule, MailModule],
   controllers: [StaffUsersController],
-  providers: [StaffUsersService, AccountInvitations, AuditLogger],
+  providers: [
+    StaffUsersService,
+    AccountInvitations,
+    AuditLogger,
+    // The shapes the list's "which kind of number" filter can name.
+    { provide: COMPANY_ID_FORMATS, useFactory: loadCompanyIdFormats },
+  ],
   exports: [StaffUsersService],
 })
 export class StaffUsersModule {}

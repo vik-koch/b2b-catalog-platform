@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  COMPANY_ID_NONE,
   StaffUser,
   UserKind,
   userRoleSchema,
@@ -153,16 +154,22 @@ const typeRank = (t: StaffUser['customerType']): number =>
               </th>
               <th class="w-[13%] font-medium">{{ text.phone }}</th>
               @if (isCustomers()) {
-                <th class="w-[8%]">
-                  <app-grid-sort
-                    asc="type"
-                    desc="type_desc"
-                    [label]="text.type"
-                    [sort]="sortKey()"
-                    [defaultSort]="defaultSort"
-                  />
-                </th>
-                <th class="w-[11%] font-medium">{{ text.companyId }}</th>
+                <!-- The heading itself, as with role/tier/status: its "all"
+                     option is what names the column. A plain label only where
+                     the deployment configures no formats, since then there is
+                     nothing to name. -->
+                @if (hasCompanyIdFormats) {
+                  <th class="w-[11%]">
+                    <app-grid-filter-select
+                      param="companyIdFormat"
+                      [options]="companyIdFormatOptions"
+                      [value]="companyIdFormat()"
+                      [ariaLabel]="text.filterCompanyIdFormat"
+                    />
+                  </th>
+                } @else {
+                  <th class="w-[11%] font-medium">{{ text.companyId }}</th>
+                }
               }
               @if (isStaff()) {
                 <th class="w-[19%]">
@@ -223,9 +230,6 @@ const typeRank = (t: StaffUser['customerType']): number =>
                   {{ phone(user) || dash }}
                 </td>
                 @if (isCustomers()) {
-                  <td class="text-subtle">
-                    {{ typeLabel(user.customerType) }}
-                  </td>
                   <td
                     class="truncate font-mono text-xs text-subtle"
                     [title]="user.companyRegistrationId"
@@ -384,6 +388,13 @@ export class UserListPage {
   readonly tier = input('');
   protected readonly tierId = computed(() => this.tier() || undefined);
 
+  /** A configured format's key. An unknown one matches nothing, which is the
+   * honest answer for a shape this deployment does not have. */
+  readonly companyIdFormat = input('');
+  protected readonly companyIdFormatKey = computed(
+    () => this.companyIdFormat() || undefined,
+  );
+
   readonly sort = input('');
   protected readonly sortKey = computed(() => resolveUserSort(this.sort()));
 
@@ -391,7 +402,11 @@ export class UserListPage {
    * "no matches". */
   protected readonly filtered = computed(
     () =>
-      !!this.query() || !!this.statusKey() || !!this.roleKey() || !!this.tier(),
+      !!this.query() ||
+      !!this.statusKey() ||
+      !!this.roleKey() ||
+      !!this.tier() ||
+      !!this.companyIdFormatKey(),
   );
 
   protected readonly users = resource({
@@ -400,6 +415,7 @@ export class UserListPage {
       status: this.statusKey(),
       role: this.roleKey(),
       tierId: this.tierId(),
+      companyIdFormat: this.companyIdFormatKey(),
       q: this.query(),
     }),
     loader: ({ params }) => this.service.list(params),
@@ -442,6 +458,24 @@ export class UserListPage {
     { value: 'active', label: this.text.statusActive },
     { value: 'disabled', label: this.text.statusDisabled },
     { value: 'anonymized', label: this.text.statusAnonymized },
+  ];
+
+  /**
+   * The deployment's own shapes of registration number, named as it names them,
+   * plus the one thing no format describes: an account with no number at all.
+   * That option is why a single-format deployment gets the filter too — "which
+   * of these customers is a private person" is a real question either way.
+   */
+  private readonly companyIdFormats =
+    inject(DEPLOYMENT_CONFIG).companyIdInput?.formats ?? [];
+  protected readonly hasCompanyIdFormats = this.companyIdFormats.length > 0;
+  protected readonly companyIdFormatOptions: GridFilterOption[] = [
+    { value: '', label: this.text.companyIdFormatAll },
+    { value: COMPANY_ID_NONE, label: this.text.companyIdFormatNone },
+    ...this.companyIdFormats.map((format) => ({
+      value: format.key,
+      label: format.label ?? format.key,
+    })),
   ];
 
   /** Staff are admin or manager only — the customer role is not a choice here. */

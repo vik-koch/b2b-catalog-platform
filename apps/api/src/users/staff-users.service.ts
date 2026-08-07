@@ -19,12 +19,16 @@ import {
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
+  COMPANY_ID_NONE,
+  CompanyIdFormat,
+  companyIdFormatOf,
   CreateUserRequest,
   StaffUser,
   UpdateUserRequest,
   UserKind,
   UserRole,
 } from '@b2b-catalog-platform/shared';
+import { COMPANY_ID_FORMATS } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { users } from '../db/schema';
@@ -69,6 +73,8 @@ export interface ListUsersFilters {
   readonly role?: UserRole;
   /** A tier id, or `'default'` for the base price list (a null `tierId`). */
   readonly tierId?: string;
+  /** A `companyIdInput.formats` key — which shape the number is in. */
+  readonly companyIdFormat?: string;
   readonly q?: string;
 }
 
@@ -85,6 +91,8 @@ export class StaffUsersService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     private readonly users: UsersService,
+    @Inject(COMPANY_ID_FORMATS)
+    private readonly companyIdFormats: readonly CompanyIdFormat[],
   ) {}
 
   async list(filters: ListUsersFilters): Promise<StaffUser[]> {
@@ -137,7 +145,36 @@ export class StaffUsersService {
       // just arrived. `id` breaks ties so paging stays stable later.
       .orderBy(desc(users.createdAt), asc(users.id));
 
-    return rows.map(toStaffUser);
+    return this.narrowToFormat(rows.map(toStaffUser), filters.companyIdFormat);
+  }
+
+  /**
+   * "Which shape is this number in" — applied here rather than in SQL on
+   * purpose. The rule is a regex a deployment wrote for a *browser*, and
+   * Postgres speaks a different dialect: handing it to `~` would work for the
+   * simple patterns and quietly mismatch on the rest. Running it in JS means
+   * the list, the editor's picker and the API's own validation all answer from
+   * one implementation.
+   *
+   * Affordable because this list is unpaginated — it is a shop's account book,
+   * not a feed. If it ever pages, this has to move into the query, and the
+   * patterns become a documented Postgres-compatible subset.
+   */
+  private narrowToFormat(
+    accounts: StaffUser[],
+    key: string | undefined,
+  ): StaffUser[] {
+    if (!key) return accounts;
+    // The one value that is not a format: no number at all, which no pattern
+    // can describe because there is nothing for one to match.
+    if (key === COMPANY_ID_NONE) {
+      return accounts.filter((account) => !account.companyRegistrationId);
+    }
+    return accounts.filter(
+      (account) =>
+        companyIdFormatOf(account.companyRegistrationId, this.companyIdFormats)
+          ?.key === key,
+    );
   }
 
   /**

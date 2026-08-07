@@ -168,6 +168,14 @@ export const USER_KINDS = ['customer', 'staff'] as const;
 export type UserKind = (typeof USER_KINDS)[number];
 export const userKindSchema = z.enum(USER_KINDS);
 
+/**
+ * The account-list filter value meaning "no registration number at all" —
+ * in practice, the private persons. Reserved rather than derived: it sits in
+ * the same parameter as the `companyIdInput.formats` keys, so a deployment must
+ * not use it as one.
+ */
+export const COMPANY_ID_NONE = 'none';
+
 /** Filters for the account list — the admin-grid pattern (FR-ADM-05). */
 export const listUsersQuerySchema = z.object({
   kind: userKindSchema.optional(),
@@ -176,6 +184,14 @@ export const listUsersQuerySchema = z.object({
   role: userRoleSchema.optional(),
   /** `null` is not expressible in a query string; `default` means the base list. */
   tierId: z.union([z.string().uuid(), z.literal('default')]).optional(),
+  /**
+   * A `companyIdInput.formats` key: the accounts whose registration number is
+   * in that shape. Which keys exist is deployment config, so this is a plain
+   * string — an unknown one matches nothing, which is the honest answer for a
+   * format this deployment does not have. `COMPANY_ID_NONE` is the one value
+   * that is not a key: accounts carrying no number at all.
+   */
+  companyIdFormat: z.string().trim().max(64).optional(),
   /** Matches email, first or last name, or the registration number. */
   q: z.string().trim().max(200).optional(),
 });
