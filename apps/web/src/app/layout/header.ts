@@ -92,9 +92,8 @@ import { Icon } from '../ui/icons/icon';
           <img
             src="logo.svg"
             alt=""
-            width="180"
             height="40"
-            class="h-10 w-auto transition-opacity hover:opacity-75"
+            class="h-10 w-auto pr-3 transition-opacity hover:opacity-75"
           />
         </a>
 
