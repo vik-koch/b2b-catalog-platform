@@ -49,23 +49,57 @@ export const conditionsPageSeed: PageSeed = {
   ].join('\n'),
 };
 
+/**
+ * Describes what the software actually does with a customer's data, section by
+ * section — most importantly what "delete my account" means here, which is
+ * narrower than a plain reading (ADR 0032: the row survives, tombstoned). A
+ * notice that promised more than the code delivers would be the wrong half of
+ * the pair to leave unmaintained.
+ */
 export const privacyPageSeed: PageSeed = {
   slug: 'privacy',
   title: 'Privacy policy',
   bodyHtml: [
-    '<p>We store only the data needed to run your wholesale account and',
-    'process orders.</p>',
+    '<p>We store only the data needed to decide on your account and to run',
+    'it once it is open.</p>',
     '<h2>What we store</h2>',
-    '<p>Account details (company, contact person, delivery address) and your',
-    'order history. We do not sell or share personal data with third',
-    'parties beyond what delivery requires.</p>',
+    '<ul>',
+    '<li>What you tell us when you register: your name, email address and',
+    'phone number, and — if you register as a company — your business',
+    'registration number.</li>',
+    '<li>A pricing group, which our staff assign when they approve your',
+    'account. It decides which price list you see and is not shown to you;',
+    'ask us and we will tell you which one you are on.</li>',
+    '<li>Your order history.</li>',
+    '</ul>',
+    '<p>Our staff can see and correct these details. We do not sell or share',
+    'personal data with third parties beyond what delivery requires.</p>',
     '<h2>Cookies</h2>',
     '<p>This site uses only cookies that are strictly necessary for signing',
     'in. No tracking or marketing cookies are set.</p>',
+    '<h2>If we cannot open an account for you</h2>',
+    '<p>A registration we decline is deleted outright, along with everything',
+    'you entered on it.</p>',
+    '<h2>Deleting your account</h2>',
+    '<p>You can delete your account yourself, from your account page. Doing',
+    'so removes your name, contact details and pricing group, and closes the',
+    'account for good — it cannot be undone.</p>',
+    '<p>Two things deliberately survive it, and it is worth knowing which:</p>',
+    '<ul>',
+    '<li>Past orders are kept for as long as our bookkeeping obligations',
+    'require, with your personal details removed from them.</li>',
+    '<li>A record with no personal data in it remains, so that those orders',
+    'and our internal change history still refer to something. Your email',
+    'address is removed from it, which means you are free to register again',
+    'later — but that is a new account, and your earlier orders will not',
+    'appear in it.</li>',
+    '</ul>',
     '<h2>Your rights</h2>',
-    '<p>You can request access to, correction of, or deletion of your',
-    'personal data at any time. When an account is deleted, personal data is',
-    'removed and past orders are anonymized.</p>',
+    '<p>You can ask us at any time what we hold about you, have it',
+    'corrected, or have it deleted. Deleting your account does most of this',
+    'directly; get in touch for anything else.</p>',
+    '<p>A production deployment replaces this page with the operating',
+    "business's own privacy notice, as required by its jurisdiction.</p>",
   ].join('\n'),
 };
 
