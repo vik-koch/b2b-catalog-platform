@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing';
 import { RegisterRequest } from '@b2b-catalog-platform/shared';
-import { COMPANY_ID_RULE } from '../config/deployment-config';
+import { COMPANY_ID_RULE, PHONE_INPUT } from '../config/deployment-config';
 import { MAIL_TEXT } from '../mail/mail-text';
-import { demoMailText } from '../mail/mail-text.fixture';
+import { demoMailText, demoPhoneInput } from '../mail/mail-text.fixture';
 import { MailService } from '../mail/mail.service';
 import { UsersService } from '../users/users.service';
 import { PasswordService } from './password.service';
@@ -27,7 +27,7 @@ describe('RegistrationService', () => {
     email: 'jane@example.com',
     firstName: 'Jane',
     lastName: 'Doe',
-    phone: '+49 40 1234567',
+    phone: '+494012345678',
     customerType: 'person',
   };
   const company: RegisterRequest = {
@@ -48,6 +48,7 @@ describe('RegistrationService', () => {
         { provide: MailService, useValue: { send } },
         { provide: MAIL_TEXT, useValue: demoMailText },
         { provide: COMPANY_ID_RULE, useValue: companyIdMatches },
+        { provide: PHONE_INPUT, useValue: demoPhoneInput },
         {
           provide: PasswordService,
           useValue: {
@@ -69,7 +70,7 @@ describe('RegistrationService', () => {
       passwordHash: '$argon2id$generated',
       firstName: 'Jane',
       lastName: 'Doe',
-      phone: '+49 40 1234567',
+      phone: '+494012345678',
       customerType: 'person',
       companyRegistrationId: null,
     });
@@ -77,6 +78,23 @@ describe('RegistrationService', () => {
       'jane@example.com',
       process.env['MAIL_STAFF_TO'],
     ]);
+  });
+
+  /**
+   * The number is stored unmasked, but the staff notification is read by a
+   * person — often on a phone, deciding whether to approve — so it goes out
+   * grouped the way this deployment writes numbers.
+   */
+  it('groups the phone number in the notification to the shop', async () => {
+    await service.register(person);
+
+    const [staffMail] = send.mock.calls[1] as unknown as [
+      { rows?: { label: string; value: string }[] },
+    ];
+    expect(staffMail.rows).toContainEqual({
+      label: demoMailText.newRegistration.phoneLabel,
+      value: '+49 (401) 234-5678',
+    });
   });
 
   it('stores a company registration number that matches the deployment rule', async () => {

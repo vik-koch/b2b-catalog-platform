@@ -3,16 +3,19 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { canonicalPhone, typedPhone } from '../core/contact-fields';
+import {
+  canonicalPhone,
+  phoneValidators,
+  typedPhone,
+} from '../core/contact-fields';
 import { delayedLoading } from '../core/delayed-loading';
 import { FieldErrors } from '../core/form-errors';
-import { completeMask } from '../core/masked-input';
 import { usePageSeo } from '../core/page-seo';
 import { AuthService } from '../auth/auth.service';
 import { Button } from '../ui/button';
-import { DigitMask } from '../ui/digit-mask';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
+import { PhoneField } from '../ui/phone-field';
 import { Skeleton } from '../ui/skeleton';
 import { AccountService } from './account.service';
 
@@ -34,9 +37,9 @@ type Status = 'idle' | 'submitting' | 'error';
     ReactiveFormsModule,
     RouterLink,
     Button,
-    DigitMask,
     FieldLabel,
     Input,
+    PhoneField,
     Skeleton,
   ],
   template: `
@@ -97,44 +100,12 @@ type Status = 'idle' | 'submitting' | 'error';
 
           <!-- Optional, as on the staff editor: a staff account often has no
                number, and one that is gone is not a reason to refuse the save. -->
-          <div>
-            <label for="phone" appFieldLabel>{{ accountText.phone }}</label>
-            @if (phoneInput; as config) {
-              <div class="flex">
-                <span
-                  class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
-                >
-                  {{ config.countryCode }}
-                </span>
-                <input
-                  id="phone"
-                  type="tel"
-                  appDigitMask
-                  [mask]="config.mask ?? ''"
-                  formControlName="phone"
-                  autocomplete="tel"
-                  appInput
-                  class="w-full rounded-l-none"
-                  [attr.aria-invalid]="isInvalid('phone') || null"
-                />
-              </div>
-            } @else {
-              <input
-                id="phone"
-                type="tel"
-                formControlName="phone"
-                autocomplete="tel"
-                appInput
-                class="w-full"
-                [attr.aria-invalid]="isInvalid('phone') || null"
-              />
-            }
-            @if (isInvalid('phone')) {
-              <p class="mt-1 text-sm text-red-600">
-                {{ validation.phoneIncomplete }}
-              </p>
-            }
-          </div>
+          <app-phone-field
+            [control]="form.controls.phone"
+            [label]="accountText.phone"
+            [text]="phoneText"
+            [invalid]="isInvalid('phone')"
+          />
 
           <div class="flex flex-wrap items-center gap-3">
             <button appButton type="submit" [disabled]="submitting()">
@@ -170,7 +141,11 @@ export class AccountEditPage {
   protected readonly text = inject(APP_TEXT).auth.myAccount.edit;
   protected readonly accountText = inject(APP_TEXT).auth.myAccount;
   protected readonly validation = inject(APP_TEXT).auth.register.validation;
-  protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  protected readonly phoneText = {
+    required: this.validation.phoneRequired,
+    incomplete: this.validation.phoneIncomplete,
+  };
   protected readonly status = signal<Status>('idle');
 
   protected readonly profile = resource({
@@ -181,13 +156,7 @@ export class AccountEditPage {
   protected readonly form = this.fb.nonNullable.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
-    // Not required, but a masked number still has to be *complete*: the mask
-    // says how many digits this deployment expects, and half of them is the
-    // most likely way to end up unreachable.
-    phone: [
-      '',
-      this.phoneInput?.mask ? [completeMask(this.phoneInput.mask)] : [],
-    ],
+    phone: ['', phoneValidators(this.phoneInput, false)],
   });
 
   protected readonly fieldErrors = new FieldErrors(this.form);

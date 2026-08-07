@@ -183,7 +183,7 @@ describe('InquiryPage', () => {
     expect(submit).toHaveBeenCalledWith({
       name: 'Jane Doe',
       email: undefined,
-      phone: '+49 (030) 123-4567',
+      phone: '+490301234567',
       preferredContact: 'phone',
       message: undefined,
     });

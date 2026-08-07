@@ -8,7 +8,7 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   canonicalCompanyId,
   canonicalPhone,
-  companyIdPattern,
+  phoneValidators,
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { completeMask } from '../core/masked-input';
@@ -16,7 +16,7 @@ import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
-import { DigitMask } from '../ui/digit-mask';
+import { PhoneField } from '../ui/phone-field';
 import { AuthService } from './auth.service';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -43,7 +43,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     Button,
     FieldLabel,
     Input,
-    DigitMask,
+    PhoneField,
   ],
   template: `
     <div class="mx-auto max-w-xl">
@@ -225,53 +225,13 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             }
           </div>
 
-          <div>
-            <label for="phone" appFieldLabel>
-              {{ text.register.phone }}
-              <span class="text-accent" aria-hidden="true">*</span>
-            </label>
-            @if (phoneInput) {
-              <div class="flex">
-                <span
-                  class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
-                >
-                  {{ phoneInput.countryCode }}
-                </span>
-                <input
-                  id="phone"
-                  type="tel"
-                  appDigitMask
-                  [mask]="phoneInput.mask ?? ''"
-                  formControlName="phone"
-                  autocomplete="tel"
-                  aria-required="true"
-                  appInput
-                  class="w-full rounded-l-none"
-                  [attr.aria-invalid]="isInvalid('phone') || null"
-                />
-              </div>
-            } @else {
-              <input
-                id="phone"
-                type="tel"
-                formControlName="phone"
-                autocomplete="tel"
-                aria-required="true"
-                appInput
-                class="w-full"
-                [attr.aria-invalid]="isInvalid('phone') || null"
-              />
-            }
-            @if (isInvalid('phone')) {
-              <p class="mt-1 text-sm text-red-600">
-                {{
-                  form.controls.phone.hasError('required')
-                    ? text.register.validation.phoneRequired
-                    : text.register.validation.phoneIncomplete
-                }}
-              </p>
-            }
-          </div>
+          <app-phone-field
+            [control]="form.controls.phone"
+            [label]="text.register.phone"
+            [text]="phoneText"
+            [required]="true"
+            [invalid]="isInvalid('phone')"
+          />
 
           <!-- Honeypot: hidden from humans. -->
           <div class="absolute -left-[9999px]" aria-hidden="true">
@@ -345,13 +305,17 @@ export class RegisterPage {
 
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;
-  protected readonly phoneInput = this.config.phoneInput;
+  private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
   // Read out once: the template narrows each optional access otherwise, and
   // `companyIdInput?.x` inside a block that already tested it trips NG8107.
   protected readonly companyIdPrefix = this.companyIdInput?.prefix;
   protected readonly companyIdMask = this.companyIdInput?.mask;
   protected readonly companyIdExample = this.companyIdInput?.example;
+  protected readonly phoneText = {
+    required: this.text.register.validation.phoneRequired,
+    incomplete: this.text.register.validation.phoneIncomplete,
+  };
   protected readonly status = signal<Status>('idle');
   protected readonly customerType = signal<CustomerType>('person');
   protected readonly isCompany = computed(
@@ -365,15 +329,7 @@ export class RegisterPage {
     // The contract's own rule, so client and server agree on what a valid
     // address is.
     email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
-    // A masked number has to be *complete*, not merely non-empty: the mask
-    // says how many digits this deployment expects, and half of them is the
-    // most likely way to get an unreachable customer.
-    phone: [
-      '',
-      this.phoneInput?.mask
-        ? [Validators.required, completeMask(this.phoneInput.mask)]
-        : [Validators.required],
-    ],
+    phone: ['', phoneValidators(this.phoneInput, true)],
     companyRegistrationId: [''],
     website: [''],
     acceptPrivacy: [false, Validators.requiredTrue],

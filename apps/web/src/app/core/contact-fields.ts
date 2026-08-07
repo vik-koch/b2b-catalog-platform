@@ -1,28 +1,36 @@
-import { ValidatorFn } from '@angular/forms';
-import { digitsOf } from './masked-input';
+import { ValidatorFn, Validators } from '@angular/forms';
+import { digitsOf, type PhoneConfig } from '@b2b-catalog-platform/shared';
+import { completeMask } from './masked-input';
 
 /**
  * The two deployment-configured identity fields — a phone number and a company
  * registration number — in both directions.
  *
- * Each is stored in one canonical form (`+49 30 1234567`, `DE123456789`) while
+ * Each is stored in one canonical form (`+49401234501`, `DE123456789`) while
  * being *entered* in two parts: a fixed prefix the form displays and the visitor
  * never types, and a masked body. Registration composes those into the stored
  * value; the staff editor has to take a stored value apart again to seed the
- * same fields. Keeping both directions here is what stops the two screens
+ * same fields. Keeping both directions together is what stops the two screens
  * disagreeing about where the prefix ends.
+ *
+ * The phone half of that lives in `@b2b-catalog-platform/shared` — the API
+ * formats numbers for staff notifications and needs the same rule — and is
+ * re-exported here so a form has one door to knock on. The registration number
+ * stays here: only the browser has ever had to take one apart.
  *
  * Shape only — the wording, the markup and the deployment config itself stay
  * with each page (public app-text on one side, admin-text on the other).
  */
+export {
+  canonicalPhone,
+  formatPhone,
+  typedPhone,
+  type PhoneConfig,
+} from '@b2b-catalog-platform/shared';
+
 export interface CompanyIdConfig {
   readonly prefix?: string;
   readonly pattern: string;
-  readonly mask?: string;
-}
-
-export interface PhoneConfig {
-  readonly countryCode: string;
   readonly mask?: string;
 }
 
@@ -64,29 +72,32 @@ export function companyIdPattern(config: CompanyIdConfig): ValidatorFn {
   };
 }
 
-/** Country code + the typed national part, which is how it is stored. */
-export function canonicalPhone(
-  typed: string,
-  config: PhoneConfig | undefined,
-): string {
-  const national = typed.trim();
-  if (!national) return '';
-  return config ? `${config.countryCode} ${national}` : national;
+/**
+ * The rules a registration-number field carries when it applies at all — it is
+ * required exactly when the account is a company, so both forms that have one
+ * swap this set in and out as the customer type changes.
+ */
+export function companyIdValidators(
+  config: CompanyIdConfig | undefined,
+): ValidatorFn[] {
+  return [
+    Validators.required,
+    ...(config ? [companyIdPattern(config)] : []),
+    ...(config?.mask ? [completeMask(config.mask)] : []),
+  ];
 }
 
 /**
- * The inverse. A stored number that does not start with the configured country
- * code is handed back whole rather than mangled: it predates the current
- * config, and silently reformatting somebody's phone number is worse than
- * showing it as it is.
+ * The rules a phone field carries, in one place because all four forms that
+ * have one disagreed about them at least once. Completeness applies even where
+ * the number is optional: empty is a choice, half a number is a typo.
  */
-export function typedPhone(
-  stored: string | null,
+export function phoneValidators(
   config: PhoneConfig | undefined,
-): string {
-  const value = stored?.trim() ?? '';
-  const code = config?.countryCode;
-  return code && value.startsWith(code)
-    ? value.slice(code.length).trim()
-    : value;
+  required: boolean,
+): ValidatorFn[] {
+  return [
+    ...(required ? [Validators.required] : []),
+    ...(config?.mask ? [completeMask(config.mask)] : []),
+  ];
 }

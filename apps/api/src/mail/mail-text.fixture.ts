@@ -1,3 +1,4 @@
+import { PhoneConfig } from '@b2b-catalog-platform/shared';
 import { MailBranding } from './mail-branding';
 import { MailText } from './mail-text';
 
@@ -89,4 +90,10 @@ export const demoMailBranding: MailBranding = {
   name: 'Coffee Kontor',
   primaryColor: '#6f4e37',
   siteUrl: 'https://shop.example',
+};
+
+/** The demo phone grouping, for the mails that quote a number back at staff. */
+export const demoPhoneInput: PhoneConfig = {
+  countryCode: '+49',
+  mask: '(###) ###-####',
 };

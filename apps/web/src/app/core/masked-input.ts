@@ -1,8 +1,5 @@
 import { ValidatorFn } from '@angular/forms';
-
-/** The bare digits of a masked value — what actually gets submitted. */
-export const digitsOf = (value: string | null | undefined): string =>
-  (value ?? '').replace(/\D/g, '');
+import { digitsOf, maskLength } from '@b2b-catalog-platform/shared';
 
 /**
  * A masked field must be filled to its full length: the deployment's mask says
@@ -14,7 +11,7 @@ export const digitsOf = (value: string | null | undefined): string =>
  * optional field, where being empty is fine but being partial is not.
  */
 export const completeMask = (mask: string): ValidatorFn => {
-  const expected = (mask.match(/#/g) ?? []).length;
+  const expected = maskLength(mask);
   return (control) => {
     const entered = digitsOf(control.value);
     return !entered || entered.length === expected

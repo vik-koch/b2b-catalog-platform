@@ -16,7 +16,7 @@ import { AuthService } from '../../auth/auth.service';
 import {
   canonicalCompanyId,
   canonicalPhone,
-  companyIdPattern,
+  phoneValidators,
   typedCompanyId,
   typedPhone,
 } from '../../core/contact-fields';
@@ -29,6 +29,7 @@ import { zodValidator } from '../../core/zod-validator';
 import { Button } from '../../ui/button';
 import { DigitMask } from '../../ui/digit-mask';
 import { FieldLabel } from '../../ui/field-label';
+import { PhoneField } from '../../ui/phone-field';
 import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
 import { Skeleton } from '../../ui/skeleton';
@@ -61,6 +62,7 @@ import { SelectField } from '../../ui/select-field';
     DigitMask,
     FieldLabel,
     Input,
+    PhoneField,
     Skeleton,
     SelectField,
   ],
@@ -274,44 +276,13 @@ import { SelectField } from '../../ui/select-field';
           <!-- Optional here, unlike on the registration form: staff often set
                an account up from an email alone, and a phone number they do
                not have is not a reason to block the account. -->
-          <div>
-            <label for="phone" appFieldLabel>{{ text.phone }}</label>
-            @if (phoneInput; as config) {
-              <div class="flex">
-                <span
-                  class="inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted"
-                >
-                  {{ config.countryCode }}
-                </span>
-                <input
-                  id="phone"
-                  type="tel"
-                  appDigitMask
-                  [mask]="config.mask ?? ''"
-                  formControlName="phone"
-                  autocomplete="off"
-                  appInput
-                  class="w-full rounded-l-none"
-                  [attr.aria-invalid]="isInvalid('phone') || null"
-                />
-              </div>
-            } @else {
-              <input
-                id="phone"
-                type="tel"
-                formControlName="phone"
-                autocomplete="off"
-                appInput
-                class="w-full"
-                [attr.aria-invalid]="isInvalid('phone') || null"
-              />
-            }
-            @if (isInvalid('phone')) {
-              <p class="mt-1 text-sm text-red-600">
-                {{ text.validation.phoneIncomplete }}
-              </p>
-            }
-          </div>
+          <app-phone-field
+            [control]="form.controls.phone"
+            [label]="text.phone"
+            [text]="phoneText"
+            [invalid]="isInvalid('phone')"
+            autocomplete="off"
+          />
 
           @if (isCustomer()) {
             <div>
@@ -453,13 +424,18 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly baseTierLabel = inject(ADMIN_TEXT).tierList.defaultLabel;
 
-  protected readonly phoneInput = this.config.phoneInput;
+  private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
   // Read out once: `companyIdInput?.x` inside a block that already tested it
   // trips NG8107.
   protected readonly companyIdPrefix = this.companyIdInput?.prefix;
   protected readonly companyIdMask = this.companyIdInput?.mask;
   protected readonly companyIdExample = this.companyIdInput?.example;
+  // No `required` wording: the number is optional on this screen, so there is
+  // no such refusal to word.
+  protected readonly phoneText = {
+    incomplete: this.text.validation.phoneIncomplete,
+  };
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.idParam === null;
@@ -501,12 +477,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     customerType: ['person' as CustomerType],
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
-    // Optional, but a masked number still has to be whole: half a number is
-    // the most likely way to end up with an unreachable customer.
-    phone: [
-      '',
-      this.phoneInput?.mask ? [completeMask(this.phoneInput.mask)] : [],
-    ],
+    phone: ['', phoneValidators(this.phoneInput, false)],
     companyRegistrationId: [''],
     /** `default` is the base price list; `''` only exists before an approval. */
     tierId: ['default'],

@@ -76,7 +76,7 @@ const staff: AccountSeed[] = [
     status: 'active',
     firstName: 'Birte',
     lastName: 'Ahrens',
-    phone: '+49 (40) 123-4501',
+    phone: '+494012345001',
     customerType: null,
     companyRegistrationId: null,
     wholesale: false,
@@ -87,7 +87,7 @@ const staff: AccountSeed[] = [
     status: 'active',
     firstName: 'Jonas',
     lastName: 'Petersen',
-    phone: '+49 (40) 123-4502',
+    phone: '+494012345002',
     customerType: null,
     companyRegistrationId: null,
     wholesale: false,
@@ -118,7 +118,11 @@ const customer = (
   status,
   firstName,
   lastName,
-  phone: `+49 (40) ${digits.slice(0, 3)}-${digits.slice(3)}`,
+  // Stored the way the app stores every number: country code plus bare
+  // national digits, no grouping. `40` is the area code and the leading `1`
+  // pads each roster entry to the ten digits the demo mask asks for — a number
+  // that is one digit short reads as incomplete and cannot be re-saved.
+  phone: `+49401${digits}`,
   customerType,
   companyRegistrationId,
   wholesale,
