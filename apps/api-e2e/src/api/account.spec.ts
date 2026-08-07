@@ -16,6 +16,20 @@ const request = (url: string, cookie?: string) =>
     validateStatus: () => true,
   });
 
+const patch = (url: string, cookie: string | undefined, body: unknown) =>
+  axios.patch(url, body, {
+    headers: cookie ? { Cookie: cookie } : {},
+    validateStatus: () => true,
+  });
+
+/** The whole editable set — `updateProfile` carries all of it, so a test about
+ * one field still has to send the rest. */
+const edits = () => ({
+  firstName: 'Jane',
+  lastName: 'Doe',
+  phone: '+49 40 7654321',
+});
+
 /**
  * The account holder's own record. The point of the endpoint is what it does
  * *not* say: a customer must not learn their pricing tier from it (ADR 0031),
@@ -116,6 +130,105 @@ describe('/account/profile', () => {
       phone: null,
       customerType: null,
       companyRegistrationId: null,
+    });
+  });
+
+  describe('correcting your own details', () => {
+    // Restored after each case, so the order of the tests cannot matter.
+    afterEach(async () => {
+      await client.query(
+        `UPDATE users SET "firstName" = 'Jane', "lastName" = 'Doe', phone = '+49 40 1234567',
+                          role = 'user', "tierId" = $2, status = 'active'
+         WHERE email = $1`,
+        [CUSTOMER_EMAIL, tierId],
+      );
+    });
+
+    it('rejects an anonymous caller', async () => {
+      expect((await patch('/account/profile', undefined, edits())).status).toBe(
+        401,
+      );
+    });
+
+    it('saves the name and phone number, and answers with the record', async () => {
+      const res = await patch('/account/profile', customerCookie, edits());
+
+      expect(res.status).toBe(200);
+      expect(res.data).toMatchObject(edits());
+
+      const { rows } = await client.query(
+        'SELECT "firstName", "lastName", phone FROM users WHERE email = $1',
+        [CUSTOMER_EMAIL],
+      );
+      expect(rows[0]).toEqual({
+        firstName: 'Jane',
+        lastName: 'Doe',
+        phone: '+49 40 7654321',
+      });
+    });
+
+    it('clears the phone number when it is null', async () => {
+      const res = await patch('/account/profile', customerCookie, {
+        ...edits(),
+        phone: null,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data.phone).toBeNull();
+    });
+
+    // The whole point of `.strict()`: a self-service write is not a way to
+    // grant yourself a role, a tier, or a status.
+    it('refuses a body carrying anything but the editable fields', async () => {
+      const responses = await Promise.all([
+        patch('/account/profile', customerCookie, {
+          ...edits(),
+          role: 'admin',
+        }),
+        patch('/account/profile', customerCookie, {
+          ...edits(),
+          tierId: null,
+        }),
+        patch('/account/profile', customerCookie, {
+          ...edits(),
+          status: 'active',
+        }),
+        patch('/account/profile', customerCookie, {
+          ...edits(),
+          email: 'someone-else@example.com',
+        }),
+      ]);
+
+      expect(responses.map((r) => r.status)).toEqual([400, 400, 400, 400]);
+
+      const { rows } = await client.query(
+        'SELECT role, "tierId" FROM users WHERE email = $1',
+        [CUSTOMER_EMAIL],
+      );
+      expect(rows[0]).toEqual({ role: 'user', tierId });
+    });
+
+    it('refuses an empty name', async () => {
+      const res = await patch('/account/profile', customerCookie, {
+        ...edits(),
+        firstName: '   ',
+      });
+
+      expect(res.status).toBe(400);
+    });
+
+    // A session outliving the account's right to use it. The guard refuses it
+    // first; the write is scoped to `active` rows as well, so the answer does
+    // not depend on which of the two notices.
+    it('refuses to write once the account is no longer active', async () => {
+      await client.query(
+        `UPDATE users SET status = 'disabled' WHERE email = $1`,
+        [CUSTOMER_EMAIL],
+      );
+
+      const res = await patch('/account/profile', customerCookie, edits());
+
+      expect(res.status).toBe(401);
     });
   });
 });

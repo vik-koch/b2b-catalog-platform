@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { AccountController } from './account.controller';
@@ -11,5 +12,6 @@ import { AccountController } from './account.controller';
 @Module({
   imports: [AuthModule, UsersModule],
   controllers: [AccountController],
+  providers: [AuditLogger],
 })
 export class AccountModule {}

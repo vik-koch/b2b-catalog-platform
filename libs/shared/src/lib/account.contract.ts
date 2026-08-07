@@ -28,9 +28,35 @@ export const accountProfileSchema = z.object({
 export type AccountProfile = z.infer<typeof accountProfileSchema>;
 
 /**
- * The signed-in account's own surface. One read today; addresses and order
- * history land here rather than on the staff contract, because the question
- * "what is on my account" is the account holder's, whatever their role.
+ * What the account holder may correct about themselves: how they are called and
+ * how they are reached.
+ *
+ * Not here, deliberately: `email` is the sign-in name and the audit identity, so
+ * changing it needs a verification flow to the new address that nothing in the
+ * product does yet; `customerType` and `companyRegistrationId` are the evidence
+ * staff approved the account and its tier on, and letting the holder flip them
+ * afterwards would silently change the basis of a decision nobody re-reviews.
+ * Both are staff edits (`updateUserSchema`), which is what the page points at.
+ */
+export const updateAccountProfileSchema = z
+  .object({
+    firstName: z.string().trim().min(1).max(200),
+    lastName: z.string().trim().min(1).max(200),
+    /** Null clears it — staff accounts often have none to begin with. */
+    phone: z.string().trim().min(1).max(50).nullable(),
+  })
+  // strict: unknown keys are rejected, not stripped (NFR-SEC-05). It is what
+  // stops `role`, `tierId` or `status` riding along on a self-service write.
+  .strict();
+export type UpdateAccountProfileRequest = z.infer<
+  typeof updateAccountProfileSchema
+>;
+
+/**
+ * The signed-in account's own surface. Read and correct your own details today;
+ * addresses and order history land here rather than on the staff contract,
+ * because the question "what is on my account" is the account holder's,
+ * whatever their role.
  */
 export const accountContract = c.router({
   getProfile: {
@@ -41,5 +67,15 @@ export const accountContract = c.router({
       401: z.object({ message: z.string() }),
     },
     summary: "The signed-in account's own details",
+  },
+  updateProfile: {
+    method: 'PATCH',
+    path: '/account/profile',
+    body: updateAccountProfileSchema,
+    responses: {
+      200: accountProfileSchema,
+      401: z.object({ message: z.string() }),
+    },
+    summary: "Correct the signed-in account's own name and phone number",
   },
 });

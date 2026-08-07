@@ -114,4 +114,31 @@ export class UsersService {
       .returning();
     return updated;
   }
+
+  /**
+   * The account holder correcting their own name and phone number. Narrow by
+   * construction — the columns are named here rather than spread from the
+   * request — so this can never become the path by which a self-service form
+   * writes a role, a tier or a status.
+   *
+   * Guarded on `active`: the same accounts that may sign in are the ones that
+   * may edit, so a session in flight when staff deactivate the account cannot
+   * still write to it.
+   */
+  async updateOwnProfile(
+    id: string,
+    profile: { firstName: string; lastName: string; phone: string | null },
+  ): Promise<UserRow | undefined> {
+    const [updated] = await this.db
+      .update(users)
+      .set({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        phone: profile.phone,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(users.id, id), eq(users.status, 'active')))
+      .returning();
+    return updated;
+  }
 }

@@ -1,9 +1,28 @@
 import { Controller, UnauthorizedException } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { accountContract, AuthUser } from '@b2b-catalog-platform/shared';
+import {
+  AccountProfile,
+  accountContract,
+  AuthUser,
+} from '@b2b-catalog-platform/shared';
+import { AuditLogger } from '../audit/audit.logger';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
-import { UsersService } from '../users/users.service';
+import { UserRow, UsersService } from '../users/users.service';
+
+/** The account holder's own view of their row — never the tier (ADR 0031). */
+function toAccountProfile(user: UserRow): AccountProfile {
+  return {
+    email: user.email,
+    role: user.role,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phone: user.phone,
+    customerType: user.customerType,
+    companyRegistrationId: user.companyRegistrationId,
+    createdAt: user.createdAt.toISOString(),
+  };
+}
 
 /**
  * The account holder's own record — the self-service counterpart to
@@ -16,7 +35,10 @@ import { UsersService } from '../users/users.service';
 @Auth()
 @Controller()
 export class AccountController {
-  constructor(private readonly users: UsersService) {}
+  constructor(
+    private readonly users: UsersService,
+    private readonly audit: AuditLogger,
+  ) {}
 
   @TsRestHandler(accountContract.getProfile, { validateResponses: true })
   getProfile(@CurrentUser() actor: AuthUser) {
@@ -27,19 +49,24 @@ export class AccountController {
       // gone, and 401 is what the client already knows how to handle.
       if (!user) throw new UnauthorizedException('Session no longer valid');
 
-      return {
-        status: 200 as const,
-        body: {
-          email: user.email,
-          role: user.role,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          phone: user.phone,
-          customerType: user.customerType,
-          companyRegistrationId: user.companyRegistrationId,
-          createdAt: user.createdAt.toISOString(),
-        },
-      };
+      return { status: 200 as const, body: toAccountProfile(user) };
+    });
+  }
+
+  @TsRestHandler(accountContract.updateProfile, { validateResponses: true })
+  updateProfile(@CurrentUser() actor: AuthUser) {
+    return tsRestHandler(accountContract.updateProfile, async ({ body }) => {
+      const updated = await this.users.updateOwnProfile(actor.id, body);
+      // No row means the account stopped being `active` between the guard and
+      // the write — deactivated or anonymized underneath the session.
+      if (!updated) throw new UnauthorizedException('Session no longer valid');
+
+      // Its own action rather than `user.updated`: what an auditor asks about a
+      // changed phone number is whether staff changed it or the customer did,
+      // and the two stay greppable apart only if they are named apart.
+      this.audit.record('account.updated', actor, { id: updated.id });
+
+      return { status: 200 as const, body: toAccountProfile(updated) };
     });
   }
 }
