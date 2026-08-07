@@ -67,7 +67,7 @@ import { Icon } from '../ui/icons/icon';
                 routerLinkActive
                 ariaCurrentWhenActive="page"
                 [attr.data-label]="text.nav[route]"
-                class="text-stable text-subtle transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                class="text-stable text-subtle transition-colors hover:text-accent active:text-secondary aria-[current=page]:font-medium aria-[current=page]:text-primary"
               >
                 {{ text.nav[route] }}
               </a>
@@ -186,7 +186,7 @@ import { Icon } from '../ui/icons/icon';
               [routerLink]="'/' + route"
               routerLinkActive
               ariaCurrentWhenActive="page"
-              class="block px-4 py-3 text-muted hover:bg-stone-100 aria-[current=page]:font-medium aria-[current=page]:text-primary"
+              class="block px-4 py-3 text-muted transition-colors hover:bg-stone-100 active:text-secondary aria-[current=page]:font-medium aria-[current=page]:text-primary"
               (click)="menuOpen.set(false)"
             >
               {{ text.nav[route] }}

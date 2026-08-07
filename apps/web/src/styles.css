@@ -72,6 +72,33 @@ html {
   scrollbar-gutter: stable;
 }
 
+/*
+ * One focus indicator for the whole app, on everything focusable — the
+ * primitives, but equally the plain links, cards and native controls that
+ * never had a class for it and fell back to the browser's black ring.
+ *
+ * Secondary, per the token rule above, and flush against the element: an
+ * offset draws the page's own background as a gap between the control and its
+ * ring, which on a filled button reads as a white halo. Being a base rule, any
+ * utility class beats it, so a control on a dark fill can still say otherwise.
+ */
+@layer base {
+  /*
+   * Set on everything, not just on :focus-visible, so the ring has no colour
+   * to animate from. `transition-colors` covers outline-color in Tailwind v4,
+   * so a ring that only got its colour on focus faded in from the element's
+   * text colour — visibly the wrong colour for the first frames.
+   */
+  * {
+    outline-color: var(--color-secondary);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 0;
+  }
+}
+
 /* Rich-text page bodies: brand the links, keep the rest prose-stone. */
 .prose {
   --tw-prose-links: var(--color-primary);

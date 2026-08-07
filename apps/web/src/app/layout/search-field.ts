@@ -166,6 +166,10 @@ let nextId = 0;
             </ul>
           </div>
         </div>
+        <!-- The one control that overrides the app's focus outline: secondary
+             on this primary fill is barely a shade apart, and an outline
+             outside the box would sit beyond the field's rounded edge. White,
+             drawn inside. -->
         <button
           type="submit"
           class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-4 text-sm font-medium text-white transition-colors peer-hover:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-white"

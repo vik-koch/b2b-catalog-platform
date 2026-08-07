@@ -231,13 +231,12 @@ export class InquiryPage {
   // Segmented control: the selected channel fills with the theme primary.
   protected segClass(value: PreferredContact): string {
     // The radio itself is sr-only, so the focus treatment has to be borrowed by
-    // its label. `has-[:focus-visible]` rather than `focus-within`: focusing a
+    // its label — the app-wide outline cannot reach a hidden input's label on
+    // its own. `has-[:focus-visible]` rather than `focus-within`: focusing a
     // radio by clicking it is still focus, so focus-within lit the ring up on
-    // every mouse press. The outline (offset 2, inside the group's own p-1)
-    // matches every other control; a ring would have been the one box-shadow
-    // in the app.
+    // every mouse press. Same 2px secondary, flush, as everything else.
     const base =
-      'cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary';
+      'cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-secondary';
     const state =
       this.preferred() === value
         ? 'bg-primary text-white'
