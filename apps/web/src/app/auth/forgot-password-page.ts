@@ -6,6 +6,7 @@ import { APP_TEXT } from '../config/app-text';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
 import { zodValidator } from '../core/zod-validator';
+import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
 import { EmailField } from '../ui/email-field';
 import { AuthService } from './auth.service';
@@ -24,9 +25,9 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
  */
 @Component({
   selector: 'app-forgot-password-page',
-  imports: [ReactiveFormsModule, RouterLink, Button, EmailField],
+  imports: [AuthCard, ReactiveFormsModule, RouterLink, Button, EmailField],
   template: `
-    <div class="mx-auto max-w-md">
+    <app-auth-card>
       @if (status() === 'success') {
         <h1 class="mb-2 text-3xl font-bold tracking-tight">
           {{ text.successHeading }}
@@ -76,7 +77,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           }
         </form>
       }
-    </div>
+    </app-auth-card>
   `,
 })
 export class ForgotPasswordPage {

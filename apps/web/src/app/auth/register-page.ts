@@ -14,6 +14,7 @@ import {
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { zodValidator } from '../core/zod-validator';
+import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
 import { CompanyIdField } from '../ui/company-id-field';
 import { EmailField } from '../ui/email-field';
@@ -41,6 +42,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 @Component({
   selector: 'app-register-page',
   imports: [
+    AuthCard,
     ReactiveFormsModule,
     RouterLink,
     Button,
@@ -51,7 +53,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     PhoneField,
   ],
   template: `
-    <div class="mx-auto max-w-xl">
+    <app-auth-card>
       @if (status() === 'success') {
         <h1 class="mb-4 text-3xl font-bold tracking-tight">
           {{ text.register.successHeading }}
@@ -233,7 +235,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           }}</a>
         </p>
       }
-    </div>
+    </app-auth-card>
   `,
 })
 export class RegisterPage {

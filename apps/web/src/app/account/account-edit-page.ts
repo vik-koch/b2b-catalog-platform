@@ -43,7 +43,7 @@ type Status = 'idle' | 'submitting' | 'error';
     Skeleton,
   ],
   template: `
-    <div class="mx-auto max-w-xl">
+    <div class="max-w-xl">
       <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.heading }}</h1>
       <p class="mb-8 text-muted">{{ text.intro }}</p>
 

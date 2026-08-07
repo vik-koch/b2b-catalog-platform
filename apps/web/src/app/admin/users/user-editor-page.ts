@@ -71,16 +71,18 @@ import { SelectField } from '../../ui/select-field';
     SelectField,
   ],
   template: `
-    <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ title() }}</h1>
+    <!-- One narrow column for the whole screen, heading included: a full-width
+         title over a narrow form is a third layout where two will do. -->
+    <div class="max-w-xl">
+      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ title() }}</h1>
 
-    @if (loading()) {
-      @if (showSkeleton()) {
-        <app-skeleton [lines]="5" />
-      }
-    } @else if (notFound()) {
-      <p class="text-muted" role="alert">{{ text.notFound }}</p>
-    } @else {
-      <div class="max-w-2xl">
+      @if (loading()) {
+        @if (showSkeleton()) {
+          <app-skeleton [lines]="5" />
+        }
+      } @else if (notFound()) {
+        <p class="text-muted" role="alert">{{ text.notFound }}</p>
+      } @else {
         <!-- The account's fixed facts: who this is and where it stands. An
              existing account leads with them because they are the context for
              every field below. -->
@@ -345,8 +347,8 @@ import { SelectField } from '../../ui/select-field';
             </button>
           </div>
         </form>
-      </div>
-    }
+      }
+    </div>
   `,
 })
 export class UserEditorPage implements UnsavedChangesAware {

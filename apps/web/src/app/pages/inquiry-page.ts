@@ -35,7 +35,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     PhoneField,
   ],
   template: `
-    <div class="mx-auto max-w-xl">
+    <div class="max-w-xl">
       <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
 
       @if (status() === 'success') {

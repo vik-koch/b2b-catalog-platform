@@ -54,7 +54,7 @@ function substitute(
   imports: [RouterLink, Button, AdminIcon, FieldLabel, Input],
   template: `
     <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-    <p class="mb-8 max-w-2xl text-muted">{{ text.description }}</p>
+    <p class="mb-8 max-w-xl text-muted">{{ text.description }}</p>
 
     <!-- Step 1: what is this file? -->
     <section class="mb-8">

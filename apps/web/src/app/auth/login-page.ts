@@ -5,6 +5,7 @@ import { emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { zodValidator } from '../core/zod-validator';
 import { FieldErrors } from '../core/form-errors';
+import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
 import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
@@ -20,6 +21,7 @@ import { landingFor } from './auth.guard';
 @Component({
   selector: 'app-login-page',
   imports: [
+    AuthCard,
     ReactiveFormsModule,
     RouterLink,
     Button,
@@ -28,7 +30,7 @@ import { landingFor } from './auth.guard';
     Input,
   ],
   template: `
-    <div class="mx-auto max-w-sm">
+    <app-auth-card>
       <h1 class="mb-8 text-3xl font-bold tracking-tight">{{ text.login }}</h1>
 
       <form
@@ -101,7 +103,7 @@ import { landingFor } from './auth.guard';
           {{ text.register.signUp }}
         </a>
       </div>
-    </div>
+    </app-auth-card>
   `,
 })
 export class LoginPage {

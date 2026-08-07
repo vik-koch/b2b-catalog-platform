@@ -27,7 +27,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
   selector: 'app-account-delete-page',
   imports: [ReactiveFormsModule, RouterLink, Button, FieldLabel, Input],
   template: `
-    <div class="mx-auto max-w-xl">
+    <div class="max-w-xl">
       @if (deleted()) {
         <h1 class="mb-4 text-3xl font-bold tracking-tight">
           {{ text.doneHeading }}
