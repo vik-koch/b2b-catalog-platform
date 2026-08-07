@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { AUTH_COOKIE } from './auth.constants';
+import { toAuthUser } from './auth-user';
 import { AuthenticatedRequest } from './authenticated-request';
 import { JwtPayload } from './jwt-payload';
 
@@ -52,12 +53,7 @@ export class OptionalAuthGuard implements CanActivate {
     // Pending or anonymized: treated as a guest here, rejected in JwtAuthGuard.
     if (user.status !== 'active') return true;
 
-    request.user = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      mustChangePassword: user.mustChangePassword,
-    };
+    request.user = toAuthUser(user);
     // From the database row, not the token, so a re-tiering takes effect on the
     // customer's next page view.
     request.pricingTierId = user.tierId;

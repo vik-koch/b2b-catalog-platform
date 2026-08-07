@@ -91,6 +91,7 @@ describe('auth (session cookie)', () => {
       id: userId,
       email: TEST_EMAIL,
       role: 'admin',
+      firstName: null,
       mustChangePassword: false,
     });
     const cookie = res.headers['set-cookie']?.find((c) =>
@@ -117,6 +118,7 @@ describe('auth (session cookie)', () => {
       id: userId,
       email: TEST_EMAIL,
       role: 'admin',
+      firstName: null,
       mustChangePassword: false,
     });
   });
@@ -156,6 +158,7 @@ describe('auth (session cookie)', () => {
       id: userId,
       email: TEST_EMAIL,
       role: 'admin',
+      firstName: null,
       mustChangePassword: false,
     });
 

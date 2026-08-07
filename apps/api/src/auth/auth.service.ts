@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import { UserRow, UsersService } from '../users/users.service';
+import { toAuthUser } from './auth-user';
 import { JwtPayload } from './jwt-payload';
 import { PasswordPolicy, PasswordRejectedError } from './password-policy';
 import { PasswordService } from './password.service';
@@ -20,12 +21,7 @@ export class AuthService {
 
   /** The client-facing identity — never the hash or tokenVersion. */
   toAuthUser(user: UserRow): AuthUser {
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      mustChangePassword: user.mustChangePassword,
-    };
+    return toAuthUser(user);
   }
 
   /**

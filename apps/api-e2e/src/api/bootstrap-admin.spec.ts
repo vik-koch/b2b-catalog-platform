@@ -53,6 +53,9 @@ describe('bootstrapAdmin (create-if-missing)', () => {
       id: expect.any(String),
       email: EMAIL,
       role: 'admin',
+      // A config value rather than a person: nothing to greet it by, so the
+      // greeting falls back to the address.
+      firstName: null,
       // The deploy pipeline chose this password, not the admin, so the account
       // arrives flagged and the app insists on a change before anything else.
       mustChangePassword: true,
