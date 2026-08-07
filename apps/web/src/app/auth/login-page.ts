@@ -81,9 +81,24 @@ import { landingFor } from './auth.guard';
           </p>
         }
 
-        <button appButton type="submit" [disabled]="status() === 'submitting'">
-          {{ status() === 'submitting' ? text.submitting : text.submit }}
-        </button>
+        <div class="flex flex-wrap items-center gap-4">
+          <button
+            appButton
+            type="submit"
+            [disabled]="status() === 'submitting'"
+          >
+            {{ status() === 'submitting' ? text.submitting : text.submit }}
+          </button>
+          <!-- Beside the button, not under the password field: it is what you
+               reach for after the login fails, which is where the eye already
+               is. -->
+          <a
+            routerLink="/forgot-password"
+            class="text-sm font-medium text-primary underline underline-offset-2 hover:no-underline"
+          >
+            {{ text.forgotPassword.link }}
+          </a>
+        </div>
       </form>
 
       <div class="mt-10 border-t border-border pt-6">

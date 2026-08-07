@@ -9,6 +9,7 @@ export const serverRoutes: ServerRoute[] = [
   // routes need no gate component and no hydration dance.
   { path: 'login', renderMode: RenderMode.Client },
   { path: 'register', renderMode: RenderMode.Client },
+  { path: 'forgot-password', renderMode: RenderMode.Client },
   { path: 'set-password', renderMode: RenderMode.Client },
   { path: 'admin', renderMode: RenderMode.Client },
   { path: 'admin/products', renderMode: RenderMode.Client },

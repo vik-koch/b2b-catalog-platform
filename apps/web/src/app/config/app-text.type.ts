@@ -234,6 +234,26 @@ export const appTextSchema = z
           })
           .strict(),
         /**
+         * Asking for a reset link (FR-AUTH-02). The success copy has to be
+         * written for someone who may have typed an address with no account:
+         * it can promise nothing more than "if there is an account, a mail is
+         * on its way", because the server deliberately does not say which.
+         */
+        forgotPassword: z
+          .object({
+            /** The way in, from the login form. */
+            link: z.string(),
+            heading: z.string(),
+            intro: z.string(),
+            submit: z.string(),
+            submitting: z.string(),
+            successHeading: z.string(),
+            success: z.string(),
+            error: z.string(),
+            backToLogin: z.string(),
+          })
+          .strict(),
+        /**
          * Self-registration (FR-AUTH-01). An account is a request, not a
          * signup: the copy has to set that expectation before the visitor
          * submits, and the success state has to explain the wait.
