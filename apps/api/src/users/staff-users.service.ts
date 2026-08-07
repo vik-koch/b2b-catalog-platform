@@ -30,6 +30,17 @@ import * as schema from '../db/schema';
 import { users } from '../db/schema';
 import { UsersService } from './users.service';
 
+/**
+ * The one 404 this surface has. A function rather than a constant so each throw
+ * gets its own instance — a shared exception object would carry one stack
+ * around the whole process.
+ */
+const notFound = () =>
+  new NotFoundException({
+    code: 'account-not-found',
+    message: 'Account not found',
+  });
+
 /** What the account list and every mutation answer with. */
 const staffUserColumns = {
   id: users.id,
@@ -157,8 +168,11 @@ export class StaffUsersService {
 
     if (!updated) {
       throw (await this.exists(id))
-        ? new ConflictException('Only a pending registration can be approved')
-        : new NotFoundException('Account not found');
+        ? new ConflictException({
+            code: 'account-not-pending',
+            message: 'Only a pending registration can be approved',
+          })
+        : notFound();
     }
     return toStaffUser(updated);
   }
@@ -176,7 +190,10 @@ export class StaffUsersService {
   ): Promise<StaffUser> {
     const email = input.email.trim().toLowerCase();
     if (await this.findByEmail(email)) {
-      throw new ConflictException('That email address already has an account');
+      throw new ConflictException({
+        code: 'email-taken',
+        message: 'That email address already has an account',
+      });
     }
 
     const [created] = await this.db
@@ -215,9 +232,12 @@ export class StaffUsersService {
     actorId: string,
   ): Promise<StaffUser> {
     const current = await this.findById(id);
-    if (!current) throw new NotFoundException('Account not found');
+    if (!current) throw notFound();
     if (current.status === 'anonymized') {
-      throw new ConflictException('A closed account can no longer be edited');
+      throw new ConflictException({
+        code: 'account-closed',
+        message: 'A closed account can no longer be edited',
+      });
     }
 
     const role = input.role ?? current.role;
@@ -268,19 +288,24 @@ export class StaffUsersService {
     unusableHash: string,
   ): Promise<StaffUser> {
     const current = await this.findById(id);
-    if (!current) throw new NotFoundException('Account not found');
+    if (!current) throw notFound();
     if (current.status !== 'active' && current.status !== 'invited') {
-      throw new ConflictException(
-        'Only an approved account can be switched off',
-      );
+      throw new ConflictException({
+        code: 'account-not-approved',
+        message: 'Only an approved account can be switched off',
+      });
     }
     if (id === actorId) {
-      throw new ConflictException('You cannot deactivate your own account');
+      throw new ConflictException({
+        code: 'self-deactivate',
+        message: 'An account cannot deactivate itself',
+      });
     }
     if (current.role === 'admin' && !(await this.hasAnotherAdmin(id))) {
-      throw new ConflictException(
-        'This is the last admin account; promote another one first',
-      );
+      throw new ConflictException({
+        code: 'last-admin',
+        message: 'This is the last admin account',
+      });
     }
 
     const [updated] = await this.db
@@ -312,11 +337,12 @@ export class StaffUsersService {
    */
   async reactivate(id: string): Promise<StaffUser> {
     const current = await this.findById(id);
-    if (!current) throw new NotFoundException('Account not found');
+    if (!current) throw notFound();
     if (current.status !== 'disabled') {
-      throw new ConflictException(
-        'Only a deactivated account can be switched back on',
-      );
+      throw new ConflictException({
+        code: 'account-not-disabled',
+        message: 'Only a deactivated account can be switched back on',
+      });
     }
 
     const [updated] = await this.db
@@ -341,14 +367,16 @@ export class StaffUsersService {
     if (current.role !== 'admin' || role === 'admin') return;
 
     if (current.id === actorId) {
-      throw new ConflictException(
-        'You cannot take the admin role from your own account',
-      );
+      throw new ConflictException({
+        code: 'self-demote',
+        message: 'An admin cannot take the admin role from their own account',
+      });
     }
     if (!(await this.hasAnotherAdmin(current.id))) {
-      throw new ConflictException(
-        'This is the last admin account; promote another one first',
-      );
+      throw new ConflictException({
+        code: 'last-admin',
+        message: 'This is the last admin account',
+      });
     }
   }
 
@@ -367,10 +395,12 @@ export class StaffUsersService {
 
     if (!deleted.length) {
       throw (await this.exists(id))
-        ? new ConflictException(
-            'Only a pending registration can be deleted; approved accounts are anonymized',
-          )
-        : new NotFoundException('Account not found');
+        ? new ConflictException({
+            code: 'account-not-purgeable',
+            message:
+              'Only a pending registration can be deleted; approved accounts are anonymized',
+          })
+        : notFound();
     }
   }
 

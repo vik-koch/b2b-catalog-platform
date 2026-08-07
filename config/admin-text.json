@@ -306,7 +306,13 @@
     "deleteConfirm": "Delete “{name}”? The catalog sync will stop recognising its “price:{key}” column.",
     "deleteBlocked": "“{name}” is still in use: {reason}",
     "deleteError": "This tier could not be deleted. Please try again.",
-    "reorderError": "This move could not be saved. Please try again."
+    "reorderError": "This move could not be saved. Please try again.",
+    "errors": {
+      "tier-not-found": "This tier no longer exists. Reload the page to see the current list.",
+      "tier-key-taken": "Another tier already uses that sync key.",
+      "tier-has-accounts": "This tier still has customer accounts on it. Move them to another tier first.",
+      "tier-has-prices": "This tier still prices some products. Clear those prices first."
+    }
   },
   "userList": {
     "titleCustomers": "Customers",
@@ -353,7 +359,22 @@
     "reactivateConfirm": "Switch {name} back on? Their details and price tier are unchanged, and they are emailed a link to choose a new password.",
     "saveError": "That change could not be saved. Please try again.",
     "addCustomer": "Add customer",
-    "addStaff": "Add staff account"
+    "addStaff": "Add staff account",
+    "errors": {
+      "account-not-found": "This account no longer exists. Reload the page to see the current list.",
+      "account-not-pending": "This registration has already been decided on.",
+      "account-closed": "This account is closed and can no longer be edited.",
+      "email-taken": "That email address already has an account.",
+      "account-not-approved": "Only an approved account can be deactivated. Approve or decline this registration instead.",
+      "account-not-disabled": "This account is not deactivated, so there is nothing to switch back on.",
+      "account-not-invited": "This account has already chosen a password. Send them the “Forgot your password?” link instead.",
+      "self-deactivate": "You cannot deactivate your own account.",
+      "self-demote": "You cannot take the admin role from your own account.",
+      "last-admin": "This is the only admin account. Another admin must exist before this one can be changed.",
+      "account-not-purgeable": "Only a registration nobody has decided on can be declined. Deactivate this account instead.",
+      "role-change-admin-only": "Only an admin can change the role of an account.",
+      "staff-create-admin-only": "Only an admin can create a staff account."
+    }
   },
   "userEditor": {
     "newCustomerTitle": "New customer",

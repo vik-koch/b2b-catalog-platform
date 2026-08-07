@@ -26,6 +26,10 @@ import { customerTiers, productPrices, users } from '../db/schema';
  */
 const isCustomer = and(eq(users.role, 'user'), eq(users.status, 'active'));
 
+/** The one 404 this surface has; a function so each throw gets its own stack. */
+const notFound = () =>
+  new NotFoundException({ code: 'tier-not-found', message: 'Tier not found' });
+
 /**
  * The additional customer tiers. The base list is a column on `products`,
  * not a row here, so this service never sees it — it manages only
@@ -123,7 +127,7 @@ export class TiersService {
     actorId: string,
   ): Promise<CustomerTier> {
     const existing = await this.tierById(id);
-    if (!existing) throw new NotFoundException('Tier not found');
+    if (!existing) throw notFound();
 
     if (input.key !== existing.key) await this.assertKeyFree(input.key, id);
 
@@ -149,18 +153,20 @@ export class TiersService {
    */
   async deleteTier(id: string): Promise<{ message: string }> {
     const existing = await this.tierById(id);
-    if (!existing) throw new NotFoundException('Tier not found');
+    if (!existing) throw notFound();
 
     const { userCount, priceCount } = await this.countsFor(id);
     if (userCount > 0) {
-      throw new ConflictException(
-        `Tier still has ${userCount} account(s); move them to another tier first`,
-      );
+      throw new ConflictException({
+        code: 'tier-has-accounts',
+        message: `Tier still has ${userCount} account(s)`,
+      });
     }
     if (priceCount > 0) {
-      throw new ConflictException(
-        `Tier still has ${priceCount} product price(s); clear them first`,
-      );
+      throw new ConflictException({
+        code: 'tier-has-prices',
+        message: `Tier still has ${priceCount} product price(s)`,
+      });
     }
 
     await this.db.delete(customerTiers).where(eq(customerTiers.id, id));
@@ -182,7 +188,7 @@ export class TiersService {
         .from(customerTiers)
         .where(inArray(customerTiers.id, ids));
       if (rows.length !== new Set(ids).size) {
-        throw new NotFoundException('Tier not found');
+        throw notFound();
       }
     }
 
@@ -217,7 +223,10 @@ export class TiersService {
           : eq(customerTiers.key, key),
       );
     if (rows.length > 0) {
-      throw new ConflictException(`Tier key '${key}' is already in use`);
+      throw new ConflictException({
+        code: 'tier-key-taken',
+        message: `Tier key '${key}' is already in use`,
+      });
     }
   }
 

@@ -52,7 +52,11 @@ export class AccountController {
       // The guard read this row a moment ago, so this is the account deleting
       // itself mid-request rather than a real 404 — the session is what is
       // gone, and 401 is what the client already knows how to handle.
-      if (!user) throw new UnauthorizedException('Session no longer valid');
+      if (!user)
+        throw new UnauthorizedException({
+          code: 'not-authenticated',
+          message: 'Session no longer valid',
+        });
 
       return { status: 200 as const, body: toAccountProfile(user) };
     });
@@ -64,7 +68,11 @@ export class AccountController {
       const updated = await this.users.updateOwnProfile(actor.id, body);
       // No row means the account stopped being `active` between the guard and
       // the write — deactivated or anonymized underneath the session.
-      if (!updated) throw new UnauthorizedException('Session no longer valid');
+      if (!updated)
+        throw new UnauthorizedException({
+          code: 'not-authenticated',
+          message: 'Session no longer valid',
+        });
 
       // Its own action rather than `user.updated`: what an auditor asks about a
       // changed phone number is whether staff changed it or the customer did,
@@ -89,13 +97,16 @@ export class AccountController {
           ? {
               status: 409 as const,
               body: {
-                message:
-                  'This is the only admin account; another admin must exist before it can be deleted.',
+                code: 'last-admin' as const,
+                message: 'This is the only admin account',
               },
             }
           : {
               status: 400 as const,
-              body: { message: 'Password is incorrect' },
+              body: {
+                code: 'wrong-current-password' as const,
+                message: 'Password is incorrect',
+              },
             };
       }
 

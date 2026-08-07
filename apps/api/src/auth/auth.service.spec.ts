@@ -155,7 +155,7 @@ describe('AuthService', () => {
       // Once: `clearAllMocks` clears calls but keeps implementations, so a
       // persistent throw here would fail every later test in this block.
       (policy.assertAcceptable as jest.Mock).mockImplementationOnce(() => {
-        throw new PasswordRejectedError('too common');
+        throw new PasswordRejectedError('password-common', 'too common');
       });
 
       await expect(

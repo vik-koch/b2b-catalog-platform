@@ -51,9 +51,11 @@ export class RegistrationService {
       request.companyRegistrationId &&
       !this.companyIdMatches(request.companyRegistrationId)
     ) {
-      throw new BadRequestException(
-        'That does not look like a valid company registration number',
-      );
+      throw new BadRequestException({
+        code: 'company-id-format',
+        message:
+          'Company registration number does not match the configured format',
+      });
     }
 
     const email = request.email.trim().toLowerCase();

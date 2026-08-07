@@ -418,6 +418,19 @@ export const adminTextSchema = z
         deleteConfirm: z.string(),
         deleteBlocked: z.string(),
         deleteError: z.string(),
+        /**
+         * What the server refused, keyed by its own `code`. Mostly races: the
+         * list checks the same things from the counts it already has, so these
+         * are what somebody else changed in between.
+         */
+        errors: z
+          .object({
+            'tier-not-found': z.string(),
+            'tier-key-taken': z.string(),
+            'tier-has-accounts': z.string(),
+            'tier-has-prices': z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**
@@ -486,6 +499,30 @@ export const adminTextSchema = z
          * things and land on different forms. */
         addCustomer: z.string(),
         addStaff: z.string(),
+        /**
+         * Every refusal the account surface can answer with, keyed by the API's
+         * own `code`. The editor reads these too, like the status and role
+         * labels above: a refused approval says the same thing wherever the
+         * click came from.
+         */
+        errors: z
+          .object({
+            'account-not-found': z.string(),
+            'account-not-pending': z.string(),
+            'account-closed': z.string(),
+            'email-taken': z.string(),
+            'account-not-approved': z.string(),
+            'account-not-disabled': z.string(),
+            'account-not-invited': z.string(),
+            'self-deactivate': z.string(),
+            'self-demote': z.string(),
+            'last-admin': z.string(),
+            'account-not-purgeable': z.string(),
+            /** The two a manager is refused, shown next to the field. */
+            'role-change-admin-only': z.string(),
+            'staff-create-admin-only': z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**

@@ -9,6 +9,7 @@ import { adminUser } from './auth-user.fixture';
 import { SetPasswordPage } from './set-password-page';
 
 const text = defaultAppText.auth.setPassword;
+const rejected = defaultAppText.auth.passwordRejected;
 
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);
@@ -140,11 +141,11 @@ describe('SetPasswordPage', () => {
     expect(navigateByUrl).toHaveBeenCalled();
   });
 
-  // The server refuses common passwords; its message is the only one that can
-  // say which rule was broken, so it is shown verbatim.
-  it('shows the server’s reason for refusing a password, keeping the form', async () => {
+  // The server refuses common passwords, and says which rule refused; the page
+  // looks that code's wording up in its own text.
+  it('shows the reason for refusing a password, keeping the form', async () => {
     const { el, sync, submit } = await render({
-      outcome: { result: 'rejected', message: 'That is too common.' },
+      outcome: { result: 'rejected', code: 'password-common' },
     });
 
     setInput(el, '#newPassword', 'password1234');
@@ -152,7 +153,7 @@ describe('SetPasswordPage', () => {
     submit();
     await sync();
 
-    expect(el.textContent).toContain('That is too common.');
+    expect(el.textContent).toContain(rejected['password-common']);
     expect(el.querySelector('form')).not.toBeNull();
   });
 

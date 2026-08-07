@@ -21,6 +21,15 @@ import { AccountInvitations } from './account-invitations';
 import { StaffUsersService } from './staff-users.service';
 
 /**
+ * Unknown, and staff seen by a manager. One body for both: the list hides staff
+ * from a manager, so telling them apart here would undo that.
+ */
+const notFoundBody = {
+  code: 'account-not-found',
+  message: 'Account not found',
+} as const;
+
+/**
  * Account management (FR-AUTH-03/04, NFR-SEC-04).
  *
  * The class guard is the *customer* permission — admin and manager both decide
@@ -60,7 +69,7 @@ export class StaffUsersController {
       async ({ params: { id }, body }) => {
         const pending = await this.service.findById(id);
         if (!pending || !this.mayManage(actor, pending)) {
-          return { status: 404, body: { message: 'Account not found' } };
+          return { status: 404, body: notFoundBody };
         }
         const user = await this.service.approve(id, body.tierId, actor.id);
         this.audit.record('user.approved', actor, {
@@ -79,9 +88,10 @@ export class StaffUsersController {
       // The same admin-only rule as editing a role, at the other door: a
       // manager who could *create* an admin would not need to grant one.
       if (body.role !== 'user' && actor.role !== 'admin') {
-        throw new ForbiddenException(
-          'Only an admin can create a staff account',
-        );
+        throw new ForbiddenException({
+          code: 'staff-create-admin-only',
+          message: 'Only an admin can create a staff account',
+        });
       }
       const user = await this.invitations.create(body, actor.id);
       this.audit.record('user.created', actor, {
@@ -99,7 +109,7 @@ export class StaffUsersController {
       // A staff account is *not found* for a manager rather than forbidden:
       // the list hides them, so confirming one exists here would undo that.
       if (!user || !this.mayManage(actor, user)) {
-        return { status: 404, body: { message: 'Account not found' } };
+        return { status: 404, body: notFoundBody };
       }
       return { status: 200, body: user };
     });
@@ -112,14 +122,17 @@ export class StaffUsersController {
       async ({ params: { id }, body }) => {
         const before = await this.service.findById(id);
         if (!before || !this.mayManage(actor, before)) {
-          return { status: 404, body: { message: 'Account not found' } };
+          return { status: 404, body: notFoundBody };
         }
         // Deciding who is *staff* is the one power this surface withholds from
         // a manager — one who could grant a role could promote themselves. The
         // field is refused outright, never dropped, so a refusal cannot read as
         // a save.
         if (body.role !== undefined && actor.role !== 'admin') {
-          throw new ForbiddenException('Only an admin can change a role');
+          throw new ForbiddenException({
+            code: 'role-change-admin-only',
+            message: 'Only an admin can change a role',
+          });
         }
 
         const user = await this.service.update(id, body, actor.id);
@@ -177,7 +190,7 @@ export class StaffUsersController {
       async ({ params: { id }, body }) => {
         const target = await this.service.findById(id);
         if (!target || !this.mayManage(actor, target)) {
-          return { status: 404, body: { message: 'Account not found' } };
+          return { status: 404, body: notFoundBody };
         }
         const user = body.active
           ? await this.invitations.reactivate(id)
@@ -199,7 +212,7 @@ export class StaffUsersController {
       async ({ params: { id } }) => {
         const user = await this.service.findById(id);
         if (!user || !this.mayManage(actor, user)) {
-          return { status: 404, body: { message: 'Account not found' } };
+          return { status: 404, body: notFoundBody };
         }
         // Unlike an approval, the mail *is* the request: a failure here is
         // reported rather than swallowed, because nothing else happened.
@@ -220,7 +233,7 @@ export class StaffUsersController {
       async ({ params: { id } }) => {
         const user = await this.service.findById(id);
         if (!user || !this.mayManage(actor, user)) {
-          return { status: 404, body: { message: 'Account not found' } };
+          return { status: 404, body: notFoundBody };
         }
         await this.service.purgePending(id);
         this.audit.record('user.declined', actor, { id, name: user.email });

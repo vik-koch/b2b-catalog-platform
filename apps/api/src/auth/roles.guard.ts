@@ -32,11 +32,17 @@ export class RolesGuard implements CanActivate {
     // No user here means RolesGuard was applied without JwtAuthGuard in front —
     // a route misconfiguration. Fail closed rather than silently allow.
     if (!user) {
-      throw new ForbiddenException('Not authenticated');
+      throw new ForbiddenException({
+        code: 'not-authenticated',
+        message: 'Not authenticated',
+      });
     }
 
     if (!required.includes(user.role)) {
-      throw new ForbiddenException('Insufficient role');
+      throw new ForbiddenException({
+        code: 'insufficient-role',
+        message: 'Insufficient role',
+      });
     }
 
     return true;

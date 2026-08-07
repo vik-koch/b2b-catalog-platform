@@ -1,5 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 
 const c = initContract();
 
@@ -66,6 +67,31 @@ export type LoginRequest = z.infer<typeof loginSchema>;
  */
 export const PASSWORD_MIN_LENGTH = 12;
 export const newPasswordSchema = z.string().min(PASSWORD_MIN_LENGTH).max(200);
+
+/**
+ * Why the server refused a password. One code per rule in PasswordPolicy, so
+ * the form can say what is actually wrong — somebody who typed their own email
+ * address is told that, not "invalid password" — while the wording stays in the
+ * deployment's own text file.
+ *
+ * Length is absent on purpose: it is in `newPasswordSchema`, so the form
+ * refuses a short password before there is a request to answer.
+ */
+export const PASSWORD_REJECTION_CODES = [
+  'password-common',
+  'password-predictable',
+  'password-contains-email',
+  'password-contains-shop-name',
+  /** Only reachable from a password *change*, which knows the old one. */
+  'password-unchanged',
+] as const;
+export type PasswordRejectionCode = (typeof PASSWORD_REJECTION_CODES)[number];
+
+/**
+ * A set-a-password link that is no good. Unknown, already used and expired are
+ * deliberately one code, as they are one answer.
+ */
+export const PASSWORD_TOKEN_INVALID = 'password-token-invalid' as const;
 
 /**
  * Redeeming a set-a-password link (FR-AUTH-01/02). The token is the whole
@@ -181,6 +207,11 @@ export const authContract = c.router({
       // addresses have accounts. What actually happened is explained by mail,
       // to the address itself.
       200: z.object({ ok: z.literal(true) }),
+      // The one thing a registration is told outright. The number's format is
+      // deployment config, so the browser checks the same rule and this is the
+      // server having the last word — and unlike an address that already has an
+      // account, a bad format reveals nothing about anyone.
+      400: apiErrorSchema(['company-id-format']),
     },
     summary: 'Request an account (creates a pending registration)',
   },
@@ -209,8 +240,7 @@ export const authContract = c.router({
           email: z.string().email(),
         })
         .strict(),
-      // Unknown, already used and expired are one answer on purpose.
-      404: z.object({ message: z.string() }),
+      404: apiErrorSchema([PASSWORD_TOKEN_INVALID]),
     },
     summary: 'Check a set-a-password link before showing the form',
   },
@@ -222,9 +252,9 @@ export const authContract = c.router({
       // Signs the visitor in: they have just proved control of the address and
       // chosen a password, so a login form here would be ceremony.
       200: authUserSchema,
-      // The password was refused by the policy; the message says why.
-      400: z.object({ message: z.string() }),
-      404: z.object({ message: z.string() }),
+      // The password was refused by the policy; the code says which rule.
+      400: apiErrorSchema(PASSWORD_REJECTION_CODES),
+      404: apiErrorSchema([PASSWORD_TOKEN_INVALID]),
     },
     summary: 'Redeem a link and set the account password',
   },
@@ -234,7 +264,9 @@ export const authContract = c.router({
     body: loginSchema,
     responses: {
       200: authUserSchema,
-      401: z.object({ message: z.string() }),
+      // Deliberately one code for a wrong address, a wrong password and an
+      // account that may not sign in: the form says the same thing to all three.
+      401: apiErrorSchema(['invalid-credentials']),
     },
     summary: 'Authenticate and start a session (sets an httpOnly cookie)',
   },
@@ -253,7 +285,7 @@ export const authContract = c.router({
     path: '/auth/me',
     responses: {
       200: authUserSchema,
-      401: z.object({ message: z.string() }),
+      401: commonAuthErrorSchema,
     },
     summary: 'Return the currently authenticated user',
   },
@@ -265,15 +297,14 @@ export const authContract = c.router({
       // The refreshed identity (with mustChangePassword cleared), so the client
       // updates its session state from the response rather than re-fetching.
       200: authUserSchema,
-      // Two different 400s, told apart by `code` rather than by the client
-      // guessing: the current password was wrong, or the *new* one was refused
-      // by the password policy — which is the account holder's own text to
-      // read, so the message travels with it.
-      400: z.object({
-        message: z.string(),
-        code: z.enum(['wrong-current', 'rejected']),
-      }),
-      401: z.object({ message: z.string() }),
+      // Two different kinds of 400, told apart by `code` rather than by the
+      // client guessing: the current password was wrong, or the *new* one was
+      // refused by the policy — and in that case which rule refused it.
+      400: apiErrorSchema([
+        'wrong-current-password',
+        ...PASSWORD_REJECTION_CODES,
+      ]),
+      401: commonAuthErrorSchema,
     },
     summary: "Change the current user's password",
   },

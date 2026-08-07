@@ -1,5 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
 
 const c = initContract();
@@ -74,7 +75,7 @@ export const accountContract = c.router({
     path: '/account/profile',
     responses: {
       200: accountProfileSchema,
-      401: z.object({ message: z.string() }),
+      401: commonAuthErrorSchema,
     },
     summary: "The signed-in account's own details",
   },
@@ -84,7 +85,7 @@ export const accountContract = c.router({
     body: updateAccountProfileSchema,
     responses: {
       200: accountProfileSchema,
-      401: z.object({ message: z.string() }),
+      401: commonAuthErrorSchema,
     },
     summary: "Correct the signed-in account's own name and phone number",
   },
@@ -98,10 +99,10 @@ export const accountContract = c.router({
     responses: {
       200: z.object({ message: z.string() }),
       /** The password did not match. The only refusal the form can act on. */
-      400: z.object({ message: z.string() }),
-      401: z.object({ message: z.string() }),
+      400: apiErrorSchema(['wrong-current-password']),
+      401: commonAuthErrorSchema,
       /** The last admin. Deleting it would leave nobody able to let anyone in. */
-      409: z.object({ message: z.string() }),
+      409: apiErrorSchema(['last-admin']),
     },
     summary: 'Delete your own account, anonymizing it (FR-AUTH-06)',
   },

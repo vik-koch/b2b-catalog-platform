@@ -1,5 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 
 const c = initContract();
 
@@ -77,7 +78,19 @@ export const reorderTiersSchema = z
   .strict();
 export type ReorderTiersRequest = z.infer<typeof reorderTiersSchema>;
 
-const messageSchema = z.object({ message: z.string() });
+/**
+ * Why a tier action was refused. `tier-has-*` are the delete guard, and the
+ * list already knows both counts, so it says which of its own numbers is in the
+ * way without the server phrasing it.
+ */
+export const TIER_ERROR_CODES = [
+  'tier-not-found',
+  'tier-key-taken',
+  'tier-has-accounts',
+  'tier-has-prices',
+] as const;
+export type TierErrorCode = (typeof TIER_ERROR_CODES)[number];
+const tierErrorSchema = apiErrorSchema(TIER_ERROR_CODES);
 
 export const tiersContract = c.router(
   {
@@ -108,7 +121,7 @@ export const tiersContract = c.router(
       responses: {
         201: customerTierSchema,
         // Key already taken.
-        409: messageSchema,
+        409: tierErrorSchema,
       },
       summary: 'Create a customer tier (admin)',
     },
@@ -119,9 +132,9 @@ export const tiersContract = c.router(
       body: tierInputSchema,
       responses: {
         200: customerTierSchema,
-        404: messageSchema,
+        404: tierErrorSchema,
         // Key already taken by another tier.
-        409: messageSchema,
+        409: tierErrorSchema,
       },
       summary: 'Rename a customer tier or change its sync key (admin)',
     },
@@ -131,7 +144,7 @@ export const tiersContract = c.router(
       body: reorderTiersSchema,
       responses: {
         200: z.object({ tiers: z.array(customerTierSchema) }).strict(),
-        404: messageSchema,
+        404: tierErrorSchema,
       },
       summary: 'Set the display order of the tier list (admin)',
     },
@@ -141,15 +154,15 @@ export const tiersContract = c.router(
       pathParams: z.object({ id: z.string().uuid() }),
       body: z.void(),
       responses: {
-        200: messageSchema,
-        404: messageSchema,
+        200: z.object({ message: z.string() }),
+        404: tierErrorSchema,
         // Still referenced by accounts or product prices.
-        409: messageSchema,
+        409: tierErrorSchema,
       },
       summary: 'Delete an unreferenced customer tier (admin)',
     },
   },
   {
-    commonResponses: { 401: messageSchema, 403: messageSchema },
+    commonResponses: { 401: commonAuthErrorSchema, 403: commonAuthErrorSchema },
   },
 );

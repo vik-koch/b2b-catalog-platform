@@ -1,7 +1,11 @@
 import { Controller, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { authContract, AuthUser } from '@b2b-catalog-platform/shared';
+import {
+  authContract,
+  AuthUser,
+  PASSWORD_TOKEN_INVALID,
+} from '@b2b-catalog-platform/shared';
 import {
   AuthThrottle,
   PublicFormThrottle,
@@ -72,7 +76,10 @@ export class AuthController {
           ? { status: 200 as const, body: account }
           : {
               status: 404 as const,
-              body: { message: 'This link is no longer valid' },
+              body: {
+                code: PASSWORD_TOKEN_INVALID,
+                message: 'This link is no longer valid',
+              },
             };
       },
     );
@@ -87,17 +94,23 @@ export class AuthController {
       try {
         user = await this.passwordSetup.redeem(body.token, body.password);
       } catch (error) {
-        // The policy's own words; the link is untouched, so the visitor can
-        // simply try a different password.
+        // Which rule refused; the link is untouched, so the visitor can simply
+        // try a different password.
         if (error instanceof PasswordRejectedError) {
-          return { status: 400 as const, body: { message: error.message } };
+          return {
+            status: 400 as const,
+            body: { code: error.code, message: error.message },
+          };
         }
         throw error;
       }
       if (!user) {
         return {
           status: 404,
-          body: { message: 'This link is no longer valid' },
+          body: {
+            code: PASSWORD_TOKEN_INVALID,
+            message: 'This link is no longer valid',
+          },
         };
       }
       // Straight into a session: they have just proved control of the address
@@ -115,9 +128,15 @@ export class AuthController {
     return tsRestHandler(authContract.login, async ({ body }) => {
       const user = await this.auth.validate(body.email, body.password);
       if (!user) {
-        // One message for unknown email and wrong password alike — don't reveal
+        // One answer for unknown email and wrong password alike — don't reveal
         // which emails exist (the service also equalizes timing).
-        return { status: 401, body: { message: 'Invalid email or password' } };
+        return {
+          status: 401,
+          body: {
+            code: 'invalid-credentials' as const,
+            message: 'Invalid email or password',
+          },
+        };
       }
       const token = await this.auth.signToken(user);
       res.cookie(AUTH_COOKIE, token, sessionCookie(req));
@@ -160,21 +179,21 @@ export class AuthController {
         );
       } catch (error) {
         // Both are 400s, and the client has to tell them apart: one means
-        // "retype the field above", the other carries the policy's own words
-        // about the new password.
+        // "retype the field above", the other says which rule refused the new
+        // password.
         if (error instanceof WrongCurrentPasswordError) {
           return {
             status: 400 as const,
             body: {
+              code: 'wrong-current-password' as const,
               message: 'Current password is incorrect',
-              code: 'wrong-current' as const,
             },
           };
         }
         if (error instanceof PasswordRejectedError) {
           return {
             status: 400 as const,
-            body: { message: error.message, code: 'rejected' as const },
+            body: { code: error.code, message: error.message },
           };
         }
         throw error;

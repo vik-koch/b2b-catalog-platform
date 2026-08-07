@@ -34,30 +34,45 @@ export class JwtAuthGuard implements CanActivate {
 
     const token = request.cookies?.[AUTH_COOKIE];
     if (!token) {
-      throw new UnauthorizedException('Not authenticated');
+      throw new UnauthorizedException({
+        code: 'not-authenticated',
+        message: 'Not authenticated',
+      });
     }
 
     let payload: JwtPayload;
     try {
       payload = await this.jwt.verifyAsync<JwtPayload>(token);
     } catch {
-      throw new UnauthorizedException('Invalid or expired session');
+      throw new UnauthorizedException({
+        code: 'not-authenticated',
+        message: 'Invalid or expired session',
+      });
     }
 
     const user = await this.users.findById(payload.sub);
     // User gone (deleted) → reject.
     if (!user) {
-      throw new UnauthorizedException('Session no longer valid');
+      throw new UnauthorizedException({
+        code: 'not-authenticated',
+        message: 'Session no longer valid',
+      });
     }
     // Version moved on (password changed / forced logout) → reject.
     if (user.tokenVersion !== payload.tokenVersion) {
-      throw new UnauthorizedException('Session expired');
+      throw new UnauthorizedException({
+        code: 'not-authenticated',
+        message: 'Session expired',
+      });
     }
     // Not (or no longer) an account that may sign in: awaiting approval, or
     // anonymized after self-deletion. Checked here as well as at login, so a
     // session already in flight when the status changes stops working too.
     if (user.status !== 'active') {
-      throw new UnauthorizedException('Session no longer valid');
+      throw new UnauthorizedException({
+        code: 'not-authenticated',
+        message: 'Session no longer valid',
+      });
     }
 
     // Role comes from the DB, not the token, so a role change takes effect now.

@@ -1,6 +1,11 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
 import {
+  apiErrorSchema,
+  COMMON_AUTH_ERROR_CODES,
+  commonAuthErrorSchema,
+} from './api-error';
+import {
   companyRegistrationIdSchema,
   customerTypeSchema,
   userRoleSchema,
@@ -176,7 +181,43 @@ export const listUsersQuerySchema = z.object({
 });
 export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
 
-const messageSchema = z.object({ message: z.string() });
+/**
+ * Why a staff account action was refused. Each one is a sentence the account
+ * list or the editor puts on screen, so the set is closed and every code has a
+ * matching line in the admin text.
+ */
+export const USER_ERROR_CODES = [
+  /** Unknown — or staff seen by a manager, which is the same answer here. */
+  'account-not-found',
+  'account-not-pending',
+  'account-closed',
+  'email-taken',
+  /** Only an `active` or `invited` account can be switched off. */
+  'account-not-approved',
+  'account-not-disabled',
+  /** Nothing to invite: a password has already been chosen. */
+  'account-not-invited',
+  'self-deactivate',
+  'self-demote',
+  'last-admin',
+  /** Approved accounts are anonymized, never deleted. */
+  'account-not-purgeable',
+] as const;
+export type UserErrorCode = (typeof USER_ERROR_CODES)[number];
+const userErrorSchema = apiErrorSchema(USER_ERROR_CODES);
+
+/**
+ * The two things a manager may not do, both about who decides who is staff.
+ * Their own 403 codes rather than the shared `insufficient-role`, because these
+ * two do reach a screen: the editor shows them next to the field that was
+ * refused, where a redirect to "not for you" would lose the whole edit.
+ */
+export const USER_FORBIDDEN_CODES = [
+  ...COMMON_AUTH_ERROR_CODES,
+  'role-change-admin-only',
+  'staff-create-admin-only',
+] as const;
+export type UserForbiddenCode = (typeof USER_FORBIDDEN_CODES)[number];
 
 export const usersContract = c.router(
   {
@@ -196,9 +237,9 @@ export const usersContract = c.router(
       body: approveUserSchema,
       responses: {
         200: staffUserSchema,
-        404: messageSchema,
+        404: userErrorSchema,
         // Only a pending registration can be approved.
-        409: messageSchema,
+        409: userErrorSchema,
       },
       summary: 'Approve a registration, assign a tier, send the invitation',
     },
@@ -209,7 +250,7 @@ export const usersContract = c.router(
       responses: {
         201: staffUserSchema,
         // Email already has an account.
-        409: messageSchema,
+        409: userErrorSchema,
       },
       summary: 'Create an account and invite it (admin, manager)',
     },
@@ -219,7 +260,7 @@ export const usersContract = c.router(
       pathParams: z.object({ id: z.string().uuid() }),
       responses: {
         200: staffUserSchema,
-        404: messageSchema,
+        404: userErrorSchema,
       },
       // The editor is a route, so a reload of it has no list to read from.
       summary: 'One account (admin, manager)',
@@ -231,9 +272,9 @@ export const usersContract = c.router(
       body: updateUserSchema,
       responses: {
         200: staffUserSchema,
-        404: messageSchema,
+        404: userErrorSchema,
         // Would leave the deployment with no admin, or demote yourself.
-        409: messageSchema,
+        409: userErrorSchema,
       },
       summary: 'Edit an account; role is admin only (admin, manager)',
     },
@@ -244,10 +285,10 @@ export const usersContract = c.router(
       body: setUserActiveSchema,
       responses: {
         200: staffUserSchema,
-        404: messageSchema,
+        404: userErrorSchema,
         // Your own account, the last admin, a registration nobody has decided
         // on yet, or an anonymized one — which has nothing left to switch on.
-        409: messageSchema,
+        409: userErrorSchema,
       },
       summary: 'Deactivate or reactivate an account (admin, manager)',
     },
@@ -259,10 +300,10 @@ export const usersContract = c.router(
       // (a POST body is parsed to `{}`, which `z.void()` would reject).
       body: z.object({}),
       responses: {
-        200: messageSchema,
-        404: messageSchema,
+        200: z.object({ message: z.string() }),
+        404: userErrorSchema,
         // Nothing to send to: a pending, disabled or anonymized account.
-        409: messageSchema,
+        409: userErrorSchema,
       },
       // The first link expires, and mail gets lost; this is the way back
       // without touching the account itself.
@@ -274,16 +315,19 @@ export const usersContract = c.router(
       pathParams: z.object({ id: z.string().uuid() }),
       body: z.void(),
       responses: {
-        200: messageSchema,
-        404: messageSchema,
+        200: z.object({ message: z.string() }),
+        404: userErrorSchema,
         // Only an unapproved registration can be deleted outright; an account
         // that has ever been usable is anonymized instead, never removed.
-        409: messageSchema,
+        409: userErrorSchema,
       },
       summary: 'Decline and purge a pending registration (admin, manager)',
     },
   },
   {
-    commonResponses: { 401: messageSchema, 403: messageSchema },
+    commonResponses: {
+      401: commonAuthErrorSchema,
+      403: apiErrorSchema(USER_FORBIDDEN_CODES),
+    },
   },
 );

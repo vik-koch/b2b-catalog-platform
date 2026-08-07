@@ -166,6 +166,8 @@ export class SetPasswordPage implements OnInit {
   protected readonly auth = inject(APP_TEXT).auth;
   protected readonly text = this.auth.setPassword;
   protected readonly validation = this.auth.validation;
+  /** One line per policy rule, so the code the API sends is the whole lookup. */
+  private readonly rejected = this.auth.passwordRejected;
   protected readonly tooShort =
     this.auth.validation.newPasswordTooShort.replace(
       '{min}',
@@ -180,7 +182,7 @@ export class SetPasswordPage implements OnInit {
   protected readonly email = signal('');
   protected readonly revealed = signal(false);
   protected readonly suggested = signal(false);
-  /** The server's own words for a password it refused. */
+  /** The refusal to show under the field, once there is one. */
   protected readonly rejection = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group(
@@ -236,7 +238,7 @@ export class SetPasswordPage implements OnInit {
     if (this.form.invalid) return;
 
     this.status.set('submitting');
-    const { result, message } = await this.service.setPassword({
+    const { result, code } = await this.service.setPassword({
       token: this.token(),
       password: this.form.controls.newPassword.value,
     });
@@ -253,6 +255,6 @@ export class SetPasswordPage implements OnInit {
       return;
     }
     this.status.set('ready');
-    this.rejection.set(message ?? this.text.error);
+    this.rejection.set(code ? this.rejected[code] : this.text.error);
   }
 }

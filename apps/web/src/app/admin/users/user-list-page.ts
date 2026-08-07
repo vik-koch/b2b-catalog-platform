@@ -486,7 +486,7 @@ export class UserListPage {
 
     try {
       const result = await this.service.setActive(user.id, active);
-      if (!result.ok) this.pageError.set(result.message);
+      if (!result.ok) this.pageError.set(this.text.errors[result.code]);
     } catch {
       this.pageError.set(this.text.saveError);
     }
@@ -495,7 +495,7 @@ export class UserListPage {
 
   /** Decline a pending registration — a yes/no, so the shared confirm dialog.
    * On the rare race (already approved) the reload corrects the row and the
-   * server's reason shows in the page banner. */
+   * refusal shows in the page banner. */
   protected async decline(user: StaffUser): Promise<void> {
     this.pageError.set(null);
     const ok = await this.confirm.ask({
@@ -509,7 +509,7 @@ export class UserListPage {
 
     try {
       const result = await this.service.remove(user.id);
-      if (!result.ok) this.pageError.set(result.message);
+      if (!result.ok) this.pageError.set(this.text.errors[result.code]);
     } catch {
       this.pageError.set(this.text.saveError);
     }
