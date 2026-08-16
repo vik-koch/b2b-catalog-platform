@@ -13,6 +13,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgEnum,
   pgTable,
   primaryKey,
@@ -116,8 +117,23 @@ export const products = pgTable(
     name: varchar('name', { length: 512 }).notNull(),
     // The default list's price — the base every product has. The additional
     // tiers' prices live in product_prices and fall back to this one wherever
-    // they have no row.
+    // they have no row. It is the price of `priceBasisPieces` pieces.
     defaultPriceMinor: integer('defaultPriceMinor').notNull(),
+    // How many pieces the stored price covers; 1 means per piece. Staff-facing:
+    // the read layer resolves prices per unit and only the resolved figures are
+    // ever serialized.
+    priceBasisPieces: integer('priceBasisPieces').notNull().default(1),
+    // Packaging. Null means the product is not sold in that unit. Admin-owned —
+    // the sync does not carry them.
+    piecesPerPack: integer('piecesPerPack'),
+    packsPerBox: integer('packsPerBox'),
+    // Minimum piece quantity, and equally the increment. Piece purchases only.
+    minPieceQty: integer('minPieceQty').notNull().default(1),
+    // A box's shipping dimensions, shown among the product's attributes. Plain
+    // numerics: the integer-money rule is about currency rounding, which does
+    // not apply to mass and volume. Unit labels are deployment config.
+    boxVolume: numeric('boxVolume', { precision: 12, scale: 3 }),
+    boxWeight: numeric('boxWeight', { precision: 12, scale: 3 }),
     categoryId: uuid('categoryId')
       .notNull()
       .references(() => categories.id, { onDelete: 'restrict' }),
@@ -165,6 +181,27 @@ export const products = pgTable(
     index('products_name_trgm_idx').using(
       'gin',
       sql`search_unaccent("name") gin_trgm_ops`,
+    ),
+    check(
+      'products_units_positive',
+      sql`${t.priceBasisPieces} >= 1 and ${t.minPieceQty} >= 1
+        and (${t.piecesPerPack} is null or ${t.piecesPerPack} >= 1)
+        and (${t.packsPerBox} is null or ${t.packsPerBox} >= 1)`,
+    ),
+    // A box's piece count is piecesPerPack * packsPerBox, so the outer level
+    // needs the inner one.
+    check(
+      'products_box_needs_pack',
+      sql`${t.packsPerBox} is null or ${t.piecesPerPack} is not null`,
+    ),
+    // What keeps totals exact: every purchasable quantity is a whole number of
+    // basis units, so a total is a multiplication with nothing to round. In the
+    // database, not only the editor — it is the guarantee, not a form nicety.
+    check(
+      'products_basis_divides_quantities',
+      sql`${t.minPieceQty} % ${t.priceBasisPieces} = 0
+        and (${t.piecesPerPack} is null
+             or ${t.piecesPerPack} % ${t.priceBasisPieces} = 0)`,
     ),
   ],
 );
