@@ -4,6 +4,7 @@ import {
   AdminCategory,
   CatalogImage,
   CustomerTier,
+  PIECE_PRICE_SCALE,
   ProductAttribute,
   ProductDetail,
   ProductInput,
@@ -288,10 +289,20 @@ export class ProductEditorPage implements UnsavedChangesAware {
    * the exact same component the storefront uses. */
   protected readonly previewItem = computed<ProductDetail>(() => {
     const category = this.categories().find((c) => c.id === this.categoryId());
+    const priceMinor = this.previewPriceMinor();
     return {
       slug: this.effectiveSlug(),
       name: this.name(),
-      priceMinor: this.previewPriceMinor(),
+      priceMinor,
+      // Piece-only: the editor has no packaging fields, so the price typed here
+      // is the price of one piece and there is no pack or box to price.
+      prices: {
+        pieceMilliMinor: priceMinor * PIECE_PRICE_SCALE,
+        pack: null,
+        box: null,
+      },
+      packaging: { piecesPerPack: null, packsPerBox: null, minPieceQty: 1 },
+      boxDimensions: null,
       descriptionHtml: this.description(),
       images: this.images(),
       attributes: this.attributes().filter(

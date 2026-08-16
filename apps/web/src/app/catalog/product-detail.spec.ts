@@ -7,10 +7,11 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { ProductDetail } from './product-detail';
 import { CatalogService } from './catalog.service';
+import { productDetail } from './product.fixture';
 
 type Product = NonNullable<Awaited<ReturnType<CatalogService['getProduct']>>>;
 
-const product: Product = {
+const product: Product = productDetail({
   slug: 'hafen-espresso',
   name: 'Hafen Espresso',
   priceMinor: 1890,
@@ -31,7 +32,7 @@ const product: Product = {
     shortName: null,
     ancestors: [{ slug: 'coffee', name: 'Coffee', shortName: null }],
   },
-};
+});
 
 async function render(
   result: Product | null,

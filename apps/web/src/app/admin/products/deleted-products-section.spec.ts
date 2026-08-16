@@ -7,16 +7,17 @@ import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { DeploymentConfig } from '../../config/deployment-config.type';
 import { AdminCatalogService } from '../admin-catalog.service';
+import { productListItem } from '../../catalog/product.fixture';
 import { DeletedProductsSection } from './deleted-products-section';
 
 const text = defaultAdminText.editMode;
 
-const deletedItem: ProductListItem = {
+const deletedItem: ProductListItem = productListItem({
   slug: 'old-roast',
   name: 'Old Roast',
   priceMinor: 990,
   images: [{ full: 'f.jpg', thumb: 't.jpg' }],
-};
+});
 
 const config = {
   catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
