@@ -21,13 +21,28 @@ without renumbering.
 
 ### Catalog (FR-CAT)
 
-| ID        | Requirement                                                                                                                             |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| FR-CAT-01 | The main page displays an overview of all catalog categories.                                                                           |
-| FR-CAT-02 | Products are grouped by category (incl. subcategories); this grouping is navigable.                                                     |
-| FR-CAT-03 | Products within a selected category are shown as a paginated grid.                                                                      |
-| FR-CAT-04 | A product list item displays an image gallery (slider), name and price, and links to the full product page.                             |
-| FR-CAT-05 | A product page displays name, price, full rich-text description, an image gallery, and a table of custom attributes (e.g. color: blue). |
+| ID        | Requirement                                                                                                                                                                                                                           |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FR-CAT-01 | The main page displays an overview of all catalog categories.                                                                                                                                                                         |
+| FR-CAT-02 | Products are grouped by category (incl. subcategories); this grouping is navigable.                                                                                                                                                   |
+| FR-CAT-03 | Products within a selected category are shown as a paginated grid.                                                                                                                                                                    |
+| FR-CAT-04 | A product list item displays an image gallery (slider), name and price, and links to the full product page. Its price detail follows FR-UNIT-08.                                                                                      |
+| FR-CAT-05 | A product page displays name, price, full rich-text description, an image gallery, and a table of custom attributes (e.g. color: blue). Prices follow FR-UNIT-05; the attribute table also carries the packaging facts of FR-UNIT-06. |
+
+### Units of Sale & Packaging (FR-UNIT)
+
+| ID         | Requirement                                                                                                                                                                                                                                                                                                                                      |
+| ---------- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| FR-UNIT-01 | A product may be sold in up to three units: **piece**, **pack** and **box**. Pack and box are available for a product only where its packaging data defines them; a product with no packaging data is sold by the piece.                                                                                                                         |
+| FR-UNIT-02 | A product's packaging is described by the number of pieces in a pack and the number of packs in a box. A box is only meaningful where a pack is defined. Both are entered and corrected in the admin panel.                                                                                                                                      |
+| FR-UNIT-03 | A product may define a minimum piece quantity, which is also the increment. It applies to **piece** purchases only — a pack or a box is already a valid quantity. A piece quantity below the minimum, or not a multiple of it, is corrected upward to the next valid quantity, and the user is told.                                             |
+| FR-UNIT-04 | A product's stored price may cover more than one piece (e.g. a price per 100 pieces). This basis is staff-facing only: it is never displayed to a customer and never serialized to the public API. Every price a customer sees is already resolved to the unit it is labelled with.                                                              |
+| FR-UNIT-05 | A product page displays the price per piece and, where the packaging defines them, the price per pack and per box, each labelled with the quantity it covers.                                                                                                                                                                                    |
+| FR-UNIT-06 | A product's packaging facts — the packaging summary (FR-UNIT-09), the minimum piece quantity, and the box's volume and weight — are displayed to the customer in the same attribute table as its freetext attributes, as a contiguous group.                                                                                                     |
+| FR-UNIT-07 | When adding a product to the cart the user chooses which unit to buy in; the quantity rules (FR-UNIT-03) and the price shown follow the chosen unit.                                                                                                                                                                                             |
+| FR-UNIT-08 | A product list tile shows the per-piece price prominently and, in secondary text, the packaging summary (FR-UNIT-09), the minimum piece quantity where one applies, and the pack and box prices where the packaging defines them.                                                                                                                |
+| FR-UNIT-09 | A product's packaging is summarised as a formula on both the product page and the list tile — "4 pk × 6 pcs = 24 pcs" — stating the pieces a box contains. Where a product has packs but no box, the summary states the pieces per pack instead. Unit words are deployment-configurable abbreviations, so they read the same after any quantity. |
+| FR-UNIT-10 | Purchasable quantities are whole multiples of a product's price basis, so every total a customer is shown or charged is an exact multiple of the stored price and is never rounded. Only the informational per-piece price may be inexact; it is displayed to three decimal places, and no total is derived from it.                             |
 
 ### Search (FR-SEARCH)
 
@@ -43,11 +58,12 @@ without renumbering.
 
 | ID        | Requirement                                                                                                                                                                                                                                                                              |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| FR-ADM-01 | Admin can add, modify, and delete individual products via the admin panel.                                                                                                                                                                                                               |
+| FR-ADM-01 | Admin can add, modify, and delete individual products via the admin panel, and publish or unpublish them (FR-ADM-06).                                                                                                                                                                    |
 | FR-ADM-02 | Admin can trigger a bulk sync (file upload or endpoint) that upserts products by SKU and deletes products missing from the source. Intended for periodic price/availability updates.                                                                                                     |
 | FR-ADM-03 | Admin can edit the rich-text content of a fixed set of static pages (about, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content. |
 | FR-ADM-04 | Admin can toggle a site-wide maintenance mode from the admin panel. While active, the public storefront (catalog, product, and static pages) and its read APIs are unavailable to visitors and crawlers — served with an HTTP 503 status and a minimal maintenance notice.               |
-| FR-ADM-05 | The admin product list can be filtered by publication state (all / live / soft-deleted) and by category, searched by name or by the private sync key, and sorted (name, price, most recently updated).                                                                                   |
+| FR-ADM-05 | The admin product list can be filtered by publication state (all / live / unpublished / soft-deleted) and by category, searched by name or by the private sync key, and sorted (name, price, most recently updated).                                                                     |
+| FR-ADM-06 | A product is not visible to the public until an admin publishes it. Products created by the bulk sync arrive unpublished, so new items are reviewed — in particular their price basis (FR-UNIT-04) — before they can be seen or bought.                                                  |
 
 ### Accounts, Roles & Pricing (FR-AUTH)
 
@@ -76,13 +92,14 @@ without renumbering.
 
 ### Notifications (FR-NOTIF)
 
-| ID          | Requirement                                                                                                |
-| ----------- | ---------------------------------------------------------------------------------------------------------- |
-| FR-NOTIF-01 | A user receives an email on registration.                                                                  |
-| FR-NOTIF-02 | A user receives an email on account approval, carrying a single-use link to choose their password.         |
-| FR-NOTIF-03 | A user receives an email whenever their order status changes.                                              |
-| FR-NOTIF-04 | Manager is notified by email when a new user registers, to approve the account and assign a customer tier. |
-| FR-NOTIF-05 | Manager is notified by email when a new order is created.                                                  |
+| ID          | Requirement                                                                                                                            |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| FR-NOTIF-01 | A user receives an email on registration.                                                                                              |
+| FR-NOTIF-02 | A user receives an email on account approval, carrying a single-use link to choose their password.                                     |
+| FR-NOTIF-03 | A user receives an email whenever their order status changes.                                                                          |
+| FR-NOTIF-04 | Manager is notified by email when a new user registers, to approve the account and assign a customer tier.                             |
+| FR-NOTIF-05 | Manager is notified by email when a new order is created.                                                                              |
+| FR-NOTIF-06 | A customer receives an email confirming their order request was received. A guest, who has no account page, has no other record of it. |
 
 ### Account Self-Service (FR-ACC)
 

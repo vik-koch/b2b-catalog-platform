@@ -10,8 +10,9 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 2   | Catalog display + admin login, management & sync → **tag v1.0.0**, client starts content entry | FR-CAT-01…05, FR-ADM-\*, FR-AUTH-07/08, NFR-SEC-02/03/05, NFR-SEO-01/02, NFR-LEGAL-06 |
 | 3   | Search, listing sort & admin grid filters → **tag v1.1.0**                                     | FR-SEARCH-01…05, FR-ADM-05, NFR-SEC-07, NFR-SEO-04, NFR-OPS-05                        |
 | 4   | Accounts, roles & tiered pricing → **tag v1.2.0**                                              | FR-AUTH-01…06, FR-NOTIF-01/02/04, NFR-SEC-04                                          |
-| 5   | Cart & order-request checkout                                                                  | FR-CART-01…04, FR-NOTIF-03/05, FR-ACC-\*, NFR-SEC-06                                  |
-| 6   | Payment & manual delivery/pickup coordination                                                  | FR-CART-05/06/07, NFR-LEGAL-04                                                        |
+| 5   | Units of sale, pack pricing & product publication → **tag v1.3.0**                             | FR-UNIT-01…06/08/09, FR-ADM-06, FR-ADM-01/05 + FR-CAT-04/05 amended                   |
+| 6   | Cart & order-request checkout → **tag v1.4.0**                                                 | FR-UNIT-07, FR-CART-01…04/07, FR-ACC-01, FR-NOTIF-05/06, NFR-SEC-06                   |
+| 7   | Order processing, payment & manual delivery/pickup coordination → **tag v1.5.0**               | FR-CART-05/06, FR-NOTIF-03, FR-ACC-02, NFR-LEGAL-04                                   |
 
 Notes:
 
@@ -29,6 +30,24 @@ Notes:
   content now and is the one feeling it. The three NFRs are the tail search drags in: a new
   unauthenticated endpoint to rate-limit, listing variants to keep out of the index, and
   zero-result queries to make visible. All additive → **v1.1.0**, no contract breakage.
+- Iterations 5–7 were re-cut from what used to be two rows ("cart & checkout", then
+  "payment & delivery"). Planning the cart surfaced a question the requirements had never
+  asked — whether the shop sells by the piece. It does not: products sell by piece, pack or
+  box, some prices in the source system cover a pack rather than a piece, and some products
+  have a minimum order quantity. That is catalog and pricing data, so it earned an iteration
+  of its own (FR-UNIT-\*) **before** the cart, rather than being discovered inside it. Two
+  consequences: the client can start entering packaging data one release earlier, and the
+  cart is built once against a settled unit model instead of twice.
+- Iteration 5 keeps packaging **out of the bulk sync** (FR-ADM-02 is deliberately not
+  amended): the values are admin-entered for now. That is also why FR-ADM-06 lands here — a
+  synced product arrives with a price whose basis nobody has set yet, so it must not be
+  publicly visible until a human has reviewed it.
+- Iteration 6 pulls **FR-CART-07** forward from the old row 6. A delivery address and a
+  pickup choice are checkout, not payment; leaving them out would mean building the checkout
+  form twice and an address book that omits the address most customers have.
+- Iteration 7 is what a manager does with an order once it exists — status transitions, the
+  payment PDF, card payment, the order PDF. Splitting it from iteration 6 lets the order
+  schema be reviewed before a processing workflow is built on top of it.
 - Client reviews v1.0.0 on the **dev** environment only. Frame that feedback round as
   catalog/content/UX review — no accounts or cart exist yet, and prices are default-list only.
 - SSR and sitemap (NFR-SEO-01/02) are built in iteration 2, but the dev environment stays

@@ -5,8 +5,8 @@ catalog, tiered customer pricing, order-request checkout with manager review, an
 catalog management with file-based bulk sync.
 
 > **Status:** `v1.2.0` — customer accounts and tiered pricing are live. Iterations 1–4 are
-> delivered (static pages and infrastructure, catalog + admin panel, search, accounts); cart and
-> order-request checkout are next.
+> delivered (static pages and infrastructure, catalog + admin panel, search, accounts); units of
+> sale and pack pricing are next, then cart and order-request checkout.
 
 ## Environments
 
@@ -49,6 +49,8 @@ Shipped:
 
 Planned:
 
+- **Units of sale** — buy by piece, pack or box, with per-unit prices, minimum order
+  quantities, and a review gate before a newly synced product goes public
 - **Ordering** — cart, order-request checkout with manager review
 - **Payment** — bank transfer or card, with manual delivery/pickup coordination
 
