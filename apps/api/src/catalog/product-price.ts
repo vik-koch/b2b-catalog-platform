@@ -35,6 +35,19 @@ export function resolvedPriceMinor(
   return sql<number>`coalesce((select ${productPrices.priceMinor} from ${productPrices} where ${qualified(productPrices.productId)} = ${qualified(products.id)} and ${qualified(productPrices.tierId)} = ${tierId}), ${products.defaultPriceMinor})`;
 }
 
+/**
+ * The same price divided down to one piece — what listings must order by, since
+ * a stored price covers `priceBasisPieces` pieces and raw prices are therefore
+ * not comparable between products.
+ *
+ * A real division, not an integer one: this only ever orders, never produces a
+ * price anyone is charged.
+ */
+export function resolvedPiecePrice(tierId: string | null): SQL<number> {
+  const price = resolvedPriceMinor(tierId);
+  return sql<number>`(${price})::numeric / ${products.priceBasisPieces}`;
+}
+
 /** `"table"."column"` — an unambiguous reference inside a raw subquery. */
 function qualified(column: PgColumn): SQL {
   return sql.raw(`"${getTableName(column.table)}"."${column.name}"`);

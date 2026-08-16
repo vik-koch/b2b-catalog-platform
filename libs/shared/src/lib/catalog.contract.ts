@@ -33,16 +33,68 @@ export type CatalogImage = z.infer<typeof catalogImageSchema>;
  * Price as an integer in the currency's minor unit (e.g. cents). The currency
  * and its formatting are a per-deployment concern (deployment config), not part
  * of this contract — the API stays currency-agnostic and free of float
- * rounding. A single price for now; tier-based price lists are FR-AUTH-05.
+ * rounding. Resolved server-side: which tier's list it came from (FR-AUTH-05)
+ * and how many pieces the stored price covered are both invisible here.
  */
 export const priceMinorSchema = z.number().int().nonnegative();
+
+/**
+ * What a product costs, per unit it can be bought in (FR-UNIT-05). `pack` and
+ * `box` are null where the packaging does not define them, and both are exact:
+ * purchasable quantities are whole multiples of the stored price's basis, so
+ * nothing is rounded.
+ *
+ * `pieceMilliMinor` is the only sub-minor figure in the API — a single piece
+ * cannot always be priced in cents (€19.99 for ten is €1.999 each). It is a
+ * comparison figure: multiplying it will disagree with the server.
+ */
+export const unitPricesSchema = z
+  .object({
+    pieceMilliMinor: z.number().int().nonnegative(),
+    pack: priceMinorSchema.nullable(),
+    box: priceMinorSchema.nullable(),
+  })
+  .strict();
+export type UnitPrices = z.infer<typeof unitPricesSchema>;
+
+/**
+ * How the units nest, and the smallest piece quantity that may be ordered —
+ * enough for the browser to correct a quantity without a round trip. The price
+ * basis is deliberately absent: it is staff-facing, and the prices above are
+ * already resolved to the unit each is labelled with.
+ */
+export const productPackagingSchema = z
+  .object({
+    piecesPerPack: z.number().int().positive().nullable(),
+    packsPerBox: z.number().int().positive().nullable(),
+    /** Minimum and increment for piece purchases; 1 means unconstrained. */
+    minPieceQty: z.number().int().positive(),
+  })
+  .strict();
+export type ProductPackagingInfo = z.infer<typeof productPackagingSchema>;
+
+/**
+ * A box's shipping dimensions. Decimal strings, not numbers: they are shown
+ * rather than calculated with, and a float round-trip would turn 1.250 into 1.25.
+ */
+export const boxDimensionsSchema = z
+  .object({
+    volume: z.string().nullable(),
+    weight: z.string().nullable(),
+  })
+  .strict();
+export type BoxDimensions = z.infer<typeof boxDimensionsSchema>;
 
 /** A tile in the product grid (FR-CAT-04). */
 export const productListItemSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
+    /** The per-piece price rounded to whole minor units, as surfaces showed it
+     * before units existed. Prefer `prices`; never an input to a total. */
     priceMinor: priceMinorSchema,
+    prices: unitPricesSchema,
+    packaging: productPackagingSchema,
     images: z.array(catalogImageSchema),
   })
   .strict();
@@ -110,7 +162,12 @@ export const productDetailSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
+    /** The rounded per-piece price; see `productListItemSchema`. */
     priceMinor: priceMinorSchema,
+    prices: unitPricesSchema,
+    packaging: productPackagingSchema,
+    /** Null where the product has no box. */
+    boxDimensions: boxDimensionsSchema.nullable(),
     /** Sanitized rich text, server-owned (same discipline as page bodies). */
     descriptionHtml: z.string(),
     images: z.array(catalogImageSchema),

@@ -31,8 +31,16 @@ import {
   searchCondition,
   setSearchThreshold,
 } from './product-search';
-import { resolvedPriceMinor } from './product-price';
+import { resolvedPiecePrice, resolvedPriceMinor } from './product-price';
 import { productOrderBy } from './product-sort';
+import {
+  boxDimensionsOf,
+  displayPriceMinor,
+  packagingOf,
+  toListItem,
+  unitColumns,
+  unitPricesOf,
+} from './product-view';
 import { SearchLogger } from './search.logger';
 
 interface SearchResult {
@@ -100,6 +108,7 @@ export class CatalogService {
     tierId: string | null = null,
   ): Promise<CategoryProductsResult | null> {
     const price = resolvedPriceMinor(tierId);
+    const piecePrice = resolvedPiecePrice(tierId);
     const rows = await this.categoryRows();
     const category = categoryBySlug(rows, slug);
     if (!category) return null;
@@ -116,18 +125,20 @@ export class CatalogService {
       .where(where);
 
     const pageSize = CATALOG_PAGE_SIZE;
-    const items = await this.db
+    const rowsPage = await this.db
       .select({
         slug: products.slug,
         name: products.name,
         priceMinor: price,
         images: products.images,
+        ...unitColumns,
       })
       .from(products)
       .where(where)
-      .orderBy(...productOrderBy(sort, undefined, price))
+      .orderBy(...productOrderBy(sort, undefined, piecePrice))
       .limit(pageSize)
       .offset((page - 1) * pageSize);
+    const items = rowsPage.map(toListItem);
 
     return {
       category: {
@@ -166,6 +177,7 @@ export class CatalogService {
     tierId: string | null = null,
   ): Promise<SearchResult> {
     const price = resolvedPriceMinor(tierId);
+    const piecePrice = resolvedPiecePrice(tierId);
     const pageSize = CATALOG_PAGE_SIZE;
     const query = parseSearchQuery(rawQuery);
     if (!query) {
@@ -186,18 +198,20 @@ export class CatalogService {
         .from(products)
         .where(where);
 
-      const items = await tx
+      const rows = await tx
         .select({
           slug: products.slug,
           name: products.name,
           priceMinor: price,
           images: products.images,
+          ...unitColumns,
         })
         .from(products)
         .where(where)
-        .orderBy(...productOrderBy(sort, relevanceScore(query), price))
+        .orderBy(...productOrderBy(sort, relevanceScore(query), piecePrice))
         .limit(pageSize)
         .offset((page - 1) * pageSize);
+      const items = rows.map(toListItem);
 
       this.searchLog.record({
         query: query.normalized,
@@ -296,6 +310,9 @@ export class CatalogService {
         images: products.images,
         attributes: products.attributes,
         categoryId: products.categoryId,
+        boxVolume: products.boxVolume,
+        boxWeight: products.boxWeight,
+        ...unitColumns,
       })
       .from(products)
       .where(and(eq(products.slug, slug), isNull(products.deletedAt)))
@@ -309,7 +326,10 @@ export class CatalogService {
     return {
       slug: product.slug,
       name: product.name,
-      priceMinor: product.priceMinor,
+      priceMinor: displayPriceMinor(product),
+      prices: unitPricesOf(product),
+      packaging: packagingOf(product),
+      boxDimensions: boxDimensionsOf(product),
       descriptionHtml: product.descriptionHtml,
       images: product.images,
       attributes: product.attributes,

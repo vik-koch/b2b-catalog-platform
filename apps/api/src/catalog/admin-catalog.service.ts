@@ -46,6 +46,7 @@ import {
   setSearchThreshold,
 } from './product-search';
 import { adminProductOrderBy } from './product-sort';
+import { toListItem, unitColumns } from './product-view';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 
 /**
@@ -335,18 +336,21 @@ export class AdminCatalogService {
     if (!category) throw categoryNotFound();
 
     const ids = descendantIds(category.id, rows);
-    return this.db
+    // Default-list prices: staff have no tier.
+    const deleted = await this.db
       .select({
         slug: products.slug,
         name: products.name,
         priceMinor: products.defaultPriceMinor,
         images: products.images,
+        ...unitColumns,
       })
       .from(products)
       .where(
         and(inArray(products.categoryId, ids), isNotNull(products.deletedAt)),
       )
       .orderBy(asc(products.name));
+    return deleted.map(toListItem);
   }
 
   // --- Categories ---------------------------------------------------------
