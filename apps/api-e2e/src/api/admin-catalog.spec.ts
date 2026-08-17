@@ -28,11 +28,17 @@ const TIER_KEY = `e2e-admincat-${R}`;
 
 const PRODUCT_KEYS = [
   'attributes',
+  'boxVolume',
+  'boxWeight',
   'categoryId',
   'deletedAt',
   'descriptionHtml',
   'images',
+  'minPieceQty',
   'name',
+  'packsPerBox',
+  'piecesPerPack',
+  'priceBasisPieces',
   'priceMinor',
   'slug',
   'sourceId',
@@ -527,7 +533,9 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(Object.keys(res.data.items[0]).sort()).toEqual([
         'images',
         'name',
+        'packaging',
         'priceMinor',
+        'prices',
         'slug',
       ]);
     });

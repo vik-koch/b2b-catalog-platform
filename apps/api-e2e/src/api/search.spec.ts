@@ -52,9 +52,12 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
     expect(Object.keys(res.data.items[0]).sort()).toEqual([
       'images',
       'name',
+      'packaging',
       'priceMinor',
+      'prices',
       'slug',
     ]);
+    expect(JSON.stringify(res.data)).not.toContain('priceBasisPieces');
   });
 
   it('paginates like the category grid', async () => {
