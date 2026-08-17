@@ -46,6 +46,7 @@ import {
   setSearchThreshold,
 } from './product-search';
 import { adminProductOrderBy } from './product-sort';
+import { toListItem, unitColumns } from './product-view';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 
 /**
@@ -75,6 +76,12 @@ const adminProductColumns = {
   images: products.images,
   deletedAt: products.deletedAt,
   updatedAt: products.updatedAt,
+  priceBasisPieces: products.priceBasisPieces,
+  piecesPerPack: products.piecesPerPack,
+  packsPerBox: products.packsPerBox,
+  minPieceQty: products.minPieceQty,
+  boxVolume: products.boxVolume,
+  boxWeight: products.boxWeight,
 } as const;
 
 type ProductRow = {
@@ -89,6 +96,12 @@ type ProductRow = {
   images: { full: string; thumb: string }[];
   deletedAt: Date | null;
   updatedAt: Date;
+  priceBasisPieces: number;
+  piecesPerPack: number | null;
+  packsPerBox: number | null;
+  minPieceQty: number;
+  boxVolume: string | null;
+  boxWeight: string | null;
 };
 
 /**
@@ -221,6 +234,7 @@ export class AdminCatalogService {
             attributes: input.attributes,
             images: input.images,
             updatedBy: actorId,
+            ...packagingValues(input),
           })
           .returning(adminProductColumns),
       );
@@ -265,6 +279,7 @@ export class AdminCatalogService {
             sourceId: newSourceId,
             updatedAt: new Date(),
             updatedBy: actorId,
+            ...packagingValues(input),
           })
           .where(eq(products.id, existing.id))
           .returning(adminProductColumns),
@@ -335,18 +350,21 @@ export class AdminCatalogService {
     if (!category) throw categoryNotFound();
 
     const ids = descendantIds(category.id, rows);
-    return this.db
+    // Default-list prices: staff have no tier.
+    const deleted = await this.db
       .select({
         slug: products.slug,
         name: products.name,
         priceMinor: products.defaultPriceMinor,
         images: products.images,
+        ...unitColumns,
       })
       .from(products)
       .where(
         and(inArray(products.categoryId, ids), isNotNull(products.deletedAt)),
       )
       .orderBy(asc(products.name));
+    return deleted.map(toListItem);
   }
 
   // --- Categories ---------------------------------------------------------
@@ -845,6 +863,24 @@ function toAdminProduct(
     tierPrices,
     deletedAt: row.deletedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),
+    priceBasisPieces: row.priceBasisPieces,
+    piecesPerPack: row.piecesPerPack,
+    packsPerBox: row.packsPerBox,
+    minPieceQty: row.minPieceQty,
+    boxVolume: row.boxVolume,
+    boxWeight: row.boxWeight,
+  };
+}
+
+/** The packaging columns as create and update both write them. */
+function packagingValues(input: ProductInput) {
+  return {
+    priceBasisPieces: input.priceBasisPieces,
+    piecesPerPack: input.piecesPerPack,
+    packsPerBox: input.packsPerBox,
+    minPieceQty: input.minPieceQty,
+    boxVolume: input.boxVolume,
+    boxWeight: input.boxWeight,
   };
 }
 

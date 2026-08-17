@@ -27,6 +27,22 @@ export interface ProductSeed {
   descriptionHtml: string;
   attributes: ProductAttribute[];
   imageCount: number;
+  /** Units of sale. Absent means the product is sold by the piece. */
+  packaging?: ProductPackagingSeed;
+}
+
+/**
+ * The packaging cases worth having in a demo catalog, including the awkward
+ * ones: a price that covers a whole pack, and a minimum above the pack size.
+ * `priceBasisPieces` must divide `minPieceQty` and `piecesPerPack`.
+ */
+export interface ProductPackagingSeed {
+  piecesPerPack?: number;
+  packsPerBox?: number;
+  minPieceQty?: number;
+  priceBasisPieces?: number;
+  boxVolume?: string;
+  boxWeight?: string;
 }
 
 let order = 0;
@@ -131,6 +147,28 @@ const ESPRESSO = [
   ['Ultimo Espresso', 'Blend', 'cocoa, nut and a syrupy body'],
 ];
 
+/**
+ * Espresso is the packaged line, and deliberately not uniform — the display and
+ * the arithmetic both need the awkward cases visible in the demo:
+ *
+ * - most: six 250 g bags to a pack, four packs to a box, priced per piece
+ * - every 4th: priced per **pack** (a price that does not divide evenly into a
+ *   per-piece figure, so the page shows three decimals)
+ * - every 5th: a minimum order well above the pack size
+ * - every 7th: packs but no box
+ */
+const espressoPackaging = (i: number): ProductPackagingSeed | undefined => {
+  if (i % 7 === 6) return { piecesPerPack: 6, minPieceQty: 6 };
+  const base: ProductPackagingSeed = {
+    piecesPerPack: 6,
+    packsPerBox: 4,
+    minPieceQty: i % 5 === 4 ? 24 : 6,
+    boxVolume: '0.072',
+    boxWeight: '6.400',
+  };
+  return i % 4 === 3 ? { ...base, priceBasisPieces: 6 } : base;
+};
+
 const espressoProducts: ProductSeed[] = ESPRESSO.map(
   ([name, origin, notes], i) => ({
     sourceId: `ESP-${String(i + 1).padStart(3, '0')}`,
@@ -140,10 +178,12 @@ const espressoProducts: ProductSeed[] = ESPRESSO.map(
       .replace(/(^-|-$)/g, ''),
     name,
     categoryKey: 'espresso',
-    priceMinor: 1690 + i * 40,
+    // A pack-priced product stores the price of six bags, not one.
+    priceMinor: i % 4 === 3 ? 9990 + i * 40 : 1690 + i * 40,
     descriptionHtml: beanDescription(name, notes),
     attributes: beanAttributes(origin, 'Medium-dark', 'Mixed', notes),
     imageCount: i < 6 ? 3 : 1,
+    packaging: espressoPackaging(i),
   }),
 );
 

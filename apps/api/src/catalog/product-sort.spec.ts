@@ -60,13 +60,27 @@ describe('productOrderBy', () => {
   it.each([
     ['name', 'name', 'asc'],
     ['name_desc', 'name', 'desc'],
-    ['price', 'defaultPriceMinor', 'asc'],
-    ['price_desc', 'defaultPriceMinor', 'desc'],
   ] as const)('sorts %s on %s %s', (option, column, direction) => {
     expect(render(productOrderBy(option))).toMatch(
       new RegExp(`^"products"\\."${column}" ${direction}`),
     );
   });
+
+  it.each([
+    ['price', 'asc'],
+    ['price_desc', 'desc'],
+  ] as const)(
+    'sorts %s by the price per piece, not the stored one',
+    (option, direction) => {
+      // Ordering on the raw column would put a €50-per-100-pieces product above
+      // a €10-per-piece one.
+      expect(render(productOrderBy(option))).toMatch(
+        new RegExp(
+          `^\\("products"\\."defaultPriceMinor"\\)::numeric / "products"\\."priceBasisPieces" ${direction}`,
+        ),
+      );
+    },
+  );
 });
 
 describe('adminProductOrderBy', () => {

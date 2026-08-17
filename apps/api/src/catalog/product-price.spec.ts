@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';
-import { resolvedPriceMinor } from './product-price';
+import { resolvedPiecePrice, resolvedPriceMinor } from './product-price';
 import { productOrderBy } from './product-sort';
 
 /** Renders an expression the way the query builder would, with its params. */
@@ -85,9 +85,20 @@ describe('price sorting follows resolution', () => {
     expect(ordered).toMatch(/^coalesce/);
   });
 
-  it('leaves the untiered sort on the indexed column', () => {
+  it('divides a tiered price down too, so both resolutions compose', () => {
+    // Dropping either step orders the page by prices nobody is charged.
+    const ordered = renderOrder(
+      productOrderBy('price', undefined, resolvedPiecePrice('tier-1')),
+    );
+
+    expect(ordered).toContain('coalesce');
+    expect(ordered).toContain('"products"."priceBasisPieces"');
+  });
+
+  it('divides the untiered sort down to a price per piece', () => {
+    // Costs the index on the bare column; accepted at this catalog's size.
     expect(renderOrder(productOrderBy('price'))).toMatch(
-      /^"products"\."defaultPriceMinor" asc/,
+      /^\("products"\."defaultPriceMinor"\)::numeric \/ "products"\."priceBasisPieces" asc/,
     );
   });
 

@@ -19,6 +19,10 @@
     "currency": {
       "code": "EUR",
       "locale": "de-DE"
+    },
+    "boxUnits": {
+      "volume": "m³",
+      "weight": "kg"
     }
   },
   "locations": [

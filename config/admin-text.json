@@ -134,6 +134,24 @@
       "add": "Add images",
       "empty": "No images yet."
     },
+    "packaging": {
+      "heading": "Packaging",
+      "hint": "Leave a unit empty if the product is not sold that way.",
+      "piecesPerPack": "Pieces per pack",
+      "packsPerBox": "Packs per box",
+      "minPieceQty": "Minimum pieces",
+      "priceBasis": "Price covers",
+      "boxVolume": "Box volume",
+      "boxWeight": "Box weight",
+      "pieceSuffix": "pcs",
+      "pricePerPiece": "{price} per piece",
+      "pricePerPack": "{price} per pack",
+      "pricePerBox": "{price} per box",
+      "notSoldPerPack": "Not sold per pack",
+      "notSoldPerBox": "Not sold per box",
+      "basisMustDivide": "The minimum and the pack size must both be whole multiples of the pieces the price covers.",
+      "invalid": "Packaging numbers must be whole numbers of 1 or more."
+    },
     "tierPrices": {
       "heading": "Tier prices",
       "hint": "Leave a tier empty to charge it the price above.",

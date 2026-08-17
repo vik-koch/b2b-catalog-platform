@@ -7,6 +7,7 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { CategoryGrid } from './category-grid';
 import { CatalogService } from './catalog.service';
+import { productListItem } from './product.fixture';
 
 type Products = NonNullable<
   Awaited<ReturnType<CatalogService['getCategoryProducts']>>
@@ -27,12 +28,12 @@ function response(overrides: Partial<Products> = {}): Products {
       subcategories: [],
     },
     items: [
-      {
+      productListItem({
         slug: 'hafen-espresso',
         name: 'Hafen Espresso',
         priceMinor: 1890,
         images: [image(1)],
-      },
+      }),
     ],
     pagination: { page: 1, pageSize: 24, total: 1, totalPages: 1 },
     ...overrides,

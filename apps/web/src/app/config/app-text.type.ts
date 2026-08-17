@@ -101,6 +101,35 @@ export const appTextSchema = z
         viewImage: z.string(),
         /** Caption shown on the fallback tile when a product has no photo. */
         imagePlaceholder: z.string(),
+        /**
+         * Units of sale (FR-UNIT-*). The unit words are **abbreviations** —
+         * they follow a number and are never inflected, so a full word here
+         * would read wrongly after some quantities ("4 pack × 1 pieces").
+         */
+        units: z
+          .object({
+            piece: z.string(),
+            pack: z.string(),
+            box: z.string(),
+            /** Price labels; `{unit}` is one of the abbreviations above. */
+            perUnit: z.string(),
+            /** Row label for the packaging summary in the spec table. */
+            packaging: z.string(),
+            /**
+             * The summary itself. `{packs}`/`{pieces}`/`{total}` are counts and
+             * `{packUnit}`/`{pieceUnit}` the abbreviations, so a deployment can
+             * reorder them: "4 pk × 6 pcs = 24 pcs".
+             */
+            packagingFormula: z.string(),
+            /** Used where a product has packs but no box. */
+            packagingPerPack: z.string(),
+            minQuantity: z.string(),
+            /** `{qty}` is the minimum, `{unit}` the piece abbreviation. */
+            minQuantityValue: z.string(),
+            boxVolume: z.string(),
+            boxWeight: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /** Product search: the navbar bar and its results page (FR-SEARCH). */

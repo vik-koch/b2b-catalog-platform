@@ -7,14 +7,11 @@ import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { CatalogService } from './catalog.service';
+import { productListItem } from './product.fixture';
 import { SearchResults } from './search-results';
 
-const item = (slug: string, name: string): ProductListItem => ({
-  slug,
-  name,
-  priceMinor: 1250,
-  images: [],
-});
+const item = (slug: string, name: string): ProductListItem =>
+  productListItem({ slug, name });
 
 type SearchResponse = {
   items: ProductListItem[];

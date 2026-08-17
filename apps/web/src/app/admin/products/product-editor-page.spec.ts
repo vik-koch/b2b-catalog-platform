@@ -48,11 +48,20 @@ const storedProduct: AdminProduct = {
   tierPrices: [],
   deletedAt: null,
   updatedAt: '2026-07-30T10:00:00.000Z',
+  priceBasisPieces: 1,
+  piecesPerPack: null,
+  packsPerBox: null,
+  minPieceQty: 1,
+  boxVolume: null,
+  boxWeight: null,
 };
 
 const config = {
   branding: { title: 'Test Shop' },
-  catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
+  catalog: {
+    currency: { code: 'EUR', locale: 'de-DE' },
+    boxUnits: { volume: 'm³', weight: 'kg' },
+  },
 } as unknown as DeploymentConfig;
 
 interface Harness {

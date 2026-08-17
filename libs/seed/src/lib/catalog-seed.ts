@@ -59,15 +59,21 @@ export async function seedCatalog(
       product.imageCount,
     );
 
+    const packaging = product.packaging ?? {};
+
     await client.query(
       `INSERT INTO products
-         ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "descriptionHtml", attributes, images)
-       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb)
+         ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "descriptionHtml", attributes, images,
+          "piecesPerPack", "packsPerBox", "minPieceQty", "priceBasisPieces", "boxVolume", "boxWeight")
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9, $10, $11, $12, $13, $14)
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "defaultPriceMinor" = EXCLUDED."defaultPriceMinor", "categoryId" = EXCLUDED."categoryId",
          "descriptionHtml" = EXCLUDED."descriptionHtml",
-         attributes = EXCLUDED.attributes, images = EXCLUDED.images`,
+         attributes = EXCLUDED.attributes, images = EXCLUDED.images,
+         "piecesPerPack" = EXCLUDED."piecesPerPack", "packsPerBox" = EXCLUDED."packsPerBox",
+         "minPieceQty" = EXCLUDED."minPieceQty", "priceBasisPieces" = EXCLUDED."priceBasisPieces",
+         "boxVolume" = EXCLUDED."boxVolume", "boxWeight" = EXCLUDED."boxWeight"`,
       [
         product.sourceId,
         product.slug,
@@ -77,6 +83,12 @@ export async function seedCatalog(
         sanitizeRichText(product.descriptionHtml),
         JSON.stringify(product.attributes),
         JSON.stringify(images),
+        packaging.piecesPerPack ?? null,
+        packaging.packsPerBox ?? null,
+        packaging.minPieceQty ?? 1,
+        packaging.priceBasisPieces ?? 1,
+        packaging.boxVolume ?? null,
+        packaging.boxWeight ?? null,
       ],
     );
   }

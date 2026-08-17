@@ -4,10 +4,14 @@ import {
   AdminCategory,
   CatalogImage,
   CustomerTier,
+  basisDividesQuantities,
+  piecePriceMilliMinor,
+  piecesPerUnit,
   ProductAttribute,
   ProductDetail,
   ProductInput,
   slugify,
+  totalMinor,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { usePageSeo } from '../../core/page-seo';
@@ -35,6 +39,12 @@ import {
   TierPriceDraft,
 } from './product-tier-prices-editor';
 import { ProductImageGallery } from './product-image-gallery';
+import {
+  emptyPackaging,
+  PackagingDraft,
+  parseCount,
+  ProductPackagingEditor,
+} from './product-packaging-editor';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { TiersService } from '../tiers/tiers.service';
 import { injectEditorReturn } from '../editor-return';
@@ -53,6 +63,7 @@ import { injectEditorReturn } from '../editor-return';
     RichTextEditor,
     CategoryPicker,
     ProductAttributesEditor,
+    ProductPackagingEditor,
     ProductTierPricesEditor,
     ProductImageGallery,
     ProductDetailView,
@@ -168,6 +179,14 @@ import { injectEditorReturn } from '../editor-return';
         </div>
 
         <div>
+          <app-product-packaging-editor
+            [value]="packaging()"
+            [priceMinor]="previewPriceMinor()"
+            (valueChange)="packaging.set($event)"
+          />
+        </div>
+
+        <div>
           <app-product-image-gallery
             [value]="images()"
             (valueChange)="images.set($event)"
@@ -262,6 +281,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly attributes = signal<ProductAttribute[]>([]);
   protected readonly tierPrices = signal<TierPriceDraft[]>([]);
   protected readonly images = signal<CatalogImage[]>([]);
+  protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
 
   protected readonly previewing = signal(false);
   protected readonly saving = signal(false);
@@ -280,7 +300,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   /** Shows the shape a price takes here, e.g. "0,00" in a de-DE deployment. */
   protected readonly pricePlaceholder = `0${decimalSeparator(this.currency)}00`;
 
-  private readonly previewPriceMinor = computed(
+  protected readonly previewPriceMinor = computed(
     () => parsePriceInput(this.priceInput(), this.currency) ?? 0,
   );
 
@@ -288,10 +308,40 @@ export class ProductEditorPage implements UnsavedChangesAware {
    * the exact same component the storefront uses. */
   protected readonly previewItem = computed<ProductDetail>(() => {
     const category = this.categories().find((c) => c.id === this.categoryId());
+    const stored = this.previewPriceMinor();
+    // Falls back to a piece-only shape while a packaging field is half-typed,
+    // so the preview keeps rendering instead of blanking mid-edit.
+    const packaging = this.packagingInput() ?? {
+      piecesPerPack: null,
+      packsPerBox: null,
+      minPieceQty: 1,
+      priceBasisPieces: 1,
+      boxVolume: null,
+      boxWeight: null,
+    };
+    const basis = packaging.priceBasisPieces;
+    const priceFor = (unit: 'pack' | 'box') => {
+      const pieces = piecesPerUnit(packaging, unit);
+      return pieces === null ? null : totalMinor(stored, basis, pieces);
+    };
     return {
       slug: this.effectiveSlug(),
       name: this.name(),
-      priceMinor: this.previewPriceMinor(),
+      priceMinor: Math.round(stored / basis),
+      prices: {
+        pieceMilliMinor: piecePriceMilliMinor(stored, basis),
+        pack: priceFor('pack'),
+        box: priceFor('box'),
+      },
+      packaging: {
+        piecesPerPack: packaging.piecesPerPack,
+        packsPerBox: packaging.packsPerBox,
+        minPieceQty: packaging.minPieceQty,
+      },
+      boxDimensions:
+        packaging.packsPerBox === null
+          ? null
+          : { volume: packaging.boxVolume, weight: packaging.boxWeight },
       descriptionHtml: this.description(),
       images: this.images(),
       attributes: this.attributes().filter(
@@ -348,6 +398,14 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.description.set(product.descriptionHtml);
       this.attributes.set(product.attributes);
       this.images.set(product.images);
+      this.packaging.set({
+        piecesPerPack: product.piecesPerPack?.toString() ?? '',
+        packsPerBox: product.packsPerBox?.toString() ?? '',
+        minPieceQty: product.minPieceQty.toString(),
+        priceBasisPieces: product.priceBasisPieces.toString(),
+        boxVolume: product.boxVolume ?? '',
+        boxWeight: product.boxWeight ?? '',
+      });
       this.tierPrices.set(
         product.tierPrices
           .map((p) => ({
@@ -378,7 +436,55 @@ export class ProductEditorPage implements UnsavedChangesAware {
       attributes: this.attributes(),
       images: this.images(),
       tierPrices: this.tierPrices(),
+      packaging: this.packaging(),
     });
+  }
+
+  /**
+   * The packaging fields as the contract wants them, or null if a field holds
+   * something that is not a whole number. Blank means "not sold in that unit",
+   * and for the basis and minimum it means 1.
+   */
+  private packagingInput(): {
+    piecesPerPack: number | null;
+    packsPerBox: number | null;
+    minPieceQty: number;
+    priceBasisPieces: number;
+    boxVolume: string | null;
+    boxWeight: string | null;
+  } | null {
+    const draft = this.packaging();
+    const decimal = (text: string): string | null =>
+      text.trim().replace(',', '.') || null;
+    const optional = (text: string): number | null | undefined =>
+      text.trim() === '' ? null : (parseCount(text) ?? undefined);
+    const required = (text: string): number | undefined =>
+      text.trim() === '' ? 1 : (parseCount(text) ?? undefined);
+
+    const piecesPerPack = optional(draft.piecesPerPack);
+    const packsPerBox = optional(draft.packsPerBox);
+    const minPieceQty = required(draft.minPieceQty);
+    const priceBasisPieces = required(draft.priceBasisPieces);
+    if (
+      piecesPerPack === undefined ||
+      packsPerBox === undefined ||
+      minPieceQty === undefined ||
+      priceBasisPieces === undefined
+    ) {
+      return null;
+    }
+
+    return {
+      piecesPerPack,
+      // A box without a pack is meaningless, and the server refuses it.
+      packsPerBox: piecesPerPack === null ? null : packsPerBox,
+      minPieceQty,
+      priceBasisPieces,
+      // Dimensions belong to a box; without one they would never be shown.
+      // Either separator is accepted while typing, like a price.
+      boxVolume: packsPerBox === null ? null : decimal(draft.boxVolume),
+      boxWeight: packsPerBox === null ? null : decimal(draft.boxWeight),
+    };
   }
 
   protected onSlugInput(value: string): void {
@@ -406,6 +512,12 @@ export class ProductEditorPage implements UnsavedChangesAware {
       tierPrices.push({ tierId: draft.tierId, priceMinor: tierMinor });
     }
 
+    const packaging = this.packagingInput();
+    if (packaging === null) return this.error.set(this.text.packaging.invalid);
+    if (!basisDividesQuantities(packaging, packaging.priceBasisPieces)) {
+      return this.error.set(this.text.packaging.basisMustDivide);
+    }
+
     // A hand-typed slug (or, when new, the name-derived one) is sent as an
     // override; for a new product left untouched we omit it so the server
     // derives and de-duplicates it.
@@ -427,6 +539,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // The full set: a tier the admin cleared is absent here, and the server
       // takes that as "remove the override".
       tierPrices,
+      ...packaging,
       ...(slug ? { slug } : {}),
       ...(sourceId ? { sourceId } : {}),
     };
