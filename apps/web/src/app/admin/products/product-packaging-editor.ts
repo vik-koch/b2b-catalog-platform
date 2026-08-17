@@ -1,9 +1,10 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { piecePriceMilliMinor } from '@b2b-catalog-platform/shared';
+import { piecePriceMilliMinor, totalMinor } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { formatPiecePrice } from '../../catalog/price';
+import { formatPiecePrice, formatPriceMinor } from '../../catalog/price';
 import { FieldLabel } from '../../ui/field-label';
+import { NumericField } from '../../ui/numeric-field';
 
 /**
  * How a product is packaged, and how many pieces its price covers.
@@ -25,14 +26,22 @@ export interface PackagingDraft {
   boxWeight: string;
 }
 
+/**
+ * The two required counts hold a real `1` rather than an empty field showing a
+ * greyed placeholder: "minimum 1 piece" and "the price covers 1 piece" are the
+ * actual rules, and stating them is clearer than leaving a blank to interpret.
+ */
 export const emptyPackaging = (): PackagingDraft => ({
   piecesPerPack: '',
   packsPerBox: '',
-  minPieceQty: '',
-  priceBasisPieces: '',
+  minPieceQty: '1',
+  priceBasisPieces: '1',
   boxVolume: '',
   boxWeight: '',
 });
+
+/** The fields that must always hold a number; the rest may be left unset. */
+const REQUIRED_COUNTS = ['minPieceQty', 'priceBasisPieces'] as const;
 
 /** A whole number, or null for blank/invalid. */
 export function parseCount(text: string): number | null {
@@ -44,15 +53,15 @@ export function parseCount(text: string): number | null {
 
 @Component({
   selector: 'app-product-packaging-editor',
-  imports: [FieldLabel],
+  imports: [FieldLabel, NumericField],
   template: `
     <fieldset>
       <legend appFieldLabel>{{ text.heading }}</legend>
       <p class="mb-2 text-xs text-subtle">{{ text.hint }}</p>
 
       <!-- Column widths mirror the attribute grid above, so the two tables line
-           up: a third column stands where its row actions are, holding the unit
-           each value is measured in. -->
+           up. The third column stands where its row actions are, and carries
+           what each row costs once the price is applied to it. -->
       <table class="w-full max-w-2xl border-collapse text-sm">
         <tbody>
           @for (row of rows(); track row.key) {
@@ -65,32 +74,39 @@ export function parseCount(text: string): number | null {
                   row.label
                 }}</label>
               </th>
-              <!-- The input fills the cell, so the whole cell is the target the
-                   way it is in the attribute grid. -->
-              <td class="border border-border-strong bg-white p-0">
-                <input
-                  [id]="'packaging-' + row.key"
-                  type="text"
-                  [attr.inputmode]="row.inputMode"
-                  class="h-10 w-full bg-transparent px-2 py-1.5 leading-6 outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-secondary"
-                  [value]="row.value"
-                  [placeholder]="row.placeholder"
-                  (input)="edit(row.key, $any($event.target).value)"
-                />
+              <!-- The unit sits inside the cell, after the value it measures,
+                   and the focus ring is drawn around the pair — so the cell
+                   behaves as one field, like the attribute grid's. -->
+              <td
+                class="border border-border-strong bg-white p-0 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-secondary"
+              >
+                <div class="flex items-center">
+                  <input
+                    [id]="'packaging-' + row.key"
+                    type="text"
+                    [attr.inputmode]="row.inputMode"
+                    [appNumericField]="row.inputMode"
+                    class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none"
+                    [value]="row.value"
+                    [placeholder]="row.placeholder"
+                    (input)="edit(row.key, $any($event.target).value)"
+                    (blur)="normalize(row.key)"
+                  />
+                  @if (row.suffix) {
+                    <span class="pr-2 text-xs text-subtle">{{
+                      row.suffix
+                    }}</span>
+                  }
+                </div>
               </td>
               <td class="w-32 border-0 pl-2 align-middle text-xs text-subtle">
-                {{ row.suffix }}
+                {{ row.price }}
               </td>
             </tr>
           }
         </tbody>
       </table>
 
-      @if (piecePreview(); as preview) {
-        <p class="mt-2 text-xs text-subtle">
-          {{ text.piecePricePreview.replace('{price}', preview) }}
-        </p>
-      }
       @if (basisError()) {
         <p class="mt-2 text-sm text-red-700" role="alert">
           {{ text.basisMustDivide }}
@@ -115,24 +131,41 @@ export class ProductPackagingEditor {
       label: string,
       placeholder: string,
       suffix = '',
+      price = '',
     ) => ({
       key,
       label,
       value: v[key],
       placeholder,
       suffix,
-      inputMode: 'numeric',
+      price,
+      inputMode: 'integer' as const,
     });
 
+    const prices = this.unitPrices();
+
     return [
-      count('piecesPerPack', this.text.piecesPerPack, this.text.notSold),
-      count('packsPerBox', this.text.packsPerBox, this.text.notSold),
-      count('minPieceQty', this.text.minPieceQty, '1'),
+      count(
+        'piecesPerPack',
+        this.text.piecesPerPack,
+        this.text.notSoldPerPack,
+        '',
+        prices.pack,
+      ),
+      count(
+        'packsPerBox',
+        this.text.packsPerBox,
+        this.text.notSoldPerBox,
+        '',
+        prices.box,
+      ),
+      count('minPieceQty', this.text.minPieceQty, '1', this.text.pieceSuffix),
       count(
         'priceBasisPieces',
         this.text.priceBasis,
         '1',
-        this.text.priceBasisSuffix,
+        this.text.pieceSuffix,
+        prices.piece,
       ),
       {
         key: 'boxVolume' as const,
@@ -140,7 +173,8 @@ export class ProductPackagingEditor {
         value: v.boxVolume,
         placeholder: '',
         suffix: this.units.volume,
-        inputMode: 'decimal',
+        price: '',
+        inputMode: 'decimal' as const,
       },
       {
         key: 'boxWeight' as const,
@@ -148,20 +182,52 @@ export class ProductPackagingEditor {
         value: v.boxWeight,
         placeholder: '',
         suffix: this.units.weight,
-        inputMode: 'decimal',
+        price: '',
+        inputMode: 'decimal' as const,
       },
     ];
   });
 
   private readonly units = inject(DEPLOYMENT_CONFIG).catalog.boxUnits;
 
-  /** What one piece costs at the entered basis — the check that catches a basis
-   * typed as 100 when the price is per pack. */
-  protected readonly piecePreview = computed(() => {
+  /**
+   * What the entered packaging costs, per unit — the check that catches a basis
+   * typed as 100 when the price is per pack, and shows what a pack or a box
+   * will be sold for.
+   */
+  private readonly unitPrices = computed(() => {
     const price = this.priceMinor();
-    const basis = parseCount(this.value().priceBasisPieces) ?? 1;
-    if (price === null || basis === 1) return null;
-    return formatPiecePrice(piecePriceMilliMinor(price, basis), this.currency);
+    const v = this.value();
+    const basis = parseCount(v.priceBasisPieces) ?? 1;
+    const pack = parseCount(v.piecesPerPack);
+    const box = parseCount(v.packsPerBox);
+    if (price === null) return { piece: '', pack: '', box: '' };
+
+    const per = (pieces: number | null, template: string) => {
+      const total = pieces === null ? null : totalMinor(price, basis, pieces);
+      return total === null
+        ? ''
+        : template.replace('{price}', formatPriceMinor(total, this.currency));
+    };
+
+    return {
+      // Only where the basis makes it a different number from the price itself.
+      piece:
+        basis === 1
+          ? ''
+          : this.text.pricePerPiece.replace(
+              '{price}',
+              formatPiecePrice(
+                piecePriceMilliMinor(price, basis),
+                this.currency,
+              ),
+            ),
+      pack: per(pack, this.text.pricePerPack),
+      box: per(
+        pack === null || box === null ? null : pack * box,
+        this.text.pricePerBox,
+      ),
+    };
   });
 
   /** Mirrors the server's rule, so the refusal arrives while typing. */
@@ -176,15 +242,30 @@ export class ProductPackagingEditor {
   protected edit(key: keyof PackagingDraft, raw: string): void {
     const current = this.value();
     const next = { ...current, [key]: raw };
-    // The minimum is usually the pack size, so it tracks it while it is blank or
-    // still matching — like a slug tracking a name. A minimum somebody set to
+    // The minimum is usually the pack size, so it tracks it while it is unset
+    // or still matching — like a slug tracking a name. A minimum somebody set to
     // something else is left alone.
-    if (
-      key === 'piecesPerPack' &&
-      (!current.minPieceQty || current.minPieceQty === current.piecesPerPack)
-    ) {
-      next.minPieceQty = raw;
+    const tracking =
+      current.minPieceQty === '1' ||
+      current.minPieceQty === '' ||
+      current.minPieceQty === current.piecesPerPack;
+    if (key === 'piecesPerPack' && tracking) {
+      next.minPieceQty = raw || '1';
     }
     this.valueChange.emit(next);
+  }
+
+  /**
+   * Puts a required count back to 1 when it is left empty or at zero. Done on
+   * blur rather than per keystroke, so clearing the field to retype it does not
+   * fight the typing.
+   */
+  protected normalize(key: keyof PackagingDraft): void {
+    if (!REQUIRED_COUNTS.includes(key as (typeof REQUIRED_COUNTS)[number])) {
+      return;
+    }
+    if (parseCount(this.value()[key]) === null) {
+      this.valueChange.emit({ ...this.value(), [key]: '1' });
+    }
   }
 }

@@ -401,13 +401,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.packaging.set({
         piecesPerPack: product.piecesPerPack?.toString() ?? '',
         packsPerBox: product.packsPerBox?.toString() ?? '',
-        // 1 is the "no minimum" default; showing it would suggest a rule.
-        minPieceQty:
-          product.minPieceQty > 1 ? product.minPieceQty.toString() : '',
-        priceBasisPieces:
-          product.priceBasisPieces > 1
-            ? product.priceBasisPieces.toString()
-            : '',
+        minPieceQty: product.minPieceQty.toString(),
+        priceBasisPieces: product.priceBasisPieces.toString(),
         boxVolume: product.boxVolume ?? '',
         boxWeight: product.boxWeight ?? '',
       });
@@ -459,6 +454,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
     boxWeight: string | null;
   } | null {
     const draft = this.packaging();
+    const decimal = (text: string): string | null =>
+      text.trim().replace(',', '.') || null;
     const optional = (text: string): number | null | undefined =>
       text.trim() === '' ? null : (parseCount(text) ?? undefined);
     const required = (text: string): number | undefined =>
@@ -484,8 +481,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
       minPieceQty,
       priceBasisPieces,
       // Dimensions belong to a box; without one they would never be shown.
-      boxVolume: packsPerBox === null ? null : draft.boxVolume.trim() || null,
-      boxWeight: packsPerBox === null ? null : draft.boxWeight.trim() || null,
+      // Either separator is accepted while typing, like a price.
+      boxVolume: packsPerBox === null ? null : decimal(draft.boxVolume),
+      boxWeight: packsPerBox === null ? null : decimal(draft.boxWeight),
     };
   }
 

@@ -40,21 +40,23 @@ export function formatPriceMinor(
 
 /**
  * Format a per-piece price, which arrives in thousandths of a minor unit
- * because a single piece cannot always be priced in whole cents. Trailing zeros
- * are trimmed, so an exact price reads like any other and only an inexact one
- * shows the extra digits.
+ * because a single piece cannot always be priced in whole cents.
+ *
+ * Three decimal places, never more: the extra precision exists so the figure is
+ * not rounded twice, not so it is all shown. A price that *is* exact in minor
+ * units renders like any other, so only the inexact ones read differently.
  */
 export function formatPiecePrice(
   milliMinor: number,
   currency: CurrencyConfig,
 ): string {
   const digits = currencyFractionDigits(currency);
-  const extra = milliMinor % PIECE_PRICE_SCALE === 0 ? 0 : 3;
+  const exact = milliMinor % PIECE_PRICE_SCALE === 0;
   return new Intl.NumberFormat(currency.locale, {
     style: 'currency',
     currency: currency.code,
     minimumFractionDigits: digits,
-    maximumFractionDigits: digits + extra,
+    maximumFractionDigits: exact ? digits : Math.max(digits, 3),
   }).format(milliMinor / PIECE_PRICE_SCALE / 10 ** digits);
 }
 

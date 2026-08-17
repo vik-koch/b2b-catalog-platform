@@ -46,7 +46,20 @@
     "categoryNotFound": "This category could not be found. It may have been removed.",
     "backToCatalog": "Back to the catalogue",
     "viewImage": "Show image {n}",
-    "imagePlaceholder": "No image available"
+    "imagePlaceholder": "No image available",
+    "units": {
+      "piece": "pcs",
+      "pack": "pk",
+      "box": "bx",
+      "perUnit": "per {unit}",
+      "packaging": "Packaging",
+      "packagingFormula": "{packs} {packUnit} × {pieces} {pieceUnit} = {total} {pieceUnit}",
+      "packagingPerPack": "{pieces} {pieceUnit} per {packUnit}",
+      "minQuantity": "Minimum order",
+      "minQuantityValue": "{qty} {unit}",
+      "boxVolume": "Box volume",
+      "boxWeight": "Box weight"
+    }
   },
   "search": {
     "placeholder": "Search products",

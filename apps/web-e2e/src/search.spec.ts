@@ -143,8 +143,13 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
     page.getByRole('combobox', { name: 'Sort by' });
 
   /**
-   * Tile prices in render order. Read off the rendered text and stripped back
-   * to digits — the formatting is a deployment concern, the ordering is not.
+   * Tile prices in render order, as numbers — the formatting is a deployment
+   * concern, the ordering is not.
+   *
+   * Parsed rather than stripped to digits: a per-piece price can carry three
+   * decimals where the stored price covers a whole pack, so "17,117" and
+   * "17,30" are not comparable as bare digit runs. The last separator is taken
+   * as the decimal one, which holds for either convention at these magnitudes.
    *
    * Waits for the listing to stop loading first: re-sorting keeps the previous
    * results on screen while the new page is fetched, and allTextContents takes
@@ -154,7 +159,16 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
   async function prices(page: Page): Promise<number[]> {
     await expect(page.locator('section[aria-busy="true"]')).toHaveCount(0);
     const texts = await page.locator('li p.font-bold').allTextContents();
-    return texts.map((t) => Number(t.replace(/\D/g, '')));
+    return texts.map((text) => {
+      const digits = text.replace(/[^\d.,]/g, '');
+      const decimal = Math.max(
+        digits.lastIndexOf(','),
+        digits.lastIndexOf('.'),
+      );
+      if (decimal === -1) return Number(digits);
+      const whole = digits.slice(0, decimal).replace(/[.,]/g, '');
+      return Number(`${whole}.${digits.slice(decimal + 1)}`);
+    });
   }
 
   test('sorts a category listing and keeps the choice in the URL', async ({

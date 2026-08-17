@@ -219,14 +219,17 @@ export const adminTextSchema = z
             packsPerBox: z.string(),
             minPieceQty: z.string(),
             priceBasis: z.string(),
-            /** Sits after the basis field, e.g. "pieces". */
-            priceBasisSuffix: z.string(),
+            /** Sits inside a piece-count field, after the number. */
+            pieceSuffix: z.string(),
             boxVolume: z.string(),
             boxWeight: z.string(),
-            /** Placeholder for a unit the product is not sold in. */
-            notSold: z.string(),
-            /** `{price}` is the price one piece works out to. */
-            piecePricePreview: z.string(),
+            notSoldPerPack: z.string(),
+            notSoldPerBox: z.string(),
+            /** What the entered packaging costs, shown beside the row that
+             * defines each unit. `{price}` is substituted. */
+            pricePerPiece: z.string(),
+            pricePerPack: z.string(),
+            pricePerBox: z.string(),
             basisMustDivide: z.string(),
             invalid: z.string(),
           })

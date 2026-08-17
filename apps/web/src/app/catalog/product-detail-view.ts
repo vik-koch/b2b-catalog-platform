@@ -19,8 +19,8 @@ import {
 import { APP_TEXT } from '../config/app-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { Button } from '../ui/button';
-import { PricePipe } from './price.pipe';
 import { ProductGallery } from './product-gallery';
+import { useProductUnits } from './product-units-view';
 import { Icon } from '../ui/icons/icon';
 
 /**
@@ -40,14 +40,7 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
  */
 @Component({
   selector: 'app-product-detail-view',
-  imports: [
-    RouterLink,
-    PricePipe,
-    ProductGallery,
-    Icon,
-    NgTemplateOutlet,
-    Button,
-  ],
+  imports: [RouterLink, ProductGallery, Icon, NgTemplateOutlet, Button],
   template: `
     <nav [attr.aria-label]="text.catalogRoot">
       <ol
@@ -110,9 +103,29 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
           <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
             {{ item().name }}
           </h1>
+          <!-- The first row is the headline price; any further units sit under
+               it, each labelled with what it covers. A product sold only by the
+               piece therefore looks exactly as it always did. -->
           <p class="mt-3 text-2xl font-bold text-primary">
-            {{ item().priceMinor | price }}
+            {{ priceRows()[0].price }}
+            <span class="text-base font-normal text-subtle">
+              {{ priceRows()[0].label }}
+            </span>
           </p>
+          @if (unitPrices().length) {
+            <p
+              class="mt-1 flex flex-wrap items-baseline gap-x-6 gap-y-1 text-sm"
+            >
+              @for (row of unitPrices(); track row.label) {
+                <span>
+                  <span class="font-medium text-secondary">{{
+                    row.price
+                  }}</span>
+                  <span class="text-subtle"> {{ row.label }}</span>
+                </span>
+              }
+            </p>
+          }
 
           @if (item().descriptionHtml) {
             <div class="relative">
@@ -153,7 +166,7 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
     </div>
 
     <ng-template #specs>
-      @if (item().attributes.length) {
+      @if (item().attributes.length || packagingRows().length) {
         <h2
           class="mt-8 text-xs font-semibold tracking-wide text-subtle uppercase"
         >
@@ -177,6 +190,19 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
                 </td>
               </tr>
             }
+            <!-- Packaging closes the table as one group: the rows above say
+                 what the product is, these say how it ships. -->
+            @for (row of packagingRows(); track row.label) {
+              <tr>
+                <th
+                  scope="row"
+                  class="py-2 pr-4 text-left font-normal text-subtle"
+                >
+                  {{ row.label }}
+                </th>
+                <td class="py-2 text-right text-stone-700">{{ row.value }}</td>
+              </tr>
+            }
           </tbody>
         </table>
       }
@@ -192,6 +218,16 @@ export class ProductDetailView {
 
   /** Crumbs sit next to their parent, so the nickname is enough. */
   protected readonly displayName = categoryDisplayName;
+
+  private readonly units = useProductUnits();
+  protected readonly priceRows = computed(() =>
+    this.units.priceRows(this.item().prices, this.item().packaging),
+  );
+  /** Pack and box: the headline is the per-piece price above them. */
+  protected readonly unitPrices = computed(() => this.priceRows().slice(1));
+  protected readonly packagingRows = computed(() =>
+    this.units.packagingRows(this.item().packaging, this.item().boxDimensions),
+  );
 
   private readonly imageColumn =
     viewChild.required<ElementRef<HTMLElement>>('imageColumn');

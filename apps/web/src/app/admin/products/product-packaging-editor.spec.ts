@@ -11,6 +11,9 @@ import {
   ProductPackagingEditor,
 } from './product-packaging-editor';
 
+/** Intl separates a number from its currency symbol with a non-breaking space. */
+const plainSpaces = (text: string) => text.replace(/[\u00a0\u202f]/g, ' ');
+
 const config = {
   catalog: {
     currency: { code: 'EUR', locale: 'de-DE' },
@@ -96,23 +99,54 @@ describe('ProductPackagingEditor', () => {
     });
   });
 
-  it('shows what a piece costs once the price covers more than one', () => {
-    // €19.99 for ten pieces — the case where a rounded per-piece price would
-    // misrepresent the pack.
+  it('prices each unit beside the row that defines it', () => {
+    // €19.99 for ten pieces, ten to a pack, four packs to a box.
     const { fixture } = render(
-      { ...emptyPackaging(), priceBasisPieces: '10' },
+      {
+        ...emptyPackaging(),
+        priceBasisPieces: '10',
+        piecesPerPack: '10',
+        minPieceQty: '10',
+        packsPerBox: '4',
+      },
       1999,
     );
+    const text = plainSpaces(fixture.nativeElement.textContent);
 
-    expect(fixture.nativeElement.textContent).toContain('1,999');
+    expect(text).toContain('1,999 € per piece');
+    expect(text).toContain('19,99 € per pack');
+    expect(text).toContain('79,96 € per box');
   });
 
   it('says nothing about a per-piece price when the price is already per piece', () => {
     const { fixture } = render(emptyPackaging(), 1999);
 
-    expect(fixture.nativeElement.textContent).not.toContain(
-      defaultAdminText.productEditor.packaging.piecePricePreview.split('{')[0],
+    expect(fixture.nativeElement.textContent).not.toContain('per piece');
+  });
+
+  it('puts a required count back to 1 when it is emptied', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      minPieceQty: '',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-minPieceQty',
     );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted.at(-1)).toMatchObject({ minPieceQty: '1' });
+  });
+
+  it('leaves an optional count empty on blur — it means "not sold that way"', () => {
+    const { fixture, emitted } = render(emptyPackaging());
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-piecesPerPack',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted).toEqual([]);
   });
 
   it('warns while the basis does not divide the quantities', () => {
