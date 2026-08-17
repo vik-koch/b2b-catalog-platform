@@ -8,6 +8,7 @@ import {
   productListItemSchema,
   SEARCH_QUERY_MAX_LENGTH,
 } from './catalog.contract';
+import { basisDividesQuantities } from './product-units';
 import { slugSchema } from './slug';
 
 /** Admin grid page size — denser than the storefront's, for scanning. */
@@ -67,6 +68,17 @@ export const productTierPriceSchema = z
   })
   .strict();
 export type ProductTierPrice = z.infer<typeof productTierPriceSchema>;
+
+/**
+ * A box dimension as the decimal string a `numeric(12,3)` column holds. A string
+ * rather than a number so the digits an admin typed survive unchanged.
+ */
+export const boxDimensionInputSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{1,9}(\.\d{1,3})?$/, 'Use up to 9 digits and 3 decimal places')
+  .nullable()
+  .default(null);
 
 /** Matches the `products.sourceId` / `categories.sourceId` varchar(255). */
 export const SOURCE_ID_MAX_LENGTH = 255;
@@ -131,8 +143,37 @@ export const productInputSchema = z
         'A tier can only be priced once',
       )
       .default([]),
+    /** How many pieces `priceMinor` covers. Staff-only; never served publicly. */
+    priceBasisPieces: z.number().int().positive().default(1),
+    /** Null means the product is not sold in that unit. */
+    piecesPerPack: z.number().int().positive().nullable().default(null),
+    packsPerBox: z.number().int().positive().nullable().default(null),
+    /** Minimum piece quantity, and equally the increment. */
+    minPieceQty: z.number().int().positive().default(1),
+    boxVolume: boxDimensionInputSchema,
+    boxWeight: boxDimensionInputSchema,
   })
-  .strict();
+  .strict()
+  .refine(
+    (input) => input.packsPerBox === null || input.piecesPerPack !== null,
+    {
+      message: 'A box needs a pack size',
+      path: ['packsPerBox'],
+    },
+  )
+  .refine(
+    (input) =>
+      input.packsPerBox !== null || (!input.boxVolume && !input.boxWeight),
+    { message: 'Box dimensions need a box', path: ['boxVolume'] },
+  )
+  // What keeps totals exact: every purchasable quantity must be a whole number
+  // of basis units. Checked here as well as in the database so the editor gets a
+  // 400 naming the field rather than a constraint violation.
+  .refine((input) => basisDividesQuantities(input, input.priceBasisPieces), {
+    message:
+      'The price basis must divide the minimum quantity and the pack size',
+    path: ['priceBasisPieces'],
+  });
 export type ProductInput = z.infer<typeof productInputSchema>;
 
 /**
@@ -151,6 +192,12 @@ export const adminProductSchema = z
     images: z.array(catalogImageSchema),
     /** Only the tiers that override the base price; never the base itself. */
     tierPrices: z.array(productTierPriceSchema),
+    priceBasisPieces: z.number().int().positive(),
+    piecesPerPack: z.number().int().positive().nullable(),
+    packsPerBox: z.number().int().positive().nullable(),
+    minPieceQty: z.number().int().positive(),
+    boxVolume: z.string().nullable(),
+    boxWeight: z.string().nullable(),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
     deletedAt: z.string().datetime().nullable(),
     updatedAt: z.string().datetime(),

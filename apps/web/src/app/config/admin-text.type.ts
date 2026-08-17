@@ -210,6 +210,27 @@ export const adminTextSchema = z
             empty: z.string(),
           })
           .strict(),
+        /** Units of sale, and how many pieces the price covers (FR-UNIT-*). */
+        packaging: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            piecesPerPack: z.string(),
+            packsPerBox: z.string(),
+            minPieceQty: z.string(),
+            priceBasis: z.string(),
+            /** Sits after the basis field, e.g. "pieces". */
+            priceBasisSuffix: z.string(),
+            boxVolume: z.string(),
+            boxWeight: z.string(),
+            /** Placeholder for a unit the product is not sold in. */
+            notSold: z.string(),
+            /** `{price}` is the price one piece works out to. */
+            piecePricePreview: z.string(),
+            basisMustDivide: z.string(),
+            invalid: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /** The product-list screen (FR-ADM-01): includes soft-deleted rows, and

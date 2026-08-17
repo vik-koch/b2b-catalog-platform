@@ -157,6 +157,14 @@ export const deploymentConfigSchema = z
             locale: z.string(),
           })
           .strict(),
+        /** Units a box's volume and weight are measured in. Labels only — the
+         * numbers are stored as entered. */
+        boxUnits: z
+          .object({
+            volume: z.string(),
+            weight: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**

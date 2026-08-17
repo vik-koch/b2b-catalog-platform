@@ -1,8 +1,4 @@
-/**
- * Prices travel as integer minor units (see the catalog contract). Formatting
- * is a per-deployment concern: the currency code and locale come from
- * deployment config, never from the API.
- */
+import { PIECE_PRICE_SCALE } from '@b2b-catalog-platform/shared';
 
 export interface CurrencyConfig {
   /** ISO 4217, e.g. "EUR". */
@@ -40,6 +36,26 @@ export function formatPriceMinor(
   const formatter = formatterFor(currency);
   const fractionDigits = formatter.resolvedOptions().maximumFractionDigits ?? 2;
   return formatter.format(priceMinor / 10 ** fractionDigits);
+}
+
+/**
+ * Format a per-piece price, which arrives in thousandths of a minor unit
+ * because a single piece cannot always be priced in whole cents. Trailing zeros
+ * are trimmed, so an exact price reads like any other and only an inexact one
+ * shows the extra digits.
+ */
+export function formatPiecePrice(
+  milliMinor: number,
+  currency: CurrencyConfig,
+): string {
+  const digits = currencyFractionDigits(currency);
+  const extra = milliMinor % PIECE_PRICE_SCALE === 0 ? 0 : 3;
+  return new Intl.NumberFormat(currency.locale, {
+    style: 'currency',
+    currency: currency.code,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits + extra,
+  }).format(milliMinor / PIECE_PRICE_SCALE / 10 ** digits);
 }
 
 /** The currency's minor-unit exponent (2 for EUR, 0 for JPY, 3 for BHD). */
