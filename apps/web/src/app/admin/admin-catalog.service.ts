@@ -7,7 +7,7 @@ import {
   AdminProductState,
   CategoryInput,
   ProductInput,
-  ProductListItem,
+  HiddenProduct,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../core/api-client';
@@ -76,8 +76,8 @@ export class AdminCatalogService {
   }
 
   /** The soft-deleted products in a category subtree — the edit-mode overlay. */
-  async listDeletedProducts(slug: string): Promise<ProductListItem[]> {
-    const response = await this.client.listDeletedProducts({
+  async listHiddenProducts(slug: string): Promise<HiddenProduct[]> {
+    const response = await this.client.listHiddenProducts({
       params: { slug },
     });
     if (response.status === 200) return response.body.items;
@@ -94,6 +94,20 @@ export class AdminCatalogService {
     });
     if (response.status === 200) return response.body;
     throw new Error(`Failed to restore product "${slug}" (${response.status})`);
+  }
+
+  async setProductPublished(
+    slug: string,
+    published: boolean,
+  ): Promise<AdminProduct> {
+    const response = await this.client.setProductPublished({
+      params: { slug },
+      body: { published },
+    });
+    if (response.status === 200) return response.body;
+    throw new Error(
+      `Failed to change publication of "${slug}" (${response.status})`,
+    );
   }
 
   // --- Categories -------------------------------------------------------

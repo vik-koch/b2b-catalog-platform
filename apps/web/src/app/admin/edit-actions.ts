@@ -25,10 +25,12 @@ const variants = {
  * they were drifting apart across five call sites, and a control that moves
  * between screens reads as a different control.
  *
- * Either affordance is optional: omit `editLink` for delete-only, omit
- * `deleteLabel` for a page that cannot be deleted (a static page, the catalogue
- * root). Rendering is the caller's decision — the cluster assumes edit mode is
- * already on and the wording already loaded.
+ * Every affordance is optional: omit `editLink` for a cluster with no editor,
+ * omit `deleteLabel` where deleting does not belong (a static page, the
+ * catalogue root — and the grid tiles, where the bin was noise beside an edit
+ * people reach for far more often), omit `publishLabel` for anything that is not
+ * a product. Rendering is the caller's decision — the cluster assumes edit mode
+ * is already on and the wording already loaded.
  */
 @Component({
   selector: 'app-edit-actions',
@@ -45,6 +47,20 @@ const variants = {
         >
           <app-icon name="pencil" [class]="style().icon" />
         </a>
+      }
+      @if (publishLabel(); as label) {
+        <button
+          appIconButton
+          type="button"
+          [attr.aria-label]="label"
+          [attr.title]="label"
+          (click)="togglePublished.emit()"
+        >
+          <app-icon
+            [name]="published() ? 'book-dashed' : 'book-check'"
+            [class]="style().icon"
+          />
+        </button>
       }
       @if (deleteLabel(); as label) {
         <button
@@ -70,6 +86,11 @@ export class EditActions {
   /** Doubles as the switch for the bin: no label, no delete affordance. */
   readonly deleteLabel = input<string | null>(null);
   readonly remove = output<void>();
+  /** Same switch for the publication toggle, which only products have. The
+   * label states what the click will do, so it changes with the state. */
+  readonly publishLabel = input<string | null>(null);
+  readonly published = input(false);
+  readonly togglePublished = output<void>();
 
   protected readonly style = computed(() => variants[this.variant()]);
 }

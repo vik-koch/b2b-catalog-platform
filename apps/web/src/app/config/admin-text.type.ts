@@ -92,9 +92,21 @@ export const adminTextSchema = z
         editCategories: z.string(),
         addCategory: z.string(),
         deleteCategory: z.string(),
-        deletedHeading: z.string(),
+        /** The overlay under a category grid: everything the storefront hides. */
+        hiddenHeading: z.string(),
+        hiddenHint: z.string(),
+        deletedBadge: z.string(),
+        unpublishedBadge: z.string(),
+        publishProduct: z.string(),
+        unpublishProduct: z.string(),
+        unpublishConfirm: z.string(),
+        /** The confirm dialog's cancel, so a storefront component never has to
+         * reach into `common` — admin text is fetched, and only edit-mode
+         * wording is gated on it having loaded. */
+        cancel: z.string(),
         restoring: z.string(),
-        restoreError: z.string(),
+        revealError: z.string(),
+        publishError: z.string(),
       })
       .strict(),
     /** Inline static-page editing (FR-ADM-03). */
@@ -243,6 +255,8 @@ export const adminTextSchema = z
       .object({
         title: z.string(),
         deletedBadge: z.string(),
+        /** Marks a product that is not on the storefront yet (FR-ADM-06). */
+        unpublishedBadge: z.string(),
         liveBadge: z.string(),
         empty: z.string(),
         /** Shown instead of `empty` when filters are what emptied the list. */
@@ -252,12 +266,14 @@ export const adminTextSchema = z
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
         clearSearch: z.string(),
+        clearFilters: z.string(),
         /** Accessible names for the two column-heading filters, whose visible
          * text is the selected value rather than a label. */
         filterState: z.string(),
         filterCategory: z.string(),
         stateAll: z.string(),
         stateLive: z.string(),
+        stateUnpublished: z.string(),
         stateDeleted: z.string(),
         allCategories: z.string(),
       })

@@ -10,7 +10,6 @@ import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
-import { CategoryDeleteDialog } from '../admin/categories/category-delete-dialog';
 import { Icon } from '../ui/icons/icon';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
@@ -26,14 +25,7 @@ const MAX_CHILD_LINKS = 3;
  */
 @Component({
   selector: 'app-category-overview',
-  imports: [
-    RouterLink,
-    ImagePlaceholder,
-    Icon,
-    EditActions,
-    CategoryDeleteDialog,
-    LoadErrorView,
-  ],
+  imports: [RouterLink, ImagePlaceholder, Icon, EditActions, LoadErrorView],
   template: `
     <section class="relative pb-12 sm:pb-16">
       @if (editControls(); as editText) {
@@ -81,10 +73,6 @@ const MAX_CHILD_LINKS = 3;
                     [editLink]="['/admin/categories', cat.slug, 'edit']"
                     [editParams]="editorFrom"
                     [editLabel]="editText.editCategory"
-                    [deleteLabel]="editText.deleteCategory"
-                    (remove)="
-                      deletingCategory.set({ slug: cat.slug, name: cat.name })
-                    "
                   />
                 }
                 <a
@@ -156,17 +144,6 @@ const MAX_CHILD_LINKS = 3;
           }
         </div>
       }
-
-      @defer (when deletingCategory()) {
-        @if (deletingCategory(); as target) {
-          <app-category-delete-dialog
-            [slug]="target.slug"
-            [name]="target.name"
-            (deleted)="onCategoryDeleted()"
-            (cancelled)="deletingCategory.set(null)"
-          />
-        }
-      }
     </section>
   `,
 })
@@ -179,10 +156,6 @@ export class CategoryOverview {
    * name; the tile heading stays the full one. */
   protected readonly displayName = categoryDisplayName;
   /** The top-level category whose delete confirmation is open, if any. */
-  protected readonly deletingCategory = signal<{
-    slug: string;
-    name: string;
-  } | null>(null);
 
   protected categories = resource({
     loader: () => this.catalog.getCategoryTree(),
@@ -200,11 +173,6 @@ export class CategoryOverview {
   protected readonly shown = computed(() =>
     this.content.ready() ? this.categories.value() : undefined,
   );
-
-  protected onCategoryDeleted(): void {
-    this.deletingCategory.set(null);
-    this.categories.reload();
-  }
 
   constructor() {
     usePageSeo({

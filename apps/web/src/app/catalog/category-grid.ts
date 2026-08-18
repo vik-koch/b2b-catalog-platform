@@ -17,9 +17,9 @@ import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
 import { EditModeService } from '../admin/edit-mode.service';
-import { CategoryDeleteDialog } from '../admin/categories/category-delete-dialog';
-import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
-import { DeletedProductsSection } from '../admin/products/deleted-products-section';
+import { HiddenProductsSection } from '../admin/products/hidden-products-section';
+import { AdminCatalogService } from '../admin/admin-catalog.service';
+import { ConfirmService } from '../ui/confirm.service';
 import { Button } from '../ui/button';
 import { Icon } from '../ui/icons/icon';
 import { NotFoundView } from '../pages/not-found-view';
@@ -49,9 +49,7 @@ const SUBS_COLLAPSED = 4;
     ProductSortSelect,
     Button,
     EditActions,
-    ProductDeleteDialog,
-    CategoryDeleteDialog,
-    DeletedProductsSection,
+    HiddenProductsSection,
     NotFoundView,
     LoadErrorView,
   ],
@@ -119,13 +117,6 @@ const SUBS_COLLAPSED = 4;
                 [editLink]="['/admin/categories', data.category.slug, 'edit']"
                 [editParams]="editorFrom"
                 [editLabel]="editText.editCategory"
-                [deleteLabel]="editText.deleteCategory"
-                (remove)="
-                  deletingCategory.set({
-                    slug: data.category.slug,
-                    name: data.category.name,
-                  })
-                "
               />
             }
           </div>
@@ -225,8 +216,6 @@ const SUBS_COLLAPSED = 4;
                         [editLink]="['/admin/products', item.slug, 'edit']"
                         [editParams]="editorFrom"
                         [editLabel]="editText.editProduct"
-                        [deleteLabel]="editText.deleteProduct"
-                        (remove)="deletingProduct.set(item)"
                       />
                     }
                   </app-product-tile>
@@ -281,30 +270,6 @@ const SUBS_COLLAPSED = 4;
           } @else {
             <p class="mt-8 text-muted">{{ text.emptyProducts }}</p>
           }
-
-          @defer (when deletingProduct()) {
-            @if (deletingProduct(); as target) {
-              <app-product-delete-dialog
-                [slug]="target.slug"
-                [name]="target.name"
-                (deleted)="onProductDeleted()"
-                (cancelled)="deletingProduct.set(null)"
-              />
-            }
-          }
-
-          @defer (when deletingCategory()) {
-            @if (deletingCategory(); as target) {
-              <app-category-delete-dialog
-                [slug]="target.slug"
-                [name]="target.name"
-                (deleted)="
-                  onCategoryDeleted(data.category.ancestors.at(-1)?.slug)
-                "
-                (cancelled)="deletingCategory.set(null)"
-              />
-            }
-          }
         }
       } @else if (showSkeleton()) {
         <div class="animate-pulse space-y-8" aria-hidden="true">
@@ -330,7 +295,7 @@ const SUBS_COLLAPSED = 4;
            for the grid. The slug comes from the route, which is known at once. -->
       @defer (when editMode.enabled()) {
         @if (editMode.enabled()) {
-          <app-deleted-products-section
+          <app-hidden-products-section
             [categorySlug]="slug()"
             [reloadToken]="deletedReload()"
             (loaded)="deletedReady.set(true)"
@@ -343,6 +308,8 @@ const SUBS_COLLAPSED = 4;
 })
 export class CategoryGrid {
   private catalog = inject(CatalogService);
+  private readonly admin = inject(AdminCatalogService);
+  private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
@@ -372,15 +339,7 @@ export class CategoryGrid {
 
   protected showAllSubs = signal(false);
   /** The product whose delete confirmation is open, if any. */
-  protected readonly deletingProduct = signal<{
-    slug: string;
-    name: string;
-  } | null>(null);
   /** The category (this page's own) whose delete confirmation is open. */
-  protected readonly deletingCategory = signal<{
-    slug: string;
-    name: string;
-  } | null>(null);
   /** Bumped to re-fetch the edit-mode "Deleted" overlay after a delete/restore. */
   protected readonly deletedReload = signal(0);
   /** True once the deleted-products overlay has loaded for the current edit-mode
@@ -433,25 +392,10 @@ export class CategoryGrid {
     });
   }
 
-  protected onProductDeleted(): void {
-    this.deletingProduct.set(null);
-    this.products.reload();
-    // The just-deleted product now belongs in the "Deleted" overlay.
-    this.deletedReload.update((v) => v + 1);
-  }
-
   /** A product was restored from the overlay — it returns to the live grid. */
   protected onProductRestored(): void {
     this.products.reload();
     this.deletedReload.update((v) => v + 1);
-  }
-
-  /** This category is gone — leave for its parent (or the catalog root). */
-  protected onCategoryDeleted(parentSlug: string | undefined): void {
-    this.deletingCategory.set(null);
-    void this.router.navigate(
-      parentSlug ? ['/catalog', parentSlug] : ['/catalog'],
-    );
   }
 
   protected visibleSubs<T>(subs: readonly T[]): readonly T[] {

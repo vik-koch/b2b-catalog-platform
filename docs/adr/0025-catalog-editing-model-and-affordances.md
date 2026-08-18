@@ -134,3 +134,26 @@ regardless, so the toggle is a convenience, never a control boundary.
   required depends on how orders record their line items (a self-contained
   snapshot makes a purge safe; a live FK does not) — a question left to the
   future orders ADR, not settled here.
+
+## Amendment — 2026-08-18: the bin leaves the grids, and "Deleted" becomes "Not on the storefront"
+
+Publication (ADR 0036) gave products a second reversible state, and putting its
+toggle in the tile cluster beside the pencil and the bin would have made three
+controls on a card. Two things changed instead:
+
+- **No delete on the grids.** The bin is gone from the product tiles, the
+  category tiles on the overview, and the category's own cluster on a grid page.
+  It stays on the product page — where the whole screen is that one product and
+  the act is deliberate — and in the admin list. This is a deliberate loss of
+  reach: deleting is rare next to editing, and the symmetry the clusters were
+  built for was never real. `EditActions` keeps `deleteLabel` optional, so a
+  caller asks for the bin rather than getting it by default.
+- **The overlay covers both reasons.** The "Deleted" block under a category grid
+  is now "Not on the storefront": soft-deleted, unpublished, or both, each tile
+  badged with why and carrying the one action that undoes it. `listDeletedProducts`
+  became `listHiddenProducts` and reports `deleted`/`unpublished` per item.
+  Without it an unpublished product was invisible to the person meant to review
+  it, and the grid looked like the whole category when it was not.
+
+The grid tiles gained the publication toggle in the bin's place, so a tile still
+carries exactly two controls.

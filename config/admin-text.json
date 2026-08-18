@@ -50,9 +50,17 @@
     "editCategories": "Edit categories",
     "addCategory": "Add category",
     "deleteCategory": "Delete category",
-    "deletedHeading": "Deleted",
+    "hiddenHeading": "Not on the storefront",
+    "hiddenHint": "These products are in this category but customers cannot see them.",
+    "deletedBadge": "Deleted",
+    "unpublishedBadge": "Not published",
+    "publishProduct": "Publish",
+    "unpublishProduct": "Unpublish",
+    "unpublishConfirm": "Take “{name}” off the storefront? Customers will no longer see it; you can publish it again at any time.",
+    "cancel": "Cancel",
     "restoring": "Restoring…",
-    "restoreError": "Could not restore this product. Please try again."
+    "revealError": "Could not bring this product back. Please try again.",
+    "publishError": "Could not change whether this product is published. Please try again."
   },
   "pageEditor": {
     "edit": "Edit page",
@@ -162,6 +170,7 @@
   "productList": {
     "title": "Products",
     "deletedBadge": "Deleted",
+    "unpublishedBadge": "Not published",
     "liveBadge": "Live",
     "empty": "No products yet.",
     "noResults": "No products match these filters.",
@@ -170,10 +179,12 @@
     "searchLabel": "Search products",
     "searchPlaceholder": "Search by name or sync key",
     "clearSearch": "Clear the search",
+    "clearFilters": "Show all products",
     "filterState": "Filter by status",
     "filterCategory": "Filter by category",
     "stateAll": "All",
     "stateLive": "Live only",
+    "stateUnpublished": "Awaiting publication",
     "stateDeleted": "Deleted only",
     "allCategories": "All categories"
   },
