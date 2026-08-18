@@ -43,12 +43,14 @@ import {
  * selecting a range + Delete clears it. There are no copy/paste buttons: the
  * table itself is the clipboard surface.
  *
- * Angular owns the row/cell *structure* (via `@for`) but not the cell *text*: the
- * text is written to the DOM from the model only while the grid is not focused,
- * and read back on input — so typing is never overwritten mid-caret. Structural
- * keys that a contenteditable would otherwise use to merge/delete cells (Enter,
- * and Backspace/Delete at a cell boundary) are intercepted, so the table shape
- * the framework rendered can never be corrupted from inside the editable region.
+ * Angular owns the row/cell *structure* (via `@for`) but not the cell *text*:
+ * the text is written to the DOM from the model, skipping only the cell the
+ * caret is in, and read back on input — so typing is never overwritten
+ * mid-caret while every other cell still tracks the model. Structural keys that
+ * a contenteditable would otherwise use to merge/delete cells (Enter, and
+ * Backspace/Delete at a cell boundary) are intercepted, as is paste, so the
+ * table shape the framework rendered can never be corrupted from inside the
+ * editable region.
  */
 @Component({
   selector: 'app-product-attributes-editor',
@@ -79,6 +81,7 @@ import {
           class="focus:outline-none"
           (cdkDropListDropped)="onDrop($event)"
           (input)="onInput()"
+          (mousedown)="onMouseDown($event)"
           (copy)="onCopy($event)"
           (paste)="onPaste($event)"
           (keydown)="onKeydown($event)"
@@ -113,9 +116,9 @@ import {
               ></td>
               <td
                 contenteditable="false"
-                class="w-32 border-0 pl-2 align-middle"
+                class="w-32 border-0 pl-5 align-middle"
               >
-                <div class="flex items-center justify-center gap-1">
+                <div class="flex items-center gap-1">
                   <button
                     type="button"
                     cdkDragHandle
@@ -164,19 +167,29 @@ export class ProductAttributesEditor {
   );
 
   constructor() {
-    // Model → DOM: fill each cell from the model, but never while the grid is
-    // being edited (that would fight the caret). Reacts to row changes.
+    // Model → DOM. Angular owns the row/cell structure, this owns the text.
     afterRenderEffect(() => {
       const data = this.rows();
       const tbody = this.grid()?.nativeElement;
-      if (!tbody || this.isEditing(tbody)) return;
+      if (!tbody) return;
+      // The cell being typed in is left alone: writing `textContent` replaces
+      // the text node under the caret, which collapses the selection to the
+      // start of the editing host — the "caret jumps to the first cell" bug.
+      // Every *other* cell is written, so a structural change (remove, drop,
+      // undo) always reaches the DOM even while the grid has focus.
+      const caret = this.caretPending ? null : this.caretCell();
       const trs = tbody.querySelectorAll('tr');
       data.forEach((row, i) => {
         const tr = trs[i];
         if (!tr) return;
-        this.writeCell(tr, 0, row.key);
-        this.writeCell(tr, 1, row.value);
+        if (!(caret?.row === i && caret.col === 0)) {
+          this.writeCell(tr, 0, row.key);
+        }
+        if (!(caret?.row === i && caret.col === 1)) {
+          this.writeCell(tr, 1, row.value);
+        }
       });
+      this.applyPendingCaret(tbody, data.length);
     });
   }
 
@@ -191,20 +204,8 @@ export class ProductAttributesEditor {
 
   @HostListener('document:selectionchange')
   protected onSelectionChange(): void {
-    const tbody = this.grid()?.nativeElement;
-    const anchor = document.getSelection()?.anchorNode;
-    if (!tbody || !anchor || !tbody.contains(anchor)) {
-      this.activeCell.set(null);
-      return;
-    }
-    const element =
-      anchor instanceof Element ? anchor : (anchor.parentElement ?? null);
-    const cell = element?.closest('td[data-col]');
-    this.activeCell.set(
-      cell
-        ? `${cell.getAttribute('data-row')}:${cell.getAttribute('data-col')}`
-        : null,
-    );
+    const cell = this.caretCell();
+    this.activeCell.set(cell ? `${cell.row}:${cell.col}` : null);
   }
 
   /** Matches the focus outline of a normal input, drawn inside the cell's own
@@ -215,24 +216,104 @@ export class ProductAttributesEditor {
       : '';
   }
 
+  // --- Undo ----------------------------------------------------------------
+
+  /**
+   * States from before each change, newest last, with the caret that goes with
+   * them. The grid owns its whole history rather than leaning on the browser's:
+   * structural edits (add, remove, reorder, paste, range clear) rewrite the
+   * model and re-render from it, so the native stack never sees them, and a
+   * half-native history would undo text and rows in an order that matches
+   * neither. Typing is grouped into bursts per cell, the way an editor does it.
+   */
+  private readonly undoStack: Snapshot[] = [];
+  private readonly redoStack: Snapshot[] = [];
+  private typingCell: string | null = null;
+  private typingAt = 0;
+
+  private snapshot(): Snapshot {
+    return {
+      rows: this.current().map((row) => ({ ...row })),
+      caret: this.caretCell(),
+    };
+  }
+
+  /** Snapshot before a structural change, so Ctrl+Z can put it back. */
+  private remember(): void {
+    this.undoStack.push(this.snapshot());
+    this.redoStack.length = 0;
+    this.typingCell = null;
+  }
+
+  /**
+   * Snapshot before a keystroke — but only one per burst of typing in the same
+   * cell, so Ctrl+Z steps back by words rather than by character.
+   */
+  private rememberTyping(): void {
+    const cell = this.caretCell();
+    const key = cell ? `${cell.row}:${cell.col}` : null;
+    const now = Date.now();
+    if (key !== null && key === this.typingCell && now - this.typingAt < 600) {
+      this.typingAt = now;
+      return;
+    }
+    this.undoStack.push(this.snapshot());
+    this.redoStack.length = 0;
+    this.typingCell = key;
+    this.typingAt = now;
+  }
+
+  private restore(from: Snapshot[], to: Snapshot[]): void {
+    const previous = from.pop();
+    if (!previous) return;
+    to.push(this.snapshot());
+    this.typingCell = null;
+    // The rows are about to be replaced wholesale: drop the caret so no cell is
+    // skipped by the guard above, and put it back once the text has landed.
+    this.dropCaret();
+    this.caretPending = previous.caret ?? { row: 0, col: 0 };
+    this.valueChange.emit(previous.rows);
+  }
+
   // --- Row actions ---------------------------------------------------------
+
+  /**
+   * Every row action leaves the caret in the row it acted on.
+   *
+   * Not only for the obvious reason. Ctrl+Z is bound to the grid, so it is
+   * reachable only while something inside it has focus — and a drag never
+   * gives the handle focus (the CDK swallows the mousedown), while a removal
+   * takes the clicked button out of the DOM with the row. Both would leave the
+   * step on the undo stack with no way to press it, until some later click
+   * happened to land back inside the grid.
+   */
 
   /** Insert a new empty row directly below the given one. */
   protected addBelow(index: number): void {
+    this.remember();
     const rows = this.current();
     rows.splice(index + 1, 0, { key: '', value: '' });
+    this.dropCaret();
+    this.caretPending = { row: index + 1, col: 0 };
     this.valueChange.emit(rows);
   }
 
   protected remove(index: number): void {
+    this.remember();
+    this.dropCaret();
+    // The row that moves up into the gap — or the new last row, once the one
+    // removed was the last; `applyPendingCaret` clamps it.
+    this.caretPending = { row: index, col: 0 };
     this.valueChange.emit(this.current().filter((_, i) => i !== index));
   }
 
   protected onDrop(event: CdkDragDrop<ProductAttribute[]>): void {
     if (event.previousIndex === event.currentIndex) return;
-    // Blur first so the grid re-renders cell text from the reordered model
-    // rather than from the DOM order CDK left behind.
-    this.grid()?.nativeElement.blur();
+    this.remember();
+    // Drop the caret so the grid re-renders every cell from the reordered
+    // model rather than leaving the typed-in one behind.
+    this.dropCaret();
+    this.caretPending = { row: event.currentIndex, col: 0 };
     const rows = this.current();
     moveItemInArray(rows, event.previousIndex, event.currentIndex);
     this.valueChange.emit(rows);
@@ -242,6 +323,11 @@ export class ProductAttributesEditor {
 
   /** Read every cell back from the DOM after a keystroke. */
   protected onInput(): void {
+    this.rememberTyping();
+    this.emitFromDom();
+  }
+
+  private emitFromDom(): void {
     const tbody = this.grid()?.nativeElement;
     if (!tbody) return;
     const rows: ProductAttribute[] = [];
@@ -272,6 +358,21 @@ export class ProductAttributesEditor {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
+    if (event.ctrlKey || event.metaKey) {
+      const key = event.key.toLowerCase();
+      if (key === 'z' || key === 'y') {
+        // The grid owns its history, so the shortcut is always claimed — the
+        // browser's stack has not seen the model-driven edits and would undo
+        // into a state the model never had.
+        event.preventDefault();
+        if ((key === 'z' && event.shiftKey) || key === 'y') {
+          this.restore(this.redoStack, this.undoStack);
+        } else {
+          this.restore(this.undoStack, this.redoStack);
+        }
+        return;
+      }
+    }
     if (event.key === 'Enter') {
       event.preventDefault(); // cells are single-line
       return;
@@ -283,7 +384,10 @@ export class ProductAttributesEditor {
     const range = this.selectedRange();
     if (range) {
       event.preventDefault();
-      this.clearRange(range);
+      this.remember();
+      this.dropCaret();
+      this.caretPending = { row: range.r0, col: range.c0 as 0 | 1 };
+      this.valueChange.emit(clearRange(this.current(), range));
       return;
     }
     // A collapsed caret at a cell boundary would otherwise merge into the
@@ -294,30 +398,130 @@ export class ProductAttributesEditor {
   }
 
   /**
-   * Spreadsheet paste: a value with no tab/newline falls through to the normal
-   * cell paste; a grid fills outward from the target cell, adding rows up to the
-   * cap. Blurs first so the edited cells re-render from the new model.
+   * Paste is always handled here, never by contenteditable: the native one
+   * inserts the clipboard's HTML, which for anything copied out of a table
+   * means nested rows inside a cell — a structure Angular did not render and
+   * cannot reconcile. A plain value goes into the target cell as text; a value
+   * with tabs or newlines fills outward from it, Excel-style, adding rows up to
+   * the cap.
    */
   protected onPaste(event: ClipboardEvent): void {
     const text = event.clipboardData?.getData('text/plain') ?? '';
-    if (!/[\t\n\r]/.test(text)) return;
+    event.preventDefault();
+    if (!text) return;
 
-    const start = this.cellOf(document.getSelection()?.anchorNode ?? null);
+    // A single value inside one cell is ordinary text entry: let the browser
+    // splice it in at the caret and read the result back.
+    if (this.withinOneCell() && !/[\t\n\r]/.test(text)) {
+      this.rememberTyping();
+      this.insertText(text);
+      this.emitFromDom();
+      return;
+    }
+
+    const start = this.pasteTarget();
     if (!start) return;
 
-    event.preventDefault();
-    this.grid()?.nativeElement.blur();
-
-    const grid = parseClipboardGrid(text);
+    this.remember();
+    this.dropCaret();
+    this.caretPending = start;
     this.valueChange.emit(
-      applyPastedGrid(this.current(), start, grid, PRODUCT_ATTRIBUTES_MAX),
+      applyPastedGrid(
+        this.current(),
+        start,
+        parseClipboardGrid(text),
+        PRODUCT_ATTRIBUTES_MAX,
+      ),
     );
+  }
+
+  /**
+   * Where a paste lands: the cell the selection is in, or — once it spans more
+   * than one — the cell the mouse went down in.
+   *
+   * Not the top-left of the selection, though that is the spreadsheet rule.
+   * Dragging over text stops being a text selection the moment the pointer
+   * leaves the cell: the browser switches to selecting whole cells, and a
+   * selection begun in the value column silently grows to cover the key column
+   * beside it. Its top-left is then a cell the user never pointed at, and the
+   * paste would land one column to the left of the text they meant to replace.
+   */
+  private pasteTarget(): GridCell | null {
+    if (this.withinOneCell()) return this.caretCell();
+    const range = this.selectedRange();
+    return (
+      this.pressedCell ??
+      (range ? { row: range.r0, col: range.c0 as 0 | 1 } : this.caretCell())
+    );
+  }
+
+  /**
+   * Whether the whole selection sits inside a single cell — the only case where
+   * splicing text in at the caret is safe. A selection that reaches out of the
+   * cell holds `<td>`/`<tr>` nodes, and replacing its contents would take the
+   * table's structure with it.
+   */
+  private withinOneCell(): boolean {
+    const selection = document.getSelection();
+    const anchor = this.cellOf(selection?.anchorNode ?? null);
+    if (!anchor) return false;
+    if (selection?.isCollapsed) return true;
+    const focus = this.cellOf(selection?.focusNode ?? null);
+    return focus?.row === anchor.row && focus?.col === anchor.col;
+  }
+
+  /** The cell the mouse last went down in — where a drag-selection began. */
+  private pressedCell: GridCell | null = null;
+
+  protected onMouseDown(event: MouseEvent): void {
+    this.pressedCell = this.cellOf(event.target as Node);
+  }
+
+  /** Splice text in at the caret, replacing whatever it spans in that cell. */
+  private insertText(text: string): void {
+    const selection = document.getSelection();
+    const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
+    if (!range) return;
+    range.deleteContents();
+    const node = document.createTextNode(text);
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.collapse(true);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
   }
 
   // --- Helpers -------------------------------------------------------------
 
-  private isEditing(tbody: HTMLElement): boolean {
-    return typeof document !== 'undefined' && document.activeElement === tbody;
+  /** Where the caret must land once the next render has written the cells. */
+  private caretPending: GridCell | null = null;
+
+  private applyPendingCaret(tbody: HTMLElement, rowCount: number): void {
+    const target = this.caretPending;
+    if (!target) return;
+    this.caretPending = null;
+    const row = Math.min(target.row, rowCount - 1);
+    const cell = tbody.querySelector<HTMLElement>(
+      `td[data-row="${row}"][data-col="${target.col}"]`,
+    );
+    if (!cell) return;
+    // Focus *and* selection: putting a range inside an editing host does not
+    // make it the active element, and the grid's shortcuts are bound to the
+    // host — a caret it cannot type or undo into is only a decoration.
+    tbody.focus({ preventScroll: true });
+    const range = document.createRange();
+    range.selectNodeContents(cell);
+    range.collapse(false); // to the end of the cell's text
+    const selection = document.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  }
+
+  /** Take the caret out of the grid so cells can be rewritten under it. */
+  private dropCaret(): void {
+    if (this.caretCell()) document.getSelection()?.removeAllRanges();
+    this.activeCell.set(null);
+    this.pressedCell = null; // rows are about to move under it
   }
 
   private writeCell(tr: Element, col: 0 | 1, value: string): void {
@@ -329,10 +533,18 @@ export class ProductAttributesEditor {
     return tr.querySelector(`[data-col="${col}"]`)?.textContent ?? '';
   }
 
+  /** The cell the caret (or a selection anchor) is in, or null if it is out. */
+  private caretCell(): GridCell | null {
+    if (typeof document === 'undefined') return null;
+    return this.cellOf(document.getSelection()?.anchorNode ?? null);
+  }
+
   /** The data cell (row/col) a DOM node sits in, or null. */
   private cellOf(node: Node | null): GridCell | null {
+    const tbody = this.grid()?.nativeElement;
+    if (!tbody || !node || !tbody.contains(node)) return null;
     const el =
-      node?.nodeType === Node.TEXT_NODE
+      node.nodeType === Node.TEXT_NODE
         ? node.parentElement
         : (node as Element | null);
     const cell = el?.closest<HTMLElement>('[data-col]');
@@ -358,11 +570,6 @@ export class ProductAttributesEditor {
     };
   }
 
-  private clearRange(range: GridRange): void {
-    this.grid()?.nativeElement.blur();
-    this.valueChange.emit(clearRange(this.current(), range));
-  }
-
   private atBoundary(key: string): boolean {
     const sel = document.getSelection();
     if (!sel || !sel.isCollapsed) return false;
@@ -380,4 +587,10 @@ export class ProductAttributesEditor {
       ? [...this.value()]
       : [{ key: '', value: '' }];
   }
+}
+
+/** A point in the grid's history: the rows, and where the caret was. */
+interface Snapshot {
+  rows: ProductAttribute[];
+  caret: GridCell | null;
 }
