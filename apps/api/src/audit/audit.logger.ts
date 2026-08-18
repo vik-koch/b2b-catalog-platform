@@ -7,6 +7,9 @@ export type AuditAction =
   | 'product.updated'
   | 'product.deleted'
   | 'product.restored'
+  // Publication (FR-ADM-06) — who let a price reach the storefront.
+  | 'product.published'
+  | 'product.unpublished'
   | 'category.created'
   | 'category.updated'
   | 'category.deleted'
