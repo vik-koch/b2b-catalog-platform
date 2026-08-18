@@ -57,6 +57,13 @@
       "when": 1786908530151,
       "tag": "0007_product_units",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786996645924,
+      "tag": "0008_product_publication",
+      "breakpoints": true
     }
   ]
 }

@@ -151,6 +151,11 @@ export const products = pgTable(
       .notNull()
       .default(sql`'[]'::jsonb`),
     deletedAt: timestamp('deletedAt', { withTimezone: true }),
+    // Null until an admin publishes. Independent of deletedAt: a product can be
+    // synced, never published, and then vanish from the source. The bulk sync
+    // never sets it, so a new product waits for review — its price basis is
+    // admin-entered and nobody has checked it yet.
+    publishedAt: timestamp('publishedAt', { withTimezone: true }),
     createdAt: timestamp('createdAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -164,6 +169,10 @@ export const products = pgTable(
       onDelete: 'set null',
     }),
     deletedBy: uuid('deletedBy').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    // Who accepted responsibility for the price going public.
+    publishedBy: uuid('publishedBy').references(() => users.id, {
       onDelete: 'set null',
     }),
     // Search index over the product name (FR-SEARCH-02), maintained by the
