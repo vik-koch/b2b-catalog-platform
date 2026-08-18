@@ -85,7 +85,7 @@ export class ProductTile {
   private readonly units = useProductUnits();
 
   private readonly rows = computed(() =>
-    this.units.priceRows(this.item().prices, this.item().packaging),
+    this.units.priceRows(this.item().prices),
   );
 
   protected readonly piecePrice = computed(() => this.rows()[0].price);
