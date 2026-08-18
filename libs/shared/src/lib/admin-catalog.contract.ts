@@ -152,6 +152,8 @@ export const productInputSchema = z
     minPieceQty: z.number().int().positive().default(1),
     boxVolume: boxDimensionInputSchema,
     boxWeight: boxDimensionInputSchema,
+    /** How many boxes the product ships as; informational (FR-UNIT-11). */
+    boxCount: z.number().int().positive().default(1),
   })
   .strict()
   .refine(
@@ -166,6 +168,10 @@ export const productInputSchema = z
       input.packsPerBox !== null || (!input.boxVolume && !input.boxWeight),
     { message: 'Box dimensions need a box', path: ['boxVolume'] },
   )
+  .refine((input) => input.packsPerBox !== null || input.boxCount === 1, {
+    message: 'A box count needs a box',
+    path: ['boxCount'],
+  })
   // What keeps totals exact: every purchasable quantity must be a whole number
   // of basis units. Checked here as well as in the database so the editor gets a
   // 400 naming the field rather than a constraint violation.
@@ -198,6 +204,7 @@ export const adminProductSchema = z
     minPieceQty: z.number().int().positive(),
     boxVolume: z.string().nullable(),
     boxWeight: z.string().nullable(),
+    boxCount: z.number().int().positive(),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
     deletedAt: z.string().datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */

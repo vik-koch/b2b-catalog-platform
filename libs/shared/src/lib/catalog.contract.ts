@@ -74,13 +74,19 @@ export const productPackagingSchema = z
 export type ProductPackagingInfo = z.infer<typeof productPackagingSchema>;
 
 /**
- * A box's shipping dimensions. Decimal strings, not numbers: they are shown
- * rather than calculated with, and a float round-trip would turn 1.250 into 1.25.
+ * A box's shipping facts. The dimensions are decimal strings, not numbers: they
+ * are shown rather than calculated with, and a float round-trip would turn
+ * 1.250 into 1.25.
+ *
+ * `count` is how many boxes the product ships as, and is informational only —
+ * the volume and weight already cover the whole consignment, so nothing
+ * multiplies by it (FR-UNIT-11).
  */
 export const boxDimensionsSchema = z
   .object({
     volume: z.string().nullable(),
     weight: z.string().nullable(),
+    count: z.number().int().positive(),
   })
   .strict();
 export type BoxDimensions = z.infer<typeof boxDimensionsSchema>;

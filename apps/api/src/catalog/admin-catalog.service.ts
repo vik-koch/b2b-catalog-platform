@@ -84,6 +84,7 @@ const adminProductColumns = {
   minPieceQty: products.minPieceQty,
   boxVolume: products.boxVolume,
   boxWeight: products.boxWeight,
+  boxCount: products.boxCount,
 } as const;
 
 type ProductRow = {
@@ -105,6 +106,7 @@ type ProductRow = {
   minPieceQty: number;
   boxVolume: string | null;
   boxWeight: string | null;
+  boxCount: number;
 };
 
 /**
@@ -918,6 +920,7 @@ function toAdminProduct(
     minPieceQty: row.minPieceQty,
     boxVolume: row.boxVolume,
     boxWeight: row.boxWeight,
+    boxCount: row.boxCount,
   };
 }
 
@@ -930,6 +933,7 @@ function packagingValues(input: ProductInput) {
     minPieceQty: input.minPieceQty,
     boxVolume: input.boxVolume,
     boxWeight: input.boxWeight,
+    boxCount: input.boxCount,
   };
 }
 

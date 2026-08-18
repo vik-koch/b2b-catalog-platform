@@ -91,7 +91,8 @@ export function boxDimensionsOf(row: {
   packsPerBox: number | null;
   boxVolume: string | null;
   boxWeight: string | null;
+  boxCount: number;
 }): BoxDimensions | null {
   if (row.packsPerBox === null) return null;
-  return { volume: row.boxVolume, weight: row.boxWeight };
+  return { volume: row.boxVolume, weight: row.boxWeight, count: row.boxCount };
 }

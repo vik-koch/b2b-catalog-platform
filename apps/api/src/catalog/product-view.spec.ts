@@ -82,13 +82,25 @@ describe('the projection', () => {
   });
 
   it('gives box dimensions only to a product that has a box', () => {
-    const dimensions = { boxVolume: '0.045', boxWeight: '12.500' };
+    const dimensions = { boxVolume: '0.045', boxWeight: '12.500', boxCount: 1 };
     expect(boxDimensionsOf({ ...row, ...dimensions })).toEqual({
       volume: '0.045',
       weight: '12.500',
+      count: 1,
     });
     expect(
       boxDimensionsOf({ ...row, ...dimensions, packsPerBox: null }),
     ).toBeNull();
+  });
+
+  it('carries the box count through, so a split consignment is visible', () => {
+    expect(
+      boxDimensionsOf({
+        ...row,
+        boxVolume: null,
+        boxWeight: null,
+        boxCount: 2,
+      }),
+    ).toEqual({ volume: null, weight: null, count: 2 });
   });
 });
