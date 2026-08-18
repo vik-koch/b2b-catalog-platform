@@ -10,6 +10,12 @@ import { expect, test } from '@playwright/test';
 // the hamburger panel once opened.
 const visibleUtilityNav = 'nav[aria-label="Utility"]:visible';
 
+/* The suite runs these specs in a mobile project and a desktop one, so the
+   viewport branches below are the subject rather than an accident: the nav is
+   a different control on each, and asserting it is closed after a tap only
+   means anything where a panel opens. */
+/* eslint-disable playwright/no-conditional-in-test, playwright/no-conditional-expect */
+
 test('navigates from home to the about page via the utility nav', async ({
   page,
   isMobile,

@@ -2,7 +2,11 @@ import { hash } from '@node-rs/argon2';
 import { expect, Page, test, TestInfo } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { localtestDbClient, workspaceRoot } from './support/localtest';
+import {
+  documentOf,
+  localtestDbClient,
+  workspaceRoot,
+} from './support/localtest';
 
 /**
  * A customer's own prices on a cold-loaded page (FR-AUTH-05) — a click from
@@ -153,7 +157,9 @@ test.describe('tier prices on a server-rendered page', () => {
     // this is the render a crawler indexes and the one everyone else paints
     // immediately. Deferring it to the browser for *everybody* would make the
     // customer assertion below pass for the wrong reason.
-    expect(await response!.text()).toContain(amount(fixture.basePriceMinor));
+    expect(await documentOf(response)).toContain(
+      amount(fixture.basePriceMinor),
+    );
     await expect(page.getByText(money(fixture.basePriceMinor))).toBeVisible();
   });
 
@@ -168,7 +174,7 @@ test.describe('tier prices on a server-rendered page', () => {
     // Never painted, not even for a frame: the price this customer must not be
     // shown is absent from the markup, so the first thing they see is their own
     // price arriving rather than the default one being taken back.
-    expect(await response!.text()).not.toContain(
+    expect(await documentOf(response)).not.toContain(
       amount(fixture.basePriceMinor),
     );
     await expect(page.getByText(money(OVERRIDE_MINOR))).toBeVisible();
