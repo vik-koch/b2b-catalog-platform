@@ -35,6 +35,8 @@ export const adminTextSchema = z
         reorder: z.string(),
         uploading: z.string(),
         uploadError: z.string(),
+        /** The way back to an unfiltered grid, on every admin list. */
+        clearFilters: z.string(),
         /**
          * Every refusal a catalog write can answer with, keyed by the API's own
          * `code`. Shared rather than per-screen because it genuinely is: the
@@ -270,7 +272,6 @@ export const adminTextSchema = z
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
         clearSearch: z.string(),
-        clearFilters: z.string(),
         /** Accessible names for the two column-heading filters, whose visible
          * text is the selected value rather than a label. */
         filterState: z.string(),

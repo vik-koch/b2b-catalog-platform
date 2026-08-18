@@ -68,8 +68,21 @@ const config = {
 interface Harness {
   createProduct: ReturnType<typeof vi.fn>;
   updateProduct: ReturnType<typeof vi.fn>;
+  setProductPublished: ReturnType<typeof vi.fn>;
   navigate: ReturnType<typeof vi.fn>;
 }
+
+/** The product as the server returns it once an admin has published it. */
+const publishedProduct: AdminProduct = {
+  ...storedProduct,
+  publishedAt: '2026-08-02T09:00:00.000Z',
+};
+
+/** A newly created product: saved, but not on the storefront yet (FR-ADM-06). */
+const unpublishedProduct: AdminProduct = {
+  ...storedProduct,
+  publishedAt: null,
+};
 
 const wholesale: CustomerTier = {
   id: 'tier-w',
@@ -97,6 +110,7 @@ async function render(
     updateProduct: vi
       .fn()
       .mockResolvedValue({ ok: true, product: storedProduct }),
+    setProductPublished: vi.fn().mockResolvedValue(publishedProduct),
     navigate: vi.fn().mockResolvedValue(true),
   };
   const paramMap: ParamMap = convertToParamMap(params);
@@ -120,6 +134,7 @@ async function render(
           getProduct: () => Promise.resolve(options.product ?? storedProduct),
           createProduct: h.createProduct,
           updateProduct: h.updateProduct,
+          setProductPublished: h.setProductPublished,
         },
       },
       {
@@ -169,6 +184,14 @@ function saveButton(el: HTMLElement): HTMLButtonElement {
     b.textContent?.includes(defaultAdminText.common.save),
   );
   if (!button) throw new Error('no save button');
+  return button;
+}
+
+function buttonByText(el: HTMLElement, label: string): HTMLButtonElement {
+  const button = [...el.querySelectorAll('button')].find(
+    (b) => b.textContent?.trim() === label,
+  );
+  if (!button) throw new Error(`no button labelled "${label}"`);
   return button;
 }
 
@@ -343,6 +366,105 @@ describe('ProductEditorPage', () => {
       expect(el.textContent).toContain(
         text.tierPrices.invalid.replace('{tier}', wholesale.label),
       );
+    });
+  });
+  describe('publication (FR-ADM-06)', () => {
+    it('saves first and publishes second, then lands on the storefront page', async () => {
+      const { fixture, el, h } = await render(
+        { slug: null },
+        {},
+        { product: unpublishedProduct },
+      );
+
+      setInput(inputByLabel(el, text.name), 'New Roast');
+      setInput(inputByLabel(el, text.price), '12.50');
+      (
+        fixture.componentInstance as unknown as {
+          categoryId: { set(v: string): void };
+        }
+      ).categoryId.set('cat-1');
+      h.createProduct.mockResolvedValue({
+        ok: true,
+        product: unpublishedProduct,
+      });
+
+      buttonByText(el, text.saveAndPublish).click();
+      await fixture.whenStable();
+
+      // The order is the point: the edits are saved before anything is made
+      // public, so a failure to publish never costs the admin their work.
+      expect(h.createProduct).toHaveBeenCalledTimes(1);
+      expect(h.setProductPublished).toHaveBeenCalledWith(
+        unpublishedProduct.slug,
+        true,
+      );
+      expect(h.createProduct.mock.invocationCallOrder[0]).toBeLessThan(
+        h.setProductPublished.mock.invocationCallOrder[0],
+      );
+      expect(h.navigate).toHaveBeenCalledWith([
+        '/product',
+        publishedProduct.slug,
+      ]);
+    });
+
+    it('reports a failed publish without losing the save', async () => {
+      const { fixture, el, h } = await render(
+        { slug: null },
+        {},
+        { product: unpublishedProduct },
+      );
+
+      setInput(inputByLabel(el, text.name), 'New Roast');
+      setInput(inputByLabel(el, text.price), '12.50');
+      (
+        fixture.componentInstance as unknown as {
+          categoryId: { set(v: string): void };
+        }
+      ).categoryId.set('cat-1');
+      h.createProduct.mockResolvedValue({
+        ok: true,
+        product: unpublishedProduct,
+      });
+      h.setProductPublished.mockRejectedValue(new Error('nope'));
+
+      buttonByText(el, text.saveAndPublish).click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // The product exists; only the publication did not happen — so the page
+      // stays put and says which half failed.
+      expect(h.createProduct).toHaveBeenCalledTimes(1);
+      expect(el.textContent).toContain(text.publishError);
+      expect(h.navigate).not.toHaveBeenCalled();
+    });
+
+    it('sends an unpublished save back to the list, searched for the product', async () => {
+      // There is no storefront page to land on: it would 404.
+      const { fixture, el, h } = await render(
+        { slug: null },
+        {},
+        { product: unpublishedProduct },
+      );
+
+      setInput(inputByLabel(el, text.name), 'New Roast');
+      setInput(inputByLabel(el, text.price), '12.50');
+      (
+        fixture.componentInstance as unknown as {
+          categoryId: { set(v: string): void };
+        }
+      ).categoryId.set('cat-1');
+      h.createProduct.mockResolvedValue({
+        ok: true,
+        product: unpublishedProduct,
+      });
+
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.setProductPublished).not.toHaveBeenCalled();
+      expect(h.navigate).toHaveBeenCalledWith(['/admin/products'], {
+        queryParams: { searchTerm: unpublishedProduct.name },
+      });
     });
   });
 });
