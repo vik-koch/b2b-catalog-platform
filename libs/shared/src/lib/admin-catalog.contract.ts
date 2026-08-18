@@ -200,6 +200,8 @@ export const adminProductSchema = z
     boxWeight: z.string().nullable(),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
     deletedAt: z.string().datetime().nullable(),
+    /** Null while the product is not on the storefront (FR-ADM-06). */
+    publishedAt: z.string().datetime().nullable(),
     updatedAt: z.string().datetime(),
   })
   .strict();
@@ -217,18 +219,37 @@ export const adminProductListItemSchema = z
     sourceId: z.string(),
     thumb: z.string().nullable(),
     deletedAt: z.string().datetime().nullable(),
+    /** Null while the product is not on the storefront (FR-ADM-06). */
+    publishedAt: z.string().datetime().nullable(),
     updatedAt: z.string().datetime(),
   })
   .strict();
 export type AdminProductListItem = z.infer<typeof adminProductListItemSchema>;
 
 /**
+ * A product the storefront is not showing, and why — the edit-mode overlay under
+ * a category grid. The public tile shape plus its reasons, which are not
+ * exclusive: a product can be both unpublished and deleted.
+ */
+export const hiddenProductSchema = productListItemSchema.extend({
+  deleted: z.boolean(),
+  unpublished: z.boolean(),
+});
+export type HiddenProduct = z.infer<typeof hiddenProductSchema>;
+
+/**
  * Which publication states the grid shows (FR-ADM-05). `all` is the default —
  * the admin sees the whole catalog, soft-deleted rows included and greyed out —
- * with `live`/`deleted` as narrowing filters rather than the storefront's
- * implicit "live only".
+ * with the rest as narrowing filters rather than the storefront's implicit
+ * "live only". `live` means on the storefront: published and not deleted.
+ * `unpublished` is the review queue a sync fills (FR-ADM-06).
  */
-export const adminProductStateSchema = z.enum(['all', 'live', 'deleted']);
+export const adminProductStateSchema = z.enum([
+  'all',
+  'live',
+  'unpublished',
+  'deleted',
+]);
 export type AdminProductState = z.infer<typeof adminProductStateSchema>;
 
 /**
@@ -449,19 +470,36 @@ export const adminCatalogContract = c.router(
       responses: { 200: adminProductSchema, 404: catalogErrorSchema },
       summary: 'Restore a soft-deleted product (admin)',
     },
-    listDeletedProducts: {
+    /**
+     * Put a product on the storefront, or take it off (FR-ADM-06).
+     *
+     * The body names the state rather than the action, because this is one
+     * reversible switch rather than a pair — and unlike restore, it says
+     * nothing about whether the product is deleted: the two are independent,
+     * so restoring an unpublished product leaves it unpublished.
+     */
+    setProductPublished: {
+      method: 'PATCH',
+      path: '/admin/catalog/products/:slug/published',
+      body: z.object({ published: z.boolean() }).strict(),
+      responses: { 200: adminProductSchema, 404: catalogErrorSchema },
+      summary: 'Publish or unpublish a product (admin)',
+    },
+    listHiddenProducts: {
       method: 'GET',
-      path: '/admin/catalog/categories/:slug/deleted-products',
-      // Powers the storefront edit-mode "Deleted" overlay: the soft-deleted
-      // products in this category's subtree (Pattern A, same aggregation as the
-      // public grid), in the public tile shape so the overlay reuses the grid's
-      // tile. Unpaginated — a category's deleted set is small. Fetched only when
-      // an admin has edit mode on, so the public read path stays untouched.
+      path: '/admin/catalog/categories/:slug/hidden-products',
+      // Powers the storefront edit-mode overlay under a category grid: what is
+      // in this subtree but not on the storefront — soft-deleted, unpublished,
+      // or both (Pattern A, same aggregation as the public grid). Without it an
+      // admin browsing a category sees a catalogue that looks complete and is
+      // not. Unpaginated: a category's hidden set is small. Fetched only when
+      // edit mode is on, so the public read path stays untouched.
       responses: {
-        200: z.object({ items: z.array(productListItemSchema) }).strict(),
+        200: z.object({ items: z.array(hiddenProductSchema) }).strict(),
         404: catalogErrorSchema,
       },
-      summary: 'List soft-deleted products in a category subtree (admin)',
+      summary:
+        'List products in a category subtree that the storefront hides (admin)',
     },
 
     // --- Categories -------------------------------------------------------

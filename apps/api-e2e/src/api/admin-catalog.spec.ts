@@ -40,6 +40,7 @@ const PRODUCT_KEYS = [
   'piecesPerPack',
   'priceBasisPieces',
   'priceMinor',
+  'publishedAt',
   'slug',
   'sourceId',
   'tierPrices',
@@ -115,6 +116,17 @@ describe('Admin catalog (FR-ADM-01)', () => {
       ...overrides,
     });
     if (res.status === 201) createdProductSlugs.push(res.data.slug);
+    return res;
+  }
+
+  /** Put a product on the storefront. A created one is unpublished until an
+   * admin says otherwise (FR-ADM-06), so any test that needs it live is
+   * explicit about it. */
+  async function publishProduct(slug: string) {
+    const res = await patch(`/admin/catalog/products/${slug}/published`, {
+      published: true,
+    });
+    expect(res.status).toBe(200);
     return res;
   }
 
@@ -204,6 +216,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(res.status).toBe(201);
       expect(Object.keys(res.data).sort()).toEqual(PRODUCT_KEYS);
       expect(res.data.deletedAt).toBeNull();
+      // A new product waits for an admin to publish it (FR-ADM-06).
+      expect(res.data.publishedAt).toBeNull();
       expect(res.data).not.toHaveProperty('id');
     });
 
@@ -322,10 +336,65 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
+  describe('publication (FR-ADM-06)', () => {
+    it('keeps a new product off the storefront until an admin publishes it', async () => {
+      const created = await createProduct({ name: `Publish ${R}` });
+      const slug = created.data.slug;
+      expect(created.data.publishedAt).toBeNull();
+
+      const hidden = await axios.get(`/catalog/products/${slug}`, {
+        validateStatus: () => true,
+      });
+      expect(hidden.status).toBe(404);
+
+      await publishProduct(slug);
+      const visible = await axios.get(`/catalog/products/${slug}`, {
+        validateStatus: () => true,
+      });
+      expect(visible.status).toBe(200);
+
+      const off = await patch(`/admin/catalog/products/${slug}/published`, {
+        published: false,
+      });
+      expect(off.data.publishedAt).toBeNull();
+      const gone = await axios.get(`/catalog/products/${slug}`, {
+        validateStatus: () => true,
+      });
+      expect(gone.status).toBe(404);
+    });
+
+    it('is independent of soft deletion: restoring does not publish', async () => {
+      const created = await createProduct({ name: `Unpub Restore ${R}` });
+      const slug = created.data.slug;
+
+      await del(`/admin/catalog/products/${slug}`);
+      const restored = await post(
+        `/admin/catalog/products/${slug}/restore`,
+        {},
+      );
+
+      expect(restored.data.deletedAt).toBeNull();
+      expect(restored.data.publishedAt).toBeNull();
+    });
+
+    it('lists unpublished rows under their own filter', async () => {
+      const created = await createProduct({ name: `Awaiting ${R}` });
+
+      const res = await adminGet(
+        `/admin/catalog/products?state=unpublished&q=${encodeURIComponent(`Awaiting ${R}`)}`,
+      );
+
+      expect(res.data.items.map((i: { slug: string }) => i.slug)).toContain(
+        created.data.slug,
+      );
+    });
+  });
+
   describe('soft delete / restore', () => {
     it('hides a deleted product from the storefront but keeps it for the admin, then restores it', async () => {
       const created = await createProduct({ name: `Delete ${R}` });
       const slug = created.data.slug;
+      await publishProduct(slug);
 
       // Visible on the public read before deletion.
       const before = await axios.get(`/catalog/products/${slug}`, {
@@ -420,6 +489,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
         sourceId: `grid:${R}-KEEP/1`,
       });
       liveSlug = live.data.slug;
+      await publishProduct(liveSlug);
 
       const deleted = await createProduct({
         name: `Grid Filter Blend ${R}`,
@@ -505,51 +575,72 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
-  describe('GET /admin/catalog/categories/:slug/deleted-products', () => {
-    it('lists soft-deleted products across the subtree, excluding live ones', async () => {
-      // A deleted product directly under the parent, and one deleted under a
-      // child category — both must surface (Pattern A aggregation). Plus a live
-      // product that must not.
+  describe('GET /admin/catalog/categories/:slug/hidden-products', () => {
+    it('lists everything the storefront hides across the subtree, with its reason', async () => {
+      // Deleted directly under the parent and deleted under a child — both must
+      // surface (Pattern A aggregation) — plus one that is merely unpublished,
+      // and a live one that must not appear at all.
       const child = await createCategory({ name: `Deleted Sub ${R}` });
       const directDeleted = await createProduct({ name: `Direct Del ${R}` });
       const childDeleted = await createProduct({
         name: `Child Del ${R}`,
         categoryId: child.data.id,
       });
+      const unpublished = await createProduct({ name: `Awaiting ${R}` });
       const live = await createProduct({ name: `Still Live ${R}` });
+      await publishProduct(live.data.slug);
 
       await del(`/admin/catalog/products/${directDeleted.data.slug}`);
       await del(`/admin/catalog/products/${childDeleted.data.slug}`);
 
       const res = await adminGet(
-        '/admin/catalog/categories/cleaning/deleted-products',
+        '/admin/catalog/categories/cleaning/hidden-products',
       );
       expect(res.status).toBe(200);
-      const slugs = res.data.items.map((i: { slug: string }) => i.slug);
-      expect(slugs).toContain(directDeleted.data.slug);
-      expect(slugs).toContain(childDeleted.data.slug);
-      expect(slugs).not.toContain(live.data.slug);
-      // Public tile shape only — no internal columns leak.
-      expect(Object.keys(res.data.items[0]).sort()).toEqual([
+      const items = res.data.items as {
+        slug: string;
+        deleted: boolean;
+        unpublished: boolean;
+      }[];
+      const bySlug = new Map(items.map((i) => [i.slug, i]));
+
+      expect(bySlug.has(directDeleted.data.slug)).toBe(true);
+      expect(bySlug.has(childDeleted.data.slug)).toBe(true);
+      expect(bySlug.get(unpublished.data.slug)).toMatchObject({
+        deleted: false,
+        unpublished: true,
+      });
+      // Deleted without ever being published: both reasons apply, and the
+      // overlay has to say so, since restoring alone will not bring it back.
+      expect(bySlug.get(directDeleted.data.slug)).toMatchObject({
+        deleted: true,
+        unpublished: true,
+      });
+      expect(bySlug.has(live.data.slug)).toBe(false);
+
+      // The public tile shape plus the two reasons — no internal columns leak.
+      expect(Object.keys(items[0]).sort()).toEqual([
+        'deleted',
         'images',
         'name',
         'packaging',
         'priceMinor',
         'prices',
         'slug',
+        'unpublished',
       ]);
     });
 
     it('404s an unknown category', async () => {
       const res = await adminGet(
-        '/admin/catalog/categories/no-such-category/deleted-products',
+        '/admin/catalog/categories/no-such-category/hidden-products',
       );
       expect(res.status).toBe(404);
     });
 
     it('rejects an anonymous request with 401', async () => {
       const res = await adminGet(
-        '/admin/catalog/categories/cleaning/deleted-products',
+        '/admin/catalog/categories/cleaning/hidden-products',
         '',
       );
       expect(res.status).toBe(401);

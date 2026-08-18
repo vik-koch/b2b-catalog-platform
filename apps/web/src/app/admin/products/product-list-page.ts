@@ -10,6 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AdminProductSort } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { ConfirmService } from '../../ui/confirm.service';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { usePageSeo } from '../../core/page-seo';
 import { Skeleton } from '../../ui/skeleton';
@@ -71,6 +72,21 @@ import { GridSearchField } from './grid-search-field';
         {{ editText.addProduct }}
       </a>
     </div>
+
+    <!-- One way back to the whole list. The filters are spread across the
+         header and the search box, so undoing them one at a time is a hunt —
+         and a save arrives here with the product's name already in the box. -->
+    @if (filtered()) {
+      <p class="mb-4">
+        <a
+          routerLink="."
+          [queryParams]="{}"
+          class="text-sm text-subtle underline hover:text-accent"
+        >
+          {{ text.clearFilters }}
+        </a>
+      </p>
+    }
 
     @if (products.error()) {
       <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
@@ -154,6 +170,18 @@ import { GridSearchField } from './grid-search-field';
                       >
                         {{ text.deletedBadge }}
                       </span>
+                    } @else if (!item.publishedAt) {
+                      <span
+                        class="mr-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-900"
+                      >
+                        {{ text.unpublishedBadge }}
+                      </span>
+                    } @else if (!item.publishedAt) {
+                      <span
+                        class="mr-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-900"
+                      >
+                        {{ text.unpublishedBadge }}
+                      </span>
                     }
                     <a
                       [routerLink]="['/admin/products', item.slug, 'edit']"
@@ -203,6 +231,25 @@ import { GridSearchField } from './grid-search-field';
                   >
                     <app-admin-icon name="pencil" class="h-4 w-4" />
                   </a>
+                  <!-- Publication is independent of deletion, so a deleted row
+                       still shows where it stands: restoring it does not put it
+                       back on the storefront by itself. -->
+                  <button
+                    type="button"
+                    class="p-1.5 text-subtle hover:text-accent"
+                    [disabled]="publishing() === item.slug"
+                    [attr.aria-label]="
+                      item.publishedAt
+                        ? editText.unpublishProduct
+                        : editText.publishProduct
+                    "
+                    (click)="togglePublished(item)"
+                  >
+                    <app-admin-icon
+                      [name]="item.publishedAt ? 'book-dashed' : 'book-check'"
+                      class="h-4 w-4"
+                    />
+                  </button>
                   @if (item.deletedAt) {
                     <button
                       type="button"
@@ -299,6 +346,7 @@ export class ProductListPage {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productList;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
+  private readonly confirm = inject(ConfirmService);
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
@@ -390,6 +438,8 @@ export class ProductListPage {
   protected readonly stateOptions: GridFilterOption[] = [
     { value: '', label: this.text.stateAll },
     { value: 'live', label: this.text.stateLive },
+    { value: 'unpublished', label: this.text.stateUnpublished },
+    { value: 'unpublished', label: this.text.stateUnpublished },
     { value: 'deleted', label: this.text.stateDeleted },
   ];
 
@@ -422,6 +472,39 @@ export class ProductListPage {
   protected onProductDeleted(): void {
     this.deletingProduct.set(null);
     this.products.reload();
+  }
+
+  protected readonly publishing = signal<string | null>(null);
+
+  /**
+   * Publishing is one click; unpublishing is confirmed, because taking a
+   * product off sale is the same weight as deleting it.
+   */
+  protected async togglePublished(item: {
+    slug: string;
+    name: string;
+    publishedAt: string | null;
+  }): Promise<void> {
+    const publish = item.publishedAt === null;
+    if (
+      !publish &&
+      !(await this.confirm.ask({
+        heading: this.editText.unpublishProduct,
+        message: this.editText.unpublishConfirm.replace('{name}', item.name),
+        confirmLabel: this.editText.unpublishProduct,
+        cancelLabel: this.common.cancel,
+        confirmVariant: 'danger',
+      }))
+    ) {
+      return;
+    }
+    this.publishing.set(item.slug);
+    try {
+      await this.admin.setProductPublished(item.slug, publish);
+      this.products.reload();
+    } finally {
+      this.publishing.set(null);
+    }
   }
 
   protected async restore(item: { slug: string }): Promise<void> {

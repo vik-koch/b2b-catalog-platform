@@ -353,6 +353,9 @@ export class SyncService {
         );
         const [created] = await tx
           .insert(products)
+          // No `publishedAt`: an imported product carries a price whose basis
+          // nobody has set yet, so it waits for an admin (FR-ADM-06). An update
+          // leaves it alone, so a re-sync never hides a live product.
           .values({
             sourceId: product.sourceId,
             slug: allocateSlug(product.name, 'product', takenProductSlugs),

@@ -204,6 +204,10 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
 
     await sortBy(page).selectOption('price');
 
+    // Both halves of the URL, and the sort first: `q=espresso` is already there
+    // from the navigation, so asserting only that would let the read happen
+    // while the page still shows the relevance order it arrived in.
+    await expect(page).toHaveURL(/sort=price/);
     await expect(page).toHaveURL(/q=espresso/);
     const ascending = await prices(page);
     expect(ascending).toEqual([...ascending].sort((a, b) => a - b));

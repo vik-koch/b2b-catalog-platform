@@ -13,6 +13,8 @@ import { LoadErrorView } from '../pages/load-error-view';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
+import { AdminCatalogService } from '../admin/admin-catalog.service';
+import { ConfirmService } from '../ui/confirm.service';
 import { usePageSeo } from '../core/page-seo';
 import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
 import { NotFoundView } from '../pages/not-found-view';
@@ -56,6 +58,9 @@ import { ProductDetailView } from './product-detail-view';
               [editLabel]="editText.editProduct"
               [deleteLabel]="editText.deleteProduct"
               (remove)="confirmingDelete.set(true)"
+              [publishLabel]="editText.unpublishProduct"
+              [published]="true"
+              (togglePublished)="unpublish(item)"
             />
           }
 
@@ -94,6 +99,8 @@ import { ProductDetailView } from './product-detail-view';
 })
 export class ProductDetail {
   private catalog = inject(CatalogService);
+  private readonly admin = inject(AdminCatalogService);
+  private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
@@ -125,6 +132,27 @@ export class ProductDetail {
   /** After a soft-delete from the product page, return to its category (the
    * product's public page will now 404). Restore lives in the admin panel. */
   protected onDeleted(item: ProductDetailModel): void {
+    void this.router.navigate(['/catalog', item.category.slug]);
+  }
+
+  /**
+   * Only ever *un*publish here: a page that renders at all is a published
+   * product — the storefront 404s the rest. Confirmed, because taking a product
+   * off sale is the weight of a delete, and it leaves for the category
+   * afterwards for the same reason a delete does.
+   */
+  protected async unpublish(item: ProductDetailModel): Promise<void> {
+    const text = this.editText();
+    if (!text) return;
+    const ok = await this.confirm.ask({
+      heading: text.unpublishProduct,
+      message: text.unpublishConfirm.replace('{name}', item.name),
+      confirmLabel: text.unpublishProduct,
+      cancelLabel: text.cancel,
+      confirmVariant: 'danger',
+    });
+    if (!ok) return;
+    await this.admin.setProductPublished(item.slug, false);
     void this.router.navigate(['/catalog', item.category.slug]);
   }
 

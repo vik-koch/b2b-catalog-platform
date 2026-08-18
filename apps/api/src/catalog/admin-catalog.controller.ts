@@ -115,14 +115,36 @@ export class AdminCatalogController {
     );
   }
 
-  @TsRestHandler(adminCatalogContract.listDeletedProducts, {
+  @TsRestHandler(adminCatalogContract.setProductPublished, {
     validateResponses: true,
   })
-  listDeletedProducts() {
+  setProductPublished(@CurrentUser() user: AuthUser) {
     return tsRestHandler(
-      adminCatalogContract.listDeletedProducts,
+      adminCatalogContract.setProductPublished,
+      async ({ params: { slug }, body }) => {
+        const product = await this.service.setProductPublished(
+          slug,
+          body.published,
+          user.id,
+        );
+        this.audit.record(
+          body.published ? 'product.published' : 'product.unpublished',
+          user,
+          product,
+        );
+        return { status: 200, body: product };
+      },
+    );
+  }
+
+  @TsRestHandler(adminCatalogContract.listHiddenProducts, {
+    validateResponses: true,
+  })
+  listHiddenProducts() {
+    return tsRestHandler(
+      adminCatalogContract.listHiddenProducts,
       async ({ params: { slug } }) => {
-        const items = await this.service.listDeletedProducts(slug);
+        const items = await this.service.listHiddenProducts(slug);
         return { status: 200, body: { items } };
       },
     );

@@ -1,6 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, asc, count, desc, eq, inArray, isNull } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+} from 'drizzle-orm';
 import {
   CATALOG_PAGE_SIZE,
   CategoryCrumb,
@@ -71,10 +80,15 @@ interface CategoryProductsResult {
 }
 
 /**
- * The DB-backed storefront read model (FR-CAT-01…05). Soft-deleted products are
- * excluded everywhere. The category tree is small, so it is fetched whole and
- * shaped in memory (see catalog-tree.ts) rather than with recursive SQL.
+ * What the storefront may show: live, and published by an admin. Defined once
+ * because forgetting it on a new read is silent — the page would simply serve a
+ * product nobody has reviewed.
  */
+const publiclyVisible = and(
+  isNull(products.deletedAt),
+  isNotNull(products.publishedAt),
+);
+
 @Injectable()
 export class CatalogService {
   constructor(
@@ -114,10 +128,7 @@ export class CatalogService {
     if (!category) return null;
 
     const ids = descendantIds(category.id, rows);
-    const where = and(
-      inArray(products.categoryId, ids),
-      isNull(products.deletedAt),
-    );
+    const where = and(inArray(products.categoryId, ids), publiclyVisible);
 
     const [{ value: total }] = await this.db
       .select({ value: count() })
@@ -187,7 +198,7 @@ export class CatalogService {
       };
     }
 
-    const where = and(isNull(products.deletedAt), searchCondition(query));
+    const where = and(publiclyVisible, searchCondition(query));
     const startedAt = Date.now();
 
     return this.db.transaction(async (tx) => {
@@ -250,7 +261,7 @@ export class CatalogService {
       return tx
         .select({ slug: products.slug, name: products.name })
         .from(products)
-        .where(and(isNull(products.deletedAt), searchCondition(query)))
+        .where(and(publiclyVisible, searchCondition(query)))
         .orderBy(
           desc(relevanceScore(query)),
           asc(products.name),
@@ -279,7 +290,7 @@ export class CatalogService {
       this.db
         .select({ slug: products.slug, updatedAt: products.updatedAt })
         .from(products)
-        .where(isNull(products.deletedAt))
+        .where(publiclyVisible)
         .orderBy(asc(products.slug)),
       this.db
         .select({ slug: pages.id, updatedAt: pages.updatedAt })
@@ -315,7 +326,7 @@ export class CatalogService {
         ...unitColumns,
       })
       .from(products)
-      .where(and(eq(products.slug, slug), isNull(products.deletedAt)))
+      .where(and(eq(products.slug, slug), publiclyVisible))
       .limit(1);
     if (!product) return null;
 

@@ -14,6 +14,7 @@ import {
   isNotNull,
   isNull,
   notInArray,
+  or,
   sql,
 } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
@@ -47,7 +48,7 @@ import {
 } from './product-search';
 import { adminProductOrderBy } from './product-sort';
 import { toListItem, unitColumns } from './product-view';
-import { ProductListItem } from '@b2b-catalog-platform/shared';
+import { HiddenProduct } from '@b2b-catalog-platform/shared';
 
 /**
  * The two 404s this surface has. Functions rather than constants so each throw
@@ -75,6 +76,7 @@ const adminProductColumns = {
   attributes: products.attributes,
   images: products.images,
   deletedAt: products.deletedAt,
+  publishedAt: products.publishedAt,
   updatedAt: products.updatedAt,
   priceBasisPieces: products.priceBasisPieces,
   piecesPerPack: products.piecesPerPack,
@@ -95,6 +97,7 @@ type ProductRow = {
   attributes: { key: string; value: string }[];
   images: { full: string; thumb: string }[];
   deletedAt: Date | null;
+  publishedAt: Date | null;
   updatedAt: Date;
   priceBasisPieces: number;
   piecesPerPack: number | null;
@@ -142,7 +145,13 @@ export class AdminCatalogService {
     const search = parseSearchQuery(query.q);
     const where = and(
       query.categoryId ? eq(products.categoryId, query.categoryId) : undefined,
-      query.state === 'live' ? isNull(products.deletedAt) : undefined,
+      // `live` is what the storefront shows: published and not deleted.
+      query.state === 'live'
+        ? and(isNull(products.deletedAt), isNotNull(products.publishedAt))
+        : undefined,
+      query.state === 'unpublished'
+        ? and(isNull(products.deletedAt), isNull(products.publishedAt))
+        : undefined,
       query.state === 'deleted' ? isNotNull(products.deletedAt) : undefined,
       adminSearchCondition(query.q) ?? undefined,
     );
@@ -167,6 +176,7 @@ export class AdminCatalogService {
           sourceId: products.sourceId,
           images: products.images,
           deletedAt: products.deletedAt,
+          publishedAt: products.publishedAt,
           updatedAt: products.updatedAt,
         })
         .from(products)
@@ -184,6 +194,7 @@ export class AdminCatalogService {
           sourceId: r.sourceId,
           thumb: r.images[0]?.thumb ?? null,
           deletedAt: r.deletedAt?.toISOString() ?? null,
+          publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),
         })),
         pagination: {
@@ -330,11 +341,39 @@ export class AdminCatalogService {
   }
 
   /**
-   * The soft-deleted products in a category's subtree, in the public tile shape.
-   * Aggregates over descendants exactly like the storefront grid (Pattern A), so
-   * the edit-mode "Deleted" overlay is consistent with what the live grid shows.
+   * Put a product on the storefront, or take it off (FR-ADM-06).
+   *
+   * Independent of soft deletion: publishing a deleted product does not restore
+   * it, and restoring an unpublished one does not publish it. `publishedBy`
+   * records who accepted the price going public, and is cleared on the way back
+   * so it never names somebody for a decision that has been undone.
    */
-  async listDeletedProducts(slug: string): Promise<ProductListItem[]> {
+  async setProductPublished(
+    slug: string,
+    published: boolean,
+    actorId: string,
+  ): Promise<AdminProduct> {
+    const rows = await this.db
+      .update(products)
+      .set({
+        publishedAt: published ? new Date() : null,
+        publishedBy: published ? actorId : null,
+        updatedAt: new Date(),
+        updatedBy: actorId,
+      })
+      .where(eq(products.slug, slug))
+      .returning(adminProductColumns);
+    if (!rows[0]) throw productNotFound();
+    return toAdminProduct(rows[0], await this.tierPricesFor(rows[0].id));
+  }
+
+  /**
+   * What this category's subtree holds that the storefront does not show:
+   * soft-deleted, unpublished, or both. Aggregates over descendants exactly like
+   * the storefront grid (Pattern A), so the edit-mode overlay and the live grid
+   * agree on what belongs to a category.
+   */
+  async listHiddenProducts(slug: string): Promise<HiddenProduct[]> {
     const rows = await this.db
       .select({
         id: categories.id,
@@ -351,20 +390,29 @@ export class AdminCatalogService {
 
     const ids = descendantIds(category.id, rows);
     // Default-list prices: staff have no tier.
-    const deleted = await this.db
+    const hidden = await this.db
       .select({
         slug: products.slug,
         name: products.name,
         priceMinor: products.defaultPriceMinor,
         images: products.images,
+        deletedAt: products.deletedAt,
+        publishedAt: products.publishedAt,
         ...unitColumns,
       })
       .from(products)
       .where(
-        and(inArray(products.categoryId, ids), isNotNull(products.deletedAt)),
+        and(
+          inArray(products.categoryId, ids),
+          or(isNotNull(products.deletedAt), isNull(products.publishedAt)),
+        ),
       )
       .orderBy(asc(products.name));
-    return deleted.map(toListItem);
+    return hidden.map((row) => ({
+      ...toListItem(row),
+      deleted: row.deletedAt !== null,
+      unpublished: row.publishedAt === null,
+    }));
   }
 
   // --- Categories ---------------------------------------------------------
@@ -862,6 +910,7 @@ function toAdminProduct(
     images: row.images,
     tierPrices,
     deletedAt: row.deletedAt?.toISOString() ?? null,
+    publishedAt: row.publishedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),
     priceBasisPieces: row.priceBasisPieces,
     piecesPerPack: row.piecesPerPack,

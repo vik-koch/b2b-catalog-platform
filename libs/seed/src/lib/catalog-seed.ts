@@ -64,8 +64,9 @@ export async function seedCatalog(
     await client.query(
       `INSERT INTO products
          ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "descriptionHtml", attributes, images,
-          "piecesPerPack", "packsPerBox", "minPieceQty", "priceBasisPieces", "boxVolume", "boxWeight")
-       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9, $10, $11, $12, $13, $14)
+          "piecesPerPack", "packsPerBox", "minPieceQty", "priceBasisPieces", "boxVolume", "boxWeight",
+          "publishedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9, $10, $11, $12, $13, $14, now())
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "defaultPriceMinor" = EXCLUDED."defaultPriceMinor", "categoryId" = EXCLUDED."categoryId",
@@ -73,7 +74,10 @@ export async function seedCatalog(
          attributes = EXCLUDED.attributes, images = EXCLUDED.images,
          "piecesPerPack" = EXCLUDED."piecesPerPack", "packsPerBox" = EXCLUDED."packsPerBox",
          "minPieceQty" = EXCLUDED."minPieceQty", "priceBasisPieces" = EXCLUDED."priceBasisPieces",
-         "boxVolume" = EXCLUDED."boxVolume", "boxWeight" = EXCLUDED."boxWeight"`,
+         "boxVolume" = EXCLUDED."boxVolume", "boxWeight" = EXCLUDED."boxWeight",
+         -- The demo catalog is meant to be on the storefront; a re-seed of an
+         -- unpublished row puts it back.
+         "publishedAt" = EXCLUDED."publishedAt"`,
       [
         product.sourceId,
         product.slug,
