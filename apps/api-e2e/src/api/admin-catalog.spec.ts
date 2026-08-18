@@ -377,6 +377,38 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(restored.data.publishedAt).toBeNull();
     });
 
+    it('keeps an unpublished product out of every storefront read', async () => {
+      // The 404 above is one read of many. A product nobody has reviewed must
+      // also be absent from the listing that links to it, from search, and
+      // from the sitemap that invites a crawler to fetch it.
+      const name = `Unreviewed Zephyrine ${R}`;
+      const created = await createProduct({ name });
+      const slug = created.data.slug;
+
+      const listed = () =>
+        axios
+          .get('/catalog/categories/cleaning/products?pageSize=100')
+          .then((r) => r.data.items.map((i: { slug: string }) => i.slug));
+      const found = () =>
+        axios
+          .get(`/catalog/search?q=${encodeURIComponent('Zephyrine')}`)
+          .then((r) => r.data.items.map((i: { slug: string }) => i.slug));
+      const mapped = () =>
+        axios
+          .get('/catalog/sitemap')
+          .then((r) => r.data.products.map((p: { slug: string }) => p.slug));
+
+      expect(await listed()).not.toContain(slug);
+      expect(await found()).not.toContain(slug);
+      expect(await mapped()).not.toContain(slug);
+
+      await publishProduct(slug);
+
+      expect(await listed()).toContain(slug);
+      expect(await found()).toContain(slug);
+      expect(await mapped()).toContain(slug);
+    });
+
     it('lists unpublished rows under their own filter', async () => {
       const created = await createProduct({ name: `Awaiting ${R}` });
 
