@@ -78,7 +78,8 @@ export function parseCount(text: string): number | null {
                    and the focus ring is drawn around the pair — so the cell
                    behaves as one field, like the attribute grid's. -->
               <td
-                class="border border-border-strong bg-white p-0 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-secondary"
+                class="border border-border-strong p-0 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-secondary"
+                [class]="row.disabled ? 'bg-stone-100' : 'bg-white'"
               >
                 <div class="flex items-center">
                   <input
@@ -86,9 +87,10 @@ export function parseCount(text: string): number | null {
                     type="text"
                     [attr.inputmode]="row.inputMode"
                     [appNumericField]="row.inputMode"
-                    class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none"
+                    class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none disabled:cursor-not-allowed"
                     [value]="row.value"
                     [placeholder]="row.placeholder"
+                    [disabled]="row.disabled"
                     (input)="edit(row.key, $any($event.target).value)"
                     (blur)="normalize(row.key)"
                   />
@@ -99,7 +101,7 @@ export function parseCount(text: string): number | null {
                   }
                 </div>
               </td>
-              <td class="w-32 border-0 pl-2 align-middle text-xs text-subtle">
+              <td class="w-32 border-0 pl-5 align-middle text-xs text-subtle">
                 {{ row.price }}
               </td>
             </tr>
@@ -124,67 +126,69 @@ export class ProductPackagingEditor {
   readonly priceMinor = input<number | null>(null);
   readonly valueChange = output<PackagingDraft>();
 
+  /**
+   * Ordered the way the values depend on each other: what a piece costs and how
+   * few may be bought, then the packs a piece goes into, then the box those
+   * packs go into, then that box's dimensions. Each outer level stays disabled
+   * until the one it is measured in exists — a box of nothing is not a thing,
+   * and its weight even less so.
+   */
   protected readonly rows = computed(() => {
     const v = this.value();
-    const count = (
-      key: 'piecesPerPack' | 'packsPerBox' | 'minPieceQty' | 'priceBasisPieces',
+    const prices = this.unitPrices();
+    const hasPack = parseCount(v.piecesPerPack) !== null;
+    const hasBox = hasPack && parseCount(v.packsPerBox) !== null;
+
+    const row = (
+      key: keyof PackagingDraft,
       label: string,
-      placeholder: string,
-      suffix = '',
-      price = '',
+      opts: {
+        placeholder?: string;
+        suffix?: string;
+        price?: string;
+        decimal?: boolean;
+        enabled?: boolean;
+      } = {},
     ) => ({
       key,
       label,
       value: v[key],
-      placeholder,
-      suffix,
-      price,
-      inputMode: 'integer' as const,
+      placeholder: opts.placeholder ?? '',
+      suffix: opts.suffix ?? '',
+      price: opts.price ?? '',
+      inputMode: opts.decimal ? ('decimal' as const) : ('integer' as const),
+      disabled: opts.enabled === false,
     });
 
-    const prices = this.unitPrices();
-
     return [
-      count(
-        'piecesPerPack',
-        this.text.piecesPerPack,
-        this.text.notSoldPerPack,
-        '',
-        prices.pack,
-      ),
-      count(
-        'packsPerBox',
-        this.text.packsPerBox,
-        this.text.notSoldPerBox,
-        '',
-        prices.box,
-      ),
-      count('minPieceQty', this.text.minPieceQty, '1', this.text.pieceSuffix),
-      count(
-        'priceBasisPieces',
-        this.text.priceBasis,
-        '1',
-        this.text.pieceSuffix,
-        prices.piece,
-      ),
-      {
-        key: 'boxVolume' as const,
-        label: this.text.boxVolume,
-        value: v.boxVolume,
-        placeholder: '',
+      row('minPieceQty', this.text.minPieceQty, {
+        placeholder: '1',
+        suffix: this.text.pieceSuffix,
+      }),
+      row('priceBasisPieces', this.text.priceBasis, {
+        placeholder: '1',
+        suffix: this.text.pieceSuffix,
+        price: prices.piece,
+      }),
+      row('piecesPerPack', this.text.piecesPerPack, {
+        placeholder: this.text.notSoldPerPack,
+        price: prices.pack,
+      }),
+      row('packsPerBox', this.text.packsPerBox, {
+        placeholder: this.text.notSoldPerBox,
+        price: prices.box,
+        enabled: hasPack,
+      }),
+      row('boxVolume', this.text.boxVolume, {
         suffix: this.units.volume,
-        price: '',
-        inputMode: 'decimal' as const,
-      },
-      {
-        key: 'boxWeight' as const,
-        label: this.text.boxWeight,
-        value: v.boxWeight,
-        placeholder: '',
+        decimal: true,
+        enabled: hasBox,
+      }),
+      row('boxWeight', this.text.boxWeight, {
         suffix: this.units.weight,
-        price: '',
-        inputMode: 'decimal' as const,
-      },
+        decimal: true,
+        enabled: hasBox,
+      }),
     ];
   });
 
@@ -251,6 +255,18 @@ export class ProductPackagingEditor {
       current.minPieceQty === current.piecesPerPack;
     if (key === 'piecesPerPack' && tracking) {
       next.minPieceQty = raw || '1';
+    }
+    // Clearing a level takes what it contained with it, so nothing is left
+    // stranded in a field that is now disabled and invisible on save.
+    if (key === 'piecesPerPack' && parseCount(raw) === null) {
+      next.packsPerBox = '';
+    }
+    if (
+      (key === 'piecesPerPack' || key === 'packsPerBox') &&
+      parseCount(next.packsPerBox) === null
+    ) {
+      next.boxVolume = '';
+      next.boxWeight = '';
     }
     this.valueChange.emit(next);
   }
