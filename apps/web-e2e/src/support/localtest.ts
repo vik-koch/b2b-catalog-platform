@@ -1,3 +1,4 @@
+import type { Response } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Client } from 'pg';
@@ -40,3 +41,15 @@ export function localtestDbClient(): Client {
 // the compose.db.yml dev stack's 8025) mirrors the localtest DB's 5433 host
 // port, so the smoke-test stack and the dev stack can run side by side.
 export const MAILPIT_API = 'http://localhost:8026/api/v1';
+
+/**
+ * The HTML a navigation actually served.
+ *
+ * `page.goto` types its response as nullable — it is null only for a
+ * navigation that never left the page — so every caller would otherwise carry
+ * a non-null assertion. Failing here says which of the two went wrong.
+ */
+export async function documentOf(response: Response | null): Promise<string> {
+  if (!response) throw new Error('the navigation served no document');
+  return response.text();
+}

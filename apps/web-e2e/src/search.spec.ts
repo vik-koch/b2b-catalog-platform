@@ -115,6 +115,9 @@ test.describe('without JavaScript', () => {
     // The one that would silently rot: the field is SSR'd into every page, and
     // a form without action/method submits to the *current* URL — which sends
     // the home page's search box to /?q=… and looks like nothing happened.
+    // There is no no-JavaScript path to skip *to* on mobile: the field is
+    // behind a toggle.
+    // eslint-disable-next-line playwright/no-skipped-test
     test.skip(isMobile, 'the mobile toggle needs JavaScript to open the field');
     await page.goto('/');
 

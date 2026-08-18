@@ -90,10 +90,11 @@ describe('priceRows', () => {
   it('prices every unit the product is sold in, piece first', () => {
     // €19.99 per pack of 10 stored as basis 10: the per-piece figure needs
     // three decimals, the pack and box prices are exact.
-    const rows = units().priceRows(
-      { pieceMilliMinor: 199_900, pack: 1999, box: 7996 },
-      packaged,
-    );
+    const rows = units().priceRows({
+      pieceMilliMinor: 199_900,
+      pack: 1999,
+      box: 7996,
+    });
 
     expect(rows.map((r) => plainSpaces(r.price))).toEqual([
       '1,999 €',
@@ -107,19 +108,21 @@ describe('priceRows', () => {
     // €102.70 per six pieces is €17.11666…, which must not print every digit
     // the thousandths scale carries — the extra precision is there to avoid a
     // double rounding, not to be shown.
-    const rows = units().priceRows(
-      { pieceMilliMinor: 1_711_667, pack: 10_270, box: 41_080 },
-      packaged,
-    );
+    const rows = units().priceRows({
+      pieceMilliMinor: 1_711_667,
+      pack: 10_270,
+      box: 41_080,
+    });
 
     expect(plainSpaces(rows[0].price)).toBe('17,117 €');
   });
 
   it('shows a whole-cent per-piece price without trailing noise', () => {
-    const rows = units().priceRows(
-      { pieceMilliMinor: 500_000, pack: null, box: null },
-      plain,
-    );
+    const rows = units().priceRows({
+      pieceMilliMinor: 500_000,
+      pack: null,
+      box: null,
+    });
 
     expect(rows).toHaveLength(1);
     expect(plainSpaces(rows[0].price)).toBe('5,00 €');

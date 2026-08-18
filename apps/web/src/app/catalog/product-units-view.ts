@@ -44,10 +44,7 @@ export function useProductUnits() {
 
   return {
     /** Every unit the product is sold in, cheapest unit first. */
-    priceRows(
-      prices: UnitPrices,
-      packaging: ProductPackagingInfo,
-    ): UnitPriceRow[] {
+    priceRows(prices: UnitPrices): UnitPriceRow[] {
       const rows: UnitPriceRow[] = [
         {
           label: perUnit(text.piece),

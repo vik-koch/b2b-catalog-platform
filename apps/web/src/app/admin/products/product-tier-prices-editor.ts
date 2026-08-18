@@ -21,8 +21,11 @@ export interface TierPriceDraft {
  * to minor units on save, exactly as it does for the base price.
  *
  * Only the deployment's own tiers appear. The base list is not among them: it
- * is the product's own price field above, which is also why an empty tier field
- * reads "Base price" rather than "0".
+ * is the product's own price field above — so an empty tier field shows that
+ * field's price as its placeholder, tracking it keystroke by keystroke. It is
+ * what the tier would actually be charged, which a fixed "0" would not be, and
+ * it says so in the currency's own shape. Only while there is no base price to
+ * show does it fall back to naming the field.
  */
 @Component({
   selector: 'app-product-tier-prices-editor',
@@ -43,7 +46,7 @@ export interface TierPriceDraft {
             class="w-40"
             [attr.aria-label]="tier.label"
             [value]="valueFor(tier.id)"
-            [placeholder]="text.usesBase"
+            [placeholder]="placeholder()"
             (input)="onInput(tier.id, $any($event.target).value)"
           />
         </label>
@@ -56,8 +59,14 @@ export class ProductTierPricesEditor {
   protected readonly text = inject(ADMIN_TEXT).productEditor.tierPrices;
 
   readonly tiers = input.required<CustomerTier[]>();
+  /** The base price as text, e.g. "18,90" — empty while none is entered. */
+  readonly basePrice = input('');
   readonly value = input.required<TierPriceDraft[]>();
   readonly valueChange = output<TierPriceDraft[]>();
+
+  protected readonly placeholder = computed(
+    () => this.basePrice() || this.text.usesBase,
+  );
 
   private readonly byTier = computed(
     () => new Map(this.value().map((d) => [d.tierId, d.value])),

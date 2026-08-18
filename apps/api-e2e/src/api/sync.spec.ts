@@ -83,7 +83,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
 
   const productBySourceId = async (sourceId: string) => {
     const { rows } = await client.query(
-      'SELECT name, "defaultPriceMinor" AS "priceMinor", slug, "deletedAt", "categoryId" FROM products WHERE "sourceId" = $1',
+      'SELECT name, "defaultPriceMinor" AS "priceMinor", slug, "deletedAt", "publishedAt", "categoryId" FROM products WHERE "sourceId" = $1',
       [sourceId],
     );
     return rows[0];
@@ -236,6 +236,34 @@ describe('Catalog sync (FR-ADM-02)', () => {
       );
       expect(rows[0].parentId).toBeNull();
       expect(rows[0].sourceId).toBe(CATEGORY_SOURCE_ID);
+    });
+
+    it('creates products unpublished and never unpublishes a live one', async () => {
+      // An imported product carries a price whose basis nobody has set, so it
+      // waits for a human (FR-ADM-06) — and the next run of the same file must
+      // not take a reviewed product back off the storefront.
+      const sourceId = `${SOURCE_PREFIX}-publication`;
+      const row = (price: number) =>
+        [
+          'sourceId,name,categorySourceId,categoryName,price',
+          `${sourceId},Sync Publication,${CATEGORY_SOURCE_ID},${CATEGORY_NAME},${price}`,
+          '',
+        ].join('\n');
+
+      await run(row(1000));
+      expect((await productBySourceId(sourceId)).publishedAt).toBeNull();
+
+      // An admin reviews it and puts it on the storefront.
+      await client.query(
+        'UPDATE products SET "publishedAt" = now() WHERE "sourceId" = $1',
+        [sourceId],
+      );
+
+      await run(row(1100));
+
+      const after = await productBySourceId(sourceId);
+      expect(after.priceMinor).toBe(1100);
+      expect(after.publishedAt).not.toBeNull();
     });
 
     it('refuses to commit the same run twice', async () => {

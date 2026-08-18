@@ -7,7 +7,6 @@ import { requireEnv } from './env';
 // Passed from here to global-teardown via globalThis (Nx's own convention).
 // Declared globally so both halves see the same type under `strict`.
 declare global {
-  // eslint-disable-next-line no-var
   var __TEARDOWN_MESSAGE__: string;
 }
 

@@ -59,6 +59,7 @@ const SEARCH_DEBOUNCE_MS = 200;
         <button
           type="button"
           class="absolute top-1/2 right-1.5 flex -translate-y-1/2 cursor-pointer items-center rounded-full p-1 text-subtle hover:text-accent"
+          [title]="clearLabel()"
           (click)="clear()"
         >
           <app-icon name="close" class="h-4 w-4" />

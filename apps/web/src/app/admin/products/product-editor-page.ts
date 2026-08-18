@@ -142,6 +142,7 @@ import { injectEditorReturn } from '../editor-return';
           <div>
             <app-product-tier-prices-editor
               [tiers]="tiers()"
+              [basePrice]="basePriceText()"
               [value]="tierPrices()"
               (valueChange)="tierPrices.set($event)"
             />
@@ -316,6 +317,16 @@ export class ProductEditorPage implements UnsavedChangesAware {
 
   /** Shows the shape a price takes here, e.g. "0,00" in a de-DE deployment. */
   protected readonly pricePlaceholder = `0${decimalSeparator(this.currency)}00`;
+
+  /**
+   * The base price as the tier fields advertise it — what an emptied tier
+   * charges. Formatted, not the raw text, so a half-typed "18," still shows the
+   * "18,00" it would save as; empty while the field holds no price at all.
+   */
+  protected readonly basePriceText = computed(() => {
+    const minor = parsePriceInput(this.priceInput(), this.currency);
+    return minor === null ? '' : formatPriceInput(minor, this.currency);
+  });
 
   protected readonly previewPriceMinor = computed(
     () => parsePriceInput(this.priceInput(), this.currency) ?? 0,

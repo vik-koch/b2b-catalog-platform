@@ -178,6 +178,7 @@ const EDGE_SLACK = 24;
                     cdkDragHandle
                     class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
                     [attr.aria-label]="common.reorder"
+                    [title]="common.reorder"
                   >
                     <app-admin-icon name="grip-vertical" class="h-4 w-4" />
                   </span>
@@ -192,6 +193,7 @@ const EDGE_SLACK = 24;
                     }"
                     class="p-1 text-stone-400 hover:text-accent"
                     [attr.aria-label]="text.addChild"
+                    [title]="text.addChild"
                   >
                     <app-admin-icon name="plus" class="h-4 w-4" />
                   </a>
@@ -199,6 +201,7 @@ const EDGE_SLACK = 24;
                     [routerLink]="['/catalog', node.category.slug]"
                     class="p-1 text-stone-400 hover:text-accent"
                     [attr.aria-label]="text.seeProducts"
+                    [title]="text.seeProducts"
                   >
                     <app-admin-icon name="eye" class="h-4 w-4" />
                   </a>
@@ -207,6 +210,7 @@ const EDGE_SLACK = 24;
                     [queryParams]="{ categoryId: node.category.id }"
                     class="p-1 text-stone-400 hover:text-accent"
                     [attr.aria-label]="text.editProducts"
+                    [title]="text.editProducts"
                   >
                     <app-admin-icon name="square-chart-gantt" class="h-4 w-4" />
                   </a>
@@ -219,6 +223,7 @@ const EDGE_SLACK = 24;
                     [queryParams]="editorFrom"
                     class="p-1 text-stone-400 hover:text-accent"
                     [attr.aria-label]="text.edit"
+                    [title]="text.edit"
                   >
                     <app-admin-icon name="pencil" class="h-4 w-4" />
                   </a>
@@ -226,6 +231,7 @@ const EDGE_SLACK = 24;
                     type="button"
                     class="p-1 text-stone-400 hover:text-red-700"
                     [attr.aria-label]="text.delete"
+                    [title]="text.delete"
                     (click)="deletingCategory.set(node.category)"
                   >
                     <app-admin-icon name="trash-2" class="h-4 w-4" />

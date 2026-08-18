@@ -1,4 +1,3 @@
-/* eslint-disable */
 import axios from 'axios';
 import { requireEnv } from './env';
 

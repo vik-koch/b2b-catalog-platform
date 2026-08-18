@@ -30,7 +30,7 @@ import {
 } from './grid-query';
 import { GridSortHeader } from './grid-sort-header';
 import { ProductDeleteDialog } from './product-delete-dialog';
-import { GridSearchField } from './grid-search-field';
+import { AdminListHeader } from '../list-header';
 
 /**
  * The admin product list: every product including soft-deleted ones
@@ -47,46 +47,30 @@ import { GridSearchField } from './grid-search-field';
     Button,
     AdminIcon,
     ProductDeleteDialog,
-    GridSearchField,
+    AdminListHeader,
     GridSortHeader,
     GridFilterSelect,
     Skeleton,
   ],
   template: `
-    <div class="mb-6 grid grid-cols-2 md:grid-cols-3 gap-4 items-center">
-      <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-      <app-grid-search-field
-        class="md:justify-self-center"
-        [query]="query() ?? ''"
-        [searchLabel]="text.searchLabel"
-        [searchPlaceholder]="text.searchPlaceholder"
-        [clearLabel]="text.clearSearch"
-      />
+    <app-admin-list-header
+      [title]="text.title"
+      [query]="query() ?? ''"
+      [searchLabel]="text.searchLabel"
+      [searchPlaceholder]="text.searchPlaceholder"
+      [clearSearchLabel]="text.clearSearch"
+      [filtered]="filtered()"
+    >
       <a
         appButton
         routerLink="/admin/products/new"
         [queryParams]="editorFrom"
-        class="md:justify-self-end gap-2"
+        class="gap-2"
       >
         <app-admin-icon name="plus" class="h-4 w-4" />
         {{ editText.addProduct }}
       </a>
-    </div>
-
-    <!-- One way back to the whole list. The filters are spread across the
-         header and the search box, so undoing them one at a time is a hunt —
-         and a save arrives here with the product's name already in the box. -->
-    @if (filtered()) {
-      <p class="mb-4">
-        <a
-          routerLink="."
-          [queryParams]="{}"
-          class="text-sm text-subtle underline hover:text-accent"
-        >
-          {{ text.clearFilters }}
-        </a>
-      </p>
-    }
+    </app-admin-list-header>
 
     @if (products.error()) {
       <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
@@ -176,12 +160,6 @@ import { GridSearchField } from './grid-search-field';
                       >
                         {{ text.unpublishedBadge }}
                       </span>
-                    } @else if (!item.publishedAt) {
-                      <span
-                        class="mr-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-900"
-                      >
-                        {{ text.unpublishedBadge }}
-                      </span>
                     }
                     <a
                       [routerLink]="['/admin/products', item.slug, 'edit']"
@@ -228,6 +206,7 @@ import { GridSearchField } from './grid-search-field';
                     [queryParams]="editorFrom"
                     class="p-1.5 text-subtle hover:text-accent"
                     [attr.aria-label]="editText.editProduct"
+                    [title]="editText.editProduct"
                   >
                     <app-admin-icon name="pencil" class="h-4 w-4" />
                   </a>
@@ -238,11 +217,8 @@ import { GridSearchField } from './grid-search-field';
                     type="button"
                     class="p-1.5 text-subtle hover:text-accent"
                     [disabled]="publishing() === item.slug"
-                    [attr.aria-label]="
-                      item.publishedAt
-                        ? editText.unpublishProduct
-                        : editText.publishProduct
-                    "
+                    [attr.aria-label]="publishLabel(item)"
+                    [title]="publishLabel(item)"
                     (click)="togglePublished(item)"
                   >
                     <app-admin-icon
@@ -255,6 +231,7 @@ import { GridSearchField } from './grid-search-field';
                       type="button"
                       class="p-1.5 text-subtle hover:text-accent"
                       [attr.aria-label]="common.restore"
+                      [title]="common.restore"
                       (click)="restore(item)"
                     >
                       <app-admin-icon name="rotate-ccw" class="h-4 w-4" />
@@ -264,6 +241,7 @@ import { GridSearchField } from './grid-search-field';
                       type="button"
                       class="p-1.5 text-subtle hover:text-red-700"
                       [attr.aria-label]="editText.deleteProduct"
+                      [title]="editText.deleteProduct"
                       (click)="deletingProduct.set(item)"
                     >
                       <app-admin-icon name="trash-2" class="h-4 w-4" />
@@ -439,7 +417,6 @@ export class ProductListPage {
     { value: '', label: this.text.stateAll },
     { value: 'live', label: this.text.stateLive },
     { value: 'unpublished', label: this.text.stateUnpublished },
-    { value: 'unpublished', label: this.text.stateUnpublished },
     { value: 'deleted', label: this.text.stateDeleted },
   ];
 
@@ -475,6 +452,13 @@ export class ProductListPage {
   }
 
   protected readonly publishing = signal<string | null>(null);
+
+  /** Names what the button would do, for both the tooltip and screen readers. */
+  protected publishLabel(item: { publishedAt: string | null }): string {
+    return item.publishedAt
+      ? this.editText.unpublishProduct
+      : this.editText.publishProduct;
+  }
 
   /**
    * Publishing is one click; unpublishing is confirmed, because taking a

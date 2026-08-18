@@ -13,6 +13,7 @@
     "reorder": "Drag to reorder",
     "uploading": "Uploading…",
     "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB.",
+    "clearFilters": "Clear filters",
     "catalogErrors": {
       "product-not-found": "This product no longer exists. Reload the page to see the current catalogue.",
       "category-not-found": "That category no longer exists. Reload the page to see the current categories.",
@@ -164,7 +165,7 @@
     },
     "tierPrices": {
       "heading": "Tier prices",
-      "hint": "Leave a tier empty to charge it the price above.",
+      "hint": "Leave a tier price empty to charge it the base price above.",
       "usesBase": "Base price",
       "invalid": "Please enter a valid price for “{tier}”."
     }
@@ -181,7 +182,6 @@
     "searchLabel": "Search products",
     "searchPlaceholder": "Search by name or sync key",
     "clearSearch": "Clear the search",
-    "clearFilters": "Show all products",
     "filterState": "Filter by status",
     "filterCategory": "Filter by category",
     "stateAll": "All",

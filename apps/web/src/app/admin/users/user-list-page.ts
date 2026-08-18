@@ -28,7 +28,7 @@ import {
   GridFilterOption,
   GridFilterSelect,
 } from '../products/grid-filter-select';
-import { GridSearchField } from '../products/grid-search-field';
+import { AdminListHeader } from '../list-header';
 import { GridSortHeader } from '../products/grid-sort-header';
 import { TiersService } from '../tiers/tiers.service';
 import { injectEditorReturnParams } from '../editor-return';
@@ -82,37 +82,30 @@ const typeRank = (t: StaffUser['customerType']): number =>
     RouterLink,
     Button,
     AdminIcon,
-    GridSearchField,
+    AdminListHeader,
     GridSortHeader,
     GridFilterSelect,
     Skeleton,
   ],
   template: `
-    <div class="mb-6 grid grid-cols-2 md:grid-cols-3 gap-4 items-center">
-      <h1 class="text-3xl font-bold tracking-tight">
-        {{ title() }}
-      </h1>
-      <app-grid-search-field
-        class="md:justify-self-center"
-        [query]="query() ?? ''"
-        [searchLabel]="text.searchLabel"
-        [searchPlaceholder]="text.searchPlaceholder"
-        [clearLabel]="text.clearSearch"
-      />
-      <div class="md:justify-self-end">
-        <a
-          appButton
-          class="gap-2"
-          [routerLink]="
-            isStaff() ? '/admin/users/staff/new' : '/admin/users/new'
-          "
-          [queryParams]="editorFrom"
-        >
-          <app-admin-icon name="plus" class="h-4 w-4" />
-          {{ isStaff() ? text.addStaff : text.addCustomer }}
-        </a>
-      </div>
-    </div>
+    <app-admin-list-header
+      [title]="title()"
+      [query]="query() ?? ''"
+      [searchLabel]="text.searchLabel"
+      [searchPlaceholder]="text.searchPlaceholder"
+      [clearSearchLabel]="text.clearSearch"
+      [filtered]="filtered()"
+    >
+      <a
+        appButton
+        class="gap-2"
+        [routerLink]="isStaff() ? '/admin/users/staff/new' : '/admin/users/new'"
+        [queryParams]="editorFrom"
+      >
+        <app-admin-icon name="plus" class="h-4 w-4" />
+        {{ isStaff() ? text.addStaff : text.addCustomer }}
+      </a>
+    </app-admin-list-header>
 
     <!-- Where a decline that raced with another change reports itself: every
          other action is a navigation, and reports from the editor. -->
