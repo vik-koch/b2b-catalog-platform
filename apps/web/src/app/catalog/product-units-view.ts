@@ -113,28 +113,44 @@ export function useProductUnits() {
     },
 
     /**
-     * The packaging rows appended to the specifications table: the summary, the
-     * minimum, and a box's dimensions. A contiguous group after the product's
-     * own attributes — those describe what it is, these how it ships.
+     * The box rows appended to the specifications table (FR-UNIT-06): a box's
+     * volume and weight. A contiguous group after the product's own attributes —
+     * those describe what it is, these how it ships.
+     *
+     * A product shipping as several boxes does not get a row of its own for the
+     * count. The figures are already the total across those boxes, so what a
+     * reader needs is what each one covers: the count qualifies the label,
+     * "Box volume (for 2)", and only where there is more than one.
+     *
+     * The packaging summary and the minimum are deliberately **not** here. Both
+     * belong to buying rather than to describing: the summary makes a per-unit
+     * price readable next to the unit that is being chosen, and the minimum is a
+     * rule on an input that applies to piece purchases only, so a static row
+     * states it wrongly whenever a pack or box is selected.
      */
     packagingRows(
-      packaging: ProductPackagingInfo,
-      box: { volume: string | null; weight: string | null } | null,
+      box: {
+        volume: string | null;
+        weight: string | null;
+        count: number;
+      } | null,
     ): PackagingRow[] {
+      if (!box) return [];
+      const label = (base: string) =>
+        box.count > 1
+          ? `${base} ${fill(text.boxCountSuffix, { count: box.count })}`
+          : base;
+
       const rows: PackagingRow[] = [];
-      const summary = this.packagingSummary(packaging);
-      if (summary) rows.push({ label: text.packaging, value: summary });
-      const minimum = this.minimumOrder(packaging);
-      if (minimum) rows.push({ label: text.minQuantity, value: minimum });
-      if (box?.volume) {
+      if (box.volume) {
         rows.push({
-          label: text.boxVolume,
+          label: label(text.boxVolume),
           value: `${box.volume} ${config.boxUnits.volume}`,
         });
       }
-      if (box?.weight) {
+      if (box.weight) {
         rows.push({
-          label: text.boxWeight,
+          label: label(text.boxWeight),
           value: `${box.weight} ${config.boxUnits.weight}`,
         });
       }

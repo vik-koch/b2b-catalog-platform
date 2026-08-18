@@ -346,6 +346,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       priceBasisPieces: 1,
       boxVolume: null,
       boxWeight: null,
+      boxCount: 1,
     };
     const basis = packaging.priceBasisPieces;
     const priceFor = (unit: 'pack' | 'box') => {
@@ -369,7 +370,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
       boxDimensions:
         packaging.packsPerBox === null
           ? null
-          : { volume: packaging.boxVolume, weight: packaging.boxWeight },
+          : {
+              volume: packaging.boxVolume,
+              weight: packaging.boxWeight,
+              count: packaging.boxCount,
+            },
       descriptionHtml: this.description(),
       images: this.images(),
       attributes: this.attributes().filter(
@@ -432,8 +437,14 @@ export class ProductEditorPage implements UnsavedChangesAware {
         packsPerBox: product.packsPerBox?.toString() ?? '',
         minPieceQty: product.minPieceQty.toString(),
         priceBasisPieces: product.priceBasisPieces.toString(),
-        boxVolume: product.boxVolume ?? '',
-        boxWeight: product.boxWeight ?? '',
+        // Shown with the deployment's own decimal separator, like a price:
+        // the column holds "0.072" whatever the locale, and a form that prints
+        // 18,90 beside 0.072 looks like two different products' data.
+        boxVolume: this.showDecimal(product.boxVolume),
+        boxWeight: this.showDecimal(product.boxWeight),
+        // Blanked at 1 so no product shows a "ships as 1 box" rule it does not
+        // have — the same treatment the basis and the minimum get.
+        boxCount: product.boxCount > 1 ? product.boxCount.toString() : '',
       });
       this.tierPrices.set(
         product.tierPrices
@@ -474,6 +485,15 @@ export class ProductEditorPage implements UnsavedChangesAware {
    * something that is not a whole number. Blank means "not sold in that unit",
    * and for the basis and minimum it means 1.
    */
+  /** A stored `numeric` string as the form shows it — the separator swapped for
+   * the deployment's, and nothing else touched, so the digits an admin typed
+   * survive a round trip unchanged. */
+  private showDecimal(stored: string | null): string {
+    return stored === null
+      ? ''
+      : stored.replace('.', decimalSeparator(this.currency));
+  }
+
   private packagingInput(): {
     piecesPerPack: number | null;
     packsPerBox: number | null;
@@ -481,6 +501,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
     priceBasisPieces: number;
     boxVolume: string | null;
     boxWeight: string | null;
+    boxCount: number;
   } | null {
     const draft = this.packaging();
     const decimal = (text: string): string | null =>
@@ -494,11 +515,13 @@ export class ProductEditorPage implements UnsavedChangesAware {
     const packsPerBox = optional(draft.packsPerBox);
     const minPieceQty = required(draft.minPieceQty);
     const priceBasisPieces = required(draft.priceBasisPieces);
+    const boxCount = required(draft.boxCount);
     if (
       piecesPerPack === undefined ||
       packsPerBox === undefined ||
       minPieceQty === undefined ||
-      priceBasisPieces === undefined
+      priceBasisPieces === undefined ||
+      boxCount === undefined
     ) {
       return null;
     }
@@ -513,6 +536,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // Either separator is accepted while typing, like a price.
       boxVolume: packsPerBox === null ? null : decimal(draft.boxVolume),
       boxWeight: packsPerBox === null ? null : decimal(draft.boxWeight),
+      // A count of boxes needs a box, exactly as the dimensions do.
+      boxCount: packsPerBox === null ? 1 : boxCount,
     };
   }
 

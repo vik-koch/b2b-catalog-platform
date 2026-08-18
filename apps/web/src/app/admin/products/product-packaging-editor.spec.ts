@@ -149,6 +149,80 @@ describe('ProductPackagingEditor', () => {
     expect(emitted).toEqual([]);
   });
 
+  it('gives a box its first count as a real value, not a placeholder', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+    });
+
+    type(fixture, 'packsPerBox', '4');
+
+    expect(emitted.at(-1)).toMatchObject({ packsPerBox: '4', boxCount: '1' });
+  });
+
+  it('leaves a box count somebody raised alone', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      packsPerBox: '4',
+      boxCount: '2',
+    });
+
+    type(fixture, 'packsPerBox', '5');
+
+    expect(emitted.at(-1)).toMatchObject({ boxCount: '2' });
+  });
+
+  it('takes the count away with the box it counted', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      packsPerBox: '4',
+      boxCount: '2',
+      boxVolume: '0,250',
+    });
+
+    type(fixture, 'packsPerBox', '');
+
+    expect(emitted.at(-1)).toMatchObject({
+      boxCount: '',
+      boxVolume: '',
+      boxWeight: '',
+    });
+  });
+
+  it('disables the count until there is a box to count, and puts it last', () => {
+    const { fixture } = render({ ...emptyPackaging(), piecesPerPack: '6' });
+
+    const count: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-boxCount',
+    );
+    expect(count.disabled).toBe(true);
+    // No standing "1" to read as a rule on a product that has no box at all.
+    expect(count.placeholder).toBe('');
+
+    const ids = [...fixture.nativeElement.querySelectorAll('tbody input')].map(
+      (i: HTMLInputElement) => i.id,
+    );
+    expect(ids.at(-1)).toBe('packaging-boxCount');
+  });
+
+  it('puts the count back to 1 when it is emptied under a box', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      packsPerBox: '4',
+      boxCount: '',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-boxCount',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted.at(-1)).toMatchObject({ boxCount: '1' });
+  });
+
   it('warns while the basis does not divide the quantities', () => {
     const { fixture } = render({
       ...emptyPackaging(),
