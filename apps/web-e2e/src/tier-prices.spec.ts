@@ -70,7 +70,7 @@ async function arrange(testInfo: TestInfo): Promise<Fixture> {
       `SELECT p.slug, p.name, p."defaultPriceMinor", c.slug AS "categorySlug"
          FROM products p
          JOIN categories c ON c.id = p."categoryId"
-        WHERE p."deletedAt" IS NULL
+        WHERE p."deletedAt" IS NULL AND p."publishedAt" IS NOT NULL
         ORDER BY p.name LIMIT 1`,
     );
     const product = rows[0];

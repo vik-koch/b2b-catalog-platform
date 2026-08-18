@@ -191,6 +191,10 @@ export const adminTextSchema = z
         categoryRequired: z.string(),
         priceInvalid: z.string(),
         saveError: z.string(),
+        /** Commits the edits and puts the product on the storefront at once
+         * (FR-ADM-06); shown only while it is not published. */
+        saveAndPublish: z.string(),
+        publishError: z.string(),
         attributes: z
           .object({
             heading: z.string(),

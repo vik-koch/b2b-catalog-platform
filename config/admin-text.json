@@ -130,6 +130,8 @@
     "categoryRequired": "Please choose a category.",
     "priceInvalid": "Please enter a valid price.",
     "saveError": "Something went wrong saving this product. Please try again.",
+    "saveAndPublish": "Save and publish",
+    "publishError": "Could not change whether this product is published. Please try again.",
     "attributes": {
       "heading": "Characteristics",
       "key": "Name",

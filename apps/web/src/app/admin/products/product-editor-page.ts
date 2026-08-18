@@ -225,6 +225,21 @@ import { injectEditorReturn } from '../editor-return';
           <app-admin-icon name="save" class="h-4 w-4" />
           {{ saving() ? common.saving : common.save }}
         </button>
+        <!-- Only while the product is off the storefront: publishing is one
+             click from the list once it is on. -->
+        @if (!published()) {
+          <button
+            appButton
+            variant="secondary"
+            type="button"
+            class="gap-2"
+            [disabled]="saving()"
+            (click)="save(true)"
+          >
+            <app-admin-icon name="circle-check" class="h-4 w-4" />
+            {{ text.saveAndPublish }}
+          </button>
+        }
         <button
           appButton
           variant="secondary"
@@ -283,6 +298,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly images = signal<CatalogImage[]>([]);
   protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
 
+  /** Null until loaded; drives the publish switch and where a save returns to. */
+  protected readonly published = signal(false);
   protected readonly previewing = signal(false);
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -398,6 +415,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.description.set(product.descriptionHtml);
       this.attributes.set(product.attributes);
       this.images.set(product.images);
+      this.published.set(product.publishedAt !== null);
       this.packaging.set({
         piecesPerPack: product.piecesPerPack?.toString() ?? '',
         packsPerBox: product.packsPerBox?.toString() ?? '',
@@ -492,7 +510,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
     this.slug.set(value);
   }
 
-  protected async save(): Promise<void> {
+  protected async save(andPublish = false): Promise<void> {
     if (!this.name().trim()) return this.error.set(this.text.nameRequired);
     if (!this.categoryId()) return this.error.set(this.text.categoryRequired);
     const priceMinor = parsePriceInput(this.priceInput(), this.currency);
@@ -552,12 +570,38 @@ export class ProductEditorPage implements UnsavedChangesAware {
         ? await this.service.createProduct(body)
         : await this.service.updateProduct(existingSlug, body);
 
-    if (result.ok) {
-      this.navigatingAway = true; // let the unsaved-changes guard pass
-      await this.router.navigate(['/product', result.product.slug]);
-    } else {
+    if (!result.ok) {
       this.error.set(this.common.catalogErrors[result.code]);
       this.saving.set(false);
+      return;
+    }
+
+    let product = result.product;
+    if (andPublish) {
+      // Two calls, and the order matters: the edits are already saved, so a
+      // failure here is reported as a failure to *publish* rather than losing
+      // the save behind a generic error.
+      try {
+        product = await this.service.setProductPublished(product.slug, true);
+      } catch {
+        this.published.set(false);
+        this.error.set(this.text.publishError);
+        this.saving.set(false);
+        return;
+      }
+    }
+
+    this.navigatingAway = true; // let the unsaved-changes guard pass
+    if (product.publishedAt === null) {
+      // No storefront page to land on — it would 404 — so the admin list stands
+      // in, searched for the product just saved. Without the search the row is
+      // somewhere in a list the admin then has to hunt through.
+      // `searchTerm`, not `q`: the grid binds its inputs by parameter name.
+      await this.router.navigate(['/admin/products'], {
+        queryParams: { searchTerm: product.name },
+      });
+    } else {
+      await this.router.navigate(['/product', product.slug]);
     }
   }
 

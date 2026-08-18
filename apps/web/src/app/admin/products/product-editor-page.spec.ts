@@ -47,6 +47,7 @@ const storedProduct: AdminProduct = {
   images: [],
   tierPrices: [],
   deletedAt: null,
+  publishedAt: '2026-07-30T10:00:00.000Z',
   updatedAt: '2026-07-30T10:00:00.000Z',
   priceBasisPieces: 1,
   piecesPerPack: null,

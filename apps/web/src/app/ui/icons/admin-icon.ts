@@ -40,6 +40,8 @@ export type AdminIconName =
   | 'image-plus'
   | 'grip-vertical'
   | 'circle-check'
+  | 'book-check'
+  | 'book-dashed'
   | 'circle-slash'
   | 'rotate-ccw'
   | 'upload'
@@ -234,6 +236,25 @@ export type AdminIconName =
           <circle cx="15" cy="12" r="1" />
           <circle cx="15" cy="5" r="1" />
           <circle cx="15" cy="19" r="1" />
+        }
+        @case ('book-check') {
+          <path
+            d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"
+          />
+          <path d="m9 9.5 2 2 4-4" />
+        }
+        @case ('book-dashed') {
+          <path d="M12 17h1.5" />
+          <path d="M12 22h1.5" />
+          <path d="M12 2h1.5" />
+          <path d="M17.5 22H19a1 1 0 0 0 1-1" />
+          <path d="M17.5 2H19a1 1 0 0 1 1 1v1.5" />
+          <path d="M20 14v3h-2.5" />
+          <path d="M20 8.5V10" />
+          <path d="M4 10V8.5" />
+          <path d="M4 19.5V14" />
+          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H8" />
+          <path d="M8 22H6.5a1 1 0 0 1 0-5H8" />
         }
         @case ('circle-check') {
           <circle cx="12" cy="12" r="10" />
