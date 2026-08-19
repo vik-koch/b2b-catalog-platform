@@ -10,6 +10,15 @@
  * out of numeric facets.
  */
 
+/**
+ * Longest attribute name we store — `attribute_definitions.name` and
+ * `product_attributes.key` are the same text and share the cap.
+ */
+export const ATTRIBUTE_NAME_MAX_LENGTH = 200;
+
+/** Longest attribute value we store (matches the `value` varchar). */
+export const ATTRIBUTE_VALUE_MAX_LENGTH = 2000;
+
 /** Bound of the numeric column (18 digits, 6 of them after the point). */
 export const ATTRIBUTE_NUMERIC_LIMIT = 1e12;
 

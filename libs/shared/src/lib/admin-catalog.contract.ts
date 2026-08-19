@@ -12,7 +12,7 @@ import { basisDividesQuantities } from './product-units';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
-} from './attributes.contract';
+} from './attribute-value';
 import { slugSchema } from './slug';
 
 /** Admin grid page size — denser than the storefront's, for scanning. */

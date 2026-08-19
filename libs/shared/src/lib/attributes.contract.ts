@@ -1,6 +1,10 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
 import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
+import {
+  ATTRIBUTE_NAME_MAX_LENGTH,
+  ATTRIBUTE_VALUE_MAX_LENGTH,
+} from './attribute-value';
 import { slugSchema } from './slug';
 
 const c = initContract();
@@ -14,8 +18,6 @@ const c = initContract();
  * product contracts keep their `attributes: [{key, value}]` array untouched.
  */
 
-/** Matches the `attribute_definitions.name` varchar, and `product_attributes.key`. */
-export const ATTRIBUTE_NAME_MAX_LENGTH = 200;
 /** Matches the `attribute_definitions.unit` varchar. */
 export const ATTRIBUTE_UNIT_MAX_LENGTH = 32;
 
@@ -163,14 +165,17 @@ export type RenameAttributeKeyRequest = z.infer<
   typeof renameAttributeKeySchema
 >;
 
-/** Longest attribute value we store (matches the `value` varchar). */
-export const ATTRIBUTE_VALUE_MAX_LENGTH = 2000;
-
-/** Scoped to one key: renaming "Blue" must not touch an unrelated attribute. */
+/**
+ * Scoped to one key: renaming "Blue" must not touch an unrelated attribute.
+ *
+ * `from` may be empty, and only `from`: a product saved before valueless
+ * attributes stopped being stored carries rows with no value at all, and giving
+ * them one in a single statement is the same correction as any other rename.
+ */
 export const renameAttributeValueSchema = z
   .object({
     key: z.string().trim().min(1).max(ATTRIBUTE_NAME_MAX_LENGTH),
-    from: z.string().trim().min(1).max(ATTRIBUTE_VALUE_MAX_LENGTH),
+    from: z.string().trim().max(ATTRIBUTE_VALUE_MAX_LENGTH),
     to: z.string().trim().min(1).max(ATTRIBUTE_VALUE_MAX_LENGTH),
   })
   .strict();
