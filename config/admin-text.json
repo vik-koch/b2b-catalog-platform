@@ -388,6 +388,44 @@
       "tier-has-prices": "This tier still prices some products. Clear those prices first."
     }
   },
+  "attributeList": {
+    "title": "Filterable attributes",
+    "intro": "A definition makes one product attribute filterable in the shop. Its name has to match the attribute's name on the products exactly — nothing is re-entered, and a definition added today applies to products entered long ago.",
+    "add": "Add attribute",
+    "name": "Name",
+    "namePlaceholder": "Colour",
+    "nameHint": "Spelled exactly as in the product's attribute table. The unit belongs here, not in the values: enter “30”, not “30 cm”.",
+    "type": "Type",
+    "types": {
+      "text": "Text",
+      "number": "Number"
+    },
+    "unit": "Unit",
+    "unitPlaceholder": "cm",
+    "slug": "URL key",
+    "slugPlaceholder": "from the name",
+    "slugInvalid": "Use lowercase letters, digits and hyphens, e.g. “colour”.",
+    "products": "{count} product(s)",
+    "values": "{count} value(s)",
+    "unparsed": "{count} value(s) cannot be read as a number. They stay on the product page and are left out of this filter.",
+    "noMatch": "No product carries an attribute with this name. Check the spelling against a product's attribute table.",
+    "edit": "Edit",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "delete": "Delete",
+    "empty": "No filterable attributes yet — products show their attributes but nothing can be filtered by them.",
+    "saveError": "This attribute could not be saved. Please try again.",
+    "nameRequired": "A name is required.",
+    "deleteTitle": "Delete attribute",
+    "deleteConfirm": "Delete “{name}”? The shop stops offering it as a filter. No product attribute is changed.",
+    "deleteError": "This attribute could not be deleted. Please try again.",
+    "reorderError": "This move could not be saved. Please try again.",
+    "errors": {
+      "attribute-not-found": "This attribute no longer exists. Reload the page to see the current list.",
+      "attribute-name-taken": "Another definition already uses that name.",
+      "attribute-slug-taken": "Another definition already uses that URL key."
+    }
+  },
   "userList": {
     "titleCustomers": "Customers",
     "titleStaff": "Staff",
