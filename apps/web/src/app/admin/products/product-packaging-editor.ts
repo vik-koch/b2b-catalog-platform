@@ -24,6 +24,8 @@ export interface PackagingDraft {
   priceBasisPieces: string;
   boxVolume: string;
   boxWeight: string;
+  /** How many boxes ship; blank means the usual one. */
+  boxCount: string;
 }
 
 /**
@@ -38,9 +40,14 @@ export const emptyPackaging = (): PackagingDraft => ({
   priceBasisPieces: '1',
   boxVolume: '',
   boxWeight: '',
+  boxCount: '',
 });
 
-/** The fields that must always hold a number; the rest may be left unset. */
+/**
+ * The fields that must always hold a number; the rest may be left unset.
+ * `boxCount` is conditional — required only once the product has a box — so it
+ * is handled beside these rather than among them.
+ */
 const REQUIRED_COUNTS = ['minPieceQty', 'priceBasisPieces'] as const;
 
 /** A whole number, or null for blank/invalid. */
@@ -172,10 +179,12 @@ export class ProductPackagingEditor {
       }),
       row('piecesPerPack', this.text.piecesPerPack, {
         placeholder: this.text.notSoldPerPack,
+        suffix: this.text.pieceSuffix,
         price: prices.pack,
       }),
       row('packsPerBox', this.text.packsPerBox, {
         placeholder: this.text.notSoldPerBox,
+        suffix: this.text.packSuffix,
         price: prices.box,
         enabled: hasPack,
       }),
@@ -187,6 +196,11 @@ export class ProductPackagingEditor {
       row('boxWeight', this.text.boxWeight, {
         suffix: this.units.weight,
         decimal: true,
+        enabled: hasBox,
+      }),
+      // Last, and the only one that is not about a single box: how many of
+      // them a delivery of this product arrives as.
+      row('boxCount', this.text.boxCount, {
         enabled: hasBox,
       }),
     ];
@@ -261,12 +275,18 @@ export class ProductPackagingEditor {
     if (key === 'piecesPerPack' && parseCount(raw) === null) {
       next.packsPerBox = '';
     }
-    if (
-      (key === 'piecesPerPack' || key === 'packsPerBox') &&
-      parseCount(next.packsPerBox) === null
-    ) {
-      next.boxVolume = '';
-      next.boxWeight = '';
+    if (key === 'piecesPerPack' || key === 'packsPerBox') {
+      if (parseCount(next.packsPerBox) === null) {
+        next.boxVolume = '';
+        next.boxWeight = '';
+        next.boxCount = '';
+      } else if (next.boxCount.trim() === '') {
+        // A box that exists ships as one unless told otherwise, and that is a
+        // real value rather than a placeholder — the treatment the minimum and
+        // the basis get, for the same reason: "ships as 1 box" is the rule, not
+        // a blank to interpret.
+        next.boxCount = '1';
+      }
     }
     this.valueChange.emit(next);
   }
@@ -277,9 +297,12 @@ export class ProductPackagingEditor {
    * fight the typing.
    */
   protected normalize(key: keyof PackagingDraft): void {
-    if (!REQUIRED_COUNTS.includes(key as (typeof REQUIRED_COUNTS)[number])) {
-      return;
-    }
+    const required =
+      REQUIRED_COUNTS.includes(key as (typeof REQUIRED_COUNTS)[number]) ||
+      // Only while there is a box to count; without one the field is disabled
+      // and stays empty.
+      (key === 'boxCount' && parseCount(this.value().packsPerBox) !== null);
+    if (!required) return;
     if (parseCount(this.value()[key]) === null) {
       this.valueChange.emit({ ...this.value(), [key]: '1' });
     }

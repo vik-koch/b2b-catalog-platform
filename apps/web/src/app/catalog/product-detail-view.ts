@@ -226,7 +226,7 @@ export class ProductDetailView {
   /** Pack and box: the headline is the per-piece price above them. */
   protected readonly unitPrices = computed(() => this.priceRows().slice(1));
   protected readonly packagingRows = computed(() =>
-    this.units.packagingRows(this.item().packaging, this.item().boxDimensions),
+    this.units.packagingRows(this.item().boxDimensions),
   );
 
   private readonly imageColumn =

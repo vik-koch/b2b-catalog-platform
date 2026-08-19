@@ -239,8 +239,10 @@ export const adminTextSchema = z
             priceBasis: z.string(),
             /** Sits inside a piece-count field, after the number. */
             pieceSuffix: z.string(),
+            packSuffix: z.string(),
             boxVolume: z.string(),
             boxWeight: z.string(),
+            boxCount: z.string(),
             notSoldPerPack: z.string(),
             notSoldPerBox: z.string(),
             /** What the entered packaging costs, shown beside the row that

@@ -130,23 +130,51 @@ describe('priceRows', () => {
 });
 
 describe('packagingRows', () => {
-  it('lists the summary, the minimum and the box dimensions with their units', () => {
-    const rows = units().packagingRows(packOnly, {
+  it('lists the box dimensions with their units', () => {
+    const rows = units().packagingRows({
       volume: '0.250',
       weight: '12.500',
+      count: 1,
     });
 
     expect(rows).toEqual([
-      { label: 'Packaging', value: '10 pcs per pk' },
-      { label: 'Minimum order', value: '100 pcs' },
-      // No box on this product, so its dimensions are still listed only when
-      // the caller passes them — the product page passes null instead.
       { label: 'Box volume', value: '0.250 m³' },
       { label: 'Box weight', value: '12.500 kg' },
     ]);
   });
 
+  it('says what a figure covers where a product ships as more than one box', () => {
+    const u = units();
+    const box = { volume: '0.250', weight: '12.500', count: 2 };
+    expect(u.packagingRows(box).map((r) => r.label)).toEqual([
+      'Box volume (for 2)',
+      'Box weight (for 2)',
+    ]);
+    // The values are the totals already, so only the labels change.
+    expect(u.packagingRows(box).map((r) => r.value)).toEqual(
+      u.packagingRows({ ...box, count: 1 }).map((r) => r.value),
+    );
+  });
+
+  it('leaves the labels alone for the usual single box', () => {
+    expect(
+      units()
+        .packagingRows({ volume: '0.250', weight: null, count: 1 })
+        .map((r) => r.label),
+    ).toEqual(['Box volume']);
+  });
+
+  it('leaves the packaging summary and the minimum to the buying block', () => {
+    const rows = units().packagingRows({
+      volume: '0.250',
+      weight: null,
+      count: 1,
+    });
+    expect(rows.map((r) => r.label)).not.toContain('Packaging');
+    expect(rows.map((r) => r.label)).not.toContain('Minimum order');
+  });
+
   it('is empty for a plain product, so the table is unchanged', () => {
-    expect(units().packagingRows(plain, null)).toEqual([]);
+    expect(units().packagingRows(null)).toEqual([]);
   });
 });

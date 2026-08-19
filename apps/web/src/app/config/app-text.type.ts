@@ -128,6 +128,7 @@ export const appTextSchema = z
             minQuantityValue: z.string(),
             boxVolume: z.string(),
             boxWeight: z.string(),
+            boxCountSuffix: z.string(),
           })
           .strict(),
       })

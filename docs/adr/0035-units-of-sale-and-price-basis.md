@@ -1,6 +1,6 @@
 # 0035 — Sell in piece/pack/box, with a staff-only price basis
 
-**Status:** accepted · **Date:** 2026-08-16
+**Status:** accepted (amended 2026-08-18) · **Date:** 2026-08-16
 
 ## Context
 
@@ -109,3 +109,35 @@ suits a wholesale catalogue anyway.
 - (⚠) Nothing may compute a total by multiplying the serialized per-piece price.
 - (⚠) A basis edited so it no longer divides an existing quantity must be
   refused, or the exactness guarantee lapses on that product.
+
+## Amendment — 2026-08-18: a box count, and the attribute table keeps only box facts
+
+Client review of v1.3.0 returned two corrections.
+
+**A product may ship as more than one box** (`boxCount`, default 1). The stored
+`boxVolume`/`boxWeight` are the **totals across those boxes**, not per-box
+figures, which is why neither is ever multiplied by the count, and why the count
+touches no price, piece count or quantity rule. The alternative reading, in which
+a box unit contains `boxCount` cartons' worth, was considered and rejected by the
+client's own answer: the figure exists so a freight buyer knows how many cartons
+arrive, not to redefine what a box is.
+
+The count is **not a row of its own** in the attribute table. On its own it
+answers a question nobody asked at that point in the page; what a reader of a
+volume needs to know is _what that volume covers_, so it qualifies the labels
+instead — "Box volume (for 2)" — and only where it exceeds one. Its real
+consumer is the cart: an order in boxes is summarised by what will physically
+arrive, and there the counts, weights and volumes of the ordered lines are added
+up.
+
+**The customer-facing attribute table keeps only the box facts** — the volume
+and the weight. The packaging summary and the minimum piece quantity come out
+of it. The summary moves to the control that chooses a unit to buy in, where
+the counts in "Pack (6 pcs)" are what make a per-pack price interpretable;
+the minimum becomes the quantity field's hint, because it is a constraint on an
+input rather than a fact about the product, and because it applies to piece
+purchases only — a static row is wrong whenever a pack or box is selected. Until
+the cart exists neither is on the product page.
+
+**Product tiles are unaffected**: they keep both, and the deliberately redundant
+minimum that keeps every packaged tile the same height.

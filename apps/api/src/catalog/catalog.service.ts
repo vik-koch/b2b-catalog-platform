@@ -323,6 +323,7 @@ export class CatalogService {
         categoryId: products.categoryId,
         boxVolume: products.boxVolume,
         boxWeight: products.boxWeight,
+        boxCount: products.boxCount,
         ...unitColumns,
       })
       .from(products)

@@ -55,6 +55,7 @@ const storedProduct: AdminProduct = {
   minPieceQty: 1,
   boxVolume: null,
   boxWeight: null,
+  boxCount: 1,
 };
 
 const config = {
@@ -282,6 +283,36 @@ describe('ProductEditorPage', () => {
       name: 'Hafen Espresso Reserve',
     });
   });
+  it('round-trips a box dimension through the deployment separator', async () => {
+    const { fixture, el, h } = await render(
+      { slug: 'hafen-espresso' },
+      {},
+      {
+        product: {
+          ...storedProduct,
+          piecesPerPack: 6,
+          packsPerBox: 4,
+          boxVolume: '0.250',
+          boxWeight: '12.500',
+        },
+      },
+    );
+
+    // Stored with a dot, shown with the locale's comma — the price field beside
+    // it does the same, and a form that mixes both reads as two data sources.
+    const volume = el.querySelector<HTMLInputElement>('#packaging-boxVolume');
+    expect(volume?.value).toBe('0,250');
+
+    saveButton(el).click();
+    await fixture.whenStable();
+
+    // ...and sent back as the decimal string the column holds.
+    expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+      boxVolume: '0.250',
+      boxWeight: '12.500',
+    });
+  });
+
   describe('tier prices (FR-AUTH-05)', () => {
     it('shows no tier section when the deployment has no tiers', async () => {
       const { el } = await render({ slug: 'hafen-espresso' });

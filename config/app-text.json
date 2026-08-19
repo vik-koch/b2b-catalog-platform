@@ -58,7 +58,8 @@
       "minQuantity": "Minimum order",
       "minQuantityValue": "{qty} {unit}",
       "boxVolume": "Box volume",
-      "boxWeight": "Box weight"
+      "boxWeight": "Box weight",
+      "boxCountSuffix": "(for {count})"
     }
   },
   "search": {

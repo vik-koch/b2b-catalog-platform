@@ -134,6 +134,10 @@ export const products = pgTable(
     // not apply to mass and volume. Unit labels are deployment config.
     boxVolume: numeric('boxVolume', { precision: 12, scale: 3 }),
     boxWeight: numeric('boxWeight', { precision: 12, scale: 3 }),
+    // How many boxes the product ships as. Informational only: the volume and
+    // weight above already describe the whole consignment, so nothing is
+    // multiplied by this. Shown to the customer only where it exceeds 1.
+    boxCount: integer('boxCount').notNull().default(1),
     categoryId: uuid('categoryId')
       .notNull()
       .references(() => categories.id, { onDelete: 'restrict' }),
@@ -194,6 +198,7 @@ export const products = pgTable(
     check(
       'products_units_positive',
       sql`${t.priceBasisPieces} >= 1 and ${t.minPieceQty} >= 1
+        and ${t.boxCount} >= 1
         and (${t.piecesPerPack} is null or ${t.piecesPerPack} >= 1)
         and (${t.packsPerBox} is null or ${t.packsPerBox} >= 1)`,
     ),
@@ -202,6 +207,11 @@ export const products = pgTable(
     check(
       'products_box_needs_pack',
       sql`${t.packsPerBox} is null or ${t.piecesPerPack} is not null`,
+    ),
+    // A count of boxes is meaningless without a box.
+    check(
+      'products_box_count_needs_box',
+      sql`${t.boxCount} = 1 or ${t.packsPerBox} is not null`,
     ),
     // What keeps totals exact: every purchasable quantity is a whole number of
     // basis units, so a total is a multiplication with nothing to round. In the

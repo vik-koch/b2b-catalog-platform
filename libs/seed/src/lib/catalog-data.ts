@@ -43,6 +43,8 @@ export interface ProductPackagingSeed {
   priceBasisPieces?: number;
   boxVolume?: string;
   boxWeight?: string;
+  /** How many boxes ship; informational, and 1 for almost every product. */
+  boxCount?: number;
 }
 
 let order = 0;
@@ -155,6 +157,7 @@ const ESPRESSO = [
  * - every 4th: priced per **pack** (a price that does not divide evenly into a
  *   per-piece figure, so the page shows three decimals)
  * - every 5th: a minimum order well above the pack size
+ * - every 6th: shipped as two boxes rather than one
  * - every 7th: packs but no box
  */
 const espressoPackaging = (i: number): ProductPackagingSeed | undefined => {
@@ -165,6 +168,8 @@ const espressoPackaging = (i: number): ProductPackagingSeed | undefined => {
     minPieceQty: i % 5 === 4 ? 24 : 6,
     boxVolume: '0.072',
     boxWeight: '6.400',
+    // The rare case: a product that ships split across two boxes.
+    ...(i % 6 === 5 ? { boxCount: 2 } : {}),
   };
   return i % 4 === 3 ? { ...base, priceBasisPieces: 6 } : base;
 };
