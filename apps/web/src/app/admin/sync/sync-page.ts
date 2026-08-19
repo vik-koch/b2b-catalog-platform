@@ -22,6 +22,7 @@ import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { SyncService } from './sync.service';
 import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
+import { Checkbox } from '../../ui/checkbox';
 
 /**
  * Fills `{placeholders}` in a line of admin text with the names the API sent
@@ -51,7 +52,7 @@ function substitute(
  */
 @Component({
   selector: 'app-sync-page',
-  imports: [RouterLink, Button, AdminIcon, FieldLabel, Input],
+  imports: [Checkbox, RouterLink, Button, AdminIcon, FieldLabel, Input],
   template: `
     <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
     <p class="mb-8 max-w-xl text-muted">{{ text.description }}</p>
@@ -96,7 +97,8 @@ function substitute(
             <label class="flex items-start gap-2 text-sm">
               <input
                 type="checkbox"
-                class="mt-1"
+                appCheckbox
+                class="mt-0.5"
                 [checked]="isFlagOn(flag.key)"
                 [disabled]="
                   flag.key === 'softDelete' &&
