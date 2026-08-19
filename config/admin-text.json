@@ -32,6 +32,7 @@
     "manage": "Catalog & content",
     "sync": "Import",
     "catalog": "Catalog",
+    "attributes": "Attributes",
     "pages": "Content pages",
     "site": "Site",
     "version": "Version {version}",
@@ -190,7 +191,9 @@
     "stateLive": "Live only",
     "stateUnpublished": "Awaiting publication",
     "stateDeleted": "Deleted only",
-    "allCategories": "All categories"
+    "allCategories": "All categories",
+    "filterAttribute": "Attribute",
+    "clearAttribute": "Clear the attribute filter"
   },
   "categoryList": {
     "title": "Categories",
@@ -390,7 +393,7 @@
   },
   "attributeList": {
     "title": "Filterable attributes",
-    "intro": "A definition makes one product attribute filterable in the shop. Its name has to match the attribute's name on the products exactly — nothing is re-entered, and a definition added today applies to products entered long ago.",
+    "intro": "A definition makes one product attribute filterable in the shop. Its name has to match the attribute's name on the products exactly — nothing is re-entered, and a definition added today applies to products entered long ago. The counts cover the whole catalog, including unpublished and deleted products.",
     "add": "Add attribute",
     "name": "Name",
     "namePlaceholder": "Colour",
@@ -424,7 +427,26 @@
       "attribute-not-found": "This attribute no longer exists. Reload the page to see the current list.",
       "attribute-name-taken": "Another definition already uses that name.",
       "attribute-slug-taken": "Another definition already uses that URL key."
-    }
+    },
+    "toInventory": "Attributes in use"
+  },
+  "attributeInventory": {
+    "title": "Attributes in use",
+    "intro": "Every attribute key and value the products carry, whether or not the shop filters by it. Attribute text is matched exactly, so a misspelling sits next to the correct spelling here — rename it and every product carrying it follows. Counts and renames cover the whole catalog, including unpublished and deleted products.",
+    "toDefinitions": "Filterable attributes",
+    "filterable": "Filterable",
+    "products": "{count} product(s)",
+    "values": "{count} value(s)",
+    "notNumeric": "not a number",
+    "showProducts": "Show the products",
+    "renameKey": "Rename this attribute",
+    "renameValue": "Rename this value",
+    "newText": "New text",
+    "renameTitle": "Rename across the catalog",
+    "renameConfirm": "Rename “{from}” to “{to}” on every product carrying it?",
+    "mergeConfirm": "“{to}” is already in use. Renaming “{from}” merges the two — every product carrying “{from}” will carry “{to}” instead. Continue?",
+    "renameError": "This rename could not be saved. Please try again.",
+    "empty": "No product carries an attribute yet."
   },
   "userList": {
     "titleCustomers": "Customers",

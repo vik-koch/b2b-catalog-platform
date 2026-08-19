@@ -113,6 +113,17 @@ export const appRoutes: Route[] = [
         (m) => m.AttributeListPage,
       ),
   },
+  // The inventory is its own route rather than a tab: it is a different
+  // question (what is in the catalog, not what the shop filters by) and the
+  // drill-down links out of it into the product list.
+  {
+    path: 'admin/attributes/inventory',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/attributes/attribute-inventory-page').then(
+        (m) => m.AttributeInventoryPage,
+      ),
+  },
   // Tiers edit in place on one screen — two fields per tier, so no editor
   // route to pair with this one.
   {

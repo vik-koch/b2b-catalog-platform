@@ -34,6 +34,8 @@ export class AdminCatalogController {
           state: query.state ?? 'all',
           q: query.q ?? '',
           sort: query.sort ?? 'relevance',
+          attributeKey: query.attributeKey,
+          attributeValue: query.attributeValue,
         });
         return { status: 200, body };
       },

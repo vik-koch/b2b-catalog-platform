@@ -42,6 +42,7 @@ import {
   productPrices,
   products,
 } from '../db/schema';
+import { attributeFilterCondition } from './attribute-filter';
 import { categoryBySlug, descendantIds } from './catalog-tree';
 import {
   adminSearchCondition,
@@ -156,6 +157,13 @@ export class AdminCatalogService {
         ? and(isNull(products.deletedAt), isNull(products.publishedAt))
         : undefined,
       query.state === 'deleted' ? isNotNull(products.deletedAt) : undefined,
+      // The inventory's drill-down: the products carrying one attribute key,
+      // and optionally one of its values.
+      attributeFilterCondition(
+        this.db,
+        query.attributeKey,
+        query.attributeValue,
+      ),
       adminSearchCondition(query.q) ?? undefined,
     );
     // Only rank when the box holds something the name matcher could score; a

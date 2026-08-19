@@ -3,7 +3,11 @@ import {
   AttributeDefinition,
   AttributeDefinitionInput,
   AttributeErrorCode,
+  AttributeKeyUsage,
   attributesContract,
+  AttributeValueUsage,
+  RenameAttributeKeyRequest,
+  RenameAttributeValueRequest,
   ReorderAttributesRequest,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../../core/api-client';
@@ -60,6 +64,33 @@ export class AttributesService {
     const response = await this.client.reorderAttributes({ body });
     if (response.status === 200) return response.body.definitions;
     throw new Error(`Failed to reorder attributes (status ${response.status})`);
+  }
+
+  /** Every attribute key in use across the catalog, declared or freetext. */
+  async listKeys(): Promise<AttributeKeyUsage[]> {
+    const response = await this.client.listAttributeKeys();
+    if (response.status === 200) return response.body.keys;
+    throw new Error(`Failed to list attribute keys (${response.status})`);
+  }
+
+  /** The values in use under one key, numbers first and in numeric order. */
+  async listValues(key: string): Promise<AttributeValueUsage[]> {
+    const response = await this.client.listAttributeValues({ query: { key } });
+    if (response.status === 200) return response.body.values;
+    throw new Error(`Failed to list attribute values (${response.status})`);
+  }
+
+  /** Rewrites a key on every product carrying it; returns how many rows moved. */
+  async renameKey(body: RenameAttributeKeyRequest): Promise<number> {
+    const response = await this.client.renameAttributeKey({ body });
+    if (response.status === 200) return response.body.updated;
+    throw new Error(`Failed to rename the attribute (${response.status})`);
+  }
+
+  async renameValue(body: RenameAttributeValueRequest): Promise<number> {
+    const response = await this.client.renameAttributeValue({ body });
+    if (response.status === 200) return response.body.updated;
+    throw new Error(`Failed to rename the value (${response.status})`);
   }
 
   /**

@@ -201,9 +201,11 @@ describe('POST /media (0021)', () => {
       ).data;
 
       const body = `<p>Intro</p><img src="${url}" alt="Our roastery" data-align="center" data-width="600">`;
+      // Not `about`: the page suite rewrites that one, and two suites editing
+      // the same page race each other.
       const save = await axios.put(
-        '/pages/about',
-        { title: 'About', bodyHtml: body },
+        '/pages/imprint',
+        { title: 'Imprint', bodyHtml: body },
         { headers: { Cookie: adminCookie }, validateStatus: () => true },
       );
 

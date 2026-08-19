@@ -5,29 +5,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import {
-  and,
-  asc,
-  countDistinct,
-  eq,
-  inArray,
-  isNull,
-  ne,
-  sql,
-} from 'drizzle-orm';
+import { and, asc, countDistinct, eq, inArray, ne, sql } from 'drizzle-orm';
 import {
   AttributeDefinition,
   AttributeDefinitionInput,
+  AttributeKeyUsage,
+  AttributeValueUsage,
+  parseAttributeNumber,
+  RenameAttributeKeyRequest,
+  RenameAttributeValueRequest,
   ReorderAttributesRequest,
   slugify,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import {
-  attributeDefinitions,
-  productAttributes,
-  products,
-} from '../db/schema';
+import { attributeDefinitions, productAttributes } from '../db/schema';
 
 /** The one 404 this surface has; a function so each throw gets its own stack. */
 const notFound = () =>
@@ -46,6 +38,16 @@ type Usage = {
 const NO_USAGE: Usage = { productCount: 0, valueCount: 0, unparsedCount: 0 };
 
 /**
+ * The numeric column's value for a piece of attribute text. `numeric` columns
+ * are strings on the way in, which is also how the product write path stores
+ * them.
+ */
+function numericColumnValue(value: string): string | null {
+  const parsed = parseAttributeNumber(value);
+  return parsed === null ? null : String(parsed);
+}
+
+/**
  * The filterable-attribute registry (FR-ATTR-01).
  *
  * A definition is metadata only: it names an attribute key staff already type
@@ -57,6 +59,10 @@ const NO_USAGE: Usage = { productCount: 0, valueCount: 0, unparsedCount: 0 };
  * The counts each definition carries exist for one reason: matching is exact,
  * so a definition whose name is mistyped matches nothing, and the earliest
  * place that can be seen is this list.
+ *
+ * Every count on this surface is taken over the catalog as stored —
+ * unpublished and soft-deleted products included — so that counting, renaming
+ * and drilling down all describe the same set of products. See `usageFor`.
  */
 @Injectable()
 export class AttributesService {
@@ -184,6 +190,124 @@ export class AttributesService {
     return this.listAttributes();
   }
 
+  /**
+   * Every attribute key in use across the catalog, declared or not
+   * (FR-ATTR-09), in alphabetical order — which is the whole point of the
+   * screen: matching is exact, so "Colour" and "colour" are two keys, and
+   * ordering by name is what puts a typo next to its correct spelling.
+   */
+  async listAttributeKeys(): Promise<AttributeKeyUsage[]> {
+    const [rows, definitions] = await Promise.all([
+      this.db
+        .select({
+          key: productAttributes.key,
+          productCount: countDistinct(productAttributes.productId),
+          valueCount: countDistinct(productAttributes.value),
+        })
+        .from(productAttributes)
+        .groupBy(productAttributes.key)
+        .orderBy(asc(productAttributes.key)),
+      this.db
+        .select({
+          id: attributeDefinitions.id,
+          name: attributeDefinitions.name,
+          type: attributeDefinitions.type,
+        })
+        .from(attributeDefinitions),
+    ]);
+
+    const declared = new Map(
+      definitions.map(({ name, ...definition }) => [name, definition]),
+    );
+    return rows.map((row) => ({
+      ...row,
+      definition: declared.get(row.key) ?? null,
+    }));
+  }
+
+  /**
+   * The values one key carries. Numbers first, in numeric order, then the rest
+   * alphabetically: a list of sizes reading 10, 9, 100 is unusable, and the
+   * numeric form is already on the row whether or not the key is declared.
+   */
+  async listAttributeValues(key: string): Promise<AttributeValueUsage[]> {
+    const rows = await this.db
+      .select({
+        value: productAttributes.value,
+        productCount: countDistinct(productAttributes.productId),
+        numeric: sql<boolean>`bool_or(${productAttributes.valueNumeric} is not null)`,
+        // Grouped by text, so every row of a group shares one numeric form;
+        // max() is just how a group carries it into the ordering.
+        sortValue: sql<string | null>`max(${productAttributes.valueNumeric})`,
+      })
+      .from(productAttributes)
+      .where(eq(productAttributes.key, key))
+      .groupBy(productAttributes.value)
+      .orderBy(
+        sql`max(${productAttributes.valueNumeric}) asc nulls last`,
+        asc(productAttributes.value),
+      );
+
+    return rows.map(({ value, productCount, numeric }) => ({
+      value,
+      productCount,
+      numeric,
+    }));
+  }
+
+  /**
+   * Renames a key on every product carrying it, in one statement. Renaming
+   * onto a key already in use merges the two, which is the usual reason for
+   * doing it.
+   *
+   * Soft-deleted products are rewritten too — a restored product must not come
+   * back carrying the spelling the rest of the catalog has left behind — which
+   * is exactly the set the counts describe.
+   */
+  async renameAttributeKey(
+    request: RenameAttributeKeyRequest,
+  ): Promise<{ updated: number }> {
+    if (request.from === request.to) return { updated: 0 };
+
+    const updated = await this.db
+      .update(productAttributes)
+      .set({ key: request.to })
+      .where(eq(productAttributes.key, request.from))
+      .returning({ productId: productAttributes.productId });
+
+    return { updated: updated.length };
+  }
+
+  /**
+   * Renames one value under one key. Scoped to the key on purpose: "Blue" under
+   * Colour has nothing to do with "Blue" under Finish.
+   *
+   * The numeric form is re-parsed from the new text, so correcting "ca. 30" to
+   * "30" puts the product back into that number attribute's filter — the only
+   * write path where a value changes without the product editor.
+   */
+  async renameAttributeValue(
+    request: RenameAttributeValueRequest,
+  ): Promise<{ updated: number }> {
+    if (request.from === request.to) return { updated: 0 };
+
+    const updated = await this.db
+      .update(productAttributes)
+      .set({
+        value: request.to,
+        valueNumeric: numericColumnValue(request.to),
+      })
+      .where(
+        and(
+          eq(productAttributes.key, request.key),
+          eq(productAttributes.value, request.from),
+        ),
+      )
+      .returning({ productId: productAttributes.productId });
+
+    return { updated: updated.length };
+  }
+
   private async definitionById(id: string) {
     const [row] = await this.db
       .select()
@@ -194,9 +318,19 @@ export class AttributesService {
 
   /**
    * Usage per attribute key, in one grouped pass over the rows of the named
-   * keys. Soft-deleted products are excluded — they are out of the catalog —
-   * but unpublished ones are not: this is the admin's own view, and a
-   * definition that only matches drafts still matches something.
+   * keys.
+   *
+   * Counted over the catalog **as stored** — unpublished and soft-deleted
+   * products included. That is the rule every admin-side attribute number
+   * follows, and it is chosen so the three things an admin does with these
+   * counts agree: a rename rewrites exactly the rows counted here (a
+   * soft-deleted product must not come back carrying a spelling the rest of
+   * the catalog has left behind), and the drill-down lands on the admin
+   * product grid, whose own default shows unpublished and deleted rows too.
+   *
+   * The storefront's facet counts are the opposite and must stay so: they
+   * apply the publication gate and the soft delete, because they describe what
+   * a visitor can actually reach.
    */
   private async usageFor(names: string[]): Promise<Map<string, Usage>> {
     if (names.length === 0) return new Map();
@@ -214,10 +348,7 @@ export class AttributesService {
         ),
       })
       .from(productAttributes)
-      .innerJoin(products, eq(products.id, productAttributes.productId))
-      .where(
-        and(inArray(productAttributes.key, names), isNull(products.deletedAt)),
-      )
+      .where(inArray(productAttributes.key, names))
       .groupBy(productAttributes.key);
 
     return new Map(rows.map(({ key, ...usage }) => [key, usage]));

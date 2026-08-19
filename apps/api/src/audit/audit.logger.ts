@@ -18,6 +18,9 @@ export type AuditAction =
   | 'attribute.updated'
   | 'attribute.reordered'
   | 'attribute.deleted'
+  // Renames rewrite product data across the whole catalog in one statement.
+  | 'attribute.keyRenamed'
+  | 'attribute.valueRenamed'
   | 'tier.created'
   | 'tier.updated'
   | 'tier.reordered'
