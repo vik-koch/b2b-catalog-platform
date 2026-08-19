@@ -2,6 +2,7 @@ export * from './lib/account.contract';
 export * from './lib/api-error';
 export * from './lib/admin-catalog.contract';
 export * from './lib/attribute-value';
+export * from './lib/attributes.contract';
 export * from './lib/auth.contract';
 export * from './lib/catalog.contract';
 export * from './lib/contact-format';
