@@ -1,6 +1,7 @@
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, resource, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   AttributeDefinition,
   AttributeType,
@@ -40,6 +41,7 @@ type EditTarget = { id: string } | { id: null } | null;
   selector: 'app-attribute-list-page',
   imports: [
     NgTemplateOutlet,
+    RouterLink,
     Button,
     AdminIcon,
     Input,
@@ -50,16 +52,27 @@ type EditTarget = { id: string } | { id: null } | null;
   template: `
     <div class="mb-4 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-      <button
-        appButton
-        type="button"
-        class="gap-2"
-        [disabled]="editing() !== null"
-        (click)="startAdd()"
-      >
-        <app-admin-icon name="plus" class="h-4 w-4" />
-        {{ text.add }}
-      </button>
+      <div class="flex items-center gap-2">
+        <!-- The inventory answers the other half of the question: this list is
+             what the shop filters by, that one is what the products carry. -->
+        <a
+          appButton
+          variant="secondary"
+          routerLink="/admin/attributes/inventory"
+        >
+          {{ text.toInventory }}
+        </a>
+        <button
+          appButton
+          type="button"
+          class="gap-2"
+          [disabled]="editing() !== null"
+          (click)="startAdd()"
+        >
+          <app-admin-icon name="plus" class="h-4 w-4" />
+          {{ text.add }}
+        </button>
+      </div>
     </div>
 
     <p class="mb-6 max-w-xl text-sm text-muted">{{ text.intro }}</p>

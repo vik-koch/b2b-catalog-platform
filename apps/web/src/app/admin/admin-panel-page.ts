@@ -45,15 +45,18 @@ import { BuildInfoService } from './build-info.service';
           {{ panelText.manage }}
         </h2>
         <div class="rounded-lg border border-border">
-          <!-- Stacked below sm, where three columns would leave each too narrow
-               for its buttons; the divider turns with them. -->
+          <!-- Four groups, one track each, in the order the work happens:
+               import, then the catalog itself, then how its products are
+               described, then what they cost. Stacked below sm, where the
+               columns would each be too narrow for their buttons; the divider
+               turns with them. -->
           <div
-            class="grid divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0"
+            class="grid divide-y divide-border sm:grid-cols-4 sm:divide-x sm:divide-y-0"
           >
             <div class="p-5">
               <!-- The status rides on the heading line rather than under the
                    button: it describes the column, not the action, and up here
-                   it leaves all three columns ending on their button.
+                   it leaves every column ending on its buttons.
                    Wraps to its own line where the column is too narrow. -->
               <div class="mb-3 flex flex-wrap items-center gap-2">
                 <h3 class="text-sm font-semibold">{{ panelText.sync }}</h3>
@@ -100,6 +103,24 @@ import { BuildInfoService } from './build-info.service';
                     {{ productText.title }}
                   </a>
                 </li>
+              </ul>
+            </div>
+
+            <!-- Attributes are their own group: one screen declares what the
+                 shop filters by, the other shows what the products actually
+                 carry. Both are about how a product is described rather than
+                 about the catalog's structure. -->
+            <div class="p-5">
+              <h3
+                id="admin-attributes-heading"
+                class="mb-3 text-sm font-semibold"
+              >
+                {{ panelText.attributes }}
+              </h3>
+              <ul
+                class="flex flex-wrap gap-3"
+                aria-labelledby="admin-attributes-heading"
+              >
                 <li>
                   <a
                     appButton
@@ -107,6 +128,15 @@ import { BuildInfoService } from './build-info.service';
                     routerLink="/admin/attributes"
                   >
                     {{ attributeText.title }}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    appButton
+                    variant="secondary"
+                    routerLink="/admin/attributes/inventory"
+                  >
+                    {{ inventoryText.title }}
                   </a>
                 </li>
               </ul>
@@ -227,6 +257,7 @@ export class AdminPanelPage {
   protected readonly productText = inject(ADMIN_TEXT).productList;
   protected readonly categoryText = inject(ADMIN_TEXT).categoryList;
   protected readonly attributeText = inject(ADMIN_TEXT).attributeList;
+  protected readonly inventoryText = inject(ADMIN_TEXT).attributeInventory;
   protected readonly tierText = inject(ADMIN_TEXT).tierList;
   protected readonly userText = inject(ADMIN_TEXT).userList;
   protected readonly navText = inject(APP_TEXT).nav;

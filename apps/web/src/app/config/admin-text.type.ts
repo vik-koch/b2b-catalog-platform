@@ -71,6 +71,8 @@ export const adminTextSchema = z
         manage: z.string(),
         sync: z.string(),
         catalog: z.string(),
+        /** Heading of the group holding the registry and the inventory. */
+        attributes: z.string(),
         pages: z.string(),
         pricing: z.string(),
         accounts: z.string(),
@@ -278,6 +280,9 @@ export const adminTextSchema = z
          * text is the selected value rather than a label. */
         filterState: z.string(),
         filterCategory: z.string(),
+        /** The attribute drill-down's chip, which has no column to sit in. */
+        filterAttribute: z.string(),
+        clearAttribute: z.string(),
         stateAll: z.string(),
         stateLive: z.string(),
         stateUnpublished: z.string(),
@@ -574,6 +579,8 @@ export const adminTextSchema = z
         slug: z.string(),
         slugPlaceholder: z.string(),
         slugInvalid: z.string(),
+        /** The way over to the inventory of everything actually in use. */
+        toInventory: z.string(),
         /** Usage per row. `{count}` substituted at render. */
         products: z.string(),
         values: z.string(),
@@ -599,6 +606,37 @@ export const adminTextSchema = z
             'attribute-slug-taken': z.string(),
           })
           .strict(),
+      })
+      .strict(),
+    /**
+     * The attribute inventory (FR-ATTR-09) — every key and value the products
+     * carry. Its wording is about renaming, because that is the only thing
+     * this screen changes, and a rename here rewrites the whole catalog.
+     */
+    attributeInventory: z
+      .object({
+        title: z.string(),
+        intro: z.string(),
+        toDefinitions: z.string(),
+        /** Badge on a key the shop already filters by. */
+        filterable: z.string(),
+        /** Usage per row. `{count}` substituted at render. */
+        products: z.string(),
+        values: z.string(),
+        /** Marks a value that drops out of a number attribute's filter. */
+        notNumeric: z.string(),
+        showProducts: z.string(),
+        renameKey: z.string(),
+        renameValue: z.string(),
+        newText: z.string(),
+        /** Rename confirmation. `{from}`/`{to}` substituted. `mergeConfirm`
+         * replaces it where the new text is already in use, since that is a
+         * merge and not a correction. */
+        renameTitle: z.string(),
+        renameConfirm: z.string(),
+        mergeConfirm: z.string(),
+        renameError: z.string(),
+        empty: z.string(),
       })
       .strict(),
     /**

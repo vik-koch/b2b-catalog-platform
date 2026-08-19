@@ -72,6 +72,36 @@ import { AdminListHeader } from '../list-header';
       </a>
     </app-admin-list-header>
 
+    <!-- The attribute filter has no column to live in, so it says what it is
+         doing here and carries its own way out. Arrived at from the attribute
+         inventory, which is the only thing that sets it. -->
+    @if (attributeFilter(); as attribute) {
+      <p class="mb-4 flex flex-wrap items-center gap-2 text-sm">
+        <span
+          class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1"
+        >
+          <span class="text-subtle">{{ text.filterAttribute }}</span>
+          <span class="font-medium">{{ attribute.key }}</span>
+          @if (attribute.value) {
+            <span class="font-medium">= {{ attribute.value }}</span>
+          }
+          <a
+            routerLink="."
+            [queryParams]="{
+              attributeKey: null,
+              attributeValue: null,
+              page: null,
+            }"
+            queryParamsHandling="merge"
+            class="text-stone-400 hover:text-red-700"
+            [attr.aria-label]="text.clearAttribute"
+          >
+            <app-admin-icon name="x" class="h-4 w-4" />
+          </a>
+        </span>
+      </p>
+    }
+
     @if (products.error()) {
       <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
     } @else if (shown(); as data) {
@@ -386,12 +416,28 @@ export class ProductListPage {
    * page, and anything that is not one fails contract validation. */
   readonly categoryId = input('');
 
+  /**
+   * Where the attribute inventory drills down to (FR-ATTR-09): the products
+   * carrying one attribute key, optionally narrowed to one of its values. It
+   * has no column of its own — attributes are not in the grid — so it is shown
+   * as a chip above the table, which is also how it is cleared.
+   */
+  readonly attributeKey = input('');
+  readonly attributeValue = input('');
+  /** The value only qualifies a key; on its own there is nothing to show. */
+  protected readonly attributeFilter = computed(() =>
+    this.attributeKey()
+      ? { key: this.attributeKey(), value: this.attributeValue() || null }
+      : null,
+  );
+
   /** Whether anything is narrowing the list, which is what separates "no
    * products" from "no matches". */
   protected readonly filtered = computed(
     () =>
       !!this.query() ||
       !!this.categoryId() ||
+      !!this.attributeFilter() ||
       this.stateKey() !== DEFAULT_ADMIN_STATE,
   );
 
@@ -427,6 +473,8 @@ export class ProductListPage {
       sort: this.sortKey(),
       state: this.stateKey(),
       categoryId: this.categoryId() || undefined,
+      attributeKey: this.attributeKey() || undefined,
+      attributeValue: this.attributeValue() || undefined,
     }),
     loader: ({ params }) => this.admin.listProducts(params),
   });

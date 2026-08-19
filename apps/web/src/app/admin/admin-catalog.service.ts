@@ -166,6 +166,9 @@ export interface ProductGridQuery {
   state?: AdminProductState;
   q?: string;
   sort?: AdminProductSort;
+  /** The inventory's drill-down; the value only narrows an already-given key. */
+  attributeKey?: string;
+  attributeValue?: string;
 }
 
 /**
