@@ -37,6 +37,8 @@ async function render(
     keys?: AttributeKeyUsage[];
     values?: AttributeValueUsage[];
     confirmed?: boolean;
+    /** The `?key=` a link into this screen carries. */
+    key?: string;
   } = {},
 ) {
   const service = {
@@ -59,6 +61,9 @@ async function render(
     ],
   });
   const fixture = TestBed.createComponent(AttributeInventoryPage);
+  if (options.key !== undefined) {
+    fixture.componentRef.setInput('key', options.key);
+  }
   await fixture.whenStable();
   fixture.detectChanges();
 
@@ -246,6 +251,39 @@ describe('AttributeInventoryPage', () => {
       key: 'Colour',
       from: 'blu',
       to: 'Blue',
+    });
+  });
+
+  it('opens the key a link handed it, values and all', async () => {
+    // How the product editor's grid hands a row over: the name it carries is
+    // the row that should already be open.
+    const { el, service } = await render({
+      keys: [key({ key: 'Colour' }), key({ key: 'Roast' })],
+      values: [value({ value: 'Blue' })],
+      key: 'Colour',
+    });
+
+    expect(service.listValues).toHaveBeenCalledWith('Colour');
+    expect(el.textContent).toContain('Blue');
+  });
+
+  it('names an empty value, and renames it in one statement', async () => {
+    const { el, service, press, type, submit } = await render({
+      keys: [key({ key: 'Roast' })],
+      values: [value({ value: '' })],
+      key: 'Roast',
+    });
+
+    expect(el.textContent).toContain(text.emptyValue);
+
+    await press(text.renameValue);
+    await type('Dark');
+    await submit();
+
+    expect(service.renameValue).toHaveBeenCalledWith({
+      key: 'Roast',
+      from: '',
+      to: 'Dark',
     });
   });
 

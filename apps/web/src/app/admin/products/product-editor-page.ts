@@ -465,6 +465,17 @@ export class ProductEditorPage implements UnsavedChangesAware {
     this.loading.set(false);
   }
 
+  /**
+   * What a save sends. A row with no value states nothing — the picker adds one
+   * per name picked, and the ones left unfilled are simply not saved; the server
+   * applies the same rule, so what comes back matches what was sent.
+   */
+  private storedAttributes(): ProductAttribute[] {
+    return this.attributes().filter(
+      (a) => a.key.trim() !== '' && a.value.trim() !== '',
+    );
+  }
+
   private snapshot(): string {
     return JSON.stringify({
       name: this.name(),
@@ -587,8 +598,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
       priceMinor,
       categoryId: this.categoryId(),
       descriptionHtml: this.description(),
-      // Drop rows with no key — a value without a name is meaningless.
-      attributes: this.attributes().filter((a) => a.key.trim() !== ''),
+      // Half-filled rows are dropped: a value with no name is meaningless, and
+      // a name with no value states nothing.
+      attributes: this.storedAttributes(),
       images: this.images(),
       // The full set: a tier the admin cleared is absent here, and the server
       // takes that as "remove the override".

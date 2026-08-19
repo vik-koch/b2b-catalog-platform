@@ -119,6 +119,22 @@ describe('ProductDetail', () => {
     expect(values).toEqual(['1 kg', '200']);
   });
 
+  it('leaves out an attribute with no value', async () => {
+    // Stored before valueless attributes stopped being saved: a row here would
+    // print a label with nothing beside it.
+    const root = el(
+      await render({
+        ...product,
+        attributes: [...product.attributes, { key: 'Roast', value: '' }],
+      }),
+    );
+
+    const keys = [...root.querySelectorAll('tbody th')].map((n) =>
+      n.textContent?.trim(),
+    );
+    expect(keys).toEqual(['Net weight', 'Count per package']);
+  });
+
   it('shows a not-found message when the product does not exist', async () => {
     const root = el(await render(null));
 

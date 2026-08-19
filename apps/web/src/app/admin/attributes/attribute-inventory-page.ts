@@ -1,5 +1,12 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, inject, resource, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  linkedSignal,
+  resource,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
@@ -98,7 +105,7 @@ type RenameTarget =
                           [queryParams]="{ attributeKey: entry.key }"
                           [attr.aria-label]="text.showProducts"
                         >
-                          <app-admin-icon name="list" class="h-4 w-4" />
+                          <app-admin-icon name="square-menu" class="h-4 w-4" />
                         </a>
                         <button
                           type="button"
@@ -139,8 +146,14 @@ type RenameTarget =
                               <div
                                 class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
                               >
-                                <span class="text-stone-700">
-                                  {{ value.value }}
+                                <!-- An empty value is a row stored before
+                                     valueless attributes stopped being saved.
+                                     Named, or it reads as a rendering fault. -->
+                                <span
+                                  class="text-stone-700"
+                                  [class.text-muted]="value.value === ''"
+                                >
+                                  {{ value.value || text.emptyValue }}
                                 </span>
                                 <span class="text-subtle">
                                   {{ productsLabel(value.productCount) }}
@@ -265,8 +278,17 @@ export class AttributeInventoryPage {
   protected readonly keys = resource({ loader: () => this.service.listKeys() });
   protected readonly showSkeleton = delayedLoading(this.keys.isLoading);
 
+  /**
+   * Which key arrives open, from the URL — how the product editor's grid hands
+   * a row over: the question there ("what does the rest of the catalog call
+   * this, and with which values?") is answered by this row, expanded.
+   */
+  readonly key = input('');
+
   /** The key whose values are open; one at a time, so the list stays scannable. */
-  protected readonly expanded = signal<string | null>(null);
+  protected readonly expanded = linkedSignal<string | null>(
+    () => this.key() || null,
+  );
   protected readonly values = resource({
     params: () => ({ key: this.expanded() }),
     loader: ({ params }) =>
@@ -331,7 +353,9 @@ export class AttributeInventoryPage {
     const confirmed = await this.confirm.ask({
       heading: this.text.renameTitle,
       message: (merges ? this.text.mergeConfirm : this.text.renameConfirm)
-        .replace('{from}', from)
+        // An empty value has to be named here too, or the sentence has a hole
+        // in it where the thing being renamed should be.
+        .replace('{from}', from || this.text.emptyValue)
         .replace('{to}', to),
       confirmLabel: this.common.save,
       cancelLabel: this.common.cancel,

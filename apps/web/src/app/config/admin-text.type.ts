@@ -625,6 +625,8 @@ export const adminTextSchema = z
         values: z.string(),
         /** Marks a value that drops out of a number attribute's filter. */
         notNumeric: z.string(),
+        /** Stands in for a value that is empty, so the row is not a blank. */
+        emptyValue: z.string(),
         showProducts: z.string(),
         renameKey: z.string(),
         renameValue: z.string(),

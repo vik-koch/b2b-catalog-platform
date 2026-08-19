@@ -438,6 +438,7 @@
     "products": "{count} product(s)",
     "values": "{count} value(s)",
     "notNumeric": "not a number",
+    "emptyValue": "(no value)",
     "showProducts": "Show the products",
     "renameKey": "Rename this attribute",
     "renameValue": "Rename this value",

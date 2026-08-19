@@ -222,6 +222,25 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(res.data).not.toHaveProperty('id');
     });
 
+    it('does not store an attribute with no value', async () => {
+      // The key picker adds a row per name picked; the ones left unfilled state
+      // nothing, and would print a dangling label on the product page.
+      const res = await createProduct({
+        name: `Half-filled ${R}`,
+        attributes: [
+          { key: 'Roast', value: 'Dark' },
+          { key: 'Origin', value: '' },
+        ],
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.data.attributes).toEqual([{ key: 'Roast', value: 'Dark' }]);
+
+      // And it is the stored set that comes back on the next read.
+      const read = await adminGet(`/admin/catalog/products/${res.data.slug}`);
+      expect(read.data.attributes).toEqual([{ key: 'Roast', value: 'Dark' }]);
+    });
+
     it('transliterates a non-Latin name into a URL-safe slug', async () => {
       const res = await createProduct({ name: 'Молоко Тест' });
 
