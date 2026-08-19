@@ -28,6 +28,7 @@ const TIER_KEY = `e2e-admincat-${R}`;
 
 const PRODUCT_KEYS = [
   'attributes',
+  'boxCount',
   'boxVolume',
   'boxWeight',
   'categoryId',
