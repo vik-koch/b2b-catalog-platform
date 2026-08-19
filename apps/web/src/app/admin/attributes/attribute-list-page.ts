@@ -228,20 +228,24 @@ type EditTarget = { id: string } | { id: null } | null;
             </select>
           </app-select-field>
         </div>
-        <div>
-          <label appFieldLabel for="attribute-unit">{{ text.unit }}</label>
-          <input
-            appInput
-            size="sm"
-            id="attribute-unit"
-            name="unit"
-            class="w-24"
-            autocomplete="off"
-            [value]="draftUnit()"
-            [placeholder]="text.unitPlaceholder"
-            (input)="draftUnit.set($any($event.target).value)"
-          />
-        </div>
+        <!-- A unit measures a quantity: a text attribute has none, and the
+             field would only invite "Blue cm". -->
+        @if (draftType() === 'number') {
+          <div>
+            <label appFieldLabel for="attribute-unit">{{ text.unit }}</label>
+            <input
+              appInput
+              size="sm"
+              id="attribute-unit"
+              name="unit"
+              class="w-24"
+              autocomplete="off"
+              [value]="draftUnit()"
+              [placeholder]="text.unitPlaceholder"
+              (input)="draftUnit.set($any($event.target).value)"
+            />
+          </div>
+        }
         <div>
           <label appFieldLabel for="attribute-slug">{{ text.slug }}</label>
           <input
@@ -417,7 +421,9 @@ export class AttributeListPage {
       name,
       slug: slug || undefined,
       type: this.draftType(),
-      unit: unit || null,
+      // Retyping to text drops the unit the server would drop anyway, so the
+      // form and the row agree the moment the save returns.
+      unit: this.draftType() === 'number' ? unit || null : null,
     };
 
     this.busy.set(true);

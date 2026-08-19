@@ -38,6 +38,16 @@ type Usage = {
 const NO_USAGE: Usage = { productCount: 0, valueCount: 0, unparsedCount: 0 };
 
 /**
+ * A unit measures a quantity, so only a `number` attribute keeps one: "Blue cm"
+ * is not a value anybody wants rendered. Dropped rather than refused — the same
+ * temperament as the rest of this surface, where retyping a definition silently
+ * changes what its values mean.
+ */
+function unitFor(input: AttributeDefinitionInput): string | null {
+  return input.type === 'number' ? input.unit || null : null;
+}
+
+/**
  * The numeric column's value for a piece of attribute text. `numeric` columns
  * are strings on the way in, which is also how the product write path stores
  * them.
@@ -107,7 +117,7 @@ export class AttributesService {
         name: input.name,
         slug,
         type: input.type,
-        unit: input.unit || null,
+        unit: unitFor(input),
         sortOrder: maxOrder + 1,
         updatedBy: actorId,
       })
@@ -139,7 +149,7 @@ export class AttributesService {
         name: input.name,
         slug,
         type: input.type,
-        unit: input.unit || null,
+        unit: unitFor(input),
         updatedAt: new Date(),
         updatedBy: actorId,
       })
