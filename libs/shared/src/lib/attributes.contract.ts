@@ -109,6 +109,80 @@ export const ATTRIBUTE_ERROR_CODES = [
 export type AttributeErrorCode = (typeof ATTRIBUTE_ERROR_CODES)[number];
 const attributeErrorSchema = apiErrorSchema(ATTRIBUTE_ERROR_CODES);
 
+/**
+ * One attribute key in use across the catalog, defined or freetext
+ * (FR-ATTR-09). This is the inventory's row, and it is deliberately not the
+ * registry's: a key nobody declared is exactly what an admin comes here to
+ * find.
+ */
+export const attributeKeyUsageSchema = z
+  .object({
+    key: z.string(),
+    productCount: z.number().int().nonnegative(),
+    valueCount: z.number().int().nonnegative(),
+    /**
+     * The definition matching this key exactly, if there is one. Its type
+     * comes along because it decides what the values mean here: under a number
+     * attribute, a value with no numeric form is a finding.
+     */
+    definition: z
+      .object({ id: z.string().uuid(), type: attributeTypeSchema })
+      .strict()
+      .nullable(),
+  })
+  .strict();
+export type AttributeKeyUsage = z.infer<typeof attributeKeyUsageSchema>;
+
+/** One value in use under a key, with the products carrying it. */
+export const attributeValueUsageSchema = z
+  .object({
+    value: z.string(),
+    productCount: z.number().int().nonnegative(),
+    /** Whether the value has a numeric form — a number facet drops the rest. */
+    numeric: z.boolean(),
+  })
+  .strict();
+export type AttributeValueUsage = z.infer<typeof attributeValueUsageSchema>;
+
+/**
+ * A rename across every product carrying the text. Renaming *is* the
+ * correction path: attribute text is matched exactly, so a typo is visible in
+ * the inventory rather than silently merged, and this is what fixes it in one
+ * statement instead of forty product saves.
+ *
+ * Renaming onto text already in use merges the two, which is the usual reason
+ * for doing it.
+ */
+export const renameAttributeKeySchema = z
+  .object({
+    from: z.string().trim().min(1).max(ATTRIBUTE_NAME_MAX_LENGTH),
+    to: z.string().trim().min(1).max(ATTRIBUTE_NAME_MAX_LENGTH),
+  })
+  .strict();
+export type RenameAttributeKeyRequest = z.infer<
+  typeof renameAttributeKeySchema
+>;
+
+/** Longest attribute value we store (matches the `value` varchar). */
+export const ATTRIBUTE_VALUE_MAX_LENGTH = 2000;
+
+/** Scoped to one key: renaming "Blue" must not touch an unrelated attribute. */
+export const renameAttributeValueSchema = z
+  .object({
+    key: z.string().trim().min(1).max(ATTRIBUTE_NAME_MAX_LENGTH),
+    from: z.string().trim().min(1).max(ATTRIBUTE_VALUE_MAX_LENGTH),
+    to: z.string().trim().min(1).max(ATTRIBUTE_VALUE_MAX_LENGTH),
+  })
+  .strict();
+export type RenameAttributeValueRequest = z.infer<
+  typeof renameAttributeValueSchema
+>;
+
+/** How many product attributes a rename rewrote. */
+export const renameResultSchema = z
+  .object({ updated: z.number().int().nonnegative() })
+  .strict();
+
 export const attributesContract = c.router(
   {
     listAttributes: {
@@ -120,6 +194,45 @@ export const attributesContract = c.router(
           .strict(),
       },
       summary: 'List the filterable attribute definitions (admin)',
+    },
+    listAttributeKeys: {
+      method: 'GET',
+      path: '/admin/attributes/inventory',
+      responses: {
+        200: z.object({ keys: z.array(attributeKeyUsageSchema) }).strict(),
+      },
+      summary: 'List every attribute key in use, defined or freetext (admin)',
+    },
+    listAttributeValues: {
+      method: 'GET',
+      path: '/admin/attributes/inventory/values',
+      query: z.object({
+        key: z.string().min(1).max(ATTRIBUTE_NAME_MAX_LENGTH),
+      }),
+      responses: {
+        200: z
+          .object({
+            key: z.string(),
+            values: z.array(attributeValueUsageSchema),
+          })
+          .strict(),
+      },
+      summary: 'List the values in use under one attribute key (admin)',
+    },
+    renameAttributeKey: {
+      method: 'POST',
+      path: '/admin/attributes/inventory/rename-key',
+      body: renameAttributeKeySchema,
+      responses: { 200: renameResultSchema },
+      summary: 'Rename an attribute key across all products (admin)',
+    },
+    renameAttributeValue: {
+      method: 'POST',
+      path: '/admin/attributes/inventory/rename-value',
+      body: renameAttributeValueSchema,
+      responses: { 200: renameResultSchema },
+      summary:
+        "Rename one of an attribute's values across all products (admin)",
     },
     createAttribute: {
       method: 'POST',

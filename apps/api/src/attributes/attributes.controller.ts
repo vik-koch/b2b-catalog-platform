@@ -29,6 +29,78 @@ export class AttributesController {
     });
   }
 
+  /**
+   * The inventory (FR-ATTR-09) — every key in use, declared or freetext. It
+   * reads product data, but it is keyed by attribute rather than by product,
+   * which is why it lives here and not on the catalog surface.
+   */
+  @TsRestHandler(attributesContract.listAttributeKeys, {
+    validateResponses: true,
+  })
+  listAttributeKeys() {
+    return tsRestHandler(attributesContract.listAttributeKeys, async () => {
+      return {
+        status: 200,
+        body: { keys: await this.service.listAttributeKeys() },
+      };
+    });
+  }
+
+  @TsRestHandler(attributesContract.listAttributeValues, {
+    validateResponses: true,
+  })
+  listAttributeValues() {
+    return tsRestHandler(
+      attributesContract.listAttributeValues,
+      async ({ query: { key } }) => {
+        return {
+          status: 200,
+          body: { key, values: await this.service.listAttributeValues(key) },
+        };
+      },
+    );
+  }
+
+  /**
+   * Both renames rewrite product data across the catalog in one statement, so
+   * both are audited with the text on either side — the trail is what makes a
+   * merge answerable afterwards.
+   */
+  @TsRestHandler(attributesContract.renameAttributeKey, {
+    validateResponses: true,
+  })
+  renameAttributeKey(@CurrentUser() user: AuthUser) {
+    return tsRestHandler(
+      attributesContract.renameAttributeKey,
+      async ({ body }) => {
+        const result = await this.service.renameAttributeKey(body);
+        // The trail's `name` carries both spellings and the row count: a
+        // rename is a merge as often as a correction, and afterwards the
+        // question is always which text absorbed which.
+        this.audit.record('attribute.keyRenamed', user, {
+          name: `${body.from} → ${body.to} (${result.updated})`,
+        });
+        return { status: 200, body: result };
+      },
+    );
+  }
+
+  @TsRestHandler(attributesContract.renameAttributeValue, {
+    validateResponses: true,
+  })
+  renameAttributeValue(@CurrentUser() user: AuthUser) {
+    return tsRestHandler(
+      attributesContract.renameAttributeValue,
+      async ({ body }) => {
+        const result = await this.service.renameAttributeValue(body);
+        this.audit.record('attribute.valueRenamed', user, {
+          name: `${body.key}: ${body.from} → ${body.to} (${result.updated})`,
+        });
+        return { status: 200, body: result };
+      },
+    );
+  }
+
   @TsRestHandler(attributesContract.createAttribute, {
     validateResponses: true,
   })

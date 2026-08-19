@@ -9,6 +9,10 @@ import {
   SEARCH_QUERY_MAX_LENGTH,
 } from './catalog.contract';
 import { basisDividesQuantities } from './product-units';
+import {
+  ATTRIBUTE_NAME_MAX_LENGTH,
+  ATTRIBUTE_VALUE_MAX_LENGTH,
+} from './attributes.contract';
 import { slugSchema } from './slug';
 
 /** Admin grid page size — denser than the storefront's, for scanning. */
@@ -295,6 +299,15 @@ export const adminProductListQuerySchema = z.object({
   state: adminProductStateSchema.optional().default('all'),
   q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
   sort: adminProductSortSchema.optional().default('relevance'),
+  /**
+   * Where the attribute inventory's drill-down lands (FR-ADM-05, FR-ATTR-09):
+   * the products carrying one attribute key, optionally narrowed to one of its
+   * values. Matched exactly, like everything about attribute text. The value is
+   * ignored without a key — "products with the value Blue" is not a question
+   * the inventory asks.
+   */
+  attributeKey: z.string().max(ATTRIBUTE_NAME_MAX_LENGTH).optional(),
+  attributeValue: z.string().max(ATTRIBUTE_VALUE_MAX_LENGTH).optional(),
 });
 export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 

@@ -116,3 +116,27 @@ a product's child rows wholesale from what the editor sends.
   countable while invisible.
 - (⚠) Attribute order is data now (`sortOrder`), not array position. Every read
   must order by it explicitly, or the grid silently reshuffles between saves.
+
+## Amendment — 2026-08-19: which products the admin-side numbers count
+
+The registry and the inventory both report per-attribute usage, and the
+inventory renames text across the catalog. Those two started out disagreeing:
+the counts excluded soft-deleted products while a rename rewrote them, so the
+drill-down could land on more products than the number that led to it.
+
+**Every admin-side attribute number is now taken over the catalog as stored —
+unpublished _and_ soft-deleted products included.** The three things an admin
+does with these figures then describe one set: the count, the rename that
+rewrites exactly those rows, and the drill-down into the admin product grid,
+whose own default state filter already shows unpublished and deleted rows.
+
+A rename has to reach soft-deleted products regardless: deletion is reversible
+here, and a restored product must not come back carrying a spelling the rest of
+the catalog has left behind. Counting a smaller set than the rename touches was
+the part that could not be defended.
+
+The storefront's facet counts keep the opposite rule, and the (⚠) above still
+holds: they apply the publication gate and the soft delete, because they
+describe what a visitor can actually reach. The two rules differ because the
+questions differ — "what does the catalog hold" against "what can be seen" —
+and each surface says which it is answering in its own wording.
