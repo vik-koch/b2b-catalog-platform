@@ -253,6 +253,43 @@ export const productAttributes = pgTable(
   ],
 );
 
+/** A filterable attribute's kind. Two is enough: text sorts as text, a number sorts numerically. */
+export const attributeType = pgEnum('attribute_type', ['text', 'number']);
+
+/**
+ * The registry of filterable attributes (FR-ATTR-01) — which of the freetext
+ * keys staff type into a product's attribute grid are worth filtering by.
+ *
+ * A **registry, not a schema**: a definition constrains nothing a product may
+ * carry, and holds no data of its own. `name` is matched against
+ * `product_attributes.key` exactly (both sides are trimmed), so a definition
+ * added today takes effect on products entered months ago, and retyping or
+ * renaming one rebuilds nothing — `valueNumeric` is parsed on the row whatever
+ * this table says.
+ *
+ * `slug` is the stable key a filtered listing URL is written with, so it
+ * survives renaming the attribute. `unit` is a display suffix ("cm"): it lives
+ * here and never inside a value, or "30 cm" and "30cm" become two facets.
+ */
+export const attributeDefinitions = pgTable('attribute_definitions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 200 }).notNull().unique(),
+  slug: varchar('slug', { length: 255 }).notNull().unique(),
+  type: attributeType('type').notNull().default('text'),
+  unit: varchar('unit', { length: 32 }),
+  /** Where the attribute sits in the filter panel. Presentation only. */
+  sortOrder: integer('sortOrder').notNull().default(0),
+  createdAt: timestamp('createdAt', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updatedAt', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedBy: uuid('updatedBy').references((): AnyPgColumn => users.id, {
+    onDelete: 'set null',
+  }),
+});
+
 /**
  * The **additional** customer tiers of FR-AUTH-05 — rows rather than a
  * code-level enum, because tier names are a deployment's own commercial
