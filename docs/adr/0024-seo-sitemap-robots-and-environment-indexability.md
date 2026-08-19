@@ -1,6 +1,6 @@
 # 0024 — Serve sitemap/robots from the SSR tier and gate indexing with a per-deployment env flag
 
-**Status:** accepted · **Date:** 2026-07-28
+**Status:** accepted (amended 2026-08-18) · **Date:** 2026-07-28
 
 ## Context
 
@@ -85,3 +85,13 @@ deployment.
 - (−) `SEO_INDEXABLE` is one more per-deployment env var to document and set
   correctly; getting it wrong on prod is the difference between indexed and not,
   so it belongs in the deployment checklist.
+
+## Amendment — 2026-08-18: attribute filters join the canonical rule
+
+Faceted filtering (ADR 0037) adds a third kind of listing variant beside sort
+and page, and a far larger one: every combination of selected attribute values
+is a distinct URL, so the space a crawler can walk is combinatorial rather than
+linear. Filtered listings are therefore treated exactly as sorted and paged ones
+are — the canonical points at the unfiltered category — and NFR-SEO-04 is worded
+to name them. Nothing else changes: the sitemap still lists categories and
+products only, so no filtered URL is ever advertised.

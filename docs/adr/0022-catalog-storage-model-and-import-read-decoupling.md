@@ -1,6 +1,6 @@
 # 0022 — Model the catalog with file-owned fields plus an admin overlay, decoupled from both the import format and the read API
 
-**Status:** accepted · **Date:** 2026-07-28
+**Status:** accepted (amended 2026-08-18) · **Date:** 2026-07-28
 
 ## Context
 
@@ -87,3 +87,18 @@ read contract, and these futures don't entangle.
 - (⚠) `products.images` and `categories.image` hold `/media` URLs, so they are
   registered in the media-prune reference scan (0021); a new media-bearing
   column MUST be added there in the same change or the sweep deletes live files.
+
+## Amendment — 2026-08-18: overlay attributes move to their own table
+
+The `attributes` overlay field stops being a jsonb list on `products` and
+becomes rows in `product_attributes`, so the catalog can be filtered and audited
+by attribute (ADR 0037). Ownership is unchanged — the field is still
+admin-owned, still absent from the import contract, still part of the
+deployment-local overlay this ADR describes.
+
+It is worth recording _because_ nothing else changed. Both the public and the
+admin contracts keep serializing `attributes` as the same ordered array of
+`{key, value}`, so a storage decision of this size reached no consumer. That is
+the decoupling this ADR was written to buy, cashed in for the first time: the
+read API describes what the storefront needs, not how a column happens to be
+shaped, and the shape underneath was free to change.
