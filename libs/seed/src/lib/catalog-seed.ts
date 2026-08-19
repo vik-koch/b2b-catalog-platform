@@ -1,4 +1,8 @@
 import { Client } from 'pg';
+import {
+  parseAttributeNumber,
+  ProductAttribute,
+} from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { categorySeeds, productSeeds } from './catalog-data';
 import {
@@ -61,24 +65,25 @@ export async function seedCatalog(
 
     const packaging = product.packaging ?? {};
 
-    await client.query(
+    const { rows: productRows } = await client.query<{ id: string }>(
       `INSERT INTO products
-         ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "descriptionHtml", attributes, images,
+         ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "descriptionHtml", images,
           "piecesPerPack", "packsPerBox", "minPieceQty", "priceBasisPieces", "boxVolume", "boxWeight",
           "boxCount", "publishedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9, $10, $11, $12, $13, $14, $15, now())
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14, now())
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "defaultPriceMinor" = EXCLUDED."defaultPriceMinor", "categoryId" = EXCLUDED."categoryId",
          "descriptionHtml" = EXCLUDED."descriptionHtml",
-         attributes = EXCLUDED.attributes, images = EXCLUDED.images,
+         images = EXCLUDED.images,
          "piecesPerPack" = EXCLUDED."piecesPerPack", "packsPerBox" = EXCLUDED."packsPerBox",
          "minPieceQty" = EXCLUDED."minPieceQty", "priceBasisPieces" = EXCLUDED."priceBasisPieces",
          "boxVolume" = EXCLUDED."boxVolume", "boxWeight" = EXCLUDED."boxWeight",
          "boxCount" = EXCLUDED."boxCount",
          -- The demo catalog is meant to be on the storefront; a re-seed of an
          -- unpublished row puts it back.
-         "publishedAt" = EXCLUDED."publishedAt"`,
+         "publishedAt" = EXCLUDED."publishedAt"
+       RETURNING id`,
       [
         product.sourceId,
         product.slug,
@@ -86,7 +91,6 @@ export async function seedCatalog(
         product.priceMinor,
         categoryId,
         sanitizeRichText(product.descriptionHtml),
-        JSON.stringify(product.attributes),
         JSON.stringify(images),
         packaging.piecesPerPack ?? null,
         packaging.packsPerBox ?? null,
@@ -96,6 +100,32 @@ export async function seedCatalog(
         packaging.boxWeight ?? null,
         packaging.boxCount ?? 1,
       ],
+    );
+
+    await seedProductAttributes(client, productRows[0].id, product.attributes);
+  }
+}
+
+/**
+ * Attributes are rows, and the seed's list is the whole truth — replaced
+ * wholesale, like a product save does. `valueNumeric` is parsed here exactly as
+ * the API parses it.
+ */
+async function seedProductAttributes(
+  client: Client,
+  productId: string,
+  attributes: ProductAttribute[],
+): Promise<void> {
+  await client.query('DELETE FROM product_attributes WHERE "productId" = $1', [
+    productId,
+  ]);
+  for (const [index, attribute] of attributes.entries()) {
+    const numeric = parseAttributeNumber(attribute.value);
+    await client.query(
+      `INSERT INTO product_attributes
+         ("productId", "sortOrder", key, value, "valueNumeric")
+       VALUES ($1, $2, $3, $4, $5)`,
+      [productId, index, attribute.key, attribute.value, numeric],
     );
   }
 }

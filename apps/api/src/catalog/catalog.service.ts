@@ -14,6 +14,7 @@ import {
   CATALOG_PAGE_SIZE,
   CategoryCrumb,
   CategoryNode,
+  ProductAttribute,
   ProductDetail,
   ProductListItem,
   ProductSort,
@@ -25,7 +26,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { categories, pages, products } from '../db/schema';
+import { categories, pages, productAttributes, products } from '../db/schema';
 import {
   ancestorsOf,
   buildCategoryTree,
@@ -308,18 +309,33 @@ export class CatalogService {
     };
   }
 
+  /**
+   * A product's attributes in the admin's row order — `sortOrder` is the order,
+   * so it has to be asked for explicitly.
+   */
+  private attributesFor(productId: string): Promise<ProductAttribute[]> {
+    return this.db
+      .select({
+        key: productAttributes.key,
+        value: productAttributes.value,
+      })
+      .from(productAttributes)
+      .where(eq(productAttributes.productId, productId))
+      .orderBy(asc(productAttributes.sortOrder));
+  }
+
   async getProduct(
     slug: string,
     tierId: string | null = null,
   ): Promise<ProductDetail | null> {
     const [product] = await this.db
       .select({
+        id: products.id,
         slug: products.slug,
         name: products.name,
         priceMinor: resolvedPriceMinor(tierId),
         descriptionHtml: products.descriptionHtml,
         images: products.images,
-        attributes: products.attributes,
         categoryId: products.categoryId,
         boxVolume: products.boxVolume,
         boxWeight: products.boxWeight,
@@ -331,7 +347,10 @@ export class CatalogService {
       .limit(1);
     if (!product) return null;
 
-    const rows = await this.categoryRows();
+    const [rows, attributes] = await Promise.all([
+      this.categoryRows(),
+      this.attributesFor(product.id),
+    ]);
     const category = rows.find((row) => row.id === product.categoryId);
     if (!category) return null;
 
@@ -344,7 +363,7 @@ export class CatalogService {
       boxDimensions: boxDimensionsOf(product),
       descriptionHtml: product.descriptionHtml,
       images: product.images,
-      attributes: product.attributes,
+      attributes,
       category: {
         slug: category.slug,
         name: category.name,

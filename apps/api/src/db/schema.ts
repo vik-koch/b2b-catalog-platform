@@ -91,9 +91,6 @@ export const categories = pgTable('categories', {
   }),
 });
 
-/** A product's freetext characteristics — plain key/value, detail page only. */
-export type ProductAttribute = { key: string; value: string };
-
 /**
  * One gallery image, stored as two media-store URLs: `thumb` for the grid/list
  * (and search) so those views load little, `full` for the product page. No alt
@@ -104,8 +101,9 @@ export type ProductImageRef = { full: string; thumb: string };
 /**
  * Catalog products. `sourceId` (the legacy system's private id) is the sync
  * upsert key and is never serialized to the API. `name`, `defaultPriceMinor` and
- * `categoryId` are file-owned; `descriptionHtml`, `attributes` and the images
- * (see product_images) are admin overlay that a re-sync leaves untouched.
+ * `categoryId` are file-owned; `descriptionHtml`, the attributes (see
+ * product_attributes) and the images are admin overlay that a re-sync leaves
+ * untouched.
  * Missing-from-source rows are soft-deleted via `deletedAt`, never removed.
  */
 export const products = pgTable(
@@ -143,10 +141,6 @@ export const products = pgTable(
       .references(() => categories.id, { onDelete: 'restrict' }),
     // Overlay fields.
     descriptionHtml: text('descriptionHtml').notNull().default(''),
-    attributes: jsonb('attributes')
-      .$type<ProductAttribute[]>()
-      .notNull()
-      .default(sql`'[]'::jsonb`),
     // Ordered gallery, each with a full and a thumb media-store URL. The
     // media-prune reference scan must include these URLs (and categories.image)
     // so seeded/uploaded images are not swept.
@@ -222,6 +216,40 @@ export const products = pgTable(
         and (${t.piecesPerPack} is null
              or ${t.piecesPerPack} % ${t.priceBasisPieces} = 0)`,
     ),
+  ],
+);
+
+/**
+ * A product's freetext characteristics — plain key/value, entered in the admin
+ * grid. Rows rather than a jsonb column, so a value can be filtered on and
+ * counted without unpacking every product (ADR 0037).
+ *
+ * `key` is the match to `attribute_definitions.name`: plain text, never a
+ * foreign key, so a definition can be added, renamed or retyped without
+ * touching a product. `valueNumeric` is parsed from `value` whenever it reads
+ * as a number (`parseAttributeNumber`), independent of any definition — an
+ * unparseable value keeps its text and simply has no numeric form.
+ *
+ * Order is data: `sortOrder` is the grid's row order, so every read must sort
+ * by it explicitly. The editor's list is the whole truth — a product save
+ * replaces these rows wholesale, exactly like product_prices.
+ */
+export const productAttributes = pgTable(
+  'product_attributes',
+  {
+    productId: uuid('productId')
+      .notNull()
+      .references(() => products.id, { onDelete: 'cascade' }),
+    sortOrder: integer('sortOrder').notNull(),
+    key: varchar('key', { length: 200 }).notNull(),
+    value: varchar('value', { length: 2000 }).notNull(),
+    valueNumeric: numeric('valueNumeric', { precision: 18, scale: 6 }),
+  },
+  (t) => [
+    // The PK is the read order as well as the identity: one row per grid line.
+    primaryKey({ columns: [t.productId, t.sortOrder] }),
+    // Facet counting and the attribute inventory both lead with the key.
+    index('product_attributes_key_value_idx').on(t.key, t.value),
   ],
 );
 
