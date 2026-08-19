@@ -464,9 +464,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
         // 18,90 beside 0.072 looks like two different products' data.
         boxVolume: this.showDecimal(product.boxVolume),
         boxWeight: this.showDecimal(product.boxWeight),
-        // Blanked at 1 so no product shows a "ships as 1 box" rule it does not
-        // have — the same treatment the basis and the minimum get.
-        boxCount: product.boxCount > 1 ? product.boxCount.toString() : '',
+        // A box ships as one unless told otherwise, and the rule is shown the
+        // way the minimum and the basis are. Without a box there is nothing to
+        // count, and the field is disabled and empty.
+        boxCount:
+          product.packsPerBox === null ? '' : product.boxCount.toString(),
       });
       this.tierPrices.set(
         product.tierPrices

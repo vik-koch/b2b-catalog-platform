@@ -75,7 +75,7 @@ import { AttributeHint } from './attribute-hints';
                     <span>{{ hint.key }}</span>
                     <!-- The same badge the grid row shows, for the same fact. -->
                     @if (hint.type) {
-                      <app-hint-badge tone="notice" [label]="text.filterable">
+                      <app-hint-badge tone="neutral" [label]="text.filterable">
                         <app-admin-icon name="funnel" class="h-3.5 w-3.5" />
                       </app-hint-badge>
                     }

@@ -15,6 +15,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
+import { HintBadge } from '../../ui/hint-badge';
 import { Skeleton } from '../../ui/skeleton';
 import { ConfirmService } from '../../ui/confirm.service';
 import { AttributesService } from './attributes.service';
@@ -41,7 +42,15 @@ type RenameTarget =
  */
 @Component({
   selector: 'app-attribute-inventory-page',
-  imports: [NgTemplateOutlet, RouterLink, Button, AdminIcon, Input, Skeleton],
+  imports: [
+    NgTemplateOutlet,
+    RouterLink,
+    Button,
+    AdminIcon,
+    HintBadge,
+    Input,
+    Skeleton,
+  ],
   template: `
     <div class="mb-4 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
@@ -88,11 +97,12 @@ type RenameTarget =
                            states the fact and offers the registry, nothing
                            more. -->
                       @if (entry.definition) {
-                        <span
-                          class="rounded bg-stone-100 px-1.5 py-0.5 text-xs text-subtle"
+                        <app-hint-badge
+                          tone="neutral"
+                          [label]="text.filterable"
                         >
-                          {{ text.filterable }}
-                        </span>
+                          <app-admin-icon name="funnel" class="h-3.5 w-3.5" />
+                        </app-hint-badge>
                       }
                       <span class="text-sm text-subtle">
                         {{ productsLabel(entry.productCount) }} ·
@@ -165,9 +175,15 @@ type RenameTarget =
                                   !value.numeric &&
                                   entry.definition?.type === 'number'
                                 ) {
-                                  <span class="text-amber-700">
-                                    {{ text.notNumeric }}
-                                  </span>
+                                  <app-hint-badge
+                                    tone="warning"
+                                    [label]="text.notNumeric"
+                                  >
+                                    <app-admin-icon
+                                      name="triangle-alert"
+                                      class="h-3.5 w-3.5"
+                                    />
+                                  </app-hint-badge>
                                 }
                                 <span class="ml-auto flex items-center gap-1">
                                   <a

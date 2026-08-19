@@ -292,6 +292,29 @@ describe('ProductEditorPage', () => {
       name: 'Hafen Espresso Reserve',
     });
   });
+  it('shows the box count a product ships with, one included', async () => {
+    const { el } = await render(
+      { slug: 'hafen-espresso' },
+      {},
+      {
+        product: { ...storedProduct, piecesPerPack: 6, packsPerBox: 4 },
+      },
+    );
+
+    // "Ships as 1 box" is the rule the product carries, shown like the minimum
+    // and the basis rather than left blank for the admin to infer.
+    const count = el.querySelector<HTMLInputElement>('#packaging-boxCount');
+    expect(count?.value).toBe('1');
+  });
+
+  it('leaves the box count empty on a product with no box', async () => {
+    const { el } = await render({ slug: 'hafen-espresso' });
+
+    const count = el.querySelector<HTMLInputElement>('#packaging-boxCount');
+    expect(count?.value).toBe('');
+    expect(count?.disabled).toBe(true);
+  });
+
   it('round-trips a box dimension through the deployment separator', async () => {
     const { fixture, el, h } = await render(
       { slug: 'hafen-espresso' },
