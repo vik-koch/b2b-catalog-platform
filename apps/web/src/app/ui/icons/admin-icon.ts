@@ -45,7 +45,7 @@ export type AdminIconName =
   | 'circle-slash'
   | 'rotate-ccw'
   | 'upload'
-  | 'square-chart-gantt'
+  | 'square-menu'
   | 'send'
   | 'package'
   | 'users'
@@ -273,11 +273,11 @@ export type AdminIconName =
           <path d="M17 8l-5-5-5 5" />
           <path d="M12 3v12" />
         }
-        @case ('square-chart-gantt') {
+        @case ('square-menu') {
           <rect width="18" height="18" x="3" y="3" rx="2" />
-          <path d="M9 8h7" />
-          <path d="M8 12h6" />
-          <path d="M11 16h5" />
+          <path d="M7 8h10" />
+          <path d="M7 12h10" />
+          <path d="M7 16h10" />
         }
         @case ('send') {
           <path

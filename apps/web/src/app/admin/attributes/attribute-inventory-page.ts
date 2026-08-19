@@ -167,7 +167,7 @@ type RenameTarget =
                                     [attr.aria-label]="text.showProducts"
                                   >
                                     <app-admin-icon
-                                      name="list"
+                                      name="square-menu"
                                       class="h-4 w-4"
                                     />
                                   </a>
