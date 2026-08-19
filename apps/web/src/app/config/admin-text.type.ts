@@ -551,6 +551,57 @@ export const adminTextSchema = z
       })
       .strict(),
     /**
+     * The filterable-attribute registry (FR-ATTR-01). A definition names an
+     * attribute the products already carry, so most of this wording is about
+     * the exact match between the two — including the two amber notes, which
+     * are the only place a mistyped name shows up before the filter is missing.
+     */
+    attributeList: z
+      .object({
+        title: z.string(),
+        intro: z.string(),
+        reorderError: z.string(),
+        add: z.string(),
+        name: z.string(),
+        namePlaceholder: z.string(),
+        nameHint: z.string(),
+        type: z.string(),
+        /** The two attribute types, keyed by the contract's own values. */
+        types: z.object({ text: z.string(), number: z.string() }).strict(),
+        unit: z.string(),
+        unitPlaceholder: z.string(),
+        /** Slug, called what an admin sees it as: the key in a filter URL. */
+        slug: z.string(),
+        slugPlaceholder: z.string(),
+        slugInvalid: z.string(),
+        /** Usage per row. `{count}` substituted at render. */
+        products: z.string(),
+        values: z.string(),
+        unparsed: z.string(),
+        noMatch: z.string(),
+        edit: z.string(),
+        /** The one-place-at-a-time move buttons on each row. */
+        moveUp: z.string(),
+        moveDown: z.string(),
+        delete: z.string(),
+        empty: z.string(),
+        saveError: z.string(),
+        nameRequired: z.string(),
+        /** Delete confirmation. `{name}` substituted. */
+        deleteTitle: z.string(),
+        deleteConfirm: z.string(),
+        deleteError: z.string(),
+        /** What the server refused, keyed by its own `code`. */
+        errors: z
+          .object({
+            'attribute-not-found': z.string(),
+            'attribute-name-taken': z.string(),
+            'attribute-slug-taken': z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
      * The staff account list (FR-AUTH-03/04). Column headings double as the
      * sort/filter controls, so several of these are the accessible names of a
      * control whose visible text is the value in effect rather than a label.

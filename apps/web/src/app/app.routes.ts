@@ -103,6 +103,16 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/sync/sync-page').then((m) => m.SyncPage),
   },
+  // Filterable attributes edit in place too — a definition is four fields,
+  // so there is no editor route to pair with this one.
+  {
+    path: 'admin/attributes',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/attributes/attribute-list-page').then(
+        (m) => m.AttributeListPage,
+      ),
+  },
   // Tiers edit in place on one screen — two fields per tier, so no editor
   // route to pair with this one.
   {

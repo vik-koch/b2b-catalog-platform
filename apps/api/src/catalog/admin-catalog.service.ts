@@ -25,6 +25,8 @@ import {
   AdminProduct,
   AdminProductListItem,
   CategoryInput,
+  parseAttributeNumber,
+  ProductAttribute,
   ProductInput,
   ProductTierPrice,
   ReorderCategoriesRequest,
@@ -36,6 +38,7 @@ import * as schema from '../db/schema';
 import {
   categories,
   customerTiers,
+  productAttributes,
   productPrices,
   products,
 } from '../db/schema';
@@ -73,7 +76,6 @@ const adminProductColumns = {
   categoryId: products.categoryId,
   sourceId: products.sourceId,
   descriptionHtml: products.descriptionHtml,
-  attributes: products.attributes,
   images: products.images,
   deletedAt: products.deletedAt,
   publishedAt: products.publishedAt,
@@ -95,7 +97,6 @@ type ProductRow = {
   categoryId: string;
   sourceId: string;
   descriptionHtml: string;
-  attributes: { key: string; value: string }[];
   images: { full: string; thumb: string }[];
   deletedAt: Date | null;
   publishedAt: Date | null;
@@ -213,7 +214,11 @@ export class AdminCatalogService {
   async getProduct(slug: string): Promise<AdminProduct | null> {
     const row = await this.productBySlug(slug);
     if (!row) return null;
-    return toAdminProduct(row, await this.tierPricesFor(row.id));
+    return toAdminProduct(
+      row,
+      await this.tierPricesFor(row.id),
+      await this.attributesFor(row.id),
+    );
   }
 
   async createProduct(
@@ -244,7 +249,6 @@ export class AdminCatalogService {
             defaultPriceMinor: input.priceMinor,
             categoryId: input.categoryId,
             descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
-            attributes: input.attributes,
             images: input.images,
             updatedBy: actorId,
             ...packagingValues(input),
@@ -252,7 +256,8 @@ export class AdminCatalogService {
           .returning(adminProductColumns),
       );
       await this.replaceTierPrices(tx, row[0].id, input.tierPrices);
-      return toAdminProduct(row[0], input.tierPrices);
+      await this.replaceAttributes(tx, row[0].id, input.attributes);
+      return toAdminProduct(row[0], input.tierPrices, input.attributes);
     });
   }
 
@@ -287,7 +292,6 @@ export class AdminCatalogService {
             defaultPriceMinor: input.priceMinor,
             categoryId: input.categoryId,
             descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
-            attributes: input.attributes,
             images: input.images,
             sourceId: newSourceId,
             updatedAt: new Date(),
@@ -298,7 +302,8 @@ export class AdminCatalogService {
           .returning(adminProductColumns),
       );
       await this.replaceTierPrices(tx, existing.id, input.tierPrices);
-      return toAdminProduct(row[0], input.tierPrices);
+      await this.replaceAttributes(tx, existing.id, input.attributes);
+      return toAdminProduct(row[0], input.tierPrices, input.attributes);
     });
   }
 
@@ -324,7 +329,11 @@ export class AdminCatalogService {
     if (!rows[0]) throw productNotFound();
     // Soft delete leaves the tier prices alone — they belong to the product,
     // and hiding it is reversible.
-    return toAdminProduct(rows[0], await this.tierPricesFor(rows[0].id));
+    return toAdminProduct(
+      rows[0],
+      await this.tierPricesFor(rows[0].id),
+      await this.attributesFor(rows[0].id),
+    );
   }
 
   async restoreProduct(slug: string, actorId: string): Promise<AdminProduct> {
@@ -339,7 +348,11 @@ export class AdminCatalogService {
       .where(eq(products.slug, slug))
       .returning(adminProductColumns);
     if (!rows[0]) throw productNotFound();
-    return toAdminProduct(rows[0], await this.tierPricesFor(rows[0].id));
+    return toAdminProduct(
+      rows[0],
+      await this.tierPricesFor(rows[0].id),
+      await this.attributesFor(rows[0].id),
+    );
   }
 
   /**
@@ -366,7 +379,11 @@ export class AdminCatalogService {
       .where(eq(products.slug, slug))
       .returning(adminProductColumns);
     if (!rows[0]) throw productNotFound();
-    return toAdminProduct(rows[0], await this.tierPricesFor(rows[0].id));
+    return toAdminProduct(
+      rows[0],
+      await this.tierPricesFor(rows[0].id),
+      await this.attributesFor(rows[0].id),
+    );
   }
 
   /**
@@ -714,6 +731,54 @@ export class AdminCatalogService {
   }
 
   /**
+   * A product's attributes in the grid's row order. `sortOrder` is data, so it
+   * has to be asked for — array position no longer carries the order.
+   */
+  private async attributesFor(productId: string): Promise<ProductAttribute[]> {
+    return this.db
+      .select({
+        key: productAttributes.key,
+        value: productAttributes.value,
+      })
+      .from(productAttributes)
+      .where(eq(productAttributes.productId, productId))
+      .orderBy(asc(productAttributes.sortOrder));
+  }
+
+  /**
+   * The single write path for attributes, and the same rule as tier prices: the
+   * posted list is the whole truth. Replaced wholesale rather than diffed, so a
+   * reorder is not a special case, and inside the product's transaction, so a
+   * failed save cannot leave half a grid behind.
+   *
+   * `valueNumeric` is parsed here for every value that reads as a number,
+   * whether or not a definition claims the key.
+   */
+  private async replaceAttributes(
+    tx: NodePgDatabase<typeof schema>,
+    productId: string,
+    entries: ProductAttribute[],
+  ): Promise<void> {
+    await tx
+      .delete(productAttributes)
+      .where(eq(productAttributes.productId, productId));
+    if (entries.length === 0) return;
+
+    await tx.insert(productAttributes).values(
+      entries.map((entry, index) => {
+        const numeric = parseAttributeNumber(entry.value);
+        return {
+          productId,
+          sortOrder: index,
+          key: entry.key,
+          value: entry.value,
+          valueNumeric: numeric === null ? null : String(numeric),
+        };
+      }),
+    );
+  }
+
+  /**
    * A 404 rather than a foreign-key error: an unknown tier is the same class of
    * mistake as an unknown category, and the editor renders that message.
    */
@@ -900,6 +965,7 @@ export class AdminCatalogService {
 function toAdminProduct(
   row: ProductRow,
   tierPrices: ProductTierPrice[],
+  attributes: ProductAttribute[],
 ): AdminProduct {
   return {
     slug: row.slug,
@@ -908,7 +974,7 @@ function toAdminProduct(
     categoryId: row.categoryId,
     sourceId: row.sourceId,
     descriptionHtml: row.descriptionHtml,
-    attributes: row.attributes,
+    attributes,
     images: row.images,
     tierPrices,
     deletedAt: row.deletedAt?.toISOString() ?? null,

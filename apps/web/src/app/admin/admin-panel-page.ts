@@ -100,6 +100,15 @@ import { BuildInfoService } from './build-info.service';
                     {{ productText.title }}
                   </a>
                 </li>
+                <li>
+                  <a
+                    appButton
+                    variant="secondary"
+                    routerLink="/admin/attributes"
+                  >
+                    {{ attributeText.title }}
+                  </a>
+                </li>
               </ul>
             </div>
 
@@ -217,6 +226,7 @@ export class AdminPanelPage {
   protected readonly panelText = inject(ADMIN_TEXT).panel;
   protected readonly productText = inject(ADMIN_TEXT).productList;
   protected readonly categoryText = inject(ADMIN_TEXT).categoryList;
+  protected readonly attributeText = inject(ADMIN_TEXT).attributeList;
   protected readonly tierText = inject(ADMIN_TEXT).tierList;
   protected readonly userText = inject(ADMIN_TEXT).userList;
   protected readonly navText = inject(APP_TEXT).nav;

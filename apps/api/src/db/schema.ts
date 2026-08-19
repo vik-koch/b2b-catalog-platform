@@ -91,9 +91,6 @@ export const categories = pgTable('categories', {
   }),
 });
 
-/** A product's freetext characteristics — plain key/value, detail page only. */
-export type ProductAttribute = { key: string; value: string };
-
 /**
  * One gallery image, stored as two media-store URLs: `thumb` for the grid/list
  * (and search) so those views load little, `full` for the product page. No alt
@@ -104,8 +101,9 @@ export type ProductImageRef = { full: string; thumb: string };
 /**
  * Catalog products. `sourceId` (the legacy system's private id) is the sync
  * upsert key and is never serialized to the API. `name`, `defaultPriceMinor` and
- * `categoryId` are file-owned; `descriptionHtml`, `attributes` and the images
- * (see product_images) are admin overlay that a re-sync leaves untouched.
+ * `categoryId` are file-owned; `descriptionHtml`, the attributes (see
+ * product_attributes) and the images are admin overlay that a re-sync leaves
+ * untouched.
  * Missing-from-source rows are soft-deleted via `deletedAt`, never removed.
  */
 export const products = pgTable(
@@ -143,10 +141,6 @@ export const products = pgTable(
       .references(() => categories.id, { onDelete: 'restrict' }),
     // Overlay fields.
     descriptionHtml: text('descriptionHtml').notNull().default(''),
-    attributes: jsonb('attributes')
-      .$type<ProductAttribute[]>()
-      .notNull()
-      .default(sql`'[]'::jsonb`),
     // Ordered gallery, each with a full and a thumb media-store URL. The
     // media-prune reference scan must include these URLs (and categories.image)
     // so seeded/uploaded images are not swept.
@@ -224,6 +218,77 @@ export const products = pgTable(
     ),
   ],
 );
+
+/**
+ * A product's freetext characteristics — plain key/value, entered in the admin
+ * grid. Rows rather than a jsonb column, so a value can be filtered on and
+ * counted without unpacking every product (ADR 0037).
+ *
+ * `key` is the match to `attribute_definitions.name`: plain text, never a
+ * foreign key, so a definition can be added, renamed or retyped without
+ * touching a product. `valueNumeric` is parsed from `value` whenever it reads
+ * as a number (`parseAttributeNumber`), independent of any definition — an
+ * unparseable value keeps its text and simply has no numeric form.
+ *
+ * Order is data: `sortOrder` is the grid's row order, so every read must sort
+ * by it explicitly. The editor's list is the whole truth — a product save
+ * replaces these rows wholesale, exactly like product_prices.
+ */
+export const productAttributes = pgTable(
+  'product_attributes',
+  {
+    productId: uuid('productId')
+      .notNull()
+      .references(() => products.id, { onDelete: 'cascade' }),
+    sortOrder: integer('sortOrder').notNull(),
+    key: varchar('key', { length: 200 }).notNull(),
+    value: varchar('value', { length: 2000 }).notNull(),
+    valueNumeric: numeric('valueNumeric', { precision: 18, scale: 6 }),
+  },
+  (t) => [
+    // The PK is the read order as well as the identity: one row per grid line.
+    primaryKey({ columns: [t.productId, t.sortOrder] }),
+    // Facet counting and the attribute inventory both lead with the key.
+    index('product_attributes_key_value_idx').on(t.key, t.value),
+  ],
+);
+
+/** A filterable attribute's kind. Two is enough: text sorts as text, a number sorts numerically. */
+export const attributeType = pgEnum('attribute_type', ['text', 'number']);
+
+/**
+ * The registry of filterable attributes (FR-ATTR-01) — which of the freetext
+ * keys staff type into a product's attribute grid are worth filtering by.
+ *
+ * A **registry, not a schema**: a definition constrains nothing a product may
+ * carry, and holds no data of its own. `name` is matched against
+ * `product_attributes.key` exactly (both sides are trimmed), so a definition
+ * added today takes effect on products entered months ago, and retyping or
+ * renaming one rebuilds nothing — `valueNumeric` is parsed on the row whatever
+ * this table says.
+ *
+ * `slug` is the stable key a filtered listing URL is written with, so it
+ * survives renaming the attribute. `unit` is a display suffix ("cm"): it lives
+ * here and never inside a value, or "30 cm" and "30cm" become two facets.
+ */
+export const attributeDefinitions = pgTable('attribute_definitions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 200 }).notNull().unique(),
+  slug: varchar('slug', { length: 255 }).notNull().unique(),
+  type: attributeType('type').notNull().default('text'),
+  unit: varchar('unit', { length: 32 }),
+  /** Where the attribute sits in the filter panel. Presentation only. */
+  sortOrder: integer('sortOrder').notNull().default(0),
+  createdAt: timestamp('createdAt', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updatedAt', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedBy: uuid('updatedBy').references((): AnyPgColumn => users.id, {
+    onDelete: 'set null',
+  }),
+});
 
 /**
  * The **additional** customer tiers of FR-AUTH-05 — rows rather than a
