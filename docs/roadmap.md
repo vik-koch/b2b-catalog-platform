@@ -11,7 +11,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 3   | Search, listing sort & admin grid filters → **tag v1.1.0**                                     | FR-SEARCH-01…05, FR-ADM-05, NFR-SEC-07, NFR-SEO-04, NFR-OPS-05                        |
 | 4   | Accounts, roles & tiered pricing → **tag v1.2.0**                                              | FR-AUTH-01…06, FR-NOTIF-01/02/04, NFR-SEC-04                                          |
 | 5   | Units of sale, pack pricing & product publication → **tag v1.3.0**                             | FR-UNIT-01…06/08/09/10, FR-ADM-06, FR-ADM-01/05 + FR-CAT-04/05 amended                |
-| 6   | Attribute definitions & faceted filtering → **tag v1.4.0**                                     | FR-ATTR-01…09, FR-UNIT-11, FR-UNIT-06/09 amended, NFR-SEO-04 amended                  |
+| 6   | Attribute definitions & faceted filtering → **tag v1.4.0**                                     | FR-ATTR-01…10, FR-UNIT-11, FR-UNIT-06/09 amended, NFR-SEO-04 amended                  |
 | 7   | Cart & order-request checkout → **tag v1.5.0**                                                 | FR-UNIT-07, FR-CART-01…04/08, FR-ACC-01, FR-NOTIF-05/06, NFR-SEC-06                   |
 | 8   | Order processing, payment & manual delivery/pickup coordination → **tag v1.6.0**               | FR-CART-05/06, FR-NOTIF-03, FR-ACC-02, NFR-LEGAL-04                                   |
 
