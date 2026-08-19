@@ -18,6 +18,7 @@ import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { DeploymentConfig } from '../../config/deployment-config.type';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { TiersService } from '../tiers/tiers.service';
+import { AttributesService } from '../attributes/attributes.service';
 import { ProductEditorPage } from './product-editor-page';
 
 const text = defaultAdminText.productEditor;
@@ -136,6 +137,14 @@ async function render(
           createProduct: h.createProduct,
           updateProduct: h.updateProduct,
           setProductPublished: h.setProductPublished,
+        },
+      },
+      {
+        // The grid's hint list; empty here, its own suite covers it.
+        provide: AttributesService,
+        useValue: {
+          listKeys: () => Promise.resolve([]),
+          list: () => Promise.resolve([]),
         },
       },
       {

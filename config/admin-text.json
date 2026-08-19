@@ -139,7 +139,17 @@
       "key": "Name",
       "value": "Value",
       "add": "Add characteristic",
-      "empty": "No characteristics yet."
+      "empty": "No characteristics yet.",
+      "addKeys": "Add attributes",
+      "addKeysHint": "Attribute names the catalog already uses. Adding one appends an empty row — pick the name from here rather than retyping it, and the products stay comparable. A row you leave without a value is not saved.",
+      "addKeysEmpty": "No product carries an attribute yet.",
+      "addKeysApply": "Add {count} attribute(s)",
+      "inTable": "already here",
+      "products": "{count} product(s)",
+      "filterable": "The shop filters by this attribute.",
+      "unknownKey": "No other product carries this name — nothing to show. Check the spelling if it should match one.",
+      "notNumeric": "This value cannot be read as a number, so it is left out of this attribute's filter. It still shows on the product page.",
+      "showUsage": "Show where this attribute is used"
     },
     "images": {
       "heading": "Images",

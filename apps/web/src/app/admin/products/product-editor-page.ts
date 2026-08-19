@@ -2,6 +2,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AdminCategory,
+  AttributeDefinition,
+  AttributeKeyUsage,
   CatalogImage,
   CustomerTier,
   basisDividesQuantities,
@@ -47,6 +49,7 @@ import {
 } from './product-packaging-editor';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { TiersService } from '../tiers/tiers.service';
+import { AttributesService } from '../attributes/attributes.service';
 import { injectEditorReturn } from '../editor-return';
 
 /**
@@ -175,6 +178,9 @@ import { injectEditorReturn } from '../editor-return';
         <div>
           <app-product-attributes-editor
             [value]="attributes()"
+            [knownKeys]="attributeKeys()"
+            [definitions]="attributeDefinitions()"
+            [ownKeys]="ownAttributeKeys()"
             (valueChange)="attributes.set($event)"
           />
         </div>
@@ -271,6 +277,7 @@ import { injectEditorReturn } from '../editor-return';
 export class ProductEditorPage implements UnsavedChangesAware {
   private readonly service = inject(AdminCatalogService);
   private readonly tiersService = inject(TiersService);
+  private readonly attributesService = inject(AttributesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
@@ -286,6 +293,13 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly notFound = signal(false);
   protected readonly categories = signal<AdminCategory[]>([]);
   protected readonly tiers = signal<CustomerTier[]>([]);
+  protected readonly attributeKeys = signal<AttributeKeyUsage[]>([]);
+  protected readonly attributeDefinitions = signal<AttributeDefinition[]>([]);
+  /**
+   * The keys the stored product carries, so the grid's badges can discount it
+   * from the catalog's counts and keep speaking about the other products.
+   */
+  protected readonly ownAttributeKeys = signal<string[]>([]);
 
   protected readonly name = signal('');
   protected readonly slug = signal('');
@@ -407,14 +421,21 @@ export class ProductEditorPage implements UnsavedChangesAware {
   }
 
   private async load(): Promise<void> {
-    const [categories, tiers] = await Promise.all([
+    const [categories, tiers, attributeKeys, definitions] = await Promise.all([
       this.service.listCategories(),
       // The tier list is small and admin-only, like the categories above; both
       // are needed before the form can render its pickers.
       this.tiersService.list().then((r) => r.tiers),
+      // The attribute hints are a convenience beside the grid, not part of the
+      // product: a failure here costs the picker and the row indicators, and
+      // must not cost the editor.
+      this.attributesService.listKeys().catch(() => []),
+      this.attributesService.list().catch(() => []),
     ]);
     this.categories.set(categories);
     this.tiers.set(tiers);
+    this.attributeKeys.set(attributeKeys);
+    this.attributeDefinitions.set(definitions);
     const existingSlug = this.slugParam;
     if (existingSlug !== null) {
       const product = await this.service.getProduct(existingSlug);
@@ -430,6 +451,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.sourceId.set(product.sourceId);
       this.description.set(product.descriptionHtml);
       this.attributes.set(product.attributes);
+      this.ownAttributeKeys.set(product.attributes.map((a) => a.key));
       this.images.set(product.images);
       this.published.set(product.publishedAt !== null);
       this.packaging.set({

@@ -69,7 +69,7 @@ export function parseCount(text: string): number | null {
       <!-- Column widths mirror the attribute grid above, so the two tables line
            up. The third column stands where its row actions are, and carries
            what each row costs once the price is applied to it. -->
-      <table class="w-full max-w-2xl border-collapse text-sm">
+      <table class="w-full max-w-2xl table-fixed border-collapse text-sm">
         <tbody>
           @for (row of rows(); track row.key) {
             <tr>

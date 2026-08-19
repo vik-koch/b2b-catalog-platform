@@ -18,13 +18,25 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
+  AttributeDefinition,
+  AttributeKeyUsage,
   PRODUCT_ATTRIBUTES_MAX,
   ProductAttribute,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
+import { HintBadge, HintBadgeTone } from '../../ui/hint-badge';
 import { FieldLabel } from '../../ui/field-label';
+import {
+  AttributeHint,
+  attributeHints,
+  attributeIsKnown,
+  AttributeRowStatus,
+  attributeRowStatus,
+} from './attribute-hints';
+import { AttributeKeyPicker } from './attribute-key-picker';
 import {
   applyPastedGrid,
   clearRange,
@@ -56,22 +68,34 @@ import {
   selector: 'app-product-attributes-editor',
   imports: [
     AdminIcon,
+    AttributeKeyPicker,
+    HintBadge,
     CdkDropList,
     CdkDrag,
     CdkDragHandle,
     CdkDragPreview,
     FieldLabel,
+    RouterLink,
   ],
   template: `
     <fieldset>
       <legend appFieldLabel>{{ text.heading }}</legend>
 
-      <table class="w-full max-w-2xl border-collapse text-sm">
+      <app-attribute-key-picker
+        [hints]="hints()"
+        [used]="usedKeys()"
+        (add)="addKeys($event)"
+      />
+
+      <!-- Fixed layout, like the packaging grid below: a long value wraps and
+           grows the row instead of stretching the column, so the two tables
+           cannot drift apart on one product and line up on the next. -->
+      <table class="w-full max-w-2xl table-fixed border-collapse text-sm">
         <thead>
           <tr class="text-left text-subtle">
             <th class="w-1/3 pb-1 font-medium">{{ text.key }}</th>
             <th class="pb-1 font-medium">{{ text.value }}</th>
-            <th class="w-24"></th>
+            <th class="w-32"></th>
           </tr>
         </thead>
         <tbody
@@ -105,20 +129,72 @@ import {
               <td
                 [attr.data-row]="$index"
                 data-col="0"
-                class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle"
+                class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
                 [class]="cellFocus($index, 0)"
               ></td>
+              <!-- The badge overlaps this cell from the action cell beside it
+                   (see below), so the text gets out of its way. -->
               <td
                 [attr.data-row]="$index"
                 data-col="1"
-                class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle"
-                [class]="cellFocus($index, 1)"
+                class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
+                [class]="cellFocus($index, 1) + (hasBadge(row) ? ' pr-9' : '')"
               ></td>
               <td
                 contenteditable="false"
-                class="w-32 border-0 pl-5 align-middle"
+                class="relative w-32 border-0 pl-3 align-middle select-none"
               >
-                <div class="flex items-center gap-1">
+                <!-- Everything here is outside the editable region, so it is
+                     safe to render — which is also why the badge lives here and
+                     is positioned back over the value cell rather than inside
+                     it: a node inside a cell would be wiped by the next write
+                     from the model. -->
+                @if (hasBadge(row)) {
+                  <app-hint-badge
+                    class="absolute top-1/2 -left-7 -translate-y-1/2"
+                    [tone]="statusTone(row)"
+                    [label]="statusLabel(row)"
+                  >
+                    <app-admin-icon
+                      [name]="statusIcon(row)"
+                      class="h-3.5 w-3.5"
+                    />
+                  </app-hint-badge>
+                }
+                <!-- Tighter than a normal control row: four affordances have
+                     to fit the same column width the packaging grid uses, so
+                     the two tables keep lining up. -->
+                <div class="flex items-center gap-0.5">
+                  <!-- Where else this attribute is used, in the inventory:
+                       every value in use under the key, with its counts, and
+                       the product drill-down from there. A new tab on purpose —
+                       leaving a half-edited product would trip the
+                       unsaved-changes guard for what is only a glance. -->
+                  @if (isKnown(row)) {
+                    <a
+                      class="p-1 text-stone-400 hover:text-accent"
+                      target="_blank"
+                      routerLink="/admin/attributes/inventory"
+                      [queryParams]="{ key: row.key.trim() }"
+                      [attr.aria-label]="text.showUsage"
+                      [title]="text.showUsage"
+                    >
+                      <app-admin-icon name="square-menu" class="h-4 w-4" />
+                    </a>
+                  } @else {
+                    <!-- Kept in place rather than dropped: the row actions
+                         would otherwise shift a column as a key is typed. Its
+                         being dead *is* the statement that nothing else in the
+                         catalog carries the name. -->
+                    <span
+                      aria-disabled="true"
+                      class="p-1 text-stone-200"
+                      [title]="linkHint(row)"
+                      [attr.aria-label]="linkHint(row)"
+                    >
+                      <app-admin-icon name="square-menu" class="h-4 w-4" />
+                    </span>
+                  }
                   <button
                     type="button"
                     cdkDragHandle
@@ -160,6 +236,110 @@ export class ProductAttributesEditor {
 
   readonly value = input.required<ProductAttribute[]>();
   readonly valueChange = output<ProductAttribute[]>();
+
+  /** What the rest of the catalog carries, for the picker and the badges. */
+  readonly knownKeys = input<readonly AttributeKeyUsage[]>([]);
+  readonly definitions = input<readonly AttributeDefinition[]>([]);
+  /**
+   * The keys this product carried when it was loaded. They are discounted from
+   * the counts, so the badges speak about the rest of the catalog and a name
+   * only this product uses keeps saying so after it has been saved.
+   */
+  readonly ownKeys = input<readonly string[]>([]);
+
+  protected readonly hints = computed<AttributeHint[]>(() =>
+    attributeHints(this.knownKeys(), this.definitions(), this.ownKeys()),
+  );
+
+  private readonly hintsByKey = computed(
+    () => new Map(this.hints().map((hint) => [hint.key, hint])),
+  );
+
+  protected readonly usedKeys = computed(() =>
+    this.rows()
+      .map((row) => row.key.trim())
+      .filter((key) => key !== ''),
+  );
+
+  /** What this row's key means to the catalog; drives the one status badge. */
+  protected rowStatus(row: ProductAttribute): AttributeRowStatus {
+    return attributeRowStatus(row, this.hintsByKey());
+  }
+
+  /**
+   * Icon, weight and wording per badge. Only what the shop *does* with the row
+   * is worth a badge: that it filters by it, or that this value will be left
+   * out of that filter. An unmatched key is said by the dead link instead.
+   */
+  private readonly badges: Record<
+    BadgeStatus,
+    {
+      icon: AdminIconName;
+      tone: HintBadgeTone;
+      label: 'filterable' | 'notNumeric';
+    }
+  > = {
+    filterable: { icon: 'funnel', tone: 'neutral', label: 'filterable' },
+    'not-numeric': {
+      icon: 'triangle-alert',
+      tone: 'warning',
+      label: 'notNumeric',
+    },
+  };
+
+  protected hasBadge(row: ProductAttribute): boolean {
+    return this.badge(row) !== null;
+  }
+
+  protected statusIcon(row: ProductAttribute): AdminIconName {
+    return this.badges[this.badge(row) ?? 'filterable'].icon;
+  }
+
+  protected statusTone(row: ProductAttribute): HintBadgeTone {
+    return this.badges[this.badge(row) ?? 'filterable'].tone;
+  }
+
+  protected statusLabel(row: ProductAttribute): string {
+    return this.text[this.badges[this.badge(row) ?? 'filterable'].label];
+  }
+
+  private badge(row: ProductAttribute): BadgeStatus | null {
+    const status = this.rowStatus(row);
+    return status === 'filterable' || status === 'not-numeric' ? status : null;
+  }
+
+  /** What the dead link says: why there is nothing behind it. */
+  protected linkHint(row: ProductAttribute): string {
+    return this.rowStatus(row) === 'unknown'
+      ? this.text.unknownKey
+      : this.text.showUsage;
+  }
+
+  /** Whether anything else in the catalog knows the name — no link if not. */
+  protected isKnown(row: ProductAttribute): boolean {
+    const hint = this.hintsByKey().get(row.key.trim());
+    return hint !== undefined && attributeIsKnown(hint);
+  }
+
+  /**
+   * Append one empty row per picked name. Rows with nothing in them at all are
+   * dropped first — including the phantom one an empty grid renders — so
+   * picking a name on a fresh product fills the first row rather than the
+   * second.
+   */
+  protected addKeys(keys: string[]): void {
+    const rows = this.current().filter(
+      (row) => row.key.trim() !== '' || row.value.trim() !== '',
+    );
+    const room = Math.max(0, PRODUCT_ATTRIBUTES_MAX - rows.length);
+    const added = keys.slice(0, room).map((key) => ({ key, value: '' }));
+    if (added.length === 0) return;
+    this.remember();
+    this.dropCaret();
+    // Into the first new row's value: the name is already filled in.
+    this.caretPending = { row: rows.length, col: 1 };
+    this.valueChange.emit([...rows, ...added]);
+  }
 
   /** Always render at least one (empty) row so the table is never empty. */
   protected readonly rows = computed<ProductAttribute[]>(() =>
@@ -377,6 +557,7 @@ export class ProductAttributesEditor {
       event.preventDefault(); // cells are single-line
       return;
     }
+    if (this.typeOverSelection(event)) return;
     if (event.key !== 'Backspace' && event.key !== 'Delete') return;
 
     // A multi-cell selection + Delete/Backspace clears those cells (Excel-style)
@@ -395,6 +576,44 @@ export class ProductAttributesEditor {
     if (this.atBoundary(event.key)) {
       event.preventDefault();
     }
+  }
+
+  /**
+   * A printable key pressed while the selection spans more than one cell.
+   *
+   * Left to the browser, the character lands wherever the selection happens to
+   * start — the key column, for a value the user dragged over and out of, which
+   * is how a selection silently grows past its cell — and takes the structure
+   * of everything it spans with it. Handled here it does what a spreadsheet
+   * does: it replaces the cell the drag *began* in, the same target a paste
+   * uses, and leaves the rest of the selection alone.
+   */
+  private typeOverSelection(event: KeyboardEvent): boolean {
+    if (
+      event.key.length !== 1 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey
+    ) {
+      return false;
+    }
+    if (this.withinOneCell()) return false;
+    const target = this.pasteTarget();
+    if (!target) return false;
+
+    event.preventDefault();
+    this.remember();
+    const rows = this.current();
+    const row = rows[target.row];
+    if (!row) return true;
+    rows[target.row] =
+      target.col === 0
+        ? { ...row, key: event.key }
+        : { ...row, value: event.key };
+    this.dropCaret();
+    this.caretPending = target;
+    this.valueChange.emit(rows);
+    return true;
   }
 
   /**
@@ -588,6 +807,9 @@ export class ProductAttributesEditor {
       : [{ key: '', value: '' }];
   }
 }
+
+/** The two statuses a badge is drawn for. */
+type BadgeStatus = Extract<AttributeRowStatus, 'filterable' | 'not-numeric'>;
 
 /** A point in the grid's history: the rows, and where the caret was. */
 interface Snapshot {
