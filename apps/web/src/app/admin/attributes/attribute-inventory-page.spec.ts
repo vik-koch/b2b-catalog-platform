@@ -37,6 +37,8 @@ async function render(
     keys?: AttributeKeyUsage[];
     values?: AttributeValueUsage[];
     confirmed?: boolean;
+    /** The `?key=` a link into this screen carries. */
+    key?: string;
   } = {},
 ) {
   const service = {
@@ -59,6 +61,9 @@ async function render(
     ],
   });
   const fixture = TestBed.createComponent(AttributeInventoryPage);
+  if (options.key !== undefined) {
+    fixture.componentRef.setInput('key', options.key);
+  }
   await fixture.whenStable();
   fixture.detectChanges();
 
@@ -108,6 +113,11 @@ function row(el: HTMLElement, key: string): HTMLElement {
   return found;
 }
 
+/** A hint badge states its sentence as the accessible name, not as text. */
+function badge(row: ParentNode, label: string): Element | null {
+  return row.querySelector(`[aria-label="${label}"]`);
+}
+
 describe('AttributeInventoryPage', () => {
   it('lists a freetext key with its usage, unbadged', async () => {
     const { el } = await render({
@@ -117,9 +127,8 @@ describe('AttributeInventoryPage', () => {
     expect(el.textContent).toContain('Colour');
     expect(el.textContent).toContain(text.products.replace('{count}', '4'));
     expect(el.textContent).toContain(text.values.replace('{count}', '2'));
-    // Most attributes are freetext; only the declared ones are badged. Read
-    // off the row, since the header's link to the registry says the word too.
-    expect(row(el, 'Colour').textContent).not.toContain(text.filterable);
+    // Most attributes are freetext; only the declared ones are badged.
+    expect(badge(row(el, 'Colour'), text.filterable)).toBeNull();
   });
 
   it('marks a key the shop already filters by', async () => {
@@ -127,7 +136,7 @@ describe('AttributeInventoryPage', () => {
       keys: [key({ definition: { id: 'def-1', type: 'text' } })],
     });
 
-    expect(row(el, 'Colour').textContent).toContain(text.filterable);
+    expect(badge(row(el, 'Colour'), text.filterable)).not.toBeNull();
   });
 
   it('loads a key’s values when it is expanded', async () => {
@@ -152,7 +161,7 @@ describe('AttributeInventoryPage', () => {
 
     await expand('Width');
 
-    expect(el.textContent).toContain(text.notNumeric);
+    expect(badge(el, text.notNumeric)).not.toBeNull();
   });
 
   it('says nothing about numbers under a text attribute', async () => {
@@ -163,7 +172,7 @@ describe('AttributeInventoryPage', () => {
 
     await expand('Colour');
 
-    expect(el.textContent).not.toContain(text.notNumeric);
+    expect(badge(el, text.notNumeric)).toBeNull();
   });
 
   it('renames a key across the catalog after confirming', async () => {
@@ -246,6 +255,39 @@ describe('AttributeInventoryPage', () => {
       key: 'Colour',
       from: 'blu',
       to: 'Blue',
+    });
+  });
+
+  it('opens the key a link handed it, values and all', async () => {
+    // How the product editor's grid hands a row over: the name it carries is
+    // the row that should already be open.
+    const { el, service } = await render({
+      keys: [key({ key: 'Colour' }), key({ key: 'Roast' })],
+      values: [value({ value: 'Blue' })],
+      key: 'Colour',
+    });
+
+    expect(service.listValues).toHaveBeenCalledWith('Colour');
+    expect(el.textContent).toContain('Blue');
+  });
+
+  it('names an empty value, and renames it in one statement', async () => {
+    const { el, service, press, type, submit } = await render({
+      keys: [key({ key: 'Roast' })],
+      values: [value({ value: '' })],
+      key: 'Roast',
+    });
+
+    expect(el.textContent).toContain(text.emptyValue);
+
+    await press(text.renameValue);
+    await type('Dark');
+    await submit();
+
+    expect(service.renameValue).toHaveBeenCalledWith({
+      key: 'Roast',
+      from: '',
+      to: 'Dark',
     });
   });
 

@@ -45,12 +45,15 @@ export type AdminIconName =
   | 'circle-slash'
   | 'rotate-ccw'
   | 'upload'
-  | 'square-chart-gantt'
+  | 'square-menu'
   | 'send'
   | 'package'
   | 'users'
   | 'wrench'
-  | 'lock';
+  | 'lock'
+  | 'funnel'
+  | 'triangle-alert'
+  | 'circle-alert';
 
 @Component({
   selector: 'app-admin-icon',
@@ -273,11 +276,11 @@ export type AdminIconName =
           <path d="M17 8l-5-5-5 5" />
           <path d="M12 3v12" />
         }
-        @case ('square-chart-gantt') {
+        @case ('square-menu') {
           <rect width="18" height="18" x="3" y="3" rx="2" />
-          <path d="M9 8h7" />
-          <path d="M8 12h6" />
-          <path d="M11 16h5" />
+          <path d="M7 8h10" />
+          <path d="M7 12h10" />
+          <path d="M7 16h10" />
         }
         @case ('send') {
           <path
@@ -307,6 +310,21 @@ export type AdminIconName =
         @case ('lock') {
           <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
           <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        }
+        @case ('funnel') {
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+        }
+        @case ('triangle-alert') {
+          <path
+            d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"
+          />
+          <path d="M12 9v4" />
+          <path d="M12 17h.01" />
+        }
+        @case ('circle-alert') {
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 8v4" />
+          <path d="M12 16h.01" />
         }
       }
     </svg>

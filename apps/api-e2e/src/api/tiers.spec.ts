@@ -297,44 +297,78 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
     });
   });
 
+  const baseCount = async (): Promise<number> =>
+    (await get('/admin/tiers')).data.defaultUserCount;
+
+  /**
+   * What one edit does to the base list's customer count.
+   *
+   * The number is global — every suite that activates, moves or deletes a
+   * customer shifts it, and they run in parallel against one database — so a
+   * bare before/after pair can report somebody else's change as this test's.
+   * `revert` puts the world back, and a reading is only trusted when the count
+   * returns to where it started; when it does not, the measurement is taken
+   * again. `restored` is the caller's business: for an edit that should move
+   * the number, coming back is part of what is under test.
+   */
+  async function baseCountChange(
+    apply: () => Promise<unknown>,
+    revert: () => Promise<unknown>,
+    attempts = 5,
+  ): Promise<{ delta: number; restored: boolean }> {
+    for (let attempt = 1; ; attempt++) {
+      const before = await baseCount();
+      await apply();
+      const during = await baseCount();
+      await revert();
+      const after = await baseCount();
+
+      if (after === before || attempt === attempts) {
+        return { delta: during - before, restored: after === before };
+      }
+    }
+  }
+
   describe('the base list', () => {
     it('counts the customers on it, and no staff', async () => {
-      const before = (await get('/admin/tiers')).data.defaultUserCount;
-
       // The seeded admin and manager also carry a null tierId; only the
       // customer may move the number.
       const created = await createTier({
         key: keyFor('base-count'),
         label: 'Base count',
       });
-      await client.query('UPDATE users SET "tierId" = $1 WHERE email = $2', [
-        created.data.id,
-        USER_EMAIL,
-      ]);
-      expect((await get('/admin/tiers')).data.defaultUserCount).toBe(
-        before - 1,
+
+      const { delta, restored } = await baseCountChange(
+        () =>
+          client.query('UPDATE users SET "tierId" = $1 WHERE email = $2', [
+            created.data.id,
+            USER_EMAIL,
+          ]),
+        () =>
+          client.query('UPDATE users SET "tierId" = NULL WHERE email = $1', [
+            USER_EMAIL,
+          ]),
       );
 
-      await client.query('UPDATE users SET "tierId" = NULL WHERE email = $1', [
-        USER_EMAIL,
-      ]);
-      expect((await get('/admin/tiers')).data.defaultUserCount).toBe(before);
+      expect(delta).toBe(-1);
+      expect(restored).toBe(true);
     });
 
     it('leaves a pending registration out of the count', async () => {
-      const before = (await get('/admin/tiers')).data.defaultUserCount;
-
       // A registration is a request, not a customer: it carries no tier and
       // nobody sells to it at the base list's prices yet.
-      await client.query(
-        `INSERT INTO users (email, "passwordHash", role, status)
-         VALUES ($1, $2, 'user', 'pending')`,
-        [PENDING_EMAIL, '$argon2id$placeholder'],
+      const { delta } = await baseCountChange(
+        () =>
+          client.query(
+            `INSERT INTO users (email, "passwordHash", role, status)
+             VALUES ($1, $2, 'user', 'pending')`,
+            [PENDING_EMAIL, '$argon2id$placeholder'],
+          ),
+        () =>
+          client.query('DELETE FROM users WHERE email = $1', [PENDING_EMAIL]),
       );
 
-      expect((await get('/admin/tiers')).data.defaultUserCount).toBe(before);
-
-      await client.query('DELETE FROM users WHERE email = $1', [PENDING_EMAIL]);
+      expect(delta).toBe(0);
     });
 
     it('leaves staff out of a tier count as well', async () => {

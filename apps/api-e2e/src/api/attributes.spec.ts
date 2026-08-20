@@ -231,6 +231,17 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       expect(res.data.unparsedCount).toBe(1);
     });
 
+    it('drops a unit sent for a text attribute — "Blue cm" is not a value', async () => {
+      const res = await createDefinition({
+        name: nameFor('Finish'),
+        type: 'text',
+        unit: 'cm',
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.data.unit).toBeNull();
+    });
+
     it('matches exactly: a mistyped name matches nothing', async () => {
       const res = await createDefinition({
         name: `${WIDTH.toLowerCase()} `,

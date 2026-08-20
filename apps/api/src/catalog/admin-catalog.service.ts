@@ -264,8 +264,9 @@ export class AdminCatalogService {
           .returning(adminProductColumns),
       );
       await this.replaceTierPrices(tx, row[0].id, input.tierPrices);
-      await this.replaceAttributes(tx, row[0].id, input.attributes);
-      return toAdminProduct(row[0], input.tierPrices, input.attributes);
+      const attributes = storedAttributes(input.attributes);
+      await this.replaceAttributes(tx, row[0].id, attributes);
+      return toAdminProduct(row[0], input.tierPrices, attributes);
     });
   }
 
@@ -310,8 +311,9 @@ export class AdminCatalogService {
           .returning(adminProductColumns),
       );
       await this.replaceTierPrices(tx, existing.id, input.tierPrices);
-      await this.replaceAttributes(tx, existing.id, input.attributes);
-      return toAdminProduct(row[0], input.tierPrices, input.attributes);
+      const attributes = storedAttributes(input.attributes);
+      await this.replaceAttributes(tx, existing.id, attributes);
+      return toAdminProduct(row[0], input.tierPrices, attributes);
     });
   }
 
@@ -968,6 +970,18 @@ export class AdminCatalogService {
       throw e;
     }
   }
+}
+
+/**
+ * The attributes a product actually keeps. A row with no value states nothing:
+ * it would print a dangling label on the product page and turn up as a nameless
+ * checkbox in that attribute's filter. The grid produces them on purpose — the
+ * key picker adds a row per name picked — so they are dropped, not refused, the
+ * same way a row with no key is.
+ */
+function storedAttributes(entries: ProductAttribute[]): ProductAttribute[] {
+  // Both sides arrive trimmed from the contract.
+  return entries.filter((entry) => entry.key !== '' && entry.value !== '');
 }
 
 function toAdminProduct(

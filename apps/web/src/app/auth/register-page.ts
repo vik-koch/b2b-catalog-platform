@@ -22,6 +22,7 @@ import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
 import { AuthService } from './auth.service';
+import { Checkbox } from '../ui/checkbox';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -42,6 +43,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 @Component({
   selector: 'app-register-page',
   imports: [
+    Checkbox,
     AuthCard,
     ReactiveFormsModule,
     RouterLink,
@@ -189,8 +191,9 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             <label class="flex items-start gap-2 text-sm">
               <input
                 type="checkbox"
+                appCheckbox
                 formControlName="acceptPrivacy"
-                class="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+                class="mt-0.5"
                 aria-required="true"
                 [attr.aria-invalid]="isInvalid('acceptPrivacy') || null"
               />

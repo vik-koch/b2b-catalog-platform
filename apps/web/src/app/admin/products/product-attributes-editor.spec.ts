@@ -1,5 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { ProductAttribute } from '@b2b-catalog-platform/shared';
+import { provideRouter } from '@angular/router';
+import {
+  AttributeDefinition,
+  AttributeKeyUsage,
+  ProductAttribute,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { ProductAttributesEditor } from './product-attributes-editor';
@@ -8,13 +13,26 @@ import { ProductAttributesEditor } from './product-attributes-editor';
  * The grid is one `contenteditable` region, so these drive it the way a browser
  * does — real events on the tbody — rather than calling methods.
  */
-function render(rows: ProductAttribute[]) {
+function render(
+  rows: ProductAttribute[],
+  catalog: {
+    keys?: AttributeKeyUsage[];
+    definitions?: AttributeDefinition[];
+    ownKeys?: string[];
+  } = {},
+) {
   TestBed.configureTestingModule({
     imports: [ProductAttributesEditor],
-    providers: [{ provide: ADMIN_TEXT, useValue: defaultAdminText }],
+    providers: [
+      provideRouter([]),
+      { provide: ADMIN_TEXT, useValue: defaultAdminText },
+    ],
   });
   const fixture = TestBed.createComponent(ProductAttributesEditor);
   fixture.componentRef.setInput('value', rows);
+  fixture.componentRef.setInput('knownKeys', catalog.keys ?? []);
+  fixture.componentRef.setInput('definitions', catalog.definitions ?? []);
+  fixture.componentRef.setInput('ownKeys', catalog.ownKeys ?? []);
   const emitted: ProductAttribute[][] = [];
   fixture.componentInstance.valueChange.subscribe((v) => {
     emitted.push(v);
@@ -31,6 +49,19 @@ function render(rows: ProductAttribute[]) {
     /** The action buttons of a body row: grip, ＋, bin — in that order. */
     actions: (row = 0) =>
       el.querySelectorAll('tbody tr')[row].querySelectorAll('button'),
+    /** The status badge a row shows, by the remark it carries. */
+    status: (row = 0) =>
+      el
+        .querySelectorAll('tbody tr')
+        [row].querySelector('app-hint-badge [role="img"]')
+        ?.getAttribute('aria-label') ?? null,
+    /** The live "who else carries this" link of a row, if it has one. */
+    link: (row = 0) => el.querySelectorAll('tbody tr')[row].querySelector('a'),
+    /** Its dead counterpart, kept in place when there is nothing to show. */
+    deadLink: (row = 0) =>
+      el
+        .querySelectorAll('tbody tr')
+        [row].querySelector('[aria-disabled="true"]'),
   };
 }
 
@@ -275,6 +306,45 @@ describe('ProductAttributesEditor grid', () => {
     ]);
   });
 
+  it('types into the cell the selection began in, not the key column', () => {
+    // A drag that leaves its cell stops being a text selection: the browser
+    // grows it over whole cells, key column included. The character belongs to
+    // the value the user was pointing at.
+    const h = render(rows());
+    const key = h.tbody.querySelector('[data-col="0"]') as HTMLElement;
+    const value = h.tbody.querySelector('[data-col="1"]') as HTMLElement;
+    value.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    selectAcross(key, value);
+
+    const typed = new KeyboardEvent('keydown', {
+      key: 'P',
+      bubbles: true,
+      cancelable: true,
+    });
+    h.tbody.dispatchEvent(typed);
+
+    expect(typed.defaultPrevented).toBe(true);
+    // The cell is replaced, spreadsheet-style, and its neighbour is untouched.
+    expect(h.emitted.at(-1)).toEqual([
+      { key: 'Origin', value: 'P' },
+      { key: 'Roast', value: 'Dark' },
+    ]);
+  });
+
+  it('leaves ordinary typing inside one cell to the browser', () => {
+    const h = render(rows());
+    caretIn(h.tbody.querySelector('[data-col="1"]') as HTMLElement);
+
+    const typed = new KeyboardEvent('keydown', {
+      key: 'x',
+      bubbles: true,
+      cancelable: true,
+    });
+    h.tbody.dispatchEvent(typed);
+
+    expect(typed.defaultPrevented).toBe(false);
+  });
+
   it('handles paste itself, so no clipboard markup reaches the table', () => {
     const h = render(rows());
     caretIn(h.tbody.querySelector('[data-col="0"]') as HTMLElement);
@@ -283,5 +353,212 @@ describe('ProductAttributesEditor grid', () => {
     h.tbody.dispatchEvent(paste);
 
     expect(paste.defaultPrevented).toBe(true);
+  });
+});
+
+const text = defaultAdminText.productEditor.attributes;
+
+const known = (key: string, productCount = 3): AttributeKeyUsage => ({
+  key,
+  productCount,
+  valueCount: 2,
+  definition: null,
+});
+
+const declared = (
+  name: string,
+  type: 'text' | 'number' = 'text',
+): AttributeDefinition => ({
+  id: `def-${name}`,
+  name,
+  slug: name.toLowerCase(),
+  type,
+  unit: null,
+  sortOrder: 0,
+  productCount: 1,
+  valueCount: 1,
+  unparsedCount: 0,
+  updatedAt: '2026-08-19T10:00:00.000Z',
+});
+
+describe('ProductAttributesEditor row badges', () => {
+  it('says nothing about a key the catalog already carries', () => {
+    const h = render(rows(), { keys: [known('Origin'), known('Roast')] });
+
+    expect(h.status(0)).toBeNull();
+  });
+
+  it('says a key nothing else carries through the dead link, not a badge', () => {
+    const h = render([{ key: 'Lenght', value: '30' }], {
+      keys: [known('Length')],
+    });
+
+    // No badge: only what the shop does with a row earns one.
+    expect(h.status(0)).toBeNull();
+    expect(h.link(0)).toBeNull();
+    expect(h.deadLink(0)?.getAttribute('title')).toBe(text.unknownKey);
+  });
+
+  it('keeps the link in place, dead, so the row actions never shift', () => {
+    const h = render([{ key: '', value: '' }], { keys: [known('Origin')] });
+
+    expect(h.deadLink(0)?.getAttribute('title')).toBe(text.showUsage);
+  });
+
+  it('keeps marking a key only this product carries, once saved', () => {
+    // The catalog now counts this very product under the typo; discounting it
+    // is what keeps the badge from going quiet the moment it became permanent.
+    const h = render([{ key: 'Lenght', value: '30' }], {
+      keys: [known('Lenght', 1), known('Length')],
+      ownKeys: ['Lenght'],
+    });
+
+    expect(h.status(0)).toBeNull();
+    expect(h.link(0)).toBeNull();
+    expect(h.deadLink(0)?.getAttribute('title')).toBe(text.unknownKey);
+  });
+
+  it('marks a declared key as filterable', () => {
+    const h = render([{ key: 'Roast', value: 'Dark' }], {
+      definitions: [declared('Roast')],
+    });
+
+    expect(h.status(0)).toBe(text.filterable);
+  });
+
+  it('warns where a value drops out of a number attribute’s filter', () => {
+    const h = render([{ key: 'Length', value: 'ca. 30' }], {
+      definitions: [declared('Length', 'number')],
+    });
+
+    expect(h.status(0)).toBe(text.notNumeric);
+  });
+
+  it('links to the attribute in the inventory, in a new tab', () => {
+    const h = render(rows(), { keys: [known('Origin')] });
+    const link = h.link(0);
+
+    expect(link?.getAttribute('target')).toBe('_blank');
+    // The key, not the pair: what the link promises is what the enabled state
+    // knows — that the catalog carries this name.
+    expect(link?.getAttribute('href')).toBe(
+      '/admin/attributes/inventory?key=Origin',
+    );
+  });
+
+  it('links by the key alone while the row is half typed', () => {
+    const h = render([{ key: ' Origin ', value: '' }], {
+      keys: [known('Origin')],
+    });
+
+    expect(h.link(0)?.getAttribute('href')).toBe(
+      '/admin/attributes/inventory?key=Origin',
+    );
+  });
+
+  it('offers no live link where there is nothing to show', () => {
+    const h = render([{ key: 'Lenght', value: '30' }], {
+      keys: [known('Length')],
+    });
+
+    expect(h.link(0)).toBeNull();
+    expect(h.deadLink(0)).not.toBeNull();
+  });
+});
+
+describe('ProductAttributesEditor key picker', () => {
+  /** Opens the picker and returns its checkbox rows. */
+  function open(h: ReturnType<typeof render>) {
+    const picker = h.el.querySelector(
+      'app-attribute-key-picker',
+    ) as HTMLElement;
+    (picker.querySelector('button') as HTMLButtonElement).click();
+    h.fixture.detectChanges();
+    return {
+      picker,
+      labels: [...picker.querySelectorAll('label')],
+      apply: () => {
+        const buttons = [...picker.querySelectorAll('button')];
+        (buttons[buttons.length - 1] as HTMLButtonElement).click();
+        h.fixture.detectChanges();
+      },
+    };
+  }
+
+  function check(label: HTMLElement, fixture: { detectChanges(): void }) {
+    const box = label.querySelector('input') as HTMLInputElement;
+    box.checked = true;
+    box.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+  }
+
+  it('lists every known name, declared or not, alphabetically', () => {
+    const h = render([{ key: '', value: '' }], {
+      keys: [known('Roast'), known('Origin')],
+      definitions: [declared('Colour')],
+    });
+
+    const { labels } = open(h);
+
+    expect(labels.map((l) => l.textContent?.trim().split(/\s+/)[0])).toEqual([
+      'Colour',
+      'Origin',
+      'Roast',
+    ]);
+  });
+
+  it('offers a name the table already holds, but not twice', () => {
+    const h = render(rows(), { keys: [known('Origin')] });
+
+    const { labels } = open(h);
+
+    expect(labels[0].querySelector('input')?.disabled).toBe(true);
+    expect(labels[0].textContent).toContain(text.inTable);
+  });
+
+  it('appends one empty row per checked name, filling an empty grid', () => {
+    const h = render([], {
+      keys: [known('Origin')],
+      definitions: [declared('Colour')],
+    });
+
+    const picker = open(h);
+    check(picker.labels[0], h.fixture); // Colour
+    check(picker.labels[1], h.fixture); // Origin
+    picker.apply();
+
+    // The phantom empty row an empty grid renders is not left above them.
+    expect(h.emitted.at(-1)).toEqual([
+      { key: 'Colour', value: '' },
+      { key: 'Origin', value: '' },
+    ]);
+  });
+
+  it('drops a checked name once the grid holds it, so it is not added twice', () => {
+    const h = render([], { definitions: [declared('Colour')] });
+
+    const picker = open(h);
+    check(picker.labels[0], h.fixture);
+    // The admin types the same name into a cell while the panel is open.
+    h.fixture.componentRef.setInput('value', [{ key: 'Colour', value: '' }]);
+    h.fixture.detectChanges();
+
+    const buttons = [...picker.picker.querySelectorAll('button')];
+    const apply = buttons[buttons.length - 1] as HTMLButtonElement;
+    expect(apply.disabled).toBe(true);
+    expect(apply.textContent).toContain('0');
+  });
+
+  it('adds below what the product already carries, and undoes in one step', () => {
+    const h = render(rows(), { definitions: [declared('Colour')] });
+
+    const picker = open(h);
+    check(picker.labels[0], h.fixture);
+    picker.apply();
+    expect(h.emitted.at(-1)).toEqual([...rows(), { key: 'Colour', value: '' }]);
+
+    undo(h.tbody);
+
+    expect(h.emitted.at(-1)).toEqual(rows());
   });
 });

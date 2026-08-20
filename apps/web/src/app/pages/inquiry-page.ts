@@ -14,6 +14,7 @@ import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
 import { InquiryService } from './inquiry.service';
+import { Checkbox } from '../ui/checkbox';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -26,6 +27,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 @Component({
   selector: 'app-inquiry-page',
   imports: [
+    Checkbox,
     ReactiveFormsModule,
     RouterLink,
     Button,
@@ -152,8 +154,9 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
                    size (~13px) the same nudge reads as too high. -->
               <input
                 type="checkbox"
+                appCheckbox
                 formControlName="acceptPrivacy"
-                class="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+                class="mt-0.5"
                 aria-required="true"
                 [attr.aria-invalid]="isInvalid('acceptPrivacy') || null"
               />

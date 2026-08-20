@@ -166,7 +166,7 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
     </div>
 
     <ng-template #specs>
-      @if (item().attributes.length || packagingRows().length) {
+      @if (attributes().length || packagingRows().length) {
         <h2
           class="mt-8 text-xs font-semibold tracking-wide text-subtle uppercase"
         >
@@ -177,7 +177,7 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
              the product editor's attribute grid. -->
         <table class="mt-3 w-full border-t border-border text-sm">
           <tbody class="divide-y divide-border">
-            @for (attr of item().attributes; track $index) {
+            @for (attr of attributes(); track $index) {
               <tr>
                 <th
                   scope="row"
@@ -225,6 +225,15 @@ export class ProductDetailView {
   );
   /** Pack and box: the headline is the per-piece price above them. */
   protected readonly unitPrices = computed(() => this.priceRows().slice(1));
+  /**
+   * The attributes worth a row. A stored attribute with no value would print a
+   * dangling label; the editor stopped saving them, and this covers what was
+   * stored before it did.
+   */
+  protected readonly attributes = computed(() =>
+    this.item().attributes.filter((a) => a.value.trim() !== ''),
+  );
+
   protected readonly packagingRows = computed(() =>
     this.units.packagingRows(this.item().boxDimensions),
   );

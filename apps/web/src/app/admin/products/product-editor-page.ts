@@ -2,6 +2,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AdminCategory,
+  AttributeDefinition,
+  AttributeKeyUsage,
   CatalogImage,
   CustomerTier,
   basisDividesQuantities,
@@ -47,6 +49,7 @@ import {
 } from './product-packaging-editor';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { TiersService } from '../tiers/tiers.service';
+import { AttributesService } from '../attributes/attributes.service';
 import { injectEditorReturn } from '../editor-return';
 
 /**
@@ -175,6 +178,9 @@ import { injectEditorReturn } from '../editor-return';
         <div>
           <app-product-attributes-editor
             [value]="attributes()"
+            [knownKeys]="attributeKeys()"
+            [definitions]="attributeDefinitions()"
+            [ownKeys]="ownAttributeKeys()"
             (valueChange)="attributes.set($event)"
           />
         </div>
@@ -271,6 +277,7 @@ import { injectEditorReturn } from '../editor-return';
 export class ProductEditorPage implements UnsavedChangesAware {
   private readonly service = inject(AdminCatalogService);
   private readonly tiersService = inject(TiersService);
+  private readonly attributesService = inject(AttributesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
@@ -286,6 +293,13 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly notFound = signal(false);
   protected readonly categories = signal<AdminCategory[]>([]);
   protected readonly tiers = signal<CustomerTier[]>([]);
+  protected readonly attributeKeys = signal<AttributeKeyUsage[]>([]);
+  protected readonly attributeDefinitions = signal<AttributeDefinition[]>([]);
+  /**
+   * The keys the stored product carries, so the grid's badges can discount it
+   * from the catalog's counts and keep speaking about the other products.
+   */
+  protected readonly ownAttributeKeys = signal<string[]>([]);
 
   protected readonly name = signal('');
   protected readonly slug = signal('');
@@ -407,14 +421,21 @@ export class ProductEditorPage implements UnsavedChangesAware {
   }
 
   private async load(): Promise<void> {
-    const [categories, tiers] = await Promise.all([
+    const [categories, tiers, attributeKeys, definitions] = await Promise.all([
       this.service.listCategories(),
       // The tier list is small and admin-only, like the categories above; both
       // are needed before the form can render its pickers.
       this.tiersService.list().then((r) => r.tiers),
+      // The attribute hints are a convenience beside the grid, not part of the
+      // product: a failure here costs the picker and the row indicators, and
+      // must not cost the editor.
+      this.attributesService.listKeys().catch(() => []),
+      this.attributesService.list().catch(() => []),
     ]);
     this.categories.set(categories);
     this.tiers.set(tiers);
+    this.attributeKeys.set(attributeKeys);
+    this.attributeDefinitions.set(definitions);
     const existingSlug = this.slugParam;
     if (existingSlug !== null) {
       const product = await this.service.getProduct(existingSlug);
@@ -430,6 +451,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.sourceId.set(product.sourceId);
       this.description.set(product.descriptionHtml);
       this.attributes.set(product.attributes);
+      this.ownAttributeKeys.set(product.attributes.map((a) => a.key));
       this.images.set(product.images);
       this.published.set(product.publishedAt !== null);
       this.packaging.set({
@@ -442,9 +464,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
         // 18,90 beside 0.072 looks like two different products' data.
         boxVolume: this.showDecimal(product.boxVolume),
         boxWeight: this.showDecimal(product.boxWeight),
-        // Blanked at 1 so no product shows a "ships as 1 box" rule it does not
-        // have — the same treatment the basis and the minimum get.
-        boxCount: product.boxCount > 1 ? product.boxCount.toString() : '',
+        // A box ships as one unless told otherwise, and the rule is shown the
+        // way the minimum and the basis are. Without a box there is nothing to
+        // count, and the field is disabled and empty.
+        boxCount:
+          product.packsPerBox === null ? '' : product.boxCount.toString(),
       });
       this.tierPrices.set(
         product.tierPrices
@@ -463,6 +487,17 @@ export class ProductEditorPage implements UnsavedChangesAware {
     }
     this.original = this.snapshot();
     this.loading.set(false);
+  }
+
+  /**
+   * What a save sends. A row with no value states nothing — the picker adds one
+   * per name picked, and the ones left unfilled are simply not saved; the server
+   * applies the same rule, so what comes back matches what was sent.
+   */
+  private storedAttributes(): ProductAttribute[] {
+    return this.attributes().filter(
+      (a) => a.key.trim() !== '' && a.value.trim() !== '',
+    );
   }
 
   private snapshot(): string {
@@ -587,8 +622,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
       priceMinor,
       categoryId: this.categoryId(),
       descriptionHtml: this.description(),
-      // Drop rows with no key — a value without a name is meaningless.
-      attributes: this.attributes().filter((a) => a.key.trim() !== ''),
+      // Half-filled rows are dropped: a value with no name is meaningless, and
+      // a name with no value states nothing.
+      attributes: this.storedAttributes(),
       images: this.images(),
       // The full set: a tier the admin cleared is absent here, and the server
       // takes that as "remove the override".

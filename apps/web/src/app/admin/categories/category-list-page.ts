@@ -212,7 +212,7 @@ const EDGE_SLACK = 24;
                     [attr.aria-label]="text.editProducts"
                     [title]="text.editProducts"
                   >
-                    <app-admin-icon name="square-chart-gantt" class="h-4 w-4" />
+                    <app-admin-icon name="square-menu" class="h-4 w-4" />
                   </a>
                   <a
                     [routerLink]="[

@@ -206,6 +206,21 @@ export const adminTextSchema = z
             value: z.string(),
             add: z.string(),
             empty: z.string(),
+            /** The picker of names the catalog already uses (FR-ATTR-09). */
+            addKeys: z.string(),
+            addKeysHint: z.string(),
+            addKeysEmpty: z.string(),
+            /** `{count}` is the number of names checked. */
+            addKeysApply: z.string(),
+            inTable: z.string(),
+            /** `{count}` products carry the name. */
+            products: z.string(),
+            /** The row badges: what the shop does with this attribute. */
+            filterable: z.string(),
+            notNumeric: z.string(),
+            /** The link into the inventory, live and dead. */
+            showUsage: z.string(),
+            unknownKey: z.string(),
           })
           .strict(),
         /**
@@ -625,6 +640,8 @@ export const adminTextSchema = z
         values: z.string(),
         /** Marks a value that drops out of a number attribute's filter. */
         notNumeric: z.string(),
+        /** Stands in for a value that is empty, so the row is not a blank. */
+        emptyValue: z.string(),
         showProducts: z.string(),
         renameKey: z.string(),
         renameValue: z.string(),
