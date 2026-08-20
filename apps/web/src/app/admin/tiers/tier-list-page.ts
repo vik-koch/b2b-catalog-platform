@@ -67,7 +67,7 @@ type EditTarget = { id: string } | { id: null } | null;
         <!-- The base list, pinned first and inert: nothing about it is stored,
              so there is nothing here to change. It sits outside the drop list
              too — it is not a row anyone can move. -->
-        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 p-4">
+        <div class="bg-white flex flex-wrap items-baseline gap-x-3 gap-y-1 p-4">
           <span class="font-medium text-stone-700">
             {{ text.defaultLabel }}
           </span>
@@ -79,7 +79,7 @@ type EditTarget = { id: string } | { id: null } | null;
 
         <ul class="divide-y divide-border">
           @for (tier of tiers.value().tiers; track tier.id; let i = $index) {
-            <li class="p-4">
+            <li class="p-4 bg-white">
               @if (isEditing(tier.id)) {
                 <ng-container [ngTemplateOutlet]="form" />
               } @else {
@@ -154,7 +154,7 @@ type EditTarget = { id: string } | { id: null } | null;
         </ul>
 
         @if (isEditing(null)) {
-          <div class="p-4">
+          <div class="p-4 bg-white">
             <ng-container [ngTemplateOutlet]="form" />
           </div>
         } @else if (tiers.value().tiers.length === 0) {

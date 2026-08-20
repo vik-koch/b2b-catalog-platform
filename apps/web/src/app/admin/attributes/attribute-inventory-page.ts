@@ -69,7 +69,7 @@ type RenameTarget =
       @if (keys.value().length === 0) {
         <p class="text-sm text-muted">{{ text.empty }}</p>
       } @else {
-        <div class="overflow-hidden rounded-lg border border-border">
+        <div class="overflow-hidden bg-white rounded-lg border border-border">
           <ul class="divide-y divide-border">
             @for (entry of keys.value(); track entry.key) {
               <!-- scroll-mt clears the sticky header: without it the anchor
@@ -152,7 +152,7 @@ type RenameTarget =
                   <!-- Values sit inside their key's row rather than on a screen
                        of their own: the comparison that matters is between two
                        spellings of one attribute. -->
-                  <div class="border-t border-border bg-stone-50 px-4">
+                  <div class="border-t border-border px-4">
                     @if (values.error()) {
                       <p class="py-3 text-sm text-muted" role="alert">
                         {{ catalogText.loadError }}
@@ -242,11 +242,14 @@ type RenameTarget =
                         }
                       </ul>
                     } @else {
-                      <!-- The placeholder is this list, not a generic block of
-                           bars: the row count is already known from the key's
-                           own line, and so is the shape of a
-                           value row, so the values can arrive into exactly the
-                           space they will occupy. Nothing below moves. -->
+                      <!-- The placeholder is this list, not a generic block
+                           of bars: the row count is already known from the
+                           key's own line, so the values arrive into exactly
+                           the space they will occupy and nothing below moves.
+                           The markup mirrors a value row rather than
+                           approximating it — the height comes from the action
+                           icons (a 16px icon on a 20px line, plus p-1), not
+                           from the text, so bars alone would be 6px short. -->
                       <ul
                         class="animate-pulse divide-y divide-border"
                         aria-hidden="true"
@@ -255,20 +258,30 @@ type RenameTarget =
                           width of valuePlaceholders(entry.valueCount);
                           track $index
                         ) {
-                          <li class="flex items-center gap-x-3 py-3">
+                          <li class="py-3">
                             <div
-                              class="h-5 rounded bg-stone-200"
-                              [style.width]="width"
-                            ></div>
-                            <div class="h-4 w-20 rounded bg-stone-200"></div>
-                            <span class="ml-auto flex items-center gap-1">
+                              class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
+                            >
                               <span
-                                class="m-1 block h-4 w-4 rounded bg-stone-200"
+                                class="h-4 rounded bg-stone-200"
+                                [style.width]="width"
                               ></span>
                               <span
-                                class="m-1 block h-4 w-4 rounded bg-stone-200"
+                                class="h-4 w-20 rounded bg-stone-200"
                               ></span>
-                            </span>
+                              <span class="ml-auto flex items-center gap-1">
+                                <span class="p-1">
+                                  <span
+                                    class="inline-flex h-4 w-4 rounded bg-stone-200"
+                                  ></span>
+                                </span>
+                                <span class="p-1">
+                                  <span
+                                    class="inline-flex h-4 w-4 rounded bg-stone-200"
+                                  ></span>
+                                </span>
+                              </span>
+                            </div>
                           </li>
                         }
                       </ul>

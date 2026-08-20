@@ -120,7 +120,7 @@ type EditTarget = { id: string } | { id: null } | null;
               [id]="rowId(definition.name)"
             >
               @if (isEditing(definition.id)) {
-                <ng-container [ngTemplateOutlet]="form" />
+                <ng-container [ngTemplateOutlet]="form" class="bg-white" />
               } @else {
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <span class="font-medium text-stone-700">
@@ -205,11 +205,16 @@ type EditTarget = { id: string } | { id: null } | null;
         </ul>
 
         @if (isEditing(null)) {
-          <div class="p-4">
+          <div
+            class="p-4 bg-white"
+            [class]="
+              definitions.value().length !== 0 ? 'border-t border-border' : ''
+            "
+          >
             <ng-container [ngTemplateOutlet]="form" />
           </div>
         } @else if (definitions.value().length === 0) {
-          <p class="p-4 text-sm text-muted">{{ text.empty }}</p>
+          <p class="p-4 bg-white text-sm text-muted">{{ text.empty }}</p>
         }
       </div>
     } @else if (showSkeleton()) {
