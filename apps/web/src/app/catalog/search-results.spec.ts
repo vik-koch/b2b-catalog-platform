@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
-import { ProductListItem } from '@b2b-catalog-platform/shared';
+import { Facet, ProductListItem } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -21,11 +21,13 @@ type SearchResponse = {
     total: number;
     totalPages: number;
   };
+  facets: Facet[];
 };
 
 const page = (items: ProductListItem[], totalPages = 1): SearchResponse => ({
   items,
   pagination: { page: 1, pageSize: 24, total: items.length, totalPages },
+  facets: [],
 });
 
 interface SortOptions {
@@ -33,12 +35,16 @@ interface SortOptions {
   sort?: string;
   /** Records what the component actually asked the API to sort by. */
   spy?: (sort: string) => void;
+  /** The raw `attr` query parameter, as the router would bind it. */
+  attr?: string | string[];
+  /** Records the selection the component actually sent on. */
+  attrSpy?: (attr: string[]) => void;
 }
 
 async function render(
   query: string,
   response: SearchResponse,
-  { sort, spy }: SortOptions = {},
+  { sort, spy, attr, attrSpy }: SortOptions = {},
 ) {
   TestBed.configureTestingModule({
     imports: [SearchResults],
@@ -55,8 +61,14 @@ async function render(
       {
         provide: CatalogService,
         useValue: {
-          searchProducts: async (_q: string, _page: number, s: string) => {
+          searchProducts: async (
+            _q: string,
+            _page: number,
+            s: string,
+            a: string[],
+          ) => {
             spy?.(s);
+            attrSpy?.(a);
             return response;
           },
         },
@@ -66,6 +78,7 @@ async function render(
   const fixture = TestBed.createComponent(SearchResults);
   fixture.componentRef.setInput('q', query);
   if (sort !== undefined) fixture.componentRef.setInput('sort', sort);
+  if (attr !== undefined) fixture.componentRef.setInput('attr', attr);
   await fixture.whenStable();
   fixture.detectChanges();
   return fixture.nativeElement as HTMLElement;
@@ -172,6 +185,56 @@ describe('SearchResults', () => {
       const el = await render('zzzz', page([]));
 
       expect(el.querySelector('select')).toBeNull();
+    });
+  });
+
+  describe('attribute filters (FR-ATTR-04…07)', () => {
+    const facet: Facet = {
+      slug: 'grind',
+      name: 'Grind',
+      type: 'text',
+      unit: null,
+      values: [{ value: 'fine', count: 1, selected: true }],
+    };
+
+    const filtered = (
+      items: ProductListItem[],
+      totalPages = 1,
+    ): SearchResponse => ({
+      ...page(items, totalPages),
+      facets: [facet],
+    });
+
+    it('sends the selection on, normalized, and renders the panel', async () => {
+      let sent: string[] = [];
+      const el = await render('espresso', filtered([item('a', 'A')]), {
+        attr: ['grind:fine', 'grind:fine', 'broken'],
+        attrSpy: (a) => (sent = a),
+      });
+
+      expect(sent).toEqual(['grind:fine']);
+      expect(el.textContent).toContain(defaultAppText.catalog.filters.title);
+    });
+
+    it('carries the selection through the pagination links', async () => {
+      const el = await render('espresso', filtered([item('a', 'A')], 3), {
+        attr: 'grind:fine',
+      });
+
+      const next = [...el.querySelectorAll('a')].find((a) =>
+        a.textContent?.includes(defaultAppText.catalog.nextPage),
+      );
+      expect(next?.getAttribute('href')).toContain('attr=grind:fine');
+    });
+
+    it('keeps the panel on screen when the selection matches nothing', async () => {
+      const el = await render('espresso', filtered([]), { attr: 'grind:fine' });
+
+      expect(el.textContent).toContain(
+        defaultAppText.catalog.filters.noMatches,
+      );
+      expect(el.textContent).not.toContain(defaultAppText.search.noResultsHint);
+      expect(el.querySelector('input[type="checkbox"]')).not.toBeNull();
     });
   });
 });

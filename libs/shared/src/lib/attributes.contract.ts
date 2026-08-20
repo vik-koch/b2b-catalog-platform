@@ -4,6 +4,7 @@ import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
+  attributeTypeSchema,
 } from './attribute-value';
 import { slugSchema } from './slug';
 
@@ -20,15 +21,6 @@ const c = initContract();
 
 /** Matches the `attribute_definitions.unit` varchar. */
 export const ATTRIBUTE_UNIT_MAX_LENGTH = 32;
-
-/**
- * How the attribute's values are read. `number` only decides ordering and
- * whether a value can appear in the facet at all — it is never a validator:
- * an unparseable value is still stored and displayed (FR-ATTR-03).
- */
-export const ATTRIBUTE_TYPES = ['text', 'number'] as const;
-export const attributeTypeSchema = z.enum(ATTRIBUTE_TYPES);
-export type AttributeType = (typeof ATTRIBUTE_TYPES)[number];
 
 /**
  * The name is matched against a product's attribute keys exactly, so it is

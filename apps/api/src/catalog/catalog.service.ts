@@ -11,10 +11,12 @@ import {
   isNull,
 } from 'drizzle-orm';
 import {
+  AttributeSelection,
   CATALOG_PAGE_SIZE,
   CategoryCrumb,
+  Facet,
   CategoryNode,
-  ProductAttribute,
+  ProductDetailAttribute,
   ProductDetail,
   ProductListItem,
   ProductSort,
@@ -26,7 +28,13 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { categories, pages, productAttributes, products } from '../db/schema';
+import {
+  attributeDefinitions,
+  categories,
+  pages,
+  productAttributes,
+  products,
+} from '../db/schema';
 import {
   ancestorsOf,
   buildCategoryTree,
@@ -51,6 +59,11 @@ import {
   unitColumns,
   unitPricesOf,
 } from './product-view';
+import {
+  buildFacets,
+  resolveSelections,
+  selectionConditions,
+} from './product-facets';
 import { SearchLogger } from './search.logger';
 
 interface SearchResult {
@@ -61,6 +74,7 @@ interface SearchResult {
     total: number;
     totalPages: number;
   };
+  facets: Facet[];
 }
 
 interface CategoryProductsResult {
@@ -78,6 +92,7 @@ interface CategoryProductsResult {
     total: number;
     totalPages: number;
   };
+  facets: Facet[];
 }
 
 /**
@@ -116,11 +131,20 @@ export class CatalogService {
     return buildCategoryTree(await this.categoryRows());
   }
 
+  /**
+   * A category's products (FR-CAT-03/04), narrowed by the attribute selection
+   * the caller carries (FR-ATTR-05).
+   *
+   * The scope and the selection are kept apart on purpose: the facet panel is
+   * built from the scope, so the values it offers do not shrink as they are
+   * clicked. See product-facets.ts.
+   */
   async getCategoryProducts(
     slug: string,
     page: number,
     sort: ProductSort,
     tierId: string | null = null,
+    attributes: AttributeSelection[] = [],
   ): Promise<CategoryProductsResult | null> {
     const price = resolvedPriceMinor(tierId);
     const piecePrice = resolvedPiecePrice(tierId);
@@ -129,7 +153,10 @@ export class CatalogService {
     if (!category) return null;
 
     const ids = descendantIds(category.id, rows);
-    const where = and(inArray(products.categoryId, ids), publiclyVisible);
+    const scope = and(inArray(products.categoryId, ids), publiclyVisible);
+    const definitions = await this.attributeDefinitions();
+    const selections = resolveSelections(attributes, definitions);
+    const where = and(scope, ...selectionConditions(this.db, selections));
 
     const [{ value: total }] = await this.db
       .select({ value: count() })
@@ -151,6 +178,7 @@ export class CatalogService {
       .limit(pageSize)
       .offset((page - 1) * pageSize);
     const items = rowsPage.map(toListItem);
+    const facets = await buildFacets(this.db, scope, definitions, selections);
 
     return {
       category: {
@@ -167,6 +195,7 @@ export class CatalogService {
         total: Number(total),
         totalPages: Math.ceil(Number(total) / pageSize),
       },
+      facets,
     };
   }
 
@@ -187,6 +216,7 @@ export class CatalogService {
     page: number,
     sort: SearchSort,
     tierId: string | null = null,
+    attributes: AttributeSelection[] = [],
   ): Promise<SearchResult> {
     const price = resolvedPriceMinor(tierId);
     const piecePrice = resolvedPiecePrice(tierId);
@@ -196,14 +226,21 @@ export class CatalogService {
       return {
         items: [],
         pagination: { page, pageSize, total: 0, totalPages: 0 },
+        facets: [],
       };
     }
 
-    const where = and(publiclyVisible, searchCondition(query));
+    const scope = and(publiclyVisible, searchCondition(query));
+    const definitions = await this.attributeDefinitions();
     const startedAt = Date.now();
 
     return this.db.transaction(async (tx) => {
       await tx.execute(setSearchThreshold);
+      // The trigram threshold is set for this transaction only, so everything
+      // that has to see the same result set runs inside it — the facets
+      // included.
+      const selections = resolveSelections(attributes, definitions);
+      const where = and(scope, ...selectionConditions(tx, selections));
 
       const [{ value: total }] = await tx
         .select({ value: count() })
@@ -224,6 +261,7 @@ export class CatalogService {
         .limit(pageSize)
         .offset((page - 1) * pageSize);
       const items = rows.map(toListItem);
+      const facets = await buildFacets(tx, scope, definitions, selections);
 
       this.searchLog.record({
         query: query.normalized,
@@ -241,6 +279,7 @@ export class CatalogService {
           total: Number(total),
           totalPages: Math.ceil(Number(total) / pageSize),
         },
+        facets,
       };
     });
   }
@@ -310,18 +349,59 @@ export class CatalogService {
   }
 
   /**
+   * The filterable-attribute registry in panel order (FR-ATTR-01). Read on
+   * every listing: it is a handful of rows, and it is what turns a URL slug
+   * into the attribute key products actually carry.
+   */
+  private attributeDefinitions() {
+    return this.db
+      .select()
+      .from(attributeDefinitions)
+      .orderBy(
+        asc(attributeDefinitions.sortOrder),
+        asc(attributeDefinitions.name),
+      );
+  }
+
+  /**
    * A product's attributes in the admin's row order — `sortOrder` is the order,
    * so it has to be asked for explicitly.
+   *
+   * Left-joined to the registry by name, for the unit and the filter link: a
+   * key matching no definition still renders, exactly as it is stored
+   * (FR-ATTR-02).
    */
-  private attributesFor(productId: string): Promise<ProductAttribute[]> {
-    return this.db
+  private async attributesFor(
+    productId: string,
+  ): Promise<ProductDetailAttribute[]> {
+    const rows = await this.db
       .select({
         key: productAttributes.key,
         value: productAttributes.value,
+        numeric: productAttributes.valueNumeric,
+        unit: attributeDefinitions.unit,
+        slug: attributeDefinitions.slug,
+        type: attributeDefinitions.type,
       })
       .from(productAttributes)
+      .leftJoin(
+        attributeDefinitions,
+        eq(attributeDefinitions.name, productAttributes.key),
+      )
       .where(eq(productAttributes.productId, productId))
       .orderBy(asc(productAttributes.sortOrder));
+
+    return rows.map((row) => ({
+      key: row.key,
+      value: row.value,
+      unit: row.unit,
+      // Only where a facet would actually offer this value: a number
+      // attribute's unparseable value has no checkbox to link to (FR-ATTR-03).
+      filterSlug:
+        row.slug && (row.type !== 'number' || row.numeric !== null)
+          ? row.slug
+          : null,
+    }));
   }
 
   async getProduct(

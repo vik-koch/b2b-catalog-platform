@@ -1,5 +1,11 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { ATTRIBUTE_FILTER_MAX_PARAMS } from './attribute-filter';
+import {
+  ATTRIBUTE_NAME_MAX_LENGTH,
+  ATTRIBUTE_VALUE_MAX_LENGTH,
+  attributeTypeSchema,
+} from './attribute-value';
 
 const c = initContract();
 
@@ -106,7 +112,10 @@ export const productListItemSchema = z
   .strict();
 export type ProductListItem = z.infer<typeof productListItemSchema>;
 
-/** A freetext key/value characteristic, detail page only (FR-CAT-05). */
+/**
+ * A freetext key/value characteristic (FR-CAT-05) — as the admin enters it, and
+ * as the admin API reads it back.
+ */
 export const productAttributeSchema = z
   .object({
     key: z.string(),
@@ -114,6 +123,34 @@ export const productAttributeSchema = z
   })
   .strict();
 export type ProductAttribute = z.infer<typeof productAttributeSchema>;
+
+/**
+ * The same, as the product page reads it.
+ *
+ * `unit` is the declared attribute's unit where the key matches a definition
+ * (FR-ATTR-01/02), and null everywhere else. The stored value never carries its
+ * unit, which is what lets the spec table read "1000 g" from a value stored as
+ * "1000" — joining the two is `formatAttributeValue`, shared with the facet
+ * labels.
+ *
+ * `filterSlug` is the definition's slug, and is what turns the row into a link
+ * into the filtered listing (FR-ATTR-08). It is null unless *this value* would
+ * actually be offered as a facet: a number attribute's unparseable value is
+ * still shown, but linking it would land on a listing that filters by something
+ * no checkbox offers.
+ *
+ * Read-only, so it is deliberately not the shape the editor writes: both fields
+ * belong to the definition, and a product save must not be able to set them.
+ */
+export const productDetailAttributeSchema = productAttributeSchema
+  .extend({
+    unit: z.string().nullable(),
+    filterSlug: z.string().nullable(),
+  })
+  .strict();
+export type ProductDetailAttribute = z.infer<
+  typeof productDetailAttributeSchema
+>;
 
 /**
  * The rich-text vocabulary a product description may use — the static-page set
@@ -177,7 +214,7 @@ export const productDetailSchema = z
     /** Sanitized rich text, server-owned (same discipline as page bodies). */
     descriptionHtml: z.string(),
     images: z.array(catalogImageSchema),
-    attributes: z.array(productAttributeSchema),
+    attributes: z.array(productDetailAttributeSchema),
     /** The single category this product belongs to, with its own ancestors —
      * the breadcrumb shows the whole path, not just the leaf. */
     category: categoryCrumbSchema.extend({
@@ -264,6 +301,74 @@ export const searchSortSchema = z.enum([
 ]);
 export type SearchSort = z.infer<typeof searchSortSchema>;
 
+/** Longest `attr` entry: a slug, the separator, and a value. */
+const ATTRIBUTE_FILTER_PARAM_MAX_LENGTH =
+  ATTRIBUTE_NAME_MAX_LENGTH + 1 + ATTRIBUTE_VALUE_MAX_LENGTH;
+
+/**
+ * The selected attribute values (FR-ATTR-05/07), one entry per value as
+ * `<definition-slug>:<value>` — see `attribute-filter.ts` for why the values
+ * are not packed into one parameter.
+ *
+ * Three shapes, because a query string has no array type and every layer
+ * spells one differently: a single entry arrives as a bare string, the ts-rest
+ * client writes `attr[0]=…` (qs index notation), and qs hands back an
+ * object rather than an array once there are more than 20 of either. All three
+ * normalize to a list here, so the panel is never one checkbox away from a 400.
+ *
+ * Entries naming an attribute nobody declared are ignored server-side rather
+ * than refused: a link outlives the definition it was written from.
+ */
+export const attributeParamSchema = z
+  .union([z.string(), z.array(z.string()), z.record(z.string(), z.string())])
+  .optional()
+  .transform((value) => {
+    if (value === undefined) return [];
+    if (typeof value === 'string') return [value];
+    return Array.isArray(value) ? value : Object.values(value);
+  })
+  .pipe(
+    z
+      .array(z.string().max(ATTRIBUTE_FILTER_PARAM_MAX_LENGTH))
+      .max(ATTRIBUTE_FILTER_MAX_PARAMS),
+  );
+
+/**
+ * One selectable value of a facet, with the number of products it would leave
+ * (FR-ATTR-04). The count is taken with every *other* attribute's selection
+ * applied but not this attribute's own — otherwise clicking one value would
+ * collapse its own list to that value. A zero count is rendered disabled, not
+ * hidden (FR-ATTR-05).
+ *
+ * The value is the raw text staff typed; the unit lives on the facet, and
+ * joining the two is the caller's business — the same string has to render in
+ * the spec table and the facet label alike.
+ */
+export const facetValueSchema = z
+  .object({
+    value: z.string(),
+    count: z.number().int().nonnegative(),
+    selected: z.boolean(),
+  })
+  .strict();
+export type FacetValue = z.infer<typeof facetValueSchema>;
+
+/**
+ * One filterable attribute present among the products in scope (FR-ATTR-04),
+ * in the registry's panel order. `slug` is what the URL is written with and
+ * survives a rename, so a shared filtered link keeps working.
+ */
+export const facetSchema = z
+  .object({
+    slug: z.string(),
+    name: z.string(),
+    type: attributeTypeSchema,
+    unit: z.string().nullable(),
+    values: z.array(facetValueSchema),
+  })
+  .strict();
+export type Facet = z.infer<typeof facetSchema>;
+
 /**
  * Query for the grid: 1-based page and a sort. Coerced — query values arrive as
  * strings. Both default here rather than in the UI, so an omitted parameter and
@@ -273,6 +378,7 @@ export type SearchSort = z.infer<typeof searchSortSchema>;
 export const productListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   sort: productSortSchema.optional().default('name'),
+  attr: attributeParamSchema,
 });
 
 /**
@@ -295,6 +401,7 @@ export const productSearchQuerySchema = z.object({
   q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
   page: z.coerce.number().int().positive().optional().default(1),
   sort: searchSortSchema.optional().default('relevance'),
+  attr: attributeParamSchema,
 });
 
 /**
@@ -368,6 +475,7 @@ export const catalogContract = c.router({
             .strict(),
           items: z.array(productListItemSchema),
           pagination: paginationSchema,
+          facets: z.array(facetSchema),
         })
         .strict(),
       404: notFoundSchema,
@@ -390,6 +498,7 @@ export const catalogContract = c.router({
         .object({
           items: z.array(productListItemSchema),
           pagination: paginationSchema,
+          facets: z.array(facetSchema),
         })
         .strict(),
     },

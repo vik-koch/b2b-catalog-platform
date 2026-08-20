@@ -1,12 +1,18 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import {
+  encodeAttributeParams,
+  parseAttributeParams,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
 import { stableValue } from '../core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
 import { Button } from '../ui/button';
+import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
+import { FacetPanel } from './facet-panel';
 import { ProductTile } from './product-tile';
 import {
   ProductSortSelect,
@@ -20,7 +26,15 @@ import {
  */
 @Component({
   selector: 'app-search-results',
-  imports: [RouterLink, ProductTile, ProductSortSelect, Button, LoadErrorView],
+  imports: [
+    RouterLink,
+    ProductTile,
+    ProductSortSelect,
+    FacetPanel,
+    AppliedFilters,
+    Button,
+    LoadErrorView,
+  ],
   template: `
     <section
       class="pb-8 sm:pb-12"
@@ -32,7 +46,7 @@ import {
         </h1>
         <app-load-error-view [message]="text.loadError" />
       } @else if (shown(); as data) {
-        @if (data.items.length) {
+        @if (data.items.length || hasSelection()) {
           <div
             class="flex flex-row flex-wrap justify-between items-stretch gap-3"
           >
@@ -44,6 +58,13 @@ import {
                 {{ resultCount(data.pagination.total) }}
               </p>
             </div>
+            <!-- The chips share the heading's row rather than getting one of
+                 their own: a row that appears with the first selection would
+                 push the grid down as it was ticked. -->
+            <app-applied-filters
+              class="mt-3 hidden min-w-0 flex-1 md:block"
+              [facets]="data.facets"
+            />
             <div class="mt-2 flex flex-col justify-end w-full md:w-auto">
               <app-product-sort-select
                 [value]="sortKey()"
@@ -52,58 +73,77 @@ import {
               />
             </div>
           </div>
-          <ul
-            class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-          >
-            @for (item of data.items; track item.slug) {
-              <li class="h-full"><app-product-tile [item]="item" /></li>
+          <!-- Filters left, results right, from the lg breakpoint up; stacked below, where
+               the panel is a disclosure above the grid. -->
+          <div class="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start">
+            @if (data.facets.length) {
+              <aside class="shrink-0 lg:w-56">
+                <app-facet-panel [facets]="data.facets" />
+              </aside>
             }
-          </ul>
+            <div class="min-w-0 flex-1">
+              @if (!data.items.length) {
+                <p class="text-muted">{{ filterText.noMatches }}</p>
+              }
+              <ul
+                class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3"
+                [class]="gridColumns(data.facets.length)"
+              >
+                @for (item of data.items; track item.slug) {
+                  <li class="h-full"><app-product-tile [item]="item" /></li>
+                }
+              </ul>
 
-          @if (data.pagination.totalPages > 1) {
-            <nav
-              class="mt-10 flex items-center justify-center gap-4 text-sm"
-              [attr.aria-label]="catalogText.pageStatus"
-            >
-              @if (data.pagination.page > 1) {
-                <a
-                  routerLink="/search"
-                  [queryParams]="{
-                    q: query(),
-                    page: data.pagination.page - 1,
-                    sort: sortParam(),
-                  }"
-                  appButton
-                  variant="ghost"
-                  size="sm"
-                  >{{ catalogText.prevPage }}</a
+              @if (data.pagination.totalPages > 1) {
+                <nav
+                  class="mt-10 flex items-center justify-center gap-4 text-sm"
+                  [attr.aria-label]="catalogText.pageStatus"
                 >
-              } @else {
-                <span class="px-3 py-1.5 text-stone-300">{{
-                  catalogText.prevPage
-                }}</span>
+                  @if (data.pagination.page > 1) {
+                    <a
+                      routerLink="/search"
+                      [queryParams]="{
+                        q: query(),
+                        page: data.pagination.page - 1,
+                        sort: sortParam(),
+                        attr: attrParam(),
+                      }"
+                      appButton
+                      variant="ghost"
+                      size="sm"
+                      >{{ catalogText.prevPage }}</a
+                    >
+                  } @else {
+                    <span class="px-3 py-1.5 text-stone-300">{{
+                      catalogText.prevPage
+                    }}</span>
+                  }
+                  <span class="text-subtle">{{
+                    pageStatus(data.pagination)
+                  }}</span>
+                  @if (data.pagination.page < data.pagination.totalPages) {
+                    <a
+                      routerLink="/search"
+                      [queryParams]="{
+                        q: query(),
+                        page: data.pagination.page + 1,
+                        sort: sortParam(),
+                        attr: attrParam(),
+                      }"
+                      appButton
+                      variant="ghost"
+                      size="sm"
+                      >{{ catalogText.nextPage }}</a
+                    >
+                  } @else {
+                    <span class="px-3 py-1.5 text-stone-300">{{
+                      catalogText.nextPage
+                    }}</span>
+                  }
+                </nav>
               }
-              <span class="text-subtle">{{ pageStatus(data.pagination) }}</span>
-              @if (data.pagination.page < data.pagination.totalPages) {
-                <a
-                  routerLink="/search"
-                  [queryParams]="{
-                    q: query(),
-                    page: data.pagination.page + 1,
-                    sort: sortParam(),
-                  }"
-                  appButton
-                  variant="ghost"
-                  size="sm"
-                  >{{ catalogText.nextPage }}</a
-                >
-              } @else {
-                <span class="px-3 py-1.5 text-stone-300">{{
-                  catalogText.nextPage
-                }}</span>
-              }
-            </nav>
-          }
+            </div>
+          </div>
         } @else if (query()) {
           <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
             {{ heading() }}
@@ -144,6 +184,7 @@ export class SearchResults {
 
   protected readonly text = inject(APP_TEXT).search;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly filterText = this.catalogText.filters;
   protected readonly skeletons = Array.from({ length: 10 }, (_, i) => i);
 
   /** Bound from the `q` query param. Named for the parameter, not for what it
@@ -167,6 +208,25 @@ export class SearchResults {
     sortParam(this.sortKey(), 'relevance'),
   );
 
+  /**
+   * Bound from the repeated `attr` query parameter (FR-ATTR-07) — a bare string
+   * when one value is ticked, an array beyond that, which is why it is read
+   * through the shared codec rather than used as it arrives.
+   */
+  readonly attr = input<string | readonly string[] | undefined>(undefined);
+  /** The selection, normalized: duplicates collapsed, malformed entries gone. */
+  protected readonly attrParams = computed(() =>
+    encodeAttributeParams(parseAttributeParams(this.attr())),
+  );
+  protected readonly hasSelection = computed(
+    () => this.attrParams().length > 0,
+  );
+  /** The selection as pagination links should carry it — absent when empty, so
+   * an unfiltered listing keeps one URL. */
+  protected readonly attrParam = computed(() =>
+    this.hasSelection() ? this.attrParams() : null,
+  );
+
   protected readonly heading = computed(() =>
     this.query()
       ? this.text.resultsTitle.replace('{query}', this.query())
@@ -178,9 +238,15 @@ export class SearchResults {
       q: this.query(),
       page: this.currentPage(),
       sort: this.sortKey(),
+      attr: this.attrParams(),
     }),
     loader: ({ params }) =>
-      this.catalog.searchProducts(params.q, params.page, params.sort),
+      this.catalog.searchProducts(
+        params.q,
+        params.page,
+        params.sort,
+        params.attr,
+      ),
   });
 
   /** Held across reloads, so re-sorting swaps the grid instead of blanking it. */
@@ -200,6 +266,16 @@ export class SearchResults {
 
   protected resultCount(total: number): string {
     return this.text.resultCount.replace('{count}', String(total));
+  }
+
+  /**
+   * The grid loses two columns while the filter panel is beside it — the tiles
+   * would otherwise be narrower here than anywhere else in the catalogue.
+   */
+  protected gridColumns(facetCount: number): string {
+    return facetCount
+      ? 'lg:grid-cols-3 xl:grid-cols-4'
+      : 'lg:grid-cols-4 xl:grid-cols-5';
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {

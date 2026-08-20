@@ -49,12 +49,20 @@ function render(
     /** The action buttons of a body row: grip, ＋, bin — in that order. */
     actions: (row = 0) =>
       el.querySelectorAll('tbody tr')[row].querySelectorAll('button'),
-    /** The status badge a row shows, by the remark it carries. */
-    status: (row = 0) =>
+    /** Every badge a row shows, by the remark it carries — the funnel over the
+     * key cell first, then whatever marks the value cell. */
+    marks: (row = 0) =>
+      [
+        ...el
+          .querySelectorAll('tbody tr')
+          [row].querySelectorAll('app-hint-badge [role="img"]'),
+      ].map((badge) => badge.getAttribute('aria-label')),
+    /** The declared unit shown over the value cell, if any. */
+    unit: (row = 0) =>
       el
         .querySelectorAll('tbody tr')
-        [row].querySelector('app-hint-badge [role="img"]')
-        ?.getAttribute('aria-label') ?? null,
+        [row].querySelector('td:last-child > span')
+        ?.textContent?.trim() ?? null,
     /** The live "who else carries this" link of a row, if it has one. */
     link: (row = 0) => el.querySelectorAll('tbody tr')[row].querySelector('a'),
     /** Its dead counterpart, kept in place when there is nothing to show. */
@@ -385,7 +393,7 @@ describe('ProductAttributesEditor row badges', () => {
   it('says nothing about a key the catalog already carries', () => {
     const h = render(rows(), { keys: [known('Origin'), known('Roast')] });
 
-    expect(h.status(0)).toBeNull();
+    expect(h.marks(0)).toEqual([]);
   });
 
   it('says a key nothing else carries through the dead link, not a badge', () => {
@@ -394,7 +402,7 @@ describe('ProductAttributesEditor row badges', () => {
     });
 
     // No badge: only what the shop does with a row earns one.
-    expect(h.status(0)).toBeNull();
+    expect(h.marks(0)).toEqual([]);
     expect(h.link(0)).toBeNull();
     expect(h.deadLink(0)?.getAttribute('title')).toBe(text.unknownKey);
   });
@@ -413,7 +421,7 @@ describe('ProductAttributesEditor row badges', () => {
       ownKeys: ['Lenght'],
     });
 
-    expect(h.status(0)).toBeNull();
+    expect(h.marks(0)).toEqual([]);
     expect(h.link(0)).toBeNull();
     expect(h.deadLink(0)?.getAttribute('title')).toBe(text.unknownKey);
   });
@@ -423,15 +431,36 @@ describe('ProductAttributesEditor row badges', () => {
       definitions: [declared('Roast')],
     });
 
-    expect(h.status(0)).toBe(text.filterable);
+    expect(h.marks(0)).toEqual([text.filterable]);
+  });
+
+  it('shows a number attribute’s unit beside the value it measures', () => {
+    const h = render([{ key: 'Length', value: '30' }], {
+      definitions: [{ ...declared('Length', 'number'), unit: 'cm' }],
+    });
+
+    // The unit belongs to the definition, never to the cell: the row still
+    // holds "30".
+    expect(h.unit(0)).toBe('cm');
+    expect(h.marks(0)).toEqual([text.filterable]);
+  });
+
+  it('keeps the unit while the value is still empty', () => {
+    const h = render([{ key: 'Length', value: '' }], {
+      definitions: [{ ...declared('Length', 'number'), unit: 'cm' }],
+    });
+
+    expect(h.unit(0)).toBe('cm');
   });
 
   it('warns where a value drops out of a number attribute’s filter', () => {
     const h = render([{ key: 'Length', value: 'ca. 30' }], {
-      definitions: [declared('Length', 'number')],
+      definitions: [{ ...declared('Length', 'number'), unit: 'cm' }],
     });
 
-    expect(h.status(0)).toBe(text.notNumeric);
+    // The warning takes the unit's place; the key is still filterable.
+    expect(h.unit(0)).toBeNull();
+    expect(h.marks(0)).toEqual([text.filterable, text.notNumeric]);
   });
 
   it('links to the attribute in the inventory, in a new tab', () => {

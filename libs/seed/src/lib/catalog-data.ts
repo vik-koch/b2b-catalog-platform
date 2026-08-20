@@ -99,6 +99,31 @@ export const categorySeeds: CategorySeed[] = [
   top('gifts', 'Gift Sets'),
 ];
 
+/**
+ * A filterable attribute (FR-ATTR-01), matched to product rows by name. The
+ * demo declares only some of the keys products carry — "Tasting notes" stays
+ * freetext, which is what an undeclared attribute is supposed to look like.
+ */
+export interface AttributeDefinitionSeed {
+  name: string;
+  slug: string;
+  type: 'text' | 'number';
+  /** Number attributes only: the unit belongs here, never in the value. */
+  unit: string | null;
+}
+
+export const attributeDefinitionSeeds: AttributeDefinitionSeed[] = [
+  { name: 'Origin', slug: 'origin', type: 'text', unit: null },
+  { name: 'Roast level', slug: 'roast-level', type: 'text', unit: null },
+  { name: 'Process', slug: 'process', type: 'text', unit: null },
+  { name: 'Type', slug: 'type', type: 'text', unit: null },
+  // Stored unit-free ("1000"), so the values sort numerically and "1 kg" and
+  // "1000 g" cannot become two facets. One tea's weight reads "ca. 250" and
+  // demonstrates the unparseable case.
+  { name: 'Net weight', slug: 'net-weight', type: 'number', unit: 'g' },
+  { name: 'Volume', slug: 'volume', type: 'number', unit: 'ml' },
+];
+
 const beanAttributes = (
   origin: string,
   roast: string,
@@ -109,7 +134,7 @@ const beanAttributes = (
   { key: 'Roast level', value: roast },
   { key: 'Process', value: process },
   { key: 'Tasting notes', value: notes },
-  { key: 'Net weight', value: '1 kg' },
+  { key: 'Net weight', value: '1000' },
 ];
 
 const beanDescription = (name: string, notes: string): string =>
@@ -310,7 +335,7 @@ const allProducts: ProductSeed[] = [
     [
       { key: 'Type', value: 'Black tea' },
       { key: 'Origin', value: 'Assam' },
-      { key: 'Net weight', value: '500 g' },
+      { key: 'Net weight', value: '500' },
     ],
   ),
   p(
@@ -323,7 +348,7 @@ const allProducts: ProductSeed[] = [
     [
       { key: 'Type', value: 'Green tea' },
       { key: 'Origin', value: 'Japan' },
-      { key: 'Net weight', value: '250 g' },
+      { key: 'Net weight', value: '250' },
     ],
   ),
   p(
@@ -336,7 +361,9 @@ const allProducts: ProductSeed[] = [
     [
       { key: 'Type', value: 'Herbal' },
       { key: 'Origin', value: 'Germany' },
-      { key: 'Net weight', value: '250 g' },
+      // Deliberately unparseable: it is stored and shown exactly as typed, and
+      // simply drops out of the Net weight filter (FR-ATTR-03).
+      { key: 'Net weight', value: 'ca. 250' },
     ],
   ),
 
@@ -415,7 +442,7 @@ const allProducts: ProductSeed[] = [
     5400,
     '<p>A set of six 190&nbsp;ml porcelain cappuccino cups and saucers.</p>',
     [
-      { key: 'Volume', value: '190 ml' },
+      { key: 'Volume', value: '190' },
       { key: 'Pieces', value: '6 cups + saucers' },
     ],
   ),
@@ -427,7 +454,7 @@ const allProducts: ProductSeed[] = [
     4200,
     '<p>Six double-walled 300&nbsp;ml latte glasses.</p>',
     [
-      { key: 'Volume', value: '300 ml' },
+      { key: 'Volume', value: '300' },
       { key: 'Pieces', value: '6 glasses' },
     ],
   ),

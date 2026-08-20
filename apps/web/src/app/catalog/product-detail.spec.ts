@@ -23,8 +23,8 @@ const product: Product = productDetail({
     },
   ],
   attributes: [
-    { key: 'Net weight', value: '1 kg' },
-    { key: 'Count per package', value: '200' },
+    { key: 'Net weight', value: '1', unit: 'kg', filterSlug: 'net-weight' },
+    { key: 'Count per package', value: '200', unit: null, filterSlug: null },
   ],
   category: {
     slug: 'espresso',
@@ -119,13 +119,30 @@ describe('ProductDetail', () => {
     expect(values).toEqual(['1 kg', '200']);
   });
 
+  it('links a filterable value into its own category, filtered (FR-ATTR-08)', async () => {
+    const root = el(await render(product));
+    const links = [...root.querySelectorAll('tbody td a')];
+
+    // The link is written from the *stored* value — "1", not the "1 kg" the
+    // row shows — because that is what the facet and the URL are keyed by.
+    expect(links.map((a) => a.getAttribute('href'))).toEqual([
+      `/catalog/${product.category.slug}?attr=net-weight:1`,
+    ]);
+    // And an undeclared attribute stays plain text: the underline is the only
+    // cue that the shop filters by an attribute at all.
+    expect(links[0].textContent?.trim()).toBe('1 kg');
+  });
+
   it('leaves out an attribute with no value', async () => {
     // Stored before valueless attributes stopped being saved: a row here would
     // print a label with nothing beside it.
     const root = el(
       await render({
         ...product,
-        attributes: [...product.attributes, { key: 'Roast', value: '' }],
+        attributes: [
+          ...product.attributes,
+          { key: 'Roast', value: '', unit: null, filterSlug: null },
+        ],
       }),
     );
 

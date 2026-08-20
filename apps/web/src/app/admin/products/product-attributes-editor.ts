@@ -26,8 +26,8 @@ import {
   ProductAttribute,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
-import { HintBadge, HintBadgeTone } from '../../ui/hint-badge';
+import { AdminIcon } from '../../ui/icons/admin-icon';
+import { HintBadge } from '../../ui/hint-badge';
 import { FieldLabel } from '../../ui/field-label';
 import {
   AttributeHint,
@@ -111,7 +111,12 @@ import {
           (keydown)="onKeydown($event)"
         >
           @for (row of rows(); track $index) {
-            <tr cdkDrag [cdkDragData]="row">
+            <!-- The badges are positioned against the row, not the cells they
+                 mark: they are rendered from the action cell (the only part of
+                 the row outside the editable region) and the column edges are
+                 fractions of a fixed-layout table, so a fraction of the row is
+                 exactly the boundary they sit on. -->
+            <tr cdkDrag [cdkDragData]="row" class="relative">
               <!-- A detached table row collapses (loses cell widths), so the
                    floating drag preview is a plain labelled chip instead. -->
               <div
@@ -126,11 +131,15 @@ import {
                    character gives the line something to measure. It has to stay
                    under the cell's content box (h-10 less padding and borders),
                    or the first character grows the row instead. -->
+              <!-- The funnel overlaps this cell from the action cell (see
+                   below), so the text gets out of its way. -->
               <td
                 [attr.data-row]="$index"
                 data-col="0"
                 class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
-                [class]="cellFocus($index, 0)"
+                [class]="
+                  cellFocus($index, 0) + (isFilterable(row) ? ' pr-9' : '')
+                "
               ></td>
               <!-- The badge overlaps this cell from the action cell beside it
                    (see below), so the text gets out of its way. -->
@@ -138,28 +147,51 @@ import {
                 [attr.data-row]="$index"
                 data-col="1"
                 class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
-                [class]="cellFocus($index, 1) + (hasBadge(row) ? ' pr-9' : '')"
+                [class]="cellFocus($index, 1) + (valueMark(row) ? ' pr-9' : '')"
               ></td>
               <td
                 contenteditable="false"
-                class="relative w-32 border-0 pl-3 align-middle select-none"
+                class="w-32 border-0 pl-3 align-middle select-none"
               >
                 <!-- Everything here is outside the editable region, so it is
-                     safe to render — which is also why the badge lives here and
-                     is positioned back over the value cell rather than inside
-                     it: a node inside a cell would be wiped by the next write
-                     from the model. -->
-                @if (hasBadge(row)) {
+                     safe to render — which is also why the marks live here and
+                     are positioned back over the cells they belong to rather
+                     than inside them: a node inside a cell would be wiped by
+                     the next write from the model. -->
+                @if (isFilterable(row)) {
+                  <!-- Over the key cell, because it is the *key* that the shop
+                       filters by; the value cell says what happens to this
+                       row's value. -->
                   <app-hint-badge
-                    class="absolute top-1/2 -left-7 -translate-y-1/2"
-                    [tone]="statusTone(row)"
-                    [label]="statusLabel(row)"
+                    class="absolute top-1/2 right-2/3 mr-2 -translate-y-1/2"
+                    tone="neutral"
+                    [label]="text.filterable"
                   >
-                    <app-admin-icon
-                      [name]="statusIcon(row)"
-                      class="h-3.5 w-3.5"
-                    />
+                    <app-admin-icon name="funnel" class="h-3.5 w-3.5" />
                   </app-hint-badge>
+                }
+                @if (valueMark(row); as mark) {
+                  @if (mark === 'not-numeric') {
+                    <app-hint-badge
+                      class="absolute top-1/2 right-32 mr-2 -translate-y-1/2"
+                      tone="warning"
+                      [label]="text.notNumeric"
+                    >
+                      <app-admin-icon
+                        name="triangle-alert"
+                        class="h-3.5 w-3.5"
+                      />
+                    </app-hint-badge>
+                  } @else {
+                    <!-- The declared unit, where the packaging grid below puts
+                         its own: after the number it measures, in the same
+                         small grey. It is never part of the value — the cell
+                         holds "1000", the shop shows "1000 g". -->
+                    <span
+                      class="absolute top-1/2 right-32 mr-2 -translate-y-1/2 text-xs text-subtle"
+                      >{{ mark }}</span
+                    >
+                  }
                 }
                 <!-- Tighter than a normal control row: four affordances have
                      to fit the same column width the packaging grid uses, so
@@ -267,45 +299,25 @@ export class ProductAttributesEditor {
   }
 
   /**
-   * Icon, weight and wording per badge. Only what the shop *does* with the row
-   * is worth a badge: that it filters by it, or that this value will be left
-   * out of that filter. An unmatched key is said by the dead link instead.
+   * Whether the shop filters by this row's key — the funnel over the key cell.
+   * It says nothing about the value: a declared key stays filterable even where
+   * this row's value drops out of the facet, which the value cell reports.
    */
-  private readonly badges: Record<
-    BadgeStatus,
-    {
-      icon: AdminIconName;
-      tone: HintBadgeTone;
-      label: 'filterable' | 'notNumeric';
-    }
-  > = {
-    filterable: { icon: 'funnel', tone: 'neutral', label: 'filterable' },
-    'not-numeric': {
-      icon: 'triangle-alert',
-      tone: 'warning',
-      label: 'notNumeric',
-    },
-  };
-
-  protected hasBadge(row: ProductAttribute): boolean {
-    return this.badge(row) !== null;
-  }
-
-  protected statusIcon(row: ProductAttribute): AdminIconName {
-    return this.badges[this.badge(row) ?? 'filterable'].icon;
-  }
-
-  protected statusTone(row: ProductAttribute): HintBadgeTone {
-    return this.badges[this.badge(row) ?? 'filterable'].tone;
-  }
-
-  protected statusLabel(row: ProductAttribute): string {
-    return this.text[this.badges[this.badge(row) ?? 'filterable'].label];
-  }
-
-  private badge(row: ProductAttribute): BadgeStatus | null {
+  protected isFilterable(row: ProductAttribute): boolean {
     const status = this.rowStatus(row);
-    return status === 'filterable' || status === 'not-numeric' ? status : null;
+    return status === 'filterable' || status === 'not-numeric';
+  }
+
+  /**
+   * What belongs over the value cell: the declared unit, or `'not-numeric'` for
+   * the warning that replaces it once the value cannot be read as a number
+   * (FR-ATTR-03). An empty cell keeps the unit — nothing is wrong with a row
+   * that is not typed yet, and the unit is the best hint of what to type.
+   */
+  protected valueMark(row: ProductAttribute): string | null {
+    if (this.rowStatus(row) === 'not-numeric') return 'not-numeric';
+    const hint = this.hintsByKey().get(row.key.trim());
+    return hint?.unit ?? null;
   }
 
   /** What the dead link says: why there is nothing behind it. */
@@ -807,9 +819,6 @@ export class ProductAttributesEditor {
       : [{ key: '', value: '' }];
   }
 }
-
-/** The two statuses a badge is drawn for. */
-type BadgeStatus = Extract<AttributeRowStatus, 'filterable' | 'not-numeric'>;
 
 /** A point in the grid's history: the rows, and where the caret was. */
 interface Snapshot {

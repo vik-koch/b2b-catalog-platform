@@ -1,5 +1,6 @@
 import {
   ATTRIBUTE_NUMERIC_LIMIT,
+  formatAttributeValue,
   parseAttributeNumber,
 } from './attribute-value';
 
@@ -35,5 +36,19 @@ describe('parseAttributeNumber', () => {
     expect(parseAttributeNumber(String(ATTRIBUTE_NUMERIC_LIMIT))).toBeNull();
     expect(parseAttributeNumber('-999999999999999')).toBeNull();
     expect(parseAttributeNumber('999999999.999999')).toBe(999999999.999999);
+  });
+});
+
+describe('formatAttributeValue', () => {
+  it('appends the definition’s unit', () => {
+    expect(formatAttributeValue('30', 'cm')).toBe('30 cm');
+  });
+
+  it('leaves a value without a unit exactly as it is stored', () => {
+    expect(formatAttributeValue('ca. 30', null)).toBe('ca. 30');
+    expect(formatAttributeValue('fine')).toBe('fine');
+    // A text definition drops its unit server-side; a blank one left over
+    // must not print a trailing space.
+    expect(formatAttributeValue('fine', '  ')).toBe('fine');
   });
 });

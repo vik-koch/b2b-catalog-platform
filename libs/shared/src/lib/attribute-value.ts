@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 /**
  * The numeric reading of an attribute value. Parsed unconditionally for every
  * value that reads as a number, independent of any definition — that is what
@@ -32,4 +34,31 @@ export function parseAttributeNumber(value: string): number | null {
   const parsed = Number(trimmed);
   if (!Number.isFinite(parsed)) return null;
   return Math.abs(parsed) < ATTRIBUTE_NUMERIC_LIMIT ? parsed : null;
+}
+
+/**
+ * How an attribute's values are read. `number` only decides ordering and
+ * whether a value can appear in a facet at all — it is never a validator: an
+ * unparseable value is still stored and displayed (FR-ATTR-03).
+ */
+export const ATTRIBUTE_TYPES = ['text', 'number'] as const;
+export const attributeTypeSchema = z.enum(ATTRIBUTE_TYPES);
+export type AttributeType = (typeof ATTRIBUTE_TYPES)[number];
+
+/**
+ * An attribute value as it should read on screen: the stored text, then the
+ * definition's unit where there is one (FR-ATTR-01). One function because the
+ * same pairing is needed in three places — the facet labels, the product
+ * page's spec table and the admin's filter chips — and three copies would
+ * drift on the first deployment that wants "30 cm" spaced differently.
+ *
+ * Never used to write a value back: the stored text is the unit-free half, and
+ * the product editor's grid reads its cells straight from the DOM.
+ */
+export function formatAttributeValue(
+  value: string,
+  unit?: string | null,
+): string {
+  const trimmedUnit = unit?.trim();
+  return trimmedUnit ? `${value} ${trimmedUnit}` : value;
 }

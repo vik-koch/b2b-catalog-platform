@@ -41,6 +41,14 @@
       "price": "Price (low to high)",
       "price_desc": "Price (high to low)"
     },
+    "filters": {
+      "title": "Filters",
+      "selected": "({count})",
+      "clearAll": "Clear all filters",
+      "appliedLabel": "Applied filters",
+      "remove": "Remove the filter {label}",
+      "noMatches": "No products match the selected filters."
+    },
     "specifications": "Specifications",
     "productNotFound": "This product could not be found. It may have been removed.",
     "categoryNotFound": "This category could not be found. It may have been removed.",

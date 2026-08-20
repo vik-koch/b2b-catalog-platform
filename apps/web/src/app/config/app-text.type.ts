@@ -91,6 +91,28 @@ export const appTextSchema = z
             price_desc: z.string(),
           })
           .strict(),
+        /**
+         * The attribute filter panel and the applied-filter chips
+         * (FR-ATTR-04…07). `selected` is the count shown on the narrow-screen
+         * toggle, in brackets so it reads as a count beside the word rather
+         * than as a second label.
+         */
+        filters: z
+          .object({
+            title: z.string(),
+            /** `{count}` is the number of ticked values across all facets. */
+            selected: z.string(),
+            clearAll: z.string(),
+            /** Accessible name of the chip row. */
+            appliedLabel: z.string(),
+            /** A chip's remove button; `{label}` is "Attribute: value". */
+            remove: z.string(),
+            /** Shown where the grid would be, when a selection matches
+             * nothing — beside the panel that can undo it, never instead of
+             * it. */
+            noMatches: z.string(),
+          })
+          .strict(),
         /** Product detail (FR-CAT-05). */
         specifications: z.string(),
         productNotFound: z.string(),
