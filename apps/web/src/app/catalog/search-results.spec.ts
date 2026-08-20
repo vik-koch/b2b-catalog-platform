@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
-import { ProductListItem } from '@b2b-catalog-platform/shared';
+import { Facet, ProductListItem } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -21,11 +21,13 @@ type SearchResponse = {
     total: number;
     totalPages: number;
   };
+  facets: Facet[];
 };
 
 const page = (items: ProductListItem[], totalPages = 1): SearchResponse => ({
   items,
   pagination: { page: 1, pageSize: 24, total: items.length, totalPages },
+  facets: [],
 });
 
 interface SortOptions {

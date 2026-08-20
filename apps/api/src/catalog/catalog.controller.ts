@@ -1,6 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
-import { catalogContract } from '@b2b-catalog-platform/shared';
+import {
+  catalogContract,
+  parseAttributeParams,
+} from '@b2b-catalog-platform/shared';
 import { CatalogService } from './catalog.service';
 import { PricingTier } from '../auth/pricing-tier.decorator';
 import { TierPriced } from '../auth/tier-priced.decorator';
@@ -38,12 +41,13 @@ export class CatalogController {
   async getCategoryProducts(@PricingTier() tierId: string | null) {
     return tsRestHandler(
       catalogContract.getCategoryProducts,
-      async ({ params: { slug }, query: { page, sort } }) => {
+      async ({ params: { slug }, query: { page, sort, attr } }) => {
         const result = await this.catalog.getCategoryProducts(
           slug,
           page,
           sort,
           tierId,
+          parseAttributeParams(attr),
         );
         if (!result) {
           return { status: 404, body: { message: 'Category not found' } };
@@ -59,9 +63,15 @@ export class CatalogController {
   async searchProducts(@PricingTier() tierId: string | null) {
     return tsRestHandler(
       catalogContract.searchProducts,
-      async ({ query: { q, page, sort } }) => ({
+      async ({ query: { q, page, sort, attr } }) => ({
         status: 200,
-        body: await this.catalog.searchProducts(q, page, sort, tierId),
+        body: await this.catalog.searchProducts(
+          q,
+          page,
+          sort,
+          tierId,
+          parseAttributeParams(attr),
+        ),
       }),
     );
   }

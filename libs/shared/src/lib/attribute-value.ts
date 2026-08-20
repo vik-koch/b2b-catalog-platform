@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 /**
  * The numeric reading of an attribute value. Parsed unconditionally for every
  * value that reads as a number, independent of any definition — that is what
@@ -33,3 +35,12 @@ export function parseAttributeNumber(value: string): number | null {
   if (!Number.isFinite(parsed)) return null;
   return Math.abs(parsed) < ATTRIBUTE_NUMERIC_LIMIT ? parsed : null;
 }
+
+/**
+ * How an attribute's values are read. `number` only decides ordering and
+ * whether a value can appear in a facet at all — it is never a validator: an
+ * unparseable value is still stored and displayed (FR-ATTR-03).
+ */
+export const ATTRIBUTE_TYPES = ['text', 'number'] as const;
+export const attributeTypeSchema = z.enum(ATTRIBUTE_TYPES);
+export type AttributeType = (typeof ATTRIBUTE_TYPES)[number];

@@ -1,5 +1,11 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { ATTRIBUTE_FILTER_MAX_PARAMS } from './attribute-filter';
+import {
+  ATTRIBUTE_NAME_MAX_LENGTH,
+  ATTRIBUTE_VALUE_MAX_LENGTH,
+  attributeTypeSchema,
+} from './attribute-value';
 
 const c = initContract();
 
@@ -264,6 +270,74 @@ export const searchSortSchema = z.enum([
 ]);
 export type SearchSort = z.infer<typeof searchSortSchema>;
 
+/** Longest `attr` entry: a slug, the separator, and a value. */
+const ATTRIBUTE_FILTER_PARAM_MAX_LENGTH =
+  ATTRIBUTE_NAME_MAX_LENGTH + 1 + ATTRIBUTE_VALUE_MAX_LENGTH;
+
+/**
+ * The selected attribute values (FR-ATTR-05/07), one entry per value as
+ * `<definition-slug>:<value>` — see `attribute-filter.ts` for why the values
+ * are not packed into one parameter.
+ *
+ * Three shapes, because a query string has no array type and every layer
+ * spells one differently: a single entry arrives as a bare string, the ts-rest
+ * client writes `attr[0]=…` (qs index notation), and qs hands back an
+ * object rather than an array once there are more than 20 of either. All three
+ * normalize to a list here, so the panel is never one checkbox away from a 400.
+ *
+ * Entries naming an attribute nobody declared are ignored server-side rather
+ * than refused: a link outlives the definition it was written from.
+ */
+export const attributeParamSchema = z
+  .union([z.string(), z.array(z.string()), z.record(z.string(), z.string())])
+  .optional()
+  .transform((value) => {
+    if (value === undefined) return [];
+    if (typeof value === 'string') return [value];
+    return Array.isArray(value) ? value : Object.values(value);
+  })
+  .pipe(
+    z
+      .array(z.string().max(ATTRIBUTE_FILTER_PARAM_MAX_LENGTH))
+      .max(ATTRIBUTE_FILTER_MAX_PARAMS),
+  );
+
+/**
+ * One selectable value of a facet, with the number of products it would leave
+ * (FR-ATTR-04). The count is taken with every *other* attribute's selection
+ * applied but not this attribute's own — otherwise clicking one value would
+ * collapse its own list to that value. A zero count is rendered disabled, not
+ * hidden (FR-ATTR-05).
+ *
+ * The value is the raw text staff typed; the unit lives on the facet, and
+ * joining the two is the caller's business — the same string has to render in
+ * the spec table and the facet label alike.
+ */
+export const facetValueSchema = z
+  .object({
+    value: z.string(),
+    count: z.number().int().nonnegative(),
+    selected: z.boolean(),
+  })
+  .strict();
+export type FacetValue = z.infer<typeof facetValueSchema>;
+
+/**
+ * One filterable attribute present among the products in scope (FR-ATTR-04),
+ * in the registry's panel order. `slug` is what the URL is written with and
+ * survives a rename, so a shared filtered link keeps working.
+ */
+export const facetSchema = z
+  .object({
+    slug: z.string(),
+    name: z.string(),
+    type: attributeTypeSchema,
+    unit: z.string().nullable(),
+    values: z.array(facetValueSchema),
+  })
+  .strict();
+export type Facet = z.infer<typeof facetSchema>;
+
 /**
  * Query for the grid: 1-based page and a sort. Coerced — query values arrive as
  * strings. Both default here rather than in the UI, so an omitted parameter and
@@ -273,6 +347,7 @@ export type SearchSort = z.infer<typeof searchSortSchema>;
 export const productListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   sort: productSortSchema.optional().default('name'),
+  attr: attributeParamSchema,
 });
 
 /**
@@ -295,6 +370,7 @@ export const productSearchQuerySchema = z.object({
   q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
   page: z.coerce.number().int().positive().optional().default(1),
   sort: searchSortSchema.optional().default('relevance'),
+  attr: attributeParamSchema,
 });
 
 /**
@@ -368,6 +444,7 @@ export const catalogContract = c.router({
             .strict(),
           items: z.array(productListItemSchema),
           pagination: paginationSchema,
+          facets: z.array(facetSchema),
         })
         .strict(),
       404: notFoundSchema,
@@ -390,6 +467,7 @@ export const catalogContract = c.router({
         .object({
           items: z.array(productListItemSchema),
           pagination: paginationSchema,
+          facets: z.array(facetSchema),
         })
         .strict(),
     },

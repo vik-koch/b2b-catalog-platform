@@ -36,6 +36,7 @@ function response(overrides: Partial<Products> = {}): Products {
       }),
     ],
     pagination: { page: 1, pageSize: 24, total: 1, totalPages: 1 },
+    facets: [],
     ...overrides,
   };
 }
