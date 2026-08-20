@@ -4,11 +4,10 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.3.0` — products sell by the piece, the pack or the box, and reach the
-> storefront only once published. Iterations 1–5 are delivered (static pages and
-> infrastructure, catalog + admin panel, search, accounts and tiered pricing, units of sale).
-> Iteration 6 (filterable attribute definitions and faceted filtering) is in progress; cart
-> and order-request checkout follow it.
+> **Status:** `v1.4.0` — a category or a search result can be narrowed by the attributes its
+> products carry, from a registry the admin declares. Iterations 1–6 are delivered (static
+> pages and infrastructure, catalog + admin panel, search, accounts and tiered pricing, units
+> of sale, attribute filtering). Iteration 7 (cart and order-request checkout) is next.
 
 ## Environments
 
@@ -49,6 +48,9 @@ Shipped:
   audit-logged)
 - **Units of sale** — buy by piece, pack or box, with exact per-unit prices, minimum order
   quantities, and a publication gate so a newly synced product is reviewed before it goes public
+- **Attribute filtering** — an admin declares which product attributes are filterable; category
+  listings and search results offer them as counted facets, shareable in the URL, with an
+  inventory that renames a key or a value across the whole catalog
 - **Compliance** — configurable legal pages, cookie consent, third-party licence attribution
 
 Planned:

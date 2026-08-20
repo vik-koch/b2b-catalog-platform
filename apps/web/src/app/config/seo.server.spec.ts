@@ -65,6 +65,61 @@ describe('injectNoindexMeta', () => {
   });
 });
 
+describe('injectCanonicalLink (NFR-SEO-04)', () => {
+  const head = '<head><title>A page</title></head>';
+
+  it('names the requested path against the public origin', async () => {
+    const { injectCanonicalLink } = await load();
+    expect(injectCanonicalLink(head, '/catalog/espresso')).toContain(
+      '<link rel="canonical" href="https://shop.example/catalog/espresso">',
+    );
+  });
+
+  it('is what a sorted, paged or filtered listing points at', async () => {
+    const { injectCanonicalLink } = await load();
+    // The query string never reaches here — Express splits it off — but the
+    // rule it encodes is the point: one category, one canonical URL.
+    expect(injectCanonicalLink(head, '/catalog/espresso')).toContain(
+      'href="https://shop.example/catalog/espresso"',
+    );
+  });
+
+  it('leaves a view that already excluded itself alone', async () => {
+    const { injectCanonicalLink } = await load();
+    const noindexed = '<head><meta name="robots" content="noindex"></head>';
+    expect(injectCanonicalLink(noindexed, '/search')).toBe(noindexed);
+  });
+
+  it('skips the session routes, which no crawler reaches', async () => {
+    const { injectCanonicalLink } = await load();
+    for (const path of ['/admin', '/admin/products/3', '/login', '/account']) {
+      expect(injectCanonicalLink(head, path)).toBe(head);
+    }
+  });
+
+  it('does not mistake a public path for a private one it starts with', async () => {
+    const { injectCanonicalLink } = await load();
+    expect(injectCanonicalLink(head, '/accounting')).toContain(
+      'href="https://shop.example/accounting"',
+    );
+  });
+
+  it('escapes a path that would otherwise break out of the attribute', async () => {
+    const { injectCanonicalLink } = await load();
+    const html = injectCanonicalLink(head, '/catalog/"><script>x</script>');
+    expect(html).not.toContain('<script>');
+    expect(html).toContain('&quot;&gt;&lt;script&gt;');
+  });
+
+  it('trims a trailing slash off the configured origin', async () => {
+    process.env['APP_ORIGIN'] = 'https://shop.example/';
+    const { injectCanonicalLink } = await load();
+    expect(injectCanonicalLink(head, '/catalog')).toContain(
+      'href="https://shop.example/catalog"',
+    );
+  });
+});
+
 describe('renderRobots', () => {
   it('disallows everything when the deployment is not indexable', async () => {
     process.env['SEO_INDEXABLE'] = 'false';

@@ -574,7 +574,7 @@ export class ProductAttributesEditor {
 
     // A multi-cell selection + Delete/Backspace clears those cells (Excel-style)
     // rather than letting contenteditable merge them.
-    const range = this.selectedRange();
+    const range = this.clearableRange();
     if (range) {
       event.preventDefault();
       this.remember();
@@ -588,6 +588,27 @@ export class ProductAttributesEditor {
     if (this.atBoundary(event.key)) {
       event.preventDefault();
     }
+  }
+
+  /**
+   * The cells Delete clears: the selection, minus any column the browser added
+   * to it on the way out of the cell the drag began in.
+   *
+   * Same trap `pasteTarget` documents, with a worse outcome. A drag stops being
+   * a text selection once it leaves its cell — Chrome selects whole cells, and
+   * one begun in the *value* column grows left over the key beside it (measured:
+   * anchor `0:1`, focus `0:0`). Clearing that literally wipes a key nobody
+   * dragged over and drops the caret into it, so the next character rewrites the
+   * key. The range therefore never starts left of the cell the mouse went down
+   * in. A drag down the value column is a genuine two-cell selection and is
+   * untouched by this.
+   */
+  private clearableRange(): GridRange | null {
+    const range = this.selectedRange();
+    if (!range) return null;
+    const pressed = this.pressedCell;
+    if (!pressed || pressed.col <= range.c0) return range;
+    return { ...range, c0: Math.min(pressed.col, range.c1) };
   }
 
   /**

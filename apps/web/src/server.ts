@@ -15,6 +15,7 @@ import { preloadDeploymentConfig } from './app/config/deployment-config.server';
 import { injectShellState } from './app/config/shell-state.server';
 import { isGatedPath, isMaintenanceOn } from './app/config/maintenance.server';
 import {
+  injectCanonicalLink,
   injectNoindexMeta,
   renderRobots,
   renderSitemap,
@@ -180,6 +181,8 @@ app.use(async (req, res, next) => {
 
     const response = await getAngularApp().handle(req);
     if (response && gated) {
+      // No canonical here: the maintenance screen is not the content of the
+      // URL it is answering, so it must not name one as its preferred form.
       const html = injectNoindexMeta(injectShellState(await response.text()));
       const headers = new Headers(response.headers);
       headers.delete('content-length');
@@ -197,7 +200,9 @@ app.use(async (req, res, next) => {
       await writeResponseToNodeResponse(response, res);
       return;
     }
-    const html = injectNoindexMeta(injectShellState(await response.text()));
+    const html = injectNoindexMeta(
+      injectCanonicalLink(injectShellState(await response.text()), req.path),
+    );
     const headers = new Headers(response.headers);
     headers.delete('content-length');
     await writeResponseToNodeResponse(

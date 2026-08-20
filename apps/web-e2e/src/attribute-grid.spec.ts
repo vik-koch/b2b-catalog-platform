@@ -115,6 +115,25 @@ test.describe('the product attribute grid', () => {
     await expect(cell(page, 0, 0)).toHaveText(first.key);
   });
 
+  test('clears both values, and no key, when Delete spans two rows', async ({
+    page,
+  }) => {
+    // The other direction of the same rule: a drag down the value column is a
+    // genuine two-cell selection, so both values go and the keys stay.
+    await dragBetween(
+      page,
+      { cell: cell(page, 0, 1), at: 0.1 },
+      { cell: cell(page, 1, 1), at: 0.9 },
+    );
+
+    await page.keyboard.press('Delete');
+
+    await expect(cell(page, 0, 1)).toHaveText('');
+    await expect(cell(page, 1, 1)).toHaveText('');
+    await expect(cell(page, 0, 0)).toHaveText(first.key);
+    await expect(cell(page, 1, 0)).toHaveText(second.key);
+  });
+
   test('keeps the row below when a selection spans two rows', async ({
     page,
   }) => {
@@ -144,6 +163,52 @@ test.describe('the product attribute grid', () => {
     );
 
     expect(await selectionCells(page)).toEqual({ anchor: '0:1', focus: '0:1' });
+  });
+
+  test('clears the cell the drag began in on Delete, and leaves the caret there', async ({
+    page,
+  }) => {
+    // The same grown selection as the typing case, and the same rule: Delete
+    // clears what was dragged over, not the key column Chrome added to it.
+    await dragBetween(
+      page,
+      { cell: cell(page, 0, 1), at: 0.9 },
+      { cell: cell(page, 0, 0), at: 0.1 },
+    );
+
+    await page.keyboard.press('Delete');
+
+    // Native behaviour empties both cells: the key is in the selection only
+    // because Chrome put it there.
+    await expect(cell(page, 0, 1)).toHaveText('');
+    await expect(cell(page, 0, 0)).toHaveText(first.key);
+
+    // Where the caret landed, said the way the user finds out: the next
+    // character has to continue the value, not start rewriting the key.
+    await page.keyboard.type('X');
+    await expect(cell(page, 0, 1)).toHaveText('X');
+    await expect(cell(page, 0, 0)).toHaveText(first.key);
+  });
+
+  test('hands a key to the inventory, opened and scrolled to', async ({
+    page,
+  }) => {
+    // The grid's way out: "what does the rest of the catalog call this, and
+    // with which values?". Opening the row is half the answer — the list is
+    // alphabetical, so the row is usually far below the fold.
+    const link = page
+      .locator(`app-product-attributes-editor tbody tr:nth-child(1) a`)
+      .first();
+    await link.scrollIntoViewIfNeeded();
+    const href = await link.getAttribute('href');
+    expect(href).toContain('/admin/attributes/inventory?key=');
+
+    await page.goto(href as string);
+
+    const row = page.locator(`li#attribute-${first.key.replace(/\s+/g, '_')}`);
+    await expect(row.getByRole('button', { expanded: true })).toBeVisible();
+    // In view, not merely rendered — the point of the anchor.
+    await expect(row).toBeInViewport();
   });
 
   test('undoes a typed-over selection in one step', async ({ page }) => {

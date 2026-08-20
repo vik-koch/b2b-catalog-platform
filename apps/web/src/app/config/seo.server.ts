@@ -148,6 +148,49 @@ export async function renderSitemap(): Promise<SitemapResult> {
 }
 
 /**
+ * Escapes the characters that could break out of a double-quoted HTML
+ * attribute. The path comes from the request line, so it is not ours.
+ */
+function attrEscape(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * Injects `<link rel="canonical">` naming the requested path, without its query
+ * string (NFR-SEO-04). Sort, page and attribute filters each turn one category
+ * into an arbitrary number of URLs — filters combinatorially many — and every
+ * one of them is the same content seen through a lens, so they all point at the
+ * plain category.
+ *
+ * Written here rather than by the component that renders the page, for the same
+ * reason the sitemap is: only the SSR tier knows the public origin the document
+ * is reached at, and a crawler only ever reads the initial HTML of the URL it
+ * fetched. A client-side navigation therefore leaves the tag alone — the
+ * document it would update is one no crawler has.
+ *
+ * Two documents get none. A view that has already marked itself `noindex`
+ * (search results, FR-SEARCH-\*) needs no preferred URL, and this runs before
+ * `injectNoindexMeta` so that check sees only the page's own tag, never the
+ * deployment-level one. And the session routes have no crawler value at all.
+ */
+export function injectCanonicalLink(html: string, path: string): string {
+  if (html.includes('name="robots"')) return html;
+  if (PRIVATE_PATHS.some((p) => path === p || path.startsWith(`${p}/`))) {
+    return html;
+  }
+  const origin = requireEnv('APP_ORIGIN').replace(/\/+$/, '');
+  const href = attrEscape(`${origin}${path}`);
+  return html.replace(
+    '</head>',
+    `<link rel="canonical" href="${href}"></head>`,
+  );
+}
+
+/**
  * Injects `<meta name="robots" content="noindex, nofollow">` into an SSR
  * document when the deployment is not indexable — belt-and-braces alongside
  * robots.txt so a directly-fetched page is also marked.
