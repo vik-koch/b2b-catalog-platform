@@ -3,7 +3,10 @@ import {
   categorySeeds,
   productSeeds,
 } from '@b2b-catalog-platform/seed';
-import { CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared';
+import {
+  CATALOG_PAGE_SIZE,
+  parseAttributeNumber,
+} from '@b2b-catalog-platform/shared';
 import axios from 'axios';
 
 const get = (url: string) => axios.get(url, { validateStatus: () => true });
@@ -231,15 +234,24 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
         ],
       }),
     );
-    // The stored key and value, plus the unit of the definition the key
-    // matches — the value never carries its own (FR-ATTR-01/02).
+    // The stored key and value, plus what the definition the key matches adds:
+    // its unit (the value never carries its own) and the slug that turns the
+    // row into a filter link (FR-ATTR-01/02/08).
     expect(res.data.attributes).toEqual(
-      seed.attributes.map((attribute) => ({
-        ...attribute,
-        unit:
-          attributeDefinitionSeeds.find((d) => d.name === attribute.key)
-            ?.unit ?? null,
-      })),
+      seed.attributes.map((attribute) => {
+        const definition = attributeDefinitionSeeds.find(
+          (d) => d.name === attribute.key,
+        );
+        const filterable =
+          definition &&
+          (definition.type !== 'number' ||
+            parseAttributeNumber(attribute.value) !== null);
+        return {
+          ...attribute,
+          unit: definition?.unit ?? null,
+          filterSlug: filterable ? definition.slug : null,
+        };
+      }),
     );
     // The private sync key must never be serialized.
     expect(res.data).not.toHaveProperty('sourceId');

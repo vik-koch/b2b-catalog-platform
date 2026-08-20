@@ -125,17 +125,28 @@ export const productAttributeSchema = z
 export type ProductAttribute = z.infer<typeof productAttributeSchema>;
 
 /**
- * The same, as the product page reads it: `unit` is the declared attribute's
- * unit where the key matches a definition (FR-ATTR-01/02), and null everywhere
- * else. The stored value never carries its unit, which is what lets the spec
- * table read "1000 g" from a value stored as "1000" — joining the two is
- * `formatAttributeValue`, shared with the facet labels.
+ * The same, as the product page reads it.
  *
- * Read-only, so it is deliberately not the shape the editor writes: a unit
- * belongs to the definition, and a product save must not be able to set one.
+ * `unit` is the declared attribute's unit where the key matches a definition
+ * (FR-ATTR-01/02), and null everywhere else. The stored value never carries its
+ * unit, which is what lets the spec table read "1000 g" from a value stored as
+ * "1000" — joining the two is `formatAttributeValue`, shared with the facet
+ * labels.
+ *
+ * `filterSlug` is the definition's slug, and is what turns the row into a link
+ * into the filtered listing (FR-ATTR-08). It is null unless *this value* would
+ * actually be offered as a facet: a number attribute's unparseable value is
+ * still shown, but linking it would land on a listing that filters by something
+ * no checkbox offers.
+ *
+ * Read-only, so it is deliberately not the shape the editor writes: both fields
+ * belong to the definition, and a product save must not be able to set them.
  */
 export const productDetailAttributeSchema = productAttributeSchema
-  .extend({ unit: z.string().nullable() })
+  .extend({
+    unit: z.string().nullable(),
+    filterSlug: z.string().nullable(),
+  })
   .strict();
 export type ProductDetailAttribute = z.infer<
   typeof productDetailAttributeSchema

@@ -7,7 +7,10 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AdminProductSort } from '@b2b-catalog-platform/shared';
+import {
+  AdminProductSort,
+  formatAttributeValue,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { ConfirmService } from '../../ui/confirm.service';
@@ -20,6 +23,7 @@ import { PricePipe } from '../../catalog/price.pipe';
 import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
+import { AttributesService } from '../attributes/attributes.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { injectEditorReturnParams } from '../editor-return';
 import { GridFilterOption, GridFilterSelect } from './grid-filter-select';
@@ -350,6 +354,7 @@ import { AdminListHeader } from '../list-header';
 })
 export class ProductListPage {
   private readonly admin = inject(AdminCatalogService);
+  private readonly attributes = inject(AttributesService);
   private readonly router = inject(Router);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productList;
@@ -424,12 +429,32 @@ export class ProductListPage {
    */
   readonly attributeKey = input('');
   readonly attributeValue = input('');
-  /** The value only qualifies a key; on its own there is nothing to show. */
-  protected readonly attributeFilter = computed(() =>
-    this.attributeKey()
-      ? { key: this.attributeKey(), value: this.attributeValue() || null }
-      : null,
-  );
+  /**
+   * The registry, for the chip's unit alone — so it is fetched only while a
+   * chip is on screen, and a failure leaves the chip unadorned rather than
+   * breaking the list.
+   */
+  private readonly definitions = resource({
+    params: () =>
+      this.attributeKey() ? { key: this.attributeKey() } : undefined,
+    loader: () => this.attributes.list().catch(() => []),
+  });
+
+  /**
+   * The value only qualifies a key; on its own there is nothing to show. The
+   * value is shown with the declared unit, as the storefront's chips and the
+   * spec table show it — the inventory, which is where values are *edited*,
+   * keeps showing them exactly as stored.
+   */
+  protected readonly attributeFilter = computed(() => {
+    const key = this.attributeKey();
+    if (!key) return null;
+    const unit =
+      (this.definitions.value() ?? []).find((d) => d.name === key)?.unit ??
+      null;
+    const value = this.attributeValue();
+    return { key, value: value ? formatAttributeValue(value, unit) : null };
+  });
 
   /** Whether anything is narrowing the list, which is what separates "no
    * products" from "no matches". */

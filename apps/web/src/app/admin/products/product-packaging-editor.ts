@@ -108,7 +108,7 @@ export function parseCount(text: string): number | null {
                   }
                 </div>
               </td>
-              <td class="w-32 border-0 pl-5 align-middle text-xs text-subtle">
+              <td class="w-32 border-0 pl-3 align-middle text-xs text-subtle">
                 {{ row.price }}
               </td>
             </tr>

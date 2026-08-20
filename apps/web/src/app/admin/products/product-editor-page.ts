@@ -405,7 +405,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // the same here as on the live page.
       attributes: this.attributes()
         .filter((a) => a.key.trim() !== '' || a.value.trim() !== '')
-        .map((a) => ({ ...a, unit: this.unitFor(a.key) })),
+        // No filter link in the preview: it would leave the half-saved
+        // product for a listing built from what is already stored.
+        .map((a) => ({ ...a, unit: this.unitFor(a.key), filterSlug: null })),
       category: category
         ? {
             slug: category.slug,

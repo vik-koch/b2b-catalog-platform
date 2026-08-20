@@ -143,7 +143,7 @@ const SUBS_COLLAPSED = 4;
                  their own: a row that appears with the first selection would
                  push the grid down as it was ticked. -->
             <app-applied-filters
-              class="mt-2 hidden min-w-0 flex-1 md:block"
+              class="mt-3 hidden min-w-0 flex-1 md:block"
               [facets]="data.facets"
             />
 
@@ -215,9 +215,9 @@ const SUBS_COLLAPSED = 4;
 
           <!-- Filters left, grid right, from the lg breakpoint up; stacked below, where the
                panel is a disclosure above the grid. -->
-          <div class="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
+          <div class="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start">
             @if (data.facets.length) {
-              <aside class="shrink-0 lg:w-56 xl:w-64">
+              <aside class="shrink-0 lg:w-56">
                 <app-facet-panel [facets]="data.facets" />
               </aside>
             }

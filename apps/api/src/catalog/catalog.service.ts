@@ -367,15 +367,21 @@ export class CatalogService {
    * A product's attributes in the admin's row order — `sortOrder` is the order,
    * so it has to be asked for explicitly.
    *
-   * Left-joined to the registry by name, for the unit alone: a key matching no
-   * definition still renders, exactly as it is stored (FR-ATTR-02).
+   * Left-joined to the registry by name, for the unit and the filter link: a
+   * key matching no definition still renders, exactly as it is stored
+   * (FR-ATTR-02).
    */
-  private attributesFor(productId: string): Promise<ProductDetailAttribute[]> {
-    return this.db
+  private async attributesFor(
+    productId: string,
+  ): Promise<ProductDetailAttribute[]> {
+    const rows = await this.db
       .select({
         key: productAttributes.key,
         value: productAttributes.value,
+        numeric: productAttributes.valueNumeric,
         unit: attributeDefinitions.unit,
+        slug: attributeDefinitions.slug,
+        type: attributeDefinitions.type,
       })
       .from(productAttributes)
       .leftJoin(
@@ -384,6 +390,18 @@ export class CatalogService {
       )
       .where(eq(productAttributes.productId, productId))
       .orderBy(asc(productAttributes.sortOrder));
+
+    return rows.map((row) => ({
+      key: row.key,
+      value: row.value,
+      unit: row.unit,
+      // Only where a facet would actually offer this value: a number
+      // attribute's unparseable value has no checkbox to link to (FR-ATTR-03).
+      filterSlug:
+        row.slug && (row.type !== 'number' || row.numeric !== null)
+          ? row.slug
+          : null,
+    }));
   }
 
   async getProduct(

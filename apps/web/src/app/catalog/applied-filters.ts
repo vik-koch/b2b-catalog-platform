@@ -44,7 +44,7 @@ interface AppliedFilter {
             <span>{{ filter.label }}</span>
             <button
               type="button"
-              class="cursor-pointer rounded-full p-0.5 text-stone-400 hover:text-red-700"
+              class="flex items-center justify-center cursor-pointer rounded-full p-0.5 text-stone-400 hover:text-red-700"
               [attr.aria-label]="removeLabel(filter)"
               (click)="remove(filter)"
             >
