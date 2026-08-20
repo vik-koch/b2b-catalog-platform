@@ -184,7 +184,10 @@ export function injectCanonicalLink(html: string, path: string): string {
   }
   const origin = requireEnv('APP_ORIGIN').replace(/\/+$/, '');
   const href = attrEscape(`${origin}${path}`);
-  return html.replace('</head>', `<link rel="canonical" href="${href}"></head>`);
+  return html.replace(
+    '</head>',
+    `<link rel="canonical" href="${href}"></head>`,
+  );
 }
 
 /**

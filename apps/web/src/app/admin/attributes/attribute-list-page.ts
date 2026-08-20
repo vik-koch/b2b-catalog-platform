@@ -1,6 +1,19 @@
-import { moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, inject, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  resource,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   AttributeDefinition,
@@ -11,6 +24,7 @@ import {
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
 import { usePageSeo } from '../../core/page-seo';
+import { useRowAnchor } from '../../core/row-anchor';
 import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
@@ -42,6 +56,9 @@ type EditTarget = { id: string } | { id: null } | null;
   imports: [
     NgTemplateOutlet,
     RouterLink,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
     Button,
     AdminIcon,
     Input,
@@ -88,13 +105,20 @@ type EditTarget = { id: string } | { id: null } | null;
       <!-- overflow-hidden so a row's own background cannot square off the
            card's rounded corners. -->
       <div class="overflow-hidden rounded-lg border border-border">
-        <ul class="divide-y divide-border">
-          @for (
-            definition of definitions.value();
-            track definition.id;
-            let i = $index
-          ) {
-            <li class="p-4">
+        <ul
+          class="divide-y divide-border"
+          cdkDropList
+          [cdkDropListDisabled]="busy() || editing() !== null"
+          (cdkDropListDropped)="onDrop($event)"
+        >
+          @for (definition of definitions.value(); track definition.id) {
+            <!-- scroll-mt clears the sticky header (see the inventory). -->
+            <li
+              class="bg-white p-4 scroll-mt-24"
+              cdkDrag
+              [cdkDragData]="definition"
+              [id]="rowId(definition.name)"
+            >
               @if (isEditing(definition.id)) {
                 <ng-container [ngTemplateOutlet]="form" />
               } @else {
@@ -111,31 +135,34 @@ type EditTarget = { id: string } | { id: null } | null;
                     {{ valuesLabel(definition.valueCount) }}
                   </span>
                   <span class="ml-auto flex items-center gap-1">
+                    <!-- The other half of the row: this is what the shop
+                         filters by, the inventory is what the products
+                         actually carry under that name — including the
+                         spellings this definition does not match. Same icon
+                         and same shape as the grid's own way in. -->
+                    <a
+                      class="p-1 text-stone-400 hover:text-accent"
+                      routerLink="/admin/attributes/inventory"
+                      [queryParams]="{ key: definition.name }"
+                      [attr.aria-label]="text.showUsage"
+                    >
+                      <app-admin-icon name="square-menu" class="h-4 w-4" />
+                    </a>
                     <!-- Ordering is the filter panel's order and nothing else,
-                         so it sits with the row's other actions rather than
-                         claiming a handle column of its own. -->
-                    <button
-                      type="button"
-                      class="p-1 text-stone-400 hover:text-accent disabled:invisible"
-                      [attr.aria-label]="text.moveUp"
-                      [disabled]="i === 0 || busy() || editing() !== null"
-                      (click)="move(i, i - 1)"
+                         so the handle sits with the row's other actions rather
+                         than claiming a column of its own. A handle, not a pair
+                         of step buttons: the category list, the image gallery
+                         and the attribute grid itself are all dragged, and a
+                         button that has to disable itself at the ends of the
+                         list flickers through every reorder. -->
+                    <span
+                      cdkDragHandle
+                      class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
+                      [attr.aria-label]="common.reorder"
+                      [title]="common.reorder"
                     >
-                      <app-admin-icon name="chevron-up" class="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      class="p-1 text-stone-400 hover:text-accent disabled:invisible"
-                      [attr.aria-label]="text.moveDown"
-                      [disabled]="
-                        i === definitions.value().length - 1 ||
-                        busy() ||
-                        editing() !== null
-                      "
-                      (click)="move(i, i + 1)"
-                    >
-                      <app-admin-icon name="chevron-down" class="h-4 w-4" />
-                    </button>
+                      <app-admin-icon name="grip-vertical" class="h-4 w-4" />
+                    </span>
                     <button
                       type="button"
                       class="p-1 text-stone-400 hover:text-accent"
@@ -325,6 +352,11 @@ export class AttributeListPage {
    * Moves an attribute one place in the filter panel and commits immediately —
    * the click *is* the save, so there is nothing to confirm.
    */
+  protected onDrop(event: CdkDragDrop<AttributeDefinition>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    void this.move(event.previousIndex, event.currentIndex);
+  }
+
   protected async move(from: number, to: number): Promise<void> {
     const current = this.definitions.value();
     if (!current || to < 0 || to >= current.length) return;
@@ -483,7 +515,21 @@ export class AttributeListPage {
     }
   }
 
+  /** The definition to land on, from the URL — how the inventory hands a key
+   * back: "the shop filters by this, here is what it says". */
+  readonly name = input('');
+
+  /** The DOM id a deep link scrolls to. Whitespace is all that has to go: an id
+   * may hold anything else, and collapsing more would let two names collide. */
+  protected rowId(name: string): string {
+    return `definition-${name.replace(/\s+/g, '_')}`;
+  }
+
   constructor() {
     usePageSeo({ name: () => this.text.title });
+    useRowAnchor(
+      computed(() => (this.name() ? this.rowId(this.name()) : null)),
+      computed(() => this.definitions.hasValue()),
+    );
   }
 }

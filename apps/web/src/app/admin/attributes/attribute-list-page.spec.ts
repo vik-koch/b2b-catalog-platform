@@ -113,16 +113,18 @@ async function render(
   };
 
   /** Clicks a row's move button; `row` is the position in the list. */
-  const move = async (row: number, direction: 'up' | 'down') => {
-    const label = direction === 'up' ? text.moveUp : text.moveDown;
-    const buttons = el.querySelectorAll<HTMLButtonElement>(
-      `[aria-label="${label}"]`,
-    );
-    buttons[row].click();
+  /** The CDK's own drop event: a real drag cannot be dispatched in jsdom, so
+   * the handler is called the way the grid's own spec calls it. */
+  const drop = async (previousIndex: number, currentIndex: number) => {
+    (
+      fixture.componentInstance as unknown as {
+        onDrop(event: { previousIndex: number; currentIndex: number }): void;
+      }
+    ).onDrop({ previousIndex, currentIndex });
     await flush();
   };
 
-  return { el, service, confirm, click, type, select, submit, press, move };
+  return { el, service, confirm, click, type, select, submit, press, drop };
 }
 
 describe('AttributeListPage', () => {
@@ -145,6 +147,20 @@ describe('AttributeListPage', () => {
     expect(el.textContent).toContain(`${text.types.number} (cm)`);
     expect(el.textContent).toContain(text.products.replace('{count}', '4'));
     expect(el.textContent).toContain(text.values.replace('{count}', '3'));
+  });
+
+  it('sends each definition to the values in use under its name', async () => {
+    // The pair to the inventory's own link back. The name is what the two
+    // screens share — a definition matches product attributes by name, exactly
+    // — so it is the name, not the slug, that travels.
+    const { el } = await render({
+      definitions: [definition({ name: 'Roast level', slug: 'roast-level' })],
+    });
+
+    const link = el.querySelector(`[aria-label="${text.showUsage}"]`);
+    expect(link?.getAttribute('href')).toBe(
+      '/admin/attributes/inventory?key=Roast%20level',
+    );
   });
 
   it('says so when a name matches no product, which is the mistyped case', async () => {
@@ -271,15 +287,15 @@ describe('AttributeListPage', () => {
     expect(service.remove).not.toHaveBeenCalled();
   });
 
-  it('commits a move as positions numbered from zero', async () => {
-    const { service, move } = await render({
+  it('commits a drop as positions numbered from zero', async () => {
+    const { service, drop } = await render({
       definitions: [
         definition({ id: 'a', name: 'Colour', sortOrder: 0 }),
         definition({ id: 'b', name: 'Width', sortOrder: 1 }),
       ],
     });
 
-    await move(1, 'up');
+    await drop(1, 0);
 
     expect(service.reorder).toHaveBeenCalledWith({
       order: [
@@ -290,12 +306,12 @@ describe('AttributeListPage', () => {
   });
 
   it('reports a move it could not save and reloads the stored order', async () => {
-    const { el, service, move } = await render({
+    const { el, service, drop } = await render({
       definitions: [definition({ id: 'a' }), definition({ id: 'b' })],
     });
     service.reorder.mockRejectedValueOnce(new Error('nope'));
 
-    await move(1, 'up');
+    await drop(1, 0);
 
     expect(el.textContent).toContain(text.reorderError);
     expect(service.list).toHaveBeenCalledTimes(2);

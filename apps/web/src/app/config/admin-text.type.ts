@@ -602,9 +602,8 @@ export const adminTextSchema = z
         unparsed: z.string(),
         noMatch: z.string(),
         edit: z.string(),
-        /** The one-place-at-a-time move buttons on each row. */
-        moveUp: z.string(),
-        moveDown: z.string(),
+        /** The row's way into the inventory, expanded on this name. */
+        showUsage: z.string(),
         delete: z.string(),
         empty: z.string(),
         saveError: z.string(),
@@ -633,8 +632,10 @@ export const adminTextSchema = z
         title: z.string(),
         intro: z.string(),
         toDefinitions: z.string(),
-        /** Badge on a key the shop already filters by. */
-        filterable: z.string(),
+        /** The two states of the row's link to the registry: a key the shop
+         * filters by leads to its definition, a freetext one is deadened. */
+        toDefinition: z.string(),
+        notFilterable: z.string(),
         /** Usage per row. `{count}` substituted at render. */
         products: z.string(),
         values: z.string(),
