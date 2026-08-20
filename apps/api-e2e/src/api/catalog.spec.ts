@@ -1,4 +1,8 @@
-import { categorySeeds, productSeeds } from '@b2b-catalog-platform/seed';
+import {
+  attributeDefinitionSeeds,
+  categorySeeds,
+  productSeeds,
+} from '@b2b-catalog-platform/seed';
 import { CATALOG_PAGE_SIZE } from '@b2b-catalog-platform/shared';
 import axios from 'axios';
 
@@ -227,7 +231,16 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
         ],
       }),
     );
-    expect(res.data.attributes).toEqual(seed.attributes);
+    // The stored key and value, plus the unit of the definition the key
+    // matches — the value never carries its own (FR-ATTR-01/02).
+    expect(res.data.attributes).toEqual(
+      seed.attributes.map((attribute) => ({
+        ...attribute,
+        unit:
+          attributeDefinitionSeeds.find((d) => d.name === attribute.key)
+            ?.unit ?? null,
+      })),
+    );
     // The private sync key must never be serialized.
     expect(res.data).not.toHaveProperty('sourceId');
   });

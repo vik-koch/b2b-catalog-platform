@@ -112,7 +112,10 @@ export const productListItemSchema = z
   .strict();
 export type ProductListItem = z.infer<typeof productListItemSchema>;
 
-/** A freetext key/value characteristic, detail page only (FR-CAT-05). */
+/**
+ * A freetext key/value characteristic (FR-CAT-05) — as the admin enters it, and
+ * as the admin API reads it back.
+ */
 export const productAttributeSchema = z
   .object({
     key: z.string(),
@@ -120,6 +123,23 @@ export const productAttributeSchema = z
   })
   .strict();
 export type ProductAttribute = z.infer<typeof productAttributeSchema>;
+
+/**
+ * The same, as the product page reads it: `unit` is the declared attribute's
+ * unit where the key matches a definition (FR-ATTR-01/02), and null everywhere
+ * else. The stored value never carries its unit, which is what lets the spec
+ * table read "1000 g" from a value stored as "1000" — joining the two is
+ * `formatAttributeValue`, shared with the facet labels.
+ *
+ * Read-only, so it is deliberately not the shape the editor writes: a unit
+ * belongs to the definition, and a product save must not be able to set one.
+ */
+export const productDetailAttributeSchema = productAttributeSchema
+  .extend({ unit: z.string().nullable() })
+  .strict();
+export type ProductDetailAttribute = z.infer<
+  typeof productDetailAttributeSchema
+>;
 
 /**
  * The rich-text vocabulary a product description may use — the static-page set
@@ -183,7 +203,7 @@ export const productDetailSchema = z
     /** Sanitized rich text, server-owned (same discipline as page bodies). */
     descriptionHtml: z.string(),
     images: z.array(catalogImageSchema),
-    attributes: z.array(productAttributeSchema),
+    attributes: z.array(productDetailAttributeSchema),
     /** The single category this product belongs to, with its own ancestors —
      * the breadcrumb shows the whole path, not just the leaf. */
     category: categoryCrumbSchema.extend({

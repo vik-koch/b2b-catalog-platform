@@ -342,6 +342,15 @@ export class ProductEditorPage implements UnsavedChangesAware {
     return minor === null ? '' : formatPriceInput(minor, this.currency);
   });
 
+  /** The declared unit for an attribute key, matched as the server matches it:
+   * exactly, apart from surrounding whitespace (FR-ATTR-02). */
+  private unitFor(key: string): string | null {
+    const name = key.trim();
+    return (
+      this.attributeDefinitions().find((d) => d.name === name)?.unit ?? null
+    );
+  }
+
   protected readonly previewPriceMinor = computed(
     () => parsePriceInput(this.priceInput(), this.currency) ?? 0,
   );
@@ -391,9 +400,12 @@ export class ProductEditorPage implements UnsavedChangesAware {
             },
       descriptionHtml: this.description(),
       images: this.images(),
-      attributes: this.attributes().filter(
-        (a) => a.key.trim() !== '' || a.value.trim() !== '',
-      ),
+      // The unit is the registry's, not the row's — the preview joins it on
+      // exactly as the storefront's read does, so a declared attribute reads
+      // the same here as on the live page.
+      attributes: this.attributes()
+        .filter((a) => a.key.trim() !== '' || a.value.trim() !== '')
+        .map((a) => ({ ...a, unit: this.unitFor(a.key) })),
       category: category
         ? {
             slug: category.slug,

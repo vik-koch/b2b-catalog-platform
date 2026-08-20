@@ -4,7 +4,11 @@ import {
   ProductAttribute,
 } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
-import { categorySeeds, productSeeds } from './catalog-data';
+import {
+  attributeDefinitionSeeds,
+  categorySeeds,
+  productSeeds,
+} from './catalog-data';
 import {
   generateCategoryImage,
   generateProductImages,
@@ -103,6 +107,34 @@ export async function seedCatalog(
     );
 
     await seedProductAttributes(client, productRows[0].id, product.attributes);
+  }
+
+  await seedAttributeDefinitions(client);
+}
+
+/**
+ * Which attribute keys are filterable (FR-ATTR-01). Upserted by slug — the slug
+ * is what a shared filter link is written with, so it is the identity here as
+ * well; a renamed name is restored, as everywhere else the seed owns content.
+ * Definitions hold no product data, so nothing depends on the order they land
+ * in relative to the products.
+ */
+async function seedAttributeDefinitions(client: Client): Promise<void> {
+  for (const [index, definition] of attributeDefinitionSeeds.entries()) {
+    await client.query(
+      `INSERT INTO attribute_definitions (name, slug, type, unit, "sortOrder")
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (slug) DO UPDATE SET
+         name = EXCLUDED.name, type = EXCLUDED.type,
+         unit = EXCLUDED.unit, "sortOrder" = EXCLUDED."sortOrder"`,
+      [
+        definition.name,
+        definition.slug,
+        definition.type,
+        definition.unit,
+        index,
+      ],
+    );
   }
 }
 

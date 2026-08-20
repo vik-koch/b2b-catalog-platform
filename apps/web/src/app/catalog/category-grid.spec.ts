@@ -46,11 +46,15 @@ interface SortOptions {
   sort?: string;
   /** Records what the component actually asked the API to sort by. */
   spy?: (sort: string) => void;
+  /** The raw `attr` query parameter, as the router would bind it. */
+  attr?: string | string[];
+  /** Records the selection the component actually sent on. */
+  attrSpy?: (attr: string[]) => void;
 }
 
 async function render(
   result: Products | null,
-  { sort, spy }: SortOptions = {},
+  { sort, spy, attr, attrSpy }: SortOptions = {},
 ): Promise<ComponentFixture<CategoryGrid>> {
   const config = {
     branding: { title: 'Test Shop' },
@@ -69,8 +73,10 @@ async function render(
             _slug: string,
             _page: number,
             s: string,
+            a: string[],
           ) => {
             spy?.(s);
+            attrSpy?.(a);
             return result;
           },
         },
@@ -80,6 +86,7 @@ async function render(
   const fixture = TestBed.createComponent(CategoryGrid);
   fixture.componentRef.setInput('slug', 'coffee-beans');
   if (sort !== undefined) fixture.componentRef.setInput('sort', sort);
+  if (attr !== undefined) fixture.componentRef.setInput('attr', attr);
   await fixture.whenStable();
   fixture.detectChanges();
   return fixture;
@@ -290,6 +297,95 @@ describe('CategoryGrid', () => {
       );
 
       expect(el(f).querySelector('select')).toBeNull();
+    });
+  });
+
+  describe('attribute filters (FR-ATTR-04…07)', () => {
+    const facet = {
+      slug: 'grind',
+      name: 'Grind',
+      type: 'text' as const,
+      unit: null,
+      values: [{ value: 'fine', count: 1, selected: true }],
+    };
+
+    it('sends the selection on, normalized, and renders the panel', async () => {
+      let sent: string[] = [];
+      const f = await render(response({ facets: [facet] }), {
+        attr: ['grind:fine', 'grind:fine', 'broken'],
+        attrSpy: (a) => (sent = a),
+      });
+
+      expect(sent).toEqual(['grind:fine']);
+      expect(el(f).textContent).toContain(defaultAppText.catalog.filters.title);
+      expect(el(f).textContent).toContain('Grind');
+    });
+
+    it('carries the selection through the pagination links', async () => {
+      const f = await render(
+        response({
+          facets: [facet],
+          pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+        }),
+        { attr: 'grind:fine' },
+      );
+
+      const next = [...el(f).querySelectorAll('a')].find((a) =>
+        a.textContent?.includes(defaultAppText.catalog.nextPage),
+      );
+      expect(next?.getAttribute('href')).toContain('attr=grind:fine');
+    });
+
+    it('carries the selection down into a subcategory and up the breadcrumb', async () => {
+      const f = await render(
+        response({
+          facets: [facet],
+          category: {
+            slug: 'espresso',
+            name: 'Espresso Roasts',
+            shortName: null,
+            ancestors: [
+              {
+                slug: 'coffee-beans',
+                name: 'Coffee Beans',
+                shortName: null,
+              },
+            ],
+            subcategories: [
+              {
+                slug: 'single-origin',
+                name: 'Single Origin',
+                shortName: null,
+                image: null,
+              },
+            ],
+          },
+        }),
+        { attr: 'grind:fine' },
+      );
+
+      const href = (name: string) =>
+        [...el(f).querySelectorAll('a')]
+          .find((a) => a.textContent?.trim() === name)
+          ?.getAttribute('href');
+      expect(href('Single Origin')).toContain('attr=grind:fine');
+      expect(href('Coffee Beans')).toContain('attr=grind:fine');
+    });
+
+    it('keeps the panel on screen when the selection matches nothing', async () => {
+      const f = await render(
+        response({
+          facets: [facet],
+          items: [],
+          pagination: { page: 1, pageSize: 24, total: 0, totalPages: 0 },
+        }),
+        { attr: 'grind:fine' },
+      );
+
+      const text = el(f).textContent ?? '';
+      expect(text).toContain(defaultAppText.catalog.filters.noMatches);
+      expect(text).not.toContain(defaultAppText.catalog.emptyProducts);
+      expect(el(f).querySelector('input[type="checkbox"]')).not.toBeNull();
     });
   });
 

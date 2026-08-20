@@ -14,6 +14,7 @@ import {
 import { RouterLink } from '@angular/router';
 import {
   categoryDisplayName,
+  formatAttributeValue,
   ProductDetail,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
@@ -231,7 +232,14 @@ export class ProductDetailView {
    * stored before it did.
    */
   protected readonly attributes = computed(() =>
-    this.item().attributes.filter((a) => a.value.trim() !== ''),
+    this.item()
+      .attributes.filter((a) => a.value.trim() !== '')
+      // A declared attribute's unit lives on the definition, never in the
+      // value, so it is joined on here rather than stored (FR-ATTR-01).
+      .map((a) => ({
+        key: a.key,
+        value: formatAttributeValue(a.value, a.unit),
+      })),
   );
 
   protected readonly packagingRows = computed(() =>

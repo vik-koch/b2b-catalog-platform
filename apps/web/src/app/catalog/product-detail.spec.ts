@@ -23,8 +23,8 @@ const product: Product = productDetail({
     },
   ],
   attributes: [
-    { key: 'Net weight', value: '1 kg' },
-    { key: 'Count per package', value: '200' },
+    { key: 'Net weight', value: '1', unit: 'kg' },
+    { key: 'Count per package', value: '200', unit: null },
   ],
   category: {
     slug: 'espresso',
@@ -125,7 +125,10 @@ describe('ProductDetail', () => {
     const root = el(
       await render({
         ...product,
-        attributes: [...product.attributes, { key: 'Roast', value: '' }],
+        attributes: [
+          ...product.attributes,
+          { key: 'Roast', value: '', unit: null },
+        ],
       }),
     );
 

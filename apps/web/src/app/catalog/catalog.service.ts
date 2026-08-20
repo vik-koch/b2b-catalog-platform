@@ -30,11 +30,16 @@ export class CatalogService {
   /** A page of products in a category (FR-CAT-03/04). `null` when the category
    * does not exist, so the caller can render a not-found rather than throw;
    * `undefined` when this render defers prices — see `deferPrices`. */
-  async getCategoryProducts(slug: string, page: number, sort: ProductSort) {
+  async getCategoryProducts(
+    slug: string,
+    page: number,
+    sort: ProductSort,
+    attr: string[] = [],
+  ) {
     if (this.deferPrices) return undefined;
     const response = await this.client.getCategoryProducts({
       params: { slug },
-      query: { page, sort },
+      query: { page, sort, attr },
     });
     if (response.status === 200) {
       return response.body;
@@ -49,10 +54,15 @@ export class CatalogService {
 
   /** A page of search results, best match first (FR-SEARCH-01…03). An
    * unsearchable query is an empty page, not an error — see the contract. */
-  async searchProducts(q: string, page: number, sort: SearchSort) {
+  async searchProducts(
+    q: string,
+    page: number,
+    sort: SearchSort,
+    attr: string[] = [],
+  ) {
     if (this.deferPrices) return undefined;
     const response = await this.client.searchProducts({
-      query: { q, page, sort },
+      query: { q, page, sort, attr },
     });
     if (response.status === 200) {
       return response.body;

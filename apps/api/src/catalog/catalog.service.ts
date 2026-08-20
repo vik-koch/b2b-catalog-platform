@@ -16,7 +16,7 @@ import {
   CategoryCrumb,
   Facet,
   CategoryNode,
-  ProductAttribute,
+  ProductDetailAttribute,
   ProductDetail,
   ProductListItem,
   ProductSort,
@@ -366,14 +366,22 @@ export class CatalogService {
   /**
    * A product's attributes in the admin's row order — `sortOrder` is the order,
    * so it has to be asked for explicitly.
+   *
+   * Left-joined to the registry by name, for the unit alone: a key matching no
+   * definition still renders, exactly as it is stored (FR-ATTR-02).
    */
-  private attributesFor(productId: string): Promise<ProductAttribute[]> {
+  private attributesFor(productId: string): Promise<ProductDetailAttribute[]> {
     return this.db
       .select({
         key: productAttributes.key,
         value: productAttributes.value,
+        unit: attributeDefinitions.unit,
       })
       .from(productAttributes)
+      .leftJoin(
+        attributeDefinitions,
+        eq(attributeDefinitions.name, productAttributes.key),
+      )
       .where(eq(productAttributes.productId, productId))
       .orderBy(asc(productAttributes.sortOrder));
   }

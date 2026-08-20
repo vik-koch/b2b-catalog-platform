@@ -8,7 +8,11 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { categoryDisplayName } from '@b2b-catalog-platform/shared';
+import {
+  categoryDisplayName,
+  encodeAttributeParams,
+  parseAttributeParams,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { LoadErrorView } from '../pages/load-error-view';
 import { stableValue } from '../core/stable-value';
@@ -23,7 +27,9 @@ import { ConfirmService } from '../ui/confirm.service';
 import { Button } from '../ui/button';
 import { Icon } from '../ui/icons/icon';
 import { NotFoundView } from '../pages/not-found-view';
+import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
+import { FacetPanel } from './facet-panel';
 import { ProductTile } from './product-tile';
 import {
   ProductSortSelect,
@@ -47,6 +53,8 @@ const SUBS_COLLAPSED = 4;
     Icon,
     ProductTile,
     ProductSortSelect,
+    FacetPanel,
+    AppliedFilters,
     Button,
     EditActions,
     HiddenProductsSection,
@@ -90,8 +98,11 @@ const SUBS_COLLAPSED = 4;
                     />
                   </li>
                   <li>
+                    <!-- Upward too: a wider scope still offers every value the
+                         narrower one did. -->
                     <a
                       [routerLink]="['/catalog', crumb.slug]"
+                      [queryParams]="{ attr: attrParam() }"
                       class="hover:text-accent"
                     >
                       {{ displayName(crumb) }}
@@ -121,10 +132,20 @@ const SUBS_COLLAPSED = 4;
             }
           </div>
 
-          <div class="flex flex-wrap items-center justify-between gap-y-3">
+          <div
+            class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
+          >
             <h1 class="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
               {{ data.category.name }}
             </h1>
+
+            <!-- The chips share the title's row rather than getting one of
+                 their own: a row that appears with the first selection would
+                 push the grid down as it was ticked. -->
+            <app-applied-filters
+              class="mt-2 hidden min-w-0 flex-1 md:block"
+              [facets]="data.facets"
+            />
 
             <!-- Right-aligned above the grid rather than beside the title: the
                 title row belongs to the breadcrumb and, in edit mode, to the
@@ -146,8 +167,14 @@ const SUBS_COLLAPSED = 4;
                 track sub.slug
               ) {
                 <li class="flex">
+                  <!-- The selection travels down with the visitor: the values
+                       are the catalogue's, not this category's, so narrowing
+                       the scope is no reason to forget them. It may leave the
+                       subcategory with no matches — the chips and the panel
+                       are on screen there to say so and undo it. -->
                   <a
                     [routerLink]="['/catalog', sub.slug]"
+                    [queryParams]="{ attr: attrParam() }"
                     class="flex max-w-52 items-center rounded-xl border border-border bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:text-accent"
                   >
                     <span class="line-clamp-2">{{ displayName(sub) }}</span>
@@ -186,90 +213,115 @@ const SUBS_COLLAPSED = 4;
             </ul>
           }
 
-          @if (data.items.length || editMode.enabled()) {
-            <ul
-              class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-            >
-              @if (editControls(); as editText) {
-                <li class="h-full">
-                  <a
-                    [routerLink]="['/admin/products/new']"
-                    [queryParams]="{
-                      category: data.category.slug,
-                      from: editorFrom.from,
-                    }"
-                    class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent"
-                  >
-                    <app-icon name="plus" class="h-8 w-8" />
-                    <span class="text-sm font-medium">{{
-                      editText.addProduct
-                    }}</span>
-                  </a>
-                </li>
-              }
-              @for (item of data.items; track item.slug) {
-                <li class="h-full">
-                  <app-product-tile [item]="item">
-                    @if (editControls(); as editText) {
-                      <app-edit-actions
-                        variant="tile"
-                        [editLink]="['/admin/products', item.slug, 'edit']"
-                        [editParams]="editorFrom"
-                        [editLabel]="editText.editProduct"
-                      />
-                    }
-                  </app-product-tile>
-                </li>
-              }
-            </ul>
-
-            @if (data.pagination.totalPages > 1) {
-              <nav
-                class="mt-10 flex items-center justify-center gap-4 text-sm"
-                [attr.aria-label]="text.pageStatus"
-              >
-                @if (data.pagination.page > 1) {
-                  <a
-                    [routerLink]="['/catalog', slug()]"
-                    [queryParams]="{
-                      page: data.pagination.page - 1,
-                      sort: sortParam(),
-                    }"
-                    appButton
-                    variant="ghost"
-                    size="sm"
-                    >{{ text.prevPage }}</a
-                  >
-                } @else {
-                  <span class="px-3 py-1.5 text-stone-300">{{
-                    text.prevPage
-                  }}</span>
-                }
-                <span class="text-subtle">{{
-                  pageStatus(data.pagination)
-                }}</span>
-                @if (data.pagination.page < data.pagination.totalPages) {
-                  <a
-                    [routerLink]="['/catalog', slug()]"
-                    [queryParams]="{
-                      page: data.pagination.page + 1,
-                      sort: sortParam(),
-                    }"
-                    appButton
-                    variant="ghost"
-                    size="sm"
-                    >{{ text.nextPage }}</a
-                  >
-                } @else {
-                  <span class="px-3 py-1.5 text-stone-300">{{
-                    text.nextPage
-                  }}</span>
-                }
-              </nav>
+          <!-- Filters left, grid right, from the lg breakpoint up; stacked below, where the
+               panel is a disclosure above the grid. -->
+          <div class="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
+            @if (data.facets.length) {
+              <aside class="shrink-0 lg:w-56 xl:w-64">
+                <app-facet-panel [facets]="data.facets" />
+              </aside>
             }
-          } @else {
-            <p class="mt-8 text-muted">{{ text.emptyProducts }}</p>
-          }
+            <div class="min-w-0 flex-1">
+              @if (data.items.length || editMode.enabled()) {
+                @if (!data.items.length) {
+                  <p class="mb-4 text-muted">
+                    {{
+                      hasSelection() ? filterText.noMatches : text.emptyProducts
+                    }}
+                  </p>
+                }
+                <ul
+                  class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3"
+                  [class]="gridColumns(data.facets.length)"
+                >
+                  @if (editControls(); as editText) {
+                    <li class="h-full">
+                      <a
+                        [routerLink]="['/admin/products/new']"
+                        [queryParams]="{
+                          category: data.category.slug,
+                          from: editorFrom.from,
+                        }"
+                        class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent"
+                      >
+                        <app-icon name="plus" class="h-8 w-8" />
+                        <span class="text-sm font-medium">{{
+                          editText.addProduct
+                        }}</span>
+                      </a>
+                    </li>
+                  }
+                  @for (item of data.items; track item.slug) {
+                    <li class="h-full">
+                      <app-product-tile [item]="item">
+                        @if (editControls(); as editText) {
+                          <app-edit-actions
+                            variant="tile"
+                            [editLink]="['/admin/products', item.slug, 'edit']"
+                            [editParams]="editorFrom"
+                            [editLabel]="editText.editProduct"
+                          />
+                        }
+                      </app-product-tile>
+                    </li>
+                  }
+                </ul>
+
+                @if (data.pagination.totalPages > 1) {
+                  <nav
+                    class="mt-10 flex items-center justify-center gap-4 text-sm"
+                    [attr.aria-label]="text.pageStatus"
+                  >
+                    @if (data.pagination.page > 1) {
+                      <a
+                        [routerLink]="['/catalog', slug()]"
+                        [queryParams]="{
+                          page: data.pagination.page - 1,
+                          sort: sortParam(),
+                          attr: attrParam(),
+                        }"
+                        appButton
+                        variant="ghost"
+                        size="sm"
+                        >{{ text.prevPage }}</a
+                      >
+                    } @else {
+                      <span class="px-3 py-1.5 text-stone-300">{{
+                        text.prevPage
+                      }}</span>
+                    }
+                    <span class="text-subtle">{{
+                      pageStatus(data.pagination)
+                    }}</span>
+                    @if (data.pagination.page < data.pagination.totalPages) {
+                      <a
+                        [routerLink]="['/catalog', slug()]"
+                        [queryParams]="{
+                          page: data.pagination.page + 1,
+                          sort: sortParam(),
+                          attr: attrParam(),
+                        }"
+                        appButton
+                        variant="ghost"
+                        size="sm"
+                        >{{ text.nextPage }}</a
+                      >
+                    } @else {
+                      <span class="px-3 py-1.5 text-stone-300">{{
+                        text.nextPage
+                      }}</span>
+                    }
+                  </nav>
+                }
+              } @else {
+                <p class="text-muted">
+                  {{
+                    hasSelection() ? filterText.noMatches : text.emptyProducts
+                  }}
+                </p>
+              }
+            </div>
+          </div>
         }
       } @else if (showSkeleton()) {
         <div class="animate-pulse space-y-8" aria-hidden="true">
@@ -313,6 +365,7 @@ export class CategoryGrid {
   private readonly router = inject(Router);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
   protected readonly SUBS_COLLAPSED = SUBS_COLLAPSED;
@@ -337,6 +390,25 @@ export class CategoryGrid {
     sortParam(this.sortKey(), 'name'),
   );
 
+  /**
+   * Bound from the repeated `attr` query parameter (FR-ATTR-07) — a bare string
+   * when one value is ticked, an array beyond that, which is why it is read
+   * through the shared codec rather than used as it arrives.
+   */
+  attr = input<string | readonly string[] | undefined>(undefined);
+  /** The selection, normalized: duplicates collapsed, malformed entries gone. */
+  protected readonly attrParams = computed(() =>
+    encodeAttributeParams(parseAttributeParams(this.attr())),
+  );
+  protected readonly hasSelection = computed(
+    () => this.attrParams().length > 0,
+  );
+  /** The selection as pagination links should carry it — absent when empty, so
+   * an unfiltered listing keeps one URL. */
+  protected readonly attrParam = computed(() =>
+    this.hasSelection() ? this.attrParams() : null,
+  );
+
   protected showAllSubs = signal(false);
   /** The product whose delete confirmation is open, if any. */
   /** The category (this page's own) whose delete confirmation is open. */
@@ -351,9 +423,15 @@ export class CategoryGrid {
       slug: this.slug(),
       page: this.currentPage(),
       sort: this.sortKey(),
+      attr: this.attrParams(),
     }),
     loader: ({ params }) =>
-      this.catalog.getCategoryProducts(params.slug, params.page, params.sort),
+      this.catalog.getCategoryProducts(
+        params.slug,
+        params.page,
+        params.sort,
+        params.attr,
+      ),
   });
 
   /** Held across reloads, so re-sorting swaps the grid instead of blanking it. */
@@ -390,6 +468,16 @@ export class CategoryGrid {
     effect(() => {
       if (!this.editMode.enabled()) this.deletedReady.set(false);
     });
+  }
+
+  /**
+   * The grid loses two columns while the filter panel is beside it — the tiles
+   * would otherwise be narrower here than anywhere else in the catalogue.
+   */
+  protected gridColumns(facetCount: number): string {
+    return facetCount
+      ? 'lg:grid-cols-3 xl:grid-cols-4'
+      : 'lg:grid-cols-4 xl:grid-cols-5';
   }
 
   /** A product was restored from the overlay — it returns to the live grid. */
