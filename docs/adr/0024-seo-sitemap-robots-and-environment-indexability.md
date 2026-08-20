@@ -1,6 +1,6 @@
 # 0024 — Serve sitemap/robots from the SSR tier and gate indexing with a per-deployment env flag
 
-**Status:** accepted (amended 2026-08-18) · **Date:** 2026-07-28
+**Status:** accepted (amended 2026-08-20) · **Date:** 2026-07-28
 
 ## Context
 
@@ -95,3 +95,27 @@ linear. Filtered listings are therefore treated exactly as sorted and paged ones
 are — the canonical points at the unfiltered category — and NFR-SEO-04 is worded
 to name them. Nothing else changes: the sitemap still lists categories and
 products only, so no filtered URL is ever advertised.
+
+## Amendment — 2026-08-20 (v1.4.0): the canonical link is written by the SSR tier
+
+The rule above said which URL a listing variant points at; it did not say who
+writes the tag, and until now nothing did — NFR-SEO-04's canonical half was
+unimplemented for sort and page as well as for filters. It is now
+`injectCanonicalLink` in `seo.server.ts`, beside `injectNoindexMeta` and for the
+same reasons: only the Node process knows `APP_ORIGIN`, and a crawler reads the
+canonical solely from the initial HTML of the URL it fetched, so a client-side
+navigation has no document worth updating. The href is the request path with the
+query string dropped, which is what makes every sorted, paged and filtered
+variant of a category resolve to the category.
+
+Three documents get none: a view that already marked itself `noindex` (search
+results — the injection runs before `injectNoindexMeta`, so that check sees only
+the page's own tag and never the deployment-level one), the session routes,
+which no crawler reaches, and the maintenance screen, which is not the content
+of the URL it is answering.
+
+The alternative was a `usePageSeo` option written per component. It was built
+first and abandoned: it needs the public origin plumbed into the browser
+injector to produce an absolute URL, it makes every component that titles a page
+depend on the router's event stream, and it buys only the client-navigation case
+— the one case no crawler is in.
