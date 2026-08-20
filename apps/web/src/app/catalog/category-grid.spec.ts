@@ -361,7 +361,7 @@ describe('CategoryGrid', () => {
             ],
           },
         }),
-        { attr: 'grind:fine' },
+        { attr: 'grind:fine', sort: 'price_desc' },
       );
 
       const href = (name: string) =>
@@ -370,6 +370,9 @@ describe('CategoryGrid', () => {
           ?.getAttribute('href');
       expect(href('Single Origin')).toContain('attr=grind:fine');
       expect(href('Coffee Beans')).toContain('attr=grind:fine');
+      // The sort is the same kind of stated preference and travels with it.
+      expect(href('Single Origin')).toContain('sort=price_desc');
+      expect(href('Coffee Beans')).toContain('sort=price_desc');
     });
 
     it('keeps the panel on screen when the selection matches nothing', async () => {

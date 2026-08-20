@@ -102,7 +102,7 @@ const SUBS_COLLAPSED = 4;
                          narrower one did. -->
                     <a
                       [routerLink]="['/catalog', crumb.slug]"
-                      [queryParams]="{ attr: attrParam() }"
+                      [queryParams]="{ sort: sortParam(), attr: attrParam() }"
                       class="hover:text-accent"
                     >
                       {{ displayName(crumb) }}
@@ -171,10 +171,12 @@ const SUBS_COLLAPSED = 4;
                        are the catalogue's, not this category's, so narrowing
                        the scope is no reason to forget them. It may leave the
                        subcategory with no matches — the chips and the panel
-                       are on screen there to say so and undo it. -->
+                       are on screen there to say so and undo it. The sort goes
+                       with it: it is the same kind of stated preference, and
+                       every listing offers the same orders. -->
                   <a
                     [routerLink]="['/catalog', sub.slug]"
-                    [queryParams]="{ attr: attrParam() }"
+                    [queryParams]="{ sort: sortParam(), attr: attrParam() }"
                     class="flex max-w-52 items-center rounded-xl border border-border bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:text-accent"
                   >
                     <span class="line-clamp-2">{{ displayName(sub) }}</span>
