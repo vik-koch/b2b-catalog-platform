@@ -1,6 +1,6 @@
 # 0037 — Store product attributes as rows, and declare the filterable ones
 
-**Status:** accepted · **Date:** 2026-08-18
+**Status:** accepted (amended 2026-08-19) · **Date:** 2026-08-18
 
 ## Context
 
