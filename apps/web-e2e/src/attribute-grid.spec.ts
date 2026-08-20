@@ -15,6 +15,10 @@ const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
  * selection writes into the *key* column and can take a whole row with it. So
  * these tests make the selection with a real mouse drag.
  *
+ * Desktop only: under touch emulation a mouse drag makes no selection at all
+ * (the pointer just moves the caret), so there is nothing here to test — a
+ * touch selection is made by long-press and handles, a different interaction.
+ *
  * Deliberately never saves — like the other admin specs, the suite shares one
  * database with specs that assert seeded state.
  */
@@ -37,12 +41,21 @@ const cell = (page: Page, row: number, col: 0 | 1): Locator =>
     `app-product-attributes-editor tbody tr:nth-child(${row + 1}) [data-col="${col}"]`,
   );
 
-/** Drag from one point of a cell to another, the way a text selection is made. */
+/**
+ * Drag from one point of a cell to another, the way a text selection is made.
+ *
+ * The grid is scrolled to first, and deliberately not by `boundingBox` alone:
+ * the mouse API takes viewport coordinates and, unlike a click, never scrolls
+ * to what it is aimed at. Off-screen, every drag here lands somewhere else
+ * entirely and the whole suite tests nothing.
+ */
 async function dragBetween(
   page: Page,
   from: { cell: Locator; at: number },
   to: { cell: Locator; at: number },
 ): Promise<void> {
+  await from.cell.scrollIntoViewIfNeeded();
+  await to.cell.scrollIntoViewIfNeeded();
   const a = await from.cell.boundingBox();
   const b = await to.cell.boundingBox();
   if (!a || !b) throw new Error('a grid cell is not rendered');
@@ -72,6 +85,11 @@ const selectionCells = (page: Page) =>
   });
 
 test.describe('the product attribute grid', () => {
+  test.skip(
+    ({ isMobile }) => !!isMobile,
+    'a mouse drag selects nothing under touch emulation',
+  );
+
   test.beforeEach(async ({ page }) => {
     await logIn(page);
     await page.goto(`/admin/products/${product.slug}/edit`);
