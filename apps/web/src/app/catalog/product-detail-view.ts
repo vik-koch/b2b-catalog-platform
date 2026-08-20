@@ -14,6 +14,7 @@ import {
 import { RouterLink } from '@angular/router';
 import {
   categoryDisplayName,
+  encodeAttributeParams,
   formatAttributeValue,
   ProductDetail,
 } from '@b2b-catalog-platform/shared';
@@ -187,7 +188,21 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
                   {{ attr.key }}
                 </th>
                 <td class="py-2 text-right text-stone-700">
-                  {{ attr.value }}
+                  <!-- A filterable value is the way to "more like this": the
+                       product's own category, narrowed to this value
+                       (FR-ATTR-08). The link treatment is also the only cue
+                       that the shop filters by this attribute at all. -->
+                  @if (attr.filterParam) {
+                    <a
+                      [routerLink]="['/catalog', item().category.slug]"
+                      [queryParams]="{ attr: attr.filterParam }"
+                      class="text-primary font-medium underline decoration-border underline-offset-2 hover:text-accent hover:decoration-accent"
+                    >
+                      {{ attr.value }}
+                    </a>
+                  } @else {
+                    {{ attr.value }}
+                  }
                 </td>
               </tr>
             }
@@ -235,10 +250,17 @@ export class ProductDetailView {
     this.item()
       .attributes.filter((a) => a.value.trim() !== '')
       // A declared attribute's unit lives on the definition, never in the
-      // value, so it is joined on here rather than stored (FR-ATTR-01).
+      // value, so it is joined on here rather than stored (FR-ATTR-01) — and
+      // the link is written from the *stored* value, which is what the facet
+      // and the URL are keyed by.
       .map((a) => ({
         key: a.key,
         value: formatAttributeValue(a.value, a.unit),
+        filterParam: a.filterSlug
+          ? encodeAttributeParams([
+              { slug: a.filterSlug, values: [a.value] },
+            ])[0]
+          : null,
       })),
   );
 
