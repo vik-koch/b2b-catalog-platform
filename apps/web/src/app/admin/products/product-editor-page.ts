@@ -349,7 +349,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
   protected readonly lineNoteEnabled = signal(false);
   protected readonly lineNotePrompt = signal('');
-  protected readonly lineNotePromptMaxLength = PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH;
+  protected readonly lineNotePromptMaxLength =
+    PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH;
 
   /** Null until loaded; drives the publish switch and where a save returns to. */
   protected readonly published = signal(false);
