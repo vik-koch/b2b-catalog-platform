@@ -420,6 +420,8 @@ export class CatalogService {
         boxVolume: products.boxVolume,
         boxWeight: products.boxWeight,
         boxCount: products.boxCount,
+        lineNoteEnabled: products.lineNoteEnabled,
+        lineNotePrompt: products.lineNotePrompt,
         ...unitColumns,
       })
       .from(products)
@@ -444,6 +446,8 @@ export class CatalogService {
       descriptionHtml: product.descriptionHtml,
       images: product.images,
       attributes,
+      lineNoteEnabled: product.lineNoteEnabled,
+      lineNotePrompt: product.lineNotePrompt,
       category: {
         slug: category.slug,
         name: category.name,

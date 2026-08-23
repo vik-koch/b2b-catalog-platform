@@ -141,6 +141,13 @@ export const products = pgTable(
       .references(() => categories.id, { onDelete: 'restrict' }),
     // Overlay fields.
     descriptionHtml: text('descriptionHtml').notNull().default(''),
+    // Whether a cart line for this product may carry a free-text note, for
+    // collective items whose variants are not separate articles. Admin-owned,
+    // like the packaging above — the sync does not carry it.
+    lineNoteEnabled: boolean('lineNoteEnabled').notNull().default(false),
+    // What to ask for, since the reason for the note differs per product
+    // ("state the colour"). Null falls back to the app-wide wording.
+    lineNotePrompt: varchar('lineNotePrompt', { length: 200 }),
     // Ordered gallery, each with a full and a thumb media-store URL. The
     // media-prune reference scan must include these URLs (and categories.image)
     // so seeded/uploaded images are not swept.
@@ -210,6 +217,11 @@ export const products = pgTable(
     // What keeps totals exact: every purchasable quantity is a whole number of
     // basis units, so a total is a multiplication with nothing to round. In the
     // database, not only the editor — it is the guarantee, not a form nicety.
+    // A prompt describes a note nobody can write unless the note is enabled.
+    check(
+      'products_line_note_prompt_needs_note',
+      sql`${t.lineNotePrompt} is null or ${t.lineNoteEnabled}`,
+    ),
     check(
       'products_basis_divides_quantities',
       sql`${t.minPieceQty} % ${t.priceBasisPieces} = 0

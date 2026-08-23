@@ -215,6 +215,11 @@ export const productDetailSchema = z
     descriptionHtml: z.string(),
     images: z.array(catalogImageSchema),
     attributes: z.array(productDetailAttributeSchema),
+    /** Whether the buying block offers a free-text note (FR-CART-08). Detail
+     * only: a grid tile has no quantity control to attach one to. */
+    lineNoteEnabled: z.boolean(),
+    /** The product's own wording for the note; null falls back to app-text. */
+    lineNotePrompt: z.string().nullable(),
     /** The single category this product belongs to, with its own ancestors —
      * the breadcrumb shows the whole path, not just the leaf. */
     category: categoryCrumbSchema.extend({

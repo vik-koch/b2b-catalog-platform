@@ -245,6 +245,22 @@ export const adminTextSchema = z
             empty: z.string(),
           })
           .strict(),
+        /**
+         * The per-line note a collective item may ask for (FR-CART-08) — the
+         * policy, not the customer's text.
+         */
+        lineNote: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            /** The on/off control's own label. */
+            enable: z.string(),
+            prompt: z.string(),
+            /** Shown under the prompt field: blank uses the shop-wide wording. */
+            promptHint: z.string(),
+            promptPlaceholder: z.string(),
+          })
+          .strict(),
         /** Units of sale, and how many pieces the price covers (FR-UNIT-*). */
         packaging: z
           .object({

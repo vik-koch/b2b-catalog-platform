@@ -73,8 +73,8 @@ export async function seedCatalog(
       `INSERT INTO products
          ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "descriptionHtml", images,
           "piecesPerPack", "packsPerBox", "minPieceQty", "priceBasisPieces", "boxVolume", "boxWeight",
-          "boxCount", "publishedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14, now())
+          "boxCount", "lineNoteEnabled", "lineNotePrompt", "publishedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14, $15, $16, now())
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "defaultPriceMinor" = EXCLUDED."defaultPriceMinor", "categoryId" = EXCLUDED."categoryId",
@@ -84,6 +84,8 @@ export async function seedCatalog(
          "minPieceQty" = EXCLUDED."minPieceQty", "priceBasisPieces" = EXCLUDED."priceBasisPieces",
          "boxVolume" = EXCLUDED."boxVolume", "boxWeight" = EXCLUDED."boxWeight",
          "boxCount" = EXCLUDED."boxCount",
+         "lineNoteEnabled" = EXCLUDED."lineNoteEnabled",
+         "lineNotePrompt" = EXCLUDED."lineNotePrompt",
          -- The demo catalog is meant to be on the storefront; a re-seed of an
          -- unpublished row puts it back.
          "publishedAt" = EXCLUDED."publishedAt"
@@ -103,6 +105,8 @@ export async function seedCatalog(
         packaging.boxVolume ?? null,
         packaging.boxWeight ?? null,
         packaging.boxCount ?? 1,
+        product.lineNoteEnabled ?? false,
+        product.lineNotePrompt ?? null,
       ],
     );
 

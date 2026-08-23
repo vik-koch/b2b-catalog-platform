@@ -47,6 +47,9 @@ export const PRODUCT_ATTRIBUTES_MAX = 100;
 export const PRODUCT_ATTRIBUTE_KEY_MAX_LENGTH = 200;
 export const PRODUCT_ATTRIBUTE_VALUE_MAX_LENGTH = 2000;
 
+/** Matches the `products.lineNotePrompt` varchar(200) — one short question. */
+export const PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH = 200;
+
 /** A gallery is a short ordered list, not an archive. */
 export const PRODUCT_IMAGES_MAX = 20;
 
@@ -158,6 +161,16 @@ export const productInputSchema = z
     boxWeight: boxDimensionInputSchema,
     /** How many boxes the product ships as; informational (FR-UNIT-11). */
     boxCount: z.number().int().positive().default(1),
+    /** Whether a cart line for this product may carry a note (FR-CART-08). */
+    lineNoteEnabled: z.boolean().default(false),
+    /** What to ask the customer for; null falls back to the app-wide wording. */
+    lineNotePrompt: z
+      .string()
+      .trim()
+      .min(1)
+      .max(PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH)
+      .nullable()
+      .default(null),
   })
   .strict()
   .refine(
@@ -175,6 +188,10 @@ export const productInputSchema = z
   .refine((input) => input.packsPerBox !== null || input.boxCount === 1, {
     message: 'A box count needs a box',
     path: ['boxCount'],
+  })
+  .refine((input) => input.lineNoteEnabled || input.lineNotePrompt === null, {
+    message: 'A note prompt needs the note enabled',
+    path: ['lineNotePrompt'],
   })
   // What keeps totals exact: every purchasable quantity must be a whole number
   // of basis units. Checked here as well as in the database so the editor gets a
@@ -209,6 +226,8 @@ export const adminProductSchema = z
     boxVolume: z.string().nullable(),
     boxWeight: z.string().nullable(),
     boxCount: z.number().int().positive(),
+    lineNoteEnabled: z.boolean(),
+    lineNotePrompt: z.string().nullable(),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
     deletedAt: z.string().datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */

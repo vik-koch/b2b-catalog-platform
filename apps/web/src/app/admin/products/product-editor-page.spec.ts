@@ -57,6 +57,8 @@ const storedProduct: AdminProduct = {
   boxVolume: null,
   boxWeight: null,
   boxCount: 1,
+  lineNoteEnabled: false,
+  lineNotePrompt: null,
 };
 
 const config = {
@@ -342,6 +344,69 @@ describe('ProductEditorPage', () => {
     expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
       boxVolume: '0.250',
       boxWeight: '12.500',
+    });
+  });
+
+  describe('line note (FR-CART-08)', () => {
+    it('keeps the prompt field out of the form until the note is enabled', async () => {
+      const { fixture, el } = await render({ slug: 'hafen-espresso' });
+
+      expect(() => inputByLabel(el, text.lineNote.prompt)).toThrow();
+
+      inputByLabel(el, text.lineNote.enable).click();
+      fixture.detectChanges();
+      expect(inputByLabel(el, text.lineNote.prompt).value).toBe('');
+    });
+
+    it('loads a stored note policy and sends it back on save', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          product: {
+            ...storedProduct,
+            lineNoteEnabled: true,
+            lineNotePrompt: 'Which colour?',
+          },
+        },
+      );
+
+      expect(inputByLabel(el, text.lineNote.prompt).value).toBe(
+        'Which colour?',
+      );
+
+      setInput(inputByLabel(el, text.lineNote.prompt), 'Which finish?');
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+        lineNoteEnabled: true,
+        lineNotePrompt: 'Which finish?',
+      });
+    });
+
+    it('drops the prompt when the note is switched off', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          product: {
+            ...storedProduct,
+            lineNoteEnabled: true,
+            lineNotePrompt: 'Which colour?',
+          },
+        },
+      );
+
+      inputByLabel(el, text.lineNote.enable).click();
+      fixture.detectChanges();
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+        lineNoteEnabled: false,
+        lineNotePrompt: null,
+      });
     });
   });
 

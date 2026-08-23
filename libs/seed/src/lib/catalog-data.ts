@@ -29,6 +29,9 @@ export interface ProductSeed {
   imageCount: number;
   /** Units of sale. Absent means the product is sold by the piece. */
   packaging?: ProductPackagingSeed;
+  /** A collective item whose cart line may name the variant wanted. */
+  lineNoteEnabled?: boolean;
+  lineNotePrompt?: string;
 }
 
 /**
@@ -434,18 +437,24 @@ const allProducts: ProductSeed[] = [
     ],
   ),
 
-  p(
-    'CUP-001',
-    'cappuccino-cup-set',
-    'Cappuccino Cup Set (6)',
-    'cups',
-    5400,
-    '<p>A set of six 190&nbsp;ml porcelain cappuccino cups and saucers.</p>',
-    [
-      { key: 'Volume', value: '190' },
-      { key: 'Pieces', value: '6 cups + saucers' },
-    ],
-  ),
+  // The collective item of the demo catalog: one article, several glaze
+  // colours, so its cart line asks which ones are wanted.
+  {
+    ...p(
+      'CUP-001',
+      'cappuccino-cup-set',
+      'Cappuccino Cup Set (6)',
+      'cups',
+      5400,
+      '<p>A set of six 190&nbsp;ml porcelain cappuccino cups and saucers.</p>',
+      [
+        { key: 'Volume', value: '190' },
+        { key: 'Pieces', value: '6 cups + saucers' },
+      ],
+    ),
+    lineNoteEnabled: true,
+    lineNotePrompt: 'Which glaze colours? Sand, slate or off-white.',
+  },
   p(
     'CUP-002',
     'latte-glass-set',
