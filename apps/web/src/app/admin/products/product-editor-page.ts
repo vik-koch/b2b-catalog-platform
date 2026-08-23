@@ -12,6 +12,7 @@ import {
   ProductAttribute,
   ProductDetail,
   ProductInput,
+  PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
   slugify,
   totalMinor,
 } from '@b2b-catalog-platform/shared';
@@ -29,6 +30,7 @@ import { ProductDetailView } from '../../catalog/product-detail-view';
 import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
 import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Checkbox } from '../../ui/checkbox';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { PriceField } from '../../ui/price-field';
@@ -70,6 +72,7 @@ import { injectEditorReturn } from '../editor-return';
     ProductTierPricesEditor,
     ProductImageGallery,
     ProductDetailView,
+    Checkbox,
     FieldLabel,
     Input,
     PriceField,
@@ -193,6 +196,38 @@ import { injectEditorReturn } from '../editor-return';
           />
         </div>
 
+        <fieldset>
+          <legend appFieldLabel>{{ text.lineNote.heading }}</legend>
+          <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
+          <label class="flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              appCheckbox
+              class="mt-0.5"
+              [checked]="lineNoteEnabled()"
+              (change)="onLineNoteToggle($any($event.target).checked)"
+            />
+            <span>{{ text.lineNote.enable }}</span>
+          </label>
+          @if (lineNoteEnabled()) {
+            <label class="mt-3 block max-w-2xl">
+              <span appFieldLabel>{{ text.lineNote.prompt }}</span>
+              <input
+                type="text"
+                appInput
+                class="w-full"
+                [attr.maxlength]="lineNotePromptMaxLength"
+                [value]="lineNotePrompt()"
+                [placeholder]="text.lineNote.promptPlaceholder"
+                (input)="lineNotePrompt.set($any($event.target).value)"
+              />
+              <span class="mt-1 block text-xs text-subtle">{{
+                text.lineNote.promptHint
+              }}</span>
+            </label>
+          }
+        </fieldset>
+
         <div>
           <app-product-image-gallery
             [value]="images()"
@@ -312,6 +347,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly tierPrices = signal<TierPriceDraft[]>([]);
   protected readonly images = signal<CatalogImage[]>([]);
   protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
+  protected readonly lineNoteEnabled = signal(false);
+  protected readonly lineNotePrompt = signal('');
+  protected readonly lineNotePromptMaxLength = PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH;
 
   /** Null until loaded; drives the publish switch and where a save returns to. */
   protected readonly published = signal(false);
@@ -400,6 +438,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
             },
       descriptionHtml: this.description(),
       images: this.images(),
+      lineNoteEnabled: this.lineNoteEnabled(),
+      lineNotePrompt: this.lineNotePrompt().trim() || null,
       // The unit is the registry's, not the row's — the preview joins it on
       // exactly as the storefront's read does, so a declared attribute reads
       // the same here as on the live page.
@@ -468,6 +508,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.ownAttributeKeys.set(product.attributes.map((a) => a.key));
       this.images.set(product.images);
       this.published.set(product.publishedAt !== null);
+      this.lineNoteEnabled.set(product.lineNoteEnabled);
+      this.lineNotePrompt.set(product.lineNotePrompt ?? '');
       this.packaging.set({
         piecesPerPack: product.piecesPerPack?.toString() ?? '',
         packsPerBox: product.packsPerBox?.toString() ?? '',
@@ -526,6 +568,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
       images: this.images(),
       tierPrices: this.tierPrices(),
       packaging: this.packaging(),
+      lineNoteEnabled: this.lineNoteEnabled(),
+      lineNotePrompt: this.lineNotePrompt(),
     });
   }
 
@@ -590,6 +634,13 @@ export class ProductEditorPage implements UnsavedChangesAware {
     };
   }
 
+  /** Turning the note off drops the prompt with it — that is what a save
+   * stores, and leaving the text behind would show the form as unsaved. */
+  protected onLineNoteToggle(enabled: boolean): void {
+    this.lineNoteEnabled.set(enabled);
+    if (!enabled) this.lineNotePrompt.set('');
+  }
+
   protected onSlugInput(value: string): void {
     this.slugTouched.set(true);
     this.slug.set(value);
@@ -643,6 +694,12 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // The full set: a tier the admin cleared is absent here, and the server
       // takes that as "remove the override".
       tierPrices,
+      lineNoteEnabled: this.lineNoteEnabled(),
+      // A prompt is only meaningful with the note on; the server refuses the
+      // pair the other way round.
+      lineNotePrompt: this.lineNoteEnabled()
+        ? this.lineNotePrompt().trim() || null
+        : null,
       ...packaging,
       ...(slug ? { slug } : {}),
       ...(sourceId ? { sourceId } : {}),

@@ -52,6 +52,8 @@ export function productDetail(
     descriptionHtml: '',
     images: [],
     attributes: [],
+    lineNoteEnabled: false,
+    lineNotePrompt: null,
     category: {
       slug: 'coffee-beans',
       name: 'Coffee Beans',
