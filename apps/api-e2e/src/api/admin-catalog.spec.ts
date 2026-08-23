@@ -35,6 +35,8 @@ const PRODUCT_KEYS = [
   'deletedAt',
   'descriptionHtml',
   'images',
+  'lineNoteEnabled',
+  'lineNotePrompt',
   'minPieceQty',
   'name',
   'packsPerBox',
@@ -826,6 +828,63 @@ describe('Admin catalog (FR-ADM-01)', () => {
         undefined,
       );
       expect(restored.data.tierPrices).toEqual([{ tierId, priceMinor: 700 }]);
+    });
+  });
+
+  describe('line note (FR-CART-08)', () => {
+    it('round-trips the flag and the prompt, and shows them on the storefront', async () => {
+      const res = await createProduct({
+        name: `Noted ${R}`,
+        lineNoteEnabled: true,
+        lineNotePrompt: 'Which colour?',
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.data.lineNoteEnabled).toBe(true);
+      expect(res.data.lineNotePrompt).toBe('Which colour?');
+
+      const read = await adminGet(`/admin/catalog/products/${res.data.slug}`);
+      expect(read.data.lineNoteEnabled).toBe(true);
+      expect(read.data.lineNotePrompt).toBe('Which colour?');
+
+      await publishProduct(res.data.slug);
+      const detail = await axios.get(`/catalog/products/${res.data.slug}`);
+      expect(detail.data.lineNoteEnabled).toBe(true);
+      expect(detail.data.lineNotePrompt).toBe('Which colour?');
+    });
+
+    it('defaults to off with no prompt', async () => {
+      const res = await createProduct({ name: `Unnoted ${R}` });
+
+      expect(res.data.lineNoteEnabled).toBe(false);
+      expect(res.data.lineNotePrompt).toBeNull();
+    });
+
+    it('refuses a prompt without the note enabled', async () => {
+      const res = await createProduct({
+        name: `Prompt only ${R}`,
+        lineNotePrompt: 'Which colour?',
+      });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('drops the prompt when the note is turned off', async () => {
+      const created = await createProduct({
+        name: `Turned off ${R}`,
+        lineNoteEnabled: true,
+        lineNotePrompt: 'Which colour?',
+      });
+      const res = await put(`/admin/catalog/products/${created.data.slug}`, {
+        name: `Turned off ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        lineNoteEnabled: false,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data.lineNoteEnabled).toBe(false);
+      expect(res.data.lineNotePrompt).toBeNull();
     });
   });
 

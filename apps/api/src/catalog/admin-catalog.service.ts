@@ -88,6 +88,8 @@ const adminProductColumns = {
   boxVolume: products.boxVolume,
   boxWeight: products.boxWeight,
   boxCount: products.boxCount,
+  lineNoteEnabled: products.lineNoteEnabled,
+  lineNotePrompt: products.lineNotePrompt,
 } as const;
 
 type ProductRow = {
@@ -109,6 +111,8 @@ type ProductRow = {
   boxVolume: string | null;
   boxWeight: string | null;
   boxCount: number;
+  lineNoteEnabled: boolean;
+  lineNotePrompt: string | null;
 };
 
 /**
@@ -258,6 +262,8 @@ export class AdminCatalogService {
             categoryId: input.categoryId,
             descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
             images: input.images,
+            lineNoteEnabled: input.lineNoteEnabled,
+            lineNotePrompt: input.lineNotePrompt,
             updatedBy: actorId,
             ...packagingValues(input),
           })
@@ -302,6 +308,8 @@ export class AdminCatalogService {
             categoryId: input.categoryId,
             descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
             images: input.images,
+            lineNoteEnabled: input.lineNoteEnabled,
+            lineNotePrompt: input.lineNotePrompt,
             sourceId: newSourceId,
             updatedAt: new Date(),
             updatedBy: actorId,
@@ -1009,6 +1017,8 @@ function toAdminProduct(
     boxVolume: row.boxVolume,
     boxWeight: row.boxWeight,
     boxCount: row.boxCount,
+    lineNoteEnabled: row.lineNoteEnabled,
+    lineNotePrompt: row.lineNotePrompt,
   };
 }
 
