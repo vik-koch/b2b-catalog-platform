@@ -1,6 +1,6 @@
 # 0032 — Customer accounts are staff-approved, and self-deletion anonymizes
 
-**Status:** accepted · **Date:** 2026-08-06
+**Status:** accepted (amended 2026-08-23) · **Date:** 2026-08-06
 
 ## Context
 
@@ -208,3 +208,45 @@ survives.
 - (−) A user who registers and hears nothing has no in-app way to tell an ignored
   request from a rejected one. That is intentional (see the login rationale) and
   is handled by mail wording, not by the API.
+
+## Amendment — 2026-08-23: anonymization reaches orders and addresses
+
+Orders exist now (ADR 0038), and `config/mail-text.json` and
+`config/app-text.json` have been telling a deleting customer since v1.2.0 that
+past orders are kept "with your details removed from them". Nothing made that
+true. `UsersService.anonymize` becomes a transaction that also deletes the
+account's `addresses` rows and scrubs its orders.
+
+**The scrubbed columns are named individually**, because the free-text ones are
+the ones that get missed: `contactName`, `contactEmail`, `contactPhone`, the
+billing and delivery snapshots, `preferredTiming`, `customerNote`, the `tierKey`
+snapshot, and `order_items.note`. The note is customer-typed and can perfectly
+well read "deliver to Anna, 0170…", so it is personal data sitting on a line
+item. `tierKey` goes for the same reason `anonymize()` already nulls
+`users.tierId`: it says what this customer was charged, and the stored line
+prices carry everything bookkeeping needs.
+
+What survives is the order, its lines, their quantities and their prices —
+which is exactly what the privacy page promises and what the obligation
+requires. `orders.userId` is `restrict`, never `set null`: users are never hard
+deleted, and the tombstone this ADR keeps exists precisely to hold that link.
+
+**A guest order has no self-service erasure path**, and that is a deliberate
+deferral rather than an oversight. `userId` is null, so there is nothing to
+trigger an erasure from — no account, no session, no login. Until an admin
+"scrub this order's contact details" action exists, honouring an erasure request
+for a guest order means the operator doing it directly in the database. That is a
+_process_ rather than a gap, but it is worth knowing it is the process. Deferred
+past iteration 8.
+
+The consequence that is in scope immediately: the privacy page and the account
+copy must not promise self-service erasure of guest orders. The wording as it
+stands does not — deletion is described on the account page, and "Your rights"
+already routes anything else through getting in touch — so the audit's outcome is
+that the copy holds, and the guest-order paragraph the page will want is written
+in the batch that ships guest checkout, not before the feature exists.
+
+- (−) Anonymization is no longer one table's update. Every future table holding
+  customer text — iteration 8's status notes among them — has to be added to it
+  by hand, and nothing in the schema forces that.
+- (−) A guest's data can only be erased by the operator, directly.

@@ -1,6 +1,6 @@
 # 0033 — One branded layout, one template per message, wording in config
 
-**Status:** accepted (supersedes 0014) · **Date:** 2026-08-06
+**Status:** accepted (supersedes 0014, amended 2026-08-23) · **Date:** 2026-08-06
 
 ## Context
 
@@ -97,5 +97,26 @@ deployment must make, and the config README says so.
   it looks like in Outlook is verified by eye through Mailpit, not in CI.
 - (−) Messages are limited to the block set the layout offers. That is the point,
   but a message wanting something genuinely different (an order table, a PDF
-  cover note in iteration 6) will have to extend the layout rather than style
-  itself.
+  cover note) will have to extend the layout rather than style itself.
+
+## Amendment — 2026-08-23: the layout gains repeating line items
+
+The order mails (FR-NOTIF-05/06) are the message the last consequence above
+predicted: `MailContent` offers `rows: {label, value}[]` and no way to render an
+order's lines. Rather than hand-rolling a table in the two order templates, the
+layout gains a **repeating line-item block** — the extension the consequence
+said would be needed, taken where it belongs.
+
+Everything the original decision rests on is unchanged and is what makes this
+safe. The block goes through the same `escapeHtml` in the layout, which is not
+optional here: a line note (FR-CART-08) is customer-typed text landing in an
+HTML mail, exactly the inquiry-message case the split was designed for. It
+renders its own **plain-text alternative** from the same object, so a template
+still cannot ship one part without the other. And its wording lives in
+`config/mail-text.json` with the rest.
+
+One thing the layout did not need until now: **the API has no money formatter.**
+The browser formats with `Intl` from `deployment.json`'s currency; the server has
+never had to. Both order mails do. It goes in one place — the mail layer or
+`libs/shared` — never once per template, for the same reason escaping does not
+live in a template.

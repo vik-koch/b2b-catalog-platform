@@ -4,16 +4,16 @@ Iteration plan mapping requirements (see [`requirements.md`](requirements.md)) t
 as priorities shift; the requirements doc stays stable. Live per-iteration tracking: GitHub
 Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 
-| #   | Milestone                                                                                      | Requirements                                                                          |
-| --- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| 1   | Static pages, compliance scaffolding, base infra (walking skeleton, CI/CD, IaC, dev+prod)      | FR-NAV-\*, NFR-LEGAL-01/02/03/05, NFR-SEC-01, NFR-SEO-03, NFR-OPS-\*                  |
-| 2   | Catalog display + admin login, management & sync → **tag v1.0.0**, client starts content entry | FR-CAT-01…05, FR-ADM-\*, FR-AUTH-07/08, NFR-SEC-02/03/05, NFR-SEO-01/02, NFR-LEGAL-06 |
-| 3   | Search, listing sort & admin grid filters → **tag v1.1.0**                                     | FR-SEARCH-01…05, FR-ADM-05, NFR-SEC-07, NFR-SEO-04, NFR-OPS-05                        |
-| 4   | Accounts, roles & tiered pricing → **tag v1.2.0**                                              | FR-AUTH-01…06, FR-NOTIF-01/02/04, NFR-SEC-04                                          |
-| 5   | Units of sale, pack pricing & product publication → **tag v1.3.0**                             | FR-UNIT-01…06/08/09/10, FR-ADM-06, FR-ADM-01/05 + FR-CAT-04/05 amended                |
-| 6   | Attribute definitions & faceted filtering → **tag v1.4.0**                                     | FR-ATTR-01…10, FR-UNIT-11, FR-UNIT-06/09 amended, NFR-SEO-04 amended                  |
-| 7   | Cart & order-request checkout → **tag v1.5.0**                                                 | FR-UNIT-07, FR-CART-01…04/08, FR-ACC-01, FR-NOTIF-05/06, NFR-SEC-06                   |
-| 8   | Order processing, payment & manual delivery/pickup coordination → **tag v1.6.0**               | FR-CART-05/06, FR-NOTIF-03, FR-ACC-02, NFR-LEGAL-04                                   |
+| #   | Milestone                                                                                      | Requirements                                                                                     |
+| --- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 1   | Static pages, compliance scaffolding, base infra (walking skeleton, CI/CD, IaC, dev+prod)      | FR-NAV-\*, NFR-LEGAL-01/02/03/05, NFR-SEC-01, NFR-SEO-03, NFR-OPS-\*                             |
+| 2   | Catalog display + admin login, management & sync → **tag v1.0.0**, client starts content entry | FR-CAT-01…05, FR-ADM-\*, FR-AUTH-07/08, NFR-SEC-02/03/05, NFR-SEO-01/02, NFR-LEGAL-06            |
+| 3   | Search, listing sort & admin grid filters → **tag v1.1.0**                                     | FR-SEARCH-01…05, FR-ADM-05, NFR-SEC-07, NFR-SEO-04, NFR-OPS-05                                   |
+| 4   | Accounts, roles & tiered pricing → **tag v1.2.0**                                              | FR-AUTH-01…06, FR-NOTIF-01/02/04, NFR-SEC-04                                                     |
+| 5   | Units of sale, pack pricing & product publication → **tag v1.3.0**                             | FR-UNIT-01…06/08/09/10, FR-ADM-06, FR-ADM-01/05 + FR-CAT-04/05 amended                           |
+| 6   | Attribute definitions & faceted filtering → **tag v1.4.0**                                     | FR-ATTR-01…10, FR-UNIT-11, FR-UNIT-06/09 amended, NFR-SEO-04 amended                             |
+| 7   | Cart & order-request checkout → **tag v1.5.0**                                                 | FR-UNIT-07, FR-UNIT-04/11 amended, FR-CART-01…04/07…11, FR-ACC-01, FR-NOTIF-05/06, NFR-SEC-06/08 |
+| 8   | Order processing, payment & manual delivery/pickup coordination → **tag v1.6.0**               | FR-CART-05/06, FR-NOTIF-03, FR-ACC-02, NFR-LEGAL-04                                              |
 
 Notes:
 
@@ -61,6 +61,26 @@ Notes:
   form twice and an address book that omits the address most customers have. It also adds
   **FR-CART-08**, a per-product note on a cart line, for goods whose variant is stated in
   words rather than carried by a separate article.
+- A client review of the ordering flow (2026-08-23) reshaped iteration 7 without moving its
+  boundary. A cart line can **change its unit**, which is a conversion rather than a relabelling
+  and so is spelled out in FR-CART-02, and the unit a customer chose is never normalized away.
+  The **shipment estimate covers every unit**, not only whole boxes (FR-UNIT-11 amended) — the
+  client wants a carton count and a weight on a piece order too, and accepts that it is
+  approximate. **FR-CART-09** is new: an order names the party it is for, because a sole trader
+  may buy privately and a private customer may be buying for a company, and which it is decides
+  the paperwork and can decide the price. **FR-CART-10** is new too: a cart is expected to sit in
+  a browser for weeks, so it says what changed while it waited. The **line note** turned out to
+  describe a whole line rather than to split one (FR-CART-08 rewritten), which removes the
+  identity machinery it would otherwise have needed, and it is never mandatory. Checkout is
+  **one prefilled form** (ADR 0039), not a wizard: a manager reviews every order anyway, so the
+  form's job is to be quick. And staff views of an order read in **basis units** (FR-UNIT-04
+  amended), which is what the source system prices in.
+- Address entry is the one field ADR 0039's prefill cannot help with, and it is also what decides
+  a delivery rule, so **FR-CART-11** (suggestion behind a per-deployment port) and the
+  free-delivery minimum in FR-CART-07 land together rather than a release apart: a threshold
+  keyed off a postal code is only as reliable as the postal code, and suggestion is what makes
+  that field trustworthy. Both stay advisory — no order is refused for missing a threshold, and
+  no delivery price is computed (ADR 0040).
 - Iteration 8 is what a manager does with an order once it exists — status transitions, the
   payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
   schema be reviewed before a processing workflow is built on top of it.

@@ -1,6 +1,6 @@
 # 0035 — Sell in piece/pack/box, with a staff-only price basis
 
-**Status:** accepted (amended 2026-08-18) · **Date:** 2026-08-16
+**Status:** accepted (amended 2026-08-18, 2026-08-23) · **Date:** 2026-08-16
 
 ## Context
 
@@ -126,9 +126,8 @@ The count is **not a row of its own** in the attribute table. On its own it
 answers a question nobody asked at that point in the page; what a reader of a
 volume needs to know is _what that volume covers_, so it qualifies the labels
 instead — "Box volume (for 2)" — and only where it exceeds one. Its real
-consumer is the cart: an order in boxes is summarised by what will physically
-arrive, and there the counts, weights and volumes of the ordered lines are added
-up.
+consumer is the cart, where the counts, weights and volumes of the ordered lines
+are added up into a summary of what will physically arrive.
 
 **The customer-facing attribute table keeps only the box facts** — the volume
 and the weight. The packaging summary and the minimum piece quantity come out
@@ -141,3 +140,47 @@ the cart exists neither is on the product page.
 
 **Product tiles are unaffected**: they keep both, and the deliberately redundant
 minimum that keeps every packaged tile the same height.
+
+## Amendment — 2026-08-23: an exact piece lot, and where the formula and the minimum landed
+
+Two additions the cart forced (ADR 0038).
+
+**`pieceLotMinor` joins the per-unit prices** — the exact integer price of
+`minPieceQty` pieces. It exists because the browser now computes totals, and the
+piece unit was the only one it could not compute exactly: `pack` and `box` were
+already integers, and `pieceMilliMinor` is the deliberately-inexact comparison
+figure. The database guarantees the basis divides `minPieceQty`, and
+`correctPieceQuantity` guarantees every purchasable piece quantity is a whole
+multiple of the minimum, so one minimum lot has an exact price and every piece
+total is `pieceLotMinor × (quantity ÷ minPieceQty)` — plain multiplication, no
+division, no rounding.
+
+This does not weaken "the basis is storage, per-unit prices are the contract"; it
+applies that rule to the one unit where the contract had so far offered only a
+display figure. Nothing leaks: `pieceLotMinor` is `priceMinor × (minPieceQty ÷
+basis)`, and no combination of the public figures separates `priceMinor` from the
+basis. The e2e assertions that the basis never appears in a response stay green
+unchanged, which is the check that this respects the rule rather than bending it.
+
+The (⚠) above is unchanged and now matters more, not less: `pieceMilliMinor`
+exists only to be formatted, `pieceLotMinor` is the multiplicable one, and every
+total on either side goes through the one shared helper — `exactLineTotal()`,
+the client-safe sibling of `totalMinor()`.
+
+**The packaging formula and the minimum land on the buying block**, closing the
+loop the 2026-08-18 amendment opened when it took them out of the attribute
+table with nowhere yet to put them. The formula becomes the unit selector's
+labels — "Pack (6 pcs)", "Box (24 pcs)" — because a per-unit price is
+uninterpretable without the count and that is where the unit is chosen. The
+minimum becomes the quantity field's hint, with the correction message beside it
+when `correctPieceQuantity` fires, because it is a rule on an input rather than a
+fact about the product, and because it applies to piece purchases only. Tiles are
+still unaffected: they keep both.
+
+**The shipment summary extends to piece and pack lines**, derived from the same
+box figures through the packaging ratios (FR-UNIT-11 amended). The invariant
+above is untouched: `boxVolume` and `boxWeight` are still totals across
+`boxCount` cartons and are still never multiplied by it. What changes is that a
+partial box now has a stated figure — proportional for weight and volume, rounded
+up to whole cartons for the count, and labelled approximate. ADR 0038 pins the
+arithmetic.
