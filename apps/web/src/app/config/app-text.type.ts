@@ -235,6 +235,7 @@ export const appTextSchema = z
             customerType: z.string(),
             person: z.string(),
             company: z.string(),
+            companyName: z.string(),
             companyId: z.string(),
             memberSince: z.string(),
             /** Shown against the fields the account holder cannot edit here —
@@ -375,6 +376,8 @@ export const appTextSchema = z
             firstName: z.string(),
             lastName: z.string(),
             phone: z.string(),
+            /** The invoiced party, required of a business alongside its id. */
+            companyName: z.string(),
             /** Business registration number; its format is deployment config. */
             companyId: z.string(),
             companyIdHint: z.string(),
@@ -394,6 +397,7 @@ export const appTextSchema = z
                 lastNameRequired: z.string(),
                 phoneRequired: z.string(),
                 phoneIncomplete: z.string(),
+                companyNameRequired: z.string(),
                 companyIdRequired: z.string(),
                 /** Carries the deployment's own example; `{example}` is substituted. */
                 companyIdFormat: z.string(),

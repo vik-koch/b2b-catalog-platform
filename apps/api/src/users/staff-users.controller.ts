@@ -12,6 +12,7 @@ const PROFILE_FIELDS = [
   'lastName',
   'phone',
   'customerType',
+  'companyName',
   'companyRegistrationId',
 ] as const satisfies readonly (keyof StaffUser)[];
 import { AuditLogger } from '../audit/audit.logger';

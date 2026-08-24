@@ -33,6 +33,7 @@ describe('RegistrationService', () => {
   const company: RegisterRequest = {
     ...person,
     customerType: 'company',
+    companyName: 'Kontor GmbH',
     companyRegistrationId: 'DE123456789',
   };
 
@@ -72,6 +73,7 @@ describe('RegistrationService', () => {
       lastName: 'Doe',
       phone: '+494012345678',
       customerType: 'person',
+      companyName: null,
       companyRegistrationId: null,
     });
     expect(recipients()).toEqual([
@@ -100,9 +102,12 @@ describe('RegistrationService', () => {
   it('stores a company registration number that matches the deployment rule', async () => {
     await service.register(company);
 
+    // Both halves of the invoiced party: the name staff match against their own
+    // records, the number they can check it against.
     expect(createPending).toHaveBeenCalledWith(
       expect.objectContaining({
         customerType: 'company',
+        companyName: 'Kontor GmbH',
         companyRegistrationId: 'DE123456789',
       }),
     );

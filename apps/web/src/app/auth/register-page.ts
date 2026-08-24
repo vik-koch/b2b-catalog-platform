@@ -155,6 +155,28 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
               [text]="companyIdText"
               [invalid]="isInvalid('companyRegistrationId')"
             />
+
+            <div>
+              <label for="companyName" appFieldLabel>
+                {{ text.register.companyName }}
+                <span class="text-accent" aria-hidden="true">*</span>
+              </label>
+              <input
+                id="companyName"
+                type="text"
+                formControlName="companyName"
+                autocomplete="organization"
+                aria-required="true"
+                appInput
+                class="w-full"
+                [attr.aria-invalid]="isInvalid('companyName') || null"
+              />
+              @if (isInvalid('companyName')) {
+                <p class="mt-1 text-sm text-red-600">
+                  {{ text.register.validation.companyNameRequired }}
+                </p>
+              }
+            </div>
           }
 
           <app-email-field
@@ -280,6 +302,7 @@ export class RegisterPage {
     // address is.
     email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
     phone: ['', phoneValidators(this.phoneInput, true)],
+    companyName: [''],
     companyRegistrationId: [''],
     website: [''],
     acceptPrivacy: [false, Validators.requiredTrue],
@@ -328,19 +351,25 @@ export class RegisterPage {
   }
 
   /**
-   * The registration number is required exactly when the applicant says they
-   * are a company — the contract refuses it in the other direction too, so the
-   * field is cleared rather than left holding a stale value.
+   * The company fields are required exactly when the applicant says they are a
+   * company — the contract refuses them in the other direction too, so they are
+   * cleared rather than left holding a stale value.
    */
   private applyValidators(type: CustomerType): void {
-    const control = this.form.controls.companyRegistrationId;
-    if (type === 'company') {
-      control.setValidators(companyIdValidators(this.companyIdInput?.formats));
-    } else {
-      control.setValidators([]);
-      control.setValue('', { emitEvent: false });
+    const isCompany = type === 'company';
+    const fields = [
+      [this.form.controls.companyName, [Validators.required]],
+      [
+        this.form.controls.companyRegistrationId,
+        companyIdValidators(this.companyIdInput?.formats),
+      ],
+    ] as const;
+
+    for (const [control, validators] of fields) {
+      control.setValidators(isCompany ? [...validators] : []);
+      if (!isCompany) control.setValue('', { emitEvent: false });
+      control.updateValueAndValidity({ emitEvent: false });
     }
-    control.updateValueAndValidity({ emitEvent: false });
   }
 
   private toRequest() {
@@ -352,6 +381,8 @@ export class RegisterPage {
       lastName: value.lastName.trim(),
       phone: canonicalPhone(value.phone, this.phoneInput),
       customerType: value.customerType,
+      companyName:
+        value.customerType === 'company' ? value.companyName.trim() : undefined,
       // Sent as typed; the contract normalizes it (spaces out, upper case) so
       // the browser and the API cannot disagree about what was entered.
       companyRegistrationId:

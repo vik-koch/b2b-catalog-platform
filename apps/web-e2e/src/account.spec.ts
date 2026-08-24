@@ -34,6 +34,9 @@ const emailFor = ({ project, workerIndex }: TestInfo) =>
  */
 const created: string[] = [];
 
+/** The invoiced party the account was approved on. */
+const COMPANY_NAME = 'Kontor GmbH';
+
 async function arrange(
   testInfo: TestInfo,
   /** A company account, registered under the deployment's second format. */
@@ -46,8 +49,8 @@ async function arrange(
     await client.query('DELETE FROM users WHERE email = $1', [email]);
     // `status` must be named: it defaults to `pending`, which cannot log in.
     const { rows } = await client.query(
-      `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType", "companyRegistrationId")
-       VALUES ($1, $2, 'user', 'active', $3, $4, $5, $6, $7)
+      `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType", "companyName", "companyRegistrationId")
+       VALUES ($1, $2, 'user', 'active', $3, $4, $5, $6, $7, $8)
        RETURNING id`,
       [
         email,
@@ -56,6 +59,7 @@ async function arrange(
         DETAILS.lastName,
         DETAILS.phone,
         companyRegistrationId ? 'company' : 'person',
+        companyRegistrationId ? COMPANY_NAME : null,
         companyRegistrationId ?? null,
       ],
     );
@@ -186,7 +190,7 @@ test.describe('my account', () => {
    * for neither in particular: whichever the account is registered under is
    * prefilled whole, and every accepted shape is named in the hint.
    */
-  test('prefills the account’s registration number whatever shape it is in', async ({
+  test('prefills the account’s company details whatever shape the number is in', async ({
     page,
   }, testInfo) => {
     const email = await arrange(testInfo, '1234567890');
@@ -200,6 +204,9 @@ test.describe('my account', () => {
     await expect(page.getByLabel('Company registration number')).toHaveValue(
       '1234567890',
     );
+    // Both halves of the invoiced party come from the account, by value: the
+    // address is free to be corrected to another of the customer's entities.
+    await expect(page.getByLabel('Company name')).toHaveValue(COMPANY_NAME);
     await expect(page.getByLabel('Kind of registration number')).toHaveCount(0);
   });
 

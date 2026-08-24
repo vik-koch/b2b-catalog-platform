@@ -24,6 +24,7 @@ const stored: AccountProfile = {
   // national part it owns, grouped by the deployment's own mask — which is
   // also what makes it *complete*, and so saveable without being retyped.
   phone: `${config.phoneInput?.countryCode}4012345678`,
+  companyName: 'Kontor GmbH',
   customerType: 'company',
   companyRegistrationId: '12345678',
   createdAt: '2026-02-01T10:00:00.000Z',

@@ -161,6 +161,13 @@ export const companyRegistrationIdSchema = z.preprocess(
 );
 
 /**
+ * The invoiced party's name, as the customer writes it. Free text and not a
+ * key: what a company calls itself on an invoice is its own business, and no
+ * registry spelling is authoritative enough to correct it with.
+ */
+export const companyNameSchema = z.string().trim().min(1).max(255);
+
+/**
  * Registration (FR-AUTH-01). A registration is a *request* to become a
  * customer, and staff have no way to ask the applicant anything — a pending
  * account cannot sign in — so it has to carry what makes the approval decision
@@ -178,6 +185,7 @@ export const registerSchema = z
     lastName: z.string().trim().min(1).max(200),
     phone: z.string().trim().min(1).max(50),
     customerType: customerTypeSchema,
+    companyName: companyNameSchema.optional(),
     companyRegistrationId: companyRegistrationIdSchema.optional(),
     website: z.preprocess(
       (value) =>
@@ -187,9 +195,11 @@ export const registerSchema = z
   })
   // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
   .strict()
-  // A company is identified by its registration number, so it is required
-  // exactly when the registrant says they are one — and refused when they do
-  // not, rather than being silently stored against a private person.
+  // A company is identified by its name *and* its registration number, so both
+  // are required exactly when the registrant says they are one — and refused
+  // when they do not, rather than being silently stored against a private
+  // person. Staff need both to judge the request: a number alone is a lookup,
+  // and a name alone is not evidence of anything.
   .refine(
     (data) =>
       (data.customerType === 'company') === Boolean(data.companyRegistrationId),
@@ -197,6 +207,14 @@ export const registerSchema = z
       message:
         'A company registration number is required for a company, and only for a company.',
       path: ['companyRegistrationId'],
+    },
+  )
+  .refine(
+    (data) => (data.customerType === 'company') === Boolean(data.companyName),
+    {
+      message:
+        'A company name is required for a company, and only for a company.',
+      path: ['companyName'],
     },
   );
 export type RegisterRequest = z.infer<typeof registerSchema>;

@@ -80,6 +80,7 @@ export const demoMailText: MailText = {
     customerTypeLabel: 'Registering as',
     customerTypePerson: 'Private person',
     customerTypeCompany: 'Company',
+    companyNameLabel: 'Company name',
     companyIdLabel: 'Company registration number',
     action: 'Open the account list',
   },

@@ -789,6 +789,7 @@ export const adminTextSchema = z
         firstName: z.string(),
         lastName: z.string(),
         phone: z.string(),
+        companyName: z.string(),
         companyId: z.string(),
         customerType: z.string(),
         tier: z.string(),
@@ -815,8 +816,9 @@ export const adminTextSchema = z
             emailRequired: z.string(),
             emailInvalid: z.string(),
             phoneIncomplete: z.string(),
+            companyNameRequired: z.string(),
             companyIdRequired: z.string(),
-            /** `{example}` is the deployment's own sample number. */
+            /** `{examples}` is every sample number the deployment configures. */
             companyIdFormat: z.string(),
             tierRequired: z.string(),
           })

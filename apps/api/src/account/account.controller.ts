@@ -23,6 +23,7 @@ function toAccountProfile(user: UserRow): AccountProfile {
     lastName: user.lastName,
     phone: user.phone,
     customerType: user.customerType,
+    companyName: user.companyName,
     companyRegistrationId: user.companyRegistrationId,
     createdAt: user.createdAt.toISOString(),
   };

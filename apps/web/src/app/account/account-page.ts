@@ -260,6 +260,7 @@ export class AccountPage {
       { label: t.phone, value: formatPhone(profile.phone, this.phoneInput) },
       { label: t.customerType, value: type ?? '' },
       { label: t.companyId, value: profile.companyRegistrationId ?? '' },
+      { label: t.companyName, value: profile.companyName ?? '' },
       { label: t.memberSince, value: this.formatDate(profile.createdAt) },
     ].filter((row) => row.value !== '');
   });

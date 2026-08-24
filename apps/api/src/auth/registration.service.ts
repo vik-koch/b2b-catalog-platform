@@ -90,6 +90,7 @@ export class RegistrationService {
       lastName: request.lastName.trim(),
       phone: request.phone.trim(),
       customerType: request.customerType,
+      companyName: request.companyName?.trim() ?? null,
       companyRegistrationId: request.companyRegistrationId ?? null,
     });
 

@@ -110,6 +110,7 @@
       "customerType": "Account type",
       "person": "Private person",
       "company": "Company",
+      "companyName": "Company name",
       "companyId": "Company registration number",
       "memberSince": "Customer since",
       "changeHint": "To change your email address, or the details your account was set up with, get in touch and we will update them for you.",
@@ -205,6 +206,7 @@
       "firstName": "First name",
       "lastName": "Last name",
       "phone": "Phone",
+      "companyName": "Company name",
       "companyId": "Company registration number",
       "submit": "Request an account",
       "submitting": "Sending…",
@@ -219,6 +221,7 @@
         "lastNameRequired": "Please enter your last name.",
         "phoneRequired": "Please enter your phone number.",
         "phoneIncomplete": "Please enter a complete phone number.",
+        "companyNameRequired": "Please enter your company name.",
         "companyIdRequired": "Please enter your company registration number.",
         "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}.",
         "privacyRequired": "Please accept the privacy policy to continue."

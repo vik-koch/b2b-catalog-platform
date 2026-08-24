@@ -41,6 +41,7 @@ const person = {
 const company = {
   ...person,
   customerType: 'company',
+  companyName: 'Kontor GmbH',
   companyRegistrationId: 'DE123456789',
 };
 
@@ -55,7 +56,7 @@ describe('POST /auth/register', () => {
   const rowsFor = async (email: string) => {
     const { rows } = await client.query(
       `SELECT status, role, "tierId", "approvedAt", "firstName", "lastName",
-              phone, "customerType", "companyRegistrationId"
+              phone, "customerType", "companyName", "companyRegistrationId"
          FROM users WHERE email = $1`,
       [email],
     );
@@ -109,6 +110,7 @@ describe('POST /auth/register', () => {
         lastName: 'Doe',
         phone: '+49 40 1234567',
         customerType: 'person',
+        companyName: null,
         companyRegistrationId: null,
       },
     ]);
@@ -162,12 +164,26 @@ describe('POST /auth/register', () => {
     await expectNoMail();
   });
 
-  it('stores a company registration, unmasked', async () => {
+  it('stores both halves of the invoiced party', async () => {
     const res = await register(company);
 
     expect(res.status).toBe(200);
     const [row] = await rowsFor(NEW_EMAIL);
     expect(row.customerType).toBe('company');
+    expect(row.companyName).toBe('Kontor GmbH');
+    expect(row.companyRegistrationId).toBe('DE123456789');
+  });
+
+  // Typed the way it is printed on a letterhead; the contract normalizes it, so
+  // what is stored is what the deployment's patterns are written against.
+  it('normalizes a number typed with spaces', async () => {
+    const res = await register({
+      ...company,
+      companyRegistrationId: 'de 123 456 789',
+    });
+
+    expect(res.status).toBe(200);
+    const [row] = await rowsFor(NEW_EMAIL);
     expect(row.companyRegistrationId).toBe('DE123456789');
   });
 
@@ -190,6 +206,17 @@ describe('POST /auth/register', () => {
     expect(
       (await register({ ...person, companyRegistrationId: 'DE123456789' }))
         .status,
+    ).toBe(400);
+    expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
+  });
+
+  // Both halves, by the same rule: staff approve on the pair, and a name
+  // against a private person is a company detail nobody asked for.
+  it('refuses a company with no name, and a person carrying one', async () => {
+    const { companyName: _omitted, ...noName } = company;
+    expect((await register(noName)).status).toBe(400);
+    expect(
+      (await register({ ...person, companyName: 'Kontor GmbH' })).status,
     ).toBe(400);
     expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
   });

@@ -32,6 +32,7 @@ function user(overrides: Partial<StaffUser> = {}): StaffUser {
     // the masked national part.
     phone: '+490401234567',
     customerType: 'person',
+    companyName: null,
     companyRegistrationId: null,
     tierId: null,
     createdAt: '2026-08-01T00:00:00.000Z',
@@ -184,6 +185,7 @@ describe('UserEditorPage', () => {
     const { service, type, press } = await render({
       account: user({
         customerType: 'company',
+        companyName: 'Kontor GmbH',
         companyRegistrationId: 'DE123456789',
         tierId: 'tier-w',
       }),
@@ -197,6 +199,7 @@ describe('UserEditorPage', () => {
       lastName: 'Doe-Smith',
       phone: '+490401234567',
       customerType: 'company',
+      companyName: 'Kontor GmbH',
       companyRegistrationId: 'DE123456789',
       tierId: 'tier-w',
       role: undefined,

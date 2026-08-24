@@ -207,6 +207,28 @@ import { SelectField } from '../../ui/select-field';
               [text]="companyIdText"
               [invalid]="isInvalid('companyRegistrationId')"
             />
+
+            <div>
+              <label for="companyName" appFieldLabel>
+                {{ text.companyName }}
+                <span class="text-accent" aria-hidden="true">*</span>
+              </label>
+              <input
+                id="companyName"
+                type="text"
+                formControlName="companyName"
+                autocomplete="off"
+                aria-required="true"
+                appInput
+                class="w-full"
+                [attr.aria-invalid]="isInvalid('companyName') || null"
+              />
+              @if (isInvalid('companyName')) {
+                <p class="mt-1 text-sm text-red-600">
+                  {{ text.validation.companyNameRequired }}
+                </p>
+              }
+            </div>
           }
 
           <!-- Optional here, unlike on the registration form: staff often set
@@ -423,6 +445,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     phone: ['', phoneValidators(this.phoneInput, false)],
+    companyName: [''],
     companyRegistrationId: [''],
     /** `default` is the base price list; `''` only exists before an approval. */
     tierId: ['default'],
@@ -515,6 +538,7 @@ export class UserEditorPage implements UnsavedChangesAware {
         firstName: user.firstName ?? '',
         lastName: user.lastName ?? '',
         phone: typedPhone(user.phone, this.phoneInput),
+        companyName: user.companyName ?? '',
         // Shown exactly as stored, whatever shape it is in — including one from
         // before the current config, which staff must be able to read and
         // correct rather than have silently reshaped.
@@ -649,6 +673,7 @@ export class UserEditorPage implements UnsavedChangesAware {
       lastName: value.lastName.trim(),
       phone: contact.phone ?? null,
       customerType: this.isCustomer() ? value.customerType : null,
+      companyName: contact.companyName ?? null,
       companyRegistrationId: contact.companyRegistrationId ?? null,
       tierId: this.isCustomer() ? this.tierId() : null,
       // Sent only when this caller may set it, so a manager's save is never
@@ -666,20 +691,21 @@ export class UserEditorPage implements UnsavedChangesAware {
     return value && value !== 'default' ? value : null;
   }
 
-  /** The two masked fields in the form the API stores them in. Omitted rather
-   * than empty, since both are optional on creation. */
+  /** The contact fields in the form the API stores them in. Omitted rather
+   * than empty, since all three are optional on creation. */
   private contactFields(): {
     phone?: string;
+    companyName?: string;
     companyRegistrationId?: string;
   } {
     const value = this.form.getRawValue();
     const phone = canonicalPhone(value.phone, this.phoneInput);
-    const companyId =
-      this.isCustomer() && value.customerType === 'company'
-        ? value.companyRegistrationId.trim()
-        : '';
+    const isCompany = this.isCustomer() && value.customerType === 'company';
+    const companyName = isCompany ? value.companyName.trim() : '';
+    const companyId = isCompany ? value.companyRegistrationId.trim() : '';
     return {
       ...(phone ? { phone } : {}),
+      ...(companyName ? { companyName } : {}),
       ...(companyId ? { companyRegistrationId: companyId } : {}),
     };
   }
@@ -691,14 +717,19 @@ export class UserEditorPage implements UnsavedChangesAware {
    */
   private applyCompanyValidators(type: CustomerType): void {
     this.isCompany.set(this.isCustomer() && type === 'company');
-    const control = this.form.controls.companyRegistrationId;
-    if (this.isCompany()) {
-      control.setValidators(companyIdValidators(this.companyIdInput?.formats));
-    } else {
-      control.setValidators([]);
-      control.setValue('', { emitEvent: false });
+    const fields = [
+      [this.form.controls.companyName, [Validators.required]],
+      [
+        this.form.controls.companyRegistrationId,
+        companyIdValidators(this.companyIdInput?.formats),
+      ],
+    ] as const;
+
+    for (const [control, validators] of fields) {
+      control.setValidators(this.isCompany() ? [...validators] : []);
+      if (!this.isCompany()) control.setValue('', { emitEvent: false });
+      control.updateValueAndValidity({ emitEvent: false });
     }
-    control.updateValueAndValidity({ emitEvent: false });
   }
 
   private async leave(): Promise<void> {

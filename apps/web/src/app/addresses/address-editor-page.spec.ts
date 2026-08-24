@@ -114,6 +114,7 @@ async function render(options: Options = {}) {
             lastName: 'Fischer',
             phone: '+494012345678',
             customerType: 'company',
+            companyName: 'Kontor GmbH',
             companyRegistrationId:
               options.companyRegistrationId === undefined
                 ? 'DE123456789'
@@ -174,6 +175,7 @@ describe('AddressEditorPage', () => {
 
       // By value, not by foreign key: the address is free to be corrected to
       // another entity's number afterwards, and it is shown exactly as stored.
+      expect(field('companyName')?.value).toBe('Kontor GmbH');
       expect(field('companyId')?.value).toBe('DE123456789');
       expect(field('phone')?.value).toBe('(401) 234-5678');
       expect(field('label')?.value).toBe('');
@@ -257,7 +259,8 @@ describe('AddressEditorPage', () => {
         street: 'Hafenstraße 12',
         postalCode: '20359',
         city: 'Hamburg',
-        companyName: null,
+        // Prefilled from the account, and sent unless the customer clears it.
+        companyName: 'Kontor GmbH',
         street2: null,
         region: null,
         // The one configured country, though nothing asked for it.

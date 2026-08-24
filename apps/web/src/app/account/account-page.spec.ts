@@ -21,6 +21,7 @@ const customer: AccountProfile = {
   firstName: 'Alex',
   lastName: 'Fischer',
   phone: '+49 40 1234567',
+  companyName: 'Kontor GmbH',
   customerType: 'company',
   companyRegistrationId: '12345678',
   createdAt: '2026-02-01T10:00:00.000Z',
@@ -124,9 +125,11 @@ describe('AccountPage', () => {
       role: 'manager',
       phone: null,
       customerType: null,
+      companyName: null,
       companyRegistrationId: null,
     });
 
+    expect(el.textContent).not.toContain(text.myAccount.companyName);
     expect(el.textContent).not.toContain(text.myAccount.phone);
     expect(el.textContent).not.toContain(text.myAccount.customerType);
     expect(el.textContent).not.toContain(text.myAccount.companyId);

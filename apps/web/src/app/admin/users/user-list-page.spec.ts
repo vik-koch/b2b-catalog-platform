@@ -27,6 +27,7 @@ function user(overrides: Partial<StaffUser> = {}): StaffUser {
     lastName: 'Doe',
     phone: '+49 40 1234567',
     customerType: 'person',
+    companyName: null,
     companyRegistrationId: null,
     tierId: null,
     createdAt: '2026-08-01T00:00:00.000Z',

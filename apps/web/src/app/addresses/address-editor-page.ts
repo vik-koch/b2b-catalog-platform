@@ -83,6 +83,19 @@ type Status = 'idle' | 'submitting' | 'error';
             <p class="mt-1 text-sm text-muted">{{ text.labelHint }}</p>
           </div>
 
+          <!-- The same field registration uses, and the same rule — one
+               jurisdiction, one set of accepted shapes. Optional here: an
+               address invoiced to a natural person has no number. -->
+          <app-company-id-field
+            inputId="companyId"
+            [control]="form.controls.companyId"
+            [label]="text.companyId"
+            [text]="companyIdText"
+            [required]="false"
+            [optionalLabel]="text.optional"
+            [invalid]="isInvalid('companyId')"
+          />
+
           <!-- The invoice party. Prefilled from the account when adding, and
                editable: the registration number staff approved the account on
                is not necessarily the entity an invoice goes to. -->
@@ -100,19 +113,6 @@ type Status = 'idle' | 'submitting' | 'error';
               class="w-full"
             />
           </div>
-
-          <!-- The same field registration uses, and the same rule — one
-               jurisdiction, one set of accepted shapes. Optional here: an
-               address invoiced to a natural person has no number. -->
-          <app-company-id-field
-            inputId="companyId"
-            [control]="form.controls.companyId"
-            [label]="text.companyId"
-            [text]="companyIdText"
-            [required]="false"
-            [optionalLabel]="text.optional"
-            [invalid]="isInvalid('companyId')"
-          />
 
           <app-address-suggest-field
             [control]="form.controls.street"
@@ -316,8 +316,9 @@ export class AddressEditorPage {
   });
   /**
    * Only to prefill the invoice party on a new address, and by value rather
-   * than by foreign key: the number staff approved the account on is evidence
-   * for that decision, and this address is free to carry a different one.
+   * than by foreign key: the name and number staff approved the account on are
+   * evidence for that decision, and this address is free to carry different
+   * ones.
    */
   private readonly profile = resource({
     params: () => (this.isNew ? true : undefined),
@@ -334,6 +335,7 @@ export class AddressEditorPage {
       const profile = this.profile.value();
       if (!profile) return;
       this.form.patchValue({
+        companyName: profile.companyName ?? '',
         companyId: profile.companyRegistrationId ?? '',
         phone: typedPhone(profile.phone, this.phoneInput),
       });

@@ -65,8 +65,11 @@ async function render(
     await sync();
   };
 
-  const chooseCompany = async () => {
+  /** Both halves of the invoiced party, which a company must give. */
+  const chooseCompany = async (companyName = 'Kontor GmbH') => {
     check(el, 'input[value="company"]');
+    await sync();
+    setInput(el, '#companyName', companyName);
     await sync();
   };
 
@@ -168,6 +171,7 @@ describe('RegisterPage', () => {
       lastName: 'Doe',
       phone: `${defaultDeploymentConfig.phoneInput?.countryCode}4012345678`,
       customerType: 'person',
+      companyName: undefined,
       companyRegistrationId: undefined,
       website: undefined,
     });
@@ -187,6 +191,48 @@ describe('RegisterPage', () => {
     expect(el.querySelector('#companyRegistrationId')).toBeNull();
   });
 
+  // Staff approve on both halves: the name they match against their own
+  // records, the number they can check it against.
+  it('asks a company for its name as well as its number', async () => {
+    const { el, register, sync, submit, fillPerson, chooseCompany } =
+      await render();
+
+    await chooseCompany();
+    await fillPerson();
+    setInput(el, '#companyRegistrationId', 'DE123456789');
+    setInput(el, '#companyName', '');
+    await sync();
+    submit();
+    await sync();
+
+    expect(register).not.toHaveBeenCalled();
+    expect(el.textContent).toContain(text.validation.companyNameRequired);
+  });
+
+  // The contract refuses them against a private person, so switching back
+  // clears them rather than leaving a stale value to be rejected.
+  it('drops the company fields when the applicant is a private person', async () => {
+    const { el, register, sync, submit, fillPerson, chooseCompany } =
+      await render();
+
+    await chooseCompany();
+    setInput(el, '#companyRegistrationId', 'DE123456789');
+    await sync();
+    check(el, 'input[value="person"]');
+    await sync();
+    await fillPerson();
+    submit();
+    await sync();
+
+    expect(register).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerType: 'person',
+        companyName: undefined,
+        companyRegistrationId: undefined,
+      }),
+    );
+  });
+
   it('sends the registration number as it was typed', async () => {
     const { el, register, sync, submit, fillPerson, chooseCompany } =
       await render();
@@ -204,6 +250,7 @@ describe('RegisterPage', () => {
     expect(register).toHaveBeenCalledWith(
       expect.objectContaining({
         customerType: 'company',
+        companyName: 'Kontor GmbH',
         companyRegistrationId: 'DE123456789',
       }),
     );
