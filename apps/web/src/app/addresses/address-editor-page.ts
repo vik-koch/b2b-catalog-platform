@@ -122,7 +122,7 @@ type Status = 'idle' | 'submitting' | 'error';
               id="street"
               type="text"
               formControlName="street"
-              autocomplete="address-line"
+              autocomplete="street-address"
               aria-required="true"
               appInput
               class="w-full"
