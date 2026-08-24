@@ -505,6 +505,60 @@ export const passwordTokens = pgTable('password_tokens', {
 });
 
 /**
+ * The account's address book (FR-CART-04) — where its orders are delivered and
+ * invoiced. Rows belong to one account and are always read through its id.
+ *
+ * A row is really a *profile*: where goods go, and who is invoiced for them.
+ * `label` is an optional name for it — an address the customer never bothered
+ * to name is shown by its own first line — and `companyName`/`companyId` sit
+ * here rather than being read off the account, because the registration number
+ * staff approved the account on is not necessarily the entity an invoice goes
+ * to.
+ *
+ * Rows are **not typed** as delivery or billing. The same address usually
+ * serves both, the two roles ask different things of it (only the invoiced one
+ * needs a company), and a stored role would be a second source of truth that
+ * the row itself contradicts the moment it is edited. Checkout picks a role per
+ * order, and the server re-checks the company fields at submission — which is
+ * the one place that rule belongs.
+ */
+export const addresses = pgTable(
+  'addresses',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('userId')
+      .notNull()
+      // Deleting an account takes its book with it; orders keep their own
+      // snapshot of the address, so nothing readable is lost.
+      .references(() => users.id, { onDelete: 'cascade' }),
+    label: varchar('label', { length: 100 }),
+    companyName: varchar('companyName', { length: 255 }),
+    // The invoiced party's registration number, in the same shape and the same
+    // column width as `users.companyRegistrationId` — the deployment's own
+    // formats apply to both. Null where the party is a natural person.
+    companyId: varchar('companyId', { length: 64 }),
+    // The street line as it is printed, house number included.
+    street: varchar('street', { length: 255 }).notNull(),
+    street2: varchar('street2', { length: 255 }),
+    postalCode: varchar('postalCode', { length: 32 }).notNull(),
+    city: varchar('city', { length: 255 }).notNull(),
+    region: varchar('region', { length: 255 }),
+    // ISO 3166-1 alpha-2. A code, not free text: it is snapshotted onto orders,
+    // and a column that reads `DE` on one and `Deutschland` on the next is one
+    // nobody can group by. Which codes are accepted is deployment config.
+    country: varchar('country', { length: 2 }).notNull(),
+    phone: varchar('phone', { length: 50 }),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updatedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index('addresses_userId_idx').on(t.userId)],
+);
+
+/**
  * Runtime application settings — a deliberate singleton (the `id = 1` check
  * permits exactly one row). This is mutable admin-toggled state, distinct from
  * the boot-time per-deployment `config/` surface.
