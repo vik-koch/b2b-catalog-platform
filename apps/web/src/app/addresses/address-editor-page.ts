@@ -30,6 +30,7 @@ import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
 import { SelectField } from '../ui/select-field';
 import { Skeleton } from '../ui/skeleton';
+import { AddressSuggestField } from './address-suggest-field';
 import { AddressesService, SaveAddressResult } from './addresses.service';
 
 type Status = 'idle' | 'submitting' | 'error';
@@ -38,12 +39,18 @@ type Status = 'idle' | 'submitting' | 'error';
  * Adding or correcting one saved address (FR-CART-04). One screen for both,
  * like the admin editors: `/account/addresses/new` and
  * `/account/addresses/:id/edit`.
+ *
+ * The street field suggests as it is typed where the deployment configures a
+ * provider (FR-CART-11); picking one fills the rest of the address, and every
+ * field stays editable afterwards — a provider is an accelerator, never an
+ * authority.
  */
 @Component({
   selector: 'app-address-editor-page',
   imports: [
     ReactiveFormsModule,
     RouterLink,
+    AddressSuggestField,
     Button,
     CompanyIdField,
     FieldLabel,
@@ -113,25 +120,17 @@ type Status = 'idle' | 'submitting' | 'error';
             [invalid]="isInvalid('companyId')"
           />
 
-          <div>
-            <label for="street" appFieldLabel>
-              {{ text.street }}
-              <span class="text-accent" aria-hidden="true">*</span>
-            </label>
-            <input
-              id="street"
-              type="text"
-              formControlName="street"
-              autocomplete="street-address"
-              aria-required="true"
-              appInput
-              class="w-full"
-              [attr.aria-invalid]="isInvalid('street') || null"
-            />
-            @if (isInvalid('street')) {
-              <p class="mt-1 text-sm text-red-600">{{ text.required }}</p>
-            }
-          </div>
+          <app-address-suggest-field
+            [control]="form.controls.street"
+            [label]="text.street"
+            [text]="suggestText"
+            [country]="form.controls.country.value"
+            [invalid]="isInvalid('street')"
+            (picked)="fillFrom($event)"
+          />
+          @if (isInvalid('street')) {
+            <p class="-mt-4 text-sm text-red-600">{{ text.required }}</p>
+          }
 
           <div>
             <label for="street2" appFieldLabel>
@@ -190,26 +189,22 @@ type Status = 'idle' | 'submitting' | 'error';
             </div>
           </div>
 
-          <!-- Off unless the deployment asks for it: in most jurisdictions this
-               is a field nobody fills in. -->
-          @if (showRegion) {
-            <div>
-              <label for="region" appFieldLabel>
-                {{ text.region }}
-                <span class="font-normal text-subtle"
-                  >({{ text.optional }})</span
-                >
-              </label>
-              <input
-                id="region"
-                type="text"
-                formControlName="region"
-                autocomplete="address-level1"
-                appInput
-                class="w-full"
-              />
-            </div>
-          }
+          <!-- Always asked for, though rarely typed by hand: a suggestion
+               fills it, and what it fills is printed on the address. -->
+          <div>
+            <label for="region" appFieldLabel>
+              {{ text.region }}
+              <span class="font-normal text-subtle">({{ text.optional }})</span>
+            </label>
+            <input
+              id="region"
+              type="text"
+              formControlName="region"
+              autocomplete="address-level1"
+              appInput
+              class="w-full"
+            />
+          </div>
 
           <!-- Nothing to ask where the deployment ships to one country: the
                single configured code is used, and the server still checks it. -->
@@ -277,8 +272,6 @@ export class AddressEditorPage {
     inject(DEPLOYMENT_CONFIG).address?.countries ?? [];
 
   private readonly companyIdInput = inject(DEPLOYMENT_CONFIG).companyIdInput;
-  protected readonly showRegion =
-    inject(DEPLOYMENT_CONFIG).address?.regionField ?? false;
 
   protected readonly phoneText = {
     required: this.validation.phoneRequired,
@@ -289,6 +282,11 @@ export class AddressEditorPage {
     format: this.validation.companyIdFormat,
     formatLabel: inject(APP_TEXT).auth.register.companyIdFormat,
     hint: this.text.companyIdHint,
+  };
+  protected readonly suggestText = {
+    suggestionsLabel: this.text.suggestionsLabel,
+    noSuggestions: this.text.noSuggestions,
+    suggestionCount: this.text.suggestionCount,
   };
 
   private readonly addressId = this.route.snapshot.paramMap.get('id');
@@ -393,6 +391,32 @@ export class AddressEditorPage {
       region: address.region ?? '',
       country: address.country,
       phone: typedPhone(address.phone, this.phoneInput),
+    });
+  }
+
+  /**
+   * A picked suggestion, spread across the form. Only the parts the provider
+   * actually answered are written — a partial answer must not blank what the
+   * customer already typed — and the street line is composed the way it is
+   * printed, house number included.
+   */
+  protected fillFrom(components: AddressComponents): void {
+    const street = [components.street, components.house]
+      .filter(Boolean)
+      .join(' ');
+    this.form.patchValue({
+      ...(street ? { street } : {}),
+      ...(components.postalCode ? { postalCode: components.postalCode } : {}),
+      ...(components.city ? { city: components.city } : {}),
+      // The apartment or office, where the provider parsed one out of what was
+      // typed. It belongs on the second line: the street line is rewritten on
+      // every pick, and this would not survive there.
+      ...(components.unit ? { street2: components.unit } : {}),
+      ...(components.region ? { region: components.region } : {}),
+      ...(components.country &&
+      this.countries.some((entry) => entry.code === components.country)
+        ? { country: components.country }
+        : {}),
     });
   }
 

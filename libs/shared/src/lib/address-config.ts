@@ -34,12 +34,6 @@ export const addressConfigSchema = z
           seen.add(country.code);
         });
       }),
-    /**
-     * Whether the address form asks for a region/province. Off unless a
-     * deployment says otherwise: in most jurisdictions it is a field nobody
-     * fills in, and an empty column on every order is noise, not data.
-     */
-    regionField: z.boolean().optional(),
   })
   .strict();
 

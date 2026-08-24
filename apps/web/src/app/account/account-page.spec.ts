@@ -137,10 +137,10 @@ describe('AccountPage', () => {
     it('lists a saved address, written out on one line', async () => {
       const { el } = await render(customer, [savedAddress]);
 
-      expect(el.textContent).toContain(savedAddress.label);
-      expect(el.textContent).toContain(
-        'Kontor GmbH, Hafenstraße 12, 20359 Hamburg',
-      );
+      // The label heads the row, the invoiced company follows it in brackets,
+      // and the address itself is the line underneath.
+      expect(el.textContent).toContain('Shop (Kontor GmbH)');
+      expect(el.textContent).toContain('Hafenstraße 12, 20359 Hamburg');
       expect(
         el.querySelector('a[href="/account/addresses/addr-1/edit"]'),
       ).not.toBeNull();
@@ -156,6 +156,19 @@ describe('AccountPage', () => {
       expect(el.textContent).toContain('Hafenstraße 12');
       expect(el.textContent).toContain('20359 Hamburg');
       expect(el.textContent).not.toContain('Hafenstraße 12, 20359');
+    });
+
+    // The street identifies the place and the office inside it is part of that;
+    // the invoiced company follows in brackets, never printed twice.
+    it('names an unlabelled address by its street and what is on line 2', async () => {
+      const { el } = await render(customer, [
+        { ...savedAddress, label: null, street2: 'Büro 505' },
+      ]);
+
+      expect(el.textContent).toContain(
+        'Hafenstraße 12, Büro 505 (Kontor GmbH)',
+      );
+      expect(el.textContent).toContain('20359 Hamburg');
     });
 
     // The deployment ships to one country, so printing it on every address

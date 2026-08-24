@@ -11,7 +11,10 @@ import { Button } from '../ui/button';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
 import { AddressesService } from '../addresses/addresses.service';
-import { addressDisplayName, addressLines } from '../addresses/address-format';
+import {
+  addressDetailLines,
+  addressDisplayName,
+} from '../addresses/address-format';
 import { ConfirmService } from '../ui/confirm.service';
 import { AccountService } from './account.service';
 
@@ -198,19 +201,15 @@ export class AccountPage {
     this.addresses.isLoading,
   );
 
-  /** Its label, or its first line where it was never given one. */
+  /** Its label, or where it is when it was never given one. */
   protected name(address: Address): string {
-    return addressDisplayName(address, this.addressConfig);
+    return addressDisplayName(address);
   }
 
-  /**
-   * The rest of it, comma-separated: the card is a list of addresses, not a
-   * letter. An unlabelled row is already headed by its first line, so that line
-   * is dropped here rather than printed twice.
-   */
+  /** The rest of it, comma-separated: the card is a list of addresses, not a
+   * letter. */
   protected lines(address: Address): string {
-    const lines = addressLines(address, this.addressConfig);
-    return (address.label ? lines : lines.slice(1)).join(', ');
+    return addressDetailLines(address, this.addressConfig).join(', ');
   }
 
   /**

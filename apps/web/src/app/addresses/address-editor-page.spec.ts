@@ -1,12 +1,18 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
-import { Address, AddressInput } from '@b2b-catalog-platform/shared';
+import {
+  Address,
+  AddressComponents,
+  AddressInput,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { AccountService } from '../account/account.service';
 import { AddressEditorPage } from './address-editor-page';
+import { AddressSuggestField } from './address-suggest-field';
 import { AddressesService } from './addresses.service';
 
 const text = defaultAppText.auth.myAccount.addresses;
@@ -220,12 +226,12 @@ describe('AddressEditorPage', () => {
       );
     });
 
-    // Off unless the deployment turns it on: a column of empty regions is
-    // noise, not data.
-    it('asks for no region unless the deployment wants one', async () => {
+    // Rarely typed by hand, but a suggestion fills it and what it fills is
+    // printed on the address — so the field is always there to be corrected.
+    it('asks for the region', async () => {
       const { field } = await render();
 
-      expect(field('region')).toBeNull();
+      expect(field('region')).not.toBeNull();
     });
 
     it('refuses to save an incomplete address and calls nothing', async () => {
@@ -276,6 +282,53 @@ describe('AddressEditorPage', () => {
 
       expect(h.create).toHaveBeenCalledTimes(1);
       expect(h.create.mock.calls[0][0].label).toBeNull();
+    });
+
+    // Picking a suggestion is the one place the form writes several fields at
+    // once, and the unit is the one that must not land on the street line: that
+    // line is rewritten by the next pick, and what is inside the building
+    // would go with it.
+    it('spreads a picked suggestion across the form, unit onto line 2', async () => {
+      const { fixture, el, field } = await render();
+
+      fixture.debugElement
+        .query(By.directive(AddressSuggestField))
+        .componentInstance.picked.emit({
+          street: 'Hafenstraße',
+          house: '12',
+          unit: 'Büro 505',
+          postalCode: '20359',
+          city: 'Hamburg',
+          country: 'DE',
+        } satisfies AddressComponents);
+      fixture.detectChanges();
+
+      // The street input's id is the suggest field's own; found by what it
+      // autocompletes, as elsewhere in this file.
+      expect(
+        el.querySelector<HTMLInputElement>(
+          'input[autocomplete="street-address"]',
+        )?.value,
+      ).toBe('Hafenstraße 12');
+      expect(field('street2')?.value).toBe('Büro 505');
+      expect(field('postalCode')?.value).toBe('20359');
+      expect(field('city')?.value).toBe('Hamburg');
+    });
+
+    // A partial answer must not blank what the customer already typed.
+    it('leaves line 2 alone when the provider parsed no unit', async () => {
+      const { fixture, type, field } = await render();
+
+      type('street2', 'Gate 4');
+      fixture.debugElement
+        .query(By.directive(AddressSuggestField))
+        .componentInstance.picked.emit({
+          street: 'Hafenstraße',
+          house: '12',
+        } satisfies AddressComponents);
+      fixture.detectChanges();
+
+      expect(field('street2')?.value).toBe('Gate 4');
     });
 
     // The deployment's own format, applied in the browser as well as the API.

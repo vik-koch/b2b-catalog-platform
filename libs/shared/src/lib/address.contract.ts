@@ -6,9 +6,9 @@ import { companyRegistrationIdSchema } from './auth.contract';
 const c = initContract();
 
 /**
- * The address book (FR-CART-04) which lives here rather than on the account
- * contract: a guest checks out with an address too, so only the *book*
- * is account-scoped.
+ * The address book (FR-CART-04) and the suggestion that fills a form in it
+ * (FR-CART-11). Both live here rather than on the account contract: a guest
+ * checks out with an address too, so only the *book* is account-scoped.
  */
 
 /** An optional short name for the row, to tell two addresses apart. */
@@ -90,11 +90,24 @@ export const addressSchema = addressInputSchema.extend({
 export type Address = z.infer<typeof addressSchema>;
 
 /**
+ * NFR-SEC-08: the suggestion endpoint is metered, so the query is bounded at
+ * both ends — too short and every keystroke is a paid call that cannot match
+ * anything useful.
+ */
+export const ADDRESS_QUERY_MIN_LENGTH = 3;
+export const ADDRESS_QUERY_MAX_LENGTH = 120;
+export const ADDRESS_SUGGESTION_LIMIT = 8;
+
+/**
  * What a provider gives back (ADR 0040): components, never one formatted line.
  * The delivery-zone rule keys off the postal code, so a single line would have
  * to be parsed back into what the provider already knew. Every part is optional
  * — providers answer at different granularities, and a partial answer still
  * fills most of the form.
+ *
+ * Adding a component here is a change to the sidecar contract (ADR 0040): the
+ * API parses an adapter's answer strictly, so the platform learns a field
+ * before a sidecar may send one.
  */
 export const addressComponentsSchema = z
   .object({
@@ -104,9 +117,26 @@ export const addressComponentsSchema = z
     city: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
     street: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
     house: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
+    /**
+     * Apartment, office or suite, where the provider parsed one out of what was
+     * typed. It fills the second address line rather than the street: the
+     * street line is the provider's to rewrite on every pick, and what is
+     * inside the building must survive that.
+     */
+    unit: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
   })
   .strict();
 export type AddressComponents = z.infer<typeof addressComponentsSchema>;
+
+/** One row of the dropdown: what to show, and what picking it fills in. */
+export const addressSuggestionSchema = z
+  .object({
+    /** The provider's own one-line rendering — display only. */
+    label: z.string(),
+    components: addressComponentsSchema,
+  })
+  .strict();
+export type AddressSuggestion = z.infer<typeof addressSuggestionSchema>;
 
 /**
  * The signed-in account's address book. Every route is scoped to the session's
@@ -159,5 +189,27 @@ export const addressesContract = c.router({
       404: apiErrorSchema(['address-not-found']),
     },
     summary: 'Remove a saved address',
+  },
+});
+
+/**
+ * Address suggestion (FR-CART-11), proxied so the provider credential stays
+ * server-side (NFR-SEC-08). Unauthenticated on purpose: a guest fills the same
+ * form at checkout. A deployment with no adapter configured answers with an
+ * empty list, which is what makes the field degrade to plain typing.
+ */
+export const addressSuggestionContract = c.router({
+  suggestAddresses: {
+    method: 'GET',
+    path: '/addresses/suggestions',
+    query: z.object({
+      q: z.string().trim().min(1).max(ADDRESS_QUERY_MAX_LENGTH),
+      /** Bias the provider; the deployment's default where absent. */
+      country: countryCodeSchema.optional(),
+    }),
+    responses: {
+      200: z.object({ items: z.array(addressSuggestionSchema) }),
+    },
+    summary: 'Addresses matching what the customer is typing',
   },
 });

@@ -6,6 +6,15 @@ interface Country {
 }
 
 /**
+ * The street as it is printed: the line the provider fills, and after it what
+ * is inside the building — an office or apartment identifies an address as much
+ * as its number does, and on a card they read as one thing.
+ */
+export function streetLine(address: Address): string {
+  return [address.street, address.street2].filter(Boolean).join(', ');
+}
+
+/**
  * An address as it is written out, one line per line. Kept as an array rather
  * than one joined string so a card can render it as lines and a summary can
  * join it with commas, without either re-deciding the order.
@@ -31,8 +40,7 @@ export function addressLines(
     countries.length === 1 && countries[0].code === address.country;
   return [
     address.companyName,
-    address.street,
-    address.street2,
+    streetLine(address),
     [address.postalCode, address.city].filter(Boolean).join(' '),
     address.region,
     domestic ? null : (country?.label ?? address.country),
@@ -41,14 +49,37 @@ export function addressLines(
 
 /**
  * What to call one address in a list — its label where the customer gave it
- * one, otherwise its own first line. A name is never asked for at checkout, so
- * there is always one to show, and two rows that render the same are two
- * addresses at the same place: labelling one of them is the way to tell them
- * apart, not a rule the form enforces up front.
+ * one, otherwise where it is, with the invoiced company in brackets after
+ * either. A name is never asked for at checkout, so there is always one to
+ * show, and two rows that render the same are two addresses at the same place:
+ * labelling one of them is the way to tell them apart, not a rule the form
+ * enforces up front.
+ *
+ * The place leads and the company follows, rather than the other way round: a
+ * customer's addresses are usually invoiced to the *same* company, and heading
+ * every row with it would make a book of identical-looking rows — which is the
+ * problem the label exists to solve, reintroduced.
  */
-export function addressDisplayName(
+export function addressDisplayName(address: Address): string {
+  const name = address.label ?? streetLine(address);
+  return address.companyName ? `${name} (${address.companyName})` : name;
+}
+
+/**
+ * The lines under that heading: everything the heading did not already say.
+ * Paired with `addressDisplayName` here rather than at the card, so the two
+ * cannot drift into printing something twice or dropping it altogether.
+ */
+export function addressDetailLines(
   address: Address,
   config: { readonly countries: readonly Country[] } | undefined,
-): string {
-  return address.label ?? addressLines(address, config)[0] ?? '';
+): string[] {
+  const street = streetLine(address);
+  return addressLines(address, config).filter((line) => {
+    // Already in the heading's brackets.
+    if (line === address.companyName) return false;
+    // Unlabelled, so the street *is* the heading.
+    if (!address.label && line === street) return false;
+    return true;
+  });
 }
