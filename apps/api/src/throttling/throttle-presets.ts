@@ -81,3 +81,19 @@ export const AuthThrottle = () =>
     UseGuards(ThrottlerGuard),
     Throttle({ default: { limit: env.AUTH_RATE_LIMIT, ttl: seconds(60) } }),
   );
+
+/**
+ * The order summary a mailed link opens (FR-NOTIF-06, NFR-SEC-06). Its token is
+ * the only credential, so the ceiling is there to make guessing at one
+ * pointless as well as hopeless: a person opens their own order a handful of
+ * times, and nothing legitimate reads this endpoint in a loop.
+ *
+ * Tighter than the public forms because there is no honest bulk caller — and
+ * unlike login, a wrong token costs the shop nothing to refuse, so the limit
+ * needs no environment override for the e2e suite.
+ */
+export const OrderTokenThrottle = () =>
+  applyDecorators(
+    UseGuards(ThrottlerGuard),
+    Throttle({ default: { limit: 30, ttl: seconds(60) } }),
+  );

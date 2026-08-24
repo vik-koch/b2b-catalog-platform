@@ -8,7 +8,10 @@ import {
 } from '../auth/current-user.decorator';
 import { OptionalAuthGuard } from '../auth/optional-auth.guard';
 import { PricingTier } from '../auth/pricing-tier.decorator';
-import { PublicFormThrottle } from '../throttling/throttle-presets';
+import {
+  OrderTokenThrottle,
+  PublicFormThrottle,
+} from '../throttling/throttle-presets';
 import { AuditLogger } from '../audit/audit.logger';
 import { CartChangedException, OrdersService } from './orders.service';
 
@@ -87,8 +90,13 @@ export class OrdersController {
     }));
   }
 
-  /** The token is the credential (FR-NOTIF-06), so no guard and no session:
-   * whoever holds the mailed link holds the order summary. */
+  /**
+   * The token is the credential (FR-NOTIF-06), so no guard and no session:
+   * whoever holds the mailed link holds the order summary. Which is exactly why
+   * it is throttled (NFR-SEC-06) — an unguessable token stays unguessable, and
+   * nothing honest reads this endpoint in a loop.
+   */
+  @OrderTokenThrottle()
   @TsRestHandler(ordersContract.getOrderByToken, { validateResponses: true })
   getOrderByToken() {
     return tsRestHandler(
