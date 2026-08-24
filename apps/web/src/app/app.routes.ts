@@ -246,6 +246,23 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./account/account-edit-page').then((m) => m.AccountEditPage),
   },
+  // `new` stays ahead of `:id/edit` so it is never read as an address id.
+  {
+    path: 'account/addresses/new',
+    canActivate: [requireAuth()],
+    loadComponent: () =>
+      import('./addresses/address-editor-page').then(
+        (m) => m.AddressEditorPage,
+      ),
+  },
+  {
+    path: 'account/addresses/:id/edit',
+    canActivate: [requireAuth()],
+    loadComponent: () =>
+      import('./addresses/address-editor-page').then(
+        (m) => m.AddressEditorPage,
+      ),
+  },
   {
     path: 'account/delete',
     canActivate: [requireAuth()],

@@ -1,4 +1,5 @@
 import {
+  addressConfigSchema,
   companyIdInputSchema,
   PAGE_SLUGS,
   pageSlugSchema,
@@ -211,6 +212,12 @@ export const deploymentConfigSchema = z
      * rule.
      */
     companyIdInput: companyIdInputSchema.optional(),
+    /**
+     * Where this deployment ships. Optional: with no `address` key the address
+     * book still works — the picker then offers nothing to choose from, which
+     * is why a deployment that takes orders configures it.
+     */
+    address: addressConfigSchema.optional(),
   })
   .strict();
 

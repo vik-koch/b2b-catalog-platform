@@ -523,11 +523,16 @@ export class UserEditorPage implements UnsavedChangesAware {
    * masked fields are entered in. */
   private seed(user: StaffUser): void {
     const type: CustomerType = user.customerType ?? 'person';
-    const storedFormat =
-      companyIdFormatOf(
-        user.companyRegistrationId,
-        this.companyIdInput?.formats,
-      ) ?? this.companyIdInput?.formats[0];
+    // A stored number that fits none of the configured shapes gets **no**
+    // shape, rather than the first one: dressing it in a mask it does not fit
+    // would truncate it on screen, and the next save would store that.
+    // Only an account with no number at all falls back to the first format.
+    const storedFormat = user.companyRegistrationId
+      ? companyIdFormatOf(
+          user.companyRegistrationId,
+          this.companyIdInput?.formats,
+        )
+      : this.companyIdInput?.formats[0];
     this.form.patchValue(
       {
         email: user.email,

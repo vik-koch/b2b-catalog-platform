@@ -256,6 +256,52 @@ export const appTextSchema = z
               })
               .strict(),
             /**
+             * The saved delivery/invoice addresses (FR-CART-04), and the form
+             * that edits one. The suggestion wording is here rather than under
+             * a provider's name: a deployment with no adapter configured never
+             * shows it, but the file loads whole either way.
+             */
+            addresses: z
+              .object({
+                heading: z.string(),
+                empty: z.string(),
+                add: z.string(),
+                edit: z.string(),
+                remove: z.string(),
+                /** `{label}` is the address's own name. */
+                removeConfirm: z.string(),
+                removeHeading: z.string(),
+                error: z.string(),
+                newHeading: z.string(),
+                editHeading: z.string(),
+                intro: z.string(),
+                label: z.string(),
+                labelHint: z.string(),
+                companyName: z.string(),
+                companyId: z.string(),
+                /** Says when the number matters at all — the book is untyped,
+                 * so the field is on every address but needed only where one
+                 * is invoiced. */
+                companyIdHint: z.string(),
+                street: z.string(),
+                street2: z.string(),
+                postalCode: z.string(),
+                city: z.string(),
+                region: z.string(),
+                country: z.string(),
+                phone: z.string(),
+                optional: z.string(),
+                submit: z.string(),
+                submitting: z.string(),
+                cancel: z.string(),
+                required: z.string(),
+                saveError: z.string(),
+                /** The book is full — a refusal the form has to explain. */
+                limitReached: z.string(),
+                unsupportedCountry: z.string(),
+              })
+              .strict(),
+            /**
              * Deleting your own account (FR-AUTH-06). The copy carries the
              * honest reading of "delete": the row survives so past orders keep
              * their history, and registering again is a new account rather

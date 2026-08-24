@@ -1,5 +1,6 @@
 import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Address } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { SignedInAs } from '../auth/signed-in-as';
@@ -9,6 +10,9 @@ import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
+import { AddressesService } from '../addresses/addresses.service';
+import { addressDisplayName, addressLines } from '../addresses/address-format';
+import { ConfirmService } from '../ui/confirm.service';
 import { AccountService } from './account.service';
 
 /** One line of the details list. */
@@ -69,6 +73,73 @@ interface DetailRow {
       </div>
     </section>
 
+    <!-- The address book (FR-CART-04). A section here rather than a page of its
+         own: it is one short list, and checkout is where it is actually used —
+         this is where it is kept. -->
+    <section class="mt-10">
+      <h2
+        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+      >
+        <app-icon name="store" class="h-4 w-4" />
+        {{ addressText.heading }}
+      </h2>
+      <div class="rounded-lg border border-border p-5">
+        @if (addresses.hasValue()) {
+          @if (addresses.value().length === 0) {
+            <p class="text-sm text-muted">{{ addressText.empty }}</p>
+          } @else {
+            <ul class="divide-y divide-border">
+              @for (address of addresses.value(); track address.id) {
+                <li
+                  class="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0"
+                >
+                  <div>
+                    <p class="text-sm font-semibold">{{ name(address) }}</p>
+                    @if (lines(address)) {
+                      <p class="mt-1 text-sm text-muted">
+                        {{ lines(address) }}
+                      </p>
+                    }
+                  </div>
+                  <div class="flex shrink-0 gap-2">
+                    <a
+                      appButton
+                      variant="secondary"
+                      [routerLink]="['/account/addresses', address.id, 'edit']"
+                    >
+                      {{ addressText.edit }}
+                    </a>
+                    <button
+                      appButton
+                      variant="dangerOutline"
+                      type="button"
+                      (click)="remove(address)"
+                    >
+                      {{ addressText.remove }}
+                    </button>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+          <a
+            appButton
+            variant="secondary"
+            routerLink="/account/addresses/new"
+            class="mt-5"
+          >
+            {{ addressText.add }}
+          </a>
+        } @else if (addresses.error()) {
+          <p class="text-sm text-red-600" role="alert">
+            {{ addressText.error }}
+          </p>
+        } @else if (showAddressSkeleton()) {
+          <app-skeleton [lines]="3" />
+        }
+      </div>
+    </section>
+
     <!-- Everything you can do to the account itself, in one card: two rows, not
          two cards holding one button each. Deleting stays the last row and
          keeps its own heading — it is a different weight of decision, and the
@@ -106,14 +177,62 @@ export class AccountPage {
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
+  private readonly addressBook = inject(AddressesService);
+  private readonly confirm = inject(ConfirmService);
+  private readonly addressConfig = inject(DEPLOYMENT_CONFIG).address;
+
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly accountText = inject(APP_TEXT).auth.myAccount;
   protected readonly deleteText = inject(APP_TEXT).auth.myAccount.delete;
+  protected readonly addressText = inject(APP_TEXT).auth.myAccount.addresses;
 
   protected readonly profile = resource({
     loader: () => this.account.getProfile(),
   });
   protected readonly showSkeleton = delayedLoading(this.profile.isLoading);
+
+  protected readonly addresses = resource({
+    loader: () => this.addressBook.list(),
+  });
+  protected readonly showAddressSkeleton = delayedLoading(
+    this.addresses.isLoading,
+  );
+
+  /** Its label, or its first line where it was never given one. */
+  protected name(address: Address): string {
+    return addressDisplayName(address, this.addressConfig);
+  }
+
+  /**
+   * The rest of it, comma-separated: the card is a list of addresses, not a
+   * letter. An unlabelled row is already headed by its first line, so that line
+   * is dropped here rather than printed twice.
+   */
+  protected lines(address: Address): string {
+    const lines = addressLines(address, this.addressConfig);
+    return (address.label ? lines : lines.slice(1)).join(', ');
+  }
+
+  /**
+   * Removing one. Confirmed first — it is the only destructive thing on this
+   * card — and the list is refreshed rather than spliced, so what is on screen
+   * is what the server has.
+   */
+  protected async remove(address: Address): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      heading: this.addressText.removeHeading,
+      message: this.addressText.removeConfirm.replace(
+        '{label}',
+        this.name(address),
+      ),
+      confirmLabel: this.addressText.remove,
+      cancelLabel: this.text.myAccount.edit.cancel,
+    });
+    if (!confirmed) return;
+
+    await this.addressBook.remove(address.id);
+    this.addresses.reload();
+  }
 
   /**
    * Only the lines this account actually has. A staff account has no phone, a

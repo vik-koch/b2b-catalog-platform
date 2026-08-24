@@ -34,7 +34,11 @@ const emailFor = ({ project, workerIndex }: TestInfo) =>
  */
 const created: string[] = [];
 
-async function arrange(testInfo: TestInfo): Promise<string> {
+async function arrange(
+  testInfo: TestInfo,
+  /** A company account, registered under the deployment's second format. */
+  companyRegistrationId?: string,
+): Promise<string> {
   const email = emailFor(testInfo);
   const client = localtestDbClient();
   await client.connect();
@@ -42,8 +46,8 @@ async function arrange(testInfo: TestInfo): Promise<string> {
     await client.query('DELETE FROM users WHERE email = $1', [email]);
     // `status` must be named: it defaults to `pending`, which cannot log in.
     const { rows } = await client.query(
-      `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType")
-       VALUES ($1, $2, 'user', 'active', $3, $4, $5, 'person')
+      `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType", "companyRegistrationId")
+       VALUES ($1, $2, 'user', 'active', $3, $4, $5, $6, $7)
        RETURNING id`,
       [
         email,
@@ -51,6 +55,8 @@ async function arrange(testInfo: TestInfo): Promise<string> {
         DETAILS.firstName,
         DETAILS.lastName,
         DETAILS.phone,
+        companyRegistrationId ? 'company' : 'person',
+        companyRegistrationId ?? null,
       ],
     );
     created.push(rows[0].id);
@@ -137,6 +143,71 @@ test.describe('my account', () => {
     // The greeting is built from the session, not from the save's response, so
     // it only follows the new name if /auth/me was re-asked.
     await expect(page.getByText('Hello, Alexa')).toBeVisible();
+  });
+
+  // The address book (FR-CART-04), through the browser: saved, listed, gone.
+  test('saves an address, lists it, and removes it again', async ({
+    page,
+  }, testInfo) => {
+    const email = await arrange(testInfo);
+
+    await logIn(page, email);
+    await expect(page).toHaveURL(/\/account$/);
+    await expect(page.getByText('No saved addresses yet')).toBeVisible();
+
+    await page.getByRole('link', { name: 'Add address' }).click();
+    await expect(page).toHaveURL(/\/account\/addresses\/new$/);
+
+    // Nothing is typed into the name: it is optional, and the row is then
+    // headed by its own street line.
+    await page.getByLabel('Street and number').fill('Hafenstraße 12');
+    await page.getByLabel('Postcode').fill('20359');
+    await page.getByLabel('City').fill('Hamburg');
+    await page.getByRole('button', { name: 'Save address' }).click();
+
+    // Back to the book, which shows what was saved.
+    await expect(page).toHaveURL(/\/account$/);
+    await expect(
+      page.getByText('Hafenstraße 12', { exact: true }),
+    ).toBeVisible();
+    await expect(page.getByText('20359 Hamburg')).toBeVisible();
+
+    // Removing is confirmed first — the only destructive thing on the card.
+    await page.getByRole('button', { name: 'Remove' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Remove address' });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Remove' }).click();
+
+    await expect(page.getByText('No saved addresses yet')).toBeVisible();
+  });
+
+  /**
+   * The deployment takes two shapes of registration number, and this account is
+   * registered under the second. The address form must open on *that* shape:
+   * dressed in the first, a ten-digit number is masked into a five-digit box,
+   * and the save would store what is left.
+   */
+  test('opens the address form on the shape the account’s number is in', async ({
+    page,
+  }, testInfo) => {
+    const email = await arrange(testInfo, '1234567890');
+
+    await logIn(page, email);
+    // Through the page, not a cold `goto`: a guarded route loaded directly
+    // races the session the login just established.
+    await expect(page).toHaveURL(/\/account$/);
+    await page.getByRole('link', { name: 'Add address' }).click();
+
+    const number = page.getByLabel('Company registration number');
+    await expect(number).toHaveValue('1234567890');
+    await expect(page.getByLabel('Kind of registration number')).toHaveValue(
+      'tax',
+    );
+
+    // Switching the kind asks for the number again rather than keeping a
+    // prefix of one that belonged to another shape.
+    await page.getByLabel('Kind of registration number').selectOption('vat');
+    await expect(number).toHaveValue('');
   });
 
   test('deletes the account, and the address can be registered again', async ({
