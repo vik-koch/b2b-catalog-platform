@@ -134,6 +134,7 @@ export const mailTextSchema = z
         /** The two customer kinds, worded for staff reading the mail. */
         customerTypePerson: z.string(),
         customerTypeCompany: z.string(),
+        companyNameLabel: z.string(),
         companyIdLabel: z.string(),
         /** Button into the admin account list, where it is approved. */
         action: z.string(),

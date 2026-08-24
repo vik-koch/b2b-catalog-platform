@@ -69,8 +69,8 @@ describe('/account/profile', () => {
     const passwordHash = await hash(PASSWORD);
     // A registered customer: every identifying field filled, and on a tier.
     await client.query(
-      `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType", "companyRegistrationId", "tierId")
-       VALUES ($1, $2, 'user', 'active', 'Jane', 'Doe', '+49 40 1234567', 'company', '12345678', $3)`,
+      `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType", "companyName", "companyRegistrationId", "tierId")
+       VALUES ($1, $2, 'user', 'active', 'Jane', 'Doe', '+49 40 1234567', 'company', 'Kontor GmbH', '12345678', $3)`,
       [CUSTOMER_EMAIL, passwordHash, tierId],
     );
     // Staff describe nobody: the nullable half of the same shape.
@@ -105,6 +105,7 @@ describe('/account/profile', () => {
       lastName: 'Doe',
       phone: '+49 40 1234567',
       customerType: 'company',
+      companyName: 'Kontor GmbH',
       companyRegistrationId: '12345678',
     });
     expect(typeof res.data.createdAt).toBe('string');
@@ -130,6 +131,7 @@ describe('/account/profile', () => {
       lastName: null,
       phone: null,
       customerType: null,
+      companyName: null,
       companyRegistrationId: null,
     });
   });
@@ -243,8 +245,8 @@ describe('/account/profile', () => {
     beforeEach(async () => {
       await client.query('DELETE FROM users WHERE email = $1', [DELETE_EMAIL]);
       const { rows } = await client.query(
-        `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType", "companyRegistrationId", "tierId")
-         VALUES ($1, $2, 'user', 'active', 'Jane', 'Doe', '+49 40 1234567', 'company', '12345678', $3)
+        `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType", "companyName", "companyRegistrationId", "tierId")
+         VALUES ($1, $2, 'user', 'active', 'Jane', 'Doe', '+49 40 1234567', 'company', 'Kontor GmbH', '12345678', $3)
          RETURNING id`,
         [DELETE_EMAIL, await hash(PASSWORD), tierId],
       );
@@ -288,7 +290,7 @@ describe('/account/profile', () => {
       expect(res.status).toBe(200);
       const { rows } = await client.query(
         `SELECT status, email, "firstName", "lastName", phone, "customerType",
-                "companyRegistrationId", "tierId"
+                "companyName", "companyRegistrationId", "tierId"
          FROM users WHERE id = $1`,
         [leaverId],
       );
@@ -301,6 +303,7 @@ describe('/account/profile', () => {
         lastName: null,
         phone: null,
         customerType: null,
+        companyName: null,
         companyRegistrationId: null,
         tierId: null,
       });

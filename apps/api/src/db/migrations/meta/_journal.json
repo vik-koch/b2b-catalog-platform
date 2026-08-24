@@ -99,6 +99,13 @@
       "when": 1787517384240,
       "tag": "0013_addresses",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1787574410963,
+      "tag": "0014_user_company_name",
+      "breakpoints": true
     }
   ]
 }

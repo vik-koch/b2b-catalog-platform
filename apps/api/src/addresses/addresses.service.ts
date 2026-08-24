@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -57,6 +58,8 @@ function toAddress(row: AddressRow): Address {
  */
 @Injectable()
 export class AddressesService {
+  private readonly logger = new Logger(AddressesService.name);
+
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     @Inject(ADDRESS_CONFIG) private readonly config: AddressConfig | undefined,
@@ -92,6 +95,25 @@ export class AddressesService {
       .values({ userId, ...input })
       .returning();
     return toAddress(row);
+  }
+
+  /**
+   * The first address of a brand-new account, from the company suggestion its
+   * owner picked (FR-AUTH-10). Silent on every refusal, because it is a
+   * courtesy on a path that must not fail for it: a registration is not worth
+   * less because a registry answered half an address.
+   *
+   * An ordinary row in every other respect — no verified flag, nothing locked —
+   * so the account holder edits or deletes it like any other.
+   */
+  async seed(userId: string, input: AddressInput): Promise<void> {
+    try {
+      await this.create(userId, input);
+    } catch (error) {
+      this.logger.warn(
+        `Could not seed the first address: ${(error as Error).message}`,
+      );
+    }
   }
 
   async update(

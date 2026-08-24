@@ -5,7 +5,7 @@ import {
   ADDRESS_SUGGESTION_LIMIT,
   addressSuggestionContract,
 } from '@b2b-catalog-platform/shared';
-import { AddressSuggestionThrottle } from '../throttling/throttle-presets';
+import { SidecarSuggestionThrottle } from '../throttling/throttle-presets';
 import {
   ADDRESS_SUGGESTION_PORT,
   AddressSuggestionPort,
@@ -28,7 +28,7 @@ export class AddressSuggestionController {
     private readonly suggestions: AddressSuggestionPort,
   ) {}
 
-  @AddressSuggestionThrottle()
+  @SidecarSuggestionThrottle()
   @TsRestHandler(addressSuggestionContract.suggestAddresses, {
     validateResponses: true,
   })

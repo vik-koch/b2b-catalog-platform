@@ -20,8 +20,6 @@ function withConfig(config: Record<string, unknown>): void {
 const vat = {
   key: 'vat',
   pattern: '^DE[0-9]{9}$',
-  prefix: 'DE',
-  mask: '#########',
   example: 'DE123456789',
 };
 
@@ -33,16 +31,14 @@ describe('loadCompanyIdRule', () => {
     resetApiDeploymentConfig();
   });
 
-  it('applies the deployment pattern to the canonical value', () => {
+  it('applies the deployment pattern to the normalized value', () => {
     withConfig({ companyIdInput: { formats: [vat] } });
     const matches = loadCompanyIdRule();
 
-    // The prefix is shown rather than typed, but it is part of what is stored,
-    // so the pattern covers it — and the browser sends it that way.
+    // The whole number as it is printed, which is what a customer types and
+    // what the contract has already normalized by the time it arrives here.
     expect(matches('DE123456789')).toBe(true);
     expect(matches('123456789')).toBe(false);
-    // The mask's grouping is the browser's business; what arrives is bare.
-    expect(matches('DE123 456 789')).toBe(false);
   });
 
   /**
@@ -54,8 +50,18 @@ describe('loadCompanyIdRule', () => {
     withConfig({
       companyIdInput: {
         formats: [
-          { key: 'sole', label: 'Sole trader', pattern: '^[0-9]{10}$' },
-          { key: 'company', label: 'Company', pattern: '^[0-9]{12}$' },
+          {
+            key: 'sole',
+            label: 'Sole trader',
+            pattern: '^[0-9]{10}$',
+            example: '1234567890',
+          },
+          {
+            key: 'company',
+            label: 'Company',
+            pattern: '^[0-9]{12}$',
+            example: '123456789012',
+          },
         ],
       },
     });
@@ -79,7 +85,9 @@ describe('loadCompanyIdRule', () => {
   // against user input, so the boot refuses one that could run away.
   it('refuses an unanchored pattern at boot', () => {
     withConfig({
-      companyIdInput: { formats: [{ key: 'x', pattern: '\\d{9}' }] },
+      companyIdInput: {
+        formats: [{ key: 'x', pattern: '\\d{9}', example: '123456789' }],
+      },
     });
 
     expect(() => loadApiDeploymentConfig()).toThrow(/anchored/);
@@ -88,7 +96,7 @@ describe('loadCompanyIdRule', () => {
   it('refuses an oversized pattern at boot', () => {
     withConfig({
       companyIdInput: {
-        formats: [{ key: 'x', pattern: `^${'a'.repeat(200)}$` }],
+        formats: [{ key: 'x', pattern: `^${'a'.repeat(200)}$`, example: 'a' }],
       },
     });
 
@@ -96,19 +104,11 @@ describe('loadCompanyIdRule', () => {
   });
 
   /**
-   * `prefix` and `mask` are promises about a pattern that no regex can be asked
-   * to confirm, so the example is checked against all three. Each of these
-   * would otherwise ship a field nobody can fill in.
+   * The example is the field's only hint and the only thing an error message
+   * can name, so it is checked against the pattern it claims to illustrate —
+   * otherwise the form teaches a value it will then refuse.
    */
   describe('the config self-check', () => {
-    it('refuses a mask that does not fit the format it is on', () => {
-      withConfig({
-        companyIdInput: { formats: [{ ...vat, mask: '############' }] },
-      });
-
-      expect(() => loadApiDeploymentConfig()).toThrow(/mask takes 12 digits/);
-    });
-
     it('refuses an example that its own pattern rejects', () => {
       withConfig({
         companyIdInput: { formats: [{ ...vat, example: 'DE12345' }] },
@@ -120,7 +120,10 @@ describe('loadCompanyIdRule', () => {
     it('refuses an unnamed format once there is more than one to pick', () => {
       withConfig({
         companyIdInput: {
-          formats: [vat, { key: 'other', pattern: '^[0-9]{10}$' }],
+          formats: [
+            vat,
+            { key: 'other', pattern: '^[0-9]{10}$', example: '1234567890' },
+          ],
         },
       });
 

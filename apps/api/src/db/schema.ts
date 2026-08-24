@@ -437,11 +437,18 @@ export const users = pgTable('users', {
   lastName: varchar('lastName', { length: 200 }),
   phone: varchar('phone', { length: 50 }),
   customerType: customerType('customerType'),
-  // Business registration number, stored unmasked (digits or whatever the
-  // deployment's pattern accepts) so it matches the legacy system's records
-  // regardless of how it is displayed. Required for `company` registrations —
-  // enforced by the registration contract and the deployment's own pattern,
-  // not by the column, since staff-created accounts have neither.
+  // The invoiced party, as the customer gave it. Both are required for a
+  // `company` registration — enforced by the registration contract, not by the
+  // columns, since staff accounts describe nobody and rows predating this
+  // carry only the number.
+  //
+  // The name is here as well as on an address because an address may be
+  // invoiced to another of the customer's entities; this is the one the account
+  // was approved on, and what a new address prefills from.
+  companyName: varchar('companyName', { length: 255 }),
+  // Business registration number, stored normalized (no spaces, upper case —
+  // see the contract) so it matches the legacy system's records regardless of
+  // how it was typed.
   companyRegistrationId: varchar('companyRegistrationId', { length: 64 }),
   // Set together when staff approve an account (or create one outright). Null
   // on the bootstrap admin and on rows that predate registration.

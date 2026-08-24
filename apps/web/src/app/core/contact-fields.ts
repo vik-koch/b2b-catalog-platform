@@ -1,7 +1,7 @@
 import { ValidatorFn, Validators } from '@angular/forms';
 import {
   type CompanyIdFormat,
-  digitsOf,
+  companyIdMatchesAny,
   type PhoneConfig,
 } from '@b2b-catalog-platform/shared';
 import { completeMask } from './masked-input';
@@ -10,24 +10,25 @@ import { completeMask } from './masked-input';
  * The two deployment-configured identity fields — a phone number and a company
  * registration number — in both directions.
  *
- * Each is stored in one canonical form (`+49401234501`, `DE123456789`) while
- * being *entered* in two parts: a fixed prefix the form displays and the visitor
- * never types, and a masked body. Registration composes those into the stored
- * value; the staff editor has to take a stored value apart again to seed the
- * same fields. Keeping both directions together is what stops the two screens
- * disagreeing about where the prefix ends.
+ * A phone number is stored in one canonical form (`+49401234501`) while being
+ * *entered* in two parts: a fixed prefix the form displays and the visitor never
+ * types, and a masked body. Registration composes those into the stored value;
+ * the staff editor takes a stored value apart again to seed the same fields.
+ * Keeping both directions together is what stops the two screens disagreeing
+ * about where the prefix ends.
  *
- * The phone half of that lives in `@b2b-catalog-platform/shared` — the API
- * formats numbers for staff notifications and needs the same rule — and is
- * re-exported here so a form has one door to knock on. The registration number
- * stays here: only the browser has ever had to take one apart.
+ * A registration number has none of that: it is plain typed input, normalized
+ * by the contract, and measured against the shapes the deployment accepts.
+ *
+ * The phone half lives in `@b2b-catalog-platform/shared` — the API formats
+ * numbers for staff notifications and needs the same rule — and is re-exported
+ * here so a form has one door to knock on.
  *
  * Shape only — the wording, the markup and the deployment config itself stay
  * with each page (public app-text on one side, admin-text on the other).
  */
 export {
   canonicalPhone,
-  companyIdFormatOf,
   formatPhone,
   typedPhone,
   type CompanyIdFormat,
@@ -35,61 +36,30 @@ export {
 } from '@b2b-catalog-platform/shared';
 
 /**
- * What travels and gets stored. A mask only groups digits for readability, and
- * a prefix is shown rather than typed, so both are resolved away here into the
- * one form the chosen format's pattern describes and the shop's records use.
- *
- * Everything below takes **one format**, not the whole config: with several
- * accepted shapes there is no deployment-wide prefix, mask or rule to speak of,
- * only whichever shape this number is being entered in.
+ * The deployment's shape rule, applied to the whole value. One message covers
+ * every configured format: which of them a number was meant to be is the
+ * customer's business, not a question the form asks them to answer first.
  */
-export function canonicalCompanyId(
-  typed: string,
-  format: CompanyIdFormat | undefined,
-): string {
-  const body = format?.mask ? digitsOf(typed) : typed.trim();
-  return body ? `${format?.prefix ?? ''}${body}` : '';
-}
-
-/** The inverse: the part the field owns, with the displayed prefix removed. */
-export function typedCompanyId(
-  stored: string | null,
-  format: CompanyIdFormat | undefined,
-): string {
-  const value = stored?.trim() ?? '';
-  const prefix = format?.prefix;
-  return prefix && value.startsWith(prefix)
-    ? value.slice(prefix.length)
-    : value;
-}
-
-/**
- * The chosen format's rule, applied to the value **as it will be sent** —
- * `pattern` is anchored on the stored form, prefix included, so validating the
- * typed part against it would never match.
- *
- * The pattern already pins the length, so there is no separate completeness
- * check: a half-typed number fails it, and the message that follows is the
- * format hint, which is the one worth reading either way.
- */
-export function companyIdPattern(format: CompanyIdFormat): ValidatorFn {
-  const regex = new RegExp(format.pattern);
+export function companyIdFormat(
+  formats: readonly CompanyIdFormat[] | undefined,
+): ValidatorFn {
   return (control) => {
-    const value = canonicalCompanyId(String(control.value ?? ''), format);
-    return !value || regex.test(value) ? null : { companyIdFormat: true };
+    const value = String(control.value ?? '').trim();
+    return !value || companyIdMatchesAny(value, formats)
+      ? null
+      : { companyIdFormat: true };
   };
 }
 
 /**
  * The rules a registration-number field carries when it applies at all — it is
- * required exactly when the account is a company, and it is checked against the
- * format the visitor said they were entering. Both forms that have one swap
- * this set in and out as the customer type or the chosen format changes.
+ * required exactly when the account is a company. Both forms that have one swap
+ * this set in and out as the customer type changes.
  */
 export function companyIdValidators(
-  format: CompanyIdFormat | undefined,
+  formats: readonly CompanyIdFormat[] | undefined,
 ): ValidatorFn[] {
-  return [Validators.required, ...(format ? [companyIdPattern(format)] : [])];
+  return [Validators.required, companyIdFormat(formats)];
 }
 
 /**

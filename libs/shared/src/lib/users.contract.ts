@@ -1,15 +1,15 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
 import {
+  companyNameSchema,
+  companyRegistrationIdSchema,
+} from './contact-format';
+import {
   apiErrorSchema,
   COMMON_AUTH_ERROR_CODES,
   commonAuthErrorSchema,
 } from './api-error';
-import {
-  companyRegistrationIdSchema,
-  customerTypeSchema,
-  userRoleSchema,
-} from './auth.contract';
+import { customerTypeSchema, userRoleSchema } from './auth.contract';
 
 const c = initContract();
 
@@ -63,7 +63,8 @@ export const staffUserSchema = z
     lastName: z.string().nullable(),
     phone: z.string().nullable(),
     customerType: customerTypeSchema.nullable(),
-    /** Stored unmasked; the browser formats it with the deployment's mask. */
+    /** The invoiced party, as the account was approved on it. */
+    companyName: z.string().nullable(),
     companyRegistrationId: z.string().nullable(),
     /** Null means the base price list, which is a normal, permanent state. */
     tierId: z.string().uuid().nullable(),
@@ -105,21 +106,30 @@ export const updateUserSchema = z
     /** Null clears it; staff accounts often have none. */
     phone: z.string().trim().max(50).nullable(),
     customerType: customerTypeSchema.nullable(),
+    companyName: companyNameSchema.nullable(),
     companyRegistrationId: companyRegistrationIdSchema.nullable(),
     /** Null is the base price list — a real choice, not an omission. */
     tierId: z.string().uuid().nullable(),
     role: userRoleSchema.optional(),
   })
   .strict()
-  // The same pairing the registration form enforces: a registration number
-  // belongs to a company and only to a company.
+  // The same pairing the registration form enforces: a name and a number
+  // belong to a company and only to a company.
   .refine(
     (data) =>
       (data.customerType === 'company') === Boolean(data.companyRegistrationId),
     {
       message:
-        'A company registration number is required for a company, and only for a company.',
+        'A company ID is required for a company, and only for a company.',
       path: ['companyRegistrationId'],
+    },
+  )
+  .refine(
+    (data) => (data.customerType === 'company') === Boolean(data.companyName),
+    {
+      message:
+        'A company name is required for a company, and only for a company.',
+      path: ['companyName'],
     },
   );
 export type UpdateUserRequest = z.infer<typeof updateUserSchema>;
@@ -139,6 +149,7 @@ export const createUserSchema = z
     lastName: z.string().trim().min(1).max(200),
     phone: z.string().trim().max(50).optional(),
     customerType: customerTypeSchema.optional(),
+    companyName: companyNameSchema.optional(),
     companyRegistrationId: companyRegistrationIdSchema.optional(),
   })
   .strict();

@@ -19,6 +19,7 @@ export interface PendingRegistration {
   readonly lastName: string;
   readonly phone: string;
   readonly customerType: CustomerType;
+  readonly companyName: string | null;
   readonly companyRegistrationId: string | null;
 }
 
@@ -182,6 +183,7 @@ export class UsersService {
         lastName: null,
         phone: null,
         customerType: null,
+        companyName: null,
         companyRegistrationId: null,
         // The pricing group is personal data of a kind: it says what this
         // customer was charged.

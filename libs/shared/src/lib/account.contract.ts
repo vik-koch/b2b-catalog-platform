@@ -22,6 +22,7 @@ export const accountProfileSchema = z.object({
   lastName: z.string().nullable(),
   phone: z.string().nullable(),
   customerType: customerTypeSchema.nullable(),
+  companyName: z.string().nullable(),
   companyRegistrationId: z.string().nullable(),
   /** When the account was registered — the "member since" line. */
   createdAt: z.string().datetime(),

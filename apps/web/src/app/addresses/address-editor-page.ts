@@ -1,35 +1,31 @@
 import { Component, effect, inject, resource, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   Address,
   AddressComponents,
   AddressInput,
-  CompanyIdFormat,
-  companyIdFormatOf,
+  PartySuggestion,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { AccountService } from '../account/account.service';
 import {
-  canonicalCompanyId,
-  companyIdPattern,
   canonicalPhone,
+  companyIdFormat,
   phoneValidators,
-  typedCompanyId,
   typedPhone,
 } from '../core/contact-fields';
 import { delayedLoading } from '../core/delayed-loading';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
-import { CompanyIdField } from '../ui/company-id-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
 import { SelectField } from '../ui/select-field';
 import { Skeleton } from '../ui/skeleton';
+import { CompanyFields } from '../parties/company-fields';
 import { AddressSuggestField } from './address-suggest-field';
 import { AddressesService, SaveAddressResult } from './addresses.service';
 
@@ -51,8 +47,8 @@ type Status = 'idle' | 'submitting' | 'error';
     ReactiveFormsModule,
     RouterLink,
     AddressSuggestField,
+    CompanyFields,
     Button,
-    CompanyIdField,
     FieldLabel,
     Input,
     PhoneField,
@@ -88,36 +84,17 @@ type Status = 'idle' | 'submitting' | 'error';
             <p class="mt-1 text-sm text-muted">{{ text.labelHint }}</p>
           </div>
 
-          <!-- The invoice party. Prefilled from the account when adding, and
-               editable: the registration number staff approved the account on
-               is not necessarily the entity an invoice goes to. -->
-          <div>
-            <label for="companyName" appFieldLabel>
-              {{ text.companyName }}
-              <span class="font-normal text-subtle">({{ text.optional }})</span>
-            </label>
-            <input
-              id="companyName"
-              type="text"
-              formControlName="companyName"
-              autocomplete="organization"
-              appInput
-              class="w-full"
-            />
-          </div>
-
-          <!-- The same masked field registration uses, and the same rule — one
-               jurisdiction, one set of accepted shapes. Optional here: an
-               address invoiced to a natural person has no number. -->
-          <app-company-id-field
-            inputId="companyId"
-            [control]="form.controls.companyId"
-            [formatControl]="form.controls.companyIdFormat"
-            [label]="text.companyId"
-            [text]="companyIdText"
+          <!-- Prefilled from the account when adding, and editable: the
+               entity staff approved the account on is not necessarily the one
+               an invoice goes to. Optional here, unlike on the registration
+               form: an address invoiced to a natural person has no company. -->
+          <app-company-fields
+            [idControl]="form.controls.companyId"
+            [nameControl]="form.controls.companyName"
+            [text]="companyText"
             [required]="false"
-            [optionalLabel]="text.optional"
-            [invalid]="isInvalid('companyId')"
+            [idInvalid]="isInvalid('companyId')"
+            (picked)="fillCompanyFrom($event)"
           />
 
           <app-address-suggest-field
@@ -277,11 +254,13 @@ export class AddressEditorPage {
     required: this.validation.phoneRequired,
     incomplete: this.validation.phoneIncomplete,
   };
-  protected readonly companyIdText = {
-    required: this.validation.companyIdRequired,
-    format: this.validation.companyIdFormat,
-    formatLabel: inject(APP_TEXT).auth.register.companyIdFormat,
+  protected readonly companyText = {
+    ...this.text.companySuggest,
+    idLabel: this.text.companyId,
+    nameLabel: this.text.companyName,
     hint: this.text.companyIdHint,
+    idFormat: this.validation.companyIdFormat,
+    optional: this.text.optional,
   };
   protected readonly suggestText = {
     suggestionsLabel: this.text.suggestionsLabel,
@@ -301,10 +280,7 @@ export class AddressEditorPage {
     // has to invent a word for the only address they order to.
     label: [''],
     companyName: [''],
-    companyId: [''],
-    // Which shape the number is being entered in. Never sent — it decides the
-    // prefix, the mask and the rule, and the stored value is the result.
-    companyIdFormat: [this.companyIdInput?.formats[0]?.key ?? ''],
+    companyId: ['', companyIdFormat(this.companyIdInput?.formats)],
     street: ['', Validators.required],
     street2: [''],
     postalCode: ['', Validators.required],
@@ -327,8 +303,9 @@ export class AddressEditorPage {
   });
   /**
    * Only to prefill the invoice party on a new address, and by value rather
-   * than by foreign key: the number staff approved the account on is evidence
-   * for that decision, and this address is free to carry a different one.
+   * than by foreign key: the name and number staff approved the account on are
+   * evidence for that decision, and this address is free to carry different
+   * ones.
    */
   private readonly profile = resource({
     params: () => (this.isNew ? true : undefined),
@@ -339,23 +316,14 @@ export class AddressEditorPage {
     (this.isNew || this.saved.hasValue()) && !this.notFound();
 
   constructor() {
-    // A different shape is a different rule, so the check follows the picker.
-    this.applyCompanyIdValidator();
-    this.form.controls.companyIdFormat.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.applyCompanyIdValidator());
-
     // A new address starts from what the account already said: the same person,
     // usually the same company, reachable on the same number.
     effect(() => {
       const profile = this.profile.value();
       if (!profile) return;
-      this.showFormatOf(profile.companyRegistrationId);
       this.form.patchValue({
-        companyId: typedCompanyId(
-          profile.companyRegistrationId,
-          this.chosenFormat(),
-        ),
+        companyName: profile.companyName ?? '',
+        companyId: profile.companyRegistrationId ?? '',
         phone: typedPhone(profile.phone, this.phoneInput),
       });
     });
@@ -378,12 +346,10 @@ export class AddressEditorPage {
   }
 
   private fill(address: Address): void {
-    this.showFormatOf(address.companyId);
     this.form.reset({
       label: address.label ?? '',
       companyName: address.companyName ?? '',
-      companyId: typedCompanyId(address.companyId, this.chosenFormat()),
-      companyIdFormat: this.form.controls.companyIdFormat.value,
+      companyId: address.companyId ?? '',
       street: address.street,
       street2: address.street2 ?? '',
       postalCode: address.postalCode,
@@ -395,17 +361,26 @@ export class AddressEditorPage {
   }
 
   /**
+   * A picked company, across both invoice fields. The address it is registered
+   * at is *not* applied: this row is where goods go, and the two are the same
+   * only by coincidence.
+   */
+  protected fillCompanyFrom(party: PartySuggestion): void {
+    this.form.patchValue({
+      companyName: party.name,
+      ...(party.registrationId ? { companyId: party.registrationId } : {}),
+    });
+  }
+
+  /**
    * A picked suggestion, spread across the form. Only the parts the provider
    * actually answered are written — a partial answer must not blank what the
-   * customer already typed — and the street line is composed the way it is
-   * printed, house number included.
+   * customer already typed — and the street line arrives already composed, in
+   * the shape the provider's own jurisdiction prints it.
    */
   protected fillFrom(components: AddressComponents): void {
-    const street = [components.street, components.house]
-      .filter(Boolean)
-      .join(' ');
     this.form.patchValue({
-      ...(street ? { street } : {}),
+      ...(components.street ? { street: components.street } : {}),
       ...(components.postalCode ? { postalCode: components.postalCode } : {}),
       ...(components.city ? { city: components.city } : {}),
       // The apartment or office, where the provider parsed one out of what was
@@ -429,35 +404,6 @@ export class AddressEditorPage {
     return this.text.unsupportedCountry;
   }
 
-  /**
-   * Dress the field as whichever configured shape the stored number is in. One
-   * that fits none of them gets no shape at all — masking it would truncate it
-   * on screen, and the next save would store the truncation — and an address
-   * with no number keeps the first format, which is what a new one is typed in.
-   */
-  private showFormatOf(stored: string | null | undefined): void {
-    const format = stored?.trim()
-      ? companyIdFormatOf(stored, this.companyIdInput?.formats)
-      : this.companyIdInput?.formats[0];
-    // Emitting on purpose: the field follows this control's stream to know
-    // which mask to draw, and a silent write would leave it in the old shape.
-    this.form.controls.companyIdFormat.setValue(format?.key ?? '');
-  }
-
-  private chosenFormat(): CompanyIdFormat | undefined {
-    const key = this.form.controls.companyIdFormat.value;
-    return this.companyIdInput?.formats.find((format) => format.key === key);
-  }
-
-  /** The format's own pattern, and only that: the number is optional here, so
-   * there is no required rule to swap in and out. */
-  private applyCompanyIdValidator(): void {
-    const format = this.chosenFormat();
-    const control = this.form.controls.companyId;
-    control.setValidators(format ? [companyIdPattern(format)] : []);
-    control.updateValueAndValidity({ emitEvent: false });
-  }
-
   protected submitting(): boolean {
     return this.status() === 'submitting';
   }
@@ -479,10 +425,7 @@ export class AddressEditorPage {
     const input: AddressInput = {
       label: optional(value.label),
       companyName: optional(value.companyName),
-      // Sent unmasked, prefix included — the shape the picker was set to is an
-      // entry aid, and the stored value is its result.
-      companyId:
-        canonicalCompanyId(value.companyId, this.chosenFormat()) || null,
+      companyId: optional(value.companyId),
       street: value.street.trim(),
       street2: optional(value.street2),
       postalCode: value.postalCode.trim(),

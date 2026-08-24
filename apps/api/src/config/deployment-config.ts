@@ -26,7 +26,7 @@ export const apiDeploymentConfigSchema = z
       // belong to the web app, and a key added there must not fail the API.
       .passthrough(),
     /**
-     * The shapes a company registration number may take. Jurisdiction-specific,
+     * The shapes a company ID may take. Jurisdiction-specific,
      * so it lives here rather than in the shared contract, and the API applies
      * them as well as the browser — a rule enforced only client-side is not a
      * rule. The schema is the shared one, so the two apps cannot drift about
@@ -85,7 +85,7 @@ export function loadPhoneInput(): PhoneConfig | undefined {
 }
 
 /**
- * Validates a company registration number against the deployment's own formats.
+ * Validates a company ID against the deployment's own formats.
  * **Any** of them is enough — that is what several accepted shapes means — and
  * the API takes no interest in which one the browser's picker was set to: the
  * picker is an entry aid, the patterns are the rule.

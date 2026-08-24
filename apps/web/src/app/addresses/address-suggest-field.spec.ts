@@ -75,8 +75,7 @@ describe('AddressSuggestField (FR-CART-11)', () => {
     rejects = false;
     answers = [
       suggestion('Hafenstraße 12, 20359 Hamburg', {
-        street: 'Hafenstraße',
-        house: '12',
+        street: 'Hafenstraße 12',
         postalCode: '20359',
         city: 'Hamburg',
         country: 'DE',
@@ -115,8 +114,7 @@ describe('AddressSuggestField (FR-CART-11)', () => {
 
     expect(picked).toEqual([
       {
-        street: 'Hafenstraße',
-        house: '12',
+        street: 'Hafenstraße 12',
         postalCode: '20359',
         city: 'Hamburg',
         country: 'DE',

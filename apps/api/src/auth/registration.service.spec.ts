@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { RegisterRequest } from '@b2b-catalog-platform/shared';
+import { AddressesService } from '../addresses/addresses.service';
 import { COMPANY_ID_RULE, PHONE_INPUT } from '../config/deployment-config';
 import { MAIL_TEXT } from '../mail/mail-text';
 import { demoMailText, demoPhoneInput } from '../mail/mail-text.fixture';
@@ -17,6 +18,7 @@ import { RegistrationService } from './registration.service';
 describe('RegistrationService', () => {
   const findByEmail = jest.fn();
   const createPending = jest.fn();
+  const seed = jest.fn();
   const send = jest.fn<Promise<void>, [unknown, { to: string }]>();
   let service: RegistrationService;
 
@@ -33,12 +35,14 @@ describe('RegistrationService', () => {
   const company: RegisterRequest = {
     ...person,
     customerType: 'company',
+    companyName: 'Kontor GmbH',
     companyRegistrationId: 'DE123456789',
   };
 
   beforeEach(async () => {
     findByEmail.mockReset().mockResolvedValue(undefined);
     createPending.mockReset().mockResolvedValue({ id: 'new-id' });
+    seed.mockReset();
     send.mockReset().mockResolvedValue(undefined);
 
     const moduleRef = await Test.createTestingModule({
@@ -48,6 +52,7 @@ describe('RegistrationService', () => {
         { provide: MailService, useValue: { send } },
         { provide: MAIL_TEXT, useValue: demoMailText },
         { provide: COMPANY_ID_RULE, useValue: companyIdMatches },
+        { provide: AddressesService, useValue: { seed } },
         { provide: PHONE_INPUT, useValue: demoPhoneInput },
         {
           provide: PasswordService,
@@ -72,6 +77,7 @@ describe('RegistrationService', () => {
       lastName: 'Doe',
       phone: '+494012345678',
       customerType: 'person',
+      companyName: null,
       companyRegistrationId: null,
     });
     expect(recipients()).toEqual([
@@ -97,12 +103,15 @@ describe('RegistrationService', () => {
     });
   });
 
-  it('stores a company registration number that matches the deployment rule', async () => {
+  it('stores a company ID that matches the deployment rule', async () => {
     await service.register(company);
 
+    // Both halves of the invoiced party: the name staff match against their own
+    // records, the number they can check it against.
     expect(createPending).toHaveBeenCalledWith(
       expect.objectContaining({
         customerType: 'company',
+        companyName: 'Kontor GmbH',
         companyRegistrationId: 'DE123456789',
       }),
     );
@@ -113,7 +122,7 @@ describe('RegistrationService', () => {
   it('refuses a number the deployment pattern rejects, and writes nothing', async () => {
     await expect(
       service.register({ ...company, companyRegistrationId: 'DE12345' }),
-    ).rejects.toThrow(/registration number/i);
+    ).rejects.toThrow(/company ID/i);
 
     expect(createPending).not.toHaveBeenCalled();
     expect(send).not.toHaveBeenCalled();
@@ -163,5 +172,70 @@ describe('RegistrationService', () => {
 
     expect(createPending).toHaveBeenCalled();
     expect(send).toHaveBeenCalledTimes(2);
+  });
+
+  describe('the first address (FR-AUTH-10)', () => {
+    // The street line as the adapter composed it — house number included, in
+    // the shape its own jurisdiction prints.
+    const registered = {
+      entityType: 'legal' as const,
+      street: 'Hafenstraße 12',
+      postalCode: '20359',
+      city: 'Hamburg',
+      country: 'DE',
+    };
+
+    it('seeds the registered address of the company that was picked', async () => {
+      await service.register({ ...company, billingAddress: registered });
+
+      expect(seed).toHaveBeenCalledWith(
+        'new-id',
+        expect.objectContaining({
+          // Unlabelled: the customer never named it, and the book shows an
+          // unnamed address by its own street.
+          label: null,
+          street: 'Hafenstraße 12',
+          postalCode: '20359',
+          city: 'Hamburg',
+          country: 'DE',
+          // The invoiced party is what the *account* says, not a second copy
+          // of what the registry said.
+          companyName: 'Kontor GmbH',
+          companyId: 'DE123456789',
+        }),
+      );
+    });
+
+    // An individual entrepreneur's registered address is their home. The rule
+    // is applied here rather than trusted to the form.
+    it('seeds nothing for an individual', async () => {
+      await service.register({
+        ...company,
+        billingAddress: { ...registered, entityType: 'individual' },
+      });
+
+      expect(seed).not.toHaveBeenCalled();
+    });
+
+    // A registry that answered a city and nothing else has not given us an
+    // address, and half a row in the book is worse than none.
+    it.each(['street', 'postalCode', 'city', 'country'] as const)(
+      'seeds nothing when the answer has no %s',
+      async (missing) => {
+        await service.register({
+          ...company,
+          billingAddress: { ...registered, [missing]: undefined },
+        });
+
+        expect(seed).not.toHaveBeenCalled();
+      },
+    );
+
+    it('registers as usual when no company was picked', async () => {
+      await service.register(company);
+
+      expect(createPending).toHaveBeenCalled();
+      expect(seed).not.toHaveBeenCalled();
+    });
   });
 });

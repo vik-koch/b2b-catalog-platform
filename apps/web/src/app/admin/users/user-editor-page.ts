@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   CustomerTier,
   CustomerType,
+  PartySuggestion,
   emailSchema,
   StaffUser,
   UserKind,
@@ -14,14 +15,10 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { AuthService } from '../../auth/auth.service';
 import {
-  canonicalCompanyId,
   canonicalPhone,
-  companyIdFormatOf,
   companyIdValidators,
   phoneValidators,
-  typedCompanyId,
   typedPhone,
-  type CompanyIdFormat,
 } from '../../core/contact-fields';
 import { delayedLoading } from '../../core/delayed-loading';
 import { FieldErrors } from '../../core/form-errors';
@@ -29,7 +26,7 @@ import { usePageSeo } from '../../core/page-seo';
 import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
 import { zodValidator } from '../../core/zod-validator';
 import { Button } from '../../ui/button';
-import { CompanyIdField } from '../../ui/company-id-field';
+import { CompanyFields } from '../../parties/company-fields';
 import { EmailField } from '../../ui/email-field';
 import { FieldLabel } from '../../ui/field-label';
 import { PhoneField } from '../../ui/phone-field';
@@ -62,7 +59,7 @@ import { SelectField } from '../../ui/select-field';
     ReactiveFormsModule,
     Button,
     AdminIcon,
-    CompanyIdField,
+    CompanyFields,
     EmailField,
     FieldLabel,
     Input,
@@ -204,12 +201,14 @@ import { SelectField } from '../../ui/select-field';
           </div>
 
           @if (isCompany()) {
-            <app-company-id-field
-              [control]="form.controls.companyRegistrationId"
-              [formatControl]="form.controls.companyIdFormat"
-              [label]="text.companyId"
-              [text]="companyIdText"
-              [invalid]="isInvalid('companyRegistrationId')"
+            <app-company-fields
+              idInputId="companyRegistrationId"
+              [idControl]="form.controls.companyRegistrationId"
+              [nameControl]="form.controls.companyName"
+              [text]="companyText"
+              [idInvalid]="isInvalid('companyRegistrationId')"
+              [nameInvalid]="isInvalid('companyName')"
+              (picked)="fillCompanyFrom($event)"
             />
           }
 
@@ -381,10 +380,13 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly phoneText = {
     incomplete: this.text.validation.phoneIncomplete,
   };
-  protected readonly companyIdText = {
-    required: this.text.validation.companyIdRequired,
-    format: this.text.validation.companyIdFormat,
-    formatLabel: this.text.companyIdFormat,
+  protected readonly companyText = {
+    ...this.text.companySuggest,
+    idLabel: this.text.companyId,
+    nameLabel: this.text.companyName,
+    idFormat: this.text.validation.companyIdFormat,
+    idRequired: this.text.validation.companyIdRequired,
+    nameRequired: this.text.validation.companyNameRequired,
   };
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
@@ -428,10 +430,8 @@ export class UserEditorPage implements UnsavedChangesAware {
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     phone: ['', phoneValidators(this.phoneInput, false)],
+    companyName: [''],
     companyRegistrationId: [''],
-    // Which shape the number is entered in. Never sent — it decides the prefix,
-    // the mask and the rule, and the stored value is the result.
-    companyIdFormat: [this.companyIdInput?.formats[0]?.key ?? ''],
     /** `default` is the base price list; `''` only exists before an approval. */
     tierId: ['default'],
     role: ['manager' as UserRole],
@@ -478,13 +478,6 @@ export class UserEditorPage implements UnsavedChangesAware {
     this.form.controls.customerType.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((type) => this.applyCompanyValidators(type));
-    // A different shape is a different rule, so the validators follow the
-    // picker as well as the account type.
-    this.form.controls.companyIdFormat.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() =>
-        this.applyCompanyValidators(this.form.controls.customerType.value),
-      );
     this.applyCompanyValidators('person');
 
     void this.load();
@@ -523,16 +516,6 @@ export class UserEditorPage implements UnsavedChangesAware {
    * masked fields are entered in. */
   private seed(user: StaffUser): void {
     const type: CustomerType = user.customerType ?? 'person';
-    // A stored number that fits none of the configured shapes gets **no**
-    // shape, rather than the first one: dressing it in a mask it does not fit
-    // would truncate it on screen, and the next save would store that.
-    // Only an account with no number at all falls back to the first format.
-    const storedFormat = user.companyRegistrationId
-      ? companyIdFormatOf(
-          user.companyRegistrationId,
-          this.companyIdInput?.formats,
-        )
-      : this.companyIdInput?.formats[0];
     this.form.patchValue(
       {
         email: user.email,
@@ -540,14 +523,11 @@ export class UserEditorPage implements UnsavedChangesAware {
         firstName: user.firstName ?? '',
         lastName: user.lastName ?? '',
         phone: typedPhone(user.phone, this.phoneInput),
-        // The picker follows the number rather than the other way round: a
-        // stored value says which shape it is in, and one that says none of
-        // them is shown as it is (see CompanyIdField).
-        companyIdFormat: storedFormat?.key ?? '',
-        companyRegistrationId: typedCompanyId(
-          user.companyRegistrationId,
-          storedFormat,
-        ),
+        companyName: user.companyName ?? '',
+        // Shown exactly as stored, whatever shape it is in — including one from
+        // before the current config, which staff must be able to read and
+        // correct rather than have silently reshaped.
+        companyRegistrationId: user.companyRegistrationId ?? '',
         // A pending account has no tier yet and must be given one explicitly.
         tierId: user.status === 'pending' ? '' : (user.tierId ?? 'default'),
         role: user.role === 'admin' ? 'admin' : 'manager',
@@ -678,6 +658,7 @@ export class UserEditorPage implements UnsavedChangesAware {
       lastName: value.lastName.trim(),
       phone: contact.phone ?? null,
       customerType: this.isCustomer() ? value.customerType : null,
+      companyName: contact.companyName ?? null,
       companyRegistrationId: contact.companyRegistrationId ?? null,
       tierId: this.isCustomer() ? this.tierId() : null,
       // Sent only when this caller may set it, so a manager's save is never
@@ -695,20 +676,21 @@ export class UserEditorPage implements UnsavedChangesAware {
     return value && value !== 'default' ? value : null;
   }
 
-  /** The two masked fields in the form the API stores them in. Omitted rather
-   * than empty, since both are optional on creation. */
+  /** The contact fields in the form the API stores them in. Omitted rather
+   * than empty, since all three are optional on creation. */
   private contactFields(): {
     phone?: string;
+    companyName?: string;
     companyRegistrationId?: string;
   } {
     const value = this.form.getRawValue();
     const phone = canonicalPhone(value.phone, this.phoneInput);
-    const companyId =
-      this.isCustomer() && value.customerType === 'company'
-        ? canonicalCompanyId(value.companyRegistrationId, this.chosenFormat())
-        : '';
+    const isCompany = this.isCustomer() && value.customerType === 'company';
+    const companyName = isCompany ? value.companyName.trim() : '';
+    const companyId = isCompany ? value.companyRegistrationId.trim() : '';
     return {
       ...(phone ? { phone } : {}),
+      ...(companyName ? { companyName } : {}),
       ...(companyId ? { companyRegistrationId: companyId } : {}),
     };
   }
@@ -718,22 +700,35 @@ export class UserEditorPage implements UnsavedChangesAware {
    * company — the contract refuses it in the other direction too, so the field
    * is cleared rather than left holding a stale value.
    */
-  private applyCompanyValidators(type: CustomerType): void {
-    this.isCompany.set(this.isCustomer() && type === 'company');
-    const control = this.form.controls.companyRegistrationId;
-    if (this.isCompany()) {
-      control.setValidators(companyIdValidators(this.chosenFormat()));
-    } else {
-      control.setValidators([]);
-      control.setValue('', { emitEvent: false });
-    }
-    control.updateValueAndValidity({ emitEvent: false });
+  /**
+   * A picked company, across both fields. Staff get the same accelerator the
+   * customer does — a manager typing an account up from a phone call is the
+   * likeliest person to have only half the details.
+   */
+  protected fillCompanyFrom(party: PartySuggestion): void {
+    this.form.patchValue({
+      companyName: party.name,
+      ...(party.registrationId
+        ? { companyRegistrationId: party.registrationId }
+        : {}),
+    });
   }
 
-  /** The shape the number is being entered in. */
-  private chosenFormat(): CompanyIdFormat | undefined {
-    const key = this.form.controls.companyIdFormat.value;
-    return this.companyIdInput?.formats.find((format) => format.key === key);
+  private applyCompanyValidators(type: CustomerType): void {
+    this.isCompany.set(this.isCustomer() && type === 'company');
+    const fields = [
+      [this.form.controls.companyName, [Validators.required]],
+      [
+        this.form.controls.companyRegistrationId,
+        companyIdValidators(this.companyIdInput?.formats),
+      ],
+    ] as const;
+
+    for (const [control, validators] of fields) {
+      control.setValidators(this.isCompany() ? [...validators] : []);
+      if (!this.isCompany()) control.setValue('', { emitEvent: false });
+      control.updateValueAndValidity({ emitEvent: false });
+    }
   }
 
   private async leave(): Promise<void> {

@@ -789,9 +789,16 @@ export const adminTextSchema = z
         firstName: z.string(),
         lastName: z.string(),
         phone: z.string(),
+        companyName: z.string(),
         companyId: z.string(),
-        /** Names the format picker; see the public text of the same name. */
-        companyIdFormat: z.string(),
+        companySuggest: z
+          .object({
+            suggestionsLabel: z.string(),
+            noSuggestions: z.string(),
+            /** `{count}` is substituted, for the live region. */
+            suggestionCount: z.string(),
+          })
+          .strict(),
         customerType: z.string(),
         tier: z.string(),
         tierChoose: z.string(),
@@ -817,8 +824,9 @@ export const adminTextSchema = z
             emailRequired: z.string(),
             emailInvalid: z.string(),
             phoneIncomplete: z.string(),
+            companyNameRequired: z.string(),
             companyIdRequired: z.string(),
-            /** `{example}` is the deployment's own sample number. */
+            /** `{examples}` is every sample number the deployment configures. */
             companyIdFormat: z.string(),
             tierRequired: z.string(),
           })

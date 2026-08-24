@@ -2,21 +2,23 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { CustomerType, emailSchema } from '@b2b-catalog-platform/shared';
+import {
+  CustomerType,
+  emailSchema,
+  PartySuggestion,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
-  canonicalCompanyId,
   canonicalPhone,
   companyIdValidators,
   phoneValidators,
-  type CompanyIdFormat,
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { zodValidator } from '../core/zod-validator';
 import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
-import { CompanyIdField } from '../ui/company-id-field';
+import { CompanyFields } from '../parties/company-fields';
 import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
@@ -48,7 +50,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     ReactiveFormsModule,
     RouterLink,
     Button,
-    CompanyIdField,
+    CompanyFields,
     EmailField,
     FieldLabel,
     Input,
@@ -150,12 +152,14 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           </div>
 
           @if (isCompany()) {
-            <app-company-id-field
-              [control]="form.controls.companyRegistrationId"
-              [formatControl]="form.controls.companyIdFormat"
-              [label]="text.register.companyId"
-              [text]="companyIdText"
-              [invalid]="isInvalid('companyRegistrationId')"
+            <app-company-fields
+              idInputId="companyRegistrationId"
+              [idControl]="form.controls.companyRegistrationId"
+              [nameControl]="form.controls.companyName"
+              [text]="companyText"
+              [idInvalid]="isInvalid('companyRegistrationId')"
+              [nameInvalid]="isInvalid('companyName')"
+              (picked)="fillFrom($event)"
             />
           }
 
@@ -262,11 +266,18 @@ export class RegisterPage {
     required: this.text.register.validation.phoneRequired,
     incomplete: this.text.register.validation.phoneIncomplete,
   };
-  protected readonly companyIdText = {
-    required: this.text.register.validation.companyIdRequired,
-    format: this.text.register.validation.companyIdFormat,
-    formatLabel: this.text.register.companyIdFormat,
+  protected readonly companyText = {
+    ...this.text.register.companySuggest,
+    idLabel: this.text.register.companyId,
+    nameLabel: this.text.register.companyName,
+    hint: this.text.register.companyIdHint,
+    idFormat: this.text.register.validation.companyIdFormat,
+    idRequired: this.text.register.validation.companyIdRequired,
+    nameRequired: this.text.register.validation.companyNameRequired,
   };
+
+  /** The company the registrant picked, if they picked one. */
+  private readonly picked = signal<PartySuggestion | undefined>(undefined);
 
   protected readonly status = signal<Status>('idle');
   protected readonly customerType = signal<CustomerType>('person');
@@ -282,10 +293,8 @@ export class RegisterPage {
     // address is.
     email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
     phone: ['', phoneValidators(this.phoneInput, true)],
+    companyName: [''],
     companyRegistrationId: [''],
-    // Which shape the number is being entered in. Never sent — it decides the
-    // prefix, the mask and the rule, and the stored value is the result.
-    companyIdFormat: [this.companyIdInput?.formats[0]?.key ?? ''],
     website: [''],
     acceptPrivacy: [false, Validators.requiredTrue],
   });
@@ -298,11 +307,6 @@ export class RegisterPage {
         this.customerType.set(type);
         this.applyValidators(type);
       });
-    // A different shape is a different rule, so the validators follow the
-    // picker as well as the account type.
-    this.form.controls.companyIdFormat.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.applyValidators(this.customerType()));
   }
 
   // Segmented control: the selected kind fills with the theme primary.
@@ -338,25 +342,59 @@ export class RegisterPage {
   }
 
   /**
-   * The registration number is required exactly when the applicant says they
-   * are a company — the contract refuses it in the other direction too, so the
-   * field is cleared rather than left holding a stale value.
+   * The company fields are required exactly when the applicant says they are a
+   * company — the contract refuses them in the other direction too, so they are
+   * cleared rather than left holding a stale value.
    */
   private applyValidators(type: CustomerType): void {
-    const control = this.form.controls.companyRegistrationId;
-    if (type === 'company') {
-      control.setValidators(companyIdValidators(this.chosenFormat()));
-    } else {
-      control.setValidators([]);
-      control.setValue('', { emitEvent: false });
+    const isCompany = type === 'company';
+    const fields = [
+      [this.form.controls.companyName, [Validators.required]],
+      [
+        this.form.controls.companyRegistrationId,
+        companyIdValidators(this.companyIdInput?.formats),
+      ],
+    ] as const;
+
+    for (const [control, validators] of fields) {
+      control.setValidators(isCompany ? [...validators] : []);
+      if (!isCompany) control.setValue('', { emitEvent: false });
+      control.updateValueAndValidity({ emitEvent: false });
     }
-    control.updateValueAndValidity({ emitEvent: false });
   }
 
-  /** The shape the applicant said they were entering. */
-  private chosenFormat(): CompanyIdFormat | undefined {
-    const key = this.form.controls.companyIdFormat.value;
-    return this.companyIdInput?.formats.find((format) => format.key === key);
+  /**
+   * A picked company, spread across both fields. Only what the provider
+   * actually answered is written — a partial answer must not blank what the
+   * customer already typed — and neither value is locked afterwards: the
+   * registry fills the form, it does not decide it (ADR 0041).
+   */
+  protected fillFrom(party: PartySuggestion): void {
+    this.form.patchValue({
+      companyName: party.name,
+      ...(party.registrationId
+        ? { companyRegistrationId: party.registrationId }
+        : {}),
+    });
+    // Kept for the submission, not shown: the registered address becomes the
+    // account's first saved one (FR-AUTH-10), and a registration form is no
+    // place to review an address nobody asked to enter.
+    this.picked.set(party);
+  }
+
+  /**
+   * The picked company's registered address, where it still describes what is
+   * in the form. A registrant who picked a suggestion and then typed a
+   * different company over it is not offering that company's address, so the
+   * name has to still match.
+   */
+  private billingAddress(customerType: CustomerType) {
+    const party = this.picked();
+    const typed = this.form.controls.companyName.value.trim();
+    if (customerType !== 'company' || !party?.address || party.name !== typed) {
+      return undefined;
+    }
+    return { ...party.address, entityType: party.entityType ?? 'individual' };
   }
 
   private toRequest() {
@@ -368,10 +406,18 @@ export class RegisterPage {
       lastName: value.lastName.trim(),
       phone: canonicalPhone(value.phone, this.phoneInput),
       customerType: value.customerType,
+      companyName:
+        value.customerType === 'company' ? value.companyName.trim() : undefined,
+      // Sent as typed; the contract normalizes it (spaces out, upper case) so
+      // the browser and the API cannot disagree about what was entered.
       companyRegistrationId:
         value.customerType === 'company'
-          ? canonicalCompanyId(value.companyRegistrationId, this.chosenFormat())
+          ? value.companyRegistrationId.trim()
           : undefined,
+      // Only where it is the address of the company that was picked, and only
+      // for a company: everything else about this request is typed, and this is
+      // the one thing that is chosen.
+      billingAddress: this.billingAddress(value.customerType),
       // Honeypot.
       website: value.website || undefined,
     };

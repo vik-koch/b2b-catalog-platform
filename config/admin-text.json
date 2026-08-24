@@ -542,8 +542,13 @@
     "firstName": "First name",
     "lastName": "Last name",
     "phone": "Phone",
+    "companyName": "Company name",
     "companyId": "Company ID",
-    "companyIdFormat": "Kind of registration number",
+    "companySuggest": {
+      "suggestionsLabel": "Company suggestions",
+      "noSuggestions": "No matching companies. Carry on typing it yourself.",
+      "suggestionCount": "{count} company suggestions"
+    },
     "customerType": "Customer type",
     "tier": "Tier",
     "tierChoose": "Select a tier…",
@@ -564,8 +569,9 @@
       "emailRequired": "An email address is required.",
       "emailInvalid": "Please enter a valid email address.",
       "phoneIncomplete": "This phone number is incomplete.",
-      "companyIdRequired": "A company registration number is required.",
-      "companyIdFormat": "Please enter it in the form {example}.",
+      "companyNameRequired": "Please enter the company name.",
+      "companyIdRequired": "A company ID is required.",
+      "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}.",
       "tierRequired": "Please choose a tier."
     }
   }

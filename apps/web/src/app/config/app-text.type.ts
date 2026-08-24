@@ -235,6 +235,7 @@ export const appTextSchema = z
             customerType: z.string(),
             person: z.string(),
             company: z.string(),
+            companyName: z.string(),
             companyId: z.string(),
             memberSince: z.string(),
             /** Shown against the fields the account holder cannot edit here —
@@ -283,6 +284,14 @@ export const appTextSchema = z
                  * so the field is on every address but needed only where one
                  * is invoiced. */
                 companyIdHint: z.string(),
+                companySuggest: z
+                  .object({
+                    suggestionsLabel: z.string(),
+                    noSuggestions: z.string(),
+                    /** `{count}` is substituted, for the live region. */
+                    suggestionCount: z.string(),
+                  })
+                  .strict(),
                 street: z.string(),
                 street2: z.string(),
                 postalCode: z.string(),
@@ -375,14 +384,19 @@ export const appTextSchema = z
             firstName: z.string(),
             lastName: z.string(),
             phone: z.string(),
+            /** The invoiced party, required of a business alongside its id. */
+            companyName: z.string(),
             /** Business registration number; its format is deployment config. */
             companyId: z.string(),
-            /**
-             * Names the format picker, for deployments whose jurisdiction
-             * accepts several shapes of registration number. Unused where only
-             * one is configured — the picker is not drawn.
-             */
-            companyIdFormat: z.string(),
+            companyIdHint: z.string(),
+            companySuggest: z
+              .object({
+                suggestionsLabel: z.string(),
+                noSuggestions: z.string(),
+                /** `{count}` is substituted, for the live region. */
+                suggestionCount: z.string(),
+              })
+              .strict(),
             privacyConsent: z.string(),
             privacyLink: z.string(),
             submit: z.string(),
@@ -399,6 +413,7 @@ export const appTextSchema = z
                 lastNameRequired: z.string(),
                 phoneRequired: z.string(),
                 phoneIncomplete: z.string(),
+                companyNameRequired: z.string(),
                 companyIdRequired: z.string(),
                 /** Carries the deployment's own example; `{example}` is substituted. */
                 companyIdFormat: z.string(),

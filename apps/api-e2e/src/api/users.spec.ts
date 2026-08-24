@@ -30,6 +30,7 @@ const edits = () => ({
   lastName: 'Doe',
   phone: '+49 40 1234567',
   customerType: 'person' as const,
+  companyName: null,
   companyRegistrationId: null,
 });
 
@@ -431,6 +432,7 @@ describe('/admin/users', () => {
         lastName: 'Doe-Smith',
         phone: '+49 40 7654321',
         customerType: 'company',
+        companyName: 'Kontor GmbH',
         companyRegistrationId: 'DE123456789',
         tierId,
       });
@@ -438,6 +440,7 @@ describe('/admin/users', () => {
       expect(res.status).toBe(200);
       expect(res.data).toMatchObject({
         firstName: 'Janine',
+        companyName: 'Kontor GmbH',
         companyRegistrationId: 'DE123456789',
         tierId,
         // The login stays what it was: it is not a field on this request.
@@ -463,13 +466,27 @@ describe('/admin/users', () => {
         {
           ...edits(),
           customerType: 'company',
+          companyName: 'Kontor GmbH',
           companyRegistrationId: null,
+          tierId: null,
+        },
+      );
+      // The name pairs with the account type by the same rule as the number.
+      const unnamed = await request(
+        'patch',
+        `/admin/users/${id}`,
+        adminCookie,
+        {
+          ...edits(),
+          customerType: 'company',
+          companyRegistrationId: 'DE123456789',
           tierId: null,
         },
       );
 
       expect(orphan.status).toBe(400);
       expect(missing.status).toBe(400);
+      expect(unnamed.status).toBe(400);
     });
 
     it('promotes and demotes for an admin, and drops the tier on the way out', async () => {

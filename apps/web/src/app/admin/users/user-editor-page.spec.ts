@@ -19,7 +19,6 @@ const text = defaultAdminText.userEditor;
 
 /** The demo deployment's own rules, which the form is built from. */
 const phone = defaultDeploymentConfig.phoneInput;
-const companyId = defaultDeploymentConfig.companyIdInput?.formats[0];
 
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {
@@ -33,6 +32,7 @@ function user(overrides: Partial<StaffUser> = {}): StaffUser {
     // the masked national part.
     phone: '+490401234567',
     customerType: 'person',
+    companyName: null,
     companyRegistrationId: null,
     tierId: null,
     createdAt: '2026-08-01T00:00:00.000Z',
@@ -171,20 +171,21 @@ describe('UserEditorPage', () => {
     });
 
     expect((field('firstName') as HTMLInputElement).value).toBe('Jane');
-    // The country code and the ID prefix are displayed beside their fields,
-    // never inside them — otherwise a save would double them up.
+    // The country code is displayed beside the phone field, never inside it —
+    // otherwise a save would double it up. A registration number has no such
+    // split: it is shown exactly as stored, whatever shape it is in.
     expect((field('phone') as HTMLInputElement).value).toBe('(040) 123-4567');
     expect((field('companyRegistrationId') as HTMLInputElement).value).toBe(
-      '123456789',
+      'DE123456789',
     );
     expect(phone?.countryCode).toBe('+49');
-    expect(companyId?.prefix).toBe('DE');
   });
 
   it('saves them back in the canonical form the API stores', async () => {
     const { service, type, press } = await render({
       account: user({
         customerType: 'company',
+        companyName: 'Kontor GmbH',
         companyRegistrationId: 'DE123456789',
         tierId: 'tier-w',
       }),
@@ -198,6 +199,7 @@ describe('UserEditorPage', () => {
       lastName: 'Doe-Smith',
       phone: '+490401234567',
       customerType: 'company',
+      companyName: 'Kontor GmbH',
       companyRegistrationId: 'DE123456789',
       tierId: 'tier-w',
       role: undefined,

@@ -38,9 +38,9 @@ credential reaches the browser; a suggestion returns **structured components**
 rather than one line. A deployment's own provider is reached through a generic
 `http` adapter talking to a **sidecar service the deployment ships**, so the
 public image needs no private code. Delivery zones are entries in
-`deployment.json`, matched by postal code with an optional city fallback, first
-match wins, each carrying an **advisory** free-delivery minimum that is shown at
-checkout and snapshotted onto the order.
+`deployment.json`, matched by postal code alone, first match wins, each carrying
+an **advisory** free-delivery minimum that is shown at checkout and snapshotted
+onto the order.
 
 ## Rationale
 
@@ -57,16 +57,16 @@ keeps the feature optional rather than load-bearing.
 delivery rule keys off the postal code, a suggestion that returns one formatted
 line is nearly useless — the app would have to parse back out what the provider
 already knew. So the port's contract is a display label plus components (country,
-postal code, region, city, street, house), which drop straight into the columns
-the address book already has, and which make the postal code trustworthy enough
-to decide a rule on. Typing by hand stays possible and the check degrades to
-whatever the customer entered. A component the deployment's form does not ask
-for — a region where none is configured, a country where only one is — is
-simply not applied; the port's answer is the same everywhere, and what an
-address is made of stays the deployment's own business.
+postal code, region, city, the printed street line, a unit), which drop straight
+into the columns the address book already has, and which make the postal code
+trustworthy enough to decide a rule on. Typing by hand stays possible and the
+check degrades to whatever the customer entered. A component the deployment's
+form does not ask for — a region where none is configured, a country where only
+one is — is simply not applied; the port's answer is the same everywhere, and
+what an address is made of stays the deployment's own business.
 
 **The switch is one environment variable, not a config key.** Whether addresses
-are suggested is settled by `ADDRESS_SUGGESTION_URL` on the API: set, and the
+are suggested is settled by `SUGGESTION_SIDECAR_URL` on the API: set, and the
 sidecar answers; unset, and the field is plain typing. Nothing about it belongs
 in `deployment.json` — the whole of that file is serialized into every HTML
 document, nothing in the browser needs to know, and an internal service address
@@ -76,7 +76,9 @@ sets one variable beside the sidecar's own credential. The cost is that a
 misspelled variable name turns the feature off silently, which the API answers by
 **logging at boot** which way it resolved.
 
-**A regional adapter is a container, not a plugin.** The app is one image built
+**A regional adapter is a container, not a plugin.** (ADR 0041 later put a
+second subject — company suggestion — behind a second port on the same
+container, on the reasoning below.) The app is one image built
 from the public repository, so a private adapter has to arrive from outside it.
 Loading a mounted JavaScript module would put a deployment's code inside the API
 process — where a bundler has to be talked out of resolving it, the module must
@@ -101,14 +103,24 @@ on a processing agreement and a line in its privacy notice. The no-op default an
 the possibility of a self-hosted adapter are the two ways out, and the decision
 to leave the deployment is a deployment's to make explicitly — never a default.
 
-**Zones match on postal code, not city name.** City text is misspellable,
+**Zones match on the postal code, and on nothing else** (amended 2026-08-24 —
+the original kept a `cities` list as a fallback). City text is misspellable,
 translatable and ambiguous: a metropolitan area is not a city, districts carry
 their own names, and a rule that turns on string equality with something a
 customer typed will be wrong the first week. A postal code is a normalized token,
 and a range expresses "the city" and "the area around it" without enumerating
-every place name in either. A `cities` list stays available as a fallback for
-codes that do not separate the two, or for a jurisdiction where they do not
-correspond.
+every place name in either.
+
+The fallback was dropped before it was built, for two reasons. It would have
+fired in exactly the cases where it is least trustworthy — a missing postal code
+is most common on rural addresses, which is also where place names are messiest
+and most ambiguous — and the catch-all already gives those addresses a true
+answer. And holding the city as a _matching key_ meant holding it as a bare
+token, which in some jurisdictions is not how a place name is written at all:
+where the kind of place — city, town, village — is a word in front of the name,
+stripping it leaves two different places spelled identically. Freed of matching,
+the city is written the way it is printed, by the adapter that knows how, and no
+rule anywhere depends on its spelling.
 
 Matching is **first match wins over an ordered list**, most specific first, with
 a final catch-all so that no address is unclassified — an address outside every
@@ -168,8 +180,12 @@ rules into structured ones.
   intent.
 - (−) An address the provider does not know is typed by hand and falls into the
   catch-all zone, which is the correct answer but a worse experience.
+- (−) An address whose postal code is missing or outside every range is
+  unclassified and gets the catch-all, with no second chance at a zone.
 - (⚠) The threshold is never a gate: nothing in the flow may refuse or block an
   order because it is under a free-delivery minimum.
 - (⚠) Postal codes are compared as fixed-width strings, never parsed as numbers.
+- (⚠) No rule matches on a city, a region or any other place name: they are
+  printed, not compared.
 - (⚠) The server re-derives the zone at submission from the submitted address and
   never trusts a zone the browser reports, exactly as it re-prices the cart.

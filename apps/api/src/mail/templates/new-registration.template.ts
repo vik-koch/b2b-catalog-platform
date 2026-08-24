@@ -9,6 +9,7 @@ export interface RegistrationSummary {
   readonly lastName: string;
   readonly phone: string;
   readonly customerType: CustomerType;
+  readonly companyName?: string;
   readonly companyRegistrationId?: string;
 }
 
@@ -45,10 +46,16 @@ export function newRegistrationMail(
         label: t.customerTypeLabel,
         value: isCompany ? t.customerTypeCompany : t.customerTypePerson,
       },
-      // Only for a company: a dash against a private person would read as a
-      // number that failed to arrive.
+      // Only for a company: a dash against a private person would read as
+      // details that failed to arrive. Both are what staff approve on — the
+      // name is what they match against their own records, the number is what
+      // they can check.
       ...(isCompany
         ? [
+            {
+              label: t.companyNameLabel,
+              value: registration.companyName ?? '',
+            },
             {
               label: t.companyIdLabel,
               value: registration.companyRegistrationId ?? '',

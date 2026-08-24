@@ -110,7 +110,8 @@
       "customerType": "Account type",
       "person": "Private person",
       "company": "Company",
-      "companyId": "Company registration number",
+      "companyName": "Company name",
+      "companyId": "Company ID",
       "memberSince": "Customer since",
       "changeHint": "To change your email address, or the details your account was set up with, get in touch and we will update them for you.",
       "error": "We could not load your details right now. Please try again later.",
@@ -140,8 +141,13 @@
         "label": "Name for this address",
         "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
         "companyName": "Company name",
-        "companyId": "Company registration number",
+        "companyId": "Company ID",
         "companyIdHint": "Needed only when this address is the one we invoice — leave it empty for a private delivery address.",
+        "companySuggest": {
+          "suggestionsLabel": "Company suggestions",
+          "noSuggestions": "No matching companies. Carry on typing it yourself.",
+          "suggestionCount": "{count} company suggestions"
+        },
         "street": "Street and number",
         "street2": "Address line 2",
         "postalCode": "Postcode",
@@ -205,8 +211,8 @@
       "firstName": "First name",
       "lastName": "Last name",
       "phone": "Phone",
-      "companyId": "Company registration number",
-      "companyIdFormat": "Kind of registration number",
+      "companyName": "Company name",
+      "companyId": "Company ID",
       "submit": "Request an account",
       "submitting": "Sending…",
       "successHeading": "Thank you",
@@ -220,9 +226,16 @@
         "lastNameRequired": "Please enter your last name.",
         "phoneRequired": "Please enter your phone number.",
         "phoneIncomplete": "Please enter a complete phone number.",
-        "companyIdRequired": "Please enter your company registration number.",
-        "companyIdFormat": "Please enter it in the expected format, e.g. {example}.",
+        "companyNameRequired": "Please enter your company name.",
+        "companyIdRequired": "Please enter your company ID.",
+        "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}.",
         "privacyRequired": "Please accept the privacy policy to continue."
+      },
+      "companyIdHint": "Any of the numbers we can invoice against, e.g. {examples}.",
+      "companySuggest": {
+        "suggestionsLabel": "Company suggestions",
+        "noSuggestions": "No matching companies. Carry on typing it yourself.",
+        "suggestionCount": "{count} company suggestions"
       }
     },
     "setPassword": {

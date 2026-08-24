@@ -80,7 +80,8 @@ export const demoMailText: MailText = {
     customerTypeLabel: 'Registering as',
     customerTypePerson: 'Private person',
     customerTypeCompany: 'Company',
-    companyIdLabel: 'Company registration number',
+    companyNameLabel: 'Company name',
+    companyIdLabel: 'Company ID',
     action: 'Open the account list',
   },
 };

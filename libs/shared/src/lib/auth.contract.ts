@@ -1,5 +1,11 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { addressComponentsSchema } from './address.contract';
+import { partyEntityTypeSchema } from './party.contract';
+import {
+  companyNameSchema,
+  companyRegistrationIdSchema,
+} from './contact-format';
 import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 
 const c = initContract();
@@ -137,22 +143,6 @@ export type CustomerType = (typeof CUSTOMER_TYPES)[number];
 export const customerTypeSchema = z.enum(CUSTOMER_TYPES);
 
 /**
- * A company's business registration number. The accepted *formats* are
- * jurisdiction-specific and therefore deployment configuration
- * (`companyIdInput.formats` in deployment.json) — plural, because a
- * jurisdiction can take more than one shape — not something this contract can
- * know, so all it enforces is the envelope. The value travels unmasked; the
- * deployment's own patterns are applied on top, on both sides, and matching any
- * one of them is enough.
- */
-export const companyRegistrationIdSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .max(64)
-  .regex(/^[A-Za-z0-9-]+$/);
-
-/**
  * Registration (FR-AUTH-01). A registration is a *request* to become a
  * customer, and staff have no way to ask the applicant anything — a pending
  * account cannot sign in — so it has to carry what makes the approval decision
@@ -170,7 +160,30 @@ export const registerSchema = z
     lastName: z.string().trim().min(1).max(200),
     phone: z.string().trim().min(1).max(50),
     customerType: customerTypeSchema,
+    companyName: companyNameSchema.optional(),
     companyRegistrationId: companyRegistrationIdSchema.optional(),
+    /**
+     * The registered address of the company the registrant **picked** from a
+     * suggestion (FR-AUTH-10), which becomes the account's first saved address.
+     * From the browser rather than a second lookup: it is the row they chose,
+     * it cannot go stale between choosing and approving, and it costs no
+     * further call at a metered provider.
+     *
+     * Optional in every sense — a registration without it is ordinary, the
+     * server takes it only when it is complete enough to be an address, and
+     * nothing about the account depends on one having arrived.
+     */
+    billingAddress: addressComponentsSchema
+      .extend({
+        /**
+         * Carried so the server can apply the rule rather than trusting the
+         * form to have applied it: an address is seeded only for a legal
+         * entity, because an individual entrepreneur's registered address is
+         * their home.
+         */
+        entityType: partyEntityTypeSchema,
+      })
+      .optional(),
     website: z.preprocess(
       (value) =>
         typeof value === 'string' && value.trim() === '' ? undefined : value,
@@ -179,16 +192,26 @@ export const registerSchema = z
   })
   // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
   .strict()
-  // A company is identified by its registration number, so it is required
-  // exactly when the registrant says they are one — and refused when they do
-  // not, rather than being silently stored against a private person.
+  // A company is identified by its name *and* its registration number, so both
+  // are required exactly when the registrant says they are one — and refused
+  // when they do not, rather than being silently stored against a private
+  // person. Staff need both to judge the request: a number alone is a lookup,
+  // and a name alone is not evidence of anything.
   .refine(
     (data) =>
       (data.customerType === 'company') === Boolean(data.companyRegistrationId),
     {
       message:
-        'A company registration number is required for a company, and only for a company.',
+        'A company ID is required for a company, and only for a company.',
       path: ['companyRegistrationId'],
+    },
+  )
+  .refine(
+    (data) => (data.customerType === 'company') === Boolean(data.companyName),
+    {
+      message:
+        'A company name is required for a company, and only for a company.',
+      path: ['companyName'],
     },
   );
 export type RegisterRequest = z.infer<typeof registerSchema>;
