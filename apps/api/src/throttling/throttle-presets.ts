@@ -55,12 +55,13 @@ export const SuggestionThrottle = () =>
   );
 
 /**
- * Address suggestions (FR-CART-11, NFR-SEC-08). Tighter than the catalog's
- * suggestions even though both fire while someone types: this one leaves the
- * deployment for a metered third party, so the ceiling is a billing control as
- * much as an abuse one. The browser debounces on top of it.
+ * Everything the deployment's suggestion sidecar answers — addresses and
+ * companies alike (FR-CART-11, FR-AUTH-09, NFR-SEC-08). Tighter than the
+ * catalog's own suggestions even though both fire while someone types: these
+ * leave the deployment for a metered third party, so the ceiling is a billing
+ * control as much as an abuse one. The browser debounces on top of it.
  */
-export const AddressSuggestionThrottle = () =>
+export const SidecarSuggestionThrottle = () =>
   applyDecorators(
     UseGuards(ThrottlerGuard),
     Throttle({ default: { limit: 60, ttl: seconds(60) } }),

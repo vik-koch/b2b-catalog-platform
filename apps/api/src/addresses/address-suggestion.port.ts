@@ -62,7 +62,7 @@ export function createAddressSuggestionPort(
 ): AddressSuggestionPort {
   const logger = new Logger('AddressSuggestions');
   if (!url) {
-    logger.log('disabled: no ADDRESS_SUGGESTION_URL, addresses are typed');
+    logger.log('disabled: no SUGGESTION_SIDECAR_URL, addresses are typed');
     return new NoAddressSuggestions();
   }
   logger.log(`enabled: suggestion sidecar at ${url}`);

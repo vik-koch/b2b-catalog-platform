@@ -66,10 +66,11 @@ services:
       PASSWORD_BLOCKLIST_FILE: ${PASSWORD_BLOCKLIST_FILE:-/config/password-blocklist.txt}
       DEPLOYMENT_CONFIG_FILE: ${DEPLOYMENT_CONFIG_FILE:-/config/deployment.json}
       APP_ORIGIN: https://${APP_DOMAIN:?}
-      # Address-suggestion sidecar, where a stack runs one (ADR 0040). Empty by
-      # default, which is what turns the feature off. The sidecar itself is a
-      # stack's own service, holding its own credential.
-      ADDRESS_SUGGESTION_URL: ${ADDRESS_SUGGESTION_URL:-}
+      # The deployment's suggestion sidecar, where a stack runs one (ADR
+      # 0040/0041) — addresses and companies both. Empty by default, which is
+      # what turns the feature off. The sidecar itself is a stack's own service,
+      # holding its own credential.
+      SUGGESTION_SIDECAR_URL: ${SUGGESTION_SIDECAR_URL:-}
       # Uploaded images land on the shared media volume; the media service
       # serves them read-only at /media.
       MEDIA_ROOT: /media

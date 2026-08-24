@@ -66,12 +66,13 @@ const EnvSchema = z
     // only the e2e stack lifts it — that suite drives every registration and
     // inquiry path from one address inside a single window.
     PUBLIC_FORM_RATE_LIMIT: z.coerce.number().int().positive().default(10),
-    // Where the address-suggestion sidecar listens (ADR 0040), and the whole of
-    // the switch: set, and addresses are suggested; unset, and they are typed.
+    // Where the deployment's suggestion sidecar listens (ADR 0040/0041), and
+    // the whole of the switch: set, and addresses and companies are suggested;
+    // unset, and both are typed.
     // Not in deployment.json — that file is serialized into every page, nothing
     // in the browser needs to know, and two switches could contradict each
     // other. Which way it resolved is logged at boot.
-    ADDRESS_SUGGESTION_URL: emptyAsUndefined(z.string().url()),
+    SUGGESTION_SIDECAR_URL: emptyAsUndefined(z.string().url()),
     // What is running, shown in the admin panel. Stamped onto the stack by
     // infra/deploy.sh rather than baked into the image (a release retags the
     // image main built, so a baked value could only ever be the commit sha).

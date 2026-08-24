@@ -36,7 +36,7 @@ import { AddressesService } from './addresses.service';
       // Resolved once at boot, from the environment alone: a sidecar to call,
       // or plain typing. Nothing about it reaches the browser.
       provide: ADDRESS_SUGGESTION_PORT,
-      useFactory: () => createAddressSuggestionPort(env.ADDRESS_SUGGESTION_URL),
+      useFactory: () => createAddressSuggestionPort(env.SUGGESTION_SIDECAR_URL),
     },
   ],
   exports: [AddressesService],

@@ -66,7 +66,7 @@ simply not applied; the port's answer is the same everywhere, and what an
 address is made of stays the deployment's own business.
 
 **The switch is one environment variable, not a config key.** Whether addresses
-are suggested is settled by `ADDRESS_SUGGESTION_URL` on the API: set, and the
+are suggested is settled by `SUGGESTION_SIDECAR_URL` on the API: set, and the
 sidecar answers; unset, and the field is plain typing. Nothing about it belongs
 in `deployment.json` — the whole of that file is serialized into every HTML
 document, nothing in the browser needs to know, and an internal service address
