@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuditLogger } from '../audit/audit.logger';
+import { env } from '../env';
 import { AuthModule } from '../auth/auth.module';
 import {
   ADDRESS_CONFIG,
@@ -7,6 +8,11 @@ import {
   loadAddressConfig,
   loadCompanyIdRule,
 } from '../config/deployment-config';
+import { AddressSuggestionController } from './address-suggestion.controller';
+import {
+  ADDRESS_SUGGESTION_PORT,
+  createAddressSuggestionPort,
+} from './address-suggestion.port';
 import { AddressesController } from './addresses.controller';
 import { AddressesService } from './addresses.service';
 
@@ -18,7 +24,7 @@ import { AddressesService } from './addresses.service';
  */
 @Module({
   imports: [AuthModule],
-  controllers: [AddressesController],
+  controllers: [AddressesController, AddressSuggestionController],
   providers: [
     AddressesService,
     AuditLogger,
@@ -26,6 +32,12 @@ import { AddressesService } from './addresses.service';
     // The same rule registration is checked against: one jurisdiction, one set
     // of accepted shapes, wherever a number is entered.
     { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
+    {
+      // Resolved once at boot, from the environment alone: a sidecar to call,
+      // or plain typing. Nothing about it reaches the browser.
+      provide: ADDRESS_SUGGESTION_PORT,
+      useFactory: () => createAddressSuggestionPort(env.ADDRESS_SUGGESTION_URL),
+    },
   ],
   exports: [AddressesService],
 })

@@ -55,6 +55,18 @@ export const SuggestionThrottle = () =>
   );
 
 /**
+ * Address suggestions (FR-CART-11, NFR-SEC-08). Tighter than the catalog's
+ * suggestions even though both fire while someone types: this one leaves the
+ * deployment for a metered third party, so the ceiling is a billing control as
+ * much as an abuse one. The browser debounces on top of it.
+ */
+export const AddressSuggestionThrottle = () =>
+  applyDecorators(
+    UseGuards(ThrottlerGuard),
+    Throttle({ default: { limit: 60, ttl: seconds(60) } }),
+  );
+
+/**
  * Authentication endpoints (login). A handful of tries a minute per IP is
  * sufficient for a human and throttles credential-stuffing / brute force.
  * Traefik also rate-limits at the edge.

@@ -5,8 +5,8 @@ import { ADDRESS_BOOK_MAX } from '@b2b-catalog-platform/shared';
 import { requireEnv } from '../support/env';
 
 /**
- * The account's address book (FR-CART-04), end to end against the real API
- * and database.
+ * The account's address book (FR-CART-04) and the suggestion proxy
+ * (FR-CART-11), end to end against the real API and database.
  *
  * The question this suite exists for is scoping: every route reads the account
  * from the session, so one customer must never reach another's row — not with
@@ -297,5 +297,29 @@ describe('/account/addresses (FR-CART-04)', () => {
 
     expect(res.status).toBe(409);
     expect(res.data.code).toBe('address-limit-reached');
+  });
+});
+
+/**
+ * The suggestion proxy. The open deployment configures no adapter, so the
+ * assertion is that it answers rather than fails — the field degrading to plain
+ * typing is the documented default, not an outage.
+ */
+describe('/addresses/suggestions (FR-CART-11)', () => {
+  it('answers a guest with an empty list when no provider is configured', async () => {
+    const res = await axios.get('/addresses/suggestions?q=Hafenstra', {
+      validateStatus: () => true,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.data.items).toEqual([]);
+  });
+
+  it('refuses a query longer than the cap (NFR-SEC-08)', async () => {
+    const res = await axios.get(`/addresses/suggestions?q=${'a'.repeat(200)}`, {
+      validateStatus: () => true,
+    });
+
+    expect(res.status).toBe(400);
   });
 });
