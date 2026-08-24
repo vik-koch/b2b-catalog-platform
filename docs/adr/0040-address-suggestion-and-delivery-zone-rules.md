@@ -76,7 +76,9 @@ sets one variable beside the sidecar's own credential. The cost is that a
 misspelled variable name turns the feature off silently, which the API answers by
 **logging at boot** which way it resolved.
 
-**A regional adapter is a container, not a plugin.** The app is one image built
+**A regional adapter is a container, not a plugin.** (ADR 0041 later put a
+second subject — company suggestion — behind a second port on the same
+container, on the reasoning below.) The app is one image built
 from the public repository, so a private adapter has to arrive from outside it.
 Loading a mounted JavaScript module would put a deployment's code inside the API
 process — where a bundler has to be talked out of resolving it, the module must
