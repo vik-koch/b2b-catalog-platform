@@ -321,6 +321,24 @@ describe('/account/profile', () => {
       await client.query('DELETE FROM users WHERE id = $1', [rows[0].id]);
     });
 
+    it('deletes the saved addresses with the account', async () => {
+      await client.query(
+        `INSERT INTO addresses ("userId", label, street, "postalCode", city, country)
+         VALUES ($1, 'Shop', 'Hafenstraße 12', '20359', 'Hamburg', 'DE')`,
+        [leaverId],
+      );
+
+      expect((await remove(leaverCookie, PASSWORD)).status).toBe(200);
+
+      // The privacy copy promises the details go; orders keep their own
+      // snapshot, so nothing readable is lost by emptying the book.
+      const { rows } = await client.query(
+        'SELECT count(*)::int AS count FROM addresses WHERE "userId" = $1',
+        [leaverId],
+      );
+      expect(rows[0].count).toBe(0);
+    });
+
     it('ends the session it was called with', async () => {
       await remove(leaverCookie, PASSWORD);
 

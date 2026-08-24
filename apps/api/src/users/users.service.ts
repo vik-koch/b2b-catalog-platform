@@ -4,7 +4,7 @@ import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import { CustomerType } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { users } from '../db/schema';
+import { addresses, users } from '../db/schema';
 
 export type UserRow = typeof users.$inferSelect;
 
@@ -150,9 +150,27 @@ export class UsersService {
    * The credential goes the way deactivation retires it (unusable hash, bumped
    * `tokenVersion`), so every session issued before this stops working — the
    * caller's own included, which is why the controller clears the cookie too.
+   *
+   * One transaction, because the saved addresses go with the account: an
+   * account that is half-anonymized is worse than one that is not.
    */
   async anonymize(id: string, unusableHash: string): Promise<UserRow> {
-    const [updated] = await this.db
+    return this.db.transaction(async (tx) => {
+      // The address book is personal data with no second purpose: orders keep
+      // their own snapshot of where they went, so nothing readable is lost by
+      // removing the saved rows. The account row is never deleted, so the
+      // cascade on the foreign key never fires — this is the deletion.
+      await tx.delete(addresses).where(eq(addresses.userId, id));
+      return this.anonymizeUser(tx, id, unusableHash);
+    });
+  }
+
+  private async anonymizeUser(
+    tx: Pick<NodePgDatabase<typeof schema>, 'update'>,
+    id: string,
+    unusableHash: string,
+  ): Promise<UserRow> {
+    const [updated] = await tx
       .update(users)
       .set({
         status: 'anonymized',

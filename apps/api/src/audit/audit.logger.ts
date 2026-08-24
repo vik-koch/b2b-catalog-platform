@@ -40,7 +40,12 @@ export type AuditAction =
   // so the log distinguishes staff correcting a customer's details from the
   // customer correcting their own.
   | 'account.updated'
-  | 'account.deleted';
+  | 'account.deleted'
+  // The account's own address book. The id only — where a customer lives is
+  // not something the log needs to repeat.
+  | 'address.created'
+  | 'address.updated'
+  | 'address.deleted';
 
 /**
  * Domain events for admin mutations — who changed what.

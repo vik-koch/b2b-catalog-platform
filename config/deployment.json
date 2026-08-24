@@ -42,6 +42,14 @@
     "countryCode": "+49",
     "mask": "(###) ###-####"
   },
+  "address": {
+    "countries": [
+      {
+        "code": "DE",
+        "label": "Germany"
+      }
+    ]
+  },
   "companyIdInput": {
     "formats": [
       {
