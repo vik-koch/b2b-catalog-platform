@@ -414,6 +414,10 @@ export class AddressEditorPage {
       ...(street ? { street } : {}),
       ...(components.postalCode ? { postalCode: components.postalCode } : {}),
       ...(components.city ? { city: components.city } : {}),
+      // The apartment or office, where the provider parsed one out of what was
+      // typed. It belongs on the second line: the street line is rewritten on
+      // every pick, and this would not survive there.
+      ...(components.unit ? { street2: components.unit } : {}),
       ...(components.region ? { region: components.region } : {}),
       ...(components.country &&
       this.countries.some((entry) => entry.code === components.country)

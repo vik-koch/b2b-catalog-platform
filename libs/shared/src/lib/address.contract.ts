@@ -104,6 +104,10 @@ export const ADDRESS_SUGGESTION_LIMIT = 8;
  * to be parsed back into what the provider already knew. Every part is optional
  * — providers answer at different granularities, and a partial answer still
  * fills most of the form.
+ *
+ * Adding a component here is a change to the sidecar contract (ADR 0040): the
+ * API parses an adapter's answer strictly, so the platform learns a field
+ * before a sidecar may send one.
  */
 export const addressComponentsSchema = z
   .object({
@@ -113,6 +117,13 @@ export const addressComponentsSchema = z
     city: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
     street: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
     house: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
+    /**
+     * Apartment, office or suite, where the provider parsed one out of what was
+     * typed. It fills the second address line rather than the street: the
+     * street line is the provider's to rewrite on every pick, and what is
+     * inside the building must survive that.
+     */
+    unit: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
   })
   .strict();
 export type AddressComponents = z.infer<typeof addressComponentsSchema>;
