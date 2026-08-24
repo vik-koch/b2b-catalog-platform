@@ -18,8 +18,15 @@ const suggestion = (
   components: AddressComponents,
 ): AddressSuggestion => ({ label, components });
 
+/** Set by a test that wants the request itself to fail, not merely answer
+ * nothing — the API is a network away, and a customer typing is not. */
+let rejects = false;
+
 async function render() {
-  const suggest = vi.fn(async () => answers);
+  const suggest = vi.fn(async () => {
+    if (rejects) throw new Error('network');
+    return answers;
+  });
   TestBed.configureTestingModule({
     imports: [AddressSuggestField],
     providers: [{ provide: AddressesService, useValue: { suggest } }],
@@ -65,6 +72,7 @@ async function render() {
 
 describe('AddressSuggestField (FR-CART-11)', () => {
   beforeEach(() => {
+    rejects = false;
     answers = [
       suggestion('Hafenstraße 12, 20359 Hamburg', {
         street: 'Hafenstraße',
@@ -146,5 +154,24 @@ describe('AddressSuggestField (FR-CART-11)', () => {
     await type('Somewhere the provider has never heard of');
 
     expect(input.value).toBe('Somewhere the provider has never heard of');
+  });
+
+  // A suggestion is an accelerator, never a step. A sidecar the API cannot
+  // reach answers with an empty list, but the API itself can be unreachable —
+  // and a failed request must leave the customer typing, not take the form with
+  // it.
+  it('keeps the field usable when the request fails outright', async () => {
+    rejects = true;
+    const { type, input, el } = await render();
+
+    await type('Hafenstraße 12');
+
+    expect(input.value).toBe('Hafenstraße 12');
+    expect(el.querySelectorAll('[role="option"]')).toHaveLength(0);
+    // And typing on still works, rather than the field being stuck on the
+    // failure.
+    rejects = false;
+    await type('Hafenstraße 13');
+    expect(el.querySelectorAll('[role="option"]')).toHaveLength(1);
   });
 });

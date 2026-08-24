@@ -168,16 +168,29 @@ export class AddressSuggestField {
     AddressSuggestion[] | undefined,
     AddressSuggestion[]
   >({
-    source: () =>
-      this.suggested.status() === 'idle' ? [] : this.suggested.value(),
+    source: () => {
+      // A failed request is not an answer of "nothing", and `value()` rethrows
+      // in the error state — so neither it nor the panel below ever sees one.
+      const status = this.suggested.status();
+      return status === 'idle' || status === 'error'
+        ? []
+        : this.suggested.value();
+    },
     computation: (value, previous) => value ?? previous?.value ?? [],
   });
 
-  /** Up from the first answer until the field is left: anything narrower
-   * closes the panel for a beat between two replies. */
-  private readonly answered = computed(
-    () => this.suggested.status() !== 'idle' && !this.suggested.isLoading(),
-  );
+  /**
+   * Up from the first answer until the field is left: anything narrower closes
+   * the panel for a beat between two replies. A request that failed never opens
+   * it — the API is a network away and the customer is not, so a call that did
+   * not arrive is invisible rather than a box saying there is nothing.
+   */
+  private readonly answered = computed(() => {
+    const status = this.suggested.status();
+    return (
+      status !== 'idle' && status !== 'error' && !this.suggested.isLoading()
+    );
+  });
   protected readonly panelOpen = computed(
     () => this.typing() && this.answered(),
   );
