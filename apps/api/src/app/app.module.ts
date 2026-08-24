@@ -7,6 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 import { InquiryModule } from '../inquiry/inquiry.module';
 import { DatabaseModule } from '../db/database.module';
 import { CatalogModule } from '../catalog/catalog.module';
+import { OrdersModule } from '../orders/orders.module';
 import { PageModule } from '../pages/page.module';
 import { MediaModule } from '../media/media.module';
 import { ThrottlingModule } from '../throttling/throttling.module';
@@ -30,6 +31,7 @@ import { StaffUsersModule } from '../users/staff-users.module';
     TiersModule,
     StaffUsersModule,
     AccountModule,
+    OrdersModule,
     AddressesModule,
     PartiesModule,
   ],

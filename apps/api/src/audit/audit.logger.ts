@@ -45,7 +45,10 @@ export type AuditAction =
   // not something the log needs to repeat.
   | 'address.created'
   | 'address.updated'
-  | 'address.deleted';
+  | 'address.deleted'
+  // An order request, by its reference. The one audited event a guest can
+  // cause, which is why the actor is optional below.
+  | 'order.placed';
 
 /**
  * Domain events for admin mutations — who changed what.
@@ -70,10 +73,12 @@ export class AuditLogger {
 
   record(
     action: AuditAction,
-    actor: AuthUser,
-    entity: { id?: string; slug?: string; name?: string },
+    /** Null where the event has no account behind it — a guest's order. */
+    actor: AuthUser | null,
+    entity: { id?: string; slug?: string; name?: string; reference?: string },
   ): void {
-    const parts = [action, `actor=${actor.email}`];
+    const parts = [action, `actor=${actor?.email ?? 'guest'}`];
+    if (entity.reference) parts.push(`reference=${entity.reference}`);
     if (entity.id) parts.push(`id=${entity.id}`);
     if (entity.slug) parts.push(`slug=${entity.slug}`);
     // Quoted: names contain spaces, and an unquoted one would split the line's

@@ -3,6 +3,10 @@ import {
   addressConfigSchema,
   CompanyIdFormat,
   companyIdInputSchema,
+  DeliveryConfig,
+  deliveryConfigSchema,
+  OrderReferenceConfig,
+  orderReferenceConfigSchema,
   PhoneConfig,
 } from '@b2b-catalog-platform/shared';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
@@ -50,6 +54,41 @@ export const apiDeploymentConfigSchema = z
      * the browser — a `<select>` is an entry aid, not a rule.
      */
     address: addressConfigSchema.optional(),
+    /**
+     * The offices an order may be collected from. The API validates a submitted
+     * pickup key against this list and snapshots the office's name and address
+     * onto the order, so a later rename leaves past orders readable. The map
+     * embed beside them is the web app's business, hence the passthrough.
+     */
+    locations: z
+      .array(
+        z
+          .object({
+            key: z.string().min(1),
+            name: z.string(),
+            description: z.string().optional(),
+          })
+          .passthrough(),
+      )
+      .optional(),
+    /**
+     * Delivery zones (FR-CART-11). The server re-derives the zone from the
+     * submitted address rather than trusting the browser's — a free-delivery
+     * threshold is not something a customer picks.
+     */
+    delivery: deliveryConfigSchema.optional(),
+    /** The order reference's prefix and the timezone its date is read in. */
+    orderReference: orderReferenceConfigSchema.optional(),
+    /**
+     * The currency an order is priced in, snapshotted onto it: this key is
+     * editable, and an old order must keep saying what it was priced in.
+     */
+    catalog: z
+      .object({
+        currency: z.object({ code: z.string() }).passthrough(),
+      })
+      .passthrough()
+      .optional(),
   })
   .passthrough();
 
@@ -121,6 +160,49 @@ export const ADDRESS_CONFIG = 'ADDRESS_CONFIG';
 
 export function loadAddressConfig(): AddressConfig | undefined {
   return loadApiDeploymentConfig().address;
+}
+
+/** The pickup offices, as the order service needs them. */
+export const PICKUP_LOCATIONS = 'PICKUP_LOCATIONS';
+
+export interface PickupLocation {
+  key: string;
+  name: string;
+  description?: string;
+}
+
+export function loadPickupLocations(): readonly PickupLocation[] {
+  return loadApiDeploymentConfig().locations ?? [];
+}
+
+/** The delivery zones, first match wins. Empty where none are configured,
+ * which resolves every address to no zone at all — a normal answer. */
+export const DELIVERY_CONFIG = 'DELIVERY_CONFIG';
+
+export function loadDeliveryConfig(): DeliveryConfig | undefined {
+  return loadApiDeploymentConfig().delivery;
+}
+
+/**
+ * How order references read. Defaulted rather than required: a deployment that
+ * says nothing still takes orders, under a neutral prefix and UTC.
+ */
+export const ORDER_REFERENCE_CONFIG = 'ORDER_REFERENCE_CONFIG';
+
+export function loadOrderReferenceConfig(): OrderReferenceConfig {
+  return (
+    loadApiDeploymentConfig().orderReference ?? {
+      prefix: 'ORD',
+      timezone: 'UTC',
+    }
+  );
+}
+
+/** The currency code an order is priced in. */
+export const ORDER_CURRENCY = 'ORDER_CURRENCY';
+
+export function loadOrderCurrency(): string {
+  return loadApiDeploymentConfig().catalog?.currency.code ?? 'EUR';
 }
 
 export function loadCompanyIdRule(): CompanyIdRule {

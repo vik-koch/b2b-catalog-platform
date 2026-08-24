@@ -140,9 +140,14 @@ export class AddressesService {
     if (!row) throw notFound();
   }
 
-  /** The deployment's own rules, applied server-side: a picker and a mask are
-   * entry aids, and a rule enforced only in the browser is not a rule. */
-  private assertValid(input: AddressInput): void {
+  /**
+   * The deployment's own rules, applied server-side: a picker and a mask are
+   * entry aids, and a rule enforced only in the browser is not a rule.
+   *
+   * Public because checkout runs it over an address that never entered the
+   * book — a guest's, typed once — and the two must be held to the same rules.
+   */
+  assertValid(input: AddressInput): void {
     this.assertSupportedCountry(input.country);
     // Any configured format is enough — that is what several accepted shapes
     // means. Absent is always fine: an address invoiced to a natural person has

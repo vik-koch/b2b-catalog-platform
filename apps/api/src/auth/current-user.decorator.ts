@@ -24,3 +24,16 @@ export const CurrentUser = createParamDecorator(
     return user;
   },
 );
+
+/**
+ * The same on a route that reads a session but does not require one — a guest
+ * checkout, where absent is the normal case rather than a wiring bug. Needs
+ * `OptionalAuthGuard`; without it the answer is always null, which is why
+ * `@PricingTier()` carries the same warning.
+ */
+export const CurrentUserOptional = createParamDecorator(
+  (_data: unknown, context: ExecutionContext): AuthUser | null => {
+    const { user } = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    return user ?? null;
+  },
+);

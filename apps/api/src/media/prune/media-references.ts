@@ -53,6 +53,19 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
     },
   },
   {
+    // An order line keeps the thumbnail the product had when it was ordered.
+    // The product may since have been re-imaged or soft-deleted, so this is
+    // the one source whose files nothing else references any more — and an
+    // order that loses its picture loses part of what was ordered.
+    name: 'order line thumbnails',
+    async collect(client) {
+      const { rows } = await client.query<{ thumbnail: string }>(
+        `SELECT thumbnail FROM order_items WHERE thumbnail IS NOT NULL`,
+      );
+      return rows.flatMap((row) => mediaFilenamesInHtml(row.thumbnail));
+    },
+  },
+  {
     // image is a jsonb { full, thumb } pair; scanning its text form captures
     // both filenames.
     name: 'category images',

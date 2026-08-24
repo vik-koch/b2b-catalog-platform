@@ -1,6 +1,8 @@
 import {
   addressConfigSchema,
   companyIdInputSchema,
+  deliveryConfigSchema,
+  orderReferenceConfigSchema,
   PAGE_SLUGS,
   pageSlugSchema,
 } from '@b2b-catalog-platform/shared';
@@ -28,9 +30,12 @@ export const mapEmbedSchema = z
 
 export type MapEmbed = DeepReadonly<z.infer<typeof mapEmbedSchema>>;
 
-/** One office/branch shown on the contact page. */
+/** One office/branch shown on the contact page, and offered as a pickup point
+ * at checkout. `key` is what an order snapshots, so renaming the office does
+ * not rewrite where a past order was collected. */
 export const contactLocationSchema = z
   .object({
+    key: z.string().min(1).max(64),
     name: z.string(),
     description: z.string().optional(),
     map: mapEmbedSchema,
@@ -212,6 +217,18 @@ export const deploymentConfigSchema = z
      * rule.
      */
     companyIdInput: companyIdInputSchema.optional(),
+    /**
+     * Delivery zones and their free-delivery thresholds (FR-CART-11). Advisory:
+     * a threshold is quoted, never enforced, and no zone prices a delivery.
+     * Optional — a deployment that quotes nothing simply configures no zones.
+     */
+    delivery: deliveryConfigSchema.optional(),
+    /**
+     * How order references read. Server-side in effect — the browser never
+     * builds one — but the config file is validated whole, so the shape is
+     * declared here as well.
+     */
+    orderReference: orderReferenceConfigSchema.optional(),
     /**
      * Where this deployment ships. Optional: with no `address` key the address
      * book still works — the picker then offers nothing to choose from, which
