@@ -29,10 +29,9 @@ describe('/companies/suggestions (FR-AUTH-09)', () => {
   });
 
   it('refuses a query longer than the cap (NFR-SEC-08)', async () => {
-    const res = await axios.get(
-      `/companies/suggestions?q=${'a'.repeat(200)}`,
-      { validateStatus: () => true },
-    );
+    const res = await axios.get(`/companies/suggestions?q=${'a'.repeat(200)}`, {
+      validateStatus: () => true,
+    });
 
     expect(res.status).toBe(400);
   });

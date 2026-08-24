@@ -14,11 +14,11 @@ const text = {
   suggestionsLabel: 'Company suggestions',
   noSuggestions: 'No matching companies.',
   suggestionCount: '{count} company suggestions',
-  idLabel: 'Company registration number',
+  idLabel: 'Company ID',
   nameLabel: 'Company name',
   hint: 'e.g. {examples}',
   idFormat: 'Please enter it in one of the expected formats, e.g. {examples}.',
-  idRequired: 'Please enter your company registration number.',
+  idRequired: 'Please enter your company ID.',
   nameRequired: 'Please enter your company name.',
 };
 

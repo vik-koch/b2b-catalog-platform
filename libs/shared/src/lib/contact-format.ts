@@ -113,7 +113,7 @@ export function formatPhone(
 }
 
 /**
- * One accepted shape of a company registration number (FR-AUTH-01).
+ * One accepted shape of a company ID (FR-AUTH-01).
  *
  * A jurisdiction can accept several — a sole trader's ten digits and a
  * registered company's twelve, a domestic number and a VAT number — and they

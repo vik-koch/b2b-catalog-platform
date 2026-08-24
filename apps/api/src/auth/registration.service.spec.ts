@@ -103,7 +103,7 @@ describe('RegistrationService', () => {
     });
   });
 
-  it('stores a company registration number that matches the deployment rule', async () => {
+  it('stores a company ID that matches the deployment rule', async () => {
     await service.register(company);
 
     // Both halves of the invoiced party: the name staff match against their own
@@ -122,7 +122,7 @@ describe('RegistrationService', () => {
   it('refuses a number the deployment pattern rejects, and writes nothing', async () => {
     await expect(
       service.register({ ...company, companyRegistrationId: 'DE12345' }),
-    ).rejects.toThrow(/registration number/i);
+    ).rejects.toThrow(/company ID/i);
 
     expect(createPending).not.toHaveBeenCalled();
     expect(send).not.toHaveBeenCalled();

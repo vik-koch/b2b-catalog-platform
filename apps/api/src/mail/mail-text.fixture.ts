@@ -81,7 +81,7 @@ export const demoMailText: MailText = {
     customerTypePerson: 'Private person',
     customerTypeCompany: 'Company',
     companyNameLabel: 'Company name',
-    companyIdLabel: 'Company registration number',
+    companyIdLabel: 'Company ID',
     action: 'Open the account list',
   },
 };

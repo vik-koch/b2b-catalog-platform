@@ -570,7 +570,7 @@
       "emailInvalid": "Please enter a valid email address.",
       "phoneIncomplete": "This phone number is incomplete.",
       "companyNameRequired": "Please enter the company name.",
-      "companyIdRequired": "A company registration number is required.",
+      "companyIdRequired": "A company ID is required.",
       "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}.",
       "tierRequired": "Please choose a tier."
     }

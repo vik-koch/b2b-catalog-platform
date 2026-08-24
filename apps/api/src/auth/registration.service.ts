@@ -64,8 +64,7 @@ export class RegistrationService {
     ) {
       throw new BadRequestException({
         code: 'company-id-format',
-        message:
-          'Company registration number does not match the configured format',
+        message: 'Company ID does not match the configured format',
       });
     }
 

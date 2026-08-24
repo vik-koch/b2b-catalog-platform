@@ -201,9 +201,7 @@ test.describe('my account', () => {
     await expect(page).toHaveURL(/\/account$/);
     await page.getByRole('link', { name: 'Add address' }).click();
 
-    await expect(page.getByLabel('Company registration number')).toHaveValue(
-      '1234567890',
-    );
+    await expect(page.getByLabel('Company ID')).toHaveValue('1234567890');
     // Both halves of the invoiced party come from the account, by value: the
     // address is free to be corrected to another of the customer's entities.
     await expect(page.getByLabel('Company name')).toHaveValue(COMPANY_NAME);

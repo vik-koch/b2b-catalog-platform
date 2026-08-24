@@ -120,7 +120,7 @@ export const updateUserSchema = z
       (data.customerType === 'company') === Boolean(data.companyRegistrationId),
     {
       message:
-        'A company registration number is required for a company, and only for a company.',
+        'A company ID is required for a company, and only for a company.',
       path: ['companyRegistrationId'],
     },
   )
