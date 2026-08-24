@@ -1,6 +1,8 @@
 import {
   applyMask,
   canonicalPhone,
+  CompanyIdFormat,
+  companyIdFormatOf,
   formatPhone,
   PhoneConfig,
   typedPhone,
@@ -100,5 +102,63 @@ describe('the editor round trip', () => {
 
     expect(shown).toBe('(401) 234-5678');
     expect(canonicalPhone(shown, config)).toBe(stored);
+  });
+});
+
+/**
+ * Which shape a stored registration number is in — what dresses the field when
+ * an account or an address is opened for editing. Wrong here is not cosmetic:
+ * the field masks the number into the format it was told, so a format whose
+ * mask is too short truncates it, and the next save stores the truncation.
+ */
+describe('companyIdFormatOf', () => {
+  const vat: CompanyIdFormat = {
+    key: 'vat',
+    pattern: '^DE[0-9]{9}$',
+    prefix: 'DE',
+    mask: '#########',
+  };
+  /** Deliberately looser than its own mask, which is how the two disagree. */
+  const short: CompanyIdFormat = {
+    key: 'short',
+    pattern: '^[0-9]+$',
+    mask: '##########',
+  };
+  const long: CompanyIdFormat = {
+    key: 'long',
+    pattern: '^[0-9]{11}$',
+    mask: '###########',
+  };
+
+  it('picks the format whose pattern the number matches', () => {
+    expect(companyIdFormatOf('DE123456789', [vat, short])?.key).toBe('vat');
+    expect(companyIdFormatOf('1234567890', [vat, short])?.key).toBe('short');
+  });
+
+  // The pattern alone would hand an eleven-digit number to a ten-digit mask.
+  it('passes over a format whose mask cannot hold the number', () => {
+    expect(companyIdFormatOf('12345678901', [short, long])?.key).toBe('long');
+  });
+
+  it('takes the first format that fits, not the first that half-fits', () => {
+    expect(companyIdFormatOf('1234567890', [short, long])?.key).toBe('short');
+  });
+
+  it('requires the prefix the format says it has', () => {
+    const unprefixed: CompanyIdFormat = {
+      key: 'plain',
+      pattern: '^[A-Z]{2}[0-9]{9}$',
+      mask: '#########',
+    };
+    // Same digits, but this one promises no prefix — so its mask is measured
+    // against the whole value, which carries two letters it cannot hold.
+    expect(companyIdFormatOf('DE123456789', [unprefixed])).toBeUndefined();
+    expect(companyIdFormatOf('DE123456789', [vat])?.key).toBe('vat');
+  });
+
+  it('leaves a number in no configured shape unclaimed', () => {
+    expect(companyIdFormatOf('XX-9999', [vat, short])).toBeUndefined();
+    expect(companyIdFormatOf(null, [vat])).toBeUndefined();
+    expect(companyIdFormatOf('DE123456789', undefined)).toBeUndefined();
   });
 });

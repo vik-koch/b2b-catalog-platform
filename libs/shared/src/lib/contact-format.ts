@@ -258,5 +258,29 @@ export function companyIdFormatOf(
 ): CompanyIdFormat | undefined {
   const value = stored?.trim();
   if (!value) return undefined;
-  return formats?.find((format) => new RegExp(format.pattern).test(value));
+  return formats?.find((format) => fitsFormat(value, format));
+}
+
+/**
+ * Whether a stored number is in this format — measured against **everything**
+ * the format claims about it, not the pattern alone. A pattern can be looser
+ * than the mask beside it, and a format claimed on the pattern while its mask
+ * takes fewer digits (or takes digits where the value has letters) would dress
+ * the number in a shape that truncates it.
+ *
+ * So the test is a round trip: put the value through this format's prefix and
+ * mask, and see whether what comes back is the value. That is the same thing
+ * the config checks against a format's own example, for the same reason.
+ */
+function fitsFormat(value: string, format: CompanyIdFormat): boolean {
+  if (!new RegExp(format.pattern).test(value)) return false;
+
+  const prefix = format.prefix ?? '';
+  if (prefix && !value.startsWith(prefix)) return false;
+  if (!format.mask) return true;
+
+  const digits = digitsOf(value.slice(prefix.length));
+  return (
+    digits.length === maskLength(format.mask) && `${prefix}${digits}` === value
+  );
 }
