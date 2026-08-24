@@ -1,16 +1,15 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
 import {
+  companyNameSchema,
+  companyRegistrationIdSchema,
+} from './contact-format';
+import {
   apiErrorSchema,
   COMMON_AUTH_ERROR_CODES,
   commonAuthErrorSchema,
 } from './api-error';
-import {
-  companyNameSchema,
-  companyRegistrationIdSchema,
-  customerTypeSchema,
-  userRoleSchema,
-} from './auth.contract';
+import { customerTypeSchema, userRoleSchema } from './auth.contract';
 
 const c = initContract();
 

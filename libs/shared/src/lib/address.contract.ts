@@ -1,7 +1,7 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
 import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
-import { companyRegistrationIdSchema } from './auth.contract';
+import { companyRegistrationIdSchema } from './contact-format';
 
 const c = initContract();
 

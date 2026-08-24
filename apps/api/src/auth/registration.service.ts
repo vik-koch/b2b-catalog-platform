@@ -9,6 +9,7 @@ import {
   PhoneConfig,
   RegisterRequest,
 } from '@b2b-catalog-platform/shared';
+import { AddressesService } from '../addresses/addresses.service';
 import {
   COMPANY_ID_RULE,
   CompanyIdRule,
@@ -40,6 +41,7 @@ export class RegistrationService {
     private readonly mail: MailService,
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(COMPANY_ID_RULE) private readonly companyIdMatches: CompanyIdRule,
+    private readonly addresses: AddressesService,
     @Inject(PHONE_INPUT) private readonly phoneInput: PhoneConfig | undefined,
   ) {}
 
@@ -83,7 +85,7 @@ export class RegistrationService {
     // A hash of a secret nobody holds — the account gets its real password when
     // staff approve it. See UsersService.createPending.
     const unusablePassword = await this.passwords.unusableHash();
-    await this.users.createPending({
+    const created = await this.users.createPending({
       email,
       passwordHash: unusablePassword,
       firstName: request.firstName.trim(),
@@ -94,7 +96,54 @@ export class RegistrationService {
       companyRegistrationId: request.companyRegistrationId ?? null,
     });
 
+    await this.seedBillingAddress(created.id, request);
     await this.notify(email, request);
+  }
+
+  /**
+   * The company's registered address as the account's first saved one
+   * (FR-AUTH-10), where the registrant picked a suggestion that carried one.
+   *
+   * Two conditions, both from ADR 0041. It is only written for a **legal
+   * entity** — an individual entrepreneur's registered address is their home,
+   * and nobody asked us to store that. And it is only written when the parts an
+   * address is actually made of arrived: a registry that answered a city and
+   * nothing else has not given us an address, and a half row in the book would
+   * be worse than none.
+   */
+  private async seedBillingAddress(
+    userId: string,
+    request: RegisterRequest,
+  ): Promise<void> {
+    const address = request.billingAddress;
+    if (!address || address.entityType !== 'legal') return;
+
+    // The street itself, not the house number beside it: a number with no
+    // street is not a line anybody can deliver to.
+    if (
+      !address.street ||
+      !address.postalCode ||
+      !address.city ||
+      !address.country
+    ) {
+      return;
+    }
+    const street = [address.street, address.house].filter(Boolean).join(' ');
+
+    await this.addresses.seed(userId, {
+      // Unlabelled on purpose: the customer never named it, and the book shows
+      // an unnamed address by its own street.
+      label: null,
+      companyName: request.companyName?.trim() ?? null,
+      companyId: request.companyRegistrationId ?? null,
+      street,
+      street2: address.unit ?? null,
+      postalCode: address.postalCode,
+      city: address.city,
+      region: address.region ?? null,
+      country: address.country,
+      phone: null,
+    });
   }
 
   /**

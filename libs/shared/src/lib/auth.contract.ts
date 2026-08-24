@@ -1,6 +1,11 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
-import { normalizeCompanyId } from './contact-format';
+import { addressComponentsSchema } from './address.contract';
+import { partyEntityTypeSchema } from './party.contract';
+import {
+  companyNameSchema,
+  companyRegistrationIdSchema,
+} from './contact-format';
 import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 
 const c = initContract();
@@ -138,36 +143,6 @@ export type CustomerType = (typeof CUSTOMER_TYPES)[number];
 export const customerTypeSchema = z.enum(CUSTOMER_TYPES);
 
 /**
- * A company's business registration number. The accepted *formats* are
- * jurisdiction-specific and therefore deployment configuration
- * (`companyIdInput.formats` in deployment.json) — plural, because a
- * jurisdiction can take more than one shape — not something this contract can
- * know, so all it enforces is the envelope. The deployment's own patterns are
- * applied on top, on both sides, and matching any one of them is enough.
- *
- * Normalized before it is checked, not after: a number is typed the way it is
- * printed on paper, spaces and all, and refusing `DE 123 456 789` for a space
- * would be refusing the number. What is stored is what the patterns are written
- * against — no spaces, upper case.
- */
-export const companyRegistrationIdSchema = z.preprocess(
-  (value) =>
-    typeof value === 'string' ? normalizeCompanyId(value.trim()) : value,
-  z
-    .string()
-    .min(1)
-    .max(64)
-    .regex(/^[A-Z0-9-]+$/),
-);
-
-/**
- * The invoiced party's name, as the customer writes it. Free text and not a
- * key: what a company calls itself on an invoice is its own business, and no
- * registry spelling is authoritative enough to correct it with.
- */
-export const companyNameSchema = z.string().trim().min(1).max(255);
-
-/**
  * Registration (FR-AUTH-01). A registration is a *request* to become a
  * customer, and staff have no way to ask the applicant anything — a pending
  * account cannot sign in — so it has to carry what makes the approval decision
@@ -187,6 +162,28 @@ export const registerSchema = z
     customerType: customerTypeSchema,
     companyName: companyNameSchema.optional(),
     companyRegistrationId: companyRegistrationIdSchema.optional(),
+    /**
+     * The registered address of the company the registrant **picked** from a
+     * suggestion (FR-AUTH-10), which becomes the account's first saved address.
+     * From the browser rather than a second lookup: it is the row they chose,
+     * it cannot go stale between choosing and approving, and it costs no
+     * further call at a metered provider.
+     *
+     * Optional in every sense — a registration without it is ordinary, the
+     * server takes it only when it is complete enough to be an address, and
+     * nothing about the account depends on one having arrived.
+     */
+    billingAddress: addressComponentsSchema
+      .extend({
+        /**
+         * Carried so the server can apply the rule rather than trusting the
+         * form to have applied it: an address is seeded only for a legal
+         * entity, because an individual entrepreneur's registered address is
+         * their home.
+         */
+        entityType: partyEntityTypeSchema,
+      })
+      .optional(),
     website: z.preprocess(
       (value) =>
         typeof value === 'string' && value.trim() === '' ? undefined : value,

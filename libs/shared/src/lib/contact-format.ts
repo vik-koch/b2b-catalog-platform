@@ -269,3 +269,33 @@ export function companyIdMatchesAny(
     fitsFormat(normalizeCompanyId(value), format),
   );
 }
+
+/**
+ * A company's business registration number. The accepted *formats* are
+ * jurisdiction-specific and therefore deployment configuration
+ * (`companyIdInput.formats` in deployment.json) — plural, because a
+ * jurisdiction can take more than one shape — not something this contract can
+ * know, so all it enforces is the envelope. The deployment's own patterns are
+ * applied on top, on both sides, and matching any one of them is enough.
+ *
+ * Normalized before it is checked, not after: a number is typed the way it is
+ * printed on paper, spaces and all, and refusing `DE 123 456 789` for a space
+ * would be refusing the number. What is stored is what the patterns are written
+ * against — no spaces, upper case.
+ */
+export const companyRegistrationIdSchema = z.preprocess(
+  (value) =>
+    typeof value === 'string' ? normalizeCompanyId(value.trim()) : value,
+  z
+    .string()
+    .min(1)
+    .max(64)
+    .regex(/^[A-Z0-9-]+$/),
+);
+
+/**
+ * The invoiced party's name, as the customer writes it. Free text and not a
+ * key: what a company calls itself on an invoice is its own business, and no
+ * registry spelling is authoritative enough to correct it with.
+ */
+export const companyNameSchema = z.string().trim().min(1).max(255);

@@ -221,6 +221,63 @@ describe('POST /auth/register', () => {
     expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
   });
 
+  // FR-AUTH-10, end to end: the address of the company the registrant picked
+  // becomes the account's first saved one.
+  it('seeds the first address from a picked company', async () => {
+    const res = await register({
+      ...company,
+      billingAddress: {
+        entityType: 'legal',
+        street: 'Hafenstraße',
+        house: '12',
+        postalCode: '20359',
+        city: 'Hamburg',
+        country: 'DE',
+      },
+    });
+
+    expect(res.status).toBe(200);
+    const { rows } = await client.query(
+      `SELECT a.label, a.street, a."postalCode", a."companyName"
+         FROM addresses a JOIN users u ON u.id = a."userId"
+        WHERE u.email = $1`,
+      [NEW_EMAIL],
+    );
+    expect(rows).toEqual([
+      {
+        // Unnamed: nobody asked the customer to label it.
+        label: null,
+        street: 'Hafenstraße 12',
+        postalCode: '20359',
+        companyName: 'Kontor GmbH',
+      },
+    ]);
+  });
+
+  // An individual entrepreneur's registered address is their home, and the
+  // rule is the server's, not the form's.
+  it('seeds nothing from an individual’s registered address', async () => {
+    const res = await register({
+      ...company,
+      billingAddress: {
+        entityType: 'individual',
+        street: 'Hafenstraße',
+        house: '12',
+        postalCode: '20359',
+        city: 'Hamburg',
+        country: 'DE',
+      },
+    });
+
+    expect(res.status).toBe(200);
+    const { rows } = await client.query(
+      `SELECT a.id FROM addresses a JOIN users u ON u.id = a."userId"
+        WHERE u.email = $1`,
+      [NEW_EMAIL],
+    );
+    expect(rows).toHaveLength(0);
+  });
+
   it('rejects an unknown field on the submission (strict contract)', async () => {
     const res = await register({ ...person, role: 'admin' });
 

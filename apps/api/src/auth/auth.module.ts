@@ -8,6 +8,7 @@ import {
 } from '../config/deployment-config';
 import { env } from '../env';
 import { MailModule } from '../mail/mail.module';
+import { AddressBookModule } from '../addresses/address-book.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -45,6 +46,9 @@ function jwtSecret(): string {
   imports: [
     UsersModule,
     MailModule,
+    // Registration seeds the account's first address from the company the
+    // registrant picked (FR-AUTH-10).
+    AddressBookModule,
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: jwtSecret(),
