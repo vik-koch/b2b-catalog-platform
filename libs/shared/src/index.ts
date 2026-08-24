@@ -12,6 +12,7 @@ export * from './lib/contact-format';
 export * from './lib/inquiry.contract';
 export * from './lib/media.contract';
 export * from './lib/page.contract';
+export * from './lib/party.contract';
 export * from './lib/product-units';
 export * from './lib/search-terms';
 export * from './lib/settings.contract';
