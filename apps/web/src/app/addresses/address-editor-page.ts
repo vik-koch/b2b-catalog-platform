@@ -189,26 +189,22 @@ type Status = 'idle' | 'submitting' | 'error';
             </div>
           </div>
 
-          <!-- Off unless the deployment asks for it: in most jurisdictions this
-               is a field nobody fills in. -->
-          @if (showRegion) {
-            <div>
-              <label for="region" appFieldLabel>
-                {{ text.region }}
-                <span class="font-normal text-subtle"
-                  >({{ text.optional }})</span
-                >
-              </label>
-              <input
-                id="region"
-                type="text"
-                formControlName="region"
-                autocomplete="address-level1"
-                appInput
-                class="w-full"
-              />
-            </div>
-          }
+          <!-- Always asked for, though rarely typed by hand: a suggestion
+               fills it, and what it fills is printed on the address. -->
+          <div>
+            <label for="region" appFieldLabel>
+              {{ text.region }}
+              <span class="font-normal text-subtle">({{ text.optional }})</span>
+            </label>
+            <input
+              id="region"
+              type="text"
+              formControlName="region"
+              autocomplete="address-level1"
+              appInput
+              class="w-full"
+            />
+          </div>
 
           <!-- Nothing to ask where the deployment ships to one country: the
                single configured code is used, and the server still checks it. -->
@@ -276,8 +272,6 @@ export class AddressEditorPage {
     inject(DEPLOYMENT_CONFIG).address?.countries ?? [];
 
   private readonly companyIdInput = inject(DEPLOYMENT_CONFIG).companyIdInput;
-  protected readonly showRegion =
-    inject(DEPLOYMENT_CONFIG).address?.regionField ?? false;
 
   protected readonly phoneText = {
     required: this.validation.phoneRequired,

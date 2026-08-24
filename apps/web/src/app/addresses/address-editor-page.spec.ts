@@ -226,12 +226,12 @@ describe('AddressEditorPage', () => {
       );
     });
 
-    // Off unless the deployment turns it on: a column of empty regions is
-    // noise, not data.
-    it('asks for no region unless the deployment wants one', async () => {
+    // Rarely typed by hand, but a suggestion fills it and what it fills is
+    // printed on the address — so the field is always there to be corrected.
+    it('asks for the region', async () => {
       const { field } = await render();
 
-      expect(field('region')).toBeNull();
+      expect(field('region')).not.toBeNull();
     });
 
     it('refuses to save an incomplete address and calls nothing', async () => {
