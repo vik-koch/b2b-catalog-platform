@@ -299,6 +299,11 @@ export const appTextSchema = z
                 /** The book is full — a refusal the form has to explain. */
                 limitReached: z.string(),
                 unsupportedCountry: z.string(),
+                /** The suggestion combobox (FR-CART-11). */
+                suggestionsLabel: z.string(),
+                noSuggestions: z.string(),
+                /** `{count}` suggestions, for the live region. */
+                suggestionCount: z.string(),
               })
               .strict(),
             /**

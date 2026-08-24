@@ -156,7 +156,10 @@
         "required": "Please fill this in.",
         "saveError": "Something went wrong saving this address. Please try again.",
         "limitReached": "You have reached the maximum number of saved addresses. Remove one to add another.",
-        "unsupportedCountry": "We do not deliver to that country. Please choose another."
+        "unsupportedCountry": "We do not deliver to that country. Please choose another.",
+        "suggestionsLabel": "Address suggestions",
+        "noSuggestions": "No matching addresses. Carry on typing it yourself.",
+        "suggestionCount": "{count} address suggestions"
       },
       "delete": {
         "action": "Delete my account",

@@ -1,0 +1,150 @@
+import { TestBed } from '@angular/core/testing';
+import { FormControl } from '@angular/forms';
+import {
+  AddressComponents,
+  AddressSuggestion,
+} from '@b2b-catalog-platform/shared';
+import { defaultAppText } from '../config/app-text.fixture';
+import { AddressSuggestField } from './address-suggest-field';
+import { AddressesService } from './addresses.service';
+
+const text = defaultAppText.auth.myAccount.addresses;
+
+/** What the stubbed provider answers with; set per test. */
+let answers: AddressSuggestion[] = [];
+
+const suggestion = (
+  label: string,
+  components: AddressComponents,
+): AddressSuggestion => ({ label, components });
+
+async function render() {
+  const suggest = vi.fn(async () => answers);
+  TestBed.configureTestingModule({
+    imports: [AddressSuggestField],
+    providers: [{ provide: AddressesService, useValue: { suggest } }],
+  });
+
+  const fixture = TestBed.createComponent(AddressSuggestField);
+  fixture.componentRef.setInput(
+    'control',
+    new FormControl('', { nonNullable: true }),
+  );
+  fixture.componentRef.setInput('label', text.street);
+  fixture.componentRef.setInput('text', {
+    suggestionsLabel: text.suggestionsLabel,
+    noSuggestions: text.noSuggestions,
+    suggestionCount: text.suggestionCount,
+  });
+  await fixture.whenStable();
+  fixture.detectChanges();
+
+  const el = fixture.nativeElement as HTMLElement;
+  const input = el.querySelector('input') as HTMLInputElement;
+  const picked: AddressComponents[] = [];
+  fixture.componentInstance.picked.subscribe((c) => picked.push(c));
+
+  return {
+    fixture,
+    el,
+    input,
+    picked,
+    suggest,
+    /** Types, then waits out the debounce and the stubbed request. Real timers:
+     * the debounce is a plain timeout, and 350ms is cheaper than teaching the
+     * test environment about fake ones. */
+    type: async (value: string) => {
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      await fixture.whenStable();
+      fixture.detectChanges();
+    },
+  };
+}
+
+describe('AddressSuggestField (FR-CART-11)', () => {
+  beforeEach(() => {
+    answers = [
+      suggestion('Hafenstraße 12, 20359 Hamburg', {
+        street: 'Hafenstraße',
+        house: '12',
+        postalCode: '20359',
+        city: 'Hamburg',
+        country: 'DE',
+      }),
+    ];
+  });
+
+  // Every call here is a paid one at a provider, and two letters match half a
+  // country: the field waits until the query could mean something.
+  it('asks for nothing until enough has been typed', async () => {
+    const { type, suggest, el } = await render();
+
+    await type('Ha');
+
+    expect(suggest).not.toHaveBeenCalled();
+    expect(el.querySelector('[role="listbox"]')).toBeNull();
+  });
+
+  it('offers what the provider answers once the typing settles', async () => {
+    const { type, el, suggest } = await render();
+
+    await type('Hafenstra');
+
+    expect(suggest).toHaveBeenCalledTimes(1);
+    expect(el.querySelectorAll('[role="option"]')).toHaveLength(1);
+    expect(el.textContent).toContain('Hafenstraße 12, 20359 Hamburg');
+  });
+
+  it('emits the picked row’s components, not its label', async () => {
+    const { type, el, picked } = await render();
+
+    await type('Hafenstra');
+    el.querySelector<HTMLElement>('[role="option"]')?.dispatchEvent(
+      new MouseEvent('mousedown', { bubbles: true }),
+    );
+
+    expect(picked).toEqual([
+      {
+        street: 'Hafenstraße',
+        house: '12',
+        postalCode: '20359',
+        city: 'Hamburg',
+        country: 'DE',
+      },
+    ]);
+  });
+
+  it('closes the list once a row is picked', async () => {
+    const { fixture, type, el } = await render();
+
+    await type('Hafenstra');
+    el.querySelector<HTMLElement>('[role="option"]')?.dispatchEvent(
+      new MouseEvent('mousedown', { bubbles: true }),
+    );
+    fixture.detectChanges();
+
+    expect(el.querySelector('[role="listbox"]')).toBeNull();
+  });
+
+  it('says so when the provider knows nothing, rather than showing an empty box', async () => {
+    answers = [];
+    const { type, el } = await render();
+
+    await type('Hafenstra');
+
+    expect(el.textContent).toContain(text.noSuggestions);
+  });
+
+  // The default deployment configures no adapter, so this is the ordinary case:
+  // an empty answer must leave an ordinary text field behind.
+  it('keeps the typed value whatever the provider says', async () => {
+    answers = [];
+    const { type, input } = await render();
+
+    await type('Somewhere the provider has never heard of');
+
+    expect(input.value).toBe('Somewhere the provider has never heard of');
+  });
+});

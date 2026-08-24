@@ -3,6 +3,8 @@ import {
   Address,
   addressesContract,
   AddressInput,
+  AddressSuggestion,
+  addressSuggestionContract,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../core/api-client';
 
@@ -18,11 +20,14 @@ export type SaveAddressResult =
     };
 
 /**
- * The account's address book.
+ * The account's address book, and the suggestions that fill one in. One service
+ * for both, as on the API: the book is account-scoped and the suggestions are
+ * not, but they are the same subject and the same form uses both.
  */
 @Injectable({ providedIn: 'root' })
 export class AddressesService {
   private readonly client = createApiClient(addressesContract);
+  private readonly suggestions = createApiClient(addressSuggestionContract);
 
   async list(): Promise<Address[]> {
     const response = await this.client.listAddresses();
@@ -58,5 +63,19 @@ export class AddressesService {
     // A 404 means it is already gone, which is what the caller wanted.
     if (response.status === 200 || response.status === 404) return;
     throw new Error(`Failed to remove the address (status ${response.status})`);
+  }
+
+  /**
+   * Addresses matching what is being typed (FR-CART-11). A deployment with no
+   * adapter configured answers with an empty list, so the field simply never
+   * offers anything — there is nothing here to switch on.
+   */
+  async suggest(q: string, country?: string): Promise<AddressSuggestion[]> {
+    const response = await this.suggestions.suggestAddresses({
+      query: country ? { q, country } : { q },
+    });
+    // A suggestion is an accelerator, never a step: a provider that is down or
+    // rate-limiting must not take the form down with it.
+    return response.status === 200 ? response.body.items : [];
   }
 }
