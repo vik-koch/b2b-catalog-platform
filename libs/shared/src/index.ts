@@ -1,4 +1,6 @@
 export * from './lib/account.contract';
+export * from './lib/address-config';
+export * from './lib/address.contract';
 export * from './lib/api-error';
 export * from './lib/admin-catalog.contract';
 export * from './lib/attribute-filter';

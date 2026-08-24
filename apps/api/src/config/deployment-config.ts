@@ -1,4 +1,6 @@
 import {
+  AddressConfig,
+  addressConfigSchema,
   CompanyIdFormat,
   companyIdInputSchema,
   PhoneConfig,
@@ -43,6 +45,11 @@ export const apiDeploymentConfigSchema = z
       })
       .passthrough()
       .optional(),
+    /**
+     * Where the deployment ships. The API applies the country list as well as
+     * the browser — a `<select>` is an entry aid, not a rule.
+     */
+    address: addressConfigSchema.optional(),
   })
   .passthrough();
 
@@ -103,6 +110,17 @@ export const COMPANY_ID_FORMATS = 'COMPANY_ID_FORMATS';
 
 export function loadCompanyIdFormats(): readonly CompanyIdFormat[] {
   return loadApiDeploymentConfig().companyIdInput?.formats ?? [];
+}
+
+/**
+ * The address rules, injected rather than read where they are used — the same
+ * shape as PHONE_INPUT and COMPANY_ID_RULE, so a spec can hand over a country
+ * list without a config file.
+ */
+export const ADDRESS_CONFIG = 'ADDRESS_CONFIG';
+
+export function loadAddressConfig(): AddressConfig | undefined {
+  return loadApiDeploymentConfig().address;
 }
 
 export function loadCompanyIdRule(): CompanyIdRule {

@@ -1,6 +1,13 @@
-import { Component, inject, input } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { applyMask, CompanyIdFormat } from '@b2b-catalog-platform/shared';
+import { CompanyIdFormat } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DigitMask } from './digit-mask';
 import { FieldLabel } from './field-label';
@@ -18,6 +25,9 @@ export interface CompanyIdFieldText {
   readonly format: string;
   /** Names the picker. Only reached where several formats are configured. */
   readonly formatLabel?: string;
+  /** Replaces the format example under the field, where the caller has
+   * something more useful to say — e.g. when the number is needed at all. */
+  readonly hint?: string;
 }
 
 /**
@@ -53,7 +63,11 @@ export interface CompanyIdFieldText {
   template: `
     <label [for]="inputId()" appFieldLabel>
       {{ label() }}
-      <span class="text-accent" aria-hidden="true">*</span>
+      @if (required()) {
+        <span class="text-accent" aria-hidden="true">*</span>
+      } @else if (optionalLabel(); as optional) {
+        <span class="font-normal text-subtle">({{ optional }})</span>
+      }
     </label>
 
     <!-- Two columns at every width, never a stack that splits at a breakpoint:
@@ -103,7 +117,7 @@ export interface CompanyIdFieldText {
             [formControl]="control()"
             inputmode="numeric"
             autocomplete="off"
-            aria-required="true"
+            [attr.aria-required]="required() || null"
             appInput
             class="w-full min-w-0"
             [class.rounded-l-none]="!!format()?.prefix"
@@ -115,7 +129,7 @@ export interface CompanyIdFieldText {
             type="text"
             [formControl]="control()"
             autocomplete="off"
-            aria-required="true"
+            [attr.aria-required]="required() || null"
             appInput
             class="w-full min-w-0"
             [class.rounded-l-none]="!!format()?.prefix"
@@ -129,8 +143,8 @@ export interface CompanyIdFieldText {
       <p class="mt-1 text-sm text-red-600">
         {{ control().hasError('required') ? text().required : hint() }}
       </p>
-    } @else if (format()?.example) {
-      <p class="mt-1 text-sm text-muted">{{ hint() }}</p>
+    } @else if (hintText(); as extra) {
+      <p class="mt-1 text-sm text-muted">{{ extra }}</p>
     }
   `,
 })
@@ -144,17 +158,40 @@ export class CompanyIdField {
   /** Whether the form's FieldErrors says this field's message is due. */
   readonly invalid = input(false);
   readonly inputId = input('companyRegistrationId');
+  /**
+   * Required on registration, where the number is what identifies a company;
+   * optional on an address, where it describes the party being invoiced and an
+   * address invoiced to a natural person has none.
+   */
+  readonly required = input(true);
+  /** The word for "optional", where the field is. Wording is the caller's. */
+  readonly optionalLabel = input<string | undefined>(undefined);
 
   protected readonly formats: readonly CompanyIdFormat[] =
     inject(DEPLOYMENT_CONFIG).companyIdInput?.formats ?? [];
 
   /**
-   * Methods rather than computeds: a FormControl's value is not a signal, so a
-   * computed would cache the format the field was first drawn with. The view
-   * re-renders on the picker's own change event, which is when this moves.
+   * The chosen format's key, mirrored into a signal.
+   *
+   * The picker writes to a FormControl, and a FormControl's value is not
+   * reactive: read through a plain method, the mask and the prefix would only
+   * be re-read when something *else* happened to re-render this view. A form
+   * that sets the format and the number together — which is how every editor
+   * seeds this field — would then keep the shape the field was first drawn
+   * with, and mask a ten-digit number into a five-digit box. Following the
+   * control's own stream is what makes the field move with it.
    */
-  protected formatKey(): string {
-    return this.formatControl().value;
+  protected readonly formatKey = signal('');
+
+  constructor() {
+    effect((onCleanup) => {
+      const control = this.formatControl();
+      this.formatKey.set(control.value);
+      const subscription = control.valueChanges.subscribe((key: string) =>
+        this.formatKey.set(key),
+      );
+      onCleanup(() => subscription.unsubscribe());
+    });
   }
 
   /**
@@ -163,8 +200,19 @@ export class CompanyIdField {
    * before the current config, which is then shown unmasked and unprefixed so
    * that merely looking at it cannot truncate it.
    */
-  protected format(): CompanyIdFormat | undefined {
-    return this.formats.find((option) => option.key === this.formatKey());
+  protected readonly format = computed<CompanyIdFormat | undefined>(() =>
+    this.formats.find((option) => option.key === this.formatKey()),
+  );
+
+  /**
+   * What sits under the field when nothing is wrong: the caller's own note
+   * where it has one — an address says when the number is needed at all — and
+   * otherwise the format's example.
+   */
+  protected hintText(): string | undefined {
+    return (
+      this.text().hint ?? (this.format()?.example ? this.hint() : undefined)
+    );
   }
 
   /** The format hint, worded from the chosen format's own example. */
@@ -176,18 +224,15 @@ export class CompanyIdField {
   }
 
   /**
-   * Switching format re-types the number in the new shape: the digits are kept
-   * and regrouped, and anything the new mask has no room for is dropped — in
-   * front of the visitor, which is the part that matters. A format without a
-   * mask is left alone, because it may accept more than digits.
+   * Switching the kind of number **clears** it. The shapes are different
+   * numbers, not different spellings of one: a ten-digit registration number
+   * regrouped into a five-digit mask is not a shorter version of itself, it is
+   * a different number that happens to start the same way — and one saved from
+   * a half-kept value is wrong in a way nothing downstream can detect. An empty
+   * field says plainly that the answer has to be given again.
    */
   protected chooseFormat(event: Event): void {
-    const key = (event.target as HTMLSelectElement).value;
-    this.formatControl().setValue(key);
-
-    const mask = this.formats.find((option) => option.key === key)?.mask;
-    if (mask) {
-      this.control().setValue(applyMask(this.control().value, mask));
-    }
+    this.formatControl().setValue((event.target as HTMLSelectElement).value);
+    this.control().setValue('');
   }
 }

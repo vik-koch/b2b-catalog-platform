@@ -162,16 +162,72 @@ describe('CompanyIdField', () => {
       expect(host.control.value).toBe('123456789012');
     });
 
-    // Visibly, in front of the visitor — unlike a silent truncation on load,
-    // which is what the format-of-a-stored-value rule exists to prevent.
-    it('regroups what was already typed when the format changes', async () => {
-      const { host, type, choose } = await render([soleTrader, company]);
+    // The two shapes are different numbers, not two spellings of one, so a
+    // switch asks for the number again rather than keeping a prefix of it.
+    it('clears the number when the kind of number changes', async () => {
+      const { host, type, choose, input } = await render([soleTrader, company]);
 
-      await type('123456789012');
+      await type('1234567890');
       await choose('company');
-      expect(host.control.value).toBe('1234567890');
 
-      await choose('sole');
+      expect(host.control.value).toBe('');
+      expect(input().value).toBe('');
+    });
+
+    it('clears through the newly chosen mask, not the old one', async () => {
+      const grouped = {
+        key: 'grouped',
+        label: 'Grouped',
+        pattern: '^[0-9]{6}$',
+        mask: '###-###',
+        example: '123-456',
+      };
+      const plain = {
+        key: 'plain',
+        label: 'Plain',
+        pattern: '^[0-9]{6}$',
+        mask: '######',
+        example: '123456',
+      };
+      const { host, type, choose, input } = await render([grouped, plain]);
+
+      await type('123456');
+      expect(input().value).toBe('123-456');
+
+      await choose('plain');
+
+      // Cleared, and cleared through the mask that is bound *now* — the old
+      // one would have left the separators it draws behind.
+      expect(host.control.value).toBe('');
+      expect(input().value).toBe('');
+    });
+
+    it('shows a stored number in the format it is in, whole', async () => {
+      const short = {
+        key: 'short',
+        label: 'Short',
+        pattern: '^[0-9]{5}$',
+        mask: '#####',
+        example: '12345',
+      };
+      const ten = {
+        key: 'ten',
+        label: 'Ten',
+        pattern: '^[0-9]{10}$',
+        mask: '##########',
+        example: '1234567890',
+      };
+      // How every editor seeds this field: the picker is set to the format the
+      // stored number is in, and the number is written, in that order.
+      const { fixture, host, input } = await render([short, ten]);
+      host.formatControl.setValue('ten');
+      host.control.setValue('1234567890');
+      // No detectChanges, deliberately: seeding a FormControl marks no view
+      // for check, so the field has to follow the control itself. This is the
+      // whole point — the page that seeds it does nothing more than this.
+      await fixture.whenStable();
+
+      expect(input().value).toBe('1234567890');
       expect(host.control.value).toBe('1234567890');
     });
 

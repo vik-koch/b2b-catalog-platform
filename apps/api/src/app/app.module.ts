@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AccountModule } from '../account/account.module';
+import { AddressesModule } from '../addresses/addresses.module';
 import { AttributesModule } from '../attributes/attributes.module';
 import { AuthModule } from '../auth/auth.module';
 import { InquiryModule } from '../inquiry/inquiry.module';
@@ -28,6 +29,7 @@ import { StaffUsersModule } from '../users/staff-users.module';
     TiersModule,
     StaffUsersModule,
     AccountModule,
+    AddressesModule,
   ],
 })
 export class AppModule {}
