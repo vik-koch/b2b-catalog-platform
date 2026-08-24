@@ -421,6 +421,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       priceMinor: Math.round(stored / basis),
       prices: {
         pieceMilliMinor: piecePriceMilliMinor(stored, basis),
+        pieceLotMinor: totalMinor(stored, basis, packaging.minPieceQty),
         pack: priceFor('pack'),
         box: priceFor('box'),
       },

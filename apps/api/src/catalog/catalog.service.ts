@@ -1,15 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  inArray,
-  isNotNull,
-  isNull,
-} from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
 import {
   AttributeSelection,
   CATALOG_PAGE_SIZE,
@@ -55,6 +46,7 @@ import {
   boxDimensionsOf,
   displayPriceMinor,
   packagingOf,
+  publiclyVisible,
   toListItem,
   unitColumns,
   unitPricesOf,
@@ -94,16 +86,6 @@ interface CategoryProductsResult {
   };
   facets: Facet[];
 }
-
-/**
- * What the storefront may show: live, and published by an admin. Defined once
- * because forgetting it on a new read is silent — the page would simply serve a
- * product nobody has reviewed.
- */
-const publiclyVisible = and(
-  isNull(products.deletedAt),
-  isNotNull(products.publishedAt),
-);
 
 @Injectable()
 export class CatalogService {

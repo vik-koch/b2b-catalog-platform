@@ -52,11 +52,17 @@ export const priceMinorSchema = z.number().int().nonnegative();
  *
  * `pieceMilliMinor` is the only sub-minor figure in the API — a single piece
  * cannot always be priced in cents (€19.99 for ten is €1.999 each). It is a
- * comparison figure: multiplying it will disagree with the server.
+ * comparison figure for display: multiplying it will disagree with the server.
+ * `pieceLotMinor` is the multiplicable one — what the smallest orderable piece
+ * quantity (`packaging.minPieceQty`) costs, exactly — so a piece line's total
+ * is computable without the price basis ever leaving the server. Null only
+ * where the stored basis does not divide that quantity, which is a broken
+ * invariant rather than a price of zero.
  */
 export const unitPricesSchema = z
   .object({
     pieceMilliMinor: z.number().int().nonnegative(),
+    pieceLotMinor: priceMinorSchema.nullable(),
     pack: priceMinorSchema.nullable(),
     box: priceMinorSchema.nullable(),
   })

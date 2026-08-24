@@ -118,3 +118,70 @@ export function basisDividesQuantities(
     packaging.piecesPerPack % basisPieces === 0
   );
 }
+
+/**
+ * The prices a line total may be computed from, as the read contract publishes
+ * them (`unitPricesSchema`). Structural rather than imported, so the arithmetic
+ * stays free of the contract's import graph.
+ */
+export interface LineUnitPrices {
+  /** What `minPieceQty` pieces cost, exactly. */
+  pieceLotMinor: number | null;
+  pack: number | null;
+  box: number | null;
+}
+
+/**
+ * What a cart line costs, in whole minor units — the client-safe sibling of
+ * `totalMinor`, which needs the staff-facing price basis.
+ *
+ * Null wherever the total cannot be exact: a unit the product is not sold in, a
+ * piece quantity that is not a whole number of `minPieceQty` lots, or a missing
+ * price. A null is a state to show, never a zero to fall back to.
+ */
+export function exactLineTotal(
+  prices: LineUnitPrices,
+  packaging: ProductPackaging,
+  unit: ProductUnit,
+  quantity: number,
+): number | null {
+  if (!Number.isInteger(quantity) || quantity < 1) return null;
+  if (unit === 'piece') {
+    const lot = Math.max(1, Math.trunc(packaging.minPieceQty));
+    if (prices.pieceLotMinor === null || quantity % lot !== 0) return null;
+    return (quantity / lot) * prices.pieceLotMinor;
+  }
+  const price = unit === 'pack' ? prices.pack : prices.box;
+  if (price === null || piecesPerUnit(packaging, unit) === null) return null;
+  return price * quantity;
+}
+
+/**
+ * A quantity moved to another unit of the same product. `exact` is false where
+ * the pieces do not fill a whole target unit and the quantity was rounded up —
+ * the caller asks before applying that, since it costs the customer more.
+ * Null for a unit the product is not sold in.
+ */
+export interface ConvertedQuantity {
+  quantity: number;
+  exact: boolean;
+}
+
+export function convertUnitQuantity(
+  packaging: ProductPackaging,
+  from: ProductUnit,
+  to: ProductUnit,
+  quantity: number,
+): ConvertedQuantity | null {
+  const pieces = piecesFor(packaging, from, quantity);
+  const perTarget = piecesPerUnit(packaging, to);
+  if (pieces === null || perTarget === null) return null;
+  if (to === 'piece') {
+    const corrected = correctPieceQuantity(packaging, pieces);
+    return { quantity: corrected, exact: corrected === pieces };
+  }
+  return {
+    quantity: Math.max(1, Math.ceil(pieces / perTarget)),
+    exact: pieces % perTarget === 0,
+  };
+}

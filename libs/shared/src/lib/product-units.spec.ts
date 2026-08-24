@@ -1,7 +1,9 @@
 import {
   availableUnits,
   basisDividesQuantities,
+  convertUnitQuantity,
   correctPieceQuantity,
+  exactLineTotal,
   isValidPieceQuantity,
   piecePriceMilliMinor,
   piecesFor,
@@ -173,5 +175,99 @@ describe('basisDividesQuantities', () => {
 
   it('rejects a basis below one', () => {
     expect(basisDividesQuantities(plain, 0)).toBe(false);
+  });
+});
+
+describe('exactLineTotal', () => {
+  // €19.99 for ten pieces: no piece has an exact price, but every orderable
+  // quantity does. The minimum is six, so a lot of six costs 6/10 × 1999 —
+  // which only divides because the basis divides the minimum.
+  const inexactPerPiece = {
+    pieceLotMinor: 1999, // the price of one lot of `minPieceQty` pieces
+    pack: 1999,
+    box: 7996,
+  };
+
+  it('multiplies whole lots for a piece line, never the per-piece figure', () => {
+    const lots = { piecesPerPack: 10, packsPerBox: 4, minPieceQty: 10 };
+    expect(exactLineTotal(inexactPerPiece, lots, 'piece', 10)).toBe(1999);
+    expect(exactLineTotal(inexactPerPiece, lots, 'piece', 30)).toBe(5997);
+    // 1999 / 10 rounded per piece and multiplied back would give 6000.
+    expect(exactLineTotal(inexactPerPiece, lots, 'piece', 30)).not.toBe(6000);
+  });
+
+  it('multiplies the pack and box prices by the quantity', () => {
+    expect(exactLineTotal(inexactPerPiece, packaged, 'pack', 3)).toBe(5997);
+    expect(exactLineTotal(inexactPerPiece, packaged, 'box', 2)).toBe(15_992);
+  });
+
+  it('refuses a piece quantity that is not whole lots', () => {
+    const lots = { piecesPerPack: 10, packsPerBox: null, minPieceQty: 10 };
+    expect(exactLineTotal(inexactPerPiece, lots, 'piece', 15)).toBeNull();
+  });
+
+  it('refuses a unit the product is not sold in', () => {
+    expect(exactLineTotal(inexactPerPiece, packOnly, 'box', 1)).toBeNull();
+    expect(
+      exactLineTotal({ ...inexactPerPiece, pack: null }, packaged, 'pack', 1),
+    ).toBeNull();
+  });
+
+  it('refuses a missing piece price rather than pricing it at nothing', () => {
+    expect(
+      exactLineTotal(
+        { ...inexactPerPiece, pieceLotMinor: null },
+        packaged,
+        'piece',
+        6,
+      ),
+    ).toBeNull();
+  });
+
+  it('refuses a quantity that is not a positive integer', () => {
+    expect(exactLineTotal(inexactPerPiece, packaged, 'pack', 0)).toBeNull();
+    expect(exactLineTotal(inexactPerPiece, packaged, 'pack', 1.5)).toBeNull();
+  });
+});
+
+describe('convertUnitQuantity', () => {
+  it('converts down exactly', () => {
+    // One box is four packs, or 24 pieces.
+    expect(convertUnitQuantity(packaged, 'box', 'pack', 1)).toEqual({
+      quantity: 4,
+      exact: true,
+    });
+    expect(convertUnitQuantity(packaged, 'box', 'piece', 1)).toEqual({
+      quantity: 24,
+      exact: true,
+    });
+  });
+
+  it('rounds up to a whole target unit and says it did', () => {
+    // 10 pieces is one pack and a bit, so two packs.
+    expect(convertUnitQuantity(packaged, 'piece', 'pack', 10)).toEqual({
+      quantity: 2,
+      exact: false,
+    });
+  });
+
+  it('still corrects the piece minimum when converting down', () => {
+    // A pack of 10 pieces against a minimum (and increment) of 100.
+    expect(convertUnitQuantity(packOnly, 'pack', 'piece', 3)).toEqual({
+      quantity: 100,
+      exact: false,
+    });
+  });
+
+  it('never converts to zero of the target unit', () => {
+    expect(convertUnitQuantity(packaged, 'piece', 'box', 6)).toEqual({
+      quantity: 1,
+      exact: false,
+    });
+  });
+
+  it('refuses a unit the product is not sold in', () => {
+    expect(convertUnitQuantity(packOnly, 'pack', 'box', 1)).toBeNull();
+    expect(convertUnitQuantity(plain, 'piece', 'pack', 1)).toBeNull();
   });
 });

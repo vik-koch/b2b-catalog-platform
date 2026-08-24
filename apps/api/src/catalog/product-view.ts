@@ -7,6 +7,7 @@ import {
   piecesPerUnit,
   totalMinor,
 } from '@b2b-catalog-platform/shared';
+import { and, isNotNull, isNull } from 'drizzle-orm';
 import { ProductImageRef, products } from '../db/schema';
 
 /**
@@ -14,6 +15,17 @@ import { ProductImageRef, products } from '../db/schema';
  * Rows carry the price of `priceBasisPieces` pieces; the API publishes prices
  * already resolved per unit, and the basis itself never leaves.
  */
+
+/**
+ * What the storefront may show: live, and published by an admin. Beside the
+ * columns rather than inside the catalog service, because every reader of a
+ * product needs it — the cart prices what a customer may buy, not what exists —
+ * and a second copy is a forgotten call site waiting to happen.
+ */
+export const publiclyVisible = and(
+  isNull(products.deletedAt),
+  isNotNull(products.publishedAt),
+);
 
 /** Selected by every product read, so the paths cannot drift. */
 export const unitColumns = {
@@ -58,6 +70,13 @@ export function unitPricesOf(row: PricedProductRow): UnitPrices {
 
   return {
     pieceMilliMinor: piecePriceMilliMinor(row.priceMinor, row.priceBasisPieces),
+    // The multiplicable piece figure: exact by construction, since the basis
+    // divides minPieceQty (products_basis_divides_quantities).
+    pieceLotMinor: totalMinor(
+      row.priceMinor,
+      row.priceBasisPieces,
+      row.minPieceQty,
+    ),
     pack: priceFor('pack'),
     box: priceFor('box'),
   };

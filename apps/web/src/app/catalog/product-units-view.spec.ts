@@ -92,6 +92,7 @@ describe('priceRows', () => {
     // three decimals, the pack and box prices are exact.
     const rows = units().priceRows({
       pieceMilliMinor: 199_900,
+      pieceLotMinor: 1999,
       pack: 1999,
       box: 7996,
     });
@@ -110,6 +111,7 @@ describe('priceRows', () => {
     // double rounding, not to be shown.
     const rows = units().priceRows({
       pieceMilliMinor: 1_711_667,
+      pieceLotMinor: 10_270,
       pack: 10_270,
       box: 41_080,
     });
@@ -120,6 +122,7 @@ describe('priceRows', () => {
   it('shows a whole-cent per-piece price without trailing noise', () => {
     const rows = units().priceRows({
       pieceMilliMinor: 500_000,
+      pieceLotMinor: 500,
       pack: null,
       box: null,
     });
