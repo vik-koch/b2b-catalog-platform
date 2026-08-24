@@ -19,8 +19,7 @@ const kontor: PartySuggestion = {
   registrationId: 'DE123456789',
   entityType: 'legal',
   address: {
-    street: 'Hafenstraße',
-    house: '12',
+    street: 'Hafenstraße 12',
     postalCode: '20359',
     city: 'Hamburg',
     country: 'DE',
@@ -430,8 +429,7 @@ describe('RegisterPage', () => {
       await sync();
 
       expect(register.mock.calls[0][0].billingAddress).toMatchObject({
-        street: 'Hafenstraße',
-        house: '12',
+        street: 'Hafenstraße 12',
         postalCode: '20359',
         city: 'Hamburg',
         entityType: 'legal',

@@ -117,8 +117,6 @@ export class RegistrationService {
     const address = request.billingAddress;
     if (!address || address.entityType !== 'legal') return;
 
-    // The street itself, not the house number beside it: a number with no
-    // street is not a line anybody can deliver to.
     if (
       !address.street ||
       !address.postalCode ||
@@ -127,7 +125,6 @@ export class RegistrationService {
     ) {
       return;
     }
-    const street = [address.street, address.house].filter(Boolean).join(' ');
 
     await this.addresses.seed(userId, {
       // Unlabelled on purpose: the customer never named it, and the book shows
@@ -135,7 +132,9 @@ export class RegistrationService {
       label: null,
       companyName: request.companyName?.trim() ?? null,
       companyId: request.companyRegistrationId ?? null,
-      street,
+      // Already the printed line, house number and all — the adapter composed
+      // it, because where the number goes is regional typography.
+      street: address.street,
       street2: address.unit ?? null,
       postalCode: address.postalCode,
       city: address.city,

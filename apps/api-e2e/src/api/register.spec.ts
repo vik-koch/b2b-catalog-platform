@@ -228,8 +228,7 @@ describe('POST /auth/register', () => {
       ...company,
       billingAddress: {
         entityType: 'legal',
-        street: 'Hafenstraße',
-        house: '12',
+        street: 'Hafenstraße 12',
         postalCode: '20359',
         city: 'Hamburg',
         country: 'DE',
@@ -261,8 +260,7 @@ describe('POST /auth/register', () => {
       ...company,
       billingAddress: {
         entityType: 'individual',
-        street: 'Hafenstraße',
-        house: '12',
+        street: 'Hafenstraße 12',
         postalCode: '20359',
         city: 'Hamburg',
         country: 'DE',

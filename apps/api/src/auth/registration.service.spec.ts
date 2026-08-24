@@ -175,10 +175,11 @@ describe('RegistrationService', () => {
   });
 
   describe('the first address (FR-AUTH-10)', () => {
+    // The street line as the adapter composed it — house number included, in
+    // the shape its own jurisdiction prints.
     const registered = {
       entityType: 'legal' as const,
-      street: 'Hafenstraße',
-      house: '12',
+      street: 'Hafenstraße 12',
       postalCode: '20359',
       city: 'Hamburg',
       country: 'DE',

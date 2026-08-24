@@ -56,7 +56,9 @@ export class SuggestList<T> {
   private readonly suggested = resource({
     params: () => {
       const q = this.query().trim();
-      return this.isBrowser && this.typing() && q.length >= this.options.minLength
+      return this.isBrowser &&
+        this.typing() &&
+        q.length >= this.options.minLength
         ? { q, dependency: this.options.dependsOn?.() }
         : undefined;
     },

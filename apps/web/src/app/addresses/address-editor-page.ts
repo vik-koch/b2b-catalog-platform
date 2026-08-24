@@ -375,15 +375,12 @@ export class AddressEditorPage {
   /**
    * A picked suggestion, spread across the form. Only the parts the provider
    * actually answered are written — a partial answer must not blank what the
-   * customer already typed — and the street line is composed the way it is
-   * printed, house number included.
+   * customer already typed — and the street line arrives already composed, in
+   * the shape the provider's own jurisdiction prints it.
    */
   protected fillFrom(components: AddressComponents): void {
-    const street = [components.street, components.house]
-      .filter(Boolean)
-      .join(' ');
     this.form.patchValue({
-      ...(street ? { street } : {}),
+      ...(components.street ? { street: components.street } : {}),
       ...(components.postalCode ? { postalCode: components.postalCode } : {}),
       ...(components.city ? { city: components.city } : {}),
       // The apartment or office, where the provider parsed one out of what was

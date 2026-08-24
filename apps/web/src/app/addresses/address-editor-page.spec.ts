@@ -294,8 +294,7 @@ describe('AddressEditorPage', () => {
       fixture.debugElement
         .query(By.directive(AddressSuggestField))
         .componentInstance.picked.emit({
-          street: 'Hafenstraße',
-          house: '12',
+          street: 'Hafenstraße 12',
           unit: 'Büro 505',
           postalCode: '20359',
           city: 'Hamburg',
@@ -323,8 +322,7 @@ describe('AddressEditorPage', () => {
       fixture.debugElement
         .query(By.directive(AddressSuggestField))
         .componentInstance.picked.emit({
-          street: 'Hafenstraße',
-          house: '12',
+          street: 'Hafenstraße 12',
         } satisfies AddressComponents);
       fixture.detectChanges();
 

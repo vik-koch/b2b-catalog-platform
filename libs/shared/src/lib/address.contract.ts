@@ -107,7 +107,8 @@ export const ADDRESS_SUGGESTION_LIMIT = 8;
  *
  * Adding a component here is a change to the sidecar contract (ADR 0040): the
  * API parses an adapter's answer strictly, so the platform learns a field
- * before a sidecar may send one.
+ * before a sidecar may send one — and removing one runs the other way round,
+ * the sidecar stopping first.
  */
 export const addressComponentsSchema = z
   .object({
@@ -115,8 +116,15 @@ export const addressComponentsSchema = z
     postalCode: z.string().max(ADDRESS_POSTAL_CODE_MAX_LENGTH).optional(),
     region: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
     city: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
+    /**
+     * The street line **as it is printed** (`Hafenstraße 12`), house number
+     * included. Composed by the adapter rather than here: whether the number
+     * leads or follows, what separates it from the street, and whether either
+     * carries a word naming its type are all regional typography — a separator
+     * chosen in shared code would be one jurisdiction's habit imposed on every
+     * other.
+     */
     street: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
-    house: z.string().max(ADDRESS_LINE_MAX_LENGTH).optional(),
     /**
      * Apartment, office or suite, where the provider parsed one out of what was
      * typed. It fills the second address line rather than the street: the
