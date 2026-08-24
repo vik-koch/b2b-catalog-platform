@@ -30,7 +30,66 @@ const slugs = {
   boxed: `e2e-orders-boxed-${SUFFIX}`,
   hidden: `e2e-orders-hidden-${SUFFIX}`,
   deleted: `e2e-orders-deleted-${SUFFIX}`,
+  /** Sold the same way, but takes no line note. */
+  noNote: `e2e-orders-nonote-${SUFFIX}`,
 };
+
+/**
+ * The whole contract shape of every order surface. Exhaustive on purpose: a
+ * column added to a snapshot later reaches a customer silently, and this is the
+ * assertion that stops it — the same guard `catalog.spec.ts` keeps over tiles.
+ */
+const ORDER_SUMMARY_KEYS = [
+  'createdAt',
+  'currency',
+  'itemCount',
+  'reference',
+  'status',
+  'totalMinor',
+];
+const ORDER_LINE_KEYS = [
+  'image',
+  'lineTotalMinor',
+  'linked',
+  'name',
+  'note',
+  'pieces',
+  'quantity',
+  'slug',
+  'unit',
+];
+const ORDER_DETAIL_KEYS = [
+  ...ORDER_SUMMARY_KEYS,
+  'billingAddress',
+  'contact',
+  'customerNote',
+  'deliveryAddress',
+  'deliveryZone',
+  'fulfilmentMethod',
+  'lines',
+  'paymentMethod',
+  'pickup',
+  'preferredTiming',
+  'shipment',
+].sort();
+/** What staff see on top: the list it was priced from, who placed it, and the
+ * lines in basis units (FR-UNIT-04). */
+const ADMIN_DETAIL_KEYS = [
+  ...ORDER_DETAIL_KEYS,
+  'customerEmail',
+  'statusChangedAt',
+  'tierKey',
+].sort();
+const ADMIN_LINE_KEYS = [
+  ...ORDER_LINE_KEYS,
+  'priceBasisPieces',
+  'priceMinor',
+].sort();
+const ADMIN_LIST_KEYS = [
+  ...ORDER_SUMMARY_KEYS,
+  'contactName',
+  'customerEmail',
+].sort();
 
 const request = (method: 'get' | 'post') =>
   async function (url: string, body?: unknown, cookie?: string) {
@@ -114,6 +173,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     const product = async (
       slug: string,
       state: 'live' | 'unpublished' | 'deleted',
+      lineNoteEnabled = true,
     ) => {
       await client.query(
         `INSERT INTO products (
@@ -121,8 +181,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
            "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume",
            "boxWeight", "boxCount", "categoryId", "lineNoteEnabled",
            "publishedAt", "deletedAt")
-         VALUES ($1, $2, $3, $4, $5, 10, 4, 10, '0.240', '12.500', 1, $6, true,
-                 $7, $8)`,
+         VALUES ($1, $2, $3, $4, $5, 10, 4, 10, '0.240', '12.500', 1, $6, $7,
+                 $8, $9)`,
         [
           `${SOURCE_PREFIX}-${slug}`,
           slug,
@@ -130,6 +190,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           BASE_MINOR,
           BASIS,
           categoryId,
+          lineNoteEnabled,
           state === 'unpublished' ? null : new Date(),
           state === 'deleted' ? new Date() : null,
         ],
@@ -138,6 +199,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     await product(slugs.boxed, 'live');
     await product(slugs.hidden, 'unpublished');
     await product(slugs.deleted, 'deleted');
+    await product(slugs.noNote, 'live', false);
 
     const { rows: tiers } = await client.query(
       'INSERT INTO customer_tiers (key, label) VALUES ($1, $2) RETURNING id',
@@ -273,6 +335,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const read = await get(`/orders/by-token/${res.data.publicToken}`);
       expect(read.status).toBe(200);
       expect(read.data.reference).toBe(res.data.reference);
+      expect(Object.keys(read.data).sort()).toEqual(ORDER_DETAIL_KEYS);
+      expect(Object.keys(read.data.lines[0]).sort()).toEqual(ORDER_LINE_KEYS);
       expect(read.data.lines[0]).toMatchObject({
         unit: 'pack',
         quantity: 2,
@@ -352,6 +416,30 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(res.data.code).toBe('unknown-pickup-location');
     });
 
+    it('refuses a note the product no longer takes, and shows it stripped', async () => {
+      const res = await post(
+        '/orders',
+        submission({
+          lines: [
+            {
+              slug: slugs.noNote,
+              unit: 'pack',
+              quantity: 2,
+              note: '100 in red',
+            },
+          ],
+        }),
+      );
+
+      // An advisory in the preview is still a refusal at submission: the note
+      // goes, and the customer sees it go before the order is placed without it.
+      expect(res.status).toBe(409);
+      expect(res.data.preview.lines[0]).toMatchObject({
+        note: null,
+        issues: ['note-not-allowed'],
+      });
+    });
+
     it('drops a submission whose honeypot is filled', async () => {
       const res = await post(
         '/orders',
@@ -374,15 +462,59 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       reference = res.data.reference;
     });
 
-    it('lists the account’s own orders', async () => {
+    it('lists the account’s own orders, in exactly the contract shape', async () => {
       const res = await get('/account/orders', customerCookie);
 
       expect(res.status).toBe(200);
-      expect(
-        res.data.items.some(
-          (item: { reference: string }) => item.reference === reference,
-        ),
-      ).toBe(true);
+      const mine = res.data.items.find(
+        (item: { reference: string }) => item.reference === reference,
+      );
+      expect(mine).toBeDefined();
+      expect(Object.keys(mine).sort()).toEqual(ORDER_SUMMARY_KEYS);
+      expect(Object.keys(res.data.pagination).sort()).toEqual([
+        'page',
+        'pageSize',
+        'total',
+        'totalPages',
+      ]);
+    });
+
+    it('reads one of the account’s own orders in exactly the contract shape', async () => {
+      const res = await get(`/account/orders/${reference}`, customerCookie);
+
+      expect(res.status).toBe(200);
+      expect(Object.keys(res.data).sort()).toEqual(ORDER_DETAIL_KEYS);
+      expect(Object.keys(res.data.lines[0]).sort()).toEqual(ORDER_LINE_KEYS);
+      expect(Object.keys(res.data.billingAddress).sort()).toEqual([
+        'city',
+        'companyId',
+        'companyName',
+        'country',
+        'phone',
+        'postalCode',
+        'region',
+        'street',
+        'street2',
+      ]);
+      // The customer's own order says nothing about how it was priced, nor
+      // about the token that would open it without a session.
+      const body = JSON.stringify(res.data);
+      expect(body).not.toContain('priceBasisPieces');
+      expect(body).not.toContain('tierKey');
+      expect(body).not.toContain(SOURCE_PREFIX);
+      expect(body).not.toContain('publicToken');
+    });
+
+    it('refuses an anonymous read of either account route', async () => {
+      expect((await get('/account/orders')).status).toBe(401);
+      expect((await get(`/account/orders/${reference}`)).status).toBe(401);
+    });
+
+    it('answers 404 for a token that opens nothing', async () => {
+      const res = await get(`/orders/by-token/not-a-real-token-${SUFFIX}`);
+
+      expect(res.status).toBe(404);
+      expect(res.data.code).toBe('order-not-found');
     });
 
     it('answers 404 — not 403 — for another customer’s order', async () => {
@@ -395,6 +527,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const res = await get(`/admin/orders/${reference}`, managerCookie);
 
       expect(res.status).toBe(200);
+      expect(Object.keys(res.data).sort()).toEqual(ADMIN_DETAIL_KEYS);
+      expect(Object.keys(res.data.lines[0]).sort()).toEqual(ADMIN_LINE_KEYS);
       // 2 packs of 10 pieces at a basis of 10: staff read it as 2 × the stored
       // price, which is how the source system quotes it.
       expect(res.data.lines[0]).toMatchObject({
@@ -404,6 +538,17 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       });
       expect(res.data.customerEmail).toBe(CUSTOMER);
       expect(res.data.tierKey).toBe(TIER_KEY);
+    });
+
+    it('lists every order for staff, with who placed it', async () => {
+      const res = await get('/admin/orders', managerCookie);
+
+      expect(res.status).toBe(200);
+      const found = res.data.items.find(
+        (item: { reference: string }) => item.reference === reference,
+      );
+      expect(Object.keys(found).sort()).toEqual(ADMIN_LIST_KEYS);
+      expect(found.customerEmail).toBe(CUSTOMER);
     });
 
     it('keeps a customer out of the staff list', async () => {

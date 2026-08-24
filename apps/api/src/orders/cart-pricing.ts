@@ -173,8 +173,12 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
   const prices = unitPricesOf(product);
   const image = product.images[0] ?? null;
 
-  // A note on a product that does not take one is dropped rather than refused:
-  // the product's policy can be turned off after the note was written.
+  // A note on a product that no longer takes one is dropped here rather than
+  // refused — the policy can be turned off after the note was written, and the
+  // rest of the line is still perfectly orderable. It is an advisory, so a
+  // *submission* carrying it still 409s like any other issue, with this
+  // stripped cart in the answer: the customer sees the note go before the order
+  // is placed without it.
   const keptNote = product.lineNoteEnabled ? note : null;
   if (note !== null && !product.lineNoteEnabled)
     issues.push('note-not-allowed');

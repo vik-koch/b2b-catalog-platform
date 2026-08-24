@@ -7,6 +7,7 @@ import {
 import { and, count, desc, eq, inArray } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
+  AddressInput,
   AdminOrderDetail,
   AdminOrderLine,
   DeliveryConfig,
@@ -58,6 +59,13 @@ const notFound = () =>
     message: 'Order not found',
   });
 
+/** Where an order goes: an address with the zone it fell into, or an office. */
+interface Fulfilment {
+  address: AddressInput | null;
+  zone: { key: string; freeFromMinor: number | null } | null;
+  pickup: PickupLocation | null;
+}
+
 /**
  * Order requests (FR-CART-03/04, FR-ACC-01): priced, recorded and read back.
  *
@@ -102,13 +110,28 @@ export class OrdersService {
       throw new CartChangedException(priced);
     }
 
+    this.assertParty(submission);
+    const fulfilment = this.resolveFulfilment(submission);
+
+    return this.insertOrder(submission, priced, {
+      userId,
+      tierKey: await this.tierKey(tierId),
+      fulfilment,
+    });
+  }
+
+  /**
+   * The invoiced and delivered-to parties, by the deployment's own country and
+   * registration-number rules — the same ones a saved address is held to. A
+   * guest's address never passed through the book, so this is the only place it
+   * is checked.
+   */
+  private assertParty(submission: OrderSubmission): void {
     const billing = submission.billingAddress;
-    const delivery = submission.deliveryAddress;
-    // The deployment's own country and registration-number rules, applied to a
-    // snapshot exactly as they are applied to a saved row — a guest's address
-    // never passed through the book, so this is the only place it is checked.
     this.addresses.assertValid(billing);
-    if (delivery) this.addresses.assertValid(delivery);
+    if (submission.deliveryAddress) {
+      this.addresses.assertValid(submission.deliveryAddress);
+    }
 
     // Bank transfer invoices a company, so the invoiced party needs a name and
     // a registration number. Re-checked here rather than stored as a flag on
@@ -122,26 +145,31 @@ export class OrdersService {
         message: 'Bank transfer needs the invoiced company’s name and number',
       });
     }
-
-    const pickup = this.resolvePickup(submission.pickupLocationKey);
-    const zone = delivery
-      ? resolveDeliveryZone(this.delivery?.zones ?? [], delivery)
-      : null;
-    const tierKey = await this.tierKey(tierId);
-
-    return this.insertOrder(submission, priced, {
-      userId,
-      tierKey,
-      pickup,
-      zone: zone && {
-        key: zone.key,
-        freeFromMinor: zone.freeFromMinor ?? null,
-      },
-    });
   }
 
-  private resolvePickup(key: string | null): PickupLocation | null {
-    if (key === null) return null;
+  /**
+   * Where the order goes, decided **once**. The contract guarantees a
+   * submission carries exactly one destination — an address or a collection
+   * point, never both and never neither — so this is the only place that has to
+   * know which it is, and the zone is resolved from the server's own config
+   * rather than from anything the browser sent.
+   */
+  private resolveFulfilment(submission: OrderSubmission): Fulfilment {
+    if (submission.fulfilmentMethod === 'delivery') {
+      const address = submission.deliveryAddress;
+      // Narrowed rather than asserted: the refine is what guarantees it, and if
+      // that guarantee is ever loosened this must fail loudly, not book an
+      // order to nowhere.
+      if (!address) throw new Error('a delivery order reached submit with no address');
+      const zone = resolveDeliveryZone(this.delivery?.zones ?? [], address);
+      return {
+        address,
+        zone: zone && { key: zone.key, freeFromMinor: zone.freeFromMinor ?? null },
+        pickup: null,
+      };
+    }
+
+    const key = submission.pickupLocationKey;
     const location = this.locations.find((entry) => entry.key === key);
     if (!location) {
       throw new BadRequestException({
@@ -149,7 +177,7 @@ export class OrdersService {
         message: 'That collection point does not exist',
       });
     }
-    return location;
+    return { address: null, zone: null, pickup: location };
   }
 
   /** Staff-facing: which list the order was priced from. Null is the default
@@ -170,20 +198,20 @@ export class OrdersService {
     context: {
       userId: string | null;
       tierKey: string | null;
-      pickup: PickupLocation | null;
-      zone: { key: string; freeFromMinor: number | null } | null;
+      fulfilment: Fulfilment;
     },
   ): Promise<{ reference: string; publicToken: string }> {
     const billing = submission.billingAddress;
-    const delivery = submission.deliveryAddress;
+    const { address: delivery, pickup, zone } = context.fulfilment;
     const { shipment } = priced.preview;
-    const publicToken = orderPublicToken();
-
     // A random reference collides now and then by design (see order-reference).
     // Retried against the unique index rather than pre-checked, and bounded, so
-    // a genuinely broken generator fails loudly instead of looping.
+    // a genuinely broken generator fails loudly instead of looping. Both random
+    // values are drawn again per attempt: the violation says only that *some*
+    // unique column collided, so re-using either would retry into the same one.
     for (let attempt = 1; attempt <= ORDER_REFERENCE_ATTEMPTS; attempt += 1) {
       const reference = orderReference(this.reference);
+      const publicToken = orderPublicToken();
       try {
         await this.db.transaction(async (tx) => {
           const [order] = await tx
@@ -217,11 +245,11 @@ export class OrdersService {
               deliveryCountry: delivery?.country ?? null,
               deliveryPhone: delivery?.phone ?? null,
               deliveryAddressId: submission.deliveryAddressId ?? null,
-              deliveryZoneKey: context.zone?.key ?? null,
-              deliveryFreeFromMinor: context.zone?.freeFromMinor ?? null,
-              pickupLocationKey: context.pickup?.key ?? null,
-              pickupLocationName: context.pickup?.name ?? null,
-              pickupLocationAddress: context.pickup?.description ?? null,
+              deliveryZoneKey: zone?.key ?? null,
+              deliveryFreeFromMinor: zone?.freeFromMinor ?? null,
+              pickupLocationKey: pickup?.key ?? null,
+              pickupLocationName: pickup?.name ?? null,
+              pickupLocationAddress: pickup?.description ?? null,
               preferredTiming: submission.preferredTiming,
               customerNote: submission.customerNote,
               totalMinor: priced.preview.totalMinor,
