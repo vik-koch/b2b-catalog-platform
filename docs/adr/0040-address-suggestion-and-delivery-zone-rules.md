@@ -25,19 +25,22 @@ address is personal data leaving the deployment, which is a processor
 relationship, not an integration detail.
 
 Alternatives considered: bundling a postal dataset with the app; relying on
-browser autofill alone; matching zones by city name; computing an actual delivery
+browser autofill alone; loading a deployment's adapter into the API as a mounted
+JavaScript module; matching zones by city name; computing an actual delivery
 price rather than stating a threshold; and holding zones in the database from the
 start.
 
 ## Decision
 
-Address suggestion sits behind an `AddressSuggestionPort` whose adapter is chosen
-by deployment configuration, defaults to none, and is proxied through the API so
-no credential reaches the browser; a suggestion returns **structured components**
-rather than one line. Delivery zones are entries in `deployment.json`, matched by
-postal code with an optional city fallback, first match wins, each carrying an
-**advisory** free-delivery minimum that is shown at checkout and snapshotted onto
-the order.
+Address suggestion sits behind an `AddressSuggestionPort` switched on by a single
+API environment variable, defaults to none, and is proxied through the API so no
+credential reaches the browser; a suggestion returns **structured components**
+rather than one line. A deployment's own provider is reached through a generic
+`http` adapter talking to a **sidecar service the deployment ships**, so the
+public image needs no private code. Delivery zones are entries in
+`deployment.json`, matched by postal code with an optional city fallback, first
+match wins, each carrying an **advisory** free-delivery minimum that is shown at
+checkout and snapshotted onto the order.
 
 ## Rationale
 
@@ -57,7 +60,33 @@ already knew. So the port's contract is a display label plus components (country
 postal code, region, city, street, house), which drop straight into the columns
 the address book already has, and which make the postal code trustworthy enough
 to decide a rule on. Typing by hand stays possible and the check degrades to
-whatever the customer entered.
+whatever the customer entered. A component the deployment's form does not ask
+for — a region where none is configured, a country where only one is — is
+simply not applied; the port's answer is the same everywhere, and what an
+address is made of stays the deployment's own business.
+
+**The switch is one environment variable, not a config key.** Whether addresses
+are suggested is settled by `ADDRESS_SUGGESTION_URL` on the API: set, and the
+sidecar answers; unset, and the field is plain typing. Nothing about it belongs
+in `deployment.json` — the whole of that file is serialized into every HTML
+document, nothing in the browser needs to know, and an internal service address
+has no business in a page's source. A second key naming the adapter would only
+be a switch that can contradict the first, so there is none, and the deployment
+sets one variable beside the sidecar's own credential. The cost is that a
+misspelled variable name turns the feature off silently, which the API answers by
+**logging at boot** which way it resolved.
+
+**A regional adapter is a container, not a plugin.** The app is one image built
+from the public repository, so a private adapter has to arrive from outside it.
+Loading a mounted JavaScript module would put a deployment's code inside the API
+process — where a bundler has to be talked out of resolving it, the module must
+hand-copy an interface it cannot import, and a throwing plugin takes the boot
+with it. A sidecar avoids all three: the public repository ships one `http`
+adapter speaking a fixed contract (`GET /suggest?q=&country=&limit=` answering
+`{ items: [{ label, components }] }`), and the deployment runs a small service
+behind it on the internal network, in whatever language suits the provider. The
+credential never leaves that container, the platform's own image stays universal,
+and the adapter is deployed and restarted on its own schedule.
 
 **Every call is proxied through the API**, never made from the browser. The
 credential stays server-side, calls are rate-limited and cacheable, and there is
@@ -114,8 +143,12 @@ rules into structured ones.
   from it rather than guessed from prose.
 - (+) A customer sees the free-delivery threshold that applies to them before
   ordering, not from a manager afterwards.
-- (+) A deployment with no provider configured behaves exactly as before, and
-  turning one on is a config change rather than a release.
+- (+) A deployment with no sidecar behaves exactly as before, and turning
+  suggestion on is one environment variable and a container rather than a
+  release.
+- (+) The provider's credential and its quirks stay in the deployment's own
+  service, which can be written, tested and restarted without touching the
+  platform.
 - (+) Zones and offices live together in configuration, so a deployment changes
   its delivery rules without a migration.
 - (−) Provider quality varies by region and a selected suggestion is stored as
@@ -125,6 +158,11 @@ rules into structured ones.
   and the privacy-notice wording that go with it.
 - (−) Suggestions cost per call, so caching and the rate cap are part of the
   feature rather than hardening added later.
+- (−) A sidecar is one more container to run, monitor and keep alive, and its
+  contract is now something the platform must not break casually.
+- (⚠) Nothing that reaches the browser may carry the sidecar's address or
+  whether one is configured: the deployment config is injected into every page,
+  so the whole switch stays in the API's environment.
 - (−) Zone rules change with a config deploy, and a mistyped range silently
   reclassifies an area — boot validation checks the shape of a rule, never its
   intent.
