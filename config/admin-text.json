@@ -544,6 +544,11 @@
     "phone": "Phone",
     "companyName": "Company name",
     "companyId": "Company ID",
+    "companySuggest": {
+      "suggestionsLabel": "Company suggestions",
+      "noSuggestions": "No matching companies. Carry on typing it yourself.",
+      "suggestionCount": "{count} company suggestions"
+    },
     "customerType": "Customer type",
     "tier": "Tier",
     "tierChoose": "Select a tier…",

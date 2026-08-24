@@ -143,6 +143,11 @@
         "companyName": "Company name",
         "companyId": "Company registration number",
         "companyIdHint": "Needed only when this address is the one we invoice — leave it empty for a private delivery address.",
+        "companySuggest": {
+          "suggestionsLabel": "Company suggestions",
+          "noSuggestions": "No matching companies. Carry on typing it yourself.",
+          "suggestionCount": "{count} company suggestions"
+        },
         "street": "Street and number",
         "street2": "Address line 2",
         "postalCode": "Postcode",
@@ -226,7 +231,12 @@
         "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}.",
         "privacyRequired": "Please accept the privacy policy to continue."
       },
-      "companyIdHint": "Any of the numbers we can invoice against, e.g. {examples}."
+      "companyIdHint": "Any of the numbers we can invoice against, e.g. {examples}.",
+      "companySuggest": {
+        "suggestionsLabel": "Company suggestions",
+        "noSuggestions": "No matching companies. Carry on typing it yourself.",
+        "suggestionCount": "{count} company suggestions"
+      }
     },
     "setPassword": {
       "checking": "Checking your link…",

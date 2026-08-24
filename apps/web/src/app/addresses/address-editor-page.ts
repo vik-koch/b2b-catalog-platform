@@ -5,6 +5,7 @@ import {
   Address,
   AddressComponents,
   AddressInput,
+  PartySuggestion,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -19,12 +20,12 @@ import { delayedLoading } from '../core/delayed-loading';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
-import { CompanyIdField } from '../ui/company-id-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
 import { SelectField } from '../ui/select-field';
 import { Skeleton } from '../ui/skeleton';
+import { CompanyFields } from '../parties/company-fields';
 import { AddressSuggestField } from './address-suggest-field';
 import { AddressesService, SaveAddressResult } from './addresses.service';
 
@@ -46,8 +47,8 @@ type Status = 'idle' | 'submitting' | 'error';
     ReactiveFormsModule,
     RouterLink,
     AddressSuggestField,
+    CompanyFields,
     Button,
-    CompanyIdField,
     FieldLabel,
     Input,
     PhoneField,
@@ -83,36 +84,18 @@ type Status = 'idle' | 'submitting' | 'error';
             <p class="mt-1 text-sm text-muted">{{ text.labelHint }}</p>
           </div>
 
-          <!-- The same field registration uses, and the same rule — one
-               jurisdiction, one set of accepted shapes. Optional here: an
-               address invoiced to a natural person has no number. -->
-          <app-company-id-field
-            inputId="companyId"
-            [control]="form.controls.companyId"
-            [label]="text.companyId"
-            [text]="companyIdText"
+          <!-- Prefilled from the account when adding, and editable: the
+               entity staff approved the account on is not necessarily the one
+               an invoice goes to. Optional here, unlike on the registration
+               form: an address invoiced to a natural person has no company. -->
+          <app-company-fields
+            [idControl]="form.controls.companyId"
+            [nameControl]="form.controls.companyName"
+            [text]="companyText"
             [required]="false"
-            [optionalLabel]="text.optional"
-            [invalid]="isInvalid('companyId')"
+            [idInvalid]="isInvalid('companyId')"
+            (picked)="fillCompanyFrom($event)"
           />
-
-          <!-- The invoice party. Prefilled from the account when adding, and
-               editable: the registration number staff approved the account on
-               is not necessarily the entity an invoice goes to. -->
-          <div>
-            <label for="companyName" appFieldLabel>
-              {{ text.companyName }}
-              <span class="font-normal text-subtle">({{ text.optional }})</span>
-            </label>
-            <input
-              id="companyName"
-              type="text"
-              formControlName="companyName"
-              autocomplete="organization"
-              appInput
-              class="w-full"
-            />
-          </div>
 
           <app-address-suggest-field
             [control]="form.controls.street"
@@ -271,9 +254,13 @@ export class AddressEditorPage {
     required: this.validation.phoneRequired,
     incomplete: this.validation.phoneIncomplete,
   };
-  protected readonly companyIdText = {
-    format: this.validation.companyIdFormat,
+  protected readonly companyText = {
+    ...this.text.companySuggest,
+    idLabel: this.text.companyId,
+    nameLabel: this.text.companyName,
     hint: this.text.companyIdHint,
+    idFormat: this.validation.companyIdFormat,
+    optional: this.text.optional,
   };
   protected readonly suggestText = {
     suggestionsLabel: this.text.suggestionsLabel,
@@ -370,6 +357,18 @@ export class AddressEditorPage {
       region: address.region ?? '',
       country: address.country,
       phone: typedPhone(address.phone, this.phoneInput),
+    });
+  }
+
+  /**
+   * A picked company, across both invoice fields. The address it is registered
+   * at is *not* applied: this row is where goods go, and the two are the same
+   * only by coincidence.
+   */
+  protected fillCompanyFrom(party: PartySuggestion): void {
+    this.form.patchValue({
+      companyName: party.name,
+      ...(party.registrationId ? { companyId: party.registrationId } : {}),
     });
   }
 

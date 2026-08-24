@@ -791,6 +791,14 @@ export const adminTextSchema = z
         phone: z.string(),
         companyName: z.string(),
         companyId: z.string(),
+        companySuggest: z
+          .object({
+            suggestionsLabel: z.string(),
+            noSuggestions: z.string(),
+            /** `{count}` is substituted, for the live region. */
+            suggestionCount: z.string(),
+          })
+          .strict(),
         customerType: z.string(),
         tier: z.string(),
         tierChoose: z.string(),

@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   CustomerTier,
   CustomerType,
+  PartySuggestion,
   emailSchema,
   StaffUser,
   UserKind,
@@ -25,7 +26,7 @@ import { usePageSeo } from '../../core/page-seo';
 import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
 import { zodValidator } from '../../core/zod-validator';
 import { Button } from '../../ui/button';
-import { CompanyIdField } from '../../ui/company-id-field';
+import { CompanyFields } from '../../parties/company-fields';
 import { EmailField } from '../../ui/email-field';
 import { FieldLabel } from '../../ui/field-label';
 import { PhoneField } from '../../ui/phone-field';
@@ -58,7 +59,7 @@ import { SelectField } from '../../ui/select-field';
     ReactiveFormsModule,
     Button,
     AdminIcon,
-    CompanyIdField,
+    CompanyFields,
     EmailField,
     FieldLabel,
     Input,
@@ -200,35 +201,15 @@ import { SelectField } from '../../ui/select-field';
           </div>
 
           @if (isCompany()) {
-            <app-company-id-field
-              inputId="companyRegistrationId"
-              [control]="form.controls.companyRegistrationId"
-              [label]="text.companyId"
-              [text]="companyIdText"
-              [invalid]="isInvalid('companyRegistrationId')"
+            <app-company-fields
+              idInputId="companyRegistrationId"
+              [idControl]="form.controls.companyRegistrationId"
+              [nameControl]="form.controls.companyName"
+              [text]="companyText"
+              [idInvalid]="isInvalid('companyRegistrationId')"
+              [nameInvalid]="isInvalid('companyName')"
+              (picked)="fillCompanyFrom($event)"
             />
-
-            <div>
-              <label for="companyName" appFieldLabel>
-                {{ text.companyName }}
-                <span class="text-accent" aria-hidden="true">*</span>
-              </label>
-              <input
-                id="companyName"
-                type="text"
-                formControlName="companyName"
-                autocomplete="off"
-                aria-required="true"
-                appInput
-                class="w-full"
-                [attr.aria-invalid]="isInvalid('companyName') || null"
-              />
-              @if (isInvalid('companyName')) {
-                <p class="mt-1 text-sm text-red-600">
-                  {{ text.validation.companyNameRequired }}
-                </p>
-              }
-            </div>
           }
 
           <!-- Optional here, unlike on the registration form: staff often set
@@ -399,9 +380,13 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly phoneText = {
     incomplete: this.text.validation.phoneIncomplete,
   };
-  protected readonly companyIdText = {
-    required: this.text.validation.companyIdRequired,
-    format: this.text.validation.companyIdFormat,
+  protected readonly companyText = {
+    ...this.text.companySuggest,
+    idLabel: this.text.companyId,
+    nameLabel: this.text.companyName,
+    idFormat: this.text.validation.companyIdFormat,
+    idRequired: this.text.validation.companyIdRequired,
+    nameRequired: this.text.validation.companyNameRequired,
   };
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
@@ -715,6 +700,20 @@ export class UserEditorPage implements UnsavedChangesAware {
    * company — the contract refuses it in the other direction too, so the field
    * is cleared rather than left holding a stale value.
    */
+  /**
+   * A picked company, across both fields. Staff get the same accelerator the
+   * customer does — a manager typing an account up from a phone call is the
+   * likeliest person to have only half the details.
+   */
+  protected fillCompanyFrom(party: PartySuggestion): void {
+    this.form.patchValue({
+      companyName: party.name,
+      ...(party.registrationId
+        ? { companyRegistrationId: party.registrationId }
+        : {}),
+    });
+  }
+
   private applyCompanyValidators(type: CustomerType): void {
     this.isCompany.set(this.isCustomer() && type === 'company');
     const fields = [

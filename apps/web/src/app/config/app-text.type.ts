@@ -284,6 +284,14 @@ export const appTextSchema = z
                  * so the field is on every address but needed only where one
                  * is invoiced. */
                 companyIdHint: z.string(),
+                companySuggest: z
+                  .object({
+                    suggestionsLabel: z.string(),
+                    noSuggestions: z.string(),
+                    /** `{count}` is substituted, for the live region. */
+                    suggestionCount: z.string(),
+                  })
+                  .strict(),
                 street: z.string(),
                 street2: z.string(),
                 postalCode: z.string(),
@@ -381,6 +389,14 @@ export const appTextSchema = z
             /** Business registration number; its format is deployment config. */
             companyId: z.string(),
             companyIdHint: z.string(),
+            companySuggest: z
+              .object({
+                suggestionsLabel: z.string(),
+                noSuggestions: z.string(),
+                /** `{count}` is substituted, for the live region. */
+                suggestionCount: z.string(),
+              })
+              .strict(),
             privacyConsent: z.string(),
             privacyLink: z.string(),
             submit: z.string(),

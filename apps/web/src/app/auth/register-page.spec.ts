@@ -1,13 +1,31 @@
 import { TestBed } from '@angular/core/testing';
+import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
+import { PartiesService } from '../parties/parties.service';
 import { AuthService } from './auth.service';
 import { RegisterPage } from './register-page';
 
 const text = defaultAppText.auth.register;
+
+/** What the stubbed provider answers with; set per test. */
+let parties: PartySuggestion[] = [];
+
+const kontor: PartySuggestion = {
+  name: 'Kontor GmbH',
+  registrationId: 'DE123456789',
+  entityType: 'legal',
+  address: {
+    street: 'Hafenstraße',
+    house: '12',
+    postalCode: '20359',
+    city: 'Hamburg',
+    country: 'DE',
+  },
+};
 
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);
@@ -33,11 +51,13 @@ async function render(
   config = defaultDeploymentConfig,
 ) {
   const register = vi.fn<AuthService['register']>().mockResolvedValue(result);
+  const suggest = vi.fn(async () => parties);
 
   TestBed.configureTestingModule({
     imports: [RegisterPage],
     providers: [
       provideRouter([]),
+      { provide: PartiesService, useValue: { suggest } },
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: AuthService, useValue: { register } },
@@ -73,10 +93,42 @@ async function render(
     await sync();
   };
 
-  return { fixture, el, register, sync, submit, fillPerson, chooseCompany };
+  /**
+   * Picks the first suggestion out of whichever field is asked for. Typing
+   * enough to trigger the request, waiting out the debounce, then the row.
+   */
+  const pickCompany = async (
+    field: 'companyName' | 'companyRegistrationId',
+  ) => {
+    setInput(el, `#${field}`, 'Kontor');
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const option = el.querySelector<HTMLElement>('[role="option"]');
+    if (!option) throw new Error('no suggestion offered');
+    option.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    await sync();
+  };
+
+  return {
+    fixture,
+    el,
+    register,
+    suggest,
+    sync,
+    submit,
+    fillPerson,
+    chooseCompany,
+    pickCompany,
+  };
 }
 
 describe('RegisterPage', () => {
+  beforeEach(() => {
+    parties = [kontor];
+  });
+
   it('does not submit an empty form, and says why', async () => {
     const { el, register, sync, submit } = await render();
 
@@ -342,5 +394,107 @@ describe('RegisterPage', () => {
 
     expect(el.querySelector('form')).not.toBeNull();
     expect(el.textContent).toContain(text.error);
+  });
+
+  describe('company suggestions (FR-AUTH-09)', () => {
+    // Both fields ask the same provider, so there is no "right" one to start
+    // in — which is why neither is ever disabled to steer the customer.
+    it.each(['companyRegistrationId', 'companyName'] as const)(
+      'fills both fields from a row picked in %s',
+      async (field) => {
+        const { el, sync, chooseCompany, pickCompany } = await render();
+
+        await chooseCompany('');
+        await sync();
+        await pickCompany(field);
+
+        expect(el.querySelector<HTMLInputElement>('#companyName')?.value).toBe(
+          'Kontor GmbH',
+        );
+        expect(
+          el.querySelector<HTMLInputElement>('#companyRegistrationId')?.value,
+        ).toBe('DE123456789');
+      },
+    );
+
+    // FR-AUTH-10: the registered address of the company they picked becomes
+    // the account's first saved address.
+    it('sends the picked company’s registered address', async () => {
+      const { register, sync, submit, fillPerson, chooseCompany, pickCompany } =
+        await render();
+
+      await chooseCompany('');
+      await fillPerson();
+      await pickCompany('companyName');
+      submit();
+      await sync();
+
+      expect(register.mock.calls[0][0].billingAddress).toMatchObject({
+        street: 'Hafenstraße',
+        house: '12',
+        postalCode: '20359',
+        city: 'Hamburg',
+        entityType: 'legal',
+      });
+    });
+
+    // An individual entrepreneur's registered address is their home. The
+    // server refuses to seed one, and the form does not offer it either.
+    it('marks an individual as one, so no address is seeded from it', async () => {
+      parties = [{ ...kontor, entityType: 'individual' }];
+      const { register, sync, submit, fillPerson, chooseCompany, pickCompany } =
+        await render();
+
+      await chooseCompany('');
+      await fillPerson();
+      await pickCompany('companyName');
+      submit();
+      await sync();
+
+      expect(register.mock.calls[0][0].billingAddress?.entityType).toBe(
+        'individual',
+      );
+    });
+
+    // Picking a company and then typing a different one over it means the
+    // address on file is not that company's.
+    it('drops the address once the name is typed over', async () => {
+      const {
+        el,
+        register,
+        sync,
+        submit,
+        fillPerson,
+        chooseCompany,
+        pickCompany,
+      } = await render();
+
+      await chooseCompany('');
+      await fillPerson();
+      await pickCompany('companyName');
+      setInput(el, '#companyName', 'Something Else GmbH');
+      await sync();
+      submit();
+      await sync();
+
+      expect(register.mock.calls[0][0].billingAddress).toBeUndefined();
+    });
+
+    // Nothing about a registration depends on a suggestion having arrived.
+    it('registers a company the provider does not know', async () => {
+      parties = [];
+      const { el, register, sync, submit, fillPerson, chooseCompany } =
+        await render();
+
+      await chooseCompany();
+      await fillPerson();
+      setInput(el, '#companyRegistrationId', 'DE123456789');
+      await sync();
+      submit();
+      await sync();
+
+      expect(register).toHaveBeenCalledTimes(1);
+      expect(register.mock.calls[0][0].billingAddress).toBeUndefined();
+    });
   });
 });
