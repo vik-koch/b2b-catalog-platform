@@ -1,9 +1,13 @@
 import { sql } from 'drizzle-orm';
-import type {
-  SyncOptions,
-  SyncRow,
-  SyncRowError,
-  SyncSummary,
+import {
+  FULFILMENT_METHODS,
+  ORDER_STATUSES,
+  PAYMENT_METHODS,
+  PRODUCT_UNITS,
+  type SyncOptions,
+  type SyncRow,
+  type SyncRowError,
+  type SyncSummary,
 } from '@b2b-catalog-platform/shared';
 import {
   AnyPgColumn,
@@ -563,6 +567,223 @@ export const addresses = pgTable(
       .defaultNow(),
   },
   (t) => [index('addresses_userId_idx').on(t.userId)],
+);
+
+/**
+ * A closed set of string values, as a check constraint rather than a pgEnum.
+ *
+ * Migrations run as one transaction (`migrate.ts`), and Postgres forbids *using*
+ * an enum value added in the same transaction — so a later migration that adds
+ * a status and then references it would fail on a fresh database and pass on an
+ * incrementally migrated one. A check is dropped and recreated freely; an enum
+ * value can never be removed at all.
+ *
+ * Raw rather than parameterized: these are the contract's own constants, and a
+ * bound parameter would land in the generated migration as a placeholder.
+ */
+function oneOf(column: string, values: readonly string[]) {
+  const list = values.map((value) => `'${value}'`).join(', ');
+  return sql.raw(`"${column}" in (${list})`);
+}
+
+/**
+ * An order request (FR-CART-03). A request, not a sale: it is priced, recorded
+ * and mailed, and a manager confirms it.
+ *
+ * Almost everything here is a **snapshot**. The addresses, the contact details,
+ * the pickup office and the currency are copied in as they read at the time,
+ * because all of them are editable elsewhere and an order has to stay readable
+ * exactly as it was placed. `deliveryAddressId`/`billingAddressId` point at the
+ * book rows they came from only so the next order can default to them — they
+ * are `set null`, and nothing reads an address through them.
+ */
+export const orders = pgTable(
+  'orders',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Quoted on the phone: `{prefix}-YYMMDD-NNNN` with a random suffix, so the
+    // shop's daily volume is not on every mail it sends.
+    reference: varchar('reference', { length: 32 }).notNull().unique(),
+    // The capability a mailed link carries (FR-NOTIF-06): a guest has no
+    // account to read their order from. Unguessable, and the only credential
+    // for that view.
+    publicToken: varchar('publicToken', { length: 64 }).notNull().unique(),
+    // Null for a guest order. Never `set null`: accounts are anonymized rather
+    // than deleted, and the tombstone exists to keep this link.
+    userId: uuid('userId').references(() => users.id, {
+      onDelete: 'no action',
+    }),
+    status: varchar('status', { length: 20 }).notNull().default('requested'),
+    // A status with no date is a status with no story — and the transitions
+    // that arrive later then find a trail already there.
+    statusChangedAt: timestamp('statusChangedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    statusChangedBy: uuid('statusChangedBy').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    // Who to talk to about this order — asked on the form rather than read off
+    // the account, since a guest has none and a colleague may take the call.
+    contactName: varchar('contactName', { length: 200 }).notNull(),
+    contactEmail: varchar('contactEmail', { length: 255 }).notNull(),
+    contactPhone: varchar('contactPhone', { length: 50 }).notNull(),
+    paymentMethod: varchar('paymentMethod', { length: 20 }).notNull(),
+    fulfilmentMethod: varchar('fulfilmentMethod', { length: 20 }).notNull(),
+    // The invoiced party. The company pair lives here, not on the delivery
+    // snapshot: a delivery address may carry a company name with no number
+    // (a branch, a warehouse), and only the invoice needs the registration.
+    billingCompanyName: varchar('billingCompanyName', { length: 255 }),
+    billingCompanyId: varchar('billingCompanyId', { length: 64 }),
+    billingStreet: varchar('billingStreet', { length: 255 }).notNull(),
+    billingStreet2: varchar('billingStreet2', { length: 255 }),
+    billingPostalCode: varchar('billingPostalCode', { length: 32 }).notNull(),
+    billingCity: varchar('billingCity', { length: 255 }).notNull(),
+    billingRegion: varchar('billingRegion', { length: 255 }),
+    billingCountry: varchar('billingCountry', { length: 2 }).notNull(),
+    billingPhone: varchar('billingPhone', { length: 50 }),
+    billingAddressId: uuid('billingAddressId').references(() => addresses.id, {
+      onDelete: 'set null',
+    }),
+    // The delivery snapshot, or nothing at all for a pickup.
+    deliveryCompanyName: varchar('deliveryCompanyName', { length: 255 }),
+    deliveryStreet: varchar('deliveryStreet', { length: 255 }),
+    deliveryStreet2: varchar('deliveryStreet2', { length: 255 }),
+    deliveryPostalCode: varchar('deliveryPostalCode', { length: 32 }),
+    deliveryCity: varchar('deliveryCity', { length: 255 }),
+    deliveryRegion: varchar('deliveryRegion', { length: 255 }),
+    deliveryCountry: varchar('deliveryCountry', { length: 2 }),
+    deliveryPhone: varchar('deliveryPhone', { length: 50 }),
+    deliveryAddressId: uuid('deliveryAddressId').references(
+      () => addresses.id,
+      { onDelete: 'set null' },
+    ),
+    // The zone the postal code resolved to, and the free-delivery threshold it
+    // promised. Advisory (FR-CART-11): it never blocked the order and never
+    // priced the delivery. Snapshotted because the config behind it is edited.
+    deliveryZoneKey: varchar('deliveryZoneKey', { length: 64 }),
+    deliveryFreeFromMinor: integer('deliveryFreeFromMinor'),
+    // The pickup office: its key, and its name and address as they read at the
+    // time, since config is editable and an old order must stay readable.
+    pickupLocationKey: varchar('pickupLocationKey', { length: 64 }),
+    pickupLocationName: varchar('pickupLocationName', { length: 255 }),
+    pickupLocationAddress: text('pickupLocationAddress'),
+    // Free text: scheduling is coordinated by phone or mail (FR-CART-07), so a
+    // structured window would be a field nothing consumes.
+    preferredTiming: varchar('preferredTiming', { length: 200 }),
+    customerNote: text('customerNote'),
+    totalMinor: integer('totalMinor').notNull(),
+    // The shipment estimate as it was shown (FR-UNIT-11), snapshotted rather
+    // than re-derived: packaging is admin-owned and editable, and an order must
+    // keep saying what the customer was told it would be. Approximate wherever
+    // a line did not fill whole boxes; `shipmentUncoveredLines` counts the
+    // lines with no box to derive from at all.
+    shipmentCartons: integer('shipmentCartons').notNull().default(0),
+    shipmentVolume: numeric('shipmentVolume', { precision: 12, scale: 3 }),
+    shipmentWeight: numeric('shipmentWeight', { precision: 12, scale: 3 }),
+    shipmentApproximate: boolean('shipmentApproximate')
+      .notNull()
+      .default(false),
+    shipmentUncoveredLines: integer('shipmentUncoveredLines')
+      .notNull()
+      .default(0),
+    // The currency lives in deployment config and could change under an old
+    // order, so the order says which one it was priced in.
+    currency: varchar('currency', { length: 8 }).notNull(),
+    // Staff-facing: which price list this was taken from. Null is the default
+    // list. Never serialized to the customer, and cleared by anonymization for
+    // the same reason `users.tierId` is.
+    tierKey: varchar('tierKey', { length: 64 }),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index('orders_userId_idx').on(t.userId),
+    index('orders_createdAt_idx').on(t.createdAt),
+    check('orders_status_known', oneOf('status', ORDER_STATUSES)),
+    check('orders_payment_known', oneOf('paymentMethod', PAYMENT_METHODS)),
+    check(
+      'orders_fulfilment_known',
+      oneOf('fulfilmentMethod', FULFILMENT_METHODS),
+    ),
+    // Each fulfilment carries exactly its own destination: a delivery has an
+    // address and no office, a pickup an office and no address.
+    check(
+      'orders_fulfilment_destination',
+      sql`case when ${t.fulfilmentMethod} = 'delivery'
+        then ${t.deliveryStreet} is not null
+          and ${t.deliveryPostalCode} is not null
+          and ${t.deliveryCity} is not null
+          and ${t.deliveryCountry} is not null
+          and ${t.pickupLocationKey} is null
+        else ${t.pickupLocationKey} is not null
+          and ${t.deliveryStreet} is null
+        end`,
+    ),
+  ],
+);
+
+/**
+ * An ordered line, frozen. The product is linked by id and described by
+ * snapshot: a rename, a re-price or a soft delete must not rewrite what
+ * somebody ordered, and the read layer degrades to plain text where the product
+ * is no longer visible.
+ *
+ * There is deliberately **no per-unit price column**. A piece has no exact
+ * integer price where the stored price covers several (19.99 for ten is 1.999
+ * each), so a rounded per-unit figure sitting beside the total would be a
+ * column that looks multiplicable and is not — and every later consumer would
+ * reach for it. `priceMinor` + `priceBasisPieces` keep the line exact and
+ * reconstructible; a per-unit figure for display is derived at render time.
+ */
+export const orderItems = pgTable(
+  'order_items',
+  {
+    orderId: uuid('orderId')
+      .notNull()
+      .references(() => orders.id, { onDelete: 'cascade' }),
+    sortOrder: integer('sortOrder').notNull(),
+    // Restrict rather than cascade: products are soft-deleted, never removed,
+    // and an order line must not be able to lose its product.
+    productId: uuid('productId')
+      .notNull()
+      .references(() => products.id, { onDelete: 'restrict' }),
+    // Staff- and ERP-facing, like `products.sourceId` itself: never serialized.
+    productSourceId: varchar('productSourceId', { length: 255 }).notNull(),
+    slug: varchar('slug', { length: 255 }).notNull(),
+    name: varchar('name', { length: 512 }).notNull(),
+    // The thumb URL only. Covered by the media-prune reference scan, like
+    // `products.images` and `categories.image`.
+    thumbnail: text('thumbnail'),
+    unit: varchar('unit', { length: 10 }).notNull(),
+    // In the chosen unit, and the pieces that came to — the unit is never
+    // normalized, so four packs stay four packs even where a box holds four.
+    quantity: integer('quantity').notNull(),
+    pieces: integer('pieces').notNull(),
+    // The tier-resolved price of `priceBasisPieces` pieces, as it stood.
+    priceMinor: integer('priceMinor').notNull(),
+    priceBasisPieces: integer('priceBasisPieces').notNull(),
+    lineTotalMinor: integer('lineTotalMinor').notNull(),
+    // Customer-typed, for a collective item's variant. Scrubbed by
+    // anonymization: it can perfectly well read "deliver to Anna, 0170…".
+    note: varchar('note', { length: 500 }),
+  },
+  (t) => [
+    // The PK is the read order as well as the identity, like product_attributes.
+    primaryKey({ columns: [t.orderId, t.sortOrder] }),
+    check('order_items_unit_known', oneOf('unit', PRODUCT_UNITS)),
+    check(
+      'order_items_quantities_positive',
+      sql`${t.quantity} >= 1 and ${t.pieces} >= 1 and ${t.priceBasisPieces} >= 1`,
+    ),
+    // The exactness rule, in the database: a line total is a multiplication of
+    // whole basis units, with nothing rounded.
+    check(
+      'order_items_total_exact',
+      sql`${t.pieces} % ${t.priceBasisPieces} = 0
+        and ${t.lineTotalMinor} = ${t.priceMinor} * (${t.pieces} / ${t.priceBasisPieces})`,
+    ),
+  ],
 );
 
 /**
