@@ -12,8 +12,9 @@ import {
   loadOrderReferenceConfig,
   loadPickupLocations,
 } from '../config/deployment-config';
+import { AdminOrdersController } from './admin-orders.controller';
 import { CartController } from './cart.controller';
-import { AdminOrdersController, OrdersController } from './orders.controller';
+import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 
 /**

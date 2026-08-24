@@ -100,29 +100,3 @@ export class OrdersController {
     );
   }
 }
-
-/**
- * The staff half (FR-AUTH-03: a manager views all orders). Read-only in this
- * iteration — the status transitions arrive with order processing.
- */
-@Auth('admin', 'manager')
-@Controller()
-export class AdminOrdersController {
-  constructor(private readonly orders: OrdersService) {}
-
-  @TsRestHandler(ordersContract.listOrders, { validateResponses: true })
-  listOrders() {
-    return tsRestHandler(ordersContract.listOrders, async ({ query }) => ({
-      status: 200 as const,
-      body: await this.orders.listAll(query.page ?? 1, query.status),
-    }));
-  }
-
-  @TsRestHandler(ordersContract.getOrder, { validateResponses: true })
-  getOrder() {
-    return tsRestHandler(ordersContract.getOrder, async ({ params }) => ({
-      status: 200 as const,
-      body: await this.orders.getForStaff(params.reference),
-    }));
-  }
-}
