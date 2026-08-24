@@ -173,24 +173,21 @@ describe('AddressEditorPage', () => {
       const { field } = await render();
 
       // By value, not by foreign key: the address is free to be corrected to
-      // another entity's number afterwards. Shown without the prefix the field
-      // draws for it, as on the registration form.
-      expect(field('companyId')?.value).toBe('123456789');
+      // another entity's number afterwards, and it is shown exactly as stored.
+      expect(field('companyId')?.value).toBe('DE123456789');
       expect(field('phone')?.value).toBe('(401) 234-5678');
       expect(field('label')?.value).toBe('');
     });
 
-    // The account is registered under the second shape while the picker's own
-    // default is the first: the field has to follow the number, or it masks ten
-    // digits into a five-digit box and the save stores the truncation.
-    it('prefills a number in the shape it is actually in', async () => {
-      const { el, field } = await render({
+    // Whichever of the deployment's shapes the account is registered under, the
+    // field shows the number itself — there is no shape to get wrong any more.
+    it('prefills a number in any configured shape', async () => {
+      const { field } = await render({
         twoCompanyIdFormats: true,
         companyRegistrationId: '1234567890',
       });
 
       expect(field('companyId')?.value).toBe('1234567890');
-      expect(el.querySelector<HTMLSelectElement>('select')?.value).toBe('long');
     });
 
     it('leaves the registration number empty for an account with none', async () => {
@@ -343,10 +340,14 @@ describe('AddressEditorPage', () => {
       await submit();
 
       expect(h.create).not.toHaveBeenCalled();
+      // One message for every configured shape: which of them the customer
+      // meant is not a question the form asks first.
       expect(el.textContent).toContain(
         defaultAppText.auth.register.validation.companyIdFormat.replace(
-          '{example}',
-          defaultDeploymentConfig.companyIdInput?.formats[0].example ?? '',
+          '{examples}',
+          (defaultDeploymentConfig.companyIdInput?.formats ?? [])
+            .map((format) => format.example)
+            .join(', '),
         ),
       );
     });
@@ -371,7 +372,7 @@ describe('AddressEditorPage', () => {
       const { field } = await render({ id: 'addr-1' });
 
       expect(field('label')?.value).toBe('Shop');
-      expect(field('companyId')?.value).toBe('123456789');
+      expect(field('companyId')?.value).toBe('DE123456789');
       expect(field('city')?.value).toBe('Hamburg');
     });
 

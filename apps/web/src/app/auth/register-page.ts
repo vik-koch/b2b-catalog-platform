@@ -6,11 +6,9 @@ import { CustomerType, emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
-  canonicalCompanyId,
   canonicalPhone,
   companyIdValidators,
   phoneValidators,
-  type CompanyIdFormat,
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { zodValidator } from '../core/zod-validator';
@@ -151,8 +149,8 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 
           @if (isCompany()) {
             <app-company-id-field
+              inputId="companyRegistrationId"
               [control]="form.controls.companyRegistrationId"
-              [formatControl]="form.controls.companyIdFormat"
               [label]="text.register.companyId"
               [text]="companyIdText"
               [invalid]="isInvalid('companyRegistrationId')"
@@ -265,7 +263,7 @@ export class RegisterPage {
   protected readonly companyIdText = {
     required: this.text.register.validation.companyIdRequired,
     format: this.text.register.validation.companyIdFormat,
-    formatLabel: this.text.register.companyIdFormat,
+    hint: this.text.register.companyIdHint,
   };
 
   protected readonly status = signal<Status>('idle');
@@ -283,9 +281,6 @@ export class RegisterPage {
     email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
     phone: ['', phoneValidators(this.phoneInput, true)],
     companyRegistrationId: [''],
-    // Which shape the number is being entered in. Never sent — it decides the
-    // prefix, the mask and the rule, and the stored value is the result.
-    companyIdFormat: [this.companyIdInput?.formats[0]?.key ?? ''],
     website: [''],
     acceptPrivacy: [false, Validators.requiredTrue],
   });
@@ -298,11 +293,6 @@ export class RegisterPage {
         this.customerType.set(type);
         this.applyValidators(type);
       });
-    // A different shape is a different rule, so the validators follow the
-    // picker as well as the account type.
-    this.form.controls.companyIdFormat.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.applyValidators(this.customerType()));
   }
 
   // Segmented control: the selected kind fills with the theme primary.
@@ -345,18 +335,12 @@ export class RegisterPage {
   private applyValidators(type: CustomerType): void {
     const control = this.form.controls.companyRegistrationId;
     if (type === 'company') {
-      control.setValidators(companyIdValidators(this.chosenFormat()));
+      control.setValidators(companyIdValidators(this.companyIdInput?.formats));
     } else {
       control.setValidators([]);
       control.setValue('', { emitEvent: false });
     }
     control.updateValueAndValidity({ emitEvent: false });
-  }
-
-  /** The shape the applicant said they were entering. */
-  private chosenFormat(): CompanyIdFormat | undefined {
-    const key = this.form.controls.companyIdFormat.value;
-    return this.companyIdInput?.formats.find((format) => format.key === key);
   }
 
   private toRequest() {
@@ -368,9 +352,11 @@ export class RegisterPage {
       lastName: value.lastName.trim(),
       phone: canonicalPhone(value.phone, this.phoneInput),
       customerType: value.customerType,
+      // Sent as typed; the contract normalizes it (spaces out, upper case) so
+      // the browser and the API cannot disagree about what was entered.
       companyRegistrationId:
         value.customerType === 'company'
-          ? canonicalCompanyId(value.companyRegistrationId, this.chosenFormat())
+          ? value.companyRegistrationId.trim()
           : undefined,
       // Honeypot.
       website: value.website || undefined,

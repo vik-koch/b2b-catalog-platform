@@ -1,257 +1,126 @@
-import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
-import { DeploymentConfig } from '../config/deployment-config.type';
+import { companyIdFormat } from '../core/contact-fields';
 import { CompanyIdField } from './company-id-field';
 
-const vat = {
-  key: 'vat',
-  label: 'VAT number',
-  pattern: '^DE[0-9]{9}$',
-  prefix: 'DE',
-  mask: '#########',
-  example: 'DE123456789',
-};
-
-/** A jurisdiction that takes two shapes, neither with a prefix. */
-const soleTrader = {
-  key: 'sole',
-  label: 'Sole trader',
-  pattern: '^[0-9]{10}$',
-  mask: '##########',
-  example: '1234567890',
-};
-const company = {
-  key: 'company',
-  label: 'Company',
-  pattern: '^[0-9]{12}$',
-  mask: '############',
-  example: '123456789012',
-};
+const formats = defaultDeploymentConfig.companyIdInput?.formats ?? [];
+/** Both shapes the demo deployment accepts, as the field names them. */
+const examples = formats.map((format) => format.example).join(', ');
 
 const text = {
-  required: 'A registration number is required.',
-  format: 'Please enter it in the form {example}.',
-  formatLabel: 'Kind of registration number',
+  required: 'Please enter your company registration number.',
+  format: 'Please enter it in one of the expected formats, e.g. {examples}.',
+  hint: 'Any of the numbers we can invoice against, e.g. {examples}.',
 };
 
-@Component({
-  imports: [ReactiveFormsModule, CompanyIdField],
-  template: `
-    <app-company-id-field
-      [control]="control"
-      [formatControl]="formatControl"
-      label="Registration number"
-      [text]="text"
-      [invalid]="invalid()"
-    />
-  `,
-})
-class Host {
-  control = new FormControl('', { nonNullable: true });
-  formatControl = new FormControl('', { nonNullable: true });
-  invalid = signal(false);
-  text = text;
-}
-
-async function render(
-  formats: Record<string, unknown>[],
-  { selected = formats[0]['key'] as string, value = '' } = {},
-) {
-  const config = {
-    ...defaultDeploymentConfig,
-    companyIdInput: { formats },
-  } as unknown as DeploymentConfig;
-
+async function render(options: { required?: boolean; invalid?: boolean } = {}) {
   TestBed.configureTestingModule({
-    imports: [Host],
-    providers: [{ provide: DEPLOYMENT_CONFIG, useValue: config }],
+    imports: [CompanyIdField],
+    providers: [
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+    ],
   });
-  const fixture = TestBed.createComponent(Host);
-  const host = fixture.componentInstance;
-  host.formatControl.setValue(selected);
-  host.control.setValue(value);
+
+  const control = new FormControl('', {
+    nonNullable: true,
+    validators: [
+      ...(options.required === false ? [] : [Validators.required]),
+      companyIdFormat(formats),
+    ],
+  });
+
+  const fixture = TestBed.createComponent(CompanyIdField);
+  fixture.componentRef.setInput('control', control);
+  fixture.componentRef.setInput('label', 'Company registration number');
+  fixture.componentRef.setInput('text', text);
+  fixture.componentRef.setInput('required', options.required ?? true);
+  fixture.componentRef.setInput('invalid', options.invalid ?? false);
   await fixture.whenStable();
+  fixture.detectChanges();
 
-  const el = fixture.nativeElement as HTMLElement;
-  const input = () =>
-    el.querySelector('#companyRegistrationId') as HTMLInputElement;
-  const select = () => el.querySelector('select') as HTMLSelectElement | null;
-
-  const choose = async (key: string) => {
-    const picker = select();
-    if (!picker) throw new Error('no format picker rendered');
-    picker.value = key;
-    picker.dispatchEvent(new Event('change'));
-    await fixture.whenStable();
+  return {
+    fixture,
+    control,
+    el: fixture.nativeElement as HTMLElement,
+    type: (value: string) => {
+      control.setValue(value);
+      fixture.detectChanges();
+    },
+    /**
+     * What the form does when its FieldErrors decides the message is due. The
+     * message is read off the control through a template method, and only a
+     * changed *signal* re-renders it — flipping `invalid` is that signal, in
+     * the test as in the form.
+     */
+    showError: () => {
+      fixture.componentRef.setInput('invalid', true);
+      fixture.detectChanges();
+    },
   };
-  const type = async (raw: string) => {
-    input().value = raw;
-    input().dispatchEvent(new Event('input'));
-    await fixture.whenStable();
-  };
-
-  return { fixture, el, host, input, select, choose, type };
 }
 
 describe('CompanyIdField', () => {
-  describe('with one configured format', () => {
-    it('draws no picker — there is nothing to ask', async () => {
-      const { select } = await render([vat]);
+  it('is a plain text input — nothing to pick, nothing prefixed', async () => {
+    const { el } = await render();
 
-      expect(select()).toBeNull();
-    });
-
-    it('shows the format prefix and its example as the hint', async () => {
-      const { el } = await render([vat]);
-
-      expect(el.textContent).toContain('DE');
-      expect(el.textContent).toContain(
-        'Please enter it in the form DE123456789.',
-      );
-    });
-
-    it('masks what is typed, leaving the prefix out of the control', async () => {
-      const { host, type, input } = await render([vat]);
-
-      await type('123456789');
-
-      expect(input().value).toBe('123456789');
-      // The prefix is composed in on submit, never held in the field.
-      expect(host.control.value).toBe('123456789');
-    });
+    expect(el.querySelector('select')).toBeNull();
+    expect(el.querySelectorAll('input')).toHaveLength(1);
+    expect(el.querySelector('input')?.type).toBe('text');
   });
 
-  describe('with several configured formats', () => {
-    it('offers each one by its label', async () => {
-      const { select } = await render([soleTrader, company]);
+  // The field asks for a number, not for a kind of number, so its hint names
+  // every shape the deployment takes rather than one of them.
+  it('names every accepted shape in its hint', async () => {
+    const { el } = await render();
 
-      expect(
-        [...(select()?.options ?? [])].map((o) => o.textContent?.trim()),
-      ).toEqual(['Sole trader', 'Company']);
-    });
-
-    it('hints with the chosen format, not with all of them', async () => {
-      const { el, choose } = await render([soleTrader, company]);
-
-      expect(el.textContent).toContain('in the form 1234567890.');
-
-      await choose('company');
-
-      expect(el.textContent).toContain('in the form 123456789012.');
-      expect(el.textContent).not.toContain('in the form 1234567890.');
-    });
-
-    /**
-     * The whole reason the picker exists: one mask cannot serve both, because a
-     * mask caps entry at its own length. Twelve digits are unreachable while
-     * the ten-digit shape is selected.
-     */
-    it('lets the longer format take more digits than the shorter one', async () => {
-      const { host, type, choose, input } = await render([soleTrader, company]);
-
-      await type('123456789012');
-      expect(input().value).toBe('1234567890');
-
-      await choose('company');
-      await type('123456789012');
-
-      expect(input().value).toBe('123456789012');
-      expect(host.control.value).toBe('123456789012');
-    });
-
-    // The two shapes are different numbers, not two spellings of one, so a
-    // switch asks for the number again rather than keeping a prefix of it.
-    it('clears the number when the kind of number changes', async () => {
-      const { host, type, choose, input } = await render([soleTrader, company]);
-
-      await type('1234567890');
-      await choose('company');
-
-      expect(host.control.value).toBe('');
-      expect(input().value).toBe('');
-    });
-
-    it('clears through the newly chosen mask, not the old one', async () => {
-      const grouped = {
-        key: 'grouped',
-        label: 'Grouped',
-        pattern: '^[0-9]{6}$',
-        mask: '###-###',
-        example: '123-456',
-      };
-      const plain = {
-        key: 'plain',
-        label: 'Plain',
-        pattern: '^[0-9]{6}$',
-        mask: '######',
-        example: '123456',
-      };
-      const { host, type, choose, input } = await render([grouped, plain]);
-
-      await type('123456');
-      expect(input().value).toBe('123-456');
-
-      await choose('plain');
-
-      // Cleared, and cleared through the mask that is bound *now* — the old
-      // one would have left the separators it draws behind.
-      expect(host.control.value).toBe('');
-      expect(input().value).toBe('');
-    });
-
-    it('shows a stored number in the format it is in, whole', async () => {
-      const short = {
-        key: 'short',
-        label: 'Short',
-        pattern: '^[0-9]{5}$',
-        mask: '#####',
-        example: '12345',
-      };
-      const ten = {
-        key: 'ten',
-        label: 'Ten',
-        pattern: '^[0-9]{10}$',
-        mask: '##########',
-        example: '1234567890',
-      };
-      // How every editor seeds this field: the picker is set to the format the
-      // stored number is in, and the number is written, in that order.
-      const { fixture, host, input } = await render([short, ten]);
-      host.formatControl.setValue('ten');
-      host.control.setValue('1234567890');
-      // No detectChanges, deliberately: seeding a FormControl marks no view
-      // for check, so the field has to follow the control itself. This is the
-      // whole point — the page that seeds it does nothing more than this.
-      await fixture.whenStable();
-
-      expect(input().value).toBe('1234567890');
-      expect(host.control.value).toBe('1234567890');
-    });
-
-    it('names the picker for a screen reader', async () => {
-      const { select } = await render([soleTrader, company]);
-
-      expect(select()?.getAttribute('aria-label')).toBe(
-        'Kind of registration number',
-      );
-    });
+    expect(formats.length).toBeGreaterThan(1);
+    expect(el.textContent).toContain(examples);
   });
 
-  /**
-   * A number from before the current config, or from an import. Masking it
-   * would truncate it, and the save would then store the truncation — so the
-   * field wears no shape it does not have.
-   */
-  it('shows a value in no configured shape unmasked and unprefixed', async () => {
-    const { el, input } = await render([vat], {
-      selected: '',
-      value: 'XX-9999',
-    });
+  it('accepts a number in any of them', async () => {
+    const { control, type } = await render();
 
-    expect(input().value).toBe('XX-9999');
-    expect(el.querySelector('span[appFieldPrefix]')).toBeNull();
+    type('DE123456789');
+    expect(control.valid).toBe(true);
+
+    type('1234567890');
+    expect(control.valid).toBe(true);
+  });
+
+  // Typed the way it is printed on a letterhead. The contract normalizes what
+  // travels, so the field must not refuse it first.
+  it('takes a number typed with spaces or in lower case', async () => {
+    const { control, type } = await render();
+
+    type('de 123 456 789');
+
+    expect(control.valid).toBe(true);
+  });
+
+  it('refuses one in no configured shape, naming them all', async () => {
+    const { control, el, type, showError } = await render();
+
+    type('12345');
+    showError();
+    expect(control.valid).toBe(false);
+    expect(el.textContent).toContain(
+      `Please enter it in one of the expected formats, e.g. ${examples}.`,
+    );
+  });
+
+  // Missing and malformed are different mistakes, and only the first has a
+  // message of its own — an optional field passes none in.
+  it('says a number is missing before it says it is malformed', async () => {
+    const { el } = await render({ invalid: true });
+
+    expect(el.textContent).toContain(text.required);
+  });
+
+  it('falls back to the format message where nothing is required', async () => {
+    const { el } = await render({ required: false, invalid: true });
+
+    expect(el.textContent).not.toContain(text.required);
   });
 });

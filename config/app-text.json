@@ -206,7 +206,6 @@
       "lastName": "Last name",
       "phone": "Phone",
       "companyId": "Company registration number",
-      "companyIdFormat": "Kind of registration number",
       "submit": "Request an account",
       "submitting": "Sending…",
       "successHeading": "Thank you",
@@ -221,9 +220,10 @@
         "phoneRequired": "Please enter your phone number.",
         "phoneIncomplete": "Please enter a complete phone number.",
         "companyIdRequired": "Please enter your company registration number.",
-        "companyIdFormat": "Please enter it in the expected format, e.g. {example}.",
+        "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}.",
         "privacyRequired": "Please accept the privacy policy to continue."
-      }
+      },
+      "companyIdHint": "Any of the numbers we can invoice against, e.g. {examples}."
     },
     "setPassword": {
       "checking": "Checking your link…",

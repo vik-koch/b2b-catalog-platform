@@ -56,15 +56,12 @@
         "key": "vat",
         "label": "VAT number",
         "pattern": "^DE[0-9]{9}$",
-        "prefix": "DE",
-        "mask": "#########",
         "example": "DE123456789"
       },
       {
         "key": "tax",
         "label": "Tax number",
         "pattern": "^[0-9]{10}$",
-        "mask": "##########",
         "example": "1234567890"
       }
     ]

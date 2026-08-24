@@ -172,54 +172,35 @@ function checkPattern(
   return true;
 }
 
+/**
+ * One accepted shape of registration number. A pattern and an example of it —
+ * the field is plain typed input, so there is nothing to prefix, mask or pick
+ * between; what a customer types is what is stored, and the shapes are what it
+ * is measured against.
+ *
+ * `example` is required because it is not decoration: the field's only hint and
+ * its only error message are built from the configured examples, so a format
+ * without one is a rule nobody is told about.
+ */
 export const companyIdFormatSchema = z
   .object({
     key: z.string().min(1),
     label: z.string().min(1).optional(),
     pattern: z.string(),
-    prefix: z.string().optional(),
-    mask: z.string().optional(),
-    example: z.string().optional(),
+    example: z.string().min(1),
   })
   .strict()
-  /**
-   * `prefix` and `mask` are promises about `pattern` that no regex can be asked
-   * to confirm, so the example is made load-bearing: it is checked against all
-   * three. A deployment that sets a nine-digit mask on a format that is twelve
-   * digits long fails the boot with the field named, instead of shipping a
-   * field nobody can fill in.
-   */
   .superRefine((format, ctx) => {
     if (!checkPattern(format.pattern, ctx, ['pattern'])) return;
 
-    const { example } = format;
-    if (example === undefined) return;
-
-    if (!new RegExp(format.pattern).test(example)) {
+    // An example that its own pattern refuses is a hint that teaches a value
+    // the field will reject; the boot fails with the field named.
+    if (!new RegExp(format.pattern).test(format.example)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['example'],
-        message: `example "${example}" does not match this format's own pattern`,
+        message: `example "${format.example}" does not match this format's own pattern`,
       });
-    }
-    if (format.prefix && !example.startsWith(format.prefix)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['example'],
-        message: `example "${example}" does not start with the prefix "${format.prefix}"`,
-      });
-    }
-    if (format.mask) {
-      const typed = format.prefix
-        ? example.slice(format.prefix.length)
-        : example;
-      if (digitsOf(typed).length !== maskLength(format.mask)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['mask'],
-          message: `mask takes ${maskLength(format.mask)} digits, but the example has ${digitsOf(typed).length}`,
-        });
-      }
     }
   });
 
@@ -248,9 +229,8 @@ export type CompanyIdInput = z.infer<typeof companyIdInputSchema>;
  * the picker for an account it is opening.
  *
  * `undefined` for a number that fits none of them: one from before the current
- * config, or from an import. The field shows such a value unmasked rather than
- * forcing it into a shape it does not have, because a mask would truncate it
- * and the save would then quietly store the truncation.
+ * config, or from an import. Where two patterns overlap the first wins — they
+ * are a deployment's own list, and a number in both is in both.
  */
 export function companyIdFormatOf(
   stored: string | null | undefined,
@@ -261,26 +241,31 @@ export function companyIdFormatOf(
   return formats?.find((format) => fitsFormat(value, format));
 }
 
-/**
- * Whether a stored number is in this format — measured against **everything**
- * the format claims about it, not the pattern alone. A pattern can be looser
- * than the mask beside it, and a format claimed on the pattern while its mask
- * takes fewer digits (or takes digits where the value has letters) would dress
- * the number in a shape that truncates it.
- *
- * So the test is a round trip: put the value through this format's prefix and
- * mask, and see whether what comes back is the value. That is the same thing
- * the config checks against a format's own example, for the same reason.
- */
+/** Whether a stored number is in this format. The pattern is the whole rule:
+ * it is anchored, and nothing dresses the value up any more. */
 function fitsFormat(value: string, format: CompanyIdFormat): boolean {
-  if (!new RegExp(format.pattern).test(value)) return false;
+  return new RegExp(format.pattern).test(value);
+}
 
-  const prefix = format.prefix ?? '';
-  if (prefix && !value.startsWith(prefix)) return false;
-  if (!format.mask) return true;
+/**
+ * The one form a registration number is stored and compared in: no spaces,
+ * upper case. Applied by the contract itself, so the browser and the API cannot
+ * disagree about whether `de 123 456 789` is the number `DE123456789`.
+ *
+ * Configured patterns are therefore written against upper-case values.
+ */
+export function normalizeCompanyId(value: string): string {
+  return value.replace(/\s+/g, '').toUpperCase();
+}
 
-  const digits = digitsOf(value.slice(prefix.length));
-  return (
-    digits.length === maskLength(format.mask) && `${prefix}${digits}` === value
+/** Whether a number is one of the shapes this deployment accepts. No formats
+ * configured means no shape rule — the envelope in the contract still applies. */
+export function companyIdMatchesAny(
+  value: string,
+  formats: readonly CompanyIdFormat[] | undefined,
+): boolean {
+  if (!formats?.length) return true;
+  return formats.some((format) =>
+    fitsFormat(normalizeCompanyId(value), format),
   );
 }

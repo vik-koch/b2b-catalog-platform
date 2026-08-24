@@ -1,23 +1,18 @@
 import { Component, effect, inject, resource, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   Address,
   AddressComponents,
   AddressInput,
-  CompanyIdFormat,
-  companyIdFormatOf,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { AccountService } from '../account/account.service';
 import {
-  canonicalCompanyId,
-  companyIdPattern,
   canonicalPhone,
+  companyIdFormat,
   phoneValidators,
-  typedCompanyId,
   typedPhone,
 } from '../core/contact-fields';
 import { delayedLoading } from '../core/delayed-loading';
@@ -106,13 +101,12 @@ type Status = 'idle' | 'submitting' | 'error';
             />
           </div>
 
-          <!-- The same masked field registration uses, and the same rule — one
+          <!-- The same field registration uses, and the same rule — one
                jurisdiction, one set of accepted shapes. Optional here: an
                address invoiced to a natural person has no number. -->
           <app-company-id-field
             inputId="companyId"
             [control]="form.controls.companyId"
-            [formatControl]="form.controls.companyIdFormat"
             [label]="text.companyId"
             [text]="companyIdText"
             [required]="false"
@@ -278,9 +272,7 @@ export class AddressEditorPage {
     incomplete: this.validation.phoneIncomplete,
   };
   protected readonly companyIdText = {
-    required: this.validation.companyIdRequired,
     format: this.validation.companyIdFormat,
-    formatLabel: inject(APP_TEXT).auth.register.companyIdFormat,
     hint: this.text.companyIdHint,
   };
   protected readonly suggestText = {
@@ -301,10 +293,7 @@ export class AddressEditorPage {
     // has to invent a word for the only address they order to.
     label: [''],
     companyName: [''],
-    companyId: [''],
-    // Which shape the number is being entered in. Never sent — it decides the
-    // prefix, the mask and the rule, and the stored value is the result.
-    companyIdFormat: [this.companyIdInput?.formats[0]?.key ?? ''],
+    companyId: ['', companyIdFormat(this.companyIdInput?.formats)],
     street: ['', Validators.required],
     street2: [''],
     postalCode: ['', Validators.required],
@@ -339,23 +328,13 @@ export class AddressEditorPage {
     (this.isNew || this.saved.hasValue()) && !this.notFound();
 
   constructor() {
-    // A different shape is a different rule, so the check follows the picker.
-    this.applyCompanyIdValidator();
-    this.form.controls.companyIdFormat.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.applyCompanyIdValidator());
-
     // A new address starts from what the account already said: the same person,
     // usually the same company, reachable on the same number.
     effect(() => {
       const profile = this.profile.value();
       if (!profile) return;
-      this.showFormatOf(profile.companyRegistrationId);
       this.form.patchValue({
-        companyId: typedCompanyId(
-          profile.companyRegistrationId,
-          this.chosenFormat(),
-        ),
+        companyId: profile.companyRegistrationId ?? '',
         phone: typedPhone(profile.phone, this.phoneInput),
       });
     });
@@ -378,12 +357,10 @@ export class AddressEditorPage {
   }
 
   private fill(address: Address): void {
-    this.showFormatOf(address.companyId);
     this.form.reset({
       label: address.label ?? '',
       companyName: address.companyName ?? '',
-      companyId: typedCompanyId(address.companyId, this.chosenFormat()),
-      companyIdFormat: this.form.controls.companyIdFormat.value,
+      companyId: address.companyId ?? '',
       street: address.street,
       street2: address.street2 ?? '',
       postalCode: address.postalCode,
@@ -429,35 +406,6 @@ export class AddressEditorPage {
     return this.text.unsupportedCountry;
   }
 
-  /**
-   * Dress the field as whichever configured shape the stored number is in. One
-   * that fits none of them gets no shape at all — masking it would truncate it
-   * on screen, and the next save would store the truncation — and an address
-   * with no number keeps the first format, which is what a new one is typed in.
-   */
-  private showFormatOf(stored: string | null | undefined): void {
-    const format = stored?.trim()
-      ? companyIdFormatOf(stored, this.companyIdInput?.formats)
-      : this.companyIdInput?.formats[0];
-    // Emitting on purpose: the field follows this control's stream to know
-    // which mask to draw, and a silent write would leave it in the old shape.
-    this.form.controls.companyIdFormat.setValue(format?.key ?? '');
-  }
-
-  private chosenFormat(): CompanyIdFormat | undefined {
-    const key = this.form.controls.companyIdFormat.value;
-    return this.companyIdInput?.formats.find((format) => format.key === key);
-  }
-
-  /** The format's own pattern, and only that: the number is optional here, so
-   * there is no required rule to swap in and out. */
-  private applyCompanyIdValidator(): void {
-    const format = this.chosenFormat();
-    const control = this.form.controls.companyId;
-    control.setValidators(format ? [companyIdPattern(format)] : []);
-    control.updateValueAndValidity({ emitEvent: false });
-  }
-
   protected submitting(): boolean {
     return this.status() === 'submitting';
   }
@@ -479,10 +427,7 @@ export class AddressEditorPage {
     const input: AddressInput = {
       label: optional(value.label),
       companyName: optional(value.companyName),
-      // Sent unmasked, prefix included — the shape the picker was set to is an
-      // entry aid, and the stored value is its result.
-      companyId:
-        canonicalCompanyId(value.companyId, this.chosenFormat()) || null,
+      companyId: optional(value.companyId),
       street: value.street.trim(),
       street2: optional(value.street2),
       postalCode: value.postalCode.trim(),

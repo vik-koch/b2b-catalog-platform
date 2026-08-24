@@ -1,5 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { normalizeCompanyId } from './contact-format';
 import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 
 const c = initContract();
@@ -141,16 +142,23 @@ export const customerTypeSchema = z.enum(CUSTOMER_TYPES);
  * jurisdiction-specific and therefore deployment configuration
  * (`companyIdInput.formats` in deployment.json) — plural, because a
  * jurisdiction can take more than one shape — not something this contract can
- * know, so all it enforces is the envelope. The value travels unmasked; the
- * deployment's own patterns are applied on top, on both sides, and matching any
- * one of them is enough.
+ * know, so all it enforces is the envelope. The deployment's own patterns are
+ * applied on top, on both sides, and matching any one of them is enough.
+ *
+ * Normalized before it is checked, not after: a number is typed the way it is
+ * printed on paper, spaces and all, and refusing `DE 123 456 789` for a space
+ * would be refusing the number. What is stored is what the patterns are written
+ * against — no spaces, upper case.
  */
-export const companyRegistrationIdSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .max(64)
-  .regex(/^[A-Za-z0-9-]+$/);
+export const companyRegistrationIdSchema = z.preprocess(
+  (value) =>
+    typeof value === 'string' ? normalizeCompanyId(value.trim()) : value,
+  z
+    .string()
+    .min(1)
+    .max(64)
+    .regex(/^[A-Z0-9-]+$/),
+);
 
 /**
  * Registration (FR-AUTH-01). A registration is a *request* to become a

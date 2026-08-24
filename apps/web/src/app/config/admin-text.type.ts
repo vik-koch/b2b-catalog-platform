@@ -790,8 +790,6 @@ export const adminTextSchema = z
         lastName: z.string(),
         phone: z.string(),
         companyId: z.string(),
-        /** Names the format picker; see the public text of the same name. */
-        companyIdFormat: z.string(),
         customerType: z.string(),
         tier: z.string(),
         tierChoose: z.string(),

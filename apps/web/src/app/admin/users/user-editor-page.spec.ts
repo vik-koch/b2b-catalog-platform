@@ -19,7 +19,6 @@ const text = defaultAdminText.userEditor;
 
 /** The demo deployment's own rules, which the form is built from. */
 const phone = defaultDeploymentConfig.phoneInput;
-const companyId = defaultDeploymentConfig.companyIdInput?.formats[0];
 
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {
@@ -171,14 +170,14 @@ describe('UserEditorPage', () => {
     });
 
     expect((field('firstName') as HTMLInputElement).value).toBe('Jane');
-    // The country code and the ID prefix are displayed beside their fields,
-    // never inside them — otherwise a save would double them up.
+    // The country code is displayed beside the phone field, never inside it —
+    // otherwise a save would double it up. A registration number has no such
+    // split: it is shown exactly as stored, whatever shape it is in.
     expect((field('phone') as HTMLInputElement).value).toBe('(040) 123-4567');
     expect((field('companyRegistrationId') as HTMLInputElement).value).toBe(
-      '123456789',
+      'DE123456789',
     );
     expect(phone?.countryCode).toBe('+49');
-    expect(companyId?.prefix).toBe('DE');
   });
 
   it('saves them back in the canonical form the API stores', async () => {

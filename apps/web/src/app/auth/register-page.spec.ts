@@ -187,17 +187,16 @@ describe('RegisterPage', () => {
     expect(el.querySelector('#companyRegistrationId')).toBeNull();
   });
 
-  it('sends the registration number unmasked, as the server validates it', async () => {
+  it('sends the registration number as it was typed', async () => {
     const { el, register, sync, submit, fillPerson, chooseCompany } =
       await render();
 
     await chooseCompany();
     await fillPerson();
-    // The visitor types digits only: the mask groups them and the configured
-    // prefix is shown beside the field, never typed. What travels is the whole
-    // canonical number, prefix included — that is what the pattern describes
-    // and what the shop has on file.
-    setInput(el, '#companyRegistrationId', '123456789');
+    // The whole number, typed as it is printed on a letterhead. Nothing is
+    // prefixed for the visitor and nothing is masked away; the contract
+    // normalizes what travels.
+    setInput(el, '#companyRegistrationId', 'DE123456789');
     await sync();
     submit();
     await sync();
@@ -207,6 +206,24 @@ describe('RegisterPage', () => {
         customerType: 'company',
         companyRegistrationId: 'DE123456789',
       }),
+    );
+  });
+
+  // Two shapes are configured and the field asks for neither in particular:
+  // whichever the customer has is measured against all of them.
+  it('takes a number in any configured shape', async () => {
+    const { el, register, sync, submit, fillPerson, chooseCompany } =
+      await render();
+
+    await chooseCompany();
+    await fillPerson();
+    setInput(el, '#companyRegistrationId', '1234567890');
+    await sync();
+    submit();
+    await sync();
+
+    expect(register).toHaveBeenCalledWith(
+      expect.objectContaining({ companyRegistrationId: '1234567890' }),
     );
   });
 

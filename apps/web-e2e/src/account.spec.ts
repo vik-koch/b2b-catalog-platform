@@ -182,12 +182,11 @@ test.describe('my account', () => {
   });
 
   /**
-   * The deployment takes two shapes of registration number, and this account is
-   * registered under the second. The address form must open on *that* shape:
-   * dressed in the first, a ten-digit number is masked into a five-digit box,
-   * and the save would store what is left.
+   * The deployment takes two shapes of registration number and the field asks
+   * for neither in particular: whichever the account is registered under is
+   * prefilled whole, and every accepted shape is named in the hint.
    */
-  test('opens the address form on the shape the account’s number is in', async ({
+  test('prefills the account’s registration number whatever shape it is in', async ({
     page,
   }, testInfo) => {
     const email = await arrange(testInfo, '1234567890');
@@ -198,16 +197,10 @@ test.describe('my account', () => {
     await expect(page).toHaveURL(/\/account$/);
     await page.getByRole('link', { name: 'Add address' }).click();
 
-    const number = page.getByLabel('Company registration number');
-    await expect(number).toHaveValue('1234567890');
-    await expect(page.getByLabel('Kind of registration number')).toHaveValue(
-      'tax',
+    await expect(page.getByLabel('Company registration number')).toHaveValue(
+      '1234567890',
     );
-
-    // Switching the kind asks for the number again rather than keeping a
-    // prefix of one that belonged to another shape.
-    await page.getByLabel('Kind of registration number').selectOption('vat');
-    await expect(number).toHaveValue('');
+    await expect(page.getByLabel('Kind of registration number')).toHaveCount(0);
   });
 
   test('deletes the account, and the address can be registered again', async ({

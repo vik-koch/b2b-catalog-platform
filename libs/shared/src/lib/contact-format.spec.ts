@@ -3,7 +3,9 @@ import {
   canonicalPhone,
   CompanyIdFormat,
   companyIdFormatOf,
+  companyIdMatchesAny,
   formatPhone,
+  normalizeCompanyId,
   PhoneConfig,
   typedPhone,
 } from './contact-format';
@@ -115,19 +117,12 @@ describe('companyIdFormatOf', () => {
   const vat: CompanyIdFormat = {
     key: 'vat',
     pattern: '^DE[0-9]{9}$',
-    prefix: 'DE',
-    mask: '#########',
+    example: 'DE123456789',
   };
-  /** Deliberately looser than its own mask, which is how the two disagree. */
   const short: CompanyIdFormat = {
     key: 'short',
-    pattern: '^[0-9]+$',
-    mask: '##########',
-  };
-  const long: CompanyIdFormat = {
-    key: 'long',
-    pattern: '^[0-9]{11}$',
-    mask: '###########',
+    pattern: '^[0-9]{10}$',
+    example: '1234567890',
   };
 
   it('picks the format whose pattern the number matches', () => {
@@ -135,30 +130,60 @@ describe('companyIdFormatOf', () => {
     expect(companyIdFormatOf('1234567890', [vat, short])?.key).toBe('short');
   });
 
-  // The pattern alone would hand an eleven-digit number to a ten-digit mask.
-  it('passes over a format whose mask cannot hold the number', () => {
-    expect(companyIdFormatOf('12345678901', [short, long])?.key).toBe('long');
-  });
-
-  it('takes the first format that fits, not the first that half-fits', () => {
-    expect(companyIdFormatOf('1234567890', [short, long])?.key).toBe('short');
-  });
-
-  it('requires the prefix the format says it has', () => {
-    const unprefixed: CompanyIdFormat = {
-      key: 'plain',
-      pattern: '^[A-Z]{2}[0-9]{9}$',
-      mask: '#########',
+  // Which of two overlapping shapes a number "really" is cannot be recovered
+  // from the number, and nothing downstream needs it to be: this only names a
+  // stored value for the staff filter.
+  it('takes the first format that matches where two overlap', () => {
+    const loose: CompanyIdFormat = {
+      key: 'loose',
+      pattern: '^[0-9]+$',
+      example: '1',
     };
-    // Same digits, but this one promises no prefix — so its mask is measured
-    // against the whole value, which carries two letters it cannot hold.
-    expect(companyIdFormatOf('DE123456789', [unprefixed])).toBeUndefined();
-    expect(companyIdFormatOf('DE123456789', [vat])?.key).toBe('vat');
+    expect(companyIdFormatOf('1234567890', [loose, short])?.key).toBe('loose');
   });
 
   it('leaves a number in no configured shape unclaimed', () => {
     expect(companyIdFormatOf('XX-9999', [vat, short])).toBeUndefined();
     expect(companyIdFormatOf(null, [vat])).toBeUndefined();
     expect(companyIdFormatOf('DE123456789', undefined)).toBeUndefined();
+  });
+});
+
+describe('normalizeCompanyId', () => {
+  // A number is typed the way it is printed on a letterhead. Refusing it for a
+  // space would be refusing the number.
+  it('is the same number however it was typed', () => {
+    expect(normalizeCompanyId('de 123 456 789')).toBe('DE123456789');
+    expect(normalizeCompanyId('DE123456789')).toBe('DE123456789');
+  });
+});
+
+describe('companyIdMatchesAny', () => {
+  const vat: CompanyIdFormat = {
+    key: 'vat',
+    pattern: '^DE[0-9]{9}$',
+    example: 'DE123456789',
+  };
+  const tax: CompanyIdFormat = {
+    key: 'tax',
+    pattern: '^[0-9]{10}$',
+    example: '1234567890',
+  };
+
+  it('accepts a number in any configured shape', () => {
+    expect(companyIdMatchesAny('DE123456789', [vat, tax])).toBe(true);
+    expect(companyIdMatchesAny('1234567890', [vat, tax])).toBe(true);
+    expect(companyIdMatchesAny('12345', [vat, tax])).toBe(false);
+  });
+
+  it('normalizes before it measures', () => {
+    expect(companyIdMatchesAny('de 123 456 789', [vat])).toBe(true);
+  });
+
+  // A deployment in a jurisdiction whose numbers it has not described accepts
+  // whatever the contract's envelope allows, rather than nothing at all.
+  it('has no shape rule where no formats are configured', () => {
+    expect(companyIdMatchesAny('anything', undefined)).toBe(true);
+    expect(companyIdMatchesAny('anything', [])).toBe(true);
   });
 });
