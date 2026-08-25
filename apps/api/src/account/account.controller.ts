@@ -4,13 +4,12 @@ import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 import {
   AccountProfile,
   accountContract,
-  AUTH_COOKIE,
   AuthUser,
 } from '@b2b-catalog-platform/shared';
 import { AuditLogger } from '../audit/audit.logger';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
-import { sessionCookieAttributes } from '../auth/session-cookie';
+import { endSession } from '../auth/session-cookie';
 import { UserRow, UsersService } from '../users/users.service';
 import { AccountDeletion } from './account-deletion';
 
@@ -116,7 +115,7 @@ export class AccountController {
       this.audit.record('account.deleted', actor, { id: actor.id });
       // The bumped tokenVersion already makes the cookie useless; clearing it
       // is what stops the browser presenting a dead session on every request.
-      res.clearCookie(AUTH_COOKIE, sessionCookieAttributes(req));
+      endSession(req, res);
 
       return { status: 200 as const, body: { message: 'Account deleted' } };
     });

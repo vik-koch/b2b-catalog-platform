@@ -10,7 +10,6 @@ import {
   AuthThrottle,
   PublicFormThrottle,
 } from '../throttling/throttle-presets';
-import { AUTH_COOKIE } from './auth.constants';
 import { Auth } from './auth.decorator';
 import { CurrentUser } from './current-user.decorator';
 import { AuthService, WrongCurrentPasswordError } from './auth.service';
@@ -19,7 +18,7 @@ import { PasswordResetService } from './password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
 import { MaintenanceExempt } from '../settings/maintenance-exempt.decorator';
-import { sessionCookie, sessionCookieAttributes } from './session-cookie';
+import { endSession, issueSession } from './session-cookie';
 
 @Controller()
 export class AuthController {
@@ -116,7 +115,7 @@ export class AuthController {
       // Straight into a session: they have just proved control of the address
       // and chosen the password, so asking them to log in would be ceremony.
       const token = await this.auth.signToken(user);
-      res.cookie(AUTH_COOKIE, token, sessionCookie(req));
+      issueSession(req, res, token, user.role);
       return { status: 200, body: this.auth.toAuthUser(user) };
     });
   }
@@ -139,7 +138,7 @@ export class AuthController {
         };
       }
       const token = await this.auth.signToken(user);
-      res.cookie(AUTH_COOKIE, token, sessionCookie(req));
+      issueSession(req, res, token, user.role);
       return { status: 200, body: this.auth.toAuthUser(user) };
     });
   }
@@ -148,8 +147,7 @@ export class AuthController {
   @TsRestHandler(authContract.logout)
   logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     return tsRestHandler(authContract.logout, async () => {
-      // Same attributes (minus maxAge) so the browser matches and clears it.
-      res.clearCookie(AUTH_COOKIE, sessionCookieAttributes(req));
+      endSession(req, res);
       return { status: 200, body: { message: 'Logged out' } };
     });
   }
@@ -200,7 +198,7 @@ export class AuthController {
       }
       // Update token so the user is not logged out.
       const token = await this.auth.signToken(updated);
-      res.cookie(AUTH_COOKIE, token, sessionCookie(req));
+      issueSession(req, res, token, updated.role);
       return { status: 200, body: this.auth.toAuthUser(updated) };
     });
   }

@@ -31,6 +31,7 @@ export type IconName =
   | 'lock'
   | 'pencil'
   | 'trash-2'
+  | 'circle-user-round'
   | 'book-check'
   | 'book-dashed'
   | 'plus';
@@ -126,6 +127,11 @@ export type IconName =
           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
           <line x1="10" x2="10" y1="11" y2="17" />
           <line x1="14" x2="14" y1="11" y2="17" />
+        }
+        @case ('circle-user-round') {
+          <path d="M17.925 20.056a6 6 0 0 0-11.851.001" />
+          <circle cx="12" cy="11" r="4" />
+          <circle cx="12" cy="12" r="10" />
         }
         @case ('plus') {
           <path d="M5 12h14" />

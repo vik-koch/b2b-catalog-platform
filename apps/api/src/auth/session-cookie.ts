@@ -1,4 +1,9 @@
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
+import {
+  AUTH_COOKIE,
+  SESSION_HINT_COOKIE,
+  UserRole,
+} from '@b2b-catalog-platform/shared';
 
 // Matches the JWT expiry (7d) so the browser drops the cookie around the time
 // the token stops verifying.
@@ -27,4 +32,40 @@ export function sessionCookieAttributes(req: Request) {
  * clearing instruction. */
 export function sessionCookie(req: Request) {
   return { ...sessionCookieAttributes(req), maxAge: SESSION_MAX_AGE_MS };
+}
+
+/**
+ * The readable companion to the session cookie: same attributes, same
+ * lifetime, no `httpOnly`. It carries the role and nothing else, so the
+ * browser can render the account control correctly before `/auth/me` answers
+ * (see `SESSION_HINT_COOKIE`).
+ */
+function hintCookieAttributes(req: Request) {
+  return { ...sessionCookieAttributes(req), httpOnly: false };
+}
+
+/**
+ * Starts a session on the response: the token, and the hint that says one
+ * exists. One function, because a hint written without its cookie — or left
+ * behind when the cookie goes — is exactly the disagreement the hint is
+ * supposed to make impossible.
+ */
+export function issueSession(
+  req: Request,
+  res: Response,
+  token: string,
+  role: UserRole,
+): void {
+  res.cookie(AUTH_COOKIE, token, sessionCookie(req));
+  res.cookie(SESSION_HINT_COOKIE, role, {
+    ...hintCookieAttributes(req),
+    maxAge: SESSION_MAX_AGE_MS,
+  });
+}
+
+/** Ends it, clearing both. The attributes must match what set them or the
+ * browser keeps the cookie. */
+export function endSession(req: Request, res: Response): void {
+  res.clearCookie(AUTH_COOKIE, sessionCookieAttributes(req));
+  res.clearCookie(SESSION_HINT_COOKIE, hintCookieAttributes(req));
 }
