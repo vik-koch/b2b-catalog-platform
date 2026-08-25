@@ -1,10 +1,14 @@
 import { inject } from '@angular/core';
 import {
+  PRODUCT_UNITS,
   ProductPackagingInfo,
+  ProductUnit,
   UnitPrices,
+  availableUnits,
   piecesPerUnit,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { fillText } from '../core/fill-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPiecePrice, formatPriceMinor } from './price';
 
@@ -21,6 +25,18 @@ export interface PackagingRow {
   value: string;
 }
 
+/** One choice in the buying block's unit selector. */
+export interface UnitOption {
+  unit: ProductUnit;
+  /** The unit's own name, and nothing more — see `unitOptions`. */
+  label: string;
+  /** False where the product is not sold in this unit. The segment is still
+   * shown: three units in three fixed places is what lets a grid of cards line
+   * up, and a segment that answers for itself when pressed says more than a
+   * missing one. */
+  available: boolean;
+}
+
 /**
  * Wording for a product's units of sale, shared by the tile and the product
  * page so the two cannot describe the same product differently.
@@ -32,38 +48,43 @@ export function useProductUnits() {
   const config = inject(DEPLOYMENT_CONFIG).catalog;
   const currency = config.currency;
 
-  const fill = (template: string, values: Record<string, string | number>) =>
-    Object.entries(values).reduce(
-      // Split/join rather than replaceAll: a placeholder can appear twice (the
-      // formula names the piece unit on both sides of the `=`).
-      (out, [key, value]) => out.split(`{${key}}`).join(String(value)),
-      template,
-    );
-
-  const perUnit = (unit: string) => fill(text.perUnit, { unit });
+  const perUnit = (unit: string) => fillText(text.perUnit, { unit });
 
   return {
-    /** Every unit the product is sold in, cheapest unit first. */
-    priceRows(prices: UnitPrices): UnitPriceRow[] {
-      const rows: UnitPriceRow[] = [
-        {
+    /**
+     * The price of one unit — what the selector's current choice costs, worded
+     * exactly as the same unit's row in `priceRows`. Null where the product
+     * carries no price for that unit, which is a state to word rather than a
+     * figure to invent.
+     */
+    priceRow(prices: UnitPrices, unit: ProductUnit): UnitPriceRow | null {
+      if (unit === 'piece') {
+        return {
           label: perUnit(text.piece),
           price: formatPiecePrice(prices.pieceMilliMinor, currency),
-        },
-      ];
-      if (prices.pack !== null) {
-        rows.push({
-          label: perUnit(text.pack),
-          price: formatPriceMinor(prices.pack, currency),
-        });
+        };
       }
-      if (prices.box !== null) {
-        rows.push({
-          label: perUnit(text.box),
-          price: formatPriceMinor(prices.box, currency),
-        });
-      }
-      return rows;
+      const price = unit === 'pack' ? prices.pack : prices.box;
+      if (price === null) return null;
+      return {
+        label: perUnit(unit === 'pack' ? text.pack : text.box),
+        price: formatPriceMinor(price, currency),
+      };
+    },
+
+    /**
+     * The units this product can be bought in, smallest first, worded for a
+     * selector (FR-UNIT-07). Just the unit's name: the segments are one control
+     * and have to read as a scale, which a count in one of them breaks. What a
+     * pack and a box hold is stated once, below, by the packaging line.
+     */
+    unitOptions(packaging: ProductPackagingInfo): UnitOption[] {
+      const sold = new Set(availableUnits(packaging));
+      return PRODUCT_UNITS.map((unit) => ({
+        unit,
+        label: text.select[unit],
+        available: sold.has(unit),
+      }));
     },
 
     /** "4 pk × 6 pcs = 24 pcs", or the pack-only form, or null. */
@@ -71,13 +92,13 @@ export function useProductUnits() {
       const { piecesPerPack, packsPerBox } = packaging;
       if (piecesPerPack === null) return null;
       if (packsPerBox === null) {
-        return fill(text.packagingPerPack, {
+        return fillText(text.packagingPerPack, {
           pieces: piecesPerPack,
           pieceUnit: text.piece,
           packUnit: text.pack,
         });
       }
-      return fill(text.packagingFormula, {
+      return fillText(text.packagingFormula, {
         packs: packsPerBox,
         packUnit: text.pack,
         pieces: piecesPerPack,
@@ -86,27 +107,14 @@ export function useProductUnits() {
       });
     },
 
-    /** The minimum, worded, or null where there is no rule to state. */
-    minimumOrder(packaging: ProductPackagingInfo): string | null {
-      if (packaging.minPieceQty <= 1) return null;
-      return fill(text.minQuantityValue, {
-        qty: packaging.minPieceQty,
-        unit: text.piece,
-      });
-    },
-
     /**
-     * The minimum as a grid states it: always for a product sold in packs, even
-     * where it is a single piece and says nothing. Redundant on its own, but it
-     * keeps every packaged tile the same three lines tall, and a card that
-     * changes height by whether a fact applies reads as broken.
-     *
-     * A product sold only by the piece has no packaging line to line up with,
-     * so it falls back to stating a minimum only when there is one.
+     * The minimum, worded — always, even where it is a single piece and states
+     * no rule. One piece is the answer to the question the line asks, and a
+     * line that comes and goes with the product costs more space than the
+     * words in it.
      */
-    packagedMinimum(packaging: ProductPackagingInfo): string | null {
-      if (packaging.piecesPerPack === null) return this.minimumOrder(packaging);
-      return fill(text.minQuantityValue, {
+    minimumOrder(packaging: ProductPackagingInfo): string {
+      return fillText(text.minQuantityValue, {
         qty: packaging.minPieceQty,
         unit: text.piece,
       });
@@ -138,7 +146,7 @@ export function useProductUnits() {
       if (!box) return [];
       const label = (base: string) =>
         box.count > 1
-          ? `${base} ${fill(text.boxCountSuffix, { count: box.count })}`
+          ? `${base} ${fillText(text.boxCountSuffix, { count: box.count })}`
           : base;
 
       const rows: PackagingRow[] = [];

@@ -31,6 +31,7 @@ export type IconName =
   | 'lock'
   | 'pencil'
   | 'trash-2'
+  | 'minus'
   | 'shopping-basket'
   | 'circle-user-round'
   | 'book-check'
@@ -128,6 +129,9 @@ export type IconName =
           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
           <line x1="10" x2="10" y1="11" y2="17" />
           <line x1="14" x2="14" y1="11" y2="17" />
+        }
+        @case ('minus') {
+          <path d="M5 12h14" />
         }
         @case ('shopping-basket') {
           <path d="m15 11-1 9" />

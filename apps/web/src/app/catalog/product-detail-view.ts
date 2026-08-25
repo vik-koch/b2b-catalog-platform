@@ -237,7 +237,11 @@ export class ProductDetailView {
 
   private readonly units = useProductUnits();
   protected readonly priceRows = computed(() =>
-    this.units.priceRows(this.item().prices),
+    [
+      this.units.priceRow(this.item().prices, 'piece'),
+      this.units.priceRow(this.item().prices, 'pack'),
+      this.units.priceRow(this.item().prices, 'box'),
+    ].filter((x) => x !== null),
   );
   /** Pack and box: the headline is the per-piece price above them. */
   protected readonly unitPrices = computed(() => this.priceRows().slice(1));

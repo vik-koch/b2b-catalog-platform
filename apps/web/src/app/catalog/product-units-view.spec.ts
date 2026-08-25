@@ -56,79 +56,87 @@ describe('packagingSummary', () => {
   });
 });
 
-describe('packagedMinimum', () => {
-  it('always states a minimum for a product sold in packs', () => {
-    // Grids need every packaged card the same height, so the line is present
-    // even where it carries nothing — see the helper's own note.
-    const u = units();
-
-    expect(u.packagedMinimum(packaged)).toBe('6 pcs');
-    expect(u.packagedMinimum({ ...packaged, minPieceQty: 1 })).toBe('1 pcs');
-    expect(u.packagedMinimum({ ...packaged, minPieceQty: 24 })).toBe('24 pcs');
-  });
-
-  it('stays silent for a piece-only product with no minimum', () => {
-    // Nothing to line up with, so there is no reason to say "1 pcs".
-    const u = units();
-
-    expect(u.packagedMinimum(plain)).toBeNull();
-    expect(u.packagedMinimum({ ...plain, minPieceQty: 50 })).toBe('50 pcs');
-  });
-});
-
 describe('minimumOrder', () => {
   it('states a real minimum', () => {
     expect(units().minimumOrder(packOnly)).toBe('100 pcs');
   });
 
-  it('is silent where the minimum is one, which is not a rule', () => {
-    expect(units().minimumOrder(plain)).toBeNull();
+  // Even where it states no rule: the line answers the question either way,
+  // and one that comes and goes moves everything under it.
+  it('states a minimum of one too', () => {
+    expect(units().minimumOrder(plain)).toBe('1 pcs');
   });
 });
 
-describe('priceRows', () => {
-  it('prices every unit the product is sold in, piece first', () => {
+describe('priceRow', () => {
+  it('prices the selected unit, worded the same whichever it is', () => {
     // €19.99 per pack of 10 stored as basis 10: the per-piece figure needs
     // three decimals, the pack and box prices are exact.
-    const rows = units().priceRows({
+    const prices = {
       pieceMilliMinor: 199_900,
       pieceLotMinor: 1999,
       pack: 1999,
       box: 7996,
-    });
+    };
 
-    expect(rows.map((r) => plainSpaces(r.price))).toEqual([
+    const view = units();
+    const rows = (['piece', 'pack', 'box'] as const).map((unit) =>
+      view.priceRow(prices, unit),
+    );
+
+    expect(rows.map((r) => plainSpaces(r?.price ?? ''))).toEqual([
       '1,999 €',
       '19,99 €',
       '79,96 €',
     ]);
-    expect(rows.map((r) => r.label)).toEqual(['per pcs', 'per pk', 'per bx']);
+    expect(rows.map((r) => r?.label)).toEqual(['per pcs', 'per pk', 'per bx']);
   });
 
   it('caps the per-piece price at three decimals', () => {
     // €102.70 per six pieces is €17.11666…, which must not print every digit
     // the thousandths scale carries — the extra precision is there to avoid a
     // double rounding, not to be shown.
-    const rows = units().priceRows({
-      pieceMilliMinor: 1_711_667,
-      pieceLotMinor: 10_270,
-      pack: 10_270,
-      box: 41_080,
-    });
+    const row = units().priceRow(
+      {
+        pieceMilliMinor: 1_711_667,
+        pieceLotMinor: 10_270,
+        pack: 10_270,
+        box: 41_080,
+      },
+      'piece',
+    );
 
-    expect(plainSpaces(rows[0].price)).toBe('17,117 €');
+    expect(plainSpaces(row?.price ?? '')).toBe('17,117 €');
   });
 
   it('shows a whole-cent per-piece price without trailing noise', () => {
-    const rows = units().priceRows({
-      pieceMilliMinor: 500_000,
-      pieceLotMinor: 500,
-      pack: null,
-      box: null,
-    });
+    const row = units().priceRow(
+      {
+        pieceMilliMinor: 500_000,
+        pieceLotMinor: 500,
+        pack: null,
+        box: null,
+      },
+      'piece',
+    );
 
-    expect(rows).toHaveLength(1);
-    expect(plainSpaces(rows[0].price)).toBe('5,00 €');
+    expect(plainSpaces(row?.price ?? '')).toBe('5,00 €');
+  });
+
+  // A unit the product is not sold in has no figure to invent, and the caller
+  // words the absence rather than printing a zero.
+  it('answers nothing for a unit the product carries no price for', () => {
+    const row = units().priceRow(
+      {
+        pieceMilliMinor: 500_000,
+        pieceLotMinor: 500,
+        pack: null,
+        box: null,
+      },
+      'pack',
+    );
+
+    expect(row).toBeNull();
   });
 });
 
