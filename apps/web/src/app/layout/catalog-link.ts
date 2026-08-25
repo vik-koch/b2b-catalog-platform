@@ -2,7 +2,11 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { currentUrl } from '../core/current-url';
-import { NAV_ACTION, NAV_ACTION_LABEL } from './nav-action';
+import {
+  NAV_ACTION,
+  NAV_ACTION_LABEL,
+  NAV_ACTION_LABEL_ROW,
+} from './nav-action';
 import { Icon } from '../ui/icons/icon';
 
 /** Routes that count as "browsing the catalogue" for the navbar's active state. */
@@ -28,9 +32,11 @@ const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
       [class]="navAction"
     >
       <app-icon name="store" class="h-6 w-6" />
-      <span [class]="labelClass" [attr.data-label]="text.navLabel">{{
-        text.navLabel
-      }}</span>
+      <span [class]="labelRow">
+        <span [class]="labelClass" [attr.data-label]="text.navLabel">{{
+          text.navLabel
+        }}</span>
+      </span>
     </a>
   `,
 })
@@ -45,4 +51,5 @@ export class CatalogLink {
   });
   protected readonly navAction = NAV_ACTION;
   protected readonly labelClass = NAV_ACTION_LABEL;
+  protected readonly labelRow = NAV_ACTION_LABEL_ROW;
 }

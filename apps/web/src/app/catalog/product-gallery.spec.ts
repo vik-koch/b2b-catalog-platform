@@ -21,9 +21,10 @@ function render(images: CatalogImage[]): ComponentFixture<ProductGallery> {
   return fixture;
 }
 
+/** The large image, whichever way round the strip is laid out. */
 const mainSrc = (f: ComponentFixture<ProductGallery>) =>
   (f.nativeElement as HTMLElement)
-    .querySelector('.order-1 img')
+    .querySelector('[data-main-image] img')
     ?.getAttribute('src');
 
 describe('ProductGallery', () => {
@@ -59,17 +60,23 @@ describe('ProductGallery', () => {
     const el = f.nativeElement as HTMLElement;
 
     expect(mainSrc(f)).toBeUndefined();
-    expect(el.querySelector('.order-1 app-image-placeholder')).not.toBeNull();
+    expect(
+      el.querySelector('[data-main-image] app-image-placeholder'),
+    ).not.toBeNull();
   });
 
   it('swaps the main image for the placeholder when it fails to load', () => {
     const f = render([img(1)]);
     const el = f.nativeElement as HTMLElement;
 
-    el.querySelector('.order-1 img')?.dispatchEvent(new Event('error'));
+    el.querySelector('[data-main-image] img')?.dispatchEvent(
+      new Event('error'),
+    );
     f.detectChanges();
 
-    expect(el.querySelector('.order-1 img')).toBeNull();
-    expect(el.querySelector('.order-1 app-image-placeholder')).not.toBeNull();
+    expect(el.querySelector('[data-main-image] img')).toBeNull();
+    expect(
+      el.querySelector('[data-main-image] app-image-placeholder'),
+    ).not.toBeNull();
   });
 });

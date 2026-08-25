@@ -13,7 +13,7 @@ import { Button } from '../ui/button';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
 import { FacetPanel } from './facet-panel';
-import { ProductTile } from './product-tile';
+import { PRODUCT_GRID, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
   resolveSearchSort,
@@ -85,10 +85,7 @@ import {
               @if (!data.items.length) {
                 <p class="text-muted">{{ filterText.noMatches }}</p>
               }
-              <ul
-                class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3"
-                [class]="gridColumns(data.facets.length)"
-              >
+              <ul [class]="productGrid">
                 @for (item of data.items; track item.slug) {
                   <li class="h-full"><app-product-tile [item]="item" /></li>
                 }
@@ -167,9 +164,7 @@ import {
           {{ heading() }}
         </h1>
         <div class="mt-8 animate-pulse" aria-hidden="true">
-          <div
-            class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-          >
+          <div [class]="productGrid">
             @for (i of skeletons; track i) {
               <div class="aspect-square rounded-lg bg-stone-200"></div>
             }
@@ -180,6 +175,8 @@ import {
   `,
 })
 export class SearchResults {
+  protected readonly productGrid = PRODUCT_GRID;
+
   private readonly catalog = inject(CatalogService);
 
   protected readonly text = inject(APP_TEXT).search;
@@ -266,16 +263,6 @@ export class SearchResults {
 
   protected resultCount(total: number): string {
     return this.text.resultCount.replace('{count}', String(total));
-  }
-
-  /**
-   * The grid loses two columns while the filter panel is beside it — the tiles
-   * would otherwise be narrower here than anywhere else in the catalogue.
-   */
-  protected gridColumns(facetCount: number): string {
-    return facetCount
-      ? 'lg:grid-cols-3 xl:grid-cols-4'
-      : 'lg:grid-cols-4 xl:grid-cols-5';
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {

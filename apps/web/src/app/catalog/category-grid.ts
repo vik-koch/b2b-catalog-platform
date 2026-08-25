@@ -30,7 +30,7 @@ import { NotFoundView } from '../pages/not-found-view';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
 import { FacetPanel } from './facet-panel';
-import { ProductTile } from './product-tile';
+import { PRODUCT_GRID, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
   resolveCategorySort,
@@ -232,10 +232,7 @@ const SUBS_COLLAPSED = 4;
                     }}
                   </p>
                 }
-                <ul
-                  class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3"
-                  [class]="gridColumns(data.facets.length)"
-                >
+                <ul [class]="productGrid">
                   @if (editControls(); as editText) {
                     <li class="h-full">
                       <a
@@ -334,9 +331,7 @@ const SUBS_COLLAPSED = 4;
             <div class="h-4 w-1/2 rounded bg-stone-200 sm:w-1/3"></div>
             <div class="h-8 w-1/3 rounded bg-stone-200"></div>
           </div>
-          <div
-            class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-          >
+          <div [class]="productGrid">
             @for (i of skeletons; track i) {
               <div class="aspect-square rounded-lg bg-stone-200"></div>
             }
@@ -361,6 +356,8 @@ const SUBS_COLLAPSED = 4;
   `,
 })
 export class CategoryGrid {
+  protected readonly productGrid = PRODUCT_GRID;
+
   private catalog = inject(CatalogService);
   private readonly admin = inject(AdminCatalogService);
   private readonly confirm = inject(ConfirmService);
@@ -470,16 +467,6 @@ export class CategoryGrid {
     effect(() => {
       if (!this.editMode.enabled()) this.deletedReady.set(false);
     });
-  }
-
-  /**
-   * The grid loses two columns while the filter panel is beside it — the tiles
-   * would otherwise be narrower here than anywhere else in the catalogue.
-   */
-  protected gridColumns(facetCount: number): string {
-    return facetCount
-      ? 'lg:grid-cols-3 xl:grid-cols-4'
-      : 'lg:grid-cols-4 xl:grid-cols-5';
   }
 
   /** A product was restored from the overlay — it returns to the live grid. */
