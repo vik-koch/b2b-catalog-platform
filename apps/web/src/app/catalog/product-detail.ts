@@ -19,7 +19,11 @@ import { usePageSeo } from '../core/page-seo';
 import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
 import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
-import { ProductDetailView } from './product-detail-view';
+import {
+  PRODUCT_PAGE_COLUMNS,
+  PRODUCT_PAGE_INFO_COLUMN,
+  ProductDetailView,
+} from './product-detail-view';
 
 /**
  * The product page route (FR-CAT-05): loads a product by slug and renders it
@@ -82,15 +86,18 @@ import { ProductDetailView } from './product-detail-view';
           <!-- The breadcrumb is part of the loaded page, so it is part of the
                placeholder too — otherwise everything below shifts up a row
                when the real content arrives. -->
-          <div class="mb-6 h-4 w-2/3 rounded bg-stone-200 sm:w-2/5"></div>
-          <div class="grid gap-8 lg:grid-cols-2">
+          <div class="mb-4 h-4 w-2/3 rounded bg-stone-200 sm:w-2/5"></div>
+          <div class="mb-4 h-8 w-2/5 rounded bg-stone-200"></div>
+          <!-- The page's own columns, so nothing moves sideways when the real
+               content arrives. -->
+          <div [class]="columns">
             <div class="aspect-square rounded-xl bg-stone-200"></div>
-            <div class="space-y-4">
-              <div class="h-8 w-2/3 rounded bg-stone-200"></div>
-              <div class="h-6 w-1/4 rounded bg-stone-200"></div>
+            <div [class]="infoColumn + ' space-y-4'">
               <div class="h-4 w-full rounded bg-stone-200"></div>
               <div class="h-4 w-5/6 rounded bg-stone-200"></div>
+              <div class="h-4 w-4/6 rounded bg-stone-200"></div>
             </div>
+            <div class="order-2 h-64 rounded-xl bg-stone-200 lg:order-3"></div>
           </div>
         </div>
       }
@@ -103,6 +110,8 @@ export class ProductDetail {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly columns = PRODUCT_PAGE_COLUMNS;
+  protected readonly infoColumn = PRODUCT_PAGE_INFO_COLUMN;
   protected readonly editorFrom = injectEditorReturnParams();
 
   slug = input.required<string>();

@@ -21,6 +21,7 @@ import {
 import { APP_TEXT } from '../config/app-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { Button } from '../ui/button';
+import { ProductBuyBlock } from './product-buy-block';
 import { ProductGallery } from './product-gallery';
 import { useProductUnits } from './product-units-view';
 import { Icon } from '../ui/icons/icon';
@@ -31,6 +32,28 @@ import { Icon } from '../ui/icons/icon';
  * description is collapsed instead.
  */
 const TWO_COLUMN = '(min-width: 64rem)';
+
+/**
+ * The product page's columns, shared with the loading placeholder so nothing
+ * moves sideways when the real page arrives.
+ *
+ * Three from lg up: what it looks like, what it is, and how to buy it. The
+ * buying column is a fixed 16.25rem — 234px of content inside its p-3 — because
+ * everything in it (a three-way selector, a stepper, a packaging line) was
+ * sized for that width and stops fitting below it.
+ *
+ * Below lg the description drops underneath, but the image and the buying
+ * column stay side by side down to 576px, the narrowest viewport where the
+ * image still clears 234px beside them. Only under that does the page become
+ * one column.
+ */
+export const PRODUCT_PAGE_COLUMNS =
+  'grid gap-8 min-[576px]:grid-cols-[minmax(0,1fr)_16.25rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_16.25rem]';
+
+/** Where the description and specifications sit in those columns: under both
+ * while there are two, in the middle once there are three. */
+export const PRODUCT_PAGE_INFO_COLUMN =
+  'order-3 min-[576px]:col-span-2 lg:order-2 lg:col-span-1';
 const SINGLE_COLUMN = '(max-width: 63.999rem)';
 
 /**
@@ -42,7 +65,14 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
  */
 @Component({
   selector: 'app-product-detail-view',
-  imports: [RouterLink, ProductGallery, Icon, NgTemplateOutlet, Button],
+  imports: [
+    RouterLink,
+    ProductGallery,
+    ProductBuyBlock,
+    Icon,
+    NgTemplateOutlet,
+    Button,
+  ],
   template: `
     <nav [attr.aria-label]="text.catalogRoot">
       <ol
@@ -88,8 +118,15 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
       </ol>
     </nav>
 
-    <div class="mt-4 grid gap-8 lg:grid-cols-2">
-      <div #imageColumn>
+    <!-- Above the columns rather than inside one: with the way to buy in a
+         column of its own, a name in the middle column would sit level with the
+         price instead of over the whole page. -->
+    <h1 class="mt-4 text-2xl font-bold tracking-tight sm:text-3xl">
+      {{ item().name }}
+    </h1>
+
+    <div [class]="columnsClass">
+      <div #imageColumn class="order-1">
         <app-product-gallery
           [images]="item().images"
           [productName]="item().name"
@@ -100,40 +137,17 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
         }
       </div>
 
-      <div>
-        <div #infoColumn>
-          <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
-            {{ item().name }}
-          </h1>
-          <!-- The first row is the headline price; any further units sit under
-               it, each labelled with what it covers. A product sold only by the
-               piece therefore looks exactly as it always did. -->
-          <p class="mt-3 text-2xl font-bold text-primary">
-            {{ priceRows()[0].price }}
-            <span class="text-base font-normal text-subtle">
-              {{ priceRows()[0].label }}
-            </span>
-          </p>
-          @if (unitPrices().length) {
-            <p
-              class="mt-1 flex flex-wrap items-baseline gap-x-6 gap-y-1 text-sm"
-            >
-              @for (row of unitPrices(); track row.label) {
-                <span>
-                  <span class="font-medium text-secondary">{{
-                    row.price
-                  }}</span>
-                  <span class="text-subtle"> {{ row.label }}</span>
-                </span>
-              }
-            </p>
-          }
+      <aside class="order-2 lg:order-3">
+        <app-product-buy-block [item]="item()" [canAdd]="canAdd()" />
+      </aside>
 
+      <div [class]="infoColumnClass">
+        <div #infoColumn>
           @if (item().descriptionHtml) {
             <div class="relative">
               <div
                 #description
-                class="prose prose-stone mt-6 max-w-none"
+                class="prose prose-stone max-w-none"
                 [class]="descriptionClass()"
                 [innerHTML]="safeDescription(item().descriptionHtml)"
               ></div>
@@ -227,24 +241,21 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
 })
 export class ProductDetailView {
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-4`;
+  protected readonly infoColumnClass = PRODUCT_PAGE_INFO_COLUMN;
   /** The description is trusted rich text (server-sanitized, same as pages). */
   protected readonly safeDescription = trustedRichText();
 
   readonly item = input.required<ProductDetail>();
+  /** False in the editor's live preview: the buying block is shown so a manager
+   * sees the units and the note prompt they just configured, but adding to a
+   * cart from a preview of an unsaved product is not a thing to offer. */
+  readonly canAdd = input(true);
 
   /** Crumbs sit next to their parent, so the nickname is enough. */
   protected readonly displayName = categoryDisplayName;
 
   private readonly units = useProductUnits();
-  protected readonly priceRows = computed(() =>
-    [
-      this.units.priceRow(this.item().prices, 'piece'),
-      this.units.priceRow(this.item().prices, 'pack'),
-      this.units.priceRow(this.item().prices, 'box'),
-    ].filter((x) => x !== null),
-  );
-  /** Pack and box: the headline is the per-piece price above them. */
-  protected readonly unitPrices = computed(() => this.priceRows().slice(1));
   /**
    * The attributes worth a row. A stored attribute with no value would print a
    * dangling label; the editor stopped saving them, and this covers what was

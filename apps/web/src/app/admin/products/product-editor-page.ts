@@ -96,7 +96,7 @@ import { injectEditorReturn } from '../editor-return';
       >
         {{ text.previewNotice }}
       </p>
-      <app-product-detail-view [item]="previewItem()" />
+      <app-product-detail-view [item]="previewItem()" [canAdd]="false" />
     } @else {
       <div class="space-y-6">
         <label class="block">

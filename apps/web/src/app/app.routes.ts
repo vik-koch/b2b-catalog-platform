@@ -322,6 +322,13 @@ export const appRoutes: Route[] = [
     component: ProductDetail,
     canActivate: [maintenanceGate],
   },
+  // The cart lives in localStorage, so it is client-rendered and lazy: a
+  // visitor who never buys anything does not download it.
+  {
+    path: 'cart',
+    canActivate: [maintenanceGate],
+    loadComponent: () => import('./cart/cart-page').then((m) => m.CartPage),
+  },
   {
     path: ':slug',
     component: StaticPage,
