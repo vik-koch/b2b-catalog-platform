@@ -31,6 +31,7 @@ export type IconName =
   | 'lock'
   | 'pencil'
   | 'trash-2'
+  | 'shopping-basket'
   | 'circle-user-round'
   | 'book-check'
   | 'book-dashed'
@@ -127,6 +128,17 @@ export type IconName =
           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
           <line x1="10" x2="10" y1="11" y2="17" />
           <line x1="14" x2="14" y1="11" y2="17" />
+        }
+        @case ('shopping-basket') {
+          <path d="m15 11-1 9" />
+          <path d="m19 11-4-7" />
+          <path d="M2 11h20" />
+          <path
+            d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"
+          />
+          <path d="M4.5 15.5h15" />
+          <path d="m5 11 4-7" />
+          <path d="m9 11 1 9" />
         }
         @case ('circle-user-round') {
           <path d="M17.925 20.056a6 6 0 0 0-11.851.001" />

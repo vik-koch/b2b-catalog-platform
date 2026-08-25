@@ -1,5 +1,8 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { deliveryConfigSchema, OrderSubmission } from '@b2b-catalog-platform/shared';
+import {
+  deliveryConfigSchema,
+  OrderSubmission,
+} from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../addresses/addresses.service';
 import { PickupLocation } from '../config/deployment-config';
 import * as schema from '../db/schema';
@@ -58,13 +61,13 @@ function testDb(collisions = 0) {
         insert: (table: unknown) => ({
           values(values: Insert['values']) {
             if (table === orders) {
-              attempted.push(
-                (values as Record<string, string>).reference,
-              );
+              attempted.push((values as Record<string, string>).reference);
             }
             if (table === orders && remaining > 0) {
               remaining -= 1;
-              throw Object.assign(new Error('duplicate key'), { code: '23505' });
+              throw Object.assign(new Error('duplicate key'), {
+                code: '23505',
+              });
             }
             inserts.push({ table, values });
             // Awaited directly for the items, and via `.returning()` for the
@@ -91,7 +94,11 @@ function testDb(collisions = 0) {
 }
 
 const locations: PickupLocation[] = [
-  { key: 'speicherstadt', name: 'Speicherstadt Office', description: 'Am Sandtorkai 30' },
+  {
+    key: 'speicherstadt',
+    name: 'Speicherstadt Office',
+    description: 'Am Sandtorkai 30',
+  },
 ];
 
 const delivery = deliveryConfigSchema.parse({

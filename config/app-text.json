@@ -70,6 +70,10 @@
       "boxCountSuffix": "(for {count})"
     }
   },
+  "cart": {
+    "navLabel": "Cart",
+    "summaryLabel": "Cart: {count} lines, {total}"
+  },
   "search": {
     "placeholder": "Search products",
     "submit": "Search",

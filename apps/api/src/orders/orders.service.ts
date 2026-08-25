@@ -160,11 +160,15 @@ export class OrdersService {
       // Narrowed rather than asserted: the refine is what guarantees it, and if
       // that guarantee is ever loosened this must fail loudly, not book an
       // order to nowhere.
-      if (!address) throw new Error('a delivery order reached submit with no address');
+      if (!address)
+        throw new Error('a delivery order reached submit with no address');
       const zone = resolveDeliveryZone(this.delivery?.zones ?? [], address);
       return {
         address,
-        zone: zone && { key: zone.key, freeFromMinor: zone.freeFromMinor ?? null },
+        zone: zone && {
+          key: zone.key,
+          freeFromMinor: zone.freeFromMinor ?? null,
+        },
         pickup: null,
       };
     }

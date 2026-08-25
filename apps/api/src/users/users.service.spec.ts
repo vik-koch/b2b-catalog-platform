@@ -46,7 +46,10 @@ function renderingDb(captured: Captured[]) {
     select: real.select.bind(real),
     delete: (table: unknown) => ({
       where: (condition: unknown) =>
-        settle(name(table), real.delete(table as never).where(condition as never)),
+        settle(
+          name(table),
+          real.delete(table as never).where(condition as never),
+        ),
     }),
     update: (table: unknown) => ({
       set: (values: Record<string, unknown>) => ({

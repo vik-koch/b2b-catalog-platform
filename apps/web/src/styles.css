@@ -44,6 +44,63 @@
 }
 
 /*
+ * The navbar cart's figures — the line count and the running total — are drawn
+ * from custom properties rather than from markup, because they have to be on
+ * screen before Angular exists: the server cannot read the localStorage the
+ * cart lives in, so anything it rendered would be an empty cart corrected a
+ * beat later. An inline `<head>` script sets these three values before the
+ * first paint and CartLink keeps them current afterwards, so the two pictures
+ * are the same one. See cart-shell.server.ts.
+ *
+ * Hidden by default, which is also what a visitor with no cart, no JavaScript
+ * or no localStorage sees: the plain "Cart" label, unchanged.
+ */
+.cart-count::before {
+  content: var(--cart-count, '');
+}
+
+.cart-total::before {
+  content: var(--cart-total, '');
+}
+
+/*
+ * Both figures are a numeral alone in a small coloured box, where being a
+ * pixel off centre is the whole of what you see. Centring the *line* box is
+ * not enough: it is as tall as the font's ascender and descender, and a digit
+ * has neither — so it lands high or low by however much those differ, which is
+ * a property of the font rather than of the layout. Trimming to cap height and
+ * the baseline makes the box the browser centres the box you can actually see.
+ * Not supported everywhere; where it is not, this is inert and the numeral
+ * falls back to line-box centring.
+ */
+.cart-count::before,
+.cart-total::before {
+  text-box: trim-both cap alphabetic;
+}
+
+.cart-count,
+.cart-total {
+  display: none;
+}
+
+.cart-filled .cart-count,
+.cart-filled .cart-total {
+  display: inline-flex;
+}
+
+/* The total replaces the label rather than joining it; below `md` there is no
+   room for either, and the count badge carries the cart on its own. */
+.cart-filled .cart-label {
+  display: none;
+}
+
+@media (width < 48rem) {
+  .cart-filled .cart-total {
+    display: none;
+  }
+}
+
+/*
  * The account control's label before Angular has run, drawn from the class the
  * pre-paint script put on <html> (see session-shell.server.ts). The server
  * renders one document for every visitor — always the signed-out one, since it

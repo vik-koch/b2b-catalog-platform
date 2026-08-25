@@ -155,6 +155,20 @@ export const appTextSchema = z
           .strict(),
       })
       .strict(),
+    /**
+     * The cart: the header control, the buying block on a product page, and
+     * the cart page itself (FR-CART-01/02/08, FR-UNIT-07). The cart lives in
+     * the browser, so every word here is client-side.
+     */
+    cart: z
+      .object({
+        /** The header control's label, and the page's own title. */
+        navLabel: z.string(),
+        /** The header control's accessible name; `{count}` lines, `{total}`
+         * money — one sentence, because a badge read on its own says nothing. */
+        summaryLabel: z.string(),
+      })
+      .strict(),
     /** Product search: the navbar bar and its results page (FR-SEARCH). */
     search: z
       .object({
