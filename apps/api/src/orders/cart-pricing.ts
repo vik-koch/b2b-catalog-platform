@@ -5,12 +5,12 @@ import {
   CartLineIssue,
   CartPreview,
   CartPreviewLine,
-  correctQuantity,
+  correctPieces,
   exactLineTotal,
-  piecesFor,
   piecesPerUnit,
   ShipmentLineInput,
   shipmentEstimate,
+  unitQuantity,
 } from '@b2b-catalog-platform/shared';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';
@@ -41,6 +41,9 @@ export interface PricedLineRow {
   priceMinor: number;
   priceBasisPieces: number;
   pieces: number;
+  /** `pieces` read through the line's unit — the display snapshot an order
+   * line freezes, worked out here because this is where the packaging is. */
+  quantity: number;
   thumbnail: string | null;
 }
 
@@ -92,8 +95,7 @@ export async function priceCart(
     if (!product || !row) continue;
     shipmentLines.push({
       packaging: packagingOf(product),
-      unit: preview.unit,
-      quantity: preview.quantity,
+      pieces: preview.pieces,
       boxVolume: product.boxVolume,
       boxWeight: product.boxWeight,
       boxCount: product.boxCount,
@@ -160,7 +162,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
       preview: {
         slug: line.slug,
         unit: line.unit,
-        quantity: line.quantity,
+        pieces: line.pieces,
         note,
         name: null,
         image: null,
@@ -191,33 +193,26 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
   if (note !== null && !product.lineNoteEnabled)
     issues.push('note-not-allowed');
 
-  // The quantity correction runs first: a line stored when the minimum was six
-  // must be corrected before it is priced, or it is priced against a basis it
-  // no longer divides.
-  //
-  // Every unit, not just the piece: the minimum is a statement about the goods,
-  // so a pack order has to reach it too — otherwise switching unit walks under
-  // it. A unit the product is not sold in is left alone; there is no quantity
-  // of it to correct, and `unit-unavailable` below is the honest answer.
+  // The quantity is in pieces and is corrected against the piece rules, which
+  // are the only rules there are: a line stored when the minimum was six must
+  // be corrected before it is priced, or it is priced against a basis it no
+  // longer divides.
+  const pieces = correctPieces(packaging, line.pieces);
+  if (pieces !== line.pieces) issues.push('quantity-corrected');
+
+  // The lens, not the quantity: a product repacked out of the unit this line
+  // was being read in is still perfectly orderable — the pieces are untouched
+  // — so it falls back to the one unit every product has and says it did.
   const sold = piecesPerUnit(packaging, line.unit) !== null;
-  const quantity = sold
-    ? correctQuantity(packaging, line.unit, line.quantity)
-    : line.quantity;
-  if (quantity !== line.quantity) issues.push('quantity-corrected');
+  const unit = sold ? line.unit : 'piece';
+  if (!sold) issues.push('unit-unavailable');
 
-  const pieces = piecesFor(packaging, line.unit, quantity);
-  if (pieces === null) issues.push('unit-unavailable');
-
-  const lineTotalMinor =
-    pieces === null
-      ? null
-      : exactLineTotal(prices, packaging, line.unit, quantity);
-  if (pieces !== null && lineTotalMinor === null)
-    issues.push('price-unavailable');
+  const lineTotalMinor = exactLineTotal(prices, packaging, pieces);
+  if (lineTotalMinor === null) issues.push('price-unavailable');
 
   return {
     row:
-      pieces === null || lineTotalMinor === null
+      lineTotalMinor === null
         ? null
         : {
             productId: product.id,
@@ -225,12 +220,15 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
             priceMinor: product.priceMinor,
             priceBasisPieces: product.priceBasisPieces,
             pieces,
+            // Never null: `unit` has already fallen back to one the product is
+            // sold in.
+            quantity: unitQuantity(packaging, unit, pieces) ?? pieces,
             thumbnail: image?.thumb ?? null,
           },
     preview: {
       slug: product.slug,
-      unit: line.unit,
-      quantity,
+      unit,
+      pieces,
       note: keptNote,
       name: product.name,
       image,

@@ -13,6 +13,7 @@ import {
   CartLine,
   CartPreview,
   CatalogImage,
+  correctPieces,
   exactLineTotal,
   LineUnitPrices,
   ProductPackagingInfo,
@@ -25,7 +26,7 @@ import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
 
 /**
  * A line as the browser keeps it. Beyond what the contract needs
- * (`slug`/`unit`/`quantity`/`note`) it carries what the browser has to be able
+ * (`slug`/`unit`/`pieces`/`note`) it carries what the browser has to be able
  * to answer for itself:
  *
  * - `name`, so a line whose product has gone can still say which product it
@@ -53,8 +54,10 @@ import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
  */
 export interface CartStoredLine {
   slug: string;
+  /** The lens the line is read and stepped in — never a second quantity. */
   unit: ProductUnit;
-  quantity: number;
+  /** The quantity, always in whole pieces. */
+  pieces: number;
   note: string | null;
   name: string;
   addedAt: string;
@@ -96,7 +99,7 @@ export interface CartAddition {
   slug: string;
   name: string;
   unit: ProductUnit;
-  quantity: number;
+  pieces: number;
   note: string | null;
   prices: UnitPrices;
   packaging: ProductPackagingInfo;
@@ -118,9 +121,8 @@ export type CartAddResult = 'added' | 'full';
  *
  * Identity is the `slug`: one product is one line, in whichever unit it was
  * last chosen in, and the note describes that line. A product cannot sit in the
- * cart twice as pieces and as boxes — the unit is a property of the line, and
- * changing it edits the line. Quantities are never normalized between units, so
- * four packs stay four packs even where a box holds exactly four.
+ * cart twice as pieces and as boxes — the unit is a lens on the line, and
+ * changing it changes nothing but how the line reads.
  *
  * SSR-safe the way `ConsentService` is: localStorage is touched only in the
  * browser, so on the server the cart is always empty — which is what the
@@ -172,8 +174,9 @@ export class CartService {
     return shipmentEstimate(
       lines.map((line) => ({
         packaging: line.packaging,
-        unit: line.unit,
-        quantity: line.quantity,
+        // The chargeable figure for the same reason the total is: a line the
+        // shop is about to correct should not be weighed as it stands.
+        pieces: chargeable(line.packaging, line.pieces),
         boxVolume: line.boxVolume,
         boxWeight: line.boxWeight,
         boxCount: line.boxCount ?? 1,
@@ -198,10 +201,10 @@ export class CartService {
    */
   readonly request = computed<CartLine[]>(
     () =>
-      this.stored().map(({ slug, unit, quantity, note }) => ({
+      this.stored().map(({ slug, unit, pieces, note }) => ({
         slug,
         unit,
-        quantity,
+        pieces,
         ...(note === null ? {} : { note }),
       })),
     { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
@@ -245,10 +248,11 @@ export class CartService {
     if (at === -1 && lines.length >= CART_LINES_MAX) return 'full';
 
     const note = trimNote(addition.note);
-    const quantity =
-      at === -1 || lines[at].unit !== addition.unit
-        ? addition.quantity
-        : lines[at].quantity + addition.quantity;
+    // Always summed, whatever unit either was chosen in: both are piece counts
+    // of the same goods, so adding two packs to a line held in boxes is simply
+    // twelve more pieces.
+    const pieces =
+      at === -1 ? addition.pieces : lines[at].pieces + addition.pieces;
 
     if (at === -1) {
       this.write([
@@ -256,7 +260,7 @@ export class CartService {
         {
           slug: addition.slug,
           unit: addition.unit,
-          quantity,
+          pieces,
           note,
           name: addition.name,
           addedAt: new Date().toISOString(),
@@ -269,7 +273,7 @@ export class CartService {
           boxCount: null,
           noteEnabled: addition.lineNoteEnabled,
           notePrompt: addition.lineNotePrompt,
-          ...priceLine(addition, quantity),
+          ...priceLine(addition, pieces),
         },
       ]);
     } else {
@@ -277,7 +281,7 @@ export class CartService {
         replaceAt(lines, at, {
           ...lines[at],
           unit: addition.unit,
-          quantity,
+          pieces,
           note: note ?? lines[at].note,
           name: addition.name,
           prices: addition.prices,
@@ -285,7 +289,7 @@ export class CartService {
           image: addition.image,
           noteEnabled: addition.lineNoteEnabled,
           notePrompt: addition.lineNotePrompt,
-          ...priceLine(addition, quantity),
+          ...priceLine(addition, pieces),
         }),
       );
     }
@@ -293,7 +297,7 @@ export class CartService {
   }
 
   /**
-   * Sets an existing line's unit and quantity outright, re-pricing it — what
+   * Sets an existing line's unit and piece count outright, re-pricing it — what
    * the buying controls do once a product is in the cart, where the stepper and
    * the unit selector edit the line itself rather than describing a new one.
    *
@@ -307,7 +311,7 @@ export class CartService {
       replaceAt(lines, at, {
         ...lines[at],
         unit: addition.unit,
-        quantity: addition.quantity,
+        pieces: addition.pieces,
         note: trimNote(addition.note) ?? lines[at].note,
         name: addition.name,
         prices: addition.prices,
@@ -315,7 +319,7 @@ export class CartService {
         image: addition.image,
         noteEnabled: addition.lineNoteEnabled,
         notePrompt: addition.lineNotePrompt,
-        ...priceLine(addition, addition.quantity),
+        ...priceLine(addition, addition.pieces),
       }),
     );
   }
@@ -354,16 +358,19 @@ export class CartService {
    * glances is worse than one that says what is wrong with it.
    */
   applyPreview(preview: CartPreview): void {
-    const priced = new Map(
-      preview.lines.map((line) => [keyOf(line.slug, line.unit), line]),
-    );
+    // By slug alone, which is what identifies a line. The answer may carry
+    // another unit than the one that was sent — a product repacked out of it
+    // falls back to the piece — and a key holding the unit would then match
+    // nothing and drop the correction on the floor.
+    const priced = new Map(preview.lines.map((line) => [line.slug, line]));
     const current = this.stored();
     const next = current.map((line) => {
-      const fresh = priced.get(keyOf(line.slug, line.unit));
+      const fresh = priced.get(line.slug);
       if (!fresh) return line;
       const updated: CartStoredLine = {
         ...line,
-        quantity: fresh.quantity,
+        unit: fresh.unit,
+        pieces: fresh.pieces,
         note: fresh.note,
         name: fresh.name ?? line.name,
         // Kept where the answer has none: an unavailable product answers null
@@ -381,7 +388,7 @@ export class CartService {
         noteEnabled: fresh.lineNoteEnabled,
         notePrompt: fresh.lineNotePrompt,
         unitPriceMinor:
-          fresh.prices === null ? null : unitPriceOf(fresh.prices, line.unit),
+          fresh.prices === null ? null : unitPriceOf(fresh.prices, fresh.unit),
         lineTotalMinor: fresh.lineTotalMinor,
       };
       // Hand back the same object where nothing moved, so an answer that only
@@ -436,7 +443,8 @@ export class CartService {
 
 function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
   return (
-    a.quantity === b.quantity &&
+    a.unit === b.unit &&
+    a.pieces === b.pieces &&
     a.note === b.note &&
     a.name === b.name &&
     a.unitPriceMinor === b.unitPriceMinor &&
@@ -458,10 +466,6 @@ function same(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
-function keyOf(slug: string, unit: ProductUnit): string {
-  return `${slug} ${unit}`;
-}
-
 function replaceAt<T>(items: T[], at: number, item: T): T[] {
   const next = items.slice();
   next[at] = item;
@@ -480,17 +484,31 @@ function trimNote(note: string | null): string | null {
  * other. */
 function priceLine(
   addition: CartAddition,
-  quantity: number,
+  pieces: number,
 ): Pick<CartStoredLine, 'unitPriceMinor' | 'lineTotalMinor'> {
   return {
     unitPriceMinor: unitPriceOf(addition.prices, addition.unit),
     lineTotalMinor: exactLineTotal(
       addition.prices,
       addition.packaging,
-      addition.unit,
-      quantity,
+      chargeable(addition.packaging, pieces),
     ),
   };
+}
+
+/**
+ * What a line will actually be charged for.
+ *
+ * Normally the line's own count: the buying controls commit only quantities
+ * they have already corrected. It differs for a line written down before the
+ * product's rules changed — a cart that sat while the minimum was raised — and
+ * there the corrected figure is the honest one to show, since it is what the
+ * next preview is about to make real. Pricing such a line literally answers
+ * "no price", which is a state to show for a product the shop cannot price at
+ * all, not for one whose quantity simply moved.
+ */
+function chargeable(packaging: ProductPackagingInfo, pieces: number): number {
+  return correctPieces(packaging, pieces);
 }
 
 /** What one of a unit costs — for pieces, one minimum lot, which is the only
@@ -510,8 +528,8 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     (candidate.unit === 'piece' ||
       candidate.unit === 'pack' ||
       candidate.unit === 'box') &&
-    Number.isInteger(candidate.quantity) &&
-    candidate.quantity > 0 &&
+    Number.isInteger(candidate.pieces) &&
+    candidate.pieces > 0 &&
     (candidate.note === null || typeof candidate.note === 'string') &&
     typeof candidate.name === 'string' &&
     // The baseline FR-CART-10 reports against. Nothing reads it yet, which is

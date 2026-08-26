@@ -52,7 +52,7 @@ describe('priceCart', () => {
 
     const { preview, lines } = await priceCart(
       db,
-      [{ slug: 'hafen-espresso', unit: 'pack', quantity: 3 }],
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 30 }],
       null,
     );
 
@@ -76,7 +76,7 @@ describe('priceCart', () => {
 
     const { preview } = await priceCart(
       db,
-      [{ slug: 'hafen-espresso', unit: 'piece', quantity: 30 }],
+      [{ slug: 'hafen-espresso', unit: 'piece', pieces: 30 }],
       null,
     );
 
@@ -89,12 +89,12 @@ describe('priceCart', () => {
 
     const { preview } = await priceCart(
       db,
-      [{ slug: 'hafen-espresso', unit: 'piece', quantity: 4 }],
+      [{ slug: 'hafen-espresso', unit: 'piece', pieces: 4 }],
       null,
     );
 
     expect(preview.lines[0]).toMatchObject({
-      quantity: 10,
+      pieces: 10,
       issues: ['quantity-corrected'],
       lineTotalMinor: 1999,
     });
@@ -108,7 +108,7 @@ describe('priceCart', () => {
 
     const { preview, lines } = await priceCart(
       db,
-      [{ slug: 'ghost', unit: 'pack', quantity: 1 }],
+      [{ slug: 'ghost', unit: 'pack', pieces: 10 }],
       null,
     );
 
@@ -128,7 +128,7 @@ describe('priceCart', () => {
 
     await priceCart(
       db,
-      [{ slug: 'hafen-espresso', unit: 'pack', quantity: 1 }],
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
       null,
     );
 
@@ -136,19 +136,25 @@ describe('priceCart', () => {
     expect(sql[0]).toContain('"publishedAt" is not null');
   });
 
-  it('flags a unit the product is not sold in without dropping the line', async () => {
+  it('falls a line off a unit the product is no longer sold in', async () => {
+    // Repackaged out of boxes. The pieces are untouched and still orderable,
+    // so only the lens moves — to the one unit every product has.
     const { db } = dbWith([
       { ...coffee, piecesPerPack: null, packsPerBox: null },
     ]);
 
     const { preview } = await priceCart(
       db,
-      [{ slug: 'hafen-espresso', unit: 'box', quantity: 2 }],
+      [{ slug: 'hafen-espresso', unit: 'box', pieces: 10 }],
       null,
     );
 
-    expect(preview.lines[0].issues).toEqual(['unit-unavailable']);
-    expect(preview.lines[0].lineTotalMinor).toBeNull();
+    expect(preview.lines[0]).toMatchObject({
+      unit: 'piece',
+      pieces: 10,
+      issues: ['unit-unavailable'],
+      lineTotalMinor: 1999,
+    });
     // The packaging is still returned, so the browser can offer another unit.
     expect(preview.lines[0].packaging).toMatchObject({ minPieceQty: 10 });
   });
@@ -162,7 +168,7 @@ describe('priceCart', () => {
         {
           slug: 'hafen-espresso',
           unit: 'pack',
-          quantity: 1,
+          pieces: 10,
           note: '100 in red',
         },
       ],
@@ -185,7 +191,7 @@ describe('priceCart', () => {
 
     const { preview, lines } = await priceCart(
       db,
-      [{ slug: 'hafen-espresso', unit: 'pack', quantity: 1 }],
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 7 }],
       null,
     );
 
@@ -201,8 +207,8 @@ describe('priceCart', () => {
     const { preview } = await priceCart(
       db,
       [
-        { slug: 'hafen-espresso', unit: 'box', quantity: 2 },
-        { slug: 'ghost', unit: 'pack', quantity: 1 },
+        { slug: 'hafen-espresso', unit: 'box', pieces: 80 },
+        { slug: 'ghost', unit: 'pack', pieces: 10 },
       ],
       null,
     );
@@ -213,6 +219,20 @@ describe('priceCart', () => {
       coveredLines: 1,
       uncoveredLines: 0,
     });
+  });
+
+  it('freezes the quantity as the lens reads it, fractions and all', async () => {
+    // One pack of a four-pack box, read through the box: 0.25 bx. The order
+    // line keeps that reading; the pieces stay the ten that were ordered.
+    const { db } = dbWith([coffee]);
+
+    const { lines } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'box', pieces: 10 }],
+      null,
+    );
+
+    expect(lines[0].row).toMatchObject({ pieces: 10, quantity: 0.25 });
   });
 
   it('asks the database nothing for an empty cart', async () => {

@@ -52,6 +52,9 @@ interface CartRow {
   notePrompt: string;
   takesNote: boolean;
   issues: string[];
+  /** The one advisory that is feedback rather than a state: it goes in the
+   * bubble under the stepper it is about, not in the list below the name. */
+  notice: string | null;
 }
 
 /**
@@ -162,6 +165,7 @@ interface CartRow {
                     [item]="row.item"
                     [available]="row.available"
                     [externalNote]="true"
+                    [notice]="row.notice"
                   >
                     <!-- Level with the top of the photo, and as close to it as
                        the tick above the list is to its own words, so the two
@@ -367,14 +371,12 @@ export class CartPage {
   /** The priced answer, indexed the way lines are identified. */
   private readonly priced = computed(() => {
     const value = this.answer();
-    return new Map(
-      (value?.lines ?? []).map((line) => [`${line.slug} ${line.unit}`, line]),
-    );
+    return new Map((value?.lines ?? []).map((line) => [line.slug, line]));
   });
 
   protected readonly rows = computed<CartRow[]>(() =>
     this.cart.lines().map((line) => {
-      const fresh = this.priced().get(`${line.slug} ${line.unit}`);
+      const fresh = this.priced().get(line.slug);
       return {
         key: line.slug,
         // A product preview answered no prices for is one the shop no longer
@@ -386,8 +388,7 @@ export class CartPage {
         // preview writes what it answers back into the store, so reading the
         // answer here too would only mean redrawing the row from nothing for
         // as long as a call is in flight — which is what made a line blink on
-        // every change of unit, the one edit that changes the key an answer
-        // is filed under.
+        // every edit.
         item: {
           slug: line.slug,
           name: line.name,
@@ -401,7 +402,12 @@ export class CartPage {
         note: line.note,
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
-        issues: (fresh?.issues ?? []).map((issue) => this.issueText(issue)),
+        issues: (fresh?.issues ?? [])
+          .filter((issue) => issue !== 'quantity-corrected')
+          .map((issue) => this.issueText(issue)),
+        notice: (fresh?.issues ?? []).includes('quantity-corrected')
+          ? this.text.issues.quantityCorrected
+          : null,
       };
     }),
   );
@@ -411,9 +417,9 @@ export class CartPage {
    * cart does not drop the ticks, and intersected with the cart on every read
    * so a line removed while ticked takes its tick with it.
    *
-   * By slug rather than by `slug unit` for the same reason the cart itself is:
-   * changing a line's unit edits that line, and a key carrying the unit would
-   * quietly untick the row the customer just adjusted.
+   * By slug, which is what identifies a line: changing a line's unit edits
+   * that line, and a key carrying the unit would quietly untick the row the
+   * customer just adjusted.
    */
   private readonly ticked = signal<ReadonlySet<string>>(new Set());
   protected readonly selected = computed(() => {

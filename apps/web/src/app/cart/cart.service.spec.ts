@@ -19,7 +19,7 @@ function pieceAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     slug: 'espresso-roast',
     name: 'Espresso Roast',
     unit: 'piece',
-    quantity: 1,
+    pieces: 1,
     note: null,
     image: null,
     lineNoteEnabled: false,
@@ -35,22 +35,27 @@ function pieceAddition(overrides: Partial<CartAddition> = {}): CartAddition {
   };
 }
 
-/** Six to a pack at €70 a pack, four packs to a box at €270. */
+/**
+ * Six to a pack at €70 a pack, four packs to a box. Every figure is the same
+ * lot price multiplied out — a pack *is* the lot here — because that is what
+ * the arithmetic guarantees and a fixture that disagreed with it would be
+ * testing a shop that cannot exist.
+ */
 function packAddition(overrides: Partial<CartAddition> = {}): CartAddition {
   return {
     slug: 'filter-roast',
     name: 'Filter Roast',
     unit: 'pack',
-    quantity: 1,
+    pieces: 6,
     note: null,
     image: null,
     lineNoteEnabled: false,
     lineNotePrompt: null,
     prices: {
-      pieceMilliMinor: 1250,
-      pieceLotMinor: 7500,
+      pieceMilliMinor: 1_166_667,
+      pieceLotMinor: 7000,
       pack: 7000,
-      box: 27000,
+      box: 28_000,
     },
     packaging: { ...packagedPackaging },
     ...overrides,
@@ -73,17 +78,17 @@ describe('CartService', () => {
     const cart = service();
     expect(cart.isEmpty()).toBe(true);
 
-    expect(cart.add(pieceAddition({ quantity: 3 }))).toBe('added');
+    expect(cart.add(pieceAddition({ pieces: 3 }))).toBe('added');
 
     expect(cart.count()).toBe(1);
     expect(cart.totalMinor()).toBe(3750);
     expect(cart.totalComplete()).toBe(true);
-    expect(stored()?.lines[0].quantity).toBe(3);
+    expect(stored()?.lines[0].pieces).toBe(3);
   });
 
   it('records when a line was added and what it cost, from the first write', () => {
     const cart = service();
-    cart.add(packAddition({ quantity: 2 }));
+    cart.add(packAddition({ pieces: 12 }));
 
     const [line] = cart.lines();
     expect(line.addedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
@@ -91,33 +96,33 @@ describe('CartService', () => {
     expect(line.lineTotalMinor).toBe(14000);
   });
 
-  // The identity rule: one product in one unit is one line, and the note
-  // describes that line rather than splitting it.
-  it('merges an addition of the same product and unit, re-pricing the sum', () => {
+  // The identity rule: one product is one line, and the note describes that
+  // line rather than splitting it.
+  it('merges an addition of the same product, re-pricing the sum', () => {
     const cart = service();
-    cart.add(packAddition({ quantity: 2 }));
-    cart.add(packAddition({ quantity: 3 }));
+    cart.add(packAddition({ pieces: 12 }));
+    cart.add(packAddition({ pieces: 18 }));
 
     expect(cart.count()).toBe(1);
-    expect(cart.lines()[0].quantity).toBe(5);
+    expect(cart.lines()[0].pieces).toBe(30);
     expect(cart.lines()[0].lineTotalMinor).toBe(35000);
   });
 
-  // A product is one line whatever unit it is held in: the same product as
-  // pieces and as boxes on two rows is a cart a customer has to reconcile.
-  it('moves the line to the new unit rather than opening a second one', () => {
+  // A unit is a lens, so two additions in different units are two piece counts
+  // of the same goods: they add up, and the line reads in the newer lens.
+  it('sums across units rather than opening a second line', () => {
     const cart = service();
-    cart.add(packAddition({ unit: 'pack', quantity: 4 }));
-    cart.add(packAddition({ unit: 'box', quantity: 1 }));
+    cart.add(packAddition({ unit: 'pack', pieces: 24 }));
+    cart.add(packAddition({ unit: 'box', pieces: 24 }));
 
     expect(cart.count()).toBe(1);
-    expect(cart.lines()[0]).toMatchObject({ unit: 'box', quantity: 1 });
-    expect(cart.totalMinor()).toBe(27000);
+    expect(cart.lines()[0]).toMatchObject({ unit: 'box', pieces: 48 });
+    expect(cart.totalMinor()).toBe(56_000);
   });
 
   it('answers with the line a product is held in, whichever unit that is', () => {
     const cart = service();
-    cart.add(packAddition({ unit: 'box', quantity: 1 }));
+    cart.add(packAddition({ unit: 'box', pieces: 24 }));
 
     expect(cart.lineFor('filter-roast')?.unit).toBe('box');
     expect(cart.lineFor('nothing-like-it')).toBeUndefined();
@@ -125,16 +130,16 @@ describe('CartService', () => {
 
   it('sets an existing line outright, re-pricing it, and creates nothing', () => {
     const cart = service();
-    cart.add(packAddition({ unit: 'pack', quantity: 1 }));
+    cart.add(packAddition({ unit: 'pack', pieces: 6 }));
 
-    cart.setLine(packAddition({ unit: 'box', quantity: 2 }));
-    cart.setLine(packAddition({ slug: 'not-in-the-cart', quantity: 3 }));
+    cart.setLine(packAddition({ unit: 'box', pieces: 48 }));
+    cart.setLine(packAddition({ slug: 'not-in-the-cart', pieces: 18 }));
 
     expect(cart.count()).toBe(1);
     expect(cart.lines()[0]).toMatchObject({
       unit: 'box',
-      quantity: 2,
-      lineTotalMinor: 54000,
+      pieces: 48,
+      lineTotalMinor: 56_000,
     });
   });
 
@@ -162,7 +167,7 @@ describe('CartService', () => {
   // subtotal has to be able to say it is incomplete.
   it('carries an unpriceable line as null rather than as nothing', () => {
     const cart = service();
-    cart.add(pieceAddition({ quantity: 2 }));
+    cart.add(pieceAddition({ pieces: 2 }));
     cart.add(
       packAddition({
         prices: {
@@ -205,7 +210,7 @@ describe('CartService', () => {
 
   it('reads a stored cart back on the next visit', () => {
     const first = service();
-    first.add(packAddition({ quantity: 2, note: 'two in green' }));
+    first.add(packAddition({ pieces: 12, note: 'two in green' }));
 
     TestBed.resetTestingModule();
     const next = service();
@@ -216,7 +221,7 @@ describe('CartService', () => {
   });
 
   it('discards a cart written by an older version rather than half-reading it', () => {
-    write({ version: 0, lines: [{ slug: 'x', unit: 'piece', quantity: 1 }] });
+    write({ version: 1, lines: [{ slug: 'x', unit: 'piece', quantity: 1 }] });
 
     expect(service().isEmpty()).toBe(true);
   });
@@ -233,11 +238,11 @@ describe('CartService', () => {
     write({
       version: 1,
       lines: [
-        { ...pieceAddition(), quantity: '5', addedAt: '', name: 'x' },
+        { ...pieceAddition(), pieces: '5', addedAt: '', name: 'x' },
         {
           slug: 'filter-roast',
           unit: 'pack',
-          quantity: 2,
+          pieces: 12,
           note: null,
           name: 'Filter Roast',
           addedAt: '2026-08-01T00:00:00.000Z',
@@ -267,7 +272,7 @@ describe('CartService', () => {
     const good = {
       slug: 'filter-roast',
       unit: 'pack',
-      quantity: 2,
+      pieces: 12,
       note: null,
       name: 'Filter Roast',
       addedAt: '2026-08-01T00:00:00.000Z',
@@ -313,7 +318,7 @@ describe('CartService', () => {
         {
           slug: 'from-another-tab',
           unit: 'piece',
-          quantity: 4,
+          pieces: 4,
           note: null,
           name: 'Another Tab',
           addedAt: '2026-08-01T00:00:00.000Z',
@@ -345,7 +350,7 @@ describe('CartService', () => {
         throw new DOMException('quota', 'QuotaExceededError');
       });
 
-    cart.add(pieceAddition({ quantity: 2 }));
+    cart.add(pieceAddition({ pieces: 2 }));
 
     expect(cart.count()).toBe(1);
     expect(cart.persistFailed()).toBe(true);
@@ -359,7 +364,7 @@ describe('CartService', () => {
         {
           slug: 'espresso-roast',
           unit: 'piece',
-          quantity: 1,
+          pieces: 1,
           note: null,
           name: 'Espresso Roast',
           addedAt: '2026-08-01T00:00:00.000Z',
@@ -395,7 +400,7 @@ describe('CartService', () => {
         lines: lines.map((line) => ({
           slug: 'filter-roast',
           unit: 'pack' as const,
-          quantity: 1,
+          pieces: 6,
           note: null,
           name: 'Filter Roast',
           image: null,
@@ -406,10 +411,10 @@ describe('CartService', () => {
           lineNoteEnabled: false,
           lineNotePrompt: null,
           prices: {
-            pieceMilliMinor: 1250,
-            pieceLotMinor: 7500,
+            pieceMilliMinor: 1_166_667,
+            pieceLotMinor: 7000,
             pack: 7000,
-            box: 27000,
+            box: 28_000,
           },
           lineTotalMinor: 7000,
           issues: [],
@@ -430,19 +435,19 @@ describe('CartService', () => {
 
     it('folds a corrected quantity, a dropped note and the new price back in', () => {
       const cart = service();
-      cart.add(packAddition({ quantity: 1, note: 'in red' }));
+      cart.add(packAddition({ pieces: 6, note: 'in red' }));
 
       cart.applyPreview(
         preview([
           {
-            quantity: 2,
+            pieces: 12,
             note: null,
             lineTotalMinor: 15000,
             prices: {
-              pieceMilliMinor: 1250,
+              pieceMilliMinor: 1_250_000,
               pieceLotMinor: 7500,
               pack: 7500,
-              box: 29000,
+              box: 30_000,
             },
             issues: ['quantity-corrected', 'note-not-allowed'],
           },
@@ -450,7 +455,7 @@ describe('CartService', () => {
       );
 
       const [line] = cart.lines();
-      expect(line.quantity).toBe(2);
+      expect(line.pieces).toBe(12);
       expect(line.note).toBeNull();
       expect(line.unitPriceMinor).toBe(7500);
       expect(line.lineTotalMinor).toBe(15000);
@@ -480,13 +485,35 @@ describe('CartService', () => {
       expect(cart.totalComplete()).toBe(false);
     });
 
+    // The answer may carry another unit than the one that was sent, and it is
+    // matched by slug for exactly that reason.
+    it('takes the unit the answer fell back to', () => {
+      const cart = service();
+      cart.add(packAddition({ unit: 'box', pieces: 24 }));
+
+      cart.applyPreview(
+        preview([
+          {
+            unit: 'piece',
+            pieces: 24,
+            lineTotalMinor: 28_000,
+            issues: ['unit-unavailable'],
+          },
+        ]),
+      );
+
+      expect(cart.lines()[0]).toMatchObject({ unit: 'piece', pieces: 24 });
+      // Re-priced through the unit the answer came back in.
+      expect(cart.lines()[0].unitPriceMinor).toBe(7000);
+    });
+
     it('leaves a line the answer did not mention alone', () => {
       const cart = service();
-      cart.add(packAddition({ quantity: 2 }));
+      cart.add(packAddition({ pieces: 12 }));
 
       cart.applyPreview(preview([{ slug: 'something-else' }]));
 
-      expect(cart.lines()[0].quantity).toBe(2);
+      expect(cart.lines()[0].pieces).toBe(12);
       expect(cart.lines()[0].lineTotalMinor).toBe(14000);
     });
   });

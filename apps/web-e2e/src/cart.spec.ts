@@ -13,6 +13,10 @@ import { expect, Page, test } from '@playwright/test';
 
 const cartLink = (page: Page) => page.getByRole('link', { name: /^Cart/ });
 
+/** `cart.issues.quantityCorrected` in the demo text — one sentence, whatever
+ * was rounded and whichever unit it was typed in. */
+const CORRECTED = 'The quantity was adjusted to the nearest we can supply.';
+
 /** Each cart line is a list item carrying a link to its product. */
 const lines = (page: Page) =>
   page.locator('li:has(a[href^="/product/"])').filter({ hasText: /\d/ });
@@ -62,8 +66,33 @@ test('adds a chosen unit to the cart, counts it in the header, and keeps it', as
   // The cart line carries the same controls the product page did, holding the
   // choice that was made there.
   await expect(page.getByRole('radio', { name: 'Box' })).toBeChecked();
+  // The minimum is six pieces, and a box holds 24 — so a quarter of one. The
+  // unit says how the quantity is read, never what it is.
   await expect(page.getByRole('textbox', { name: 'Quantity' })).toHaveValue(
-    '1',
+    '0,25',
+  );
+});
+
+test('re-reads a quantity in another unit without asking anything', async ({
+  page,
+}) => {
+  await page.goto('/product/hafen-espresso');
+
+  const units = page.getByRole('radiogroup', { name: 'Unit' });
+  const quantity = page.getByRole('textbox', { name: 'Quantity' });
+  await units.getByText('Pack', { exact: true }).click();
+  await quantity.fill('2');
+  await units.getByText('Box', { exact: true }).click();
+
+  // Two packs of the four a box holds. Nothing was rounded, so nothing is
+  // announced — the prompt this replaced asked to round it up to a whole box.
+  await expect(quantity).toHaveValue('0,5');
+  await expect(page.getByText(CORRECTED)).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Add to cart' }).click();
+  await cartLink(page).click();
+  await expect(page.getByRole('textbox', { name: 'Quantity' })).toHaveValue(
+    '0,5',
   );
 });
 
@@ -77,7 +106,7 @@ test('corrects a piece quantity to one the shop can supply, and says so', async 
   await quantity.fill('14');
   await page.getByRole('button', { name: 'Add to cart' }).click();
 
-  await expect(page.getByText('14 adjusted to 18 pcs')).toBeVisible();
+  await expect(page.getByText(CORRECTED)).toBeVisible();
   await cartLink(page).click();
   await expect(page.getByRole('textbox', { name: 'Quantity' })).toHaveValue(
     '18',

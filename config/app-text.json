@@ -94,7 +94,6 @@
     "unitLabel": "Unit",
     "quantityLabel": "Quantity",
     "unitNotSold": "This product is not sold in this unit.",
-    "quantityCorrected": "{from} adjusted to {to} {unit}",
     "decrease": "Decrease the quantity",
     "increase": "Increase the quantity",
     "noteLabel": "Note",

@@ -28,7 +28,7 @@ function addition(overrides: Partial<CartAddition> = {}): CartAddition {
     slug: 'espresso-roast',
     name: 'Espresso Roast',
     unit: 'piece',
-    quantity: 1,
+    pieces: 1,
     note: null,
     image: null,
     lineNoteEnabled: false,
@@ -122,8 +122,8 @@ describe('CartLink', () => {
   it('counts the lines and totals them from what the cart stored', async () => {
     const view = await render();
 
-    view.cart.add(addition({ quantity: 2 }));
-    view.cart.add(addition({ slug: 'filter-roast', quantity: 1 }));
+    view.cart.add(addition({ pieces: 2 }));
+    view.cart.add(addition({ slug: 'filter-roast', pieces: 1 }));
     await view.rerender();
 
     // The chip drops the cents; the spoken label, which costs no width, does
@@ -137,7 +137,7 @@ describe('CartLink', () => {
   it('writes a whole total without its decimals', async () => {
     const view = await render();
 
-    view.cart.add(addition({ quantity: 2, prices: wholePrices }));
+    view.cart.add(addition({ pieces: 2, prices: wholePrices }));
     await view.rerender();
 
     expect(view.figures()?.total).toBe('20 €');
@@ -161,7 +161,7 @@ describe('CartLink', () => {
   // empty cart the hydrated app immediately contradicts.
   it('emits no figures at all on the server', async () => {
     const view = await render('server');
-    view.cart.add(addition({ quantity: 2 }));
+    view.cart.add(addition({ pieces: 2 }));
     await view.rerender();
 
     expect(view.text()).toBe(text.navLabel);

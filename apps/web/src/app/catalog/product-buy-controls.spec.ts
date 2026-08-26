@@ -11,6 +11,8 @@ import { packagedPackaging, productDetail } from './product.fixture';
 
 const text = defaultAppText.cart;
 const unitText = defaultAppText.catalog.units;
+/** One sentence, whatever was corrected and whichever unit it was typed in. */
+const corrected = text.issues.quantityCorrected;
 
 /**
  * Ten to a pack, four packs to a box (so forty pieces), and a hundred-piece
@@ -20,12 +22,14 @@ const packaged = productDetail({
   slug: 'filter-roast',
   name: 'Filter Roast',
   packaging: { ...packagedPackaging, piecesPerPack: 10, minPieceQty: 100 },
+  // €0.70 a piece, and every other figure is that multiplied out: a step is a
+  // pack of ten, a box is four of those. The arithmetic guarantees they agree,
+  // so a fixture that disagreed would be testing a shop that cannot exist.
   prices: {
-    pieceMilliMinor: 1250,
-    // One step — one pack of ten — at 1.25 minor units a piece.
-    pieceLotMinor: 12_500,
-    pack: 7000,
-    box: 27000,
+    pieceMilliMinor: 70_000,
+    pieceLotMinor: 700,
+    pack: 700,
+    box: 2800,
   },
 });
 
@@ -164,14 +168,13 @@ describe('ProductBuyControls', () => {
   // customer to match figures to segments.
   it('shows the price of the selected unit, and only that one', async () => {
     const view = await render(packaged);
-    // Thousandths of a cent: €12.50 for a hundred-piece lot is €0.0125 each.
-    expect(view.text()).toContain('0,013');
-    expect(view.text()).not.toContain('70,00');
+    expect(view.text()).toContain('0,70');
+    expect(view.text()).not.toContain('7,00');
 
     await view.chooseUnit(unitText.select.pack);
 
-    expect(view.text()).toContain('70,00');
-    expect(view.text()).not.toContain('270,00');
+    expect(view.text()).toContain('7,00');
+    expect(view.text()).not.toContain('28,00');
   });
 
   it('starts at the piece, in the smallest quantity that may be ordered', async () => {
@@ -180,22 +183,36 @@ describe('ProductBuyControls', () => {
     expect(view.quantityInput().value).toBe('100');
   });
 
-  // The quantity is the same goods expressed another way, so it converts
-  // rather than restarting.
-  it('converts the quantity when the unit changes', async () => {
+  // The change the lens model is: a unit says how the same hundred pieces are
+  // read, so nothing is converted, nothing is rounded, and going back reads
+  // the figure it started from.
+  it('re-reads the same quantity through whichever unit is chosen', async () => {
     const view = await render(packaged);
 
-    // A hundred pieces is exactly ten packs of ten.
+    // A hundred pieces is exactly ten packs of ten...
     await view.chooseUnit(unitText.select.pack);
     expect(view.quantityInput().value).toBe('10');
 
-    // Ten packs is two and a half boxes of forty, and half a box is not
-    // something the shop packs — so three.
+    // ...and two and a half boxes of forty, which is simply what it says.
     await view.chooseUnit(unitText.select.box);
-    expect(view.quantityInput().value).toBe('3');
+    expect(view.quantityInput().value).toBe('2,5');
 
     await view.chooseUnit(unitText.select.piece);
-    expect(view.quantityInput().value).toBe('120');
+    expect(view.quantityInput().value).toBe('100');
+  });
+
+  // The whole point of the fraction: a quantity the shop can pick is reachable
+  // through the box as readily as through the pack.
+  it('takes a fraction of a box and snaps it to a quantity that exists', async () => {
+    const view = await render(packaged);
+    await view.chooseUnit(unitText.select.box);
+
+    // 2.6 boxes of forty is 104 pieces, which is not whole packs of ten.
+    await view.type('2,6');
+    await view.blurQuantity();
+
+    expect(view.quantityInput().value).toBe('2,75');
+    expect(view.cart.lines()).toHaveLength(0);
   });
 
   it('rounds a typed quantity up to the nearest orderable one, and says so', async () => {
@@ -208,7 +225,7 @@ describe('ProductBuyControls', () => {
     await view.blurQuantity();
 
     expect(view.quantityInput().value).toBe('150');
-    expect(view.text()).toContain(`141 adjusted to 150 ${unitText.piece}`);
+    expect(view.text()).toContain(corrected);
   });
 
   // The rule this replaced: the minimum used to be the increment too, so 140
@@ -222,7 +239,7 @@ describe('ProductBuyControls', () => {
     await view.blurQuantity();
 
     expect(view.quantityInput().value).toBe('140');
-    expect(view.text()).not.toContain('adjusted to');
+    expect(view.text()).not.toContain(corrected);
   });
 
   // The hole the piece-only minimum left: one pack of ten is ten pieces, which
@@ -237,7 +254,7 @@ describe('ProductBuyControls', () => {
 
     // A hundred pieces is ten packs of ten.
     expect(view.quantityInput().value).toBe('10');
-    expect(view.text()).toContain(`1 adjusted to 10 ${unitText.pack}`);
+    expect(view.text()).toContain(corrected);
   });
 
   it('states the minimum in the unit the stepper is counting in', async () => {
@@ -255,27 +272,16 @@ describe('ProductBuyControls', () => {
     );
   });
 
-  // A unit change is the other way a quantity gets rounded, and it rounds up
-  // just as a typed one does — so it says so, in the words of the unit being
-  // switched to rather than in pieces.
-  it('says when a unit change had to round the quantity up', async () => {
+  // Changing unit used to round the quantity up to a whole one and announce
+  // it. There is nothing left to announce: the goods do not move.
+  it('says nothing when the unit changes, whether it divides or not', async () => {
     const view = await render(packaged);
 
-    // 100 pieces is two and a half boxes of forty.
-    await view.chooseUnit(unitText.select.box);
-
-    expect(view.text()).toContain(`2.5 adjusted to 3 ${unitText.box}`);
-    // Not "3 pcs", which is what a hardcoded piece word used to say.
-    expect(view.text()).not.toContain(`adjusted to 3 ${unitText.piece}`);
-  });
-
-  it('says nothing when the unit change divides exactly', async () => {
-    const view = await render(packaged);
-
-    // A hundred pieces is exactly ten packs.
     await view.chooseUnit(unitText.select.pack);
+    expect(view.text()).not.toContain(corrected);
 
-    expect(view.text()).not.toContain('adjusted to');
+    await view.chooseUnit(unitText.select.box);
+    expect(view.text()).not.toContain(corrected);
   });
 
   // The notice is feedback on something already done, so it clears itself —
@@ -284,11 +290,11 @@ describe('ProductBuyControls', () => {
     const view = await render(packaged);
     await view.type('141');
     await view.blurQuantity();
-    expect(view.text()).toContain('adjusted to');
+    expect(view.text()).toContain(corrected);
 
     await view.click(text.increase);
 
-    expect(view.text()).not.toContain('adjusted to');
+    expect(view.text()).not.toContain(corrected);
   });
 
   // Two different figures: the pack is what it moves by, the minimum is where
@@ -304,6 +310,104 @@ describe('ProductBuyControls', () => {
     await view.click(text.decrease);
 
     expect(view.quantityInput().value).toBe('100');
+  });
+
+  // A stepper is pressed to reach a figure the unit can say plainly, so it
+  // snaps to whole ones rather than adding a step to a fraction.
+  it('steps a part box up to the whole box, not past it', async () => {
+    const view = await render(packaged);
+    await view.chooseUnit(unitText.select.box);
+    expect(view.quantityInput().value).toBe('2,5');
+
+    await view.click(text.increase);
+    expect(view.quantityInput().value).toBe('3');
+
+    await view.click(text.decrease);
+    expect(view.quantityInput().value).toBe('2,5');
+  });
+
+  // The field used to be rewritten from the piece count on every keystroke:
+  // backspacing 2,5 to 2 buys 80 pieces, which is fine — but backspacing a
+  // figure whose pieces do not divide evenly wrote the division back over the
+  // caret, and a typed separator was erased as fast as it was pressed.
+  it('leaves the field alone until it is left', async () => {
+    const view = await render(packaged);
+    await view.chooseUnit(unitText.select.box);
+
+    // 2,41 of a forty-piece box is 97 pieces, which reads back as 2,425 —
+    // which is what used to land on the caret between two keystrokes.
+    await view.type('2,41');
+    expect(view.quantityInput().value).toBe('2,41');
+
+    // A separator on its way to a fraction survives being pressed.
+    await view.type('2,');
+    expect(view.quantityInput().value).toBe('2,');
+
+    await view.blurQuantity();
+    expect(view.quantityInput().value).toBe('2,5');
+  });
+
+  // The field is a draft: nothing reads it until it is left. Pricing a
+  // half-typed figure moved the line's total, the cart and the header behind
+  // the caret while the customer was still typing it.
+  it('moves nothing until the field is left', async () => {
+    const view = await render(packaged);
+    await view.click(text.add);
+    expect(view.text()).toContain('70,00');
+
+    await view.chooseUnit(unitText.select.box);
+    await view.type('2,51');
+
+    // 2,51 of a forty-piece box is 101 pieces, which corrects to 110 — the
+    // figure the label used to jump to on the keystroke.
+    expect(view.text()).toContain('70,00');
+    expect(view.cart.lines()[0].pieces).toBe(100);
+
+    await view.blurQuantity();
+
+    expect(view.text()).toContain('77,00');
+    expect(view.cart.lines()[0].pieces).toBe(110);
+  });
+
+  it('takes either separator for the fraction', async () => {
+    const view = await render(packaged);
+    await view.chooseUnit(unitText.select.box);
+
+    await view.type('3.25');
+    await view.blurQuantity();
+
+    expect(view.quantityInput().value).toBe('3,25');
+  });
+
+  // A piece count is a whole number of packs, so a pack reading never is a
+  // fraction — offering the field decimals would only invite one to be typed
+  // and rounded away.
+  it('takes no decimals in a unit that cannot read as one', async () => {
+    const view = await render(packaged);
+    await view.chooseUnit(unitText.select.pack);
+
+    expect(view.quantityInput().getAttribute('inputmode')).toBe('numeric');
+
+    await view.chooseUnit(unitText.select.box);
+    expect(view.quantityInput().getAttribute('inputmode')).toBe('decimal');
+  });
+
+  // The correction is feedback on something already done, so it is said every
+  // time it happens — a bubble that only appeared on the first of three
+  // identical corrections read as a bubble that had stopped working.
+  it('says so every time a quantity is corrected', async () => {
+    const view = await render(packaged);
+
+    await view.type('141');
+    await view.blurQuantity();
+    expect(view.text()).toContain(corrected);
+
+    await view.pressOutside();
+    expect(view.text()).not.toContain(corrected);
+
+    await view.type('141');
+    await view.blurQuantity();
+    expect(view.text()).toContain(corrected);
   });
 
   // ADR 0035: a line that cannot be priced exactly shows words, never a zero.
@@ -337,10 +441,11 @@ describe('ProductBuyControls', () => {
         slug: 'filter-roast',
         name: 'Filter Roast',
         unit: 'box',
-        // 100 pieces rounds up to three boxes of forty, at 270.00 the box.
-        quantity: 3,
+        // Two and a half boxes of forty — the quantity is the pieces, and the
+        // box is only how they are being counted.
+        pieces: 100,
         note: null,
-        lineTotalMinor: 81_000,
+        lineTotalMinor: 7000,
       }),
     ]);
   });
@@ -350,7 +455,7 @@ describe('ProductBuyControls', () => {
     await view.type('141');
     await view.click(text.add);
 
-    expect(view.cart.lines()[0].quantity).toBe(150);
+    expect(view.cart.lines()[0].pieces).toBe(150);
   });
 
   // The change the customer made is the feedback: there is nothing to confirm
@@ -361,15 +466,16 @@ describe('ProductBuyControls', () => {
 
     expect(view.text()).not.toContain(text.add);
     expect(view.text()).toContain('Added for');
-    // 100 pieces is ten packs of ten, at 12.50 the pack.
-    expect(view.text()).toContain('1.250,00');
+    // 100 pieces is ten packs of ten, at 7.00 the pack.
+    expect(view.text()).toContain('70,00');
 
-    // 100 pieces is three boxes of forty once rounded up, and one more makes
-    // four at 270.00.
+    // Counted in boxes, 100 pieces is two and a half of them — so one press
+    // offers three, not three and a half.
     await view.chooseUnit(unitText.select.box);
     await view.click(text.increase);
 
-    expect(view.text()).toContain('1.080,00');
+    expect(view.quantityInput().value).toBe('3');
+    expect(view.text()).toContain('84,00');
   });
 
   it('edits the line in the cart rather than offering to add it twice', async () => {
@@ -379,11 +485,11 @@ describe('ProductBuyControls', () => {
     await view.click(text.increase);
 
     expect(view.cart.lines()).toHaveLength(1);
-    expect(view.cart.lines()[0].quantity).toBe(110);
-    expect(view.text()).toContain('1.375,00');
+    expect(view.cart.lines()[0].pieces).toBe(110);
+    expect(view.text()).toContain('77,00');
   });
 
-  it('moves the line to another unit, carrying the quantity across', async () => {
+  it('re-reads the line in another unit without touching what it holds', async () => {
     const view = await render(packaged);
     await view.chooseUnit(unitText.select.pack);
     await view.click(text.add);
@@ -391,9 +497,9 @@ describe('ProductBuyControls', () => {
     await view.chooseUnit(unitText.select.box);
 
     expect(view.cart.lines()).toHaveLength(1);
-    // Ten packs is 100 pieces, which fills two boxes of forty with room to
-    // spare, so three.
-    expect(view.cart.lines()[0]).toMatchObject({ unit: 'box', quantity: 3 });
+    // The same hundred pieces, now counted in boxes of forty.
+    expect(view.cart.lines()[0]).toMatchObject({ unit: 'box', pieces: 100 });
+    expect(view.quantityInput().value).toBe('2,5');
   });
 
   // There is nothing below the minimum except not buying the product, and that
@@ -438,11 +544,11 @@ describe('ProductBuyControls', () => {
     const view = await render(packaged);
     await view.type('141');
     await view.blurQuantity();
-    expect(view.text()).toContain('adjusted to');
+    expect(view.text()).toContain(corrected);
 
     await view.pressOutside();
 
-    expect(view.text()).not.toContain('adjusted to');
+    expect(view.text()).not.toContain(corrected);
   });
 
   // The signal clamped it long ago; what was missing was the field agreeing.

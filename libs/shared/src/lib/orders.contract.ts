@@ -139,8 +139,14 @@ export const orderLineSchema = z
     /** False once the product is unpublished or soft-deleted: nothing to open. */
     linked: z.boolean(),
     image: catalogImageSchema.nullable(),
+    /** The lens the line was bought through, frozen with it. */
     unit: productUnitSchema,
-    quantity: z.number().int().positive(),
+    /**
+     * `pieces` read through `unit`, to three decimals — a **display snapshot**,
+     * so an order reads back as the quantity that was shown when it was placed
+     * even after the product is repacked. `pieces` is what was ordered.
+     */
+    quantity: z.number().positive(),
     pieces: z.number().int().positive(),
     lineTotalMinor: z.number().int().nonnegative(),
     note: z.string().nullable(),

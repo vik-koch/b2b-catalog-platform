@@ -20,12 +20,14 @@ const packaged = productDetail({
   slug: 'filter-roast',
   name: 'Filter Roast',
   packaging: { ...packagedPackaging, piecesPerPack: 10, minPieceQty: 100 },
+  // €0.70 a piece, and every other figure is that multiplied out: a step is a
+  // pack of ten, a box is four of those. The arithmetic guarantees they agree,
+  // so a fixture that disagreed would be testing a shop that cannot exist.
   prices: {
-    pieceMilliMinor: 1250,
-    // One step — one pack of ten — at 1.25 minor units a piece.
-    pieceLotMinor: 12_500,
-    pack: 7000,
-    box: 27000,
+    pieceMilliMinor: 70_000,
+    pieceLotMinor: 700,
+    pack: 700,
+    box: 2800,
   },
 });
 
@@ -131,7 +133,7 @@ describe('ProductBuyBlock', () => {
     ]);
     expect(view.quantityInput().value).toBe('100');
     // The per-piece price, which is the block's headline figure.
-    expect(view.text()).toContain('0,013');
+    expect(view.text()).toContain('0,70');
   });
 
   // FR-CART-08: off by default, and where enabled it is optional.

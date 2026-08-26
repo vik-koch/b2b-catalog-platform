@@ -283,7 +283,7 @@ export class OrdersService {
                 name: preview.name ?? preview.slug,
                 thumbnail: row.thumbnail,
                 unit: preview.unit,
-                quantity: preview.quantity,
+                quantity: row.quantity,
                 pieces: row.pieces,
                 priceMinor: row.priceMinor,
                 priceBasisPieces: row.priceBasisPieces,

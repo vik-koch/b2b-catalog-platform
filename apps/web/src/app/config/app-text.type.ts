@@ -213,9 +213,6 @@ export const appTextSchema = z
         /** Said in the bubble under a unit the product is not sold in — the
          * segment is shown rather than hidden, so it has to answer for itself. */
         unitNotSold: z.string(),
-        /** Shown after a piece quantity was rounded up: `{from}`, `{to}`,
-         * `{unit}`. */
-        quantityCorrected: z.string(),
         /** The stepper buttons' accessible names — their content is an icon. */
         decrease: z.string(),
         increase: z.string(),
@@ -301,6 +298,11 @@ export const appTextSchema = z
           .object({
             unavailable: z.string(),
             unitUnavailable: z.string(),
+            /** Said wherever a quantity was rounded up to one the shop can
+             * supply — by a keystroke here, or by the server on a cart that
+             * sat. It names no figures: the field beside it already shows the
+             * one that stands, and the pair it replaced read as thirds of a
+             * pack ("0.167 adjusted to 1 pk"). */
             quantityCorrected: z.string(),
             noteNotAllowed: z.string(),
             priceUnavailable: z.string(),

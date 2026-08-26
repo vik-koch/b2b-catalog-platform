@@ -1,9 +1,4 @@
-import {
-  ProductPackaging,
-  ProductUnit,
-  piecesFor,
-  piecesPerUnit,
-} from './product-units';
+import { ProductPackaging, piecesPerUnit } from './product-units';
 
 /**
  * The cart's shipment summary (FR-UNIT-11) — how many cartons the order is,
@@ -15,12 +10,12 @@ import {
  * `boxCount` except the carton count itself. A line of *q* box units is
  * `q × boxCount` cartons, `q × boxVolume` and `q × boxWeight`.
  *
- * A line bought by the piece or the pack is the same figures scaled by the
- * fraction of a box it fills, with cartons rounded up to whole ones: 50 pieces
- * of a 100-piece box is one carton, 101 is two. That is an estimate — hence the
- * whole summary being labelled approximate and confirmed by a manager — and a
- * product with no box defined has no shipping figures at all, which the summary
- * says rather than silently omitting.
+ * A line that does not fill whole boxes is the same figures scaled by the
+ * fraction of one it does fill, with cartons rounded up to whole ones: 50
+ * pieces of a 100-piece box is one carton, 101 is two. That is an estimate —
+ * hence the whole summary being labelled approximate and confirmed by a
+ * manager — and a product with no box defined has no shipping figures at all,
+ * which the summary says rather than silently omitting.
  */
 
 /** Decimals are carried as strings end to end (a float round-trip turns 1.250
@@ -29,8 +24,9 @@ export const SHIPMENT_DECIMAL_SCALE = 1000;
 
 export interface ShipmentLineInput {
   packaging: ProductPackaging;
-  unit: ProductUnit;
-  quantity: number;
+  /** The line's own quantity, which is always in pieces — the unit it is bought
+   * in is a lens on this, and lenses do not weigh anything. */
+  pieces: number;
   /** As stored: decimal strings for one box unit, null where unknown. */
   boxVolume: string | null;
   boxWeight: string | null;
@@ -47,7 +43,7 @@ export interface ShipmentEstimate {
    * from — a summary that covers half the cart must say so. */
   coveredLines: number;
   uncoveredLines: number;
-  /** True where any covered line was a part-box (piece or pack) estimate. */
+  /** True where any covered line did not fill whole boxes. */
   approximate: boolean;
 }
 
@@ -81,14 +77,13 @@ export function shipmentEstimate(
 
   for (const line of lines) {
     const boxPieces = piecesPerUnit(line.packaging, 'box');
-    const pieces = piecesFor(line.packaging, line.unit, line.quantity);
-    if (boxPieces === null || boxPieces < 1 || pieces === null) {
+    if (boxPieces === null || boxPieces < 1) {
       uncoveredLines += 1;
       continue;
     }
     coveredLines += 1;
     // Box units, as a fraction where the line does not fill whole boxes.
-    const boxes = pieces / boxPieces;
+    const boxes = line.pieces / boxPieces;
     if (!Number.isInteger(boxes)) approximate = true;
     cartons += Math.ceil(boxes * line.boxCount);
 
