@@ -5,7 +5,7 @@ import {
   productPackagingSchema,
   unitPricesSchema,
 } from './catalog.contract';
-import { PRODUCT_UNITS } from './product-units';
+import { LINE_PIECES_MAX, PRODUCT_UNITS } from './product-units';
 
 const c = initContract();
 
@@ -49,7 +49,7 @@ export const cartLineSchema = z
   .object({
     slug: z.string().trim().min(1).max(255),
     unit: productUnitSchema,
-    pieces: z.number().int().positive().max(1_000_000),
+    pieces: z.number().int().positive().max(LINE_PIECES_MAX),
     note: z.string().trim().min(1).max(CART_NOTE_MAX).nullable().optional(),
   })
   .strict();

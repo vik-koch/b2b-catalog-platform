@@ -3,6 +3,7 @@ import {
   basisDividesQuantities,
   correctPieces,
   exactLineTotal,
+  LINE_PIECES_MAX,
   stepFrom,
   minimumIsWholeSteps,
   pieceFloor,
@@ -224,6 +225,26 @@ describe('correctPieces', () => {
     // The two figures are different things: 90 is nine whole packs and still
     // below what the shop will ship.
     expect(correctPieces(packOnly, 90)).toBe(100);
+  });
+
+  // The one place it rounds down, because up is nowhere: past the ceiling a
+  // line is no longer an order the contract will carry. Through a box lens a
+  // four-digit figure reaches it, so it is a typing accident within reach.
+  it('comes back down to the ceiling, and lands on the lattice doing it', () => {
+    const capped = correctPieces(packaged, LINE_PIECES_MAX * 2);
+    expect(capped).toBeLessThanOrEqual(LINE_PIECES_MAX);
+    expect(capped % pieceStep(packaged)).toBe(0);
+    expect(correctPieces(packaged, capped)).toBe(capped);
+  });
+
+  // Raising rounds up, so a figure under the ceiling can be lifted over it —
+  // which is why the ceiling is checked against the raised figure.
+  it('does not raise a quantity past the ceiling', () => {
+    // 24 does not divide the ceiling, so the last whole box below it is short.
+    const justUnder = LINE_PIECES_MAX - 1;
+    expect(correctPieces(packaged, justUnder)).toBeLessThanOrEqual(
+      LINE_PIECES_MAX,
+    );
   });
 
   it('is a no-op where there is neither a minimum nor a pack', () => {

@@ -509,14 +509,10 @@ export class ProductBuyControls {
    * time, which is when the field shows the quantity itself.
    *
    * **The field is a draft, committed when it is left** (`commit`), and this is
-   * what makes it one. Everything else here works in pieces, so a field bound
-   * to the piece count round-trips text → pieces → text on every keystroke, and
-   * every rounding in that round trip lands on the caret: backspacing "0,25" to
-   * "0,2" buys 5 pieces of a 24-piece box, which reads back as 0,208; typing
-   * "1," to reach 1,25 rounds to the same 24 pieces, so the separator is erased
-   * as fast as it is pressed; and a figure still being typed re-prices the line,
-   * the cart and the header behind it. A draft has none of those, because
-   * nothing reads it until it is finished.
+   * what makes it one. Everything else works in pieces, so a field bound to the
+   * piece count would round-trip text → pieces → text on every keystroke and
+   * land every rounding on the caret. Nothing reads a draft until it is
+   * finished.
    *
    * Reset with the product, like every other held choice.
    */
@@ -616,7 +612,7 @@ export class ProductBuyControls {
     const exact = exactLineTotal(
       this.item().prices,
       this.packaging(),
-      this.effectivePieces(),
+      correctPieces(this.packaging(), this.pieces()),
     );
     return exact === null ? null : formatPriceMinor(exact, this.currency);
   });
@@ -863,10 +859,8 @@ export class ProductBuyControls {
    * field left empty or unreadable asked for nothing, so the quantity that
    * stands is kept — the customer cleared a figure, they did not order none.
    *
-   * The correction is stated without naming figures. The two the field has —
-   * what was typed and what it became — are read out in whichever unit is
-   * selected, and in a small unit that is a pair of thirds ("0.167 adjusted to
-   * 1 pk") that says less than the sentence it is wrapped in.
+   * The correction names no figures: the field beside the bubble already shows
+   * the one that stands, and the pair it replaced read out as thirds of a pack.
    */
   protected commit(): void {
     const raw = this.typing();
@@ -921,11 +915,6 @@ export class ProductBuyControls {
    * is none. One figure, whichever unit is reading it. */
   private floorPieces(): number {
     return pieceFloor(this.packaging());
-  }
-
-  /** The quantity this line would really be bought in. */
-  private effectivePieces(): number {
-    return correctPieces(this.packaging(), this.pieces());
   }
 
   private setPieces(pieces: number): void {

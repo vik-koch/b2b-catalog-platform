@@ -33,7 +33,16 @@ export const PIECE_PRICE_SCALE = 1000;
  * would only ever say which rounding happened.
  */
 export const UNIT_QUANTITY_DECIMALS = 3;
-const QUANTITY_SCALE = 10 ** UNIT_QUANTITY_DECIMALS;
+export const QUANTITY_SCALE = 10 ** UNIT_QUANTITY_DECIMALS;
+
+/**
+ * The most pieces one line may hold. A guard against a typed figure that is
+ * not an order, and the contract's own ceiling (`cartLineSchema`) — stated
+ * here because every quantity that reaches it is corrected through this file
+ * first, and a line that only the server refuses is one the customer cannot
+ * see is wrong.
+ */
+export const LINE_PIECES_MAX = 1_000_000;
 
 export function piecesPerUnit(
   packaging: ProductPackaging,
@@ -146,6 +155,12 @@ export function unitQuantityIsWhole(
  * The nearest orderable piece count at or above `pieces`: never below the
  * floor, and a whole number of steps above it. Rounds up, never down —
  * silently reducing an order is worse than selling more and saying so.
+ *
+ * The one exception is the ceiling, where up is nowhere: past `LINE_PIECES_MAX`
+ * the last quantity on the lattice below it is the only answer that is still an
+ * order. A figure that far out is a typing accident rather than a quantity —
+ * through a box lens it takes only four digits to reach — and the correction
+ * reports itself like any other.
  */
 export function correctPieces(
   packaging: ProductPackaging,
@@ -155,7 +170,11 @@ export function correctPieces(
   const floor = pieceFloor(packaging);
   const wanted = Math.trunc(pieces);
   if (wanted <= floor) return floor;
-  return Math.ceil(wanted / step) * step;
+  // The ceiling is checked against the raised figure, not the typed one:
+  // raising rounds up, so a quantity under the ceiling can be lifted over it.
+  const raised = Math.ceil(wanted / step) * step;
+  if (raised <= LINE_PIECES_MAX) return raised;
+  return Math.max(floor, Math.floor(LINE_PIECES_MAX / step) * step);
 }
 
 /**

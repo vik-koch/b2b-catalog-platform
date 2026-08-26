@@ -174,9 +174,9 @@ export class CartService {
     return shipmentEstimate(
       lines.map((line) => ({
         packaging: line.packaging,
-        // The chargeable figure for the same reason the total is: a line the
-        // shop is about to correct should not be weighed as it stands.
-        pieces: chargeable(line.packaging, line.pieces),
+        // Corrected for the same reason the total is: a line the shop is about
+        // to correct should not be weighed as it stands.
+        pieces: correctPieces(line.packaging, line.pieces),
         boxVolume: line.boxVolume,
         boxWeight: line.boxWeight,
         boxCount: line.boxCount ?? 1,
@@ -250,9 +250,12 @@ export class CartService {
     const note = trimNote(addition.note);
     // Always summed, whatever unit either was chosen in: both are piece counts
     // of the same goods, so adding two packs to a line held in boxes is simply
-    // twelve more pieces.
+    // twelve more pieces. Corrected, because a sum is the one quantity here
+    // nobody typed — it is the only way to reach the ceiling by accident.
     const pieces =
-      at === -1 ? addition.pieces : lines[at].pieces + addition.pieces;
+      at === -1
+        ? addition.pieces
+        : correctPieces(addition.packaging, lines[at].pieces + addition.pieces);
 
     if (at === -1) {
       this.write([
@@ -479,9 +482,15 @@ function trimNote(note: string | null): string | null {
   return trimmed === '' ? null : trimmed.slice(0, CART_NOTE_MAX);
 }
 
-/** The two priced fields of a line, from the prices the choice was made
- * against — kept together so an edit can never re-price one without the
- * other. */
+/**
+ * The two priced fields of a line, from the prices the choice was made
+ * against — kept together so an edit can never re-price one without the other.
+ *
+ * Priced from the *corrected* count. It is the line's own count in all but one
+ * case: a line written down before the product's rules changed. Pricing that
+ * one as it stands answers "no price", which is a state that belongs to a
+ * product the shop cannot price at all, not to one whose quantity has moved.
+ */
 function priceLine(
   addition: CartAddition,
   pieces: number,
@@ -491,24 +500,9 @@ function priceLine(
     lineTotalMinor: exactLineTotal(
       addition.prices,
       addition.packaging,
-      chargeable(addition.packaging, pieces),
+      correctPieces(addition.packaging, pieces),
     ),
   };
-}
-
-/**
- * What a line will actually be charged for.
- *
- * Normally the line's own count: the buying controls commit only quantities
- * they have already corrected. It differs for a line written down before the
- * product's rules changed — a cart that sat while the minimum was raised — and
- * there the corrected figure is the honest one to show, since it is what the
- * next preview is about to make real. Pricing such a line literally answers
- * "no price", which is a state to show for a product the shop cannot price at
- * all, not for one whose quantity simply moved.
- */
-function chargeable(packaging: ProductPackagingInfo, pieces: number): number {
-  return correctPieces(packaging, pieces);
 }
 
 /** What one of a unit costs — for pieces, one minimum lot, which is the only

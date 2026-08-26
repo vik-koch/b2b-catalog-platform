@@ -1,3 +1,4 @@
+import { QUANTITY_SCALE } from '@b2b-catalog-platform/shared';
 import { CurrencyConfig, decimalSeparator } from './price';
 
 /**
@@ -11,13 +12,14 @@ import { CurrencyConfig, decimalSeparator } from './price';
  * write quantities with a point.
  */
 
-/** Up to three decimals, trailing zeros trimmed, no grouping — this is what an
- * editable field holds, and "3,000" is only something to delete. */
+/** To the scale a reading is carried in, trailing zeros trimmed and no
+ * grouping — this is what an editable field holds, and "3,000" is only
+ * something to delete. */
 export function formatUnitQuantity(
   quantity: number,
   currency: CurrencyConfig,
 ): string {
-  const text = String(Math.round(quantity * 1000) / 1000);
+  const text = String(Math.round(quantity * QUANTITY_SCALE) / QUANTITY_SCALE);
   return text.replace('.', decimalSeparator(currency));
 }
 

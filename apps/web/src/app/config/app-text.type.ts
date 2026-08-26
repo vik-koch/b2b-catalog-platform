@@ -301,11 +301,10 @@ export const appTextSchema = z
              * being read: the pieces are untouched and the quantity has fallen
              * back to them, so this reports a move rather than a refusal. */
             unitUnavailable: z.string(),
-            /** Said wherever a quantity was rounded up to one the shop can
+            /** Said wherever a quantity was rounded to one the shop can
              * supply — by a keystroke here, or by the server on a cart that
-             * sat. It names no figures: the field beside it already shows the
-             * one that stands, and the pair it replaced read as thirds of a
-             * pack ("0.167 adjusted to 1 pk"). */
+             * sat. Names no figures: the field beside it already shows the one
+             * that stands. */
             quantityCorrected: z.string(),
             noteNotAllowed: z.string(),
             priceUnavailable: z.string(),

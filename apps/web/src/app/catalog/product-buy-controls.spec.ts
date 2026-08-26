@@ -326,10 +326,8 @@ describe('ProductBuyControls', () => {
     expect(view.quantityInput().value).toBe('2,5');
   });
 
-  // The field used to be rewritten from the piece count on every keystroke:
-  // backspacing 2,5 to 2 buys 80 pieces, which is fine — but backspacing a
-  // figure whose pieces do not divide evenly wrote the division back over the
-  // caret, and a typed separator was erased as fast as it was pressed.
+  // The field used to be rewritten from the piece count on every keystroke,
+  // which put a rounding on the caret between two of them.
   it('leaves the field alone until it is left', async () => {
     const view = await render(packaged);
     await view.chooseUnit(unitText.select.box);
