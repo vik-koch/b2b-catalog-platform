@@ -128,6 +128,14 @@
     "shipmentDeliveryValue": "Confirmed with your order",
     "shipmentApproximate": "Approximate — we confirm the actual consignment with your order.",
     "shipmentUncovered": "Lines not covered by this estimate: {count}",
+    "changes": {
+      "heading": "What changed while your cart waited",
+      "dismiss": "Dismiss this summary",
+      "unavailable": "{name} is no longer available.",
+      "quantity": "{name}: the quantity was adjusted to the nearest we can supply.",
+      "price": "{name}: the price changed from {from} to {to}.",
+      "unpriced": "{name}: we cannot price this line right now — we will confirm it with you."
+    },
     "issues": {
       "unavailable": "No longer available — please remove this line.",
       "unitUnavailable": "This product is no longer packed that way, so the quantity is now shown in pieces.",

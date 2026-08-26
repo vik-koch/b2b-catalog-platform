@@ -27,7 +27,18 @@ import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
 import { CartPreviewService } from './cart-preview.service';
-import { CartService } from './cart.service';
+import { CartChange, CartService } from './cart.service';
+
+/**
+ * How many lines a page of the cart holds (FR-CART-02). A cart row is a
+ * product row — photo, controls, note — so a long cart is a long scroll rather
+ * than a long list, and the summary beside it would drift a screen away from
+ * the lines it adds up.
+ *
+ * Not in the URL, unlike the catalog's paging: the cart is a lens on this
+ * browser's own storage, so there is no page here anybody could link to.
+ */
+const CART_PAGE_SIZE = 10;
 
 /**
  * The issues that say what just happened to a line rather than what is still
@@ -117,6 +128,36 @@ interface CartRow {
         </p>
       }
 
+      <!-- What moved while the cart sat (FR-CART-10). Above the lines and
+           dismissible, because it is news rather than a state: every line it
+           names also says for itself what is wrong with it, and this is the
+           one place that says it happened *since last time*. -->
+      @if (changes().length) {
+        <section
+          class="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+          [attr.aria-label]="changeText.heading"
+        >
+          <div class="flex items-start justify-between gap-4">
+            <h2 class="font-medium">{{ changeText.heading }}</h2>
+            <button
+              type="button"
+              appIconButton
+              shape="plain"
+              class="-mt-1 -mr-1 shrink-0"
+              [attr.aria-label]="changeText.dismiss"
+              (click)="cart.dismissChanges()"
+            >
+              <app-icon name="close" class="h-4 w-4" />
+            </button>
+          </div>
+          <ul class="mt-1 space-y-1">
+            @for (change of changes(); track change.slug) {
+              <li>{{ changeMessage(change) }}</li>
+            }
+          </ul>
+        </section>
+      }
+
       <!-- The summary moves out to the right only where taking its width off
            the lines still leaves them their three columns (ProductRow's own
            49rem, plus the 1.5rem the tick box takes off every line here). One
@@ -169,7 +210,7 @@ interface CartRow {
                  product is one line, so changing its unit edits that line. On
                  the key it would be a different line — the row would be torn
                  down and rebuilt, and its photo would be fetched again. -->
-              @for (row of rows(); track row.slug) {
+              @for (row of pageRows(); track row.slug) {
                 <li>
                   <app-product-row
                     [item]="row.item"
@@ -254,6 +295,40 @@ interface CartRow {
                 </li>
               }
             </ul>
+
+            <!-- The catalog's own pager, in its words: a customer meets this
+                 control on the listing first, and a second wording for the
+                 same three controls would read as a different one. Buttons
+                 rather than links, because the page they turn is not in the
+                 URL. -->
+            @if (totalPages() > 1) {
+              <nav
+                class="mt-8 flex items-center justify-center gap-4 text-sm"
+                [attr.aria-label]="catalogText.pageStatus"
+              >
+                <button
+                  type="button"
+                  appButton
+                  variant="ghost"
+                  size="sm"
+                  [disabled]="page() === 1"
+                  (click)="turnPage(-1)"
+                >
+                  {{ catalogText.prevPage }}
+                </button>
+                <span class="text-subtle">{{ pageStatus() }}</span>
+                <button
+                  type="button"
+                  appButton
+                  variant="ghost"
+                  size="sm"
+                  [disabled]="page() === totalPages()"
+                  (click)="turnPage(1)"
+                >
+                  {{ catalogText.nextPage }}
+                </button>
+              </nav>
+            }
           </div>
 
           <!-- Capped at the column's own width when it sits under the lines
@@ -334,6 +409,13 @@ export class CartPage {
   private readonly boxUnits = this.catalogConfig.boxUnits;
 
   protected readonly text = inject(APP_TEXT).cart;
+  protected readonly changeText = this.text.changes;
+  /** What moved while the cart waited (FR-CART-10) — the cart's own answer,
+   * reported once per visit and put away from here. */
+  protected readonly changes = this.cart.changes;
+  /** Only the pager's three words: the cart turns pages the way the listing
+   * does, so it says it the way the listing does. */
+  protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly noteMax = CART_NOTE_MAX;
 
@@ -417,6 +499,32 @@ export class CartPage {
           .map((issue) => this.issueText(issue)),
         notice: this.noticeFor(fresh?.issues ?? []),
       };
+    }),
+  );
+
+  /**
+   * Which page of the cart is on screen (FR-CART-02), clamped on every read:
+   * removing the last line of the last page leaves the customer on a page that
+   * no longer exists, and a cart that answers with nothing reads as an empty
+   * one.
+   */
+  private readonly requestedPage = signal(1);
+  protected readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.rows().length / CART_PAGE_SIZE)),
+  );
+  protected readonly page = computed(() =>
+    Math.min(this.requestedPage(), this.totalPages()),
+  );
+
+  protected readonly pageRows = computed(() => {
+    const from = (this.page() - 1) * CART_PAGE_SIZE;
+    return this.rows().slice(from, from + CART_PAGE_SIZE);
+  });
+
+  protected readonly pageStatus = computed(() =>
+    fillText(this.catalogText.pageStatus, {
+      page: this.page(),
+      total: this.totalPages(),
     }),
   );
 
@@ -550,6 +658,42 @@ export class CartPage {
       if (value && this.current())
         untracked(() => this.cart.applyPreview(value));
     });
+  }
+
+  /** Turns a page, from the clamped page rather than the requested one: after
+   * a removal the two can differ, and stepping off the stale figure would skip
+   * a page. */
+  protected turnPage(by: number): void {
+    this.requestedPage.set(
+      Math.min(Math.max(this.page() + by, 1), this.totalPages()),
+    );
+  }
+
+  /** One line of the change summary, named by its product — the summary is
+   * read above the lines it is about, so the product has to be in the
+   * sentence. */
+  protected changeMessage(change: CartChange): string {
+    const text = this.changeText;
+    if (change.kind === 'unavailable') {
+      return fillText(text.unavailable, { name: change.name });
+    }
+    if (change.kind === 'quantity') {
+      return fillText(text.quantity, { name: change.name });
+    }
+    if (change.kind === 'unpriced') {
+      return fillText(text.unpriced, { name: change.name });
+    }
+    return fillText(text.price, {
+      name: change.name,
+      from: this.money(change.fromMinor),
+      to: this.money(change.toMinor),
+    });
+  }
+
+  private money(minor: number | null): string {
+    return minor === null
+      ? this.text.noPrice
+      : formatPriceMinor(minor, this.currency);
   }
 
   protected removeLabel(row: CartRow): string {

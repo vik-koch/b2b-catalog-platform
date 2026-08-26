@@ -1,6 +1,8 @@
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
+  provideEnvironmentInitializer,
+  inject,
 } from '@angular/core';
 import {
   provideRouter,
@@ -15,6 +17,7 @@ import {
   provideClientHydration,
   withEventReplay,
 } from '@angular/platform-browser';
+import { CartRepricing } from './cart/cart-repricing';
 import { provideAppText } from './config/app-text';
 import { provideDeploymentConfig } from './config/deployment-config';
 
@@ -45,5 +48,9 @@ export const appConfig: ApplicationConfig = {
     // (app.config.server.ts) are merged last and override these on SSR.
     provideDeploymentConfig(),
     provideAppText(),
+    // Nothing injects it, and it has to run wherever the visitor happens to
+    // be: a cart priced for somebody else is corrected as the session changes,
+    // not when the cart page is next opened.
+    provideEnvironmentInitializer(() => inject(CartRepricing)),
   ],
 };

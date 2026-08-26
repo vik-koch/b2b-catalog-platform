@@ -290,6 +290,30 @@ export const appTextSchema = z
         shipmentUncovered: z.string(),
 
         /**
+         * What changed while the cart waited (FR-CART-10), shown once on
+         * return and dismissed with one control. One sentence per line, each
+         * naming the product (`{name}`) because the summary is read before the
+         * lines it is about.
+         */
+        changes: z
+          .object({
+            heading: z.string(),
+            /** The control that puts the summary away. */
+            dismiss: z.string(),
+            unavailable: z.string(),
+            /** The quantity was rounded to one the shop can supply; the line
+             * itself shows the figure that stands, so this names none. */
+            quantity: z.string(),
+            /** `{from}` and `{to}` are what the line cost and costs — the line
+             * total, which is the figure the customer is about to pay. */
+            price: z.string(),
+            /** The line can no longer be priced exactly, so it is confirmed by
+             * hand instead. */
+            unpriced: z.string(),
+          })
+          .strict(),
+
+        /**
          * What preview says about a line. `unavailable` covers withdrawn,
          * unpublished and never-existed alike — the endpoint does not
          * distinguish them, and neither may the wording.

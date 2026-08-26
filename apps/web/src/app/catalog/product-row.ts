@@ -138,7 +138,7 @@ export class ProductRow {
    * not to fill a manager's own cart. */
   readonly canAdd = input(true);
   /** False for a cart line the shop can no longer price — the controls state
-   * no figure, and the row says why. */
+   * no figure and take no input, and the row says why. */
   readonly available = input(true);
   /** True where the caller writes the note field itself — the cart, which
    * projects one under the name — so the controls do not also offer their
