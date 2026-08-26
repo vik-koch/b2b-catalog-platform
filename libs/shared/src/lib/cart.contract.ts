@@ -5,7 +5,7 @@ import {
   productPackagingSchema,
   unitPricesSchema,
 } from './catalog.contract';
-import { PRODUCT_UNITS } from './product-units';
+import { LINE_PIECES_MAX, PRODUCT_UNITS } from './product-units';
 
 const c = initContract();
 
@@ -31,21 +31,25 @@ export const CART_NOTE_MAX = 500;
  */
 export const CART_LINES_MAX = 100;
 
-/** The unit a line is bought in — never normalized between units: four packs
- * stay four packs even where a box holds exactly four. */
+/** The unit a line is read and stepped in. A lens on the line's piece count,
+ * not a second quantity: the customer's choice of it is kept exactly as made,
+ * and it changes nothing about what is ordered. */
 export const productUnitSchema = z.enum(PRODUCT_UNITS);
 
 /**
- * A line as the browser holds it: what, in which unit, how many, and the note
- * where the product allows one. A product in a given unit is exactly one line,
- * so `slug` + `unit` is the identity — the note describes the line rather than
+ * A line as the browser holds it: what, how many **pieces**, which unit it is
+ * being read in, and the note where the product allows one.
+ *
+ * The quantity is always in pieces, whatever the unit says, so nothing on the
+ * wire is ever fractional — 0.2 bx is two packs, and two packs of six is
+ * twelve. A product is exactly one line; the note describes it rather than
  * distinguishing it.
  */
 export const cartLineSchema = z
   .object({
     slug: z.string().trim().min(1).max(255),
     unit: productUnitSchema,
-    quantity: z.number().int().positive().max(1_000_000),
+    pieces: z.number().int().positive().max(LINE_PIECES_MAX),
     note: z.string().trim().min(1).max(CART_NOTE_MAX).nullable().optional(),
   })
   .strict();
@@ -63,11 +67,15 @@ export type CartRequest = z.infer<typeof cartRequestSchema>;
  * alike: distinguishing them would make the endpoint an oracle that enumerates
  * the unpublished catalog by difference.
  *
- * `quantity-corrected` says the returned `quantity` is not the one that was
- * sent — the line carries the corrected figure, so there is nothing to read out
- * of the code itself. `price-unavailable` means the line cannot be priced
- * exactly (a repackaged product whose stored basis no longer divides the
- * quantity); its total is null and must never be shown as a zero.
+ * `quantity-corrected` says the returned `pieces` is not the figure that was
+ * sent — the line carries the corrected one, so there is nothing to read out of
+ * the code itself. `unit-unavailable` says the product is no longer packed the
+ * way the line was being read: the pieces are untouched and still orderable,
+ * and the returned `unit` has fallen back to the piece.
+ *
+ * `price-unavailable` means the line cannot be priced exactly (a repackaged
+ * product whose stored basis no longer divides the quantity); its total is null
+ * and must never be shown as a zero.
  */
 export const CART_LINE_ISSUES = [
   'unavailable',
@@ -79,16 +87,18 @@ export const CART_LINE_ISSUES = [
 export type CartLineIssue = (typeof CART_LINE_ISSUES)[number];
 
 /**
- * A priced line. `slug` and `unit` echo what was sent, so the browser can match
- * the answer back onto its own cart even where the product is gone and every
- * other field is null.
+ * A priced line. `slug` echoes what was sent, so the browser can match the
+ * answer back onto its own cart even where the product is gone and every other
+ * field is null.
  */
 export const cartPreviewLineSchema = z
   .object({
     slug: z.string(),
+    /** The lens as sent, or the piece where the product is no longer sold in
+     * it (`unit-unavailable`). */
     unit: productUnitSchema,
     /** Corrected where `quantity-corrected` is among the issues. */
-    quantity: z.number().int().positive(),
+    pieces: z.number().int().positive(),
     note: z.string().nullable(),
     /** Null for an unavailable product — there is nothing to name it with
      * beyond the slug, which the browser already has. */
@@ -125,9 +135,9 @@ export type CartPreviewLine = z.infer<typeof cartPreviewLineSchema>;
 
 /**
  * The shipment summary (FR-UNIT-11), added up across the lines and labelled
- * approximate: piece and pack lines are derived from the box figures through
- * the packaging ratios, and a manager confirms the real consignment.
- * `uncoveredLines` is how many lines have no box to derive from — a summary
+ * approximate: a line that does not fill whole boxes is derived from the box
+ * figures through the packaging ratios, and a manager confirms the real
+ * consignment. `uncoveredLines` is how many lines have no box to derive from — a summary
  * covering half the cart says so rather than omitting the rest in silence.
  */
 export const shipmentSummarySchema = z

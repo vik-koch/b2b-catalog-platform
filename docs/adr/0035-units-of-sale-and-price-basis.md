@@ -1,6 +1,6 @@
 # 0035 — Sell in piece/pack/box, with a staff-only price basis
 
-**Status:** accepted (amended 2026-08-18, 2026-08-23) · **Date:** 2026-08-16
+**Status:** accepted (amended 2026-08-18, 2026-08-23, 2026-08-26) · **Date:** 2026-08-16
 
 ## Context
 
@@ -221,20 +221,19 @@ purchases alone, on the reasoning that "a pack or a box is already a valid
 quantity" — but that made the rule bypassable by changing the word: one pack of
 six is six pieces, which is under a minimum of 24. It is one figure, stored in
 pieces, and each unit expresses that same figure — 24 pieces is four packs of
-six, or one box of 24 — rounded up to a whole one of that unit, since half a
-pack is not something the shop picks. `unitFloor` and `correctQuantity` replace
-the piece-only `pieceFloor`/`correctPieceQuantity`, and the server corrects every
-unit rather than only pieces.
+six, or one box of 24. ⚠ The rounding this originally added — "up to a whole one
+of that unit, since half a pack is not something the shop picks" — was reversed
+the same day by **ADR 0042**: a unit no longer counts anything, so half a box is
+simply how two packs read, and `pieceFloor` is the one figure again.
 
 The minimum shown beside the stepper follows the selected unit for the same
 reason: a stepper that stops at four packs cannot be explained in pieces. A tile
 still states it in pieces, as a plain fact about the product.
 
-The correction message follows the same split. It fires where a typed quantity
-is not whole steps, where it is under the unit's floor, and where a **change of
-unit** had to round up — two packs are half a box, and half a box is not
-something the shop packs. It names the unit it corrected, so a rounded box is
-never reported in pieces.
+The correction message follows the same split: it fires where a typed quantity
+is not whole steps or is under the floor, and names the unit it corrected, so a
+rounded box is never reported in pieces. ⚠ It also fired on a **change of unit**,
+which ADR 0042 removed along with the rounding that caused it.
 
 Not addressed here, and written down so it is not mistaken for settled: `piece`
 still fuses the priced unit, the smallest sellable unit and the physical content

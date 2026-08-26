@@ -18,16 +18,17 @@ function addition(overrides: Partial<CartAddition> = {}): CartAddition {
     slug: 'filter-roast',
     name: 'Filter Roast',
     unit: 'pack',
-    quantity: 2,
+    // Two packs of the six-piece pack the fixture is packed in.
+    pieces: 12,
     note: null,
     image: null,
     lineNoteEnabled: false,
     lineNotePrompt: null,
     prices: {
-      pieceMilliMinor: 1250,
-      pieceLotMinor: 7500,
+      pieceMilliMinor: 1_166_667,
+      pieceLotMinor: 7000,
       pack: 7000,
-      box: 27000,
+      box: 28_000,
     },
     packaging: { ...packagedPackaging },
     ...overrides,
@@ -41,7 +42,7 @@ function preview(
   const priced = lines.map((line) => ({
     slug: 'filter-roast',
     unit: 'pack' as const,
-    quantity: 2,
+    pieces: 12,
     note: null,
     name: 'Filter Roast',
     image: null,
@@ -52,10 +53,10 @@ function preview(
     lineNoteEnabled: false,
     lineNotePrompt: null,
     prices: {
-      pieceMilliMinor: 1250,
-      pieceLotMinor: 7500,
+      pieceMilliMinor: 1_166_667,
+      pieceLotMinor: 7000,
       pack: 7000,
-      box: 27000,
+      box: 28_000,
     },
     lineTotalMinor: 14000,
     issues: [],
@@ -80,7 +81,10 @@ function preview(
 async function render(
   options: {
     lines?: CartAddition[];
-    answer?: CartPreview | Error;
+    /** One answer for every call, or a run of them — the page re-prices the
+     * cart whenever it folds one in, so a second answer is what the first one
+     * made true. The last is repeated once the run is spent. */
+    answer?: CartPreview | Error | CartPreview[];
     confirm?: boolean;
     /** Keeps what the last render wrote down — a reload, not a first visit. */
     reload?: boolean;
@@ -89,10 +93,13 @@ async function render(
   if (!options.reload) localStorage.clear();
   TestBed.resetTestingModule();
 
-  const answer = options.answer ?? preview([{}]);
-  const priced = vi.fn(() =>
-    answer instanceof Error ? Promise.reject(answer) : Promise.resolve(answer),
-  );
+  const answers = options.answer ?? preview([{}]);
+  let call = 0;
+  const priced = vi.fn(() => {
+    if (answers instanceof Error) return Promise.reject(answers);
+    if (!Array.isArray(answers)) return Promise.resolve(answers);
+    return Promise.resolve(answers[Math.min(call++, answers.length - 1)]);
+  });
   const confirmed = vi.fn(() => Promise.resolve(options.confirm ?? true));
 
   TestBed.configureTestingModule({
@@ -143,12 +150,43 @@ async function render(
       await rerender();
       await rerender();
     },
-    /** The quantity the row's stepper holds. */
+    /** The quantity the row's stepper holds. By its label, not its input
+     * mode: the field takes decimals in every unit but the piece. */
     quantities: () =>
-      [...el.querySelectorAll('input[inputmode=numeric]')].map(
-        (input) => (input as HTMLInputElement).value,
-      ),
+      [
+        ...el.querySelectorAll(
+          `input[aria-label="${defaultAppText.cart.quantityLabel}"]`,
+        ),
+      ].map((input) => (input as HTMLInputElement).value),
     rowLabels: () => [...el.querySelectorAll('dt')].map((d) => d.textContent),
+    /** The first row's quantity field. */
+    quantityInput: () =>
+      el.querySelector(
+        `input[aria-label="${defaultAppText.cart.quantityLabel}"]`,
+      ) as HTMLInputElement,
+    async type(value: string) {
+      const input = el.querySelector(
+        `input[aria-label="${defaultAppText.cart.quantityLabel}"]`,
+      ) as HTMLInputElement;
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+      await rerender();
+    },
+    async blurQuantity() {
+      (
+        el.querySelector(
+          `input[aria-label="${defaultAppText.cart.quantityLabel}"]`,
+        ) as HTMLInputElement
+      ).dispatchEvent(new Event('blur'));
+      await rerender();
+    },
+    /** A press landing outside any bubble — what dismisses one. */
+    async pressOutside() {
+      document.body.dispatchEvent(
+        new MouseEvent('pointerdown', { bubbles: true }),
+      );
+      await rerender();
+    },
     /** The photos the rows are drawn with, in order. */
     photos: () =>
       [...el.querySelectorAll('app-tile-gallery img')].map((img) =>
@@ -201,13 +239,13 @@ describe('CartPage', () => {
 
     await view.click(text.increase);
 
-    expect(view.cart.lines()[0].quantity).toBe(3);
+    expect(view.cart.lines()[0].pieces).toBe(18);
     expect(view.quantities()).toEqual(['3']);
   });
 
-  // The photo is the line's own, not the answer's: an answer is filed under
-  // the product *and its unit*, so choosing a different unit left the row
-  // without one until the next call came back — the row blinked.
+  // The photo is the line's own, not the answer's: a row drawn from whatever
+  // the last call returned blanks itself for as long as the next one is in
+  // flight — the row blinked on every edit.
   it('keeps a line’s photo when its unit changes', async () => {
     const image = { thumb: '/media/thumb.webp', full: '/media/full.webp' };
     const view = await render({
@@ -218,10 +256,123 @@ describe('CartPage', () => {
 
     await view.chooseUnit(defaultAppText.catalog.units.boxName);
 
-    // The unit really did change — the answer on hand is now filed under the
-    // old one, which is the state the row used to blank itself in.
+    // The unit really did change, and the row kept everything it had.
     expect(view.cart.lines()[0].unit).toBe('box');
     expect(view.photos()).toEqual(['/media/thumb.webp']);
+  });
+
+  // A correction is feedback on something already done, so it goes in the
+  // bubble under the stepper it is about — not into the list of states under
+  // the name, which the customer would have to read and then ignore.
+  it('shows a corrected quantity in a bubble, not as a line of text', async () => {
+    const view = await render({
+      lines: [addition()],
+      answer: preview([{ pieces: 18, issues: ['quantity-corrected'] }]),
+    });
+
+    expect(view.text()).toContain(text.issues.quantityCorrected);
+    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+      text.issues.quantityCorrected,
+    );
+  });
+
+  // The states that are not feedback stay where they were: they describe the
+  // line until something is done about them.
+  it('leaves a line’s standing problems as text under its name', async () => {
+    const view = await render({
+      lines: [addition()],
+      answer: preview([
+        { prices: null, lineTotalMinor: null, issues: ['unavailable'] },
+      ]),
+    });
+
+    expect(view.el.querySelector('app-popover')).toBeNull();
+    expect(view.text()).toContain(text.issues.unavailable);
+  });
+
+  // The bug the product page had first, and the cart shares the component: a
+  // field derived from the piece count is rewritten between keystrokes, so
+  // backspacing 0,5 to 0, put the division back on the caret.
+  it('leaves a row’s field alone until it is left', async () => {
+    const view = await render({
+      lines: [addition({ unit: 'box' })],
+      answer: preview([{ unit: 'box' }]),
+    });
+    expect(view.quantities()).toEqual(['0,5']);
+
+    await view.type('0,');
+    expect(view.quantityInput().value).toBe('0,');
+
+    await view.blurQuantity();
+    expect(view.quantityInput().value).toBe('0,25');
+  });
+
+  // Same reason: the header and the subtotal are added up from the lines, so a
+  // quantity nobody can be sold made both flicker between two keystrokes.
+  it('holds the subtotal still while a quantity is being typed', async () => {
+    const view = await render({ lines: [addition()] });
+    expect(view.text()).toContain('140,00');
+
+    await view.type('3');
+
+    expect(view.text()).toContain('140,00');
+    expect(view.cart.totalComplete()).toBe(true);
+
+    await view.blurQuantity();
+
+    // Three packs' worth of pieces is under the six-piece minimum only in the
+    // piece lens; here 3 pk is 18 pieces, at 70,00 the pack.
+    expect(view.text()).toContain('210,00');
+  });
+
+  // The correction is over by the time it can be read: folding the answer in
+  // writes the corrected line back and asks again, and that second answer has
+  // nothing left to report. A bubble bound to the answer itself closed on it,
+  // seconds short of the time it is given.
+  it('holds the correction bubble up once the cart has been re-priced', async () => {
+    const view = await render({
+      lines: [addition()],
+      answer: [
+        preview([{ pieces: 18, issues: ['quantity-corrected'] }]),
+        preview([{ pieces: 18 }]),
+      ],
+    });
+
+    // The write-back re-prices the cart, and the second answer is clean.
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await view.rerender();
+
+    expect(view.priced.mock.calls.length).toBeGreaterThan(1);
+    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+      text.issues.quantityCorrected,
+    );
+  });
+
+  // A product repacked out of the unit its line was read in is not refused:
+  // the pieces are untouched and the lens falls back to them. That is
+  // something that happened, so it goes where the other feedback goes.
+  it('states a moved lens in the bubble rather than under the name', async () => {
+    const view = await render({
+      lines: [addition({ unit: 'box' })],
+      answer: preview([{ unit: 'piece', issues: ['unit-unavailable'] }]),
+    });
+
+    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+      text.issues.unitUnavailable,
+    );
+  });
+
+  // A bubble is waved away like any other, not only waited out.
+  it('lets the correction bubble be dismissed by a click elsewhere', async () => {
+    const view = await render({
+      lines: [addition()],
+      answer: preview([{ pieces: 18, issues: ['quantity-corrected'] }]),
+    });
+    expect(view.el.querySelector('app-popover')).not.toBeNull();
+
+    await view.pressOutside();
+
+    expect(view.el.querySelector('app-popover')).toBeNull();
   });
 
   // The figures are on the lines, so the estimate is the cart's own

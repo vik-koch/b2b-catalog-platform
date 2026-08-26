@@ -30,6 +30,16 @@ import { CartPreviewService } from './cart-preview.service';
 import { CartService } from './cart.service';
 
 /**
+ * The issues that say what just happened to a line rather than what is still
+ * wrong with it, most consequential first. Both are answered once and then
+ * gone: the corrected line is written back and asked about again.
+ */
+const NOTICE_ISSUES: readonly CartLineIssue[] = [
+  'unit-unavailable',
+  'quantity-corrected',
+];
+
+/**
  * A line as this page draws it: the product the row's controls edit, plus what
  * belongs to the line rather than to the product — its note, and whatever
  * preview had to say about it.
@@ -52,6 +62,9 @@ interface CartRow {
   notePrompt: string;
   takesNote: boolean;
   issues: string[];
+  /** The advisories that are feedback rather than a state: they go in the
+   * bubble under the stepper they are about, not in the list below the name. */
+  notice: string | null;
 }
 
 /**
@@ -162,6 +175,7 @@ interface CartRow {
                     [item]="row.item"
                     [available]="row.available"
                     [externalNote]="true"
+                    [notice]="row.notice"
                   >
                     <!-- Level with the top of the photo, and as close to it as
                        the tick above the list is to its own words, so the two
@@ -367,14 +381,12 @@ export class CartPage {
   /** The priced answer, indexed the way lines are identified. */
   private readonly priced = computed(() => {
     const value = this.answer();
-    return new Map(
-      (value?.lines ?? []).map((line) => [`${line.slug} ${line.unit}`, line]),
-    );
+    return new Map((value?.lines ?? []).map((line) => [line.slug, line]));
   });
 
   protected readonly rows = computed<CartRow[]>(() =>
     this.cart.lines().map((line) => {
-      const fresh = this.priced().get(`${line.slug} ${line.unit}`);
+      const fresh = this.priced().get(line.slug);
       return {
         key: line.slug,
         // A product preview answered no prices for is one the shop no longer
@@ -386,8 +398,7 @@ export class CartPage {
         // preview writes what it answers back into the store, so reading the
         // answer here too would only mean redrawing the row from nothing for
         // as long as a call is in flight — which is what made a line blink on
-        // every change of unit, the one edit that changes the key an answer
-        // is filed under.
+        // every edit.
         item: {
           slug: line.slug,
           name: line.name,
@@ -401,7 +412,10 @@ export class CartPage {
         note: line.note,
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
-        issues: (fresh?.issues ?? []).map((issue) => this.issueText(issue)),
+        issues: (fresh?.issues ?? [])
+          .filter((issue) => !NOTICE_ISSUES.includes(issue))
+          .map((issue) => this.issueText(issue)),
+        notice: this.noticeFor(fresh?.issues ?? []),
       };
     }),
   );
@@ -411,9 +425,9 @@ export class CartPage {
    * cart does not drop the ticks, and intersected with the cart on every read
    * so a line removed while ticked takes its tick with it.
    *
-   * By slug rather than by `slug unit` for the same reason the cart itself is:
-   * changing a line's unit edits that line, and a key carrying the unit would
-   * quietly untick the row the customer just adjusted.
+   * By slug, which is what identifies a line: changing a line's unit edits
+   * that line, and a key carrying the unit would quietly untick the row the
+   * customer just adjusted.
    */
   private readonly ticked = signal<ReadonlySet<string>>(new Set());
   protected readonly selected = computed(() => {
@@ -592,6 +606,20 @@ export class CartPage {
       if (keys.has(line.slug)) this.cart.remove(line.slug);
     }
     this.ticked.set(new Set());
+  }
+
+  /**
+   * The bubble's line, where the answer carries one of the issues that are
+   * feedback. Both are over by the time they can be read — the corrected line
+   * is written straight back and asked about again — so they belong in a bubble
+   * that says what happened rather than in the list of what is still wrong.
+   *
+   * The moved lens comes first where both arrived: it is the larger change, and
+   * the corrected figure is standing in the field beside it either way.
+   */
+  private noticeFor(issues: readonly CartLineIssue[]): string | null {
+    const found = NOTICE_ISSUES.find((issue) => issues.includes(issue));
+    return found === undefined ? null : this.issueText(found);
   }
 
   private issueText(issue: CartLineIssue): string {

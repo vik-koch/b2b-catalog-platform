@@ -1,6 +1,6 @@
 # 0038 — Hold the cart in the browser, and store an order as a self-contained snapshot
 
-**Status:** accepted · **Date:** 2026-08-23
+**Status:** accepted (partly superseded 2026-08-26) · **Date:** 2026-08-23
 
 ## Context
 
@@ -27,7 +27,8 @@ status; normalizing a cart line onto the largest unit it fills.
 ## Decision
 
 The cart lives in `localStorage` as a versioned record whose lines are keyed by
-**slug + unit**, kept indefinitely and reported against on return; totals are
+**slug** (ADR 0042; **slug + unit** as first decided), kept indefinitely and
+reported against on return; totals are
 exact on both sides through one shared helper, with `POST /cart/preview` as a
 freshness and validity check rather than the pricing path; submission re-prices
 from scratch and refuses a cart that has moved; and an order is a self-contained
@@ -42,6 +43,13 @@ strictly-necessary storage in the sense ADR 0011 uses, so it is exempt from the
 consent gate. A server-side cart shared between devices is deferred, not
 rejected — adding a `carts` table later is additive, because the browser record
 stays the source of truth for a guest either way.
+
+⚠ **Superseded by ADR 0042.** The two paragraphs below made a unit a quantity
+dimension — a line was a product in a unit, and moving between units was a lossy
+conversion the customer had to agree to. A unit is now a lens on an integer
+piece count: a line is identified by its slug alone, its quantity is in pieces,
+and changing unit is a re-render with nothing to round and nothing to confirm.
+They are kept because the rest of this ADR reasons from them.
 
 **A line is a product in a unit**, and nothing else. Its quantity is in that
 unit, and **the unit is never normalized**: four packs that happen to fill a box

@@ -141,7 +141,7 @@ const address = (overrides: Record<string, unknown> = {}) => ({
 
 const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
   ({
-    lines: [{ slug: 'hafen-espresso', unit: 'pack', quantity: 2 }],
+    lines: [{ slug: 'hafen-espresso', unit: 'pack', pieces: 20 }],
     contact: { name: 'Ada', email: 'ada@example.com', phone: '+49 40 1' },
     fulfilmentMethod: 'delivery',
     deliveryAddress: address(),

@@ -3,8 +3,7 @@ import { ShipmentLineInput, shipmentEstimate } from './shipment-estimate';
 /** 100 pieces to a box (10 × 10), shipping as two cartons. */
 const boxed: ShipmentLineInput = {
   packaging: { piecesPerPack: 10, packsPerBox: 10, minPieceQty: 1 },
-  unit: 'box',
-  quantity: 1,
+  pieces: 100,
   boxVolume: '0.240',
   boxWeight: '12.500',
   boxCount: 2,
@@ -12,7 +11,7 @@ const boxed: ShipmentLineInput = {
 
 describe('shipmentEstimate', () => {
   it('multiplies the quantity, never the carton count, into the figures', () => {
-    const estimate = shipmentEstimate([{ ...boxed, quantity: 3 }]);
+    const estimate = shipmentEstimate([{ ...boxed, pieces: 300 }]);
 
     // Three box units of a two-carton product: six cartons, and the stated
     // volume and weight — which already cover both cartons — tripled.
@@ -27,22 +26,22 @@ describe('shipmentEstimate', () => {
   it('derives a part box from the packaging ratios and rounds cartons up', () => {
     // 50 of a 100-piece box is half a box: one carton of the two, half the
     // weight.
-    expect(
-      shipmentEstimate([{ ...boxed, unit: 'piece', quantity: 50 }]),
-    ).toMatchObject({ cartons: 1, weight: '6.250', approximate: true });
+    expect(shipmentEstimate([{ ...boxed, pieces: 50 }])).toMatchObject({
+      cartons: 1,
+      weight: '6.250',
+      approximate: true,
+    });
     // 101 pieces spills into the next carton.
-    expect(
-      shipmentEstimate([{ ...boxed, unit: 'piece', quantity: 101 }]).cartons,
-    ).toBe(3);
+    expect(shipmentEstimate([{ ...boxed, pieces: 101 }]).cartons).toBe(3);
   });
 
   it('adds up across lines', () => {
     const estimate = shipmentEstimate([
       boxed,
-      { ...boxed, unit: 'pack', quantity: 5, boxCount: 1 },
+      { ...boxed, pieces: 50, boxCount: 1 },
     ]);
 
-    // A pack is a tenth of a box: half a box, so one carton on top of two.
+    // Half a box of a one-carton product: one carton on top of the two.
     expect(estimate).toMatchObject({
       cartons: 3,
       volume: '0.360',
@@ -56,8 +55,7 @@ describe('shipmentEstimate', () => {
     const unboxed: ShipmentLineInput = {
       ...boxed,
       packaging: { piecesPerPack: null, packsPerBox: null, minPieceQty: 1 },
-      unit: 'piece',
-      quantity: 4,
+      pieces: 4,
     };
 
     expect(shipmentEstimate([boxed, unboxed])).toMatchObject({

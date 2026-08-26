@@ -94,7 +94,6 @@
     "unitLabel": "Unit",
     "quantityLabel": "Quantity",
     "unitNotSold": "This product is not sold in this unit.",
-    "quantityCorrected": "{from} adjusted to {to} {unit}",
     "decrease": "Decrease the quantity",
     "increase": "Increase the quantity",
     "noteLabel": "Note",
@@ -131,7 +130,7 @@
     "shipmentUncovered": "Lines not covered by this estimate: {count}",
     "issues": {
       "unavailable": "No longer available — please remove this line.",
-      "unitUnavailable": "This product is no longer sold in this unit.",
+      "unitUnavailable": "This product is no longer packed that way, so the quantity is now shown in pieces.",
       "quantityCorrected": "The quantity was adjusted to the nearest we can supply.",
       "noteNotAllowed": "This product no longer takes a note, so yours was dropped.",
       "priceUnavailable": "We cannot price this line right now — we will confirm it with you."

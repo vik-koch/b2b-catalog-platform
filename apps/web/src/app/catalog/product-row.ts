@@ -118,6 +118,7 @@ export interface RowProduct extends BuyableProduct {
             [canAdd]="canAdd()"
             [available]="available()"
             [externalNote]="externalNote()"
+            [notice]="notice()"
           >
             <!-- Handed on to the price row, where it sits at the end of the line
                  that states what one costs — a corner, and the same corner a
@@ -143,6 +144,9 @@ export class ProductRow {
    * projects one under the name — so the controls do not also offer their
    * bubble. */
   readonly externalNote = input(false);
+  /** Something to say about this line, shown in the controls' own bubble under
+   * the stepper it is about. */
+  readonly notice = input<string | null>(null);
 
   protected readonly link = computed(() => ['/product', this.item().slug]);
 }

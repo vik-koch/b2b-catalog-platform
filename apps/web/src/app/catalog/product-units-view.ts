@@ -5,13 +5,15 @@ import {
   ProductUnit,
   UnitPrices,
   availableUnits,
+  pieceFloor,
   piecesPerUnit,
-  unitFloor,
+  unitQuantity,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { fillText } from '../core/fill-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPiecePrice, formatPriceMinor } from './price';
+import { formatUnitQuantity } from './quantity';
 
 /** One priced unit, ready to render. */
 export interface UnitPriceRow {
@@ -109,14 +111,13 @@ export function useProductUnits() {
     },
 
     /**
-     * The minimum, worded — always, even where it is a single piece and states
-     * no rule. One piece is the answer to the question the line asks, and a
-     * line that comes and goes with the product costs more space than the
-     * words in it.
-     */
-    /**
-     * The smallest order, in `unit`. The minimum is stored once in pieces and
-     * holds whichever unit it is counted in — 24 pieces is four packs of six —
+     * The smallest order, read through `unit` — always stated, even where it is
+     * a single piece and states no rule: one piece is the answer to the
+     * question the line asks, and a line that comes and goes with the product
+     * costs more space than the words in it.
+     *
+     * The minimum is one figure, stored in pieces, and `unit` only decides how
+     * it reads — 24 pieces is four packs of six, or a quarter of a box of 96 —
      * so a stepper that stops at four says why in the same words it stops in.
      * Defaults to pieces, which is how a tile states it as a product fact.
      */
@@ -124,8 +125,10 @@ export function useProductUnits() {
       packaging: ProductPackagingInfo,
       unit: ProductUnit = 'piece',
     ): string {
+      const floor = pieceFloor(packaging);
+      const quantity = unitQuantity(packaging, unit, floor) ?? floor;
       return fillText(text.minQuantityValue, {
-        qty: unitFloor(packaging, unit) ?? packaging.minPieceQty,
+        qty: formatUnitQuantity(quantity, currency),
         unit: text[unit],
       });
     },
@@ -142,9 +145,9 @@ export function useProductUnits() {
      *
      * The packaging summary and the minimum are deliberately **not** here. Both
      * belong to buying rather than to describing: the summary makes a per-unit
-     * price readable next to the unit that is being chosen, and the minimum is a
-     * rule on an input that applies to piece purchases only, so a static row
-     * states it wrongly whenever a pack or box is selected.
+     * price readable next to the unit that is being chosen, and the minimum is
+     * a rule on an input that reads differently in each unit, so a static row
+     * states it in the wrong words as soon as another one is selected.
      */
     packagingRows(
       box: {

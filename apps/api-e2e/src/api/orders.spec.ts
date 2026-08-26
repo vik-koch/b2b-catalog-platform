@@ -149,7 +149,7 @@ const address = (overrides: Record<string, unknown> = {}) => ({
 });
 
 const submission = (overrides: Record<string, unknown> = {}) => ({
-  lines: [{ slug: slugs.boxed, unit: 'pack', quantity: 2 }],
+  lines: [{ slug: slugs.boxed, unit: 'pack', pieces: 20 }],
   contact: {
     name: 'Ada Lovelace',
     email: 'ada@example.com',
@@ -284,7 +284,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
   describe('/cart/preview', () => {
     it('prices a guest and a tiered customer differently from one body', async () => {
       const body = {
-        lines: [{ slug: slugs.boxed, unit: 'pack', quantity: 2 }],
+        lines: [{ slug: slugs.boxed, unit: 'pack', pieces: 20 }],
       };
 
       const guest = await post('/cart/preview', body);
@@ -298,7 +298,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
     it('never serializes the price basis or the private source id', async () => {
       const res = await post('/cart/preview', {
-        lines: [{ slug: slugs.boxed, unit: 'piece', quantity: 20 }],
+        lines: [{ slug: slugs.boxed, unit: 'piece', pieces: 20 }],
       });
 
       const body = JSON.stringify(res.data);
@@ -316,9 +316,9 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     it('answers `unavailable` for unpublished, deleted and unknown alike', async () => {
       const res = await post('/cart/preview', {
         lines: [
-          { slug: slugs.hidden, unit: 'pack', quantity: 1 },
-          { slug: slugs.deleted, unit: 'pack', quantity: 1 },
-          { slug: `no-such-product-${SUFFIX}`, unit: 'pack', quantity: 1 },
+          { slug: slugs.hidden, unit: 'pack', pieces: 10 },
+          { slug: slugs.deleted, unit: 'pack', pieces: 10 },
+          { slug: `no-such-product-${SUFFIX}`, unit: 'pack', pieces: 10 },
         ],
       });
 
@@ -331,11 +331,11 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
     it('corrects a below-minimum piece quantity instead of refusing it', async () => {
       const res = await post('/cart/preview', {
-        lines: [{ slug: slugs.boxed, unit: 'piece', quantity: 3 }],
+        lines: [{ slug: slugs.boxed, unit: 'piece', pieces: 3 }],
       });
 
       expect(res.data.lines[0]).toMatchObject({
-        quantity: 10,
+        pieces: 10,
         issues: ['quantity-corrected'],
         lineTotalMinor: BASE_MINOR,
       });
@@ -347,16 +347,14 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     it('steps a piece quantity by the pack, not by the minimum', async () => {
       const res = await post('/cart/preview', {
         lines: [
-          { slug: slugs.stepped, unit: 'piece', quantity: 141 },
-          { slug: slugs.stepped, unit: 'piece', quantity: 140 },
-          { slug: slugs.stepped, unit: 'piece', quantity: 90 },
+          { slug: slugs.stepped, unit: 'piece', pieces: 141 },
+          { slug: slugs.stepped, unit: 'piece', pieces: 140 },
+          { slug: slugs.stepped, unit: 'piece', pieces: 90 },
         ],
       });
 
       expect(res.status).toBe(200);
-      expect(
-        res.data.lines.map((l: { quantity: number }) => l.quantity),
-      ).toEqual(
+      expect(res.data.lines.map((l: { pieces: number }) => l.pieces)).toEqual(
         // Up to the next whole pack; left alone; lifted to the minimum.
         [150, 140, 100],
       );
@@ -365,33 +363,33 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(res.data.lines[1].lineTotalMinor).toBe(BASE_MINOR * 14);
     });
 
-    // The hole the piece-only minimum left: the `stepped` product will not ship
-    // fewer than a hundred pieces, and one pack of ten is ten. Ordering by the
-    // pack used to walk straight under the rule.
-    it('holds a pack order to the same minimum as a piece order', async () => {
+    // The minimum is one figure in pieces, and it holds whatever unit the line
+    // is being read in: ordering a single pack of ten used to walk straight
+    // under a hundred-piece floor.
+    it('holds the same minimum whichever unit the line is read in', async () => {
       const res = await post('/cart/preview', {
         lines: [
-          { slug: slugs.stepped, unit: 'pack', quantity: 1 },
-          { slug: slugs.stepped, unit: 'box', quantity: 1 },
+          { slug: slugs.stepped, unit: 'pack', pieces: 10 },
+          { slug: slugs.stepped, unit: 'box', pieces: 40 },
         ],
       });
 
       expect(res.status).toBe(200);
-      // A hundred pieces is ten packs of ten...
+      // Ten packs of ten in one, two and a half boxes of forty in the other —
+      // the same hundred pieces either way.
       expect(res.data.lines[0]).toMatchObject({
-        quantity: 10,
+        pieces: 100,
         issues: ['quantity-corrected'],
       });
-      // ...and three boxes of forty, since two hold only eighty.
       expect(res.data.lines[1]).toMatchObject({
-        quantity: 3,
+        pieces: 100,
         issues: ['quantity-corrected'],
       });
     });
 
     it('adds up the shipment estimate across the lines', async () => {
       const res = await post('/cart/preview', {
-        lines: [{ slug: slugs.boxed, unit: 'box', quantity: 2 }],
+        lines: [{ slug: slugs.boxed, unit: 'box', pieces: 80 }],
       });
 
       expect(res.data.shipment).toMatchObject({
@@ -502,7 +500,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const res = await post(
         '/orders',
         submission({
-          lines: [{ slug: slugs.hidden, unit: 'pack', quantity: 1 }],
+          lines: [{ slug: slugs.hidden, unit: 'pack', pieces: 10 }],
           expectedTotalMinor: 0,
         }),
       );
@@ -546,7 +544,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
             {
               slug: slugs.noNote,
               unit: 'pack',
-              quantity: 2,
+              pieces: 20,
               note: '100 in red',
             },
           ],
@@ -559,6 +557,28 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(res.data.preview.lines[0]).toMatchObject({
         note: null,
         issues: ['note-not-allowed'],
+      });
+    });
+
+    // The change the lens model is: two packs of a four-pack box is a perfectly
+    // ordinary order, and it reads back as the 0.5 bx it was placed as while
+    // the pieces stay the integer everything is derived from.
+    it('places an order for a part box and reads it back as one', async () => {
+      const res = await post(
+        '/orders',
+        submission({
+          lines: [{ slug: slugs.boxed, unit: 'box', pieces: 20 }],
+          expectedTotalMinor: BASE_MINOR * 2,
+        }),
+      );
+
+      expect(res.status).toBe(201);
+      const read = await get(`/orders/by-token/${res.data.publicToken}`);
+      expect(read.data.lines[0]).toMatchObject({
+        unit: 'box',
+        quantity: 0.5,
+        pieces: 20,
+        lineTotalMinor: BASE_MINOR * 2,
       });
     });
 

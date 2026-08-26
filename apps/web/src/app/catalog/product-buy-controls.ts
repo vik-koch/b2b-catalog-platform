@@ -10,15 +10,15 @@ import {
 import {
   CART_NOTE_MAX,
   CatalogImage,
-  convertUnitQuantity,
-  correctQuantity,
+  correctPieces,
   exactLineTotal,
-  piecesFor,
-  piecesPerUnit,
-  unitFloor,
-  unitStep,
+  pieceFloor,
+  piecesFromUnitQuantity,
   ProductPackagingInfo,
   ProductUnit,
+  stepFrom,
+  unitQuantity,
+  unitQuantityIsWhole,
   UnitPrices,
 } from '@b2b-catalog-platform/shared';
 import { CartAddResult, CartService } from '../cart/cart.service';
@@ -35,6 +35,7 @@ import { NumericField } from '../ui/numeric-field';
 import { Popover } from '../ui/popover';
 import { SEGMENTED_GROUP, SegmentState, segmentClass } from '../ui/segmented';
 import { formatPriceMinor } from './price';
+import { formatUnitQuantity, parseUnitQuantity } from './quantity';
 import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
 
@@ -98,7 +99,10 @@ export interface BuyableProduct {
  *   the customer — the change they made is the feedback.
  * - **A quantity is corrected upwards, never refused,** and the correction is
  *   stated in a bubble that goes away by itself. It is feedback on something
- *   already done, not an error waiting to be cleared.
+ *   already done, not an error waiting to be cleared. Changing unit is not one
+ *   of the things that can need it: a unit is a lens on a piece count, so
+ *   switching to boxes re-reads the same goods as 0.2 bx rather than rounding
+ *   them up to a whole one.
  * - **Down past the minimum means "take it out",** which is the one thing here
  *   worth asking about first. Everything the controls have to say arrives in
  *   the same bubble under the control it is about — a segment that is not sold,
@@ -292,13 +296,20 @@ export interface BuyableProduct {
         </div>
 
         <div class="relative flex flex-1">
+          <!-- Decimal only where a reading can actually be one: a piece count
+               is a whole number of packs, so only a box divides into fractions.
+               Offering them elsewhere would invite a figure that is rounded
+               away the moment the field is left.
+
+               The value is what is being typed while the field has it, and the
+               quantity otherwise — see fieldText below. -->
           <input
             appInput
-            appNumericField="integer"
-            inputmode="numeric"
+            [appNumericField]="whole() ? 'integer' : 'decimal'"
+            [attr.inputmode]="whole() ? 'numeric' : 'decimal'"
             [class]="quantityField()"
             [attr.aria-label]="text.quantityLabel"
-            [value]="quantity()"
+            [value]="fieldText()"
             (input)="onQuantityInput($event)"
             (blur)="onQuantityBlur($event)"
           />
@@ -402,7 +413,6 @@ export class ProductBuyControls {
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
   protected readonly text = inject(APP_TEXT).cart;
-  private readonly unitText = inject(APP_TEXT).catalog.units;
   protected readonly noticeMs = NOTICE_MS;
 
   readonly item = input.required<BuyableProduct>();
@@ -466,18 +476,52 @@ export class ProductBuyControls {
     computation: () => 'piece',
   });
 
-  /** Reset with the product, not with the unit: switching unit converts the
-   * quantity rather than restarting it. */
-  private readonly chosenQuantity = linkedSignal<string, number>({
+  /** Reset with the product, not with the unit: a unit is a lens on this
+   * count, so switching one re-reads it rather than restarting it. */
+  private readonly chosenPieces = linkedSignal<string, number>({
     source: () => this.item().slug,
-    computation: () => unitFloor(this.item().packaging, 'piece') ?? 1,
+    computation: () => pieceFloor(this.item().packaging),
   });
 
   protected readonly unit = computed(
     () => this.line()?.unit ?? this.chosenUnit(),
   );
+  /** The quantity, in pieces — what is stored, priced and shipped. */
+  protected readonly pieces = computed(
+    () => this.line()?.pieces ?? this.chosenPieces(),
+  );
+  /** The same quantity as the chosen unit reads it, which is the figure the
+   * field shows. Never null: the selector only offers units the product has. */
   protected readonly quantity = computed(
-    () => this.line()?.quantity ?? this.chosenQuantity(),
+    () =>
+      unitQuantity(this.packaging(), this.unit(), this.pieces()) ??
+      this.pieces(),
+  );
+  protected readonly quantityText = computed(() =>
+    formatUnitQuantity(this.quantity(), this.currency),
+  );
+  protected readonly whole = computed(() =>
+    unitQuantityIsWhole(this.packaging(), this.unit()),
+  );
+
+  /**
+   * What is being typed, while it is being typed — and null the rest of the
+   * time, which is when the field shows the quantity itself.
+   *
+   * **The field is a draft, committed when it is left** (`commit`), and this is
+   * what makes it one. Everything else works in pieces, so a field bound to the
+   * piece count would round-trip text → pieces → text on every keystroke and
+   * land every rounding on the caret. Nothing reads a draft until it is
+   * finished.
+   *
+   * Reset with the product, like every other held choice.
+   */
+  private readonly typing = linkedSignal<string, string | null>({
+    source: () => this.item().slug,
+    computation: () => null,
+  });
+  protected readonly fieldText = computed(
+    () => this.typing() ?? this.quantityText(),
   );
 
   /**
@@ -502,7 +546,45 @@ export class ProductBuyControls {
     () => this.item().lineNotePrompt ?? this.text.notePrompt,
   );
 
-  protected readonly popup = signal<Popup | null>(null);
+  /**
+   * Something the caller has to say about this line, shown in the same bubble
+   * under the stepper that the controls' own corrections use — the cart, whose
+   * quantities are corrected by the server rather than by a keystroke here.
+   *
+   * A correction is feedback on something already done, so it belongs in a
+   * bubble that goes away by itself rather than in a line of text under the
+   * row that has to be read and then ignored.
+   */
+  readonly notice = input<string | null>(null);
+
+  /** What the controls are saying about themselves — a correction they just
+   * made, a segment that is not sold, the question under `−`. */
+  private readonly ownPopup = signal<Popup | null>(null);
+
+  /**
+   * The caller's notice, **held once it has arrived**. It is feedback on
+   * something already done, and the thing it is about is over by the time it
+   * can be read: the cart writes a corrected line straight back and asks again,
+   * so the answer that carries the notice is followed by one that does not. A
+   * bubble bound to the notice itself closed on that second answer, seconds
+   * short of the time it is given.
+   *
+   * So the source only ever opens it. It is closed by the customer, or by the
+   * bubble's own timer, and a fresh notice opens it again.
+   */
+  private readonly heldNotice = linkedSignal<string | null, string | null>({
+    source: () => this.notice(),
+    computation: (notice, previous) => notice ?? previous?.value ?? null,
+  });
+
+  /** The one bubble, from either source. The controls' own comes first: it is
+   * about something the customer did a moment ago. */
+  protected readonly popup = computed<Popup | null>(() => {
+    const own = this.ownPopup();
+    if (own !== null) return own;
+    const held = this.heldNotice();
+    return held === null ? null : { at: 'quantity', message: held };
+  });
   /** What the last add did, if anything — cleared by any further edit, so it
    * never describes a selection that has since changed. */
   protected readonly feedback = signal<CartAddResult | null>(null);
@@ -530,8 +612,7 @@ export class ProductBuyControls {
     const exact = exactLineTotal(
       this.item().prices,
       this.packaging(),
-      this.unit(),
-      this.effectiveQuantity(),
+      correctPieces(this.packaging(), this.pieces()),
     );
     return exact === null ? null : formatPriceMinor(exact, this.currency);
   });
@@ -664,44 +745,21 @@ export class ProductBuyControls {
     () => `${this.row() ? '' : 'mt-2'} w-full`,
   );
 
+  /**
+   * Changes the lens, and nothing else. The goods do not move: two packs read
+   * through the box are 0.2 bx of the same twelve pieces, so there is nothing
+   * to round, nothing to confirm and nothing to say.
+   */
   protected chooseUnit(unit: ProductUnit): void {
-    const from = this.unit();
-    const held = this.quantity();
-    const converted =
-      from === unit
-        ? null
-        : convertUnitQuantity(this.packaging(), from, unit, held);
-    const quantity = converted?.quantity ?? this.startQuantity(unit);
-
-    if (this.inCart()) {
-      this.writeLine(unit, quantity);
-    } else {
-      this.chosenUnit.set(unit);
-      this.chosenQuantity.set(quantity);
-    }
-    // `edited()` clears the last bubble, so the announcement comes after it.
+    if (unit === this.unit()) return;
+    this.commit();
+    if (this.inCart()) this.writeLine(unit, this.pieces());
+    else this.chosenUnit.set(unit);
     this.edited();
-    // The goods do not always divide into the new unit — two packs are half a
-    // box, and half a box is not something the shop packs. The quantity goes up
-    // rather than down, which costs the customer more, so it is said out loud.
-    if (converted && !converted.exact) {
-      this.announce(unit, this.unrounded(from, unit, held), quantity);
-    }
-  }
-
-  /** What the quantity came to before it was rounded, to three decimals —
-   * "2.5 bx became 3 bx" says what happened, where "2 pk became 3 bx" is two
-   * unrelated numbers. Falls back to the held figure if the ratio is unknown,
-   * which cannot happen for a conversion that succeeded. */
-  private unrounded(from: ProductUnit, to: ProductUnit, quantity: number) {
-    const perTarget = piecesPerUnit(this.packaging(), to);
-    const pieces = piecesFor(this.packaging(), from, quantity);
-    if (perTarget === null || pieces === null) return quantity;
-    return Math.round((pieces / perTarget) * 1000) / 1000;
   }
 
   protected openNote(): void {
-    this.popup.set({ at: 'note', message: '' });
+    this.ownPopup.set({ at: 'note', message: '' });
   }
 
   protected onNoteInput(event: Event): void {
@@ -722,29 +780,37 @@ export class ProductBuyControls {
   /** A segment the product has no price for answers for itself rather than
    * being missing from the row. */
   protected explainUnit(unit: ProductUnit): void {
-    this.popup.set({ at: unit, message: this.text.unitNotSold });
+    this.ownPopup.set({ at: unit, message: this.text.unitNotSold });
   }
 
+  /**
+   * Takes the keystroke and nothing else. Nothing is parsed, priced or written
+   * down until the field is left: a number half-typed is not a quantity, and
+   * pricing one moved the line's total, the cart and the header behind the
+   * caret while the customer was still typing it.
+   */
   protected onQuantityInput(event: Event): void {
-    const raw = (event.target as HTMLInputElement).value;
-    this.setQuantity(Math.max(1, Number.parseInt(raw, 10) || 1));
+    this.typing.set((event.target as HTMLInputElement).value);
     this.edited();
   }
 
   /**
-   * Corrects on the way out, and writes the number back into the field. An
-   * emptied field, or a nought, is a quantity nobody can be sold: the signal
-   * has long since clamped it to one, but a clamp the field does not show is a
+   * Corrects on the way out, and writes the number back into the field —
+   * which the binding alone would not do, since the quantity it holds may not
+   * have moved at all. An emptied field is the plainest case: nothing was
+   * asked for, so the quantity stands, and a field left blank over it is a
    * page disagreeing with itself.
    */
   protected onQuantityBlur(event: Event): void {
-    this.correct();
-    (event.target as HTMLInputElement).value = String(this.quantity());
+    this.commit();
+    (event.target as HTMLInputElement).value = this.quantityText();
   }
 
   /**
-   * One step is one pack for pieces, so `+` on a product packed in sixes moves
-   * by six rather than into a quantity the shop cannot break open.
+   * One step is one of the chosen unit, except for pieces, which move by one
+   * pack — so `+` on a product packed in sixes moves by six rather than into a
+   * quantity the shop cannot break open. It **snaps** rather than adds: `+` on
+   * a quarter of a box offers a box, not a box and a quarter.
    *
    * The floor it stops at is the *minimum*, which is a different figure: a shop
    * that will not ship fewer than 24 still sells them 6 at a time above that.
@@ -753,54 +819,75 @@ export class ProductBuyControls {
    * something to take out.
    */
   protected step(direction: 1 | -1): void {
-    const wanted = this.quantity() + direction * this.stepSize();
-    if (wanted < this.floorSize()) {
+    // Whatever is in the field is the quantity being stepped from, so it is
+    // settled first — a browser blurs the field on the press, but a keyboard
+    // press on the key itself does not.
+    this.commit();
+    const floor = this.floorPieces();
+    const wanted = stepFrom(
+      this.packaging(),
+      this.unit(),
+      this.pieces(),
+      direction,
+    );
+    if (wanted < floor) {
       this.edited();
+      // A whole box below the minimum is still a step down to the minimum:
+      // only a line already sitting on it has nowhere left to go.
+      if (this.pieces() > floor) {
+        this.setPieces(floor);
+        return;
+      }
       if (this.inCart()) {
-        this.popup.set({ at: 'remove', message: this.text.removeQuestion });
+        this.ownPopup.set({ at: 'remove', message: this.text.removeQuestion });
       }
       return;
     }
-    this.setQuantity(wanted);
+    this.setPieces(wanted);
     this.edited();
   }
 
   /**
-   * Rounds a typed quantity up to the nearest one that can be supplied — in
-   * whichever unit it was typed in. The field is left alone until then, so a
-   * half-typed number is not rewritten under the cursor.
+   * Turns whatever is in the field into a quantity the shop can supply, and
+   * writes it down. Every path out of the field goes through here — leaving it,
+   * pressing a stepper key, changing unit, adding to the cart — so a draft is
+   * never abandoned and never committed twice.
    *
-   * A pack or a box has no step to land on, but it does have the minimum: four
-   * packs of six is the least a 24-piece minimum will sell, and one pack is not.
+   * Rounds **up** to the nearest orderable piece count, whichever unit it was
+   * typed in: the lattice is the same one either way, so 0.25 bx of a 24-piece
+   * box is six pieces, which a product packed in sixes supplies exactly. A
+   * field left empty or unreadable asked for nothing, so the quantity that
+   * stands is kept — the customer cleared a figure, they did not order none.
+   *
+   * The correction names no figures: the field beside the bubble already shows
+   * the one that stands, and the pair it replaced read out as thirds of a pack.
    */
-  protected correct(): void {
-    const wanted = this.quantity();
-    const corrected = correctQuantity(this.packaging(), this.unit(), wanted);
-    if (corrected === wanted) return;
-    this.setQuantity(corrected);
-    this.announce(this.unit(), wanted, corrected);
-  }
-
-  /** The correction bubble, in the words of whichever unit was corrected — a
-   * box rounded up must not be reported in pieces. */
-  private announce(unit: ProductUnit, from: number, to: number): void {
-    this.popup.set({
-      at: 'quantity',
-      message: fillText(this.text.quantityCorrected, {
-        from,
-        to,
-        unit: this.unitText[unit],
-      }),
-    });
+  protected commit(): void {
+    const raw = this.typing();
+    this.typing.set(null);
+    const typed = raw === null ? null : parseUnitQuantity(raw);
+    const wanted =
+      typed === null
+        ? this.pieces()
+        : (piecesFromUnitQuantity(this.packaging(), this.unit(), typed) ??
+          this.floorPieces());
+    const corrected = correctPieces(this.packaging(), wanted);
+    if (corrected !== this.pieces()) this.setPieces(corrected);
+    if (corrected !== wanted) {
+      this.ownPopup.set({
+        at: 'quantity',
+        message: this.text.issues.quantityCorrected,
+      });
+    }
   }
 
   protected add(): void {
-    this.correct();
+    this.commit();
     this.feedback.set(
       this.cart.add({
         ...this.addition(),
         unit: this.unit(),
-        quantity: this.quantity(),
+        pieces: this.pieces(),
       }),
     );
   }
@@ -813,7 +900,8 @@ export class ProductBuyControls {
   /** Any click outside a bubble closes it, and for the question that counts as
    * "no" — the line stays as it was. */
   protected dismiss(): void {
-    this.popup.set(null);
+    this.ownPopup.set(null);
+    this.heldNotice.set(null);
   }
 
   private segmentState(unit: ProductUnit): SegmentState {
@@ -823,33 +911,19 @@ export class ProductBuyControls {
     return unit === this.unit() ? 'selected' : 'available';
   }
 
-  /** What `+` and `−` move by: one pack for pieces, one of anything else. */
-  private stepSize(): number {
-    return unitStep(this.packaging(), this.unit());
-  }
-
   /** The smallest quantity worth keeping: below it the only sensible quantity
-   * is none. The minimum in whichever unit is selected. */
-  private floorSize(): number {
-    return unitFloor(this.packaging(), this.unit()) ?? 1;
+   * is none. One figure, whichever unit is reading it. */
+  private floorPieces(): number {
+    return pieceFloor(this.packaging());
   }
 
-  /** The quantity this line would really be bought in. */
-  private effectiveQuantity(): number {
-    return correctQuantity(this.packaging(), this.unit(), this.quantity());
+  private setPieces(pieces: number): void {
+    if (this.inCart()) this.writeLine(this.unit(), pieces);
+    else this.chosenPieces.set(pieces);
   }
 
-  private startQuantity(unit: ProductUnit): number {
-    return unitFloor(this.packaging(), unit) ?? 1;
-  }
-
-  private setQuantity(quantity: number): void {
-    if (this.inCart()) this.writeLine(this.unit(), quantity);
-    else this.chosenQuantity.set(quantity);
-  }
-
-  private writeLine(unit: ProductUnit, quantity: number): void {
-    this.cart.setLine({ ...this.addition(), unit, quantity });
+  private writeLine(unit: ProductUnit, pieces: number): void {
+    this.cart.setLine({ ...this.addition(), unit, pieces });
   }
 
   /** What will be recorded with the line: the caller's note where it manages
@@ -866,7 +940,7 @@ export class ProductBuyControls {
       slug: item.slug,
       name: item.name,
       unit: this.unit(),
-      quantity: this.quantity(),
+      pieces: this.pieces(),
       note: this.effectiveNote(),
       // Never undefined: callers hand over the product's first photo, and a
       // product with none has no first element. What is written down has to
