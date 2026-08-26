@@ -4,6 +4,7 @@ import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
+import { LastListingService } from './catalog/last-listing.service';
 import { CookieConsent } from './consent/cookie-consent';
 import { ForcePasswordChange } from './auth/force-password-change';
 import { Footer } from './layout/footer';
@@ -96,5 +97,9 @@ export class App {
     // baked index.html, so overriding branding needs no rebuild. Runs during
     // SSR too, so the served HTML (and crawlers) get the right title.
     inject(Title).setTitle(this.branding.title);
+
+    // Starts recording which listing the visitor is standing at, so leaving
+    // the cart returns to the shelf rather than to the front of the shop.
+    inject(LastListingService);
   }
 }

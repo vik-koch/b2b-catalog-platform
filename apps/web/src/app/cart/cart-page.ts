@@ -7,7 +7,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CART_NOTE_MAX, CartLineIssue } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
@@ -26,6 +26,7 @@ import { ConfirmService } from '../ui/confirm.service';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
+import { LastListingService } from '../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
 import { CartChange, CartService } from './cart.service';
 
@@ -393,6 +394,17 @@ interface CartRow {
                   </p>
                 }
               }
+
+              <!-- Back to the shelf the visitor was standing at, with the
+                   category, page and filters it was carrying. -->
+              <a
+                appButton
+                variant="ghost"
+                class="mt-2 w-full"
+                [routerLink]="continueShoppingUrl"
+              >
+                {{ text.continueShopping }}
+              </a>
             </div>
           </aside>
         </div>
@@ -403,6 +415,8 @@ interface CartRow {
 export class CartPage {
   protected readonly cart = inject(CartService);
   private readonly pricing = inject(CartPreviewService);
+  private readonly lastListing = inject(LastListingService);
+  private readonly router = inject(Router);
   private readonly confirm = inject(ConfirmService);
   private readonly catalogConfig = inject(DEPLOYMENT_CONFIG).catalog;
   private readonly currency = this.catalogConfig.currency;
@@ -417,6 +431,16 @@ export class CartPage {
    * does, so it says it the way the listing does. */
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly rowList = PRODUCT_ROWS;
+
+  /**
+   * Where "continue shopping" goes. A parsed tree rather than the string:
+   * a remembered listing carries the page and the filters in its query, and
+   * routerLink given a string would encode the `?` into the path.
+   */
+  protected readonly continueShoppingUrl = this.router.parseUrl(
+    this.lastListing.url(),
+  );
+
   protected readonly noteMax = CART_NOTE_MAX;
 
   /**

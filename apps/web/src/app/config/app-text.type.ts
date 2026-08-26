@@ -269,6 +269,7 @@ export const appTextSchema = z
          */
         /** The summary card beside the lines: what the order is, then what
          * the estimate makes of it. */
+        continueShopping: z.string(),
         summaryTitle: z.string(),
         /** How many lines the cart holds — the cart's own figure, stated
          * whether or not an estimate arrives. */

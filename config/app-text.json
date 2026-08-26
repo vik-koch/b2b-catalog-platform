@@ -119,6 +119,7 @@
     "subtotal": "Subtotal",
     "noPrice": "On request",
     "totalIncomplete": "Some lines could not be priced — the subtotal covers the rest.",
+    "continueShopping": "Continue shopping",
     "summaryTitle": "Your order",
     "summaryLines": "Line items",
     "shipmentCartons": "Cartons",
