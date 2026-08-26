@@ -129,7 +129,9 @@ export const products = pgTable(
     // the sync does not carry them.
     piecesPerPack: integer('piecesPerPack'),
     packsPerBox: integer('packsPerBox'),
-    // Minimum piece quantity, and equally the increment. Piece purchases only.
+    // The smallest piece quantity the shop will sell — a commercial floor, not
+    // the increment. Piece quantities move by one pack (see pieceStep); this
+    // only says where they start. Piece purchases only.
     minPieceQty: integer('minPieceQty').notNull().default(1),
     // A box's shipping dimensions, shown among the product's attributes. Plain
     // numerics: the integer-money rule is about currency rounding, which does
@@ -218,19 +220,27 @@ export const products = pgTable(
       'products_box_count_needs_box',
       sql`${t.boxCount} = 1 or ${t.packsPerBox} is not null`,
     ),
-    // What keeps totals exact: every purchasable quantity is a whole number of
-    // basis units, so a total is a multiplication with nothing to round. In the
-    // database, not only the editor — it is the guarantee, not a form nicety.
     // A prompt describes a note nobody can write unless the note is enabled.
     check(
       'products_line_note_prompt_needs_note',
       sql`${t.lineNotePrompt} is null or ${t.lineNoteEnabled}`,
     ),
+    // What keeps totals exact: every purchasable quantity is a whole number of
+    // basis units, so a total is a multiplication with nothing to round. In the
+    // database, not only the editor — it is the guarantee, not a form nicety.
     check(
       'products_basis_divides_quantities',
       sql`${t.minPieceQty} % ${t.priceBasisPieces} = 0
         and (${t.piecesPerPack} is null
              or ${t.piecesPerPack} % ${t.priceBasisPieces} = 0)`,
+    ),
+    // A piece quantity moves by one pack, so the minimum has to sit on that
+    // lattice: otherwise the first orderable quantity is not a whole number of
+    // steps, and one published lot price can no longer describe every total.
+    check(
+      'products_minimum_is_whole_packs',
+      sql`${t.piecesPerPack} is null
+        or ${t.minPieceQty} % ${t.piecesPerPack} = 0`,
     ),
   ],
 );
