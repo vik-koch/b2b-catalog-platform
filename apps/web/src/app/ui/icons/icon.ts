@@ -38,6 +38,8 @@ export type IconName =
   | 'book-dashed'
   | 'layout-grid'
   | 'layout-list'
+  | 'message-circle-plus'
+  | 'message-circle-check'
   | 'plus';
 
 @Component({
@@ -150,6 +152,19 @@ export type IconName =
           <path d="M17.925 20.056a6 6 0 0 0-11.851.001" />
           <circle cx="12" cy="11" r="4" />
           <circle cx="12" cy="12" r="10" />
+        }
+        @case ('message-circle-plus') {
+          <path
+            d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"
+          />
+          <path d="M8 12h8" />
+          <path d="M12 8v8" />
+        }
+        @case ('message-circle-check') {
+          <path
+            d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"
+          />
+          <path d="m9 12 2 2 4-4" />
         }
         @case ('layout-grid') {
           <rect width="7" height="7" x="3" y="3" rx="1" />

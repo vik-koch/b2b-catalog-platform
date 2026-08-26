@@ -25,7 +25,11 @@ const packaged = productDetail({
   },
 });
 
-async function render(item: ProductDetail, canAdd = true) {
+async function render(
+  item: ProductDetail,
+  canAdd = true,
+  externalNote = false,
+) {
   localStorage.clear();
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -40,6 +44,7 @@ async function render(item: ProductDetail, canAdd = true) {
   const fixture = TestBed.createComponent(ProductBuyControls);
   fixture.componentRef.setInput('item', item);
   fixture.componentRef.setInput('canAdd', canAdd);
+  fixture.componentRef.setInput('externalNote', externalNote);
   await fixture.whenStable();
   const el = fixture.nativeElement as HTMLElement;
 
@@ -88,6 +93,16 @@ async function render(item: ProductDetail, canAdd = true) {
         (l) => (l.textContent ?? '').trim() === label,
       );
       option?.querySelector('input')?.dispatchEvent(new Event('change'));
+      await rerender();
+    },
+    noteField: () => el.querySelector('textarea') as HTMLTextAreaElement | null,
+    /** Types, then leaves the field — which is when a note is recorded. */
+    async typeNote(value: string) {
+      const field = el.querySelector('textarea') as HTMLTextAreaElement;
+      field.value = value;
+      field.dispatchEvent(new Event('input'));
+      await rerender();
+      field.dispatchEvent(new Event('blur'));
       await rerender();
     },
     async click(label: string) {
@@ -368,5 +383,75 @@ describe('ProductBuyControls', () => {
     // The units, the prices and the quantity are still shown: that is what a
     // manager opened the preview to check.
     expect(view.unitLabels()).toHaveLength(3);
+  });
+});
+
+/**
+ * FR-CART-08 on a card or a row, where there is no room for a field: the note
+ * lives behind a button beside the price, and the first add opens it.
+ */
+describe('ProductBuyControls, a product that takes a note', () => {
+  const noted = productDetail({
+    slug: 'cup-set',
+    name: 'Cup Set',
+    lineNoteEnabled: true,
+    lineNotePrompt: 'Which glaze colours?',
+  });
+
+  it('offers no note button for a product that does not take one', async () => {
+    const view = await render(packaged);
+
+    expect(view.el.querySelector('[aria-label="' + text.noteAdd + '"]')).toBe(
+      null,
+    );
+  });
+
+  // Asked once, not imposed: the bubble is the add button's first press, and
+  // its own button adds — with a note or straight past it.
+  // The button adds; the note is a control of its own beside the price.
+  it('adds without interrupting, and records a note written first', async () => {
+    const view = await render(noted);
+
+    await view.click(text.noteAdd);
+    // The product's question is the field's placeholder, not a line under it.
+    expect(view.el.querySelector('textarea')?.placeholder).toBe(
+      'Which glaze colours?',
+    );
+    await view.typeNote('Three sand, three slate');
+    await view.click(text.add);
+
+    expect(view.cart.lines()[0].note).toBe('Three sand, three slate');
+  });
+
+  it('adds straight away for a customer who writes nothing', async () => {
+    const view = await render(noted);
+
+    await view.click(text.add);
+
+    expect(view.cart.count()).toBe(1);
+    expect(view.cart.lines()[0].note).toBeNull();
+  });
+
+  // Once the line is in the cart these controls edit it, the note included —
+  // written when the field is left, not letter by letter.
+  it('writes the note straight onto a line already in the cart', async () => {
+    const view = await render(noted);
+    await view.click(text.add);
+
+    await view.click(text.noteAdd);
+    await view.typeNote('Sand only');
+
+    expect(view.cart.lines()[0].note).toBe('Sand only');
+  });
+
+  it('leaves the note to the caller where one is offered a field', async () => {
+    const view = await render(noted, true, true);
+
+    expect(view.el.querySelector('[aria-label="' + text.noteAdd + '"]')).toBe(
+      null,
+    );
+    // And adding is not interrupted by a bubble that is not there.
+    await view.click(text.add);
+    expect(view.cart.count()).toBe(1);
   });
 });

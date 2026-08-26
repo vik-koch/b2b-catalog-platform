@@ -21,6 +21,8 @@ function addition(overrides: Partial<CartAddition> = {}): CartAddition {
     quantity: 2,
     note: null,
     image: null,
+    lineNoteEnabled: false,
+    lineNotePrompt: null,
     prices: {
       pieceMilliMinor: 1250,
       pieceLotMinor: 7500,
@@ -47,6 +49,8 @@ function preview(
     boxVolume: null,
     boxWeight: null,
     boxCount: 1,
+    lineNoteEnabled: false,
+    lineNotePrompt: null,
     prices: {
       pieceMilliMinor: 1250,
       pieceLotMinor: 7500,
@@ -271,6 +275,45 @@ describe('CartPage', () => {
 
     expect(view.photos()).toEqual(['/media/thumb.webp']);
     expect(view.text()).toContain('Filter Roast');
+  });
+
+  // FR-CART-08 on the cart: a field, not a bubble — this is the page where a
+  // note is re-read before the order goes in.
+  it('writes a line note from the field under the row', async () => {
+    const view = await render({
+      lines: [addition({ lineNoteEnabled: true })],
+      answer: preview([{ lineNoteEnabled: true }]),
+    });
+
+    const field = view.el.querySelector('textarea');
+    expect(field).not.toBeNull();
+    const note = field as HTMLTextAreaElement;
+    note.value = 'Three sand, three slate';
+    // On change: the note is recorded when the field is left.
+    note.dispatchEvent(new Event('change'));
+    await view.rerender();
+
+    expect(view.cart.lines()[0].note).toBe('Three sand, three slate');
+  });
+
+  it('offers no note field for a product that takes none', async () => {
+    const view = await render({ lines: [addition()] });
+
+    expect(view.el.querySelector('textarea')).toBeNull();
+  });
+
+  // In the field that edits it, not as a sentence beside the name: one note,
+  // one place, and it is the place it is changed.
+  it('shows a line note where one was left', async () => {
+    const view = await render({
+      lines: [addition({ note: '100 in red', lineNoteEnabled: true })],
+      answer: preview([{ note: '100 in red', lineNoteEnabled: true }]),
+    });
+
+    const field = view.el.querySelector(
+      'textarea',
+    ) as HTMLTextAreaElement | null;
+    expect(field?.value).toBe('100 in red');
   });
 
   // Preview is the authority on price, and its answer becomes the cart's own

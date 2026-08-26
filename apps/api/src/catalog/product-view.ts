@@ -35,6 +35,13 @@ export const unitColumns = {
   minPieceQty: products.minPieceQty,
 } as const;
 
+/** What a listing needs beyond the price to sell a line the way the product
+ * page does. */
+export const noteColumns = {
+  lineNoteEnabled: products.lineNoteEnabled,
+  lineNotePrompt: products.lineNotePrompt,
+} as const;
+
 export interface PricedProductRow {
   /** Tier-resolved, covering `priceBasisPieces` pieces. */
   priceMinor: number;
@@ -92,6 +99,8 @@ export function toListItem<
     slug: string;
     name: string;
     images: ProductImageRef[];
+    lineNoteEnabled: boolean;
+    lineNotePrompt: string | null;
   },
 >(row: T): ProductListItem {
   return {
@@ -101,6 +110,8 @@ export function toListItem<
     prices: unitPricesOf(row),
     packaging: packagingOf(row),
     images: row.images,
+    lineNoteEnabled: row.lineNoteEnabled,
+    lineNotePrompt: row.lineNotePrompt,
   };
 }
 

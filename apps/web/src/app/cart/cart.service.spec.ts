@@ -22,6 +22,8 @@ function pieceAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     quantity: 1,
     note: null,
     image: null,
+    lineNoteEnabled: false,
+    lineNotePrompt: null,
     prices: {
       pieceMilliMinor: 1250,
       pieceLotMinor: 1250,
@@ -42,6 +44,8 @@ function packAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     quantity: 1,
     note: null,
     image: null,
+    lineNoteEnabled: false,
+    lineNotePrompt: null,
     prices: {
       pieceMilliMinor: 1250,
       pieceLotMinor: 7500,
@@ -245,6 +249,8 @@ describe('CartService', () => {
           boxVolume: '1.500',
           boxWeight: '9.000',
           boxCount: 1,
+          noteEnabled: false,
+          notePrompt: null,
         },
       ],
     });
@@ -278,6 +284,8 @@ describe('CartService', () => {
           boxVolume: null,
           boxWeight: null,
           boxCount: null,
+          noteEnabled: false,
+          notePrompt: null,
         },
       ],
     });
@@ -322,6 +330,8 @@ describe('CartService', () => {
           boxVolume: null,
           boxWeight: null,
           boxCount: null,
+          noteEnabled: false,
+          notePrompt: null,
         },
       ],
     });
@@ -352,6 +362,8 @@ describe('CartService', () => {
           boxVolume: null,
           boxWeight: null,
           boxCount: 1,
+          lineNoteEnabled: false,
+          lineNotePrompt: null,
           prices: {
             pieceMilliMinor: 1250,
             pieceLotMinor: 7500,

@@ -6,7 +6,9 @@ import {
   linkedSignal,
 } from '@angular/core';
 import { CART_NOTE_MAX, ProductDetail } from '@b2b-catalog-platform/shared';
+import { CartService } from '../cart/cart.service';
 import { APP_TEXT } from '../config/app-text';
+import { AutoGrow } from '../ui/auto-grow';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { ProductBuyControls } from './product-buy-controls';
@@ -30,31 +32,35 @@ import { ProductUnitFacts } from './product-unit-facts';
  */
 @Component({
   selector: 'app-product-buy-block',
-  imports: [FieldLabel, Input, ProductBuyControls, ProductUnitFacts],
+  imports: [AutoGrow, FieldLabel, Input, ProductBuyControls, ProductUnitFacts],
   template: `
     <div class="rounded-xl border border-border p-3">
       <app-product-buy-controls
         [item]="item()"
         [image]="item().images[0]"
         [note]="note()"
+        [externalNote]="true"
         [canAdd]="canAdd()"
       >
         <app-product-unit-facts class="mt-2" [packagingInfo]="packaging()" />
 
         @if (item().lineNoteEnabled) {
+          <!-- The product's question is the field's placeholder rather than a
+               line under it: it says what to write, and it is read while the
+               field is empty — the only time it has anything to say. -->
           <label class="mt-4 block">
             <span appFieldLabel>{{ text.noteLabel }}</span>
             <textarea
               appInput
+              appAutoGrow
               rows="2"
               class="w-full"
               [attr.maxlength]="noteMax"
+              [attr.placeholder]="notePrompt()"
               [value]="note()"
               (input)="onNoteInput($event)"
+              (change)="saveNote()"
             ></textarea>
-            <span class="mt-1 block text-xs text-subtle">{{
-              notePrompt()
-            }}</span>
           </label>
         }
       </app-product-buy-controls>
@@ -71,11 +77,17 @@ export class ProductBuyBlock {
   readonly canAdd = input(true);
   protected readonly packaging = computed(() => this.item().packaging);
 
-  /** Cleared when the product changes: a note belongs to the line it was
-   * typed for. */
+  private readonly cart = inject(CartService);
+
+  /**
+   * Seeded from the cart's line, so a note written on a previous visit is on
+   * screen rather than apparently lost — this field *is* that note once the
+   * product is in the cart. Reset with the product: a note belongs to the line
+   * it was typed for.
+   */
   protected readonly note = linkedSignal<string, string>({
     source: () => this.item().slug,
-    computation: () => '',
+    computation: (slug) => this.cart.lineFor(slug)?.note ?? '',
   });
 
   protected readonly notePrompt = computed(
@@ -84,5 +96,12 @@ export class ProductBuyBlock {
 
   protected onNoteInput(event: Event): void {
     this.note.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  /** Written to the line when the field is left, the same moment the bubble on
+   * a card writes its own — the note is a sentence, not a keystroke. */
+  protected saveNote(): void {
+    const note = this.note().trim();
+    this.cart.setNote(this.item().slug, note === '' ? null : note);
   }
 }

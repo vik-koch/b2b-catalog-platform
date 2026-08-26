@@ -76,6 +76,11 @@ export interface CartStoredLine {
   boxVolume: string | null;
   boxWeight: string | null;
   boxCount: number | null;
+  /** Whether this line takes a note, and the product's own wording for it —
+   * kept for the same reason the prices are: the cart page draws the note
+   * field with the row rather than when the pricing call answers. */
+  noteEnabled: boolean;
+  notePrompt: string | null;
 }
 
 /** The whole cart as it is written down. Only the lines: everything the
@@ -98,6 +103,8 @@ export interface CartAddition {
   /** The photo the customer was looking at, so the cart can draw the line
    * before it has asked the server anything. */
   image: CatalogImage | null;
+  lineNoteEnabled: boolean;
+  lineNotePrompt: string | null;
 }
 
 /** `full` when the cart already holds as many lines as may be priced in one
@@ -260,6 +267,8 @@ export class CartService {
           boxVolume: null,
           boxWeight: null,
           boxCount: null,
+          noteEnabled: addition.lineNoteEnabled,
+          notePrompt: addition.lineNotePrompt,
           ...priceLine(addition, quantity),
         },
       ]);
@@ -274,6 +283,8 @@ export class CartService {
           prices: addition.prices,
           packaging: addition.packaging,
           image: addition.image,
+          noteEnabled: addition.lineNoteEnabled,
+          notePrompt: addition.lineNotePrompt,
           ...priceLine(addition, quantity),
         }),
       );
@@ -302,9 +313,26 @@ export class CartService {
         prices: addition.prices,
         packaging: addition.packaging,
         image: addition.image,
+        noteEnabled: addition.lineNoteEnabled,
+        notePrompt: addition.lineNotePrompt,
         ...priceLine(addition, addition.quantity),
       }),
     );
+  }
+
+  /**
+   * Writes a line's note, or clears it. Separate from `setLine`, which takes
+   * the newer note only where one was typed — that is right for an *addition*,
+   * which must not erase what is already on the line, and wrong for an edit,
+   * where emptying the field is the edit.
+   */
+  setNote(slug: string, note: string | null): void {
+    const lines = this.stored();
+    const at = lines.findIndex((line) => line.slug === slug);
+    if (at === -1) return;
+    const trimmed = trimNote(note);
+    if (lines[at].note === trimmed) return;
+    this.write(replaceAt(lines, at, { ...lines[at], note: trimmed }));
   }
 
   remove(slug: string, unit: ProductUnit): void {
@@ -352,6 +380,8 @@ export class CartService {
         boxVolume: fresh.boxCount === null ? line.boxVolume : fresh.boxVolume,
         boxWeight: fresh.boxCount === null ? line.boxWeight : fresh.boxWeight,
         boxCount: fresh.boxCount ?? line.boxCount,
+        noteEnabled: fresh.lineNoteEnabled,
+        notePrompt: fresh.lineNotePrompt,
         unitPriceMinor:
           fresh.prices === null ? null : unitPriceOf(fresh.prices, line.unit),
         lineTotalMinor: fresh.lineTotalMinor,
@@ -413,6 +443,8 @@ function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
     a.name === b.name &&
     a.unitPriceMinor === b.unitPriceMinor &&
     a.lineTotalMinor === b.lineTotalMinor &&
+    a.noteEnabled === b.noteEnabled &&
+    a.notePrompt === b.notePrompt &&
     a.boxVolume === b.boxVolume &&
     a.boxWeight === b.boxWeight &&
     a.boxCount === b.boxCount &&
@@ -489,7 +521,9 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     isImage(candidate.image) &&
     (candidate.boxVolume === null || typeof candidate.boxVolume === 'string') &&
     (candidate.boxWeight === null || typeof candidate.boxWeight === 'string') &&
-    (candidate.boxCount === null || Number.isInteger(candidate.boxCount))
+    (candidate.boxCount === null || Number.isInteger(candidate.boxCount)) &&
+    typeof candidate.noteEnabled === 'boolean' &&
+    (candidate.notePrompt === null || typeof candidate.notePrompt === 'string')
   );
 }
 

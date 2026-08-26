@@ -117,6 +117,7 @@ export interface RowProduct extends BuyableProduct {
             [image]="item().images[0]"
             [canAdd]="canAdd()"
             [available]="available()"
+            [externalNote]="externalNote()"
           >
             <!-- Handed on to the price row, where it sits at the end of the line
                  that states what one costs — a corner, and the same corner a

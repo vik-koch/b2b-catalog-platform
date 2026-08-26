@@ -59,7 +59,12 @@ test('adds a chosen unit to the cart, counts it in the header, and keeps it', as
   await cartLink(page).click();
   await expect(page).toHaveURL(/\/cart$/);
   await expect(lines(page)).toHaveCount(1);
-  await expect(page.getByText('1 × Box')).toBeVisible();
+  // The cart line carries the same controls the product page did, holding the
+  // choice that was made there.
+  await expect(page.getByRole('radio', { name: 'Box' })).toBeChecked();
+  await expect(page.getByRole('textbox', { name: 'Quantity' })).toHaveValue(
+    '1',
+  );
 });
 
 test('corrects a piece quantity to one the shop can supply, and says so', async ({
@@ -74,7 +79,9 @@ test('corrects a piece quantity to one the shop can supply, and says so', async 
 
   await expect(page.getByText('14 adjusted to 18 pcs')).toBeVisible();
   await cartLink(page).click();
-  await expect(page.getByText('18 × Piece')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Quantity' })).toHaveValue(
+    '18',
+  );
 });
 
 test('sells from a grid card, and then edits that line from it', async ({
@@ -101,21 +108,59 @@ test('sells from a grid card, and then edits that line from it', async ({
   );
   await cartLink(page).click();
   await expect(lines(page)).toHaveCount(1);
-  await expect(page.getByText('12 × Piece')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Quantity' })).toHaveValue(
+    '12',
+  );
 });
 
 test('carries a line note through to the cart', async ({ page }) => {
   await page.goto('/product/cappuccino-cup-set');
 
-  // The prompt is the product's own, not a generic one.
-  await expect(page.getByText('Which glaze colours?')).toBeVisible();
-  await page
-    .getByRole('textbox', { name: 'Note' })
-    .fill('Three sand, three slate');
+  // The prompt is the product's own, not a generic one, and it is what the
+  // empty field asks for rather than a line under it.
+  const note = page.getByRole('textbox', { name: 'Note' });
+  await expect(note).toHaveAttribute(
+    'placeholder',
+    'Which glaze colours? Sand, slate or off-white.',
+  );
+  await note.fill('Three sand, three slate');
   await page.getByRole('button', { name: 'Add to cart' }).click();
 
   await cartLink(page).click();
-  await expect(page.getByText('Three sand, three slate')).toBeVisible();
+  // On the cart the note is a field, not a sentence: it is read there before
+  // the order goes in, and changed in the same place.
+  await expect(page.getByRole('textbox', { name: /Note/ })).toHaveValue(
+    'Three sand, three slate',
+  );
+});
+
+// On a card there is no room for a field, so the note lives behind a button
+// beside the price — and what is written there rides with the line.
+test('writes a note from a listing card, beside the price', async ({
+  page,
+}) => {
+  await page.goto('/search?q=Cappuccino');
+
+  const card = page
+    .locator('li')
+    .filter({ has: page.locator('a[href="/product/cappuccino-cup-set"]') })
+    .first();
+  await card.getByRole('button', { name: /note/i }).click();
+  const bubble = page.locator('app-popover');
+  await expect(bubble.getByRole('textbox')).toHaveAttribute(
+    'placeholder',
+    'Which glaze colours? Sand, slate or off-white.',
+  );
+
+  await bubble.getByRole('textbox').fill('Sand only');
+  await bubble.getByRole('textbox').blur();
+  await card.getByRole('button', { name: 'Add to cart' }).click();
+
+  await expect(cartLink(page)).toHaveAttribute('aria-label', /Cart: 1 lines/);
+  await cartLink(page).click();
+  await expect(page.getByRole('textbox', { name: /Note/ })).toHaveValue(
+    'Sand only',
+  );
 });
 
 test('prices the cart on the server and empties it when asked', async ({
@@ -131,10 +176,12 @@ test('prices the cart on the server and empties it when asked', async ({
   // A subtotal only exists because the API priced what the browser sent.
   await expect(page.getByText('Subtotal')).toBeVisible();
 
-  // Emptying is confirmed in the app's own modal, not a browser dialog.
-  await page.getByRole('button', { name: 'Empty the cart' }).click();
+  // Emptying is ticking every line and deleting the selection, confirmed in
+  // the app's own modal rather than a browser dialog.
+  await page.getByRole('checkbox', { name: 'Select all' }).check();
+  await page.getByRole('button', { name: 'Delete selection' }).click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByRole('button', { name: 'Empty the cart' }).click();
+  await dialog.getByRole('button', { name: 'Delete selection' }).click();
 
   await expect(page.getByText('Your cart is empty.')).toBeVisible();
   await expect(cartLink(page)).toHaveAttribute('aria-label', /Cart: 0 lines/);

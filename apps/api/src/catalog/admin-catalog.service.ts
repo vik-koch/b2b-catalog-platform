@@ -51,7 +51,7 @@ import {
   setSearchThreshold,
 } from './product-search';
 import { adminProductOrderBy } from './product-sort';
-import { toListItem, unitColumns } from './product-view';
+import { noteColumns, toListItem, unitColumns } from './product-view';
 import { HiddenProduct } from '@b2b-catalog-platform/shared';
 
 /**
@@ -436,6 +436,7 @@ export class AdminCatalogService {
         deletedAt: products.deletedAt,
         publishedAt: products.publishedAt,
         ...unitColumns,
+        ...noteColumns,
       })
       .from(products)
       .where(

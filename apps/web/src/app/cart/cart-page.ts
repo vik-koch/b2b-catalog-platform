@@ -8,7 +8,11 @@ import {
   untracked,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CartLineIssue, ProductUnit } from '@b2b-catalog-platform/shared';
+import {
+  CART_NOTE_MAX,
+  CartLineIssue,
+  ProductUnit,
+} from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { APP_TEXT } from '../config/app-text';
@@ -20,6 +24,8 @@ import { usePageSeo } from '../core/page-seo';
 import { stableValue } from '../core/stable-value';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
+import { AutoGrow } from '../ui/auto-grow';
+import { Input } from '../ui/input';
 import { ConfirmService } from '../ui/confirm.service';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
@@ -45,6 +51,9 @@ interface CartRow {
   item: RowProduct;
   name: string;
   note: string | null;
+  /** The product's own wording for the note, or the app's. */
+  notePrompt: string;
+  takesNote: boolean;
   issues: string[];
 }
 
@@ -68,10 +77,12 @@ interface CartRow {
 @Component({
   selector: 'app-cart-page',
   imports: [
+    AutoGrow,
     Button,
     Checkbox,
     Icon,
     IconButton,
+    Input,
     ProductRow,
     RouterLink,
     Skeleton,
@@ -153,6 +164,7 @@ interface CartRow {
                   <app-product-row
                     [item]="row.item"
                     [available]="row.available"
+                    [externalNote]="true"
                   >
                     <!-- Level with the top of the photo, and as close to it as
                        the tick above the list is to its own words, so the two
@@ -169,6 +181,40 @@ interface CartRow {
 
                     @for (issue of row.issues; track issue) {
                       <p class="mt-1 text-sm text-amber-700">{{ issue }}</p>
+                    }
+
+                    @if (row.takesNote) {
+                      <!-- Under the name, in the name's own column: a note is
+                         about this product, and a field the width of the whole
+                         line read as being about the cart. The placeholder is
+                         the product's question, so it needs no label.
+
+                         It drops to the bottom of that column, which
+                         is the photo's own bottom edge — a short name leaves it
+                         there rather than hanging it under one line of text. A
+                         name long enough to need the room pushes it down
+                         instead.
+
+                         A text area, as everywhere else a sentence is typed,
+                         one line deep until the customer drags it taller —
+                         the height of the pill of segments across from it,
+                         and dense to match: the row is a line of small
+                         controls, and a full-sized field among them reads as
+                         the thing to fill in. -->
+                      <div class="mt-auto pt-2">
+                        <textarea
+                          appInput
+                          appAutoGrow
+                          size="sm"
+                          rows="1"
+                          class="w-full"
+                          [attr.maxlength]="noteMax"
+                          [attr.placeholder]="row.notePrompt"
+                          [attr.aria-label]="text.lineNote"
+                          [value]="row.note ?? ''"
+                          (change)="onNote(row, $event)"
+                        ></textarea>
+                      </div>
                     }
 
                     <!-- Icon only: the product it removes is the row it sits in,
@@ -278,6 +324,7 @@ export class CartPage {
 
   protected readonly text = inject(APP_TEXT).cart;
   protected readonly rowList = PRODUCT_ROWS;
+  protected readonly noteMax = CART_NOTE_MAX;
 
   /**
    * Debounced so a run of edits — a removal, then another — costs one call
@@ -350,10 +397,14 @@ export class CartPage {
           name: line.name,
           prices: line.prices,
           packaging: line.packaging,
+          lineNoteEnabled: line.noteEnabled,
+          lineNotePrompt: line.notePrompt,
           images: line.image ? [line.image] : [],
         },
         name: line.name,
         note: line.note,
+        notePrompt: line.notePrompt ?? this.text.notePrompt,
+        takesNote: line.noteEnabled,
         issues: (fresh?.issues ?? []).map((issue) => this.issueText(issue)),
       };
     }),
@@ -513,6 +564,12 @@ export class CartPage {
         ? new Set()
         : new Set(this.rows().map((row) => row.key)),
     );
+  }
+
+  /** On `change`, which fires when the field is left — a note is written as a
+   * sentence, not stored letter by letter. */
+  protected onNote(row: CartRow, event: Event): void {
+    this.cart.setNote(row.slug, (event.target as HTMLTextAreaElement).value);
   }
 
   protected remove(row: CartRow): void {

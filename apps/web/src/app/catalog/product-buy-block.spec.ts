@@ -139,8 +139,10 @@ describe('ProductBuyBlock', () => {
       productDetail({ lineNoteEnabled: true, lineNotePrompt: 'Which colour?' }),
     );
 
-    expect(noted.el.querySelector('textarea')).not.toBeNull();
-    expect(noted.text()).toContain('Which colour?');
+    // The product's question is the field's placeholder, not a line under it.
+    expect(noted.el.querySelector('textarea')?.placeholder).toBe(
+      'Which colour?',
+    );
   });
 
   it("falls back to the app's own wording where the product names no prompt", async () => {
@@ -148,7 +150,9 @@ describe('ProductBuyBlock', () => {
       productDetail({ lineNoteEnabled: true, lineNotePrompt: null }),
     );
 
-    expect(view.text()).toContain(text.notePrompt);
+    expect(view.el.querySelector('textarea')?.placeholder).toBe(
+      text.notePrompt,
+    );
   });
 
   it('carries the typed note onto the line', async () => {
@@ -159,6 +163,26 @@ describe('ProductBuyBlock', () => {
     await view.click(text.add);
 
     expect(view.cart.lines()[0].note).toBe('100 in red, 100 in blue');
+  });
+
+  // The field is the line's note once the product is in the cart, so it shows
+  // what is on the line rather than starting empty on every visit.
+  it('shows the note already on the line, and rewrites it in place', async () => {
+    const noted = productDetail({
+      lineNoteEnabled: true,
+      lineNotePrompt: null,
+    });
+    const first = await render(noted);
+    await first.note('100 in red');
+    await first.click(text.add);
+    expect(first.cart.lines()[0].note).toBe('100 in red');
+
+    // A second visit to the same product, cart intact.
+    const again = await renderKeepingCart(noted);
+    expect(again.noteField().value).toBe('100 in red');
+
+    await again.note('100 in blue');
+    expect(again.cart.lines()[0].note).toBe('100 in blue');
   });
 
   it('offers no way to add from the editor preview', async () => {

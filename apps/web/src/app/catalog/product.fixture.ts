@@ -39,6 +39,8 @@ export function productListItem(
     prices: plainPrices(priceMinor),
     packaging: { ...plainPackaging },
     images: [],
+    lineNoteEnabled: false,
+    lineNotePrompt: null,
     ...overrides,
   };
 }

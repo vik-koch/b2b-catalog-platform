@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import {
+  CART_NOTE_MAX,
   CatalogImage,
   convertUnitQuantity,
   correctPieceQuantity,
@@ -20,8 +21,11 @@ import { CartAddResult, CartService } from '../cart/cart.service';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { fillText } from '../core/fill-text';
+import { AutoGrow } from '../ui/auto-grow';
 import { Button } from '../ui/button';
+import { FieldLabel } from '../ui/field-label';
 import { Icon } from '../ui/icons/icon';
+import { IconButton } from '../ui/icon-button';
 import { Input } from '../ui/input';
 import { NumericField } from '../ui/numeric-field';
 import { Popover } from '../ui/popover';
@@ -42,8 +46,8 @@ let nextGroupId = 0;
  * time: two bubbles open over one small block is noise, not information.
  */
 interface Popup {
-  /** `quantity`, `remove`, or the unit whose segment was pressed. */
-  at: 'quantity' | 'remove' | ProductUnit;
+  /** `quantity`, `remove`, `note`, or the unit whose segment was pressed. */
+  at: 'quantity' | 'remove' | 'note' | ProductUnit;
   message: string;
 }
 
@@ -54,6 +58,10 @@ export interface BuyableProduct {
   name: string;
   prices: UnitPrices;
   packaging: ProductPackagingInfo;
+  /** Whether this product's line takes a free-text note (FR-CART-08), and its
+   * own wording for the question. */
+  lineNoteEnabled: boolean;
+  lineNotePrompt: string | null;
 }
 
 /**
@@ -96,8 +104,11 @@ export interface BuyableProduct {
 @Component({
   selector: 'app-product-buy-controls',
   imports: [
+    AutoGrow,
     Button,
+    FieldLabel,
     Icon,
+    IconButton,
     Input,
     NgTemplateOutlet,
     NumericField,
@@ -109,6 +120,9 @@ export interface BuyableProduct {
     <!-- Fragments, so the two arrangements are two orders of the same five
          blocks rather than two copies of them. -->
     <ng-template #priceBlock>
+      <!-- The note shares the price's line rather than getting one of its own:
+           it is the only other thing that belongs to the line as a whole, and
+           a card has no row to spare for a control most products never show. -->
       <div class="flex items-center justify-between gap-2">
         <p [class]="priceClass()">
           {{ price() }}
@@ -119,6 +133,61 @@ export interface BuyableProduct {
              price row — the cart's bin — and it is the only place a control
              belongs that is neither a choice nor the action. -->
         <ng-content select="[priceAction]" />
+
+        @if (asksForNote()) {
+          <div class="relative flex">
+            <button
+              type="button"
+              appIconButton
+              shape="plain"
+              [variant]="hasNote() ? 'marked' : 'default'"
+              [attr.aria-label]="hasNote() ? text.noteEdit : text.noteAdd"
+              [title]="hasNote() ? text.noteEdit : text.noteAdd"
+              (click)="openNote()"
+            >
+              <!-- The glyph says whether anything is written. -->
+              <app-icon
+                [name]="
+                  hasNote() ? 'message-circle-check' : 'message-circle-plus'
+                "
+                class="h-4 w-4"
+              />
+            </button>
+
+            @if (popup(); as open) {
+              @if (open.at === 'note') {
+                <!-- Upwards: everything else on this block is below the price
+                     line, and a bubble over the stepper and the button is one
+                     the customer has to clear before buying. -->
+                <app-popover
+                  align="end"
+                  placement="above"
+                  [roomy]="true"
+                  (dismissed)="dismiss()"
+                >
+                  <!-- The product's question is the field's placeholder, not
+                       a line under it: it is what to write, and it is read
+                       while the field is empty — which is the only time it has
+                       anything to say. -->
+                  <label class="block">
+                    <span appFieldLabel>{{ text.noteLabel }}</span>
+                    <textarea
+                      appInput
+                      appAutoGrow
+                      rows="3"
+                      class="w-full"
+                      [attr.maxlength]="noteMax"
+                      [attr.placeholder]="notePrompt()"
+                      [value]="ownNote()"
+                      (input)="onNoteInput($event)"
+                      (blur)="saveNote()"
+                    ></textarea>
+                  </label>
+                </app-popover>
+              }
+            }
+          </div>
+        }
       </div>
     </ng-template>
 
@@ -339,6 +408,13 @@ export class ProductBuyControls {
    * placeholder on every load and every change of unit.
    */
   readonly image = input<CatalogImage | null>(null);
+  /**
+   * True where the caller shows a note field of its own — the product page's
+   * buying block, and the cart, which writes one under every line. The
+   * controls then record what they are given and offer no button: two ways to
+   * write the same note, side by side, is one too many.
+   */
+  readonly externalNote = input(false);
   /** False in the product editor's live preview: the block is there to show
    * what a visitor will see, not to fill a manager's own cart. */
   readonly canAdd = input(true);
@@ -361,6 +437,7 @@ export class ProductBuyControls {
   protected readonly row = computed(() => this.layout() === 'row');
 
   protected readonly radioName = `unit-${nextGroupId++}`;
+  protected readonly noteMax = CART_NOTE_MAX;
 
   protected readonly packaging = computed(() => this.item().packaging);
   protected readonly options = computed(() =>
@@ -394,6 +471,28 @@ export class ProductBuyControls {
   );
   protected readonly quantity = computed(
     () => this.line()?.quantity ?? this.chosenQuantity(),
+  );
+
+  /**
+   * The note as these controls hold it, where nothing else does. Seeded from
+   * the cart's line so the bubble opens on what was written, and reset when
+   * the product changes — a note belongs to the line it was typed for.
+   */
+  protected readonly ownNote = linkedSignal<string, string>({
+    source: () => this.item().slug,
+    computation: () => this.line()?.note ?? '',
+  });
+
+  /** Whether these controls own the note: the product takes one and no caller
+   * has offered a field for it. */
+  protected readonly asksForNote = computed(
+    () => this.item().lineNoteEnabled && !this.externalNote(),
+  );
+  protected readonly hasNote = computed(
+    () => (this.effectiveNote() ?? '').trim() !== '',
+  );
+  protected readonly notePrompt = computed(
+    () => this.item().lineNotePrompt ?? this.text.notePrompt,
   );
 
   protected readonly popup = signal<Popup | null>(null);
@@ -569,6 +668,25 @@ export class ProductBuyControls {
     this.edited();
   }
 
+  protected openNote(): void {
+    this.popup.set({ at: 'note', message: '' });
+  }
+
+  protected onNoteInput(event: Event): void {
+    this.ownNote.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  /**
+   * Written to the cart when the field is left, not on every keystroke: a note
+   * is a sentence, and a line rewritten letter by letter is a line the browser
+   * stores dozens of times to record one. A product not yet in the cart keeps
+   * it here until it is added.
+   */
+  protected saveNote(): void {
+    if (this.inCart())
+      this.cart.setNote(this.item().slug, this.effectiveNote());
+  }
+
   /** A segment the product has no price for answers for itself rather than
    * being missing from the row. */
   protected explainUnit(unit: ProductUnit): void {
@@ -702,6 +820,14 @@ export class ProductBuyControls {
     this.cart.setLine({ ...this.addition(), unit, quantity });
   }
 
+  /** What will be recorded with the line: the caller's note where it manages
+   * one, otherwise the controls' own. */
+  private effectiveNote(): string | null {
+    if (this.externalNote()) return this.note();
+    const own = this.ownNote().trim();
+    return own === '' ? null : own;
+  }
+
   private addition() {
     const item = this.item();
     return {
@@ -709,7 +835,7 @@ export class ProductBuyControls {
       name: item.name,
       unit: this.unit(),
       quantity: this.quantity(),
-      note: this.note(),
+      note: this.effectiveNote(),
       // Never undefined: callers hand over the product's first photo, and a
       // product with none has no first element. What is written down has to
       // survive `JSON.stringify`, which drops an undefined field — and a
@@ -717,6 +843,8 @@ export class ProductBuyControls {
       image: this.image() ?? null,
       prices: item.prices,
       packaging: item.packaging,
+      lineNoteEnabled: item.lineNoteEnabled,
+      lineNotePrompt: item.lineNotePrompt,
     };
   }
 

@@ -48,6 +48,7 @@ import {
   packagingOf,
   publiclyVisible,
   toListItem,
+  noteColumns,
   unitColumns,
   unitPricesOf,
 } from './product-view';
@@ -153,6 +154,7 @@ export class CatalogService {
         priceMinor: price,
         images: products.images,
         ...unitColumns,
+        ...noteColumns,
       })
       .from(products)
       .where(where)
@@ -236,6 +238,7 @@ export class CatalogService {
           priceMinor: price,
           images: products.images,
           ...unitColumns,
+          ...noteColumns,
         })
         .from(products)
         .where(where)

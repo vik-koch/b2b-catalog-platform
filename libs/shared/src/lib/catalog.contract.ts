@@ -114,6 +114,12 @@ export const productListItemSchema = z
     prices: unitPricesSchema,
     packaging: productPackagingSchema,
     images: z.array(catalogImageSchema),
+    /** Whether this product's line takes a free-text note (FR-CART-08). A
+     * listing sells as readily as the product page does, so it has to know:
+     * the buying controls ask for the note before the first add. */
+    lineNoteEnabled: z.boolean(),
+    /** The product's own wording for the note; null falls back to app-text. */
+    lineNotePrompt: z.string().nullable(),
   })
   .strict();
 export type ProductListItem = z.infer<typeof productListItemSchema>;
@@ -221,8 +227,7 @@ export const productDetailSchema = z
     descriptionHtml: z.string(),
     images: z.array(catalogImageSchema),
     attributes: z.array(productDetailAttributeSchema),
-    /** Whether the buying block offers a free-text note (FR-CART-08). Detail
-     * only: a grid tile has no quantity control to attach one to. */
+    /** Whether the buying block offers a free-text note (FR-CART-08). */
     lineNoteEnabled: z.boolean(),
     /** The product's own wording for the note; null falls back to app-text. */
     lineNotePrompt: z.string().nullable(),
