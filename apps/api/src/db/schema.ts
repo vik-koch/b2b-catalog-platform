@@ -765,10 +765,16 @@ export const orderItems = pgTable(
     // The thumb URL only. Covered by the media-prune reference scan, like
     // `products.images` and `categories.image`.
     thumbnail: text('thumbnail'),
+    // The lens the line was bought through, and the piece count it was read
+    // out of. `pieces` is the quantity: `quantity` is that reading, frozen, so
+    // an order still says "0.2 bx" after the product is repacked. Nothing is
+    // ever derived from it.
     unit: varchar('unit', { length: 10 }).notNull(),
-    // In the chosen unit, and the pieces that came to — the unit is never
-    // normalized, so four packs stay four packs even where a box holds four.
-    quantity: integer('quantity').notNull(),
+    quantity: numeric('quantity', {
+      precision: 12,
+      scale: 3,
+      mode: 'number',
+    }).notNull(),
     pieces: integer('pieces').notNull(),
     // The tier-resolved price of `priceBasisPieces` pieces, as it stood.
     priceMinor: integer('priceMinor').notNull(),
@@ -784,7 +790,9 @@ export const orderItems = pgTable(
     check('order_items_unit_known', oneOf('unit', PRODUCT_UNITS)),
     check(
       'order_items_quantities_positive',
-      sql`${t.quantity} >= 1 and ${t.pieces} >= 1 and ${t.priceBasisPieces} >= 1`,
+      // The reading only has to be positive: a line of two packs read as boxes
+      // is 0.2 of one.
+      sql`${t.quantity} > 0 and ${t.pieces} >= 1 and ${t.priceBasisPieces} >= 1`,
     ),
     // The exactness rule, in the database: a line total is a multiplication of
     // whole basis units, with nothing rounded.
