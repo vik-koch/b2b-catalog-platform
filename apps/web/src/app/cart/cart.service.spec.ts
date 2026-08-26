@@ -21,7 +21,13 @@ function pieceAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     unit: 'piece',
     quantity: 1,
     note: null,
-    prices: { pieceLotMinor: 1250, pack: null, box: null },
+    image: null,
+    prices: {
+      pieceMilliMinor: 1250,
+      pieceLotMinor: 1250,
+      pack: null,
+      box: null,
+    },
     packaging: { ...plainPackaging },
     ...overrides,
   };
@@ -35,7 +41,13 @@ function packAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     unit: 'pack',
     quantity: 1,
     note: null,
-    prices: { pieceLotMinor: 7500, pack: 7000, box: 27000 },
+    image: null,
+    prices: {
+      pieceMilliMinor: 1250,
+      pieceLotMinor: 7500,
+      pack: 7000,
+      box: 27000,
+    },
     packaging: { ...packagedPackaging },
     ...overrides,
   };
@@ -149,7 +161,12 @@ describe('CartService', () => {
     cart.add(pieceAddition({ quantity: 2 }));
     cart.add(
       packAddition({
-        prices: { pieceLotMinor: null, pack: null, box: null },
+        prices: {
+          pieceMilliMinor: 1250,
+          pieceLotMinor: null,
+          pack: null,
+          box: null,
+        },
       }),
     );
 
@@ -222,6 +239,12 @@ describe('CartService', () => {
           addedAt: '2026-08-01T00:00:00.000Z',
           unitPriceMinor: 7000,
           lineTotalMinor: 14000,
+          prices: packAddition().prices,
+          packaging: packAddition().packaging,
+          image: null,
+          boxVolume: '1.500',
+          boxWeight: '9.000',
+          boxCount: 1,
         },
       ],
     });
@@ -249,6 +272,12 @@ describe('CartService', () => {
           addedAt: '2026-08-01T00:00:00.000Z',
           unitPriceMinor: 100,
           lineTotalMinor: 400,
+          prices: pieceAddition().prices,
+          packaging: pieceAddition().packaging,
+          image: null,
+          boxVolume: null,
+          boxWeight: null,
+          boxCount: null,
         },
       ],
     });
@@ -287,6 +316,12 @@ describe('CartService', () => {
           addedAt: '2026-08-01T00:00:00.000Z',
           unitPriceMinor: 1250,
           lineTotalMinor: 1250,
+          prices: pieceAddition().prices,
+          packaging: pieceAddition().packaging,
+          image: null,
+          boxVolume: null,
+          boxWeight: null,
+          boxCount: null,
         },
       ],
     });
@@ -314,6 +349,9 @@ describe('CartService', () => {
           name: 'Filter Roast',
           image: null,
           packaging: { ...packagedPackaging },
+          boxVolume: null,
+          boxWeight: null,
+          boxCount: 1,
           prices: {
             pieceMilliMinor: 1250,
             pieceLotMinor: 7500,

@@ -96,6 +96,20 @@ export const cartPreviewLineSchema = z
     image: catalogImageSchema.nullable(),
     packaging: productPackagingSchema.nullable(),
     prices: unitPricesSchema.nullable(),
+    /**
+     * What one box unit weighs and takes up, and how many cartons it ships as
+     * — null where the product states none, and null throughout for a product
+     * that is gone.
+     *
+     * Sent for the same reason the prices are: with them the browser can add
+     * the estimate up itself between an edit and the answer to it, so the
+     * consignment moves with the stepper instead of a beat behind it. The
+     * figures are per box unit, never multiplied by `boxCount`
+     * (`shipmentEstimate` owns that arithmetic).
+     */
+    boxVolume: z.string().nullable(),
+    boxWeight: z.string().nullable(),
+    boxCount: z.number().int().positive().nullable(),
     /** Exact, or null where the line cannot be priced. */
     lineTotalMinor: z.number().int().nonnegative().nullable(),
     issues: z.array(z.enum(CART_LINE_ISSUES)),

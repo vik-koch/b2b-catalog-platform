@@ -69,6 +69,7 @@ type ProductRow = {
   boxWeight: string | null;
   boxCount: number;
   lineNoteEnabled: boolean;
+  lineNotePrompt: string | null;
   priceBasisPieces: number;
   piecesPerPack: number | null;
   packsPerBox: number | null;
@@ -136,6 +137,7 @@ async function loadProducts(
       boxWeight: products.boxWeight,
       boxCount: products.boxCount,
       lineNoteEnabled: products.lineNoteEnabled,
+      lineNotePrompt: products.lineNotePrompt,
       ...unitColumns,
     })
     .from(products)
@@ -163,6 +165,9 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
         image: null,
         packaging: null,
         prices: null,
+        boxVolume: null,
+        boxWeight: null,
+        boxCount: null,
         lineTotalMinor: null,
         issues: ['unavailable'],
       },
@@ -223,6 +228,9 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
       image,
       packaging,
       prices,
+      boxVolume: product.boxVolume,
+      boxWeight: product.boxWeight,
+      boxCount: product.boxCount,
       lineTotalMinor,
       issues,
     },

@@ -1,36 +1,50 @@
-import { Component, computed, effect, inject, resource } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import {
-  CartLineIssue,
-  CartPreviewLine,
-  ProductUnit,
-} from '@b2b-catalog-platform/shared';
+  Component,
+  computed,
+  effect,
+  inject,
+  resource,
+  signal,
+  untracked,
+} from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { CartLineIssue, ProductUnit } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
-import { ImagePlaceholder } from '../catalog/image-placeholder';
+import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { debounced } from '../core/debounced';
 import { delayedLoading } from '../core/delayed-loading';
 import { fillText } from '../core/fill-text';
 import { usePageSeo } from '../core/page-seo';
+import { stableValue } from '../core/stable-value';
 import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import { ConfirmService } from '../ui/confirm.service';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
 import { CartPreviewService } from './cart-preview.service';
-import { CartService, CartStoredLine } from './cart.service';
+import { CartService } from './cart.service';
 
-/** A line as this page draws it: what is stored, dressed with whatever the
- * fresh pricing added. */
+/**
+ * A line as this page draws it: the product the row's controls edit, plus what
+ * belongs to the line rather than to the product — its note, and whatever
+ * preview had to say about it.
+ *
+ * `item` is built from the *stored* line, not from the priced answer: the
+ * controls have to be there on the first frame and have to survive a preview
+ * that fails, which is why the cart keeps a line's prices and packaging.
+ */
 interface CartRow {
-  line: CartStoredLine;
-  unitLabel: string;
-  quantity: number;
+  /** Slug and unit, the way a line is identified. */
+  key: string;
+  slug: string;
+  unit: ProductUnit;
+  available: boolean;
+  item: RowProduct;
   name: string;
   note: string | null;
-  image: { thumb: string; alt: string } | null;
-  total: string;
   issues: string[];
 }
 
@@ -44,14 +58,28 @@ interface CartRow {
  * says so; taking it out is the customer's action. A cart that quietly
  * shortened itself between two glances is worse than one that explains itself.
  *
- * Editing quantities, changing a line's unit and paginating a long cart are
- * the next slice; this one adds, shows, removes and clears.
+ * A line is the same product row a listing draws, carrying the same buying
+ * controls: the unit selector and the stepper edit the line in place, so there
+ * is no separate way to change a cart from the way it was filled. What the row
+ * adds here is a tick box and a bin — and the ticks are what "empty the cart"
+ * used to be, since selecting all of them and deleting the selection says the
+ * same thing without a control that only ever does one thing.
  */
 @Component({
   selector: 'app-cart-page',
-  imports: [Button, Icon, IconButton, ImagePlaceholder, RouterLink, Skeleton],
+  imports: [
+    Button,
+    Checkbox,
+    Icon,
+    IconButton,
+    ProductRow,
+    RouterLink,
+    Skeleton,
+  ],
   template: `
-    <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
+    <h1 class="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">
+      {{ text.title }}
+    </h1>
 
     @if (cart.isEmpty()) {
       <p class="text-subtle">{{ text.empty }}</p>
@@ -68,116 +96,174 @@ interface CartRow {
         </p>
       }
 
-      <div class="grid gap-8 lg:grid-cols-[1fr_20rem]">
-        <ul class="divide-y divide-border border-y border-border">
-          @for (row of rows(); track row.line.slug + row.line.unit) {
-            <li class="flex gap-4 py-4">
-              <a
-                [routerLink]="['/product', row.line.slug]"
-                class="h-20 w-20 shrink-0"
+      <!-- The summary moves out to the right only where taking its width off
+           the lines still leaves them their three columns (ProductRow's own
+           49rem, plus the 1.5rem the tick box takes off every line here). One
+           notch earlier, the column arrived by rearranging every line beside
+           it — one drag of the window edge redrew the whole page.
+
+           Measured on the page rather than on the window: the frame's padding
+           and the scrollbar are most of a column of controls, and the media
+           query cannot see either. -->
+      <div class="@container/cart">
+        <div class="grid gap-8 @min-[72.5rem]/cart:grid-cols-[1fr_20rem]">
+          <div>
+            <!-- Above the lines and left-aligned with them: what these two do is
+               done *to* the ticks below, so they read before the first row
+               rather than after the last. -->
+            <div class="flex items-center gap-4 pb-2 text-sm">
+              <!-- A tick box of its own, in the column the rows' tick boxes are
+                 in: it is the same control, applied to all of them. Half
+                 ticked while only some are — the box says what the ticks below
+                 add up to. -->
+              <label class="flex cursor-pointer items-center gap-2 text-accent">
+                <input
+                  type="checkbox"
+                  appCheckbox
+                  [checked]="allSelected()"
+                  [indeterminate]="someSelected() && !allSelected()"
+                  (change)="toggleAll()"
+                />
+                <span class="hover:underline">
+                  {{ allSelected() ? text.clearSelection : text.selectAll }}
+                </span>
+              </label>
+              <!-- Disabled rather than hidden: a control that appears with the
+                 first tick moves the whole list down as it is ticked. -->
+              <button
+                type="button"
+                class="group flex cursor-pointer items-center gap-1.5 text-red-700 disabled:cursor-not-allowed disabled:text-stone-400"
+                [disabled]="selectedCount() === 0"
+                (click)="deleteSelected()"
               >
-                @if (row.image; as image) {
-                  <img
-                    [src]="image.thumb"
-                    [alt]="image.alt"
-                    class="h-20 w-20 rounded-md object-cover"
-                  />
-                } @else {
-                  <app-image-placeholder class="h-20 w-20 rounded-md" />
-                }
-              </a>
+                <app-icon name="trash-2" class="h-4 w-4" />
+                <span class="group-enabled:group-hover:underline">
+                  {{ text.deleteSelected }}
+                </span>
+              </button>
+            </div>
 
-              <div class="min-w-0 flex-1">
-                <a
-                  [routerLink]="['/product', row.line.slug]"
-                  class="font-medium hover:text-accent"
-                >
-                  {{ row.name }}
-                </a>
-                <p class="mt-1 text-sm text-subtle">
-                  {{ row.quantity }} × {{ row.unitLabel }}
-                </p>
-                @if (row.note) {
-                  <p class="mt-1 text-sm">
-                    <span class="text-subtle">{{ text.lineNote }}:</span>
-                    {{ row.note }}
-                  </p>
-                }
-                @for (issue of row.issues; track issue) {
-                  <p class="mt-1 text-sm text-amber-700">{{ issue }}</p>
-                }
-              </div>
+            <ul [class]="rowList">
+              <!-- Tracked by the product, not by the product and its unit: one
+                 product is one line, so changing its unit edits that line. On
+                 the key it would be a different line — the row would be torn
+                 down and rebuilt, and its photo would be fetched again. -->
+              @for (row of rows(); track row.slug) {
+                <li>
+                  <app-product-row
+                    [item]="row.item"
+                    [available]="row.available"
+                  >
+                    <!-- Level with the top of the photo, and as close to it as
+                       the tick above the list is to its own words, so the two
+                       read as the same control. -->
+                    <label rowSelect class="-mr-2 flex shrink-0 items-start">
+                      <input
+                        type="checkbox"
+                        appCheckbox
+                        [checked]="isSelected(row.key)"
+                        [attr.aria-label]="selectLabel(row)"
+                        (change)="toggle(row.key)"
+                      />
+                    </label>
 
-              <div class="flex flex-col items-end gap-2">
-                <span class="font-medium">{{ row.total }}</span>
-                <!-- Icon only: the product it removes is the row it sits in,
-                     so spelling the name out again made every line carry a
-                     sentence. It stays the button's accessible name. -->
-                <button
-                  type="button"
-                  appIconButton
-                  variant="danger"
-                  [attr.aria-label]="removeLabel(row)"
-                  (click)="remove(row)"
-                >
-                  <app-icon name="trash-2" class="h-4 w-4" />
-                </button>
-              </div>
-            </li>
-          }
-        </ul>
+                    @for (issue of row.issues; track issue) {
+                      <p class="mt-1 text-sm text-amber-700">{{ issue }}</p>
+                    }
 
-        <aside class="space-y-4">
-          <!-- One card, read top to bottom: what ships, when it is confirmed,
-               and what it comes to. Splitting the total off into a card of its
-               own made the customer read two boxes to answer one question. -->
-          <div class="rounded-lg border border-border p-5">
-            <h2 class="mb-3 font-medium">{{ text.shipmentTitle }}</h2>
-            <dl class="space-y-2 text-sm">
-              @for (row of shipmentRows(); track row.label) {
-                <div class="flex items-baseline justify-between gap-4">
-                  <dt class="text-subtle">{{ row.label }}</dt>
-                  <dd class="text-right">{{ row.value }}</dd>
-                </div>
-              } @empty {
-                @if (showSkeleton()) {
-                  <app-skeleton [lines]="3" />
-                }
+                    <!-- Icon only: the product it removes is the row it sits in,
+                       so spelling the name out again made every line carry a
+                       sentence. It stays the button's accessible name.
+
+                       It rides in the price row's own corner, above the
+                       figure the line comes to and well away from the stepper
+                       and the segments it must never be pressed instead of.
+                       The glyph alone: the disc is what an admin affordance
+                       laid over content wears, and this one sits in a line of
+                       it, beside the note button it must match. -->
+                    <button
+                      rowActions
+                      type="button"
+                      appIconButton
+                      shape="plain"
+                      variant="danger"
+                      class="shrink-0"
+                      [attr.aria-label]="removeLabel(row)"
+                      (click)="remove(row)"
+                    >
+                      <app-icon name="trash-2" class="h-4 w-4" />
+                    </button>
+                  </app-product-row>
+                </li>
               }
-              <div
-                class="flex items-baseline justify-between gap-4 border-t border-border pt-3"
-              >
-                <dt class="text-subtle">{{ text.subtotal }}</dt>
-                <dd class="text-xl font-bold text-primary">{{ subtotal() }}</dd>
-              </div>
-            </dl>
-            @if (!complete()) {
-              <p class="mt-2 text-sm text-amber-700">
-                {{ text.totalIncomplete }}
-              </p>
-            }
-            @if (shipmentRows().length) {
-              <p class="mt-3 text-xs text-subtle">
-                {{ text.shipmentApproximate }}
-              </p>
-              @if (uncoveredLines(); as count) {
-                <p class="mt-1 text-xs text-amber-700">
-                  {{ uncoveredMessage() }}
-                </p>
-              }
-            }
+            </ul>
           </div>
 
-          <button
-            type="button"
-            appButton
-            variant="dangerOutline"
-            class="w-full"
-            (click)="clear()"
+          <!-- Capped at the column's own width when it sits under the lines
+             rather than beside them: a summary of four figures stretched
+             across the page is four figures with a hand's width between the
+             label and the number. The cap comes off in the narrow shape,
+             where the page is one column of its own width and a card set to
+             three quarters of it reads as unfinished.
+
+             Pinned once it is a column, because the lines beside it are as
+             long as the cart is and the total is what the customer is editing
+             them against. Clear of the header, which is pinned too — and only
+             as tall as it needs to be, or a stretched column would fill the
+             row and have nowhere to travel. -->
+          <aside
+            class="max-w-80 space-y-4 @max-[593px]/cart:max-w-none @min-[72.5rem]/cart:sticky @min-[72.5rem]/cart:top-20 @min-[72.5rem]/cart:self-start"
           >
-            {{ text.clear }}
-          </button>
-        </aside>
+            <!-- One card, read top to bottom: what the order is, what it will
+               weigh and take up, when it is confirmed, and what it comes to.
+               Splitting the total off into a card of its own made the customer
+               read two boxes to answer one question. -->
+            <div class="rounded-lg border border-border p-5">
+              <h2 class="mb-3 font-medium">{{ text.summaryTitle }}</h2>
+              <dl class="space-y-2 text-sm">
+                <!-- How many lines is the cart's own answer, so it is stated
+                   before the estimate and whether or not one arrives. -->
+                <div class="flex items-baseline justify-between gap-4">
+                  <dt class="text-subtle">{{ text.summaryLines }}</dt>
+                  <dd class="text-right">{{ cart.count() }}</dd>
+                </div>
+                @for (row of shipmentRows(); track row.label) {
+                  <div class="flex items-baseline justify-between gap-4">
+                    <dt class="text-subtle">{{ row.label }}</dt>
+                    <dd class="text-right">{{ row.value }}</dd>
+                  </div>
+                } @empty {
+                  @if (showSkeleton()) {
+                    <app-skeleton [lines]="3" />
+                  }
+                }
+                <div
+                  class="flex items-baseline justify-between gap-4 border-t border-border pt-3"
+                >
+                  <dt class="text-subtle">{{ text.subtotal }}</dt>
+                  <dd class="text-xl font-bold text-primary">
+                    {{ subtotal() }}
+                  </dd>
+                </div>
+              </dl>
+              @if (!complete()) {
+                <p class="mt-2 text-sm text-amber-700">
+                  {{ text.totalIncomplete }}
+                </p>
+              }
+              @if (shipmentRows().length) {
+                <p class="mt-3 text-xs text-subtle">
+                  {{ text.shipmentApproximate }}
+                </p>
+                @if (uncoveredLines(); as count) {
+                  <p class="mt-1 text-xs text-amber-700">
+                    {{ uncoveredMessage() }}
+                  </p>
+                }
+              }
+            </div>
+          </aside>
+        </div>
       </div>
     }
   `,
@@ -191,7 +277,7 @@ export class CartPage {
   private readonly boxUnits = this.catalogConfig.boxUnits;
 
   protected readonly text = inject(APP_TEXT).cart;
-  private readonly unitText = inject(APP_TEXT).catalog.units;
+  protected readonly rowList = PRODUCT_ROWS;
 
   /**
    * Debounced so a run of edits — a removal, then another — costs one call
@@ -200,19 +286,43 @@ export class CartPage {
    */
   private readonly request = debounced(this.cart.request, 250);
 
+  /**
+   * The answer, and the cart it was an answer *to*. An edit made while a call
+   * is in flight would otherwise be undone by the reply to the cart as it was
+   * a moment ago: the rows are editable now, so an answer is only worth
+   * folding back while it still describes what is on screen.
+   */
   protected readonly preview = resource({
     params: () => ({ lines: this.request() }),
-    loader: ({ params }) =>
+    loader: async ({ params }) =>
       params.lines.length === 0
-        ? Promise.resolve(undefined)
-        : this.pricing.preview(params.lines),
+        ? undefined
+        : {
+            asked: JSON.stringify(params.lines),
+            value: await this.pricing.preview(params.lines),
+          },
   });
+
+  /**
+   * Held across reloads: every edit re-prices the cart, and without this the
+   * rows would drop back to a placeholder photo and an unnamed line for the
+   * length of each call — the page blinking once per press of `+`.
+   */
+  private readonly held = stableValue(this.preview);
+
+  /** The answer as the page reads it — undefined while none has arrived. */
+  private readonly answer = computed(() => this.held()?.value);
+
+  /** True while the answer on hand was computed for the cart as it stands. */
+  private readonly current = computed(
+    () => this.held()?.asked === JSON.stringify(this.cart.request()),
+  );
 
   protected readonly showSkeleton = delayedLoading(this.preview.isLoading);
 
   /** The priced answer, indexed the way lines are identified. */
   private readonly priced = computed(() => {
-    const value = this.preview.hasValue() ? this.preview.value() : undefined;
+    const value = this.answer();
     return new Map(
       (value?.lines ?? []).map((line) => [`${line.slug} ${line.unit}`, line]),
     );
@@ -221,37 +331,71 @@ export class CartPage {
   protected readonly rows = computed<CartRow[]>(() =>
     this.cart.lines().map((line) => {
       const fresh = this.priced().get(`${line.slug} ${line.unit}`);
-      const total = fresh ? fresh.lineTotalMinor : line.lineTotalMinor;
       return {
-        line,
-        unitLabel: this.unitName(line.unit),
-        quantity: fresh?.quantity ?? line.quantity,
-        name: fresh?.name ?? line.name,
-        note: fresh ? fresh.note : line.note,
-        image: this.imageOf(fresh, line.name),
-        total:
-          total === null
-            ? this.text.noPrice
-            : formatPriceMinor(total, this.currency),
+        key: `${line.slug} ${line.unit}`,
+        // A product preview answered no prices for is one the shop no longer
+        // offers: the row keeps the last-known figures so its controls can be
+        // drawn, and states none of them.
+        available: fresh ? fresh.prices !== null : true,
+        slug: line.slug,
+        unit: line.unit,
+        // Every part of the row from the browser's own copy, photo included:
+        // preview writes what it answers back into the store, so reading the
+        // answer here too would only mean redrawing the row from nothing for
+        // as long as a call is in flight — which is what made a line blink on
+        // every change of unit, the one edit that changes the key an answer
+        // is filed under.
+        item: {
+          slug: line.slug,
+          name: line.name,
+          prices: line.prices,
+          packaging: line.packaging,
+          images: line.image ? [line.image] : [],
+        },
+        name: line.name,
+        note: line.note,
         issues: (fresh?.issues ?? []).map((issue) => this.issueText(issue)),
       };
     }),
   );
 
-  /** The stored total until a fresh one arrives, so the figure never blanks
-   * between two prices. */
-  protected readonly subtotal = computed(() => {
-    const value = this.preview.hasValue() ? this.preview.value() : undefined;
-    return formatPriceMinor(
-      value?.totalMinor ?? this.cart.totalMinor(),
-      this.currency,
-    );
+  /**
+   * The ticked lines, by `slug unit`. Held here rather than on the rows so a
+   * re-priced cart does not drop the ticks, and intersected with the cart on
+   * every read so a line removed while ticked takes its tick with it.
+   */
+  private readonly ticked = signal<ReadonlySet<string>>(new Set());
+  protected readonly selected = computed(() => {
+    const keys = new Set(this.rows().map((row) => row.key));
+    return new Set([...this.ticked()].filter((key) => keys.has(key)));
   });
+  protected readonly selectedCount = computed(() => this.selected().size);
+  protected readonly someSelected = computed(() => this.selectedCount() > 0);
+  protected readonly allSelected = computed(
+    () => this.rows().length > 0 && this.selectedCount() === this.rows().length,
+  );
 
-  protected readonly complete = computed(() => {
-    const value = this.preview.hasValue() ? this.preview.value() : undefined;
-    return value?.complete ?? this.cart.totalComplete();
-  });
+  /**
+   * The cart's own arithmetic whenever the answer on hand is not an answer to
+   * *this* cart — which is every moment between an edit and the call that
+   * follows it. The browser holds the prices the server last quoted, so it can
+   * add up a changed cart itself; waiting for the round trip would leave the
+   * total a step behind the line the customer just changed.
+   */
+  protected readonly subtotal = computed(() =>
+    formatPriceMinor(
+      this.current()
+        ? (this.answer()?.totalMinor ?? this.cart.totalMinor())
+        : this.cart.totalMinor(),
+      this.currency,
+    ),
+  );
+
+  protected readonly complete = computed(() =>
+    this.current()
+      ? (this.answer()?.complete ?? this.cart.totalComplete())
+      : this.cart.totalComplete(),
+  );
 
   /**
    * The shipment estimate as labelled rows (FR-UNIT-11), empty before one has
@@ -263,27 +407,46 @@ export class CartPage {
    * a manager prices and confirms, so a computed date would be the one figure
    * on this card the shop has not agreed to.
    */
+  /**
+   * The estimate to show: the one this cart was answered with, and the cart's
+   * own arithmetic whenever that answer describes a cart the customer has
+   * since changed — the same rule the subtotal follows, so the consignment and
+   * the total never disagree about which cart they are describing.
+   *
+   * Neither, and the card shows its skeleton, only while a line has never been
+   * priced: there is nothing to add up for it yet.
+   */
+  private readonly shipment = computed(() =>
+    this.current()
+      ? (this.answer()?.shipment ?? this.cart.estimate())
+      : this.cart.estimate(),
+  );
+
   protected readonly shipmentRows = computed<
     { label: string; value: string }[]
   >(() => {
-    const value = this.preview.hasValue() ? this.preview.value() : undefined;
-    if (!value || value.shipment.coveredLines === 0) return [];
-    const { shipment } = value;
-    const rows = [
-      { label: this.text.shipmentCartons, value: String(shipment.cartons) },
-    ];
-    if (shipment.volume) {
-      rows.push({
-        label: this.text.shipmentVolume,
-        value: `${shipment.volume} ${this.boxUnits.volume}`,
-      });
-    }
+    const shipment = this.shipment();
+    if (!shipment || shipment.coveredLines === 0) return [];
+    // What the consignment weighs and measures first, then how many cartons
+    // that comes to: the figures a customer checks against a delivery note
+    // read in that order.
+    const rows: { label: string; value: string }[] = [];
     if (shipment.weight) {
       rows.push({
         label: this.text.shipmentWeight,
         value: `${shipment.weight} ${this.boxUnits.weight}`,
       });
     }
+    if (shipment.volume) {
+      rows.push({
+        label: this.text.shipmentVolume,
+        value: `${shipment.volume} ${this.boxUnits.volume}`,
+      });
+    }
+    rows.push({
+      label: this.text.shipmentCartons,
+      value: String(shipment.cartons),
+    });
     rows.push({
       label: this.text.shipmentDelivery,
       value: this.text.shipmentDeliveryValue,
@@ -295,8 +458,7 @@ export class CartPage {
    * them all — a summary of half the cart says so rather than omitting the
    * rest in silence. */
   protected readonly uncoveredLines = computed(() => {
-    const value = this.preview.hasValue() ? this.preview.value() : undefined;
-    const uncovered = value?.shipment.uncoveredLines ?? 0;
+    const uncovered = this.shipment()?.uncoveredLines ?? 0;
     return uncovered > 0 ? uncovered : null;
   });
 
@@ -313,10 +475,15 @@ export class CartPage {
     // A fresh answer is also a fresh baseline: corrected quantities, dropped
     // notes and current prices go back into the store, so the header agrees
     // with this page and FR-CART-10 compares against what was last seen.
+    //
+    // Only while the answer still describes the cart, and never as a read of
+    // the cart itself — folding an answer in is a write, and an effect that
+    // watched what it wrote would put the reply to a stale cart back on top of
+    // the edit that made it stale.
     effect(() => {
-      if (!this.preview.hasValue()) return;
-      const value = this.preview.value();
-      if (value) this.cart.applyPreview(value);
+      const value = this.answer();
+      if (value && this.current())
+        untracked(() => this.cart.applyPreview(value));
     });
   }
 
@@ -324,32 +491,52 @@ export class CartPage {
     return fillText(this.text.remove, { name: row.name });
   }
 
-  protected remove(row: CartRow): void {
-    this.cart.remove(row.line.slug, row.line.unit);
+  protected selectLabel(row: CartRow): string {
+    return fillText(this.text.selectLine, { name: row.name });
   }
 
-  protected async clear(): Promise<void> {
+  protected isSelected(key: string): boolean {
+    return this.selected().has(key);
+  }
+
+  protected toggle(key: string): void {
+    const next = new Set(this.selected());
+    if (!next.delete(key)) next.add(key);
+    this.ticked.set(next);
+  }
+
+  /** One control for both directions: it offers the whole cart until the whole
+   * cart is ticked, and gives the ticks back after that. */
+  protected toggleAll(): void {
+    this.ticked.set(
+      this.allSelected()
+        ? new Set()
+        : new Set(this.rows().map((row) => row.key)),
+    );
+  }
+
+  protected remove(row: CartRow): void {
+    this.cart.remove(row.slug, row.unit);
+  }
+
+  /** Bulk and irreversible, so it asks first — unlike the bin on a single row,
+   * where what was removed is one line the customer is looking at. */
+  protected async deleteSelected(): Promise<void> {
+    const keys = this.selected();
+    if (keys.size === 0) return;
     const ok = await this.confirm.ask({
-      heading: this.text.clearHeading,
-      message: fillText(this.text.clearConfirm, { count: this.cart.count() }),
-      confirmLabel: this.text.clear,
+      heading: this.text.deleteSelectedHeading,
+      message: fillText(this.text.deleteSelectedConfirm, { count: keys.size }),
+      confirmLabel: this.text.deleteSelected,
       cancelLabel: this.text.cancel,
     });
-    if (ok) this.cart.clear();
-  }
-
-  private unitName(unit: ProductUnit): string {
-    if (unit === 'pack') return this.unitText.packName;
-    if (unit === 'box') return this.unitText.boxName;
-    return this.unitText.pieceName;
-  }
-
-  private imageOf(
-    line: CartPreviewLine | undefined,
-    name: string,
-  ): { thumb: string; alt: string } | null {
-    if (!line?.image) return null;
-    return { thumb: line.image.thumb, alt: name };
+    if (!ok) return;
+    for (const line of this.cart.lines()) {
+      if (keys.has(`${line.slug} ${line.unit}`)) {
+        this.cart.remove(line.slug, line.unit);
+      }
+    }
+    this.ticked.set(new Set());
   }
 
   private issueText(issue: CartLineIssue): string {

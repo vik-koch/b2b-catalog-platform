@@ -12,17 +12,21 @@ import {
   CART_NOTE_MAX,
   CartLine,
   CartPreview,
+  CatalogImage,
   exactLineTotal,
   LineUnitPrices,
-  ProductPackaging,
+  ProductPackagingInfo,
   ProductUnit,
+  shipmentEstimate,
+  ShipmentSummary,
+  UnitPrices,
 } from '@b2b-catalog-platform/shared';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
 
 /**
  * A line as the browser keeps it. Beyond what the contract needs
- * (`slug`/`unit`/`quantity`/`note`) it carries three things the server never
- * sees:
+ * (`slug`/`unit`/`quantity`/`note`) it carries what the browser has to be able
+ * to answer for itself:
  *
  * - `name`, so a line whose product has gone can still say which product it
  *   was — preview answers `null` for one, and a bare slug is not something to
@@ -31,6 +35,16 @@ import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
  *   compares against on the next visit. Both are recorded from the first
  *   version that stores a cart at all: a baseline that only starts later
  *   cannot describe what changed while a cart written today waited.
+ * - `prices`, `packaging` and the line's `image` as they stood when the line
+ *   was last seen, which is what lets the cart page draw a whole row — photo
+ *   and buying controls — from the browser alone: the unit selector and the
+ *   stepper need the packaging to correct a quantity and the prices to say
+ *   what the change costs, and none of it may wait for `POST /cart/preview`.
+ *   A cart whose rows arrive a beat before their photos is a page that
+ *   flickers on every load, and a failed preview would leave it with neither.
+ * - the box figures, for the same reason one step further on: with them the
+ *   browser adds up the shipment estimate itself, so what the order will weigh
+ *   moves with the stepper rather than a round trip behind it.
  *
  * `unitPriceMinor` is what *one* of the chosen unit cost (for pieces, one
  * minimum lot), so a quantity change does not read as a price change;
@@ -46,8 +60,26 @@ export interface CartStoredLine {
   addedAt: string;
   unitPriceMinor: number | null;
   lineTotalMinor: number | null;
+  prices: UnitPrices;
+  packaging: ProductPackagingInfo;
+  image: CatalogImage | null;
+  /**
+   * What one box unit of this product weighs and takes up, and how many
+   * cartons it ships as — the last the server said, and what lets the browser
+   * add up the shipment estimate itself.
+   *
+   * `boxCount` is null until a preview has answered for the line: a product
+   * page knows nothing about cartons, so a line that has only been added has
+   * not been told. Null is "not told", not "no box" — the estimate is withheld
+   * rather than computed from a figure nobody stated.
+   */
+  boxVolume: string | null;
+  boxWeight: string | null;
+  boxCount: number | null;
 }
 
+/** The whole cart as it is written down. Only the lines: everything the
+ * summary states is derived from them. */
 interface StoredCart {
   version: number;
   lines: CartStoredLine[];
@@ -61,8 +93,11 @@ export interface CartAddition {
   unit: ProductUnit;
   quantity: number;
   note: string | null;
-  prices: LineUnitPrices;
-  packaging: ProductPackaging;
+  prices: UnitPrices;
+  packaging: ProductPackagingInfo;
+  /** The photo the customer was looking at, so the cart can draw the line
+   * before it has asked the server anything. */
+  image: CatalogImage | null;
 }
 
 /** `full` when the cart already holds as many lines as may be priced in one
@@ -108,6 +143,36 @@ export class CartService {
   );
 
   readonly isEmpty = computed(() => this.stored().length === 0);
+
+  /**
+   * The shipment estimate (FR-UNIT-11) worked out from what is written down —
+   * the same arithmetic the server runs, on the same figures, so an edit moves
+   * the consignment the moment it is made rather than one round trip later.
+   * The summary is derived from the lines rather than stored beside them,
+   * exactly as the total is; two copies of one figure disagree the moment a
+   * quantity changes.
+   *
+   * Null until every line has been told its box figures. A cart holding one
+   * line nobody has priced yet cannot be added up honestly: the missing line
+   * would read as a weightless one, and a summary that quietly leaves a
+   * product out is worse than a summary that has not arrived — which is when
+   * the page shows its skeleton instead.
+   */
+  readonly estimate = computed<ShipmentSummary | null>(() => {
+    const lines = this.stored();
+    if (lines.length === 0) return null;
+    if (lines.some((line) => line.boxCount === null)) return null;
+    return shipmentEstimate(
+      lines.map((line) => ({
+        packaging: line.packaging,
+        unit: line.unit,
+        quantity: line.quantity,
+        boxVolume: line.boxVolume,
+        boxWeight: line.boxWeight,
+        boxCount: line.boxCount ?? 1,
+      })),
+    );
+  });
 
   /**
    * Set when the browser refused to store the cart — a full quota, or storage
@@ -188,6 +253,13 @@ export class CartService {
           note,
           name: addition.name,
           addedAt: new Date().toISOString(),
+          prices: addition.prices,
+          packaging: addition.packaging,
+          image: addition.image,
+          // Not told yet: the first preview fills these in.
+          boxVolume: null,
+          boxWeight: null,
+          boxCount: null,
           ...priceLine(addition, quantity),
         },
       ]);
@@ -199,6 +271,9 @@ export class CartService {
           quantity,
           note: note ?? lines[at].note,
           name: addition.name,
+          prices: addition.prices,
+          packaging: addition.packaging,
+          image: addition.image,
           ...priceLine(addition, quantity),
         }),
       );
@@ -224,6 +299,9 @@ export class CartService {
         quantity: addition.quantity,
         note: trimNote(addition.note) ?? lines[at].note,
         name: addition.name,
+        prices: addition.prices,
+        packaging: addition.packaging,
+        image: addition.image,
         ...priceLine(addition, addition.quantity),
       }),
     );
@@ -262,6 +340,18 @@ export class CartService {
         quantity: fresh.quantity,
         note: fresh.note,
         name: fresh.name ?? line.name,
+        // Kept where the answer has none: an unavailable product answers null
+        // for both, and the last-known figures are what still let the line's
+        // controls draw themselves.
+        prices: fresh.prices ?? line.prices,
+        packaging: fresh.packaging ?? line.packaging,
+        image: fresh.image ?? line.image,
+        // Kept where the answer has none, for the reason the prices are: an
+        // unavailable product answers null for all of them, and the last
+        // figures the shop stated are the ones the estimate was drawn from.
+        boxVolume: fresh.boxCount === null ? line.boxVolume : fresh.boxVolume,
+        boxWeight: fresh.boxCount === null ? line.boxWeight : fresh.boxWeight,
+        boxCount: fresh.boxCount ?? line.boxCount,
         unitPriceMinor:
           fresh.prices === null ? null : unitPriceOf(fresh.prices, line.unit),
         lineTotalMinor: fresh.lineTotalMinor,
@@ -270,14 +360,23 @@ export class CartService {
       // confirms the cart does not count as a change to it.
       return sameLine(line, updated) ? line : updated;
     });
+    // An answer that only confirms what is written down is not a change to it,
+    // so nothing here touches storage on every reply.
     if (next.some((line, at) => line !== current[at])) this.write(next);
   }
 
   private write(lines: CartStoredLine[]): void {
     this.stored.set(lines);
+    this.persist();
+  }
+
+  private persist(): void {
     if (!this.isBrowser) return;
     try {
-      const payload: StoredCart = { version: CART_STORAGE_VERSION, lines };
+      const payload: StoredCart = {
+        version: CART_STORAGE_VERSION,
+        lines: this.stored(),
+      };
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(payload));
       this.persistFailedState.set(false);
     } catch {
@@ -313,8 +412,20 @@ function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
     a.note === b.note &&
     a.name === b.name &&
     a.unitPriceMinor === b.unitPriceMinor &&
-    a.lineTotalMinor === b.lineTotalMinor
+    a.lineTotalMinor === b.lineTotalMinor &&
+    a.boxVolume === b.boxVolume &&
+    a.boxWeight === b.boxWeight &&
+    a.boxCount === b.boxCount &&
+    // By value: preview hands back fresh objects every time, and comparing
+    // them by identity would rewrite the whole cart on every answer.
+    same(a.prices, b.prices) &&
+    same(a.packaging, b.packaging) &&
+    same(a.image, b.image)
   );
+}
+
+function same(a: unknown, b: unknown): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 function keyOf(slug: string, unit: ProductUnit): string {
@@ -372,6 +483,48 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     Number.isInteger(candidate.quantity) &&
     candidate.quantity > 0 &&
     (candidate.note === null || typeof candidate.note === 'string') &&
-    typeof candidate.name === 'string'
+    typeof candidate.name === 'string' &&
+    isPrices(candidate.prices) &&
+    isPackaging(candidate.packaging) &&
+    isImage(candidate.image) &&
+    (candidate.boxVolume === null || typeof candidate.boxVolume === 'string') &&
+    (candidate.boxWeight === null || typeof candidate.boxWeight === 'string') &&
+    (candidate.boxCount === null || Number.isInteger(candidate.boxCount))
+  );
+}
+
+function isImage(image: unknown): image is CatalogImage | null {
+  const candidate = image as CatalogImage | null;
+  return (
+    candidate === null ||
+    (!!candidate &&
+      typeof candidate.thumb === 'string' &&
+      typeof candidate.full === 'string')
+  );
+}
+
+/** A number field of a hand-editable payload: the figure, or nothing. */
+function isNullableNumber(value: unknown): boolean {
+  return value === null || typeof value === 'number';
+}
+
+function isPrices(prices: unknown): prices is UnitPrices {
+  const candidate = prices as UnitPrices | null;
+  return (
+    !!candidate &&
+    typeof candidate.pieceMilliMinor === 'number' &&
+    isNullableNumber(candidate.pieceLotMinor) &&
+    isNullableNumber(candidate.pack) &&
+    isNullableNumber(candidate.box)
+  );
+}
+
+function isPackaging(packaging: unknown): packaging is ProductPackagingInfo {
+  const candidate = packaging as ProductPackagingInfo | null;
+  return (
+    !!candidate &&
+    isNullableNumber(candidate.piecesPerPack) &&
+    isNullableNumber(candidate.packsPerBox) &&
+    typeof candidate.minPieceQty === 'number'
   );
 }

@@ -240,10 +240,17 @@ export const appTextSchema = z
         removeQuestion: z.string(),
         removeYes: z.string(),
         removeNo: z.string(),
-        clear: z.string(),
-        clearHeading: z.string(),
+        /** A row's tick box, named by the product it selects: `{name}`. */
+        selectLine: z.string(),
+        /** The two controls above the lines. The first toggles: it offers the
+         * whole cart until the whole cart is ticked, and giving the ticks back
+         * after that. */
+        selectAll: z.string(),
+        clearSelection: z.string(),
+        deleteSelected: z.string(),
+        deleteSelectedHeading: z.string(),
         /** `{count}` lines. */
-        clearConfirm: z.string(),
+        deleteSelectedConfirm: z.string(),
         cancel: z.string(),
         subtotal: z.string(),
         /** Shown instead of a figure where a line cannot be priced. */
@@ -256,7 +263,12 @@ export const appTextSchema = z
          * these are row captions, and the figures beside them come from the
          * estimate and the deployment's own box units.
          */
-        shipmentTitle: z.string(),
+        /** The summary card beside the lines: what the order is, then what
+         * the estimate makes of it. */
+        summaryTitle: z.string(),
+        /** How many lines the cart holds — the cart's own figure, stated
+         * whether or not an estimate arrives. */
+        summaryLines: z.string(),
         shipmentCartons: z.string(),
         shipmentVolume: z.string(),
         shipmentWeight: z.string(),
