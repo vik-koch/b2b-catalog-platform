@@ -39,6 +39,28 @@ export function formatPriceMinor(
 }
 
 /**
+ * The same amount without its decimals ("1.250 €", "38 €") — for the header's
+ * running total, where the figure is a glance rather than a receipt.
+ *
+ * Rounded, and deliberately so. The alternative is a figure that changes width
+ * with its cents, and every time it does the navbar's icons move sideways; the
+ * exact total is one click away on the cart page, which is where a receipt
+ * belongs.
+ */
+export function formatPriceMinorShort(
+  priceMinor: number,
+  currency: CurrencyConfig,
+): string {
+  const digits = currencyFractionDigits(currency);
+  return new Intl.NumberFormat(currency.locale, {
+    style: 'currency',
+    currency: currency.code,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(priceMinor / 10 ** digits);
+}
+
+/**
  * Format a per-piece price, which arrives in thousandths of a minor unit
  * because a single piece cannot always be priced in whole cents.
  *

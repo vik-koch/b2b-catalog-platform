@@ -13,7 +13,11 @@ import { ImagePlaceholder } from './image-placeholder';
 const SWIPE_THRESHOLD_PX = 30;
 
 /**
- * The product-tile image slider (FR-CAT-04): no buttons. On a pointer device,
+ * The product-tile image slider (FR-CAT-04): no buttons.
+ *
+ * It fills whatever box the caller gives it (`aspect-square` on a card, the
+ * height of the line beside it in a row), so the shape of the photo is the
+ * caller's decision rather than one made in here. On a pointer device,
  * moving the cursor across the image scrubs through the photos — the image is
  * split into one zone per photo. On touch, a horizontal swipe steps between
  * them (and suppresses the tap so a swipe never navigates). The whole thing is
@@ -27,7 +31,7 @@ const SWIPE_THRESHOLD_PX = 30;
     <a
       [routerLink]="link()"
       [attr.aria-label]="productName()"
-      class="relative block aspect-square overflow-hidden bg-stone-100"
+      class="relative block h-full overflow-hidden bg-stone-100"
       (pointerenter)="revealNext()"
       (pointermove)="onScrub($event)"
       (pointerleave)="onPointerLeave($event)"

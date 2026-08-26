@@ -31,8 +31,15 @@ export type IconName =
   | 'lock'
   | 'pencil'
   | 'trash-2'
+  | 'minus'
+  | 'shopping-basket'
+  | 'circle-user-round'
   | 'book-check'
   | 'book-dashed'
+  | 'layout-grid'
+  | 'layout-list'
+  | 'message-circle-plus'
+  | 'message-circle-check'
   | 'plus';
 
 @Component({
@@ -126,6 +133,52 @@ export type IconName =
           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
           <line x1="10" x2="10" y1="11" y2="17" />
           <line x1="14" x2="14" y1="11" y2="17" />
+        }
+        @case ('minus') {
+          <path d="M5 12h14" />
+        }
+        @case ('shopping-basket') {
+          <path d="m15 11-1 9" />
+          <path d="m19 11-4-7" />
+          <path d="M2 11h20" />
+          <path
+            d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"
+          />
+          <path d="M4.5 15.5h15" />
+          <path d="m5 11 4-7" />
+          <path d="m9 11 1 9" />
+        }
+        @case ('circle-user-round') {
+          <path d="M17.925 20.056a6 6 0 0 0-11.851.001" />
+          <circle cx="12" cy="11" r="4" />
+          <circle cx="12" cy="12" r="10" />
+        }
+        @case ('message-circle-plus') {
+          <path
+            d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"
+          />
+          <path d="M8 12h8" />
+          <path d="M12 8v8" />
+        }
+        @case ('message-circle-check') {
+          <path
+            d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"
+          />
+          <path d="m9 12 2 2 4-4" />
+        }
+        @case ('layout-grid') {
+          <rect width="7" height="7" x="3" y="3" rx="1" />
+          <rect width="7" height="7" x="14" y="3" rx="1" />
+          <rect width="7" height="7" x="14" y="14" rx="1" />
+          <rect width="7" height="7" x="3" y="14" rx="1" />
+        }
+        @case ('layout-list') {
+          <rect width="7" height="7" x="3" y="3" rx="1" />
+          <rect width="7" height="7" x="3" y="14" rx="1" />
+          <path d="M14 4h7" />
+          <path d="M14 9h7" />
+          <path d="M14 15h7" />
+          <path d="M14 20h7" />
         }
         @case ('plus') {
           <path d="M5 12h14" />

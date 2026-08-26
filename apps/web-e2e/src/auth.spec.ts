@@ -7,9 +7,11 @@ const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];
 const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 
-// The navbar account control is a plain link in both states; its label is the
-// visible text on desktop and screen-reader-only on mobile, so the accessible
-// name works either way.
+// The navbar account control is a plain link in both states, and its label
+// says which: "Account" once signed in, "Log in" while signed out. Both labels
+// are in the DOM so the two can cross-fade, but only the current one is in the
+// accessible name — which is the visible text on desktop and
+// screen-reader-only on mobile.
 const accountLink = (page: Page, label: string) =>
   page.getByRole('link', { name: label, exact: true });
 
@@ -27,7 +29,7 @@ test('the navbar account icon takes a signed-out visitor to the login page', asy
 }) => {
   await page.goto('/');
 
-  await accountLink(page, 'Account').click();
+  await accountLink(page, 'Log in').click();
 
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.locator('h1')).toHaveText('Log in');
@@ -52,7 +54,7 @@ test('signs the bootstrap admin in and lands them in the admin panel', async ({
 
   await page.getByRole('button', { name: 'Log out' }).click();
   await expect(page).toHaveURL('/');
-  await expect(accountLink(page, 'Account')).toBeAttached();
+  await expect(accountLink(page, 'Log in')).toBeAttached();
 });
 
 test('rejects wrong credentials without leaving the login page', async ({

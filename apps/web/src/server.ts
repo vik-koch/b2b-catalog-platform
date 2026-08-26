@@ -12,6 +12,8 @@ import { requireEnv } from './env';
 import { preloadAppText } from './app/config/app-text.server';
 import { getAdminText, preloadAdminText } from './app/config/admin-text.server';
 import { preloadDeploymentConfig } from './app/config/deployment-config.server';
+import { injectCartShell } from './app/cart/cart-shell.server';
+import { injectSessionShell } from './app/auth/session-shell.server';
 import { injectShellState } from './app/config/shell-state.server';
 import { isGatedPath, isMaintenanceOn } from './app/config/maintenance.server';
 import {
@@ -183,7 +185,11 @@ app.use(async (req, res, next) => {
     if (response && gated) {
       // No canonical here: the maintenance screen is not the content of the
       // URL it is answering, so it must not name one as its preferred form.
-      const html = injectNoindexMeta(injectShellState(await response.text()));
+      const html = injectNoindexMeta(
+        injectSessionShell(
+          injectCartShell(injectShellState(await response.text())),
+        ),
+      );
       const headers = new Headers(response.headers);
       headers.delete('content-length');
       await writeResponseToNodeResponse(
@@ -201,7 +207,12 @@ app.use(async (req, res, next) => {
       return;
     }
     const html = injectNoindexMeta(
-      injectCanonicalLink(injectShellState(await response.text()), req.path),
+      injectCanonicalLink(
+        injectSessionShell(
+          injectCartShell(injectShellState(await response.text())),
+        ),
+        req.path,
+      ),
     );
     const headers = new Headers(response.headers);
     headers.delete('content-length');

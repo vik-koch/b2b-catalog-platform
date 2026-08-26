@@ -11,6 +11,7 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { currentUrl } from '../core/current-url';
 import { AccountLink } from './account-link';
+import { CartLink } from './cart-link';
 import { CatalogLink } from './catalog-link';
 import { ContactInfo } from './contact-info';
 import { NAV_ACTION } from './nav-action';
@@ -20,7 +21,7 @@ import { Icon } from '../ui/icons/icon';
 /**
  * Two-row header, the conventional B2B/e-commerce split: a slim utility bar
  * (company pages + contact details) above a main bar that carries the brand
- * and the primary actions — search and the account link today, the cart later.
+ * and the primary actions — search, the catalogue, the cart and the account.
  *
  * On mobile there is no room for two rows: the utility bar is hidden, its
  * links move into the hamburger panel, the phone becomes a one-tap icon next
@@ -34,6 +35,7 @@ import { Icon } from '../ui/icons/icon';
     RouterLink,
     RouterLinkActive,
     AccountLink,
+    CartLink,
     CatalogLink,
     ContactInfo,
     Icon,
@@ -140,6 +142,7 @@ import { Icon } from '../ui/icons/icon';
             }}</span>
           </button>
           <app-catalog-link />
+          <app-cart-link />
           <app-account-link />
           <button
             type="button"

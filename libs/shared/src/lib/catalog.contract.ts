@@ -52,11 +52,17 @@ export const priceMinorSchema = z.number().int().nonnegative();
  *
  * `pieceMilliMinor` is the only sub-minor figure in the API — a single piece
  * cannot always be priced in cents (€19.99 for ten is €1.999 each). It is a
- * comparison figure: multiplying it will disagree with the server.
+ * comparison figure for display: multiplying it will disagree with the server.
+ * `pieceLotMinor` is the multiplicable one — what the smallest orderable piece
+ * quantity (`packaging.minPieceQty`) costs, exactly — so a piece line's total
+ * is computable without the price basis ever leaving the server. Null only
+ * where the stored basis does not divide that quantity, which is a broken
+ * invariant rather than a price of zero.
  */
 export const unitPricesSchema = z
   .object({
     pieceMilliMinor: z.number().int().nonnegative(),
+    pieceLotMinor: priceMinorSchema.nullable(),
     pack: priceMinorSchema.nullable(),
     box: priceMinorSchema.nullable(),
   })
@@ -108,6 +114,12 @@ export const productListItemSchema = z
     prices: unitPricesSchema,
     packaging: productPackagingSchema,
     images: z.array(catalogImageSchema),
+    /** Whether this product's line takes a free-text note (FR-CART-08). A
+     * listing sells as readily as the product page does, so it has to know:
+     * the buying controls ask for the note before the first add. */
+    lineNoteEnabled: z.boolean(),
+    /** The product's own wording for the note; null falls back to app-text. */
+    lineNotePrompt: z.string().nullable(),
   })
   .strict();
 export type ProductListItem = z.infer<typeof productListItemSchema>;
@@ -215,8 +227,7 @@ export const productDetailSchema = z
     descriptionHtml: z.string(),
     images: z.array(catalogImageSchema),
     attributes: z.array(productDetailAttributeSchema),
-    /** Whether the buying block offers a free-text note (FR-CART-08). Detail
-     * only: a grid tile has no quantity control to attach one to. */
+    /** Whether the buying block offers a free-text note (FR-CART-08). */
     lineNoteEnabled: z.boolean(),
     /** The product's own wording for the note; null falls back to app-text. */
     lineNotePrompt: z.string().nullable(),

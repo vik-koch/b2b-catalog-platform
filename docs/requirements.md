@@ -28,6 +28,7 @@ without renumbering.
 | FR-CAT-03 | Products within a selected category are shown as a paginated grid.                                                                                                                                                                                                                                                                                               |
 | FR-CAT-04 | A product list item displays an image gallery (slider), name and price, and links to the full product page. Its price detail follows FR-UNIT-08.                                                                                                                                                                                                                 |
 | FR-CAT-05 | A product page displays name, price, full rich-text description, an image gallery, and a table of custom attributes (e.g. color: blue). Prices follow FR-UNIT-05; the attribute table also carries the packaging facts of FR-UNIT-06. An attribute is stored only once it has both a name and a value; a half-filled row is dropped on save rather than refused. |
+| FR-CAT-06 | Product listings (category and search results) can be shown as a grid of cards or as a list of rows; both carry the same buying controls. The choice is remembered across visits and applies to every listing. Where the available width allows only one shape, both are shown in that shape and the choice is not offered.                                      |
 
 ### Units of Sale & Packaging (FR-UNIT)
 

@@ -4,7 +4,7 @@ import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import { CustomerType } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { addresses, users } from '../db/schema';
+import { addresses, orderItems, orders, users } from '../db/schema';
 
 export type UserRow = typeof users.$inferSelect;
 
@@ -162,8 +162,67 @@ export class UsersService {
       // removing the saved rows. The account row is never deleted, so the
       // cascade on the foreign key never fires — this is the deletion.
       await tx.delete(addresses).where(eq(addresses.userId, id));
+      await this.scrubOrders(tx, id);
       return this.anonymizeUser(tx, id, unusableHash);
     });
+  }
+
+  /**
+   * What the copy already promises: "past orders are kept for our bookkeeping,
+   * with your details removed from them". The orders stay — the line prices are
+   * what bookkeeping needs — and every free-text column that could name the
+   * customer goes.
+   *
+   * The address columns are overwritten rather than nulled: several are
+   * `not null`, and the fulfilment check constraint requires a delivery order
+   * to keep a destination. A scrubbed order still reads as an order.
+   */
+  private async scrubOrders(
+    tx: Pick<NodePgDatabase<typeof schema>, 'update' | 'select'>,
+    userId: string,
+  ): Promise<void> {
+    const scrubbed = '[removed]';
+    const mine = tx
+      .select({ id: orders.id })
+      .from(orders)
+      .where(eq(orders.userId, userId));
+
+    // Customer-typed, and perfectly capable of naming someone: "deliver to
+    // Anna, 0170…".
+    await tx
+      .update(orderItems)
+      .set({ note: null })
+      .where(inArray(orderItems.orderId, mine));
+
+    await tx
+      .update(orders)
+      .set({
+        contactName: scrubbed,
+        contactEmail: scrubbed,
+        contactPhone: scrubbed,
+        billingCompanyName: null,
+        billingCompanyId: null,
+        billingStreet: scrubbed,
+        billingStreet2: null,
+        billingPostalCode: scrubbed,
+        billingCity: scrubbed,
+        billingRegion: null,
+        billingPhone: null,
+        deliveryCompanyName: null,
+        // Kept non-null where it was set, so the fulfilment constraint holds.
+        deliveryStreet: sql`case when ${orders.deliveryStreet} is null then null else ${scrubbed} end`,
+        deliveryStreet2: null,
+        deliveryPostalCode: sql`case when ${orders.deliveryPostalCode} is null then null else ${scrubbed} end`,
+        deliveryCity: sql`case when ${orders.deliveryCity} is null then null else ${scrubbed} end`,
+        deliveryRegion: null,
+        deliveryPhone: null,
+        preferredTiming: null,
+        customerNote: null,
+        // Which list this customer was charged from — the same argument that
+        // nulls `users.tierId`.
+        tierKey: null,
+      })
+      .where(eq(orders.userId, userId));
   }
 
   private async anonymizeUser(

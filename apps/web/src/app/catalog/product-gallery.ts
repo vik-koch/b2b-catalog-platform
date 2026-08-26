@@ -12,25 +12,48 @@ import { ImagePlaceholder } from './image-placeholder';
 
 /**
  * The product-page image viewer (FR-CAT-05): one large image with a strip of
- * thumbnails to switch between them. The strip sits to the left of the main
- * image on desktop and above it on a phone. Selecting a thumbnail (click or
- * hover) swaps the main image; there is no auto-advance here — that belongs to
- * the compact list-tile gallery.
+ * thumbnails under it to switch between them. Under it at every width — the
+ * gallery now shares its row with two other columns, and a strip beside the
+ * image would take its width from the one thing on the page that has to stay
+ * large. Selecting a thumbnail (click or hover) swaps the main image; there is
+ * no auto-advance here — that belongs to the compact list-tile gallery.
  */
 @Component({
   selector: 'app-product-gallery',
   imports: [ImagePlaceholder],
   template: `
-    <div class="flex flex-col gap-3 sm:flex-row">
+    <div class="flex flex-col gap-3">
+      <div
+        data-main-image
+        class="aspect-square overflow-hidden rounded-xl bg-stone-100"
+      >
+        @if (current(); as img) {
+          @if (failed().has(img.full)) {
+            <app-image-placeholder [label]="productName()" />
+          } @else {
+            <!-- The page's largest element, and server-rendered: telling the
+                   browser so lets it start the fetch ahead of the other
+                   in-body images instead of at their priority. -->
+            <img
+              [src]="img.full"
+              [alt]="productName()"
+              class="h-full w-full object-cover"
+              fetchpriority="high"
+              (error)="markFailed(img.full)"
+            />
+          }
+        } @else {
+          <app-image-placeholder [label]="productName()" />
+        }
+      </div>
+
       @if (images().length > 1) {
-        <ul
-          class="order-2 flex gap-3 overflow-x-auto sm:order-1 sm:w-20 sm:flex-col sm:overflow-visible"
-        >
+        <ul class="flex gap-3 overflow-x-auto">
           @for (img of images(); track $index) {
             <li class="shrink-0">
               <button
                 type="button"
-                class="block aspect-square w-16 overflow-hidden rounded-md border-2 transition-colors sm:w-full"
+                class="block aspect-square w-16 overflow-hidden rounded-md border-2 transition-colors"
                 [class.border-accent]="$index === selected()"
                 [class.border-transparent]="$index !== selected()"
                 [attr.aria-current]="$index === selected() || null"
@@ -54,29 +77,6 @@ import { ImagePlaceholder } from './image-placeholder';
           }
         </ul>
       }
-
-      <div class="order-1 flex-1 sm:order-2">
-        <div class="aspect-square overflow-hidden rounded-xl bg-stone-100">
-          @if (current(); as img) {
-            @if (failed().has(img.full)) {
-              <app-image-placeholder [label]="productName()" />
-            } @else {
-              <!-- The page's largest element, and server-rendered: telling the
-                   browser so lets it start the fetch ahead of the other
-                   in-body images instead of at their priority. -->
-              <img
-                [src]="img.full"
-                [alt]="productName()"
-                class="h-full w-full object-cover"
-                fetchpriority="high"
-                (error)="markFailed(img.full)"
-              />
-            }
-          } @else {
-            <app-image-placeholder [label]="productName()" />
-          }
-        </div>
-      </div>
     </div>
   `,
 })

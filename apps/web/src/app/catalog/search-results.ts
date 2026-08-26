@@ -12,8 +12,11 @@ import { LoadErrorView } from '../pages/load-error-view';
 import { Button } from '../ui/button';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
-import { FacetPanel } from './facet-panel';
-import { ProductTile } from './product-tile';
+import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
+import { ProductLayoutService } from './product-layout';
+import { ProductLayoutToggle } from './product-layout-toggle';
+import { PRODUCT_ROWS, ProductRow } from './product-row';
+import { PRODUCT_GRID, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
   resolveSearchSort,
@@ -29,6 +32,8 @@ import {
   imports: [
     RouterLink,
     ProductTile,
+    ProductRow,
+    ProductLayoutToggle,
     ProductSortSelect,
     FacetPanel,
     AppliedFilters,
@@ -37,7 +42,7 @@ import {
   ],
   template: `
     <section
-      class="pb-8 sm:pb-12"
+      class="@container/listing pb-8 sm:pb-12"
       [attr.aria-busy]="results.isLoading() ? 'true' : null"
     >
       @if (results.error()) {
@@ -50,7 +55,7 @@ import {
           <div
             class="flex flex-row flex-wrap justify-between items-stretch gap-3"
           >
-            <div class="flex flex-col justify-between w-full md:w-auto">
+            <div class="flex w-full flex-col justify-between sm:w-auto">
               <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
                 {{ heading() }}
               </h1>
@@ -62,22 +67,24 @@ import {
                  their own: a row that appears with the first selection would
                  push the grid down as it was ticked. -->
             <app-applied-filters
-              class="mt-3 hidden min-w-0 flex-1 md:block"
+              class="mt-3 hidden min-w-0 flex-1 sm:block"
               [facets]="data.facets"
             />
-            <div class="mt-2 flex flex-col justify-end w-full md:w-auto">
+            <div class="mt-2 flex w-full items-end justify-end gap-3 sm:w-auto">
               <app-product-sort-select
                 [value]="sortKey()"
                 defaultSort="relevance"
                 [withRelevance]="true"
               />
+              <app-product-layout-toggle />
             </div>
           </div>
-          <!-- Filters left, results right, from the lg breakpoint up; stacked below, where
-               the panel is a disclosure above the grid. -->
-          <div class="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start">
+          <!-- Filters left, listing right, from the width where the panel
+               costs the listing neither a column nor an arrangement (see
+               FACET_LAYOUT); a disclosure above it below that. -->
+          <div class="mt-6" [class]="facetLayout">
             @if (data.facets.length) {
-              <aside class="shrink-0 lg:w-56">
+              <aside [class]="facetColumn">
                 <app-facet-panel [facets]="data.facets" />
               </aside>
             }
@@ -85,12 +92,17 @@ import {
               @if (!data.items.length) {
                 <p class="text-muted">{{ filterText.noMatches }}</p>
               }
-              <ul
-                class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3"
-                [class]="gridColumns(data.facets.length)"
-              >
+              <!-- The same products, drawn the way the visitor last asked for
+                   in either listing: fitted cards, or full-width lines. -->
+              <ul [class]="list()">
                 @for (item of data.items; track item.slug) {
-                  <li class="h-full"><app-product-tile [item]="item" /></li>
+                  <li [class]="cards() ? 'h-full' : ''">
+                    @if (cards()) {
+                      <app-product-tile [item]="item" />
+                    } @else {
+                      <app-product-row [item]="item" />
+                    }
+                  </li>
                 }
               </ul>
 
@@ -167,9 +179,7 @@ import {
           {{ heading() }}
         </h1>
         <div class="mt-8 animate-pulse" aria-hidden="true">
-          <div
-            class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-          >
+          <div [class]="productGrid">
             @for (i of skeletons; track i) {
               <div class="aspect-square rounded-lg bg-stone-200"></div>
             }
@@ -180,6 +190,19 @@ import {
   `,
 })
 export class SearchResults {
+  protected readonly productGrid = PRODUCT_GRID;
+  protected readonly facetLayout = FACET_LAYOUT;
+  protected readonly facetColumn = FACET_COLUMN;
+  private readonly productLayout = inject(ProductLayoutService);
+  /** Cards or lines — the visitor's standing choice, shared with the category
+   * listing. */
+  protected readonly cards = computed(
+    () => this.productLayout.layout() === 'grid',
+  );
+  protected readonly list = computed(() =>
+    this.cards() ? PRODUCT_GRID : PRODUCT_ROWS,
+  );
+
   private readonly catalog = inject(CatalogService);
 
   protected readonly text = inject(APP_TEXT).search;
@@ -266,16 +289,6 @@ export class SearchResults {
 
   protected resultCount(total: number): string {
     return this.text.resultCount.replace('{count}', String(total));
-  }
-
-  /**
-   * The grid loses two columns while the filter panel is beside it — the tiles
-   * would otherwise be narrower here than anywhere else in the catalogue.
-   */
-  protected gridColumns(facetCount: number): string {
-    return facetCount
-      ? 'lg:grid-cols-3 xl:grid-cols-4'
-      : 'lg:grid-cols-4 xl:grid-cols-5';
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {

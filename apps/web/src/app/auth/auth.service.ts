@@ -1,6 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
   computed,
+  DOCUMENT,
   inject,
   Injectable,
   PLATFORM_ID,
@@ -17,6 +18,7 @@ import {
   SetPasswordRequest,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../core/api-client';
+import { readSessionHint } from './session-hint';
 
 /** What the login form needs to distinguish: bad credentials vs. anything else. */
 export type LoginResult = 'ok' | 'invalid' | 'error';
@@ -45,6 +47,19 @@ export type ChangePasswordResult =
 export class AuthService {
   private readonly client = createApiClient(authContract);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly document = inject(DOCUMENT);
+
+  /**
+   * Who the browser's own cookies say is signed in, read once at start-up.
+   *
+   * The session cookie is httpOnly, so this is the readable hint beside it
+   * (`SESSION_HINT_COOKIE`) — enough to draw the account control right on the
+   * first frame instead of leaning one way for a round trip. Null on the
+   * server, which renders one document for everybody.
+   */
+  readonly hintedRole = signal(
+    this.isBrowser ? readSessionHint(this.document.cookie) : null,
+  ).asReadonly();
 
   // `undefined` until /auth/me answers. Callers read it through `user()`, which
   // folds "not known yet" into "signed out" — so the chrome on a server-rendered
@@ -201,6 +216,7 @@ export class AuthService {
       await this.client.logout({ body: {} });
     } finally {
       this.session.set(null);
+      this.dropPrePaintHint();
     }
   }
 
@@ -216,6 +232,24 @@ export class AuthService {
       this.session.set(response.status === 200 ? response.body : null);
     } catch {
       this.session.set(null);
+    } finally {
+      this.dropPrePaintHint();
     }
+  }
+
+  /**
+   * Takes the pre-paint script's class off `<html>`, which hands the account
+   * control back to Angular's own state (see `session-shell.server.ts`).
+   *
+   * It matters in exactly one case: a hint left over from a session that was
+   * ended elsewhere. Without this the stylesheet would keep drawing the label
+   * the hint asked for, over the answer the API just gave.
+   */
+  private dropPrePaintHint(): void {
+    if (!this.isBrowser) return;
+    this.document.documentElement.classList.remove(
+      'session-known',
+      'session-anonymous',
+    );
   }
 }

@@ -96,7 +96,7 @@ import { injectEditorReturn } from '../editor-return';
       >
         {{ text.previewNotice }}
       </p>
-      <app-product-detail-view [item]="previewItem()" />
+      <app-product-detail-view [item]="previewItem()" [canAdd]="false" />
     } @else {
       <div class="space-y-6">
         <label class="block">
@@ -421,6 +421,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       priceMinor: Math.round(stored / basis),
       prices: {
         pieceMilliMinor: piecePriceMilliMinor(stored, basis),
+        pieceLotMinor: totalMinor(stored, basis, packaging.minPieceQty),
         pack: priceFor('pack'),
         box: priceFor('box'),
       },

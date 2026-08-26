@@ -34,6 +34,9 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'account/addresses/:id/edit', renderMode: RenderMode.Client },
   { path: 'account/delete', renderMode: RenderMode.Client },
   { path: 'change-password', renderMode: RenderMode.Client },
+  // Not session-scoped, but browser-state-scoped: the cart is in localStorage,
+  // which the server cannot read, so an SSR pass could only emit an empty one.
+  { path: 'cart', renderMode: RenderMode.Client },
   // Everything else is content, and server-rendered. The per-deployment config
   // and UI text reach the browser the same way in both modes: injected into the
   // document by the Node process.

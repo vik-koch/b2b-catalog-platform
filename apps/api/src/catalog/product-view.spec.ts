@@ -32,6 +32,8 @@ describe('unitPricesOf', () => {
       pack: 3998,
       box: 11994,
       pieceMilliMinor: 1999 * 100,
+      // The minimum is 20 pieces, i.e. two basis units.
+      pieceLotMinor: 3998,
     });
   });
 

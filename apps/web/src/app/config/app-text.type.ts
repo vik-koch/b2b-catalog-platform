@@ -75,6 +75,17 @@ export const appTextSchema = z
         /** `{page}` and `{total}` substituted at render. */
         pageStatus: z.string(),
         /**
+         * The cards/lines toggle (FR-CAT-04). Two glyphs, so these are the
+         * buttons' accessible names rather than visible labels.
+         */
+        layout: z
+          .object({
+            label: z.string(),
+            grid: z.string(),
+            list: z.string(),
+          })
+          .strict(),
+        /**
          * Sort control (FR-SEARCH-04). Keyed by the sort values the contract
          * defines, so the option list is a lookup rather than a mapping the UI
          * has to maintain. `relevance` is offered on search results only, but
@@ -151,6 +162,148 @@ export const appTextSchema = z
             boxVolume: z.string(),
             boxWeight: z.string(),
             boxCountSuffix: z.string(),
+            /**
+             * The unit selector's own labels. Separate from the words below on
+             * purpose: these sit in a segment whose width they decide, and a
+             * deployment may want them shorter than the words the cart uses in
+             * a sentence.
+             */
+            select: z
+              .object({
+                piece: z.string(),
+                pack: z.string(),
+                box: z.string(),
+              })
+              .strict(),
+            /**
+             * The full unit words, for the cart — there a unit stands on its
+             * own rather than after a number, and an abbreviation reads as a
+             * typo ("Pk").
+             */
+            pieceName: z.string(),
+            packName: z.string(),
+            boxName: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
+     * The cart: the header control, the buying block on a product page, and
+     * the cart page itself (FR-CART-01/02/08, FR-UNIT-07). The cart lives in
+     * the browser, so every word here is client-side.
+     */
+    cart: z
+      .object({
+        /** The header control's label, and the page's own title. */
+        navLabel: z.string(),
+        title: z.string(),
+        /** The header control's accessible name; `{count}` lines, `{total}`
+         * money — one sentence, because a badge read on its own says nothing. */
+        summaryLabel: z.string(),
+        empty: z.string(),
+        emptyAction: z.string(),
+        loadError: z.string(),
+        /** The browser refused to store the cart — a full quota, or storage
+         * turned off. Said out loud rather than losing the cart in silence. */
+        storageFailed: z.string(),
+
+        /** The buying block on the product page. */
+        unitLabel: z.string(),
+        quantityLabel: z.string(),
+        /** Said in the bubble under a unit the product is not sold in — the
+         * segment is shown rather than hidden, so it has to answer for itself. */
+        unitNotSold: z.string(),
+        /** Shown after a piece quantity was rounded up: `{from}`, `{to}`,
+         * `{unit}`. */
+        quantityCorrected: z.string(),
+        /** The stepper buttons' accessible names — their content is an icon. */
+        decrease: z.string(),
+        increase: z.string(),
+        noteLabel: z.string(),
+        /** Fallback prompt where the product names none of its own. */
+        notePrompt: z.string(),
+        /** The note button beside the price on a card or a row, named for what
+         * pressing it does — there is no room there for a labelled field. */
+        noteAdd: z.string(),
+        noteEdit: z.string(),
+        /** Closes the note bubble on a line that is already in the cart, where
+         * there is nothing left to confirm. */
+        noteDone: z.string(),
+        add: z.string(),
+        /** Replaces the add button once the product is in the cart, so the
+         * controls above read as an edit of that line; `{total}` is what the
+         * line costs. */
+        addedFor: z.string(),
+        /** Refused because the cart already holds as many lines as may be
+         * priced in one call (`CART_LINES_MAX`). */
+        full: z.string(),
+
+        /** The cart page. */
+        lineNote: z.string(),
+        /** `{name}` is the product. */
+        remove: z.string(),
+        /** Asked in the bubble under the stepper when `−` goes below the
+         * smallest quantity the product is sold in, and the two answers. */
+        removeQuestion: z.string(),
+        removeYes: z.string(),
+        removeNo: z.string(),
+        /** A row's tick box, named by the product it selects: `{name}`. */
+        selectLine: z.string(),
+        /** The two controls above the lines. The first toggles: it offers the
+         * whole cart until the whole cart is ticked, and giving the ticks back
+         * after that. */
+        selectAll: z.string(),
+        clearSelection: z.string(),
+        deleteSelected: z.string(),
+        deleteSelectedHeading: z.string(),
+        /** `{count}` lines. */
+        deleteSelectedConfirm: z.string(),
+        cancel: z.string(),
+        subtotal: z.string(),
+        /** Shown instead of a figure where a line cannot be priced. */
+        noPrice: z.string(),
+        /** The subtotal covers only the priceable lines. */
+        totalIncomplete: z.string(),
+
+        /**
+         * The shipment estimate (FR-UNIT-11), rendered as labelled rows — so
+         * these are row captions, and the figures beside them come from the
+         * estimate and the deployment's own box units.
+         */
+        /** The summary card beside the lines: what the order is, then what
+         * the estimate makes of it. */
+        summaryTitle: z.string(),
+        /** How many lines the cart holds — the cart's own figure, stated
+         * whether or not an estimate arrives. */
+        summaryLines: z.string(),
+        shipmentCartons: z.string(),
+        shipmentVolume: z.string(),
+        shipmentWeight: z.string(),
+        /** Deliberately not a date: every order is a request a manager prices
+         * and confirms, so the row says that rather than promising a day. */
+        shipmentDelivery: z.string(),
+        shipmentDeliveryValue: z.string(),
+        shipmentApproximate: z.string(),
+        /**
+         * How many lines the estimate could not cover. Worded so `{count}`
+         * lands at the end: there is no plural machinery here (one locale per
+         * deployment, no i18n framework), so a sentence that reads "1 lines"
+         * is a sentence to rewrite rather than a rule to add.
+         */
+        shipmentUncovered: z.string(),
+
+        /**
+         * What preview says about a line. `unavailable` covers withdrawn,
+         * unpublished and never-existed alike — the endpoint does not
+         * distinguish them, and neither may the wording.
+         */
+        issues: z
+          .object({
+            unavailable: z.string(),
+            unitUnavailable: z.string(),
+            quantityCorrected: z.string(),
+            noteNotAllowed: z.string(),
+            priceUnavailable: z.string(),
           })
           .strict(),
       })

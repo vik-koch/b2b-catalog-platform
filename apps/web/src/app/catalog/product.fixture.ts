@@ -20,7 +20,12 @@ export const packagedPackaging = {
 } as const;
 
 export function plainPrices(priceMinor: number): ProductListItem['prices'] {
-  return { pieceMilliMinor: priceMinor * 1000, pack: null, box: null };
+  return {
+    pieceMilliMinor: priceMinor * 1000,
+    pieceLotMinor: priceMinor,
+    pack: null,
+    box: null,
+  };
 }
 
 export function productListItem(
@@ -34,6 +39,8 @@ export function productListItem(
     prices: plainPrices(priceMinor),
     packaging: { ...plainPackaging },
     images: [],
+    lineNoteEnabled: false,
+    lineNotePrompt: null,
     ...overrides,
   };
 }

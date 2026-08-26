@@ -26,6 +26,19 @@ const sizes = {
  */
 const selectExtras = 'appearance-none pr-9';
 
+/*
+ * What a <textarea> needs on top, for the same reason: dragged taller is the
+ * only useful direction. Wider would push it out of the column it sits in, and
+ * shorter than the line it starts as leaves a field with nothing to read in
+ * it — the corner could be dragged until the note it holds was a slot. The
+ * floor is that one line plus the padding and borders of the size it is drawn
+ * at, so it follows the size rather than restating it.
+ */
+const textareaExtras = {
+  md: 'resize-y min-h-[calc(1lh+1rem+2px)]',
+  sm: 'resize-y min-h-[calc(1lh+0.75rem+2px)]',
+} as const;
+
 /**
  * Styling-only form-field directive (shadcn-style owned primitive), the input
  * counterpart to Button. Applies to <input>, <textarea> and <select> so every
@@ -51,14 +64,19 @@ const selectExtras = 'appearance-none pr-9';
 export class Input {
   /** Read once: an element does not change tag. Works under SSR too — the
    * server's DOM implementation reports `tagName` just as the browser does. */
-  private readonly isSelect =
-    inject<ElementRef<HTMLElement>>(ElementRef).nativeElement.tagName ===
-    'SELECT';
+  private readonly tag =
+    inject<ElementRef<HTMLElement>>(ElementRef).nativeElement.tagName;
 
   size = input<keyof typeof sizes>('md');
 
-  protected classes = computed(
-    () =>
-      `${base} ${sizes[this.size()]}${this.isSelect ? ` ${selectExtras}` : ''}`,
-  );
+  protected classes = computed(() => {
+    const size = this.size();
+    const extras =
+      this.tag === 'SELECT'
+        ? selectExtras
+        : this.tag === 'TEXTAREA'
+          ? textareaExtras[size]
+          : '';
+    return `${base} ${sizes[size]}${extras ? ` ${extras}` : ''}`;
+  });
 }

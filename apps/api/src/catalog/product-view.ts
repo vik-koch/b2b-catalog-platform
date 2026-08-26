@@ -7,6 +7,7 @@ import {
   piecesPerUnit,
   totalMinor,
 } from '@b2b-catalog-platform/shared';
+import { and, isNotNull, isNull } from 'drizzle-orm';
 import { ProductImageRef, products } from '../db/schema';
 
 /**
@@ -15,12 +16,30 @@ import { ProductImageRef, products } from '../db/schema';
  * already resolved per unit, and the basis itself never leaves.
  */
 
+/**
+ * What the storefront may show: live, and published by an admin. Beside the
+ * columns rather than inside the catalog service, because every reader of a
+ * product needs it — the cart prices what a customer may buy, not what exists —
+ * and a second copy is a forgotten call site waiting to happen.
+ */
+export const publiclyVisible = and(
+  isNull(products.deletedAt),
+  isNotNull(products.publishedAt),
+);
+
 /** Selected by every product read, so the paths cannot drift. */
 export const unitColumns = {
   priceBasisPieces: products.priceBasisPieces,
   piecesPerPack: products.piecesPerPack,
   packsPerBox: products.packsPerBox,
   minPieceQty: products.minPieceQty,
+} as const;
+
+/** What a listing needs beyond the price to sell a line the way the product
+ * page does. */
+export const noteColumns = {
+  lineNoteEnabled: products.lineNoteEnabled,
+  lineNotePrompt: products.lineNotePrompt,
 } as const;
 
 export interface PricedProductRow {
@@ -58,6 +77,13 @@ export function unitPricesOf(row: PricedProductRow): UnitPrices {
 
   return {
     pieceMilliMinor: piecePriceMilliMinor(row.priceMinor, row.priceBasisPieces),
+    // The multiplicable piece figure: exact by construction, since the basis
+    // divides minPieceQty (products_basis_divides_quantities).
+    pieceLotMinor: totalMinor(
+      row.priceMinor,
+      row.priceBasisPieces,
+      row.minPieceQty,
+    ),
     pack: priceFor('pack'),
     box: priceFor('box'),
   };
@@ -73,6 +99,8 @@ export function toListItem<
     slug: string;
     name: string;
     images: ProductImageRef[];
+    lineNoteEnabled: boolean;
+    lineNotePrompt: string | null;
   },
 >(row: T): ProductListItem {
   return {
@@ -82,6 +110,8 @@ export function toListItem<
     prices: unitPricesOf(row),
     packaging: packagingOf(row),
     images: row.images,
+    lineNoteEnabled: row.lineNoteEnabled,
+    lineNotePrompt: row.lineNotePrompt,
   };
 }
 

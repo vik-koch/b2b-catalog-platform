@@ -201,16 +201,20 @@ describe('CategoryGrid', () => {
 
     expect(chipCount()).toBe(4);
 
-    const button = el(f).querySelector('button');
-    expect(button?.textContent).toContain(defaultAppText.catalog.showMore);
-    button?.click();
+    // By its words: the listing header above the chips carries buttons of its
+    // own (the layout toggle), so position says nothing.
+    const toggle = (label: string) =>
+      [...el(f).querySelectorAll('button')].find((b) =>
+        (b.textContent ?? '').includes(label),
+      );
+
+    expect(toggle(defaultAppText.catalog.showMore)).toBeTruthy();
+    toggle(defaultAppText.catalog.showMore)?.click();
     await f.whenStable();
     f.detectChanges();
 
     expect(chipCount()).toBe(6);
-    expect(el(f).querySelector('button')?.textContent).toContain(
-      defaultAppText.catalog.showLess,
-    );
+    expect(toggle(defaultAppText.catalog.showLess)).toBeTruthy();
   });
 
   it('shows pagination with prev/next links when there is more than one page', async () => {
@@ -398,5 +402,28 @@ describe('CategoryGrid', () => {
     expect(el(f).textContent).toContain(
       defaultAppText.catalog.categoryNotFound,
     );
+  });
+});
+
+describe('CategoryGrid layout', () => {
+  beforeEach(() => {
+    document.cookie = 'product_layout=;path=/;max-age=0';
+  });
+
+  // Cards and lines are different markup, not one set of elements styled two
+  // ways, so the choice has to reach the listing itself — and the category
+  // listing and the search results have to answer it the same way.
+  it('draws lines instead of cards once the visitor asks for them', async () => {
+    const cards = await render(response());
+    expect(el(cards).querySelector('app-product-tile')).not.toBeNull();
+    expect(el(cards).querySelector('app-product-row')).toBeNull();
+
+    // As the service writes it, and as the next page load would find it.
+    document.cookie = 'product_layout=list;path=/';
+    TestBed.resetTestingModule();
+    const lines = await render(response());
+
+    expect(el(lines).querySelector('app-product-row')).not.toBeNull();
+    expect(el(lines).querySelector('app-product-tile')).toBeNull();
   });
 });

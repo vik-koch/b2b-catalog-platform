@@ -232,12 +232,11 @@ test.describe('my account', () => {
       page.getByRole('heading', { name: 'Your account has been deleted' }),
     ).toBeVisible();
 
-    // Signed out for real: the navbar's account link points at /login again,
-    // and the old credentials no longer work.
-    await expect(page.getByRole('link', { name: 'Account' })).toHaveAttribute(
-      'href',
-      '/login',
-    );
+    // Signed out for real: the navbar's account link offers the way back in
+    // and points at /login again, and the old credentials no longer work.
+    await expect(
+      page.getByRole('link', { name: 'Log in', exact: true }),
+    ).toHaveAttribute('href', '/login');
     await logIn(page, email);
     await expect(page.getByRole('alert')).toHaveText(
       'Invalid email or password.',
