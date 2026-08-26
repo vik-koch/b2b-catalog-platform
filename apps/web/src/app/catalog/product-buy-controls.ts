@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
@@ -7,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import {
+  CatalogImage,
   convertUnitQuantity,
   correctPieceQuantity,
   exactLineTotal,
@@ -25,6 +27,7 @@ import { NumericField } from '../ui/numeric-field';
 import { Popover } from '../ui/popover';
 import { SEGMENTED_GROUP, SegmentState, segmentClass } from '../ui/segmented';
 import { formatPriceMinor } from './price';
+import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
 
 /** How long a statement stays on screen before it fades away. */
@@ -66,7 +69,9 @@ export interface BuyableProduct {
  * the cart the button's own place says it exactly.
  *
  * Every part is the full width of the block, and the three units are always in
- * the same three places, so a grid of these lines up column by column.
+ * the same three places, so a grid of these lines up column by column. A list
+ * turns the same blocks on their side (`layout="row"`) without reordering the
+ * decisions: unit and quantity in one column, price and action in the next.
  *
  * Four rules are encoded rather than stated:
  *
@@ -90,152 +95,228 @@ export interface BuyableProduct {
  */
 @Component({
   selector: 'app-product-buy-controls',
-  imports: [Button, Icon, Input, NumericField, Popover],
+  imports: [
+    Button,
+    Icon,
+    Input,
+    NgTemplateOutlet,
+    NumericField,
+    Popover,
+    ProductUnitFacts,
+  ],
   host: { class: 'block' },
   template: `
-    <p [class]="priceClass()">
-      {{ price() }}
-      <span [class]="priceUnitClass()">{{ priceUnit() }}</span>
-    </p>
+    <!-- Fragments, so the two arrangements are two orders of the same five
+         blocks rather than two copies of them. -->
+    <ng-template #priceBlock>
+      <div class="flex items-center justify-between gap-2">
+        <p [class]="priceClass()">
+          {{ price() }}
+          <span [class]="priceUnitClass()">{{ priceUnit() }}</span>
+        </p>
+
+        <!-- Whatever the caller does *to the line* goes at this end of the
+             price row — the cart's bin — and it is the only place a control
+             belongs that is neither a choice nor the action. -->
+        <ng-content select="[priceAction]" />
+      </div>
+    </ng-template>
 
     <!-- All three units, always, in the same three places: the segments divide
          the row in proportion to their labels, and a unit the product is not
          sold in is shown greyed and says so when pressed. -->
-    <div role="radiogroup" [attr.aria-label]="text.unitLabel" [class]="group">
-      @for (option of options(); track option.unit) {
-        <!-- Flex, so the segment inside fills the share of the row it was
-             given: its own width plus an equal part of what is left over. -->
-        <div class="relative flex flex-auto">
-          @if (option.available) {
-            <label [class]="segment(option.unit)">
-              <input
-                type="radio"
-                [name]="radioName"
-                class="sr-only"
-                [value]="option.unit"
-                [checked]="option.unit === unit()"
-                (change)="chooseUnit(option.unit)"
-              />
-              {{ option.label }}
-            </label>
-          } @else {
-            <!-- A button, not a disabled radio: it is not selectable, but it
-                 is pressable, and what it does is say why. A disabled control
-                 would take itself out of the tab order and answer nothing. -->
-            <button
-              type="button"
-              [class]="segment(option.unit) + ' w-full'"
-              (click)="explainUnit(option.unit)"
-            >
-              {{ option.label }}
-            </button>
-          }
+    <ng-template #unitsBlock>
+      <div
+        role="radiogroup"
+        [attr.aria-label]="text.unitLabel"
+        [class]="group()"
+      >
+        @for (option of options(); track option.unit) {
+          <!-- Flex, so the segment inside fills the share of the row it was
+               given: its own width plus an equal part of what is left over. -->
+          <div class="relative flex flex-auto">
+            @if (option.available) {
+              <label [class]="segment(option.unit)">
+                <input
+                  type="radio"
+                  [name]="radioName"
+                  class="sr-only"
+                  [value]="option.unit"
+                  [checked]="option.unit === unit()"
+                  (change)="chooseUnit(option.unit)"
+                />
+                {{ option.label }}
+              </label>
+            } @else {
+              <!-- A button, not a disabled radio: it is not selectable, but it
+                   is pressable, and what it does is say why. A disabled control
+                   would take itself out of the tab order and answer nothing. -->
+              <button
+                type="button"
+                [class]="segment(option.unit) + ' w-full'"
+                (click)="explainUnit(option.unit)"
+              >
+                {{ option.label }}
+              </button>
+            }
+
+            @if (popup(); as open) {
+              @if (open.at === option.unit) {
+                <app-popover [duration]="noticeMs" (dismissed)="dismiss()">
+                  <p role="status">{{ open.message }}</p>
+                </app-popover>
+              }
+            }
+          </div>
+        }
+      </div>
+    </ng-template>
+
+    <!-- One control, not three: the steppers are welded to the field's ends, so
+         it reads as a single number input rather than as a row of buttons that
+         happen to sit nearby. Square ends, and the field takes the rest. -->
+    <ng-template #stepperBlock>
+      <div [class]="stepperGroup()">
+        <div class="relative flex">
+          <button
+            type="button"
+            [class]="stepperButton() + ' rounded-l-md'"
+            [attr.aria-label]="text.decrease"
+            (click)="step(-1)"
+          >
+            <app-icon name="minus" class="h-4 w-4" />
+          </button>
 
           @if (popup(); as open) {
-            @if (open.at === option.unit) {
+            @if (open.at === 'remove') {
+              <app-popover align="start" (dismissed)="dismiss()">
+                <p>{{ open.message }}</p>
+                <div class="mt-2 flex gap-2">
+                  <button
+                    type="button"
+                    appButton
+                    variant="danger"
+                    size="sm"
+                    class="flex-1"
+                    (click)="confirmRemove()"
+                  >
+                    {{ text.removeYes }}
+                  </button>
+                  <button
+                    type="button"
+                    appButton
+                    variant="secondary"
+                    size="sm"
+                    class="flex-1"
+                    (click)="dismiss()"
+                  >
+                    {{ text.removeNo }}
+                  </button>
+                </div>
+              </app-popover>
+            }
+          }
+        </div>
+
+        <div class="relative flex flex-1">
+          <input
+            appInput
+            appNumericField="integer"
+            inputmode="numeric"
+            [class]="quantityField()"
+            [attr.aria-label]="text.quantityLabel"
+            [value]="quantity()"
+            (input)="onQuantityInput($event)"
+            (blur)="onQuantityBlur($event)"
+          />
+
+          @if (popup(); as open) {
+            @if (open.at === 'quantity') {
               <app-popover [duration]="noticeMs" (dismissed)="dismiss()">
                 <p role="status">{{ open.message }}</p>
               </app-popover>
             }
           }
         </div>
-      }
-    </div>
 
-    <!-- One control, not three: the steppers are welded to the field's ends, so
-         it reads as a single number input rather than as a row of buttons that
-         happen to sit nearby. Square ends, and the field takes the rest. -->
-    <div [class]="stepperGroup()">
-      <div class="relative flex">
         <button
           type="button"
-          [class]="stepperButton() + ' rounded-l-md'"
-          [attr.aria-label]="text.decrease"
-          (click)="step(-1)"
+          [class]="stepperButton() + ' rounded-r-md'"
+          [attr.aria-label]="text.increase"
+          (click)="step(1)"
         >
-          <app-icon name="minus" class="h-4 w-4" />
+          <app-icon name="plus" class="h-4 w-4" />
         </button>
-
-        @if (popup(); as open) {
-          @if (open.at === 'remove') {
-            <app-popover align="start" (dismissed)="dismiss()">
-              <p>{{ open.message }}</p>
-              <div class="mt-2 flex gap-2">
-                <button
-                  type="button"
-                  appButton
-                  variant="danger"
-                  size="sm"
-                  class="flex-1"
-                  (click)="confirmRemove()"
-                >
-                  {{ text.removeYes }}
-                </button>
-                <button
-                  type="button"
-                  appButton
-                  variant="secondary"
-                  size="sm"
-                  class="flex-1"
-                  (click)="dismiss()"
-                >
-                  {{ text.removeNo }}
-                </button>
-              </div>
-            </app-popover>
-          }
-        }
       </div>
+    </ng-template>
 
-      <div class="relative flex flex-1">
-        <input
-          appInput
-          appNumericField="integer"
-          inputmode="numeric"
-          [class]="quantityField()"
-          [attr.aria-label]="text.quantityLabel"
-          [value]="quantity()"
-          (input)="onQuantityInput($event)"
-          (blur)="onQuantityBlur($event)"
-        />
-
-        @if (popup(); as open) {
-          @if (open.at === 'quantity') {
-            <app-popover [duration]="noticeMs" (dismissed)="dismiss()">
-              <p role="status">{{ open.message }}</p>
-            </app-popover>
-          }
+    <ng-template #actionBlock>
+      @if (canAdd()) {
+        @if (inCart()) {
+          <!-- A field, not a button: it is the same size and in the same place
+               as the one it replaced, so the row does not move, but there is
+               nothing left to press — the stepper is what changes the line. -->
+          <p [class]="addedField()" role="status">{{ addedMessage() }}</p>
+        } @else {
+          <button type="button" appButton [class]="addButton()" (click)="add()">
+            <app-icon name="shopping-basket" class="mr-2 h-4 w-4" />
+            {{ text.add }}
+          </button>
         }
+
+        @if (feedback() === 'full') {
+          <p class="mt-2 text-sm text-amber-700" role="status">
+            {{ text.full }}
+          </p>
+        }
+      }
+    </ng-template>
+
+    <!-- Projected once, placed by whichever arrangement is drawn. -->
+    <ng-template #extras><ng-content /></ng-template>
+
+    @if (row()) {
+      <!-- One set of blocks, two arrangements, chosen by how much width the
+           row actually has (a container query, not the viewport: a listing
+           beside a filter panel is narrow at any window size).
+
+           Narrow, the blocks read in the order a card reads them — price,
+           unit, quantity, the facts, the button — because that is the order
+           the decision is taken in and the customer already knows it. Wide,
+           the same blocks fall into two columns without moving in the DOM, so
+           what a screen reader and the tab key see never changes. -->
+      <div [class]="rowGrid">
+        <div [class]="cell.price">
+          <ng-container [ngTemplateOutlet]="priceBlock" />
+        </div>
+        <div [class]="cell.units">
+          <ng-container [ngTemplateOutlet]="unitsBlock" />
+        </div>
+        <div [class]="cell.stepper">
+          <ng-container [ngTemplateOutlet]="stepperBlock" />
+        </div>
+        <div [class]="cell.minimum">
+          <app-product-unit-facts
+            show="minimum"
+            [packagingInfo]="packaging()"
+          />
+        </div>
+        <div [class]="cell.packaging">
+          <app-product-unit-facts
+            show="packaging"
+            [packagingInfo]="packaging()"
+          />
+        </div>
+        <div [class]="cell.action">
+          <ng-container [ngTemplateOutlet]="actionBlock" />
+        </div>
       </div>
-
-      <button
-        type="button"
-        [class]="stepperButton() + ' rounded-r-md'"
-        [attr.aria-label]="text.increase"
-        (click)="step(1)"
-      >
-        <app-icon name="plus" class="h-4 w-4" />
-      </button>
-    </div>
-
-    <ng-content />
-
-    @if (canAdd()) {
-      @if (inCart()) {
-        <!-- A field, not a button: it is the same size and in the same place as
-             the one it replaced, so the row does not move, but there is nothing
-             left to press — the stepper above is what changes the line now. -->
-        <p [class]="addedField" role="status">{{ addedMessage() }}</p>
-      } @else {
-        <button type="button" appButton class="mt-2 w-full" (click)="add()">
-          <app-icon name="shopping-basket" class="mr-2 h-4 w-4" />
-          {{ text.add }}
-        </button>
-      }
-
-      @if (feedback() === 'full') {
-        <p class="mt-2 text-sm text-amber-700" role="status">{{ text.full }}</p>
-      }
+    } @else {
+      <ng-container [ngTemplateOutlet]="priceBlock" />
+      <ng-container [ngTemplateOutlet]="unitsBlock" />
+      <ng-container [ngTemplateOutlet]="stepperBlock" />
+      <ng-container [ngTemplateOutlet]="extras" />
+      <ng-container [ngTemplateOutlet]="actionBlock" />
     }
   `,
 })
@@ -251,11 +332,33 @@ export class ProductBuyControls {
   readonly item = input.required<BuyableProduct>();
   /** The note to record with the line, where the caller offers one. */
   readonly note = input<string | null>(null);
+  /**
+   * The product's first photo, recorded with the line. The cart is drawn from
+   * the browser's own copy before anything is asked of the server, and a row
+   * that had to wait for the pricing call to learn its photo showed a
+   * placeholder on every load and every change of unit.
+   */
+  readonly image = input<CatalogImage | null>(null);
   /** False in the product editor's live preview: the block is there to show
    * what a visitor will see, not to fill a manager's own cart. */
   readonly canAdd = input(true);
   /** Card-sized rather than page-sized: smaller type and a denser stepper. */
   readonly compact = input(false);
+  /**
+   * False for a cart line whose product the shop can no longer price — it has
+   * been withdrawn, or repackaged out of its stored basis. The controls stay
+   * usable, but they state no figure: the last price the browser saw is not
+   * one the shop is still offering, and the row says why beside them.
+   */
+  readonly available = input(true);
+  /**
+   * `stack` reads top to bottom down a card or a product page; `row` lays the
+   * same blocks out as two columns of a product line — the unit, the quantity
+   * and the minimum in one, the price, the action and the packaging in the
+   * other. Same controls, same order of decisions, turned on its side.
+   */
+  readonly layout = input<'stack' | 'row'>('stack');
+  protected readonly row = computed(() => this.layout() === 'row');
 
   protected readonly radioName = `unit-${nextGroupId++}`;
 
@@ -301,10 +404,14 @@ export class ProductBuyControls {
   private readonly priceRow = computed(() =>
     this.units.priceRow(this.item().prices, this.unit()),
   );
-  protected readonly price = computed(
-    () => this.priceRow()?.price ?? this.text.noPrice,
+  protected readonly price = computed(() =>
+    this.available()
+      ? (this.priceRow()?.price ?? this.text.noPrice)
+      : this.text.noPrice,
   );
-  protected readonly priceUnit = computed(() => this.priceRow()?.label ?? '');
+  protected readonly priceUnit = computed(() =>
+    this.available() ? (this.priceRow()?.label ?? '') : '',
+  );
 
   /**
    * What this selection will cost — priced on the quantity that would actually
@@ -313,20 +420,25 @@ export class ProductBuyControls {
    * reads as one.
    */
   protected readonly total = computed(() => {
+    if (!this.available()) return null;
     const exact = exactLineTotal(
       this.item().prices,
       this.packaging(),
       this.unit(),
       this.effectiveQuantity(),
     );
-    return exact === null
-      ? this.text.noPrice
-      : formatPriceMinor(exact, this.currency);
+    return exact === null ? null : formatPriceMinor(exact, this.currency);
   });
 
-  protected readonly addedMessage = computed(() =>
-    fillText(this.text.addedFor, { total: this.total() }),
-  );
+  /** What the line costs — or, where it cannot be priced, that it cannot be:
+   * "Added for On request" is a sentence that says less than the two words in
+   * it. */
+  protected readonly addedMessage = computed(() => {
+    const total = this.total();
+    return total === null
+      ? this.text.noPrice
+      : fillText(this.text.addedFor, { total });
+  });
 
   protected readonly priceClass = computed(() =>
     this.compact()
@@ -339,7 +451,65 @@ export class ProductBuyControls {
       : 'text-base font-normal text-subtle',
   );
 
-  protected readonly group = `${SEGMENTED_GROUP} mt-2 flex w-full`;
+  /** In a row the spacing belongs to the cells, which have to space
+   * themselves differently in each arrangement. */
+  protected readonly group = computed(
+    () => `${SEGMENTED_GROUP} flex w-full ${this.row() ? '' : 'mt-2'}`,
+  );
+
+  /**
+   * The row's grid: one column of blocks in card order until there is room for
+   * two, then two columns — which happens well before the line itself turns
+   * (ProductRow's own threshold), so a line too narrow to put the name beside
+   * the controls still puts the controls side by side under it.
+   *
+   * Measured on the column these controls were given rather than on the line,
+   * because they are not the same width: the cart's tick box comes off the
+   * line first. The threshold is exactly what two columns cost — 13rem each
+   * and the gap between them — so they pair the moment they fit.
+   *
+   * Stacked, the single column fills what it was given. Capping it made a line
+   * narrower than a card at the width where the two are supposed to be drawing
+   * the same thing.
+   */
+  protected readonly rowGrid =
+    'grid grid-cols-1 @min-[27.5rem]/body:grid-cols-[13rem_13rem] @min-[27.5rem]/body:gap-x-6';
+
+  /**
+   * Where each block sits, and what it stands off from what is above it.
+   *
+   * Written out per cell rather than composed, because Tailwind reads these
+   * strings out of the source: a class assembled at runtime is a class that
+   * was never generated.
+   */
+  protected readonly cell = {
+    // Half a step down in the two-column arrangement: the price is text where
+    // the segments beside it are a pill, and starting at the same edge is not
+    // the same as sitting on the same axis.
+    price:
+      '@min-[27.5rem]/body:col-start-2 @min-[27.5rem]/body:row-start-1 @min-[27.5rem]/body:mt-0.5',
+    units:
+      'mt-2 @min-[27.5rem]/body:col-start-1 @min-[27.5rem]/body:row-start-1 @min-[27.5rem]/body:mt-0',
+    // The stepper follows its pill as closely as it does on a card, and the
+    // action follows the price by exactly as much — they share a grid row, so
+    // what one stands off by is what keeps the two columns on one axis.
+    stepper:
+      'mt-1 @min-[27.5rem]/body:col-start-1 @min-[27.5rem]/body:row-start-2 @min-[27.5rem]/body:mt-1',
+    // The facts stand off the block above them by as much as a card's do,
+    // either way round: they are a caption, and a caption crowding what it
+    // captions reads as part of it.
+    minimum:
+      'mt-2 @min-[27.5rem]/body:col-start-1 @min-[27.5rem]/body:row-start-3',
+    // Under the minimum while the blocks are stacked (the two facts read as
+    // one small block there), under the price and the button once they are
+    // not — a packaging line qualifies the price it sits with.
+    packaging:
+      '@min-[27.5rem]/body:col-start-2 @min-[27.5rem]/body:row-start-3 @min-[27.5rem]/body:mt-2',
+    // The same offset as the stepper it sits beside, so the two start on one
+    // axis; only the price needs the half-step, being text against a pill.
+    action:
+      'mt-2 @min-[27.5rem]/body:col-start-2 @min-[27.5rem]/body:row-start-2 @min-[27.5rem]/body:mt-1',
+  } as const;
 
   protected readonly segment = (unit: ProductUnit): string =>
     segmentClass(this.segmentState(unit), true);
@@ -352,7 +522,7 @@ export class ProductBuyControls {
    */
   protected readonly stepperGroup = computed(
     () =>
-      `mt-1 flex w-full items-stretch rounded-md border border-border-strong ${
+      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch rounded-md border border-border-strong ${
         this.compact() ? 'h-9' : 'h-10'
       }`,
   );
@@ -379,9 +549,14 @@ export class ProductBuyControls {
       }`,
   );
   /** The button's own metrics, so the row does not move when one replaces the
-   * other. */
-  protected readonly addedField =
-    'mt-2 w-full rounded-md bg-secondary p-2 text-center text-sm font-medium text-white';
+   * other. In a row the cell above it already carries the spacing. */
+  protected readonly addedField = computed(
+    () =>
+      `${this.row() ? '' : 'mt-2'} w-full rounded-md bg-secondary p-2 text-center text-sm font-medium text-white`,
+  );
+  protected readonly addButton = computed(
+    () => `${this.row() ? '' : 'mt-2'} w-full`,
+  );
 
   protected chooseUnit(unit: ProductUnit): void {
     const quantity = this.converted(this.unit(), unit, this.quantity());
@@ -535,6 +710,11 @@ export class ProductBuyControls {
       unit: this.unit(),
       quantity: this.quantity(),
       note: this.note(),
+      // Never undefined: callers hand over the product's first photo, and a
+      // product with none has no first element. What is written down has to
+      // survive `JSON.stringify`, which drops an undefined field — and a
+      // stored line missing one is discarded when it is read back.
+      image: this.image() ?? null,
       prices: item.prices,
       packaging: item.packaging,
     };

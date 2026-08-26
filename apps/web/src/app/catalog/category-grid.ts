@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
@@ -29,7 +30,10 @@ import { Icon } from '../ui/icons/icon';
 import { NotFoundView } from '../pages/not-found-view';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
-import { FacetPanel } from './facet-panel';
+import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
+import { ProductLayoutService } from './product-layout';
+import { ProductLayoutToggle } from './product-layout-toggle';
+import { PRODUCT_ROWS, ProductRow } from './product-row';
 import { PRODUCT_GRID, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
@@ -49,9 +53,12 @@ const SUBS_COLLAPSED = 4;
 @Component({
   selector: 'app-category-grid',
   imports: [
+    NgTemplateOutlet,
     RouterLink,
     Icon,
     ProductTile,
+    ProductRow,
+    ProductLayoutToggle,
     ProductSortSelect,
     FacetPanel,
     AppliedFilters,
@@ -63,7 +70,7 @@ const SUBS_COLLAPSED = 4;
   ],
   template: `
     <section
-      class="relative pb-8 sm:pb-12"
+      class="@container/listing relative pb-8 sm:pb-12"
       [attr.aria-busy]="products.isLoading() ? 'true' : null"
     >
       @if (products.error()) {
@@ -143,7 +150,7 @@ const SUBS_COLLAPSED = 4;
                  their own: a row that appears with the first selection would
                  push the grid down as it was ticked. -->
             <app-applied-filters
-              class="mt-3 hidden min-w-0 flex-1 md:block"
+              class="mt-3 hidden min-w-0 flex-1 sm:block"
               [facets]="data.facets"
             />
 
@@ -151,11 +158,12 @@ const SUBS_COLLAPSED = 4;
                 title row belongs to the breadcrumb and, in edit mode, to the
                 category controls pinned top-right. -->
             @if (data.items.length) {
-              <div class="mt-2 flex justify-end">
+              <div class="mt-2 flex items-end justify-end gap-3">
                 <app-product-sort-select
                   [value]="sortKey()"
                   defaultSort="name"
                 />
+                <app-product-layout-toggle />
               </div>
             }
           </div>
@@ -215,11 +223,12 @@ const SUBS_COLLAPSED = 4;
             </ul>
           }
 
-          <!-- Filters left, grid right, from the lg breakpoint up; stacked below, where the
-               panel is a disclosure above the grid. -->
-          <div class="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start">
+          <!-- Filters left, listing right, from the width where the panel
+               costs the listing neither a column nor an arrangement (see
+               FACET_LAYOUT); a disclosure above it below that. -->
+          <div class="mt-6" [class]="facetLayout">
             @if (data.facets.length) {
-              <aside class="shrink-0 lg:w-56">
+              <aside [class]="facetColumn">
                 <app-facet-panel [facets]="data.facets" />
               </aside>
             }
@@ -232,16 +241,18 @@ const SUBS_COLLAPSED = 4;
                     }}
                   </p>
                 }
-                <ul [class]="productGrid">
+                <!-- The same products, drawn the way the visitor last asked
+                     for: fitted cards, or full-width lines. -->
+                <ul [class]="list()">
                   @if (editControls(); as editText) {
-                    <li class="h-full">
+                    <li [class]="cards() ? 'h-full' : ''">
                       <a
                         [routerLink]="['/admin/products/new']"
                         [queryParams]="{
                           category: data.category.slug,
                           from: editorFrom.from,
                         }"
-                        class="flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent"
+                        [class]="addTile()"
                       >
                         <app-icon name="plus" class="h-8 w-8" />
                         <span class="text-sm font-medium">{{
@@ -250,18 +261,37 @@ const SUBS_COLLAPSED = 4;
                       </a>
                     </li>
                   }
+                  <!-- One cluster, placed twice: a card takes it in its own
+                       corner, a line in the corner of its photo, and the two
+                       must be the same control. -->
+                  <ng-template #productEdit let-slug>
+                    @if (editControls(); as editText) {
+                      <app-edit-actions
+                        variant="tile"
+                        [editLink]="['/admin/products', slug, 'edit']"
+                        [editParams]="editorFrom"
+                        [editLabel]="editText.editProduct"
+                      />
+                    }
+                  </ng-template>
                   @for (item of data.items; track item.slug) {
-                    <li class="h-full">
-                      <app-product-tile [item]="item">
-                        @if (editControls(); as editText) {
-                          <app-edit-actions
-                            variant="tile"
-                            [editLink]="['/admin/products', item.slug, 'edit']"
-                            [editParams]="editorFrom"
-                            [editLabel]="editText.editProduct"
+                    <li [class]="cards() ? 'h-full' : ''">
+                      @if (cards()) {
+                        <app-product-tile [item]="item">
+                          <ng-container
+                            [ngTemplateOutlet]="productEdit"
+                            [ngTemplateOutletContext]="{ $implicit: item.slug }"
                           />
-                        }
-                      </app-product-tile>
+                        </app-product-tile>
+                      } @else {
+                        <app-product-row [item]="item">
+                          <ng-container
+                            ngProjectAs="[rowOverlay]"
+                            [ngTemplateOutlet]="productEdit"
+                            [ngTemplateOutletContext]="{ $implicit: item.slug }"
+                          />
+                        </app-product-row>
+                      }
                     </li>
                   }
                 </ul>
@@ -357,6 +387,22 @@ const SUBS_COLLAPSED = 4;
 })
 export class CategoryGrid {
   protected readonly productGrid = PRODUCT_GRID;
+  protected readonly facetLayout = FACET_LAYOUT;
+  protected readonly facetColumn = FACET_COLUMN;
+  private readonly productLayout = inject(ProductLayoutService);
+  /** Cards or lines — the visitor's standing choice, shared with search. */
+  protected readonly cards = computed(
+    () => this.productLayout.layout() === 'grid',
+  );
+  protected readonly list = computed(() =>
+    this.cards() ? PRODUCT_GRID : PRODUCT_ROWS,
+  );
+  /** The ＋ tile takes the shape of whatever it sits among. */
+  protected readonly addTile = computed(() =>
+    this.cards()
+      ? 'flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent'
+      : 'my-2 flex items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong py-4 text-subtle transition-colors hover:border-primary hover:text-accent',
+  );
 
   private catalog = inject(CatalogService);
   private readonly admin = inject(AdminCatalogService);

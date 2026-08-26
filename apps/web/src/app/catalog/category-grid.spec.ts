@@ -201,16 +201,20 @@ describe('CategoryGrid', () => {
 
     expect(chipCount()).toBe(4);
 
-    const button = el(f).querySelector('button');
-    expect(button?.textContent).toContain(defaultAppText.catalog.showMore);
-    button?.click();
+    // By its words: the listing header above the chips carries buttons of its
+    // own (the layout toggle), so position says nothing.
+    const toggle = (label: string) =>
+      [...el(f).querySelectorAll('button')].find((b) =>
+        (b.textContent ?? '').includes(label),
+      );
+
+    expect(toggle(defaultAppText.catalog.showMore)).toBeTruthy();
+    toggle(defaultAppText.catalog.showMore)?.click();
     await f.whenStable();
     f.detectChanges();
 
     expect(chipCount()).toBe(6);
-    expect(el(f).querySelector('button')?.textContent).toContain(
-      defaultAppText.catalog.showLess,
-    );
+    expect(toggle(defaultAppText.catalog.showLess)).toBeTruthy();
   });
 
   it('shows pagination with prev/next links when there is more than one page', async () => {

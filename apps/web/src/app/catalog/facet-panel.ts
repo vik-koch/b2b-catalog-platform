@@ -14,6 +14,31 @@ import { FacetSelection, selectedValues } from './facet-selection';
 const VALUES_COLLAPSED = 8;
 
 /**
+ * Where the panel stops being a disclosure above the listing and becomes a
+ * column beside it, and how wide that column is.
+ *
+ * Neither is a matter of taste. The column takes its width off the listing,
+ * and the listing rearranges itself at widths of its own: the panel may not
+ * arrive before a line beside it can still hold its three columns
+ * (`ProductRow`), and it may not cost the grid a column on the way in
+ * (`PRODUCT_GRID`, whose card width is cut to that).
+ *
+ * So it is the line that sets this: 49rem for the line, plus the 13rem column
+ * and the 1.5rem gap it takes off it. Any earlier and the lines beside it
+ * would rearrange the moment the panel appeared.
+ *
+ * Measured against the listing's own width, not the window's — a scrollbar is
+ * 15px the media query does not see but the grid does, which is most of that
+ * room. `@container/listing` is declared by each listing on its section.
+ *
+ * Exported with the panel's own two states rather than written at each call
+ * site, because all three have to name the same width.
+ */
+export const FACET_LAYOUT =
+  'flex flex-col gap-6 @min-[63.5rem]/listing:flex-row @min-[63.5rem]/listing:items-start';
+export const FACET_COLUMN = 'shrink-0 @min-[63.5rem]/listing:w-52';
+
+/**
  * The attribute filter panel (FR-ATTR-04…07) — the left column of the category
  * listing and of the search results, and a disclosure above the grid on narrow
  * screens.
@@ -34,11 +59,12 @@ const VALUES_COLLAPSED = 8;
   providers: [FacetSelection],
   template: `
     <!-- One details-free disclosure: the summary element cannot host the
-         "always open above lg" behaviour without JavaScript re-opening it on
-         every resize, and the button carries the selected count anyway. -->
+         "always open once it is a column" behaviour without JavaScript
+         re-opening it on every resize, and the button carries the selected
+         count anyway. -->
     <button
       type="button"
-      class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-md border border-border-strong px-4 py-2.5 text-sm font-medium lg:hidden"
+      class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-md border border-border-strong px-4 py-2.5 text-sm font-medium @min-[63.5rem]/listing:hidden"
       [attr.aria-expanded]="open()"
       [attr.aria-controls]="panelId"
       (click)="open.set(!open())"
@@ -58,7 +84,7 @@ const VALUES_COLLAPSED = 8;
 
     <div
       [id]="panelId"
-      class="mt-4 lg:mt-0 lg:block"
+      class="mt-4 @min-[63.5rem]/listing:mt-0 @min-[63.5rem]/listing:block"
       [class.hidden]="!open()"
       role="group"
       [attr.aria-label]="text.title"

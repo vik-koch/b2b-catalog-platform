@@ -35,6 +35,7 @@ import { ProductUnitFacts } from './product-unit-facts';
     <div class="rounded-xl border border-border p-3">
       <app-product-buy-controls
         [item]="item()"
+        [image]="item().images[0]"
         [note]="note()"
         [canAdd]="canAdd()"
       >

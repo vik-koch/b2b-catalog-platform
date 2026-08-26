@@ -27,6 +27,12 @@ const packaged = productDetail({
 
 async function render(item: ProductDetail, canAdd = true) {
   localStorage.clear();
+  return renderKeepingCart(item, canAdd);
+}
+
+/** A fresh component over whatever the browser already holds — what a return
+ * visit to the same product is. */
+async function renderKeepingCart(item: ProductDetail, canAdd = true) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [ProductBuyBlock],
@@ -86,10 +92,14 @@ async function render(item: ProductDetail, canAdd = true) {
       button?.click();
       await rerender();
     },
+    noteField: () => el.querySelector('textarea') as HTMLTextAreaElement,
+    /** Types, then leaves the field — which is when a note is recorded. */
     async note(value: string) {
       const area = el.querySelector('textarea') as HTMLTextAreaElement;
       area.value = value;
       area.dispatchEvent(new Event('input'));
+      await rerender();
+      area.dispatchEvent(new Event('change'));
       await rerender();
     },
   };
