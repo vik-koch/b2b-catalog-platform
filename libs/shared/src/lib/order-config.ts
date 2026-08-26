@@ -61,7 +61,7 @@ const zoneMatchSchema = z
   );
 
 /**
- * A delivery zone (FR-CART-11): a named area, and what an order must reach for
+ * A delivery zone (FR-CART-07): a named area, and what an order must reach for
  * delivery inside it to be free.
  *
  * Advisory throughout — the threshold is quoted, never enforced, and no zone
@@ -152,6 +152,15 @@ export function resolveDeliveryZone(
   return null;
 }
 
+function isKnownTimezone(zone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-CA', { timeZone: zone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * How an order is referenced: `{prefix}-YYMMDD-NNNN`. The suffix is random
  * rather than a counter, so the reference does not publish how many orders the
@@ -166,8 +175,18 @@ export const orderReferenceConfigSchema = z
       .min(1)
       .max(8)
       .regex(/^[A-Z0-9]+$/, 'an order prefix is upper-case letters or digits'),
-    /** An IANA zone name, e.g. `Europe/Berlin`. */
-    timezone: z.string().trim().min(1),
+    /**
+     * An IANA zone name, e.g. `Europe/Berlin`. Checked by building a formatter
+     * with it, which is the only way to know the platform accepts one: an
+     * unknown zone throws where it is *used*, and the only use is on the way to
+     * a reference — so a typo left to runtime is a shop that boots cleanly and
+     * refuses every order.
+     */
+    timezone: z
+      .string()
+      .trim()
+      .min(1)
+      .refine(isKnownTimezone, 'not a time zone this platform knows'),
   })
   .strict();
 export type OrderReferenceConfig = z.infer<typeof orderReferenceConfigSchema>;

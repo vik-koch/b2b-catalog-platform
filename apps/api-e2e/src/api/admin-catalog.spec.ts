@@ -676,6 +676,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(Object.keys(items[0]).sort()).toEqual([
         'deleted',
         'images',
+        'lineNoteEnabled',
+        'lineNotePrompt',
         'name',
         'packaging',
         'priceMinor',

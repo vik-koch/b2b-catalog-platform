@@ -350,8 +350,8 @@ export class OrdersService {
 
   async getForStaff(reference: string): Promise<AdminOrderDetail> {
     const row = await this.row(eq(orders.reference, reference));
-    const detail = await this.toDetail(row);
     const items = await this.items(row.id);
+    const detail = await this.toDetail(row, items);
     const [customer] = row.userId
       ? await this.db
           .select({ email: users.email })
@@ -362,8 +362,9 @@ export class OrdersService {
 
     return {
       ...detail,
-      // Built from the customer's own lines, so the two views cannot describe
-      // the same order differently — staff simply see more of each line.
+      // Built from the customer's own lines — from the very same rows, so the
+      // two views cannot describe the same order differently and the index
+      // pairing below cannot slip. Staff simply see more of each line.
       lines: detail.lines.map(
         (line, index): AdminOrderLine => ({
           ...line,
@@ -453,11 +454,19 @@ export class OrdersService {
     return new Map(found.map((user) => [user.id, user.email]));
   }
 
-  private async toDetail(row: OrderRow): Promise<OrderDetail> {
-    const items = await this.items(row.id);
-    // Linked by product id, never by the slug snapshot — and only where the
+  /** `items` where the caller has already read them — `getForStaff` needs the
+   * same rows for the basis figures, and it pairs them to these lines by
+   * index, which two separate reads of one order have no business deciding. */
+  private async toDetail(
+    row: OrderRow,
+    known?: OrderItemRow[],
+  ): Promise<OrderDetail> {
+    const items = known ?? (await this.items(row.id));
+    // Resolved by product id, never by the slug snapshot — and only where the
     // product is still something a customer may open, so an order never sends
-    // anyone into a 404.
+    // anyone into a 404. The *current* slug is what a linked line carries: a
+    // product renamed since the order was placed moved, and the snapshot would
+    // point at where it used to be.
     const visible = await this.visibleProducts(
       items.map((item) => item.productId),
     );
@@ -465,7 +474,8 @@ export class OrdersService {
       const slug = visible.get(item.productId);
       return {
         name: item.name,
-        slug: item.slug,
+        // The snapshot only survives as the text of an unlinked line.
+        slug: slug ?? item.slug,
         linked: slug !== undefined,
         image: item.thumbnail
           ? { full: item.thumbnail, thumb: item.thumbnail }

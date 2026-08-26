@@ -5,7 +5,7 @@ import { SEGMENTED_GROUP, segmentClass } from '../ui/segmented';
 import { ProductLayout, ProductLayoutService } from './product-layout';
 
 /**
- * Cards or lines (FR-CAT-04) — the same pill the unit selector uses, so a
+ * Cards or lines (FR-CAT-06) — the same pill the unit selector uses, so a
  * choice between two ways of seeing the same thing looks like the app's other
  * choice between two ways of buying the same thing.
  *
@@ -13,15 +13,24 @@ import { ProductLayout, ProductLayoutService } from './product-layout';
  * is undone by pressing the other one, and a listing header already carries a
  * labelled sort control beside it. The names are the buttons' accessible ones.
  *
- * Hidden below `sm`, where the card and the row converge on the same shape and
- * the control would offer a choice between two identical listings.
+ * Hidden below `LISTING_NARROW`, where the card and the row converge on the
+ * same shape and the control would offer a choice between two identical
+ * listings.
  */
 @Component({
   selector: 'app-product-layout-toggle',
-  // Not offered on a phone: there is only one shape a listing can take at that
-  // width, and both layouts already take it. The choice itself is untouched,
-  // so a wider window still shows what the visitor picked.
-  host: { class: 'hidden sm:block' },
+  // Not offered where a listing has only one shape to take, and both layouts
+  // already take it. The choice itself is untouched, so a wider window still
+  // shows what the visitor picked.
+  //
+  // On the listing's own container, and on the same figure the convergence
+  // uses (LISTING_NARROW) — not the `sm` viewport breakpoint it was derived
+  // from. The two agree only where the frame's padding and a classic
+  // scrollbar come to exactly the difference; on a viewport without one the
+  // listing turns some pixels before `sm` does, and for that band the control
+  // disappeared while the two layouts still looked different. One figure,
+  // one container, no band.
+  host: { class: 'hidden @min-[593px]/listing:block' },
   imports: [Icon],
   template: `
     <div role="group" [attr.aria-label]="text.label" [class]="group">

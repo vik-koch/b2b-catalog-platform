@@ -259,24 +259,3 @@ describe('SearchResults layout', () => {
     expect(listed.querySelector('app-product-tile')).toBeNull();
   });
 });
-
-describe('SearchResults layout', () => {
-  beforeEach(() => {
-    document.cookie = 'product_layout=;path=/;max-age=0';
-  });
-
-  // Cards and lines are different markup, not one set of elements styled two
-  // ways, so the choice has to reach the listing itself.
-  it('draws lines instead of cards once the visitor asks for them', async () => {
-    const el = await render('espresso', page([item('a', 'A')]));
-    expect(el.querySelector('app-product-tile')).not.toBeNull();
-
-    // As the service writes it, and as the next page load would find it.
-    document.cookie = 'product_layout=list;path=/';
-    TestBed.resetTestingModule();
-    const listed = await render('espresso', page([item('a', 'A')]));
-
-    expect(listed.querySelector('app-product-row')).not.toBeNull();
-    expect(listed.querySelector('app-product-tile')).toBeNull();
-  });
-});

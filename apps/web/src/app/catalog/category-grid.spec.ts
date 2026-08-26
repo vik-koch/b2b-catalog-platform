@@ -404,3 +404,26 @@ describe('CategoryGrid', () => {
     );
   });
 });
+
+describe('CategoryGrid layout', () => {
+  beforeEach(() => {
+    document.cookie = 'product_layout=;path=/;max-age=0';
+  });
+
+  // Cards and lines are different markup, not one set of elements styled two
+  // ways, so the choice has to reach the listing itself — and the category
+  // listing and the search results have to answer it the same way.
+  it('draws lines instead of cards once the visitor asks for them', async () => {
+    const cards = await render(response());
+    expect(el(cards).querySelector('app-product-tile')).not.toBeNull();
+    expect(el(cards).querySelector('app-product-row')).toBeNull();
+
+    // As the service writes it, and as the next page load would find it.
+    document.cookie = 'product_layout=list;path=/';
+    TestBed.resetTestingModule();
+    const lines = await render(response());
+
+    expect(el(lines).querySelector('app-product-row')).not.toBeNull();
+    expect(el(lines).querySelector('app-product-tile')).toBeNull();
+  });
+});

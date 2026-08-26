@@ -658,7 +658,7 @@ export const orders = pgTable(
       { onDelete: 'set null' },
     ),
     // The zone the postal code resolved to, and the free-delivery threshold it
-    // promised. Advisory (FR-CART-11): it never blocked the order and never
+    // promised. Advisory (FR-CART-07): it never blocked the order and never
     // priced the delivery. Snapshotted because the config behind it is edited.
     deliveryZoneKey: varchar('deliveryZoneKey', { length: 64 }),
     deliveryFreeFromMinor: integer('deliveryFreeFromMinor'),

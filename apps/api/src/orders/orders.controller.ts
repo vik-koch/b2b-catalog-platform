@@ -46,7 +46,7 @@ export class OrdersController {
         this.logger.warn('Rejected order: honeypot field populated');
         return {
           status: 400 as const,
-          body: { code: 'empty-cart' as const, message: 'Rejected' },
+          body: { code: 'rejected' as const, message: 'Rejected' },
         };
       }
 

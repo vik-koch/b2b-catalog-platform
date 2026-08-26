@@ -15,7 +15,7 @@ export interface RowProduct extends BuyableProduct {
 
 /**
  * One product as a full-width line — the list counterpart of ProductTile
- * (FR-CAT-04), and the row the cart page is made of (FR-CART-02).
+ * (FR-CAT-06), and the row the cart page is made of (FR-CART-02).
  *
  * The card and the line carry the same buying controls, turned on their side:
  * a customer who chose a unit in the grid finds the same three segments in the

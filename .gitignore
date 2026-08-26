@@ -58,3 +58,6 @@ __screenshots__/
 
 # Local media uploads (dev LocalMediaStore, see MEDIA_ROOT)
 .media/
+
+# Editor backup copies
+*~

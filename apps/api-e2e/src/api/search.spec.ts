@@ -51,6 +51,8 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
     // Exactly the contract keys — no internal column rides along.
     expect(Object.keys(res.data.items[0]).sort()).toEqual([
       'images',
+      'lineNoteEnabled',
+      'lineNotePrompt',
       'name',
       'packaging',
       'priceMinor',

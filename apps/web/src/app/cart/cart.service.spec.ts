@@ -195,7 +195,7 @@ describe('CartService', () => {
     cart.add(pieceAddition());
     cart.add(packAddition());
 
-    cart.remove('espresso-roast', 'piece');
+    cart.remove('espresso-roast');
     expect(cart.count()).toBe(1);
 
     cart.clear();
@@ -258,6 +258,47 @@ describe('CartService', () => {
     const cart = service();
     expect(cart.count()).toBe(1);
     expect(cart.lines()[0].slug).toBe('filter-roast');
+  });
+
+  // The three fields nothing on this page reads yet, and which a shape check
+  // that skipped them would let through until something finally did: the
+  // FR-CART-10 baseline, and the two figures every total is summed from.
+  it('drops a stored line missing its baseline or carrying a figure as text', () => {
+    const good = {
+      slug: 'filter-roast',
+      unit: 'pack',
+      quantity: 2,
+      note: null,
+      name: 'Filter Roast',
+      addedAt: '2026-08-01T00:00:00.000Z',
+      unitPriceMinor: 7000,
+      lineTotalMinor: 14000,
+      prices: packAddition().prices,
+      packaging: packAddition().packaging,
+      image: null,
+      boxVolume: '1.500',
+      boxWeight: '9.000',
+      boxCount: 1,
+      noteEnabled: false,
+      notePrompt: null,
+    };
+
+    write({
+      version: 1,
+      lines: [
+        // No baseline to report against on the next visit.
+        { ...good, slug: 'no-baseline', addedAt: undefined },
+        // A total that would turn the sum into concatenation.
+        { ...good, slug: 'text-total', lineTotalMinor: '14000' },
+        { ...good, slug: 'text-unit-price', unitPriceMinor: '7000' },
+        good,
+      ],
+    });
+
+    const cart = service();
+    expect(cart.lines().map((line) => line.slug)).toEqual(['filter-roast']);
+    // And the surviving cart adds up as a number.
+    expect(cart.totalMinor()).toBe(14000);
   });
 
   // Without this, a second tab writing the whole document makes the last

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
@@ -33,6 +34,30 @@ const slugs = {
   /** Sold the same way, but takes no line note. */
   noNote: `e2e-orders-nonote-${SUFFIX}`,
 };
+
+/**
+ * Pickup and delivery are answered from the deployment's own config, so the
+ * expectations are read from it rather than restated here — a renamed office
+ * or a re-cut zone should move this suite, not break it.
+ */
+const deployment = JSON.parse(
+  readFileSync(requireEnv('DEPLOYMENT_CONFIG_FILE'), 'utf8'),
+) as {
+  locations?: { key: string; name: string }[];
+  delivery?: {
+    zones: {
+      key: string;
+      freeFromMinor?: number;
+      match: { postalPrefixes?: string[] };
+    }[];
+  };
+};
+const PICKUP = deployment.locations?.[0];
+/** The first zone claimed by a postal prefix, and a code inside it. */
+const PREFIX_ZONE = deployment.delivery?.zones.find(
+  (zone) => zone.match.postalPrefixes?.length,
+);
+const IN_PREFIX_ZONE = `${PREFIX_ZONE?.match.postalPrefixes?.[0] ?? ''}359`;
 
 /**
  * The whole contract shape of every order surface. Exhaustive on purpose: a
@@ -349,6 +374,49 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(body).not.toContain('tierKey');
     });
 
+    it('places a pickup order, snapshotting the office it was collected from', async () => {
+      const res = await post(
+        '/orders',
+        submission({
+          fulfilmentMethod: 'pickup',
+          deliveryAddress: null,
+          pickupLocationKey: PICKUP?.key,
+        }),
+      );
+
+      expect(res.status).toBe(201);
+      const read = await get(`/orders/by-token/${res.data.publicToken}`);
+      expect(read.status).toBe(200);
+      expect(read.data.fulfilmentMethod).toBe('pickup');
+      expect(read.data.deliveryAddress).toBeNull();
+      expect(read.data.deliveryZone).toBeNull();
+      // The key *and* the office as it read at the time: config is editable,
+      // and a past order has to stay readable through a rename.
+      expect(read.data.pickup).toMatchObject({
+        key: PICKUP?.key,
+        name: PICKUP?.name,
+      });
+    });
+
+    it('resolves the delivery zone from the address, not from the browser', async () => {
+      const res = await post(
+        '/orders',
+        submission({
+          deliveryAddress: address({ postalCode: IN_PREFIX_ZONE }),
+        }),
+      );
+
+      expect(res.status).toBe(201);
+      const read = await get(`/orders/by-token/${res.data.publicToken}`);
+      // Snapshotted with the threshold it promised — advisory, and never a
+      // figure the browser got to choose.
+      expect(read.data.deliveryZone).toEqual({
+        key: PREFIX_ZONE?.key,
+        freeFromMinor: PREFIX_ZONE?.freeFromMinor ?? null,
+      });
+      expect(read.data.pickup).toBeNull();
+    });
+
     it('refuses a total the browser and the server disagree about', async () => {
       const res = await post(
         '/orders',
@@ -447,6 +515,9 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       );
 
       expect(res.status).toBe(400);
+      // Its own code, not a borrowed one: a person tripped by an autofill must
+      // not be told a full cart is empty.
+      expect(res.data.code).toBe('rejected');
     });
   });
 

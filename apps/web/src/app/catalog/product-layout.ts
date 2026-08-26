@@ -45,7 +45,7 @@ export function readProductLayout(
 }
 
 /**
- * The visitor's chosen listing layout (FR-CAT-04), shared by the category grid
+ * The visitor's chosen listing layout (FR-CAT-06), shared by the category grid
  * and the search results so a choice made on one holds on the other.
  *
  * Read from the request on the server and from `document.cookie` in the

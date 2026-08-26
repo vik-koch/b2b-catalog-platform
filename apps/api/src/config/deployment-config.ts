@@ -72,7 +72,7 @@ export const apiDeploymentConfigSchema = z
       )
       .optional(),
     /**
-     * Delivery zones (FR-CART-11). The server re-derives the zone from the
+     * Delivery zones (FR-CART-07). The server re-derives the zone from the
      * submitted address rather than trusting the browser's — a free-delivery
      * threshold is not something a customer picks.
      */

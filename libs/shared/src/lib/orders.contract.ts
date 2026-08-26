@@ -127,15 +127,16 @@ export type OrderSubmission = z.infer<typeof orderSubmissionSchema>;
  * A line as it was ordered, frozen. The product's own fields are snapshots: a
  * later rename or price change must not rewrite what someone ordered.
  *
- * `slug` is text and a fallback, never the link — the order links by product
- * id, and degrades to plain text where the product is no longer visible rather
- * than sending a customer into a 404.
+ * The order resolves its link by product id, so `slug` is whatever that product
+ * is called *now* wherever `linked` is true. Where it is false the slug is the
+ * snapshot, kept as text: a line degrades to plain words rather than sending a
+ * customer into a 404.
  */
 export const orderLineSchema = z
   .object({
     name: z.string(),
     slug: z.string(),
-    /** Null once the product is unpublished or soft-deleted: nothing to open. */
+    /** False once the product is unpublished or soft-deleted: nothing to open. */
     linked: z.boolean(),
     image: catalogImageSchema.nullable(),
     unit: productUnitSchema,
@@ -204,7 +205,7 @@ export const orderPickupSchema = z
 export type OrderPickup = z.infer<typeof orderPickupSchema>;
 
 /**
- * The delivery zone resolved from the address (FR-CART-11), snapshotted with
+ * The delivery zone resolved from the address (FR-CART-07), snapshotted with
  * its free-delivery threshold. Advisory: it never blocked the order and never
  * priced the delivery, which a manager does.
  */
@@ -278,7 +279,11 @@ export const ordersContract = c.router({
          * and a registration number. Re-checked here rather than stored as a
          * flag on the address, which would go stale the moment it is edited. */
         'billing-details-required',
-        'empty-cart',
+        /** ADR 0015's honeypot caught it. Its own code rather than a borrowed
+         * one: a bot never reads the answer, but a person tripped by an
+         * autofill would, and being told a full cart is empty explains
+         * nothing. */
+        'rejected',
       ]),
       409: cartChangedSchema,
     },

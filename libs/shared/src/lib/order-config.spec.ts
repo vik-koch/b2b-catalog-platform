@@ -133,4 +133,24 @@ describe('orderReferenceConfigSchema', () => {
       }).success,
     ).toBe(false);
   });
+
+  // The only use of the zone is on the way to a reference, so a typo left to
+  // runtime is a shop that boots cleanly and then refuses every order.
+  it('refuses a zone name the platform does not know, at config time', () => {
+    expect(
+      orderReferenceConfigSchema.safeParse({
+        prefix: 'CK',
+        timezone: 'Europe/Berlim',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('accepts UTC and a fixed offset, which are zones too', () => {
+    for (const timezone of ['UTC', 'Etc/GMT+3']) {
+      expect(
+        orderReferenceConfigSchema.safeParse({ prefix: 'CK', timezone })
+          .success,
+      ).toBe(true);
+    }
+  });
 });

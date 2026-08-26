@@ -765,7 +765,7 @@ export class ProductBuyControls {
   }
 
   protected confirmRemove(): void {
-    this.cart.remove(this.item().slug, this.unit());
+    this.cart.remove(this.item().slug);
     this.dismiss();
   }
 

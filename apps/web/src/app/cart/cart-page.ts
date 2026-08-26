@@ -8,11 +8,7 @@ import {
   untracked,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  CART_NOTE_MAX,
-  CartLineIssue,
-  ProductUnit,
-} from '@b2b-catalog-platform/shared';
+import { CART_NOTE_MAX, CartLineIssue } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { APP_TEXT } from '../config/app-text';
@@ -43,10 +39,11 @@ import { CartService } from './cart.service';
  * that fails, which is why the cart keeps a line's prices and packaging.
  */
 interface CartRow {
-  /** Slug and unit, the way a line is identified. */
+  /** The slug, which is what identifies a line: a product is one line, in
+   * whichever unit it is currently held in. Deliberately not the unit as well
+   * — a tick has to survive the customer changing it. */
   key: string;
   slug: string;
-  unit: ProductUnit;
   available: boolean;
   item: RowProduct;
   name: string;
@@ -379,13 +376,12 @@ export class CartPage {
     this.cart.lines().map((line) => {
       const fresh = this.priced().get(`${line.slug} ${line.unit}`);
       return {
-        key: `${line.slug} ${line.unit}`,
+        key: line.slug,
         // A product preview answered no prices for is one the shop no longer
         // offers: the row keeps the last-known figures so its controls can be
         // drawn, and states none of them.
         available: fresh ? fresh.prices !== null : true,
         slug: line.slug,
-        unit: line.unit,
         // Every part of the row from the browser's own copy, photo included:
         // preview writes what it answers back into the store, so reading the
         // answer here too would only mean redrawing the row from nothing for
@@ -411,9 +407,13 @@ export class CartPage {
   );
 
   /**
-   * The ticked lines, by `slug unit`. Held here rather than on the rows so a
-   * re-priced cart does not drop the ticks, and intersected with the cart on
-   * every read so a line removed while ticked takes its tick with it.
+   * The ticked lines, by slug. Held here rather than on the rows so a re-priced
+   * cart does not drop the ticks, and intersected with the cart on every read
+   * so a line removed while ticked takes its tick with it.
+   *
+   * By slug rather than by `slug unit` for the same reason the cart itself is:
+   * changing a line's unit edits that line, and a key carrying the unit would
+   * quietly untick the row the customer just adjusted.
    */
   private readonly ticked = signal<ReadonlySet<string>>(new Set());
   protected readonly selected = computed(() => {
@@ -573,7 +573,7 @@ export class CartPage {
   }
 
   protected remove(row: CartRow): void {
-    this.cart.remove(row.slug, row.unit);
+    this.cart.remove(row.slug);
   }
 
   /** Bulk and irreversible, so it asks first — unlike the bin on a single row,
@@ -589,9 +589,7 @@ export class CartPage {
     });
     if (!ok) return;
     for (const line of this.cart.lines()) {
-      if (keys.has(`${line.slug} ${line.unit}`)) {
-        this.cart.remove(line.slug, line.unit);
-      }
+      if (keys.has(line.slug)) this.cart.remove(line.slug);
     }
     this.ticked.set(new Set());
   }

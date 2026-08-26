@@ -218,7 +218,7 @@ export const deploymentConfigSchema = z
      */
     companyIdInput: companyIdInputSchema.optional(),
     /**
-     * Delivery zones and their free-delivery thresholds (FR-CART-11). Advisory:
+     * Delivery zones and their free-delivery thresholds (FR-CART-07). Advisory:
      * a threshold is quoted, never enforced, and no zone prices a delivery.
      * Optional — a deployment that quotes nothing simply configures no zones.
      */

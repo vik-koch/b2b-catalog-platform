@@ -335,12 +335,10 @@ export class CartService {
     this.write(replaceAt(lines, at, { ...lines[at], note: trimmed }));
   }
 
-  remove(slug: string, unit: ProductUnit): void {
-    this.write(
-      this.stored().filter(
-        (line) => !(line.slug === slug && line.unit === unit),
-      ),
-    );
+  /** By slug alone, since that is what identifies a line — a caller holding a
+   * unit the line has since been moved off would otherwise remove nothing. */
+  remove(slug: string): void {
+    this.write(this.stored().filter((line) => line.slug !== slug));
   }
 
   clear(): void {
@@ -516,6 +514,15 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     candidate.quantity > 0 &&
     (candidate.note === null || typeof candidate.note === 'string') &&
     typeof candidate.name === 'string' &&
+    // The baseline FR-CART-10 reports against. Nothing reads it yet, which is
+    // exactly why it has to be checked here: a line stored without one would
+    // survive until the visit that finally compares against it.
+    typeof candidate.addedAt === 'string' &&
+    // Both are summed on every read — the header's total and the page's — and
+    // a string among them turns the sum into concatenation rather than a
+    // wrong number.
+    isNullableNumber(candidate.unitPriceMinor) &&
+    isNullableNumber(candidate.lineTotalMinor) &&
     isPrices(candidate.prices) &&
     isPackaging(candidate.packaging) &&
     isImage(candidate.image) &&
