@@ -37,6 +37,8 @@ export const serverRoutes: ServerRoute[] = [
   // Not session-scoped, but browser-state-scoped: the cart is in localStorage,
   // which the server cannot read, so an SSR pass could only emit an empty one.
   { path: 'cart', renderMode: RenderMode.Client },
+  // The form that orders it, for the same reason.
+  { path: 'checkout', renderMode: RenderMode.Client },
   // Everything else is content, and server-rendered. The per-deployment config
   // and UI text reach the browser the same way in both modes: injected into the
   // document by the Node process.

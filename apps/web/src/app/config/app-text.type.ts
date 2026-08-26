@@ -262,6 +262,12 @@ export const appTextSchema = z
         /** The subtotal covers only the priceable lines. */
         totalIncomplete: z.string(),
 
+
+        /** Leaves the cart for the checkout form, and goes back to the shelf
+         * the visitor was standing at — the category, page and filters the URL
+         * was carrying, or the catalogue where this visit has seen none. */
+        checkout: z.string(),
+        continueShopping: z.string(),
         /**
          * The shipment estimate (FR-UNIT-11), rendered as labelled rows — so
          * these are row captions, and the figures beside them come from the
@@ -269,7 +275,6 @@ export const appTextSchema = z
          */
         /** The summary card beside the lines: what the order is, then what
          * the estimate makes of it. */
-        continueShopping: z.string(),
         summaryTitle: z.string(),
         /** How many lines the cart holds — the cart's own figure, stated
          * whether or not an estimate arrives. */
@@ -333,6 +338,56 @@ export const appTextSchema = z
             quantityCorrected: z.string(),
             noteNotAllowed: z.string(),
             priceUnavailable: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
+     * Checkout: the one form the cart leads into, and the preview it sends
+     * from (FR-CART-03/04/07/09). What a *choice* means is worded here; what a
+     * deployment offers — its zones, its offices — comes from deployment
+     * config, so the two are never two copies of the same fact.
+     */
+    checkout: z
+      .object({
+        title: z.string(),
+        /** One line under the heading, saying what this is: a request a
+         * manager confirms, not a purchase being completed. */
+        intro: z.string(),
+        /** Sent here with nothing to order — the cart emptied in another tab,
+         * or the URL was typed. */
+        emptyCart: z.string(),
+        /** How the goods arrive. The row that leads the form, because it
+         * decides most of what follows it. */
+        fulfilment: z
+          .object({
+            heading: z.string(),
+            deliveryTitle: z.string(),
+            deliveryDescription: z.string(),
+            pickupTitle: z.string(),
+            pickupDescription: z.string(),
+            /** Opens the zone list. The binding long form stays on the
+             * conditions page, which the dialog links to. */
+            conditionsLink: z.string(),
+            conditionsHeading: z.string(),
+            /** Says the zones are advisory: a threshold is quoted, never
+             * enforced, and no delivery is priced here. */
+            conditionsNote: z.string(),
+            /** Link out of the dialog to the full conditions page, shown only
+             * where the deployment publishes one. */
+            conditionsMore: z.string(),
+            close: z.string(),
+            /** A zone's free-delivery minimum; `{amount}` is substituted. */
+            freeFrom: z.string(),
+            /** Shown for a zone that quotes no minimum — said out loud, so an
+             * absent line does not read as an unstated free threshold. */
+            noFreeDelivery: z.string(),
+            /** Heading of the office list, which stands under the cards as
+             * the pickup answer to the delivery address — not inside the card,
+             * where it would be a second question asked in the margin. */
+            pickupHeading: z.string(),
+            /** Opens one office's map, the same embed the contact page uses. */
+            mapLink: z.string(),
           })
           .strict(),
       })

@@ -395,6 +395,12 @@ interface CartRow {
                 }
               }
 
+              <!-- Inside the summary card, under the figure they act on: the
+                   total is what somebody decides to check out against. Full
+                   width, because in the narrow shape this card is the page. -->
+              <a appButton routerLink="/checkout" class="mt-5 w-full">
+                {{ text.checkout }}
+              </a>
               <!-- Back to the shelf the visitor was standing at, with the
                    category, page and filters it was carrying. -->
               <a

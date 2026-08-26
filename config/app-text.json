@@ -119,6 +119,7 @@
     "subtotal": "Subtotal",
     "noPrice": "On request",
     "totalIncomplete": "Some lines could not be priced — the subtotal covers the rest.",
+    "checkout": "Proceed to checkout",
     "continueShopping": "Continue shopping",
     "summaryTitle": "Your order",
     "summaryLines": "Line items",
@@ -143,6 +144,27 @@
       "quantityCorrected": "The quantity was adjusted to the nearest we can supply.",
       "noteNotAllowed": "This product no longer takes a note, so yours was dropped.",
       "priceUnavailable": "We cannot price this line right now — we will confirm it with you."
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "intro": "Send us your order and we will confirm the details with you — nothing is charged here.",
+    "emptyCart": "There is nothing in your cart to order.",
+    "fulfilment": {
+      "heading": "How would you like to receive your order?",
+      "deliveryTitle": "Delivery",
+      "deliveryDescription": "We bring your order to the address you give us. Delivery is quoted with your order.",
+      "pickupTitle": "Self-pickup",
+      "pickupDescription": "Collect your order yourself once we let you know it is ready.",
+      "conditionsLink": "Delivery conditions",
+      "conditionsHeading": "Where we deliver",
+      "conditionsNote": "A guide only — we confirm delivery and its cost with every order.",
+      "conditionsMore": "Read the full terms",
+      "close": "Close",
+      "freeFrom": "Free delivery from {amount}",
+      "noFreeDelivery": "Delivery is quoted per order",
+      "pickupHeading": "Where would you like to collect your order?",
+      "mapLink": "Find on map"
     }
   },
   "search": {

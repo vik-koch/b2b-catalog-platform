@@ -48,7 +48,6 @@ describe('ContactPage', () => {
   it('renders a location with its name, description and map iframe', async () => {
     const el = await render([
       {
-        key: 'hq',
         name: 'HQ',
         description: 'Main St 1',
         map: { url: 'https://maps.example/hq' },
@@ -68,7 +67,7 @@ describe('ContactPage', () => {
 
   it('renders the editable page body above the office list', async () => {
     const el = await render([
-      { key: 'hq', name: 'HQ', map: { url: 'https://maps.example/hq' } },
+      { name: 'HQ', map: { url: 'https://maps.example/hq' } },
     ]);
 
     expect(el.querySelector('.prose')?.innerHTML).toContain(
@@ -78,8 +77,8 @@ describe('ContactPage', () => {
 
   it('renders one map per location, so multi-location needs no code change', async () => {
     const el = await render([
-      { key: 'north', name: 'North', map: { url: 'https://maps.example/n' } },
-      { key: 'south', name: 'South', map: { url: 'https://maps.example/s' } },
+      { name: 'North', map: { url: 'https://maps.example/n' } },
+      { name: 'South', map: { url: 'https://maps.example/s' } },
     ]);
 
     expect(el.querySelectorAll('iframe').length).toBe(2);
@@ -87,9 +86,7 @@ describe('ContactPage', () => {
     expect(el.textContent).toContain('South');
   });
 
-  const locations = [
-    { key: 'hq', name: 'HQ', map: { url: 'https://maps.example/hq' } },
-  ];
+  const locations = [{ name: 'HQ', map: { url: 'https://maps.example/hq' } }];
 
   it('shows the load error instead of a half page when the body fails', async () => {
     // The office list alone under an empty heading would look like the page,

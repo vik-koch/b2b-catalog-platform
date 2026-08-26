@@ -329,6 +329,15 @@ export const appRoutes: Route[] = [
     canActivate: [maintenanceGate],
     loadComponent: () => import('./cart/cart-page').then((m) => m.CartPage),
   },
+  // Checkout is client-rendered like the cart, and for the same reason: it
+  // orders what is in this browser's storage. Signed-in only for now — guest
+  // checkout (FR-CART-03) is its own screen and lands separately.
+  {
+    path: 'checkout',
+    canActivate: [maintenanceGate, requireAuth()],
+    loadComponent: () =>
+      import('./checkout/checkout-page').then((m) => m.CheckoutPage),
+  },
   {
     path: ':slug',
     component: StaticPage,
