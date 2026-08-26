@@ -80,6 +80,11 @@ export function parseCount(text: string): number | null {
                 <label [attr.for]="'packaging-' + row.key">{{
                   row.label
                 }}</label>
+                @if (row.hint) {
+                  <span class="mt-0.5 block text-xs font-normal text-subtle">{{
+                    row.hint
+                  }}</span>
+                }
               </th>
               <!-- The unit sits inside the cell, after the value it measures,
                    and the focus ring is drawn around the pair — so the cell
@@ -153,6 +158,7 @@ export class ProductPackagingEditor {
         placeholder?: string;
         suffix?: string;
         price?: string;
+        hint?: string;
         decimal?: boolean;
         enabled?: boolean;
       } = {},
@@ -163,6 +169,7 @@ export class ProductPackagingEditor {
       placeholder: opts.placeholder ?? '',
       suffix: opts.suffix ?? '',
       price: opts.price ?? '',
+      hint: opts.hint ?? '',
       inputMode: opts.decimal ? ('decimal' as const) : ('integer' as const),
       disabled: opts.enabled === false,
     });
@@ -171,6 +178,7 @@ export class ProductPackagingEditor {
       row('minPieceQty', this.text.minPieceQty, {
         placeholder: '1',
         suffix: this.text.pieceSuffix,
+        hint: this.text.minPieceQtyHint,
       }),
       row('priceBasisPieces', this.text.priceBasis, {
         placeholder: '1',
@@ -292,9 +300,16 @@ export class ProductPackagingEditor {
   }
 
   /**
-   * Puts a required count back to 1 when it is left empty or at zero. Done on
+   * Puts a required count back to 1 when it is left empty or at zero, and lifts
+   * a minimum that sits between two packs up to the next whole one. Done on
    * blur rather than per keystroke, so clearing the field to retype it does not
    * fight the typing.
+   *
+   * The minimum is raised rather than refused: a piece order moves by one pack,
+   * so a minimum of 25 against a pack of 6 is not a rule the shop can keep, and
+   * 30 is the nearest one it can. Upward is the direction every other quantity
+   * correction goes. The save-time guard behind this catches a stored product
+   * that arrived off the lattice some other way.
    */
   protected normalize(key: keyof PackagingDraft): void {
     const required =
@@ -305,6 +320,17 @@ export class ProductPackagingEditor {
     if (!required) return;
     if (parseCount(this.value()[key]) === null) {
       this.valueChange.emit({ ...this.value(), [key]: '1' });
+      return;
+    }
+    if (key === 'minPieceQty' || key === 'piecesPerPack') {
+      const pack = parseCount(this.value().piecesPerPack);
+      const min = parseCount(this.value().minPieceQty);
+      if (pack === null || min === null || min % pack === 0) return;
+      const lifted = Math.ceil(min / pack) * pack;
+      this.valueChange.emit({
+        ...this.value(),
+        minPieceQty: String(lifted),
+      });
     }
   }
 }

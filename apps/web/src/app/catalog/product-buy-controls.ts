@@ -11,8 +11,12 @@ import {
   CART_NOTE_MAX,
   CatalogImage,
   convertUnitQuantity,
-  correctPieceQuantity,
+  correctQuantity,
   exactLineTotal,
+  piecesFor,
+  piecesPerUnit,
+  unitFloor,
+  unitStep,
   ProductPackagingInfo,
   ProductUnit,
   UnitPrices,
@@ -365,8 +369,11 @@ export interface BuyableProduct {
           <ng-container [ngTemplateOutlet]="stepperBlock" />
         </div>
         <div [class]="cell.minimum">
+          <!-- In the selected unit: it sits beside the stepper, and a stepper
+               that stops at four packs must not be explained in pieces. -->
           <app-product-unit-facts
             show="minimum"
+            [unit]="unit()"
             [packagingInfo]="packaging()"
           />
         </div>
@@ -463,7 +470,7 @@ export class ProductBuyControls {
    * quantity rather than restarting it. */
   private readonly chosenQuantity = linkedSignal<string, number>({
     source: () => this.item().slug,
-    computation: () => this.item().packaging.minPieceQty,
+    computation: () => unitFloor(this.item().packaging, 'piece') ?? 1,
   });
 
   protected readonly unit = computed(
@@ -658,14 +665,39 @@ export class ProductBuyControls {
   );
 
   protected chooseUnit(unit: ProductUnit): void {
-    const quantity = this.converted(this.unit(), unit, this.quantity());
+    const from = this.unit();
+    const held = this.quantity();
+    const converted =
+      from === unit
+        ? null
+        : convertUnitQuantity(this.packaging(), from, unit, held);
+    const quantity = converted?.quantity ?? this.startQuantity(unit);
+
     if (this.inCart()) {
       this.writeLine(unit, quantity);
     } else {
       this.chosenUnit.set(unit);
       this.chosenQuantity.set(quantity);
     }
+    // `edited()` clears the last bubble, so the announcement comes after it.
     this.edited();
+    // The goods do not always divide into the new unit — two packs are half a
+    // box, and half a box is not something the shop packs. The quantity goes up
+    // rather than down, which costs the customer more, so it is said out loud.
+    if (converted && !converted.exact) {
+      this.announce(unit, this.unrounded(from, unit, held), quantity);
+    }
+  }
+
+  /** What the quantity came to before it was rounded, to three decimals —
+   * "2.5 bx became 3 bx" says what happened, where "2 pk became 3 bx" is two
+   * unrelated numbers. Falls back to the held figure if the ratio is unknown,
+   * which cannot happen for a conversion that succeeded. */
+  private unrounded(from: ProductUnit, to: ProductUnit, quantity: number) {
+    const perTarget = piecesPerUnit(this.packaging(), to);
+    const pieces = piecesFor(this.packaging(), from, quantity);
+    if (perTarget === null || pieces === null) return quantity;
+    return Math.round((pieces / perTarget) * 1000) / 1000;
   }
 
   protected openNote(): void {
@@ -711,17 +743,18 @@ export class ProductBuyControls {
   }
 
   /**
-   * One step is one minimum lot for pieces, so `+` on a product sold in
-   * hundreds moves by a hundred rather than into an invalid quantity.
+   * One step is one pack for pieces, so `+` on a product packed in sixes moves
+   * by six rather than into a quantity the shop cannot break open.
    *
+   * The floor it stops at is the *minimum*, which is a different figure: a shop
+   * that will not ship fewer than 24 still sells them 6 at a time above that.
    * There is nothing below the minimum except not buying the product at all, so
    * that is what `−` offers there — once it is in the cart and there is
    * something to take out.
    */
   protected step(direction: 1 | -1): void {
-    const step = this.stepSize();
-    const wanted = this.quantity() + direction * step;
-    if (wanted < step) {
+    const wanted = this.quantity() + direction * this.stepSize();
+    if (wanted < this.floorSize()) {
       this.edited();
       if (this.inCart()) {
         this.popup.set({ at: 'remove', message: this.text.removeQuestion });
@@ -733,22 +766,30 @@ export class ProductBuyControls {
   }
 
   /**
-   * Rounds a typed piece quantity up to the nearest one that can be supplied.
-   * The field is left alone until then, so a half-typed number is not rewritten
-   * under the cursor.
+   * Rounds a typed quantity up to the nearest one that can be supplied — in
+   * whichever unit it was typed in. The field is left alone until then, so a
+   * half-typed number is not rewritten under the cursor.
+   *
+   * A pack or a box has no step to land on, but it does have the minimum: four
+   * packs of six is the least a 24-piece minimum will sell, and one pack is not.
    */
   protected correct(): void {
-    if (this.unit() !== 'piece') return;
     const wanted = this.quantity();
-    const corrected = correctPieceQuantity(this.packaging(), wanted);
+    const corrected = correctQuantity(this.packaging(), this.unit(), wanted);
     if (corrected === wanted) return;
     this.setQuantity(corrected);
+    this.announce(this.unit(), wanted, corrected);
+  }
+
+  /** The correction bubble, in the words of whichever unit was corrected — a
+   * box rounded up must not be reported in pieces. */
+  private announce(unit: ProductUnit, from: number, to: number): void {
     this.popup.set({
       at: 'quantity',
       message: fillText(this.text.quantityCorrected, {
-        from: wanted,
-        to: corrected,
-        unit: this.unitText.piece,
+        from,
+        to,
+        unit: this.unitText[unit],
       }),
     });
   }
@@ -782,33 +823,24 @@ export class ProductBuyControls {
     return unit === this.unit() ? 'selected' : 'available';
   }
 
-  /** The step, and equally the smallest quantity worth keeping: below it the
-   * only sensible quantity is none. */
+  /** What `+` and `−` move by: one pack for pieces, one of anything else. */
   private stepSize(): number {
-    return this.unit() === 'piece'
-      ? Math.max(1, this.packaging().minPieceQty)
-      : 1;
+    return unitStep(this.packaging(), this.unit());
   }
 
-  /** The quantity a piece line would really be bought in. */
+  /** The smallest quantity worth keeping: below it the only sensible quantity
+   * is none. The minimum in whichever unit is selected. */
+  private floorSize(): number {
+    return unitFloor(this.packaging(), this.unit()) ?? 1;
+  }
+
+  /** The quantity this line would really be bought in. */
   private effectiveQuantity(): number {
-    return this.unit() === 'piece'
-      ? correctPieceQuantity(this.packaging(), this.quantity())
-      : this.quantity();
-  }
-
-  /** The same quantity of the same product, expressed in another unit —
-   * rounded up where the pieces do not fill a whole one. */
-  private converted(from: ProductUnit, to: ProductUnit, quantity: number) {
-    if (from === to) return quantity;
-    return (
-      convertUnitQuantity(this.packaging(), from, to, quantity)?.quantity ??
-      this.startQuantity(to)
-    );
+    return correctQuantity(this.packaging(), this.unit(), this.quantity());
   }
 
   private startQuantity(unit: ProductUnit): number {
-    return unit === 'piece' ? this.packaging().minPieceQty : 1;
+    return unitFloor(this.packaging(), unit) ?? 1;
   }
 
   private setQuantity(quantity: number): void {

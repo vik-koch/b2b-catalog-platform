@@ -12,14 +12,18 @@ import { packagedPackaging, productDetail } from './product.fixture';
 const text = defaultAppText.cart;
 const unitText = defaultAppText.catalog.units;
 
-/** Six to a pack, four packs to a box, and a hundred-piece minimum. */
+/**
+ * Ten to a pack, four packs to a box (so forty pieces), and a hundred-piece
+ * minimum — ten whole packs, which is what the minimum now has to be.
+ */
 const packaged = productDetail({
   slug: 'filter-roast',
   name: 'Filter Roast',
-  packaging: { ...packagedPackaging, minPieceQty: 100 },
+  packaging: { ...packagedPackaging, piecesPerPack: 10, minPieceQty: 100 },
   prices: {
     pieceMilliMinor: 1250,
-    pieceLotMinor: 125_000,
+    // One step — one pack of ten — at 1.25 minor units a piece.
+    pieceLotMinor: 12_500,
     pack: 7000,
     box: 27000,
   },
@@ -114,7 +118,7 @@ describe('ProductBuyBlock', () => {
     expect(view.text()).toContain(
       `${unitText.minQuantity}: 100 ${unitText.piece}`,
     );
-    expect(view.text()).toContain(`${unitText.packaging}: 4 pk × 6 pcs`);
+    expect(view.text()).toContain(`${unitText.packaging}: 4 pk × 10 pcs`);
   });
 
   it('carries the buying controls, priced and ready', async () => {

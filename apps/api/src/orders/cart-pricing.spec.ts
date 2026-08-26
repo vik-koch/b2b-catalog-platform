@@ -176,9 +176,11 @@ describe('priceCart', () => {
   });
 
   it('reports a price it cannot make exact rather than rounding one', async () => {
-    // A repackaged product: the basis no longer divides the pack.
+    // A repackaged product: the basis no longer divides the pack. The minimum
+    // is one pack, so nothing else about the line needs correcting and the
+    // price is the only thing wrong with it.
     const { db } = dbWith([
-      { ...coffee, piecesPerPack: 7, minPieceQty: 10, packsPerBox: null },
+      { ...coffee, piecesPerPack: 7, minPieceQty: 7, packsPerBox: null },
     ]);
 
     const { preview, lines } = await priceCart(

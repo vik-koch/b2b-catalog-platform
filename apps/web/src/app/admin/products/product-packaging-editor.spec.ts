@@ -138,6 +138,39 @@ describe('ProductPackagingEditor', () => {
     expect(emitted.at(-1)).toMatchObject({ minPieceQty: '1' });
   });
 
+  // A piece order moves by one pack, so a minimum between two packs is not a
+  // rule the shop can keep. Raised rather than refused, and visibly, on the
+  // blur where every other count is tidied.
+  it('lifts a minimum that sits between packs to the next whole one', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '25',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-minPieceQty',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted.at(-1)).toMatchObject({ minPieceQty: '30' });
+  });
+
+  it('leaves a minimum that is already whole packs alone', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '24',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-minPieceQty',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted).toEqual([]);
+  });
+
   it('leaves an optional count empty on blur — it means "not sold that way"', () => {
     const { fixture, emitted } = render(emptyPackaging());
 

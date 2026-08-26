@@ -33,6 +33,9 @@ const slugs = {
   deleted: `e2e-orders-deleted-${SUFFIX}`,
   /** Sold the same way, but takes no line note. */
   noNote: `e2e-orders-nonote-${SUFFIX}`,
+  /** Ten to a pack, but the shop will not ship fewer than a hundred — the
+   * case where the floor and the step are different figures. */
+  stepped: `e2e-orders-stepped-${SUFFIX}`,
 };
 
 /**
@@ -199,6 +202,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       slug: string,
       state: 'live' | 'unpublished' | 'deleted',
       lineNoteEnabled = true,
+      minPieceQty = 10,
     ) => {
       await client.query(
         `INSERT INTO products (
@@ -206,7 +210,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
            "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume",
            "boxWeight", "boxCount", "categoryId", "lineNoteEnabled",
            "publishedAt", "deletedAt")
-         VALUES ($1, $2, $3, $4, $5, 10, 4, 10, '0.240', '12.500', 1, $6, $7,
+         VALUES ($1, $2, $3, $4, $5, 10, 4, $10, '0.240', '12.500', 1, $6, $7,
                  $8, $9)`,
         [
           `${SOURCE_PREFIX}-${slug}`,
@@ -218,6 +222,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           lineNoteEnabled,
           state === 'unpublished' ? null : new Date(),
           state === 'deleted' ? new Date() : null,
+          minPieceQty,
         ],
       );
     };
@@ -225,6 +230,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     await product(slugs.hidden, 'unpublished');
     await product(slugs.deleted, 'deleted');
     await product(slugs.noNote, 'live', false);
+    await product(slugs.stepped, 'live', true, 100);
 
     const { rows: tiers } = await client.query(
       'INSERT INTO customer_tiers (key, label) VALUES ($1, $2) RETURNING id',
@@ -332,6 +338,54 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         quantity: 10,
         issues: ['quantity-corrected'],
         lineTotalMinor: BASE_MINOR,
+      });
+    });
+
+    // The floor and the step are different figures: the shop will not ship
+    // fewer than a hundred, but above that it picks them ten at a time. The
+    // rule this replaced pushed 141 to 200.
+    it('steps a piece quantity by the pack, not by the minimum', async () => {
+      const res = await post('/cart/preview', {
+        lines: [
+          { slug: slugs.stepped, unit: 'piece', quantity: 141 },
+          { slug: slugs.stepped, unit: 'piece', quantity: 140 },
+          { slug: slugs.stepped, unit: 'piece', quantity: 90 },
+        ],
+      });
+
+      expect(res.status).toBe(200);
+      expect(
+        res.data.lines.map((l: { quantity: number }) => l.quantity),
+      ).toEqual(
+        // Up to the next whole pack; left alone; lifted to the minimum.
+        [150, 140, 100],
+      );
+      expect(res.data.lines[1].issues).toEqual([]);
+      // Fourteen packs of ten at 19.99 the pack-worth.
+      expect(res.data.lines[1].lineTotalMinor).toBe(BASE_MINOR * 14);
+    });
+
+    // The hole the piece-only minimum left: the `stepped` product will not ship
+    // fewer than a hundred pieces, and one pack of ten is ten. Ordering by the
+    // pack used to walk straight under the rule.
+    it('holds a pack order to the same minimum as a piece order', async () => {
+      const res = await post('/cart/preview', {
+        lines: [
+          { slug: slugs.stepped, unit: 'pack', quantity: 1 },
+          { slug: slugs.stepped, unit: 'box', quantity: 1 },
+        ],
+      });
+
+      expect(res.status).toBe(200);
+      // A hundred pieces is ten packs of ten...
+      expect(res.data.lines[0]).toMatchObject({
+        quantity: 10,
+        issues: ['quantity-corrected'],
+      });
+      // ...and three boxes of forty, since two hold only eighty.
+      expect(res.data.lines[1]).toMatchObject({
+        quantity: 3,
+        issues: ['quantity-corrected'],
       });
     });
 

@@ -184,3 +184,62 @@ above is untouched: `boxVolume` and `boxWeight` are still totals across
 partial box now has a stated figure — proportional for weight and volume, rounded
 up to whole cartons for the count, and labelled approximate. ADR 0038 pins the
 arithmetic.
+
+## Amendment — 2026-08-26: the minimum is a floor, the pack is the increment
+
+`minPieceQty` carried two jobs — the smallest order and the increment — and they
+are not the same fact. The minimum is commercial: how little the shop will
+bother picking and shipping. The increment is physical: a pack is what cannot be
+broken open. Fusing them meant a shop that will not ship fewer than 24 also
+refused to sell 30, and pushed the client's own example of 140 against a minimum
+of 100 all the way to 200. That was never a rule anybody stated; it fell out of
+using one column for both.
+
+**The step is `piecesPerPack`, falling back to `minPieceQty` where a product has
+no pack** — a product with nothing to stop it moving by ones has only its own
+minimum to go by. `pieceStep` and `pieceFloor` in `product-units.ts` name the two
+figures, and every surface reads them rather than the column.
+
+**The minimum must be a whole number of packs**, enforced by
+`products_minimum_is_whole_packs` and mirrored in the editor. This is what keeps
+one published price able to describe every piece total: with the minimum on the
+step lattice, every orderable quantity is a multiple of the step, so a total is
+`pieceLotMinor × (quantity ÷ step)` — still plain multiplication, still nothing
+divided and nothing rounded. A minimum of 25 against a pack of 6 would put the
+first orderable quantity off the lattice and cost a second published figure to
+describe. The migration raises any existing minimum to the next whole pack, which
+is the direction FR-UNIT-03 already corrects in.
+
+**`pieceLotMinor` is now the price of one step, not of the minimum.** The
+2026-08-23 amendment defined it as `priceMinor × (minPieceQty ÷ basis)`; it is
+now `priceMinor × (pieceStep ÷ basis)`. The exactness argument is unchanged and
+the (⚠) rules above still stand — only which quantity the lot describes moved,
+and it moved to the one every total is actually a multiple of.
+
+**The minimum holds in every unit, not only in pieces.** It was applied to piece
+purchases alone, on the reasoning that "a pack or a box is already a valid
+quantity" — but that made the rule bypassable by changing the word: one pack of
+six is six pieces, which is under a minimum of 24. It is one figure, stored in
+pieces, and each unit expresses that same figure — 24 pieces is four packs of
+six, or one box of 24 — rounded up to a whole one of that unit, since half a
+pack is not something the shop picks. `unitFloor` and `correctQuantity` replace
+the piece-only `pieceFloor`/`correctPieceQuantity`, and the server corrects every
+unit rather than only pieces.
+
+The minimum shown beside the stepper follows the selected unit for the same
+reason: a stepper that stops at four packs cannot be explained in pieces. A tile
+still states it in pieces, as a plain fact about the product.
+
+The correction message follows the same split. It fires where a typed quantity
+is not whole steps, where it is under the unit's floor, and where a **change of
+unit** had to round up — two packs are half a box, and half a box is not
+something the shop packs. It names the unit it corrected, so a rounded box is
+never reported in pieces.
+
+Not addressed here, and written down so it is not mistaken for settled: `piece`
+still fuses the priced unit, the smallest sellable unit and the physical content
+descriptor. Products exist where those diverge — a litre of milk with no middle
+rung, a paper roll that is a pack physically and an atom commercially, a
+200-filter pack sold and priced whole. The likely answer is a variable-length
+ladder of named sale units rather than three fixed columns, and it is parked
+pending a survey of the real catalog rather than designed from examples.

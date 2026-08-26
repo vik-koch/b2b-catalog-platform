@@ -299,7 +299,12 @@ describe('ProductEditorPage', () => {
       { slug: 'hafen-espresso' },
       {},
       {
-        product: { ...storedProduct, piecesPerPack: 6, packsPerBox: 4 },
+        product: {
+          ...storedProduct,
+          piecesPerPack: 6,
+          packsPerBox: 4,
+          minPieceQty: 6,
+        },
       },
     );
 
@@ -326,6 +331,7 @@ describe('ProductEditorPage', () => {
           ...storedProduct,
           piecesPerPack: 6,
           packsPerBox: 4,
+          minPieceQty: 6,
           boxVolume: '0.250',
           boxWeight: '12.500',
         },

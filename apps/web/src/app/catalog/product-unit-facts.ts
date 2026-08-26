@@ -1,5 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { ProductPackagingInfo } from '@b2b-catalog-platform/shared';
+import {
+  ProductPackagingInfo,
+  ProductUnit,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { useProductUnits } from './product-units-view';
 
@@ -42,6 +45,12 @@ export class ProductUnitFacts {
    * it asks for one line at a time.
    */
   readonly show = input<'both' | 'minimum' | 'packaging'>('both');
+  /**
+   * The unit the minimum is stated in. Defaults to pieces, which is how a tile
+   * states it as a plain product fact; the buying controls pass the unit that
+   * is actually selected, so the figure agrees with the stepper beside it.
+   */
+  readonly unit = input<ProductUnit>('piece');
 
   private readonly units = useProductUnits();
   private readonly text = inject(APP_TEXT).catalog.units;
@@ -52,7 +61,10 @@ export class ProductUnitFacts {
 
   protected readonly minimum = computed(
     () =>
-      `${this.text.minQuantity}: ${this.units.minimumOrder(this.packagingInfo())}`,
+      `${this.text.minQuantity}: ${this.units.minimumOrder(
+        this.packagingInfo(),
+        this.unit(),
+      )}`,
   );
 
   protected readonly packaging = computed(() => {
