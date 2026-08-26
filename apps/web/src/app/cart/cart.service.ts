@@ -1,4 +1,4 @@
-import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   computed,
   DestroyRef,
@@ -12,6 +12,7 @@ import {
   CART_NOTE_MAX,
   CartLine,
   CartPreview,
+  CartPreviewLine,
   CatalogImage,
   correctPieces,
   exactLineTotal,
@@ -21,7 +22,10 @@ import {
   shipmentEstimate,
   ShipmentSummary,
   UnitPrices,
+  USER_ROLES,
+  UserRole,
 } from '@b2b-catalog-platform/shared';
+import { readSessionHint } from '../auth/session-hint';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
 
 /**
@@ -86,11 +90,43 @@ export interface CartStoredLine {
   notePrompt: string | null;
 }
 
-/** The whole cart as it is written down. Only the lines: everything the
- * summary states is derived from them. */
+/** The whole cart as it is written down: the lines, and whose prices they were
+ * last quoted at. Everything the summary states is derived from the lines. */
 interface StoredCart {
   version: number;
   lines: CartStoredLine[];
+  /**
+   * Who the cart was last priced for, as the readable session hint says it —
+   * `null` for a guest, absent for a cart written before this was recorded.
+   *
+   * A role rather than an account: what moves a customer's prices is signing
+   * in or out (FR-CART-10), and the hint is the one identity available while
+   * the cart is being priced — `/auth/me` answers a round trip later. Two
+   * accounts in different price groups are indistinguishable here, but
+   * reaching one from the other means signing out in between, and that
+   * transition is caught.
+   */
+  pricedFor?: UserRole | null;
+}
+
+/** What happened to one line while the cart waited (FR-CART-10), most
+ * consequential first — one per line, so a summary reads as a list of
+ * products rather than a list of faults. */
+export type CartChangeKind = 'unavailable' | 'quantity' | 'unpriced' | 'price';
+
+/**
+ * A line the shop no longer describes the way the browser wrote it down.
+ *
+ * The figures are the line's **totals**, before and after: it is what the
+ * customer is about to pay, and it is comparable even where the unit the line
+ * is read in has moved underneath it.
+ */
+export interface CartChange {
+  slug: string;
+  name: string;
+  kind: CartChangeKind;
+  fromMinor: number | null;
+  toMinor: number | null;
 }
 
 /** What a product page hands over to record a line: the choice, plus the
@@ -131,7 +167,29 @@ export type CartAddResult = 'added' | 'full';
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly stored = signal<CartStoredLine[]>(this.read());
+  private readonly document = inject(DOCUMENT);
+  private readonly restored = this.read();
+  private readonly stored = signal<CartStoredLine[]>(this.restored.lines);
+
+  /** Who the written-down prices were quoted for; see `StoredCart.pricedFor`.
+   * Undefined where the cart predates the field, which reads as "the visitor
+   * it is being priced for now". */
+  private pricedFor: UserRole | null | undefined = this.restored.pricedFor;
+
+  /** Whether the cart has been priced once in this visit. The first answer is
+   * the one that describes what changed while the cart waited; every one after
+   * it answers an edit the customer just made. */
+  private reported = false;
+
+  private readonly changesState = signal<readonly CartChange[]>([]);
+
+  /**
+   * What changed while the cart waited (FR-CART-10) — empty until the first
+   * pricing of a visit says otherwise, and empty again once it is dismissed.
+   * Reported once and never rebuilt: an edit made afterwards is the customer's
+   * own doing.
+   */
+  readonly changes = this.changesState.asReadonly();
 
   /** The cart, oldest line first. */
   readonly lines = this.stored.asReadonly();
@@ -216,7 +274,9 @@ export class CartService {
     // win in silence, discarding whatever another tab had added.
     const onStorage = (event: StorageEvent) => {
       if (event.key !== null && event.key !== CART_STORAGE_KEY) return;
-      this.stored.set(this.read());
+      const restored = this.read();
+      this.stored.set(restored.lines);
+      this.pricedFor = restored.pricedFor;
     };
     window.addEventListener('storage', onStorage);
     inject(DestroyRef).onDestroy(() =>
@@ -353,12 +413,33 @@ export class CartService {
   }
 
   /**
+   * True where the prices written down were quoted to a *different* visitor
+   * than the one here now — so the header is carrying somebody else's figures
+   * until the cart is priced again (`CartRepricing`).
+   *
+   * A method rather than a signal: the session hint is a cookie, and nothing
+   * reactive fires when one changes. The caller watches the session instead.
+   */
+  needsRepricing(): boolean {
+    return this.stored().length > 0 && this.pricedFor !== this.currentRole();
+  }
+
+  /** Puts the change summary away; it does not come back this visit. */
+  dismissChanges(): void {
+    this.changesState.set([]);
+  }
+
+  /**
    * Folds a fresh preview back onto the stored cart: corrected quantities,
    * dropped notes, and the prices as they stand now.
    *
    * It never removes a line. The server flags a dead one; taking it out is the
    * customer's action, and a cart that quietly shortened itself between two
    * glances is worse than one that says what is wrong with it.
+   *
+   * The first answer of a visit is also what reports what changed while the
+   * cart waited (FR-CART-10): it is the last moment the baseline the shop is
+   * about to overwrite is still there to compare against.
    */
   applyPreview(preview: CartPreview): void {
     // By slug alone, which is what identifies a line. The answer may carry
@@ -367,9 +448,12 @@ export class CartService {
     // nothing and drop the correction on the floor.
     const priced = new Map(preview.lines.map((line) => [line.slug, line]));
     const current = this.stored();
+    const changes: CartChange[] = [];
     const next = current.map((line) => {
       const fresh = priced.get(line.slug);
       if (!fresh) return line;
+      const change = changeFor(line, fresh);
+      if (change) changes.push(change);
       const updated: CartStoredLine = {
         ...line,
         unit: fresh.unit,
@@ -398,9 +482,33 @@ export class CartService {
       // confirms the cart does not count as a change to it.
       return sameLine(line, updated) ? line : updated;
     });
+    this.report(changes);
+
     // An answer that only confirms what is written down is not a change to it,
-    // so nothing here touches storage on every reply.
+    // so nothing here touches storage on every reply — unless the visitor it
+    // was priced for has moved, which is itself worth writing down.
+    const rebaselined = this.pricedFor !== this.currentRole();
     if (next.some((line, at) => line !== current[at])) this.write(next);
+    else if (rebaselined) this.persist();
+  }
+
+  /**
+   * Reports what the first pricing of a visit found — or says nothing at all,
+   * where the cart was last priced for somebody else. Signing in or out moves
+   * every tiered price at once, and FR-CART-10 is explicit that this is not
+   * news: the re-pricing is silent, and the visit's one report is spent on it.
+   */
+  private report(changes: CartChange[]): void {
+    const rebaselined =
+      this.pricedFor !== undefined && this.pricedFor !== this.currentRole();
+    if (!this.reported && !rebaselined) this.changesState.set(changes);
+    this.reported = true;
+  }
+
+  /** The visitor the cart is being priced for, from the readable session hint
+   * beside the httpOnly session cookie. */
+  private currentRole(): UserRole | null {
+    return this.isBrowser ? readSessionHint(this.document.cookie) : null;
   }
 
   private write(lines: CartStoredLine[]): void {
@@ -408,12 +516,19 @@ export class CartService {
     this.persist();
   }
 
+  /**
+   * Writes the cart down, recording the visitor it was priced for as it goes:
+   * every write states prices the shop quoted this visitor, whether it came
+   * from a pricing call or from the buying controls on a product page.
+   */
   private persist(): void {
     if (!this.isBrowser) return;
+    this.pricedFor = this.currentRole();
     try {
       const payload: StoredCart = {
         version: CART_STORAGE_VERSION,
         lines: this.stored(),
+        pricedFor: this.pricedFor,
       };
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(payload));
       this.persistFailedState.set(false);
@@ -425,23 +540,65 @@ export class CartService {
   /** Anything unreadable is discarded whole, and each surviving line is
    * shape-checked: the payload is editable by hand, and a string quantity
    * would otherwise reach the contract as one. */
-  private read(): CartStoredLine[] {
-    if (!this.isBrowser) return [];
+  private read(): { lines: CartStoredLine[]; pricedFor?: UserRole | null } {
+    if (!this.isBrowser) return { lines: [] };
     try {
       const raw = localStorage.getItem(CART_STORAGE_KEY);
-      if (!raw) return [];
+      if (!raw) return { lines: [] };
       const parsed = JSON.parse(raw) as StoredCart | null;
       if (
         parsed?.version !== CART_STORAGE_VERSION ||
         !Array.isArray(parsed.lines)
       ) {
-        return [];
+        return { lines: [] };
       }
-      return parsed.lines.filter(isStoredLine).slice(0, CART_LINES_MAX);
+      return {
+        lines: parsed.lines.filter(isStoredLine).slice(0, CART_LINES_MAX),
+        pricedFor: readPricedFor(parsed.pricedFor),
+      };
     } catch {
-      return [];
+      return { lines: [] };
     }
   }
+}
+
+/**
+ * What one line's fresh price says happened to it while the cart waited, or
+ * null where the shop still describes it exactly as it was written down.
+ *
+ * One answer per line, most consequential first: a withdrawn product is not
+ * also a price change, and a corrected quantity explains the total that came
+ * back with it. A line that could not be priced before and can be now is no
+ * news — there is no earlier figure to name, and the row states the new one.
+ */
+function changeFor(
+  line: CartStoredLine,
+  fresh: CartPreviewLine,
+): CartChange | null {
+  const change = {
+    slug: line.slug,
+    name: line.name,
+    fromMinor: line.lineTotalMinor,
+    toMinor: fresh.lineTotalMinor,
+  };
+  if (fresh.issues.includes('unavailable')) {
+    return { ...change, kind: 'unavailable' };
+  }
+  if (fresh.pieces !== line.pieces) return { ...change, kind: 'quantity' };
+  if (line.lineTotalMinor === null) return null;
+  if (fresh.lineTotalMinor === null) return { ...change, kind: 'unpriced' };
+  return fresh.lineTotalMinor === line.lineTotalMinor
+    ? null
+    : { ...change, kind: 'price' };
+}
+
+/** The stored visitor, or undefined where the cart carries none — the payload
+ * is editable by hand, and a role that is not one reads as no answer. */
+function readPricedFor(value: unknown): UserRole | null | undefined {
+  if (value === null) return null;
+  return (USER_ROLES as readonly unknown[]).includes(value)
+    ? (value as UserRole)
+    : undefined;
 }
 
 function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
@@ -526,13 +683,12 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     candidate.pieces > 0 &&
     (candidate.note === null || typeof candidate.note === 'string') &&
     typeof candidate.name === 'string' &&
-    // The baseline FR-CART-10 reports against. Nothing reads it yet, which is
-    // exactly why it has to be checked here: a line stored without one would
-    // survive until the visit that finally compares against it.
+    // Nothing reads this one yet — which is exactly why it is checked here: a
+    // line stored without it would survive until whatever finally does.
     typeof candidate.addedAt === 'string' &&
     // Both are summed on every read — the header's total and the page's — and
     // a string among them turns the sum into concatenation rather than a
-    // wrong number.
+    // wrong number. They are also the baseline FR-CART-10 reports against.
     isNullableNumber(candidate.unitPriceMinor) &&
     isNullableNumber(candidate.lineTotalMinor) &&
     isPrices(candidate.prices) &&

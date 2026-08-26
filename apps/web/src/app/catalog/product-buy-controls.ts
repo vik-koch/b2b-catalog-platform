@@ -212,7 +212,7 @@ export interface BuyableProduct {
           <!-- Flex, so the segment inside fills the share of the row it was
                given: its own width plus an equal part of what is left over. -->
           <div class="relative flex flex-auto">
-            @if (option.available) {
+            @if (option.available && available()) {
               <label [class]="segment(option.unit)">
                 <input
                   type="radio"
@@ -227,10 +227,15 @@ export interface BuyableProduct {
             } @else {
               <!-- A button, not a disabled radio: it is not selectable, but it
                    is pressable, and what it does is say why. A disabled control
-                   would take itself out of the tab order and answer nothing. -->
+                   would take itself out of the tab order and answer nothing.
+
+                   Unless the whole line is unavailable, where there is nothing
+                   to explain unit by unit — the row says it once, above these,
+                   and every segment here is genuinely disabled. -->
               <button
                 type="button"
                 [class]="segment(option.unit) + ' w-full'"
+                [disabled]="!available()"
                 (click)="explainUnit(option.unit)"
               >
                 {{ option.label }}
@@ -259,6 +264,7 @@ export interface BuyableProduct {
             type="button"
             [class]="stepperButton() + ' rounded-l-md'"
             [attr.aria-label]="text.decrease"
+            [disabled]="!available()"
             (click)="step(-1)"
           >
             <app-icon name="minus" class="h-4 w-4" />
@@ -309,6 +315,7 @@ export interface BuyableProduct {
             [attr.inputmode]="whole() ? 'numeric' : 'decimal'"
             [class]="quantityField()"
             [attr.aria-label]="text.quantityLabel"
+            [disabled]="!available()"
             [value]="fieldText()"
             (input)="onQuantityInput($event)"
             (blur)="onQuantityBlur($event)"
@@ -327,6 +334,7 @@ export interface BuyableProduct {
           type="button"
           [class]="stepperButton() + ' rounded-r-md'"
           [attr.aria-label]="text.increase"
+          [disabled]="!available()"
           (click)="step(1)"
         >
           <app-icon name="plus" class="h-4 w-4" />
@@ -439,9 +447,11 @@ export class ProductBuyControls {
   readonly compact = input(false);
   /**
    * False for a cart line whose product the shop can no longer price — it has
-   * been withdrawn, or repackaged out of its stored basis. The controls stay
-   * usable, but they state no figure: the last price the browser saw is not
-   * one the shop is still offering, and the row says why beside them.
+   * been withdrawn, or repackaged out of its stored basis. The controls state
+   * no figure and take no input: the last price the browser saw is not one the
+   * shop is still offering, so there is no quantity of it to choose and no
+   * total to move. The row says why beside them, and the only thing left to do
+   * with the line is take it out.
    */
   readonly available = input(true);
   /**
@@ -699,7 +709,7 @@ export class ProductBuyControls {
   } as const;
 
   protected readonly segment = (unit: ProductUnit): string =>
-    segmentClass(this.segmentState(unit), true);
+    segmentClass(this.segmentState(unit), true, !this.available());
 
   /**
    * The row's height is set here rather than left to the field, so the ends can
@@ -723,7 +733,7 @@ export class ProductBuyControls {
    */
   protected readonly stepperButton = computed(
     () =>
-      `flex shrink-0 cursor-pointer items-center justify-center text-ink transition-colors hover:bg-stone-100 hover:text-accent active:text-primary focus-visible:-outline-offset-2 ${
+      `flex shrink-0 cursor-pointer items-center justify-center text-ink transition-colors hover:bg-stone-100 hover:text-accent active:text-primary focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-stone-400 disabled:hover:bg-transparent disabled:hover:text-stone-400 ${
         this.compact() ? 'w-9' : 'w-10'
       }`,
   );
@@ -905,6 +915,12 @@ export class ProductBuyControls {
   }
 
   private segmentState(unit: ProductUnit): SegmentState {
+    // A line the shop cannot price is not a choice any more, but it is still a
+    // reading: the quantity beside the segments is in one of these units, and
+    // dropping the mark would leave "12" meaning nothing in particular.
+    if (!this.available()) {
+      return unit === this.unit() ? 'selected' : 'unavailable';
+    }
     if (!this.options().find((option) => option.unit === unit)?.available) {
       return 'unavailable';
     }

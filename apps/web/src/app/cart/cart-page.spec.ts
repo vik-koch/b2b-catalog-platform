@@ -134,7 +134,9 @@ async function render(
     el,
     rerender,
     text: () => (el.textContent ?? '').replace(/\s+/g, ' ').trim(),
-    rows: () => el.querySelectorAll('li'),
+    /** The cart's lines. By the row component, not by `li`: the change
+     * summary above them is a list too. */
+    rows: () => el.querySelectorAll('app-product-row'),
     /** The rows' own tick boxes — the one above the list has no line to name. */
     boxes: () =>
       [
@@ -500,6 +502,37 @@ describe('CartPage', () => {
     expect(view.text()).toContain(text.noPrice);
   });
 
+  // There is no quantity of a withdrawn product to choose, and letting one be
+  // chosen moved a total the shop is no longer offering.
+  it('takes no input on a line it cannot price', async () => {
+    const view = await render({
+      lines: [addition()],
+      answer: preview([
+        {
+          name: null,
+          prices: null,
+          packaging: null,
+          lineTotalMinor: null,
+          issues: ['unavailable'],
+        },
+      ]),
+    });
+
+    expect(view.quantityInput().disabled).toBe(true);
+    const controls = [
+      ...view.el.querySelectorAll('app-product-row button'),
+    ] as HTMLButtonElement[];
+    for (const label of [text.decrease, text.increase]) {
+      const key = controls.find((b) => b.getAttribute('aria-label') === label);
+      expect(key?.disabled).toBe(true);
+    }
+    // Every unit segment with it: the row says once, above them, why none of
+    // them can be pressed.
+    const units = controls.filter((b) => b.getAttribute('aria-label') === null);
+    expect(units.length).toBeGreaterThan(0);
+    expect(units.every((b) => b.disabled)).toBe(true);
+  });
+
   it('flags a subtotal that covers only part of the cart', async () => {
     const view = await render({
       lines: [addition()],
@@ -630,6 +663,68 @@ describe('CartPage', () => {
     expect(view.text()).toContain(text.loadError);
     expect(view.rows()).toHaveLength(1);
     expect(view.text()).toContain('140,00');
+  });
+
+  // FR-CART-02. A cart row is a product row, so a long cart is a long scroll;
+  // the pager is the catalog's own, in the catalog's words.
+  it('pages a long cart, ten lines at a time', async () => {
+    const slugs = Array.from({ length: 12 }, (_, at) => `line-${at}`);
+    const view = await render({
+      lines: slugs.map((slug) => addition({ slug })),
+      answer: preview(slugs.map((slug) => ({ slug }))),
+    });
+
+    expect(view.rows()).toHaveLength(10);
+    expect(view.text()).toContain('Page 1 of 2');
+
+    await view.click(defaultAppText.catalog.nextPage);
+
+    expect(view.rows()).toHaveLength(2);
+    expect(view.text()).toContain('Page 2 of 2');
+  });
+
+  // Emptying the last page leaves the customer standing on a page that no
+  // longer exists, and a cart answering with nothing reads as an empty one.
+  it('falls back to a page that still exists when the last one is emptied', async () => {
+    const slugs = Array.from({ length: 11 }, (_, at) => `line-${at}`);
+    const view = await render({
+      lines: slugs.map((slug) => addition({ slug })),
+      answer: preview(slugs.map((slug) => ({ slug }))),
+    });
+
+    await view.click(defaultAppText.catalog.nextPage);
+    expect(view.rows()).toHaveLength(1);
+
+    view.cart.remove('line-10');
+    await view.rerender();
+
+    expect(view.rows()).toHaveLength(10);
+    expect(view.text()).not.toContain('Page 2 of 1');
+  });
+
+  // FR-CART-10: what moved while the cart sat, said once, above the lines it
+  // is about.
+  it('reports what changed while the cart waited, until it is dismissed', async () => {
+    await render({ lines: [addition()] });
+    const view = await render({
+      reload: true,
+      answer: preview([{ lineTotalMinor: 15000 }]),
+    });
+
+    expect(view.text()).toContain(text.changes.heading);
+    expect(view.text()).toContain('Filter Roast');
+    expect(view.text()).toContain('150,00');
+
+    await view.click(text.changes.dismiss);
+
+    expect(view.text()).not.toContain(text.changes.heading);
+  });
+
+  it('says nothing about a cart the shop still describes the same way', async () => {
+    await render({ lines: [addition()] });
+    const view = await render({ reload: true });
+
+    expect(view.text()).not.toContain(text.changes.heading);
   });
 
   it('warns when the browser will not keep the cart', async () => {

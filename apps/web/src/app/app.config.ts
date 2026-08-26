@@ -1,6 +1,10 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
+  provideEnvironmentInitializer,
+  inject,
+  PLATFORM_ID,
 } from '@angular/core';
 import {
   provideRouter,
@@ -15,6 +19,7 @@ import {
   provideClientHydration,
   withEventReplay,
 } from '@angular/platform-browser';
+import { CartRepricing } from './cart/cart-repricing';
 import { provideAppText } from './config/app-text';
 import { provideDeploymentConfig } from './config/deployment-config';
 
@@ -45,5 +50,17 @@ export const appConfig: ApplicationConfig = {
     // (app.config.server.ts) are merged last and override these on SSR.
     provideDeploymentConfig(),
     provideAppText(),
+    // Nothing injects it, and it has to run wherever the visitor happens to
+    // be: a cart priced for somebody else is corrected as the session changes,
+    // not when the cart page is next opened.
+    //
+    // Browser-only at the initializer rather than only inside the service: a
+    // cart lives in storage the server cannot read, so there is nothing for it
+    // to do during a render — and constructing it there would pull the auth
+    // and pricing clients into every place the app is merely *booted*, the
+    // build's route extraction included.
+    provideEnvironmentInitializer(() => {
+      if (isPlatformBrowser(inject(PLATFORM_ID))) inject(CartRepricing);
+    }),
   ],
 };

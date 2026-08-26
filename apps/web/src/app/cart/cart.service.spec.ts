@@ -62,7 +62,11 @@ function packAddition(overrides: Partial<CartAddition> = {}): CartAddition {
   };
 }
 
-function stored(): { version: number; lines: CartStoredLine[] } | null {
+function stored(): {
+  version: number;
+  lines: CartStoredLine[];
+  pricedFor?: string | null;
+} | null {
   const raw = localStorage.getItem(STORAGE_KEY);
   return raw ? JSON.parse(raw) : null;
 }
@@ -71,8 +75,20 @@ function write(payload: unknown): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 
+/** The readable hint beside the httpOnly session cookie, which is how the cart
+ * knows who its prices were quoted to. */
+function signIn(role: string | null): void {
+  document.cookie =
+    role === null
+      ? 'session_role=; max-age=0'
+      : `session_role=${role}; max-age=60`;
+}
+
 describe('CartService', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    signIn(null);
+  });
 
   it('starts empty and stores what is added', () => {
     const cart = service();
@@ -505,6 +521,124 @@ describe('CartService', () => {
       expect(cart.lines()[0]).toMatchObject({ unit: 'piece', pieces: 24 });
       // Re-priced through the unit the answer came back in.
       expect(cart.lines()[0].unitPriceMinor).toBe(7000);
+    });
+
+    /**
+     * FR-CART-10. The baseline is what the *previous* visit wrote down, so
+     * every one of these prices a cart, forgets it, and reads it back — a
+     * fresh service is a return visit.
+     */
+    describe('the change summary', () => {
+      function returning(): CartService {
+        TestBed.resetTestingModule();
+        return service();
+      }
+
+      it('says what moved while the cart waited', () => {
+        service().add(packAddition({ pieces: 6 }));
+
+        const cart = returning();
+        cart.applyPreview(preview([{ lineTotalMinor: 7500 }]));
+
+        expect(cart.changes()).toEqual([
+          {
+            slug: 'filter-roast',
+            name: 'Filter Roast',
+            kind: 'price',
+            fromMinor: 7000,
+            toMinor: 7500,
+          },
+        ]);
+      });
+
+      it('says nothing where the shop still describes the cart the same way', () => {
+        service().add(packAddition({ pieces: 6 }));
+
+        const cart = returning();
+        cart.applyPreview(preview([{}]));
+
+        expect(cart.changes()).toEqual([]);
+      });
+
+      // One answer per line, most consequential first: a withdrawn product is
+      // not also a price change.
+      it('names a withdrawn line, a corrected quantity and a line it cannot price', () => {
+        const first = service();
+        first.add(packAddition({ slug: 'a', pieces: 6 }));
+        first.add(packAddition({ slug: 'b', pieces: 6 }));
+        first.add(packAddition({ slug: 'c', pieces: 6 }));
+
+        const cart = returning();
+        cart.applyPreview(
+          preview([
+            {
+              slug: 'a',
+              name: null,
+              prices: null,
+              packaging: null,
+              lineTotalMinor: null,
+              issues: ['unavailable'],
+            },
+            {
+              slug: 'b',
+              pieces: 12,
+              lineTotalMinor: 14_000,
+              issues: ['quantity-corrected'],
+            },
+            { slug: 'c', lineTotalMinor: null, issues: ['price-unavailable'] },
+          ]),
+        );
+
+        expect(cart.changes().map((change) => change.kind)).toEqual([
+          'unavailable',
+          'quantity',
+          'unpriced',
+        ]);
+      });
+
+      // Shown once: every answer after the first one is the answer to an edit
+      // the customer just made.
+      it('reports the first pricing of a visit and no other', () => {
+        service().add(packAddition({ pieces: 6 }));
+
+        const cart = returning();
+        cart.applyPreview(preview([{}]));
+        cart.applyPreview(preview([{ lineTotalMinor: 9000 }]));
+
+        expect(cart.changes()).toEqual([]);
+      });
+
+      it('puts the summary away when it is dismissed', () => {
+        service().add(packAddition({ pieces: 6 }));
+
+        const cart = returning();
+        cart.applyPreview(preview([{ lineTotalMinor: 7500 }]));
+        cart.dismissChanges();
+
+        expect(cart.changes()).toEqual([]);
+      });
+
+      // Signing in or out moves every tiered price at once, and that is not
+      // news about the cart.
+      it('re-prices silently for a visitor the cart was not priced for', () => {
+        service().add(packAddition({ pieces: 6 }));
+        signIn('user');
+
+        const cart = returning();
+        cart.applyPreview(preview([{ lineTotalMinor: 7500 }]));
+
+        expect(cart.changes()).toEqual([]);
+        // And the new baseline says whose it is, so the visit after this one
+        // is a return rather than a second re-baseline.
+        expect(stored()?.pricedFor).toBe('user');
+      });
+
+      it('records who a cart was priced for as it is written', () => {
+        signIn('manager');
+        service().add(packAddition({ pieces: 6 }));
+
+        expect(stored()?.pricedFor).toBe('manager');
+      });
     });
 
     it('leaves a line the answer did not mention alone', () => {

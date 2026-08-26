@@ -37,12 +37,28 @@ export type SegmentState = 'selected' | 'available' | 'unavailable';
  * rather than `flex-1`, so segments divide the row in proportion to their
  * labels. Equal thirds only look right in the one language the labels were
  * written in.
+ *
+ * `locked` is a group where nothing can be chosen at all — a line the shop no
+ * longer offers. It keeps the reading (which unit the figure beside it is in)
+ * and drops every affordance: no pointer, no hover, nothing to press.
  */
-export function segmentClass(state: SegmentState, grow = false): string {
+export function segmentClass(
+  state: SegmentState,
+  grow = false,
+  locked = false,
+): string {
   const states: Record<SegmentState, string> = {
-    selected: 'cursor-pointer bg-primary text-white',
-    available: 'cursor-pointer text-ink hover:bg-stone-100',
-    unavailable: 'cursor-pointer text-stone-400 hover:bg-stone-50',
+    selected: 'bg-primary text-white',
+    available: 'text-ink hover:bg-stone-100',
+    unavailable: 'text-stone-400 hover:bg-stone-50',
   };
-  return `${SEGMENT_BASE} ${states[state]}${grow ? ' flex-auto' : ''}`;
+  const lockedStates: Record<SegmentState, string> = {
+    selected: 'bg-stone-400 text-white',
+    available: 'text-stone-400',
+    unavailable: 'text-stone-400',
+  };
+  const look = locked
+    ? `cursor-not-allowed ${lockedStates[state]}`
+    : `cursor-pointer ${states[state]}`;
+  return `${SEGMENT_BASE} ${look}${grow ? ' flex-auto' : ''}`;
 }
