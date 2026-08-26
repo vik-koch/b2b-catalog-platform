@@ -253,7 +253,7 @@ export class OrdersService {
               deliveryFreeFromMinor: zone?.freeFromMinor ?? null,
               pickupLocationKey: pickup?.key ?? null,
               pickupLocationName: pickup?.name ?? null,
-              pickupLocationAddress: pickup?.description ?? null,
+              pickupLocationAddress: pickup?.address ?? null,
               preferredTiming: submission.preferredTiming,
               customerNote: submission.customerNote,
               totalMinor: priced.preview.totalMinor,

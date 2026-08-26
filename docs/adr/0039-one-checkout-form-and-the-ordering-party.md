@@ -1,6 +1,6 @@
 # 0039 — One prefilled checkout form, and name the party being ordered for
 
-**Status:** accepted · **Date:** 2026-08-23
+**Status:** accepted (amended 2026-08-26) · **Date:** 2026-08-23
 
 ## Context
 
@@ -71,15 +71,24 @@ currency, not catalog content, so they are configuration; the binding long form
 stays on the admin-editable `conditions` page (FR-NAV-03, ADR 0027), which the
 popup links to, so the two are one summary and one authority rather than two
 copies of the same rules. A zone also carries the free-delivery minimum that
-applies in it, resolved from the address the customer enters (ADR 0040). Pickup
-lists the same `locations` the contact page uses, with their map link and
-description — one source, so an office cannot read differently in two places.
+applies in it, resolved from the address the customer enters (ADR 0040). Pickup lists
+the points an order may be collected from.
 
-`locations` therefore needs a stable **`key`** per entry, and the API's config
-slice needs to read `locations` at all, which it does not today: a submitted
-pickup key must be validated rather than trusted, and the order snapshots the
-office's name and address as they read at the time, because config is editable
-and an order must stay readable regardless.
+⚠ **Amended 2026-08-26.** Those were the contact page's `locations`, on the
+reasoning that one source keeps an office from reading differently in two
+places. They are now their own configured list, `pickup.locations`: goods are
+collected from a warehouse or a depot as readily as from an office, and an
+office that takes enquiries need not hand anything over, so neither list is a
+subset of the other. Each point carries a **`key`**, a name and an `address`;
+the contact offices no longer need a key at all. The map beside a point is an
+ordinary link rather than the contact page's iframe embed — it is looked up
+before ever reaching the form, and an embed drawn into it is a lot of weight
+for that.
+
+The API's config slice therefore reads `pickup` — a submitted key must be
+validated rather than trusted — and the order snapshots the point's name and
+address as they read at the time, because config is editable and an order must
+stay readable regardless.
 
 **The ordering party is the address that is invoiced** (FR-CART-09). A sole
 trader may buy privately, and a private customer may be buying for a company;
@@ -147,8 +156,8 @@ decides which fields the form asks for, not because anything is charged.
 - (+) A returning customer's checkout is a read-through and one click, because
   the form arrives answered.
 - (+) No step state to hold, restore or get wrong, and no navigation to design.
-- (+) Zones and offices are configuration, so a deployment changes them without a
-  migration, and the contact page and checkout cannot disagree about an office.
+- (+) Zones and collection points are configuration, so a deployment changes
+  them without a migration.
 - (+) One address book means an office is entered once and reused for billing and
   delivery alike, and a delivery address that differs from the invoiced one costs
   a checkbox rather than a second kind of row.

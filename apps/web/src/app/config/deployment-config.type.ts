@@ -30,12 +30,11 @@ export const mapEmbedSchema = z
 
 export type MapEmbed = DeepReadonly<z.infer<typeof mapEmbedSchema>>;
 
-/** One office/branch shown on the contact page, and offered as a pickup point
- * at checkout. `key` is what an order snapshots, so renaming the office does
- * not rewrite where a past order was collected. */
+/** One office/branch shown on the contact page. Where a customer reaches the
+ * business — not necessarily where goods are collected, which is its own list
+ * (`pickup`). */
 export const contactLocationSchema = z
   .object({
-    key: z.string().min(1).max(64),
     name: z.string(),
     description: z.string().optional(),
     map: mapEmbedSchema,
@@ -45,6 +44,59 @@ export const contactLocationSchema = z
 export type ContactLocation = DeepReadonly<
   z.infer<typeof contactLocationSchema>
 >;
+
+/**
+ * One place an order may be collected from (FR-CART-07). Deliberately its own
+ * list rather than the contact page's offices: goods are collected from a
+ * warehouse or a depot as readily as from an office, and an office that takes
+ * enquiries need not hand anything over. The two overlap in practice and are
+ * kept separate anyway, because one is not a subset of the other.
+ *
+ * `key` is what an order snapshots alongside the name and address, so renaming
+ * or removing a pickup point later leaves past orders readable.
+ *
+ * `mapUrl` is a link a visitor opens, not an iframe embed — a pickup point is
+ * looked up in passing, and a map drawn into the form is a page of weight for
+ * a question that is answered by a glance elsewhere.
+ */
+export const pickupLocationSchema = z
+  .object({
+    key: z.string().min(1).max(64),
+    name: z.string(),
+    /** Snapshotted onto the order, so it is required: an order that cannot say
+     * where it was collected from is one nobody can act on. */
+    address: z.string().min(1),
+    /** Opening hours, which gate to use — whatever the name and the address do
+     * not already say. */
+    description: z.string().optional(),
+    mapUrl: z.string().optional(),
+  })
+  .strict();
+
+export type PickupLocation = DeepReadonly<z.infer<typeof pickupLocationSchema>>;
+
+export const pickupConfigSchema = z
+  .object({
+    locations: z
+      .array(pickupLocationSchema)
+      .min(1)
+      .superRefine((locations, ctx) => {
+        const seen = new Set<string>();
+        locations.forEach((location, index) => {
+          if (seen.has(location.key)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: [index, 'key'],
+              // A duplicate key makes one of the two unreachable: an order
+              // naming it would snapshot whichever the lookup found first.
+              message: `pickup location ${location.key} is listed twice`,
+            });
+          }
+          seen.add(location.key);
+        });
+      }),
+  })
+  .strict();
 
 /**
  * Per-deployment configuration for the app chrome — branding/identity and
@@ -177,6 +229,12 @@ export const deploymentConfigSchema = z
      * Offices shown on the contact page.
      */
     locations: z.array(contactLocationSchema),
+    /**
+     * Where an order may be collected (FR-CART-07). Optional: a deployment
+     * that configures none does not offer self-pickup at all, which is why
+     * this is absent rather than an empty list.
+     */
+    pickup: pickupConfigSchema.optional(),
     /**
      * Primary contact shown in the header bar and footer. Each field is
      * optional — an omitted field is simply not rendered; omit the whole object

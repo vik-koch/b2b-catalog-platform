@@ -97,7 +97,7 @@ const locations: PickupLocation[] = [
   {
     key: 'speicherstadt',
     name: 'Speicherstadt Office',
-    description: 'Am Sandtorkai 30',
+    address: 'Am Sandtorkai 30',
   },
 ];
 
