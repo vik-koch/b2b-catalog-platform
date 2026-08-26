@@ -8,10 +8,7 @@ import {
   productListItemSchema,
   SEARCH_QUERY_MAX_LENGTH,
 } from './catalog.contract';
-import {
-  basisDividesQuantities,
-  minimumIsWholeSteps,
-} from './product-units';
+import { basisDividesQuantities, minimumIsWholeSteps } from './product-units';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
@@ -158,7 +155,7 @@ export const productInputSchema = z
     /** Null means the product is not sold in that unit. */
     piecesPerPack: z.number().int().positive().nullable().default(null),
     packsPerBox: z.number().int().positive().nullable().default(null),
-      /** The smallest quantity the shop will sell, as a whole number of packs.
+    /** The smallest quantity the shop will sell, as a whole number of packs.
      * Not the increment — a piece quantity moves by one pack. */
     minPieceQty: z.number().int().positive().default(1),
     boxVolume: boxDimensionInputSchema,

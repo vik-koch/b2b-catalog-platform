@@ -265,7 +265,6 @@ export class ProductPackagingEditor {
     return min % basis !== 0 || (pack !== null && pack % basis !== 0);
   });
 
-
   protected edit(key: keyof PackagingDraft, raw: string): void {
     const current = this.value();
     const next = { ...current, [key]: raw };
