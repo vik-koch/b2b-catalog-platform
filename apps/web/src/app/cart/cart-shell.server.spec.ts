@@ -14,7 +14,7 @@ function seed(...totals: (number | null)[]): void {
       lines: totals.map((lineTotalMinor) => ({
         slug: 'espresso-roast',
         unit: 'piece',
-        quantity: 1,
+        pieces: 1,
         note: null,
         name: 'Espresso Roast',
         addedAt: '2026-08-25T00:00:00.000Z',

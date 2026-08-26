@@ -155,9 +155,7 @@ export function correctPieces(
   const floor = pieceFloor(packaging);
   const wanted = Math.trunc(pieces);
   if (wanted <= floor) return floor;
-  // From the floor rather than from zero, so a floor that is not itself a whole
-  // number of steps still yields reachable quantities.
-  return floor + Math.ceil((wanted - floor) / step) * step;
+  return Math.ceil(wanted / step) * step;
 }
 
 /**

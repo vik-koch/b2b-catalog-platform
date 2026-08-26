@@ -566,14 +566,19 @@ export class ProductBuyControls {
   private readonly ownPopup = signal<Popup | null>(null);
 
   /**
-   * Whether the caller's notice is still standing. It opens with each new
-   * notice and closes when the customer dismisses it, so a notice that
-   * describes a state — the server corrected this line while the cart sat —
-   * can be waved away like any other bubble rather than only timing out.
+   * The caller's notice, **held once it has arrived**. It is feedback on
+   * something already done, and the thing it is about is over by the time it
+   * can be read: the cart writes a corrected line straight back and asks again,
+   * so the answer that carries the notice is followed by one that does not. A
+   * bubble bound to the notice itself closed on that second answer, seconds
+   * short of the time it is given.
+   *
+   * So the source only ever opens it. It is closed by the customer, or by the
+   * bubble's own timer, and a fresh notice opens it again.
    */
-  private readonly noticeOpen = linkedSignal<string | null, boolean>({
+  private readonly heldNotice = linkedSignal<string | null, string | null>({
     source: () => this.notice(),
-    computation: (notice) => notice !== null,
+    computation: (notice, previous) => notice ?? previous?.value ?? null,
   });
 
   /** The one bubble, from either source. The controls' own comes first: it is
@@ -581,10 +586,8 @@ export class ProductBuyControls {
   protected readonly popup = computed<Popup | null>(() => {
     const own = this.ownPopup();
     if (own !== null) return own;
-    const notice = this.notice();
-    return notice !== null && this.noticeOpen()
-      ? { at: 'quantity', message: notice }
-      : null;
+    const held = this.heldNotice();
+    return held === null ? null : { at: 'quantity', message: held };
   });
   /** What the last add did, if anything — cleared by any further edit, so it
    * never describes a selection that has since changed. */
@@ -796,9 +799,10 @@ export class ProductBuyControls {
   }
 
   /**
-   * Corrects on the way out, and writes the number back into the field. An
-   * emptied field, or a nought, is a quantity nobody can be sold: the signal
-   * has long since clamped it to one, but a clamp the field does not show is a
+   * Corrects on the way out, and writes the number back into the field —
+   * which the binding alone would not do, since the quantity it holds may not
+   * have moved at all. An emptied field is the plainest case: nothing was
+   * asked for, so the quantity stands, and a field left blank over it is a
    * page disagreeing with itself.
    */
   protected onQuantityBlur(event: Event): void {
@@ -855,8 +859,9 @@ export class ProductBuyControls {
    *
    * Rounds **up** to the nearest orderable piece count, whichever unit it was
    * typed in: the lattice is the same one either way, so 0.25 bx of a 24-piece
-   * box is six pieces, which a product packed in sixes supplies exactly. An
-   * unreadable field falls to the minimum rather than to nothing.
+   * box is six pieces, which a product packed in sixes supplies exactly. A
+   * field left empty or unreadable asked for nothing, so the quantity that
+   * stands is kept — the customer cleared a figure, they did not order none.
    *
    * The correction is stated without naming figures. The two the field has —
    * what was typed and what it became — are read out in whichever unit is
@@ -902,7 +907,7 @@ export class ProductBuyControls {
    * "no" — the line stays as it was. */
   protected dismiss(): void {
     this.ownPopup.set(null);
-    this.noticeOpen.set(false);
+    this.heldNotice.set(null);
   }
 
   private segmentState(unit: ProductUnit): SegmentState {

@@ -297,6 +297,9 @@ export const appTextSchema = z
         issues: z
           .object({
             unavailable: z.string(),
+            /** Said where the product is no longer packed the way the line was
+             * being read: the pieces are untouched and the quantity has fallen
+             * back to them, so this reports a move rather than a refusal. */
             unitUnavailable: z.string(),
             /** Said wherever a quantity was rounded up to one the shop can
              * supply — by a keystroke here, or by the server on a cart that

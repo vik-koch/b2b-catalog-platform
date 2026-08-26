@@ -81,7 +81,10 @@ function preview(
 async function render(
   options: {
     lines?: CartAddition[];
-    answer?: CartPreview | Error;
+    /** One answer for every call, or a run of them — the page re-prices the
+     * cart whenever it folds one in, so a second answer is what the first one
+     * made true. The last is repeated once the run is spent. */
+    answer?: CartPreview | Error | CartPreview[];
     confirm?: boolean;
     /** Keeps what the last render wrote down — a reload, not a first visit. */
     reload?: boolean;
@@ -90,10 +93,13 @@ async function render(
   if (!options.reload) localStorage.clear();
   TestBed.resetTestingModule();
 
-  const answer = options.answer ?? preview([{}]);
-  const priced = vi.fn(() =>
-    answer instanceof Error ? Promise.reject(answer) : Promise.resolve(answer),
-  );
+  const answers = options.answer ?? preview([{}]);
+  let call = 0;
+  const priced = vi.fn(() => {
+    if (answers instanceof Error) return Promise.reject(answers);
+    if (!Array.isArray(answers)) return Promise.resolve(answers);
+    return Promise.resolve(answers[Math.min(call++, answers.length - 1)]);
+  });
   const confirmed = vi.fn(() => Promise.resolve(options.confirm ?? true));
 
   TestBed.configureTestingModule({
@@ -317,6 +323,43 @@ describe('CartPage', () => {
     // Three packs' worth of pieces is under the six-piece minimum only in the
     // piece lens; here 3 pk is 18 pieces, at 70,00 the pack.
     expect(view.text()).toContain('210,00');
+  });
+
+  // The correction is over by the time it can be read: folding the answer in
+  // writes the corrected line back and asks again, and that second answer has
+  // nothing left to report. A bubble bound to the answer itself closed on it,
+  // seconds short of the time it is given.
+  it('holds the correction bubble up once the cart has been re-priced', async () => {
+    const view = await render({
+      lines: [addition()],
+      answer: [
+        preview([{ pieces: 18, issues: ['quantity-corrected'] }]),
+        preview([{ pieces: 18 }]),
+      ],
+    });
+
+    // The write-back re-prices the cart, and the second answer is clean.
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await view.rerender();
+
+    expect(view.priced.mock.calls.length).toBeGreaterThan(1);
+    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+      text.issues.quantityCorrected,
+    );
+  });
+
+  // A product repacked out of the unit its line was read in is not refused:
+  // the pieces are untouched and the lens falls back to them. That is
+  // something that happened, so it goes where the other feedback goes.
+  it('states a moved lens in the bubble rather than under the name', async () => {
+    const view = await render({
+      lines: [addition({ unit: 'box' })],
+      answer: preview([{ unit: 'piece', issues: ['unit-unavailable'] }]),
+    });
+
+    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+      text.issues.unitUnavailable,
+    );
   });
 
   // A bubble is waved away like any other, not only waited out.

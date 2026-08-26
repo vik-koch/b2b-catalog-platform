@@ -7,8 +7,8 @@ import { CurrencyConfig, decimalSeparator } from './price';
  * of a ten-pack box — which is the only place in the app a count has decimals.
  *
  * The separator is the deployment's, taken from the currency's locale, which is
- * the one locale this app has (ADR 0035): a shop that writes prices with a
- * comma does not write quantities with a point.
+ * the one locale this app has: a shop that writes prices with a comma does not
+ * write quantities with a point.
  */
 
 /** Up to three decimals, trailing zeros trimmed, no grouping — this is what an

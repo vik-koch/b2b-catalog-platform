@@ -30,6 +30,16 @@ import { CartPreviewService } from './cart-preview.service';
 import { CartService } from './cart.service';
 
 /**
+ * The issues that say what just happened to a line rather than what is still
+ * wrong with it, most consequential first. Both are answered once and then
+ * gone: the corrected line is written back and asked about again.
+ */
+const NOTICE_ISSUES: readonly CartLineIssue[] = [
+  'unit-unavailable',
+  'quantity-corrected',
+];
+
+/**
  * A line as this page draws it: the product the row's controls edit, plus what
  * belongs to the line rather than to the product — its note, and whatever
  * preview had to say about it.
@@ -52,8 +62,8 @@ interface CartRow {
   notePrompt: string;
   takesNote: boolean;
   issues: string[];
-  /** The one advisory that is feedback rather than a state: it goes in the
-   * bubble under the stepper it is about, not in the list below the name. */
+  /** The advisories that are feedback rather than a state: they go in the
+   * bubble under the stepper they are about, not in the list below the name. */
   notice: string | null;
 }
 
@@ -403,11 +413,9 @@ export class CartPage {
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
         issues: (fresh?.issues ?? [])
-          .filter((issue) => issue !== 'quantity-corrected')
+          .filter((issue) => !NOTICE_ISSUES.includes(issue))
           .map((issue) => this.issueText(issue)),
-        notice: (fresh?.issues ?? []).includes('quantity-corrected')
-          ? this.text.issues.quantityCorrected
-          : null,
+        notice: this.noticeFor(fresh?.issues ?? []),
       };
     }),
   );
@@ -598,6 +606,20 @@ export class CartPage {
       if (keys.has(line.slug)) this.cart.remove(line.slug);
     }
     this.ticked.set(new Set());
+  }
+
+  /**
+   * The bubble's line, where the answer carries one of the issues that are
+   * feedback. Both are over by the time they can be read — the corrected line
+   * is written straight back and asked about again — so they belong in a bubble
+   * that says what happened rather than in the list of what is still wrong.
+   *
+   * The moved lens comes first where both arrived: it is the larger change, and
+   * the corrected figure is standing in the field beside it either way.
+   */
+  private noticeFor(issues: readonly CartLineIssue[]): string | null {
+    const found = NOTICE_ISSUES.find((issue) => issues.includes(issue));
+    return found === undefined ? null : this.issueText(found);
   }
 
   private issueText(issue: CartLineIssue): string {

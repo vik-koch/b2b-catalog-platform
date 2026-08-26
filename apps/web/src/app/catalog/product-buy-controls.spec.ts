@@ -552,20 +552,34 @@ describe('ProductBuyControls', () => {
   });
 
   // The signal clamped it long ago; what was missing was the field agreeing.
-  // Back to the smallest quantity the shop will sell in that unit — which for
-  // packs of ten against a hundred-piece minimum is ten packs, not one.
-  it('writes an emptied or nought quantity back as the minimum on the way out', async () => {
+  // A nought is a quantity nobody can be sold, so it is corrected like any
+  // other — to the smallest the shop will sell, which for packs of ten against
+  // a hundred-piece minimum is ten packs, not one.
+  it('writes a nought quantity back as the minimum on the way out', async () => {
     const view = await render(packaged);
     await view.chooseUnit(unitText.select.pack);
 
     await view.type('0');
     await view.blurQuantity();
+
     expect(view.quantityInput().value).toBe('10');
+  });
+
+  // An emptied field asked for nothing at all, which is not the same as asking
+  // for none: the quantity that stands is kept and written back over the blank,
+  // rather than the line dropping to the minimum because a figure was cleared
+  // on the way to retyping it.
+  it('writes the standing quantity back over an emptied field', async () => {
+    const view = await render(packaged);
+    await view.chooseUnit(unitText.select.pack);
+    await view.type('15');
+    await view.blurQuantity();
+    expect(view.quantityInput().value).toBe('15');
 
     await view.type('');
     await view.blurQuantity();
 
-    expect(view.quantityInput().value).toBe('10');
+    expect(view.quantityInput().value).toBe('15');
   });
 
   it('offers no way to add from the editor preview', async () => {
