@@ -12,14 +12,18 @@ import { packagedPackaging, productDetail } from './product.fixture';
 const text = defaultAppText.cart;
 const unitText = defaultAppText.catalog.units;
 
-/** Six to a pack, four packs to a box, and a hundred-piece minimum. */
+/**
+ * Ten to a pack, four packs to a box (so forty pieces), and a hundred-piece
+ * minimum — ten whole packs, which is what the minimum now has to be.
+ */
 const packaged = productDetail({
   slug: 'filter-roast',
   name: 'Filter Roast',
-  packaging: { ...packagedPackaging, minPieceQty: 100 },
+  packaging: { ...packagedPackaging, piecesPerPack: 10, minPieceQty: 100 },
   prices: {
     pieceMilliMinor: 1250,
-    pieceLotMinor: 125_000,
+    // One step — one pack of ten — at 1.25 minor units a piece.
+    pieceLotMinor: 12_500,
     pack: 7000,
     box: 27000,
   },
@@ -29,6 +33,9 @@ async function render(
   item: ProductDetail,
   canAdd = true,
   externalNote = false,
+  /** The row lays the facts out beside the stepper; the stack leaves them to
+   * its caller, which is why only the row states the minimum. */
+  layout: 'stack' | 'row' = 'stack',
 ) {
   localStorage.clear();
   TestBed.resetTestingModule();
@@ -45,6 +52,7 @@ async function render(
   fixture.componentRef.setInput('item', item);
   fixture.componentRef.setInput('canAdd', canAdd);
   fixture.componentRef.setInput('externalNote', externalNote);
+  fixture.componentRef.setInput('layout', layout);
   await fixture.whenStable();
   const el = fixture.nativeElement as HTMLElement;
 
@@ -173,37 +181,108 @@ describe('ProductBuyControls', () => {
   });
 
   // The quantity is the same goods expressed another way, so it converts
-  // rather than restarting: 100 pieces is 17 packs of six, rounded up.
+  // rather than restarting.
   it('converts the quantity when the unit changes', async () => {
     const view = await render(packaged);
 
+    // A hundred pieces is exactly ten packs of ten.
     await view.chooseUnit(unitText.select.pack);
-    expect(view.quantityInput().value).toBe('17');
+    expect(view.quantityInput().value).toBe('10');
+
+    // Ten packs is two and a half boxes of forty, and half a box is not
+    // something the shop packs — so three.
+    await view.chooseUnit(unitText.select.box);
+    expect(view.quantityInput().value).toBe('3');
 
     await view.chooseUnit(unitText.select.piece);
-
-    // 17 packs is 102 pieces, and 102 is not a whole number of minimum lots.
-    expect(view.quantityInput().value).toBe('200');
+    expect(view.quantityInput().value).toBe('120');
   });
 
   it('rounds a typed quantity up to the nearest orderable one, and says so', async () => {
     const view = await render(packaged);
 
-    await view.type('140');
+    await view.type('141');
     // Nothing is rewritten while the number is still being typed.
-    expect(view.quantityInput().value).toBe('140');
+    expect(view.quantityInput().value).toBe('141');
 
     await view.blurQuantity();
 
-    expect(view.quantityInput().value).toBe('200');
-    expect(view.text()).toContain(`140 adjusted to 200 ${unitText.piece}`);
+    expect(view.quantityInput().value).toBe('150');
+    expect(view.text()).toContain(`141 adjusted to 150 ${unitText.piece}`);
+  });
+
+  // The rule this replaced: the minimum used to be the increment too, so 140
+  // against a minimum of 100 was pushed all the way to 200. The pack is what
+  // cannot be broken open, and fourteen whole packs is a quantity the shop can
+  // pick — so it is left alone.
+  it('leaves a quantity that is whole packs above the minimum alone', async () => {
+    const view = await render(packaged);
+
+    await view.type('140');
+    await view.blurQuantity();
+
+    expect(view.quantityInput().value).toBe('140');
+    expect(view.text()).not.toContain('adjusted to');
+  });
+
+  // The hole the piece-only minimum left: one pack of ten is ten pieces, which
+  // is nowhere near a hundred, so switching unit walked straight under the
+  // rule. The minimum is a statement about the goods and holds in every unit.
+  it('holds a pack order to the same minimum, in packs', async () => {
+    const view = await render(packaged);
+    await view.chooseUnit(unitText.select.pack);
+
+    await view.type('1');
+    await view.blurQuantity();
+
+    // A hundred pieces is ten packs of ten.
+    expect(view.quantityInput().value).toBe('10');
+    expect(view.text()).toContain(`1 adjusted to 10 ${unitText.pack}`);
+  });
+
+  it('states the minimum in the unit the stepper is counting in', async () => {
+    const view = await render(packaged, true, false, 'row');
+
+    expect(view.text()).toContain(
+      `${unitText.minQuantity}: 100 ${unitText.piece}`,
+    );
+
+    await view.chooseUnit(unitText.select.pack);
+
+    // The same minimum, in the words the stepper stops in.
+    expect(view.text()).toContain(
+      `${unitText.minQuantity}: 10 ${unitText.pack}`,
+    );
+  });
+
+  // A unit change is the other way a quantity gets rounded, and it rounds up
+  // just as a typed one does — so it says so, in the words of the unit being
+  // switched to rather than in pieces.
+  it('says when a unit change had to round the quantity up', async () => {
+    const view = await render(packaged);
+
+    // 100 pieces is two and a half boxes of forty.
+    await view.chooseUnit(unitText.select.box);
+
+    expect(view.text()).toContain(`2.5 adjusted to 3 ${unitText.box}`);
+    // Not "3 pcs", which is what a hardcoded piece word used to say.
+    expect(view.text()).not.toContain(`adjusted to 3 ${unitText.piece}`);
+  });
+
+  it('says nothing when the unit change divides exactly', async () => {
+    const view = await render(packaged);
+
+    // A hundred pieces is exactly ten packs.
+    await view.chooseUnit(unitText.select.pack);
+
+    expect(view.text()).not.toContain('adjusted to');
   });
 
   // The notice is feedback on something already done, so it clears itself —
   // and any further edit drops it, since it no longer describes the selection.
   it('drops the correction notice as soon as the selection changes again', async () => {
     const view = await render(packaged);
-    await view.type('140');
+    await view.type('141');
     await view.blurQuantity();
     expect(view.text()).toContain('adjusted to');
 
@@ -212,16 +291,18 @@ describe('ProductBuyControls', () => {
     expect(view.text()).not.toContain('adjusted to');
   });
 
-  it('steps pieces by the minimum rather than by one', async () => {
+  // Two different figures: the pack is what it moves by, the minimum is where
+  // it stops. A shop that will not ship fewer than a hundred still sells them
+  // ten at a time above that.
+  it('steps pieces by the pack, and stops at the minimum', async () => {
     const view = await render(packaged);
 
     await view.click(text.increase);
-    expect(view.quantityInput().value).toBe('200');
+    expect(view.quantityInput().value).toBe('110');
 
     await view.click(text.decrease);
     await view.click(text.decrease);
 
-    // Never below the minimum, which is the smallest sellable quantity.
     expect(view.quantityInput().value).toBe('100');
   });
 
@@ -256,19 +337,20 @@ describe('ProductBuyControls', () => {
         slug: 'filter-roast',
         name: 'Filter Roast',
         unit: 'box',
-        quantity: 5,
+        // 100 pieces rounds up to three boxes of forty, at 270.00 the box.
+        quantity: 3,
         note: null,
-        lineTotalMinor: 135_000,
+        lineTotalMinor: 81_000,
       }),
     ]);
   });
 
   it('corrects the quantity on the way into the cart, not only on blur', async () => {
     const view = await render(packaged);
-    await view.type('140');
+    await view.type('141');
     await view.click(text.add);
 
-    expect(view.cart.lines()[0].quantity).toBe(200);
+    expect(view.cart.lines()[0].quantity).toBe(150);
   });
 
   // The change the customer made is the feedback: there is nothing to confirm
@@ -279,14 +361,15 @@ describe('ProductBuyControls', () => {
 
     expect(view.text()).not.toContain(text.add);
     expect(view.text()).toContain('Added for');
-    // 100 pieces is one minimum lot, at 1250.00 for the lot.
+    // 100 pieces is ten packs of ten, at 12.50 the pack.
     expect(view.text()).toContain('1.250,00');
 
-    // 100 pieces fills five boxes of 24, and one more makes six at 270.00.
+    // 100 pieces is three boxes of forty once rounded up, and one more makes
+    // four at 270.00.
     await view.chooseUnit(unitText.select.box);
     await view.click(text.increase);
 
-    expect(view.text()).toContain('1.620,00');
+    expect(view.text()).toContain('1.080,00');
   });
 
   it('edits the line in the cart rather than offering to add it twice', async () => {
@@ -296,8 +379,8 @@ describe('ProductBuyControls', () => {
     await view.click(text.increase);
 
     expect(view.cart.lines()).toHaveLength(1);
-    expect(view.cart.lines()[0].quantity).toBe(200);
-    expect(view.text()).toContain('2.500,00');
+    expect(view.cart.lines()[0].quantity).toBe(110);
+    expect(view.text()).toContain('1.375,00');
   });
 
   it('moves the line to another unit, carrying the quantity across', async () => {
@@ -308,8 +391,9 @@ describe('ProductBuyControls', () => {
     await view.chooseUnit(unitText.select.box);
 
     expect(view.cart.lines()).toHaveLength(1);
-    // 17 packs is 102 pieces, which fills five boxes of 24 with room to spare.
-    expect(view.cart.lines()[0]).toMatchObject({ unit: 'box', quantity: 5 });
+    // Ten packs is 100 pieces, which fills two boxes of forty with room to
+    // spare, so three.
+    expect(view.cart.lines()[0]).toMatchObject({ unit: 'box', quantity: 3 });
   });
 
   // There is nothing below the minimum except not buying the product, and that
@@ -352,7 +436,7 @@ describe('ProductBuyControls', () => {
 
   it('dismisses the correction bubble on a click anywhere', async () => {
     const view = await render(packaged);
-    await view.type('140');
+    await view.type('141');
     await view.blurQuantity();
     expect(view.text()).toContain('adjusted to');
 
@@ -362,18 +446,20 @@ describe('ProductBuyControls', () => {
   });
 
   // The signal clamped it long ago; what was missing was the field agreeing.
-  it('writes an emptied or nought quantity back as one on the way out', async () => {
+  // Back to the smallest quantity the shop will sell in that unit — which for
+  // packs of ten against a hundred-piece minimum is ten packs, not one.
+  it('writes an emptied or nought quantity back as the minimum on the way out', async () => {
     const view = await render(packaged);
     await view.chooseUnit(unitText.select.pack);
 
     await view.type('0');
     await view.blurQuantity();
-    expect(view.quantityInput().value).toBe('1');
+    expect(view.quantityInput().value).toBe('10');
 
     await view.type('');
     await view.blurQuantity();
 
-    expect(view.quantityInput().value).toBe('1');
+    expect(view.quantityInput().value).toBe('10');
   });
 
   it('offers no way to add from the editor preview', async () => {

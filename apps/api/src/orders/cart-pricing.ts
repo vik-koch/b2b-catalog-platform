@@ -5,9 +5,10 @@ import {
   CartLineIssue,
   CartPreview,
   CartPreviewLine,
-  correctPieceQuantity,
+  correctQuantity,
   exactLineTotal,
   piecesFor,
+  piecesPerUnit,
   ShipmentLineInput,
   shipmentEstimate,
 } from '@b2b-catalog-platform/shared';
@@ -193,10 +194,15 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
   // The quantity correction runs first: a line stored when the minimum was six
   // must be corrected before it is priced, or it is priced against a basis it
   // no longer divides.
-  const quantity =
-    line.unit === 'piece'
-      ? correctPieceQuantity(packaging, line.quantity)
-      : line.quantity;
+  //
+  // Every unit, not just the piece: the minimum is a statement about the goods,
+  // so a pack order has to reach it too — otherwise switching unit walks under
+  // it. A unit the product is not sold in is left alone; there is no quantity
+  // of it to correct, and `unit-unavailable` below is the honest answer.
+  const sold = piecesPerUnit(packaging, line.unit) !== null;
+  const quantity = sold
+    ? correctQuantity(packaging, line.unit, line.quantity)
+    : line.quantity;
   if (quantity !== line.quantity) issues.push('quantity-corrected');
 
   const pieces = piecesFor(packaging, line.unit, quantity);

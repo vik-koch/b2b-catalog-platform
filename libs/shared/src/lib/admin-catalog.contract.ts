@@ -8,7 +8,10 @@ import {
   productListItemSchema,
   SEARCH_QUERY_MAX_LENGTH,
 } from './catalog.contract';
-import { basisDividesQuantities } from './product-units';
+import {
+  basisDividesQuantities,
+  minimumIsWholeSteps,
+} from './product-units';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
@@ -155,7 +158,8 @@ export const productInputSchema = z
     /** Null means the product is not sold in that unit. */
     piecesPerPack: z.number().int().positive().nullable().default(null),
     packsPerBox: z.number().int().positive().nullable().default(null),
-    /** Minimum piece quantity, and equally the increment. */
+      /** The smallest quantity the shop will sell, as a whole number of packs.
+     * Not the increment — a piece quantity moves by one pack. */
     minPieceQty: z.number().int().positive().default(1),
     boxVolume: boxDimensionInputSchema,
     boxWeight: boxDimensionInputSchema,
@@ -200,6 +204,12 @@ export const productInputSchema = z
     message:
       'The price basis must divide the minimum quantity and the pack size',
     path: ['priceBasisPieces'],
+  })
+  // A piece quantity moves by one pack, so the minimum has to sit on that
+  // lattice — mirrors products_minimum_is_whole_packs.
+  .refine(minimumIsWholeSteps, {
+    message: 'The minimum quantity must be a whole number of packs',
+    path: ['minPieceQty'],
   });
 export type ProductInput = z.infer<typeof productInputSchema>;
 

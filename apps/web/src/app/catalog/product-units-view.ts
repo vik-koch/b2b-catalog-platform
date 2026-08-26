@@ -6,6 +6,7 @@ import {
   UnitPrices,
   availableUnits,
   piecesPerUnit,
+  unitFloor,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { fillText } from '../core/fill-text';
@@ -113,10 +114,19 @@ export function useProductUnits() {
      * line that comes and goes with the product costs more space than the
      * words in it.
      */
-    minimumOrder(packaging: ProductPackagingInfo): string {
+    /**
+     * The smallest order, in `unit`. The minimum is stored once in pieces and
+     * holds whichever unit it is counted in — 24 pieces is four packs of six —
+     * so a stepper that stops at four says why in the same words it stops in.
+     * Defaults to pieces, which is how a tile states it as a product fact.
+     */
+    minimumOrder(
+      packaging: ProductPackagingInfo,
+      unit: ProductUnit = 'piece',
+    ): string {
       return fillText(text.minQuantityValue, {
-        qty: packaging.minPieceQty,
-        unit: text.piece,
+        qty: unitFloor(packaging, unit) ?? packaging.minPieceQty,
+        unit: text[unit],
       });
     },
 

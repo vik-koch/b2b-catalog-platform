@@ -2,14 +2,16 @@ import {
   availableUnits,
   basisDividesQuantities,
   convertUnitQuantity,
-  correctPieceQuantity,
+  correctQuantity,
   exactLineTotal,
-  isValidPieceQuantity,
+  minimumIsWholeSteps,
   piecePriceMilliMinor,
   piecesFor,
   piecesPerUnit,
+  pieceStep,
   ProductPackaging,
   totalMinor,
+  unitFloor,
 } from './product-units';
 
 /** The demo's coffee: a 200 g package, six to a pack, four packs to a box. */
@@ -76,38 +78,122 @@ describe('piecesFor', () => {
   });
 });
 
-describe('correctPieceQuantity', () => {
-  it('rounds up to the next multiple, never down', () => {
-    // The client's own example: 140 against a minimum of 100 becomes 200.
-    expect(correctPieceQuantity(packOnly, 140)).toBe(200);
-    expect(correctPieceQuantity(packOnly, 101)).toBe(200);
-    expect(correctPieceQuantity(packOnly, 199)).toBe(200);
+describe('pieceStep', () => {
+  it('is the pack, which is what cannot be broken open', () => {
+    expect(pieceStep(packaged)).toBe(6);
+    expect(pieceStep(packOnly)).toBe(10);
   });
 
-  it('leaves an already-valid quantity alone', () => {
-    expect(correctPieceQuantity(packOnly, 100)).toBe(100);
-    expect(correctPieceQuantity(packOnly, 200)).toBe(200);
-    expect(correctPieceQuantity(packaged, 12)).toBe(12);
-  });
-
-  it('lifts anything at or below the minimum to the minimum', () => {
-    expect(correctPieceQuantity(packOnly, 1)).toBe(100);
-    expect(correctPieceQuantity(packOnly, 0)).toBe(100);
-    expect(correctPieceQuantity(packOnly, -5)).toBe(100);
-  });
-
-  it('is a no-op where there is no minimum', () => {
-    expect(correctPieceQuantity(plain, 1)).toBe(1);
-    expect(correctPieceQuantity(plain, 137)).toBe(137);
+  it('falls back to the minimum where there is no pack to move by', () => {
+    expect(pieceStep(plain)).toBe(1);
+    expect(pieceStep({ ...plain, minPieceQty: 25 })).toBe(25);
   });
 });
 
-describe('isValidPieceQuantity', () => {
-  it('distinguishes a quantity that needs announcing from one that does not', () => {
-    expect(isValidPieceQuantity(packOnly, 200)).toBe(true);
-    expect(isValidPieceQuantity(packOnly, 140)).toBe(false);
-    expect(isValidPieceQuantity(packOnly, 50)).toBe(false);
-    expect(isValidPieceQuantity(plain, 3.5)).toBe(false);
+describe('unitFloor', () => {
+  it('is the stated minimum in pieces where that is already whole steps', () => {
+    expect(unitFloor(packOnly, 'piece')).toBe(100);
+    expect(unitFloor(packaged, 'piece')).toBe(6);
+  });
+
+  it('raises a piece minimum that sits between steps', () => {
+    // Refused by products_minimum_is_whole_packs, so this is the belt to that
+    // braces: a row that predates the rule still lands on the lattice.
+    expect(unitFloor({ ...packOnly, minPieceQty: 95 }, 'piece')).toBe(100);
+  });
+
+  // The minimum is a statement about the goods, not about the word they are
+  // counted in: a shop that will not ship fewer than 24 pieces will not ship
+  // three packs of six either.
+  it('expresses the same minimum in packs and in boxes', () => {
+    const min24: ProductPackaging = { ...packaged, minPieceQty: 24 };
+
+    expect(unitFloor(min24, 'piece')).toBe(24);
+    // 24 pieces is four packs of six...
+    expect(unitFloor(min24, 'pack')).toBe(4);
+    // ...and exactly one box of 24.
+    expect(unitFloor(min24, 'box')).toBe(1);
+  });
+
+  it('rounds a bigger unit up, since half a box is not something to pick', () => {
+    // Ten to a pack, no box; a minimum of 100 is ten packs.
+    expect(unitFloor(packOnly, 'pack')).toBe(10);
+    // A minimum of 95 does not fill ten whole packs — but nine is under it.
+    expect(unitFloor({ ...packOnly, minPieceQty: 95 }, 'pack')).toBe(10);
+  });
+
+  it('is one where the minimum is smaller than the unit', () => {
+    expect(unitFloor(packaged, 'pack')).toBe(1);
+    expect(unitFloor(packaged, 'box')).toBe(1);
+  });
+
+  it('is null for a unit the product is not sold in', () => {
+    expect(unitFloor(packOnly, 'box')).toBeNull();
+    expect(unitFloor(plain, 'pack')).toBeNull();
+  });
+});
+
+describe('minimumIsWholeSteps', () => {
+  it('accepts a minimum that is a whole number of packs', () => {
+    expect(minimumIsWholeSteps(packOnly)).toBe(true);
+    expect(minimumIsWholeSteps(packaged)).toBe(true);
+    expect(minimumIsWholeSteps(plain)).toBe(true);
+  });
+
+  it('refuses one that would put the first orderable quantity off the lattice', () => {
+    expect(minimumIsWholeSteps({ ...packOnly, minPieceQty: 95 })).toBe(false);
+  });
+});
+
+describe('correctQuantity', () => {
+  // The change this rule went through: the minimum used to be the increment
+  // too, so 140 against a minimum of 100 became 200. The pack is what cannot
+  // be broken, so 140 is now simply 140 — fourteen whole packs of ten, above a
+  // minimum of a hundred.
+  it('rounds a piece quantity up to the next whole pack, never down', () => {
+    expect(correctQuantity(packOnly, 'piece', 101)).toBe(110);
+    expect(correctQuantity(packOnly, 'piece', 199)).toBe(200);
+    expect(correctQuantity(packaged, 'piece', 13)).toBe(18);
+  });
+
+  it('leaves an already-valid piece quantity alone', () => {
+    expect(correctQuantity(packOnly, 'piece', 100)).toBe(100);
+    expect(correctQuantity(packOnly, 'piece', 140)).toBe(140);
+    expect(correctQuantity(packaged, 'piece', 12)).toBe(12);
+  });
+
+  it('lifts anything at or below the minimum to the minimum', () => {
+    expect(correctQuantity(packOnly, 'piece', 1)).toBe(100);
+    expect(correctQuantity(packOnly, 'piece', 0)).toBe(100);
+    expect(correctQuantity(packOnly, 'piece', -5)).toBe(100);
+  });
+
+  it('stops at the minimum rather than at one pack', () => {
+    // The two figures are different things: 90 is nine whole packs and still
+    // below what the shop will ship.
+    expect(correctQuantity(packOnly, 'piece', 90)).toBe(100);
+  });
+
+  // The rule the piece-only version let anyone walk under: one pack of six is
+  // six pieces, which is nowhere near a minimum of 24.
+  it('holds a pack or a box to the same minimum', () => {
+    const min24: ProductPackaging = { ...packaged, minPieceQty: 24 };
+
+    expect(correctQuantity(min24, 'pack', 1)).toBe(4);
+    expect(correctQuantity(min24, 'pack', 5)).toBe(5);
+    expect(correctQuantity(min24, 'box', 1)).toBe(1);
+  });
+
+  it('moves a pack or a box by one, having no pack to land on', () => {
+    const min24: ProductPackaging = { ...packaged, minPieceQty: 24 };
+
+    expect(correctQuantity(min24, 'pack', 7)).toBe(7);
+    expect(correctQuantity(min24, 'box', 3)).toBe(3);
+  });
+
+  it('is a no-op where there is neither a minimum nor a pack', () => {
+    expect(correctQuantity(plain, 'piece', 1)).toBe(1);
+    expect(correctQuantity(plain, 'piece', 137)).toBe(137);
   });
 });
 

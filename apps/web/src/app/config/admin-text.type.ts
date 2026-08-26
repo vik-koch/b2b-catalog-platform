@@ -269,6 +269,8 @@ export const adminTextSchema = z
             piecesPerPack: z.string(),
             packsPerBox: z.string(),
             minPieceQty: z.string(),
+            /** Under the field: the minimum is a floor, not the increment. */
+            minPieceQtyHint: z.string(),
             priceBasis: z.string(),
             /** Sits inside a piece-count field, after the number. */
             pieceSuffix: z.string(),
@@ -284,6 +286,7 @@ export const adminTextSchema = z
             pricePerPack: z.string(),
             pricePerBox: z.string(),
             basisMustDivide: z.string(),
+            minMustBeWholePacks: z.string(),
             invalid: z.string(),
           })
           .strict(),

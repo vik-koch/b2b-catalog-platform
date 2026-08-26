@@ -4,6 +4,7 @@ import {
   ProductPackagingInfo,
   UnitPrices,
   piecePriceMilliMinor,
+  pieceStep,
   piecesPerUnit,
   totalMinor,
 } from '@b2b-catalog-platform/shared';
@@ -77,12 +78,14 @@ export function unitPricesOf(row: PricedProductRow): UnitPrices {
 
   return {
     pieceMilliMinor: piecePriceMilliMinor(row.priceMinor, row.priceBasisPieces),
-    // The multiplicable piece figure: exact by construction, since the basis
-    // divides minPieceQty (products_basis_divides_quantities).
+    // The multiplicable piece figure — the price of one step, which is what
+    // every piece quantity is a whole number of. Exact by construction: the
+    // basis divides the pack (products_basis_divides_quantities), and the
+    // minimum is itself a whole number of steps (products_minimum_is_whole_packs).
     pieceLotMinor: totalMinor(
       row.priceMinor,
       row.priceBasisPieces,
-      row.minPieceQty,
+      pieceStep(packaging),
     ),
     pack: priceFor('pack'),
     box: priceFor('box'),
