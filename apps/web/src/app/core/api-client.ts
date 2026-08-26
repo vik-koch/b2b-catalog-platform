@@ -53,16 +53,32 @@ export function deferSessionReads(): boolean {
  */
 export function createApiClient<T extends AppRouter>(contract: T) {
   const http = inject(HttpClient);
-  const baseUrl = isPlatformServer(inject(PLATFORM_ID))
-    ? requireEnv('API_URL')
-    : `${inject(DOCUMENT).location.origin}/api`;
+  const onServer = isPlatformServer(inject(PLATFORM_ID));
+  const document = inject(DOCUMENT);
+  let origin: string | undefined;
+
+  /**
+   * Resolved on the first request rather than when the service is built.
+   *
+   * `API_URL` exists only in a running Node process, and services are also
+   * constructed where none is: the build's route extraction boots the app to
+   * walk the route table, which instantiates every service its guards inject.
+   * Nothing there ever makes a request, so reading the variable eagerly failed
+   * a build over an address that render would have had.
+   */
+  const baseUrl = () =>
+    (origin ??= onServer
+      ? requireEnv('API_URL')
+      : `${document.location.origin}/api`);
 
   return initClient(contract, {
-    baseUrl,
+    // Empty, so ts-rest hands `api` the route path alone and the origin is
+    // prefixed below — the one place it can be resolved late.
+    baseUrl: '',
     api: async ({ path, method, headers, body }) => {
       try {
         const response = await lastValueFrom(
-          http.request(method, path, {
+          http.request(method, baseUrl() + path, {
             body,
             headers,
             observe: 'response',
