@@ -33,6 +33,11 @@
     "prevPage": "Previous",
     "nextPage": "Next",
     "pageStatus": "Page {page} of {total}",
+    "layout": {
+      "label": "Layout",
+      "grid": "Show as cards",
+      "list": "Show as list"
+    },
     "sort": {
       "label": "Sort by",
       "relevance": "Best match",

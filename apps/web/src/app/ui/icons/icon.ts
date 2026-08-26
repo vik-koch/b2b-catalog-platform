@@ -36,6 +36,8 @@ export type IconName =
   | 'circle-user-round'
   | 'book-check'
   | 'book-dashed'
+  | 'layout-grid'
+  | 'layout-list'
   | 'plus';
 
 @Component({
@@ -148,6 +150,20 @@ export type IconName =
           <path d="M17.925 20.056a6 6 0 0 0-11.851.001" />
           <circle cx="12" cy="11" r="4" />
           <circle cx="12" cy="12" r="10" />
+        }
+        @case ('layout-grid') {
+          <rect width="7" height="7" x="3" y="3" rx="1" />
+          <rect width="7" height="7" x="14" y="3" rx="1" />
+          <rect width="7" height="7" x="14" y="14" rx="1" />
+          <rect width="7" height="7" x="3" y="14" rx="1" />
+        }
+        @case ('layout-list') {
+          <rect width="7" height="7" x="3" y="3" rx="1" />
+          <rect width="7" height="7" x="3" y="14" rx="1" />
+          <path d="M14 4h7" />
+          <path d="M14 9h7" />
+          <path d="M14 15h7" />
+          <path d="M14 20h7" />
         }
         @case ('plus') {
           <path d="M5 12h14" />

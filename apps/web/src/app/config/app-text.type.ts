@@ -75,6 +75,17 @@ export const appTextSchema = z
         /** `{page}` and `{total}` substituted at render. */
         pageStatus: z.string(),
         /**
+         * The cards/lines toggle (FR-CAT-04). Two glyphs, so these are the
+         * buttons' accessible names rather than visible labels.
+         */
+        layout: z
+          .object({
+            label: z.string(),
+            grid: z.string(),
+            list: z.string(),
+          })
+          .strict(),
+        /**
          * Sort control (FR-SEARCH-04). Keyed by the sort values the contract
          * defines, so the option list is a lookup rather than a mapping the UI
          * has to maintain. `relevance` is offered on search results only, but
