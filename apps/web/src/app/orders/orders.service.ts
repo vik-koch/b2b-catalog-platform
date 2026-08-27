@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import {
   CartPreview,
   OrderSubmission,
+  OrderDetail,
+  OrderSummary,
   ordersContract,
+  Pagination,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../core/api-client';
 
@@ -29,7 +32,13 @@ export type SubmitOrderResult =
     }
   | { ok: false; code: 'cart-changed'; preview: CartPreview };
 
-/** Placing an order request and reading one back (FR-CART-03/04, FR-ACC-01). */
+/**
+ * Placing an order request and reading one back (FR-CART-03/04, FR-ACC-01).
+ *
+ * Lives here rather than under `checkout/` because the reading half outlives
+ * the form: the account's order history and, later, the mailed summary a guest
+ * opens are the same subject and the same contract.
+ */
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
   private readonly client = createApiClient(ordersContract);
@@ -48,5 +57,26 @@ export class OrdersService {
       };
     }
     throw new Error(`Failed to place the order (status ${response.status})`);
+  }
+
+  /** The account's own order requests, newest first (FR-ACC-01). */
+  async listMine(
+    page: number,
+  ): Promise<{ items: OrderSummary[]; pagination: Pagination }> {
+    const response = await this.client.listMyOrders({ query: { page } });
+    if (response.status === 200) return response.body;
+    throw new Error(`Failed to load your orders (status ${response.status})`);
+  }
+
+  /**
+   * One of the account's own orders, by its reference. Null where there is no
+   * such order *for this account* — the API answers 404 rather than 403 for
+   * somebody else's, and the page has nothing else to say about either.
+   */
+  async getMine(reference: string): Promise<OrderDetail | null> {
+    const response = await this.client.getMyOrder({ params: { reference } });
+    if (response.status === 200) return response.body;
+    if (response.status === 404) return null;
+    throw new Error(`Failed to load the order (status ${response.status})`);
   }
 }

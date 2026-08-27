@@ -143,6 +143,29 @@ interface DetailRow {
       </div>
     </section>
 
+    <!-- Order history (FR-ACC-01). A link rather than the list itself: an
+         order history is paged and grows for years, where the address book is a
+         handful of rows that fit on this page. -->
+    <section class="mt-10">
+      <h2
+        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+      >
+        <app-icon name="shopping-basket" class="h-4 w-4" />
+        {{ orderText.heading }}
+      </h2>
+      <div class="rounded-lg border border-border p-5">
+        <p class="text-sm text-muted">{{ orderText.intro }}</p>
+        <a
+          appButton
+          variant="secondary"
+          routerLink="/account/orders"
+          class="mt-5"
+        >
+          {{ orderText.action }}
+        </a>
+      </div>
+    </section>
+
     <!-- Everything you can do to the account itself, in one card: two rows, not
          two cards holding one button each. Deleting stays the last row and
          keeps its own heading — it is a different weight of decision, and the
@@ -188,6 +211,7 @@ export class AccountPage {
   protected readonly accountText = inject(APP_TEXT).auth.myAccount;
   protected readonly deleteText = inject(APP_TEXT).auth.myAccount.delete;
   protected readonly addressText = inject(APP_TEXT).auth.myAccount.addresses;
+  protected readonly orderText = inject(APP_TEXT).auth.myAccount.orders;
 
   protected readonly profile = resource({
     loader: () => this.account.getProfile(),

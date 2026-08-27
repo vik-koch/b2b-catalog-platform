@@ -344,6 +344,27 @@
         "noSuggestions": "No matching addresses. Carry on typing it yourself.",
         "suggestionCount": "{count} address suggestions"
       },
+      "orders": {
+        "heading": "My orders",
+        "intro": "Every order request you have sent us, with what was on it.",
+        "action": "View my orders",
+        "empty": "You have not sent us an order yet.",
+        "emptyAction": "Browse the catalogue",
+        "itemCount": "{count} lines",
+        "statusRequested": "Awaiting confirmation",
+        "statusApproved": "Confirmed",
+        "statusDeclined": "Declined",
+        "statusCancelled": "Cancelled",
+        "error": "We could not load your orders right now. Please try again later.",
+        "back": "Back to my account",
+        "detail": {
+          "placed": "Sent {date}",
+          "contact": "Who we ask for",
+          "notFound": "We cannot find that order on your account.",
+          "backToList": "Back to my orders",
+          "error": "We could not load that order right now. Please try again later."
+        }
+      },
       "delete": {
         "action": "Delete my account",
         "heading": "Delete my account",
