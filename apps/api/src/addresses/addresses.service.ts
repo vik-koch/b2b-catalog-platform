@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -14,11 +13,7 @@ import {
   AddressConfig,
   AddressInput,
 } from '@b2b-catalog-platform/shared';
-import {
-  ADDRESS_CONFIG,
-  COMPANY_ID_RULE,
-  CompanyIdRule,
-} from '../config/deployment-config';
+import { ADDRESS_CONFIG } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { addresses } from '../db/schema';
@@ -36,15 +31,12 @@ function toAddress(row: AddressRow): Address {
   return {
     id: row.id,
     label: row.label,
-    companyName: row.companyName,
-    companyId: row.companyId,
     street: row.street,
     street2: row.street2,
     postalCode: row.postalCode,
     city: row.city,
     region: row.region,
     country: row.country,
-    phone: row.phone,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -63,7 +55,6 @@ export class AddressesService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     @Inject(ADDRESS_CONFIG) private readonly config: AddressConfig | undefined,
-    @Inject(COMPANY_ID_RULE) private readonly companyIdRule: CompanyIdRule,
   ) {}
 
   /** Oldest first: the book is a short list and a stable order is worth more
@@ -149,16 +140,6 @@ export class AddressesService {
    */
   assertValid(input: AddressInput): void {
     this.assertSupportedCountry(input.country);
-    // Any configured format is enough — that is what several accepted shapes
-    // means. Absent is always fine: an address invoiced to a natural person has
-    // no registration number, and only a submitted *order* can say whether one
-    // was needed.
-    if (input.companyId !== null && !this.companyIdRule(input.companyId)) {
-      throw new BadRequestException({
-        code: 'invalid-company-id',
-        message: 'The registration number matches no configured format',
-      });
-    }
   }
 
   /**

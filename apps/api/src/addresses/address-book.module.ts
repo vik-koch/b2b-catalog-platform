@@ -1,10 +1,5 @@
 import { Module } from '@nestjs/common';
-import {
-  ADDRESS_CONFIG,
-  COMPANY_ID_RULE,
-  loadAddressConfig,
-  loadCompanyIdRule,
-} from '../config/deployment-config';
+import { ADDRESS_CONFIG, loadAddressConfig } from '../config/deployment-config';
 import { AddressesService } from './addresses.service';
 
 /**
@@ -19,7 +14,6 @@ import { AddressesService } from './addresses.service';
     { provide: ADDRESS_CONFIG, useFactory: loadAddressConfig },
     // The same rule registration is checked against: one jurisdiction, one set
     // of accepted shapes, wherever a number is entered.
-    { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
   ],
   exports: [AddressesService],
 })

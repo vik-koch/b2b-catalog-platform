@@ -262,7 +262,6 @@ export const appTextSchema = z
         /** The subtotal covers only the priceable lines. */
         totalIncomplete: z.string(),
 
-
         /** Leaves the cart for the checkout form, and goes back to the shelf
          * the visitor was standing at — the category, page and filters the URL
          * was carrying, or the catalogue where this visit has seen none. */
@@ -515,6 +514,9 @@ export const appTextSchema = z
                 intro: z.string(),
                 label: z.string(),
                 labelHint: z.string(),
+                /** Opens the full address fields where the form asked for the street
+                 * alone. Always offered, never only after a provider fails. */
+                enterManually: z.string(),
                 companyName: z.string(),
                 companyId: z.string(),
                 /** Says when the number matters at all — the book is untyped,

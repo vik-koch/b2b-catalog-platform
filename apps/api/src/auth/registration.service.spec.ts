@@ -200,8 +200,6 @@ describe('RegistrationService', () => {
           country: 'DE',
           // The invoiced party is what the *account* says, not a second copy
           // of what the registry said.
-          companyName: 'Kontor GmbH',
-          companyId: 'DE123456789',
         }),
       );
     });

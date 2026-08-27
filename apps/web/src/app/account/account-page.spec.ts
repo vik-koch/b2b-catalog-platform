@@ -21,8 +21,8 @@ const customer: AccountProfile = {
   firstName: 'Alex',
   lastName: 'Fischer',
   phone: '+49 40 1234567',
-  companyName: 'Kontor GmbH',
   customerType: 'company',
+  companyName: 'Kontor GmbH',
   companyRegistrationId: '12345678',
   createdAt: '2026-02-01T10:00:00.000Z',
 };
@@ -30,15 +30,12 @@ const customer: AccountProfile = {
 const savedAddress: Address = {
   id: 'addr-1',
   label: 'Shop',
-  companyName: 'Kontor GmbH',
-  companyId: null,
   street: 'Hafenstraße 12',
   street2: null,
   postalCode: '20359',
   city: 'Hamburg',
   region: null,
   country: 'DE',
-  phone: null,
   createdAt: '2026-03-01T10:00:00.000Z',
   updatedAt: '2026-03-01T10:00:00.000Z',
 };
@@ -142,7 +139,7 @@ describe('AccountPage', () => {
 
       // The label heads the row, the invoiced company follows it in brackets,
       // and the address itself is the line underneath.
-      expect(el.textContent).toContain('Shop (Kontor GmbH)');
+      expect(el.textContent).toContain('Shop');
       expect(el.textContent).toContain('Hafenstraße 12, 20359 Hamburg');
       expect(
         el.querySelector('a[href="/account/addresses/addr-1/edit"]'),
@@ -152,9 +149,7 @@ describe('AccountPage', () => {
     // Nothing was named at checkout, so the row is headed by its own first
     // line — and that line is not then printed twice.
     it('names an unlabelled address by its first line', async () => {
-      const { el } = await render(customer, [
-        { ...savedAddress, label: null, companyName: null },
-      ]);
+      const { el } = await render(customer, [{ ...savedAddress, label: null }]);
 
       expect(el.textContent).toContain('Hafenstraße 12');
       expect(el.textContent).toContain('20359 Hamburg');
@@ -168,9 +163,7 @@ describe('AccountPage', () => {
         { ...savedAddress, label: null, street2: 'Büro 505' },
       ]);
 
-      expect(el.textContent).toContain(
-        'Hafenstraße 12, Büro 505 (Kontor GmbH)',
-      );
+      expect(el.textContent).toContain('Hafenstraße 12, Büro 505');
       expect(el.textContent).toContain('20359 Hamburg');
     });
 

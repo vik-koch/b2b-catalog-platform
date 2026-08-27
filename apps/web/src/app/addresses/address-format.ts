@@ -19,8 +19,8 @@ export function streetLine(address: Address): string {
  * than one joined string so a card can render it as lines and a summary can
  * join it with commas, without either re-deciding the order.
  *
- * The order is the common European one — recipient, street, postcode and city,
- * region, country. A deployment shipping somewhere that writes them the other
+ * The order is the common European one — street, postcode and city, region,
+ * country. A deployment shipping somewhere that writes them the other
  * way round would order this from config; nothing here needs that yet.
  *
  * The country is left off where the deployment ships to one and the address is
@@ -39,7 +39,6 @@ export function addressLines(
   const domestic =
     countries.length === 1 && countries[0].code === address.country;
   return [
-    address.companyName,
     streetLine(address),
     [address.postalCode, address.city].filter(Boolean).join(' '),
     address.region,
@@ -49,20 +48,12 @@ export function addressLines(
 
 /**
  * What to call one address in a list — its label where the customer gave it
- * one, otherwise where it is, with the invoiced company in brackets after
- * either. A name is never asked for at checkout, so there is always one to
- * show, and two rows that render the same are two addresses at the same place:
- * labelling one of them is the way to tell them apart, not a rule the form
- * enforces up front.
- *
- * The place leads and the company follows, rather than the other way round: a
- * customer's addresses are usually invoiced to the *same* company, and heading
- * every row with it would make a book of identical-looking rows — which is the
- * problem the label exists to solve, reintroduced.
+ * one, otherwise where it is. Two rows that render the same are two addresses
+ * at the same place: labelling one of them is how to tell them apart, not a
+ * rule the form enforces up front.
  */
 export function addressDisplayName(address: Address): string {
-  const name = address.label ?? streetLine(address);
-  return address.companyName ? `${name} (${address.companyName})` : name;
+  return address.label ?? streetLine(address);
 }
 
 /**
@@ -76,8 +67,6 @@ export function addressDetailLines(
 ): string[] {
   const street = streetLine(address);
   return addressLines(address, config).filter((line) => {
-    // Already in the heading's brackets.
-    if (line === address.companyName) return false;
     // Unlabelled, so the street *is* the heading.
     if (!address.label && line === street) return false;
     return true;

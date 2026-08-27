@@ -237,6 +237,7 @@
         "intro": "Saved addresses are offered at checkout, so you only type one once.",
         "label": "Name for this address",
         "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
+        "enterManually": "Enter the address manually",
         "companyName": "Company name",
         "companyId": "Company ID",
         "companyIdHint": "Needed only when this address is the one we invoice — leave it empty for a private delivery address.",

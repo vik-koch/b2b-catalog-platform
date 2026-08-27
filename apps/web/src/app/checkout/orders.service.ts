@@ -24,6 +24,7 @@ export type SubmitOrderResult =
         | 'unsupported-country'
         | 'unknown-pickup-location'
         | 'billing-details-required'
+        | 'party-required'
         | 'rejected';
     }
   | { ok: false; code: 'cart-changed'; preview: CartPreview };

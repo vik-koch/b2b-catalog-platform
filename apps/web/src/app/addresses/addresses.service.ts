@@ -13,10 +13,7 @@ export type SaveAddressResult =
   | { ok: true; address: Address }
   | {
       ok: false;
-      code:
-        | 'address-limit-reached'
-        | 'unsupported-country'
-        | 'invalid-company-id';
+      code: 'address-limit-reached' | 'unsupported-country';
     };
 
 /**
@@ -38,11 +35,7 @@ export class AddressesService {
   async create(input: AddressInput): Promise<SaveAddressResult> {
     const response = await this.client.createAddress({ body: input });
     if (response.status === 201) return { ok: true, address: response.body };
-    // 400 as well as 409: a number the deployment's formats refuse is the
-    // customer's to correct, not an error to throw at them.
-    if (response.status === 400 || response.status === 409) {
-      return { ok: false, code: response.body.code };
-    }
+    if (response.status === 409) return { ok: false, code: response.body.code };
     throw new Error(`Failed to save the address (status ${response.status})`);
   }
 
@@ -52,9 +45,7 @@ export class AddressesService {
       body: input,
     });
     if (response.status === 200) return { ok: true, address: response.body };
-    if (response.status === 400 || response.status === 409) {
-      return { ok: false, code: response.body.code };
-    }
+    if (response.status === 409) return { ok: false, code: response.body.code };
     throw new Error(`Failed to save the address (status ${response.status})`);
   }
 
