@@ -99,6 +99,32 @@ describe('PartySuggestField (FR-AUTH-09)', () => {
     expect(el.textContent).toContain('DE123456789 · Hamburg');
   });
 
+  it('marks the part of the name the query matched', async () => {
+    const { type, el } = await render();
+
+    await type('Kontor');
+
+    expect(
+      [...el.querySelectorAll('[role="option"] mark')].map(
+        (m) => m.textContent,
+      ),
+    ).toEqual(['Kontor']);
+  });
+
+  // The field takes either half of the pair as its query, so a customer who
+  // typed a number is looking for it in the row.
+  it('marks the number too, when that is what was typed', async () => {
+    const { type, el } = await render();
+
+    await type('DE123456789');
+
+    expect(
+      [...el.querySelectorAll('[role="option"] mark')].map(
+        (m) => m.textContent,
+      ),
+    ).toEqual(['DE123456789']);
+  });
+
   it('emits the whole party, which is what fills both fields', async () => {
     const { type, el, picked } = await render();
 

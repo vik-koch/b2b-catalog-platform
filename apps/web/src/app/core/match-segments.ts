@@ -1,27 +1,32 @@
 import { searchTerms } from '@b2b-catalog-platform/shared';
 
-/** A run of a product name, flagged as matched or not. */
+/** A run of a suggested line, flagged as matched or not. */
 export interface NameSegment {
   text: string;
   match: boolean;
 }
 
 /**
- * Splits a suggested product name into the parts the query matched and the
- * parts it did not, so the template can embolden the former. Segments rather
- * than a marked-up string on purpose: product names are admin-editable
- * content, and turning content into markup to render it is how an editor's
- * text becomes an injection. Nothing here ever reaches `innerHTML`.
+ * Splits a suggested line into the parts the query matched and the parts it did
+ * not, so the template can mark the former. Segments rather than a marked-up
+ * string on purpose: the lines are admin-editable content or a third party's
+ * text, and turning either into markup to render it is how it becomes an
+ * injection. Nothing here ever reaches `innerHTML`.
+ *
+ * Shared by every type-ahead that draws its own rows — the catalog search bar
+ * and the address field — so one query highlights the same way wherever it is
+ * typed.
  *
  * Two things keep the highlight honest rather than merely decorative:
  *
- * - It is anchored to word starts, because the matcher's full-text half
- *   matches prefixes of words (`term:*`). Emboldening "es" inside "Reserve"
- *   would claim a match the search did not make.
- * - It only ever marks text the query literally contains. The matcher is
- *   typo-tolerant, so "espreso" legitimately returns *Hafen Espresso* with
- *   nothing to bold — that name is then returned as a single unmatched
- *   segment. Highlighting degrades to plain text; it never guesses.
+ * - It is anchored to word starts, because that is how the things behind these
+ *   fields match: the catalog's full-text half matches prefixes of words
+ *   (`term:*`), and an address provider matches a street by its beginning.
+ *   Marking "es" inside "Reserve" would claim a match neither one made.
+ * - It only ever marks text the query literally contains. Matching is
+ *   typo-tolerant on both sides, so "espreso" legitimately returns *Hafen
+ *   Espresso* with nothing to mark — that line is then returned as a single
+ *   unmatched segment. Highlighting degrades to plain text; it never guesses.
  */
 export function matchSegments(name: string, query: string): NameSegment[] {
   // Composed form throughout: offsets are computed on the folded copy and
