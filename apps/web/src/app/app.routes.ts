@@ -246,6 +246,15 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./account/account-edit-page').then((m) => m.AccountEditPage),
   },
+  // The account's own order history (FR-ACC-01), lazy like the rest of the
+  // signed-in area. The page it lands on is read-only: an order is a request,
+  // and nothing about one is editable once it is sent.
+  {
+    path: 'account/orders',
+    canActivate: [requireAuth()],
+    loadComponent: () =>
+      import('./orders/order-list-page').then((m) => m.OrderListPage),
+  },
   // `new` stays ahead of `:id/edit` so it is never read as an address id.
   {
     path: 'account/addresses/new',

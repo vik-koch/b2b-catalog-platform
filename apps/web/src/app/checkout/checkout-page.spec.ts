@@ -20,7 +20,7 @@ import {
   emptyDraft,
 } from './checkout-draft.service';
 import { CheckoutPage } from './checkout-page';
-import { OrdersService, SubmitOrderResult } from './orders.service';
+import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 
 const text = defaultAppText.checkout;
 

@@ -763,6 +763,32 @@ export const appTextSchema = z
               })
               .strict(),
             /**
+             * The account's order history (FR-ACC-01). An order is a request:
+             * the wording never promises a confirmed sale, and the status is
+             * where the shop stands with it rather than a shipping state.
+             */
+            orders: z
+              .object({
+                heading: z.string(),
+                /** The account-page card, which only links to the list. */
+                intro: z.string(),
+                action: z.string(),
+                empty: z.string(),
+                emptyAction: z.string(),
+                /** `{count}` lines on an order, as the cart counts them. */
+                itemCount: z.string(),
+                /** Where an order stands. Only `requested` is written today;
+                 * the others arrive with order processing, and the list has to
+                 * be able to say them from the start. */
+                statusRequested: z.string(),
+                statusApproved: z.string(),
+                statusDeclined: z.string(),
+                statusCancelled: z.string(),
+                error: z.string(),
+                back: z.string(),
+              })
+              .strict(),
+            /**
              * Deleting your own account (FR-AUTH-06). The copy carries the
              * honest reading of "delete": the row survives so past orders keep
              * their history, and registering again is a new account rather

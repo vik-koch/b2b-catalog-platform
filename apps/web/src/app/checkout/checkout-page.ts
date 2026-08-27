@@ -53,7 +53,7 @@ import { OrderNote } from './order-note';
 import { OrderReview, ReviewBlock } from './order-review';
 import { PartyChoice } from './party-choice';
 import { PaymentChoice } from './payment-choice';
-import { OrdersService, SubmitOrderResult } from './orders.service';
+import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 import { PickupChoice } from './pickup-choice';
 import { PreferredDate } from './preferred-date';
 import { AddressForm } from '../addresses/address-form';

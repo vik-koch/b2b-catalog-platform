@@ -30,6 +30,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'admin/pages/:slug/edit', renderMode: RenderMode.Client },
   { path: 'account', renderMode: RenderMode.Client },
   { path: 'account/edit', renderMode: RenderMode.Client },
+  { path: 'account/orders', renderMode: RenderMode.Client },
   { path: 'account/addresses/new', renderMode: RenderMode.Client },
   { path: 'account/addresses/:id/edit', renderMode: RenderMode.Client },
   { path: 'account/delete', renderMode: RenderMode.Client },
