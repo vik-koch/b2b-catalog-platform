@@ -26,13 +26,19 @@ import { GridSearchField } from './products/grid-search-field';
     <div class="mb-6 grid gap-4 md:grid-cols-3 md:items-center">
       <h1 class="text-3xl font-bold tracking-tight">{{ title() }}</h1>
 
-      <app-grid-search-field
-        class="md:justify-self-center"
-        [query]="query()"
-        [searchLabel]="searchLabel()"
-        [searchPlaceholder]="searchPlaceholder()"
-        [clearLabel]="clearSearchLabel()"
-      />
+      <!-- The middle column is held even where there is nothing to search:
+           without it the actions slide into the centre of the row. -->
+      @if (searchable()) {
+        <app-grid-search-field
+          class="md:justify-self-center"
+          [query]="query()"
+          [searchLabel]="searchLabel()"
+          [searchPlaceholder]="searchPlaceholder()"
+          [clearLabel]="clearSearchLabel()"
+        />
+      } @else {
+        <div></div>
+      }
 
       <div
         class="flex flex-wrap items-center gap-2 md:justify-end md:justify-self-end"
@@ -70,6 +76,9 @@ export class AdminListHeader {
   protected readonly common = inject(ADMIN_TEXT).common;
 
   readonly title = input.required<string>();
+  /** False for a grid the API cannot search — a box that filters nothing is
+   * worse than no box. */
+  readonly searchable = input(true);
   readonly query = input('');
   readonly searchLabel = input('');
   readonly searchPlaceholder = input('');
