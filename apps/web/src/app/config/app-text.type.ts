@@ -352,6 +352,34 @@ export const appTextSchema = z
         /** Sent here with nothing to order — the cart emptied in another tab,
          * or the URL was typed. */
         emptyCart: z.string(),
+        /**
+         * Offered to a visitor with no session, next to the figures it is
+         * about: prices are tiered, so a customer who checks out as a guest is
+         * quoted the lowest tier's. An offer, never a gate — registration needs
+         * a manager's approval and could not finish this order anyway.
+         */
+        signInPrompt: z.string(),
+        signInAction: z.string(),
+        /**
+         * Everything a guest is asked about themselves (FR-CART-03/09) — who
+         * is invoiced and how to reach them, which for a private person is one
+         * answer. A signed-in customer sees none of it: the account answers
+         * the contact, and the party row offers it as a choice.
+         */
+        contact: z
+          .object({
+            heading: z.string(),
+            /** A private person: the party and the contact are the one name. */
+            name: z.string(),
+            /** A company: the party is the company, and this is whoever at it
+             * we ring about the order. */
+            contactName: z.string(),
+            nameRequired: z.string(),
+            /** What the details are for — a guest is handing a phone number to
+             * a shop they have no account with. */
+            note: z.string(),
+          })
+          .strict(),
         /** The marker on the fields that are not required — the date and the
          * note, which the form asks for rather than needs. */
         optional: z.string(),
@@ -514,6 +542,10 @@ export const appTextSchema = z
         /** `{reference}` — the number to quote when asking about the order. */
         success: z.string(),
         successAction: z.string(),
+        /** Shown to a guest on the confirmation, where waiting for approval
+         * costs them nothing: the one place an account is worth offering. */
+        successRegister: z.string(),
+        successRegisterAction: z.string(),
         /**
          * What a refusal means, in the customer's words. The API answers with
          * a code and never with a sentence, so every one of them is named
@@ -521,7 +553,9 @@ export const appTextSchema = z
          */
         errors: z
           .object({
-            /** The form itself is not finished; the fields say which. */
+            /** The form itself is not finished; the fields say which. Says
+             * "on the form" rather than "above": the button lives in a column
+             * beside the questions once there is room for two. */
             incomplete: z.string(),
             invalidCompanyId: z.string(),
             unsupportedCountry: z.string(),
@@ -701,6 +735,10 @@ export const appTextSchema = z
                 /** Opens the full address fields where the form asked for the street
                  * alone. Always offered, never only after a provider fails. */
                 enterManually: z.string(),
+                /** The one field a suggesting form asks for before anything is
+                 * picked: it takes the whole address, and calling it the street
+                 * would be asking for a part of what it wants. */
+                addressLine: z.string(),
                 street: z.string(),
                 street2: z.string(),
                 postalCode: z.string(),

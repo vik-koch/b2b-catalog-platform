@@ -349,9 +349,13 @@ interface CartRow {
              long as the cart is and the total is what the customer is editing
              them against. Clear of the header, which is pinned too — and only
              as tall as it needs to be, or a stretched column would fill the
-             row and have nowhere to travel. -->
+             row and have nowhere to travel.
+
+             The same measure as the column it drops under, which is what the
+             checkout gives it too: stacked, the card is the page, and three
+             pages that agree about the card should agree about its width. -->
           <aside
-            class="max-w-80 @max-[593px]/cart:max-w-none @min-[72.5rem]/cart:mt-9 @min-[72.5rem]/cart:sticky @min-[72.5rem]/cart:top-20 @min-[72.5rem]/cart:self-start"
+            class="max-w-xl @min-[72.5rem]/cart:mt-9 @min-[72.5rem]/cart:sticky @min-[72.5rem]/cart:top-20 @min-[72.5rem]/cart:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"

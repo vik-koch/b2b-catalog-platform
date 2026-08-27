@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { Address, OrderSubmission } from '@b2b-catalog-platform/shared';
@@ -8,10 +9,16 @@ import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { SUGGESTIONS_ENABLED } from '../config/suggestions-enabled';
 import { AccountService } from '../account/account.service';
+import { AuthService } from '../auth/auth.service';
 import { AddressesService } from '../addresses/addresses.service';
 import { packagedPackaging } from '../catalog/product.fixture';
 import { CartAddition, CartService } from '../cart/cart.service';
-import { CheckoutDraftService } from './checkout-draft.service';
+import {
+  CHECKOUT_DRAFT_KEY,
+  CHECKOUT_DRAFT_VERSION,
+  CheckoutDraftService,
+  emptyDraft,
+} from './checkout-draft.service';
 import { CheckoutPage } from './checkout-page';
 import { OrdersService, SubmitOrderResult } from './orders.service';
 
@@ -65,6 +72,8 @@ interface Options {
   suggests?: boolean;
   /** What placing the order comes to. Accepted unless a test says otherwise. */
   submit?: SubmitOrderResult;
+  /** No session at all (FR-CART-03). */
+  guest?: boolean;
 }
 
 /** Every submission the page sent, and what it was answered with. */
@@ -94,6 +103,19 @@ async function render(options: Options = {}) {
         useValue: options.config ?? defaultDeploymentConfig,
       },
       { provide: SUGGESTIONS_ENABLED, useValue: options.suggests ?? false },
+      {
+        provide: AuthService,
+        useValue: {
+          // Resolved either way: the page waits for a real answer before it
+          // draws a form, because the two shapes ask different questions.
+          resolved: signal(true),
+          user: signal(
+            options.guest
+              ? null
+              : { id: 'user-1', email: 'alex@example.com', role: 'user' },
+          ),
+        },
+      },
       {
         provide: OrdersService,
         useValue: {
@@ -372,6 +394,57 @@ describe('CheckoutPage', () => {
       );
     });
 
+    it('reads back the parts the street line does not say', async () => {
+      // An address already in the draft is the same case a picked suggestion
+      // leaves behind: the folded-away fields are filled, and the customer is
+      // the only one who can say they are wrong.
+      sessionStorage.setItem(
+        CHECKOUT_DRAFT_KEY,
+        JSON.stringify({
+          version: CHECKOUT_DRAFT_VERSION,
+          draft: {
+            ...emptyDraft(),
+            newDeliveryAddress: {
+              label: null,
+              street: 'Hafenstraße 12',
+              street2: null,
+              postalCode: '20359',
+              city: 'Hamburg',
+              region: null,
+              country: 'DE',
+            },
+          },
+        }),
+      );
+      const page = await render({ suggests: true, addresses: [] });
+
+      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+      expect(page.text()).toContain('20359 Hamburg');
+    });
+
+    it('opens the rest when the street was typed and nothing resolved', async () => {
+      const page = await render({ suggests: true, addresses: [] });
+
+      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+
+      page.type('input[autocomplete="street-address"]', 'Hafenstraße 12');
+      page.blur('input[autocomplete="street-address"]');
+      await page.settle();
+
+      // No postcode behind the street line, so the fields it was folding away
+      // are the ones the customer now has to fill.
+      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+    });
+
+    it('opens the rest when the order is sent with the address unfinished', async () => {
+      const page = await render({ suggests: true, addresses: [] });
+
+      await page.review();
+
+      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(page.text()).toContain(text.errors.incomplete);
+    });
+
     it('asks for every field where there is no provider', async () => {
       const page = await render();
 
@@ -538,6 +611,146 @@ describe('CheckoutPage', () => {
       await page.settle();
 
       expect(page.text()).toContain(text.zone.noDelivery);
+    });
+  });
+
+  describe('a guest (FR-CART-03)', () => {
+    it('asks for the contact details an account would have answered', async () => {
+      const page = await render({ guest: true });
+
+      expect(page.text()).toContain(text.contact.heading);
+      expect(page.el.querySelector('#contact-name')).not.toBeNull();
+      // The party and the contact are one answer for a private person, so the
+      // name is asked once and there is no second field for it.
+      expect(page.el.querySelector('#party-personName')).toBeNull();
+      expect(page.el.querySelector('#contact-email')).not.toBeNull();
+      expect(page.el.querySelector('#contact-phone')).not.toBeNull();
+    });
+
+    it('offers signing in rather than demanding it', async () => {
+      const page = await render({ guest: true });
+
+      expect(page.text()).toContain(text.signInPrompt);
+      // The form is right there — the offer is beside it, not in front of it.
+      expect(page.text()).toContain(text.fulfilment.heading);
+    });
+
+    it('never asks a guest which of their accounts to invoice', async () => {
+      const page = await render({ guest: true });
+
+      // No account, so no first option and no list: only the kind of party.
+      expect(page.radio('party', 'account')).toBeNull();
+      expect(page.radio('party-kind', 'person')).not.toBeNull();
+      expect(page.drafts.draft().party).toBe('person');
+      // And no agreed prices to be told this order is not getting.
+      expect(page.text()).not.toContain(text.party.otherNotice);
+    });
+
+    it('types its own address, with nothing to save it to', async () => {
+      const page = await render({ guest: true });
+
+      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(page.text()).not.toContain(text.addresses.saveToBook);
+    });
+
+    it('sends the contact it was given and names the party itself', async () => {
+      const page = await render({ guest: true });
+
+      page.type('#contact-name', 'Ada Lovelace');
+      page.type('#contact-email', 'ada@example.com');
+      page.type('#contact-phone', '4012345678');
+      page.type('input[autocomplete="street-address"]', 'Hafenstraße 12');
+      page.type('[id$="-postalCode"]', '20359');
+      page.type('[id$="-city"]', 'Hamburg');
+      await page.settle();
+
+      await page.review();
+      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
+      await page.settle();
+      page.button(text.submit)?.click();
+      await page.settle();
+
+      expect(sent).toHaveLength(1);
+      expect(sent[0].contact).toMatchObject({
+        name: 'Ada Lovelace',
+        email: 'ada@example.com',
+      });
+      // Never null for a guest: there is no account for the server to read.
+      expect(sent[0].party).toMatchObject({
+        name: 'Ada Lovelace',
+        registrationId: null,
+      });
+      expect(sent[0].deliveryAddressId).toBeNull();
+    });
+
+    it('asks a company for its own name and a person to ring', async () => {
+      const page = await render({ guest: true });
+
+      page.pick('party-kind', 'company');
+      await page.settle();
+
+      expect(page.el.querySelector('#party-companyName')).not.toBeNull();
+      expect(page.el.querySelector('#party-companyId')).not.toBeNull();
+      // Still asked who to ring: a company is the party, somebody at it is the
+      // contact, and those are two answers rather than one.
+      expect(page.el.querySelector('#contact-name')).not.toBeNull();
+    });
+
+    it('stops asking for a company once the party is a person again', async () => {
+      const page = await render({ guest: true });
+
+      page.pick('party-kind', 'company');
+      await page.settle();
+      page.pick('party-kind', 'person');
+      await page.settle();
+
+      page.type('#contact-name', 'Ada Lovelace');
+      page.type('#contact-email', 'ada@example.com');
+      page.type('#contact-phone', '4012345678');
+      page.type('input[autocomplete="street-address"]', 'Hafenstraße 12');
+      page.type('[id$="-postalCode"]', '20359');
+      page.type('[id$="-city"]', 'Hamburg');
+      await page.settle();
+
+      await page.review();
+
+      // Nothing about a company is asked of a private party, so nothing about
+      // one can hold the form back.
+      expect(page.text()).toContain(text.review.title);
+    });
+
+    it('drops an address the draft names but this visitor cannot see', async () => {
+      // A draft written while signed in, read after signing out: the row it
+      // names is nobody's now. Silently unbuildable, and no field to blame.
+      sessionStorage.setItem(
+        CHECKOUT_DRAFT_KEY,
+        JSON.stringify({
+          version: CHECKOUT_DRAFT_VERSION,
+          draft: { ...emptyDraft(), deliveryAddressId: saved.id },
+        }),
+      );
+      const page = await render({ guest: true });
+
+      expect(page.drafts.draft().deliveryAddressId).toBeNull();
+      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+    });
+
+    it('drops a submission whose honeypot was filled', async () => {
+      const page = await render({ guest: true });
+
+      page.type('#contact-name', 'Ada Lovelace');
+      page.type('#contact-email', 'ada@example.com');
+      page.type('#contact-phone', '4012345678');
+      page.type('input[autocomplete="street-address"]', 'Hafenstraße 12');
+      page.type('[id$="-postalCode"]', '20359');
+      page.type('[id$="-city"]', 'Hamburg');
+      page.type('#checkout-website', 'https://example.com');
+      await page.settle();
+
+      await page.review();
+
+      expect(page.text()).not.toContain(text.review.title);
+      expect(submitted).not.toHaveBeenCalled();
     });
   });
 

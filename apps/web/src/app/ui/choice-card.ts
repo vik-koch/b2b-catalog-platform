@@ -57,7 +57,11 @@ import { Radio } from './radio';
            to the title's own column: what a choice reveals belongs under what
            it says, not under its radio. Flush under a card that says nothing
            else: the gap is there to clear a sentence, and with no sentence to
-           clear it stands where the sentence would have been. -->
+           clear it stands where the sentence would have been.
+
+           Only as wide as what is in it. Full width, this sits over the card's
+           own hit area for the whole line, and a click to the right of a link
+           lands on nothing instead of choosing the card. -->
       <div [class]="contentClass()"><ng-content /></div>
     </div>
   `,

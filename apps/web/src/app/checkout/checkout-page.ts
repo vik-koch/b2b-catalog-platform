@@ -6,34 +6,44 @@ import {
   input,
   resource,
   signal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AddressInput,
   FulfilmentMethod,
+  OrderContact,
   OrderSubmission,
   PartySuggestion,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { AccountService } from '../account/account.service';
+import { AuthService } from '../auth/auth.service';
 import { AddressesService } from '../addresses/addresses.service';
 import { addressLines } from '../addresses/address-format';
 import { createAddressForm } from '../addresses/address-form';
 import { CartService } from '../cart/cart.service';
 import { delayedLoading } from '../core/delayed-loading';
-import { companyIdFormat } from '../core/contact-fields';
+import {
+  canonicalPhone,
+  companyIdFormat,
+  phoneValidators,
+} from '../core/contact-fields';
 import { fillText } from '../core/fill-text';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
+import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
 import { OrderSummary } from '../cart/order-summary';
 import { AddressPicker } from './address-picker';
+import { GuestDetails } from './guest-details';
 import {
+  CheckoutDraft,
   CheckoutDraftService,
   PartyChoice as Party,
 } from './checkout-draft.service';
@@ -71,11 +81,14 @@ import { AddressForm } from '../addresses/address-form';
     FulfilmentChoice,
     OrderNote,
     OrderReview,
+    GuestDetails,
+    Icon,
     OrderSummary,
     PartyChoice,
     PaymentChoice,
     PickupChoice,
     PreferredDate,
+    ReactiveFormsModule,
     RouterLink,
     Skeleton,
   ],
@@ -86,18 +99,34 @@ import { AddressForm } from '../addresses/address-form';
       <a appButton routerLink="/catalog" class="mt-4">
         {{ text.successAction }}
       </a>
+
+      @if (guest()) {
+        <p class="mt-8 max-w-xl text-sm text-muted">
+          {{ text.successRegister }}
+          <a routerLink="/register" class="text-primary underline">
+            {{ text.successRegisterAction }}
+          </a>
+        </p>
+      }
     } @else if (cart.isEmpty()) {
       <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
       <p class="text-subtle">{{ text.emptyCart }}</p>
       <a appButton routerLink="/cart" class="mt-4">{{ cartText.navLabel }}</a>
     } @else {
-      <!-- Form and summary, the pair the cart already draws. Measured on the
-           page rather than the window for the same reason it is there: the
-           frame's padding and the scrollbar are most of a column, and the
-           media query cannot see either. Below the notch the summary sits
-           under the form instead of beside it. -->
+      <!-- Form and summary, the pair the cart already draws — and at the width
+           the cart draws it, not at whatever this page could get away with.
+           The card is the same card on both, so a customer moving from one to
+           the other at a given window size must not find it beside the content
+           on one and under it on the other. The number is the cart's own: the
+           width at which taking a 20rem column off its lines still leaves them
+           their three (see cart-page.ts).
+
+           Measured on the page rather than the window for the same reason it
+           is there: the frame's padding and the scrollbar are most of a
+           column, and the media query cannot see either. Below the notch the
+           summary sits under the form instead of beside it. -->
       <div class="@container/checkout">
-        <div class="grid gap-8 @min-[64rem]/checkout:grid-cols-[1fr_20rem]">
+        <div class="grid gap-8 @min-[72.5rem]/checkout:grid-cols-[1fr_20rem]">
           <!-- Heading and intro in the column, not above the grid: the summary
                beside them then starts level with the heading, and the same card
                sits at the same height on the cart, here, and on the read-back. -->
@@ -114,6 +143,33 @@ import { AddressForm } from '../addresses/address-form';
                 {{ reviewing() ? text.review.intro : text.intro }}
               </p>
             </div>
+
+            <!-- Next to the figures it is about: prices are tiered, so a
+                 customer who checks out as a guest is quoted the lowest tier's.
+                 An offer and not a gate — an account needs approving and could
+                 not finish this order anyway. -->
+            @if (guest() && !placed()) {
+              <!-- Marked with the glyph the account control wears, so it reads
+                   as being about an account before it is read at all. -->
+              <p
+                class="mb-8 flex max-w-xl items-start gap-2 text-sm text-muted"
+              >
+                <app-icon
+                  name="circle-user-round"
+                  class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                />
+                <span>
+                  {{ text.signInPrompt }}
+                  <a
+                    [routerLink]="['/login']"
+                    [queryParams]="{ returnUrl: '/checkout' }"
+                    class="text-primary underline"
+                  >
+                    {{ text.signInAction }}
+                  </a>
+                </span>
+              </p>
+            }
 
             @if (reviewing()) {
               <app-order-review class="max-w-xl" [blocks]="reviewBlocks()" />
@@ -154,25 +210,63 @@ import { AddressForm } from '../addresses/address-form';
                  and it is also what unchecking "the same address" falls back
                  to — a second picker directly under the checkbox that revealed
                  it, rather than one further down the page. -->
-                <app-party-choice
-                  [party]="draft().party"
-                  [accountName]="accountName()"
-                  [otherParty]="otherParty()"
-                  [personNameControl]="partyForm.controls.personName"
-                  [companyNameControl]="partyForm.controls.companyName"
-                  [companyIdControl]="partyForm.controls.companyId"
-                  [personNameInvalid]="
-                    partyErrors.show(partyForm.controls.personName)
-                  "
-                  [companyNameInvalid]="
-                    partyErrors.show(partyForm.controls.companyName)
-                  "
-                  [companyIdInvalid]="
-                    partyErrors.show(partyForm.controls.companyId)
-                  "
-                  (partyChange)="chooseParty($event)"
-                  (picked)="pickParty($event)"
-                />
+                <!-- One block for a guest, where the party and the contact are
+                     the same answer for a private person; a customer's account
+                     answers the contact, and their party row offers it. -->
+                @if (guest()) {
+                  <app-guest-details
+                    [party]="draft().party"
+                    [nameControl]="contactForm.controls.name"
+                    [emailControl]="contactForm.controls.email"
+                    [phoneControl]="contactForm.controls.phone"
+                    [companyNameControl]="partyForm.controls.companyName"
+                    [companyIdControl]="partyForm.controls.companyId"
+                    [companyNameInvalid]="
+                      partyErrors.show(partyForm.controls.companyName)
+                    "
+                    [companyIdInvalid]="
+                      partyErrors.show(partyForm.controls.companyId)
+                    "
+                    [errors]="contactErrors"
+                    (partyChange)="chooseParty($event)"
+                    (picked)="pickParty($event)"
+                  />
+
+                  <!-- ADR 0015's honeypot: off screen, never announced, and
+                       filled only by something that is not reading. -->
+                  <div class="absolute -left-[9999px]" aria-hidden="true">
+                    <label for="checkout-website">Leave this field empty</label>
+                    <input
+                      id="checkout-website"
+                      type="text"
+                      tabindex="-1"
+                      autocomplete="off"
+                      [formControl]="contactForm.controls.website"
+                    />
+                  </div>
+                }
+
+                @if (!guest()) {
+                  <app-party-choice
+                    [party]="draft().party"
+                    [accountName]="accountName()"
+                    [lastOther]="otherParty()"
+                    [personNameControl]="partyForm.controls.personName"
+                    [companyNameControl]="partyForm.controls.companyName"
+                    [companyIdControl]="partyForm.controls.companyId"
+                    [personNameInvalid]="
+                      partyErrors.show(partyForm.controls.personName)
+                    "
+                    [companyNameInvalid]="
+                      partyErrors.show(partyForm.controls.companyName)
+                    "
+                    [companyIdInvalid]="
+                      partyErrors.show(partyForm.controls.companyId)
+                    "
+                    (partyChange)="chooseParty($event)"
+                    (picked)="pickParty($event)"
+                  />
+                }
 
                 <!-- The zone is re-read when focus leaves the picker, not on
                  every keystroke: half a postcode resolves to whatever zone
@@ -188,6 +282,8 @@ import { AddressForm } from '../addresses/address-form';
                     [selectedId]="draft().deliveryAddressId"
                     [form]="deliveryForm"
                     [fieldErrors]="deliveryErrors"
+                    [canSave]="!guest()"
+                    [reveal]="revealDelivery()"
                     [save]="saveDelivery()"
                     (selectedIdChange)="
                       drafts.patch({ deliveryAddressId: $event })
@@ -264,7 +360,7 @@ import { AddressForm } from '../addresses/address-form';
                long as the answers are, and the total is what the customer is
                reading them against. -->
           <aside
-            class="@min-[64rem]/checkout:mt-9 @min-[64rem]/checkout:sticky @min-[64rem]/checkout:top-20 @min-[64rem]/checkout:self-start"
+            class="max-w-xl @min-[72.5rem]/checkout:mt-9 @min-[72.5rem]/checkout:sticky @min-[72.5rem]/checkout:top-20 @min-[72.5rem]/checkout:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"
@@ -376,6 +472,7 @@ export class CheckoutPage {
   private readonly locations = this.config.pickup?.locations ?? [];
   private readonly book = inject(AddressesService);
   private readonly account = inject(AccountService);
+  private readonly auth = inject(AuthService);
   private readonly orders = inject(OrdersService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -396,15 +493,45 @@ export class CheckoutPage {
   });
   protected readonly partyErrors = new FieldErrors(this.partyForm);
 
+  /**
+   * Who to talk to about the order — a guest's own, since there is no account
+   * to read it off (FR-CART-03). `website` is ADR 0015's honeypot: a bot fills
+   * it, a person never sees it, and this is the one form here a bot can reach.
+   */
+  protected readonly contactForm = inject(FormBuilder).nonNullable.group({
+    name: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    phone: ['', phoneValidators(this.config.phoneInput, true)],
+    website: [''],
+  });
+  protected readonly contactErrors = new FieldErrors(this.contactForm);
+
   protected readonly deliveryForm = createAddressForm();
   protected readonly deliveryErrors = new FieldErrors(this.deliveryForm.group);
   protected readonly billingForm = createAddressForm();
   protected readonly billingErrors = new FieldErrors(this.billingForm.group);
 
-  /** The book. A failure is not fatal: the pickers fall back to their own
-   * fields, which is the same form a guest gets. */
-  private readonly saved = resource({ loader: () => this.book.list() });
+  /**
+   * A visitor with no session (FR-CART-03). Read through `resolved`, so the
+   * form is never drawn for a guest and then redrawn for a customer: the two
+   * ask different questions, and half of one is not a form.
+   */
+  protected readonly guest = computed(() => this.auth.user() === null);
+
+  /**
+   * The book and the account, neither of which a guest has. Idle rather than
+   * asked and refused: an anonymous call to either is a 401 the page would
+   * have to translate into "no rows", which is what not asking already says.
+   *
+   * A failure for a customer is not fatal either — the pickers fall back to
+   * their own fields, which is the same form a guest gets.
+   */
+  private readonly saved = resource({
+    params: () => (this.guest() ? undefined : true),
+    loader: () => this.book.list(),
+  });
   private readonly profile = resource({
+    params: () => (this.guest() ? undefined : true),
     loader: () => this.account.getProfile(),
   });
 
@@ -440,6 +567,8 @@ export class CheckoutPage {
   private readonly errorState = signal<string | null>(null);
   protected readonly acceptedPrivacy = signal(false);
   private readonly privacyChecked = signal(false);
+  protected readonly revealDelivery = signal(false);
+  protected readonly revealBilling = signal(false);
 
   protected readonly sending = this.sendingState.asReadonly();
   protected readonly placed = this.placedState.asReadonly();
@@ -483,7 +612,10 @@ export class CheckoutPage {
    * already reading it.
    */
   protected readonly formPending = computed(
-    () => this.profile.isLoading() || this.saved.isLoading(),
+    () =>
+      !this.auth.resolved() ||
+      this.profile.isLoading() ||
+      this.saved.isLoading(),
   );
   /** And only owned up to if the wait is long enough to notice. */
   protected readonly showFormSkeleton = delayedLoading(this.formPending);
@@ -568,6 +700,40 @@ export class CheckoutPage {
       if (!this.buildSubmission()) this.goToStep(undefined);
     });
 
+    // A draft outlives the session it was written in: signing out, or coming
+    // back as somebody else, leaves it naming book rows this visitor cannot
+    // see. An id nothing answers is not a choice — it is a picker with no row
+    // selected and a submission that quietly refuses to build — so it falls
+    // back to the fields.
+    effect(() => {
+      if (!this.auth.resolved() || this.saved.isLoading()) return;
+      const rows = this.addresses();
+      const offered = (id: string | null) =>
+        id === null || rows.some((row) => row.id === id);
+
+      const draft = untracked(() => this.draft());
+      const changes: Partial<CheckoutDraft> = {};
+      if (!offered(draft.deliveryAddressId)) changes.deliveryAddressId = null;
+      if (!offered(draft.billingAddressId)) changes.billingAddressId = null;
+      if (Object.keys(changes).length) {
+        untracked(() => this.drafts.patch(changes));
+      }
+    });
+
+    // Who is asking decides both which party answers are possible and which of
+    // their fields are required, and it is not known on the first frame. A
+    // guest cannot invoice an account they do not have; a customer's private
+    // party owes a name a guest's does not.
+    effect(() => {
+      if (!this.auth.resolved()) return;
+      const party = untracked(() => this.draft().party);
+      if (this.guest() && party === 'account') {
+        untracked(() => this.chooseParty('person'));
+        return;
+      }
+      untracked(() => this.applyPartyValidators(party));
+    });
+
     // A payment method the party can no longer take falls back to the default
     // rather than waiting to be refused: the customer changes who is invoiced,
     // and the row below it stops offering what it just offered.
@@ -607,6 +773,10 @@ export class CheckoutPage {
       .subscribe(() =>
         this.drafts.patch({ newBillingAddress: this.billingForm.value() }),
       );
+    this.contactForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      const { name, email, phone } = this.contactForm.getRawValue();
+      this.drafts.patch({ contact: { name, email, phone } });
+    });
     this.partyForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       const { personName, companyName, companyId } =
         this.partyForm.getRawValue();
@@ -624,6 +794,9 @@ export class CheckoutPage {
     if (draft.newDeliveryAddress)
       this.deliveryForm.fill(draft.newDeliveryAddress);
     if (draft.newBillingAddress) this.billingForm.fill(draft.newBillingAddress);
+    if (draft.contact) {
+      this.contactForm.patchValue(draft.contact, { emitEvent: false });
+    }
     // Only the chosen party's own fields: the other branch is empty, which is
     // what it is on a form that has never been touched.
     this.partyForm.setValue({
@@ -664,14 +837,24 @@ export class CheckoutPage {
     // on which party is chosen, and they fire on the way through.
     this.drafts.patch({ party });
     if (party !== 'account') this.lastOtherParty.set(party);
+    this.applyPartyValidators(party);
+  }
 
+  /**
+   * Which of the party's fields are required, given who is asking. A guest's
+   * private party has no name field of its own — they are the contact, and
+   * asking a person for their name twice is asking one of the two for nothing.
+   */
+  private applyPartyValidators(party: Party): void {
     const { personName, companyName, companyId } = this.partyForm.controls;
 
     personName.setValue(party === 'person' ? personName.value : '');
     companyName.setValue(party === 'company' ? companyName.value : '');
     companyId.setValue(party === 'company' ? companyId.value : '');
 
-    personName.setValidators(party === 'person' ? Validators.required : []);
+    personName.setValidators(
+      party === 'person' && !this.guest() ? Validators.required : [],
+    );
     companyName.setValidators(party === 'company' ? Validators.required : []);
     companyId.setValidators(
       party === 'company'
@@ -785,7 +968,12 @@ export class CheckoutPage {
       return this.accountName() ?? this.text.party.own;
     }
     const { personName, companyName, companyId } = this.partyForm.getRawValue();
-    const name = draft.party === 'company' ? companyName : personName;
+    const name =
+      draft.party === 'company'
+        ? companyName
+        : this.guest()
+          ? this.contactForm.controls.name.value
+          : personName;
     return draft.party === 'company' && companyId.trim()
       ? `${name.trim()} · ${companyId.trim()}`
       : name.trim();
@@ -824,8 +1012,21 @@ export class CheckoutPage {
    * nobody visited. */
   private markProblems(): void {
     this.partyErrors.markSubmitted();
+    if (this.guest()) this.contactErrors.markSubmitted();
     if (this.deliveryTyped()) this.deliveryErrors.markSubmitted();
     if (this.billingTyped()) this.billingErrors.markSubmitted();
+
+    // A compact address holds the postcode and the city out of sight, which is
+    // exactly where a form that never got a suggestion is wrong. Opened only
+    // where it is actually wanting: an address that resolved cleanly has
+    // nothing to correct, and unfolding it would be noise about a field the
+    // customer never had to fill.
+    this.revealDelivery.set(
+      this.deliveryTyped() && this.deliveryForm.group.invalid,
+    );
+    this.revealBilling.set(
+      this.billingTyped() && this.billingForm.group.invalid,
+    );
   }
 
   protected backToForm(): void {
@@ -904,7 +1105,14 @@ export class CheckoutPage {
     const profile = this.profile.value();
     const draft = this.draft();
 
-    if (!profile) return null;
+    if (this.guest()) {
+      if (this.contactForm.invalid) return null;
+      // A filled honeypot is a bot; the form goes no further and says nothing
+      // about why (ADR 0015). The server refuses it again.
+      if (this.contactForm.controls.website.value.trim()) return null;
+    } else if (!profile) {
+      return null;
+    }
     if (this.partyForm.invalid) return null;
     if (this.deliveryTyped() && this.deliveryForm.group.invalid) return null;
     if (this.billingTyped() && this.billingForm.group.invalid) return null;
@@ -921,25 +1129,28 @@ export class CheckoutPage {
     if (!billing) return null;
 
     const { personName, companyName, companyId } = this.partyForm.getRawValue();
+    const contact = this.contact();
+    // A guest ordering as a private person *is* the party, so the one name
+    // they gave answers both. A company is its own party, with somebody at it
+    // as the contact.
+    const partyName =
+      draft.party === 'company'
+        ? companyName
+        : this.guest()
+          ? contact.name
+          : personName;
 
     return {
       lines: this.cart.request(),
-      contact: {
-        name: this.accountName() ?? profile.email,
-        email: profile.email,
-        phone: profile.phone ?? '',
-      },
+      contact,
       fulfilmentMethod: draft.fulfilmentMethod,
       // Null is "the party this account is registered as": its own record,
       // which the server reads rather than takes from a browser.
       party:
-        draft.party === 'account'
+        draft.party === 'account' && !this.guest()
           ? null
           : {
-              name: (draft.party === 'company'
-                ? companyName
-                : personName
-              ).trim(),
+              name: partyName.trim(),
               registrationId:
                 draft.party === 'company' ? companyId.trim() : null,
             },
@@ -955,6 +1166,30 @@ export class CheckoutPage {
       customerNote: draft.customerNote,
       expectedTotalMinor: this.cart.totalMinor(),
       acceptPrivacy: true,
+    };
+  }
+
+  /**
+   * Who to talk to about this order: the guest's own answers, or the account's
+   * record. A signed-in customer is never asked, so there is one place either
+   * can come from and no chance of the two disagreeing.
+   */
+  private contact(): OrderContact {
+    if (!this.guest()) {
+      const profile = this.profile.value();
+      return {
+        name: this.accountName() ?? profile?.email ?? '',
+        email: profile?.email ?? '',
+        phone: profile?.phone ?? '',
+      };
+    }
+    const { name, email, phone } = this.contactForm.getRawValue();
+    return {
+      name: name.trim(),
+      email: email.trim(),
+      // Stored the way every other number is: the prefix the field showed plus
+      // what was typed into it.
+      phone: canonicalPhone(phone, this.config.phoneInput),
     };
   }
 
@@ -977,6 +1212,8 @@ export class CheckoutPage {
    * full book is not something to interrupt a confirmation with.
    */
   private async fileTypedAddresses(): Promise<void> {
+    // No account, no book: there is nowhere to keep it.
+    if (this.guest()) return;
     const draft = this.draft();
     const wanted: AddressInput[] = [];
     if (this.deliveryTyped() && draft.saveDeliveryAddress) {

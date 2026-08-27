@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   output,
@@ -79,8 +80,9 @@ let nextId = 0;
       <div [class]="streetRow()">
         <div>
           <app-address-suggest-field
+            (focusout)="settleStreet()"
             [control]="form().group.controls.street"
-            [label]="text.street"
+            [label]="collapsed() ? text.addressLine : text.street"
             [text]="suggestText"
             [country]="form().group.controls.country.value"
             [invalid]="isInvalid('street')"
@@ -233,6 +235,9 @@ export class AddressFields {
   /** Ask for the street alone and let a suggestion fill the rest — only where
    * the deployment has a provider to suggest anything. */
   readonly compact = input(false);
+  /** Opened from outside: the page found the address wanting and the fields
+   * that are wrong are the ones this is folding away. */
+  readonly reveal = input(false);
 
   /** A provider filled the address in. The page hears about it because a
    * delivery address that moves re-resolves its zone. */
@@ -241,6 +246,22 @@ export class AddressFields {
   /** Once the fields are open they stay open: a form that folded itself back
    * up after being corrected would hide the correction. */
   private readonly expanded = signal(false);
+
+  constructor() {
+    // Mirrors the group into a signal, and follows the input if the page ever
+    // hands over a different form.
+    effect((onCleanup) => {
+      const group = this.form().group;
+      const read = () => this.value.set({ ...group.getRawValue() });
+      read();
+      const sub = group.valueChanges.subscribe(read);
+      onCleanup(() => sub.unsubscribe());
+    });
+
+    effect(() => {
+      if (this.reveal()) this.expand();
+    });
+  }
 
   protected readonly collapsed = computed(
     () => this.compact() && !this.expanded(),
@@ -253,10 +274,18 @@ export class AddressFields {
     this.collapsed() ? 'grid gap-6 sm:grid-cols-[1fr_10rem]' : 'grid gap-6',
   );
 
+  /**
+   * What the form is holding, as a signal. A `FormControl` is not one, so a
+   * computed reading `getRawValue()` depends on nothing and caches the first
+   * answer it ever gave — which is an empty address, forever.
+   */
+  private readonly value = signal(this.blank());
+
   /** The parts a suggestion filled, on one line — everything the street line
-   * does not already say. */
+   * does not already say. The street is in the field directly above it, and
+   * printing it twice is not a read-back. */
   protected readonly filled = computed(() => {
-    const value = this.form().group.getRawValue();
+    const value = this.value();
     return [
       [value.postalCode, value.city].filter(Boolean).join(' '),
       value.region,
@@ -267,6 +296,24 @@ export class AddressFields {
 
   protected expand(): void {
     this.expanded.set(true);
+  }
+
+  /**
+   * Leaving the street field with nothing resolved behind it opens the rest.
+   * A pick fills the postcode before the blur — the list commits on mousedown
+   * — so a suggestion that landed leaves this alone, and one that never came
+   * leaves a customer who would otherwise have a postcode-shaped hole in an
+   * address they cannot see.
+   */
+  protected settleStreet(): void {
+    const { street, postalCode } = this.value();
+    if (this.collapsed() && street.trim() && !postalCode.trim()) {
+      this.expand();
+    }
+  }
+
+  private blank() {
+    return { street: '', postalCode: '', city: '', region: '' };
   }
 
   protected id(field: string): string {

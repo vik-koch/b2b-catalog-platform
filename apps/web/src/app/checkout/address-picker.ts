@@ -98,6 +98,7 @@ let nextId = 0;
           [fieldErrors]="fieldErrors()"
           [showLabel]="false"
           [compact]="suggests"
+          [reveal]="reveal()"
           (picked)="picked.emit($event)"
         />
         <!-- Only where there is a book to save it to. Checked, because an
@@ -140,6 +141,9 @@ export class AddressPicker {
   readonly form = input.required<AddressForm>();
   readonly fieldErrors = input.required<FieldErrors>();
   readonly canSave = input(true);
+  /** Open the folded-away fields: the page found the address wanting, and what
+   * is wrong with it is what the compact form is hiding. */
+  readonly reveal = input(false);
   readonly save = input(true);
 
   readonly selectedIdChange = output<string | null>();

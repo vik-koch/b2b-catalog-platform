@@ -148,6 +148,15 @@
     "title": "Checkout",
     "intro": "Send us your order and we will confirm the details with you — nothing is charged here.",
     "emptyCart": "There is nothing in your cart to order.",
+    "signInPrompt": "Already a customer? Sign in and your agreed prices apply to this order.",
+    "signInAction": "Sign in",
+    "contact": {
+      "heading": "Who is ordering?",
+      "name": "Your name",
+      "contactName": "Who should we ask for?",
+      "nameRequired": "Please tell us who to ask for.",
+      "note": "We invoice whoever you name here, and use your email and phone only to confirm the order."
+    },
     "optional": "optional",
     "party": {
       "heading": "Who should we invoice?",
@@ -215,8 +224,10 @@
     "successHeading": "Thank you — we have your order",
     "success": "Your order request is {reference}. We will confirm the details, the delivery and the price with you shortly.",
     "successAction": "Back to the catalogue",
+    "successRegister": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
+    "successRegisterAction": "Request an account",
     "errors": {
-      "incomplete": "Please check the fields marked above and send it again.",
+      "incomplete": "Some answers are missing or need correcting — they are marked on the form.",
       "invalidCompanyId": "That company ID is not in a format we can invoice against. Please check it.",
       "unsupportedCountry": "We do not deliver to that country. Please choose another address.",
       "unknownPickupLocation": "That collection point is no longer available. Please choose another.",
@@ -313,6 +324,7 @@
         "label": "Name for this address",
         "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
         "enterManually": "Enter the address manually",
+        "addressLine": "Address",
         "street": "Street and number",
         "street2": "Address line 2",
         "postalCode": "Postcode",

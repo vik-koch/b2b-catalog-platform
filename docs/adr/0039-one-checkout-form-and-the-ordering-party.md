@@ -51,8 +51,26 @@ preview → send, and the preview is the second screen, not the fifth.
 defaults to delivery; the party to the one the account is registered as; the
 delivery and billing addresses to the pair the last order used, or to the only
 entry in the book; payment to cash. A guest gets the same form with nothing
-prefilled and nothing saved afterwards, which is the only structural difference
-between the two cases.
+prefilled and nothing saved afterwards.
+
+**A guest is asked the two questions an account would have answered, as one.**
+The contact (FR-CART-03) and the invoiced party (FR-CART-09) are separate fields
+of an order, but for a guest ordering as a private person they are the same
+person — so asking both separately asked one visitor for their name twice. The
+guest form therefore opens with registration's own switch: a private person
+gives a name, an email and a phone number, and is the party; a company gives its
+name and registration number and then somebody at it to ring. A signed-in
+customer sees neither — the account answers the contact, and the party row
+offers it as the first of two choices.
+
+**Checkout is not behind a login, and does not ask which door to come in by.**
+An account needs a manager's approval (ADR 0032), so registration cannot finish
+the order in front of it, and an interstitial offering three doors would be
+offering one that does not open. The guest goes straight into the form; the
+offer to sign in stands beside it, next to the figures it is about, because
+prices are tiered and a customer who checks out as a guest is quoted the lowest
+tier's. An account is offered again on the confirmation, where waiting for
+approval costs nothing.
 
 **Conditional reveal, kept disciplined.** Pickup replaces the delivery address
 with a collection point; a third-party order reveals the fields naming it. What
@@ -176,6 +194,11 @@ anything is charged.
   revisit.
 - (−) A guest cannot save an address — there is no account to save against — so
   FR-CART-04's "reusable" is unachievable for them by construction.
+- (−) A guest quoted the lowest tier's prices may be an existing customer who did
+  not notice the offer to sign in. Nothing enforces it, by design: the manager
+  reviewing the order is the correction.
+- (⚠) A guest's form is the one the public can post, so it carries the honeypot
+  (ADR 0015) and the public-form rate limit; a customer's does not need either.
 - (−) A party's registration number accepts one jurisdiction's formats, those
   configured for the deployment, so a foreign legal entity cannot be entered.
   Single-locale and single-jurisdiction by design.
