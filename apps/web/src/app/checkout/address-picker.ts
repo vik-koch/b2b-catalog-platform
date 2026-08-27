@@ -49,7 +49,9 @@ let nextId = 0;
               [checked]="selectedId() === address.id"
               (change)="selectedIdChange.emit(address.id)"
             />
-            <span>
+            <!-- Name and lines on one axis, the way a collection point reads:
+                 what it is called, then in a quieter voice where it is. -->
+            <span class="flex flex-wrap items-baseline gap-x-4">
               <span>{{ name(address) }}</span>
               <span class="text-sm text-muted">{{ lines(address) }}</span>
             </span>

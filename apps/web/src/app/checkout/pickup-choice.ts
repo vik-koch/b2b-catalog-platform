@@ -29,10 +29,19 @@ import { Radio } from '../ui/radio';
 
       <div class="space-y-2" role="radiogroup">
         @for (location of locations; track location.key) {
-          <div class="flex flex-wrap items-baseline gap-x-4">
+          <!-- Three columns where they fit: the radio, the place, and the map
+               link pushed to the right edge. The link keeps its own column
+               rather than joining the wrap, so it stays with the radio however
+               many lines the place itself takes; where even that does not fit
+               it wraps under, which is the narrow layout.
+
+               Centred rather than aligned on a baseline, because the radio is:
+               a place that wraps to two lines puts both of them on the axis
+               through the middle of it, rather than on its first line. -->
+          <div class="flex flex-wrap items-center justify-between gap-x-4">
             <!-- The link stays outside the label: a label wrapping it would
                  take the click meant for the map. -->
-            <label class="flex cursor-pointer items-baseline gap-2">
+            <label class="flex flex-1 cursor-pointer items-baseline gap-2">
               <input
                 type="radio"
                 appRadio
@@ -54,7 +63,7 @@ import { Radio } from '../ui/radio';
             </label>
             @if (location.mapUrl) {
               <a
-                class="text-sm text-accent hover:underline"
+                class="shrink-0 text-sm text-accent hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
                 [href]="location.mapUrl"

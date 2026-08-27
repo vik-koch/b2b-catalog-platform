@@ -62,10 +62,10 @@ import { PartyChoice as Party } from './checkout-draft.service';
                 aria-required="true"
                 appInput
                 class="w-full"
-                [formControl]="nameControl()"
-                [attr.aria-invalid]="nameInvalid() || null"
+                [formControl]="personNameControl()"
+                [attr.aria-invalid]="personNameInvalid() || null"
               />
-              @if (nameInvalid()) {
+              @if (personNameInvalid()) {
                 <p class="mt-1 text-sm text-red-600">{{ text.nameRequired }}</p>
               }
             </div>
@@ -73,12 +73,12 @@ import { PartyChoice as Party } from './checkout-draft.service';
             <app-company-fields
               idInputId="party-companyId"
               nameInputId="party-companyName"
-              [idControl]="idControl()"
-              [nameControl]="nameControl()"
+              [idControl]="companyIdControl()"
+              [nameControl]="companyNameControl()"
               [text]="companyText"
               [required]="true"
-              [idInvalid]="idInvalid()"
-              [nameInvalid]="nameInvalid()"
+              [idInvalid]="companyIdInvalid()"
+              [nameInvalid]="companyNameInvalid()"
               (picked)="picked.emit($event)"
             />
           }
@@ -117,10 +117,17 @@ export class PartyChoice {
    * neutral word stands in only until it answers.
    */
   readonly accountName = input<string | null>(null);
-  readonly nameControl = input.required<FormControl<string>>();
-  readonly idControl = input.required<FormControl<string>>();
-  readonly nameInvalid = input(false);
-  readonly idInvalid = input(false);
+  /**
+   * A control per field rather than one name shared by both branches: a person
+   * and a company are two answers, and typing one into the other's field
+   * because the customer changed their mind is a name nobody entered there.
+   */
+  readonly personNameControl = input.required<FormControl<string>>();
+  readonly companyNameControl = input.required<FormControl<string>>();
+  readonly companyIdControl = input.required<FormControl<string>>();
+  readonly personNameInvalid = input(false);
+  readonly companyNameInvalid = input(false);
+  readonly companyIdInvalid = input(false);
 
   readonly partyChange = output<Party>();
   readonly picked = output<PartySuggestion>();

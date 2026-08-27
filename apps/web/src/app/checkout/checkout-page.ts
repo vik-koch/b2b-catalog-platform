@@ -89,6 +89,30 @@ import { PickupChoice } from './pickup-choice';
               <p class="text-sm text-amber-700">{{ addressText.loadError }}</p>
             }
 
+            <!-- Whose name the invoice carries, asked before where anything
+                 goes: the answer decides what the address rows below are for,
+                 and it is also what unchecking "the same address" falls back
+                 to — a second picker directly under the checkbox that revealed
+                 it, rather than one further down the page. -->
+            <app-party-choice
+              [party]="draft().party"
+              [accountName]="accountName()"
+              [personNameControl]="partyForm.controls.personName"
+              [companyNameControl]="partyForm.controls.companyName"
+              [companyIdControl]="partyForm.controls.companyId"
+              [personNameInvalid]="
+                partyErrors.show(partyForm.controls.personName)
+              "
+              [companyNameInvalid]="
+                partyErrors.show(partyForm.controls.companyName)
+              "
+              [companyIdInvalid]="
+                partyErrors.show(partyForm.controls.companyId)
+              "
+              (partyChange)="chooseParty($event)"
+              (picked)="pickParty($event)"
+            />
+
             @if (!isPickup()) {
               <app-address-picker
                 [heading]="addressText.deliveryHeading"
@@ -117,38 +141,26 @@ import { PickupChoice } from './pickup-choice';
               </app-address-picker>
             }
 
-            <!-- One section, two halves: whose name the invoice carries, and
-                 where it goes. Apart they read as unrelated questions, which
-                 is the confusion that once put an identity on an address. -->
-            <section class="space-y-4">
-              <app-party-choice
-                [party]="draft().party"
-                [accountName]="accountName()"
-                [nameControl]="partyForm.controls.name"
-                [idControl]="partyForm.controls.id"
-                [nameInvalid]="partyErrors.show(partyForm.controls.name)"
-                [idInvalid]="partyErrors.show(partyForm.controls.id)"
-                (partyChange)="chooseParty($event)"
-                (picked)="pickParty($event)"
+            <!-- Pickup asks for an address anyway: the one on the paperwork
+                 belongs to the order, not to whoever carries the goods — and
+                 with nothing being delivered it is the only address asked
+                 for, which is what its own heading says. -->
+            @if (needsBillingPicker()) {
+              <app-address-picker
+                [heading]="
+                  isPickup()
+                    ? addressText.billingOnlyHeading
+                    : addressText.billingHeading
+                "
+                [addresses]="addresses()"
+                [selectedId]="draft().billingAddressId"
+                [form]="billingForm"
+                [fieldErrors]="billingErrors"
+                [save]="saveBilling()"
+                (selectedIdChange)="drafts.patch({ billingAddressId: $event })"
+                (saveChange)="drafts.patch({ saveBillingAddress: $event })"
               />
-
-              <!-- Pickup asks for an address anyway: the one on the paperwork
-                   belongs to the order, not to whoever carries the goods. -->
-              @if (needsBillingPicker()) {
-                <app-address-picker
-                  [heading]="addressText.billingHeading"
-                  [addresses]="addresses()"
-                  [selectedId]="draft().billingAddressId"
-                  [form]="billingForm"
-                  [fieldErrors]="billingErrors"
-                  [save]="saveBilling()"
-                  (selectedIdChange)="
-                    drafts.patch({ billingAddressId: $event })
-                  "
-                  (saveChange)="drafts.patch({ saveBillingAddress: $event })"
-                />
-              }
-            </section>
+            }
 
             <div class="flex flex-wrap items-center gap-3 pt-2">
               <a appButton variant="secondary" routerLink="/cart">
@@ -206,8 +218,9 @@ export class CheckoutPage {
    * one — carries the same answer, so it cannot live on either form.
    */
   protected readonly partyForm = inject(FormBuilder).nonNullable.group({
-    name: [''],
-    id: ['', companyIdFormat(this.config.companyIdInput?.formats)],
+    personName: [''],
+    companyName: [''],
+    companyId: ['', companyIdFormat(this.config.companyIdInput?.formats)],
   });
   protected readonly partyErrors = new FieldErrors(this.partyForm);
 
@@ -250,17 +263,23 @@ export class CheckoutPage {
   );
 
   /**
-   * What the account is registered as: its company where it has one, its
-   * holder's name otherwise. Null until the profile answers, which is when the
-   * row falls back to a neutral word rather than an empty one.
+   * What the account is registered as: the company it registered as, or the
+   * holder's own name where it registered as a person. Read from the type
+   * rather than from whichever field happens to be filled — a private customer
+   * who once gave a company name is still invoiced by name. Null until the
+   * profile answers, which is when the row falls back to a neutral word rather
+   * than an empty one.
    */
   protected readonly accountName = computed(() => {
     const profile = this.profile.value();
     if (!profile) return null;
-    if (profile.companyName) return profile.companyName;
-    const name = [profile.firstName, profile.lastName]
+    const person = [profile.firstName, profile.lastName]
       .filter(Boolean)
       .join(' ');
+    const name =
+      profile.customerType === 'company'
+        ? (profile.companyName ?? person)
+        : person || profile.companyName;
     return name || null;
   });
 
@@ -319,12 +338,15 @@ export class CheckoutPage {
       .subscribe(() =>
         this.drafts.patch({ newBillingAddress: this.billingForm.value() }),
       );
-    this.partyForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() =>
+    this.partyForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      const { personName, companyName, companyId } =
+        this.partyForm.getRawValue();
+      const name = this.draft().party === 'company' ? companyName : personName;
       this.drafts.patch({
-        otherPartyName: this.partyForm.controls.name.value.trim() || null,
-        otherPartyId: this.partyForm.controls.id.value.trim() || null,
-      }),
-    );
+        otherPartyName: name.trim() || null,
+        otherPartyId: companyId.trim() || null,
+      });
+    });
   }
 
   /** What the draft was holding when this page was last left. */
@@ -333,9 +355,13 @@ export class CheckoutPage {
     if (draft.newDeliveryAddress)
       this.deliveryForm.fill(draft.newDeliveryAddress);
     if (draft.newBillingAddress) this.billingForm.fill(draft.newBillingAddress);
+    // Only the chosen party's own fields: the other branch is empty, which is
+    // what it is on a form that has never been touched.
     this.partyForm.setValue({
-      name: draft.otherPartyName ?? '',
-      id: draft.otherPartyId ?? '',
+      personName: draft.party === 'person' ? (draft.otherPartyName ?? '') : '',
+      companyName:
+        draft.party === 'company' ? (draft.otherPartyName ?? '') : '',
+      companyId: draft.party === 'company' ? (draft.otherPartyId ?? '') : '',
     });
   }
 
@@ -361,38 +387,44 @@ export class CheckoutPage {
    *
    * A person gives a name; a company gives a name and a number, on the rule
    * registration applies — which is why a sole trader needs no case of its own.
+   * Each has its own control, so leaving one branch does not carry what was
+   * typed there into the other.
    */
   protected chooseParty(party: Party): void {
-    const { name, id } = this.partyForm.controls;
-
-    if (party === 'account') {
-      this.partyForm.reset({ name: '', id: '' });
-      name.clearValidators();
-      id.clearValidators();
-    } else {
-      name.setValidators(Validators.required);
-      id.setValidators(
-        party === 'company'
-          ? [
-              Validators.required,
-              companyIdFormat(this.config.companyIdInput?.formats),
-            ]
-          : [],
-      );
-      if (party === 'person') id.setValue('');
-    }
-    name.updateValueAndValidity();
-    id.updateValueAndValidity();
-
+    // Before the controls are touched: what they write into the draft depends
+    // on which party is chosen, and they fire on the way through.
     this.drafts.patch({ party });
+
+    const { personName, companyName, companyId } = this.partyForm.controls;
+
+    personName.setValue(party === 'person' ? personName.value : '');
+    companyName.setValue(party === 'company' ? companyName.value : '');
+    companyId.setValue(party === 'company' ? companyId.value : '');
+
+    personName.setValidators(party === 'person' ? Validators.required : []);
+    companyName.setValidators(party === 'company' ? Validators.required : []);
+    companyId.setValidators(
+      party === 'company'
+        ? [
+            Validators.required,
+            companyIdFormat(this.config.companyIdInput?.formats),
+          ]
+        : [],
+    );
+
+    personName.updateValueAndValidity();
+    companyName.updateValueAndValidity();
+    companyId.updateValueAndValidity();
   }
 
   /** A picked company fills both halves at once — the provider takes either as
    * its query, so whichever field was being typed in, the other follows. */
   protected pickParty(suggestion: PartySuggestion): void {
     this.partyForm.patchValue({
-      name: suggestion.name,
-      ...(suggestion.registrationId ? { id: suggestion.registrationId } : {}),
+      companyName: suggestion.name,
+      ...(suggestion.registrationId
+        ? { companyId: suggestion.registrationId }
+        : {}),
     });
   }
 

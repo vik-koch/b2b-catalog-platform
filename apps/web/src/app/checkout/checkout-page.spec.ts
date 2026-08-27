@@ -6,6 +6,7 @@ import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { DeploymentConfig } from '../config/deployment-config.type';
+import { SUGGESTIONS_ENABLED } from '../config/suggestions-enabled';
 import { AccountService } from '../account/account.service';
 import { AddressesService } from '../addresses/addresses.service';
 import { packagedPackaging } from '../catalog/product.fixture';
@@ -54,8 +55,13 @@ interface Options {
   addresses?: Address[];
   /** A person rather than a company, for how the party row names them. */
   person?: boolean;
+  /** Overrides the company name the profile carries, whatever its type. */
+  companyName?: string;
   /** Whether the cart has anything in it. */
   empty?: boolean;
+  /** Whether the deployment has a suggestion provider behind it — the
+   * environment's answer, not the config's. */
+  suggests?: boolean;
 }
 
 async function render(options: Options = {}) {
@@ -68,6 +74,7 @@ async function render(options: Options = {}) {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.config ?? defaultDeploymentConfig,
       },
+      { provide: SUGGESTIONS_ENABLED, useValue: options.suggests ?? false },
       {
         provide: AddressesService,
         useValue: {
@@ -85,7 +92,8 @@ async function render(options: Options = {}) {
             lastName: 'Fischer',
             phone: '+494012345678',
             customerType: options.person ? 'person' : 'company',
-            companyName: options.person ? null : 'Kontor GmbH',
+            companyName:
+              options.companyName ?? (options.person ? null : 'Kontor GmbH'),
             companyRegistrationId: options.person ? null : 'DE123456789',
             createdAt: '2026-02-01T10:00:00.000Z',
           })),
@@ -104,10 +112,30 @@ async function render(options: Options = {}) {
   await fixture.whenStable();
   fixture.detectChanges();
 
+  const el = fixture.nativeElement as HTMLElement;
+
   return {
     fixture,
     drafts: TestBed.inject(CheckoutDraftService),
-    el: fixture.nativeElement as HTMLElement,
+    el,
+    /** Types into a field the way a customer does, so the form's own
+     * subscriptions run. */
+    type: (selector: string, value: string) => {
+      const input = el.querySelector<HTMLInputElement>(selector);
+      if (!input) throw new Error(`No ${selector} on the page`);
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+    },
+    value: (selector: string) =>
+      el.querySelector<HTMLInputElement>(selector)?.value,
+    /** Picks a party through its radio, which is what the page listens to. */
+    chooseParty: (party: string) => {
+      const radio = el.querySelector<HTMLInputElement>(
+        `input[name="party"][value="${party}"]`,
+      );
+      if (!radio) throw new Error(`No ${party} party option on the page`);
+      radio.click();
+    },
     text: () => (fixture.nativeElement as HTMLElement).textContent ?? '',
     settle: async () => {
       await fixture.whenStable();
@@ -181,6 +209,15 @@ describe('CheckoutPage', () => {
       expect(page.text()).toContain('Alex Fischer');
     });
 
+    it('names them by the type they registered as, not by what is filled in', async () => {
+      // A private customer who once gave a company name is still invoiced by
+      // name: the type is the answer, not whichever field is not empty.
+      const page = await render({ person: true, companyName: 'Kontor GmbH' });
+
+      expect(page.text()).toContain('Alex Fischer');
+      expect(page.text()).not.toContain('Kontor GmbH');
+    });
+
     it('asks a person for a name alone', async () => {
       const page = await render();
 
@@ -202,6 +239,21 @@ describe('CheckoutPage', () => {
 
       expect(page.el.querySelector('#party-companyName')).not.toBeNull();
       expect(page.el.querySelector('#party-companyId')).not.toBeNull();
+    });
+
+    it('does not carry a person’s name into the company field', async () => {
+      const page = await render();
+
+      page.drafts.patch({ party: 'person' });
+      await page.settle();
+      page.type('#party-personName', 'Alex Fischer');
+      expect(page.drafts.draft().otherPartyName).toBe('Alex Fischer');
+
+      page.chooseParty('company');
+      await page.settle();
+
+      expect(page.value('#party-companyName')).toBe('');
+      expect(page.drafts.draft().otherPartyName).toBeNull();
     });
   });
 
@@ -227,15 +279,7 @@ describe('CheckoutPage', () => {
     });
 
     it('asks for the street alone where a provider can fill the rest', async () => {
-      const page = await render({
-        config: {
-          ...defaultDeploymentConfig,
-          address: {
-            ...(defaultDeploymentConfig.address ?? { countries: [] }),
-            suggest: true,
-          },
-        },
-      });
+      const page = await render({ suggests: true });
 
       page.drafts.patch({ deliveryAddressId: null });
       await page.settle();
@@ -280,7 +324,7 @@ describe('CheckoutPage', () => {
       page.drafts.patch({ fulfilmentMethod: 'pickup' });
       await page.settle();
 
-      expect(page.text()).toContain(text.addresses.billingHeading);
+      expect(page.text()).toContain(text.addresses.billingOnlyHeading);
       expect(page.text()).not.toContain(text.addresses.deliveryHeading);
     });
 
