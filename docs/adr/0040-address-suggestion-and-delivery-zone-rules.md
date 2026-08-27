@@ -66,15 +66,23 @@ one is — is simply not applied; the port's answer is the same everywhere, and
 what an address is made of stays the deployment's own business.
 
 **The switch is one environment variable, not a config key.** Whether addresses
-are suggested is settled by `SUGGESTION_SIDECAR_URL` on the API: set, and the
-sidecar answers; unset, and the field is plain typing. Nothing about it belongs
-in `deployment.json` — the whole of that file is serialized into every HTML
-document, nothing in the browser needs to know, and an internal service address
-has no business in a page's source. A second key naming the adapter would only
-be a switch that can contradict the first, so there is none, and the deployment
-sets one variable beside the sidecar's own credential. The cost is that a
-misspelled variable name turns the feature off silently, which the API answers by
-**logging at boot** which way it resolved.
+are suggested is settled by `SUGGESTION_SIDECAR_URL`: set, and the sidecar
+answers; unset, and the field is plain typing. Nothing about it belongs in
+`deployment.json` — the whole of that file is serialized into every HTML
+document, and an internal service address has no business in a page's source. A
+second key naming the adapter would only be a switch that can contradict the
+first, so there is none, and the deployment sets one variable beside the
+sidecar's own credential. The cost is that a misspelled variable name turns the
+feature off silently, which the API answers by **logging at boot** which way it
+resolved.
+
+The rendering process reads the same variable — it never calls the sidecar — and
+injects a **boolean** into the shell state beside the config and the text. The
+form that suggests is not the same form as the one that does not: with a
+provider behind it, checkout asks for the street and reads back the postcode,
+the city and the region a pick filled in; without one, that form is a dead end
+and every field is asked for up front. The browser therefore has to know which
+of the two to draw, and whether is all it is told.
 
 **A regional adapter is a container, not a plugin.** (ADR 0041 later put a
 second subject — company suggestion — behind a second port on the same
@@ -173,8 +181,11 @@ rules into structured ones.
 - (−) A sidecar is one more container to run, monitor and keep alive, and its
   contract is now something the platform must not break casually.
 - (⚠) Nothing that reaches the browser may carry the sidecar's address or
-  whether one is configured: the deployment config is injected into every page,
-  so the whole switch stays in the API's environment.
+  credential: the deployment config is injected into every page, so the
+  variable's value stays server-side and only whether it is set travels.
+- (−) The variable is named in two services' environments, so a stack that sets
+  it for one and not the other renders a form that suggests nothing, or one that
+  asks for fields a pick would have filled.
 - (−) Zone rules change with a config deploy, and a mistyped range silently
   reclassifies an area — boot validation checks the shape of a rule, never its
   intent.

@@ -6,16 +6,19 @@ import { appConfig } from './app.config';
 import { provideServerAppText } from './config/app-text.server';
 import { provideServerAdminText } from './config/admin-text.server';
 import { provideServerDeploymentConfig } from './config/deployment-config.server';
+import { provideServerSuggestionsEnabled } from './config/suggestions-enabled.server';
 import { serverRoutes } from './app.routes.server';
 
 const serverConfig: ApplicationConfig = {
   providers: [
     provideServerRendering(withRoutes(serverRoutes)),
-    // Config and copy straight from the mounted files. Merged after appConfig,
-    // so they win over the browser providers, which read the document.
+    // Config and copy straight from the mounted files, and the suggestion flag
+    // straight from the environment. Merged after appConfig, so they win over
+    // the browser providers, which read the document.
     provideServerDeploymentConfig(),
     provideServerAppText(),
     provideServerAdminText(),
+    provideServerSuggestionsEnabled(),
     // SSR fetches the API via the internal API_URL origin; the browser via
     // the public origin (APP_ORIGIN). Mapping the former to the latter makes
     // the hydration transfer cache keys match, so GET responses rendered on

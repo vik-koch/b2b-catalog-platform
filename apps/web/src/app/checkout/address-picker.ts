@@ -2,6 +2,7 @@ import { Component, inject, input, output } from '@angular/core';
 import { Address, AddressComponents } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { SUGGESTIONS_ENABLED } from '../config/suggestions-enabled';
 import { FieldErrors } from '../core/form-errors';
 import { AddressFields } from '../addresses/address-fields';
 import { AddressForm } from '../addresses/address-form';
@@ -114,8 +115,7 @@ export class AddressPicker {
   /** Where a provider can fill an address in, checkout asks for the street
    * alone. The account's editor stays whole: that is where a book is curated,
    * not where an order is being placed. */
-  // TODO: implement
-  protected readonly suggests = true;
+  protected readonly suggests = inject(SUGGESTIONS_ENABLED);
   protected readonly group = `address-picker-${this.instance}`;
 
   readonly heading = input.required<string>();

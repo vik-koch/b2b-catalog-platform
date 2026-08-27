@@ -132,6 +132,10 @@ services:
       # Per-deployment asset overrides (logo, favicon) live in the assets subdir
       # of the same mount: served by the SSR server.
       CONFIG_ASSETS_DIR: /config/assets
+      # The same variable the API reads, for a different question: the API
+      # calls the sidecar, the rendering process only needs to know whether
+      # there is one — a form that suggests asks for less up front.
+      SUGGESTION_SIDECAR_URL: ${SUGGESTION_SIDECAR_URL:-}
     volumes:
       - ./config:/config:ro
     depends_on:
