@@ -564,6 +564,7 @@ describe('CartPage', () => {
       text.shipmentVolume,
       text.shipmentCartons,
       text.shipmentDelivery,
+      text.shipmentDeliveryDate,
       text.subtotal,
     ]);
     expect(view.text()).toContain('1.250');
@@ -579,7 +580,14 @@ describe('CartPage', () => {
   it('leaves out every estimate row when the estimate covers nothing', async () => {
     const view = await render({ lines: [addition()] });
 
-    expect(view.rowLabels()).toEqual([text.summaryLines, text.subtotal]);
+    // The two arrival rows stand whether or not anything was estimated: a
+    // customer asks when and for how much before the cartons are known.
+    expect(view.rowLabels()).toEqual([
+      text.summaryLines,
+      text.shipmentDelivery,
+      text.shipmentDeliveryDate,
+      text.subtotal,
+    ]);
     expect(view.text()).not.toContain(text.shipmentApproximate);
   });
 

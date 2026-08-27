@@ -284,6 +284,9 @@ export const appTextSchema = z
         /** Deliberately not a date: every order is a request a manager prices
          * and confirms, so the row says that rather than promising a day. */
         shipmentDelivery: z.string(),
+        /** When it arrives. Its own row beside the fee, because a customer
+         * asks both questions and neither answers the other. */
+        shipmentDeliveryDate: z.string(),
         shipmentDeliveryValue: z.string(),
         shipmentApproximate: z.string(),
         /**

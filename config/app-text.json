@@ -127,6 +127,7 @@
     "shipmentVolume": "Volume",
     "shipmentWeight": "Weight",
     "shipmentDelivery": "Delivery",
+    "shipmentDeliveryDate": "Delivery date",
     "shipmentDeliveryValue": "Confirmed with your order",
     "shipmentApproximate": "Approximate — we confirm the actual consignment with your order.",
     "shipmentUncovered": "Lines not covered by this estimate: {count}",
