@@ -60,13 +60,17 @@ describe('Tier prices (FR-AUTH-05)', () => {
     // Two products from one category, so the listing assertions below have a
     // deterministic page to look at.
     const { rows } = await client.query(
+      // Published, not merely undeleted: other suites seed unpublished and
+      // soft-deleted products of their own, and a category picked with one of
+      // those in it makes every read below a 404.
       `SELECT p.slug, p."defaultPriceMinor", c.slug AS "categorySlug"
          FROM products p
          JOIN categories c ON c.id = p."categoryId"
         WHERE p."deletedAt" IS NULL
+          AND p."publishedAt" IS NOT NULL
           AND p."categoryId" = (
             SELECT "categoryId" FROM products
-             WHERE "deletedAt" IS NULL
+             WHERE "deletedAt" IS NULL AND "publishedAt" IS NOT NULL
              GROUP BY "categoryId" HAVING count(*) >= 2 LIMIT 1)
         ORDER BY p.name LIMIT 2`,
     );
