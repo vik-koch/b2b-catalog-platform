@@ -281,13 +281,6 @@ export const appTextSchema = z
         shipmentCartons: z.string(),
         shipmentVolume: z.string(),
         shipmentWeight: z.string(),
-        /** Deliberately not a date: every order is a request a manager prices
-         * and confirms, so the row says that rather than promising a day. */
-        shipmentDelivery: z.string(),
-        /** When it arrives. Its own row beside the fee, because a customer
-         * asks both questions and neither answers the other. */
-        shipmentDeliveryDate: z.string(),
-        shipmentDeliveryValue: z.string(),
         shipmentApproximate: z.string(),
         /**
          * How many lines the estimate could not cover. Worded so `{count}`
@@ -359,9 +352,6 @@ export const appTextSchema = z
         /** Sent here with nothing to order — the cart emptied in another tab,
          * or the URL was typed. */
         emptyCart: z.string(),
-        /** What the summary's delivery row says for a pickup: there is no
-         * delivery to quote, which is not the same as one being free. */
-        collection: z.string(),
         /** The marker on the fields that are not required — the date and the
          * note, which the form asks for rather than needs. */
         optional: z.string(),
@@ -422,6 +412,11 @@ export const appTextSchema = z
             shortOf: z.string(),
             /** The order already clears it. */
             qualifies: z.string(),
+            /** The zone says the deployment does not deliver there. Advisory
+             * like the rest of it: the order is not blocked, the customer is
+             * asked for an address that works and told what happens if they
+             * send it anyway. */
+            noDelivery: z.string(),
             /** The address falls in no configured zone, which is normal: a
              * deployment need not describe everywhere it ships. */
             unknown: z.string(),
@@ -449,7 +444,10 @@ export const appTextSchema = z
           .object({
             heading: z.string(),
             cashTitle: z.string(),
-            cashDescription: z.string(),
+            /** Cash is paid at the hand-over, which is a different moment
+             * depending on who is doing the travelling. */
+            cashDeliveryDescription: z.string(),
+            cashPickupDescription: z.string(),
             transferTitle: z.string(),
             transferDescription: z.string(),
             /** Why the option is there but cannot be taken: a bank transfer
@@ -465,6 +463,39 @@ export const appTextSchema = z
           .object({
             label: z.string(),
             hint: z.string(),
+          })
+          .strict(),
+        /** FR-CART-03: the privacy notice is accepted here as on every other
+         * form that sends personal data. */
+        privacyConsent: z.string(),
+        privacyLink: z.string(),
+        privacyRequired: z.string(),
+        submit: z.string(),
+        submitting: z.string(),
+        successHeading: z.string(),
+        /** `{reference}` — the number to quote when asking about the order. */
+        success: z.string(),
+        successAction: z.string(),
+        /**
+         * What a refusal means, in the customer's words. The API answers with
+         * a code and never with a sentence, so every one of them is named
+         * here — an unmapped code would be a blank screen.
+         */
+        errors: z
+          .object({
+            /** The form itself is not finished; the fields say which. */
+            incomplete: z.string(),
+            invalidCompanyId: z.string(),
+            unsupportedCountry: z.string(),
+            unknownPickupLocation: z.string(),
+            billingDetailsRequired: z.string(),
+            partyRequired: z.string(),
+            rejected: z.string(),
+            /** The cart was re-priced under them; the corrected figures are
+             * already on screen by the time this is read. */
+            cartChanged: z.string(),
+            /** Anything else at all. */
+            generic: z.string(),
           })
           .strict(),
         /** How the goods arrive. The row that leads the form, because it

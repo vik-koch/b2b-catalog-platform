@@ -557,20 +557,17 @@ describe('CartPage', () => {
     });
 
     // What the order is, then what it weighs and measures, then what that
-    // comes to in cartons, then when it is confirmed.
+    // comes to in cartons. Nothing about how or when it arrives: the cart has
+    // not asked, and a row of placeholders answers nothing.
     expect(view.rowLabels()).toEqual([
       text.summaryLines,
       text.shipmentWeight,
       text.shipmentVolume,
       text.shipmentCartons,
-      text.shipmentDelivery,
-      text.shipmentDeliveryDate,
       text.subtotal,
     ]);
     expect(view.text()).toContain('1.250');
     expect(view.text()).toContain('18.400');
-    // Not a date: the shop has not agreed to one yet.
-    expect(view.text()).toContain(text.shipmentDeliveryValue);
     expect(view.text()).toContain(text.shipmentApproximate);
     expect(view.text()).toContain('Lines not covered by this estimate: 2');
   });
@@ -580,14 +577,7 @@ describe('CartPage', () => {
   it('leaves out every estimate row when the estimate covers nothing', async () => {
     const view = await render({ lines: [addition()] });
 
-    // The two arrival rows stand whether or not anything was estimated: a
-    // customer asks when and for how much before the cartons are known.
-    expect(view.rowLabels()).toEqual([
-      text.summaryLines,
-      text.shipmentDelivery,
-      text.shipmentDeliveryDate,
-      text.subtotal,
-    ]);
+    expect(view.rowLabels()).toEqual([text.summaryLines, text.subtotal]);
     expect(view.text()).not.toContain(text.shipmentApproximate);
   });
 

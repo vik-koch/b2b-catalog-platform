@@ -126,9 +126,6 @@
     "shipmentCartons": "Cartons",
     "shipmentVolume": "Volume",
     "shipmentWeight": "Weight",
-    "shipmentDelivery": "Delivery",
-    "shipmentDeliveryDate": "Delivery date",
-    "shipmentDeliveryValue": "Confirmed with your order",
     "shipmentApproximate": "Approximate — we confirm the actual consignment with your order.",
     "shipmentUncovered": "Lines not covered by this estimate: {count}",
     "changes": {
@@ -151,7 +148,6 @@
     "title": "Checkout",
     "intro": "Send us your order and we will confirm the details with you — nothing is charged here.",
     "emptyCart": "There is nothing in your cart to order.",
-    "collection": "Collected by you",
     "optional": "optional",
     "party": {
       "heading": "Who should we invoice?",
@@ -176,6 +172,7 @@
       "resolved": "Delivery area: {zone}",
       "shortOf": "Add {amount} more for free delivery in this area.",
       "qualifies": "This order qualifies for free delivery in this area.",
+      "noDelivery": "We do not deliver to this area. Give us an address inside one of our delivery areas — a carrier’s depot, for instance — or send the order as it is and we will find a way with you.",
       "unknown": "We will confirm delivery to this address with you."
     },
     "timing": {
@@ -186,7 +183,8 @@
     "payment": {
       "heading": "How would you like to pay?",
       "cashTitle": "Cash",
-      "cashDescription": "Pay when you receive or collect your order.",
+      "cashDeliveryDescription": "Pay when you receive your order.",
+      "cashPickupDescription": "Pay when you collect your order.",
       "transferTitle": "Bank transfer",
       "transferDescription": "We invoice you with our bank details once we confirm your order.",
       "transferCompanyOnly": "Only for an order invoiced to a company."
@@ -194,6 +192,25 @@
     "note": {
       "label": "Anything we should know?",
       "hint": "Delivery instructions, a reference for your invoice, anything else."
+    },
+    "privacyConsent": "I agree that my details will be used to handle this order. See our",
+    "privacyLink": "privacy policy",
+    "privacyRequired": "Please accept the privacy policy to send your order.",
+    "submit": "Send order request",
+    "submitting": "Sending…",
+    "successHeading": "Thank you — we have your order",
+    "success": "Your order request is {reference}. We will confirm the details, the delivery and the price with you shortly.",
+    "successAction": "Back to the catalogue",
+    "errors": {
+      "incomplete": "Please check the fields marked above and send it again.",
+      "invalidCompanyId": "That company ID is not in a format we can invoice against. Please check it.",
+      "unsupportedCountry": "We do not deliver to that country. Please choose another address.",
+      "unknownPickupLocation": "That collection point is no longer available. Please choose another.",
+      "billingDetailsRequired": "Bank transfer needs a company to invoice. Please choose another party or another way to pay.",
+      "partyRequired": "Please tell us who we should invoice.",
+      "rejected": "We could not accept this order. Please try again.",
+      "cartChanged": "Prices or quantities in your cart changed while you were filling this in — please check your order and send it again.",
+      "generic": "Something went wrong sending your order. Please try again."
     },
     "fulfilment": {
       "heading": "How would you like to receive your order?",

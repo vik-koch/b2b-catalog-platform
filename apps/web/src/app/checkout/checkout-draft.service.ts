@@ -63,8 +63,8 @@ export interface CheckoutDraft {
   otherPartyName: string | null;
   otherPartyId: string | null;
   contact: OrderContact | null;
-  /** ISO `YYYY-MM-DD`, or null. Travels as `preferredTiming`, which is a note
-   * to a manager rather than a booked window. */
+  /** ISO `YYYY-MM-DD`, or null. A wish a manager works from, not a booked
+   * window. */
   preferredDate: string | null;
   paymentMethod: PaymentMethod;
   customerNote: string | null;

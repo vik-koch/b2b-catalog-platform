@@ -12,13 +12,15 @@ import { Skeleton } from '../ui/skeleton';
  * flow rather than three renderings of the same figures.
  *
  * One card, read top to bottom: what the order is, what it will weigh and take
- * up, when and how it arrives, and what it costs. Splitting the total into a
- * card of its own made the customer read two boxes to answer one question.
+ * up, and what it costs. Splitting the total into a card of its own made the
+ * customer read two boxes to answer one question.
  *
- * The delivery and date rows are **given** to it rather than worked out here.
- * The cart knows no address and no fulfilment, so it can only say those are
- * confirmed with the order; checkout knows both and can be more definite. A
- * card that guessed which page it was on would be wrong on one of them.
+ * It says nothing about how or when the order arrives. On the cart there is
+ * nothing to say, and a row reading "confirmed with your order" against every
+ * label is a table of placeholders; on checkout the form beside it is already
+ * asking those questions, and reading the answers back a line later is not a
+ * summary, it is an echo. What the page does have to add — the delivery area
+ * and its threshold — is projected underneath.
  */
 @Component({
   selector: 'app-order-summary',
@@ -80,10 +82,6 @@ export class OrderSummary {
   /** Null before a line has ever been priced: there is nothing to add up yet. */
   readonly shipment = input<ShipmentSummary | null>(null);
   readonly loading = input(false);
-  /** What the delivery row says. The cart's placeholder, or what checkout has
-   * worked out from the fulfilment and the zone. */
-  readonly delivery = input<string | null>(null);
-  readonly deliveryDate = input<string | null>(null);
 
   protected readonly subtotal = computed(() =>
     formatPriceMinor(this.subtotalMinor(), this.currency),
@@ -109,8 +107,7 @@ export class OrderSummary {
    * note, and figures compare by lining up.
    *
    * What the consignment weighs and measures first, then how many cartons that
-   * comes to — the order those figures are read in — and the two rows about
-   * arrival last, which are the only ones that are not arithmetic.
+   * comes to — the order those figures are read in.
    */
   protected readonly rows = computed<{ label: string; value: string }[]>(() => {
     const shipment = this.shipment();
@@ -135,14 +132,6 @@ export class OrderSummary {
       });
     }
 
-    rows.push({
-      label: this.text.shipmentDelivery,
-      value: this.delivery() ?? this.text.shipmentDeliveryValue,
-    });
-    rows.push({
-      label: this.text.shipmentDeliveryDate,
-      value: this.deliveryDate() ?? this.text.shipmentDeliveryValue,
-    });
     return rows;
   });
 }

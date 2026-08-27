@@ -47,9 +47,6 @@ export const PAYMENT_METHODS = ['cash', 'bank-transfer', 'card-later'] as const;
 export const paymentMethodSchema = z.enum(PAYMENT_METHODS);
 export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
 
-/** Scheduling is coordinated by phone or mail (FR-CART-07), so this is a note
- * to a human, not a structured window nothing consumes. */
-export const ORDER_TIMING_MAX = 200;
 export const ORDER_NOTE_MAX = 1000;
 /** A key from the deployment's `locations`, validated against it server-side. */
 export const PICKUP_LOCATION_KEY_MAX = 64;

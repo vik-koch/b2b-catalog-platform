@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Address } from '@b2b-catalog-platform/shared';
+import { Address, OrderSubmission } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -13,6 +13,7 @@ import { packagedPackaging } from '../catalog/product.fixture';
 import { CartAddition, CartService } from '../cart/cart.service';
 import { CheckoutDraftService } from './checkout-draft.service';
 import { CheckoutPage } from './checkout-page';
+import { OrdersService, SubmitOrderResult } from './orders.service';
 
 const text = defaultAppText.checkout;
 
@@ -62,9 +63,27 @@ interface Options {
   /** Whether the deployment has a suggestion provider behind it — the
    * environment's answer, not the config's. */
   suggests?: boolean;
+  /** What placing the order comes to. Accepted unless a test says otherwise. */
+  submit?: SubmitOrderResult;
 }
 
+/** Every submission the page sent, and what it was answered with. */
+let sent: OrderSubmission[] = [];
+let submitted = vi.fn();
+
 async function render(options: Options = {}) {
+  sent = [];
+  submitted = vi.fn(async (order: OrderSubmission) => {
+    sent.push(order);
+    return (
+      options.submit ?? {
+        ok: true,
+        reference: 'CK-260827-0042',
+        publicToken: 'token',
+      }
+    );
+  });
+
   TestBed.configureTestingModule({
     imports: [CheckoutPage],
     providers: [
@@ -75,6 +94,12 @@ async function render(options: Options = {}) {
         useValue: options.config ?? defaultDeploymentConfig,
       },
       { provide: SUGGESTIONS_ENABLED, useValue: options.suggests ?? false },
+      {
+        provide: OrdersService,
+        useValue: {
+          submit: submitted,
+        },
+      },
       {
         provide: AddressesService,
         useValue: {
@@ -130,6 +155,16 @@ async function render(options: Options = {}) {
     },
     value: (selector: string) =>
       el.querySelector<HTMLInputElement>(selector)?.value,
+    /** Leaves the field, which is when the delivery zone is re-read. */
+    blur: (selector: string) => {
+      el.querySelector(selector)?.dispatchEvent(
+        new Event('focusout', { bubbles: true }),
+      );
+    },
+    button: (label: string) =>
+      Array.from(el.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === label,
+      ),
     /** Picks an option through its radio, which is what the page listens to. */
     pick: (group: string, value: string) => {
       const radio = el.querySelector<HTMLInputElement>(
@@ -367,6 +402,17 @@ describe('CheckoutPage', () => {
       );
     });
 
+    it('says when cash is handed over, in the words of the fulfilment', async () => {
+      const page = await render();
+
+      expect(page.text()).toContain(text.payment.cashDeliveryDescription);
+
+      page.drafts.patch({ fulfilmentMethod: 'pickup' });
+      await page.settle();
+
+      expect(page.text()).toContain(text.payment.cashPickupDescription);
+    });
+
     it('offers cash and bank transfer, and never card', async () => {
       const page = await render();
 
@@ -426,6 +472,103 @@ describe('CheckoutPage', () => {
 
       expect(page.text()).not.toContain('Hamburg city');
       expect(page.text()).not.toContain(text.zone.unknown);
+    });
+
+    it('waits for the field to be left before resolving anything', async () => {
+      const page = await render({ addresses: [] });
+
+      page.type('[id$="-postalCode"]', '20359');
+      await page.settle();
+      // Half a postcode resolves to whatever zone starts with those digits;
+      // the hint says nothing until the customer has finished with the field.
+      expect(page.text()).not.toContain('Hamburg city');
+
+      page.blur('[id$="-postalCode"]');
+      await page.settle();
+
+      expect(page.text()).toContain('Hamburg city');
+    });
+
+    it('says so where the deployment does not deliver', async () => {
+      const page = await render({ addresses: [] });
+
+      // 99999 falls past every configured range into the demo's catch-all,
+      // which is an area it does not drive to.
+      page.type('[id$="-postalCode"]', '99999');
+      page.blur('[id$="-postalCode"]');
+      await page.settle();
+
+      expect(page.text()).toContain(text.zone.noDelivery);
+    });
+  });
+
+  describe('sending the order', () => {
+    it('refuses to send until the privacy notice is accepted', async () => {
+      const page = await render();
+
+      page.button(text.submit)?.click();
+      await page.settle();
+
+      expect(submitted).not.toHaveBeenCalled();
+      expect(page.text()).toContain(text.privacyRequired);
+      expect(page.text()).toContain(text.errors.incomplete);
+    });
+
+    it('sends what the form was answered with', async () => {
+      const page = await render();
+
+      page.drafts.patch({
+        preferredDate: '2026-09-03',
+        customerNote: 'Ring the bell at the back gate.',
+      });
+      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
+      await page.settle();
+
+      page.button(text.submit)?.click();
+      await page.settle();
+
+      expect(sent).toHaveLength(1);
+      expect(sent[0]).toMatchObject({
+        fulfilmentMethod: 'delivery',
+        // The account's own party is resolved by the server, not asserted here.
+        party: null,
+        deliveryAddressId: saved.id,
+        pickupLocationKey: null,
+        paymentMethod: 'cash',
+        preferredDate: '2026-09-03',
+        customerNote: 'Ring the bell at the back gate.',
+        acceptPrivacy: true,
+      });
+      expect(sent[0].deliveryAddress).toMatchObject({ postalCode: '20359' });
+      // Ticked "the same address": the invoice goes where the goods do.
+      expect(sent[0].billingAddress).toEqual(sent[0].deliveryAddress);
+    });
+
+    it('names the order back and empties the cart', async () => {
+      const page = await render();
+
+      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
+      await page.settle();
+      page.button(text.submit)?.click();
+      await page.settle();
+
+      expect(page.text()).toContain(text.successHeading);
+      expect(page.text()).toContain('CK-260827-0042');
+      expect(page.drafts.draft().customerNote).toBeNull();
+    });
+
+    it('puts a refusal in the customer’s own words', async () => {
+      const page = await render({
+        submit: { ok: false, code: 'billing-details-required' },
+      });
+
+      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
+      await page.settle();
+      page.button(text.submit)?.click();
+      await page.settle();
+
+      expect(page.text()).toContain(text.errors.billingDetailsRequired);
+      expect(page.text()).not.toContain(text.successHeading);
     });
   });
 });
