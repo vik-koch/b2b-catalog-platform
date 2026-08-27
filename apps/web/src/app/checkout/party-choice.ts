@@ -89,8 +89,10 @@ import { PartyChoice as Party } from './checkout-draft.service';
   `,
 })
 export class PartyChoice {
-  private readonly addressText = inject(APP_TEXT).auth.myAccount.addresses;
-  private readonly validation = inject(APP_TEXT).auth.register.validation;
+  /** Sign-up's wording, whole: the same pair of fields asking the same thing
+   * of the same kind of party, and a second copy of it would be two ways of
+   * saying which numbers are accepted. */
+  private readonly registerText = inject(APP_TEXT).auth.register;
 
   protected readonly text = inject(APP_TEXT).checkout.party;
   protected readonly options = [
@@ -99,13 +101,13 @@ export class PartyChoice {
     { value: 'company' as const },
   ];
   protected readonly companyText = {
-    ...this.addressText.companySuggest,
-    idLabel: this.addressText.companyId,
-    nameLabel: this.addressText.companyName,
-    hint: this.addressText.companyIdHint,
-    idFormat: this.validation.companyIdFormat,
-    idRequired: this.validation.companyIdRequired,
-    nameRequired: this.validation.companyNameRequired,
+    ...this.registerText.companySuggest,
+    idLabel: this.registerText.companyId,
+    nameLabel: this.registerText.companyName,
+    hint: this.registerText.companyIdHint,
+    idFormat: this.registerText.validation.companyIdFormat,
+    idRequired: this.registerText.validation.companyIdRequired,
+    nameRequired: this.registerText.validation.companyNameRequired,
   };
 
   readonly party = input.required<Party>();

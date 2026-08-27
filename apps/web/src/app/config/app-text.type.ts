@@ -562,9 +562,11 @@ export const appTextSchema = z
               .strict(),
             /**
              * The saved delivery/invoice addresses (FR-CART-04), and the form
-             * that edits one. The suggestion wording is here rather than under
-             * a provider's name: a deployment with no adapter configured never
-             * shows it, but the file loads whole either way.
+             * that edits one. An address is a place and carries no identity:
+             * who is invoiced is the order's own question, worded at checkout.
+             * The suggestion wording is here rather than under a provider's
+             * name: a deployment with no adapter configured never shows it, but
+             * the file loads whole either way.
              */
             addresses: z
               .object({
@@ -585,20 +587,6 @@ export const appTextSchema = z
                 /** Opens the full address fields where the form asked for the street
                  * alone. Always offered, never only after a provider fails. */
                 enterManually: z.string(),
-                companyName: z.string(),
-                companyId: z.string(),
-                /** Says when the number matters at all — the book is untyped,
-                 * so the field is on every address but needed only where one
-                 * is invoiced. */
-                companyIdHint: z.string(),
-                companySuggest: z
-                  .object({
-                    suggestionsLabel: z.string(),
-                    noSuggestions: z.string(),
-                    /** `{count}` is substituted, for the live region. */
-                    suggestionCount: z.string(),
-                  })
-                  .strict(),
                 street: z.string(),
                 street2: z.string(),
                 postalCode: z.string(),
