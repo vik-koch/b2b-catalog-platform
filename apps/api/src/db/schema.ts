@@ -14,6 +14,7 @@ import {
   boolean,
   check,
   customType,
+  date,
   index,
   integer,
   jsonb,
@@ -673,9 +674,10 @@ export const orders = pgTable(
     pickupLocationKey: varchar('pickupLocationKey', { length: 64 }),
     pickupLocationName: varchar('pickupLocationName', { length: 255 }),
     pickupLocationAddress: text('pickupLocationAddress'),
-    // Free text: scheduling is coordinated by phone or mail (FR-CART-07), so a
-    // structured window would be a field nothing consumes.
-    preferredTiming: varchar('preferredTiming', { length: 200 }),
+    // The day the customer asked for, if any. Scheduling itself is coordinated
+    // by phone or mail (FR-CART-07) — this is the wish a manager works from,
+    // and a date so it can be read back, sorted and compared as one.
+    preferredDate: date('preferredDate'),
     customerNote: text('customerNote'),
     totalMinor: integer('totalMinor').notNull(),
     // The shipment estimate as it was shown (FR-UNIT-11), snapshotted rather

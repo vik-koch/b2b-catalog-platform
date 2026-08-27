@@ -1,5 +1,5 @@
 {
-  "id": "f6579ca4-9dba-4bcf-9006-3b5723b43834",
+  "id": "b605564f-0f6a-4f4b-bfa0-967868b863ad",
   "prevId": "9c6e372f-35de-45e0-b404-4c6189dc0710",
   "version": "7",
   "dialect": "postgresql",
@@ -844,9 +844,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "preferredTiming": {
-          "name": "preferredTiming",
-          "type": "varchar(200)",
+        "preferredDate": {
+          "name": "preferredDate",
+          "type": "date",
           "primaryKey": false,
           "notNull": false
         },

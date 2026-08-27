@@ -215,7 +215,7 @@ export class UsersService {
         deliveryPostalCode: sql`case when ${orders.deliveryPostalCode} is null then null else ${scrubbed} end`,
         deliveryCity: sql`case when ${orders.deliveryCity} is null then null else ${scrubbed} end`,
         deliveryRegion: null,
-        preferredTiming: null,
+        preferredDate: null,
         customerNote: null,
         // Which list this customer was charged from — the same argument that
         // nulls `users.tierId`.

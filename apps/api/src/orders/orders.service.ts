@@ -325,7 +325,7 @@ export class OrdersService {
               pickupLocationKey: pickup?.key ?? null,
               pickupLocationName: pickup?.name ?? null,
               pickupLocationAddress: pickup?.address ?? null,
-              preferredTiming: submission.preferredTiming,
+              preferredDate: submission.preferredDate,
               customerNote: submission.customerNote,
               totalMinor: priced.preview.totalMinor,
               currency: this.currency,
@@ -608,7 +608,7 @@ export class OrdersService {
         country: row.billingCountry,
       },
       paymentMethod: row.paymentMethod as OrderDetail['paymentMethod'],
-      preferredTiming: row.preferredTiming,
+      preferredDate: row.preferredDate,
       customerNote: row.customerNote,
       lines,
       shipment: {

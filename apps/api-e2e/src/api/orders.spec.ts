@@ -97,7 +97,7 @@ const ORDER_DETAIL_KEYS = [
   'lines',
   'paymentMethod',
   'pickup',
-  'preferredTiming',
+  'preferredDate',
   'shipment',
 ].sort();
 /** What staff see on top: the list it was priced from, who placed it, and the
@@ -160,7 +160,7 @@ const submission = (overrides: Record<string, unknown> = {}) => ({
   pickupLocationKey: null,
   billingAddress: address(),
   paymentMethod: 'cash',
-  preferredTiming: null,
+  preferredDate: null,
   customerNote: null,
   expectedTotalMinor: BASE_MINOR * 2,
   acceptPrivacy: true,

@@ -134,7 +134,14 @@ export const orderSubmissionSchema = z
     billingAddress: orderAddressInputSchema,
     billingAddressId: z.string().uuid().nullable().optional(),
     paymentMethod: paymentMethodSchema,
-    preferredTiming: z.string().trim().min(1).max(ORDER_TIMING_MAX).nullable(),
+    /**
+     * The day the customer would like it, ISO `YYYY-MM-DD`. A wish, not a
+     * booking: scheduling is settled between customer and manager (FR-CART-07),
+     * and nothing here reserves a slot. A date rather than free text because it
+     * is one — a manager sorting by it, or a later screen showing this week's
+     * requests, cannot do either with a sentence.
+     */
+    preferredDate: z.string().date().nullable(),
     customerNote: z.string().trim().min(1).max(ORDER_NOTE_MAX).nullable(),
     expectedTotalMinor: z.number().int().nonnegative(),
     /** FR-CART-03: the privacy notice has to be accepted, as on every other
@@ -261,7 +268,7 @@ export const orderDetailSchema = orderSummarySchema.extend({
   deliveryZone: orderDeliveryZoneSchema.nullable(),
   billingAddress: orderAddressSchema,
   paymentMethod: paymentMethodSchema,
-  preferredTiming: z.string().nullable(),
+  preferredDate: z.string().date().nullable(),
   customerNote: z.string().nullable(),
   lines: z.array(orderLineSchema),
   shipment: cartPreviewSchema.shape.shipment,

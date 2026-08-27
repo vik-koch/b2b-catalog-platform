@@ -179,7 +179,7 @@ const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
     pickupLocationKey: null,
     billingAddress: address(),
     paymentMethod: 'cash',
-    preferredTiming: null,
+    preferredDate: null,
     customerNote: null,
     expectedTotalMinor: 3998,
     acceptPrivacy: true,

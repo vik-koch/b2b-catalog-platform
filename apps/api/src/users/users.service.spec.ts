@@ -110,7 +110,7 @@ describe('UsersService.anonymize', () => {
       'deliveryPostalCode',
       'deliveryCity',
       'deliveryRegion',
-      'preferredTiming',
+      'preferredDate',
       'customerNote',
       // What this customer was charged — the same argument that nulls tierId.
       'tierKey',

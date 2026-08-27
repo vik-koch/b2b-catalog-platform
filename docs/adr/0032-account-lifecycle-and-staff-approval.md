@@ -219,7 +219,7 @@ account's `addresses` rows and scrubs its orders.
 
 **The scrubbed columns are named individually**, because the free-text ones are
 the ones that get missed: `contactName`, `contactEmail`, `contactPhone`, the
-billing and delivery snapshots, `preferredTiming`, `customerNote`, the `tierKey`
+billing and delivery snapshots, `preferredDate`, `customerNote`, the `tierKey`
 snapshot, and `order_items.note`. The note is customer-typed and can perfectly
 well read "deliver to Anna, 0170…", so it is personal data sitting on a line
 item. `tierKey` goes for the same reason `anonymize()` already nulls

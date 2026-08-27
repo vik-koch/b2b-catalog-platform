@@ -68,7 +68,7 @@ CREATE TABLE "orders" (
 	"pickupLocationKey" varchar(64),
 	"pickupLocationName" varchar(255),
 	"pickupLocationAddress" text,
-	"preferredTiming" varchar(200),
+	"preferredDate" date,
 	"customerNote" text,
 	"totalMinor" integer NOT NULL,
 	"shipmentCartons" integer DEFAULT 0 NOT NULL,
