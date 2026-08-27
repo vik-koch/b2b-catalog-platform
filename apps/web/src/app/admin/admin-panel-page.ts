@@ -190,7 +190,7 @@ import { BuildInfoService } from './build-info.service';
       <h2
         class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
       >
-        <app-admin-icon name="receipt" class="h-4 w-4" />
+        <app-admin-icon name="clipboard-list" class="h-4 w-4" />
         {{ panelText.orders }}
       </h2>
       <div class="flex flex-wrap gap-3 rounded-lg border border-border p-5">
