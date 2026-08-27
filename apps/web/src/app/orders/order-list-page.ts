@@ -36,27 +36,33 @@ import { orderStatusClass } from './order-status';
       } @else {
         <ul class="divide-y divide-border">
           @for (order of data.items; track order.reference) {
-            <li
-              class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-4 first:pt-0"
-            >
-              <div>
-                <p class="text-sm font-semibold">{{ order.reference }}</p>
-                <p class="mt-1 text-sm text-muted">
-                  {{ formatDate(order.createdAt) }} ·
-                  {{ lineCount(order.itemCount) }}
-                </p>
-              </div>
-              <div class="flex items-center gap-4">
-                <span
-                  class="rounded-full px-2 py-0.5 text-xs font-medium"
-                  [class]="statusClass(order.status)"
-                >
-                  {{ statusLabel(order.status) }}
-                </span>
-                <p class="text-sm font-semibold tabular-nums">
-                  {{ total(order) }}
-                </p>
-              </div>
+            <li>
+              <!-- The whole row opens the order: the reference is the only
+                   thing on it worth clicking, and a link around it is a bigger
+                   target than the text. -->
+              <a
+                class="-mx-2 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 py-4 hover:bg-stone-50"
+                [routerLink]="['/account/orders', order.reference]"
+              >
+                <div>
+                  <p class="text-sm font-semibold">{{ order.reference }}</p>
+                  <p class="mt-1 text-sm text-muted">
+                    {{ formatDate(order.createdAt) }} ·
+                    {{ lineCount(order.itemCount) }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span
+                    class="rounded-full px-2 py-0.5 text-xs font-medium"
+                    [class]="statusClass(order.status)"
+                  >
+                    {{ statusLabel(order.status) }}
+                  </span>
+                  <p class="text-sm font-semibold tabular-nums">
+                    {{ total(order) }}
+                  </p>
+                </div>
+              </a>
             </li>
           }
         </ul>

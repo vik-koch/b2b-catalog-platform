@@ -786,6 +786,24 @@ export const appTextSchema = z
                 statusCancelled: z.string(),
                 error: z.string(),
                 back: z.string(),
+                /**
+                 * One order, read back. Only what the order page adds: its
+                 * blocks are headed by the same words the checkout asked the
+                 * questions in, so an order reads the same before and after
+                 * it was sent.
+                 */
+                detail: z
+                  .object({
+                    /** `{date}` the request was sent. */
+                    placed: z.string(),
+                    contact: z.string(),
+                    /** Somebody else's reference, or one that never existed —
+                     * the API tells the two apart for nobody. */
+                    notFound: z.string(),
+                    backToList: z.string(),
+                    error: z.string(),
+                  })
+                  .strict(),
               })
               .strict(),
             /**

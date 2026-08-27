@@ -356,7 +356,14 @@
         "statusDeclined": "Declined",
         "statusCancelled": "Cancelled",
         "error": "We could not load your orders right now. Please try again later.",
-        "back": "Back to my account"
+        "back": "Back to my account",
+        "detail": {
+          "placed": "Sent {date}",
+          "contact": "Who we ask for",
+          "notFound": "We cannot find that order on your account.",
+          "backToList": "Back to my orders",
+          "error": "We could not load that order right now. Please try again later."
+        }
       },
       "delete": {
         "action": "Delete my account",

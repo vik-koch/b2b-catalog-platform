@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   CartPreview,
   OrderSubmission,
+  OrderDetail,
   OrderSummary,
   ordersContract,
   Pagination,
@@ -65,5 +66,17 @@ export class OrdersService {
     const response = await this.client.listMyOrders({ query: { page } });
     if (response.status === 200) return response.body;
     throw new Error(`Failed to load your orders (status ${response.status})`);
+  }
+
+  /**
+   * One of the account's own orders, by its reference. Null where there is no
+   * such order *for this account* — the API answers 404 rather than 403 for
+   * somebody else's, and the page has nothing else to say about either.
+   */
+  async getMine(reference: string): Promise<OrderDetail | null> {
+    const response = await this.client.getMyOrder({ params: { reference } });
+    if (response.status === 200) return response.body;
+    if (response.status === 404) return null;
+    throw new Error(`Failed to load the order (status ${response.status})`);
   }
 }

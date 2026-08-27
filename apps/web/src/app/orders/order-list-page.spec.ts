@@ -67,6 +67,11 @@ describe('OrderListPage (FR-ACC-01)', () => {
     expect(el.textContent).not.toContain(placed.status);
     // Formatted from the deployment's own currency, minor units and all.
     expect(el.textContent).toMatch(/129[.,]90/);
+    // The row opens the order, addressed by the reference the customer was
+    // quoted rather than by any id.
+    expect(
+      el.querySelector(`a[href="/account/orders/${placed.reference}"]`),
+    ).not.toBeNull();
   });
 
   it('offers the catalogue when nothing has been ordered yet', async () => {

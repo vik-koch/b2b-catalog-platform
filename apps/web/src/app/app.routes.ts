@@ -255,6 +255,14 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./orders/order-list-page').then((m) => m.OrderListPage),
   },
+  {
+    // The reference is the identity a customer was quoted and a mail links to,
+    // so it is what the URL carries — never the row's id.
+    path: 'account/orders/:reference',
+    canActivate: [requireAuth()],
+    loadComponent: () =>
+      import('./orders/order-detail-page').then((m) => m.OrderDetailPage),
+  },
   // `new` stays ahead of `:id/edit` so it is never read as an address id.
   {
     path: 'account/addresses/new',

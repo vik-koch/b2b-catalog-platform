@@ -17,7 +17,10 @@ import {
   OrderContact,
   OrderSubmission,
   PartySuggestion,
+  unitQuantity,
 } from '@b2b-catalog-platform/shared';
+import { formatPriceMinor } from '../catalog/price';
+import { formatUnitQuantity } from '../catalog/quantity';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { AccountService } from '../account/account.service';
@@ -25,7 +28,7 @@ import { AuthService } from '../auth/auth.service';
 import { AddressesService } from '../addresses/addresses.service';
 import { addressLines } from '../addresses/address-format';
 import { createAddressForm } from '../addresses/address-form';
-import { CartService } from '../cart/cart.service';
+import { CartService, CartStoredLine } from '../cart/cart.service';
 import { delayedLoading } from '../core/delayed-loading';
 import {
   canonicalPhone,
@@ -50,7 +53,11 @@ import {
 import { DeliveryZoneHint } from './delivery-zone-hint';
 import { FulfilmentChoice } from './fulfilment-choice';
 import { OrderNote } from './order-note';
-import { OrderReview, ReviewBlock } from './order-review';
+import {
+  OrderReadBack,
+  ReadBackLine,
+  ReviewBlock,
+} from '../orders/order-read-back';
 import { PartyChoice } from './party-choice';
 import { PaymentChoice } from './payment-choice';
 import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
@@ -80,7 +87,7 @@ import { AddressForm } from '../addresses/address-form';
     DeliveryZoneHint,
     FulfilmentChoice,
     OrderNote,
-    OrderReview,
+    OrderReadBack,
     GuestDetails,
     Icon,
     OrderSummary,
@@ -172,7 +179,11 @@ import { AddressForm } from '../addresses/address-form';
             }
 
             @if (reviewing()) {
-              <app-order-review class="max-w-xl" [blocks]="reviewBlocks()" />
+              <app-order-read-back
+                class="max-w-xl"
+                [lines]="reviewLines()"
+                [blocks]="reviewBlocks()"
+              />
             } @else if (formPending()) {
               <!-- The account's own party, whether a transfer can be paid and
                    which addresses are on offer are all answers, not defaults.
@@ -479,6 +490,7 @@ export class CheckoutPage {
 
   protected readonly text = inject(APP_TEXT).checkout;
   protected readonly cartText = inject(APP_TEXT).cart;
+  private readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly addressText = this.text.addresses;
 
   /**
@@ -891,6 +903,47 @@ export class CheckoutPage {
    * The answers, resolved for the read-back — the same resolutions the
    * submission is built from, so what is shown and what is sent cannot differ.
    */
+  /**
+   * The cart's lines as the read-back states them: the quantity in the unit
+   * the line was bought through and, where that is not the piece, what it
+   * comes to in pieces — a unit is a lens on a piece count (FR-UNIT-01), and
+   * this is the one screen where the figure the shop actually picks is worth
+   * spelling out beside the one that was ordered.
+   */
+  protected readonly reviewLines = computed<ReadBackLine[]>(() =>
+    this.cart.lines().map((line) => ({
+      key: line.slug,
+      name: line.name,
+      note: line.note,
+      quantity: this.lineQuantity(line),
+      // A dash rather than a zero: a line the shop cannot price yet is not a
+      // free one, and the summary beside this says so in full.
+      total:
+        line.lineTotalMinor === null
+          ? '—'
+          : formatPriceMinor(line.lineTotalMinor, this.config.catalog.currency),
+    })),
+  );
+
+  private lineQuantity(line: CartStoredLine): string {
+    const review = this.text.review;
+    const units = this.catalogText.units;
+    const qty = formatUnitQuantity(
+      unitQuantity(line.packaging, line.unit, line.pieces) ?? line.pieces,
+      this.config.catalog.currency,
+    );
+    const unit = units[line.unit];
+    if (line.unit === 'piece') {
+      return fillText(review.quantity, { qty, unit });
+    }
+    return fillText(review.quantityPieces, {
+      qty,
+      unit,
+      pieces: formatUnitQuantity(line.pieces, this.config.catalog.currency),
+      pieceUnit: units.piece,
+    });
+  }
+
   protected readonly reviewBlocks = computed<ReviewBlock[]>(() => {
     const draft = this.draft();
     const review = this.text.review;
