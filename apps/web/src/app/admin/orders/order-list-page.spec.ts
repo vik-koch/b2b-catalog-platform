@@ -27,9 +27,16 @@ function page(overrides: Partial<Pagination> = {}): Pagination {
   return { page: 1, pageSize: 20, total: 1, totalPages: 1, ...overrides };
 }
 
+/**
+ * `unbound` sets every input to undefined, which is what router input binding
+ * does to a page opened with no query parameters at all — an absent parameter
+ * is handed over as undefined rather than as the input's own default.
+ */
 async function render(
   items: StaffOrderSummary[] | 'reject',
-  query: { page?: string; status?: string } = {},
+  query:
+    | { page?: string; status?: string; searchTerm?: string }
+    | 'unbound' = {},
 ) {
   const list = vi.fn(() =>
     items === 'reject'
@@ -53,14 +60,39 @@ async function render(
   });
 
   const fixture = TestBed.createComponent(AdminOrderListPage);
-  fixture.componentRef.setInput('page', query.page ?? '1');
-  fixture.componentRef.setInput('status', query.status ?? '');
+  const unbound = query === 'unbound';
+  fixture.componentRef.setInput(
+    'page',
+    unbound ? undefined : (query.page ?? '1'),
+  );
+  fixture.componentRef.setInput(
+    'status',
+    unbound ? undefined : (query.status ?? ''),
+  );
+  fixture.componentRef.setInput(
+    'searchTerm',
+    unbound ? undefined : (query.searchTerm ?? ''),
+  );
   await fixture.whenStable();
   fixture.detectChanges();
   return { fixture, el: fixture.nativeElement as HTMLElement, list };
 }
 
 describe('AdminOrderListPage (FR-AUTH-03)', () => {
+  // Straight off the admin panel: no page, no status, no search term. The
+  // router sets all three to undefined, and reading one as a string is what
+  // used to throw.
+  it('opens with no query parameters at all', async () => {
+    const { el, list } = await render([placed], 'unbound');
+
+    expect(list).toHaveBeenCalledWith({
+      page: 1,
+      status: undefined,
+      q: undefined,
+    });
+    expect(el.textContent).toContain(placed.reference);
+  });
+
   it('lists an order with who to call and the account it came from', async () => {
     const { el } = await render([placed]);
 
@@ -86,10 +118,27 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
     expect(filtered.list).toHaveBeenCalledWith({
       page: 1,
       status: 'approved',
+      q: undefined,
     });
 
     const nonsense = await render([placed], { status: 'unfiled' });
-    expect(nonsense.list).toHaveBeenCalledWith({ page: 1, status: undefined });
+    expect(nonsense.list).toHaveBeenCalledWith({
+      page: 1,
+      status: undefined,
+      q: undefined,
+    });
+  });
+
+  // Server-side, like the filter: the list is paged, so a box that narrowed
+  // the page on screen would be filtering one twentieth of the orders.
+  it('sends the search box to the API, trimmed', async () => {
+    const { list } = await render([placed], { searchTerm: '  4831 ' });
+
+    expect(list).toHaveBeenCalledWith({
+      page: 1,
+      status: undefined,
+      q: '4831',
+    });
   });
 
   // Two different nothings: no orders at all, or none with this status.
@@ -99,6 +148,10 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
 
     const none = await render([], { status: 'declined' });
     expect(none.el.textContent).toContain(text.noResults);
+
+    // A search that found nothing is the same kind of nothing as a filter.
+    const unmatched = await render([], { searchTerm: 'nobody' });
+    expect(unmatched.el.textContent).toContain(text.noResults);
   });
 
   it('says so when the list cannot be read', async () => {

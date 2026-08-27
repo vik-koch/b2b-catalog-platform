@@ -24,12 +24,12 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
  * by phone or mail, and the status transitions that will move it are not here
  * yet.
  *
- * Newest first, with the status as the one filter — the question a manager
- * opens this list with is "what have I not answered yet?". The filter is a
- * query parameter like every other grid's, so a narrowed list is shareable and
- * survives a reload. There is no find-a-row box: the list is paged server-side
- * and the endpoint takes no query, and a box that filtered one page would be a
- * lie. A mailed order is opened by its own link rather than looked up here.
+ * Newest first, narrowed by the status and by the find-an-order box — the two
+ * questions a manager opens this list with: "what have I not answered yet?"
+ * and "where is the one they are asking about on the phone?". Both are query
+ * parameters like every other grid's, so a narrowed list is shareable and
+ * survives a reload, and both are applied server-side: the list is paged, and
+ * a box that filtered one page would be a lie.
  */
 @Component({
   selector: 'app-admin-order-list-page',
@@ -37,8 +37,11 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
   template: `
     <app-admin-list-header
       [title]="text.title"
-      [searchable]="false"
-      [filtered]="!!status()"
+      [query]="query()"
+      [searchLabel]="text.searchLabel"
+      [searchPlaceholder]="text.searchPlaceholder"
+      [clearSearchLabel]="text.clearSearch"
+      [filtered]="filtered()"
     />
 
     @if (orders.error()) {
@@ -60,7 +63,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
                 <app-grid-filter-select
                   param="status"
                   [options]="statusOptions"
-                  [value]="status()"
+                  [value]="statusParam()"
                   [ariaLabel]="text.filterStatus"
                 />
               </th>
@@ -111,8 +114,10 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
       </div>
 
       @if (data.items.length === 0) {
+        <!-- Two different nothings: no orders at all is a state nobody can fix,
+             an empty result is one to fix by widening the filters. -->
         <p class="mt-6 text-muted">
-          {{ status() ? text.noResults : text.empty }}
+          {{ filtered() ? text.noResults : text.empty }}
         </p>
       }
 
@@ -172,18 +177,45 @@ export class AdminOrderListPage {
    * API, so a hand-edited URL falls back to the default view. */
   readonly page = input('1');
   readonly status = input('');
+  /**
+   * Named for the parameter it is bound from — router input binding matches on
+   * the name, and the find-a-row box writes `searchTerm`. `q` is the navbar
+   * search's own parameter and is never read here.
+   */
+  readonly searchTerm = input('');
 
   private readonly currentPage = computed(() => {
     const n = Number(this.page());
     return Number.isInteger(n) && n > 0 ? n : 1;
   });
-  private readonly statusKey = computed<OrderStatus | undefined>(() => {
+  protected readonly statusKey = computed<OrderStatus | undefined>(() => {
     const parsed = orderStatusSchema.safeParse(this.status());
     return parsed.success ? parsed.data : undefined;
   });
+  /** The filter's own value: the empty string is "no filter", never undefined,
+   * or the select falls back to its first option by accident rather than by
+   * agreement. */
+  protected readonly statusParam = computed(() => this.statusKey() ?? '');
+
+  /**
+   * Router input binding sets an *absent* parameter to undefined, whatever the
+   * input's default says — so every one of these is read through a guard
+   * rather than used straight. A page opened from the panel carries no
+   * parameters at all.
+   */
+  protected readonly query = computed(() =>
+    this.searchTerm() ? this.searchTerm().trim() : '',
+  );
+  protected readonly filtered = computed(
+    () => !!this.statusKey() || !!this.query(),
+  );
 
   protected readonly orders = resource({
-    params: () => ({ page: this.currentPage(), status: this.statusKey() }),
+    params: () => ({
+      page: this.currentPage(),
+      status: this.statusKey(),
+      q: this.query() || undefined,
+    }),
     loader: ({ params }) => this.api.list(params),
   });
 

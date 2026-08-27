@@ -472,8 +472,11 @@
   },
   "orderList": {
     "title": "Orders",
+    "searchLabel": "Search orders",
+    "searchPlaceholder": "Reference, name, email...",
+    "clearSearch": "Clear search",
     "empty": "No orders yet.",
-    "noResults": "No orders with this status.",
+    "noResults": "No orders match these filters.",
     "loadError": "The order list could not be loaded. Please try again.",
     "reference": "Order",
     "placed": "Sent",

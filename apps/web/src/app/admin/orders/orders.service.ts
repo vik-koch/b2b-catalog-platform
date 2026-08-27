@@ -27,6 +27,7 @@ export class AdminOrdersService {
   async list(query: {
     page: number;
     status?: OrderStatus;
+    q?: string;
   }): Promise<{ items: StaffOrderSummary[]; pagination: Pagination }> {
     const response = await this.client.listOrders({ query });
     if (response.status === 200) return response.body;

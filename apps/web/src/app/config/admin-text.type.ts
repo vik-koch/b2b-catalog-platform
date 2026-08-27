@@ -691,6 +691,9 @@ export const adminTextSchema = z
     orderList: z
       .object({
         title: z.string(),
+        searchLabel: z.string(),
+        searchPlaceholder: z.string(),
+        clearSearch: z.string(),
         empty: z.string(),
         /** Shown instead of `empty` when the status filter emptied the list. */
         noResults: z.string(),
