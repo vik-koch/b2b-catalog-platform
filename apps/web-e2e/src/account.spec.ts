@@ -185,29 +185,6 @@ test.describe('my account', () => {
     await expect(page.getByText('No saved addresses yet')).toBeVisible();
   });
 
-  /**
-   * The deployment takes two shapes of registration number and the field asks
-   * for neither in particular: whichever the account is registered under is
-   * prefilled whole, and every accepted shape is named in the hint.
-   */
-  test('prefills the account’s company details whatever shape the number is in', async ({
-    page,
-  }, testInfo) => {
-    const email = await arrange(testInfo, '1234567890');
-
-    await logIn(page, email);
-    // Through the page, not a cold `goto`: a guarded route loaded directly
-    // races the session the login just established.
-    await expect(page).toHaveURL(/\/account$/);
-    await page.getByRole('link', { name: 'Add address' }).click();
-
-    await expect(page.getByLabel('Company ID')).toHaveValue('1234567890');
-    // Both halves of the invoiced party come from the account, by value: the
-    // address is free to be corrected to another of the customer's entities.
-    await expect(page.getByLabel('Company name')).toHaveValue(COMPANY_NAME);
-    await expect(page.getByLabel('Kind of registration number')).toHaveCount(0);
-  });
-
   test('deletes the account, and the address can be registered again', async ({
     page,
   }, testInfo) => {

@@ -530,6 +530,18 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(res.data.code).toBe('billing-details-required');
     });
 
+    // The same rule registration is checked against — a picker and a mask are
+    // entry aids, and the API applies the deployment's formats itself.
+    it('refuses a registration number matching no configured format', async () => {
+      const res = await post(
+        '/orders',
+        submission({ party: party({ registrationId: 'DE12' }) }),
+      );
+
+      expect(res.status).toBe(400);
+      expect(res.data.code).toBe('invalid-company-id');
+    });
+
     it('refuses a collection point that does not exist', async () => {
       const res = await post(
         '/orders',

@@ -20,13 +20,10 @@ const PASSWORD = 'e2e-addresses-password';
 
 const ADDRESS_KEYS = [
   'city',
-  'companyId',
-  'companyName',
   'country',
   'createdAt',
   'id',
   'label',
-  'phone',
   'postalCode',
   'region',
   'street',
@@ -37,15 +34,12 @@ const ADDRESS_KEYS = [
 /** The whole editable set: create and update both carry all of it. */
 const address = (overrides: Record<string, unknown> = {}) => ({
   label: 'Shop',
-  companyName: 'Kontor GmbH',
-  companyId: 'DE123456789',
   street: 'Hafenstraße 12',
   street2: null,
   postalCode: '20359',
   city: 'Hamburg',
   region: null,
   country: 'DE',
-  phone: '+49 40 1234567',
   ...overrides,
 });
 
@@ -232,32 +226,6 @@ describe('/account/addresses (FR-CART-04)', () => {
 
     expect(res.status).toBe(409);
     expect(res.data.code).toBe('unsupported-country');
-  });
-
-  // The same rule registration is checked against — a picker and a mask are
-  // entry aids, and the API applies the patterns itself.
-  it('refuses a registration number matching no configured format', async () => {
-    const res = await post(
-      '/account/addresses',
-      address({ companyId: 'DE12' }),
-      ownerCookie,
-    );
-
-    expect(res.status).toBe(400);
-    expect(res.data.code).toBe('invalid-company-id');
-  });
-
-  it('takes an address with no registration number at all', async () => {
-    const res = await post(
-      '/account/addresses',
-      address({ companyId: null, companyName: null }),
-      ownerCookie,
-    );
-
-    // A delivery address invoiced to nobody is an ordinary address; only a
-    // submitted order can say whether a company was needed.
-    expect(res.status).toBe(201);
-    expect(res.data.companyId).toBeNull();
   });
 
   it('takes an address with no label', async () => {
