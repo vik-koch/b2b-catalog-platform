@@ -77,7 +77,7 @@ export class OrderDetailPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = this.config.catalog.currency;
 
-  private readonly orderText = inject(APP_TEXT).auth.myAccount.orders;
+  private readonly orderText = inject(APP_TEXT).orders;
   private readonly checkoutText = inject(APP_TEXT).checkout;
   private readonly units = inject(APP_TEXT).catalog.units;
   protected readonly text = this.orderText.detail;
