@@ -53,7 +53,7 @@ let nextId = 0;
   ],
   host: { class: 'block' },
   template: `
-    <div class="space-y-6" [formGroup]="form().group">
+    <div class="space-y-4" [formGroup]="form().group">
       @if (showLabel()) {
         <div>
           <label [for]="id('label')" appFieldLabel>

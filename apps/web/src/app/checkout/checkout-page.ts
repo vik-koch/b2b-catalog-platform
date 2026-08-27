@@ -182,7 +182,7 @@ import { AddressForm } from '../addresses/address-form';
                 <app-skeleton class="max-w-xl" [lines]="10" />
               }
             } @else {
-              <div class="max-w-xl space-y-6">
+              <div class="max-w-xl space-y-8">
                 <app-fulfilment-choice
                   [method]="draft().fulfilmentMethod"
                   (methodChange)="chooseFulfilment($event)"
@@ -293,7 +293,7 @@ import { AddressForm } from '../addresses/address-form';
                     <!-- Checked, because one address usually serves both.
                      Unchecking is what reveals the second picker. -->
                     <label
-                      class="mt-3 flex cursor-pointer items-start gap-2 text-sm"
+                      class="mt-4 flex cursor-pointer items-start gap-2 text-sm"
                     >
                       <input
                         type="checkbox"
