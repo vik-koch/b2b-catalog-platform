@@ -79,4 +79,16 @@ export class OrdersService {
     if (response.status === 404) return null;
     throw new Error(`Failed to load the order (status ${response.status})`);
   }
+
+  /**
+   * The summary a mailed link opens (FR-NOTIF-06). The token is the whole
+   * credential — no session is consulted, here or on the API — so a wrong or
+   * stale one is simply an order nobody can open.
+   */
+  async getByToken(token: string): Promise<OrderDetail | null> {
+    const response = await this.client.getOrderByToken({ params: { token } });
+    if (response.status === 200) return response.body;
+    if (response.status === 404) return null;
+    throw new Error(`Failed to load the order (status ${response.status})`);
+  }
 }
