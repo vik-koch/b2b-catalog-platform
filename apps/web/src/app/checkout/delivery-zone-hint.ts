@@ -15,17 +15,29 @@ import { fillText } from '../core/fill-text';
  * it — the server re-derives it from the submitted address, because a
  * threshold a customer could pick for themselves would not be one.
  *
- * Silent until there is a postcode to resolve on. A hint that appears the
- * moment the field is focused, saying nothing, is noise.
+ * Silent until there is a postcode to resolve on — and empty rather than
+ * blank, so the rule the page draws above it disappears with it. A hint that
+ * appears the moment the field is focused, saying nothing, is noise.
+ *
+ * A zone may say the deployment does not deliver there at all. That is said
+ * here, in amber, while the address is being typed: it is a cheaper
+ * conversation before the order than after it. It still refuses nothing —
+ * the order goes through and a manager answers it.
  */
 @Component({
   selector: 'app-delivery-zone-hint',
-  host: { class: 'block' },
+  // Hidden while it has nothing to say, so whatever the page put on this
+  // element — a rule above it — goes with it.
+  host: { class: 'block empty:hidden' },
   template: `
     @if (zone(); as resolved) {
       <p class="text-sm text-muted">{{ resolved.title }}</p>
-      @if (resolved.threshold) {
-        <p class="text-sm text-muted">{{ resolved.threshold }}</p>
+      @if (resolved.delivers) {
+        @if (resolved.threshold) {
+          <p class="text-sm text-muted">{{ resolved.threshold }}</p>
+        }
+      } @else {
+        <p class="text-sm text-amber-700">{{ text.noDelivery }}</p>
       }
     } @else if (hasAddress()) {
       <p class="text-sm text-muted">{{ text.unknown }}</p>
@@ -55,9 +67,13 @@ export class DeliveryZoneHint {
     });
     if (!match) return null;
 
+    const delivers = match.delivers !== false;
     return {
       title: fillText(this.text.resolved, { zone: match.title }),
-      threshold: this.threshold(match.freeFromMinor),
+      delivers,
+      // Nothing to be short of where nothing is delivered; the config refuses
+      // the pair anyway, and reading it here would be a second opinion.
+      threshold: delivers ? this.threshold(match.freeFromMinor) : null,
     };
   });
 

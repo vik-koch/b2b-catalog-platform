@@ -140,9 +140,21 @@ length, and formats that are not numeric use prefixes instead. Both are checked
 when the config loads, which fails the boot rather than shipping a rule nobody
 can trigger.
 
-**The threshold is advisory and never a gate.** It says what the free-delivery
-minimum is in the resolved zone and whether this order meets it; it does not
-block submission, and it does not compute a delivery price. Every order is
+**A zone may also say the shop does not deliver there.** Some areas are outside
+what a van and a carrier can reach economically, and the honest answer is to say
+so — while the address is being typed, with what to do instead, rather than in a
+phone call after the order. It is one flag on the zone (`delivers: false`); the
+wording is app text, because "give us a carrier's depot in the city" is a
+deployment's own sentence and not the platform's. A zone that is not delivered to
+quotes no free-delivery minimum, which the config refuses rather than renders.
+
+**The threshold is advisory and never a gate — and so is that flag.** The
+threshold says what the free-delivery minimum is in the resolved zone and whether
+this order meets it; it does not block submission, and it does not compute a
+delivery price. An undeliverable zone does not block one either: the order is
+sent, the manager reads it, and the two of them find a way. A checkout that
+refused would turn an advisory map into the shop's shipping policy, and the map
+is a guide a manager overrides every week. Every order is
 reviewed by a manager who arranges delivery by phone anyway, so a hard rule here
 would refuse orders the shop would have accepted, and a computed price would be a
 second pricing system with no source of truth behind it. The resolved zone key
@@ -186,15 +198,19 @@ rules into structured ones.
 - (−) The variable is named in two services' environments, so a stack that sets
   it for one and not the other renders a form that suggests nothing, or one that
   asks for fields a pick would have filled.
+- (+) An area the shop does not serve says so before the order rather than after
+  it, which is the cheaper half of that conversation.
 - (−) Zone rules change with a config deploy, and a mistyped range silently
   reclassifies an area — boot validation checks the shape of a rule, never its
-  intent.
+  intent. A mistyped `delivers: false` tells a customer the shop does not come
+  to them.
 - (−) An address the provider does not know is typed by hand and falls into the
   catch-all zone, which is the correct answer but a worse experience.
 - (−) An address whose postal code is missing or outside every range is
   unclassified and gets the catch-all, with no second chance at a zone.
-- (⚠) The threshold is never a gate: nothing in the flow may refuse or block an
-  order because it is under a free-delivery minimum.
+- (⚠) Nothing a zone says is ever a gate: no part of the flow may refuse or
+  block an order for being under a free-delivery minimum, or for falling in an
+  area the deployment does not deliver to.
 - (⚠) Postal codes are compared as fixed-width strings, never parsed as numbers.
 - (⚠) No rule matches on a city, a region or any other place name: they are
   printed, not compared.

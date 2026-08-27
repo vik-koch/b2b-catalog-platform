@@ -77,9 +77,29 @@ export const deliveryZoneSchema = z
     /** Integer minor units, like every other price. Absent means no free
      * delivery in this zone — not a threshold of zero. */
     freeFromMinor: z.number().int().nonnegative().optional(),
+    /**
+     * Whether the deployment delivers here at all. Absent means it does; a
+     * zone that sets it false is an area the shop does not drive to, named so
+     * the checkout can say so while the address is being typed rather than
+     * after the order is placed.
+     *
+     * Still advisory, like every other thing a zone says: the order goes
+     * through and a manager answers it. What the customer is told is that they
+     * will be asked for another address, which is a cheaper conversation
+     * before the order than after it.
+     */
+    delivers: z.boolean().optional(),
     match: zoneMatchSchema,
   })
-  .strict();
+  .strict()
+  .refine(
+    (zone) => zone.delivers !== false || zone.freeFromMinor === undefined,
+    {
+      message:
+        'a zone that is not delivered to quotes no free-delivery minimum',
+      path: ['freeFromMinor'],
+    },
+  );
 export type DeliveryZone = z.infer<typeof deliveryZoneSchema>;
 
 /**

@@ -92,7 +92,8 @@
       {
         "key": "rest",
         "title": "Rest of Germany",
-        "description": "Delivery is quoted per order.",
+        "description": "We do not deliver here ourselves.",
+        "delivers": false,
         "match": {
           "all": true
         }
