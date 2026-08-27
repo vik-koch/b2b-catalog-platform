@@ -5,16 +5,20 @@ import { AuthModule } from '../auth/auth.module';
 import {
   COMPANY_ID_RULE,
   DELIVERY_CONFIG,
+  MONEY_FORMAT,
   ORDER_CURRENCY,
   ORDER_REFERENCE_CONFIG,
   PICKUP_LOCATIONS,
   loadCompanyIdRule,
   loadDeliveryConfig,
+  loadMoneyFormat,
   loadOrderCurrency,
   loadOrderReferenceConfig,
   loadPickupLocations,
 } from '../config/deployment-config';
+import { MailModule } from '../mail/mail.module';
 import { AdminOrdersController } from './admin-orders.controller';
+import { OrderNotifications } from './order-notifications';
 import { CartController } from './cart.controller';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
@@ -28,10 +32,11 @@ import { OrdersService } from './orders.service';
  * service's validation, not the account-scoped controllers.
  */
 @Module({
-  imports: [AuthModule, AddressBookModule],
+  imports: [AuthModule, AddressBookModule, MailModule],
   controllers: [CartController, OrdersController, AdminOrdersController],
   providers: [
     OrdersService,
+    OrderNotifications,
     AuditLogger,
     { provide: PICKUP_LOCATIONS, useFactory: loadPickupLocations },
     // The party's registration number is held to the deployment's own formats,
@@ -40,6 +45,8 @@ import { OrdersService } from './orders.service';
     { provide: DELIVERY_CONFIG, useFactory: loadDeliveryConfig },
     { provide: ORDER_REFERENCE_CONFIG, useFactory: loadOrderReferenceConfig },
     { provide: ORDER_CURRENCY, useFactory: loadOrderCurrency },
+    // The same currency with its locale: what the order mails format against.
+    { provide: MONEY_FORMAT, useFactory: loadMoneyFormat },
   ],
 })
 export class OrdersModule {}

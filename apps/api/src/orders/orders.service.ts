@@ -24,6 +24,7 @@ import {
   resolveDeliveryZone,
 } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../addresses/addresses.service';
+import { OrderNotifications } from './order-notifications';
 import { publiclyVisible } from '../catalog/product-view';
 import {
   COMPANY_ID_RULE,
@@ -90,6 +91,7 @@ export class OrdersService {
     private readonly reference: OrderReferenceConfig,
     @Inject(ORDER_CURRENCY) private readonly currency: string,
     @Inject(COMPANY_ID_RULE) private readonly companyIdRule: CompanyIdRule,
+    private readonly notifications: OrderNotifications,
   ) {}
 
   /**
@@ -124,6 +126,24 @@ export class OrdersService {
       fulfilment,
       party,
     });
+  }
+
+  /**
+   * The mails a placed order produces (FR-NOTIF-05/06), sent after it exists.
+   *
+   * A step of its own rather than the tail of `submit`, and read back from the
+   * stored order rather than assembled from the submission: the mails then say
+   * what the order *is* — snapshots, resolved zone and all — and cannot
+   * describe it differently from the pages they link to.
+   */
+  async notifyPlaced(placed: {
+    reference: string;
+    publicToken: string;
+  }): Promise<void> {
+    await this.notifications.placed(
+      await this.getForStaff(placed.reference),
+      placed.publicToken,
+    );
   }
 
   /**

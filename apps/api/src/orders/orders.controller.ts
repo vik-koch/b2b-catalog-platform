@@ -55,6 +55,9 @@ export class OrdersController {
         this.audit.record('order.placed', user, {
           reference: placed.reference,
         });
+        // After the order exists, and never able to fail it: a customer who
+        // was shown a reference has an order, mail or no mail.
+        await this.orders.notifyPlaced(placed);
         return { status: 201 as const, body: placed };
       } catch (error) {
         if (error instanceof CartChangedException) {
