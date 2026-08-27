@@ -359,6 +359,71 @@ export const appTextSchema = z
         /** Sent here with nothing to order — the cart emptied in another tab,
          * or the URL was typed. */
         emptyCart: z.string(),
+        /** What the summary's delivery row says for a pickup: there is no
+         * delivery to quote, which is not the same as one being free. */
+        collection: z.string(),
+        /**
+         * Who the order is invoiced to (FR-CART-09) — the account's own party
+         * or somebody else. The *address* row asks where the paperwork goes;
+         * this asks whose name is on it.
+         */
+        party: z
+          .object({
+            heading: z.string(),
+            /** The account's own party, where its name is not known yet — a
+             * natural person is named, not labelled. */
+            own: z.string(),
+            person: z.string(),
+            company: z.string(),
+            /** The name of a person being invoiced, which is the whole of what
+             * a private party is. */
+            personName: z.string(),
+            nameRequired: z.string(),
+            /** FR-CART-09: a third party's order is priced provisionally,
+             * because the price group belongs to the account. Said where the
+             * choice is made, not buried in the preview. */
+            otherNotice: z.string(),
+          })
+          .strict(),
+        /**
+         * Choosing where the goods go and where the invoice goes. One book,
+         * two roles: a row is not typed as one or the other.
+         */
+        addresses: z
+          .object({
+            deliveryHeading: z.string(),
+            billingHeading: z.string(),
+            /** Pickup asks for one address anyway — it belongs to the party
+             * being invoiced, not to whoever carries the goods. */
+            billingOnlyHeading: z.string(),
+            /** The checked default: unchecking reveals a second picker. */
+            sameAsDelivery: z.string(),
+            /** The last option of every picker, revealing the fields. */
+            addNew: z.string(),
+            /** Shown where the account has saved none at all. */
+            bookEmpty: z.string(),
+            loadError: z.string(),
+            /** Whether to keep a newly typed address for next time. */
+            saveToBook: z.string(),
+          })
+          .strict(),
+        /**
+         * The delivery zone the entered address falls into (FR-CART-07).
+         * Advisory throughout: it never blocks an order and prices nothing.
+         */
+        zone: z
+          .object({
+            /** `{zone}` — the configured zone's own title. */
+            resolved: z.string(),
+            /** `{amount}` short of the free-delivery threshold. */
+            shortOf: z.string(),
+            /** The order already clears it. */
+            qualifies: z.string(),
+            /** The address falls in no configured zone, which is normal: a
+             * deployment need not describe everywhere it ships. */
+            unknown: z.string(),
+          })
+          .strict(),
         /** How the goods arrive. The row that leads the form, because it
          * decides most of what follows it. */
         fulfilment: z

@@ -18,11 +18,16 @@ export const CHECKOUT_DRAFT_VERSION = 1;
 
 /**
  * Who the invoice is made out to. `account` is the party the account is
- * registered as; `other` is anybody else (FR-CART-09), whose order is priced
- * provisionally because the customer's price group belongs to the account
- * rather than to the party being invoiced.
+ * registered as; the other two are anybody else (FR-CART-09), whose order is
+ * priced provisionally because the customer's price group belongs to their
+ * account rather than to the party being invoiced.
+ *
+ * A person and a company are separate choices rather than one "somebody else"
+ * with optional fields: a company always has a registration number here — a
+ * sole trader in a jurisdiction that numbers them included — and a person never
+ * does, so asking one question with an optional half asked neither clearly.
  */
-export type PartyChoice = 'account' | 'other';
+export type PartyChoice = 'account' | 'person' | 'company';
 
 /**
  * The answers the checkout form holds between the two screens, and between a
@@ -43,9 +48,18 @@ export interface CheckoutDraft {
   billingSameAsDelivery: boolean;
   billingAddressId: string | null;
   newBillingAddress: AddressInput | null;
+  /** Whether a typed address is kept in the book afterwards. Checked by
+   * default: an address typed at checkout is one the customer orders to. */
+  saveDeliveryAddress: boolean;
+  saveBillingAddress: boolean;
+  /**
+   * Whether the book has already chosen this checkout's defaults. Without it,
+   * every re-read of the book would undo a customer's move to "a different
+   * address".
+   */
+  addressesSeeded: boolean;
   party: PartyChoice;
-  /** Only meaningful for `other`: the name and number that go onto the billing
-   * address at submit. */
+  /** Only meaningful where the party is not the account's own. */
   otherPartyName: string | null;
   otherPartyId: string | null;
   contact: OrderContact | null;
@@ -67,6 +81,9 @@ export function emptyDraft(): CheckoutDraft {
     billingSameAsDelivery: true,
     billingAddressId: null,
     newBillingAddress: null,
+    saveDeliveryAddress: true,
+    saveBillingAddress: true,
+    addressesSeeded: false,
     party: 'account',
     otherPartyName: null,
     otherPartyId: null,
@@ -157,12 +174,16 @@ export class CheckoutDraftService {
         paymentMethod: isPaymentMethod(draft.paymentMethod)
           ? draft.paymentMethod
           : empty.paymentMethod,
-        party: draft.party === 'other' ? 'other' : 'account',
+        party: isPartyChoice(draft.party) ? draft.party : 'account',
       };
     } catch {
       return emptyDraft();
     }
   }
+}
+
+function isPartyChoice(value: unknown): value is PartyChoice {
+  return value === 'account' || value === 'person' || value === 'company';
 }
 
 function isPaymentMethod(value: unknown): value is PaymentMethod {

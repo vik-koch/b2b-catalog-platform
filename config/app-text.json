@@ -151,6 +151,32 @@
     "title": "Checkout",
     "intro": "Send us your order and we will confirm the details with you — nothing is charged here.",
     "emptyCart": "There is nothing in your cart to order.",
+    "collection": "Collected by you",
+    "party": {
+      "heading": "Who should we invoice?",
+      "own": "Myself",
+      "person": "Another person",
+      "company": "Another company",
+      "personName": "Their name",
+      "nameRequired": "Please give the name we should invoice.",
+      "otherNotice": "We will confirm the price with you — your agreed prices belong to your own account."
+    },
+    "addresses": {
+      "deliveryHeading": "Where should we deliver?",
+      "billingHeading": "Where should the invoice go?",
+      "billingOnlyHeading": "Where should the invoice go?",
+      "sameAsDelivery": "Send the invoice to this address as well",
+      "addNew": "Use a different address",
+      "bookEmpty": "You have no saved addresses yet.",
+      "loadError": "We could not load your saved addresses — please enter one below.",
+      "saveToBook": "Save this address for next time"
+    },
+    "zone": {
+      "resolved": "Delivery area: {zone}",
+      "shortOf": "Add {amount} more for free delivery in this area.",
+      "qualifies": "This order qualifies for free delivery in this area.",
+      "unknown": "We will confirm delivery to this address with you."
+    },
     "fulfilment": {
       "heading": "How would you like to receive your order?",
       "deliveryTitle": "Delivery",

@@ -118,12 +118,34 @@ export interface DeliveryZoneQuery {
   city: string;
 }
 
-/** The first zone the address falls into, or null where none does — which is a
- * normal answer: a deployment need not describe every address it ships to. */
-export function resolveDeliveryZone(
-  zones: readonly DeliveryZone[],
+/**
+ * What matching a zone actually reads, spelled structurally so a deeply
+ * readonly configuration — which is how the browser holds it — is accepted as
+ * readily as a freshly parsed one.
+ */
+export interface ZoneMatcher {
+  readonly match: {
+    readonly postalPrefixes?: readonly string[];
+    readonly postalRanges?: readonly {
+      readonly from: string;
+      readonly to: string;
+    }[];
+    readonly cities?: readonly string[];
+    readonly all?: true;
+  };
+}
+
+/**
+ * The first zone the address falls into, or null where none does — which is a
+ * normal answer: a deployment need not describe every address it ships to.
+ *
+ * Generic in the zone, so a caller gets its own row back with whatever else it
+ * carries — the key and the threshold an order snapshots.
+ */
+export function resolveDeliveryZone<T extends ZoneMatcher>(
+  zones: readonly T[],
   address: DeliveryZoneQuery,
-): DeliveryZone | null {
+): T | null {
   const code = normalizePostalCode(address.postalCode.trim());
   const city = address.city.trim().toLocaleLowerCase();
 

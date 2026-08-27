@@ -1,10 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { Address } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { DeploymentConfig } from '../config/deployment-config.type';
+import { AccountService } from '../account/account.service';
+import { AddressesService } from '../addresses/addresses.service';
 import { packagedPackaging } from '../catalog/product.fixture';
 import { CartAddition, CartService } from '../cart/cart.service';
 import { CheckoutDraftService } from './checkout-draft.service';
@@ -32,20 +35,87 @@ function addition(): CartAddition {
   };
 }
 
-/** The page, with whatever offices the deployment is said to have. */
-function render(config: DeploymentConfig = defaultDeploymentConfig) {
+/** In the demo's `city` zone (postal prefix 20), which is free from €150. */
+const saved: Address = {
+  id: 'addr-1',
+  label: 'Shop',
+  street: 'Hafenstraße 12',
+  street2: null,
+  postalCode: '20359',
+  city: 'Hamburg',
+  region: null,
+  country: 'DE',
+  createdAt: '2026-03-01T10:00:00.000Z',
+  updatedAt: '2026-03-01T10:00:00.000Z',
+};
+
+interface Options {
+  config?: DeploymentConfig;
+  addresses?: Address[];
+  /** A person rather than a company, for how the party row names them. */
+  person?: boolean;
+  /** Whether the cart has anything in it. */
+  empty?: boolean;
+}
+
+async function render(options: Options = {}) {
   TestBed.configureTestingModule({
+    imports: [CheckoutPage],
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: DEPLOYMENT_CONFIG, useValue: config },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: options.config ?? defaultDeploymentConfig,
+      },
+      {
+        provide: AddressesService,
+        useValue: {
+          list: vi.fn(async () => options.addresses ?? [saved]),
+          suggest: vi.fn(async () => []),
+        },
+      },
+      {
+        provide: AccountService,
+        useValue: {
+          getProfile: vi.fn(async () => ({
+            email: 'alex@example.com',
+            role: 'user',
+            firstName: 'Alex',
+            lastName: 'Fischer',
+            phone: '+494012345678',
+            customerType: options.person ? 'person' : 'company',
+            companyName: options.person ? null : 'Kontor GmbH',
+            companyRegistrationId: options.person ? null : 'DE123456789',
+            createdAt: '2026-02-01T10:00:00.000Z',
+          })),
+        },
+      },
     ],
   });
-  return TestBed.createComponent(CheckoutPage);
+
+  if (!options.empty) TestBed.inject(CartService).add(addition());
+
+  const fixture = TestBed.createComponent(CheckoutPage);
+  // Twice: the first pass resolves the book and the profile, the second
+  // renders what they seeded.
+  await fixture.whenStable();
+  fixture.detectChanges();
+  await fixture.whenStable();
+  fixture.detectChanges();
+
+  return {
+    fixture,
+    drafts: TestBed.inject(CheckoutDraftService),
+    el: fixture.nativeElement as HTMLElement,
+    text: () => (fixture.nativeElement as HTMLElement).textContent ?? '',
+    settle: async () => {
+      await fixture.whenStable();
+      fixture.detectChanges();
+    },
+  };
 }
 
-/** The deployment's collection points, trimmed to the first `count` — none at
- * all leaves the key absent, which is how a shop says it offers no pickup. */
 function withPickupPoints(count: number): DeploymentConfig {
   const locations = (defaultDeploymentConfig.pickup?.locations ?? []).slice(
     0,
@@ -57,10 +127,6 @@ function withPickupPoints(count: number): DeploymentConfig {
   };
 }
 
-function textOf(fixture: { nativeElement: HTMLElement }): string {
-  return fixture.nativeElement.textContent ?? '';
-}
-
 describe('CheckoutPage', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -68,62 +134,181 @@ describe('CheckoutPage', () => {
     TestBed.resetTestingModule();
   });
 
-  it('has nothing to order with an empty cart', () => {
-    const fixture = render();
-    fixture.detectChanges();
+  describe('fulfilment', () => {
+    it('has nothing to order with an empty cart', async () => {
+      const page = await render({ empty: true });
 
-    expect(textOf(fixture)).toContain(text.emptyCart);
-    expect(textOf(fixture)).not.toContain(text.fulfilment.heading);
+      expect(page.text()).toContain(text.emptyCart);
+      expect(page.text()).not.toContain(text.fulfilment.heading);
+    });
+
+    it('asks for a collection point only once pickup is chosen', async () => {
+      const page = await render();
+
+      expect(page.text()).toContain(text.fulfilment.deliveryTitle);
+      expect(page.text()).not.toContain(text.fulfilment.pickupHeading);
+
+      page.drafts.patch({ fulfilmentMethod: 'pickup' });
+      await page.settle();
+
+      expect(page.text()).toContain(text.fulfilment.pickupHeading);
+      for (const point of defaultDeploymentConfig.pickup?.locations ?? []) {
+        expect(page.text()).toContain(point.name);
+        expect(page.text()).toContain(point.address);
+      }
+    });
+
+    it('offers no pickup where the deployment has no collection points', async () => {
+      const page = await render({ config: withPickupPoints(0) });
+
+      expect(page.text()).toContain(text.fulfilment.deliveryTitle);
+      expect(page.text()).not.toContain(text.fulfilment.pickupTitle);
+    });
   });
 
-  it('offers both fulfilments, and asks for an office only once pickup is chosen', () => {
-    const fixture = render();
-    TestBed.inject(CartService).add(addition());
-    fixture.detectChanges();
+  describe('the party being invoiced', () => {
+    it('names the account by its company', async () => {
+      const page = await render();
 
-    expect(textOf(fixture)).toContain(text.fulfilment.deliveryTitle);
-    expect(textOf(fixture)).toContain(text.fulfilment.pickupTitle);
-    expect(textOf(fixture)).not.toContain(text.fulfilment.pickupHeading);
+      expect(page.text()).toContain('Kontor GmbH');
+      expect(page.text()).toContain(text.party.company);
+      expect(page.text()).not.toContain(text.party.otherNotice);
+    });
 
-    TestBed.inject(CheckoutDraftService).patch({ fulfilmentMethod: 'pickup' });
-    fixture.detectChanges();
+    it('names a private customer by their own name', async () => {
+      const page = await render({ person: true });
 
-    expect(textOf(fixture)).toContain(text.fulfilment.pickupHeading);
-    for (const point of defaultDeploymentConfig.pickup?.locations ?? []) {
-      expect(textOf(fixture)).toContain(point.name);
-      expect(textOf(fixture)).toContain(point.address);
-    }
+      expect(page.text()).toContain('Alex Fischer');
+    });
+
+    it('asks a person for a name alone', async () => {
+      const page = await render();
+
+      page.drafts.patch({ party: 'person' });
+      await page.settle();
+
+      expect(page.text()).toContain(text.party.otherNotice);
+      expect(page.el.querySelector('#party-personName')).not.toBeNull();
+      // No registration number: a private party has none, and an optional
+      // field beside a required one asked neither question clearly.
+      expect(page.el.querySelector('#party-companyId')).toBeNull();
+    });
+
+    it('asks a company for a name and a number, both required', async () => {
+      const page = await render();
+
+      page.drafts.patch({ party: 'company' });
+      await page.settle();
+
+      expect(page.el.querySelector('#party-companyName')).not.toBeNull();
+      expect(page.el.querySelector('#party-companyId')).not.toBeNull();
+    });
   });
 
-  it('offers no pickup at all where the deployment has no collection points', () => {
-    const fixture = render(withPickupPoints(0));
-    TestBed.inject(CartService).add(addition());
-    fixture.detectChanges();
+  describe('addresses', () => {
+    it('offers the book and starts on its first row', async () => {
+      const page = await render();
 
-    expect(textOf(fixture)).toContain(text.fulfilment.deliveryTitle);
-    expect(textOf(fixture)).not.toContain(text.fulfilment.pickupTitle);
+      expect(page.text()).toContain(text.addresses.deliveryHeading);
+      expect(page.text()).toContain('Shop');
+      expect(page.drafts.draft().deliveryAddressId).toBe(saved.id);
+    });
+
+    it('reveals the fields for an address that is not in the book', async () => {
+      const page = await render();
+
+      page.drafts.patch({ deliveryAddressId: null });
+      await page.settle();
+
+      expect(
+        page.el.querySelector('input[autocomplete="street-address"]'),
+      ).not.toBeNull();
+      expect(page.text()).toContain(text.addresses.saveToBook);
+    });
+
+    it('asks for the street alone where a provider can fill the rest', async () => {
+      const page = await render({
+        config: {
+          ...defaultDeploymentConfig,
+          address: {
+            ...(defaultDeploymentConfig.address ?? { countries: [] }),
+            suggest: true,
+          },
+        },
+      });
+
+      page.drafts.patch({ deliveryAddressId: null });
+      await page.settle();
+
+      expect(
+        page.el.querySelector('input[autocomplete="street-address"]'),
+      ).not.toBeNull();
+      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+      // The way out is on screen from the start, not after a provider fails.
+      expect(page.text()).toContain(
+        defaultAppText.auth.myAccount.addresses.enterManually,
+      );
+    });
+
+    it('asks for every field where there is no provider', async () => {
+      const page = await render();
+
+      page.drafts.patch({ deliveryAddressId: null });
+      await page.settle();
+
+      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(page.text()).not.toContain(
+        defaultAppText.auth.myAccount.addresses.enterManually,
+      );
+    });
+
+    it('asks for a billing address only once it differs from delivery', async () => {
+      const page = await render();
+
+      expect(page.text()).toContain(text.addresses.sameAsDelivery);
+      expect(page.text()).not.toContain(text.addresses.billingHeading);
+
+      page.drafts.patch({ billingSameAsDelivery: false });
+      await page.settle();
+
+      expect(page.text()).toContain(text.addresses.billingHeading);
+    });
+
+    it('asks for a billing address on pickup, and no delivery one', async () => {
+      const page = await render();
+
+      page.drafts.patch({ fulfilmentMethod: 'pickup' });
+      await page.settle();
+
+      expect(page.text()).toContain(text.addresses.billingHeading);
+      expect(page.text()).not.toContain(text.addresses.deliveryHeading);
+    });
+
+    it('falls back to the fields where the book cannot be read', async () => {
+      const page = await render({ addresses: [] });
+
+      expect(page.text()).toContain(text.addresses.bookEmpty);
+      expect(page.drafts.draft().deliveryAddressId).toBeNull();
+    });
   });
 
-  it('picks the only collection point, and asks where there are two', () => {
-    const single = render(withPickupPoints(1));
-    TestBed.inject(CartService).add(addition());
-    single.detectChanges();
-    single.componentInstance['chooseFulfilment']('pickup');
+  describe('the delivery area', () => {
+    it('names the zone the chosen address falls in, and what it needs to be free', async () => {
+      const page = await render();
 
-    expect(TestBed.inject(CheckoutDraftService).draft().pickupLocationKey).toBe(
-      withPickupPoints(1).pickup?.locations[0].key,
-    );
+      // Hamburg 20359 is the demo's city zone, free from €150; the cart holds
+      // two packs at €70.
+      expect(page.text()).toContain('Hamburg city');
+      expect(page.text()).toContain(
+        text.zone.shortOf.replace('{amount}', '10,00 €'),
+      );
+    });
 
-    TestBed.resetTestingModule();
-    sessionStorage.clear();
+    it('says nothing at all before there is a postcode to resolve on', async () => {
+      const page = await render({ addresses: [] });
 
-    const several = render(withPickupPoints(2));
-    TestBed.inject(CartService).add(addition());
-    several.detectChanges();
-    several.componentInstance['chooseFulfilment']('pickup');
-
-    expect(
-      TestBed.inject(CheckoutDraftService).draft().pickupLocationKey,
-    ).toBeNull();
+      expect(page.text()).not.toContain('Hamburg city');
+      expect(page.text()).not.toContain(text.zone.unknown);
+    });
   });
 });
