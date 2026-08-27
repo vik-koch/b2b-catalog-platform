@@ -6,6 +6,7 @@ import {
   AddressComponents,
   AddressSuggestion,
 } from '@b2b-catalog-platform/shared';
+import { HighlightedLine } from '../core/highlighted-line';
 import { SuggestList, SuggestListText } from '../core/suggest-list';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
@@ -28,7 +29,7 @@ export type AddressSuggestFieldText = SuggestListText;
  */
 @Component({
   selector: 'app-address-suggest-field',
-  imports: [ReactiveFormsModule, FieldLabel, Input],
+  imports: [ReactiveFormsModule, FieldLabel, Input, HighlightedLine],
   // See PhoneField: a custom element is inline by default, and an inline box
   // drops the vertical margin a form's `space-y-*` puts on it.
   host: { class: 'block' },
@@ -77,12 +78,26 @@ export type AddressSuggestFieldText = SuggestListText;
                 [id]="listId + '-' + i"
                 role="option"
                 [attr.aria-selected]="i === list.activeIndex()"
-                class="cursor-pointer truncate px-3 py-2 text-sm text-stone-800"
+                class="cursor-pointer px-3 py-2 text-sm"
                 [class.bg-stone-100]="i === list.activeIndex()"
                 (mouseenter)="list.activeIndex.set(i)"
                 (mousedown)="pick($event, item)"
               >
-                {{ item.label }}
+                <span class="block truncate text-stone-800">
+                  <app-highlighted-line
+                    [line]="item.label"
+                    [query]="list.query()"
+                  />
+                </span>
+                <!-- The province under the line, where the provider named one:
+                     it is the part the line itself leaves out, and two streets
+                     of the same name in two towns are otherwise one row
+                     repeated. -->
+                @if (item.components.region; as region) {
+                  <span class="block truncate text-xs text-subtle">{{
+                    region
+                  }}</span>
+                }
               </li>
             }
           </ul>

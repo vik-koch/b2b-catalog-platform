@@ -329,6 +329,16 @@ export const appRoutes: Route[] = [
     canActivate: [maintenanceGate],
     loadComponent: () => import('./cart/cart-page').then((m) => m.CartPage),
   },
+  // Checkout is client-rendered like the cart, and for the same reason: it
+  // orders what is in this browser's storage. Open to guests (FR-CART-03):
+  // the same form, asking for the contact details an account would have
+  // answered, and offering a way to sign in rather than demanding one.
+  {
+    path: 'checkout',
+    canActivate: [maintenanceGate],
+    loadComponent: () =>
+      import('./checkout/checkout-page').then((m) => m.CheckoutPage),
+  },
   {
     path: ':slug',
     component: StaticPage,

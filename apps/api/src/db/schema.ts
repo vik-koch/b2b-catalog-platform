@@ -14,6 +14,7 @@ import {
   boolean,
   check,
   customType,
+  date,
   index,
   integer,
   jsonb,
@@ -553,11 +554,9 @@ export const addresses = pgTable(
       // snapshot of the address, so nothing readable is lost.
       .references(() => users.id, { onDelete: 'cascade' }),
     label: varchar('label', { length: 100 }),
-    companyName: varchar('companyName', { length: 255 }),
-    // The invoiced party's registration number, in the same shape and the same
-    // column width as `users.companyRegistrationId` — the deployment's own
-    // formats apply to both. Null where the party is a natural person.
-    companyId: varchar('companyId', { length: 64 }),
+    // An address is a place, and carries no identity: who an order is invoiced
+    // to is the order's own field, resolved from the account or typed, never
+    // merged into the row a customer picked.
     // The street line as it is printed, house number included.
     street: varchar('street', { length: 255 }).notNull(),
     street2: varchar('street2', { length: 255 }),
@@ -568,7 +567,6 @@ export const addresses = pgTable(
     // and a column that reads `DE` on one and `Deutschland` on the next is one
     // nobody can group by. Which codes are accepted is deployment config.
     country: varchar('country', { length: 2 }).notNull(),
-    phone: varchar('phone', { length: 50 }),
     createdAt: timestamp('createdAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -639,30 +637,29 @@ export const orders = pgTable(
     contactPhone: varchar('contactPhone', { length: 50 }).notNull(),
     paymentMethod: varchar('paymentMethod', { length: 20 }).notNull(),
     fulfilmentMethod: varchar('fulfilmentMethod', { length: 20 }).notNull(),
-    // The invoiced party. The company pair lives here, not on the delivery
-    // snapshot: a delivery address may carry a company name with no number
-    // (a branch, a warehouse), and only the invoice needs the registration.
-    billingCompanyName: varchar('billingCompanyName', { length: 255 }),
-    billingCompanyId: varchar('billingCompanyId', { length: 64 }),
+    // The invoiced party (person's name or company name), snapshotted
+    // (FR-CART-09): the account's own, or anybody else the customer named.
+    partyName: varchar('partyName', { length: 255 }).notNull(),
+    // Null for a natural person. A company always has one — the same shape and
+    // column width as `users.companyRegistrationId`, and the deployment's own
+    // formats apply to both.
+    partyRegistrationId: varchar('partyRegistrationId', { length: 64 }),
     billingStreet: varchar('billingStreet', { length: 255 }).notNull(),
     billingStreet2: varchar('billingStreet2', { length: 255 }),
     billingPostalCode: varchar('billingPostalCode', { length: 32 }).notNull(),
     billingCity: varchar('billingCity', { length: 255 }).notNull(),
     billingRegion: varchar('billingRegion', { length: 255 }),
     billingCountry: varchar('billingCountry', { length: 2 }).notNull(),
-    billingPhone: varchar('billingPhone', { length: 50 }),
     billingAddressId: uuid('billingAddressId').references(() => addresses.id, {
       onDelete: 'set null',
     }),
     // The delivery snapshot, or nothing at all for a pickup.
-    deliveryCompanyName: varchar('deliveryCompanyName', { length: 255 }),
     deliveryStreet: varchar('deliveryStreet', { length: 255 }),
     deliveryStreet2: varchar('deliveryStreet2', { length: 255 }),
     deliveryPostalCode: varchar('deliveryPostalCode', { length: 32 }),
     deliveryCity: varchar('deliveryCity', { length: 255 }),
     deliveryRegion: varchar('deliveryRegion', { length: 255 }),
     deliveryCountry: varchar('deliveryCountry', { length: 2 }),
-    deliveryPhone: varchar('deliveryPhone', { length: 50 }),
     deliveryAddressId: uuid('deliveryAddressId').references(
       () => addresses.id,
       { onDelete: 'set null' },
@@ -677,9 +674,10 @@ export const orders = pgTable(
     pickupLocationKey: varchar('pickupLocationKey', { length: 64 }),
     pickupLocationName: varchar('pickupLocationName', { length: 255 }),
     pickupLocationAddress: text('pickupLocationAddress'),
-    // Free text: scheduling is coordinated by phone or mail (FR-CART-07), so a
-    // structured window would be a field nothing consumes.
-    preferredTiming: varchar('preferredTiming', { length: 200 }),
+    // The day the customer asked for, if any. Scheduling itself is coordinated
+    // by phone or mail (FR-CART-07) — this is the wish a manager works from,
+    // and a date so it can be read back, sorted and compared as one.
+    preferredDate: date('preferredDate'),
     customerNote: text('customerNote'),
     totalMinor: integer('totalMinor').notNull(),
     // The shipment estimate as it was shown (FR-UNIT-11), snapshotted rather

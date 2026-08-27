@@ -3,10 +3,12 @@ import { AddressBookModule } from '../addresses/address-book.module';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import {
+  COMPANY_ID_RULE,
   DELIVERY_CONFIG,
   ORDER_CURRENCY,
   ORDER_REFERENCE_CONFIG,
   PICKUP_LOCATIONS,
+  loadCompanyIdRule,
   loadDeliveryConfig,
   loadOrderCurrency,
   loadOrderReferenceConfig,
@@ -32,6 +34,9 @@ import { OrdersService } from './orders.service';
     OrdersService,
     AuditLogger,
     { provide: PICKUP_LOCATIONS, useFactory: loadPickupLocations },
+    // The party's registration number is held to the deployment's own formats,
+    // the same ones registration applies.
+    { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
     { provide: DELIVERY_CONFIG, useFactory: loadDeliveryConfig },
     { provide: ORDER_REFERENCE_CONFIG, useFactory: loadOrderReferenceConfig },
     { provide: ORDER_CURRENCY, useFactory: loadOrderCurrency },

@@ -93,6 +93,18 @@ Notes:
   reads, and a line of two packs of a ten-pack box reads 0.2 bx. It was affordable because
   v1.5.0 is untagged and the cart and order contracts had never shipped.
 
+- A review of the checkout form (2026-08-27) reversed the central decision of ADR 0039
+  before it shipped. The invoiced party had been a property of the **address** — choosing
+  a row named the party — which fails the moment a customer is invoiced to one party at
+  another's saved address: the screen contradicts itself, and "save this address" would
+  file an identity nobody typed. The party is now **a field of the order** (FR-CART-09
+  reworded), in three answers — the account's own, another person, another company — and
+  `addresses` lost `companyName`, `companyId` and `phone`: registration already collects a
+  company's name (which is the gap ADR 0039 was filling), and the order already carries
+  the number a manager rings. Bank transfer therefore needs a **company** party
+  (FR-CART-04 reworded). ADR 0039 was rewritten rather than amended — it had never
+  shipped, so its amendment trail would have been a record of drafting — and iteration 7's
+  unreleased migrations were squashed into one.
 - Iteration 8 is what a manager does with an order once it exists — status transitions, the
   payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
   schema be reviewed before a processing workflow is built on top of it.

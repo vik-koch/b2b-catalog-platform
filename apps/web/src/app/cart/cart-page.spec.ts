@@ -557,19 +557,17 @@ describe('CartPage', () => {
     });
 
     // What the order is, then what it weighs and measures, then what that
-    // comes to in cartons, then when it is confirmed.
+    // comes to in cartons. Nothing about how or when it arrives: the cart has
+    // not asked, and a row of placeholders answers nothing.
     expect(view.rowLabels()).toEqual([
       text.summaryLines,
       text.shipmentWeight,
       text.shipmentVolume,
       text.shipmentCartons,
-      text.shipmentDelivery,
       text.subtotal,
     ]);
     expect(view.text()).toContain('1.250');
     expect(view.text()).toContain('18.400');
-    // Not a date: the shop has not agreed to one yet.
-    expect(view.text()).toContain(text.shipmentDeliveryValue);
     expect(view.text()).toContain(text.shipmentApproximate);
     expect(view.text()).toContain('Lines not covered by this estimate: 2');
   });

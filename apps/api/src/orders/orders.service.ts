@@ -12,6 +12,7 @@ import {
   AdminOrderLine,
   DeliveryConfig,
   OrderDetail,
+  OrderingParty,
   OrderLine,
   OrderReferenceConfig,
   OrderStatus,
@@ -25,6 +26,8 @@ import {
 import { AddressesService } from '../addresses/addresses.service';
 import { publiclyVisible } from '../catalog/product-view';
 import {
+  COMPANY_ID_RULE,
+  CompanyIdRule,
   DELIVERY_CONFIG,
   ORDER_CURRENCY,
   ORDER_REFERENCE_CONFIG,
@@ -86,6 +89,7 @@ export class OrdersService {
     @Inject(ORDER_REFERENCE_CONFIG)
     private readonly reference: OrderReferenceConfig,
     @Inject(ORDER_CURRENCY) private readonly currency: string,
+    @Inject(COMPANY_ID_RULE) private readonly companyIdRule: CompanyIdRule,
   ) {}
 
   /**
@@ -110,41 +114,110 @@ export class OrdersService {
       throw new CartChangedException(priced);
     }
 
-    this.assertParty(submission);
+    this.assertAddresses(submission);
+    const party = await this.resolveParty(submission, userId);
     const fulfilment = this.resolveFulfilment(submission);
 
     return this.insertOrder(submission, priced, {
       userId,
       tierKey: await this.tierKey(tierId),
       fulfilment,
+      party,
     });
   }
 
   /**
-   * The invoiced and delivered-to parties, by the deployment's own country and
-   * registration-number rules — the same ones a saved address is held to. A
-   * guest's address never passed through the book, so this is the only place it
-   * is checked.
+   * The addresses an order carries, by the deployment's own country rules — the
+   * same ones a saved address is held to. A guest's address never passed
+   * through the book, so this is the only place it is checked.
    */
-  private assertParty(submission: OrderSubmission): void {
-    const billing = submission.billingAddress;
-    this.addresses.assertValid(billing);
+  private assertAddresses(submission: OrderSubmission): void {
+    this.addresses.assertValid(submission.billingAddress);
     if (submission.deliveryAddress) {
       this.addresses.assertValid(submission.deliveryAddress);
     }
+  }
 
-    // Bank transfer invoices a company, so the invoiced party needs a name and
-    // a registration number. Re-checked here rather than stored as a flag on
-    // the address, which would go stale the moment the address is edited.
+  /**
+   * Who the order is invoiced to (FR-CART-09). A submission that names nobody
+   * means the party the account is registered as, which is read here rather
+   * than taken from the browser: it is the account's own record, and staff
+   * approved it.
+   *
+   * Bank transfer invoices a legal entity (FR-CART-04), so it is refused for a
+   * party with no registration number. The form does not offer it in that case;
+   * this is what makes that a rule rather than a courtesy.
+   */
+  private async resolveParty(
+    submission: OrderSubmission,
+    userId: string | null,
+  ): Promise<OrderingParty> {
+    const party = submission.party ?? (await this.accountParty(userId));
+
     if (
-      submission.paymentMethod === 'bank-transfer' &&
-      (!billing.companyName || !billing.companyId)
+      party.registrationId !== null &&
+      !this.companyIdRule(party.registrationId)
     ) {
       throw new BadRequestException({
-        code: 'billing-details-required',
-        message: 'Bank transfer needs the invoiced company’s name and number',
+        code: 'invalid-company-id',
+        message: 'The registration number matches no configured format',
       });
     }
+
+    if (submission.paymentMethod === 'bank-transfer' && !party.registrationId) {
+      throw new BadRequestException({
+        code: 'billing-details-required',
+        message: 'Bank transfer invoices a company, which needs its number',
+      });
+    }
+
+    return party;
+  }
+
+  /** The party an account is registered as: its company, unless it registered
+   * as a person — one who once gave a company name is still invoiced by name.
+   * Only a declared person is read that way, so an older account that carries
+   * a company and no type at all keeps being invoiced as one. The checkout row
+   * reads the same rule, so the order names what the customer was shown. */
+  private async accountParty(userId: string | null): Promise<OrderingParty> {
+    if (!userId) {
+      // A guest has no such record, so their submission has to name the party
+      // itself. Its own code: the customer typed a name and it did not arrive.
+      throw new BadRequestException({
+        code: 'party-required',
+        message: 'An order with no account must name the party it is for',
+      });
+    }
+
+    const [account] = await this.db
+      .select({
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        customerType: users.customerType,
+        companyName: users.companyName,
+        companyRegistrationId: users.companyRegistrationId,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!account) throw notFound();
+
+    const person = [account.firstName, account.lastName]
+      .filter(Boolean)
+      .join(' ');
+    return {
+      // The address is the last resort rather than an error: a staff-created
+      // account may carry no name at all, and an order must still say who it
+      // is for.
+      name:
+        (account.customerType !== 'person' && account.companyName) ||
+        person ||
+        account.companyName ||
+        account.email,
+      registrationId: account.companyRegistrationId,
+    };
   }
 
   /**
@@ -203,6 +276,7 @@ export class OrdersService {
       userId: string | null;
       tierKey: string | null;
       fulfilment: Fulfilment;
+      party: OrderingParty;
     },
   ): Promise<{ reference: string; publicToken: string }> {
     const billing = submission.billingAddress;
@@ -230,31 +304,28 @@ export class OrdersService {
               contactPhone: submission.contact.phone,
               paymentMethod: submission.paymentMethod,
               fulfilmentMethod: submission.fulfilmentMethod,
-              billingCompanyName: billing.companyName,
-              billingCompanyId: billing.companyId,
+              partyName: context.party.name,
+              partyRegistrationId: context.party.registrationId,
               billingStreet: billing.street,
               billingStreet2: billing.street2,
               billingPostalCode: billing.postalCode,
               billingCity: billing.city,
               billingRegion: billing.region,
               billingCountry: billing.country,
-              billingPhone: billing.phone,
               billingAddressId: submission.billingAddressId ?? null,
-              deliveryCompanyName: delivery?.companyName ?? null,
               deliveryStreet: delivery?.street ?? null,
               deliveryStreet2: delivery?.street2 ?? null,
               deliveryPostalCode: delivery?.postalCode ?? null,
               deliveryCity: delivery?.city ?? null,
               deliveryRegion: delivery?.region ?? null,
               deliveryCountry: delivery?.country ?? null,
-              deliveryPhone: delivery?.phone ?? null,
               deliveryAddressId: submission.deliveryAddressId ?? null,
               deliveryZoneKey: zone?.key ?? null,
               deliveryFreeFromMinor: zone?.freeFromMinor ?? null,
               pickupLocationKey: pickup?.key ?? null,
               pickupLocationName: pickup?.name ?? null,
-              pickupLocationAddress: pickup?.description ?? null,
-              preferredTiming: submission.preferredTiming,
+              pickupLocationAddress: pickup?.address ?? null,
+              preferredDate: submission.preferredDate,
               customerNote: submission.customerNote,
               totalMinor: priced.preview.totalMinor,
               currency: this.currency,
@@ -500,18 +571,19 @@ export class OrdersService {
         email: row.contactEmail,
         phone: row.contactPhone,
       },
+      party: {
+        name: row.partyName,
+        registrationId: row.partyRegistrationId,
+      },
       fulfilmentMethod: row.fulfilmentMethod as OrderDetail['fulfilmentMethod'],
       deliveryAddress: row.deliveryStreet
         ? {
-            companyName: row.deliveryCompanyName,
-            companyId: null,
             street: row.deliveryStreet,
             street2: row.deliveryStreet2,
             postalCode: row.deliveryPostalCode ?? '',
             city: row.deliveryCity ?? '',
             region: row.deliveryRegion,
             country: row.deliveryCountry ?? '',
-            phone: row.deliveryPhone,
           }
         : null,
       pickup: row.pickupLocationKey
@@ -528,18 +600,15 @@ export class OrdersService {
           }
         : null,
       billingAddress: {
-        companyName: row.billingCompanyName,
-        companyId: row.billingCompanyId,
         street: row.billingStreet,
         street2: row.billingStreet2,
         postalCode: row.billingPostalCode,
         city: row.billingCity,
         region: row.billingRegion,
         country: row.billingCountry,
-        phone: row.billingPhone,
       },
       paymentMethod: row.paymentMethod as OrderDetail['paymentMethod'],
-      preferredTiming: row.preferredTiming,
+      preferredDate: row.preferredDate,
       customerNote: row.customerNote,
       lines,
       shipment: {

@@ -27,7 +27,6 @@
   },
   "locations": [
     {
-      "key": "speicherstadt",
       "name": "Speicherstadt Office",
       "description": "Am Sandtorkai 30, 20457 Hamburg",
       "map": {
@@ -35,6 +34,24 @@
       }
     }
   ],
+  "pickup": {
+    "locations": [
+      {
+        "key": "speicherstadt",
+        "name": "Speicherstadt Office",
+        "address": "Am Sandtorkai 30, 20457 Hamburg",
+        "description": "Weekdays 9:00–17:00, at the counter on the ground floor.",
+        "mapUrl": "https://www.openstreetmap.org/?mlat=53.5430&mlon=9.9880#map=17/53.5430/9.9880"
+      },
+      {
+        "key": "altona",
+        "name": "Altona Warehouse",
+        "address": "Ottenser Hauptstraße 10, 22765 Hamburg",
+        "description": "Weekdays 7:00–15:00, loading bay at the rear.",
+        "mapUrl": "https://www.openstreetmap.org/?mlat=53.5510&mlon=9.9350#map=17/53.5510/9.9350"
+      }
+    ]
+  },
   "contact": {
     "phone": "+49 40 1234567",
     "email": "hallo@coffee-kontor.example"
@@ -64,14 +81,22 @@
         "description": "Forwarded by our carrier, two to four working days.",
         "freeFromMinor": 40000,
         "match": {
-          "postalRanges": [{ "from": "17000", "to": "27999" }]
+          "postalRanges": [
+            {
+              "from": "17000",
+              "to": "27999"
+            }
+          ]
         }
       },
       {
         "key": "rest",
         "title": "Rest of Germany",
-        "description": "Delivery is quoted per order.",
-        "match": { "all": true }
+        "description": "We do not deliver here ourselves.",
+        "delivers": false,
+        "match": {
+          "all": true
+        }
       }
     ]
   },

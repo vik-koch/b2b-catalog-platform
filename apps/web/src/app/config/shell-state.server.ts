@@ -1,10 +1,12 @@
 import { SHELL_STATE_ELEMENT_ID, ShellState } from './shell-state';
 import { getAppText } from './app-text.server';
 import { getDeploymentConfig } from './deployment-config.server';
+import { getSuggestionsEnabled } from './suggestions-enabled.server';
 
 /**
- * Serialized once per process: both sources are read from immutable mounted
- * files, so the payload is identical for every request and every visitor.
+ * Serialized once per process: the sources are immutable mounted files and the
+ * process environment, so the payload is identical for every request and every
+ * visitor.
  */
 let cachedScript: string | undefined;
 
@@ -20,6 +22,7 @@ function getShellStateScript(): string {
     const state: ShellState = {
       deploymentConfig: getDeploymentConfig(),
       appText: getAppText(),
+      suggestionsEnabled: getSuggestionsEnabled(),
     };
     const json = JSON.stringify(state).replace(/</g, '\\u003c');
     cachedScript = `<script id="${SHELL_STATE_ELEMENT_ID}" type="application/json">${json}</script>`;

@@ -1,6 +1,7 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
 import { addressInputSchema, countryCodeSchema } from './address.contract';
+import { companyRegistrationIdSchema } from './contact-format';
 import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 import {
   CART_LINES_MAX,
@@ -46,20 +47,41 @@ export const PAYMENT_METHODS = ['cash', 'bank-transfer', 'card-later'] as const;
 export const paymentMethodSchema = z.enum(PAYMENT_METHODS);
 export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
 
-/** Scheduling is coordinated by phone or mail (FR-CART-07), so this is a note
- * to a human, not a structured window nothing consumes. */
-export const ORDER_TIMING_MAX = 200;
 export const ORDER_NOTE_MAX = 1000;
 /** A key from the deployment's `locations`, validated against it server-side. */
 export const PICKUP_LOCATION_KEY_MAX = 64;
 
 /**
- * The party an order is invoiced to, and where. The same shape as a saved
+ * Where an order goes, and where its invoice goes. The same shape as a saved
  * address, because that is what it usually is — a row picked out of the book,
  * or typed once by a guest who has no book.
  */
-export const orderPartySchema = addressInputSchema;
-export type OrderParty = z.infer<typeof orderPartySchema>;
+export const orderAddressInputSchema = addressInputSchema;
+export type OrderAddressInput = z.infer<typeof orderAddressInputSchema>;
+
+/** Registration numbers are compared in one form everywhere. */
+export const PARTY_NAME_MAX = 255;
+
+/**
+ * The party an order is invoiced to (FR-CART-09): a name, and for a company a
+ * registration number in one of the deployment's configured formats.
+ *
+ * Deliberately not part of the billing address. An order invoiced to one party
+ * at another's address is an ordinary order, and folding the identity into the
+ * address would either contradict what the customer picked or quietly rewrite
+ * it. `null` on a submission means "the party this account is registered as",
+ * which the server resolves — it is the account's own record, not something a
+ * browser gets to assert.
+ */
+export const orderingPartySchema = z
+  .object({
+    name: z.string().trim().min(1).max(PARTY_NAME_MAX),
+    /** Null for a natural person; required for a company, which the server
+     * checks against the deployment's formats. */
+    registrationId: companyRegistrationIdSchema.nullable(),
+  })
+  .strict();
+export type OrderingParty = z.infer<typeof orderingPartySchema>;
 
 /** Who to talk to about this order. Kept beside the addresses rather than read
  * off the account: a guest has no account, and a signed-in customer may want a
@@ -89,8 +111,13 @@ export const orderSubmissionSchema = z
     lines: z.array(cartLineSchema).min(1).max(CART_LINES_MAX),
     contact: orderContactSchema,
     fulfilmentMethod: fulfilmentMethodSchema,
+    /**
+     * Who the invoice is made out to, or null for the party the account is
+     * registered as. A guest has no such record, so theirs is never null.
+     */
+    party: orderingPartySchema.nullable(),
     /** Required for delivery, absent for pickup. */
-    deliveryAddress: orderPartySchema.nullable(),
+    deliveryAddress: orderAddressInputSchema.nullable(),
     /** Which book row it came from, where it came from one — the next order's
      * default is read from the last one, not from the book. */
     deliveryAddressId: z.string().uuid().nullable().optional(),
@@ -101,10 +128,17 @@ export const orderSubmissionSchema = z
       .min(1)
       .max(PICKUP_LOCATION_KEY_MAX)
       .nullable(),
-    billingAddress: orderPartySchema,
+    billingAddress: orderAddressInputSchema,
     billingAddressId: z.string().uuid().nullable().optional(),
     paymentMethod: paymentMethodSchema,
-    preferredTiming: z.string().trim().min(1).max(ORDER_TIMING_MAX).nullable(),
+    /**
+     * The day the customer would like it, ISO `YYYY-MM-DD`. A wish, not a
+     * booking: scheduling is settled between customer and manager (FR-CART-07),
+     * and nothing here reserves a slot. A date rather than free text because it
+     * is one — a manager sorting by it, or a later screen showing this week's
+     * requests, cannot do either with a sentence.
+     */
+    preferredDate: z.string().date().nullable(),
     customerNote: z.string().trim().min(1).max(ORDER_NOTE_MAX).nullable(),
     expectedTotalMinor: z.number().int().nonnegative(),
     /** FR-CART-03: the privacy notice has to be accepted, as on every other
@@ -186,15 +220,12 @@ export type OrderSummary = z.infer<typeof orderSummarySchema>;
  */
 export const orderAddressSchema = z
   .object({
-    companyName: z.string().nullable(),
-    companyId: z.string().nullable(),
     street: z.string(),
     street2: z.string().nullable(),
     postalCode: z.string(),
     city: z.string(),
     region: z.string().nullable(),
     country: countryCodeSchema,
-    phone: z.string().nullable(),
   })
   .strict();
 export type OrderAddress = z.infer<typeof orderAddressSchema>;
@@ -225,13 +256,16 @@ export type OrderDeliveryZone = z.infer<typeof orderDeliveryZoneSchema>;
 
 export const orderDetailSchema = orderSummarySchema.extend({
   contact: orderContactSchema,
+  /** Who it was invoiced to, as it read when the order was placed — resolved
+   * from the account where the customer named nobody else. */
+  party: orderingPartySchema,
   fulfilmentMethod: fulfilmentMethodSchema,
   deliveryAddress: orderAddressSchema.nullable(),
   pickup: orderPickupSchema.nullable(),
   deliveryZone: orderDeliveryZoneSchema.nullable(),
   billingAddress: orderAddressSchema,
   paymentMethod: paymentMethodSchema,
-  preferredTiming: z.string().nullable(),
+  preferredDate: z.string().date().nullable(),
   customerNote: z.string().nullable(),
   lines: z.array(orderLineSchema),
   shipment: cartPreviewSchema.shape.shipment,
@@ -281,10 +315,13 @@ export const ordersContract = c.router({
         'invalid-company-id',
         'unsupported-country',
         'unknown-pickup-location',
-        /** Bank transfer invoices a company, so the billing party needs a name
-         * and a registration number. Re-checked here rather than stored as a
-         * flag on the address, which would go stale the moment it is edited. */
+        /** Bank transfer invoices a legal entity, so it is available only
+         * where the party has a registration number. Re-checked here because
+         * what the form offered is not what the server trusts. */
         'billing-details-required',
+        /** An order with no account named no party. Only reachable by a guest,
+         * whose form has nobody to resolve one from. */
+        'party-required',
         /** ADR 0015's honeypot caught it. Its own code rather than a borrowed
          * one: a bot never reads the answer, but a person tripped by an
          * autofill would, and being told a full cart is empty explains

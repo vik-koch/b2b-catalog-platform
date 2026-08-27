@@ -51,7 +51,11 @@ export class SuggestList<T> {
    * moment it is created — which is before a required input has a value.
    */
   private readonly typed = signal('');
-  private readonly query = debounced(this.typed, DEBOUNCE_MS);
+  /**
+   * The settled query — public so a field can highlight its rows against the
+   * query they answered, rather than against later keystrokes.
+   */
+  readonly query = debounced(this.typed, DEBOUNCE_MS);
 
   private readonly suggested = resource({
     params: () => {

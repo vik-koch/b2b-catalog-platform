@@ -12,6 +12,10 @@ import { DeploymentConfig } from './deployment-config.type';
 export interface ShellState {
   deploymentConfig: DeploymentConfig;
   appText: AppText;
+  /** Whether a suggestion provider is configured — an environment variable
+   * rather than a config file, so it travels here (see
+   * suggestions-enabled.ts). */
+  suggestionsEnabled: boolean;
 }
 
 /** The `<script type="application/json">` the server writes into `<head>`. */

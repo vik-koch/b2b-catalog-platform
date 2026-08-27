@@ -22,7 +22,7 @@ import { CatalogService } from '../catalog/catalog.service';
 import { APP_TEXT } from '../config/app-text';
 import { currentUrl } from '../core/current-url';
 import { debounced } from '../core/debounced';
-import { matchSegments } from './match-segments';
+import { matchSegments } from '../core/match-segments';
 import { Icon } from '../ui/icons/icon';
 
 /** Long enough that a fast typist produces one request per word rather than

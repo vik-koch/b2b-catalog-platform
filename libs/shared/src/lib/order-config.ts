@@ -77,9 +77,29 @@ export const deliveryZoneSchema = z
     /** Integer minor units, like every other price. Absent means no free
      * delivery in this zone — not a threshold of zero. */
     freeFromMinor: z.number().int().nonnegative().optional(),
+    /**
+     * Whether the deployment delivers here at all. Absent means it does; a
+     * zone that sets it false is an area the shop does not drive to, named so
+     * the checkout can say so while the address is being typed rather than
+     * after the order is placed.
+     *
+     * Still advisory, like every other thing a zone says: the order goes
+     * through and a manager answers it. What the customer is told is that they
+     * will be asked for another address, which is a cheaper conversation
+     * before the order than after it.
+     */
+    delivers: z.boolean().optional(),
     match: zoneMatchSchema,
   })
-  .strict();
+  .strict()
+  .refine(
+    (zone) => zone.delivers !== false || zone.freeFromMinor === undefined,
+    {
+      message:
+        'a zone that is not delivered to quotes no free-delivery minimum',
+      path: ['freeFromMinor'],
+    },
+  );
 export type DeliveryZone = z.infer<typeof deliveryZoneSchema>;
 
 /**
@@ -118,12 +138,34 @@ export interface DeliveryZoneQuery {
   city: string;
 }
 
-/** The first zone the address falls into, or null where none does — which is a
- * normal answer: a deployment need not describe every address it ships to. */
-export function resolveDeliveryZone(
-  zones: readonly DeliveryZone[],
+/**
+ * What matching a zone actually reads, spelled structurally so a deeply
+ * readonly configuration — which is how the browser holds it — is accepted as
+ * readily as a freshly parsed one.
+ */
+export interface ZoneMatcher {
+  readonly match: {
+    readonly postalPrefixes?: readonly string[];
+    readonly postalRanges?: readonly {
+      readonly from: string;
+      readonly to: string;
+    }[];
+    readonly cities?: readonly string[];
+    readonly all?: true;
+  };
+}
+
+/**
+ * The first zone the address falls into, or null where none does — which is a
+ * normal answer: a deployment need not describe every address it ships to.
+ *
+ * Generic in the zone, so a caller gets its own row back with whatever else it
+ * carries — the key and the threshold an order snapshots.
+ */
+export function resolveDeliveryZone<T extends ZoneMatcher>(
+  zones: readonly T[],
   address: DeliveryZoneQuery,
-): DeliveryZone | null {
+): T | null {
   const code = normalizePostalCode(address.postalCode.trim());
   const city = address.city.trim().toLocaleLowerCase();
 

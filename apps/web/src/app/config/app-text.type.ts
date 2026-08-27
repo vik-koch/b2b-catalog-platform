@@ -262,6 +262,11 @@ export const appTextSchema = z
         /** The subtotal covers only the priceable lines. */
         totalIncomplete: z.string(),
 
+        /** Leaves the cart for the checkout form, and goes back to the shelf
+         * the visitor was standing at — the category, page and filters the URL
+         * was carrying, or the catalogue where this visit has seen none. */
+        checkout: z.string(),
+        continueShopping: z.string(),
         /**
          * The shipment estimate (FR-UNIT-11), rendered as labelled rows — so
          * these are row captions, and the figures beside them come from the
@@ -276,10 +281,6 @@ export const appTextSchema = z
         shipmentCartons: z.string(),
         shipmentVolume: z.string(),
         shipmentWeight: z.string(),
-        /** Deliberately not a date: every order is a request a manager prices
-         * and confirms, so the row says that rather than promising a day. */
-        shipmentDelivery: z.string(),
-        shipmentDeliveryValue: z.string(),
         shipmentApproximate: z.string(),
         /**
          * How many lines the estimate could not cover. Worded so `{count}`
@@ -332,6 +333,276 @@ export const appTextSchema = z
             quantityCorrected: z.string(),
             noteNotAllowed: z.string(),
             priceUnavailable: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
+     * Checkout: the one form the cart leads into, and the preview it sends
+     * from (FR-CART-03/04/07/09). What a *choice* means is worded here; what a
+     * deployment offers — its zones, its offices — comes from deployment
+     * config, so the two are never two copies of the same fact.
+     */
+    checkout: z
+      .object({
+        title: z.string(),
+        /** One line under the heading, saying what this is: a request a
+         * manager confirms, not a purchase being completed. */
+        intro: z.string(),
+        /** Sent here with nothing to order — the cart emptied in another tab,
+         * or the URL was typed. */
+        emptyCart: z.string(),
+        /**
+         * Offered to a visitor with no session, next to the figures it is
+         * about: prices are tiered, so a customer who checks out as a guest is
+         * quoted the lowest tier's. An offer, never a gate — registration needs
+         * a manager's approval and could not finish this order anyway.
+         */
+        signInPrompt: z.string(),
+        signInAction: z.string(),
+        /**
+         * Everything a guest is asked about themselves (FR-CART-03/09) — who
+         * is invoiced and how to reach them, which for a private person is one
+         * answer. A signed-in customer sees none of it: the account answers
+         * the contact, and the party row offers it as a choice.
+         */
+        contact: z
+          .object({
+            heading: z.string(),
+            /** A private person: the party and the contact are the one name. */
+            name: z.string(),
+            /** A company: the party is the company, and this is whoever at it
+             * we ring about the order. */
+            contactName: z.string(),
+            nameRequired: z.string(),
+            /** What the details are for — a guest is handing a phone number to
+             * a shop they have no account with. */
+            note: z.string(),
+          })
+          .strict(),
+        /** The marker on the fields that are not required — the date and the
+         * note, which the form asks for rather than needs. */
+        optional: z.string(),
+        /**
+         * Who the order is invoiced to (FR-CART-09) — the account's own party
+         * or somebody else. The *address* row asks where the paperwork goes;
+         * this asks whose name is on it.
+         */
+        party: z
+          .object({
+            heading: z.string(),
+            /** The account's own party, where its name is not known yet — a
+             * natural person is named, not labelled. */
+            own: z.string(),
+            /** Anybody but the account. One option rather than two, with the
+             * kind of party asked inside it — the same switch registration
+             * puts at the top of its own form. */
+            other: z.string(),
+            person: z.string(),
+            company: z.string(),
+            /** The name of a person being invoiced, which is the whole of what
+             * a private party is. */
+            personName: z.string(),
+            nameRequired: z.string(),
+            /** FR-CART-09: a third party's order is priced provisionally,
+             * because the price group belongs to the account. Said where the
+             * choice is made, not buried in the preview. */
+            otherNotice: z.string(),
+          })
+          .strict(),
+        /**
+         * Choosing where the goods go and where the invoice goes. One book,
+         * two roles: a row is not typed as one or the other.
+         */
+        addresses: z
+          .object({
+            deliveryHeading: z.string(),
+            billingHeading: z.string(),
+            /** Pickup asks for one address anyway — it belongs to the party
+             * being invoiced, not to whoever carries the goods. */
+            billingOnlyHeading: z.string(),
+            /** The checked default: unchecking reveals a second picker. */
+            sameAsDelivery: z.string(),
+            /** The last option of a picker that has rows to offer. With none
+             * there is no list and no option — the fields stand alone. */
+            addNew: z.string(),
+            loadError: z.string(),
+            /** Whether to keep a newly typed address for next time. */
+            saveToBook: z.string(),
+          })
+          .strict(),
+        /**
+         * The delivery zone the entered address falls into (FR-CART-07).
+         * Advisory throughout: it never blocks an order and prices nothing.
+         */
+        zone: z
+          .object({
+            /** `{zone}` — the configured zone's own title. */
+            resolved: z.string(),
+            /** `{amount}` short of the free-delivery threshold. */
+            shortOf: z.string(),
+            /** The order already clears it. */
+            qualifies: z.string(),
+            /** The zone says the deployment does not deliver there. Advisory
+             * like the rest of it: the order is not blocked, the customer is
+             * asked for an address that works and told what happens if they
+             * send it anyway. */
+            noDelivery: z.string(),
+            /** The address falls in no configured zone, which is normal: a
+             * deployment need not describe everywhere it ships. */
+            unknown: z.string(),
+          })
+          .strict(),
+        /**
+         * When the customer would like it (FR-CART-07). A wish, not a booking:
+         * scheduling is settled between customer and manager, so this travels
+         * as a note beside the order rather than as a window anything reserves.
+         */
+        timing: z
+          .object({
+            deliveryLabel: z.string(),
+            pickupLabel: z.string(),
+          })
+          .strict(),
+        /**
+         * How it is paid (FR-CART-04). Recorded, never executed — nothing here
+         * charges anybody, and the wording must not suggest otherwise. Card is
+         * not offered: it is reachable only after a manager approves the
+         * request (FR-CART-06).
+         */
+        payment: z
+          .object({
+            heading: z.string(),
+            cashTitle: z.string(),
+            /** Cash is paid at the hand-over, which is a different moment
+             * depending on who is doing the travelling. */
+            cashDeliveryDescription: z.string(),
+            cashPickupDescription: z.string(),
+            transferTitle: z.string(),
+            transferDescription: z.string(),
+            /** Why the option is there but cannot be taken: a bank transfer
+             * invoices a legal entity, so it needs a company party. Said at
+             * the row rather than refused after the form is filled. */
+            transferCompanyOnly: z.string(),
+          })
+          .strict(),
+        /** Anything the customer wants to say in words, copied onto the order
+         * for the manager who reads it. Not the per-line note (FR-CART-08),
+         * which belongs to a product. */
+        note: z
+          .object({
+            label: z.string(),
+            /** In the field rather than under it: what to write is the whole
+             * of what there is to say about an empty box. */
+            placeholder: z.string(),
+          })
+          .strict(),
+        /**
+         * The read-back before it is sent (ADR 0039) — the second of the two
+         * screens. Every heading is one of the questions the form asked, in
+         * the order it asked them.
+         */
+        review: z
+          .object({
+            title: z.string(),
+            /** Says nothing has gone anywhere yet: the whole point of the
+             * screen is that this is the last reversible moment. */
+            intro: z.string(),
+            items: z.string(),
+            /** `{qty} {unit}` — a line's quantity as its own unit reads it. */
+            quantity: z.string(),
+            /** The same, for a line bought by the pack or the box: what that
+             * comes to in pieces is what the shop picks and the customer
+             * receives, and a review is where it is worth stating. */
+            quantityPieces: z.string(),
+            fulfilment: z.string(),
+            invoice: z.string(),
+            /** Where the invoice goes to the delivery address, said instead of
+             * printing the same four lines twice. */
+            billingSame: z.string(),
+            /** No date asked for, which is an answer rather than a blank. */
+            whenAny: z.string(),
+            payment: z.string(),
+            note: z.string(),
+            /** Back to the form. Not "edit": there is one form and this is a
+             * look at it, not a separate document. */
+            back: z.string(),
+            /** The form's own button, which leads here rather than sending. */
+            send: z.string(),
+          })
+          .strict(),
+        /** FR-CART-03: the privacy notice is accepted here as on every other
+         * form that sends personal data. */
+        privacyConsent: z.string(),
+        privacyLink: z.string(),
+        privacyRequired: z.string(),
+        submit: z.string(),
+        submitting: z.string(),
+        successHeading: z.string(),
+        /** `{reference}` — the number to quote when asking about the order. */
+        success: z.string(),
+        successAction: z.string(),
+        /** Shown to a guest on the confirmation, where waiting for approval
+         * costs them nothing: the one place an account is worth offering. */
+        successRegister: z.string(),
+        successRegisterAction: z.string(),
+        /**
+         * What a refusal means, in the customer's words. The API answers with
+         * a code and never with a sentence, so every one of them is named
+         * here — an unmapped code would be a blank screen.
+         */
+        errors: z
+          .object({
+            /** The form itself is not finished; the fields say which. Says
+             * "on the form" rather than "above": the button lives in a column
+             * beside the questions once there is room for two. */
+            incomplete: z.string(),
+            invalidCompanyId: z.string(),
+            unsupportedCountry: z.string(),
+            unknownPickupLocation: z.string(),
+            billingDetailsRequired: z.string(),
+            partyRequired: z.string(),
+            rejected: z.string(),
+            /** The cart was re-priced under them; the corrected figures are
+             * already on screen by the time this is read. */
+            cartChanged: z.string(),
+            /** Anything else at all. */
+            generic: z.string(),
+          })
+          .strict(),
+        /** How the goods arrive. The row that leads the form, because it
+         * decides most of what follows it. */
+        fulfilment: z
+          .object({
+            heading: z.string(),
+            /** Delivery gets no sentence: what it means is not in question,
+             * and the conditions link under it is the answer to the only
+             * thing that is. */
+            deliveryTitle: z.string(),
+            pickupTitle: z.string(),
+            pickupDescription: z.string(),
+            /** Opens the zone list. The binding long form stays on the
+             * conditions page, which the dialog links to. */
+            conditionsLink: z.string(),
+            conditionsHeading: z.string(),
+            /** Says the zones are advisory: a threshold is quoted, never
+             * enforced, and no delivery is priced here. */
+            conditionsNote: z.string(),
+            /** Link out of the dialog to the full conditions page, shown only
+             * where the deployment publishes one. */
+            conditionsMore: z.string(),
+            close: z.string(),
+            /** A zone's free-delivery minimum; `{amount}` is substituted. */
+            freeFrom: z.string(),
+            /** Shown for a zone that quotes no minimum — said out loud, so an
+             * absent line does not read as an unstated free threshold. */
+            noFreeDelivery: z.string(),
+            /** Heading of the office list, which stands under the cards as
+             * the pickup answer to the delivery address — not inside the card,
+             * where it would be a second question asked in the margin. */
+            pickupHeading: z.string(),
+            /** Opens one office's map, the same embed the contact page uses. */
+            mapLink: z.string(),
           })
           .strict(),
       })
@@ -439,9 +710,11 @@ export const appTextSchema = z
               .strict(),
             /**
              * The saved delivery/invoice addresses (FR-CART-04), and the form
-             * that edits one. The suggestion wording is here rather than under
-             * a provider's name: a deployment with no adapter configured never
-             * shows it, but the file loads whole either way.
+             * that edits one. An address is a place and carries no identity:
+             * who is invoiced is the order's own question, worded at checkout.
+             * The suggestion wording is here rather than under a provider's
+             * name: a deployment with no adapter configured never shows it, but
+             * the file loads whole either way.
              */
             addresses: z
               .object({
@@ -459,20 +732,13 @@ export const appTextSchema = z
                 intro: z.string(),
                 label: z.string(),
                 labelHint: z.string(),
-                companyName: z.string(),
-                companyId: z.string(),
-                /** Says when the number matters at all — the book is untyped,
-                 * so the field is on every address but needed only where one
-                 * is invoiced. */
-                companyIdHint: z.string(),
-                companySuggest: z
-                  .object({
-                    suggestionsLabel: z.string(),
-                    noSuggestions: z.string(),
-                    /** `{count}` is substituted, for the live region. */
-                    suggestionCount: z.string(),
-                  })
-                  .strict(),
+                /** Opens the full address fields where the form asked for the street
+                 * alone. Always offered, never only after a provider fails. */
+                enterManually: z.string(),
+                /** The one field a suggesting form asks for before anything is
+                 * picked: it takes the whole address, and calling it the street
+                 * would be asking for a part of what it wants. */
+                addressLine: z.string(),
                 street: z.string(),
                 street2: z.string(),
                 postalCode: z.string(),

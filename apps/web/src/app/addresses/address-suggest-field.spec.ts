@@ -104,6 +104,61 @@ describe('AddressSuggestField (FR-CART-11)', () => {
     expect(el.textContent).toContain('Hafenstraße 12, 20359 Hamburg');
   });
 
+  it('marks the parts of the line the query matched', async () => {
+    const { type, el } = await render();
+
+    await type('Hafenstra');
+
+    // Only the matched run is marked — the rest of the line is plain, so the
+    // tint is telling the customer why this row is here.
+    expect(
+      [...el.querySelectorAll('[role="option"] mark')].map(
+        (m) => m.textContent,
+      ),
+    ).toEqual(['Hafenstra']);
+  });
+
+  // The segments are adjacent runs of one word: any whitespace between them in
+  // the template renders as a space, and the street would come out as
+  // "Hafenstra ße 12" on screen.
+  it('renders a line the query split mid-word without breaking the word', async () => {
+    const { type, el } = await render();
+
+    await type('Hafenstra');
+
+    expect(el.querySelector('[role="option"] > span')?.textContent).toBe(
+      'Hafenstraße 12, 20359 Hamburg',
+    );
+  });
+
+  // Two streets of the same name in two towns are one row repeated otherwise.
+  it('names the region under the line where the provider gave one', async () => {
+    answers = [
+      suggestion('Hafenstraße 12, 20359 Hamburg', {
+        street: 'Hafenstraße 12',
+        postalCode: '20359',
+        city: 'Hamburg',
+        region: 'Schleswig-Holstein',
+        country: 'DE',
+      }),
+    ];
+    const { type, el } = await render();
+
+    await type('Hafenstra');
+
+    expect(el.textContent).toContain('Schleswig-Holstein');
+  });
+
+  // A provider answers at whatever granularity it has, and a city that is its
+  // own region says the same word twice.
+  it('draws no second line where it gave none', async () => {
+    const { type, el } = await render();
+
+    await type('Hafenstra');
+
+    expect(el.querySelectorAll('[role="option"] > span')).toHaveLength(1);
+  });
+
   it('emits the picked row’s components, not its label', async () => {
     const { type, el, picked } = await render();
 

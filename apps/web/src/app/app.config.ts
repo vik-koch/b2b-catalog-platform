@@ -22,6 +22,7 @@ import {
 import { CartRepricing } from './cart/cart-repricing';
 import { provideAppText } from './config/app-text';
 import { provideDeploymentConfig } from './config/deployment-config';
+import { provideSuggestionsEnabled } from './config/suggestions-enabled';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -50,6 +51,7 @@ export const appConfig: ApplicationConfig = {
     // (app.config.server.ts) are merged last and override these on SSR.
     provideDeploymentConfig(),
     provideAppText(),
+    provideSuggestionsEnabled(),
     // Nothing injects it, and it has to run wherever the visitor happens to
     // be: a cart priced for somebody else is corrected as the session changes,
     // not when the cart page is next opened.

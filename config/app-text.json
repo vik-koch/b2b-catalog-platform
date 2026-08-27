@@ -119,13 +119,13 @@
     "subtotal": "Subtotal",
     "noPrice": "On request",
     "totalIncomplete": "Some lines could not be priced — the subtotal covers the rest.",
+    "checkout": "Proceed to checkout",
+    "continueShopping": "Continue shopping",
     "summaryTitle": "Your order",
     "summaryLines": "Line items",
     "shipmentCartons": "Cartons",
     "shipmentVolume": "Volume",
     "shipmentWeight": "Weight",
-    "shipmentDelivery": "Delivery",
-    "shipmentDeliveryValue": "Confirmed with your order",
     "shipmentApproximate": "Approximate — we confirm the actual consignment with your order.",
     "shipmentUncovered": "Lines not covered by this estimate: {count}",
     "changes": {
@@ -142,6 +142,115 @@
       "quantityCorrected": "The quantity was adjusted to the nearest we can supply.",
       "noteNotAllowed": "This product no longer takes a note, so yours was dropped.",
       "priceUnavailable": "We cannot price this line right now — we will confirm it with you."
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "intro": "Send us your order and we will confirm the details with you — nothing is charged here.",
+    "emptyCart": "There is nothing in your cart to order.",
+    "signInPrompt": "Already a customer? Sign in and your agreed prices apply to this order.",
+    "signInAction": "Sign in",
+    "contact": {
+      "heading": "Who is ordering?",
+      "name": "Your name",
+      "contactName": "Who should we ask for?",
+      "nameRequired": "Please tell us who to ask for.",
+      "note": "We invoice whoever you name here, and use your email and phone only to confirm the order."
+    },
+    "optional": "optional",
+    "party": {
+      "heading": "Who should we invoice?",
+      "own": "Myself",
+      "other": "Somebody else",
+      "person": "A private person",
+      "company": "A company",
+      "personName": "Their name",
+      "nameRequired": "Please give the name we should invoice.",
+      "otherNotice": "We will confirm the price with you — your agreed prices belong to your own account."
+    },
+    "addresses": {
+      "deliveryHeading": "Where should we deliver?",
+      "billingHeading": "Where should the invoice go?",
+      "billingOnlyHeading": "Where should the invoice go?",
+      "sameAsDelivery": "Send the invoice to this address as well",
+      "addNew": "Use a different address",
+      "loadError": "We could not load your saved addresses — please enter one below.",
+      "saveToBook": "Save this address for next time"
+    },
+    "zone": {
+      "resolved": "Delivery area: {zone}",
+      "shortOf": "Add {amount} more for free delivery in this area.",
+      "qualifies": "This order qualifies for free delivery in this area.",
+      "noDelivery": "We do not deliver to this area. Give us an address inside one of our delivery areas — a carrier’s depot, for instance — or send the order as it is and we will find a way with you.",
+      "unknown": "We will confirm delivery to this address with you."
+    },
+    "timing": {
+      "deliveryLabel": "Preferred delivery date",
+      "pickupLabel": "Preferred collection date"
+    },
+    "payment": {
+      "heading": "How would you like to pay?",
+      "cashTitle": "Cash",
+      "cashDeliveryDescription": "Pay when you receive your order.",
+      "cashPickupDescription": "Pay when you collect your order.",
+      "transferTitle": "Bank transfer",
+      "transferDescription": "We invoice you with our bank details once we confirm your order.",
+      "transferCompanyOnly": "Only for an order invoiced to a company."
+    },
+    "note": {
+      "label": "Anything we should know?",
+      "placeholder": "Delivery instructions, a reference for your invoice, anything else."
+    },
+    "review": {
+      "title": "Check your order",
+      "intro": "Nothing has been sent yet. Read it over, and send it when it is right.",
+      "items": "Your items",
+      "quantity": "{qty} {unit}",
+      "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
+      "fulfilment": "How it arrives",
+      "invoice": "Who we invoice",
+      "billingSame": "Invoiced to the same address.",
+      "whenAny": "As soon as you can",
+      "payment": "How it is paid",
+      "note": "Your note",
+      "back": "Change something",
+      "send": "Review and send"
+    },
+    "privacyConsent": "I agree that my details will be used to handle this order. See our",
+    "privacyLink": "privacy policy",
+    "privacyRequired": "Please accept the privacy policy to send your order.",
+    "submit": "Send order request",
+    "submitting": "Sending…",
+    "successHeading": "Thank you — we have your order",
+    "success": "Your order request is {reference}. We will confirm the details, the delivery and the price with you shortly.",
+    "successAction": "Back to the catalogue",
+    "successRegister": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
+    "successRegisterAction": "Request an account",
+    "errors": {
+      "incomplete": "Some answers are missing or need correcting — they are marked on the form.",
+      "invalidCompanyId": "That company ID is not in a format we can invoice against. Please check it.",
+      "unsupportedCountry": "We do not deliver to that country. Please choose another address.",
+      "unknownPickupLocation": "That collection point is no longer available. Please choose another.",
+      "billingDetailsRequired": "Bank transfer needs a company to invoice. Please choose another party or another way to pay.",
+      "partyRequired": "Please tell us who we should invoice.",
+      "rejected": "We could not accept this order. Please try again.",
+      "cartChanged": "Prices or quantities in your cart changed while you were filling this in — please check your order and send it again.",
+      "generic": "Something went wrong sending your order. Please try again."
+    },
+    "fulfilment": {
+      "heading": "How would you like to receive your order?",
+      "deliveryTitle": "Delivery",
+      "pickupTitle": "Self-pickup",
+      "pickupDescription": "Collect your order yourself for free.",
+      "conditionsLink": "Delivery conditions",
+      "conditionsHeading": "Where we deliver",
+      "conditionsNote": "A guide only — we confirm delivery and its cost with every order.",
+      "conditionsMore": "Read the full terms",
+      "close": "Close",
+      "freeFrom": "Free delivery from {amount}",
+      "noFreeDelivery": "Delivery is quoted per order",
+      "pickupHeading": "Where would you like to collect your order?",
+      "mapLink": "Find on map"
     }
   },
   "search": {
@@ -214,14 +323,8 @@
         "intro": "Saved addresses are offered at checkout, so you only type one once.",
         "label": "Name for this address",
         "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
-        "companyName": "Company name",
-        "companyId": "Company ID",
-        "companyIdHint": "Needed only when this address is the one we invoice — leave it empty for a private delivery address.",
-        "companySuggest": {
-          "suggestionsLabel": "Company suggestions",
-          "noSuggestions": "No matching companies. Carry on typing it yourself.",
-          "suggestionCount": "{count} company suggestions"
-        },
+        "enterManually": "Enter the address manually",
+        "addressLine": "Address",
         "street": "Street and number",
         "street2": "Address line 2",
         "postalCode": "Postcode",

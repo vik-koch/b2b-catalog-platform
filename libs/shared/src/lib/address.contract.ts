@@ -1,7 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
 import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
-import { companyRegistrationIdSchema } from './contact-format';
 
 const c = initContract();
 
@@ -37,45 +36,30 @@ export const countryCodeSchema = z
   .regex(/^[A-Z]{2}$/);
 
 /**
- * What an address is made of. `street` carries the house number, as the line is
- * printed; `street2` is the extra line (floor, care-of) and `region` the
- * province where a jurisdiction needs one — a deployment that has no use for it
- * hides the field and never sends it.
+ * What an address is made of — a **place**, and nothing else. `street` carries
+ * the house number, as the line is printed; `street2` is the extra line (floor,
+ * care-of) and `region` the province where a jurisdiction has one, which a
+ * suggestion provider usually fills without anybody typing it.
  *
- * `companyName` and `companyId` describe the party being **invoiced**, and are
- * per address rather than read off the account: the registration number on the
- * account is what staff approved it on, and an invoice may perfectly well go to
- * another of the customer's entities. They prefill from the account at the
- * form, never by foreign key.
+ * No company name, no registration number and no phone. Who an order is
+ * invoiced to is the order's own field, resolved from the account or typed at
+ * checkout (FR-CART-09), and the number a manager rings is the order's
+ * `contact` — carrying either here as well would be a second place for a fact
+ * stated somewhere authoritative, free to disagree with it.
  *
  * `label` is optional: an address is recognisable as itself, and a customer
  * saving the one address they order to should not have to invent a word for it.
  * Where it is absent, the address is named by its own first line.
- *
- * Both company fields are optional here even though bank transfer needs them.
- * A row is not typed as billing or delivery — the same address usually serves
- * both, and only the invoiced role needs a company — so the requirement belongs
- * to the order being submitted, not to the address being saved.
  */
 export const addressInputSchema = z
   .object({
     label: z.string().trim().min(1).max(ADDRESS_LABEL_MAX_LENGTH).nullable(),
-    companyName: z
-      .string()
-      .trim()
-      .min(1)
-      .max(ADDRESS_LINE_MAX_LENGTH)
-      .nullable(),
-    /** The same envelope registration uses; the deployment's own formats are
-     * applied on top, by the API as well as the browser. */
-    companyId: companyRegistrationIdSchema.nullable(),
     street: z.string().trim().min(1).max(ADDRESS_LINE_MAX_LENGTH),
     street2: z.string().trim().min(1).max(ADDRESS_LINE_MAX_LENGTH).nullable(),
     postalCode: z.string().trim().min(1).max(ADDRESS_POSTAL_CODE_MAX_LENGTH),
     city: z.string().trim().min(1).max(ADDRESS_LINE_MAX_LENGTH),
     region: z.string().trim().min(1).max(ADDRESS_LINE_MAX_LENGTH).nullable(),
     country: countryCodeSchema,
-    phone: z.string().trim().min(1).max(50).nullable(),
   })
   // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
   .strict();
@@ -168,8 +152,6 @@ export const addressesContract = c.router({
     responses: {
       201: addressSchema,
       401: commonAuthErrorSchema,
-      /** The registration number does not match any configured format. */
-      400: apiErrorSchema(['invalid-company-id']),
       /** The book is full, or the country is not one this deployment ships to. */
       409: apiErrorSchema(['address-limit-reached', 'unsupported-country']),
     },
@@ -181,7 +163,6 @@ export const addressesContract = c.router({
     body: addressInputSchema,
     responses: {
       200: addressSchema,
-      400: apiErrorSchema(['invalid-company-id']),
       401: commonAuthErrorSchema,
       404: apiErrorSchema(['address-not-found']),
       409: apiErrorSchema(['unsupported-country']),

@@ -130,8 +130,6 @@ export class RegistrationService {
       // Unlabelled on purpose: the customer never named it, and the book shows
       // an unnamed address by its own street.
       label: null,
-      companyName: request.companyName?.trim() ?? null,
-      companyId: request.companyRegistrationId ?? null,
       // Already the printed line, house number and all — the adapter composed
       // it, because where the number goes is regional typography.
       street: address.street,
@@ -140,7 +138,6 @@ export class RegistrationService {
       city: address.city,
       region: address.region ?? null,
       country: address.country,
-      phone: null,
     });
   }
 

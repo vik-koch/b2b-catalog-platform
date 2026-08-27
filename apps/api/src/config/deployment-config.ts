@@ -55,21 +55,29 @@ export const apiDeploymentConfigSchema = z
      */
     address: addressConfigSchema.optional(),
     /**
-     * The offices an order may be collected from. The API validates a submitted
-     * pickup key against this list and snapshots the office's name and address
-     * onto the order, so a later rename leaves past orders readable. The map
-     * embed beside them is the web app's business, hence the passthrough.
+     * Where an order may be collected. Its own list, not the contact page's
+     * offices: goods come from a warehouse as readily as from an office, and
+     * neither list is a subset of the other.
+     *
+     * The API validates a submitted pickup key against this and snapshots the
+     * point's name and address onto the order, so a later rename or removal
+     * leaves past orders readable. What the form draws beside them — the
+     * description, the map link — is the web app's business, hence the
+     * passthrough.
      */
-    locations: z
-      .array(
-        z
-          .object({
-            key: z.string().min(1),
-            name: z.string(),
-            description: z.string().optional(),
-          })
-          .passthrough(),
-      )
+    pickup: z
+      .object({
+        locations: z.array(
+          z
+            .object({
+              key: z.string().min(1),
+              name: z.string(),
+              address: z.string().min(1),
+            })
+            .passthrough(),
+        ),
+      })
+      .passthrough()
       .optional(),
     /**
      * Delivery zones (FR-CART-07). The server re-derives the zone from the
@@ -162,17 +170,18 @@ export function loadAddressConfig(): AddressConfig | undefined {
   return loadApiDeploymentConfig().address;
 }
 
-/** The pickup offices, as the order service needs them. */
+/** The collection points, as the order service needs them: what a key must
+ * match, and what an order snapshots when it does. */
 export const PICKUP_LOCATIONS = 'PICKUP_LOCATIONS';
 
 export interface PickupLocation {
   key: string;
   name: string;
-  description?: string;
+  address: string;
 }
 
 export function loadPickupLocations(): readonly PickupLocation[] {
-  return loadApiDeploymentConfig().locations ?? [];
+  return loadApiDeploymentConfig().pickup?.locations ?? [];
 }
 
 /** The delivery zones, first match wins. Empty where none are configured,

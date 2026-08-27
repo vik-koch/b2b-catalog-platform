@@ -237,18 +237,20 @@ describe('POST /auth/register', () => {
 
     expect(res.status).toBe(200);
     const { rows } = await client.query(
-      `SELECT a.label, a.street, a."postalCode", a."companyName"
+      `SELECT a.label, a.street, a."postalCode", a.city
          FROM addresses a JOIN users u ON u.id = a."userId"
         WHERE u.email = $1`,
       [NEW_EMAIL],
     );
     expect(rows).toEqual([
       {
-        // Unnamed: nobody asked the customer to label it.
+        // Unnamed: nobody asked the customer to label it. Nor is the company
+        // named on it — an address is a place, and the account already carries
+        // who was registered.
         label: null,
         street: 'Hafenstraße 12',
         postalCode: '20359',
-        companyName: 'Kontor GmbH',
+        city: 'Hamburg',
       },
     ]);
   });

@@ -7,7 +7,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CART_NOTE_MAX, CartLineIssue } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
@@ -25,8 +25,9 @@ import { Input } from '../ui/input';
 import { ConfirmService } from '../ui/confirm.service';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
-import { Skeleton } from '../ui/skeleton';
+import { LastListingService } from '../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
+import { OrderSummary } from './order-summary';
 import { CartChange, CartService } from './cart.service';
 
 /**
@@ -104,16 +105,15 @@ interface CartRow {
     Icon,
     IconButton,
     Input,
+    OrderSummary,
     ProductRow,
     RouterLink,
-    Skeleton,
   ],
   template: `
-    <h1 class="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">
-      {{ text.title }}
-    </h1>
-
     @if (cart.isEmpty()) {
+      <h1 class="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">
+        {{ text.title }}
+      </h1>
       <p class="text-subtle">{{ text.empty }}</p>
       <a appButton routerLink="/catalog" class="mt-4">{{ text.emptyAction }}</a>
     } @else {
@@ -170,6 +170,13 @@ interface CartRow {
       <div class="@container/cart">
         <div class="grid gap-8 @min-[72.5rem]/cart:grid-cols-[1fr_20rem]">
           <div>
+            <!-- In the column, not above the grid: the summary beside it then
+                 starts level with the heading, and the same card sits at the
+                 same height on the cart, the checkout and the read-back. -->
+            <h1 class="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">
+              {{ text.title }}
+            </h1>
+
             <!-- Above the lines and left-aligned with them: what these two do is
                done *to* the ticks below, so they read before the first row
                rather than after the last. -->
@@ -342,58 +349,38 @@ interface CartRow {
              long as the cart is and the total is what the customer is editing
              them against. Clear of the header, which is pinned too — and only
              as tall as it needs to be, or a stretched column would fill the
-             row and have nowhere to travel. -->
+             row and have nowhere to travel.
+
+             The same measure as the column it drops under, which is what the
+             checkout gives it too: stacked, the card is the page, and three
+             pages that agree about the card should agree about its width. -->
           <aside
-            class="max-w-80 space-y-4 @max-[593px]/cart:max-w-none @min-[72.5rem]/cart:sticky @min-[72.5rem]/cart:top-20 @min-[72.5rem]/cart:self-start"
+            class="max-w-xl @min-[72.5rem]/cart:mt-9 @min-[72.5rem]/cart:sticky @min-[72.5rem]/cart:top-20 @min-[72.5rem]/cart:self-start"
           >
-            <!-- One card, read top to bottom: what the order is, what it will
-               weigh and take up, when it is confirmed, and what it comes to.
-               Splitting the total off into a card of its own made the customer
-               read two boxes to answer one question. -->
-            <div class="rounded-lg border border-border p-5">
-              <h2 class="mb-3 font-medium">{{ text.summaryTitle }}</h2>
-              <dl class="space-y-2 text-sm">
-                <!-- How many lines is the cart's own answer, so it is stated
-                   before the estimate and whether or not one arrives. -->
-                <div class="flex items-baseline justify-between gap-4">
-                  <dt class="text-subtle">{{ text.summaryLines }}</dt>
-                  <dd class="text-right">{{ cart.count() }}</dd>
-                </div>
-                @for (row of shipmentRows(); track row.label) {
-                  <div class="flex items-baseline justify-between gap-4">
-                    <dt class="text-subtle">{{ row.label }}</dt>
-                    <dd class="text-right">{{ row.value }}</dd>
-                  </div>
-                } @empty {
-                  @if (showSkeleton()) {
-                    <app-skeleton [lines]="3" />
-                  }
-                }
-                <div
-                  class="flex items-baseline justify-between gap-4 border-t border-border pt-3"
-                >
-                  <dt class="text-subtle">{{ text.subtotal }}</dt>
-                  <dd class="text-xl font-bold text-primary">
-                    {{ subtotal() }}
-                  </dd>
-                </div>
-              </dl>
-              @if (!complete()) {
-                <p class="mt-2 text-sm text-amber-700">
-                  {{ text.totalIncomplete }}
-                </p>
-              }
-              @if (shipmentRows().length) {
-                <p class="mt-3 text-xs text-subtle">
-                  {{ text.shipmentApproximate }}
-                </p>
-                @if (uncoveredLines(); as count) {
-                  <p class="mt-1 text-xs text-amber-700">
-                    {{ uncoveredMessage() }}
-                  </p>
-                }
-              }
-            </div>
+            <app-order-summary
+              [lineCount]="cart.count()"
+              [subtotalMinor]="subtotalMinor()"
+              [complete]="complete()"
+              [shipment]="shipment()"
+              [loading]="showSkeleton()"
+            />
+
+            <!-- Inside the summary card, under the figure they act on: the
+                 total is what somebody decides to check out against. Full
+                 width, because in the narrow shape this card is the page. -->
+            <a appButton routerLink="/checkout" class="mt-5 w-full">
+              {{ text.checkout }}
+            </a>
+            <!-- Back to the shelf the visitor was standing at, with the
+                 category, page and filters it was carrying. -->
+            <a
+              appButton
+              variant="ghost"
+              class="mt-2 w-full"
+              [routerLink]="continueShoppingUrl"
+            >
+              {{ text.continueShopping }}
+            </a>
           </aside>
         </div>
       </div>
@@ -403,6 +390,8 @@ interface CartRow {
 export class CartPage {
   protected readonly cart = inject(CartService);
   private readonly pricing = inject(CartPreviewService);
+  private readonly lastListing = inject(LastListingService);
+  private readonly router = inject(Router);
   private readonly confirm = inject(ConfirmService);
   private readonly catalogConfig = inject(DEPLOYMENT_CONFIG).catalog;
   private readonly currency = this.catalogConfig.currency;
@@ -417,6 +406,16 @@ export class CartPage {
    * does, so it says it the way the listing does. */
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly rowList = PRODUCT_ROWS;
+
+  /**
+   * Where "continue shopping" goes. A parsed tree rather than the string:
+   * a remembered listing carries the page and the filters in its query, and
+   * routerLink given a string would encode the `?` into the path.
+   */
+  protected readonly continueShoppingUrl = this.router.parseUrl(
+    this.lastListing.url(),
+  );
+
   protected readonly noteMax = CART_NOTE_MAX;
 
   /**
@@ -555,13 +554,10 @@ export class CartPage {
    * add up a changed cart itself; waiting for the round trip would leave the
    * total a step behind the line the customer just changed.
    */
-  protected readonly subtotal = computed(() =>
-    formatPriceMinor(
-      this.current()
-        ? (this.answer()?.totalMinor ?? this.cart.totalMinor())
-        : this.cart.totalMinor(),
-      this.currency,
-    ),
+  protected readonly subtotalMinor = computed(() =>
+    this.current()
+      ? (this.answer()?.totalMinor ?? this.cart.totalMinor())
+      : this.cart.totalMinor(),
   );
 
   protected readonly complete = computed(() =>
@@ -571,16 +567,6 @@ export class CartPage {
   );
 
   /**
-   * The shipment estimate as labelled rows (FR-UNIT-11), empty before one has
-   * arrived. A table rather than sentences: a customer checking a consignment
-   * is comparing figures against a delivery note, and figures compare by
-   * lining up.
-   *
-   * The delivery row is deliberately not a date. Every order here is a request
-   * a manager prices and confirms, so a computed date would be the one figure
-   * on this card the shop has not agreed to.
-   */
-  /**
    * The estimate to show: the one this cart was answered with, and the cart's
    * own arithmetic whenever that answer describes a cart the customer has
    * since changed — the same rule the subtotal follows, so the consignment and
@@ -589,56 +575,11 @@ export class CartPage {
    * Neither, and the card shows its skeleton, only while a line has never been
    * priced: there is nothing to add up for it yet.
    */
-  private readonly shipment = computed(() =>
-    this.current()
-      ? (this.answer()?.shipment ?? this.cart.estimate())
-      : this.cart.estimate(),
-  );
-
-  protected readonly shipmentRows = computed<
-    { label: string; value: string }[]
-  >(() => {
-    const shipment = this.shipment();
-    if (!shipment || shipment.coveredLines === 0) return [];
-    // What the consignment weighs and measures first, then how many cartons
-    // that comes to: the figures a customer checks against a delivery note
-    // read in that order.
-    const rows: { label: string; value: string }[] = [];
-    if (shipment.weight) {
-      rows.push({
-        label: this.text.shipmentWeight,
-        value: `${shipment.weight} ${this.boxUnits.weight}`,
-      });
-    }
-    if (shipment.volume) {
-      rows.push({
-        label: this.text.shipmentVolume,
-        value: `${shipment.volume} ${this.boxUnits.volume}`,
-      });
-    }
-    rows.push({
-      label: this.text.shipmentCartons,
-      value: String(shipment.cartons),
-    });
-    rows.push({
-      label: this.text.shipmentDelivery,
-      value: this.text.shipmentDeliveryValue,
-    });
-    return rows;
-  });
-
-  /** How many lines the estimate could not cover, or null where it covered
-   * them all — a summary of half the cart says so rather than omitting the
-   * rest in silence. */
-  protected readonly uncoveredLines = computed(() => {
-    const uncovered = this.shipment()?.uncoveredLines ?? 0;
-    return uncovered > 0 ? uncovered : null;
-  });
-
-  protected readonly uncoveredMessage = computed(() =>
-    fillText(this.text.shipmentUncovered, {
-      count: this.uncoveredLines() ?? 0,
-    }),
+  protected readonly shipment = computed(
+    () =>
+      (this.current()
+        ? (this.answer()?.shipment ?? this.cart.estimate())
+        : this.cart.estimate()) ?? null,
   );
 
   constructor() {

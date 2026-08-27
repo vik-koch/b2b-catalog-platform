@@ -4,6 +4,7 @@ import {
   PARTY_QUERY_MIN_LENGTH,
   PartySuggestion,
 } from '@b2b-catalog-platform/shared';
+import { HighlightedLine } from '../core/highlighted-line';
 import { SuggestList, SuggestListText } from '../core/suggest-list';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
@@ -29,7 +30,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-party-suggest-field',
-  imports: [ReactiveFormsModule, FieldLabel, Input],
+  imports: [ReactiveFormsModule, FieldLabel, Input, HighlightedLine],
   // See PhoneField: a custom element is inline by default, and an inline box
   // drops the vertical margin a form's `space-y-*` puts on it.
   host: { class: 'block' },
@@ -91,10 +92,20 @@ let nextId = 0;
                 (mousedown)="pick($event, item)"
               >
                 <span class="block truncate font-medium text-stone-800">
-                  {{ item.name }}
+                  <app-highlighted-line
+                    [line]="item.name"
+                    [query]="list.query()"
+                  />
                 </span>
+                <!-- Marked too, because the number is a query in its own right:
+                     a customer who typed one is looking for it in the row. -->
                 @if (secondLine(item); as second) {
-                  <span class="block truncate text-subtle">{{ second }}</span>
+                  <span class="block truncate text-subtle">
+                    <app-highlighted-line
+                      [line]="second"
+                      [query]="list.query()"
+                    />
+                  </span>
                 }
               </li>
             }

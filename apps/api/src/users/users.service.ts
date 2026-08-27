@@ -200,23 +200,22 @@ export class UsersService {
         contactName: scrubbed,
         contactEmail: scrubbed,
         contactPhone: scrubbed,
-        billingCompanyName: null,
-        billingCompanyId: null,
+        // The invoiced party is personal data too: it is the account holder or
+        // somebody they named, and neither survives the account.
+        partyName: scrubbed,
+        partyRegistrationId: null,
         billingStreet: scrubbed,
         billingStreet2: null,
         billingPostalCode: scrubbed,
         billingCity: scrubbed,
         billingRegion: null,
-        billingPhone: null,
-        deliveryCompanyName: null,
         // Kept non-null where it was set, so the fulfilment constraint holds.
         deliveryStreet: sql`case when ${orders.deliveryStreet} is null then null else ${scrubbed} end`,
         deliveryStreet2: null,
         deliveryPostalCode: sql`case when ${orders.deliveryPostalCode} is null then null else ${scrubbed} end`,
         deliveryCity: sql`case when ${orders.deliveryCity} is null then null else ${scrubbed} end`,
         deliveryRegion: null,
-        deliveryPhone: null,
-        preferredTiming: null,
+        preferredDate: null,
         customerNote: null,
         // Which list this customer was charged from — the same argument that
         // nulls `users.tierId`.

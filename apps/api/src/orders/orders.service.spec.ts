@@ -6,7 +6,7 @@ import {
 import { AddressesService } from '../addresses/addresses.service';
 import { PickupLocation } from '../config/deployment-config';
 import * as schema from '../db/schema';
-import { orderItems, orders } from '../db/schema';
+import { orderItems, orders, users } from '../db/schema';
 import * as reference from './order-reference';
 import { CartChangedException, OrdersService } from './orders.service';
 
@@ -35,6 +35,16 @@ const product = {
   minPieceQty: 10,
 };
 
+/** The account columns the party resolver reads. */
+interface AccountRow {
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  customerType: 'person' | 'company' | null;
+  companyName: string | null;
+  companyRegistrationId: string | null;
+}
+
 interface Insert {
   table: unknown;
   values: Record<string, unknown> | Record<string, unknown>[];
@@ -44,14 +54,31 @@ interface Insert {
  * A drizzle stand-in: one select for the pricer, and a transaction whose first
  * `collisions` order inserts raise Postgres' unique-violation code.
  */
-function testDb(collisions = 0) {
+function testDb(collisions = 0, accountRow: Partial<AccountRow> = {}) {
   const inserts: Insert[] = [];
   /** Every reference the service tried, collisions included. */
   const attempted: string[] = [];
   let remaining = collisions;
   const select = {
-    from: () => select,
+    from: (table: unknown) => (table === users ? account : select),
     where: () => Promise.resolve([product]),
+  };
+  /** The party an account is registered as, for a submission that names none. */
+  const account = {
+    from: () => account,
+    where: () => account,
+    limit: () =>
+      Promise.resolve([
+        {
+          firstName: 'Ada',
+          lastName: 'Byron',
+          email: 'ada@example.com',
+          customerType: 'company',
+          companyName: 'Kontor GmbH',
+          companyRegistrationId: 'DE123456789',
+          ...accountRow,
+        },
+      ]),
   };
 
   const db = {
@@ -97,7 +124,7 @@ const locations: PickupLocation[] = [
   {
     key: 'speicherstadt',
     name: 'Speicherstadt Office',
-    description: 'Am Sandtorkai 30',
+    address: 'Am Sandtorkai 30',
   },
 ];
 
@@ -122,33 +149,37 @@ function service(db: NodePgDatabase<typeof schema>) {
     delivery,
     { prefix: 'CK', timezone: 'UTC' },
     'EUR',
+    (value: string) => /^DE[0-9]{9}$/.test(value),
   );
 }
 
 const address = (overrides: Record<string, unknown> = {}) => ({
   label: null,
-  companyName: 'Kontor GmbH',
-  companyId: 'DE123456789',
   street: 'Hafenstraße 12',
   street2: null,
   postalCode: '20359',
   city: 'Hamburg',
   region: null,
   country: 'DE',
-  phone: null,
   ...overrides,
 });
+
+/** What a guest submits: nobody to resolve a party from, so they name one. */
+const guestParty = { name: 'Ada Byron', registrationId: null };
 
 const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
   ({
     lines: [{ slug: 'hafen-espresso', unit: 'pack', pieces: 20 }],
     contact: { name: 'Ada', email: 'ada@example.com', phone: '+49 40 1' },
     fulfilmentMethod: 'delivery',
+    // Null is "the party this account is registered as", which the server
+    // reads for itself — the ordinary case, so it is the fixture's default.
+    party: null,
     deliveryAddress: address(),
     pickupLocationKey: null,
     billingAddress: address(),
     paymentMethod: 'cash',
-    preferredTiming: null,
+    preferredDate: null,
     customerNote: null,
     expectedTotalMinor: 3998,
     acceptPrivacy: true,
@@ -196,6 +227,7 @@ describe('OrdersService.submit', () => {
         fulfilmentMethod: 'pickup',
         deliveryAddress: null,
         pickupLocationKey: 'speicherstadt',
+        party: guestParty,
       }),
       null,
       null,
@@ -222,7 +254,11 @@ describe('OrdersService.submit', () => {
       .mockReturnValueOnce('CK-260824-0001')
       .mockReturnValueOnce('CK-260824-0002');
 
-    const placed = await service(db).submit(submission(), null, null);
+    const placed = await service(db).submit(
+      submission({ party: guestParty }),
+      null,
+      null,
+    );
 
     expect(attempted).toEqual(['CK-260824-0001', 'CK-260824-0002']);
     expect(placed.reference).toBe('CK-260824-0002');
@@ -233,35 +269,98 @@ describe('OrdersService.submit', () => {
   it('gives up loudly rather than looping on a broken generator', async () => {
     const { db } = testDb(99);
 
-    await expect(service(db).submit(submission(), null, null)).rejects.toThrow(
-      /free order reference/,
-    );
+    await expect(
+      service(db).submit(submission({ party: guestParty }), null, null),
+    ).rejects.toThrow(/free order reference/);
   });
 
   it('refuses a total the browser and the server disagree about', async () => {
     const { db, orderRows } = testDb();
 
     await expect(
-      service(db).submit(submission({ expectedTotalMinor: 1999 }), null, null),
+      service(db).submit(
+        submission({ expectedTotalMinor: 1999, party: guestParty }),
+        null,
+        null,
+      ),
     ).rejects.toBeInstanceOf(CartChangedException);
     expect(orderRows()).toHaveLength(0);
   });
 
-  it('needs the invoiced company for a bank transfer', async () => {
+  it('needs a company for a bank transfer, whoever is invoiced', async () => {
     const { db } = testDb();
 
     await expect(
       service(db).submit(
-        submission({
-          paymentMethod: 'bank-transfer',
-          billingAddress: address({ companyName: null, companyId: null }),
-        }),
+        submission({ paymentMethod: 'bank-transfer', party: guestParty }),
         null,
         null,
       ),
     ).rejects.toMatchObject({
       response: { code: 'billing-details-required' },
     });
+  });
+
+  it('reads the party off the account where the order names none', async () => {
+    const { db, orderRows } = testDb();
+
+    await service(db).submit(submission(), 'user-1', null);
+
+    expect(orderRows()[0]).toMatchObject({
+      partyName: 'Kontor GmbH',
+      partyRegistrationId: 'DE123456789',
+    });
+  });
+
+  it('invoices a private customer by name, whatever else their record carries', async () => {
+    // A customer who registered as a person keeps their own name on the
+    // invoice: the type is the answer, not whichever field is not empty.
+    const { db, orderRows } = testDb(0, { customerType: 'person' });
+
+    await service(db).submit(
+      submission({ paymentMethod: 'cash' }),
+      'user-1',
+      null,
+    );
+
+    expect(orderRows()[0]).toMatchObject({ partyName: 'Ada Byron' });
+  });
+
+  it('snapshots the party the order named instead', async () => {
+    const { db, orderRows } = testDb();
+
+    await service(db).submit(
+      submission({
+        party: { name: 'Nordwerk AG', registrationId: 'DE987654321' },
+      }),
+      'user-1',
+      null,
+    );
+
+    expect(orderRows()[0]).toMatchObject({
+      partyName: 'Nordwerk AG',
+      partyRegistrationId: 'DE987654321',
+    });
+  });
+
+  it('refuses a registration number in no configured shape', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(
+        submission({ party: { name: 'Nordwerk AG', registrationId: 'XX1' } }),
+        'user-1',
+        null,
+      ),
+    ).rejects.toMatchObject({ response: { code: 'invalid-company-id' } });
+  });
+
+  it('has nobody to invoice where a guest names no party', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(submission(), null, null),
+    ).rejects.toMatchObject({ response: { code: 'party-required' } });
   });
 
   it('refuses a collection point that does not exist', async () => {
@@ -273,6 +372,7 @@ describe('OrdersService.submit', () => {
           fulfilmentMethod: 'pickup',
           deliveryAddress: null,
           pickupLocationKey: 'no-such-office',
+          party: guestParty,
         }),
         null,
         null,
