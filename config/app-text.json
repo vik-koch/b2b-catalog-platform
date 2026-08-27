@@ -193,6 +193,21 @@
       "label": "Anything we should know?",
       "hint": "Delivery instructions, a reference for your invoice, anything else."
     },
+    "review": {
+      "title": "Check your order",
+      "intro": "Nothing has been sent yet. Read it over, and send it when it is right.",
+      "items": "Your items",
+      "quantity": "{qty} {unit}",
+      "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
+      "fulfilment": "How it arrives",
+      "invoice": "Who we invoice",
+      "billingSame": "Invoiced to the same address.",
+      "whenAny": "As soon as you can",
+      "payment": "How it is paid",
+      "note": "Your note",
+      "back": "Change something",
+      "send": "Review and send"
+    },
     "privacyConsent": "I agree that my details will be used to handle this order. See our",
     "privacyLink": "privacy policy",
     "privacyRequired": "Please accept the privacy policy to send your order.",

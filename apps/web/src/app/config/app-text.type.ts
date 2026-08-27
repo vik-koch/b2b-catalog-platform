@@ -465,6 +465,40 @@ export const appTextSchema = z
             hint: z.string(),
           })
           .strict(),
+        /**
+         * The read-back before it is sent (ADR 0039) — the second of the two
+         * screens. Every heading is one of the questions the form asked, in
+         * the order it asked them.
+         */
+        review: z
+          .object({
+            title: z.string(),
+            /** Says nothing has gone anywhere yet: the whole point of the
+             * screen is that this is the last reversible moment. */
+            intro: z.string(),
+            items: z.string(),
+            /** `{qty} {unit}` — a line's quantity as its own unit reads it. */
+            quantity: z.string(),
+            /** The same, for a line bought by the pack or the box: what that
+             * comes to in pieces is what the shop picks and the customer
+             * receives, and a review is where it is worth stating. */
+            quantityPieces: z.string(),
+            fulfilment: z.string(),
+            invoice: z.string(),
+            /** Where the invoice goes to the delivery address, said instead of
+             * printing the same four lines twice. */
+            billingSame: z.string(),
+            /** No date asked for, which is an answer rather than a blank. */
+            whenAny: z.string(),
+            payment: z.string(),
+            note: z.string(),
+            /** Back to the form. Not "edit": there is one form and this is a
+             * look at it, not a separate document. */
+            back: z.string(),
+            /** The form's own button, which leads here rather than sending. */
+            send: z.string(),
+          })
+          .strict(),
         /** FR-CART-03: the privacy notice is accepted here as on every other
          * form that sends personal data. */
         privacyConsent: z.string(),

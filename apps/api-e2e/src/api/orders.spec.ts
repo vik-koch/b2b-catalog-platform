@@ -46,7 +46,7 @@ const slugs = {
 const deployment = JSON.parse(
   readFileSync(requireEnv('DEPLOYMENT_CONFIG_FILE'), 'utf8'),
 ) as {
-  locations?: { key: string; name: string }[];
+  pickup?: { locations: { key: string; name: string }[] };
   delivery?: {
     zones: {
       key: string;
@@ -55,7 +55,7 @@ const deployment = JSON.parse(
     }[];
   };
 };
-const PICKUP = deployment.locations?.[0];
+const PICKUP = deployment.pickup?.locations[0];
 /** The first zone claimed by a postal prefix, and a code inside it. */
 const PREFIX_ZONE = deployment.delivery?.zones.find(
   (zone) => zone.match.postalPrefixes?.length,
@@ -95,6 +95,7 @@ const ORDER_DETAIL_KEYS = [
   'deliveryZone',
   'fulfilmentMethod',
   'lines',
+  'party',
   'paymentMethod',
   'pickup',
   'preferredDate',
@@ -136,15 +137,21 @@ const post = (url: string, body: unknown, cookie?: string) =>
 
 const address = (overrides: Record<string, unknown> = {}) => ({
   label: null,
-  companyName: 'Kontor GmbH',
-  companyId: 'DE123456789',
   street: 'Hafenstraße 12',
   street2: null,
   postalCode: '20359',
   city: 'Hamburg',
   region: null,
   country: 'DE',
-  phone: '+49 40 1234567',
+  ...overrides,
+});
+
+/** The party an order is invoiced to (FR-CART-09) — a field of the order, held
+ * apart from the addresses. A guest has no account to resolve one from, so
+ * theirs always names it. */
+const party = (overrides: Record<string, unknown> = {}) => ({
+  name: 'Kontor GmbH',
+  registrationId: 'DE123456789',
   ...overrides,
 });
 
@@ -156,6 +163,7 @@ const submission = (overrides: Record<string, unknown> = {}) => ({
     phone: '+49 40 7654321',
   },
   fulfilmentMethod: 'delivery',
+  party: party(),
   deliveryAddress: address(),
   pickupLocationKey: null,
   billingAddress: address(),
@@ -514,7 +522,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         '/orders',
         submission({
           paymentMethod: 'bank-transfer',
-          billingAddress: address({ companyName: null, companyId: null }),
+          party: party({ name: 'Ada Lovelace', registrationId: null }),
         }),
       );
 
@@ -632,10 +640,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(Object.keys(res.data.lines[0]).sort()).toEqual(ORDER_LINE_KEYS);
       expect(Object.keys(res.data.billingAddress).sort()).toEqual([
         'city',
-        'companyId',
-        'companyName',
         'country',
-        'phone',
         'postalCode',
         'region',
         'street',

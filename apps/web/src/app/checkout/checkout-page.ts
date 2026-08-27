@@ -3,12 +3,13 @@ import {
   computed,
   effect,
   inject,
+  input,
   resource,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AddressInput,
   FulfilmentMethod,
@@ -19,6 +20,7 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { AccountService } from '../account/account.service';
 import { AddressesService } from '../addresses/addresses.service';
+import { addressLines } from '../addresses/address-format';
 import { createAddressForm } from '../addresses/address-form';
 import { CartService } from '../cart/cart.service';
 import { companyIdFormat } from '../core/contact-fields';
@@ -36,6 +38,7 @@ import {
 import { DeliveryZoneHint } from './delivery-zone-hint';
 import { FulfilmentChoice } from './fulfilment-choice';
 import { OrderNote } from './order-note';
+import { OrderReview, ReviewBlock } from './order-review';
 import { PartyChoice } from './party-choice';
 import { PaymentChoice } from './payment-choice';
 import { OrdersService, SubmitOrderResult } from './orders.service';
@@ -65,6 +68,7 @@ import { AddressForm } from '../addresses/address-form';
     DeliveryZoneHint,
     FulfilmentChoice,
     OrderNote,
+    OrderReview,
     OrderSummary,
     PartyChoice,
     PaymentChoice,
@@ -73,9 +77,7 @@ import { AddressForm } from '../addresses/address-form';
     RouterLink,
   ],
   template: `
-    <h1 class="mb-2 text-3xl font-bold tracking-tight">
-      {{ placed() ? text.successHeading : text.title }}
-    </h1>
+    <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
 
     @if (placed(); as reference) {
       <p class="text-muted">{{ successMessage(reference) }}</p>
@@ -86,7 +88,9 @@ import { AddressForm } from '../addresses/address-form';
       <p class="text-subtle">{{ text.emptyCart }}</p>
       <a appButton routerLink="/cart" class="mt-4">{{ cartText.navLabel }}</a>
     } @else {
-      <p class="mb-8 text-muted">{{ text.intro }}</p>
+      <p class="mb-8 text-muted">
+        {{ reviewing() ? text.review.intro : text.intro }}
+      </p>
 
       <!-- Form and summary, the pair the cart already draws. Measured on the
            page rather than the window for the same reason it is there: the
@@ -95,128 +99,140 @@ import { AddressForm } from '../addresses/address-form';
            under the form instead of beside it. -->
       <div class="@container/checkout">
         <div class="grid gap-8 @min-[64rem]/checkout:grid-cols-[1fr_20rem]">
-          <div class="max-w-xl space-y-6">
-            <app-fulfilment-choice
-              [method]="draft().fulfilmentMethod"
-              (methodChange)="chooseFulfilment($event)"
-            />
-
-            <!-- Pickup's answer to the delivery address, in the place the
-                 address stands for delivery. -->
-            @if (isPickup()) {
-              <app-pickup-choice
-                [pickupKey]="draft().pickupLocationKey"
-                (pickupKeyChange)="drafts.patch({ pickupLocationKey: $event })"
+          @if (reviewing()) {
+            <app-order-review class="max-w-xl" [blocks]="reviewBlocks()" />
+          } @else {
+            <div class="max-w-xl space-y-6">
+              <app-fulfilment-choice
+                [method]="draft().fulfilmentMethod"
+                (methodChange)="chooseFulfilment($event)"
               />
-            }
 
-            @if (addressError()) {
-              <p class="text-sm text-amber-700">{{ addressText.loadError }}</p>
-            }
+              <!-- Pickup's answer to the delivery address, in the place the
+                 address stands for delivery. -->
+              @if (isPickup()) {
+                <app-pickup-choice
+                  [pickupKey]="draft().pickupLocationKey"
+                  (pickupKeyChange)="
+                    drafts.patch({ pickupLocationKey: $event })
+                  "
+                />
+              }
 
-            <!-- Whose name the invoice carries, asked before where anything
+              @if (addressError()) {
+                <p class="text-sm text-amber-700">
+                  {{ addressText.loadError }}
+                </p>
+              }
+
+              <!-- Whose name the invoice carries, asked before where anything
                  goes: the answer decides what the address rows below are for,
                  and it is also what unchecking "the same address" falls back
                  to — a second picker directly under the checkbox that revealed
                  it, rather than one further down the page. -->
-            <app-party-choice
-              [party]="draft().party"
-              [accountName]="accountName()"
-              [personNameControl]="partyForm.controls.personName"
-              [companyNameControl]="partyForm.controls.companyName"
-              [companyIdControl]="partyForm.controls.companyId"
-              [personNameInvalid]="
-                partyErrors.show(partyForm.controls.personName)
-              "
-              [companyNameInvalid]="
-                partyErrors.show(partyForm.controls.companyName)
-              "
-              [companyIdInvalid]="
-                partyErrors.show(partyForm.controls.companyId)
-              "
-              (partyChange)="chooseParty($event)"
-              (picked)="pickParty($event)"
-            />
+              <app-party-choice
+                [party]="draft().party"
+                [accountName]="accountName()"
+                [personNameControl]="partyForm.controls.personName"
+                [companyNameControl]="partyForm.controls.companyName"
+                [companyIdControl]="partyForm.controls.companyId"
+                [personNameInvalid]="
+                  partyErrors.show(partyForm.controls.personName)
+                "
+                [companyNameInvalid]="
+                  partyErrors.show(partyForm.controls.companyName)
+                "
+                [companyIdInvalid]="
+                  partyErrors.show(partyForm.controls.companyId)
+                "
+                (partyChange)="chooseParty($event)"
+                (picked)="pickParty($event)"
+              />
 
-            <!-- The zone is re-read when focus leaves the picker, not on
+              <!-- The zone is re-read when focus leaves the picker, not on
                  every keystroke: half a postcode resolves to whatever zone
                  happens to start with those digits, and a hint that flickers
                  through three areas while one is typed is worse than one that
                  waits. -->
-            @if (!isPickup()) {
-              <app-address-picker
-                (focusout)="commitDelivery()"
-                (picked)="commitDelivery()"
-                [heading]="addressText.deliveryHeading"
-                [addresses]="addresses()"
-                [selectedId]="draft().deliveryAddressId"
-                [form]="deliveryForm"
-                [fieldErrors]="deliveryErrors"
-                [save]="saveDelivery()"
-                (selectedIdChange)="drafts.patch({ deliveryAddressId: $event })"
-                (saveChange)="drafts.patch({ saveDeliveryAddress: $event })"
-              >
-                <!-- Checked, because one address usually serves both.
-                     Unchecking is what reveals the second picker. -->
-                <label
-                  class="mt-3 flex cursor-pointer items-start gap-2 text-sm"
+              @if (!isPickup()) {
+                <app-address-picker
+                  (focusout)="commitDelivery()"
+                  (picked)="commitDelivery()"
+                  [heading]="addressText.deliveryHeading"
+                  [addresses]="addresses()"
+                  [selectedId]="draft().deliveryAddressId"
+                  [form]="deliveryForm"
+                  [fieldErrors]="deliveryErrors"
+                  [save]="saveDelivery()"
+                  (selectedIdChange)="
+                    drafts.patch({ deliveryAddressId: $event })
+                  "
+                  (saveChange)="drafts.patch({ saveDeliveryAddress: $event })"
                 >
-                  <input
-                    type="checkbox"
-                    appCheckbox
-                    class="mt-0.5"
-                    [checked]="draft().billingSameAsDelivery"
-                    (change)="toggleSameBilling()"
-                  />
-                  <span>{{ addressText.sameAsDelivery }}</span>
-                </label>
-              </app-address-picker>
-            }
+                  <!-- Checked, because one address usually serves both.
+                     Unchecking is what reveals the second picker. -->
+                  <label
+                    class="mt-3 flex cursor-pointer items-start gap-2 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      appCheckbox
+                      class="mt-0.5"
+                      [checked]="draft().billingSameAsDelivery"
+                      (change)="toggleSameBilling()"
+                    />
+                    <span>{{ addressText.sameAsDelivery }}</span>
+                  </label>
+                </app-address-picker>
+              }
 
-            <!-- Pickup asks for an address anyway: the one on the paperwork
+              <!-- Pickup asks for an address anyway: the one on the paperwork
                  belongs to the order, not to whoever carries the goods — and
                  with nothing being delivered it is the only address asked
                  for, which is what its own heading says. -->
-            @if (needsBillingPicker()) {
-              <app-address-picker
-                [heading]="
-                  isPickup()
-                    ? addressText.billingOnlyHeading
-                    : addressText.billingHeading
-                "
-                [addresses]="addresses()"
-                [selectedId]="draft().billingAddressId"
-                [form]="billingForm"
-                [fieldErrors]="billingErrors"
-                [save]="saveBilling()"
-                (selectedIdChange)="drafts.patch({ billingAddressId: $event })"
-                (saveChange)="drafts.patch({ saveBillingAddress: $event })"
-              />
-            }
+              @if (needsBillingPicker()) {
+                <app-address-picker
+                  [heading]="
+                    isPickup()
+                      ? addressText.billingOnlyHeading
+                      : addressText.billingHeading
+                  "
+                  [addresses]="addresses()"
+                  [selectedId]="draft().billingAddressId"
+                  [form]="billingForm"
+                  [fieldErrors]="billingErrors"
+                  [save]="saveBilling()"
+                  (selectedIdChange)="
+                    drafts.patch({ billingAddressId: $event })
+                  "
+                  (saveChange)="drafts.patch({ saveBillingAddress: $event })"
+                />
+              }
 
-            <!-- When they would like it, which belongs with the two rows that
+              <!-- When they would like it, which belongs with the two rows that
                  decide where it is going. A wish either way: a manager
                  confirms the day, and nothing here reserves one. -->
-            <app-preferred-date
-              [method]="draft().fulfilmentMethod"
-              [date]="draft().preferredDate"
-              (dateChange)="drafts.patch({ preferredDate: $event })"
-            />
+              <app-preferred-date
+                [method]="draft().fulfilmentMethod"
+                [date]="draft().preferredDate"
+                (dateChange)="drafts.patch({ preferredDate: $event })"
+              />
 
-            <app-payment-choice
-              [method]="draft().paymentMethod"
-              [fulfilment]="draft().fulfilmentMethod"
-              [transferAllowed]="partyIsCompany()"
-              (methodChange)="drafts.patch({ paymentMethod: $event })"
-            />
+              <app-payment-choice
+                [method]="draft().paymentMethod"
+                [fulfilment]="draft().fulfilmentMethod"
+                [transferAllowed]="partyIsCompany()"
+                (methodChange)="drafts.patch({ paymentMethod: $event })"
+              />
 
-            <!-- Last, because it is the only row with no default: everything
+              <!-- Last, because it is the only row with no default: everything
                  above arrives answered. -->
-            <app-order-note
-              [note]="draft().customerNote"
-              (noteChange)="drafts.patch({ customerNote: $event })"
-            />
-          </div>
+              <app-order-note
+                [note]="draft().customerNote"
+                (noteChange)="drafts.patch({ customerNote: $event })"
+              />
+            </div>
+          }
 
           <!-- Pinned once it is a column of its own: the form beside it is as
                long as the answers are, and the total is what the customer is
@@ -244,32 +260,34 @@ import { AddressForm } from '../addresses/address-form';
               }
             </app-order-summary>
 
-            <!-- Consent and the send button under the total, where the cart
-                 puts its own: the figure is what somebody decides to send an
-                 order against. -->
-            <label class="mt-5 flex cursor-pointer items-start gap-2 text-sm">
-              <input
-                id="accept-privacy"
-                type="checkbox"
-                appCheckbox
-                class="mt-0.5"
-                aria-required="true"
-                [checked]="acceptedPrivacy()"
-                [attr.aria-invalid]="privacyMissing() || null"
-                (change)="acceptedPrivacy.set(!acceptedPrivacy())"
-              />
-              <span>
-                {{ text.privacyConsent }}
-                <a routerLink="/privacy" class="text-primary underline">{{
-                  text.privacyLink
-                }}</a
-                ><span class="text-accent" aria-hidden="true">*</span>
-              </span>
-            </label>
-            @if (privacyMissing()) {
-              <p class="mt-1 text-sm text-red-600">
-                {{ text.privacyRequired }}
-              </p>
+            <!-- Consent is asked on the second screen, beside the button that
+                 acts on it: it covers sending the order, and on the form it
+                 would be a promise made about something not yet read back. -->
+            @if (reviewing()) {
+              <label class="mt-5 flex cursor-pointer items-start gap-2 text-sm">
+                <input
+                  id="accept-privacy"
+                  type="checkbox"
+                  appCheckbox
+                  class="mt-0.5"
+                  aria-required="true"
+                  [checked]="acceptedPrivacy()"
+                  [attr.aria-invalid]="privacyMissing() || null"
+                  (change)="acceptedPrivacy.set(!acceptedPrivacy())"
+                />
+                <span>
+                  {{ text.privacyConsent }}
+                  <a routerLink="/privacy" class="text-primary underline">{{
+                    text.privacyLink
+                  }}</a
+                  ><span class="text-accent" aria-hidden="true">*</span>
+                </span>
+              </label>
+              @if (privacyMissing()) {
+                <p class="mt-1 text-sm text-red-600">
+                  {{ text.privacyRequired }}
+                </p>
+              }
             }
 
             <!-- Where the ADR says a refusal belongs: beside the button, not
@@ -280,18 +298,43 @@ import { AddressForm } from '../addresses/address-form';
               </p>
             }
 
-            <button
-              appButton
-              type="button"
-              class="mt-3 w-full"
-              [disabled]="sending()"
-              (click)="submit()"
-            >
-              {{ sending() ? text.submitting : text.submit }}
-            </button>
-            <a appButton variant="ghost" routerLink="/cart" class="mt-2 w-full">
-              {{ cartText.navLabel }}
-            </a>
+            @if (reviewing()) {
+              <button
+                appButton
+                type="button"
+                class="mt-3 w-full"
+                [disabled]="sending()"
+                (click)="submit()"
+              >
+                {{ sending() ? text.submitting : text.submit }}
+              </button>
+              <button
+                appButton
+                variant="ghost"
+                type="button"
+                class="mt-2 w-full"
+                (click)="backToForm()"
+              >
+                {{ text.review.back }}
+              </button>
+            } @else {
+              <button
+                appButton
+                type="button"
+                class="mt-5 w-full"
+                (click)="review()"
+              >
+                {{ text.review.send }}
+              </button>
+              <a
+                appButton
+                variant="ghost"
+                routerLink="/cart"
+                class="mt-2 w-full"
+              >
+                {{ cartText.navLabel }}
+              </a>
+            }
           </aside>
         </div>
       </div>
@@ -308,6 +351,8 @@ export class CheckoutPage {
   private readonly book = inject(AddressesService);
   private readonly account = inject(AccountService);
   private readonly orders = inject(OrdersService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly text = inject(APP_TEXT).checkout;
   protected readonly cartText = inject(APP_TEXT).cart;
@@ -380,6 +425,21 @@ export class CheckoutPage {
     () => this.privacyChecked() && !this.acceptedPrivacy(),
   );
 
+  /**
+   * Which of the two screens is on (ADR 0039): the form, or the read-back
+   * before sending. A query parameter rather than a field, so the browser's
+   * own Back button walks the step the customer just took — and the component
+   * is not rebuilt on the way, so the form it is holding survives.
+   */
+  readonly step = input<string | undefined>(undefined);
+
+  protected readonly reviewing = computed(() => this.step() === 'review');
+
+  protected readonly heading = computed(() => {
+    if (this.placed()) return this.text.successHeading;
+    return this.reviewing() ? this.text.review.title : this.text.title;
+  });
+
   /** Which pickers are asking for a typed address rather than offering a row —
    * the only ones whose fields have to be valid before anything is sent. */
   private readonly deliveryTyped = computed(
@@ -449,6 +509,20 @@ export class CheckoutPage {
 
   constructor() {
     usePageSeo({ name: () => this.text.title });
+
+    // A read-back reached directly — a reload, or a link — with nothing behind
+    // it. Only once both the account and the book have answered: until then
+    // there is no order to build, and bouncing would be a race, not a guard.
+    effect(() => {
+      if (
+        !this.reviewing() ||
+        this.profile.isLoading() ||
+        this.saved.isLoading()
+      ) {
+        return;
+      }
+      if (!this.buildSubmission()) this.goToStep(undefined);
+    });
 
     // A payment method the party can no longer take falls back to the default
     // rather than waiting to be refused: the customer changes who is invoiced,
@@ -585,6 +659,146 @@ export class CheckoutPage {
     });
   }
 
+  /**
+   * The answers, resolved for the read-back — the same resolutions the
+   * submission is built from, so what is shown and what is sent cannot differ.
+   */
+  protected readonly reviewBlocks = computed<ReviewBlock[]>(() => {
+    const draft = this.draft();
+    const review = this.text.review;
+    const fulfilment = this.text.fulfilment;
+
+    const arrival = this.isPickup()
+      ? [fulfilment.pickupTitle, ...this.pickupLines()]
+      : [
+          fulfilment.deliveryTitle,
+          ...this.addressLines(
+            this.addressFor(draft.deliveryAddressId, this.deliveryForm),
+          ),
+        ];
+
+    const invoice = [this.partyName()];
+    if (this.needsBillingPicker()) {
+      invoice.push(
+        ...this.addressLines(
+          this.addressFor(draft.billingAddressId, this.billingForm),
+        ),
+      );
+    } else {
+      invoice.push(review.billingSame);
+    }
+
+    const blocks: ReviewBlock[] = [
+      { heading: review.fulfilment, lines: arrival },
+      { heading: review.invoice, lines: invoice },
+      {
+        // The form's own words for the question, so the read-back is the same
+        // question and not a shorter one: what is recorded is a wish.
+        heading: this.isPickup()
+          ? this.text.timing.pickupLabel
+          : this.text.timing.deliveryLabel,
+        lines: [
+          draft.preferredDate
+            ? this.formatDate(draft.preferredDate)
+            : review.whenAny,
+        ],
+      },
+      {
+        heading: review.payment,
+        lines: [
+          draft.paymentMethod === 'bank-transfer'
+            ? this.text.payment.transferTitle
+            : this.text.payment.cashTitle,
+        ],
+      },
+    ];
+    // Only where there is one: an empty heading is a question the customer
+    // answered by leaving it alone.
+    if (draft.customerNote) {
+      blocks.push({ heading: review.note, lines: [draft.customerNote] });
+    }
+    // A blank line would be a claim that something was answered with nothing.
+    return blocks.map((block) => ({
+      ...block,
+      lines: block.lines.filter((line) => line.trim().length > 0),
+    }));
+  });
+
+  /** The chosen collection point, as it is configured. */
+  private pickupLines(): string[] {
+    const point = this.locations.find(
+      (location) => location.key === this.draft().pickupLocationKey,
+    );
+    return point ? [point.name, point.address] : [];
+  }
+
+  /** Who the invoice is made out to — the account's own party, or the one the
+   * form named. The number under the name, where there is one. */
+  private partyName(): string {
+    const draft = this.draft();
+    if (draft.party === 'account') {
+      return this.accountName() ?? this.text.party.own;
+    }
+    const { personName, companyName, companyId } = this.partyForm.getRawValue();
+    const name = draft.party === 'company' ? companyName : personName;
+    return draft.party === 'company' && companyId.trim()
+      ? `${name.trim()} · ${companyId.trim()}`
+      : name.trim();
+  }
+
+  private addressLines(address: AddressInput | null): string[] {
+    if (!address) return [];
+    return addressLines(
+      { ...address, id: '', createdAt: '', updatedAt: '' },
+      this.config.address,
+    );
+  }
+
+  private formatDate(iso: string): string {
+    return new Intl.DateTimeFormat(this.config.catalog.currency.locale, {
+      dateStyle: 'long',
+    }).format(new Date(`${iso}T00:00:00`));
+  }
+
+  /**
+   * On to the read-back, once the form actually holds an order. A refusal here
+   * is the form's own — the fields have just been told to say what is wrong.
+   */
+  protected review(): void {
+    this.errorState.set(null);
+    this.markProblems();
+
+    if (!this.buildSubmission()) {
+      this.errorState.set(this.text.errors.incomplete);
+      return;
+    }
+    this.goToStep('review');
+  }
+
+  /** From here on every field says what is wrong with it, including the ones
+   * nobody visited. */
+  private markProblems(): void {
+    this.partyErrors.markSubmitted();
+    if (this.deliveryTyped()) this.deliveryErrors.markSubmitted();
+    if (this.billingTyped()) this.billingErrors.markSubmitted();
+  }
+
+  protected backToForm(): void {
+    this.errorState.set(null);
+    this.goToStep(undefined);
+  }
+
+  private goToStep(step: string | undefined): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { step: step ?? null },
+      queryParamsHandling: 'merge',
+    });
+    // The two screens are one document; without this the second one opens
+    // wherever the first was scrolled to.
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0 });
+  }
+
   protected successMessage(reference: string): string {
     return fillText(this.text.success, { reference });
   }
@@ -600,14 +814,16 @@ export class CheckoutPage {
     if (this.sendingState()) return;
     this.errorState.set(null);
     this.privacyChecked.set(true);
-
-    this.partyErrors.markSubmitted();
-    if (this.deliveryTyped()) this.deliveryErrors.markSubmitted();
-    if (this.billingTyped()) this.billingErrors.markSubmitted();
+    if (!this.acceptedPrivacy()) return;
 
     const submission = this.buildSubmission();
     if (!submission) {
+      // Only reachable if something changed under the read-back; the form is
+      // where it can be corrected, so that is where the customer is put, with
+      // its own fields saying what is wrong.
+      this.markProblems();
       this.errorState.set(this.text.errors.incomplete);
+      this.goToStep(undefined);
       return;
     }
 
@@ -619,6 +835,7 @@ export class CheckoutPage {
         this.placedState.set(result.reference);
         this.cart.clear();
         this.drafts.clear();
+        this.goToStep(undefined);
         return;
       }
       if (result.code === 'cart-changed') {
@@ -635,12 +852,14 @@ export class CheckoutPage {
   }
 
   /** The order as the contract wants it, or null where the form is not
-   * finished — which the fields themselves have just been told to say. */
+   * finished — which the fields themselves have just been told to say.
+   * Consent is not part of it: that is the send screen's own gate, asked after
+   * this has already been built once to get there. */
   private buildSubmission(): OrderSubmission | null {
     const profile = this.profile.value();
     const draft = this.draft();
 
-    if (!profile || !this.acceptedPrivacy()) return null;
+    if (!profile) return null;
     if (this.partyForm.invalid) return null;
     if (this.deliveryTyped() && this.deliveryForm.group.invalid) return null;
     if (this.billingTyped() && this.billingForm.group.invalid) return null;

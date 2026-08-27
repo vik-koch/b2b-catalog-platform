@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { Address, OrderSubmission } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
@@ -130,6 +130,16 @@ async function render(options: Options = {}) {
   if (!options.empty) TestBed.inject(CartService).add(addition());
 
   const fixture = TestBed.createComponent(CheckoutPage);
+  // What the router outlet would do: the step is a query parameter, and in a
+  // test nothing binds one. Driving the input from the navigation keeps the
+  // two screens moving the way they do in a browser.
+  vi.spyOn(TestBed.inject(Router), 'navigate').mockImplementation(
+    async (_commands, extras) => {
+      const step = extras?.queryParams?.['step'] ?? undefined;
+      fixture.componentRef.setInput('step', step ?? undefined);
+      return true;
+    },
+  );
   // Twice: the first pass resolves the book and the profile, the second
   // renders what they seeded.
   await fixture.whenStable();
@@ -165,6 +175,14 @@ async function render(options: Options = {}) {
       Array.from(el.querySelectorAll('button')).find(
         (button) => button.textContent?.trim() === label,
       ),
+    /** Through the form's own button on to the read-back. */
+    review: async () => {
+      Array.from(el.querySelectorAll('button'))
+        .find((button) => button.textContent?.trim() === text.review.send)
+        ?.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    },
     /** Picks an option through its radio, which is what the page listens to. */
     pick: (group: string, value: string) => {
       const radio = el.querySelector<HTMLInputElement>(
@@ -502,16 +520,64 @@ describe('CheckoutPage', () => {
     });
   });
 
+  describe('the read-back before it is sent', () => {
+    it('reads the order back rather than sending it', async () => {
+      const page = await render();
+
+      page.drafts.patch({ customerNote: 'Ring the bell at the back gate.' });
+      await page.review();
+
+      expect(submitted).not.toHaveBeenCalled();
+      expect(page.text()).toContain(text.review.title);
+      // The lines, and the answers in the order they were asked for.
+      expect(page.text()).toContain('Filter Roast');
+      expect(page.text()).toContain(text.fulfilment.deliveryTitle);
+      expect(page.text()).toContain('Hafenstraße 12');
+      expect(page.text()).toContain(text.review.billingSame);
+      expect(page.text()).toContain(text.timing.deliveryLabel);
+      expect(page.text()).toContain(text.review.whenAny);
+      // The unit it was bought in, and what that comes to in pieces.
+      expect(page.text()).toContain('2 pk (12 pcs)');
+      expect(page.text()).toContain(text.payment.cashTitle);
+      expect(page.text()).toContain('Ring the bell at the back gate.');
+      // Nothing to edit here: the form is one click back.
+      expect(page.el.querySelector('#order-note')).toBeNull();
+    });
+
+    it('stays on the form while an answer is missing', async () => {
+      const page = await render();
+
+      page.pick('party', 'company');
+      await page.settle();
+      await page.review();
+
+      expect(page.text()).not.toContain(text.review.title);
+      expect(page.text()).toContain(text.errors.incomplete);
+    });
+
+    it('goes back to the form with everything still answered', async () => {
+      const page = await render();
+
+      page.drafts.patch({ customerNote: 'Ring the bell at the back gate.' });
+      await page.review();
+      page.button(text.review.back)?.click();
+      await page.settle();
+
+      expect(page.text()).toContain(text.fulfilment.heading);
+      expect(page.value('#order-note')).toBe('Ring the bell at the back gate.');
+    });
+  });
+
   describe('sending the order', () => {
     it('refuses to send until the privacy notice is accepted', async () => {
       const page = await render();
 
+      await page.review();
       page.button(text.submit)?.click();
       await page.settle();
 
       expect(submitted).not.toHaveBeenCalled();
       expect(page.text()).toContain(text.privacyRequired);
-      expect(page.text()).toContain(text.errors.incomplete);
     });
 
     it('sends what the form was answered with', async () => {
@@ -521,6 +587,7 @@ describe('CheckoutPage', () => {
         preferredDate: '2026-09-03',
         customerNote: 'Ring the bell at the back gate.',
       });
+      await page.review();
       page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
       await page.settle();
 
@@ -547,6 +614,7 @@ describe('CheckoutPage', () => {
     it('names the order back and empties the cart', async () => {
       const page = await render();
 
+      await page.review();
       page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
       await page.settle();
       page.button(text.submit)?.click();
@@ -562,6 +630,7 @@ describe('CheckoutPage', () => {
         submit: { ok: false, code: 'billing-details-required' },
       });
 
+      await page.review();
       page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
       await page.settle();
       page.button(text.submit)?.click();
