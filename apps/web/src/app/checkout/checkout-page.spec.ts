@@ -258,7 +258,7 @@ describe('CheckoutPage', () => {
       const page = await render();
 
       expect(page.text()).toContain('Kontor GmbH');
-      expect(page.text()).toContain(text.party.company);
+      expect(page.text()).toContain(text.party.other);
       expect(page.text()).not.toContain(text.party.otherNotice);
     });
 
@@ -300,6 +300,25 @@ describe('CheckoutPage', () => {
       expect(page.el.querySelector('#party-companyId')).not.toBeNull();
     });
 
+    it('keeps the kind of party chosen when the option is left and returned to', async () => {
+      const page = await render();
+
+      page.pick('party', 'other');
+      await page.settle();
+      page.pick('party-kind', 'company');
+      await page.settle();
+      expect(page.drafts.draft().party).toBe('company');
+
+      page.pick('party', 'account');
+      await page.settle();
+      page.pick('party', 'other');
+      await page.settle();
+
+      // Back on the company half, not reset to the first of the two.
+      expect(page.drafts.draft().party).toBe('company');
+      expect(page.el.querySelector('#party-companyId')).not.toBeNull();
+    });
+
     it('does not carry a person’s name into the company field', async () => {
       const page = await render();
 
@@ -308,7 +327,7 @@ describe('CheckoutPage', () => {
       page.type('#party-personName', 'Alex Fischer');
       expect(page.drafts.draft().otherPartyName).toBe('Alex Fischer');
 
-      page.pick('party', 'company');
+      page.pick('party-kind', 'company');
       await page.settle();
 
       expect(page.value('#party-companyName')).toBe('');
@@ -387,10 +406,12 @@ describe('CheckoutPage', () => {
       expect(page.text()).not.toContain(text.addresses.deliveryHeading);
     });
 
-    it('falls back to the fields where the book cannot be read', async () => {
+    it('is the fields alone where there is nothing saved to choose from', async () => {
       const page = await render({ addresses: [] });
 
-      expect(page.text()).toContain(text.addresses.bookEmpty);
+      // No list, so no option to tick and nothing to say about an empty book.
+      expect(page.text()).not.toContain(text.addresses.addNew);
+      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
       expect(page.drafts.draft().deliveryAddressId).toBeNull();
     });
   });
@@ -466,7 +487,7 @@ describe('CheckoutPage', () => {
       await page.settle();
       expect(page.drafts.draft().paymentMethod).toBe('bank-transfer');
 
-      page.pick('party', 'person');
+      page.pick('party', 'other');
       await page.settle();
 
       expect(page.drafts.draft().paymentMethod).toBe('cash');
@@ -547,7 +568,9 @@ describe('CheckoutPage', () => {
     it('stays on the form while an answer is missing', async () => {
       const page = await render();
 
-      page.pick('party', 'company');
+      page.pick('party', 'other');
+      await page.settle();
+      page.pick('party-kind', 'company');
       await page.settle();
       await page.review();
 

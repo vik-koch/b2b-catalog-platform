@@ -70,38 +70,47 @@ let nextId = 0;
         </div>
       }
 
-      <app-address-suggest-field
-        [control]="form().group.controls.street"
-        [label]="text.street"
-        [text]="suggestText"
-        [country]="form().group.controls.country.value"
-        [invalid]="isInvalid('street')"
-        (picked)="suggested($event)"
-      />
-      @if (isInvalid('street')) {
-        <p class="-mt-4 text-sm text-red-600">{{ text.required }}</p>
-      }
+      <!-- Collapsed, the street and what is inside the building are the whole
+           of what is being typed, so they share a row — the second field in
+           the column the postcode occupies once the fields are opened out, so
+           neither state redraws the other's grid. Expanded, they stack: there
+           are four more fields under them and a row of two would be the odd
+           one out. -->
+      <div [class]="streetRow()">
+        <div>
+          <app-address-suggest-field
+            [control]="form().group.controls.street"
+            [label]="text.street"
+            [text]="suggestText"
+            [country]="form().group.controls.country.value"
+            [invalid]="isInvalid('street')"
+            (picked)="suggested($event)"
+          />
+          @if (isInvalid('street')) {
+            <p class="mt-1 text-sm text-red-600">{{ text.required }}</p>
+          }
+          <!-- What the provider filled in, read back. Not an aside: it is most
+               of the address, and the customer is the only one who can say it
+               is wrong. -->
+          @if (collapsed() && filled()) {
+            <p class="mt-1 text-sm text-muted">{{ filled() }}</p>
+          }
+        </div>
 
-      <!-- What the provider filled in, read back. Not an aside: it is most of
-           the address, and the customer is the only one who can say it is
-           wrong. -->
-      @if (collapsed() && filled()) {
-        <p class="-mt-4 text-sm text-muted">{{ filled() }}</p>
-      }
-
-      <div>
-        <label [for]="id('street2')" appFieldLabel>
-          {{ text.street2 }}
-          <span class="font-normal text-subtle">({{ text.optional }})</span>
-        </label>
-        <input
-          [id]="id('street2')"
-          type="text"
-          formControlName="street2"
-          autocomplete="address-line2"
-          appInput
-          class="w-full"
-        />
+        <div>
+          <label [for]="id('street2')" appFieldLabel>
+            {{ text.street2 }}
+            <span class="font-normal text-subtle">({{ text.optional }})</span>
+          </label>
+          <input
+            [id]="id('street2')"
+            type="text"
+            formControlName="street2"
+            autocomplete="address-line2"
+            appInput
+            class="w-full"
+          />
+        </div>
       </div>
 
       @if (!collapsed()) {
@@ -235,6 +244,13 @@ export class AddressFields {
 
   protected readonly collapsed = computed(
     () => this.compact() && !this.expanded(),
+  );
+
+  /** The street and address line 2 side by side while the rest is collapsed,
+   * stacked once every field is on screen. The narrow column is the postcode's
+   * own, so the two states line up. */
+  protected readonly streetRow = computed(() =>
+    this.collapsed() ? 'grid gap-6 sm:grid-cols-[1fr_10rem]' : 'grid gap-6',
   );
 
   /** The parts a suggestion filled, on one line — everything the street line

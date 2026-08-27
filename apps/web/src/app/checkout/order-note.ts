@@ -31,12 +31,12 @@ import { Input } from '../ui/input';
       rows="3"
       [attr.maxlength]="maxLength"
       [value]="note() ?? ''"
+      [attr.placeholder]="text.placeholder"
       appInput
       appAutoGrow
       class="w-full"
       (input)="typed($event)"
     ></textarea>
-    <p class="mt-1 text-sm text-muted">{{ text.hint }}</p>
   `,
 })
 export class OrderNote {

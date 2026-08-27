@@ -2,13 +2,14 @@ import { Component, inject, input, output } from '@angular/core';
 import { FulfilmentMethod } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { FieldLabel } from '../ui/field-label';
+import { Icon } from '../ui/icons/icon';
 import { Input } from '../ui/input';
 
 /**
  * When the customer would like the order (FR-CART-07) — a wish, not a booking.
  * Scheduling is settled between customer and manager, so this is a date beside
- * the order rather than a window anything reserves, and the hint says so where
- * it is asked rather than in a confirmation nobody reads twice.
+ * the order rather than a window anything reserves — which "preferred" in the
+ * label already says, without a sentence under the field repeating it.
  *
  * A native date field: it is one date, the browser's own picker is the one the
  * customer already knows, and it hands back an ISO day with no parsing of what
@@ -21,23 +22,34 @@ import { Input } from '../ui/input';
  */
 @Component({
   selector: 'app-preferred-date',
-  imports: [FieldLabel, Input],
+  imports: [FieldLabel, Icon, Input],
   host: { class: 'block' },
   template: `
     <label [for]="id" appFieldLabel>
       {{ method() === 'pickup' ? text.pickupLabel : text.deliveryLabel }}
       <span class="font-normal text-subtle">({{ optional }})</span>
     </label>
-    <input
-      [id]="id"
-      type="date"
-      [min]="today"
-      [value]="date() ?? ''"
-      appInput
-      class="w-full max-w-56"
-      (change)="picked($event)"
-    />
-    <p class="mt-1 text-sm text-muted">{{ text.hint }}</p>
+    <!-- Our glyph replaces the browser's, rather than sitting beside it: the
+         native button is drawn differently in every engine and pinned to the
+         right edge, where no other field in the app keeps its affordance.
+         Hidden, not removed — the control is still a real date input, and
+         clicking anywhere in it opens the same picker. -->
+    <div class="relative flex max-w-56 items-center">
+      <app-icon
+        name="calendar"
+        class="pointer-events-none absolute left-3 h-4 w-4 text-subtle"
+      />
+      <input
+        [id]="id"
+        type="date"
+        [min]="today"
+        [value]="date() ?? ''"
+        appInput
+        class="w-full pl-9 [&::-webkit-calendar-picker-indicator]:hidden"
+        (click)="openPicker($event)"
+        (change)="picked($event)"
+      />
+    </div>
   `,
 })
 export class PreferredDate {
@@ -59,6 +71,19 @@ export class PreferredDate {
   protected readonly today = new Intl.DateTimeFormat('en-CA').format(
     new Date(),
   );
+
+  /** Opens the native picker from a click anywhere in the field, since the
+   * button that would have done it is hidden. Guarded: `showPicker` is absent
+   * on older engines and refuses outside a user gesture, and a field that
+   * still takes typing is a working field either way. */
+  protected openPicker(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    try {
+      input.showPicker?.();
+    } catch {
+      // Nothing to do: the date can still be typed.
+    }
+  }
 
   protected picked(event: Event): void {
     const value = (event.target as HTMLInputElement).value;

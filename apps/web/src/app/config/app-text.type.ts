@@ -366,6 +366,10 @@ export const appTextSchema = z
             /** The account's own party, where its name is not known yet — a
              * natural person is named, not labelled. */
             own: z.string(),
+            /** Anybody but the account. One option rather than two, with the
+             * kind of party asked inside it — the same switch registration
+             * puts at the top of its own form. */
+            other: z.string(),
             person: z.string(),
             company: z.string(),
             /** The name of a person being invoiced, which is the whole of what
@@ -391,10 +395,9 @@ export const appTextSchema = z
             billingOnlyHeading: z.string(),
             /** The checked default: unchecking reveals a second picker. */
             sameAsDelivery: z.string(),
-            /** The last option of every picker, revealing the fields. */
+            /** The last option of a picker that has rows to offer. With none
+             * there is no list and no option — the fields stand alone. */
             addNew: z.string(),
-            /** Shown where the account has saved none at all. */
-            bookEmpty: z.string(),
             loadError: z.string(),
             /** Whether to keep a newly typed address for next time. */
             saveToBook: z.string(),
@@ -431,7 +434,6 @@ export const appTextSchema = z
           .object({
             deliveryLabel: z.string(),
             pickupLabel: z.string(),
-            hint: z.string(),
           })
           .strict(),
         /**
@@ -462,7 +464,9 @@ export const appTextSchema = z
         note: z
           .object({
             label: z.string(),
-            hint: z.string(),
+            /** In the field rather than under it: what to write is the whole
+             * of what there is to say about an empty box. */
+            placeholder: z.string(),
           })
           .strict(),
         /**
@@ -537,8 +541,10 @@ export const appTextSchema = z
         fulfilment: z
           .object({
             heading: z.string(),
+            /** Delivery gets no sentence: what it means is not in question,
+             * and the conditions link under it is the answer to the only
+             * thing that is. */
             deliveryTitle: z.string(),
-            deliveryDescription: z.string(),
             pickupTitle: z.string(),
             pickupDescription: z.string(),
             /** Opens the zone list. The binding long form stays on the

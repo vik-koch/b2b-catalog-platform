@@ -152,8 +152,9 @@
     "party": {
       "heading": "Who should we invoice?",
       "own": "Myself",
-      "person": "Another person",
-      "company": "Another company",
+      "other": "Somebody else",
+      "person": "A private person",
+      "company": "A company",
       "personName": "Their name",
       "nameRequired": "Please give the name we should invoice.",
       "otherNotice": "We will confirm the price with you — your agreed prices belong to your own account."
@@ -164,7 +165,6 @@
       "billingOnlyHeading": "Where should the invoice go?",
       "sameAsDelivery": "Send the invoice to this address as well",
       "addNew": "Use a different address",
-      "bookEmpty": "You have no saved addresses yet.",
       "loadError": "We could not load your saved addresses — please enter one below.",
       "saveToBook": "Save this address for next time"
     },
@@ -177,8 +177,7 @@
     },
     "timing": {
       "deliveryLabel": "Preferred delivery date",
-      "pickupLabel": "Preferred collection date",
-      "hint": "We confirm the date with you — nothing is booked here."
+      "pickupLabel": "Preferred collection date"
     },
     "payment": {
       "heading": "How would you like to pay?",
@@ -191,7 +190,7 @@
     },
     "note": {
       "label": "Anything we should know?",
-      "hint": "Delivery instructions, a reference for your invoice, anything else."
+      "placeholder": "Delivery instructions, a reference for your invoice, anything else."
     },
     "review": {
       "title": "Check your order",
@@ -230,9 +229,8 @@
     "fulfilment": {
       "heading": "How would you like to receive your order?",
       "deliveryTitle": "Delivery",
-      "deliveryDescription": "We bring your order to the address you give us. Delivery is quoted with your order.",
       "pickupTitle": "Self-pickup",
-      "pickupDescription": "Collect your order yourself once we let you know it is ready.",
+      "pickupDescription": "Collect your order yourself for free.",
       "conditionsLink": "Delivery conditions",
       "conditionsHeading": "Where we deliver",
       "conditionsNote": "A guide only — we confirm delivery and its cost with every order.",

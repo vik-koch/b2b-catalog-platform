@@ -110,11 +110,10 @@ interface CartRow {
     RouterLink,
   ],
   template: `
-    <h1 class="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">
-      {{ text.title }}
-    </h1>
-
     @if (cart.isEmpty()) {
+      <h1 class="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">
+        {{ text.title }}
+      </h1>
       <p class="text-subtle">{{ text.empty }}</p>
       <a appButton routerLink="/catalog" class="mt-4">{{ text.emptyAction }}</a>
     } @else {
@@ -171,6 +170,13 @@ interface CartRow {
       <div class="@container/cart">
         <div class="grid gap-8 @min-[72.5rem]/cart:grid-cols-[1fr_20rem]">
           <div>
+            <!-- In the column, not above the grid: the summary beside it then
+                 starts level with the heading, and the same card sits at the
+                 same height on the cart, the checkout and the read-back. -->
+            <h1 class="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">
+              {{ text.title }}
+            </h1>
+
             <!-- Above the lines and left-aligned with them: what these two do is
                done *to* the ticks below, so they read before the first row
                rather than after the last. -->
@@ -345,7 +351,7 @@ interface CartRow {
              as tall as it needs to be, or a stretched column would fill the
              row and have nowhere to travel. -->
           <aside
-            class="max-w-80 space-y-4 @max-[593px]/cart:max-w-none @min-[72.5rem]/cart:sticky @min-[72.5rem]/cart:top-20 @min-[72.5rem]/cart:self-start"
+            class="max-w-80 @max-[593px]/cart:max-w-none @min-[72.5rem]/cart:mt-9 @min-[72.5rem]/cart:sticky @min-[72.5rem]/cart:top-20 @min-[72.5rem]/cart:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"

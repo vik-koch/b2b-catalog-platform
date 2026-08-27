@@ -23,12 +23,14 @@ import { AddressesService } from '../addresses/addresses.service';
 import { addressLines } from '../addresses/address-format';
 import { createAddressForm } from '../addresses/address-form';
 import { CartService } from '../cart/cart.service';
+import { delayedLoading } from '../core/delayed-loading';
 import { companyIdFormat } from '../core/contact-fields';
 import { fillText } from '../core/fill-text';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
+import { Skeleton } from '../ui/skeleton';
 import { OrderSummary } from '../cart/order-summary';
 import { AddressPicker } from './address-picker';
 import {
@@ -75,23 +77,20 @@ import { AddressForm } from '../addresses/address-form';
     PickupChoice,
     PreferredDate,
     RouterLink,
+    Skeleton,
   ],
   template: `
-    <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
-
     @if (placed(); as reference) {
+      <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
       <p class="text-muted">{{ successMessage(reference) }}</p>
       <a appButton routerLink="/catalog" class="mt-4">
         {{ text.successAction }}
       </a>
     } @else if (cart.isEmpty()) {
+      <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
       <p class="text-subtle">{{ text.emptyCart }}</p>
       <a appButton routerLink="/cart" class="mt-4">{{ cartText.navLabel }}</a>
     } @else {
-      <p class="mb-8 text-muted">
-        {{ reviewing() ? text.review.intro : text.intro }}
-      </p>
-
       <!-- Form and summary, the pair the cart already draws. Measured on the
            page rather than the window for the same reason it is there: the
            frame's padding and the scrollbar are most of a column, and the
@@ -99,146 +98,173 @@ import { AddressForm } from '../addresses/address-form';
            under the form instead of beside it. -->
       <div class="@container/checkout">
         <div class="grid gap-8 @min-[64rem]/checkout:grid-cols-[1fr_20rem]">
-          @if (reviewing()) {
-            <app-order-review class="max-w-xl" [blocks]="reviewBlocks()" />
-          } @else {
-            <div class="max-w-xl space-y-6">
-              <app-fulfilment-choice
-                [method]="draft().fulfilmentMethod"
-                (methodChange)="chooseFulfilment($event)"
-              />
+          <!-- Heading and intro in the column, not above the grid: the summary
+               beside them then starts level with the heading, and the same card
+               sits at the same height on the cart, here, and on the read-back. -->
+          <div>
+            <!-- The heading and the line under it run the width of the column;
+                 the form itself is narrower. A sentence set to the width of a
+                 form field wraps for no reason, and the questions below want
+                 the shorter measure. -->
+            <div class="mb-8">
+              <h1 class="mb-2 text-3xl font-bold tracking-tight">
+                {{ heading() }}
+              </h1>
+              <p class="text-muted">
+                {{ reviewing() ? text.review.intro : text.intro }}
+              </p>
+            </div>
 
-              <!-- Pickup's answer to the delivery address, in the place the
-                 address stands for delivery. -->
-              @if (isPickup()) {
-                <app-pickup-choice
-                  [pickupKey]="draft().pickupLocationKey"
-                  (pickupKeyChange)="
-                    drafts.patch({ pickupLocationKey: $event })
-                  "
+            @if (reviewing()) {
+              <app-order-review class="max-w-xl" [blocks]="reviewBlocks()" />
+            } @else if (formPending()) {
+              <!-- The account's own party, whether a transfer can be paid and
+                   which addresses are on offer are all answers, not defaults.
+                   Drawing the form without them and correcting it a moment
+                   later moves the page under whoever is already reading it. -->
+              @if (showFormSkeleton()) {
+                <app-skeleton class="max-w-xl" [lines]="10" />
+              }
+            } @else {
+              <div class="max-w-xl space-y-6">
+                <app-fulfilment-choice
+                  [method]="draft().fulfilmentMethod"
+                  (methodChange)="chooseFulfilment($event)"
                 />
-              }
 
-              @if (addressError()) {
-                <p class="text-sm text-amber-700">
-                  {{ addressText.loadError }}
-                </p>
-              }
+                <!-- Pickup's answer to the delivery address, in the place the
+                 address stands for delivery. -->
+                @if (isPickup()) {
+                  <app-pickup-choice
+                    [pickupKey]="draft().pickupLocationKey"
+                    (pickupKeyChange)="
+                      drafts.patch({ pickupLocationKey: $event })
+                    "
+                  />
+                }
 
-              <!-- Whose name the invoice carries, asked before where anything
+                @if (addressError()) {
+                  <p class="text-sm text-amber-700">
+                    {{ addressText.loadError }}
+                  </p>
+                }
+
+                <!-- Whose name the invoice carries, asked before where anything
                  goes: the answer decides what the address rows below are for,
                  and it is also what unchecking "the same address" falls back
                  to — a second picker directly under the checkbox that revealed
                  it, rather than one further down the page. -->
-              <app-party-choice
-                [party]="draft().party"
-                [accountName]="accountName()"
-                [personNameControl]="partyForm.controls.personName"
-                [companyNameControl]="partyForm.controls.companyName"
-                [companyIdControl]="partyForm.controls.companyId"
-                [personNameInvalid]="
-                  partyErrors.show(partyForm.controls.personName)
-                "
-                [companyNameInvalid]="
-                  partyErrors.show(partyForm.controls.companyName)
-                "
-                [companyIdInvalid]="
-                  partyErrors.show(partyForm.controls.companyId)
-                "
-                (partyChange)="chooseParty($event)"
-                (picked)="pickParty($event)"
-              />
+                <app-party-choice
+                  [party]="draft().party"
+                  [accountName]="accountName()"
+                  [otherParty]="otherParty()"
+                  [personNameControl]="partyForm.controls.personName"
+                  [companyNameControl]="partyForm.controls.companyName"
+                  [companyIdControl]="partyForm.controls.companyId"
+                  [personNameInvalid]="
+                    partyErrors.show(partyForm.controls.personName)
+                  "
+                  [companyNameInvalid]="
+                    partyErrors.show(partyForm.controls.companyName)
+                  "
+                  [companyIdInvalid]="
+                    partyErrors.show(partyForm.controls.companyId)
+                  "
+                  (partyChange)="chooseParty($event)"
+                  (picked)="pickParty($event)"
+                />
 
-              <!-- The zone is re-read when focus leaves the picker, not on
+                <!-- The zone is re-read when focus leaves the picker, not on
                  every keystroke: half a postcode resolves to whatever zone
                  happens to start with those digits, and a hint that flickers
                  through three areas while one is typed is worse than one that
                  waits. -->
-              @if (!isPickup()) {
-                <app-address-picker
-                  (focusout)="commitDelivery()"
-                  (picked)="commitDelivery()"
-                  [heading]="addressText.deliveryHeading"
-                  [addresses]="addresses()"
-                  [selectedId]="draft().deliveryAddressId"
-                  [form]="deliveryForm"
-                  [fieldErrors]="deliveryErrors"
-                  [save]="saveDelivery()"
-                  (selectedIdChange)="
-                    drafts.patch({ deliveryAddressId: $event })
-                  "
-                  (saveChange)="drafts.patch({ saveDeliveryAddress: $event })"
-                >
-                  <!-- Checked, because one address usually serves both.
-                     Unchecking is what reveals the second picker. -->
-                  <label
-                    class="mt-3 flex cursor-pointer items-start gap-2 text-sm"
+                @if (!isPickup()) {
+                  <app-address-picker
+                    (focusout)="commitDelivery()"
+                    (picked)="commitDelivery()"
+                    [heading]="addressText.deliveryHeading"
+                    [addresses]="addresses()"
+                    [selectedId]="draft().deliveryAddressId"
+                    [form]="deliveryForm"
+                    [fieldErrors]="deliveryErrors"
+                    [save]="saveDelivery()"
+                    (selectedIdChange)="
+                      drafts.patch({ deliveryAddressId: $event })
+                    "
+                    (saveChange)="drafts.patch({ saveDeliveryAddress: $event })"
                   >
-                    <input
-                      type="checkbox"
-                      appCheckbox
-                      class="mt-0.5"
-                      [checked]="draft().billingSameAsDelivery"
-                      (change)="toggleSameBilling()"
-                    />
-                    <span>{{ addressText.sameAsDelivery }}</span>
-                  </label>
-                </app-address-picker>
-              }
+                    <!-- Checked, because one address usually serves both.
+                     Unchecking is what reveals the second picker. -->
+                    <label
+                      class="mt-3 flex cursor-pointer items-start gap-2 text-sm"
+                    >
+                      <input
+                        type="checkbox"
+                        appCheckbox
+                        class="mt-0.5"
+                        [checked]="draft().billingSameAsDelivery"
+                        (change)="toggleSameBilling()"
+                      />
+                      <span>{{ addressText.sameAsDelivery }}</span>
+                    </label>
+                  </app-address-picker>
+                }
 
-              <!-- Pickup asks for an address anyway: the one on the paperwork
+                <!-- Pickup asks for an address anyway: the one on the paperwork
                  belongs to the order, not to whoever carries the goods — and
                  with nothing being delivered it is the only address asked
                  for, which is what its own heading says. -->
-              @if (needsBillingPicker()) {
-                <app-address-picker
-                  [heading]="
-                    isPickup()
-                      ? addressText.billingOnlyHeading
-                      : addressText.billingHeading
-                  "
-                  [addresses]="addresses()"
-                  [selectedId]="draft().billingAddressId"
-                  [form]="billingForm"
-                  [fieldErrors]="billingErrors"
-                  [save]="saveBilling()"
-                  (selectedIdChange)="
-                    drafts.patch({ billingAddressId: $event })
-                  "
-                  (saveChange)="drafts.patch({ saveBillingAddress: $event })"
-                />
-              }
+                @if (needsBillingPicker()) {
+                  <app-address-picker
+                    [heading]="
+                      isPickup()
+                        ? addressText.billingOnlyHeading
+                        : addressText.billingHeading
+                    "
+                    [addresses]="addresses()"
+                    [selectedId]="draft().billingAddressId"
+                    [form]="billingForm"
+                    [fieldErrors]="billingErrors"
+                    [save]="saveBilling()"
+                    (selectedIdChange)="
+                      drafts.patch({ billingAddressId: $event })
+                    "
+                    (saveChange)="drafts.patch({ saveBillingAddress: $event })"
+                  />
+                }
 
-              <!-- When they would like it, which belongs with the two rows that
+                <!-- When they would like it, which belongs with the two rows that
                  decide where it is going. A wish either way: a manager
                  confirms the day, and nothing here reserves one. -->
-              <app-preferred-date
-                [method]="draft().fulfilmentMethod"
-                [date]="draft().preferredDate"
-                (dateChange)="drafts.patch({ preferredDate: $event })"
-              />
+                <app-preferred-date
+                  [method]="draft().fulfilmentMethod"
+                  [date]="draft().preferredDate"
+                  (dateChange)="drafts.patch({ preferredDate: $event })"
+                />
 
-              <app-payment-choice
-                [method]="draft().paymentMethod"
-                [fulfilment]="draft().fulfilmentMethod"
-                [transferAllowed]="partyIsCompany()"
-                (methodChange)="drafts.patch({ paymentMethod: $event })"
-              />
+                <app-payment-choice
+                  [method]="draft().paymentMethod"
+                  [fulfilment]="draft().fulfilmentMethod"
+                  [transferAllowed]="partyIsCompany()"
+                  (methodChange)="drafts.patch({ paymentMethod: $event })"
+                />
 
-              <!-- Last, because it is the only row with no default: everything
+                <!-- Last, because it is the only row with no default: everything
                  above arrives answered. -->
-              <app-order-note
-                [note]="draft().customerNote"
-                (noteChange)="drafts.patch({ customerNote: $event })"
-              />
-            </div>
-          }
+                <app-order-note
+                  [note]="draft().customerNote"
+                  (noteChange)="drafts.patch({ customerNote: $event })"
+                />
+              </div>
+            }
+          </div>
 
           <!-- Pinned once it is a column of its own: the form beside it is as
                long as the answers are, and the total is what the customer is
                reading them against. -->
           <aside
-            class="@min-[64rem]/checkout:sticky @min-[64rem]/checkout:top-20 @min-[64rem]/checkout:self-start"
+            class="@min-[64rem]/checkout:mt-9 @min-[64rem]/checkout:sticky @min-[64rem]/checkout:top-20 @min-[64rem]/checkout:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"
@@ -449,6 +475,24 @@ export class CheckoutPage {
     () => this.needsBillingPicker() && this.draft().billingAddressId === null,
   );
 
+  /**
+   * Whether the form can be drawn yet. Three of its rows are shaped by answers
+   * rather than by defaults — what the account's own party is called, whether
+   * a bank transfer can be paid, and which addresses are on offer — so a form
+   * drawn before they arrive is a form that rearranges itself under whoever is
+   * already reading it.
+   */
+  protected readonly formPending = computed(
+    () => this.profile.isLoading() || this.saved.isLoading(),
+  );
+  /** And only owned up to if the wait is long enough to notice. */
+  protected readonly showFormSkeleton = delayedLoading(this.formPending);
+
+  /** Which kind "somebody else" was last, so leaving that option and coming
+   * back does not quietly reset the switch. */
+  private readonly lastOtherParty = signal<Party>('person');
+  protected readonly otherParty = this.lastOtherParty.asReadonly();
+
   protected readonly saveDelivery = computed(
     () => this.draft().saveDeliveryAddress,
   );
@@ -619,6 +663,7 @@ export class CheckoutPage {
     // Before the controls are touched: what they write into the draft depends
     // on which party is chosen, and they fire on the way through.
     this.drafts.patch({ party });
+    if (party !== 'account') this.lastOtherParty.set(party);
 
     const { personName, companyName, companyId } = this.partyForm.controls;
 

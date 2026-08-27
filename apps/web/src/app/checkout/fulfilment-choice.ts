@@ -38,16 +38,19 @@ import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
           name="fulfilment"
           value="delivery"
           [title]="text.deliveryTitle"
-          [description]="text.deliveryDescription"
           [checked]="method() === 'delivery'"
           (chosen)="methodChange.emit('delivery')"
         >
           <!-- Only where the deployment describes zones: a dialog listing
                nothing is a link that answers no question. -->
           @if (hasZones) {
+            <!-- Block, not the inline-block a button is by default: on a
+                 text baseline it carries the line box's leading with it, and
+                 sits a few pixels lower than the sentence the other card
+                 prints in the same place. -->
             <button
               type="button"
-              class="cursor-pointer text-sm text-accent hover:underline"
+              class="block cursor-pointer text-sm text-accent hover:underline"
               (click)="showConditions.set(true)"
             >
               {{ text.conditionsLink }}

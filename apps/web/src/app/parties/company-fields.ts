@@ -63,7 +63,11 @@ export interface CompanyFieldsText extends SuggestListText {
         (picked)="picked.emit($event)"
       />
 
-      <div class="sm:col-span-2">
+      <!-- Gone entirely when there is nothing to say, rather than an empty
+           grid row: with no hint configured it would still take the row gap,
+           and the notice under a company would sit lower than under a
+           person. -->
+      <div class="empty:hidden sm:col-span-2">
         @for (message of messages(); track message) {
           <p class="text-sm text-red-600">{{ message }}</p>
         } @empty {

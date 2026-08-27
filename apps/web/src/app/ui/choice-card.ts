@@ -55,8 +55,10 @@ import { Radio } from './radio';
 
       <!-- Above the overlay, so a link or a list in here is clickable. Indented
            to the title's own column: what a choice reveals belongs under what
-           it says, not under its radio. -->
-      <div class="relative mt-3 ml-7 empty:hidden"><ng-content /></div>
+           it says, not under its radio. Flush under a card that says nothing
+           else: the gap is there to clear a sentence, and with no sentence to
+           clear it stands where the sentence would have been. -->
+      <div [class]="contentClass()"><ng-content /></div>
     </div>
   `,
 })
@@ -71,6 +73,10 @@ export class ChoiceCard {
   readonly description = input<string>();
 
   readonly chosen = output<void>();
+
+  protected readonly contentClass = computed(
+    () => `relative ml-7 empty:hidden ${this.description() ? 'mt-3' : 'mt-1'}`,
+  );
 
   protected readonly cardClass = computed(() => {
     // Selected deepens to primary the way a pressed button does; hover goes

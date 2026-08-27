@@ -1,4 +1,5 @@
 import { Component, inject, input, output } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { Address, AddressComponents } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -11,7 +12,7 @@ import {
   addressDisplayName,
 } from '../addresses/address-format';
 import { Checkbox } from '../ui/checkbox';
-import { Radio } from '../ui/radio';
+import { ChoiceBranch } from '../ui/choice-branch';
 
 /** Ids have to be unique per instance: a delivery picker and a billing picker
  * stand on the same page. */
@@ -23,85 +24,97 @@ let nextId = 0;
  * The saved rows read the way the account page writes them — the same name and
  * the same lines — so a customer recognises the row they mean rather than
  * decoding a second rendering of it. The last option opens the ordinary
- * address fields, which is also the whole picker for an account with an empty
- * book and, later, for a guest who has no book at all.
+ * address fields.
+ *
+ * With nothing saved there is no list at all: the fields stand on their own in
+ * a card with no title, because there is no option left to title it with. That
+ * is what an account with an empty book sees, and what a guest will see.
  *
  * No identity is asked for here: who an order is invoiced to is one question,
  * asked once in its own row, and an address is a place.
  */
 @Component({
   selector: 'app-address-picker',
-  imports: [AddressFields, Checkbox, Radio],
+  imports: [AddressFields, Checkbox, ChoiceBranch, NgTemplateOutlet],
   host: { class: 'block' },
   template: `
     <fieldset>
       <legend class="mb-2 font-medium">{{ heading() }}</legend>
 
-      <div class="space-y-2" role="radiogroup">
-        @for (address of addresses(); track address.id) {
-          <label class="flex cursor-pointer items-baseline gap-2">
-            <input
-              type="radio"
-              appRadio
-              class="self-center"
+      @if (addresses().length === 0) {
+        <!-- Nothing to choose between, so nothing is asked: the fields are the
+             whole picker, in a card of their own with no option to tick. A
+             list of one option is not a question. -->
+        <div class="space-y-4 rounded-md border border-border p-4">
+          <ng-container [ngTemplateOutlet]="addressFields" />
+        </div>
+      } @else {
+        <div class="space-y-2" role="radiogroup">
+          @for (address of addresses(); track address.id) {
+            <app-choice-branch
               [name]="group"
               [value]="address.id"
               [checked]="selectedId() === address.id"
-              (change)="selectedIdChange.emit(address.id)"
-            />
-            <!-- Name and lines on one axis, the way a collection point reads:
-                 what it is called, then in a quieter voice where it is. -->
-            <span class="flex flex-wrap items-baseline gap-x-4">
-              <span>{{ name(address) }}</span>
-              <span class="text-sm text-muted">{{ lines(address) }}</span>
-            </span>
-          </label>
-        } @empty {
-          <p class="text-sm text-subtle">{{ text.bookEmpty }}</p>
-        }
+              (chosen)="selectedIdChange.emit(address.id)"
+            >
+              <!-- Name and lines on one axis, the way a collection point reads:
+                   what it is called, then in a quieter voice where it is. -->
+              <span branchLabel>{{ name(address) }}</span>
+              <span branchLabel class="text-sm text-muted">
+                {{ lines(address) }}
+              </span>
+            </app-choice-branch>
+          }
 
-        <label class="flex cursor-pointer items-baseline gap-2">
-          <input
-            type="radio"
-            appRadio
-            class="self-center"
+          <!-- Framed while it is the one chosen: the fields it reveals end in a
+               tick box of their own, which without a frame would read as one
+               more option in this list. -->
+          <app-choice-branch
             [name]="group"
             value="new"
             [checked]="selectedId() === null"
-            (change)="selectedIdChange.emit(null)"
-          />
-          <span>{{ text.addNew }}</span>
-        </label>
-      </div>
+            [framed]="selectedId() === null"
+            (chosen)="selectedIdChange.emit(null)"
+          >
+            <span branchLabel>{{ text.addNew }}</span>
 
-      @if (selectedId() === null) {
-        <div class="mt-4 ml-6 space-y-4">
-          <!-- No label asked for here: at checkout an address is named by
-               its own street line, and inventing a word for it is a question
-               asked for nothing. -->
-          <app-address-fields
-            [form]="form()"
-            [fieldErrors]="fieldErrors()"
-            [showLabel]="false"
-            [compact]="suggests"
-            (picked)="picked.emit($event)"
-          />
-          <!-- Only where there is a book to save it to. Checked, because an
-               address typed at checkout is one the customer orders to. -->
-          @if (canSave()) {
-            <label class="flex cursor-pointer items-start gap-2 text-sm">
-              <input
-                type="checkbox"
-                appCheckbox
-                class="mt-0.5"
-                [checked]="save()"
-                (change)="saveChange.emit(!save())"
-              />
-              <span>{{ text.saveToBook }}</span>
-            </label>
-          }
+            @if (selectedId() === null) {
+              <div class="space-y-4">
+                <ng-container [ngTemplateOutlet]="addressFields" />
+              </div>
+            }
+          </app-choice-branch>
         </div>
       }
+
+      <!-- The same fields either way: with a book they are what the last
+           option reveals, without one they are the whole picker. -->
+      <ng-template #addressFields>
+        <!-- No label asked for here: at checkout an address is named by its own
+             street line, and inventing a word for it is a question asked for
+             nothing. -->
+        <app-address-fields
+          [form]="form()"
+          [fieldErrors]="fieldErrors()"
+          [showLabel]="false"
+          [compact]="suggests"
+          (picked)="picked.emit($event)"
+        />
+        <!-- Only where there is a book to save it to. Checked, because an
+             address typed at checkout is one the customer orders to. -->
+        @if (canSave()) {
+          <label class="flex cursor-pointer items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              appCheckbox
+              class="mt-0.5"
+              [checked]="save()"
+              (change)="saveChange.emit(!save())"
+            />
+            <span>{{ text.saveToBook }}</span>
+          </label>
+        }
+      </ng-template>
 
       <!-- Whatever the page wants to say about the chosen address — the
            delivery zone it falls in, or the invoice checkbox. -->
