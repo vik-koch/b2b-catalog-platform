@@ -362,6 +362,9 @@ export const appTextSchema = z
         /** What the summary's delivery row says for a pickup: there is no
          * delivery to quote, which is not the same as one being free. */
         collection: z.string(),
+        /** The marker on the fields that are not required — the date and the
+         * note, which the form asks for rather than needs. */
+        optional: z.string(),
         /**
          * Who the order is invoiced to (FR-CART-09) — the account's own party
          * or somebody else. The *address* row asks where the paperwork goes;
@@ -422,6 +425,46 @@ export const appTextSchema = z
             /** The address falls in no configured zone, which is normal: a
              * deployment need not describe everywhere it ships. */
             unknown: z.string(),
+          })
+          .strict(),
+        /**
+         * When the customer would like it (FR-CART-07). A wish, not a booking:
+         * scheduling is settled between customer and manager, so this travels
+         * as a note beside the order rather than as a window anything reserves.
+         */
+        timing: z
+          .object({
+            deliveryLabel: z.string(),
+            pickupLabel: z.string(),
+            hint: z.string(),
+          })
+          .strict(),
+        /**
+         * How it is paid (FR-CART-04). Recorded, never executed — nothing here
+         * charges anybody, and the wording must not suggest otherwise. Card is
+         * not offered: it is reachable only after a manager approves the
+         * request (FR-CART-06).
+         */
+        payment: z
+          .object({
+            heading: z.string(),
+            cashTitle: z.string(),
+            cashDescription: z.string(),
+            transferTitle: z.string(),
+            transferDescription: z.string(),
+            /** Why the option is there but cannot be taken: a bank transfer
+             * invoices a legal entity, so it needs a company party. Said at
+             * the row rather than refused after the form is filled. */
+            transferCompanyOnly: z.string(),
+          })
+          .strict(),
+        /** Anything the customer wants to say in words, copied onto the order
+         * for the manager who reads it. Not the per-line note (FR-CART-08),
+         * which belongs to a product. */
+        note: z
+          .object({
+            label: z.string(),
+            hint: z.string(),
           })
           .strict(),
         /** How the goods arrive. The row that leads the form, because it

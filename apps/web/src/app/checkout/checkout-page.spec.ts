@@ -119,23 +119,29 @@ async function render(options: Options = {}) {
     drafts: TestBed.inject(CheckoutDraftService),
     el,
     /** Types into a field the way a customer does, so the form's own
-     * subscriptions run. */
+     * subscriptions run. Both events, because a field takes whichever it
+     * needs — a date is committed on change, a note as it is written. */
     type: (selector: string, value: string) => {
       const input = el.querySelector<HTMLInputElement>(selector);
       if (!input) throw new Error(`No ${selector} on the page`);
       input.value = value;
       input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new Event('change'));
     },
     value: (selector: string) =>
       el.querySelector<HTMLInputElement>(selector)?.value,
-    /** Picks a party through its radio, which is what the page listens to. */
-    chooseParty: (party: string) => {
+    /** Picks an option through its radio, which is what the page listens to. */
+    pick: (group: string, value: string) => {
       const radio = el.querySelector<HTMLInputElement>(
-        `input[name="party"][value="${party}"]`,
+        `input[name="${group}"][value="${value}"]`,
       );
-      if (!radio) throw new Error(`No ${party} party option on the page`);
+      if (!radio) throw new Error(`No ${value} option in ${group}`);
       radio.click();
     },
+    radio: (group: string, value: string) =>
+      el.querySelector<HTMLInputElement>(
+        `input[name="${group}"][value="${value}"]`,
+      ),
     text: () => (fixture.nativeElement as HTMLElement).textContent ?? '',
     settle: async () => {
       await fixture.whenStable();
@@ -249,7 +255,7 @@ describe('CheckoutPage', () => {
       page.type('#party-personName', 'Alex Fischer');
       expect(page.drafts.draft().otherPartyName).toBe('Alex Fischer');
 
-      page.chooseParty('company');
+      page.pick('party', 'company');
       await page.settle();
 
       expect(page.value('#party-companyName')).toBe('');
@@ -333,6 +339,73 @@ describe('CheckoutPage', () => {
 
       expect(page.text()).toContain(text.addresses.bookEmpty);
       expect(page.drafts.draft().deliveryAddressId).toBeNull();
+    });
+  });
+
+  describe('when it is wanted, how it is paid and anything else', () => {
+    it('asks for a date in the words of the chosen fulfilment', async () => {
+      const page = await render();
+
+      expect(page.text()).toContain(text.timing.deliveryLabel);
+
+      page.drafts.patch({ fulfilmentMethod: 'pickup' });
+      await page.settle();
+
+      expect(page.text()).toContain(text.timing.pickupLabel);
+      expect(page.text()).not.toContain(text.timing.deliveryLabel);
+    });
+
+    it('keeps the wished date and the note in the draft', async () => {
+      const page = await render();
+
+      page.type('#preferred-date', '2026-09-03');
+      page.type('#order-note', 'Ring the bell at the back gate.');
+
+      expect(page.drafts.draft().preferredDate).toBe('2026-09-03');
+      expect(page.drafts.draft().customerNote).toBe(
+        'Ring the bell at the back gate.',
+      );
+    });
+
+    it('offers cash and bank transfer, and never card', async () => {
+      const page = await render();
+
+      expect(page.text()).toContain(text.payment.cashTitle);
+      expect(page.text()).toContain(text.payment.transferTitle);
+      expect(page.radio('payment', 'card-later')).toBeNull();
+      expect(page.drafts.draft().paymentMethod).toBe('cash');
+    });
+
+    it('lets a company account pay by transfer', async () => {
+      const page = await render();
+
+      expect(page.radio('payment', 'bank-transfer')?.disabled).toBe(false);
+
+      page.pick('payment', 'bank-transfer');
+      await page.settle();
+
+      expect(page.drafts.draft().paymentMethod).toBe('bank-transfer');
+    });
+
+    it('says why a private customer cannot, rather than hiding it', async () => {
+      const page = await render({ person: true });
+
+      expect(page.radio('payment', 'bank-transfer')?.disabled).toBe(true);
+      expect(page.text()).toContain(text.payment.transferCompanyOnly);
+      expect(page.text()).not.toContain(text.payment.transferDescription);
+    });
+
+    it('falls back to cash when the party stops being a company', async () => {
+      const page = await render();
+
+      page.pick('payment', 'bank-transfer');
+      await page.settle();
+      expect(page.drafts.draft().paymentMethod).toBe('bank-transfer');
+
+      page.pick('party', 'person');
+      await page.settle();
+
+      expect(page.drafts.draft().paymentMethod).toBe('cash');
     });
   });
 

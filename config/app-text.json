@@ -152,6 +152,7 @@
     "intro": "Send us your order and we will confirm the details with you — nothing is charged here.",
     "emptyCart": "There is nothing in your cart to order.",
     "collection": "Collected by you",
+    "optional": "optional",
     "party": {
       "heading": "Who should we invoice?",
       "own": "Myself",
@@ -176,6 +177,23 @@
       "shortOf": "Add {amount} more for free delivery in this area.",
       "qualifies": "This order qualifies for free delivery in this area.",
       "unknown": "We will confirm delivery to this address with you."
+    },
+    "timing": {
+      "deliveryLabel": "Preferred delivery date",
+      "pickupLabel": "Preferred collection date",
+      "hint": "We confirm the date with you — nothing is booked here."
+    },
+    "payment": {
+      "heading": "How would you like to pay?",
+      "cashTitle": "Cash",
+      "cashDescription": "Pay when you receive or collect your order.",
+      "transferTitle": "Bank transfer",
+      "transferDescription": "We invoice you with our bank details once we confirm your order.",
+      "transferCompanyOnly": "Only for an order invoiced to a company."
+    },
+    "note": {
+      "label": "Anything we should know?",
+      "hint": "Delivery instructions, a reference for your invoice, anything else."
     },
     "fulfilment": {
       "heading": "How would you like to receive your order?",

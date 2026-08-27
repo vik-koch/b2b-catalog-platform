@@ -174,8 +174,11 @@ export class OrdersService {
     return party;
   }
 
-  /** The party an account is registered as: its company where it has one, its
-   * holder's name otherwise. */
+  /** The party an account is registered as: its company, unless it registered
+   * as a person — one who once gave a company name is still invoiced by name.
+   * Only a declared person is read that way, so an older account that carries
+   * a company and no type at all keeps being invoiced as one. The checkout row
+   * reads the same rule, so the order names what the customer was shown. */
   private async accountParty(userId: string | null): Promise<OrderingParty> {
     if (!userId) {
       // A guest has no such record, so their submission has to name the party
@@ -191,6 +194,7 @@ export class OrdersService {
         firstName: users.firstName,
         lastName: users.lastName,
         email: users.email,
+        customerType: users.customerType,
         companyName: users.companyName,
         companyRegistrationId: users.companyRegistrationId,
       })
@@ -207,7 +211,11 @@ export class OrdersService {
       // The address is the last resort rather than an error: a staff-created
       // account may carry no name at all, and an order must still say who it
       // is for.
-      name: account.companyName || person || account.email,
+      name:
+        (account.customerType !== 'person' && account.companyName) ||
+        person ||
+        account.companyName ||
+        account.email,
       registrationId: account.companyRegistrationId,
     };
   }

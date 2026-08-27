@@ -35,6 +35,16 @@ const product = {
   minPieceQty: 10,
 };
 
+/** The account columns the party resolver reads. */
+interface AccountRow {
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  customerType: 'person' | 'company' | null;
+  companyName: string | null;
+  companyRegistrationId: string | null;
+}
+
 interface Insert {
   table: unknown;
   values: Record<string, unknown> | Record<string, unknown>[];
@@ -44,7 +54,7 @@ interface Insert {
  * A drizzle stand-in: one select for the pricer, and a transaction whose first
  * `collisions` order inserts raise Postgres' unique-violation code.
  */
-function testDb(collisions = 0) {
+function testDb(collisions = 0, accountRow: Partial<AccountRow> = {}) {
   const inserts: Insert[] = [];
   /** Every reference the service tried, collisions included. */
   const attempted: string[] = [];
@@ -63,8 +73,10 @@ function testDb(collisions = 0) {
           firstName: 'Ada',
           lastName: 'Byron',
           email: 'ada@example.com',
+          customerType: 'company',
           companyName: 'Kontor GmbH',
           companyRegistrationId: 'DE123456789',
+          ...accountRow,
         },
       ]),
   };
@@ -298,6 +310,20 @@ describe('OrdersService.submit', () => {
       partyName: 'Kontor GmbH',
       partyRegistrationId: 'DE123456789',
     });
+  });
+
+  it('invoices a private customer by name, whatever else their record carries', async () => {
+    // A customer who registered as a person keeps their own name on the
+    // invoice: the type is the answer, not whichever field is not empty.
+    const { db, orderRows } = testDb(0, { customerType: 'person' });
+
+    await service(db).submit(
+      submission({ paymentMethod: 'cash' }),
+      'user-1',
+      null,
+    );
+
+    expect(orderRows()[0]).toMatchObject({ partyName: 'Ada Byron' });
   });
 
   it('snapshots the party the order named instead', async () => {

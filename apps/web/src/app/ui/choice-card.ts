@@ -27,7 +27,10 @@ import { Radio } from './radio';
       <label class="flex items-start gap-3">
         <!-- The overlay: the card's own hit area, and the reason the card is
              not itself a label. -->
-        <span class="absolute inset-0 cursor-pointer rounded-lg"></span>
+        <span
+          class="absolute inset-0 rounded-lg"
+          [class.cursor-pointer]="!disabled()"
+        ></span>
         <!-- Centred on the title's own line box, not on the block: the radio
              is 16px in the 24px line the title sets, so it sits 4px down. -->
         <input
@@ -73,9 +76,13 @@ export class ChoiceCard {
     // Selected deepens to primary the way a pressed button does; hover goes
     // outward to accent. The tint is what makes the choice readable at a
     // glance across a row of cards, where a border alone is a hairline.
-    const state = this.checked()
-      ? 'border-primary bg-stone-50'
-      : 'border-border-strong hover:border-accent';
+    // Unavailable is shown, not hidden: the card still says what the option
+    // is and what it would need, greyed rather than removed.
+    const state = this.disabled()
+      ? 'border-border opacity-60'
+      : this.checked()
+        ? 'border-primary bg-stone-50'
+        : 'border-border-strong hover:border-accent';
     return `relative h-full rounded-lg border p-3 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary ${state}`;
   });
 }

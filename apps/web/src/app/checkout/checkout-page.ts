@@ -25,8 +25,11 @@ import {
 } from './checkout-draft.service';
 import { DeliveryZoneHint } from './delivery-zone-hint';
 import { FulfilmentChoice } from './fulfilment-choice';
+import { OrderNote } from './order-note';
 import { PartyChoice } from './party-choice';
+import { PaymentChoice } from './payment-choice';
 import { PickupChoice } from './pickup-choice';
+import { PreferredDate } from './preferred-date';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -49,9 +52,12 @@ import { PickupChoice } from './pickup-choice';
     Checkbox,
     DeliveryZoneHint,
     FulfilmentChoice,
+    OrderNote,
     OrderSummary,
     PartyChoice,
+    PaymentChoice,
     PickupChoice,
+    PreferredDate,
     RouterLink,
   ],
   template: `
@@ -162,6 +168,28 @@ import { PickupChoice } from './pickup-choice';
               />
             }
 
+            <!-- When they would like it, which belongs with the two rows that
+                 decide where it is going. A wish either way: a manager
+                 confirms the day, and nothing here reserves one. -->
+            <app-preferred-date
+              [method]="draft().fulfilmentMethod"
+              [date]="draft().preferredDate"
+              (dateChange)="drafts.patch({ preferredDate: $event })"
+            />
+
+            <app-payment-choice
+              [method]="draft().paymentMethod"
+              [transferAllowed]="partyIsCompany()"
+              (methodChange)="drafts.patch({ paymentMethod: $event })"
+            />
+
+            <!-- Last, because it is the only row with no default: everything
+                 above arrives answered. -->
+            <app-order-note
+              [note]="draft().customerNote"
+              (noteChange)="drafts.patch({ customerNote: $event })"
+            />
+
             <div class="flex flex-wrap items-center gap-3 pt-2">
               <a appButton variant="secondary" routerLink="/cart">
                 {{ cartText.navLabel }}
@@ -255,6 +283,19 @@ export class CheckoutPage {
     () => this.isPickup() || !this.draft().billingSameAsDelivery,
   );
 
+  /**
+   * Whether the party being invoiced is a company, which is what a bank
+   * transfer needs (FR-CART-04): its own choice says so outright, and the
+   * account's own party is one where its record carries a registration number.
+   * The server re-checks it at submission — this only keeps the customer from
+   * choosing something it would refuse.
+   */
+  protected readonly partyIsCompany = computed(() => {
+    const party = this.draft().party;
+    if (party !== 'account') return party === 'company';
+    return Boolean(this.profile.value()?.companyRegistrationId);
+  });
+
   protected readonly saveDelivery = computed(
     () => this.draft().saveDeliveryAddress,
   );
@@ -263,12 +304,12 @@ export class CheckoutPage {
   );
 
   /**
-   * What the account is registered as: the company it registered as, or the
-   * holder's own name where it registered as a person. Read from the type
-   * rather than from whichever field happens to be filled — a private customer
-   * who once gave a company name is still invoiced by name. Null until the
-   * profile answers, which is when the row falls back to a neutral word rather
-   * than an empty one.
+   * What the account is registered as: its company, unless it registered as a
+   * person — one who once gave a company name is still invoiced by name. Only
+   * a declared person is read that way, so an older account carrying a company
+   * and no type at all keeps being named by it. The server resolves the same
+   * rule when the order is placed. Null until the profile answers, which is
+   * when the row falls back to a neutral word rather than an empty one.
    */
   protected readonly accountName = computed(() => {
     const profile = this.profile.value();
@@ -277,9 +318,9 @@ export class CheckoutPage {
       .filter(Boolean)
       .join(' ');
     const name =
-      profile.customerType === 'company'
-        ? (profile.companyName ?? person)
-        : person || profile.companyName;
+      (profile.customerType !== 'person' && profile.companyName) ||
+      person ||
+      profile.companyName;
     return name || null;
   });
 
@@ -310,6 +351,15 @@ export class CheckoutPage {
 
   constructor() {
     usePageSeo({ name: () => this.text.title });
+
+    // A payment method the party can no longer take falls back to the default
+    // rather than waiting to be refused: the customer changes who is invoiced,
+    // and the row below it stops offering what it just offered.
+    effect(() => {
+      if (!this.partyIsCompany() && this.draft().paymentMethod !== 'cash') {
+        this.drafts.patch({ paymentMethod: 'cash' });
+      }
+    });
 
     // The book decides the default only the first time it arrives: the one
     // saved address, or the first of several. A customer who then chose "a
