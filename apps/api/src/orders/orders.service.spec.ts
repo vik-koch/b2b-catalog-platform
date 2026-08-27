@@ -7,6 +7,7 @@ import { AddressesService } from '../addresses/addresses.service';
 import { PickupLocation } from '../config/deployment-config';
 import * as schema from '../db/schema';
 import { orderItems, orders, users } from '../db/schema';
+import { OrderNotifications } from './order-notifications';
 import * as reference from './order-reference';
 import { CartChangedException, OrdersService } from './orders.service';
 
@@ -142,6 +143,11 @@ const delivery = deliveryConfigSchema.parse({
 
 function service(db: NodePgDatabase<typeof schema>) {
   const addresses = { assertValid: jest.fn() } as unknown as AddressesService;
+  // The mails are sent from a placed order and never allowed to fail it; what
+  // they say is the templates' own suite.
+  const notifications = {
+    placed: jest.fn().mockResolvedValue(undefined),
+  } as unknown as OrderNotifications;
   return new OrdersService(
     db,
     addresses,
@@ -150,6 +156,7 @@ function service(db: NodePgDatabase<typeof schema>) {
     { prefix: 'CK', timezone: 'UTC' },
     'EUR',
     (value: string) => /^DE[0-9]{9}$/.test(value),
+    notifications,
   );
 }
 

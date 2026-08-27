@@ -8,7 +8,7 @@ import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { OrderListPage } from './order-list-page';
 import { OrdersService } from './orders.service';
 
-const text = defaultAppText.auth.myAccount.orders;
+const text = defaultAppText.orders;
 
 const placed: OrderSummary = {
   reference: 'DEMO-260826-4831',

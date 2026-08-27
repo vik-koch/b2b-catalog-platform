@@ -1,7 +1,14 @@
 {
   "common": {
     "footerNote": "This message was sent automatically by our online shop. Please do not reply to this address.",
-    "linkExpiry": "This link can be used once, and expires seven days after it was sent."
+    "linkExpiry": "This link can be used once, and expires seven days after it was sent.",
+    "units": {
+      "piece": "pcs",
+      "pack": "pk",
+      "box": "bx"
+    },
+    "quantity": "{qty} {unit}",
+    "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})"
   },
   "inquiry": {
     "subject": "Inquiry",
@@ -71,5 +78,39 @@
     "companyNameLabel": "Company name",
     "companyIdLabel": "Company ID",
     "action": "Open the account list"
+  },
+  "orderReceived": {
+    "subject": "We have your order request",
+    "preheader": "Your order request has reached us.",
+    "heading": "Thank you — we have your order",
+    "body": "Your order request {reference} has reached us. Nothing is charged and nothing is dispatched yet.",
+    "nextSteps": "We will confirm the details, the delivery and the price with you shortly. You can open your order with the link below at any time.",
+    "referenceLabel": "Order",
+    "itemsHeading": "Your items",
+    "totalLabel": "Total",
+    "fulfilmentLabel": "How it arrives",
+    "delivery": "Delivery",
+    "pickup": "Self-pickup",
+    "action": "Open your order"
+  },
+  "newOrder": {
+    "subject": "New order request",
+    "preheader": "A customer has sent an order request.",
+    "heading": "New order request",
+    "body": "A customer has sent an order request. Open it to check the lines and the price, then confirm it with them.",
+    "referenceLabel": "Order",
+    "customerLabel": "Account",
+    "guest": "Guest — no account",
+    "contactLabel": "Contact",
+    "partyLabel": "Invoice to",
+    "fulfilmentLabel": "How it arrives",
+    "delivery": "Delivery",
+    "pickup": "Self-pickup",
+    "paymentLabel": "Payment",
+    "cash": "Cash",
+    "transfer": "Bank transfer",
+    "itemsHeading": "Ordered",
+    "totalLabel": "Total",
+    "action": "Open the order"
   }
 }

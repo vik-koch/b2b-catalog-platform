@@ -211,7 +211,7 @@ export class AccountPage {
   protected readonly accountText = inject(APP_TEXT).auth.myAccount;
   protected readonly deleteText = inject(APP_TEXT).auth.myAccount.delete;
   protected readonly addressText = inject(APP_TEXT).auth.myAccount.addresses;
-  protected readonly orderText = inject(APP_TEXT).auth.myAccount.orders;
+  protected readonly orderText = inject(APP_TEXT).orders;
 
   protected readonly profile = resource({
     loader: () => this.account.getProfile(),

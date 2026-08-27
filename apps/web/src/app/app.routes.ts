@@ -312,6 +312,17 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./auth/change-password-page').then((m) => m.ChangePasswordPage),
   },
+  // The order summary a confirmation mail links to (FR-NOTIF-06). Public by
+  // capability: the token in the URL is the whole credential, so there is no
+  // guard — and no session either, which is the point for a guest. Server-
+  // rendered like the rest of the storefront (nothing here is browser-held),
+  // and kept out of the index by the page itself.
+  {
+    path: 'orders/:token',
+    canActivate: [maintenanceGate],
+    loadComponent: () =>
+      import('./orders/order-token-page').then((m) => m.OrderTokenPage),
+  },
   // The public maintenance screen (FR-ADM-04). Ungated — it is where the gate
   // sends visitors — and never a page slug, so it sits before the :slug route.
   { path: 'maintenance', component: MaintenanceScreen },

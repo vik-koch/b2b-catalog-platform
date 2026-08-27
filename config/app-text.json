@@ -253,6 +253,35 @@
       "mapLink": "Find on map"
     }
   },
+  "orders": {
+    "heading": "My orders",
+    "intro": "Every order request you have sent us, with what was on it.",
+    "action": "View my orders",
+    "empty": "You have not sent us an order yet.",
+    "emptyAction": "Browse the catalogue",
+    "itemCount": "{count} lines",
+    "statusRequested": "Awaiting confirmation",
+    "statusApproved": "Confirmed",
+    "statusDeclined": "Declined",
+    "statusCancelled": "Cancelled",
+    "error": "We could not load your orders right now. Please try again later.",
+    "back": "Back to my account",
+    "detail": {
+      "placed": "Sent {date}",
+      "contact": "Who we ask for",
+      "notFound": "We cannot find that order on your account.",
+      "backToList": "Back to my orders",
+      "error": "We could not load that order right now. Please try again later."
+    },
+    "public": {
+      "heading": "Your order",
+      "intro": "This is the order request you sent us. Nothing is charged and nothing is dispatched until we confirm it with you.",
+      "notFound": "This link does not open an order. It may have been mistyped, or the order may have been removed.",
+      "home": "Back to the shop",
+      "register": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
+      "registerAction": "Request an account"
+    }
+  },
   "search": {
     "placeholder": "Search products",
     "submit": "Search",
@@ -343,27 +372,6 @@
         "suggestionsLabel": "Address suggestions",
         "noSuggestions": "No matching addresses. Carry on typing it yourself.",
         "suggestionCount": "{count} address suggestions"
-      },
-      "orders": {
-        "heading": "My orders",
-        "intro": "Every order request you have sent us, with what was on it.",
-        "action": "View my orders",
-        "empty": "You have not sent us an order yet.",
-        "emptyAction": "Browse the catalogue",
-        "itemCount": "{count} lines",
-        "statusRequested": "Awaiting confirmation",
-        "statusApproved": "Confirmed",
-        "statusDeclined": "Declined",
-        "statusCancelled": "Cancelled",
-        "error": "We could not load your orders right now. Please try again later.",
-        "back": "Back to my account",
-        "detail": {
-          "placed": "Sent {date}",
-          "contact": "Who we ask for",
-          "notFound": "We cannot find that order on your account.",
-          "backToList": "Back to my orders",
-          "error": "We could not load that order right now. Please try again later."
-        }
       },
       "delete": {
         "action": "Delete my account",

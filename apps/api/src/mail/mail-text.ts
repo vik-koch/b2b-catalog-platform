@@ -25,6 +25,16 @@ export const mailTextSchema = z
         footerNote: z.string(),
         /** Shown under any set-a-password link, next to its button. */
         linkExpiry: z.string(),
+        /**
+         * How a quantity reads in a mail. A unit is a lens on a piece count
+         * (FR-UNIT-01), so anything but the piece states both figures — a mail
+         * is read months later, beside goods somebody is counting.
+         */
+        units: z
+          .object({ piece: z.string(), pack: z.string(), box: z.string() })
+          .strict(),
+        quantity: z.string(),
+        quantityPieces: z.string(),
       })
       .strict(),
     /** The email the inquiry form sends to the shop (FR-NAV-06). */
@@ -137,6 +147,58 @@ export const mailTextSchema = z
         companyNameLabel: z.string(),
         companyIdLabel: z.string(),
         /** Button into the admin account list, where it is approved. */
+        action: z.string(),
+      })
+      .strict(),
+    /**
+     * Sent to the customer when an order request arrives (FR-NOTIF-06). It is
+     * a receipt for a request, never a confirmation of a sale — a manager
+     * still answers it — and it carries the link that opens the order without
+     * signing in, which for a guest is the only record they have.
+     */
+    orderReceived: z
+      .object({
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        /** Confirms the request arrived; `{reference}` is substituted. */
+        body: z.string(),
+        /** What happens next: a person reads it and comes back. */
+        nextSteps: z.string(),
+        referenceLabel: z.string(),
+        itemsHeading: z.string(),
+        totalLabel: z.string(),
+        fulfilmentLabel: z.string(),
+        delivery: z.string(),
+        pickup: z.string(),
+        /** Button to the order summary the link opens. */
+        action: z.string(),
+      })
+      .strict(),
+    /**
+     * Sent to the shop when an order request arrives (FR-NOTIF-05). Staff are
+     * the ones who answer it, so this one links into the admin order view.
+     */
+    newOrder: z
+      .object({
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        body: z.string(),
+        referenceLabel: z.string(),
+        customerLabel: z.string(),
+        /** An order placed by nobody with an account. */
+        guest: z.string(),
+        contactLabel: z.string(),
+        partyLabel: z.string(),
+        fulfilmentLabel: z.string(),
+        delivery: z.string(),
+        pickup: z.string(),
+        paymentLabel: z.string(),
+        cash: z.string(),
+        transfer: z.string(),
+        itemsHeading: z.string(),
+        totalLabel: z.string(),
         action: z.string(),
       })
       .strict(),

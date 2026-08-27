@@ -607,6 +607,72 @@ export const appTextSchema = z
           .strict(),
       })
       .strict(),
+    /**
+     * Order requests, wherever they are read — the account's own list, one
+     * order in full, and the summary a mailed link opens. One section: the
+     * three views describe the same thing and must not word it differently.
+     *
+     * An order is a request (FR-ACC-01): the wording never promises a
+     * confirmed sale, and the status is where the shop stands with it rather
+     * than a shipping state.
+     */
+    orders: z
+      .object({
+        heading: z.string(),
+        /** The account-page card, which only links to the list. */
+        intro: z.string(),
+        action: z.string(),
+        empty: z.string(),
+        emptyAction: z.string(),
+        /** `{count}` lines on an order, as the cart counts them. */
+        itemCount: z.string(),
+        /** Where an order stands. Only `requested` is written today;
+         * the others arrive with order processing, and the list has to
+         * be able to say them from the start. */
+        statusRequested: z.string(),
+        statusApproved: z.string(),
+        statusDeclined: z.string(),
+        statusCancelled: z.string(),
+        error: z.string(),
+        back: z.string(),
+        /**
+         * One order, read back. Only what the order page adds: its
+         * blocks are headed by the same words the checkout asked the
+         * questions in, so an order reads the same before and after
+         * it was sent.
+         */
+        detail: z
+          .object({
+            /** `{date}` the request was sent. */
+            placed: z.string(),
+            contact: z.string(),
+            /** Somebody else's reference, or one that never existed —
+             * the API tells the two apart for nobody. */
+            notFound: z.string(),
+            backToList: z.string(),
+            error: z.string(),
+          })
+          .strict(),
+        /**
+         * The summary a mailed link opens (FR-NOTIF-06), readable without
+         * signing in — for a guest, who has no account to read the order from,
+         * the only record of what they sent.
+         */
+        public: z
+          .object({
+            heading: z.string(),
+            intro: z.string(),
+            /** A token that opens nothing: mistyped, or an order since gone. */
+            notFound: z.string(),
+            home: z.string(),
+            /** Offered here rather than at checkout: approval takes days, and
+             * an order already sent costs nothing to wait for. */
+            register: z.string(),
+            registerAction: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
     /** Product search: the navbar bar and its results page (FR-SEARCH). */
     search: z
       .object({
@@ -760,50 +826,6 @@ export const appTextSchema = z
                 noSuggestions: z.string(),
                 /** `{count}` suggestions, for the live region. */
                 suggestionCount: z.string(),
-              })
-              .strict(),
-            /**
-             * The account's order history (FR-ACC-01). An order is a request:
-             * the wording never promises a confirmed sale, and the status is
-             * where the shop stands with it rather than a shipping state.
-             */
-            orders: z
-              .object({
-                heading: z.string(),
-                /** The account-page card, which only links to the list. */
-                intro: z.string(),
-                action: z.string(),
-                empty: z.string(),
-                emptyAction: z.string(),
-                /** `{count}` lines on an order, as the cart counts them. */
-                itemCount: z.string(),
-                /** Where an order stands. Only `requested` is written today;
-                 * the others arrive with order processing, and the list has to
-                 * be able to say them from the start. */
-                statusRequested: z.string(),
-                statusApproved: z.string(),
-                statusDeclined: z.string(),
-                statusCancelled: z.string(),
-                error: z.string(),
-                back: z.string(),
-                /**
-                 * One order, read back. Only what the order page adds: its
-                 * blocks are headed by the same words the checkout asked the
-                 * questions in, so an order reads the same before and after
-                 * it was sent.
-                 */
-                detail: z
-                  .object({
-                    /** `{date}` the request was sent. */
-                    placed: z.string(),
-                    contact: z.string(),
-                    /** Somebody else's reference, or one that never existed —
-                     * the API tells the two apart for nobody. */
-                    notFound: z.string(),
-                    backToList: z.string(),
-                    error: z.string(),
-                  })
-                  .strict(),
               })
               .strict(),
             /**

@@ -5,6 +5,7 @@ import {
   companyIdInputSchema,
   DeliveryConfig,
   deliveryConfigSchema,
+  MoneyFormat,
   OrderReferenceConfig,
   orderReferenceConfigSchema,
   PhoneConfig,
@@ -93,7 +94,9 @@ export const apiDeploymentConfigSchema = z
      */
     catalog: z
       .object({
-        currency: z.object({ code: z.string() }).passthrough(),
+        currency: z
+          .object({ code: z.string(), locale: z.string().optional() })
+          .passthrough(),
       })
       .passthrough()
       .optional(),
@@ -212,6 +215,18 @@ export const ORDER_CURRENCY = 'ORDER_CURRENCY';
 
 export function loadOrderCurrency(): string {
   return loadApiDeploymentConfig().catalog?.currency.code ?? 'EUR';
+}
+
+/**
+ * The same currency, with the locale the amounts are written in — what the
+ * order mails format against. A deployment that configures no locale gets the
+ * runtime's, which is what asking for none means.
+ */
+export const MONEY_FORMAT = 'MONEY_FORMAT';
+
+export function loadMoneyFormat(): MoneyFormat {
+  const currency = loadApiDeploymentConfig().catalog?.currency;
+  return { code: currency?.code ?? 'EUR', locale: currency?.locale };
 }
 
 export function loadCompanyIdRule(): CompanyIdRule {

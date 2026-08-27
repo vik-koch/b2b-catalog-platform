@@ -119,7 +119,7 @@ export class OrderListPage {
   private readonly api = inject(OrdersService);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
-  protected readonly text = inject(APP_TEXT).auth.myAccount.orders;
+  protected readonly text = inject(APP_TEXT).orders;
   protected readonly catalogText = inject(APP_TEXT).catalog;
 
   /** Bound from the `page` query param (a string); coerced and floored to 1. */
