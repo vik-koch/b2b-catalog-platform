@@ -177,6 +177,26 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
   },
+  // Orders, for admin and manager both (FR-AUTH-03) — a manager's daily work.
+  // Read-only in this iteration.
+  {
+    path: 'admin/orders',
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/orders/order-list-page').then(
+        (m) => m.AdminOrderListPage,
+      ),
+  },
+  {
+    // By reference, like the customer's own order page: it is the identity the
+    // order is quoted and mailed under.
+    path: 'admin/orders/:reference',
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/orders/order-detail-page').then(
+        (m) => m.AdminOrderDetailPage,
+      ),
+  },
   {
     path: 'admin/categories',
     canActivate: [requireAuth('admin'), adminTextGuard],

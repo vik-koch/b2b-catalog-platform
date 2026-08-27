@@ -48,6 +48,7 @@ export type AdminIconName =
   | 'square-menu'
   | 'send'
   | 'package'
+  | 'clipboard-list'
   | 'users'
   | 'wrench'
   | 'lock'
@@ -295,6 +296,16 @@ export type AdminIconName =
           <path d="M12 22V12" />
           <polyline points="3.29 7 12 12 20.71 7" />
           <path d="m7.5 4.27 9 5.15" />
+        }
+        @case ('clipboard-list') {
+          <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+          <path
+            d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+          />
+          <path d="M12 11h4" />
+          <path d="M12 16h4" />
+          <path d="M8 11h.01" />
+          <path d="M8 16h.01" />
         }
         @case ('users') {
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />

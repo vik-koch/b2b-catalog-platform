@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, count, desc, eq, inArray } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, inArray, or, SQL } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   AddressInput,
@@ -384,6 +384,7 @@ export class OrdersService {
   async listAll(
     page = 1,
     status?: OrderStatus,
+    q?: string,
   ): Promise<{
     items: (OrderSummary & {
       customerEmail: string | null;
@@ -391,7 +392,11 @@ export class OrdersService {
     })[];
     pagination: Pagination;
   }> {
-    const where = status ? eq(orders.status, status) : undefined;
+    const conditions: SQL[] = [];
+    if (status) conditions.push(eq(orders.status, status));
+    const search = this.searchCondition(q);
+    if (search) conditions.push(search);
+    const where = conditions.length ? and(...conditions) : undefined;
     const { rows, pagination } = await this.page(where, page);
     const counts = await this.itemCounts(rows.map((row) => row.id));
     const emails = await this.customerEmails(rows);
@@ -449,6 +454,35 @@ export class OrdersService {
     };
   }
 
+  /**
+   * Find-an-order (FR-AUTH-03): one box over the few fields a manager is
+   * holding when they look one up — the reference somebody read out, the name
+   * they gave, the party on the invoice, or an email address.
+   *
+   * A fragment match rather than a prefix: a reference is quoted by its tail as
+   * often as whole. The account's own email is matched through its account, so
+   * an order placed under one address and contacted at another is found by
+   * either.
+   */
+  private searchCondition(q: string | undefined): SQL | undefined {
+    const term = q?.trim();
+    if (!term) return undefined;
+    const like = `%${term}%`;
+    return or(
+      ilike(orders.reference, like),
+      ilike(orders.contactName, like),
+      ilike(orders.contactEmail, like),
+      ilike(orders.partyName, like),
+      inArray(
+        orders.userId,
+        this.db
+          .select({ id: users.id })
+          .from(users)
+          .where(ilike(users.email, like)),
+      ),
+    );
+  }
+
   private async list(
     where: ReturnType<typeof eq>,
     page: number,
@@ -462,7 +496,7 @@ export class OrdersService {
   }
 
   private async page(
-    where: ReturnType<typeof eq> | undefined,
+    where: SQL | undefined,
     page: number,
   ): Promise<{ rows: OrderRow[]; pagination: Pagination }> {
     const total = await this.db.$count(orders, where);

@@ -287,6 +287,8 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
 export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
 
 export const ORDER_PAGE_SIZE = 20;
+/** As long as the longest thing anybody pastes in: an email address. */
+export const ORDER_QUERY_MAX_LENGTH = 200;
 
 /**
  * A cart the server priced differently from what the browser last saw. The
@@ -374,6 +376,14 @@ export const ordersContract = c.router({
     query: z.object({
       page: z.coerce.number().int().positive().optional(),
       status: orderStatusSchema.optional(),
+      /**
+       * Find-an-order, matched against the reference, who to ask for, the
+       * party being invoiced and either email on the order — the handful of
+       * things a manager has in front of them when the phone rings. A
+       * fragment, not a whole value: a customer reads out the last digits of
+       * a reference as readily as all of it.
+       */
+      q: z.string().trim().max(ORDER_QUERY_MAX_LENGTH).optional(),
     }),
     responses: {
       200: z

@@ -76,6 +76,9 @@ export const adminTextSchema = z
         pages: z.string(),
         pricing: z.string(),
         accounts: z.string(),
+        /** Heading of the orders card — a manager's daily work, so it is shown
+         * to managers as well as admins. */
+        orders: z.string(),
         site: z.string(),
         /** Deployed version line. `{version}` / `{date}` are substituted. */
         version: z.string(),
@@ -683,6 +686,71 @@ export const adminTextSchema = z
      * The base price list's name is not here — it is the tier list's
      * `defaultLabel`, shared so the two screens name it identically.
      */
+    /** The staff order list (FR-AUTH-03) — read-only: an order is a request a
+     * manager answers by phone or mail. */
+    orderList: z
+      .object({
+        title: z.string(),
+        searchLabel: z.string(),
+        searchPlaceholder: z.string(),
+        clearSearch: z.string(),
+        empty: z.string(),
+        /** Shown instead of `empty` when the status filter emptied the list. */
+        noResults: z.string(),
+        loadError: z.string(),
+        /** Column headings. */
+        reference: z.string(),
+        placed: z.string(),
+        customer: z.string(),
+        items: z.string(),
+        total: z.string(),
+        filterStatus: z.string(),
+        statusAll: z.string(),
+        statusRequested: z.string(),
+        statusApproved: z.string(),
+        statusDeclined: z.string(),
+        statusCancelled: z.string(),
+        /** A guest order: nobody signed in placed it. */
+        guest: z.string(),
+        /** `{count}` lines on the order. */
+        itemCount: z.string(),
+      })
+      .strict(),
+    /** One order in full, as staff read it. */
+    orderDetail: z
+      .object({
+        /** `{date}` the request was sent, and `{date}` its status last moved. */
+        placed: z.string(),
+        statusChanged: z.string(),
+        notFound: z.string(),
+        loadError: z.string(),
+        back: z.string(),
+        items: z.string(),
+        /** The account it was placed from, or that it was a guest's. */
+        customer: z.string(),
+        /** Which price list it was taken from; the default list has no name of
+         * its own here. */
+        tier: z.string(),
+        tierDefault: z.string(),
+        /** The blocks, headed as the checkout asked its questions. */
+        fulfilment: z.string(),
+        delivery: z.string(),
+        pickup: z.string(),
+        invoice: z.string(),
+        billingSame: z.string(),
+        deliveryDate: z.string(),
+        pickupDate: z.string(),
+        whenAny: z.string(),
+        payment: z.string(),
+        cash: z.string(),
+        transfer: z.string(),
+        contact: z.string(),
+        note: z.string(),
+        /** A line in basis units — `{count} × {price}`, the way the source
+         * system prices. */
+        basis: z.string(),
+      })
+      .strict(),
     userList: z
       .object({
         /** The two lists, each reached from its own button on the admin panel;

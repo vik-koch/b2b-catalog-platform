@@ -184,6 +184,22 @@ import { BuildInfoService } from './build-info.service';
       </section>
     }
 
+    <!-- Orders, shown to managers too and before the accounts: answering
+         today's requests is the work, approving an account is occasional. -->
+    <section class="mt-10">
+      <h2
+        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+      >
+        <app-admin-icon name="clipboard-list" class="h-4 w-4" />
+        {{ panelText.orders }}
+      </h2>
+      <div class="flex flex-wrap gap-3 rounded-lg border border-border p-5">
+        <a appButton variant="secondary" routerLink="/admin/orders">
+          {{ orderText.title }}
+        </a>
+      </div>
+    </section>
+
     <!-- Accounts is its own section, shown to managers too: approving and
          tiering customers is the whole of a manager's panel. -->
     <section class="mt-10">
@@ -260,6 +276,7 @@ export class AdminPanelPage {
   protected readonly inventoryText = inject(ADMIN_TEXT).attributeInventory;
   protected readonly tierText = inject(ADMIN_TEXT).tierList;
   protected readonly userText = inject(ADMIN_TEXT).userList;
+  protected readonly orderText = inject(ADMIN_TEXT).orderList;
   protected readonly navText = inject(APP_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
   // Only what this deployment publishes: an unpublished page has no route to

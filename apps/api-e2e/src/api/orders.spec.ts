@@ -713,6 +713,42 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(found.customerEmail).toBe(CUSTOMER);
     });
 
+    // Find-an-order: the handful of fields a manager is holding when they look
+    // one up, matched by fragment — a reference is read out by its tail as
+    // often as whole.
+    it('finds an order by a fragment of its reference', async () => {
+      const res = await get(
+        `/admin/orders?q=${reference.slice(-4)}`,
+        managerCookie,
+      );
+
+      expect(res.status).toBe(200);
+      expect(
+        res.data.items.map((item: { reference: string }) => item.reference),
+      ).toContain(reference);
+    });
+
+    it('finds an order by the account it was placed from', async () => {
+      const res = await get(`/admin/orders?q=${CUSTOMER}`, managerCookie);
+
+      expect(res.status).toBe(200);
+      expect(res.data.items.length).toBeGreaterThan(0);
+      expect(
+        res.data.items.every(
+          (item: { customerEmail: string | null }) =>
+            item.customerEmail === CUSTOMER,
+        ),
+      ).toBe(true);
+    });
+
+    it('answers an unmatched search with an empty page, not an error', async () => {
+      const res = await get('/admin/orders?q=zzz-no-such-order', managerCookie);
+
+      expect(res.status).toBe(200);
+      expect(res.data.items).toEqual([]);
+      expect(res.data.pagination.total).toBe(0);
+    });
+
     it('keeps a customer out of the staff list', async () => {
       expect((await get('/admin/orders', customerCookie)).status).toBe(403);
     });
