@@ -1,4 +1,7 @@
-import { PIECE_PRICE_SCALE } from '@b2b-catalog-platform/shared';
+import {
+  formatMoneyMinor,
+  PIECE_PRICE_SCALE,
+} from '@b2b-catalog-platform/shared';
 
 export interface CurrencyConfig {
   /** ISO 4217, e.g. "EUR". */
@@ -25,17 +28,14 @@ function formatterFor(currency: CurrencyConfig): Intl.NumberFormat {
 
 /**
  * Format an integer minor-unit amount (e.g. 1890) as a localised currency
- * string (e.g. "18,90 €"). The minor-unit divisor is derived from the currency
- * itself via the formatter's resolved fraction digits, so zero-decimal (JPY)
- * and three-decimal (BHD) currencies are handled without special-casing.
+ * string (e.g. "18,90 €"). The shared implementation, so a price on the page
+ * and the same price in a mail cannot be written differently.
  */
 export function formatPriceMinor(
   priceMinor: number,
   currency: CurrencyConfig,
 ): string {
-  const formatter = formatterFor(currency);
-  const fractionDigits = formatter.resolvedOptions().maximumFractionDigits ?? 2;
-  return formatter.format(priceMinor / 10 ** fractionDigits);
+  return formatMoneyMinor(priceMinor, currency);
 }
 
 /**
