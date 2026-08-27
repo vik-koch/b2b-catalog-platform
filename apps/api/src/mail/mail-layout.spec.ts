@@ -69,6 +69,51 @@ describe('renderMail', () => {
     expect(text).toContain('Footer note.');
   });
 
+  // The repeating line-item block (ADR 0033, amended): the order mails' lines,
+  // rendered by the layout so they are escaped and have a text part like
+  // everything else.
+  describe('line items', () => {
+    const items = [
+      {
+        name: 'Espresso cups',
+        quantity: '2 pk (12 pcs)',
+        note: '100 in <red>',
+        total: '99,90 €',
+      },
+      { name: 'Saucers', quantity: '3 pcs', total: '30,00 €' },
+    ];
+
+    it('renders each line with its quantity, note and amount', () => {
+      const { html } = render({ items, itemsHeading: 'Your items' });
+
+      expect(html).toContain('Your items');
+      expect(html).toContain('Espresso cups');
+      expect(html).toContain('2 pk (12 pcs)');
+      expect(html).toContain('99,90 €');
+      expect(html).toContain('Saucers');
+    });
+
+    // A line note is customer-typed (FR-CART-08) — the case the escaping in
+    // this layout exists for.
+    it('escapes a line note, so a typed one cannot inject markup', () => {
+      const { html } = render({ items });
+
+      expect(html).toContain('100 in &lt;red&gt;');
+      expect(html).not.toContain('<red>');
+    });
+
+    it('states the same lines in the plain-text alternative', () => {
+      const { text } = render({ items, itemsHeading: 'Your items' });
+
+      expect(text).toContain('Your items');
+      expect(text).toContain('Espresso cups — 2 pk (12 pcs): 99,90 €');
+      // Verbatim here, not escaped: this part is text, and a reader of it
+      // should see what the customer actually typed.
+      expect(text).toContain('100 in <red>');
+      expect(text).toContain('Saucers — 3 pcs: 30,00 €');
+    });
+  });
+
   it('omits the optional blocks a message does not use', () => {
     const { html, text } = render({
       paragraphs: undefined,

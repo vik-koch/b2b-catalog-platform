@@ -3,6 +3,11 @@ import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
+import {
+  deleteMatching,
+  messageBody,
+  messagesMatching,
+} from '../support/mailpit';
 
 /**
  * Cart pricing and order submission (FR-CART-01…04, FR-ACC-01), end to end.
@@ -18,6 +23,10 @@ const SUFFIX = Math.random().toString(36).slice(2, 10);
 const CUSTOMER = `e2e-orders-customer-${SUFFIX}@example.com`;
 const OTHER = `e2e-orders-other-${SUFFIX}@example.com`;
 const MANAGER = `e2e-orders-manager-${SUFFIX}@example.com`;
+/** The contact on the one order this suite reads mail for. Its own address, so
+ * the Mailpit queries below match nothing another suite (or another case here)
+ * sent. */
+const MAIL_CONTACT = `e2e-orders-mail-${SUFFIX}@example.com`;
 const PASSWORD = 'e2e-orders-password';
 const TIER_KEY = `e2e-orders-tier-${SUFFIX}`;
 const SOURCE_PREFIX = `E2E-ORDERS-${SUFFIX}`;
@@ -612,6 +621,94 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // Its own code, not a borrowed one: a person tripped by an autofill must
       // not be told a full cart is empty.
       expect(res.data.code).toBe('rejected');
+    });
+  });
+
+  // FR-NOTIF-05/06. Two queries rather than one: Mailpit's search has no OR and
+  // no grouping, and a parenthesised query silently matches nothing.
+  describe('the mails an order produces', () => {
+    const customerMail = `to:"${MAIL_CONTACT}"`;
+    const staffInbox = `to:"${requireEnv('MAIL_STAFF_TO')}"`;
+    const staffMail = `${staffInbox} subject:"New order request"`;
+    // This suite places more than one order, and both notify the same inbox —
+    // so an assertion about one of them is scoped by its own reference.
+    const about = (reference: string) => `subject:"${reference}"`;
+    let reference = '';
+    let publicToken = '';
+
+    beforeAll(async () => {
+      await Promise.all([customerMail, staffMail].map(deleteMatching));
+      const res = await post(
+        '/orders',
+        submission({
+          contact: {
+            name: 'Ada Lovelace',
+            email: MAIL_CONTACT,
+            phone: '+49 40 7654321',
+          },
+        }),
+      );
+      reference = res.data.reference;
+      publicToken = res.data.publicToken;
+    });
+
+    afterAll(async () => {
+      await Promise.all([customerMail, staffMail].map(deleteMatching));
+    });
+
+    it('sends the customer their order, with the link that opens it', async () => {
+      const [message] = await messagesMatching(
+        `${customerMail} ${about(reference)}`,
+      );
+      expect(message).toBeDefined();
+      expect(message.Subject).toContain(reference);
+
+      const body = await messageBody(message.ID);
+      // The token link is what a guest has instead of an account.
+      expect(body.HTML).toContain(`/orders/${publicToken}`);
+      expect(body.Text).toContain(`/orders/${publicToken}`);
+      // The lines are in it, and nothing staff-facing is.
+      expect(body.Text).toContain(`E2E ${slugs.boxed}`);
+      expect(body.HTML).not.toContain(TIER_KEY);
+    });
+
+    // An account holder can open the order signed in, so the capability URL
+    // is not mailed to them at all.
+    it('links a signed-in customer to their own order page, with no token', async () => {
+      await deleteMatching(customerMail);
+      const res = await post(
+        '/orders',
+        submission({
+          contact: {
+            name: 'Ada Lovelace',
+            email: MAIL_CONTACT,
+            phone: '+49 40 7654321',
+          },
+          expectedTotalMinor: TIER_MINOR * 2,
+        }),
+        customerCookie,
+      );
+      expect(res.status).toBe(201);
+
+      const [message] = await messagesMatching(
+        `to:"${MAIL_CONTACT}" ${about(res.data.reference)}`,
+      );
+      expect(message).toBeDefined();
+      const body = await messageBody(message.ID);
+      expect(body.HTML).toContain(`/account/orders/${res.data.reference}`);
+      expect(body.HTML).not.toContain(res.data.publicToken);
+      expect(body.Text).not.toContain(res.data.publicToken);
+    });
+
+    it('tells the shop, linking into the admin order view', async () => {
+      const [message] = await messagesMatching(
+        `${staffInbox} ${about(reference)}`,
+      );
+      expect(message).toBeDefined();
+
+      const body = await messageBody(message.ID);
+      expect(body.HTML).toContain(`/admin/orders/${reference}`);
+      expect(body.Text).toContain(MAIL_CONTACT);
     });
   });
 

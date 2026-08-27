@@ -22,6 +22,19 @@ export interface MailRow {
   readonly value: string;
 }
 
+/**
+ * One ordered line, as a mail states it: what it was, how much of it, and what
+ * it came to. The amounts arrive formatted — the template knows the currency
+ * the order was priced in, the layout knows nothing about money.
+ */
+export interface MailItem {
+  readonly name: string;
+  readonly quantity: string;
+  /** Customer-typed (FR-CART-08), so it is escaped like everything else. */
+  readonly note?: string;
+  readonly total: string;
+}
+
 /** A single call to action. At most one per message, by design. */
 export interface MailAction {
   readonly label: string;
@@ -46,6 +59,9 @@ export interface MailContent {
   readonly heading: string;
   readonly paragraphs?: readonly string[];
   readonly rows?: readonly MailRow[];
+  /** An order's lines, under their own heading (ADR 0033, amended). */
+  readonly items?: readonly MailItem[];
+  readonly itemsHeading?: string;
   readonly action?: MailAction;
 }
 
@@ -120,6 +136,39 @@ function renderHtml(
       .join('');
     parts.push(
       `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 16px;">${rows}</table>`,
+    );
+  }
+
+  if (content.items?.length) {
+    const heading = content.itemsHeading
+      ? `<tr><td colspan="2" style="padding:0 0 6px;font-size:13px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;">${escapeHtml(
+          content.itemsHeading,
+        )}</td></tr>`
+      : '';
+    const items = content.items
+      .map(
+        (item) =>
+          `<tr>` +
+          `<td style="padding:8px 12px 8px 0;font-size:14px;color:#1f2937;border-top:1px solid #e5e7eb;word-break:break-word;">` +
+          `${escapeHtml(item.name)}<br>` +
+          `<span style="font-size:13px;color:#6b7280;">${escapeHtml(
+            item.quantity,
+          )}</span>` +
+          (item.note
+            ? `<br><span style="font-size:13px;color:#6b7280;font-style:italic;">${escapeHtml(
+                item.note,
+              )}</span>`
+            : '') +
+          `</td>` +
+          // Right-aligned and unwrapped: a column of amounts is read down.
+          `<td style="padding:8px 0;font-size:14px;color:#1f2937;border-top:1px solid #e5e7eb;text-align:right;white-space:nowrap;vertical-align:top;">${escapeHtml(
+            item.total,
+          )}</td>` +
+          `</tr>`,
+      )
+      .join('');
+    parts.push(
+      `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 16px;">${heading}${items}</table>`,
     );
   }
 
@@ -203,6 +252,17 @@ function renderText(
     blocks.push(
       content.rows.map((row) => `${row.label}: ${row.value}`).join('\n'),
     );
+  }
+  if (content.items?.length) {
+    const lines = content.items.map((item) =>
+      [
+        `${item.name} — ${item.quantity}: ${item.total}`,
+        item.note ? `  ${item.note}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    );
+    blocks.push([content.itemsHeading, ...lines].filter(Boolean).join('\n'));
   }
   if (content.action) {
     blocks.push(
