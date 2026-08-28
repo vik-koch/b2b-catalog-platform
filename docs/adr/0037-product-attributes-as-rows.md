@@ -1,6 +1,6 @@
 # 0037 — Store product attributes as rows, and declare the filterable ones
 
-**Status:** accepted (amended 2026-08-19) · **Date:** 2026-08-18
+**Status:** accepted (amended 2026-08-19, 2026-08-28) · **Date:** 2026-08-18
 
 ## Context
 
@@ -140,3 +140,37 @@ holds: they apply the publication gate and the soft delete, because they
 describe what a visitor can actually reach. The two rules differ because the
 questions differ — "what does the catalog hold" against "what can be seen" —
 and each surface says which it is answering in its own wording.
+
+## Amendment — 2026-08-28 (v1.5.0): a category chooses its own facets
+
+The registry declares which attributes are filterable catalog-wide, and every
+listing offered all of them that its products carried. That is right for a
+category whose products share a vocabulary and wrong for one that does not: an
+attribute can be present, countable, and still not worth a facet, and the order
+that reads well in one category reads badly in another.
+
+**A category may declare which filterable attributes its listing offers, and in
+what order** (FR-ATTR-11), in a `category_attributes` overlay of
+`(categoryId, attributeId, sortOrder, hidden)`. The registry's order is the
+default and most categories keep it.
+
+Three properties make the overlay cheap to hold in the head:
+
+- It **replaces** the inherited list rather than adjusting it, and a category
+  with no rows of its own takes its nearest ancestor's whole. An override on a
+  parent needs no restating under its children.
+- It is saved as a whole panel: an attribute the editor omits is stored
+  `hidden` rather than deleted, so an empty panel stays empty instead of
+  falling back to the ancestor's.
+- An attribute declared after an overlay was saved is in none of its rows, so
+  it is offered only where nothing is overlaid at all. Declaring an attribute
+  is not a promise that every listing shows it.
+
+A product's attribute row links to its category's filtered listing (FR-ATTR-08)
+only where that category offers the attribute; elsewhere the row is plain text,
+because the link would land on a panel with no such facet to select.
+
+This is the "bind attributes to categories" alternative the Context weighed and
+rejected, kept out of the place it was rejected from: the binding is
+presentation, resolved at read time, and no product's storage or entry changes
+with it. What is filterable is still one catalog-wide answer.

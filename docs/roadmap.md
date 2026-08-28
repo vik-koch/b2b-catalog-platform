@@ -91,7 +91,7 @@ Notes:
   lens on an integer piece count** (FR-UNIT-01/07/10 amended, FR-CART-02 rewritten, ADR 0042,
   superseding part of ADR 0038): the quantity is always pieces, the unit only decides how it
   reads, and a line of two packs of a ten-pack box reads 0.2 bx. It was affordable because
-  v1.5.0 is untagged and the cart and order contracts had never shipped.
+  v1.5.0 was still untagged and the cart and order contracts had never shipped.
 
 - A review of the checkout form (2026-08-27) reversed the central decision of ADR 0039
   before it shipped. The invoiced party had been a property of the **address** — choosing
@@ -105,6 +105,14 @@ Notes:
   (FR-CART-04 reworded). ADR 0039 was rewritten rather than amended — it had never
   shipped, so its amendment trail would have been a record of drafting — and iteration 7's
   unreleased migrations were squashed into one.
+- Two requirements outside the cart landed in iteration 7 because the cart is what
+  exposed them. **FR-CAT-06** is the card/row choice: a buying control on a listing tile
+  makes a dense row worth having, and a shop ordering from a familiar catalog scans rows
+  faster than cards. **FR-ATTR-11** lets a category declare which filterable attributes its
+  listing offers and in what order (ADR 0037 amended) — declaring an attribute filterable
+  catalog-wide had meant every listing that carried it offered it, which is right for a
+  category whose products share a vocabulary and wrong for one that does not. Both are
+  additive; neither changes what the client has already entered.
 - Iteration 8 is what a manager does with an order once it exists — status transitions, the
   payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
   schema be reviewed before a processing workflow is built on top of it.

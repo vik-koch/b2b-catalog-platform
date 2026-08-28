@@ -3,6 +3,7 @@ import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { pageSeeds } from './data';
 import { seedAccounts } from './account-seed';
 import { seedCatalog } from './catalog-seed';
+import { seedOrders } from './order-seed';
 
 /**
  * Idempotent: safe to run against a stack that was seeded before (e2e reruns,
@@ -32,6 +33,9 @@ export async function seedDatabase(
   await seedCatalog(client, mediaRoot);
   // Last: the wholesale price list needs the products it prices to exist.
   await seedAccounts(client);
+  // …and an order needs both — the products it lines up and the account it
+  // was priced for.
+  await seedOrders(client);
 }
 
 /**
