@@ -119,6 +119,15 @@ describe('orderReferenceConfigSchema', () => {
     ).toEqual({ prefix: 'CK', timezone: 'Europe/Berlin' });
   });
 
+  it('accepts an upper-case prefix outside the Latin alphabet', () => {
+    expect(
+      orderReferenceConfigSchema.safeParse({
+        prefix: 'ÄÖ',
+        timezone: 'Europe/Berlin',
+      }).success,
+    ).toBe(true);
+  });
+
   it('refuses a prefix with separators in it, which the format supplies', () => {
     expect(
       orderReferenceConfigSchema.safeParse({

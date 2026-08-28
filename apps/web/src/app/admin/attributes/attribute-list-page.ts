@@ -68,7 +68,7 @@ type EditTarget = { id: string } | { id: null } | null;
   ],
   template: `
     <div class="mb-4 flex items-center justify-between gap-4">
-      <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
       <div class="flex items-center gap-2">
         <!-- The inventory answers the other half of the question: this list is
              what the shop filters by, that one is what the products carry. -->

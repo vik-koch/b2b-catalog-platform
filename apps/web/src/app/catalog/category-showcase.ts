@@ -46,7 +46,7 @@ import { ImagePlaceholder } from './image-placeholder';
                   }
                 </div>
                 <h3
-                  class="px-4 pt-3 text-base font-semibold tracking-tight group-hover:text-accent"
+                  class="px-4 pt-3 text-base font-normal tracking-tight group-hover:text-accent"
                 >
                   {{ cat.name }}
                 </h3>

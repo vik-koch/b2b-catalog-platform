@@ -17,7 +17,7 @@ import { Button } from '../ui/button';
   template: `
     <section class="py-12 text-center sm:py-20">
       <p class="text-sm font-medium tracking-widest text-accent">404</p>
-      <h1 class="mt-3 text-3xl font-bold tracking-tight">
+      <h1 class="mt-3 text-3xl font-medium tracking-tight">
         {{ heading() ?? text.notFoundTitle }}
       </h1>
       <p class="mt-4 text-muted">{{ body() ?? text.notFoundBody }}</p>

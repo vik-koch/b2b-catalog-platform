@@ -56,7 +56,7 @@ import { OrdersService } from './orders.service';
                narrowing the track would slide it inward on this page alone. -->
           <div class="max-w-3xl">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 class="text-3xl font-bold tracking-tight">
+              <h1 class="text-3xl font-medium tracking-tight">
                 {{ detail.reference }}
               </h1>
               <span appStatusBadge [tone]="statusTone(detail.status)">

@@ -103,7 +103,7 @@ import { AddressForm } from '../addresses/address-form';
   ],
   template: `
     @if (placed(); as reference) {
-      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
+      <h1 class="mb-6 text-3xl font-medium tracking-tight">{{ heading() }}</h1>
       <!-- The cart's and the account's own empty panel, read the other way
            round: the same shape of screen says "there is nothing here" and
            "that is done". Opening the order comes first — it is what somebody
@@ -131,7 +131,7 @@ import { AddressForm } from '../addresses/address-form';
         </p>
       }
     } @else if (cart.isEmpty()) {
-      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
+      <h1 class="mb-6 text-3xl font-medium tracking-tight">{{ heading() }}</h1>
       <app-empty-state icon="shopping-basket" [message]="text.emptyCart">
         <a appButton routerLink="/catalog">
           {{ cartText.emptyAction }}
@@ -164,7 +164,7 @@ import { AddressForm } from '../addresses/address-form';
                  form field wraps for no reason, and the questions below want
                  the shorter measure. -->
             <div class="mb-8">
-              <h1 class="mb-2 text-3xl font-bold tracking-tight">
+              <h1 class="mb-2 text-3xl font-medium tracking-tight">
                 {{ heading() }}
               </h1>
               <p class="text-muted">

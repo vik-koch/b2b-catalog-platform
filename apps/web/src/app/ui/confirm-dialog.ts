@@ -23,7 +23,10 @@ import { DialogPanel } from './dialog-panel';
       aria-labelledby="confirm-dialog-heading"
       appDialogPanel
     >
-      <h2 id="confirm-dialog-heading" class="text-xl font-bold tracking-tight">
+      <h2
+        id="confirm-dialog-heading"
+        class="text-xl font-normal tracking-tight"
+      >
         {{ heading() }}
       </h2>
       <p class="mt-3 text-muted">{{ message() }}</p>

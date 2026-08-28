@@ -24,7 +24,7 @@ import { BuildInfoService } from './build-info.service';
   selector: 'app-admin-panel-page',
   imports: [SignedInAs, MaintenanceToggle, RouterLink, Button, AdminIcon],
   template: `
-    <h1 class="mb-4 text-3xl font-bold tracking-tight">
+    <h1 class="mb-4 text-3xl font-medium tracking-tight">
       {{ isAdmin() ? text.adminPanel : text.staffArea }}
     </h1>
     <app-signed-in-as />

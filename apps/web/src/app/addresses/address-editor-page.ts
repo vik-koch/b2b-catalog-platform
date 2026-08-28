@@ -27,7 +27,7 @@ type Status = 'idle' | 'submitting' | 'error';
   imports: [RouterLink, AddressFields, Button, Skeleton],
   template: `
     <div class="max-w-xl">
-      <h1 class="mb-2 text-3xl font-bold tracking-tight">
+      <h1 class="mb-2 text-3xl font-medium tracking-tight">
         {{ isNew ? text.newHeading : text.editHeading }}
       </h1>
       <p class="mb-8 text-muted">{{ text.intro }}</p>

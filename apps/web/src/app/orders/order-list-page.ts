@@ -19,7 +19,7 @@ import { OrdersService } from './orders.service';
   selector: 'app-order-list-page',
   imports: [RouterLink, Button, EmptyState, OrderRows, Skeleton],
   template: `
-    <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.heading }}</h1>
+    <h1 class="mb-2 text-3xl font-medium tracking-tight">{{ text.heading }}</h1>
     <p class="mb-8 text-muted">{{ text.intro }}</p>
 
     @if (shown(); as data) {

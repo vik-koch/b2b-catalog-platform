@@ -41,7 +41,7 @@ import { CategoryPicker } from './category-picker';
     Skeleton,
   ],
   template: `
-    <h1 class="mb-6 text-3xl font-bold tracking-tight">
+    <h1 class="mb-6 text-3xl font-medium tracking-tight">
       {{ isNew ? text.newTitle : text.editTitle }}
     </h1>
 

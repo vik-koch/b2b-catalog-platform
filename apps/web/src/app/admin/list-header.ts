@@ -24,7 +24,7 @@ import { GridSearchField } from './products/grid-search-field';
   imports: [RouterLink, Button, AdminIcon, GridSearchField],
   template: `
     <div class="mb-6 grid gap-4 md:grid-cols-3 md:items-center">
-      <h1 class="text-3xl font-bold tracking-tight">{{ title() }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ title() }}</h1>
 
       <!-- The middle column is held even where there is nothing to search:
            without it the actions slide into the centre of the row. -->

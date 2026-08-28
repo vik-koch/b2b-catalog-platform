@@ -208,7 +208,10 @@ export const orderReferenceConfigSchema = z
       .trim()
       .min(1)
       .max(8)
-      .regex(/^[A-Z0-9]+$/, 'an order prefix is upper-case letters or digits'),
+      .regex(
+        /^[\p{Lu}\p{N}]+$/u,
+        'an order prefix is upper-case letters or digits, in any script',
+      ),
     /**
      * An IANA zone name, e.g. `Europe/Berlin`. Checked by building a formatter
      * with it, which is the only way to know the platform accepts one: an

@@ -38,7 +38,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
   ],
   template: `
     <div class="max-w-xl">
-      <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
+      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ heading }}</h1>
 
       @if (status() === 'success') {
         <p class="text-muted">{{ text.success }}</p>

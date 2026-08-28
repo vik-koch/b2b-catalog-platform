@@ -37,7 +37,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
     >
       <h2
         id="delivery-conditions-heading"
-        class="text-xl font-bold tracking-tight"
+        class="text-xl font-normal tracking-tight"
       >
         {{ text.conditionsHeading }}
       </h2>

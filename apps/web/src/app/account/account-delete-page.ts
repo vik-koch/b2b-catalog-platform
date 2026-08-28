@@ -29,13 +29,13 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
   template: `
     <div class="max-w-xl">
       @if (deleted()) {
-        <h1 class="mb-4 text-3xl font-bold tracking-tight">
+        <h1 class="mb-4 text-3xl font-medium tracking-tight">
           {{ text.doneHeading }}
         </h1>
         <p class="text-muted">{{ text.done }}</p>
         <a appButton routerLink="/" class="mt-8">{{ home }}</a>
       } @else {
-        <h1 class="mb-2 text-3xl font-bold tracking-tight">
+        <h1 class="mb-2 text-3xl font-medium tracking-tight">
           {{ text.heading }}
         </h1>
         <p class="mb-6 text-muted">{{ text.intro }}</p>

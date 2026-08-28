@@ -44,7 +44,9 @@ type Status = 'idle' | 'submitting' | 'error';
   ],
   template: `
     <div class="max-w-xl">
-      <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.heading }}</h1>
+      <h1 class="mb-2 text-3xl font-medium tracking-tight">
+        {{ text.heading }}
+      </h1>
       <p class="mb-8 text-muted">{{ text.intro }}</p>
 
       @if (profile.hasValue()) {

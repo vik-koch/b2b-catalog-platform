@@ -36,7 +36,7 @@ import { StatusBadge } from '../../ui/status-badge';
     @if (hidden.value(); as items) {
       @if (items.length) {
         <section class="mt-12 border-t border-border pt-8">
-          <h2 class="text-lg font-semibold text-subtle">
+          <h2 class="text-lg font-normal tracking-tight text-subtle">
             {{ text.hiddenHeading }}
           </h2>
           <p class="mt-1 text-sm text-subtle">{{ text.hiddenHint }}</p>
