@@ -318,6 +318,43 @@ export const attributeDefinitions = pgTable('attribute_definitions', {
 });
 
 /**
+ * A category's own filter panel (FR-ATTR-11) — which filterable attributes it
+ * offers and in what order.
+ *
+ * An **overlay of deviations**: a category with no rows here offers every
+ * definition present among its products, in the registry's own order, which is
+ * what a category did before this table existed. A category with rows replaces
+ * that list wholesale with the rows it carries, and a category with none
+ * inherits the nearest ancestor that has some — so an override set on "Coffee"
+ * covers every subcategory without being restated.
+ *
+ * Replacing means replacing: an attribute declared *after* an overlay was
+ * saved is in no row of it and is not offered there either. It appears by
+ * itself only under categories that inherit nothing — everywhere else it is a
+ * row somebody adds, and the filters editor lists it unticked so it can be
+ * found.
+ *
+ * Rows are written wholesale on save, like `product_attributes` — the editor's
+ * list is the whole truth.
+ */
+export const categoryAttributes = pgTable(
+  'category_attributes',
+  {
+    categoryId: uuid('categoryId')
+      .notNull()
+      .references(() => categories.id, { onDelete: 'cascade' }),
+    attributeId: uuid('attributeId')
+      .notNull()
+      .references(() => attributeDefinitions.id, { onDelete: 'cascade' }),
+    /** Where the attribute sits in this category's panel. */
+    sortOrder: integer('sortOrder').notNull(),
+    /** Kept rather than deleted, so the row survives a reorder either way. */
+    hidden: boolean('hidden').notNull().default(false),
+  },
+  (t) => [primaryKey({ columns: [t.categoryId, t.attributeId] })],
+);
+
+/**
  * The **additional** customer tiers of FR-AUTH-05 — rows rather than a
  * code-level enum, because tier names are a deployment's own commercial
  * vocabulary and adding one must not be a release.
