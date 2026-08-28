@@ -540,6 +540,9 @@ export const appTextSchema = z
         successHeading: z.string(),
         /** `{reference}` — the number to quote when asking about the order. */
         success: z.string(),
+        /** Opens the order that was just sent — the account's own page for a
+         * customer, the mailed link's page for a guest. */
+        successView: z.string(),
         successAction: z.string(),
         /** Shown to a guest on the confirmation, where waiting for approval
          * costs them nothing: the one place an account is worth offering. */
@@ -751,6 +754,9 @@ export const appTextSchema = z
          */
         myAccount: z
           .object({
+            /** The card that holds the details and the address book side by
+             * side, which needs a name neither of them owns. */
+            profileHeading: z.string(),
             detailsHeading: z.string(),
             name: z.string(),
             email: z.string(),
@@ -792,8 +798,12 @@ export const appTextSchema = z
                 heading: z.string(),
                 empty: z.string(),
                 add: z.string(),
-                edit: z.string(),
+                /** The icon-only row buttons take their accessible name from
+                 * `{label}`, the address itself. */
+                editLabel: z.string(),
+                /** The wording on the confirm dialog's own button. */
                 remove: z.string(),
+                removeLabel: z.string(),
                 /** `{label}` is the address's own name. */
                 removeConfirm: z.string(),
                 removeHeading: z.string(),
@@ -983,6 +993,8 @@ export const appTextSchema = z
         changePassword: z
           .object({
             heading: z.string(),
+            /** What the account page says beside the link to the form. */
+            intro: z.string(),
             currentPassword: z.string(),
             newPassword: z.string(),
             confirmPassword: z.string(),

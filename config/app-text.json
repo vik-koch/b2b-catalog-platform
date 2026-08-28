@@ -222,6 +222,7 @@
     "submitting": "Sending…",
     "successHeading": "Thank you — we have your order",
     "success": "Your order request is {reference}. We will confirm the details, the delivery and the price with you shortly.",
+    "successView": "View your order",
     "successAction": "Back to the catalogue",
     "successRegister": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
     "successRegisterAction": "Request an account",
@@ -257,7 +258,7 @@
   "orders": {
     "heading": "My orders",
     "intro": "Every order request you have sent us, with what was on it.",
-    "action": "View my orders",
+    "action": "View all my orders",
     "empty": "You have not sent us an order yet.",
     "emptyAction": "Browse the catalogue",
     "itemCount": "{count} lines",
@@ -316,6 +317,7 @@
     "invalid": "Invalid email or password.",
     "error": "Something went wrong logging you in. Please try again.",
     "myAccount": {
+      "profileHeading": "Details and addresses",
       "detailsHeading": "My details",
       "name": "Name",
       "email": "Email",
@@ -343,8 +345,9 @@
         "heading": "My addresses",
         "empty": "No saved addresses yet. Add one and it will be offered at checkout.",
         "add": "Add address",
-        "edit": "Edit",
+        "editLabel": "Edit {label}",
         "remove": "Remove",
+        "removeLabel": "Remove {label}",
         "removeHeading": "Remove address",
         "removeConfirm": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
         "error": "We could not load your addresses right now. Please try again later.",
@@ -468,6 +471,7 @@
     },
     "changePassword": {
       "heading": "Change password",
+      "intro": "Choose a new password for signing in. Changing it signs you out everywhere else.",
       "currentPassword": "Current password",
       "newPassword": "New password",
       "confirmPassword": "Confirm new password",

@@ -40,6 +40,7 @@ import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
+import { EmptyState } from '../ui/empty-state';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
 import { OrderSummary } from '../cart/order-summary';
@@ -85,6 +86,7 @@ import { AddressForm } from '../addresses/address-form';
     Button,
     Checkbox,
     DeliveryZoneHint,
+    EmptyState,
     FulfilmentChoice,
     OrderNote,
     OrderReadBack,
@@ -101,11 +103,24 @@ import { AddressForm } from '../addresses/address-form';
   ],
   template: `
     @if (placed(); as reference) {
-      <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
-      <p class="text-muted">{{ successMessage(reference) }}</p>
-      <a appButton routerLink="/catalog" class="mt-4">
-        {{ text.successAction }}
-      </a>
+      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
+      <!-- The cart's and the account's own empty panel, read the other way
+           round: the same shape of screen says "there is nothing here" and
+           "that is done". Opening the order comes first — it is what somebody
+           who has just sent one wants, and for a guest the link is the only
+           copy they have besides the mail. -->
+      <app-empty-state
+        icon="circle-check"
+        tone="positive"
+        [message]="successMessage(reference)"
+      >
+        @if (placedLink(); as link) {
+          <a appButton [routerLink]="link">{{ text.successView }}</a>
+        }
+        <a appButton variant="secondary" routerLink="/catalog">
+          {{ text.successAction }}
+        </a>
+      </app-empty-state>
 
       @if (guest()) {
         <p class="mt-8 max-w-xl text-sm text-muted">
@@ -116,9 +131,15 @@ import { AddressForm } from '../addresses/address-form';
         </p>
       }
     } @else if (cart.isEmpty()) {
-      <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
-      <p class="text-subtle">{{ text.emptyCart }}</p>
-      <a appButton routerLink="/cart" class="mt-4">{{ cartText.navLabel }}</a>
+      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
+      <app-empty-state icon="shopping-basket" [message]="text.emptyCart">
+        <a appButton routerLink="/catalog">
+          {{ cartText.emptyAction }}
+        </a>
+        <a appButton variant="secondary" routerLink="/cart">
+          {{ cartText.navLabel }}
+        </a>
+      </app-empty-state>
     } @else {
       <!-- Form and summary, the pair the cart already draws — and at the width
            the cart draws it, not at whatever this page could get away with.
@@ -576,6 +597,13 @@ export class CheckoutPage {
    * reference the customer quotes when they ring about it. */
   private readonly sendingState = signal(false);
   private readonly placedState = signal<string | null>(null);
+  /**
+   * The link the confirmation mail carries (FR-NOTIF-06), kept so the screen
+   * that follows can offer it too: a guest has no account to read the order
+   * from, and telling them a reference without a way to open it leaves the
+   * mail as their only copy.
+   */
+  private readonly placedToken = signal<string | null>(null);
   private readonly errorState = signal<string | null>(null);
   protected readonly acceptedPrivacy = signal(false);
   private readonly privacyChecked = signal(false);
@@ -591,6 +619,19 @@ export class CheckoutPage {
 
   protected readonly sending = this.sendingState.asReadonly();
   protected readonly placed = this.placedState.asReadonly();
+
+  /**
+   * Where the order that was just sent can be read: the account's own page for
+   * a customer, the token link for a guest. The same order either way — the
+   * difference is only what the reader is holding to open it with.
+   */
+  protected readonly placedLink = computed(() => {
+    const reference = this.placedState();
+    if (!reference) return null;
+    if (!this.guest()) return ['/account/orders', reference];
+    const token = this.placedToken();
+    return token ? ['/orders', token] : null;
+  });
   protected readonly error = this.errorState.asReadonly();
 
   /** Only after a send has been attempted: an unticked box is not a mistake
@@ -1137,6 +1178,7 @@ export class CheckoutPage {
       if (result.ok) {
         await this.fileTypedAddresses();
         this.placedState.set(result.reference);
+        this.placedToken.set(result.publicToken);
         this.cart.clear();
         this.drafts.clear();
         this.goToStep(undefined);
@@ -1296,6 +1338,8 @@ export class CheckoutPage {
         return errors.invalidCompanyId;
       case 'unsupported-country':
         return errors.unsupportedCountry;
+      case 'invalid-postal-code':
+        return errors.invalidPostalCode;
       case 'unknown-pickup-location':
         return errors.unknownPickupLocation;
       case 'billing-details-required':

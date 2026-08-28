@@ -1,7 +1,11 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AccountProfile, Address } from '@b2b-catalog-platform/shared';
+import {
+  AccountProfile,
+  Address,
+  OrderSummary,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -10,6 +14,7 @@ import { AuthService } from '../auth/auth.service';
 import { plainUser } from '../auth/auth-user.fixture';
 import { AccountPage } from './account-page';
 import { AddressesService } from '../addresses/addresses.service';
+import { OrdersService } from '../orders/orders.service';
 import { ConfirmService } from '../ui/confirm.service';
 import { AccountService } from './account.service';
 
@@ -40,6 +45,18 @@ const savedAddress: Address = {
   updatedAt: '2026-03-01T10:00:00.000Z',
 };
 
+/** One of the account's orders, as the list endpoint summarizes it. */
+function order(reference: string): OrderSummary {
+  return {
+    reference,
+    status: 'requested',
+    createdAt: '2026-03-02T10:00:00.000Z',
+    itemCount: 3,
+    totalMinor: 12500,
+    currency: 'EUR',
+  };
+}
+
 interface AddressHarness {
   list: ReturnType<typeof vi.fn>;
   remove: ReturnType<typeof vi.fn>;
@@ -50,6 +67,7 @@ async function render(
   profile: AccountProfile | 'reject',
   addresses: Address[] | 'reject' = [],
   confirmed = true,
+  orders: OrderSummary[] | 'reject' = [],
 ) {
   const h: AddressHarness = {
     list: vi.fn(() =>
@@ -72,6 +90,24 @@ async function render(
         useValue: { user: signal(plainUser), logout: vi.fn() },
       },
       { provide: AddressesService, useValue: h },
+      {
+        provide: OrdersService,
+        useValue: {
+          listMine: vi.fn(() =>
+            orders === 'reject'
+              ? Promise.reject(new Error('500'))
+              : Promise.resolve({
+                  items: orders,
+                  pagination: {
+                    page: 1,
+                    pageSize: 10,
+                    total: orders.length,
+                    totalPages: 1,
+                  },
+                }),
+          ),
+        },
+      },
       { provide: ConfirmService, useValue: { ask: h.ask } },
       {
         provide: AccountService,
@@ -92,11 +128,14 @@ async function render(
   return { fixture, el: fixture.nativeElement as HTMLElement, h };
 }
 
-function buttonByText(el: HTMLElement, label: string): HTMLButtonElement {
-  const button = [...el.querySelectorAll('button')].find(
-    (b) => b.textContent?.trim() === label,
+/** An icon-only button, found by the accessible name it carries instead of
+ * text — `template` is the app-text line with `{label}` still in it. */
+function buttonByLabel(el: HTMLElement, template: string): HTMLButtonElement {
+  const prefix = template.split('{label}')[0];
+  const button = [...el.querySelectorAll('button')].find((b) =>
+    b.getAttribute('aria-label')?.startsWith(prefix),
   );
-  if (!button) throw new Error(`no button labelled "${label}"`);
+  if (!button) throw new Error(`no button labelled "${prefix}…"`);
   return button;
 }
 
@@ -141,9 +180,19 @@ describe('AccountPage', () => {
       // and the address itself is the line underneath.
       expect(el.textContent).toContain('Shop');
       expect(el.textContent).toContain('Hafenstraße 12, 20359 Hamburg');
+      // Both row actions are glyphs, so the address is their name.
+      const edit = el.querySelector<HTMLAnchorElement>(
+        'a[href="/account/addresses/addr-1/edit"]',
+      );
+      expect(edit?.getAttribute('aria-label')).toBe(
+        text.myAccount.addresses.editLabel.replace('{label}', 'Shop'),
+      );
+      expect(edit?.textContent?.trim()).toBe('');
       expect(
-        el.querySelector('a[href="/account/addresses/addr-1/edit"]'),
-      ).not.toBeNull();
+        buttonByLabel(el, text.myAccount.addresses.removeLabel).getAttribute(
+          'aria-label',
+        ),
+      ).toBe(text.myAccount.addresses.removeLabel.replace('{label}', 'Shop'));
     });
 
     // Nothing was named at checkout, so the row is headed by its own first
@@ -186,7 +235,7 @@ describe('AccountPage', () => {
     it('removes an address once it is confirmed, then re-reads the list', async () => {
       const { fixture, el, h } = await render(customer, [savedAddress]);
 
-      buttonByText(el, text.myAccount.addresses.remove).click();
+      buttonByLabel(el, text.myAccount.addresses.removeLabel).click();
       await fixture.whenStable();
 
       expect(h.ask).toHaveBeenCalledTimes(1);
@@ -197,7 +246,7 @@ describe('AccountPage', () => {
     it('leaves the address alone when the question is declined', async () => {
       const { fixture, el, h } = await render(customer, [savedAddress], false);
 
-      buttonByText(el, text.myAccount.addresses.remove).click();
+      buttonByLabel(el, text.myAccount.addresses.removeLabel).click();
       await fixture.whenStable();
 
       expect(h.remove).not.toHaveBeenCalled();
@@ -209,6 +258,114 @@ describe('AccountPage', () => {
       expect(el.textContent).toContain(text.myAccount.addresses.error);
       expect(el.textContent).toContain('Alex Fischer');
     });
+  });
+
+  // FR-ACC-01, on the account page itself: the newest few, so the order
+  // somebody came here to look up is on screen rather than a click away.
+  describe('the recent orders', () => {
+    it('lists the newest orders and links each of them', async () => {
+      const { el } = await render(customer, [], true, [
+        order('CK-2026-0002'),
+        order('CK-2026-0001'),
+      ]);
+
+      expect(el.textContent).toContain('CK-2026-0002');
+      expect(
+        el.querySelector('a[href="/account/orders/CK-2026-0002"]'),
+      ).not.toBeNull();
+    });
+
+    // Five on the card; the sixth is what the history page is for.
+    it('shows at most five, and offers the rest only when there are more', async () => {
+      const many = Array.from({ length: 6 }, (_, i) =>
+        order(`CK-2026-000${i + 1}`),
+      );
+      const { el } = await render(customer, [], true, many);
+
+      expect(el.querySelectorAll('a[href^="/account/orders/"]')).toHaveLength(
+        5,
+      );
+      expect(el.querySelector('a[href="/account/orders"]')).not.toBeNull();
+    });
+
+    // A button that opens the same five rows on another page is a click that
+    // changes nothing.
+    it('offers no history page when the card is already the whole of it', async () => {
+      const { el } = await render(customer, [], true, [order('CK-2026-0001')]);
+
+      expect(el.querySelector('a[href="/account/orders"]')).toBeNull();
+    });
+
+    it('says there are none yet, and where to start', async () => {
+      const { el } = await render(customer, [], true, []);
+
+      expect(el.textContent).toContain(defaultAppText.orders.empty);
+      expect(el.querySelector('a[href="/catalog"]')).not.toBeNull();
+    });
+
+    it('reports orders it could not load without hiding the rest', async () => {
+      const { el } = await render(customer, [], true, 'reject');
+
+      expect(el.textContent).toContain(defaultAppText.orders.error);
+      expect(el.textContent).toContain('Alex Fischer');
+    });
+  });
+
+  // Two answers to one question, on two round trips: drawn as each lands, the
+  // card grows a second time under somebody already reading the first half.
+  it('holds the whole card back until both halves have answered', async () => {
+    let releaseAddresses: (rows: Address[]) => void = () => undefined;
+    const pending = new Promise<Address[]>((resolve) => {
+      releaseAddresses = resolve;
+    });
+
+    TestBed.configureTestingModule({
+      imports: [AccountPage],
+      providers: [
+        provideRouter([]),
+        { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+        {
+          provide: AuthService,
+          useValue: { user: signal(plainUser), logout: vi.fn() },
+        },
+        { provide: AddressesService, useValue: { list: () => pending } },
+        { provide: ConfirmService, useValue: { ask: vi.fn() } },
+        {
+          provide: AccountService,
+          useValue: { getProfile: vi.fn(async () => customer) },
+        },
+        {
+          provide: OrdersService,
+          useValue: {
+            listMine: vi.fn(async () => ({
+              items: [],
+              pagination: { page: 1, pageSize: 10, total: 0, totalPages: 1 },
+            })),
+          },
+        },
+      ],
+    });
+
+    const fixture = TestBed.createComponent(AccountPage);
+    // Not `whenStable`: it waits on the resource this test is deliberately
+    // holding open. A turn of the task queue is enough for the two that do
+    // answer, which is the state under test.
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+
+    // The details are in hand and still off screen: the address book beside
+    // them has not answered.
+    expect(el.textContent).not.toContain('Alex Fischer');
+
+    releaseAddresses([savedAddress]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('Alex Fischer');
+    expect(el.textContent).toContain('Shop');
   });
 
   it('offers the change-password page whatever the details do', async () => {

@@ -33,43 +33,83 @@ import { OrdersService } from './orders.service';
   imports: [RouterLink, Button, Skeleton, OrderReadBack, OrderSummary],
   template: `
     @if (detail(); as detail) {
-      <div class="max-w-4xl">
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h1 class="text-3xl font-bold tracking-tight">
-            {{ detail.reference }}
-          </h1>
-          <span
-            class="rounded-full px-2 py-0.5 text-xs font-medium"
-            [class]="statusClass(detail.status)"
-          >
-            {{ statusLabel(detail.status) }}
-          </span>
-        </div>
-        <p class="mt-2 text-muted">{{ placed(detail) }}</p>
+      <!-- The cart's and the checkout's two columns, at the cart's own notch
+           and measured on the page rather than the window: an order is read
+           where it was last seen, so the card must not sit beside the lines on
+           one screen and under them on the next. -->
+      <div class="@container/order">
+        <div class="grid gap-8 @min-[72.5rem]/order:grid-cols-[1fr_20rem]">
+          <!-- A reading measure inside the track rather than a narrower track:
+               an order is read down its left edge and a name-and-price line
+               spanning a wide screen is one nobody follows across — but the
+               summary must stay where the cart and the checkout put it, and
+               narrowing the track would slide it inward on this page alone. -->
+          <div class="max-w-3xl">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <h1 class="text-3xl font-bold tracking-tight">
+                {{ detail.reference }}
+              </h1>
+              <span
+                class="rounded-full px-2 py-0.5 text-xs font-medium"
+                [class]="statusClass(detail.status)"
+              >
+                {{ statusLabel(detail.status) }}
+              </span>
+            </div>
+            <p class="mt-2 text-muted">{{ placed(detail) }}</p>
 
-        <!-- The lines and the answers on the left, what it came to on the
-             right — the same two columns the checkout read-back had, so the
-             order is laid out where the customer last saw it. -->
-        <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
-          <app-order-read-back [lines]="lines()" [blocks]="blocks()" />
-          <app-order-summary
-            [lineCount]="detail.lines.length"
-            [subtotalMinor]="detail.totalMinor"
-            [shipment]="detail.shipment"
-          />
+            <app-order-read-back
+              class="mt-8"
+              [lines]="lines()"
+              [blocks]="blocks()"
+            />
+          </div>
+
+          <!-- What it came to, and the way back under it: controls belong
+               below the card they act after, which is where the cart and the
+               checkout put theirs. -->
+          <aside
+            class="max-w-xl @min-[72.5rem]/order:mt-9 @min-[72.5rem]/order:sticky @min-[72.5rem]/order:top-20 @min-[72.5rem]/order:self-start"
+          >
+            <app-order-summary
+              [lineCount]="detail.lines.length"
+              [subtotalMinor]="detail.totalMinor"
+              [shipment]="detail.shipment"
+            />
+            <a
+              appButton
+              variant="secondary"
+              routerLink="/account/orders"
+              class="mt-5 w-full"
+            >
+              {{ text.backToList }}
+            </a>
+          </aside>
         </div>
       </div>
     } @else if (missing()) {
       <p class="text-muted">{{ text.notFound }}</p>
+      <a
+        appButton
+        variant="secondary"
+        routerLink="/account/orders"
+        class="mt-5"
+      >
+        {{ text.backToList }}
+      </a>
     } @else if (order.error()) {
       <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+      <a
+        appButton
+        variant="secondary"
+        routerLink="/account/orders"
+        class="mt-5"
+      >
+        {{ text.backToList }}
+      </a>
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }
-
-    <a appButton variant="secondary" routerLink="/account/orders" class="mt-10">
-      {{ text.backToList }}
-    </a>
   `,
 })
 export class OrderDetailPage {

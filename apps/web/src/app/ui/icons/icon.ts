@@ -35,6 +35,7 @@ export type IconName =
   | 'minus'
   | 'shopping-basket'
   | 'circle-user-round'
+  | 'circle-check'
   | 'book-check'
   | 'book-dashed'
   | 'layout-grid'
@@ -154,6 +155,10 @@ export type IconName =
           <path d="M4.5 15.5h15" />
           <path d="m5 11 4-7" />
           <path d="m9 11 1 9" />
+        }
+        @case ('circle-check') {
+          <circle cx="12" cy="12" r="10" />
+          <path d="m9 12 2 2 4-4" />
         }
         @case ('circle-user-round') {
           <path d="M17.925 20.056a6 6 0 0 0-11.851.001" />

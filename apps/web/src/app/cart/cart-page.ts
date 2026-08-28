@@ -23,6 +23,7 @@ import { usePageSeo } from '../core/page-seo';
 import { stableValue } from '../core/stable-value';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
+import { EmptyState } from '../ui/empty-state';
 import { AutoGrow } from '../ui/auto-grow';
 import { Input } from '../ui/input';
 import { ConfirmService } from '../ui/confirm.service';
@@ -105,6 +106,7 @@ interface CartRow {
     AutoGrow,
     Button,
     Checkbox,
+    EmptyState,
     Icon,
     IconButton,
     Input,
@@ -117,8 +119,13 @@ interface CartRow {
       <h1 class="mb-6 text-2xl font-bold tracking-tight sm:text-3xl">
         {{ text.title }}
       </h1>
-      <p class="text-subtle">{{ text.empty }}</p>
-      <a appButton routerLink="/catalog" class="mt-4">{{ text.emptyAction }}</a>
+      <!-- The same panel the account draws with no orders on it and the
+           checkout draws once one has been sent: three screens that say
+           "there is nothing here, here is where to go" should not be three
+           different screens. -->
+      <app-empty-state icon="shopping-basket" [message]="text.empty">
+        <a appButton routerLink="/catalog">{{ text.emptyAction }}</a>
+      </app-empty-state>
     } @else {
       @if (cart.persistFailed()) {
         <p class="mb-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800">

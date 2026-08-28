@@ -36,48 +36,71 @@ import { OrdersService } from './orders.service';
   imports: [RouterLink, Button, Skeleton, OrderReadBack, OrderSummary],
   template: `
     @if (detail(); as order) {
-      <div class="mx-auto max-w-4xl">
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h1 class="text-3xl font-bold tracking-tight">
-            {{ order.reference }}
-          </h1>
-          <span
-            class="rounded-full px-2 py-0.5 text-xs font-medium"
-            [class]="statusClass(order.status)"
-          >
-            {{ statusLabel(order.status) }}
-          </span>
-        </div>
-        <p class="mt-2 text-muted">{{ placed(order) }}</p>
-        <p class="mt-4 text-muted">{{ text.intro }}</p>
+      <!-- Left-aligned under a left-aligned heading, in the same two columns
+           the cart, the checkout and the account's own order page draw: this
+           is the same order read through a link rather than through a session,
+           and it should not be a differently shaped page for it. -->
+      <div class="@container/order">
+        <div class="grid gap-8 @min-[72.5rem]/order:grid-cols-[1fr_20rem]">
+          <!-- A reading measure inside the track rather than a narrower track:
+               an order is read down its left edge and a name-and-price line
+               spanning a wide screen is one nobody follows across — but the
+               summary must stay where the cart and the checkout put it, and
+               narrowing the track would slide it inward on this page alone. -->
+          <div class="max-w-3xl">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <h1 class="text-3xl font-bold tracking-tight">
+                {{ order.reference }}
+              </h1>
+              <span
+                class="rounded-full px-2 py-0.5 text-xs font-medium"
+                [class]="statusClass(order.status)"
+              >
+                {{ statusLabel(order.status) }}
+              </span>
+            </div>
+            <p class="mt-2 text-muted">{{ placed(order) }}</p>
+            <p class="mt-4 max-w-xl text-muted">{{ text.intro }}</p>
 
-        <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
-          <app-order-read-back [lines]="lines()" [blocks]="blocks()" />
-          <app-order-summary
-            [lineCount]="order.lines.length"
-            [subtotalMinor]="order.totalMinor"
-            [shipment]="order.shipment"
-          />
-        </div>
-
-        <!-- The account offer the checkout deliberately postponed: approval
-             takes days, and an order already sent costs nothing to wait for.
-             Never to somebody who already has one — this page is reachable by
-             anyone holding the link, including a customer who followed an old
-             one or was forwarded it. -->
-        @if (!signedIn()) {
-          <div class="mt-10 rounded-lg border border-border p-5">
-            <p class="text-sm text-muted">{{ text.register }}</p>
-            <a
-              appButton
-              variant="secondary"
-              routerLink="/register"
-              class="mt-4"
-            >
-              {{ text.registerAction }}
-            </a>
+            <app-order-read-back
+              class="mt-8"
+              [lines]="lines()"
+              [blocks]="blocks()"
+            />
           </div>
-        }
+
+          <aside
+            class="max-w-xl @min-[72.5rem]/order:mt-9 @min-[72.5rem]/order:sticky @min-[72.5rem]/order:top-20 @min-[72.5rem]/order:self-start"
+          >
+            <app-order-summary
+              [lineCount]="order.lines.length"
+              [subtotalMinor]="order.totalMinor"
+              [shipment]="order.shipment"
+            />
+
+            <!-- The account offer the checkout deliberately postponed:
+                 approval takes days, and an order already sent costs nothing
+                 to wait for. Never to somebody who already has one — this page
+                 is reachable by anyone holding the link, including a customer
+                 who followed an old one or was forwarded it.
+
+                 Under the summary, where every other flow keeps what to do
+                 next. -->
+            @if (!signedIn()) {
+              <div class="mt-5 rounded-lg border border-border p-5">
+                <p class="text-sm text-muted">{{ text.register }}</p>
+                <a
+                  appButton
+                  variant="secondary"
+                  routerLink="/register"
+                  class="mt-4 w-full"
+                >
+                  {{ text.registerAction }}
+                </a>
+              </div>
+            }
+          </aside>
+        </div>
       </div>
     } @else if (missing()) {
       <p class="text-muted">{{ text.notFound }}</p>

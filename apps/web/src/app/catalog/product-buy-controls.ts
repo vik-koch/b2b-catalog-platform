@@ -274,17 +274,11 @@ export interface BuyableProduct {
             @if (open.at === 'remove') {
               <app-popover align="start" (dismissed)="dismiss()">
                 <p>{{ open.message }}</p>
+                <!-- Keeping it first, removing it second — the order the
+                     confirmation dialog puts them in everywhere else. A yes/no
+                     pair that swaps sides between two screens is one somebody
+                     answers by position and gets wrong. -->
                 <div class="mt-2 flex gap-2">
-                  <button
-                    type="button"
-                    appButton
-                    variant="danger"
-                    size="sm"
-                    class="flex-1"
-                    (click)="confirmRemove()"
-                  >
-                    {{ text.removeYes }}
-                  </button>
                   <button
                     type="button"
                     appButton
@@ -294,6 +288,16 @@ export interface BuyableProduct {
                     (click)="dismiss()"
                   >
                     {{ text.removeNo }}
+                  </button>
+                  <button
+                    type="button"
+                    appButton
+                    variant="danger"
+                    size="sm"
+                    class="flex-1"
+                    (click)="confirmRemove()"
+                  >
+                    {{ text.removeYes }}
                   </button>
                 </div>
               </app-popover>
