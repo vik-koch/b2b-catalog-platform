@@ -198,6 +198,9 @@ export const adminTextSchema = z
         /** Commits the edits and puts the product on the storefront at once
          * (FR-ADM-06); shown only while it is not published. */
         saveAndPublish: z.string(),
+        /** Discards, and lands on the storefront page rather than back where
+         * the editor was opened from. */
+        cancelToPage: z.string(),
         publishError: z.string(),
         attributes: z
           .object({
@@ -422,7 +425,7 @@ export const adminTextSchema = z
         /**
          * Why the whole file was refused, keyed by the API's own `code`. The
          * substitutions name things in the admin's own file — `{column}`,
-         * `{columns}`, `{expected}`, `{rows}`, `{limit}` — and are supplied by
+         * `{columns}`, `{expected}`, `{rows}`, `{limit}`, `{row}` — and are supplied by
          * the response, so the sentence around them stays the deployment's.
          */
         formatErrors: z
@@ -431,6 +434,7 @@ export const adminTextSchema = z
             'file-too-large': z.string(),
             'file-empty': z.string(),
             'no-header-row': z.string(),
+            'malformed-quotes': z.string(),
             'duplicate-column': z.string(),
             'unknown-columns': z.string(),
             'missing-required-column': z.string(),

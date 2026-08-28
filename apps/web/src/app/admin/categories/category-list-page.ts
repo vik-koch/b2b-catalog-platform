@@ -120,153 +120,162 @@ const EDGE_SLACK = 24;
       </a>
     </div>
 
-    <div class="mb-4 flex min-h-8 items-center justify-between gap-4">
-      <p class="text-sm text-muted">{{ text.reorderHint }}</p>
-      @if (undoStack().length > 0) {
-        <button
-          appButton
-          variant="ghost"
-          size="sm"
-          type="button"
-          class="gap-2"
-          [disabled]="busy()"
-          (click)="undo()"
-        >
-          <app-admin-icon name="rotate-ccw" class="h-4 w-4" />
-          {{ text.undo }}
-        </button>
-      }
-    </div>
-
-    @if (reorderError()) {
-      <p class="mb-4 text-sm text-red-700" role="alert">
-        {{ text.reorderError }}
-      </p>
-    }
-
-    @if (categories.error()) {
-      <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
-    } @else if (categories.hasValue()) {
-      @if (rows().length === 0) {
-        <p class="text-muted">{{ text.empty }}</p>
-      } @else {
-        <div class="relative">
-          <ul
-            #list
-            cdkDropList
-            cdkDropListSortingDisabled
-            [cdkDropListDisabled]="busy()"
+    <!-- Narrower than the heading above it: everything below is a column of
+         fields and rows to read down, not a table to scan across, and a line
+         that runs the full width of a desktop is a line nobody follows. -->
+    <div class="max-w-3xl">
+      <div class="mb-4 flex min-h-8 items-center justify-between gap-4">
+        <p class="text-sm text-muted">{{ text.reorderHint }}</p>
+        @if (undoStack().length > 0) {
+          <button
+            appButton
+            variant="ghost"
+            size="sm"
+            type="button"
+            class="gap-2"
+            [disabled]="busy()"
+            (click)="undo()"
           >
-            @for (node of rows(); track node.category.id; let first = $first) {
-              <li
-                cdkDrag
-                [cdkDragData]="node"
-                [class.opacity-40]="draggedSubtreeIds().has(node.category.id)"
-                (cdkDragStarted)="dragging.set(node)"
-                (cdkDragMoved)="onDragMoved($event)"
-                (cdkDragEnded)="onDragEnded($event)"
-              >
-                <!-- No custom preview template: the CDK clones this row, which
+            <app-admin-icon name="rotate-ccw" class="h-4 w-4" />
+            {{ text.undo }}
+          </button>
+        }
+      </div>
+
+      @if (reorderError()) {
+        <p class="mb-4 text-sm text-red-700" role="alert">
+          {{ text.reorderError }}
+        </p>
+      }
+
+      @if (categories.error()) {
+        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+      } @else if (categories.hasValue()) {
+        @if (rows().length === 0) {
+          <p class="text-muted">{{ text.empty }}</p>
+        } @else {
+          <div class="relative">
+            <ul
+              #list
+              cdkDropList
+              cdkDropListSortingDisabled
+              [cdkDropListDisabled]="busy()"
+            >
+              @for (
+                node of rows();
+                track node.category.id;
+                let first = $first
+              ) {
+                <li
+                  cdkDrag
+                  [cdkDragData]="node"
+                  [class.opacity-40]="draggedSubtreeIds().has(node.category.id)"
+                  (cdkDragStarted)="dragging.set(node)"
+                  (cdkDragMoved)="onDragMoved($event)"
+                  (cdkDragEnded)="onDragEnded($event)"
+                >
+                  <!-- No custom preview template: the CDK clones this row, which
                      is one row at its real size and type, never its subtree —
                      children are their own rows and stay where they are. -->
-                <div
-                  class="flex items-center gap-2 border-stone-100 py-2"
-                  [class.border-t]="!first"
-                  [style.marginLeft.px]="node.depth * indent"
-                >
-                  <span
-                    cdkDragHandle
-                    class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
-                    [attr.aria-label]="common.reorder"
-                    [title]="common.reorder"
+                  <div
+                    class="flex items-center gap-2 border-stone-100 py-2"
+                    [class.border-t]="!first"
+                    [style.marginLeft.px]="node.depth * indent"
                   >
-                    <app-admin-icon name="grip-vertical" class="h-4 w-4" />
-                  </span>
-                  <span class="flex-1 font-medium text-stone-700">
-                    {{ node.category.name }}
-                  </span>
-                  <a
-                    routerLink="/admin/categories/new"
-                    [queryParams]="{
-                      parent: node.category.slug,
-                      from: editorFrom.from,
-                    }"
-                    class="p-1 text-stone-400 hover:text-accent"
-                    [attr.aria-label]="text.addChild"
-                    [title]="text.addChild"
-                  >
-                    <app-admin-icon name="plus" class="h-4 w-4" />
-                  </a>
-                  <a
-                    [routerLink]="['/catalog', node.category.slug]"
-                    class="p-1 text-stone-400 hover:text-accent"
-                    [attr.aria-label]="text.seeProducts"
-                    [title]="text.seeProducts"
-                  >
-                    <app-admin-icon name="eye" class="h-4 w-4" />
-                  </a>
-                  <a
-                    routerLink="/admin/products"
-                    [queryParams]="{ categoryId: node.category.id }"
-                    class="p-1 text-stone-400 hover:text-accent"
-                    [attr.aria-label]="text.editProducts"
-                    [title]="text.editProducts"
-                  >
-                    <app-admin-icon name="square-menu" class="h-4 w-4" />
-                  </a>
-                  <a
-                    [routerLink]="[
-                      '/admin/categories',
-                      node.category.slug,
-                      'edit',
-                    ]"
-                    [queryParams]="editorFrom"
-                    class="p-1 text-stone-400 hover:text-accent"
-                    [attr.aria-label]="text.edit"
-                    [title]="text.edit"
-                  >
-                    <app-admin-icon name="pencil" class="h-4 w-4" />
-                  </a>
-                  <button
-                    type="button"
-                    class="p-1 text-stone-400 hover:text-red-700"
-                    [attr.aria-label]="text.delete"
-                    [title]="text.delete"
-                    (click)="deletingCategory.set(node.category)"
-                  >
-                    <app-admin-icon name="trash-2" class="h-4 w-4" />
-                  </button>
-                </div>
-              </li>
+                    <span
+                      cdkDragHandle
+                      class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
+                      [attr.aria-label]="common.reorder"
+                      [title]="common.reorder"
+                    >
+                      <app-admin-icon name="grip-vertical" class="h-4 w-4" />
+                    </span>
+                    <span class="flex-1 font-medium text-stone-700">
+                      {{ node.category.name }}
+                    </span>
+                    <a
+                      routerLink="/admin/categories/new"
+                      [queryParams]="{
+                        parent: node.category.slug,
+                        from: editorFrom.from,
+                      }"
+                      class="p-1 text-stone-400 hover:text-accent"
+                      [attr.aria-label]="text.addChild"
+                      [title]="text.addChild"
+                    >
+                      <app-admin-icon name="plus" class="h-4 w-4" />
+                    </a>
+                    <a
+                      [routerLink]="['/catalog', node.category.slug]"
+                      class="p-1 text-stone-400 hover:text-accent"
+                      [attr.aria-label]="text.seeProducts"
+                      [title]="text.seeProducts"
+                    >
+                      <app-admin-icon name="eye" class="h-4 w-4" />
+                    </a>
+                    <a
+                      routerLink="/admin/products"
+                      [queryParams]="{ categoryId: node.category.id }"
+                      class="p-1 text-stone-400 hover:text-accent"
+                      [attr.aria-label]="text.editProducts"
+                      [title]="text.editProducts"
+                    >
+                      <app-admin-icon name="square-menu" class="h-4 w-4" />
+                    </a>
+                    <a
+                      [routerLink]="[
+                        '/admin/categories',
+                        node.category.slug,
+                        'edit',
+                      ]"
+                      [queryParams]="editorFrom"
+                      class="p-1 text-stone-400 hover:text-accent"
+                      [attr.aria-label]="text.edit"
+                      [title]="text.edit"
+                    >
+                      <app-admin-icon name="pencil" class="h-4 w-4" />
+                    </a>
+                    <button
+                      type="button"
+                      class="p-1 text-stone-400 hover:text-red-700"
+                      [attr.aria-label]="text.delete"
+                      [title]="text.delete"
+                      (click)="deletingCategory.set(node.category)"
+                    >
+                      <app-admin-icon name="trash-2" class="h-4 w-4" />
+                    </button>
+                  </div>
+                </li>
+              }
+            </ul>
+
+            <!-- The only drop feedback: where the row lands, at what level. -->
+            @if (line(); as l) {
+              <div
+                class="pointer-events-none absolute right-0 h-[3px] rounded-full bg-primary"
+                [style.top.px]="l.top"
+                [style.left.px]="l.left"
+              >
+                <span
+                  class="absolute -top-[3px] left-0 h-[9px] w-[9px] -translate-x-1/2 rounded-full bg-primary"
+                ></span>
+              </div>
             }
-          </ul>
-
-          <!-- The only drop feedback: where the row lands, at what level. -->
-          @if (line(); as l) {
-            <div
-              class="pointer-events-none absolute right-0 h-[3px] rounded-full bg-primary"
-              [style.top.px]="l.top"
-              [style.left.px]="l.left"
-            >
-              <span
-                class="absolute -top-[3px] left-0 h-[9px] w-[9px] -translate-x-1/2 rounded-full bg-primary"
-              ></span>
-            </div>
-          }
-        </div>
+          </div>
+        }
+      } @else if (showSkeleton()) {
+        <app-skeleton [lines]="5" />
       }
-    } @else if (showSkeleton()) {
-      <app-skeleton [lines]="5" />
-    }
 
-    @if (deletingCategory(); as target) {
-      <app-category-delete-dialog
-        [slug]="target.slug"
-        [name]="target.name"
-        (deleted)="onCategoryDeleted()"
-        (cancelled)="deletingCategory.set(null)"
-      />
-    }
+      @if (deletingCategory(); as target) {
+        <app-category-delete-dialog
+          [slug]="target.slug"
+          [name]="target.name"
+          (deleted)="onCategoryDeleted()"
+          (cancelled)="deletingCategory.set(null)"
+        />
+      }
+    </div>
   `,
 })
 export class CategoryListPage {

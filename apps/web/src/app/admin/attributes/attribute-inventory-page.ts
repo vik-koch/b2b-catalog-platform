@@ -63,186 +63,195 @@ type RenameTarget =
 
     <p class="mb-6 max-w-2xl text-sm text-muted">{{ text.intro }}</p>
 
-    @if (keys.error()) {
-      <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
-    } @else if (keys.hasValue()) {
-      @if (keys.value().length === 0) {
-        <p class="text-sm text-muted">{{ text.empty }}</p>
-      } @else {
-        <div class="overflow-hidden bg-white rounded-lg border border-border">
-          <ul class="divide-y divide-border">
-            @for (entry of keys.value(); track entry.key) {
-              <!-- scroll-mt clears the sticky header: without it the anchor
+    <!-- Narrower than the heading above it: everything below is a column of
+         fields and rows to read down, not a table to scan across, and a line
+         that runs the full width of a desktop is a line nobody follows. -->
+    <div class="max-w-3xl">
+      @if (keys.error()) {
+        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+      } @else if (keys.hasValue()) {
+        @if (keys.value().length === 0) {
+          <p class="text-sm text-muted">{{ text.empty }}</p>
+        } @else {
+          <div class="overflow-hidden bg-white rounded-lg border border-border">
+            <ul class="divide-y divide-border">
+              @for (entry of keys.value(); track entry.key) {
+                <!-- scroll-mt clears the sticky header: without it the anchor
                    puts the row's own heading under the bar and the values look
                    like the top of the list. -->
-              <li [id]="rowId(entry.key)" class="scroll-mt-24">
-                <div class="p-4">
-                  @if (isRenaming({ kind: 'key', key: entry.key })) {
-                    <ng-container [ngTemplateOutlet]="form" />
-                  } @else {
-                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <button
-                        type="button"
-                        class="flex items-center gap-2 font-medium text-stone-700 hover:text-accent"
-                        [attr.aria-expanded]="expanded() === entry.key"
-                        (click)="toggle(entry.key)"
-                      >
-                        <app-admin-icon
-                          [name]="
-                            expanded() === entry.key
-                              ? 'chevron-down'
-                              : 'chevron-right'
-                          "
-                          class="h-4 w-4"
-                        />
-                        {{ entry.key }}
-                      </button>
-                      <span class="text-sm text-subtle">
-                        {{ productsLabel(entry.productCount) }} ·
-                        {{ valuesLabel(entry.valueCount) }}
-                      </span>
-                      <span class="ml-auto flex items-center gap-1">
-                        <!-- Whether the shop filters by this key, and the way to
+                <li [id]="rowId(entry.key)" class="scroll-mt-24">
+                  <div class="p-4">
+                    @if (isRenaming({ kind: 'key', key: entry.key })) {
+                      <ng-container [ngTemplateOutlet]="form" />
+                    } @else {
+                      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <button
+                          type="button"
+                          class="flex items-center gap-2 font-medium text-stone-700 hover:text-accent"
+                          [attr.aria-expanded]="expanded() === entry.key"
+                          (click)="toggle(entry.key)"
+                        >
+                          <app-admin-icon
+                            [name]="
+                              expanded() === entry.key
+                                ? 'chevron-down'
+                                : 'chevron-right'
+                            "
+                            class="h-4 w-4"
+                          />
+                          {{ entry.key }}
+                        </button>
+                        <span class="text-sm text-subtle">
+                          {{ productsLabel(entry.productCount) }} ·
+                          {{ valuesLabel(entry.valueCount) }}
+                        </span>
+                        <span class="ml-auto flex items-center gap-1">
+                          <!-- Whether the shop filters by this key, and the way to
                              its definition. States the fact where a freetext key
                              is concerned — most attributes are freetext and none
                              of them is a problem to be fixed — so it is deadened
                              rather than dropped, and never offers to declare
                              one. -->
-                        @if (entry.definition) {
+                          @if (entry.definition) {
+                            <a
+                              class="p-1 text-stone-400 hover:text-accent"
+                              routerLink="/admin/attributes"
+                              [queryParams]="{ name: entry.key }"
+                              [attr.aria-label]="text.toDefinition"
+                            >
+                              <app-admin-icon name="funnel" class="h-4 w-4" />
+                            </a>
+                          } @else {
+                            <span
+                              class="p-1 text-stone-300"
+                              [attr.aria-label]="text.notFilterable"
+                              [title]="text.notFilterable"
+                            >
+                              <app-admin-icon name="funnel" class="h-4 w-4" />
+                            </span>
+                          }
                           <a
                             class="p-1 text-stone-400 hover:text-accent"
-                            routerLink="/admin/attributes"
-                            [queryParams]="{ name: entry.key }"
-                            [attr.aria-label]="text.toDefinition"
+                            routerLink="/admin/products"
+                            [queryParams]="{ attributeKey: entry.key }"
+                            [attr.aria-label]="text.showProducts"
                           >
-                            <app-admin-icon name="funnel" class="h-4 w-4" />
+                            <app-admin-icon
+                              name="square-menu"
+                              class="h-4 w-4"
+                            />
                           </a>
-                        } @else {
-                          <span
-                            class="p-1 text-stone-300"
-                            [attr.aria-label]="text.notFilterable"
-                            [title]="text.notFilterable"
+                          <button
+                            type="button"
+                            class="p-1 text-stone-400 hover:text-accent"
+                            [attr.aria-label]="text.renameKey"
+                            [disabled]="busy()"
+                            (click)="
+                              startRename({ kind: 'key', key: entry.key })
+                            "
                           >
-                            <app-admin-icon name="funnel" class="h-4 w-4" />
-                          </span>
-                        }
-                        <a
-                          class="p-1 text-stone-400 hover:text-accent"
-                          routerLink="/admin/products"
-                          [queryParams]="{ attributeKey: entry.key }"
-                          [attr.aria-label]="text.showProducts"
-                        >
-                          <app-admin-icon name="square-menu" class="h-4 w-4" />
-                        </a>
-                        <button
-                          type="button"
-                          class="p-1 text-stone-400 hover:text-accent"
-                          [attr.aria-label]="text.renameKey"
-                          [disabled]="busy()"
-                          (click)="startRename({ kind: 'key', key: entry.key })"
-                        >
-                          <app-admin-icon name="pencil" class="h-4 w-4" />
-                        </button>
-                      </span>
-                    </div>
-                  }
-                </div>
+                            <app-admin-icon name="pencil" class="h-4 w-4" />
+                          </button>
+                        </span>
+                      </div>
+                    }
+                  </div>
 
-                @if (expanded() === entry.key) {
-                  <!-- Values sit inside their key's row rather than on a screen
+                  @if (expanded() === entry.key) {
+                    <!-- Values sit inside their key's row rather than on a screen
                        of their own: the comparison that matters is between two
                        spellings of one attribute. -->
-                  <div class="border-t border-border px-4">
-                    @if (values.error()) {
-                      <p class="py-3 text-sm text-muted" role="alert">
-                        {{ catalogText.loadError }}
-                      </p>
-                    } @else if (values.hasValue()) {
-                      <ul class="divide-y divide-border">
-                        @for (value of values.value(); track value.value) {
-                          <li class="py-3">
-                            @if (
-                              isRenaming({
-                                kind: 'value',
-                                key: entry.key,
-                                value: value.value,
-                              })
-                            ) {
-                              <ng-container [ngTemplateOutlet]="form" />
-                            } @else {
-                              <div
-                                class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
-                              >
-                                <!-- An empty value is a row stored before
+                    <div class="border-t border-border px-4">
+                      @if (values.error()) {
+                        <p class="py-3 text-sm text-muted" role="alert">
+                          {{ catalogText.loadError }}
+                        </p>
+                      } @else if (values.hasValue()) {
+                        <ul class="divide-y divide-border">
+                          @for (value of values.value(); track value.value) {
+                            <li class="py-3">
+                              @if (
+                                isRenaming({
+                                  kind: 'value',
+                                  key: entry.key,
+                                  value: value.value,
+                                })
+                              ) {
+                                <ng-container [ngTemplateOutlet]="form" />
+                              } @else {
+                                <div
+                                  class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
+                                >
+                                  <!-- An empty value is a row stored before
                                      valueless attributes stopped being saved.
                                      Named, or it reads as a rendering fault. -->
-                                <span
-                                  class="text-stone-700"
-                                  [class.text-muted]="value.value === ''"
-                                >
-                                  {{ value.value || text.emptyValue }}
-                                </span>
-                                <span class="text-subtle">
-                                  {{ productsLabel(value.productCount) }}
-                                </span>
-                                <!-- Only worth saying where it costs something:
+                                  <span
+                                    class="text-stone-700"
+                                    [class.text-muted]="value.value === ''"
+                                  >
+                                    {{ value.value || text.emptyValue }}
+                                  </span>
+                                  <span class="text-subtle">
+                                    {{ productsLabel(value.productCount) }}
+                                  </span>
+                                  <!-- Only worth saying where it costs something:
                                      a value with no numeric form drops out of a
                                      number attribute's filter. -->
-                                @if (
-                                  !value.numeric &&
-                                  entry.definition?.type === 'number'
-                                ) {
-                                  <app-hint-badge
-                                    tone="warning"
-                                    [label]="text.notNumeric"
-                                  >
-                                    <app-admin-icon
-                                      name="triangle-alert"
-                                      class="h-3.5 w-3.5"
-                                    />
-                                  </app-hint-badge>
-                                }
-                                <span class="ml-auto flex items-center gap-1">
-                                  <a
-                                    class="p-1 text-stone-400 hover:text-accent"
-                                    routerLink="/admin/products"
-                                    [queryParams]="{
-                                      attributeKey: entry.key,
-                                      attributeValue: value.value,
-                                    }"
-                                    [attr.aria-label]="text.showProducts"
-                                  >
-                                    <app-admin-icon
-                                      name="square-menu"
-                                      class="h-4 w-4"
-                                    />
-                                  </a>
-                                  <button
-                                    type="button"
-                                    class="p-1 text-stone-400 hover:text-accent"
-                                    [attr.aria-label]="text.renameValue"
-                                    [disabled]="busy()"
-                                    (click)="
-                                      startRename({
-                                        kind: 'value',
-                                        key: entry.key,
-                                        value: value.value,
-                                      })
-                                    "
-                                  >
-                                    <app-admin-icon
-                                      name="pencil"
-                                      class="h-4 w-4"
-                                    />
-                                  </button>
-                                </span>
-                              </div>
-                            }
-                          </li>
-                        }
-                      </ul>
-                    } @else {
-                      <!-- The placeholder is this list, not a generic block
+                                  @if (
+                                    !value.numeric &&
+                                    entry.definition?.type === 'number'
+                                  ) {
+                                    <app-hint-badge
+                                      tone="warning"
+                                      [label]="text.notNumeric"
+                                    >
+                                      <app-admin-icon
+                                        name="triangle-alert"
+                                        class="h-3.5 w-3.5"
+                                      />
+                                    </app-hint-badge>
+                                  }
+                                  <span class="ml-auto flex items-center gap-1">
+                                    <a
+                                      class="p-1 text-stone-400 hover:text-accent"
+                                      routerLink="/admin/products"
+                                      [queryParams]="{
+                                        attributeKey: entry.key,
+                                        attributeValue: value.value,
+                                      }"
+                                      [attr.aria-label]="text.showProducts"
+                                    >
+                                      <app-admin-icon
+                                        name="square-menu"
+                                        class="h-4 w-4"
+                                      />
+                                    </a>
+                                    <button
+                                      type="button"
+                                      class="p-1 text-stone-400 hover:text-accent"
+                                      [attr.aria-label]="text.renameValue"
+                                      [disabled]="busy()"
+                                      (click)="
+                                        startRename({
+                                          kind: 'value',
+                                          key: entry.key,
+                                          value: value.value,
+                                        })
+                                      "
+                                    >
+                                      <app-admin-icon
+                                        name="pencil"
+                                        class="h-4 w-4"
+                                      />
+                                    </button>
+                                  </span>
+                                </div>
+                              }
+                            </li>
+                          }
+                        </ul>
+                      } @else {
+                        <!-- The placeholder is this list, not a generic block
                            of bars: the row count is already known from the
                            key's own line, so the values arrive into exactly
                            the space they will occupy and nothing below moves.
@@ -250,95 +259,98 @@ type RenameTarget =
                            approximating it — the height comes from the action
                            icons (a 16px icon on a 20px line, plus p-1), not
                            from the text, so bars alone would be 6px short. -->
-                      <ul
-                        class="animate-pulse divide-y divide-border"
-                        aria-hidden="true"
-                      >
-                        @for (
-                          width of valuePlaceholders(entry.valueCount);
-                          track $index
-                        ) {
-                          <li class="py-3">
-                            <div
-                              class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
-                            >
-                              <span
-                                class="h-4 rounded bg-stone-200"
-                                [style.width]="width"
-                              ></span>
-                              <span
-                                class="h-4 w-20 rounded bg-stone-200"
-                              ></span>
-                              <span class="ml-auto flex items-center gap-1">
-                                <span class="p-1">
-                                  <span
-                                    class="inline-flex h-4 w-4 rounded bg-stone-200"
-                                  ></span>
+                        <ul
+                          class="animate-pulse divide-y divide-border"
+                          aria-hidden="true"
+                        >
+                          @for (
+                            width of valuePlaceholders(entry.valueCount);
+                            track $index
+                          ) {
+                            <li class="py-3">
+                              <div
+                                class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
+                              >
+                                <span
+                                  class="h-4 rounded bg-stone-200"
+                                  [style.width]="width"
+                                ></span>
+                                <span
+                                  class="h-4 w-20 rounded bg-stone-200"
+                                ></span>
+                                <span class="ml-auto flex items-center gap-1">
+                                  <span class="p-1">
+                                    <span
+                                      class="inline-flex h-4 w-4 rounded bg-stone-200"
+                                    ></span>
+                                  </span>
+                                  <span class="p-1">
+                                    <span
+                                      class="inline-flex h-4 w-4 rounded bg-stone-200"
+                                    ></span>
+                                  </span>
                                 </span>
-                                <span class="p-1">
-                                  <span
-                                    class="inline-flex h-4 w-4 rounded bg-stone-200"
-                                  ></span>
-                                </span>
-                              </span>
-                            </div>
-                          </li>
-                        }
-                      </ul>
-                    }
-                  </div>
-                }
-              </li>
-            }
-          </ul>
-        </div>
+                              </div>
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      } @else if (showSkeleton()) {
+        <app-skeleton [lines]="6" />
       }
-    } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
-    }
 
-    @if (renameError()) {
-      <p class="mt-4 text-sm text-red-700" role="alert">{{ renameError() }}</p>
-    }
+      @if (renameError()) {
+        <p class="mt-4 text-sm text-red-700" role="alert">
+          {{ renameError() }}
+        </p>
+      }
 
-    <!-- One form for both renames: the text is all that differs, and both
+      <!-- One form for both renames: the text is all that differs, and both
          rewrite every product carrying it. -->
-    <ng-template #form>
-      <form class="flex flex-wrap items-end gap-3" (submit)="save($event)">
-        <input
-          appInput
-          size="sm"
-          class="w-72"
-          name="rename"
-          autocomplete="off"
-          [attr.aria-label]="text.newText"
-          [value]="draft()"
-          (input)="draft.set($any($event.target).value)"
-        />
-        <button
-          appButton
-          size="sm"
-          type="submit"
-          class="gap-2"
-          [disabled]="busy()"
-        >
-          <app-admin-icon name="save" class="h-4 w-4" />
-          {{ busy() ? common.saving : common.save }}
-        </button>
-        <button
-          appButton
-          variant="secondary"
-          size="sm"
-          type="button"
-          class="gap-2"
-          [disabled]="busy()"
-          (click)="cancel()"
-        >
-          <app-admin-icon name="x" class="h-4 w-4" />
-          {{ common.cancel }}
-        </button>
-      </form>
-    </ng-template>
+      <ng-template #form>
+        <form class="flex flex-wrap items-end gap-3" (submit)="save($event)">
+          <input
+            appInput
+            size="sm"
+            class="w-72"
+            name="rename"
+            autocomplete="off"
+            [attr.aria-label]="text.newText"
+            [value]="draft()"
+            (input)="draft.set($any($event.target).value)"
+          />
+          <button
+            appButton
+            size="sm"
+            type="submit"
+            class="gap-2"
+            [disabled]="busy()"
+          >
+            <app-admin-icon name="save" class="h-4 w-4" />
+            {{ busy() ? common.saving : common.save }}
+          </button>
+          <button
+            appButton
+            variant="secondary"
+            size="sm"
+            type="button"
+            class="gap-2"
+            [disabled]="busy()"
+            (click)="cancel()"
+          >
+            <app-admin-icon name="x" class="h-4 w-4" />
+            {{ common.cancel }}
+          </button>
+        </form>
+      </ng-template>
+    </div>
   `,
 })
 export class AttributeInventoryPage {

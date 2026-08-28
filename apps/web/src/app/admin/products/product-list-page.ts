@@ -195,8 +195,18 @@ import { AdminListHeader } from '../list-header';
                         {{ text.unpublishedBadge }}
                       </span>
                     }
+                    <!-- The name goes to the product as a customer sees it;
+                         the pencil in the actions column is the way into the
+                         editor. Except where there is no such page — the
+                         storefront 404s a product that is unpublished or
+                         deleted, and the badge beside the name says which —
+                         so those rows keep the editor as their destination. -->
                     <a
-                      [routerLink]="['/admin/products', item.slug, 'edit']"
+                      [routerLink]="
+                        item.publishedAt && !item.deletedAt
+                          ? ['/product', item.slug]
+                          : ['/admin/products', item.slug, 'edit']
+                      "
                       [queryParams]="editorFrom"
                       class="font-medium text-stone-700 hover:text-accent"
                     >

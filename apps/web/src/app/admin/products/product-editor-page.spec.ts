@@ -169,8 +169,10 @@ async function render(
 }
 
 function inputByLabel(el: HTMLElement, label: string): HTMLInputElement {
+  // A mandatory field's caption carries a trailing asterisk; the caption is
+  // still what identifies the field.
   const span = [...el.querySelectorAll('span')].find(
-    (s) => s.textContent?.trim() === label,
+    (s) => s.textContent?.replace(/\*$/, '').trim() === label,
   );
   const input = span?.closest('label')?.querySelector('input');
   if (!input) throw new Error(`no input labelled "${label}"`);

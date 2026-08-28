@@ -14,8 +14,9 @@ import {
  * the JSON encoding needs no parser at all. Pure and synchronous — a
  * complete catalog is a few hundred rows, so streaming buys nothing.
  *
- * The dialect is pinned rather than sniffed: UTF-8 (BOM tolerated), `,`,
- * RFC-4180 quoting, a required header row. Guessing at a malformed file is how
+ * The dialect is UTF-8 (BOM tolerated), RFC-4180 quoting, a required header
+ * row; the delimiter is the one Papaparse finds, so a spreadsheet that writes
+ * semicolons or tabs is read as well as a comma-separated one. Guessing at a malformed file is how
  * a sync silently writes nonsense, so anything structurally wrong throws
  * `SyncFormatError` (the whole file is refused) while anything wrong with a
  * single row becomes a `SyncRowError` (that row is skipped, the run proceeds).
@@ -82,6 +83,24 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
     transform: (value) => value.trim(),
     transformHeader: (header) => header.trim(),
   });
+
+  // Papaparse recovers from a broken quote rather than failing: it reads to the
+  // end of the file looking for the closing mark and hands back one enormous
+  // field, silently losing every row after the break. Refuse the file instead —
+  // a quote nobody closed is exactly the case where guessing writes nonsense.
+  // Field-count mismatches are left alone: a short or long row is ordinary, and
+  // the per-column rules below already say what they make of it.
+  const quoteError = parsed.errors.find((error) => error.type === 'Quotes');
+  if (quoteError) {
+    // Papa counts data rows from zero and excludes the header; +2 makes it the
+    // line number a spreadsheet or an editor shows.
+    const line = String((quoteError.row ?? 0) + 2);
+    throw new SyncFormatError(
+      'malformed-quotes',
+      `Unclosed quote at line ${line}`,
+      { row: line },
+    );
+  }
 
   const headers = (parsed.meta.fields ?? []).map((h) => h);
   if (headers.length === 0) {

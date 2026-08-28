@@ -51,7 +51,10 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         {{ isNew() ? text.newTitle : text.editTitle }}
       </h1>
       <label class="mb-6 block">
-        <span appFieldLabel>{{ text.pageTitle }}</span>
+        <span appFieldLabel>
+          {{ text.pageTitle }}
+          <span class="text-accent" aria-hidden="true">*</span>
+        </span>
         <input
           type="text"
           appInput

@@ -131,6 +131,7 @@
     "priceInvalid": "Please enter a valid price.",
     "saveError": "Something went wrong saving this product. Please try again.",
     "saveAndPublish": "Save and publish",
+    "cancelToPage": "Discard and view page",
     "publishError": "Could not change whether this product is published. Please try again.",
     "attributes": {
       "heading": "Characteristics",
@@ -267,6 +268,7 @@
       "file-too-large": "That file is too large to upload. Split the export into smaller files.",
       "file-empty": "That file is empty.",
       "no-header-row": "That file has no header row, so its columns cannot be read.",
+      "malformed-quotes": "A quotation mark is opened and never closed around line {row}, so the rest of the file cannot be read. Check that every “ has its closing mark, and that a quotation mark inside a value is doubled.",
       "duplicate-column": "The column “{column}” appears more than once, so it is unclear which one counts.",
       "unknown-columns": "These columns are not recognised: {columns}. Expected any of: {expected}.",
       "missing-required-column": "The file needs a “{column}” column.",

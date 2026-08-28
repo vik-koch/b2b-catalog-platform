@@ -358,6 +358,9 @@ export const SYNC_FORMAT_CODES = [
   'file-too-large',
   'file-empty',
   'no-header-row',
+  /** A quote is opened and never closed, so the parser cannot tell where a
+   * field ends. `{row}` — the line the parser gave up on. */
+  'malformed-quotes',
   /** `{column}` */
   'duplicate-column',
   /** `{columns}` and `{expected}` */
