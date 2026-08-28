@@ -601,9 +601,9 @@ function oneOf(column: string, values: readonly string[]) {
  * Almost everything here is a **snapshot**. The addresses, the contact details,
  * the pickup office and the currency are copied in as they read at the time,
  * because all of them are editable elsewhere and an order has to stay readable
- * exactly as it was placed. `deliveryAddressId`/`billingAddressId` point at the
- * book rows they came from only so the next order can default to them — they
- * are `set null`, and nothing reads an address through them.
+ * exactly as it was placed. Which book row an address was picked from is not
+ * recorded: the snapshot is the record, and the row itself is editable and
+ * deletable, so an id back to it would be a reference to something else.
  */
 export const orders = pgTable(
   'orders',
@@ -650,9 +650,6 @@ export const orders = pgTable(
     billingCity: varchar('billingCity', { length: 255 }).notNull(),
     billingRegion: varchar('billingRegion', { length: 255 }),
     billingCountry: varchar('billingCountry', { length: 2 }).notNull(),
-    billingAddressId: uuid('billingAddressId').references(() => addresses.id, {
-      onDelete: 'set null',
-    }),
     // The delivery snapshot, or nothing at all for a pickup.
     deliveryStreet: varchar('deliveryStreet', { length: 255 }),
     deliveryStreet2: varchar('deliveryStreet2', { length: 255 }),
@@ -660,10 +657,6 @@ export const orders = pgTable(
     deliveryCity: varchar('deliveryCity', { length: 255 }),
     deliveryRegion: varchar('deliveryRegion', { length: 255 }),
     deliveryCountry: varchar('deliveryCountry', { length: 2 }),
-    deliveryAddressId: uuid('deliveryAddressId').references(
-      () => addresses.id,
-      { onDelete: 'set null' },
-    ),
     // The zone the postal code resolved to, and the free-delivery threshold it
     // promised. Advisory (FR-CART-07): it never blocked the order and never
     // priced the delivery. Snapshotted because the config behind it is edited.

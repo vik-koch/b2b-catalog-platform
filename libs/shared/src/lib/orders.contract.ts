@@ -118,9 +118,6 @@ export const orderSubmissionSchema = z
     party: orderingPartySchema.nullable(),
     /** Required for delivery, absent for pickup. */
     deliveryAddress: orderAddressInputSchema.nullable(),
-    /** Which book row it came from, where it came from one — the next order's
-     * default is read from the last one, not from the book. */
-    deliveryAddressId: z.string().uuid().nullable().optional(),
     /** Required for pickup, absent for delivery. */
     pickupLocationKey: z
       .string()
@@ -129,7 +126,6 @@ export const orderSubmissionSchema = z
       .max(PICKUP_LOCATION_KEY_MAX)
       .nullable(),
     billingAddress: orderAddressInputSchema,
-    billingAddressId: z.string().uuid().nullable().optional(),
     paymentMethod: paymentMethodSchema,
     /**
      * The day the customer would like it, ISO `YYYY-MM-DD`. A wish, not a

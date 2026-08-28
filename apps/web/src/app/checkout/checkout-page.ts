@@ -671,7 +671,7 @@ export class CheckoutPage {
    * dependency — and a snapshot rather than every value, because it is only
    * re-read when focus leaves the picker or a suggestion fills it.
    */
-  private readonly committedDelivery = signal({ postalCode: '', city: '' });
+  private readonly committedDelivery = signal({ postalCode: '' });
 
   private readonly chosenDelivery = computed(() =>
     this.addresses().find((row) => row.id === this.draft().deliveryAddressId),
@@ -689,10 +689,9 @@ export class CheckoutPage {
    * signal set to the value it already had would redraw the card for every
    * field the customer tabs through. */
   protected commitDelivery(): void {
-    const { postalCode, city } = this.deliveryForm.group.getRawValue();
-    const current = this.committedDelivery();
-    if (current.postalCode === postalCode && current.city === city) return;
-    this.committedDelivery.set({ postalCode, city });
+    const { postalCode } = this.deliveryForm.group.getRawValue();
+    if (this.committedDelivery().postalCode === postalCode) return;
+    this.committedDelivery.set({ postalCode });
   }
 
   constructor() {
@@ -1208,12 +1207,8 @@ export class CheckoutPage {
                 draft.party === 'company' ? companyId.trim() : null,
             },
       deliveryAddress: delivery,
-      deliveryAddressId: this.isPickup() ? null : draft.deliveryAddressId,
       pickupLocationKey: this.isPickup() ? draft.pickupLocationKey : null,
       billingAddress: billing,
-      billingAddressId: this.needsBillingPicker()
-        ? draft.billingAddressId
-        : draft.deliveryAddressId,
       paymentMethod: draft.paymentMethod,
       preferredDate: draft.preferredDate,
       customerNote: draft.customerNote,

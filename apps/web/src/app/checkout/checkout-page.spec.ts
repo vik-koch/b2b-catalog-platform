@@ -680,7 +680,6 @@ describe('CheckoutPage', () => {
         name: 'Ada Lovelace',
         registrationId: null,
       });
-      expect(sent[0].deliveryAddressId).toBeNull();
     });
 
     it('asks a company for its own name and a person to ring', async () => {
@@ -835,7 +834,6 @@ describe('CheckoutPage', () => {
         fulfilmentMethod: 'delivery',
         // The account's own party is resolved by the server, not asserted here.
         party: null,
-        deliveryAddressId: saved.id,
         pickupLocationKey: null,
         paymentMethod: 'cash',
         preferredDate: '2026-09-03',
