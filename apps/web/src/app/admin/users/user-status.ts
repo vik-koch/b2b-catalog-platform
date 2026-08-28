@@ -11,11 +11,12 @@ import { StatusTone } from '../../ui/status-badge';
  * invited, which is worth pointing out and is nobody's fault.
  */
 export function userStatusTone(status: UserStatus): StatusTone {
-  return {
+  const tones: Record<UserStatus, StatusTone> = {
     pending: 'waiting',
     invited: 'info',
     active: 'ok',
     disabled: 'danger',
     anonymized: 'neutral',
-  }[status] as StatusTone;
+  };
+  return tones[status];
 }

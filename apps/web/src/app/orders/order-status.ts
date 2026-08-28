@@ -11,10 +11,11 @@ import { StatusTone } from '../ui/status-badge';
  * their own catalogues.
  */
 export function orderStatusTone(status: OrderStatus): StatusTone {
-  return {
+  const tones: Record<OrderStatus, StatusTone> = {
     requested: 'waiting',
     approved: 'ok',
     declined: 'danger',
     cancelled: 'neutral',
-  }[status] as StatusTone;
+  };
+  return tones[status];
 }

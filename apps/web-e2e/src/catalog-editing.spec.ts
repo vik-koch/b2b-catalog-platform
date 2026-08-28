@@ -55,7 +55,7 @@ test.describe('as an admin', () => {
   }) => {
     await page.goto(`/catalog/${category.slug}`);
 
-    // Off by default: no add tile, no per-tile edit control.
+    // Off by default: nothing to create with, no per-tile edit control.
     await expect(page.getByRole('link', { name: 'Add product' })).toBeHidden();
 
     await editModeToggle(page).click();
@@ -112,8 +112,8 @@ test.describe('as an admin', () => {
     await expect(page).not.toHaveURL(/\/admin\/products\/new/);
   });
 
-  // The add-card carries the category it sits under, so the new subcategory
-  // lands in the right place without the admin re-picking it.
+  // The edit cluster's folder-plus carries the category it sits under, so the
+  // new subcategory lands in the right place without the admin re-picking it.
   test('adds a subcategory from the category page, with the parent preselected', async ({
     page,
   }) => {
