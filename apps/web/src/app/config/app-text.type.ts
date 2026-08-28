@@ -572,6 +572,9 @@ export const appTextSchema = z
             billingDetailsRequired: z.string(),
             partyRequired: z.string(),
             rejected: z.string(),
+            /** Staff do not buy. Shown before the button is ever pressed as
+             * well as after, so the one sentence covers both. */
+            staffAccount: z.string(),
             /** The cart was re-priced under them; the corrected figures are
              * already on screen by the time this is read. */
             cartChanged: z.string(),

@@ -39,9 +39,8 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         {{ text.previewNotice }}
       </p>
       <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ title() }}</h1>
-      <!-- The published width, so the preview shows the line breaks the visitor
-           will get. The editing surface below stays full-width: it is a field,
-           not the page. -->
+      <!-- The published width, so the preview shows the line breaks the
+           visitor will get — the same measure the editing surface uses. -->
       <div
         class="prose prose-stone max-w-3xl"
         [innerHTML]="safeBody(body())"
@@ -50,31 +49,38 @@ import { trustedRichText } from '../../core/trusted-rich-text';
       <h1 class="mb-6 text-3xl font-bold tracking-tight">
         {{ isNew() ? text.newTitle : text.editTitle }}
       </h1>
-      <label class="mb-6 block">
-        <span appFieldLabel>
-          {{ text.pageTitle }}
-          <span class="text-accent" aria-hidden="true">*</span>
-        </span>
-        <input
-          type="text"
-          appInput
-          class="w-full"
-          [value]="title()"
-          (input)="onTitleInput($event)"
-        />
-      </label>
+      <!-- The published measure, which is what the preview above uses: text
+           typed at one width and read at another breaks in different places,
+           and where a heading lands is half of what is being edited. -->
+      <div class="max-w-3xl">
+        <label class="mb-6 block">
+          <span appFieldLabel>
+            {{ text.pageTitle }}
+            <span class="text-accent" aria-hidden="true">*</span>
+          </span>
+          <input
+            type="text"
+            appInput
+            class="w-full"
+            [value]="title()"
+            (input)="onTitleInput($event)"
+          />
+        </label>
 
-      <app-rich-text-editor
-        [value]="body()"
-        (contentChange)="body.set($event)"
-      />
+        <app-rich-text-editor
+          [value]="body()"
+          (contentChange)="body.set($event)"
+        />
+      </div>
     }
 
     @if (error()) {
-      <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
+      <p class="mt-4 max-w-3xl text-sm text-red-700" role="alert">
+        {{ error() }}
+      </p>
     }
 
-    <div class="mt-6 flex flex-wrap gap-3">
+    <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
       <button
         appButton
         type="button"

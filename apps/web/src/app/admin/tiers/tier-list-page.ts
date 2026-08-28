@@ -1,4 +1,10 @@
-import { moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, resource, signal } from '@angular/core';
 import { CustomerTier, tierKeySchema } from '@b2b-catalog-platform/shared';
@@ -35,6 +41,9 @@ type EditTarget = { id: string } | { id: null } | null;
 @Component({
   selector: 'app-tier-list-page',
   imports: [
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
     NgTemplateOutlet,
     Button,
     AdminIcon,
@@ -93,16 +102,18 @@ type EditTarget = { id: string } | { id: null } | null;
             <p class="w-full text-sm text-muted">{{ text.defaultHint }}</p>
           </div>
 
-          <ul class="divide-y divide-border">
-            @for (tier of tiers.value().tiers; track tier.id; let i = $index) {
-              <li class="p-4 bg-white">
+          <ul
+            class="divide-y divide-border"
+            cdkDropList
+            [cdkDropListDisabled]="busy() || editing() !== null"
+            (cdkDropListDropped)="onDrop($event)"
+          >
+            @for (tier of tiers.value().tiers; track tier.id) {
+              <li class="p-4 bg-white" cdkDrag [cdkDragData]="tier">
                 @if (isEditing(tier.id)) {
                   <ng-container [ngTemplateOutlet]="form" />
                 } @else {
                   <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <!-- Ordering is for staff eyes only, so the handle sits with
-                       the row's other affordances and carries no explanation
-                       beyond its label. -->
                     <span class="font-medium text-stone-700">{{
                       tier.label
                     }}</span>
@@ -111,50 +122,42 @@ type EditTarget = { id: string } | { id: null } | null;
                     </code>
                     <span class="text-sm text-subtle">
                       {{ accountsLabel(tier.userCount) }} ·
-                      <!-- The count is the way to the products behind it:
-                           "which products did we agree a rate on?" is the
+                      {{ pricesLabel(tier.priceCount) }}
+                    </span>
+                    <!-- The same cluster the attribute rows carry, in the same
+                         order: where the row's subject is listed, the handle,
+                         then edit and delete. Two screens that are the same
+                         screen with different rows should not need learning
+                         twice. -->
+                    <span class="ml-auto flex items-center gap-1">
+                      <!-- "Which products did we agree a rate on?" is the
                            question every review of a tier starts from, and the
-                           admin grid is where it is answered. A link only when
-                           there is something to show. -->
+                           admin grid is where it is answered. Absent where the
+                           tier prices nothing: an empty grid is not an answer
+                           worth a click. -->
                       @if (tier.priceCount > 0) {
                         <a
                           routerLink="/admin/products"
                           [queryParams]="{ tierId: tier.id }"
-                          class="underline hover:text-accent"
+                          class="p-1 text-stone-400 hover:text-accent"
+                          [attr.aria-label]="text.seePrices"
                           [title]="text.seePrices"
                         >
-                          {{ pricesLabel(tier.priceCount) }}
+                          <app-admin-icon name="square-menu" class="h-4 w-4" />
                         </a>
-                      } @else {
-                        {{ pricesLabel(tier.priceCount) }}
                       }
-                    </span>
-                    <span class="ml-auto flex items-center gap-1">
-                      <!-- Ordering is a secondary concern on this screen, so it
-                         sits with the row's other actions rather than claiming
-                         a handle column of its own. -->
-                      <button
-                        type="button"
-                        class="p-1 text-stone-400 hover:text-accent disabled:invisible"
-                        [attr.aria-label]="text.moveUp"
-                        [disabled]="i === 0 || busy() || editing() !== null"
-                        (click)="move(i, i - 1)"
+                      <!-- A handle, not a pair of step buttons: everything else
+                           in the panel that has an order is dragged, and a
+                           button that disables itself at the ends of the list
+                           flickers through every reorder. -->
+                      <span
+                        cdkDragHandle
+                        class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
+                        [attr.aria-label]="common.reorder"
+                        [title]="common.reorder"
                       >
-                        <app-admin-icon name="chevron-up" class="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        class="p-1 text-stone-400 hover:text-accent disabled:invisible"
-                        [attr.aria-label]="text.moveDown"
-                        [disabled]="
-                          i === tiers.value().tiers.length - 1 ||
-                          busy() ||
-                          editing() !== null
-                        "
-                        (click)="move(i, i + 1)"
-                      >
-                        <app-admin-icon name="chevron-down" class="h-4 w-4" />
-                      </button>
+                        <app-admin-icon name="grip-vertical" class="h-4 w-4" />
+                      </span>
                       <button
                         type="button"
                         class="p-1 text-stone-400 hover:text-accent"
@@ -296,6 +299,15 @@ export class TierListPage {
    * Moves a tier one place and commits immediately — the click *is* the save,
    * so there is nothing to confirm.
    */
+  /**
+   * Moves a tier one place and commits immediately — the drop *is* the save,
+   * so there is nothing to confirm.
+   */
+  protected onDrop(event: CdkDragDrop<CustomerTier>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    void this.move(event.previousIndex, event.currentIndex);
+  }
+
   protected async move(from: number, to: number): Promise<void> {
     const current = this.tiers.value();
     if (!current || to < 0 || to >= current.tiers.length) return;

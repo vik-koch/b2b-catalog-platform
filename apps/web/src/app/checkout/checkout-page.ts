@@ -452,11 +452,19 @@ import { AddressForm } from '../addresses/address-form';
               </p>
             }
 
-            <!-- Said where the button is, and the button is dead: an account
-                 with no number on record cannot place an order, and finding
-                 that out from a refusal after the review is the worst place to
-                 find it out. -->
-            @if (accountPhoneMissing()) {
+            <!-- Said where the button is, and the button is dead. Both of
+                 these are refusals the server would give anyway; giving them
+                 here is the difference between a form somebody fills in for
+                 nothing and one they never start. -->
+            @if (staff()) {
+              <p class="mt-3 flex items-start gap-2 text-sm text-muted">
+                <app-icon
+                  name="lock"
+                  class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                />
+                <span>{{ text.errors.staffAccount }}</span>
+              </p>
+            } @else if (accountPhoneMissing()) {
               <p class="mt-3 flex items-start gap-2 text-sm text-muted">
                 <app-icon
                   name="phone"
@@ -476,7 +484,7 @@ import { AddressForm } from '../addresses/address-form';
                 appButton
                 type="button"
                 class="mt-3 w-full"
-                [disabled]="sending() || accountPhoneMissing()"
+                [disabled]="sending() || blocked()"
                 (click)="submit()"
               >
                 {{ sending() ? text.submitting : text.submit }}
@@ -716,9 +724,27 @@ export class CheckoutPage {
    * until the record says so.
    */
   protected readonly accountPhoneMissing = computed(() => {
-    if (this.guest() || this.profile.isLoading()) return false;
+    if (this.guest() || this.staff() || this.profile.isLoading()) return false;
     const profile = this.profile.value();
     return !!profile && !profile.phone?.trim();
+  });
+
+  /** Either reason this session cannot place an order — both of which the
+   * server enforces, and both of which the button reflects. */
+  protected readonly blocked = computed(
+    () => this.staff() || this.accountPhoneMissing(),
+  );
+
+  /**
+   * Whether this session is staff, who do not buy. Role is authorization and
+   * tier is pricing — separate fields on purpose — so a staff session has no
+   * agreed prices, no address book worth the name and nobody to invoice, and
+   * the request would land in the very inbox they answer. The API refuses it
+   * outright; this is what keeps them from filling the form first.
+   */
+  protected readonly staff = computed(() => {
+    const role = this.auth.user()?.role;
+    return role === 'admin' || role === 'manager';
   });
 
   protected readonly saveDelivery = computed(
@@ -1192,7 +1218,7 @@ export class CheckoutPage {
    * which is why the button says so and the screen that follows says it again.
    */
   protected async submit(): Promise<void> {
-    if (this.sendingState() || this.accountPhoneMissing()) return;
+    if (this.sendingState() || this.blocked()) return;
     this.errorState.set(null);
     this.privacyChecked.set(true);
     if (!this.acceptedPrivacy()) return;
@@ -1386,6 +1412,8 @@ export class CheckoutPage {
         return errors.cartChanged;
       case 'rejected':
         return errors.rejected;
+      case 'staff-cannot-order':
+        return errors.staffAccount;
       default:
         // A 400 the contract does not name — a body the server rejected before
         // any rule ran. Nothing useful to say about it, but silence is worse.

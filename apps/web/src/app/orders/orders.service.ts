@@ -29,6 +29,7 @@ export type SubmitOrderResult =
         | 'unknown-pickup-location'
         | 'billing-details-required'
         | 'party-required'
+        | 'staff-cannot-order'
         | 'rejected';
     }
   | { ok: false; code: 'cart-changed'; preview: CartPreview };

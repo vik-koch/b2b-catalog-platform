@@ -391,8 +391,6 @@
     "defaultLabel": "Base price list",
     "defaultHint": "Every product's own price. Guests, staff and customers without a tier see it.",
     "edit": "Edit",
-    "moveUp": "Move up",
-    "moveDown": "Move down",
     "delete": "Delete",
     "empty": "No extra price lists yet — every customer sees the base price.",
     "saveError": "This tier could not be saved. Please try again.",

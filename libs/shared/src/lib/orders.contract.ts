@@ -322,6 +322,12 @@ export const ordersContract = c.router({
         /** An order with no account named no party. Only reachable by a guest,
          * whose form has nobody to resolve one from. */
         'party-required',
+        /** A staff session tried to place one. Role is authorization, not a
+         * pricing group: an admin or a manager has no tier, no address book
+         * worth the name and nobody to invoice, and an order in their name
+         * would land in the very inbox they answer. The storefront does not
+         * offer them a checkout; this is what makes that a rule. */
+        'staff-cannot-order',
         /** ADR 0015's honeypot caught it. Its own code rather than a borrowed
          * one: a bot never reads the answer, but a person tripped by an
          * autofill would, and being told a full cart is empty explains

@@ -77,6 +77,8 @@ interface Options {
   /** An account whose record carries no telephone number — which staff can
    * create, and which the order contract will not accept. */
   noPhone?: boolean;
+  /** The session's role. Staff do not buy; everything else assumes a customer. */
+  role?: 'user' | 'manager' | 'admin';
 }
 
 /** Every submission the page sent, and what it was answered with. */
@@ -115,7 +117,11 @@ async function render(options: Options = {}) {
           user: signal(
             options.guest
               ? null
-              : { id: 'user-1', email: 'alex@example.com', role: 'user' },
+              : {
+                  id: 'user-1',
+                  email: 'alex@example.com',
+                  role: options.role ?? 'user',
+                },
           ),
         },
       },
@@ -880,6 +886,27 @@ describe('CheckoutPage', () => {
 
       expect(page.text()).not.toContain(text.phoneMissing);
       expect(page.button(text.submit)?.disabled).toBe(false);
+    });
+  });
+
+  describe('a staff session', () => {
+    it('says staff do not buy and will not send', async () => {
+      const page = await render({ role: 'manager' });
+      await page.review();
+
+      expect(page.text()).toContain(text.errors.staffAccount);
+      expect(page.button(text.submit)?.disabled).toBe(true);
+
+      page.button(text.submit)?.click();
+      await page.settle();
+      expect(submitted).not.toHaveBeenCalled();
+    });
+
+    it('says that and not the missing-phone notice, which is not the reason', async () => {
+      const page = await render({ role: 'admin', noPhone: true });
+      await page.review();
+
+      expect(page.text()).not.toContain(text.phoneMissing);
     });
   });
 
