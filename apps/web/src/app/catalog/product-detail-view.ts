@@ -54,7 +54,26 @@ export const PRODUCT_PAGE_COLUMNS =
  * while there are two, in the middle once there are three. */
 export const PRODUCT_PAGE_INFO_COLUMN =
   'order-3 min-[576px]:col-span-2 lg:order-2 lg:col-span-1';
-const SINGLE_COLUMN = '(max-width: 63.999rem)';
+
+/**
+ * Spanning the full width under the image, the description and the
+ * specifications read as two columns rather than one long scroll — which is
+ * also why the description is not collapsed at those widths: side by side,
+ * neither block pushes the other off the screen.
+ */
+const INFO_SIDE_BY_SIDE =
+  'sm:max-lg:grid sm:max-lg:grid-cols-2 sm:max-lg:items-start sm:max-lg:gap-8';
+
+/**
+ * Where the image stops growing before the page has a third column for the
+ * description. Left to the full `1fr` it is a 700px square on a tablet, which
+ * is the whole screen for a photo the page has already shown at tile size.
+ */
+const IMAGE_CAP = 'min-[576px]:max-lg:max-w-96';
+
+/** Where the description is collapsed behind a show-more: only where it has no
+ * column of its own, which is a phone. */
+const NARROW = '(max-width: 39.999rem)';
 
 /**
  * The presentational product page: breadcrumb, gallery, name, price,
@@ -126,14 +145,17 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
     </h1>
 
     <div [class]="columnsClass">
-      <div #imageColumn class="order-1">
+      <div #imageColumn [class]="imageColumnClass">
         <app-product-gallery
           [images]="item().images"
           [productName]="item().name"
         />
 
         @if (specsUnderImage()) {
-          <ng-container [ngTemplateOutlet]="specs" />
+          <ng-container
+            [ngTemplateOutlet]="specs"
+            [ngTemplateOutletContext]="{ $implicit: 'mt-8' }"
+          />
         }
       </div>
 
@@ -141,7 +163,7 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
         <app-product-buy-block [item]="item()" [canAdd]="canAdd()" />
       </aside>
 
-      <div [class]="infoColumnClass">
+      <div [class]="infoColumnClass()">
         <div #infoColumn>
           @if (item().descriptionHtml) {
             <div class="relative">
@@ -176,65 +198,73 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
         </div>
 
         @if (!specsUnderImage()) {
-          <ng-container [ngTemplateOutlet]="specs" />
+          <ng-container
+            [ngTemplateOutlet]="specs"
+            [ngTemplateOutletContext]="{ $implicit: specsWrapClass() }"
+          />
         }
       </div>
     </div>
 
-    <ng-template #specs>
+    <!-- Wrapped in an element of its own, so that where the description and
+         the specifications are two grid columns the table is one item rather
+         than a heading and a table landing in separate cells. -->
+    <ng-template #specs let-wrapClass>
       @if (attributes().length || packagingRows().length) {
-        <h2
-          class="mt-8 text-xs font-semibold tracking-wide text-subtle uppercase"
-        >
-          {{ text.specifications }}
-        </h2>
-        <!-- A real table (not a dl) so selecting rows and copying yields
+        <div [class]="wrapClass">
+          <h2 class="text-xs font-semibold tracking-wide text-subtle uppercase">
+            {{ text.specifications }}
+          </h2>
+          <!-- A real table (not a dl) so selecting rows and copying yields
              tab-separated key/value pairs — paste-ready into a spreadsheet or
              the product editor's attribute grid. -->
-        <table class="mt-3 w-full border-t border-border text-sm">
-          <tbody class="divide-y divide-border">
-            @for (attr of attributes(); track $index) {
-              <tr>
-                <th
-                  scope="row"
-                  class="py-2 pr-4 text-left font-normal text-subtle"
-                >
-                  {{ attr.key }}
-                </th>
-                <td class="py-2 text-right text-stone-700">
-                  <!-- A filterable value is the way to "more like this": the
+          <table class="mt-3 w-full border-t border-border text-sm">
+            <tbody class="divide-y divide-border">
+              @for (attr of attributes(); track $index) {
+                <tr>
+                  <th
+                    scope="row"
+                    class="py-2 pr-4 text-left font-normal text-subtle"
+                  >
+                    {{ attr.key }}
+                  </th>
+                  <td class="py-2 text-right text-stone-700">
+                    <!-- A filterable value is the way to "more like this": the
                        product's own category, narrowed to this value
                        (FR-ATTR-08). The link treatment is also the only cue
                        that the shop filters by this attribute at all. -->
-                  @if (attr.filterParam) {
-                    <a
-                      [routerLink]="['/catalog', item().category.slug]"
-                      [queryParams]="{ attr: attr.filterParam }"
-                      class="text-primary font-medium underline decoration-border underline-offset-2 hover:text-accent hover:decoration-accent"
-                    >
+                    @if (attr.filterParam) {
+                      <a
+                        [routerLink]="['/catalog', item().category.slug]"
+                        [queryParams]="{ attr: attr.filterParam }"
+                        class="text-primary font-medium underline decoration-border underline-offset-2 hover:text-accent hover:decoration-accent"
+                      >
+                        {{ attr.value }}
+                      </a>
+                    } @else {
                       {{ attr.value }}
-                    </a>
-                  } @else {
-                    {{ attr.value }}
-                  }
-                </td>
-              </tr>
-            }
-            <!-- Packaging closes the table as one group: the rows above say
+                    }
+                  </td>
+                </tr>
+              }
+              <!-- Packaging closes the table as one group: the rows above say
                  what the product is, these say how it ships. -->
-            @for (row of packagingRows(); track row.label) {
-              <tr>
-                <th
-                  scope="row"
-                  class="py-2 pr-4 text-left font-normal text-subtle"
-                >
-                  {{ row.label }}
-                </th>
-                <td class="py-2 text-right text-stone-700">{{ row.value }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
+              @for (row of packagingRows(); track row.label) {
+                <tr>
+                  <th
+                    scope="row"
+                    class="py-2 pr-4 text-left font-normal text-subtle"
+                  >
+                    {{ row.label }}
+                  </th>
+                  <td class="py-2 text-right text-stone-700">
+                    {{ row.value }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       }
     </ng-template>
   `,
@@ -242,7 +272,7 @@ const SINGLE_COLUMN = '(max-width: 63.999rem)';
 export class ProductDetailView {
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-4`;
-  protected readonly infoColumnClass = PRODUCT_PAGE_INFO_COLUMN;
+  protected readonly imageColumnClass = `order-1 min-w-0 ${IMAGE_CAP}`;
   /** The description is trusted rich text (server-sanitized, same as pages). */
   protected readonly safeDescription = trustedRichText();
 
@@ -279,6 +309,23 @@ export class ProductDetailView {
       })),
   );
 
+  /** The two blocks stand side by side only where both are there to stand. */
+  protected readonly sideBySide = computed(
+    () =>
+      !!this.item().descriptionHtml &&
+      (this.attributes().length > 0 || this.packagingRows().length > 0),
+  );
+  protected readonly infoColumnClass = computed(() =>
+    this.sideBySide()
+      ? `${PRODUCT_PAGE_INFO_COLUMN} ${INFO_SIDE_BY_SIDE}`
+      : PRODUCT_PAGE_INFO_COLUMN,
+  );
+  /** The gap over the table is the one between it and the description above —
+   * so it goes when the table moves beside the description instead. */
+  protected readonly specsWrapClass = computed(() =>
+    this.sideBySide() ? 'mt-8 sm:max-lg:mt-0' : 'mt-8',
+  );
+
   protected readonly packagingRows = computed(() =>
     this.units.packagingRows(this.item().boxDimensions),
   );
@@ -297,7 +344,7 @@ export class ProductDetailView {
    * which renders the plain layout: the whole description, specifications
    * beside the image — so crawlers always see the full text. */
   private readonly twoColumn = signal(false);
-  private readonly singleColumn = signal(false);
+  private readonly narrow = signal(false);
 
   /** True while the name/price/description block is at least as tall as the
    * image, which leaves dead space under the gallery for the table to fill. */
@@ -316,10 +363,10 @@ export class ProductDetailView {
   /** Set while the collapsed description actually has more text to reveal. */
   private readonly descriptionOverflows = signal(false);
 
-  /** Collapsed wherever the page is one column — phone through tablet — since
-   * there the description pushes everything else far below the fold. */
+  /** Collapsed only on a phone, where the description has neither a column of
+   * its own nor one beside it and would push everything else below the fold. */
   protected readonly descriptionCollapsed = computed(
-    () => this.singleColumn() && !this.descriptionExpanded(),
+    () => this.narrow() && !this.descriptionExpanded(),
   );
   /** A description that fits inside the cap is not clipped, so fading its last
    * line would only make readable text look cut off. */
@@ -331,7 +378,7 @@ export class ProductDetailView {
   );
   protected readonly descriptionToggle = computed(
     () =>
-      this.singleColumn() &&
+      this.narrow() &&
       (this.descriptionExpanded() || this.descriptionOverflows()),
   );
 
@@ -346,7 +393,7 @@ export class ProductDetailView {
         return;
       }
       this.watch(TWO_COLUMN, this.twoColumn);
-      this.watch(SINGLE_COLUMN, this.singleColumn);
+      this.watch(NARROW, this.narrow);
 
       // Heights change with the image loading, the viewport resizing and the
       // description expanding, so measure continuously rather than once.
