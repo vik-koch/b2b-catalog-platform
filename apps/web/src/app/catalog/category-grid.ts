@@ -2,11 +2,14 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
+  ElementRef,
   inject,
   input,
   resource,
   signal,
+  viewChild,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -41,12 +44,20 @@ import {
   sortParam,
 } from './product-sort-select';
 
-/** Subcategory chips shown before the "show more" toggle reveals the rest. */
-const SUBS_COLLAPSED = 4;
+/**
+ * A subcategory chip's height, in px — two lines of `text-sm` plus its padding
+ * and border, which is what `h-14` on the chip renders. Collapsed, the row is
+ * clipped to exactly this, so the browser decides how many chips fit; the
+ * number is here only so the code can ask whether anything was clipped.
+ */
+const SUBS_ROW_HEIGHT = 56;
+
+/** How many chips are assumed to fit before the first measurement (SSR). */
+const SUBS_ASSUMED_FIT = 4;
 
 /**
  * A category's product grid (FR-CAT-03/04): breadcrumb, a compact drill-down
- * nav of subcategories (collapsed to a few with a show-more toggle), then a
+ * nav of subcategories (clipped to one row with a show-more toggle), then a
  * paginated grid of every product in this category and its descendants
  * (Pattern A). A leaf category simply has no subcategory nav.
  */
@@ -169,58 +180,64 @@ const SUBS_COLLAPSED = 4;
           </div>
 
           @if (data.category.subcategories.length || editControls()) {
-            <ul class="mt-5 flex flex-wrap items-stretch gap-3">
-              @for (
-                sub of visibleSubs(data.category.subcategories);
-                track sub.slug
+            <!-- The chips are clipped to one row rather than cut to a count:
+                 how many fit is a question about the width the visitor has,
+                 which only the browser can answer. The toggle and the add tile
+                 sit beside the list, outside what is clipped, so they stay on
+                 screen. -->
+            <div class="mt-5 flex items-start gap-3">
+              <ul #subsList [class]="subsListClass()">
+                @for (sub of data.category.subcategories; track sub.slug) {
+                  <li class="flex">
+                    <!-- The selection travels down with the visitor: the
+                         values are the catalogue's, not this category's, so
+                         narrowing the scope is no reason to forget them. It may
+                         leave the subcategory with no matches — the chips and
+                         the panel are on screen there to say so and undo it.
+                         The sort goes with it: it is the same kind of stated
+                         preference, and every listing offers the same orders. -->
+                    <a
+                      [routerLink]="['/catalog', sub.slug]"
+                      [queryParams]="{ sort: sortParam(), attr: attrParam() }"
+                      class="flex h-14 max-w-52 min-w-28 items-center justify-center rounded-xl border border-border bg-stone-100 px-4 text-center text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:text-accent"
+                    >
+                      <span class="line-clamp-2">{{ displayName(sub) }}</span>
+                    </a>
+                  </li>
+                }
+              </ul>
+              @if (
+                subsToggle(data.category.subcategories.length) || editControls()
               ) {
-                <li class="flex">
-                  <!-- The selection travels down with the visitor: the values
-                       are the catalogue's, not this category's, so narrowing
-                       the scope is no reason to forget them. It may leave the
-                       subcategory with no matches — the chips and the panel
-                       are on screen there to say so and undo it. The sort goes
-                       with it: it is the same kind of stated preference, and
-                       every listing offers the same orders. -->
-                  <a
-                    [routerLink]="['/catalog', sub.slug]"
-                    [queryParams]="{ sort: sortParam(), attr: attrParam() }"
-                    class="flex max-w-52 items-center rounded-xl border border-border bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:text-accent"
-                  >
-                    <span class="line-clamp-2">{{ displayName(sub) }}</span>
-                  </a>
-                </li>
+                <div class="flex shrink-0 items-stretch gap-3">
+                  @if (subsToggle(data.category.subcategories.length)) {
+                    <button
+                      type="button"
+                      class="h-14 rounded-xl px-3 text-sm font-medium text-accent hover:underline"
+                      (click)="showAllSubs.set(!showAllSubs())"
+                    >
+                      {{ showAllSubs() ? text.showLess : text.showMore }}
+                    </button>
+                  }
+                  <!-- Symmetric with the add-product tile below:
+                       subcategories are created from where they will appear,
+                       with this category already chosen as the parent. -->
+                  @if (editControls(); as editText) {
+                    <a
+                      [routerLink]="['/admin/categories/new']"
+                      [queryParams]="{
+                        parent: data.category.slug,
+                        from: editorFrom.from,
+                      }"
+                      class="flex h-14 items-center gap-1.5 rounded-xl border border-dashed border-border-strong px-4 text-sm font-medium text-subtle transition-colors hover:border-primary hover:text-accent"
+                    >
+                      <app-icon name="plus" class="h-4 w-4" />
+                      {{ editText.addCategory }}
+                    </a>
+                  }
+                </div>
               }
-              @if (data.category.subcategories.length > SUBS_COLLAPSED) {
-                <li class="flex">
-                  <button
-                    type="button"
-                    class="rounded-xl px-4 py-2.5 text-sm font-medium text-accent hover:underline"
-                    (click)="showAllSubs.set(!showAllSubs())"
-                  >
-                    {{ showAllSubs() ? text.showLess : text.showMore }}
-                  </button>
-                </li>
-              }
-              <!-- Symmetric with the add-product tile below: subcategories are
-                   created from where they will appear, with this category
-                   already chosen as the parent. -->
-              @if (editControls(); as editText) {
-                <li class="flex">
-                  <a
-                    [routerLink]="['/admin/categories/new']"
-                    [queryParams]="{
-                      parent: data.category.slug,
-                      from: editorFrom.from,
-                    }"
-                    class="flex items-center gap-1.5 rounded-xl border border-dashed border-border-strong px-4 py-2.5 text-sm font-medium text-subtle transition-colors hover:border-primary hover:text-accent"
-                  >
-                    <app-icon name="plus" class="h-4 w-4" />
-                    {{ editText.addCategory }}
-                  </a>
-                </li>
-              }
-            </ul>
+            </div>
           }
 
           <!-- Filters left, listing right, from the width where the panel
@@ -408,12 +425,12 @@ export class CategoryGrid {
   private readonly admin = inject(AdminCatalogService);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
-  protected readonly SUBS_COLLAPSED = SUBS_COLLAPSED;
   /** Breadcrumb crumbs and subcategory chips are read in the context of their
    * parent, so they may use the short name; the page heading stays the full
    * one, which is also what SEO and the delete confirmation use. */
@@ -455,6 +472,17 @@ export class CategoryGrid {
   );
 
   protected showAllSubs = signal(false);
+  private readonly subsList = viewChild<ElementRef<HTMLElement>>('subsList');
+  /** Whether the chip list has more than the one row it is clipped to. Null
+   * until it has been measured — on the server and before the first layout the
+   * chip count stands in for it, so a long list still offers the toggle in the
+   * HTML the crawler and the first paint get. */
+  private readonly subsOverflow = signal<boolean | null>(null);
+  protected readonly subsListClass = computed(() =>
+    this.showAllSubs()
+      ? 'flex min-w-0 flex-1 flex-wrap items-stretch gap-3'
+      : 'flex min-w-0 flex-1 flex-wrap items-stretch gap-3 max-h-14 overflow-hidden',
+  );
   /** The product whose delete confirmation is open, if any. */
   /** The category (this page's own) whose delete confirmation is open. */
   /** Bumped to re-fetch the edit-mode "Deleted" overlay after a delete/restore. */
@@ -513,6 +541,22 @@ export class CategoryGrid {
     effect(() => {
       if (!this.editMode.enabled()) this.deletedReady.set(false);
     });
+
+    // How many chips fit is a width question, so it is re-asked whenever the
+    // list is resized — and when the list itself arrives or goes away.
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(() => this.measureSubs());
+      effect((onCleanup) => {
+        const el = this.subsList()?.nativeElement;
+        if (!el) {
+          this.subsOverflow.set(null);
+          return;
+        }
+        observer.observe(el);
+        onCleanup(() => observer.unobserve(el));
+      });
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    }
   }
 
   /** A product was restored from the overlay — it returns to the live grid. */
@@ -521,8 +565,16 @@ export class CategoryGrid {
     this.deletedReload.update((v) => v + 1);
   }
 
-  protected visibleSubs<T>(subs: readonly T[]): readonly T[] {
-    return this.showAllSubs() ? subs : subs.slice(0, SUBS_COLLAPSED);
+  /** Whether to offer the show-more toggle for `count` chips. */
+  protected subsToggle(count: number): boolean {
+    return this.subsOverflow() ?? count > SUBS_ASSUMED_FIT;
+  }
+
+  private measureSubs(): void {
+    const el = this.subsList()?.nativeElement;
+    // scrollHeight is the unclipped height in both states, so one test answers
+    // for the collapsed list and the expanded one alike.
+    if (el) this.subsOverflow.set(el.scrollHeight > SUBS_ROW_HEIGHT + 1);
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {
