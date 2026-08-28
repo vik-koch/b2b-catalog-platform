@@ -18,6 +18,9 @@ export type AuditAction =
   | 'attribute.updated'
   | 'attribute.reordered'
   | 'attribute.deleted'
+  // Which filters one category offers (FR-ATTR-11).
+  | 'category.filtersSaved'
+  | 'category.filtersReset'
   // Renames rewrite product data across the whole catalog in one statement.
   | 'attribute.keyRenamed'
   | 'attribute.valueRenamed'

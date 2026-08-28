@@ -180,6 +180,80 @@ export const renameResultSchema = z
   .object({ updated: z.number().int().nonnegative() })
   .strict();
 
+/**
+ * One attribute as a category's filter editor shows it (FR-ATTR-11).
+ *
+ * Every definition in the registry appears, offered or not: the panel's order
+ * is set here, and an attribute nobody has typed under this category yet still
+ * has a place in it. `productCount` is how many of the category's own products
+ * carry the key, and it is what makes an irrelevant attribute obvious — a zero
+ * would never render a facet anyway.
+ */
+export const categoryFilterSchema = z
+  .object({
+    attributeId: z.string().uuid(),
+    name: z.string(),
+    slug: z.string(),
+    type: attributeTypeSchema,
+    unit: z.string().nullable(),
+    /** Whether this category offers the attribute as a filter. */
+    visible: z.boolean(),
+    /** Products in this category and its subcategories carrying the key. */
+    productCount: z.number().int().nonnegative(),
+    /**
+     * Declared after the overlay this category resolves to was saved, so it is
+     * in no row of it. Not offered here, and flagged rather than left looking
+     * like a deliberate exclusion.
+     */
+    isNew: z.boolean(),
+  })
+  .strict();
+export type CategoryFilter = z.infer<typeof categoryFilterSchema>;
+
+/**
+ * Where the resolved panel comes from: this category's own overlay, the
+ * nearest ancestor's, or the registry when nothing is overlaid.
+ */
+export const CATEGORY_FILTER_SOURCES = ['own', 'inherited', 'default'] as const;
+export type CategoryFilterSource = (typeof CATEGORY_FILTER_SOURCES)[number];
+
+export const categoryFiltersSchema = z
+  .object({
+    category: z.object({ slug: z.string(), name: z.string() }).strict(),
+    source: z.enum(CATEGORY_FILTER_SOURCES),
+    /** The category the overlay was read from, when it is not this one. */
+    inheritedFrom: z
+      .object({ slug: z.string(), name: z.string() })
+      .strict()
+      .nullable(),
+    filters: z.array(categoryFilterSchema),
+  })
+  .strict();
+export type CategoryFilters = z.infer<typeof categoryFiltersSchema>;
+
+/**
+ * A whole panel in one write — the array order *is* the panel order, and an
+ * attribute left out of it is treated as hidden, so the editor always sends
+ * every definition it was shown.
+ */
+export const saveCategoryFiltersSchema = z
+  .object({
+    filters: z.array(
+      z
+        .object({ attributeId: z.string().uuid(), visible: z.boolean() })
+        .strict(),
+    ),
+  })
+  .strict();
+export type SaveCategoryFiltersRequest = z.infer<
+  typeof saveCategoryFiltersSchema
+>;
+
+const categoryFilterErrorSchema = apiErrorSchema([
+  'category-not-found',
+  'attribute-not-found',
+]);
+
 export const attributesContract = c.router(
   {
     listAttributes: {
@@ -265,6 +339,29 @@ export const attributesContract = c.router(
         404: attributeErrorSchema,
       },
       summary: 'Set the order of the filter panel (admin)',
+    },
+    getCategoryFilters: {
+      method: 'GET',
+      path: '/admin/categories/:slug/filters',
+      pathParams: z.object({ slug: slugSchema }),
+      responses: { 200: categoryFiltersSchema, 404: categoryFilterErrorSchema },
+      summary: "Read one category's filter panel (admin)",
+    },
+    saveCategoryFilters: {
+      method: 'PUT',
+      path: '/admin/categories/:slug/filters',
+      pathParams: z.object({ slug: slugSchema }),
+      body: saveCategoryFiltersSchema,
+      responses: { 200: categoryFiltersSchema, 404: categoryFilterErrorSchema },
+      summary: "Set one category's filter panel (admin)",
+    },
+    resetCategoryFilters: {
+      method: 'DELETE',
+      path: '/admin/categories/:slug/filters',
+      pathParams: z.object({ slug: slugSchema }),
+      body: z.void(),
+      responses: { 200: categoryFiltersSchema, 404: categoryFilterErrorSchema },
+      summary: 'Drop a category overlay and inherit again (admin)',
     },
     deleteAttribute: {
       method: 'DELETE',

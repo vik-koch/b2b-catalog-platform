@@ -22,6 +22,7 @@ import * as schema from '../db/schema';
 import {
   attributeDefinitions,
   categories,
+  categoryAttributes,
   pages,
   productAttributes,
   products,
@@ -57,6 +58,11 @@ import {
   resolveSelections,
   selectionConditions,
 } from './product-facets';
+import {
+  categoryChain,
+  DefinitionRow,
+  resolveCategoryDefinitions,
+} from './category-filters';
 import { SearchLogger } from './search.logger';
 
 interface SearchResult {
@@ -137,7 +143,7 @@ export class CatalogService {
 
     const ids = descendantIds(category.id, rows);
     const scope = and(inArray(products.categoryId, ids), publiclyVisible);
-    const definitions = await this.attributeDefinitions();
+    const definitions = await this.categoryDefinitions(category.id, rows);
     const selections = resolveSelections(attributes, definitions);
     const where = and(scope, ...selectionConditions(this.db, selections));
 
@@ -349,15 +355,39 @@ export class CatalogService {
   }
 
   /**
+   * The filterable attributes one category offers, in its own order
+   * (FR-ATTR-11) — the registry unless the category or an ancestor overlays
+   * it. See category-filters.ts.
+   */
+  private async categoryDefinitions(
+    categoryId: string,
+    rows: CategoryRow[],
+  ): Promise<DefinitionRow[]> {
+    const chain = categoryChain(categoryId, rows);
+    const definitions = await this.attributeDefinitions();
+    const overlay = await this.db
+      .select()
+      .from(categoryAttributes)
+      .where(inArray(categoryAttributes.categoryId, chain));
+    return resolveCategoryDefinitions(chain, definitions, overlay);
+  }
+
+  /**
    * A product's attributes in the admin's row order — `sortOrder` is the order,
    * so it has to be asked for explicitly.
    *
    * Left-joined to the registry by name, for the unit and the filter link: a
    * key matching no definition still renders, exactly as it is stored
    * (FR-ATTR-02).
+   *
+   * `filterable` is the set of slugs this product's own category offers
+   * (FR-ATTR-11). An attribute the category does not filter by keeps its unit
+   * and its row and loses only the link — it would otherwise lead to a listing
+   * whose panel cannot show or clear the filter.
    */
   private async attributesFor(
     productId: string,
+    filterable: Set<string>,
   ): Promise<ProductDetailAttribute[]> {
     const rows = await this.db
       .select({
@@ -383,7 +413,9 @@ export class CatalogService {
       // Only where a facet would actually offer this value: a number
       // attribute's unparseable value has no checkbox to link to (FR-ATTR-03).
       filterSlug:
-        row.slug && (row.type !== 'number' || row.numeric !== null)
+        row.slug &&
+        filterable.has(row.slug) &&
+        (row.type !== 'number' || row.numeric !== null)
           ? row.slug
           : null,
     }));
@@ -414,12 +446,15 @@ export class CatalogService {
       .limit(1);
     if (!product) return null;
 
-    const [rows, attributes] = await Promise.all([
-      this.categoryRows(),
-      this.attributesFor(product.id),
-    ]);
+    const rows = await this.categoryRows();
     const category = rows.find((row) => row.id === product.categoryId);
     if (!category) return null;
+
+    const definitions = await this.categoryDefinitions(category.id, rows);
+    const attributes = await this.attributesFor(
+      product.id,
+      new Set(definitions.map((definition) => definition.slug)),
+    );
 
     return {
       slug: product.slug,
