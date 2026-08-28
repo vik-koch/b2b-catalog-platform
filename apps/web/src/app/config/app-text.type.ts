@@ -225,7 +225,6 @@ export const appTextSchema = z
         noteEdit: z.string(),
         /** Closes the note bubble on a line that is already in the cart, where
          * there is nothing left to confirm. */
-        noteDone: z.string(),
         add: z.string(),
         /** Replaces the add button once the product is in the cart, so the
          * controls above read as an edit of that line; `{total}` is what the
@@ -811,7 +810,6 @@ export const appTextSchema = z
                 city: z.string(),
                 region: z.string(),
                 country: z.string(),
-                phone: z.string(),
                 optional: z.string(),
                 submit: z.string(),
                 submitting: z.string(),

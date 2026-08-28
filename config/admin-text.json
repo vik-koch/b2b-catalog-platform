@@ -52,7 +52,6 @@
     "editCategory": "Edit category",
     "editCategories": "Edit categories",
     "addCategory": "Add category",
-    "deleteCategory": "Delete category",
     "hiddenHeading": "Not on the storefront",
     "hiddenHint": "These products are in this category but customers cannot see them.",
     "deletedBadge": "Deleted",
@@ -61,9 +60,7 @@
     "unpublishProduct": "Unpublish",
     "unpublishConfirm": "Take “{name}” off the storefront? Customers will no longer see it; you can publish it again at any time.",
     "cancel": "Cancel",
-    "restoring": "Restoring…",
-    "revealError": "Could not bring this product back. Please try again.",
-    "publishError": "Could not change whether this product is published. Please try again."
+    "revealError": "Could not bring this product back. Please try again."
   },
   "pageEditor": {
     "edit": "Edit page",
@@ -140,7 +137,6 @@
       "key": "Name",
       "value": "Value",
       "add": "Add characteristic",
-      "empty": "No characteristics yet.",
       "addKeys": "Add attributes",
       "addKeysHint": "Attribute names the catalog already uses. Adding one appends an empty row — pick the name from here rather than retyping it, and the products stay comparable. A row you leave without a value is not saved.",
       "addKeysEmpty": "No product carries an attribute yet.",
@@ -154,8 +150,7 @@
     },
     "images": {
       "heading": "Images",
-      "add": "Add images",
-      "empty": "No images yet."
+      "add": "Add images"
     },
     "lineNote": {
       "heading": "Line note",
@@ -198,7 +193,6 @@
     "title": "Products",
     "deletedBadge": "Deleted",
     "unpublishedBadge": "Not published",
-    "liveBadge": "Live",
     "empty": "No products yet.",
     "noResults": "No products match these filters.",
     "updated": "Updated",
@@ -309,7 +303,6 @@
     "deleteConfirmWord": "HIDE",
     "apply": "Apply these changes",
     "applying": "Applying…",
-    "applyError": "These changes could not be applied. Please try again.",
     "applyErrors": {
       "run-not-found": "This run no longer exists. Upload the file again.",
       "run-already-applied": "These changes have already been applied.",
@@ -529,7 +522,6 @@
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
-    "type": "Type",
     "companyId": "Company ID",
     "registered": "Registered",
     "filterRole": "Filter by role",
