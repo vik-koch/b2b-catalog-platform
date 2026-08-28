@@ -209,6 +209,10 @@ export class OrderTokenPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.heading, noindex: true });
+    usePageSeo({
+      name: () => this.text.heading,
+      noindex: true,
+      noreferrer: true,
+    });
   }
 }
