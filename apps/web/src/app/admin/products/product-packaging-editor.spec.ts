@@ -73,14 +73,32 @@ describe('parseCount', () => {
 });
 
 describe('ProductPackagingEditor', () => {
-  it('lets the minimum follow the pack size while it has not been set apart', () => {
+  it('lets the minimum follow the pack size while it is still matching', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '6',
+    });
+
+    type(fixture, 'piecesPerPack', '12');
+
+    expect(emitted.at(-1)).toMatchObject({
+      piecesPerPack: '12',
+      minPieceQty: '12',
+    });
+  });
+
+  // A minimum of 1 is a shop that sells single pieces out of a pack, which is a
+  // decision rather than an unset field — raising it to the pack silently made
+  // that shop sell packs.
+  it('leaves a minimum of one alone when a pack is added', () => {
     const { fixture, emitted } = render(emptyPackaging());
 
     type(fixture, 'piecesPerPack', '6');
 
     expect(emitted.at(-1)).toMatchObject({
       piecesPerPack: '6',
-      minPieceQty: '6',
+      minPieceQty: '1',
     });
   });
 
@@ -154,6 +172,21 @@ describe('ProductPackagingEditor', () => {
     input.dispatchEvent(new Event('blur'));
 
     expect(emitted.at(-1)).toMatchObject({ minPieceQty: '30' });
+  });
+
+  it('leaves a minimum under one pack exactly as typed', () => {
+    const { fixture, emitted } = render({
+      ...emptyPackaging(),
+      piecesPerPack: '6',
+      minPieceQty: '2',
+    });
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector(
+      '#packaging-minPieceQty',
+    );
+    input.dispatchEvent(new Event('blur'));
+
+    expect(emitted).toEqual([]);
   });
 
   it('leaves a minimum that is already whole packs alone', () => {
