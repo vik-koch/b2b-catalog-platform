@@ -143,8 +143,12 @@ test('a guest orders, and the mailed link opens it without a session', async ({
   await page.context().clearCookies();
   await page.goto(tokenPath);
 
-  await expect(page.getByRole('heading', { name: 'Your order' })).toBeVisible();
-  await expect(page.getByText(reference)).toBeVisible();
+  // The order's own page leads with the reference — "Your order" is the
+  // document title, not the heading.
+  await expect(page).toHaveTitle(/Your order/);
+  await expect(
+    page.getByRole('heading', { level: 1, name: reference }),
+  ).toBeVisible();
   await expect(page.getByText('Hafen Espresso')).toBeVisible();
   // Kept out of the index, and out of any referrer it would otherwise leak to.
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
