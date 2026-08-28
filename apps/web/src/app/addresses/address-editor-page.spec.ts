@@ -210,6 +210,50 @@ describe('AddressEditorPage', () => {
       expect(field('region')).not.toBeNull();
     });
 
+    /**
+     * The postal rule is deployment config, per country (the demo ships to one,
+     * whose codes are five digits). A mask caps what can be typed; the pattern
+     * is what refuses the rest, on both sides.
+     */
+    describe('the postal code', () => {
+      it('caps entry at the mask the country configured', async () => {
+        const { field, type } = await render();
+
+        type('postalCode', '2035912');
+
+        expect(field('postalCode')?.value).toBe('20359');
+      });
+
+      it('refuses a code the country would not print, naming the shape', async () => {
+        const { el, type, submit, h } = await render();
+
+        type('street', 'Hafenstraße 12');
+        type('postalCode', '2035');
+        type('city', 'Hamburg');
+        await submit();
+
+        expect(h.create).not.toHaveBeenCalled();
+        expect(el.textContent).toContain(
+          text.postalCodeFormat.replace(
+            '{example}',
+            defaultDeploymentConfig.address?.countries[0].postalCode?.example ??
+              '',
+          ),
+        );
+      });
+
+      // An empty field is `required`'s answer: telling somebody who left it
+      // blank what a valid code looks like answers a question they did not ask.
+      it('says it is missing rather than misshapen when it is empty', async () => {
+        const { el, submit } = await render();
+
+        await submit();
+
+        expect(el.textContent).toContain(text.required);
+        expect(el.textContent).not.toContain('20457');
+      });
+    });
+
     it('refuses to save an incomplete address and calls nothing', async () => {
       const { el, submit, h } = await render();
 

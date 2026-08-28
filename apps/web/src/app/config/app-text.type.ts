@@ -558,6 +558,8 @@ export const appTextSchema = z
             incomplete: z.string(),
             invalidCompanyId: z.string(),
             unsupportedCountry: z.string(),
+            /** The postcode is not the shape its country's codes take. */
+            invalidPostalCode: z.string(),
             unknownPickupLocation: z.string(),
             billingDetailsRequired: z.string(),
             partyRequired: z.string(),
@@ -819,6 +821,9 @@ export const appTextSchema = z
                 submitting: z.string(),
                 cancel: z.string(),
                 required: z.string(),
+                /** `{example}` — a real code in the shape this country's take,
+                 * from the deployment's own postal rule. */
+                postalCodeFormat: z.string(),
                 saveError: z.string(),
                 /** The book is full — a refusal the form has to explain. */
                 limitReached: z.string(),

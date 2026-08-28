@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -152,9 +153,28 @@ export class OrdersService {
    * through the book, so this is the only place it is checked.
    */
   private assertAddresses(submission: OrderSubmission): void {
-    this.addresses.assertValid(submission.billingAddress);
+    this.checkAddress(submission.billingAddress);
     if (submission.deliveryAddress) {
-      this.addresses.assertValid(submission.deliveryAddress);
+      this.checkAddress(submission.deliveryAddress);
+    }
+  }
+
+  /**
+   * The book refuses an address with a 409, which is this endpoint's
+   * cart-changed answer and carries a re-priced cart with it. Here the same
+   * refusals are a malformed submission, so they are re-thrown as the 400 the
+   * contract lists them under — otherwise the browser would read a refusal
+   * about a postcode as a cart that moved, and look for pricing that is not
+   * there.
+   */
+  private checkAddress(address: AddressInput): void {
+    try {
+      this.addresses.assertValid(address);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new BadRequestException(error.getResponse());
+      }
+      throw error;
     }
   }
 

@@ -18,6 +18,20 @@ const ships = (...codes: string[]): AddressConfig => ({
   countries: codes.map((code) => ({ code, label: code })),
 });
 
+/** A deployment shipping to one country that has a postal rule and one that
+ * does not — the rule belongs to the country, not to the deployment. */
+const postal = () =>
+  service({
+    countries: [
+      {
+        code: 'DE',
+        label: 'DE',
+        postalCode: { pattern: '^[0-9]{5}$', example: '20457', mask: '#####' },
+      },
+      { code: 'AT', label: 'AT' },
+    ],
+  });
+
 function service(config?: AddressConfig): AddressesService {
   // No database: what is under test here is the rule the browser is not
   // trusted with, and the seed's silence. The reading and writing paths are
@@ -55,6 +69,43 @@ describe('AddressesService.assertValid', () => {
   it('takes any well-formed code where a deployment configures none', () => {
     expect(() =>
       service(undefined).assertValid({ ...address, country: 'JP' }),
+    ).not.toThrow();
+  });
+
+  /**
+   * The mask in the browser caps what can be typed and says nothing about what
+   * arrives — and the delivery zone is resolved from this field, so a code in
+   * the wrong shape is an order quoted against the wrong area.
+   */
+  it("refuses a postal code that is not its country's shape", () => {
+    const refuse = () =>
+      postal().assertValid({ ...address, postalCode: '2035' });
+
+    expect(refuse).toThrow(ConflictException);
+    expect(refuse).toThrow(
+      expect.objectContaining({
+        response: expect.objectContaining({ code: 'invalid-postal-code' }),
+      }) as unknown as Error,
+    );
+  });
+
+  it('accepts one in the shape the country asks for', () => {
+    expect(() => postal().assertValid(address)).not.toThrow();
+  });
+
+  // Typed the way it is printed; refusing it over a space would be refusing
+  // the code.
+  it('normalizes the code before measuring it', () => {
+    expect(() =>
+      postal().assertValid({ ...address, postalCode: '203 59' }),
+    ).not.toThrow();
+  });
+
+  // The rule belongs to the country, so an address in another one is not
+  // measured against it.
+  it('leaves a country with no rule of its own alone', () => {
+    expect(() =>
+      postal().assertValid({ ...address, country: 'AT', postalCode: '1010' }),
     ).not.toThrow();
   });
 

@@ -12,6 +12,8 @@ import {
   ADDRESS_BOOK_MAX,
   AddressConfig,
   AddressInput,
+  postalCodeMatches,
+  postalCodeRuleFor,
 } from '@b2b-catalog-platform/shared';
 import { ADDRESS_CONFIG } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
@@ -140,6 +142,7 @@ export class AddressesService {
    */
   assertValid(input: AddressInput): void {
     this.assertSupportedCountry(input.country);
+    this.assertPostalCode(input);
   }
 
   /**
@@ -157,5 +160,21 @@ export class AddressesService {
         message: `This deployment does not ship to ${country}`,
       });
     }
+  }
+
+  /**
+   * The shape of a postal code, where the country it is in has one configured.
+   * A mask in the browser caps what can be typed and says nothing about what
+   * arrives, so this is where the rule actually holds — and the delivery zone
+   * is resolved from this field, so a code in the wrong shape is an order
+   * quoted against the wrong area.
+   */
+  private assertPostalCode(input: AddressInput): void {
+    const rule = postalCodeRuleFor(input.country, this.config?.countries);
+    if (postalCodeMatches(input.postalCode, rule)) return;
+    throw new ConflictException({
+      code: 'invalid-postal-code',
+      message: `A postal code in ${input.country} looks like ${rule?.example}`,
+    });
   }
 }

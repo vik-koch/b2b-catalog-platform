@@ -312,6 +312,8 @@ export const ordersContract = c.router({
       400: apiErrorSchema([
         'invalid-company-id',
         'unsupported-country',
+        /** The postal code is not the shape its country's codes take. */
+        'invalid-postal-code',
         'unknown-pickup-location',
         /** Bank transfer invoices a legal entity, so it is available only
          * where the party has a registration number. Re-checked here because

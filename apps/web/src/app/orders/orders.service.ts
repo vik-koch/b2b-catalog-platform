@@ -25,6 +25,7 @@ export type SubmitOrderResult =
       code:
         | 'invalid-company-id'
         | 'unsupported-country'
+        | 'invalid-postal-code'
         | 'unknown-pickup-location'
         | 'billing-details-required'
         | 'party-required'

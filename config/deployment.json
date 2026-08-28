@@ -104,7 +104,12 @@
     "countries": [
       {
         "code": "DE",
-        "label": "Germany"
+        "label": "Germany",
+        "postalCode": {
+          "pattern": "^[0-9]{5}$",
+          "example": "20457",
+          "mask": "#####"
+        }
       }
     ]
   },

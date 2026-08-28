@@ -1,6 +1,16 @@
 import { inject } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { AddressComponents, AddressInput } from '@b2b-catalog-platform/shared';
+import {
+  AbstractControl,
+  FormBuilder,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import {
+  AddressComponents,
+  AddressInput,
+  postalCodeMatches,
+  postalCodeRuleFor,
+} from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 
 /**
@@ -30,11 +40,38 @@ export class AddressForm {
     label: [''],
     street: ['', Validators.required],
     street2: [''],
-    postalCode: ['', Validators.required],
+    postalCode: ['', [Validators.required, (c) => this.checkPostalCode(c)]],
     city: ['', Validators.required],
     region: [''],
     country: [this.countries[0]?.code ?? ''],
   });
+
+  constructor() {
+    // The rule belongs to the country, so the field has to be asked again when
+    // the country changes — a validator is not re-run by something it reads
+    // off another control.
+    this.group.controls.country.valueChanges.subscribe(() =>
+      this.group.controls.postalCode.updateValueAndValidity(),
+    );
+  }
+
+  /** The rule the chosen country asks for, where it has one. */
+  postalCodeRule() {
+    return postalCodeRuleFor(this.group.controls.country.value, this.countries);
+  }
+
+  /**
+   * Whether the code is the shape its country's codes take. An empty field is
+   * `required`'s business, not this one's — a control that answered both would
+   * say "wrong shape" about a field nobody has filled in yet.
+   */
+  private checkPostalCode(control: AbstractControl): ValidationErrors | null {
+    const value = String(control.value ?? '').trim();
+    if (!value) return null;
+    return postalCodeMatches(value, this.postalCodeRule())
+      ? null
+      : { postalCode: true };
+  }
 
   /**
    * An address laid into the form — a saved row, or one recovered from a
