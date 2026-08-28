@@ -20,7 +20,8 @@ import {
   ReadBackLine,
   ReviewBlock,
 } from '../../orders/order-read-back';
-import { orderStatusClass } from '../../orders/order-status';
+import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { orderStatusTone } from '../../orders/order-status';
 import { AdminOrdersService } from './orders.service';
 
 /**
@@ -34,15 +35,19 @@ import { AdminOrdersService } from './orders.service';
  */
 @Component({
   selector: 'app-admin-order-detail-page',
-  imports: [RouterLink, Button, Skeleton, OrderReadBack, OrderSummary],
+  imports: [
+    RouterLink,
+    Button,
+    Skeleton,
+    OrderReadBack,
+    OrderSummary,
+    StatusBadge,
+  ],
   template: `
     @if (detail(); as order) {
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
         <h1 class="text-3xl font-bold tracking-tight">{{ order.reference }}</h1>
-        <span
-          class="rounded-full px-2 py-0.5 text-xs font-medium"
-          [class]="statusClass(order.status)"
-        >
+        <span appStatusBadge [tone]="statusTone(order.status)">
           {{ statusLabel(order.status) }}
         </span>
       </div>
@@ -166,8 +171,8 @@ export class AdminOrderDetailPage {
     }[status];
   }
 
-  protected statusClass(status: OrderStatus): string {
-    return orderStatusClass(status);
+  protected statusTone(status: OrderStatus): StatusTone {
+    return orderStatusTone(status);
   }
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {

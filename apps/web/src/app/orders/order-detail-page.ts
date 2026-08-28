@@ -18,7 +18,8 @@ import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
-import { orderStatusClass } from './order-status';
+import { StatusBadge, StatusTone } from '../ui/status-badge';
+import { orderStatusTone } from './order-status';
 import { OrdersService } from './orders.service';
 
 /**
@@ -38,6 +39,7 @@ import { OrdersService } from './orders.service';
     Skeleton,
     OrderReadBack,
     OrderSummary,
+    StatusBadge,
   ],
   template: `
     @if (detail(); as detail) {
@@ -57,10 +59,7 @@ import { OrdersService } from './orders.service';
               <h1 class="text-3xl font-bold tracking-tight">
                 {{ detail.reference }}
               </h1>
-              <span
-                class="rounded-full px-2 py-0.5 text-xs font-medium"
-                [class]="statusClass(detail.status)"
-              >
+              <span appStatusBadge [tone]="statusTone(detail.status)">
                 {{ statusLabel(detail.status) }}
               </span>
             </div>
@@ -231,8 +230,8 @@ export class OrderDetailPage {
     }[status];
   }
 
-  protected statusClass(status: OrderStatus): string {
-    return orderStatusClass(status);
+  protected statusTone(status: OrderStatus): StatusTone {
+    return orderStatusTone(status);
   }
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {

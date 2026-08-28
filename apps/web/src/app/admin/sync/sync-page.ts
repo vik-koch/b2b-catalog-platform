@@ -24,6 +24,7 @@ import { SyncService } from './sync.service';
 import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
 import { Checkbox } from '../../ui/checkbox';
 import { ChoiceCard } from '../../ui/choice-card';
+import { StatusBadge, StatusTone } from '../../ui/status-badge';
 
 /**
  * Fills `{placeholders}` in a line of admin text with the names the API sent
@@ -61,6 +62,7 @@ function substitute(
     AdminIcon,
     FieldLabel,
     Input,
+    StatusBadge,
   ],
   template: `
     <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
@@ -270,10 +272,7 @@ function substitute(
             <ul class="divide-y divide-stone-100 text-sm">
               @for (product of plan.products; track product.sourceId) {
                 <li class="flex flex-wrap items-baseline gap-x-3 py-2">
-                  <span
-                    class="rounded px-1.5 py-0.5 text-xs"
-                    [class]="badgeClass(product.kind)"
-                  >
+                  <span appStatusBadge [tone]="kindTone(product.kind)">
                     {{ text.kind[product.kind] }}
                   </span>
                   <span class="font-medium">{{ product.name }}</span>
@@ -629,8 +628,8 @@ export class SyncPage {
     return value;
   }
 
-  protected badgeClass(kind: SyncProductChange['kind']): string {
-    return KIND_BADGE[kind];
+  protected kindTone(kind: SyncProductChange['kind']): StatusTone {
+    return KIND_TONE[kind];
   }
 
   protected rowLabel(row: number): string {
@@ -672,11 +671,14 @@ export class SyncPage {
 /** Keys of the option group, so a flag's label cannot name missing text. */
 type SyncOptionKey = keyof AdminText['sync']['option'];
 
-const KIND_BADGE: Record<SyncProductChange['kind'], string> = {
-  create: 'bg-green-100 text-green-800',
-  update: 'bg-stone-200 text-stone-700',
-  softDelete: 'bg-red-100 text-red-800',
-  restore: 'bg-blue-100 text-blue-800',
+/** What the run would do to a row, in the app's own status tones: a product
+ * arriving is settled, one leaving is a refusal, one coming back is worth
+ * pointing out, and a plain edit is neither. */
+const KIND_TONE: Record<SyncProductChange['kind'], StatusTone> = {
+  create: 'ok',
+  update: 'neutral',
+  softDelete: 'danger',
+  restore: 'info',
 };
 
 /**

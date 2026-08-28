@@ -14,7 +14,8 @@ import { usePageSeo } from '../../core/page-seo';
 import { stableValue } from '../../core/stable-value';
 import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
-import { orderStatusClass } from '../../orders/order-status';
+import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { orderStatusTone } from '../../orders/order-status';
 import { AdminListHeader } from '../list-header';
 import {
   GridFilterOption,
@@ -36,7 +37,14 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
  */
 @Component({
   selector: 'app-admin-order-list-page',
-  imports: [RouterLink, Button, AdminListHeader, GridFilterSelect, Skeleton],
+  imports: [
+    RouterLink,
+    Button,
+    AdminListHeader,
+    GridFilterSelect,
+    Skeleton,
+    StatusBadge,
+  ],
   template: `
     <app-admin-list-header
       [title]="text.title"
@@ -99,10 +107,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
                   </span>
                 </td>
                 <td>
-                  <span
-                    class="rounded-full px-2 py-0.5 text-xs font-medium"
-                    [class]="statusClass(order.status)"
-                  >
+                  <span appStatusBadge [tone]="statusTone(order.status)">
                     {{ statusLabel(order.status) }}
                   </span>
                 </td>
@@ -252,8 +257,8 @@ export class AdminOrderListPage {
     }[status];
   }
 
-  protected statusClass(status: OrderStatus): string {
-    return orderStatusClass(status);
+  protected statusTone(status: OrderStatus): StatusTone {
+    return orderStatusTone(status);
   }
 
   protected formatDate(iso: string): string {

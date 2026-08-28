@@ -18,7 +18,8 @@ import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
-import { orderStatusClass } from './order-status';
+import { StatusBadge, StatusTone } from '../ui/status-badge';
+import { orderStatusTone } from './order-status';
 import { OrdersService } from './orders.service';
 
 /**
@@ -41,6 +42,7 @@ import { OrdersService } from './orders.service';
     Skeleton,
     OrderReadBack,
     OrderSummary,
+    StatusBadge,
   ],
   template: `
     @if (detail(); as order) {
@@ -60,10 +62,7 @@ import { OrdersService } from './orders.service';
               <h1 class="text-3xl font-bold tracking-tight">
                 {{ order.reference }}
               </h1>
-              <span
-                class="rounded-full px-2 py-0.5 text-xs font-medium"
-                [class]="statusClass(order.status)"
-              >
+              <span appStatusBadge [tone]="statusTone(order.status)">
                 {{ statusLabel(order.status) }}
               </span>
             </div>
@@ -244,8 +243,8 @@ export class OrderTokenPage {
     }[status];
   }
 
-  protected statusClass(status: OrderStatus): string {
-    return orderStatusClass(status);
+  protected statusTone(status: OrderStatus): StatusTone {
+    return orderStatusTone(status);
   }
 
   constructor() {

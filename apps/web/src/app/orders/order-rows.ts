@@ -8,7 +8,8 @@ import {
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { orderStatusClass } from './order-status';
+import { StatusBadge, StatusTone } from '../ui/status-badge';
+import { orderStatusTone } from './order-status';
 
 /**
  * The account's orders as rows — the whole history on its own page, and the
@@ -22,7 +23,7 @@ import { orderStatusClass } from './order-status';
  */
 @Component({
   selector: 'app-order-rows',
-  imports: [RouterLink],
+  imports: [RouterLink, StatusBadge],
   host: { class: 'block' },
   template: `
     <ul class="divide-y divide-border">
@@ -43,10 +44,7 @@ import { orderStatusClass } from './order-status';
               </p>
             </div>
             <div class="flex items-center gap-4">
-              <span
-                class="rounded-full px-2 py-0.5 text-xs font-medium"
-                [class]="statusClass(order.status)"
-              >
+              <span appStatusBadge [tone]="statusTone(order.status)">
                 {{ statusLabel(order.status) }}
               </span>
               <p class="text-sm font-semibold tabular-nums">
@@ -82,8 +80,8 @@ export class OrderRows {
     }[status];
   }
 
-  protected statusClass(status: OrderStatus): string {
-    return orderStatusClass(status);
+  protected statusTone(status: OrderStatus): StatusTone {
+    return orderStatusTone(status);
   }
 
   protected formatDate(iso: string): string {

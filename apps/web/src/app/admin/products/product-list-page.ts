@@ -35,6 +35,7 @@ import {
 import { GridSortHeader } from './grid-sort-header';
 import { ProductDeleteDialog } from './product-delete-dialog';
 import { AdminListHeader } from '../list-header';
+import { StatusBadge } from '../../ui/status-badge';
 
 /**
  * The admin product list: every product including soft-deleted ones
@@ -55,6 +56,7 @@ import { AdminListHeader } from '../list-header';
     GridSortHeader,
     GridFilterSelect,
     Skeleton,
+    StatusBadge,
   ],
   template: `
     <app-admin-list-header
@@ -183,15 +185,11 @@ import { AdminListHeader } from '../list-header';
                 <div class="flex items-center">
                   <span class="line-clamp-2 wrap-break-word text-subtle">
                     @if (item.deletedAt) {
-                      <span
-                        class="rounded bg-stone-200 px-1.5 py-0.5 text-xs text-muted mr-2"
-                      >
+                      <span appStatusBadge class="mr-2">
                         {{ text.deletedBadge }}
                       </span>
                     } @else if (!item.publishedAt) {
-                      <span
-                        class="mr-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-900"
-                      >
+                      <span appStatusBadge tone="waiting" class="mr-2">
                         {{ text.unpublishedBadge }}
                       </span>
                     }
