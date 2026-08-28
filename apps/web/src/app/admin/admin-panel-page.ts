@@ -166,7 +166,7 @@ import { BuildInfoService } from './build-info.service';
                     appButton
                     variant="secondary"
                     [routerLink]="['/admin/pages', slug, 'edit']"
-                    [queryParams]="editorFrom"
+                    [queryParams]="editorFrom()"
                   >
                     {{ navText[slug] }}
                   </a>

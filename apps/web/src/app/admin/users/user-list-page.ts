@@ -103,7 +103,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
         appButton
         class="gap-2"
         [routerLink]="isStaff() ? '/admin/users/staff/new' : '/admin/users/new'"
-        [queryParams]="editorFrom"
+        [queryParams]="editorFrom()"
       >
         <app-admin-icon name="plus" class="h-4 w-4" />
         {{ isStaff() ? text.addStaff : text.addCustomer }}
@@ -256,7 +256,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
                     @if (user.status !== 'anonymized') {
                       <a
                         [routerLink]="['/admin/users', user.id, 'edit']"
-                        [queryParams]="editorFrom"
+                        [queryParams]="editorFrom()"
                         class="p-1.5"
                         [class]="
                           user.status === 'pending'

@@ -36,7 +36,7 @@ import { LoadErrorView } from './load-error-view';
           <app-edit-actions
             variant="inline"
             [editLink]="['/admin/pages', slug(), 'edit']"
-            [editParams]="editorFrom"
+            [editParams]="editorFrom()"
             [editLabel]="editorText.edit"
           />
         }
