@@ -149,6 +149,8 @@
     "emptyCart": "There is nothing in your cart to order.",
     "signInPrompt": "Already a customer? Sign in and your agreed prices apply to this order.",
     "signInAction": "Sign in",
+    "phoneMissing": "An order request needs a telephone number, and this account has none on record — a manager answers it by phone. Please add one to your account, then come back here; the cart is kept.",
+    "phoneMissingAction": "Add a telephone number",
     "contact": {
       "heading": "Who is ordering?",
       "name": "Your name",

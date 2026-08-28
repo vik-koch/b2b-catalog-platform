@@ -452,12 +452,31 @@ import { AddressForm } from '../addresses/address-form';
               </p>
             }
 
+            <!-- Said where the button is, and the button is dead: an account
+                 with no number on record cannot place an order, and finding
+                 that out from a refusal after the review is the worst place to
+                 find it out. -->
+            @if (accountPhoneMissing()) {
+              <p class="mt-3 flex items-start gap-2 text-sm text-muted">
+                <app-icon
+                  name="phone"
+                  class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                />
+                <span>
+                  {{ text.phoneMissing }}
+                  <a routerLink="/account/edit" class="text-primary underline">
+                    {{ text.phoneMissingAction }}
+                  </a>
+                </span>
+              </p>
+            }
+
             @if (reviewing()) {
               <button
                 appButton
                 type="button"
                 class="mt-3 w-full"
-                [disabled]="sending()"
+                [disabled]="sending() || accountPhoneMissing()"
                 (click)="submit()"
               >
                 {{ sending() ? text.submitting : text.submit }}
@@ -684,6 +703,23 @@ export class CheckoutPage {
    * back does not quietly reset the switch. */
   private readonly lastOtherParty = signal<Party>('person');
   protected readonly otherParty = this.lastOtherParty.asReadonly();
+
+  /**
+   * Whether this account is missing the one contact detail an order cannot be
+   * placed without. A signed-in customer is never asked for their contact
+   * block — it is read from their record — and staff may create an account
+   * from an email alone, so an account can reach checkout with no number at
+   * all. The submission is then refused for a field the form never showed,
+   * which is exactly the refusal nobody can act on.
+   *
+   * False while the profile is still loading: the answer is not "no number"
+   * until the record says so.
+   */
+  protected readonly accountPhoneMissing = computed(() => {
+    if (this.guest() || this.profile.isLoading()) return false;
+    const profile = this.profile.value();
+    return !!profile && !profile.phone?.trim();
+  });
 
   protected readonly saveDelivery = computed(
     () => this.draft().saveDeliveryAddress,
@@ -1156,7 +1192,7 @@ export class CheckoutPage {
    * which is why the button says so and the screen that follows says it again.
    */
   protected async submit(): Promise<void> {
-    if (this.sendingState()) return;
+    if (this.sendingState() || this.accountPhoneMissing()) return;
     this.errorState.set(null);
     this.privacyChecked.set(true);
     if (!this.acceptedPrivacy()) return;
@@ -1350,6 +1386,10 @@ export class CheckoutPage {
         return errors.cartChanged;
       case 'rejected':
         return errors.rejected;
+      default:
+        // A 400 the contract does not name — a body the server rejected before
+        // any rule ran. Nothing useful to say about it, but silence is worse.
+        return errors.generic;
     }
   }
 }

@@ -359,6 +359,11 @@ export const appTextSchema = z
          */
         signInPrompt: z.string(),
         signInAction: z.string(),
+        /** A signed-in account with no telephone number cannot place an order:
+         * the contact block the manager answers from requires one. Said here
+         * rather than left to a refusal, which arrives after the review. */
+        phoneMissing: z.string(),
+        phoneMissingAction: z.string(),
         /**
          * Everything a guest is asked about themselves (FR-CART-03/09) — who
          * is invoiced and how to reach them, which for a private person is one

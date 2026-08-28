@@ -74,6 +74,9 @@ interface Options {
   submit?: SubmitOrderResult;
   /** No session at all (FR-CART-03). */
   guest?: boolean;
+  /** An account whose record carries no telephone number — which staff can
+   * create, and which the order contract will not accept. */
+  noPhone?: boolean;
 }
 
 /** Every submission the page sent, and what it was answered with. */
@@ -137,7 +140,7 @@ async function render(options: Options = {}) {
             role: 'user',
             firstName: 'Alex',
             lastName: 'Fischer',
-            phone: '+494012345678',
+            phone: options.noPhone ? null : '+494012345678',
             customerType: options.person ? 'person' : 'company',
             companyName:
               options.companyName ?? (options.person ? null : 'Kontor GmbH'),
@@ -855,6 +858,28 @@ describe('CheckoutPage', () => {
 
       expect(page.text()).toContain(text.fulfilment.heading);
       expect(page.value('#order-note')).toBe('Ring the bell at the back gate.');
+    });
+  });
+
+  describe('an account with no telephone number', () => {
+    it('says so and will not send, rather than letting the API refuse it', async () => {
+      const page = await render({ noPhone: true });
+      await page.review();
+
+      expect(page.text()).toContain(text.phoneMissing);
+      expect(page.button(text.submit)?.disabled).toBe(true);
+
+      page.button(text.submit)?.click();
+      await page.settle();
+      expect(submitted).not.toHaveBeenCalled();
+    });
+
+    it('leaves an account that has one alone', async () => {
+      const page = await render();
+      await page.review();
+
+      expect(page.text()).not.toContain(text.phoneMissing);
+      expect(page.button(text.submit)?.disabled).toBe(false);
     });
   });
 
