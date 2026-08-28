@@ -31,12 +31,22 @@ function normalize(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
 }
 
-/** Runs the script the server injects, against whatever is in localStorage. */
-function run(): { count: string; total: string } | null {
+/**
+ * The script writes to the document root, which every case in this file
+ * shares. Reset explicitly between them rather than relying on the next run to
+ * overwrite it — a case that expects *nothing* to be written can only tell the
+ * difference against a clean root.
+ */
+function resetRoot(): void {
   const root = document.documentElement;
   root.classList.remove('cart-filled');
   root.style.removeProperty('--cart-count');
   root.style.removeProperty('--cart-total');
+}
+
+/** Runs the script the server injects, against whatever is in localStorage. */
+function run(): { count: string; total: string } | null {
+  const root = document.documentElement;
   new Function(cartShellSource(currency.locale, currency.code))();
   return root.classList.contains('cart-filled')
     ? {
@@ -56,8 +66,10 @@ function run(): { count: string; total: string } | null {
  * there to remove.
  */
 describe('the pre-paint cart script', () => {
-  beforeEach(() => localStorage.clear());
-  afterEach(() => run());
+  beforeEach(() => {
+    localStorage.clear();
+    resetRoot();
+  });
 
   it('counts the stored lines and totals them', () => {
     seed(2500, 1250);

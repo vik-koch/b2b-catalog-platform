@@ -208,8 +208,15 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     client = new Client({ connectionString: requireEnv('DATABASE_URL') });
     await client.connect();
 
+    // This suite's own category, not whichever one sorts first. Products
+    // reference a category `ON DELETE restrict`, and several other suites
+    // hard-delete the category they created in their own teardown — borrowing
+    // one means their cleanup fails against our foreign key, at whatever point
+    // the two suites happen to interleave.
     const { rows: categories } = await client.query(
-      'SELECT id FROM categories ORDER BY name LIMIT 1',
+      `INSERT INTO categories ("sourceId", slug, name)
+       VALUES ($1, $1, $1) RETURNING id`,
+      [SOURCE_PREFIX.toLowerCase()],
     );
     const categoryId = categories[0].id;
 
@@ -290,6 +297,10 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     );
     await client.query('DELETE FROM products WHERE "sourceId" LIKE $1', [
       `${SOURCE_PREFIX}%`,
+    ]);
+    // After the products, which reference it.
+    await client.query('DELETE FROM categories WHERE "sourceId" = $1', [
+      SOURCE_PREFIX.toLowerCase(),
     ]);
     await client.query('DELETE FROM users WHERE email = ANY($1)', [
       [CUSTOMER, OTHER, MANAGER],

@@ -110,17 +110,25 @@ function boot(options: { answer?: CartPreview | Error; empty?: boolean } = {}) {
   TestBed.inject(CartRepricing);
   const cart = TestBed.inject(CartService);
 
+  /** Lets whatever the effect started actually finish. */
+  const settle = async () => {
+    TestBed.tick();
+    await Promise.resolve();
+    await Promise.resolve();
+  };
+
   return {
     cart,
     priced,
+    user,
+    resolved,
+    settle,
     /** The session answering, as the API and the hint cookie both would. */
     async signIn(role: string | null) {
       hint(role);
       user.set(role === null ? null : { id: 'u1' });
       resolved.set(true);
-      TestBed.tick();
-      await Promise.resolve();
-      await Promise.resolve();
+      await settle();
     },
   };
 }
@@ -170,5 +178,72 @@ describe('CartRepricing', () => {
     await view.signIn('user');
 
     expect(view.cart.lines()[0].lineTotalMinor).toBe(7000);
+  });
+
+  // A failure must not latch: the guard that stops two calls overlapping is
+  // released either way, or the cart keeps a guest's prices for the session.
+  it('tries again after a failure, rather than giving up on the cart', async () => {
+    const view = boot({ answer: new Error('offline') });
+    await view.signIn('user');
+    expect(view.priced).toHaveBeenCalledTimes(1);
+
+    // Still holding guest prices, because the first attempt failed — so the
+    // next identity to settle is still owed a pricing call.
+    view.user.set({ id: 'u2' });
+    await view.settle();
+
+    expect(view.priced).toHaveBeenCalledTimes(2);
+  });
+
+  // The other direction, which is the one that matters legally: a customer who
+  // signs out must stop being quoted their agreed prices.
+  it('prices the cart again when the customer signs out', async () => {
+    const view = boot();
+    await view.signIn('user');
+    expect(view.priced).toHaveBeenCalledTimes(1);
+
+    await view.signIn(null);
+
+    expect(view.priced).toHaveBeenCalledTimes(2);
+    expect(view.cart.changes()).toEqual([]);
+  });
+
+  /**
+   * The trap the class comment names: `user()` alone folds "not known yet"
+   * into "signed out", which would price a signed-in customer's cart as a
+   * guest's on every cold load — and then quietly overwrite their own prices
+   * with the default list's.
+   */
+  it('waits for the session to be an answer, not an absence', async () => {
+    const view = boot();
+
+    // The identity has changed, but nothing has resolved it yet.
+    hint('user');
+    view.user.set({ id: 'u1' });
+    await view.settle();
+
+    expect(view.priced).not.toHaveBeenCalled();
+
+    view.resolved.set(true);
+    await view.settle();
+
+    expect(view.priced).toHaveBeenCalledTimes(1);
+  });
+
+  // The effect can fire again while an answer is on its way, and the later
+  // answer would describe the same cart.
+  it('keeps one pricing call in the air at a time', async () => {
+    const view = boot();
+
+    // Both changes land before either answer does.
+    hint('user');
+    view.user.set({ id: 'u1' });
+    view.resolved.set(true);
+    TestBed.tick();
+    view.user.set({ id: 'u2' });
+    TestBed.tick();
+    await view.settle();
+
+    expect(view.priced).toHaveBeenCalledTimes(1);
   });
 });
