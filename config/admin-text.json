@@ -494,7 +494,7 @@
   },
   "orderDetail": {
     "placed": "Sent {date}",
-    "statusChanged": "Status changed {date}",
+    "statusChanged": "Status changed",
     "notFound": "There is no order with that reference.",
     "loadError": "The order could not be loaded. Please try again.",
     "back": "Back to orders",

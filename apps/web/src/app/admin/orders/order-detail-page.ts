@@ -57,7 +57,7 @@ import { AdminOrdersService } from './orders.service';
         <dd>{{ order.customerEmail ?? listText.guest }}</dd>
         <dt class="text-subtle">{{ text.tier }}</dt>
         <dd>{{ order.tierKey ?? text.tierDefault }}</dd>
-        <dt class="text-subtle">{{ statusText }}</dt>
+        <dt class="text-subtle">{{ text.statusChanged }}</dt>
         <dd>{{ statusChanged(order) }}</dd>
       </dl>
 
@@ -93,8 +93,6 @@ export class AdminOrderDetailPage {
 
   protected readonly text = inject(ADMIN_TEXT).orderDetail;
   protected readonly listText = inject(ADMIN_TEXT).orderList;
-  /** The row's own label reuses the list's status wording. */
-  protected readonly statusText = inject(ADMIN_TEXT).orderList.filterStatus;
 
   readonly reference = input.required<string>();
 
