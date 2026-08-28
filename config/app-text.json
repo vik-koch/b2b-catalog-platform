@@ -249,6 +249,7 @@
       "freeFrom": "Free delivery from {amount}",
       "noFreeDelivery": "Delivery is quoted per order",
       "pickupHeading": "Where would you like to collect your order?",
+      "pickupRequired": "Please choose where you would like to collect your order.",
       "mapLink": "Find on map"
     }
   },

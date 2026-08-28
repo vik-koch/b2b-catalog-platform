@@ -600,6 +600,10 @@ export const appTextSchema = z
              * the pickup answer to the delivery address — not inside the card,
              * where it would be a second question asked in the margin. */
             pickupHeading: z.string(),
+            /** Shown under the collection points when the form is submitted
+             * without one chosen — the radio group has no control of its own to
+             * carry the error. */
+            pickupRequired: z.string(),
             /** Opens one office's map, the same embed the contact page uses. */
             mapLink: z.string(),
           })

@@ -267,6 +267,61 @@ describe('CheckoutPage', () => {
       }
     });
 
+    // A list of one is not a question — and the draft may arrive on pickup from
+    // a previous visit, never passing through the fulfilment click.
+    it('answers a single collection point itself, however pickup was reached', async () => {
+      const only = withPickupPoints(1);
+      const key = only.pickup?.locations[0].key;
+
+      const clicked = await render({ config: only });
+      clicked.pick('fulfilment', 'pickup');
+      await clicked.settle();
+      expect(clicked.drafts.draft().pickupLocationKey).toBe(key);
+
+      TestBed.resetTestingModule();
+      sessionStorage.setItem(
+        CHECKOUT_DRAFT_KEY,
+        JSON.stringify({
+          version: CHECKOUT_DRAFT_VERSION,
+          draft: { ...emptyDraft(), fulfilmentMethod: 'pickup' },
+        }),
+      );
+      const restored = await render({ config: only });
+      expect(restored.drafts.draft().pickupLocationKey).toBe(key);
+    });
+
+    // Two points is a real question, so nothing is chosen for the customer —
+    // which makes saying so on refusal the whole of the feedback they get.
+    it('says which answer is missing when several points go unchosen', async () => {
+      const page = await render();
+
+      page.drafts.patch({ fulfilmentMethod: 'pickup' });
+      await page.settle();
+      expect(page.drafts.draft().pickupLocationKey).toBeNull();
+      expect(page.text()).not.toContain(text.fulfilment.pickupRequired);
+
+      await page.review();
+
+      expect(page.text()).toContain(text.errors.incomplete);
+      // The generic error says the form is marked; this is that marking.
+      expect(page.text()).toContain(text.fulfilment.pickupRequired);
+    });
+
+    it('takes the message back once a point is chosen', async () => {
+      const page = await render();
+      const key = defaultDeploymentConfig.pickup?.locations[0].key ?? '';
+
+      page.drafts.patch({ fulfilmentMethod: 'pickup' });
+      await page.settle();
+      await page.review();
+      expect(page.text()).toContain(text.fulfilment.pickupRequired);
+
+      page.drafts.patch({ pickupLocationKey: key });
+      await page.settle();
+
+      expect(page.text()).not.toContain(text.fulfilment.pickupRequired);
+    });
+
     it('offers no pickup where the deployment has no collection points', async () => {
       const page = await render({ config: withPickupPoints(0) });
 

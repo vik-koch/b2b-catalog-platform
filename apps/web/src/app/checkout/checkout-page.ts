@@ -204,6 +204,7 @@ import { AddressForm } from '../addresses/address-form';
                 @if (isPickup()) {
                   <app-pickup-choice
                     [pickupKey]="draft().pickupLocationKey"
+                    [invalid]="pickupInvalid()"
                     (pickupKeyChange)="
                       drafts.patch({ pickupLocationKey: $event })
                     "
@@ -580,6 +581,13 @@ export class CheckoutPage {
   private readonly privacyChecked = signal(false);
   protected readonly revealDelivery = signal(false);
   protected readonly revealBilling = signal(false);
+  /** Set when a submission was refused for want of a collection point. The
+   * radio group has no control, so its error cannot come from a FieldErrors. */
+  private readonly pickupSubmitted = signal(false);
+
+  protected readonly pickupInvalid = computed(
+    () => this.pickupSubmitted() && !this.draft().pickupLocationKey,
+  );
 
   protected readonly sending = this.sendingState.asReadonly();
   protected readonly placed = this.placedState.asReadonly();
@@ -763,6 +771,18 @@ export class CheckoutPage {
       });
     });
 
+    // Pickup at a shop with one collection point answers itself: a list of one
+    // is not a question, and leaving it unanswered would fail a submission over
+    // a choice the customer was never really given. An effect rather than part
+    // of the click, because a draft restored from a previous visit arrives on
+    // pickup without ever passing through one.
+    effect(() => {
+      if (this.locations.length !== 1) return;
+      if (this.draft().fulfilmentMethod !== 'pickup') return;
+      if (this.draft().pickupLocationKey !== null) return;
+      this.drafts.patch({ pickupLocationKey: this.locations[0].key });
+    });
+
     // The addresses being typed, and the typed party, kept in the draft so a
     // trip back to the cart does not empty them.
     this.restoreDrafted();
@@ -814,19 +834,8 @@ export class CheckoutPage {
     });
   }
 
-  /**
-   * Choosing pickup where there is one collection point chooses it too: a list
-   * of one is not a question, and leaving it unanswered would fail a
-   * submission over a choice the customer was never really given.
-   */
   protected chooseFulfilment(method: FulfilmentMethod): void {
-    const only = this.locations.length === 1 ? this.locations[0].key : null;
-    this.drafts.patch({
-      fulfilmentMethod: method,
-      ...(method === 'pickup' && this.draft().pickupLocationKey === null && only
-        ? { pickupLocationKey: only }
-        : {}),
-    });
+    this.drafts.patch({ fulfilmentMethod: method });
   }
 
   /**
@@ -1059,6 +1068,7 @@ export class CheckoutPage {
   /** From here on every field says what is wrong with it, including the ones
    * nobody visited. */
   private markProblems(): void {
+    this.pickupSubmitted.set(true);
     this.partyErrors.markSubmitted();
     if (this.guest()) this.contactErrors.markSubmitted();
     if (this.deliveryTyped()) this.deliveryErrors.markSubmitted();
