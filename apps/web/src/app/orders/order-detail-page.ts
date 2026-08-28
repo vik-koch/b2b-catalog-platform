@@ -13,6 +13,7 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
+import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
@@ -30,7 +31,14 @@ import { OrdersService } from './orders.service';
  */
 @Component({
   selector: 'app-order-detail-page',
-  imports: [RouterLink, Button, Skeleton, OrderReadBack, OrderSummary],
+  imports: [
+    RouterLink,
+    Button,
+    NotFoundView,
+    Skeleton,
+    OrderReadBack,
+    OrderSummary,
+  ],
   template: `
     @if (detail(); as detail) {
       <!-- The cart's and the checkout's two columns, at the cart's own notch
@@ -88,15 +96,14 @@ import { OrdersService } from './orders.service';
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ text.notFound }}</p>
-      <a
-        appButton
-        variant="secondary"
-        routerLink="/account/orders"
-        class="mt-5"
-      >
-        {{ text.backToList }}
-      </a>
+      <!-- The 404 screen rather than a sentence, the same as the token page
+           and the unknown-slug pages: a reference that is not on this account
+           is a page that is not there. -->
+      <app-not-found-view
+        [body]="text.notFound"
+        backLink="/account/orders"
+        [backLabel]="text.backToList"
+      />
     } @else if (order.error()) {
       <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
       <a

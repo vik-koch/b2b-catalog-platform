@@ -13,11 +13,11 @@
   },
   "a11y": {
     "homeLink": "{name} — home",
-    "callPhone": "Call {phone}",
     "toggleMenu": "Toggle menu",
     "utilityNav": "Utility",
     "legalNav": "Legal",
-    "consentBanner": "Cookie consent"
+    "consentBanner": "Cookie consent",
+    "scrollToTop": "Back to top"
   },
   "catalog": {
     "navLabel": "Catalogue",

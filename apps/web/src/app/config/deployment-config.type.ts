@@ -125,6 +125,21 @@ export const deploymentConfigSchema = z
          */
         startYear: z.number().int(),
         /**
+         * The intrinsic size of `assets/logo.svg`, copied off the file itself.
+         * Not a display size — the header draws the logo 40px high whatever
+         * these say. They are there to reserve its box before it arrives: an
+         * <img> with neither dimension declared is zero wide until the file
+         * loads, so the search field beside it takes the space and gives it
+         * back a frame later. Cheap to keep right, and wrong only if the asset
+         * is replaced with one of another shape.
+         */
+        logo: z
+          .object({
+            width: z.number().int().positive(),
+            height: z.number().int().positive(),
+          })
+          .strict(),
+        /**
          * Semantic color tokens. The three brand colors are required; the
          * neutrals default to the stone ramp in styles.css and are only worth
          * setting for a deployment whose palette is not warm-gray.

@@ -27,8 +27,9 @@ test('suggests product names while typing and jumps straight to the product (FR-
 
   const option = page.getByRole('option', { name: product.name });
   await expect(option).toBeVisible();
-  // The typed part is emboldened in place, so the row explains its own match.
-  await expect(option.locator('.font-semibold')).toHaveText('Hafen');
+  // The typed part is marked in place, so the row explains its own match —
+  // the same <mark> the address and company fields draw.
+  await expect(option.locator('mark')).toHaveText('Hafen');
 
   await option.click();
 

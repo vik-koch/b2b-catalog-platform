@@ -4,10 +4,10 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { ConsentService } from '../consent/consent.service';
 import { Button } from '../ui/button';
-import { ContactInfo } from './contact-info';
+import { ScrollToTop } from './scroll-to-top';
 
 @Component({
-  imports: [RouterLink, RouterLinkActive, Button, ContactInfo],
+  imports: [RouterLink, RouterLinkActive, Button, ScrollToTop],
   selector: 'app-footer',
   template: `
     <footer
@@ -19,16 +19,14 @@ import { ContactInfo } from './contact-info';
         <div
           class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
         >
-          @if (contact?.phone || contact?.email) {
-            <app-contact-info />
-          }
+          <p class="text-xs text-subtle">{{ copyright }}</p>
           <!-- The call to action sits on the same line as the legal links, but
                outside the <nav>: it is not a legal link, and a nav of three
-               quiet links plus one filled button reads as one row either way. -->
+               quiet links plus one filled button reads as one row either way.
+               It closes the row on the right, where the eye lands last. -->
           <div
             class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end"
           >
-            <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
             <nav
               class="flex flex-wrap items-center gap-x-4 gap-y-2 text-subtle"
               [attr.aria-label]="text.a11y.legalNav"
@@ -56,12 +54,10 @@ import { ContactInfo } from './contact-info';
                 </button>
               }
             </nav>
+            <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
+            <app-scroll-to-top />
           </div>
         </div>
-
-        <p class="mt-4 pt-4 text-xs text-subtle">
-          {{ copyright }}
-        </p>
       </div>
     </footer>
   `,
@@ -79,7 +75,6 @@ export class Footer {
   protected readonly text = inject(APP_TEXT);
   protected readonly consent = inject(ConsentService);
   protected readonly branding = this.config.branding;
-  protected readonly contact = this.config.contact;
   /** Which pages the legal nav links, and in what order. */
   protected readonly legalSlugs = this.config.pages.footerNav;
 

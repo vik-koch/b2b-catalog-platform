@@ -36,6 +36,7 @@ export type IconName =
   | 'shopping-basket'
   | 'circle-user-round'
   | 'circle-check'
+  | 'circle-chevron-up'
   | 'book-check'
   | 'book-dashed'
   | 'layout-grid'
@@ -53,7 +54,7 @@ export type IconName =
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
+      stroke-width="1.75"
       stroke-linecap="round"
       stroke-linejoin="round"
       class="h-full w-full"
@@ -155,6 +156,10 @@ export type IconName =
           <path d="M4.5 15.5h15" />
           <path d="m5 11 4-7" />
           <path d="m9 11 1 9" />
+        }
+        @case ('circle-chevron-up') {
+          <circle cx="12" cy="12" r="10" />
+          <path d="m8 14 4-4 4 4" />
         }
         @case ('circle-check') {
           <circle cx="12" cy="12" r="10" />

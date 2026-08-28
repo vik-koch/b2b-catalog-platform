@@ -13,6 +13,7 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
+import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
@@ -33,7 +34,14 @@ import { OrdersService } from './orders.service';
  */
 @Component({
   selector: 'app-order-token-page',
-  imports: [RouterLink, Button, Skeleton, OrderReadBack, OrderSummary],
+  imports: [
+    RouterLink,
+    Button,
+    NotFoundView,
+    Skeleton,
+    OrderReadBack,
+    OrderSummary,
+  ],
   template: `
     @if (detail(); as order) {
       <!-- Left-aligned under a left-aligned heading, in the same two columns
@@ -103,10 +111,16 @@ import { OrdersService } from './orders.service';
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ text.notFound }}</p>
-      <a appButton variant="secondary" routerLink="/" class="mt-5">
-        {{ text.home }}
-      </a>
+      <!-- The same 404 screen an unknown product or category gets: a link that
+           opens nothing is a link that opens nothing, and this one was a
+           couple of lines of prose where the rest of the app draws a page. It
+           carries the response status too, so a leaked link answers a crawler
+           honestly. -->
+      <app-not-found-view
+        [body]="text.notFound"
+        backLink="/"
+        [backLabel]="text.home"
+      />
     } @else if (order.error()) {
       <p class="text-sm text-red-600" role="alert">{{ orderText.error }}</p>
     } @else if (showSkeleton()) {

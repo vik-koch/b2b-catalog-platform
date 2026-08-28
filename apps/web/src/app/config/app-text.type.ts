@@ -44,13 +44,13 @@ export const appTextSchema = z
       .object({
         /** Accessible name of the logo's home link; `{name}` is substituted. */
         homeLink: z.string(),
-        /** Mobile one-tap call action; `{phone}` is substituted. */
-        callPhone: z.string(),
         toggleMenu: z.string(),
         /** Landmark names for the three navigations and the consent banner. */
         utilityNav: z.string(),
         legalNav: z.string(),
         consentBanner: z.string(),
+        /** Floating back-to-top control. */
+        scrollToTop: z.string(),
       })
       .strict(),
     /** Storefront catalog chrome (FR-CAT). */

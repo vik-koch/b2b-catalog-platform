@@ -22,7 +22,7 @@ import { CatalogService } from '../catalog/catalog.service';
 import { APP_TEXT } from '../config/app-text';
 import { currentUrl } from '../core/current-url';
 import { debounced } from '../core/debounced';
-import { matchSegments } from '../core/match-segments';
+import { HighlightedLine } from '../core/highlighted-line';
 import { Icon } from '../ui/icons/icon';
 
 /** Long enough that a fast typist produces one request per word rather than
@@ -47,7 +47,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-search-field',
-  imports: [Icon],
+  imports: [Icon, HighlightedLine],
   host: { class: 'block' },
   template: `
     <!-- action and method are what make the no-JS path real rather than
@@ -146,21 +146,15 @@ let nextId = 0;
                   (mouseenter)="activeIndex.set(i)"
                   (mousedown)="pick($event, item.slug)"
                 >
-                  <!-- The matched run is emboldened in place, as segments rather
-                     than as markup — see match-segments.ts. Weight only: a
-                     bolded fragment of a name is a visual cue, not emphasis,
-                     so this is a span and not <strong>.
-
-                     Every part must be an element. A highlight can end
-                     mid-word ("Grinde|r"), and the compiler only drops the
-                     newlines between the parts while they are whitespace-only
-                     nodes — put bare interpolation here and the word comes
-                     out split by a space. A test holds this. -->
-                  @for (part of segments(item.name); track $index) {
-                    <span [class.font-semibold]="part.match">{{
-                      part.text
-                    }}</span>
-                  }
+                  <!-- The same marked run the address and company fields
+                       draw: one query should look like one query wherever it
+                       is typed, and the tint reads as a hit where the old
+                       bolding read as emphasis. Highlighted against the
+                       settled query rather than the live one — the names on
+                       screen answered that query, and marking them against
+                       later keystrokes would flicker a highlight the list has
+                       not caught up with. -->
+                  <app-highlighted-line [line]="item.name" [query]="query()" />
                 </li>
               }
             </ul>
@@ -233,7 +227,7 @@ export class SearchField {
    * render. Superseded responses are dropped by `resource` itself, so a slow
    * answer for an early prefix cannot overwrite a later one.
    */
-  private readonly query = debounced(this.value, SUGGEST_DEBOUNCE_MS);
+  protected readonly query = debounced(this.value, SUGGEST_DEBOUNCE_MS);
   private readonly suggested = resource({
     params: () => {
       const q = this.query().trim();
@@ -311,13 +305,6 @@ export class SearchField {
       if (this.suggested.status() === 'idle') this.opened.set(false);
       else if (this.answered()) this.opened.set(true);
     });
-  }
-
-  /** Highlighted against the settled query, not the live one: the names on
-   * screen answered that query, and bolding them against later keystrokes
-   * would flicker a highlight the list has not caught up with. */
-  protected segments(name: string) {
-    return matchSegments(name, this.query());
   }
 
   /** Every keystroke reopens the list and drops the keyboard selection — the

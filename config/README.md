@@ -91,6 +91,13 @@ for `/logo.svg` or `/favicon.svg` is answered from `config/assets/`.
 > the **server-only** `mail-text.json`) sit beside it and are never reachable
 > from a browser.
 
+`logo.svg` has one companion in `deployment.json`: `branding.logo`, its
+intrinsic `width` and `height` copied off the file. The header always draws the
+logo 40px high, so these are not a display size — they are what lets the browser
+keep the logo's space before the file has arrived, instead of letting the search
+field beside it take the width and hand it straight back. Replace the logo with
+one of another shape and these two go with it.
+
 The document `<title>` is not an asset: it is `branding.title` in
 `deployment.json`, set at runtime so it needs no rebuild either.
 
