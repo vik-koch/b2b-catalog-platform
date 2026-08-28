@@ -13,7 +13,14 @@ import { adminUser as admin, plainUser } from '../../auth/auth-user.fixture';
 import { maintenanceGate } from './maintenance.guard';
 import { MaintenanceService } from './maintenance.service';
 
-function setup(enabled: boolean, user: AuthUser | null) {
+function setup(
+  enabled: boolean,
+  user: AuthUser | null,
+  // The pre-hydration state the gate short-circuits on: a readable hint while
+  // /auth/me has not answered yet. Resolved by default, as it is once the app
+  // has settled and every in-app navigation runs.
+  session: { resolved?: boolean; hintedRole?: string | null } = {},
+) {
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
@@ -25,7 +32,12 @@ function setup(enabled: boolean, user: AuthUser | null) {
       },
       {
         provide: AuthService,
-        useValue: { user: signal(user), whenResolved: () => Promise.resolve() },
+        useValue: {
+          user: signal(user),
+          resolved: signal(session.resolved ?? true),
+          hintedRole: signal(session.hintedRole ?? null),
+          whenResolved: () => Promise.resolve(),
+        },
       },
     ],
   });
@@ -63,6 +75,18 @@ describe('maintenanceGate', () => {
     const router = setup(true, admin);
 
     expect(await run(router)).toBe(true);
+  });
+
+  it('trusts an admin hint before the session resolves', async () => {
+    const router = setup(true, null, { resolved: false, hintedRole: 'admin' });
+
+    expect(await run(router)).toBe(true);
+  });
+
+  it('ignores a stale admin hint once the session says otherwise', async () => {
+    const router = setup(true, null, { resolved: true, hintedRole: 'admin' });
+
+    expect(await run(router)).toBe('/maintenance');
   });
 
   it('still hides the shop from a signed-in non-admin', async () => {

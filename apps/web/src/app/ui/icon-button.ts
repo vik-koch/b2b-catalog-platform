@@ -14,8 +14,18 @@ const base =
  * note button) takes the glyph alone.
  */
 const shapes = {
-  circle: 'rounded-full bg-surface p-2 shadow-sm ring-1 ring-border',
-  plain: 'rounded-md p-1',
+  circle: 'rounded-full bg-white shadow-sm ring-1 ring-border',
+  plain: 'rounded-md',
+} as const;
+
+/**
+ * How much room the glyph gets. `sm` is the default because it is what a
+ * control sitting inside a line of content wants; `md` is for a disc that has
+ * to be hit on its own, away from anything else to aim at.
+ */
+const sizes = {
+  sm: 'p-1',
+  md: 'p-1.5',
 } as const;
 
 const variants = {
@@ -42,8 +52,10 @@ const variants = {
 export class IconButton {
   variant = input<keyof typeof variants>('default');
   shape = input<keyof typeof shapes>('circle');
+  size = input<keyof typeof sizes>('sm');
 
   protected classes = computed(
-    () => `${base} ${shapes[this.shape()]} ${variants[this.variant()]}`,
+    () =>
+      `${base} ${shapes[this.shape()]} ${sizes[this.size()]} ${variants[this.variant()]}`,
   );
 }

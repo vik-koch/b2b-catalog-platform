@@ -9,8 +9,8 @@ import { Component, input } from '@angular/core';
  * by every visitor on every cold hit. The admin glyphs live in their own
  * component precisely so the editor's toolbar does not ride along.
  *
- * `pencil`, `trash-2` and `plus` are here despite being edit-mode affordances
- * (EditActions, the + tiles): they sit in ordinary `@if` blocks inside eagerly
+ * `pencil`, `trash-2`, `folder-plus` and `file-plus` are here despite being
+ * edit-mode affordances (EditActions): they sit in ordinary `@if` blocks inside eagerly
  * loaded storefront components, and `@if` is a rendering condition, not a code
  * split. Moving them out would mean deferring the affordances themselves, which
  * would cost the pop-free rendering the storefront just gained.
@@ -43,6 +43,8 @@ export type IconName =
   | 'layout-list'
   | 'message-circle-plus'
   | 'message-circle-check'
+  | 'folder-plus'
+  | 'file-plus'
   | 'plus';
 
 @Component({
@@ -196,6 +198,21 @@ export type IconName =
           <path d="M14 9h7" />
           <path d="M14 15h7" />
           <path d="M14 20h7" />
+        }
+        @case ('folder-plus') {
+          <path
+            d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+          />
+          <path d="M12 10v6" />
+          <path d="M9 13h6" />
+        }
+        @case ('file-plus') {
+          <path
+            d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+          />
+          <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+          <path d="M9 15h6" />
+          <path d="M12 18v-6" />
         }
         @case ('plus') {
           <path d="M5 12h14" />

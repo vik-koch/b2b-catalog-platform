@@ -37,7 +37,7 @@ import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
-import { PRODUCT_GRID, ProductTile } from './product-tile';
+import { PRODUCT_GRID, PRODUCT_GRID_FULL, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
   resolveCategorySort,
@@ -140,12 +140,28 @@ const SUBS_ASSUMED_FIT = 4;
                 </li>
               </ol>
             </nav>
+            <!-- Creating a subcategory or a product happens from here rather
+                 than from a placeholder among the content: this category is
+                 already the parent either way, and the cluster keeps the
+                 gesture in the one place every page puts it. -->
             @if (editControls(); as editText) {
               <app-edit-actions
                 variant="inline"
                 [editLink]="['/admin/categories', data.category.slug, 'edit']"
                 [editParams]="editorFrom"
                 [editLabel]="editText.editCategory"
+                [addCategoryLink]="['/admin/categories/new']"
+                [addCategoryParams]="{
+                  parent: data.category.slug,
+                  from: editorFrom.from,
+                }"
+                [addCategoryLabel]="editText.addCategory"
+                [addProductLink]="['/admin/products/new']"
+                [addProductParams]="{
+                  category: data.category.slug,
+                  from: editorFrom.from,
+                }"
+                [addProductLabel]="editText.addProduct"
               />
             }
           </div>
@@ -179,12 +195,11 @@ const SUBS_ASSUMED_FIT = 4;
             }
           </div>
 
-          @if (data.category.subcategories.length || editControls()) {
+          @if (data.category.subcategories.length) {
             <!-- The chips are clipped to one row rather than cut to a count:
                  how many fit is a question about the width the visitor has,
-                 which only the browser can answer. The toggle and the add tile
-                 sit beside the list, outside what is clipped, so they stay on
-                 screen. -->
+                 which only the browser can answer. The toggle sits beside the
+                 list, outside what is clipped, so it stays on screen. -->
             <div class="mt-5 flex items-start gap-3">
               <ul #subsList [class]="subsListClass()">
                 @for (sub of data.category.subcategories; track sub.slug) {
@@ -206,35 +221,15 @@ const SUBS_ASSUMED_FIT = 4;
                   </li>
                 }
               </ul>
-              @if (
-                subsToggle(data.category.subcategories.length) || editControls()
-              ) {
+              @if (subsToggle(data.category.subcategories.length)) {
                 <div class="flex shrink-0 items-stretch gap-3">
-                  @if (subsToggle(data.category.subcategories.length)) {
-                    <button
-                      type="button"
-                      class="h-14 rounded-xl px-3 text-sm font-medium text-accent hover:underline"
-                      (click)="showAllSubs.set(!showAllSubs())"
-                    >
-                      {{ showAllSubs() ? text.showLess : text.showMore }}
-                    </button>
-                  }
-                  <!-- Symmetric with the add-product tile below:
-                       subcategories are created from where they will appear,
-                       with this category already chosen as the parent. -->
-                  @if (editControls(); as editText) {
-                    <a
-                      [routerLink]="['/admin/categories/new']"
-                      [queryParams]="{
-                        parent: data.category.slug,
-                        from: editorFrom.from,
-                      }"
-                      class="flex h-14 items-center gap-1.5 rounded-xl border border-dashed border-border-strong px-4 text-sm font-medium text-subtle transition-colors hover:border-primary hover:text-accent"
-                    >
-                      <app-icon name="plus" class="h-4 w-4" />
-                      {{ editText.addCategory }}
-                    </a>
-                  }
+                  <button
+                    type="button"
+                    class="h-14 rounded-xl px-3 text-sm font-medium text-accent hover:underline"
+                    (click)="showAllSubs.set(!showAllSubs())"
+                  >
+                    {{ showAllSubs() ? text.showLess : text.showMore }}
+                  </button>
                 </div>
               }
             </div>
@@ -250,34 +245,10 @@ const SUBS_ASSUMED_FIT = 4;
               </aside>
             }
             <div class="min-w-0 flex-1">
-              @if (data.items.length || editMode.enabled()) {
-                @if (!data.items.length) {
-                  <p class="mb-4 text-muted">
-                    {{
-                      hasSelection() ? filterText.noMatches : text.emptyProducts
-                    }}
-                  </p>
-                }
+              @if (data.items.length) {
                 <!-- The same products, drawn the way the visitor last asked
                      for: fitted cards, or full-width lines. -->
-                <ul [class]="list()">
-                  @if (editControls(); as editText) {
-                    <li [class]="cards() ? 'h-full' : ''">
-                      <a
-                        [routerLink]="['/admin/products/new']"
-                        [queryParams]="{
-                          category: data.category.slug,
-                          from: editorFrom.from,
-                        }"
-                        [class]="addTile()"
-                      >
-                        <app-icon name="plus" class="h-8 w-8" />
-                        <span class="text-sm font-medium">{{
-                          editText.addProduct
-                        }}</span>
-                      </a>
-                    </li>
-                  }
+                <ul [class]="list(data.facets.length > 0)">
                   <!-- One cluster, placed twice: a card takes it in its own
                        corner, a line in the corner of its photo, and the two
                        must be the same control. -->
@@ -411,15 +382,16 @@ export class CategoryGrid {
   protected readonly cards = computed(
     () => this.productLayout.layout() === 'grid',
   );
-  protected readonly list = computed(() =>
-    this.cards() ? PRODUCT_GRID : PRODUCT_ROWS,
-  );
-  /** The ＋ tile takes the shape of whatever it sits among. */
-  protected readonly addTile = computed(() =>
-    this.cards()
-      ? 'flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent'
-      : 'my-2 flex items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong py-4 text-subtle transition-colors hover:border-primary hover:text-accent',
-  );
+  /**
+   * Which listing this is: lines, cards beside a filter panel, or cards with
+   * the whole row to themselves. A category with nothing to filter by renders
+   * no panel at any width, so its grid can use the card's true floor and fit
+   * one more column (see PRODUCT_GRID_FULL).
+   */
+  protected list(hasFacets: boolean): string {
+    if (!this.cards()) return PRODUCT_ROWS;
+    return hasFacets ? PRODUCT_GRID : PRODUCT_GRID_FULL;
+  }
 
   private catalog = inject(CatalogService);
   private readonly admin = inject(AdminCatalogService);

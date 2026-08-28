@@ -14,6 +14,9 @@ import { MaintenanceService } from './maintenance.service';
  * SSR guard redirect is an HTTP redirect that may not carry a 503. So this runs
  * only after hydration: it covers in-app navigation (a visitor kept out, an
  * admin passing through to preview) and stays out of the SSR response entirely.
+ *
+ * The SSR gate reads the same readable session hint this does, so an admin's
+ * cold load and their hydration agree — neither shows them the screen.
  */
 export const maintenanceGate: CanActivateFn = async () => {
   const maintenance = inject(MaintenanceService);
@@ -22,6 +25,14 @@ export const maintenanceGate: CanActivateFn = async () => {
 
   // SSR is handled authoritatively by server.ts; never redirect during render.
   if (!isPlatformBrowser(inject(PLATFORM_ID))) {
+    return true;
+  }
+
+  // Until /auth/me answers, the readable hint the server itself rendered for is
+  // good enough to let the same admin through without an awaited round trip
+  // between the hydrated page and its replacement. Only until: once the session
+  // is resolved it is the answer, so signing out in-app closes the bypass.
+  if (!auth.resolved() && auth.hintedRole() === 'admin') {
     return true;
   }
 

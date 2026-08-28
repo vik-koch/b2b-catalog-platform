@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -5,7 +6,9 @@ import {
   parseAttributeParams,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
-import { delayedLoading } from '../core/delayed-loading';
+import { EditActions } from '../admin/edit-actions';
+import { editAwareContent } from '../admin/edit-aware-content';
+import { injectEditorReturnParams } from '../admin/editor-return';
 import { usePageSeo } from '../core/page-seo';
 import { stableValue } from '../core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
@@ -16,7 +19,7 @@ import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
-import { PRODUCT_GRID, ProductTile } from './product-tile';
+import { PRODUCT_GRID, PRODUCT_GRID_FULL, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
   resolveSearchSort,
@@ -30,7 +33,9 @@ import {
 @Component({
   selector: 'app-search-results',
   imports: [
+    NgTemplateOutlet,
     RouterLink,
+    EditActions,
     ProductTile,
     ProductRow,
     ProductLayoutToggle,
@@ -50,7 +55,7 @@ import {
           {{ heading() }}
         </h1>
         <app-load-error-view [message]="text.loadError" />
-      } @else if (shown(); as data) {
+      } @else if (visible(); as data) {
         @if (data.items.length || hasSelection()) {
           <div
             class="flex flex-row flex-wrap justify-between items-stretch gap-3"
@@ -94,13 +99,38 @@ import {
               }
               <!-- The same products, drawn the way the visitor last asked for
                    in either listing: fitted cards, or full-width lines. -->
-              <ul [class]="list()">
+              <ul [class]="list(data.facets.length > 0)">
+                <!-- The same cluster the category listing puts on its items:
+                     a product found by searching is as editable as one found
+                     by browsing, and reaching it through the admin list to
+                     fix a typo is the long way round. -->
+                <ng-template #productEdit let-slug>
+                  @if (editControls(); as editText) {
+                    <app-edit-actions
+                      variant="tile"
+                      [editLink]="['/admin/products', slug, 'edit']"
+                      [editParams]="editorFrom"
+                      [editLabel]="editText.editProduct"
+                    />
+                  }
+                </ng-template>
                 @for (item of data.items; track item.slug) {
                   <li [class]="cards() ? 'h-full' : ''">
                     @if (cards()) {
-                      <app-product-tile [item]="item" />
+                      <app-product-tile [item]="item">
+                        <ng-container
+                          [ngTemplateOutlet]="productEdit"
+                          [ngTemplateOutletContext]="{ $implicit: item.slug }"
+                        />
+                      </app-product-tile>
                     } @else {
-                      <app-product-row [item]="item" />
+                      <app-product-row [item]="item">
+                        <ng-container
+                          ngProjectAs="[rowOverlay]"
+                          [ngTemplateOutlet]="productEdit"
+                          [ngTemplateOutletContext]="{ $implicit: item.slug }"
+                        />
+                      </app-product-row>
                     }
                   </li>
                 }
@@ -199,9 +229,12 @@ export class SearchResults {
   protected readonly cards = computed(
     () => this.productLayout.layout() === 'grid',
   );
-  protected readonly list = computed(() =>
-    this.cards() ? PRODUCT_GRID : PRODUCT_ROWS,
-  );
+  /** Lines, cards beside a filter panel, or cards with the row to themselves
+   * — see the category listing, which makes the same three-way choice. */
+  protected list(hasFacets: boolean): string {
+    if (!this.cards()) return PRODUCT_ROWS;
+    return hasFacets ? PRODUCT_GRID : PRODUCT_GRID_FULL;
+  }
 
   private readonly catalog = inject(CatalogService);
 
@@ -273,11 +306,24 @@ export class SearchResults {
   });
 
   /** Held across reloads, so re-sorting swaps the grid instead of blanking it. */
-  protected readonly shown = stableValue(this.results);
+  private readonly shown = stableValue(this.results);
 
+  /** The results and the per-item edit affordances appear together, once both
+   * the search and the visitor's role are known — see editAwareContent. */
+  private readonly content = editAwareContent({
+    ready: computed(() => this.shown() !== undefined),
+    section: 'editMode',
+  });
+  protected readonly editControls = this.content.controls;
+  /** The results, once they may be shown. */
+  protected readonly visible = computed(() =>
+    this.content.ready() ? this.shown() : undefined,
+  );
   /** Delayed so a quick search never flashes a skeleton. Only the first load
-   * can reach it now — a reload still has the previous results on screen. */
-  protected readonly showSkeleton = delayedLoading(this.results.isLoading);
+   * can reach it — a reload still has the previous results on screen. */
+  protected readonly showSkeleton = this.content.showSkeleton;
+
+  protected readonly editorFrom = injectEditorReturnParams();
 
   constructor() {
     usePageSeo({ name: () => this.heading(), noindex: true });

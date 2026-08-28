@@ -1,4 +1,5 @@
 import { requireEnv } from '../../env';
+import { readSessionHint } from '../auth/session-hint';
 
 /**
  * Server-side maintenance gate (FR-ADM-04, ADR 0023 — the SSR mirror of the
@@ -61,4 +62,20 @@ export function isGatedPath(path: string): boolean {
   return !UNGATED_ROOTS.some(
     (root) => normalized === root || normalized.startsWith(`${root}/`),
   );
+}
+
+/**
+ * Whether this request's readable session hint claims an admin, who previews
+ * the live storefront rather than the gate (mirrors the API guard's identity
+ * exemption). The httpOnly session cookie says who is really signed in, but the
+ * SSR tier never forwards it, so the hint beside it is the only thing the Node
+ * process can read — and, like every hint, it is a rendering decision and not
+ * an authorization one. A hand-forged value buys nothing: every read the page
+ * makes still goes through the API's own gate.
+ *
+ * Without this an admin's cold load — the first visit, and every F5 after —
+ * paints the maintenance screen before the client-side gate lets them through.
+ */
+export function isAdminPreview(cookies: string | undefined): boolean {
+  return readSessionHint(cookies) === 'admin';
 }
