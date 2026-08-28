@@ -65,8 +65,8 @@ function substitute(
     StatusBadge,
   ],
   template: `
-    <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-    <p class="mb-8 max-w-xl text-muted">{{ text.description }}</p>
+    <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
+    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.description }}</p>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line

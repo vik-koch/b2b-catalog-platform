@@ -63,7 +63,7 @@ import { Icon } from '../ui/icons/icon';
         <div
           class="mx-auto flex h-10 w-full max-w-7xl items-center justify-between gap-6 px-4"
         >
-          <nav class="flex gap-5 text-sm" [attr.aria-label]="a11y.utilityNav">
+          <nav class="flex gap-4 text-sm" [attr.aria-label]="a11y.utilityNav">
             @for (route of utilityRoutes; track route) {
               <a
                 [routerLink]="'/' + route"
@@ -77,7 +77,7 @@ import { Icon } from '../ui/icons/icon';
             }
           </nav>
           @if (contact?.phone || contact?.email) {
-            <app-contact-info />
+            <app-contact-info class="pr-1" />
           }
         </div>
       </div>

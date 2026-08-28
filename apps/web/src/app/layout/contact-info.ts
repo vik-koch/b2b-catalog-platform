@@ -30,7 +30,7 @@ export class ContactInfo {
   protected readonly contact = inject(DEPLOYMENT_CONFIG).contact;
 
   protected readonly pillClass =
-    'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm text-subtle transition-colors hover:text-accent';
+    'inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm text-subtle transition-colors hover:text-accent';
 
   /** tel: needs dial characters only; the displayed value keeps its spacing. */
   protected telHref(phone: string): string {

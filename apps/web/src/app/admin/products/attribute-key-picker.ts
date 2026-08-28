@@ -33,7 +33,7 @@ import { AttributeHint } from './attribute-hints';
   selector: 'app-attribute-key-picker',
   imports: [AdminIcon, Button, Checkbox, HintBadge],
   template: `
-    <div class="mb-2 max-w-2xl">
+    <div class="mb-2 max-w-xl">
       <button
         appButton
         variant="secondary"

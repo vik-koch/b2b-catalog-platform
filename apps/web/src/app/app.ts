@@ -34,7 +34,7 @@ import { EditModeToggle } from './admin/edit-mode-toggle';
            Those narrow columns are centered only on the signed-out screens
            (login, register, password reset), where the page is the whole task;
            inside the app they stay left, under a left-aligned heading. -->
-      <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
+      <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
         <router-outlet />
       </main>
       <!-- No top border where the page behind it is already stone: the line

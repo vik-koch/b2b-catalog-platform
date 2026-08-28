@@ -95,6 +95,29 @@ const SUBS_ASSUMED_FIT = 4;
             [backLabel]="text.backToCatalog"
           />
         } @else {
+          <!-- Creating a subcategory or a product happens from here rather
+                than from a placeholder among the content: this category is
+                already the parent either way, and the cluster keeps the
+                gesture in the one place every page puts it. -->
+          @if (editControls(); as editText) {
+            <app-edit-actions
+              [editLink]="['/admin/categories', data.category.slug, 'edit']"
+              [editParams]="editorFrom"
+              [editLabel]="editText.editCategory"
+              [addCategoryLink]="['/admin/categories/new']"
+              [addCategoryParams]="{
+                parent: data.category.slug,
+                from: editorFrom.from,
+              }"
+              [addCategoryLabel]="editText.addCategory"
+              [addProductLink]="['/admin/products/new']"
+              [addProductParams]="{
+                category: data.category.slug,
+                from: editorFrom.from,
+              }"
+              [addProductLabel]="editText.addProduct"
+            />
+          }
           <!-- The category's controls share the breadcrumb's row rather than
                being pinned to the section corner: pinned, they landed on top of
                the sort control that sits at the right of the row below. -->
@@ -140,36 +163,12 @@ const SUBS_ASSUMED_FIT = 4;
                 </li>
               </ol>
             </nav>
-            <!-- Creating a subcategory or a product happens from here rather
-                 than from a placeholder among the content: this category is
-                 already the parent either way, and the cluster keeps the
-                 gesture in the one place every page puts it. -->
-            @if (editControls(); as editText) {
-              <app-edit-actions
-                variant="inline"
-                [editLink]="['/admin/categories', data.category.slug, 'edit']"
-                [editParams]="editorFrom"
-                [editLabel]="editText.editCategory"
-                [addCategoryLink]="['/admin/categories/new']"
-                [addCategoryParams]="{
-                  parent: data.category.slug,
-                  from: editorFrom.from,
-                }"
-                [addCategoryLabel]="editText.addCategory"
-                [addProductLink]="['/admin/products/new']"
-                [addProductParams]="{
-                  category: data.category.slug,
-                  from: editorFrom.from,
-                }"
-                [addProductLabel]="editText.addProduct"
-              />
-            }
           </div>
 
           <div
-            class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
+            class="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
           >
-            <h1 class="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+            <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
               {{ data.category.name }}
             </h1>
 
@@ -177,7 +176,7 @@ const SUBS_ASSUMED_FIT = 4;
                  their own: a row that appears with the first selection would
                  push the grid down as it was ticked. -->
             <app-applied-filters
-              class="mt-3 hidden min-w-0 flex-1 sm:block"
+              class="hidden min-w-0 flex-1 sm:block"
               [facets]="data.facets"
             />
 
@@ -185,7 +184,7 @@ const SUBS_ASSUMED_FIT = 4;
                 title row belongs to the breadcrumb and, in edit mode, to the
                 category controls pinned top-right. -->
             @if (data.items.length) {
-              <div class="mt-2 flex items-end justify-end gap-3">
+              <div class="flex items-end justify-end gap-3">
                 <app-product-sort-select
                   [value]="sortKey()"
                   defaultSort="name"

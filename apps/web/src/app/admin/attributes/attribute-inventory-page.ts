@@ -61,7 +61,7 @@ type RenameTarget =
       </a>
     </div>
 
-    <p class="mb-6 max-w-2xl text-sm text-muted">{{ text.intro }}</p>
+    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
