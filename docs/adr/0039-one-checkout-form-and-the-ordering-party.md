@@ -1,6 +1,6 @@
 # 0039 — One prefilled checkout form, and the party it is invoiced to
 
-**Status:** accepted (revised 2026-08-27) · **Date:** 2026-08-23
+**Status:** accepted · **Date:** 2026-08-23
 
 ## Context
 
@@ -39,9 +39,9 @@ not executed.
 ## Rationale
 
 **One form, not a wizard.** Every question here has a defensible default —
-delivery, the party the account is registered as, the addresses the last order
-used, cash on delivery — so for most orders the form arrives already answered
-and the customer is confirming rather than filling. A wizard would break an
+delivery, the party the account is registered as, the address the book already
+holds, cash on delivery — so for most orders the form arrives answered and the
+customer is confirming rather than filling. A wizard would break an
 almost-finished form into four screens of navigation, and the customer would
 click through pages to change nothing. It also spends state on remembering where
 they are, which is state that can be wrong. The path is cart → checkout →
@@ -49,9 +49,9 @@ preview → send, and the preview is the second screen, not the fifth.
 
 **Prefill is the feature, so its sources are part of the decision.** Fulfilment
 defaults to delivery; the party to the one the account is registered as; the
-delivery and billing addresses to the pair the last order used, or to the only
-entry in the book; payment to cash. A guest gets the same form with nothing
-prefilled and nothing saved afterwards.
+delivery and billing addresses to the book's only entry, or the first of several;
+payment to cash. A guest gets the same form with nothing prefilled and nothing
+saved afterwards.
 
 **A guest is asked the two questions an account would have answered, as one.**
 The contact (FR-CART-03) and the invoiced party (FR-CART-09) are separate fields
@@ -107,9 +107,12 @@ looked up before ever reaching the form.
 **The invoiced party is an order field, not a property of an address**
 (FR-CART-09). A sole trader may buy privately, and a private customer may be
 buying for a company; who the goods are invoiced to decides the paperwork and
-can decide the price. So the form asks it directly, in three options — the
+can decide the price. So the form asks it directly, in three answers — the
 account's own party, another person, another company — and the answer is
-snapshotted onto the order beside the address, never merged into it.
+snapshotted onto the order beside the address, never merged into it. It is drawn
+as two choices with the second forking into person or company, because the fork
+is what changes the fields: a company is asked for a registration number and a
+person is not.
 
 Carrying that identity on the address row instead was tried and rejected. It
 reads well for a customer whose company and address move together, and fails
@@ -146,11 +149,11 @@ The two roles are chosen per order, not per row: the form asks for a delivery
 address and then offers **"invoice to this address as well", checked**, with
 unchecking revealing a second picker over the same book. The pair need not
 agree — a company invoiced at its office and delivered to an employee's flat is
-an ordinary order. Which two rows an order used is recorded on the order, so the
-next checkout prefills both from the last one rather than from a flag on the
-book; a stored "usable for billing" flag would be a second source of truth that
-goes stale the moment the row is edited, the reasoning that made attributes rows
-rather than jsonb in ADR 0037.
+an ordinary order. Neither role is recorded on the row, and the order keeps no
+reference back to it: a stored "usable for billing" flag would be a second source
+of truth that goes stale the moment the row is edited, the reasoning that made
+attributes rows rather than jsonb in ADR 0037. What the order keeps is the
+address itself, copied in.
 
 `country` is a **code**, not free text, or an immutable snapshot reads `DE` on
 one order and `Deutschland` on the next and nobody can group by it; where a
@@ -184,8 +187,12 @@ anything is charged.
 - (+) No party kind is stored, so nothing has to be backfilled and no account
   carries a classification that its registration number contradicts.
 - (−) A customer invoicing two of their own companies answers the party question
-  on every order rather than picking a saved profile. Prefill from the last
-  order is what keeps that to a glance.
+  on every order rather than picking a saved profile.
+- (−) A customer who delivers to one address and invoices to another sets that
+  pair up on every order: the form opens on the book's first row for both. A
+  cheap fix exists — record which rows an order used and default the next one
+  from them — and is deliberately not built, because it pays off only for an
+  account with several addresses and a habit of splitting them.
 - (−) One form is long on a small screen, and a validation error can sit off
   screen. Errors have to be summarised where the submit button is, not only at
   the field.
@@ -212,10 +219,11 @@ anything is charged.
 - (⚠) A third-party order's price is provisional. Iteration 8 decides whether
   such an order may be paid directly at all; until it does, nothing in this flow
   may imply the total is final.
-- (⚠) The party and the collection point are **snapshotted** onto the order, not
-  referenced, or a config edit or an account change rewrites what was agreed. The
-  address rows are _also_ referenced, nullably, but only so the next checkout can
-  prefill what was used last — never as the order's record of where it went.
+- (⚠) The party, the addresses and the collection point are **snapshotted** onto
+  the order, never referenced, or a config edit, an account change or an edited
+  address row rewrites what was agreed. Nothing on the order points back at the
+  book: a row is editable and deletable, so a reference to one would name
+  something else by the time anybody read it.
 
 ## Open
 

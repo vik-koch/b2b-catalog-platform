@@ -101,9 +101,10 @@ sides compute through.
 
 That is what lets the header show a running total on first paint instead of a
 bare count, and it **demotes the preview endpoint**: `POST /cart/preview` is a
-freshness and validity check, called when the cart page loads, when the header
-popup opens and immediately before checkout — not per keystroke. It answers 200
-with per-line advisories as **codes**, never messages, because a stale cart is a
+freshness and validity check, called when the cart page loads and when signing
+in re-prices what is held — not per keystroke, and not before checkout, where
+submission's own `cart-changed` refusal already covers a cart that moved. It
+answers 200 with per-line advisories as **codes**, never messages, because a stale cart is a
 normal state to be shown rather than a request to refuse. Submission is the
 opposite: it re-prices from scratch and refuses with `cart-changed` if anything
 moved, comparing against an `expectedTotalMinor` echoed from the last preview.
@@ -139,11 +140,18 @@ carries yesterday's number.
 
 Precisely because that reference is partly guessable, it is **not** a capability.
 Orders therefore carry a separate `publicToken`, unguessable and unique, which is
-what the confirmation mail links to (FR-NOTIF-06) — a guest has no account page,
-and this is their only way back to what they ordered. The page it opens is the
-customer view, read-only, `noindex`, referrer-suppressed and rate-limited, and it
-serves signed-in customers just as well. It does not expire; if a reason to
-expire it appears, that is a column and a check, not a redesign.
+what a **guest's** confirmation mail links to (FR-NOTIF-06) — a guest has no
+account page, and this is their only way back to what they ordered. A signed-in
+customer's mail links to their own order page instead: no capability URL is
+mailed for something the account can already open. The page the token opens is
+the customer view, read-only, `noindex`, referrer-suppressed and rate-limited,
+and it serves whoever holds the link, account or not. It does not expire; if a
+reason to expire it appears, that is a column and a check, not a redesign.
+
+Referrer suppression is the token page's own
+`<meta name="referrer" content="no-referrer">`, set beside its `noindex`, because
+the URL _is_ the credential: without it, one click on any outbound link hands the
+token to whatever is on the other end.
 
 **Orders are self-contained snapshots.** An order copies what it was about —
 product names, prices, addresses, contact details, the currency code, the office

@@ -12,7 +12,12 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
 ## The files
 
 - `deployment.json` → `DeploymentConfig` (branding, contact, locations,
-  cookie-consent flag, phone input). **Browser-delivered** via shell state.
+  cookie-consent flag, phone and company-id input rules, address rules, currency,
+  collection points, delivery zones, order-reference format).
+  **Browser-delivered** via shell state, and **also loaded by the API**, which
+  reads the halves an order depends on: it validates a submitted collection
+  point, resolves the delivery zone itself rather than trusting the browser's,
+  formats money for the mails, and mints the order reference.
 - `app-text.json` → `AppText`, the **public** UI-text catalog (nav labels,
   storefront chrome, the login form, error messages).
   **Browser-delivered** via shell state.
@@ -23,14 +28,14 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   amendment 2). Non-secret, like everything else on this side of the line.
 - `mail-text.json` → `MailText`, the wording of every email the app sends, one
   section per message. **Server-only** — rendered in the API, never sent to a
-  browser. The mails' branding (shop name, header colour) is read from
-  `deployment.json`, which the API therefore also loads.
+  browser. The mails' branding (shop name, header colour) and their money
+  formatting come from `deployment.json`.
 
 Each container is pointed at its file by the stack `.env` (compose defaults them
 to the paths below, so this is only needed to rename a file):
 
 ```
-DEPLOYMENT_CONFIG_FILE=/config/deployment.json   # web + api (mail branding)
+DEPLOYMENT_CONFIG_FILE=/config/deployment.json   # web + api
 APP_TEXT_FILE=/config/app-text.json              # web
 ADMIN_TEXT_FILE=/config/admin-text.json          # web
 MAIL_TEXT_FILE=/config/mail-text.json            # api
@@ -51,8 +56,10 @@ demo list is deliberately short; replace it, do not extend it in this repo.
 Each file must be **complete** (no partial overrides). The authoritative shape of
 each is its Zod schema: `apps/web/src/app/config/deployment-config.type.ts`,
 `.../app-text.type.ts`, `.../admin-text.type.ts`, and
-`apps/api/src/mail/mail-text.ts`. The committed demo
-files are the worked example to copy from.
+`apps/api/src/mail/mail-text.ts`. The API reads its own narrower slice of
+`deployment.json` through `apps/api/src/config/deployment-config.ts`, so the web
+schema stays the authority on the whole file. The committed demo files are the
+worked example to copy from.
 
 ## Assets (logo, favicon)
 
@@ -60,7 +67,7 @@ Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:
 
 ```
 config/
-  deployment.json      # web config        (browser-delivered; api reads branding)
+  deployment.json      # web + api config  (browser-delivered)
   app-text.json        # web public text   (browser-delivered)
   admin-text.json      # web admin text    (fetched by admins)
   mail-text.json       # api email wording (server-only)

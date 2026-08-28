@@ -530,19 +530,14 @@ export const passwordTokens = pgTable('password_tokens', {
  * The account's address book (FR-CART-04) — where its orders are delivered and
  * invoiced. Rows belong to one account and are always read through its id.
  *
- * A row is really a *profile*: where goods go, and who is invoiced for them.
+ * A row is a **place**, and carries no identity: who an order is invoiced to is
+ * a field of the order (ADR 0039), not a property of the address it is sent to.
  * `label` is an optional name for it — an address the customer never bothered
- * to name is shown by its own first line — and `companyName`/`companyId` sit
- * here rather than being read off the account, because the registration number
- * staff approved the account on is not necessarily the entity an invoice goes
- * to.
+ * to name is shown by its own first line.
  *
- * Rows are **not typed** as delivery or billing. The same address usually
- * serves both, the two roles ask different things of it (only the invoiced one
- * needs a company), and a stored role would be a second source of truth that
- * the row itself contradicts the moment it is edited. Checkout picks a role per
- * order, and the server re-checks the company fields at submission — which is
- * the one place that rule belongs.
+ * Rows are **not typed** as delivery or billing either. The same address usually
+ * serves both, and a stored role would be a second source of truth that the row
+ * itself contradicts the moment it is edited. Checkout picks a role per order.
  */
 export const addresses = pgTable(
   'addresses',

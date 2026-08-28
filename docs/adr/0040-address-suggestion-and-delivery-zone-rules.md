@@ -111,19 +111,18 @@ on a processing agreement and a line in its privacy notice. The no-op default an
 the possibility of a self-hosted adapter are the two ways out, and the decision
 to leave the deployment is a deployment's to make explicitly — never a default.
 
-**Zones match on the postal code, and on nothing else** (amended 2026-08-24 —
-the original kept a `cities` list as a fallback). City text is misspellable,
-translatable and ambiguous: a metropolitan area is not a city, districts carry
-their own names, and a rule that turns on string equality with something a
-customer typed will be wrong the first week. A postal code is a normalized token,
+**Zones match on the postal code, and on nothing else.** City text is
+misspellable, translatable and ambiguous: a metropolitan area is not a city,
+districts carry their own names, and a rule that turns on string equality with
+something a customer typed will be wrong the first week. A postal code is a normalized token,
 and a range expresses "the city" and "the area around it" without enumerating
 every place name in either.
 
-The fallback was dropped before it was built, for two reasons. It would have
-fired in exactly the cases where it is least trustworthy — a missing postal code
-is most common on rural addresses, which is also where place names are messiest
-and most ambiguous — and the catch-all already gives those addresses a true
-answer. And holding the city as a _matching key_ meant holding it as a bare
+A `cities` list as a fallback — matched where the code matched nothing — was
+weighed and rejected, for two reasons. It would have fired in exactly the cases
+where it is least trustworthy — a missing postal code is most common on rural
+addresses, which is also where place names are messiest and most ambiguous — and
+the catch-all already gives those addresses a true answer. And holding the city as a _matching key_ meant holding it as a bare
 token, which in some jurisdictions is not how a place name is written at all:
 where the kind of place — city, town, village — is a word in front of the name,
 stripping it leaves two different places spelled identically. Freed of matching,
