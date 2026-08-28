@@ -1,10 +1,7 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import {
-  injectEditorReturn,
-  injectEditorReturnParams,
-} from './editor-return';
+import { injectEditorReturn, injectEditorReturnParams } from './editor-return';
 
 @Component({ template: '' })
 class Blank {}
