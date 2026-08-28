@@ -93,10 +93,10 @@ import { StatusBadge } from '../../ui/status-badge';
             routerLink="."
             [queryParams]="{ tierId: null, page: null }"
             queryParamsHandling="merge"
-            class="text-stone-400 hover:text-red-700"
+            class="flex items-center justify-center cursor-pointer rounded-full p-0.5 text-stone-400 hover:text-red-700"
             [attr.aria-label]="text.clearTier"
           >
-            <app-admin-icon name="x" class="h-4 w-4" />
+            <app-admin-icon name="x" class="h-3.5 h-3.5" />
           </a>
         </span>
       </p>
@@ -120,10 +120,10 @@ import { StatusBadge } from '../../ui/status-badge';
               page: null,
             }"
             queryParamsHandling="merge"
-            class="text-stone-400 hover:text-red-700"
+            class="flex items-center justify-center cursor-pointer rounded-full p-0.5 text-stone-400 hover:text-red-700"
             [attr.aria-label]="text.clearAttribute"
           >
-            <app-admin-icon name="x" class="h-4 w-4" />
+            <app-admin-icon name="x" class="h-3.5 h-3.5" />
           </a>
         </span>
       </p>

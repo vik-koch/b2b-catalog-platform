@@ -194,11 +194,19 @@ export function injectCanonicalLink(html: string, path: string): string {
  * Injects `<meta name="robots" content="noindex, nofollow">` into an SSR
  * document when the deployment is not indexable — belt-and-braces alongside
  * robots.txt so a directly-fetched page is also marked.
+ *
+ * A page that marked *itself* `noindex` (usePageSeo) already rendered a robots
+ * tag into this document, and a second one is not additive — a crawler reading
+ * two disagreeing tags is the one case both of them were written to avoid. The
+ * existing tag is rewritten instead, since the deployment's is the stricter of
+ * the two.
  */
+const ROBOTS_META = /<meta[^>]*\bname="robots"[^>]*>/i;
+
 export function injectNoindexMeta(html: string): string {
   if (isIndexable()) return html;
-  return html.replace(
-    '</head>',
-    `<meta name="robots" content="noindex, nofollow"></head>`,
-  );
+  const tag = `<meta name="robots" content="noindex, nofollow">`;
+  return ROBOTS_META.test(html)
+    ? html.replace(ROBOTS_META, tag)
+    : html.replace('</head>', `${tag}</head>`);
 }
