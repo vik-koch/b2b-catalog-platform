@@ -9,6 +9,9 @@ import { and, asc, countDistinct, eq, inArray, ne, sql } from 'drizzle-orm';
 import {
   AttributeDefinition,
   AttributeDefinitionInput,
+  CategoryFilters,
+  CategoryFilterSource,
+  SaveCategoryFiltersRequest,
   AttributeKeyUsage,
   AttributeValueUsage,
   parseAttributeNumber,
@@ -19,13 +22,31 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { attributeDefinitions, productAttributes } from '../db/schema';
+import {
+  attributeDefinitions,
+  categories,
+  categoryAttributes,
+  productAttributes,
+  products,
+} from '../db/schema';
+import {
+  categoryChain,
+  CategoryAttributeRow,
+} from '../catalog/category-filters';
+import { CategoryRow, descendantIds } from '../catalog/catalog-tree';
 
 /** The one 404 this surface has; a function so each throw gets its own stack. */
 const notFound = () =>
   new NotFoundException({
     code: 'attribute-not-found',
     message: 'Attribute definition not found',
+  });
+
+/** The category behind a filter-panel path. */
+const categoryNotFound = () =>
+  new NotFoundException({
+    code: 'category-not-found',
+    message: 'Category not found',
   });
 
 /** What the counts are taken over: the catalog as staff see it. */
@@ -316,6 +337,169 @@ export class AttributesService {
       .returning({ productId: productAttributes.productId });
 
     return { updated: updated.length };
+  }
+
+  /**
+   * One category's filter panel as the editor reads it (FR-ATTR-11).
+   *
+   * Every definition is listed, in the order the storefront would use, with
+   * the ones this category does not offer after them. The product counts are
+   * taken over the category *and its subcategories* — the same scope the
+   * listing's facets are built from, so a zero here means the attribute would
+   * genuinely never render a facet on that page.
+   */
+  async getCategoryFilters(slug: string): Promise<CategoryFilters> {
+    const rows = await this.categoryRows();
+    const category = rows.find((row) => row.slug === slug);
+    if (!category) throw categoryNotFound();
+
+    const chain = categoryChain(category.id, rows);
+    const [definitions, overlay, counts] = await Promise.all([
+      this.db
+        .select()
+        .from(attributeDefinitions)
+        .orderBy(
+          asc(attributeDefinitions.sortOrder),
+          asc(attributeDefinitions.name),
+        ),
+      this.db
+        .select()
+        .from(categoryAttributes)
+        .where(inArray(categoryAttributes.categoryId, chain)),
+      this.countsInScope(descendantIds(category.id, rows)),
+    ]);
+
+    const owner = chain.find((id) =>
+      overlay.some((row) => row.categoryId === id),
+    );
+    const source: CategoryFilterSource = !owner
+      ? 'default'
+      : owner === category.id
+        ? 'own'
+        : 'inherited';
+    const from =
+      owner && owner !== category.id
+        ? rows.find((row) => row.id === owner)
+        : undefined;
+
+    const applied = new Map(
+      overlay
+        .filter((row) => row.categoryId === owner)
+        .map((row): [string, CategoryAttributeRow] => [row.attributeId, row]),
+    );
+
+    const filters = definitions
+      .map((definition, index) => {
+        const row = applied.get(definition.id);
+        return {
+          attributeId: definition.id,
+          name: definition.name,
+          slug: definition.slug,
+          type: definition.type,
+          unit: definition.unit,
+          visible: owner ? !!row && !row.hidden : true,
+          productCount: counts.get(definition.name) ?? 0,
+          // Only meaningful under an overlay: with none, nothing was left out.
+          isNew: !!owner && !row,
+          // The registry's own order is the fallback rank, so an unplaced
+          // attribute still lands somewhere stable.
+          rank: row ? row.sortOrder : Number.MAX_SAFE_INTEGER - index,
+        };
+      })
+      .sort((a, b) => a.rank - b.rank)
+      .map(({ rank: _rank, ...filter }) => filter);
+
+    return {
+      category: { slug: category.slug, name: category.name },
+      source,
+      inheritedFrom: from ? { slug: from.slug, name: from.name } : null,
+      filters,
+    };
+  }
+
+  /**
+   * Replaces a category's overlay wholesale — the array order is the panel
+   * order, and an attribute the request omits is stored hidden rather than
+   * dropped, so an empty panel stays an empty panel instead of falling back to
+   * the inherited one.
+   */
+  async saveCategoryFilters(
+    slug: string,
+    request: SaveCategoryFiltersRequest,
+  ): Promise<CategoryFilters> {
+    const rows = await this.categoryRows();
+    const category = rows.find((row) => row.slug === slug);
+    if (!category) throw categoryNotFound();
+
+    const ids = request.filters.map((filter) => filter.attributeId);
+    if (ids.length > 0) {
+      const known = await this.db
+        .select({ id: attributeDefinitions.id })
+        .from(attributeDefinitions)
+        .where(inArray(attributeDefinitions.id, ids));
+      if (known.length !== new Set(ids).size) throw notFound();
+    }
+
+    await this.db.transaction(async (tx) => {
+      await tx
+        .delete(categoryAttributes)
+        .where(eq(categoryAttributes.categoryId, category.id));
+      if (request.filters.length === 0) return;
+      await tx.insert(categoryAttributes).values(
+        request.filters.map((filter, index) => ({
+          categoryId: category.id,
+          attributeId: filter.attributeId,
+          sortOrder: index,
+          hidden: !filter.visible,
+        })),
+      );
+    });
+
+    return this.getCategoryFilters(slug);
+  }
+
+  /** Drops the overlay, so the category inherits again. */
+  async resetCategoryFilters(slug: string): Promise<CategoryFilters> {
+    const rows = await this.categoryRows();
+    const category = rows.find((row) => row.slug === slug);
+    if (!category) throw categoryNotFound();
+
+    await this.db
+      .delete(categoryAttributes)
+      .where(eq(categoryAttributes.categoryId, category.id));
+    return this.getCategoryFilters(slug);
+  }
+
+  /** The flat category rows the chain and the scope are both computed from. */
+  private categoryRows(): Promise<CategoryRow[]> {
+    return this.db
+      .select({
+        id: categories.id,
+        slug: categories.slug,
+        name: categories.name,
+        shortName: categories.shortName,
+        parentId: categories.parentId,
+        image: categories.image,
+        sortOrder: categories.sortOrder,
+      })
+      .from(categories);
+  }
+
+  /** Products per attribute key within a set of categories. */
+  private async countsInScope(
+    categoryIds: string[],
+  ): Promise<Map<string, number>> {
+    if (categoryIds.length === 0) return new Map();
+    const rows = await this.db
+      .select({
+        key: productAttributes.key,
+        productCount: countDistinct(productAttributes.productId),
+      })
+      .from(productAttributes)
+      .innerJoin(products, eq(products.id, productAttributes.productId))
+      .where(inArray(products.categoryId, categoryIds))
+      .groupBy(productAttributes.key);
+    return new Map(rows.map((row) => [row.key, row.productCount]));
   }
 
   private async definitionById(id: string) {

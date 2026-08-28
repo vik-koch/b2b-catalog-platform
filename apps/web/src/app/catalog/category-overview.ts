@@ -32,7 +32,7 @@ const MAX_CHILD_LINKS = 3;
           [editLink]="['/admin/categories']"
           [editLabel]="editText.editCategories"
           [addCategoryLink]="['/admin/categories/new']"
-          [addCategoryParams]="editorFrom"
+          [addCategoryParams]="editorFrom()"
           [addCategoryLabel]="editText.addCategory"
         />
       }
@@ -56,7 +56,7 @@ const MAX_CHILD_LINKS = 3;
                   <app-edit-actions
                     variant="tile"
                     [editLink]="['/admin/categories', cat.slug, 'edit']"
-                    [editParams]="editorFrom"
+                    [editParams]="editorFrom()"
                     [editLabel]="editText.editCategory"
                   />
                 }

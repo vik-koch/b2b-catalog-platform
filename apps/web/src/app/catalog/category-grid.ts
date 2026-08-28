@@ -101,19 +101,26 @@ const SUBS_ASSUMED_FIT = 4;
                 gesture in the one place every page puts it. -->
           @if (editControls(); as editText) {
             <app-edit-actions
+              [filtersLink]="[
+                '/admin/categories',
+                data.category.slug,
+                'filters',
+              ]"
+              [filtersParams]="editorFrom()"
+              [filtersLabel]="editText.editFilters"
               [editLink]="['/admin/categories', data.category.slug, 'edit']"
-              [editParams]="editorFrom"
+              [editParams]="editorFrom()"
               [editLabel]="editText.editCategory"
               [addCategoryLink]="['/admin/categories/new']"
               [addCategoryParams]="{
                 parent: data.category.slug,
-                from: editorFrom.from,
+                from: editorFrom().from,
               }"
               [addCategoryLabel]="editText.addCategory"
               [addProductLink]="['/admin/products/new']"
               [addProductParams]="{
                 category: data.category.slug,
-                from: editorFrom.from,
+                from: editorFrom().from,
               }"
               [addProductLabel]="editText.addProduct"
             />
@@ -256,7 +263,7 @@ const SUBS_ASSUMED_FIT = 4;
                       <app-edit-actions
                         variant="tile"
                         [editLink]="['/admin/products', slug, 'edit']"
-                        [editParams]="editorFrom"
+                        [editParams]="editorFrom()"
                         [editLabel]="editText.editProduct"
                       />
                     }

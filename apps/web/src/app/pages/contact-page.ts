@@ -47,7 +47,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
           <app-edit-actions
             variant="inline"
             [editLink]="['/admin/pages', 'contact', 'edit']"
-            [editParams]="editorFrom"
+            [editParams]="editorFrom()"
             [editLabel]="editorText.edit"
           />
         }

@@ -224,6 +224,17 @@ export const appRoutes: Route[] = [
         (m) => m.CategoryEditorPage,
       ),
   },
+  // The category's filter panel (FR-ATTR-11) — its own route rather than a tab
+  // of the editor: it edits the attribute registry's placement, not the
+  // category's own fields, and it is reached from the storefront grid too.
+  {
+    path: 'admin/categories/:slug/filters',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/attributes/category-filters-page').then(
+        (m) => m.CategoryFiltersPage,
+      ),
+  },
   {
     path: 'admin/products/new',
     canActivate: [requireAuth('admin'), adminTextGuard],

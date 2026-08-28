@@ -71,7 +71,7 @@ import { StatusBadge } from '../../ui/status-badge';
       <a
         appButton
         routerLink="/admin/products/new"
-        [queryParams]="editorFrom"
+        [queryParams]="editorFrom()"
         class="gap-2"
       >
         <app-admin-icon name="plus" class="h-4 w-4" />
@@ -226,7 +226,7 @@ import { StatusBadge } from '../../ui/status-badge';
                           ? ['/product', item.slug]
                           : ['/admin/products', item.slug, 'edit']
                       "
-                      [queryParams]="editorFrom"
+                      [queryParams]="editorFrom()"
                       class="font-medium text-stone-700 hover:text-accent"
                     >
                       {{ item.name }}
@@ -266,7 +266,7 @@ import { StatusBadge } from '../../ui/status-badge';
                 <div class="flex items-center justify-end gap-1">
                   <a
                     [routerLink]="['/admin/products', item.slug, 'edit']"
-                    [queryParams]="editorFrom"
+                    [queryParams]="editorFrom()"
                     class="p-1.5 text-subtle hover:text-accent"
                     [attr.aria-label]="editText.editProduct"
                     [title]="editText.editProduct"

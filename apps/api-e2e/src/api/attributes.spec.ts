@@ -45,6 +45,9 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
   const SIZES = nameFor('Size');
   const DRILL = nameFor('Drill');
   let categoryId = '';
+  /** A subcategory, so inheritance has somewhere to be inherited from. */
+  let childCategoryId = '';
+  let childSlug = '';
 
   const post = (url: string, body: unknown, cookie = adminCookie) =>
     axios.post(url, body, {
@@ -136,6 +139,14 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
     );
     categoryId = category.rows[0].id;
 
+    childSlug = `e2e-attr-${R}-child`;
+    const child = await client.query<{ id: string }>(
+      `INSERT INTO categories ("sourceId", slug, name, "parentId")
+       VALUES ($1, $1, $1, $2) RETURNING id`,
+      [childSlug, categoryId],
+    );
+    childCategoryId = child.rows[0].id;
+
     // Two products carry the drill-down key, one of them twice, so the grid
     // has to count it once.
     await addProduct('drill-1', [
@@ -170,7 +181,9 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
     await client.query('DELETE FROM products WHERE "categoryId" = $1', [
       categoryId,
     ]);
-    await client.query('DELETE FROM categories WHERE id = $1', [categoryId]);
+    await client.query('DELETE FROM categories WHERE id = ANY($1)', [
+      [childCategoryId, categoryId],
+    ]);
     await client.query('DELETE FROM users WHERE email = ANY($1)', [
       [ADMIN_EMAIL, MANAGER_EMAIL, USER_EMAIL],
     ]);
@@ -584,6 +597,119 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
         '/admin/attributes/00000000-0000-0000-0000-000000000000',
       );
       expect(res.status).toBe(404);
+    });
+  });
+
+  /**
+   * A category's own filter panel (FR-ATTR-11). Against the database because
+   * the whole rule is about *rows that are not there*: a category with no
+   * overlay inherits, and an attribute a saved overlay never mentioned is not
+   * offered — neither is visible in a single response.
+   */
+  describe('category filters (FR-ATTR-11)', () => {
+    const PANEL_A = nameFor('PanelA');
+    const PANEL_B = nameFor('PanelB');
+    let panelA = '';
+    let panelB = '';
+
+    beforeAll(async () => {
+      panelA = (await createDefinition({ name: PANEL_A, type: 'text' })).data
+        .id;
+      panelB = (await createDefinition({ name: PANEL_B, type: 'text' })).data
+        .id;
+      createdIds.push(panelA, panelB);
+    });
+
+    afterEach(async () => {
+      await client.query(
+        'DELETE FROM category_attributes WHERE "categoryId" = ANY($1)',
+        [[categoryId, childCategoryId]],
+      );
+    });
+
+    const parentPath = () => `/admin/categories/e2e-attr-${R}/filters`;
+    const childPath = () => `/admin/categories/${childSlug}/filters`;
+
+    it('offers the whole registry until something is saved', async () => {
+      const res = await get(parentPath());
+      expect(res.status).toBe(200);
+      expect(res.data.source).toBe('default');
+      expect(res.data.inheritedFrom).toBeNull();
+      const ids = res.data.filters.map(
+        (f: { attributeId: string }) => f.attributeId,
+      );
+      expect(ids).toContain(panelA);
+      expect(ids).toContain(panelB);
+      expect(
+        res.data.filters.every((f: { visible: boolean }) => f.visible),
+      ).toBe(true);
+    });
+
+    it('saves an order and a hidden attribute, and the child inherits it', async () => {
+      const saved = await put(parentPath(), {
+        filters: [
+          { attributeId: panelB, visible: true },
+          { attributeId: panelA, visible: false },
+        ],
+      });
+      expect(saved.status).toBe(200);
+      expect(saved.data.source).toBe('own');
+      expect(
+        saved.data.filters
+          .slice(0, 2)
+          .map((f: { attributeId: string }) => f.attributeId),
+      ).toEqual([panelB, panelA]);
+
+      const child = await get(childPath());
+      expect(child.data.source).toBe('inherited');
+      expect(child.data.inheritedFrom.slug).toBe(`e2e-attr-${R}`);
+      const hidden = child.data.filters.find(
+        (f: { attributeId: string }) => f.attributeId === panelA,
+      );
+      expect(hidden.visible).toBe(false);
+    });
+
+    it('replaces the inherited list rather than extending it', async () => {
+      await put(parentPath(), {
+        filters: [{ attributeId: panelA, visible: true }],
+      });
+      await put(childPath(), {
+        filters: [{ attributeId: panelB, visible: true }],
+      });
+
+      const child = await get(childPath());
+      expect(child.data.source).toBe('own');
+      // Everything the parent offered is absent from the child's own list, so
+      // it comes back flagged rather than silently visible.
+      const parentOnly = child.data.filters.find(
+        (f: { attributeId: string }) => f.attributeId === panelA,
+      );
+      expect(parentOnly.visible).toBe(false);
+      expect(parentOnly.isNew).toBe(true);
+    });
+
+    it('resets back to the inherited list', async () => {
+      await put(parentPath(), {
+        filters: [{ attributeId: panelA, visible: true }],
+      });
+      await put(childPath(), {
+        filters: [{ attributeId: panelB, visible: true }],
+      });
+
+      const reset = await del(childPath());
+      expect(reset.status).toBe(200);
+      expect(reset.data.source).toBe('inherited');
+    });
+
+    it('404s on a category nobody has', async () => {
+      expect(
+        (await get('/admin/categories/no-such-category/filters')).status,
+      ).toBe(404);
+    });
+
+    it('is admin-only (NFR-SEC-04)', async () => {
+      expect((await get(parentPath(), managerCookie)).status).toBe(403);
+      expect((await get(parentPath(), userCookie)).status).toBe(403);
     });
   });
 });

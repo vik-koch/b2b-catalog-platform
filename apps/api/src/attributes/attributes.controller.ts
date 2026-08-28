@@ -153,6 +153,53 @@ export class AttributesController {
     );
   }
 
+  /**
+   * A category's own filter panel (FR-ATTR-11). Read is unaudited like every
+   * other read; the two writes carry the category, because a panel that lost
+   * an attribute is otherwise indistinguishable from one that never offered
+   * it.
+   */
+  @TsRestHandler(attributesContract.getCategoryFilters, {
+    validateResponses: true,
+  })
+  getCategoryFilters() {
+    return tsRestHandler(
+      attributesContract.getCategoryFilters,
+      async ({ params: { slug } }) => ({
+        status: 200 as const,
+        body: await this.service.getCategoryFilters(slug),
+      }),
+    );
+  }
+
+  @TsRestHandler(attributesContract.saveCategoryFilters, {
+    validateResponses: true,
+  })
+  saveCategoryFilters(@CurrentUser() user: AuthUser) {
+    return tsRestHandler(
+      attributesContract.saveCategoryFilters,
+      async ({ params: { slug }, body }) => {
+        const result = await this.service.saveCategoryFilters(slug, body);
+        this.audit.record('category.filtersSaved', user, { slug });
+        return { status: 200 as const, body: result };
+      },
+    );
+  }
+
+  @TsRestHandler(attributesContract.resetCategoryFilters, {
+    validateResponses: true,
+  })
+  resetCategoryFilters(@CurrentUser() user: AuthUser) {
+    return tsRestHandler(
+      attributesContract.resetCategoryFilters,
+      async ({ params: { slug } }) => {
+        const result = await this.service.resetCategoryFilters(slug);
+        this.audit.record('category.filtersReset', user, { slug });
+        return { status: 200 as const, body: result };
+      },
+    );
+  }
+
   @TsRestHandler(attributesContract.deleteAttribute, {
     validateResponses: true,
   })

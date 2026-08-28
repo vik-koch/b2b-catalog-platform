@@ -112,7 +112,7 @@ const EDGE_SLACK = 24;
       <a
         appButton
         routerLink="/admin/categories/new"
-        [queryParams]="editorFrom"
+        [queryParams]="editorFrom()"
         class="gap-2"
       >
         <app-admin-icon name="plus" class="h-4 w-4" />
@@ -197,7 +197,7 @@ const EDGE_SLACK = 24;
                       routerLink="/admin/categories/new"
                       [queryParams]="{
                         parent: node.category.slug,
-                        from: editorFrom.from,
+                        from: editorFrom().from,
                       }"
                       class="p-1 text-stone-400 hover:text-accent"
                       [attr.aria-label]="text.addChild"
@@ -226,9 +226,22 @@ const EDGE_SLACK = 24;
                       [routerLink]="[
                         '/admin/categories',
                         node.category.slug,
+                        'filters',
+                      ]"
+                      [queryParams]="editorFrom()"
+                      class="p-1 text-stone-400 hover:text-accent"
+                      [attr.aria-label]="text.editFilters"
+                      [title]="text.editFilters"
+                    >
+                      <app-admin-icon name="funnel" class="h-4 w-4" />
+                    </a>
+                    <a
+                      [routerLink]="[
+                        '/admin/categories',
+                        node.category.slug,
                         'edit',
                       ]"
-                      [queryParams]="editorFrom"
+                      [queryParams]="editorFrom()"
                       class="p-1 text-stone-400 hover:text-accent"
                       [attr.aria-label]="text.edit"
                       [title]="text.edit"

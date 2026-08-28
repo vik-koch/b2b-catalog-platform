@@ -31,6 +31,7 @@ export type IconName =
   | 'user'
   | 'lock'
   | 'pencil'
+  | 'funnel'
   | 'trash-2'
   | 'minus'
   | 'shopping-basket'
@@ -137,6 +138,9 @@ export type IconName =
           <path d="M4 19.5V14" />
           <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H8" />
           <path d="M8 22H6.5a1 1 0 0 1 0-5H8" />
+        }
+        @case ('funnel') {
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
         }
         @case ('trash-2') {
           <path d="M3 6h18" />

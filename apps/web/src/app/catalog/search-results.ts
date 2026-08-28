@@ -109,7 +109,7 @@ import {
                     <app-edit-actions
                       variant="tile"
                       [editLink]="['/admin/products', slug, 'edit']"
-                      [editParams]="editorFrom"
+                      [editParams]="editorFrom()"
                       [editLabel]="editText.editProduct"
                     />
                   }

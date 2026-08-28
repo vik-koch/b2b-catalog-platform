@@ -58,7 +58,7 @@ import {
           @if (editText(); as editText) {
             <app-edit-actions
               [editLink]="['/admin/products', item.slug, 'edit']"
-              [editParams]="editorFrom"
+              [editParams]="editorFrom()"
               [editLabel]="editText.editProduct"
               [deleteLabel]="editText.deleteProduct"
               (remove)="confirmingDelete.set(true)"

@@ -52,6 +52,7 @@
     "editCategory": "Edit category",
     "editCategories": "Edit categories",
     "addCategory": "Add category",
+    "editFilters": "Edit filters",
     "hiddenHeading": "Not on the storefront",
     "hiddenHint": "These products are in this category but customers cannot see them.",
     "deletedBadge": "Deleted",
@@ -219,6 +220,7 @@
     "addChild": "Add subcategory",
     "seeProducts": "See category products",
     "editProducts": "Edit category products",
+    "editFilters": "Edit category filters",
     "edit": "Edit",
     "delete": "Delete",
     "deleting": "Deleting…",
@@ -445,6 +447,33 @@
       "attribute-slug-taken": "Another definition already uses that URL key."
     },
     "toInventory": "Attributes in use"
+  },
+  "categoryFilters": {
+    "title": "Filters",
+    "heading": "Filters in {category}",
+    "intro": "Which attributes this category offers as a filter, and in what order. Subcategories follow this list unless they are given one of their own. An attribute no product here carries never shows a filter anyway — turn one off when it is present but not worth filtering by.",
+    "sources": {
+      "own": "This category has its own filter list.",
+      "inherited": "Inherited from {category}. Saving here gives this category a list of its own.",
+      "default": "No filter list has been set, so every attribute is offered in the order of the attribute list."
+    },
+    "products": "{count} product(s) here",
+    "notPresent": "No product here carries it",
+    "isNew": "Added after this list was saved, so it is not offered yet.",
+    "show": "Offer as a filter",
+    "reorder": "Reorder",
+    "save": "Save filters",
+    "saveError": "These filters could not be saved. Please try again.",
+    "reset": "Use the inherited list",
+    "resetTitle": "Use the inherited list",
+    "resetConfirm": "Drop this category's own filter list? It will follow its parent again, and subcategories that follow this one change with it.",
+    "resetDone": "This category follows the inherited list again.",
+    "empty": "No attribute is offered here, so this category shows no filter panel.",
+    "noDefinitions": "No attribute is filterable yet. Add one to the attribute list first.",
+    "errors": {
+      "category-not-found": "This category no longer exists.",
+      "attribute-not-found": "One of these attributes no longer exists. Reload the page to see the current list."
+    }
   },
   "attributeInventory": {
     "title": "Attributes in use",
