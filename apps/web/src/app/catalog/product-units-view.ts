@@ -1,16 +1,16 @@
 import { inject } from '@angular/core';
 import {
+  availableUnits,
+  fillText,
+  pieceFloor,
+  piecesPerUnit,
   PRODUCT_UNITS,
   ProductPackagingInfo,
   ProductUnit,
   UnitPrices,
-  availableUnits,
-  pieceFloor,
-  piecesPerUnit,
   unitQuantity,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
-import { fillText } from '../core/fill-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPiecePrice, formatPriceMinor } from './price';
 import { formatUnitQuantity } from './quantity';

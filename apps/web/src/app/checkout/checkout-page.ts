@@ -13,6 +13,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AddressInput,
+  fillText,
   FulfilmentMethod,
   OrderContact,
   OrderSubmission,
@@ -35,7 +36,6 @@ import {
   companyIdFormat,
   phoneValidators,
 } from '../core/contact-fields';
-import { fillText } from '../core/fill-text';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';

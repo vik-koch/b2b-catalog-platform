@@ -1,12 +1,15 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { orderStatusSchema, OrderStatus } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  OrderStatus,
+  orderStatusSchema,
+} from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
-import { fillText } from '../../core/fill-text';
 import { usePageSeo } from '../../core/page-seo';
 import { stableValue } from '../../core/stable-value';
 import { Button } from '../../ui/button';

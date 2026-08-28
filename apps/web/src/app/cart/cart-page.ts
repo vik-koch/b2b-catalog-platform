@@ -8,14 +8,17 @@ import {
   untracked,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CART_NOTE_MAX, CartLineIssue } from '@b2b-catalog-platform/shared';
+import {
+  CART_NOTE_MAX,
+  CartLineIssue,
+  fillText,
+} from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { debounced } from '../core/debounced';
 import { delayedLoading } from '../core/delayed-loading';
-import { fillText } from '../core/fill-text';
 import { usePageSeo } from '../core/page-seo';
 import { stableValue } from '../core/stable-value';
 import { Button } from '../ui/button';

@@ -12,19 +12,19 @@ import {
   CatalogImage,
   correctPieces,
   exactLineTotal,
+  fillText,
   pieceFloor,
   piecesFromUnitQuantity,
   ProductPackagingInfo,
   ProductUnit,
   stepFrom,
+  UnitPrices,
   unitQuantity,
   unitQuantityIsWhole,
-  UnitPrices,
 } from '@b2b-catalog-platform/shared';
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { fillText } from '../core/fill-text';
 import { AutoGrow } from '../ui/auto-grow';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';

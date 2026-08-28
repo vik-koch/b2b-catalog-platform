@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  fillText,
   OrderDetail,
   OrderLine,
   OrderStatus,
@@ -11,7 +12,6 @@ import { formatUnitQuantity } from '../catalog/quantity';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { delayedLoading } from '../core/delayed-loading';
-import { fillText } from '../core/fill-text';
 import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';

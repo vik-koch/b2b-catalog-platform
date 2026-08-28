@@ -12,13 +12,13 @@ import { currentUrl } from '../core/current-url';
 import { formatPriceMinor, formatPriceMinorShort } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { fillText } from '../core/fill-text';
 import { Icon } from '../ui/icons/icon';
 import {
   NAV_ACTION,
   NAV_ACTION_LABEL,
   NAV_ACTION_LABEL_ROW,
 } from './nav-action';
+import { fillText } from '@b2b-catalog-platform/shared';
 
 /**
  * The cart control in the main navbar (FR-CART-01): a link to `/cart` carrying

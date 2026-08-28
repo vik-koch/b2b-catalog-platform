@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import {
   AdminOrderDetail,
   AdminOrderLine,
+  fillText,
   OrderStatus,
 } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../cart/order-summary';
@@ -10,7 +11,6 @@ import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
-import { fillText } from '../../core/fill-text';
 import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
