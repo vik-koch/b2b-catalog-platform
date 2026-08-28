@@ -24,6 +24,7 @@ import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { AttributesService } from '../attributes/attributes.service';
+import { TiersService } from '../tiers/tiers.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { injectEditorReturnParams } from '../editor-return';
 import { GridFilterOption, GridFilterSelect } from './grid-filter-select';
@@ -35,6 +36,7 @@ import {
 import { GridSortHeader } from './grid-sort-header';
 import { ProductDeleteDialog } from './product-delete-dialog';
 import { AdminListHeader } from '../list-header';
+import { StatusBadge } from '../../ui/status-badge';
 
 /**
  * The admin product list: every product including soft-deleted ones
@@ -55,6 +57,7 @@ import { AdminListHeader } from '../list-header';
     GridSortHeader,
     GridFilterSelect,
     Skeleton,
+    StatusBadge,
   ],
   template: `
     <app-admin-list-header
@@ -76,9 +79,29 @@ import { AdminListHeader } from '../list-header';
       </a>
     </app-admin-list-header>
 
-    <!-- The attribute filter has no column to live in, so it says what it is
-         doing here and carries its own way out. Arrived at from the attribute
-         inventory, which is the only thing that sets it. -->
+    <!-- The two filters with no column to live in say what they are doing
+         here and carry their own way out. Each is arrived at from the screen
+         that asks the question — the attribute inventory, the tier list. -->
+    @if (tierFilter(); as tier) {
+      <p class="mb-4 flex flex-wrap items-center gap-2 text-sm">
+        <span
+          class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1"
+        >
+          <span class="text-subtle">{{ text.filterTier }}</span>
+          <span class="font-medium">{{ tier }}</span>
+          <a
+            routerLink="."
+            [queryParams]="{ tierId: null, page: null }"
+            queryParamsHandling="merge"
+            class="flex items-center justify-center cursor-pointer rounded-full p-0.5 text-stone-400 hover:text-red-700"
+            [attr.aria-label]="text.clearTier"
+          >
+            <app-admin-icon name="x" class="h-3.5 h-3.5" />
+          </a>
+        </span>
+      </p>
+    }
+
     @if (attributeFilter(); as attribute) {
       <p class="mb-4 flex flex-wrap items-center gap-2 text-sm">
         <span
@@ -97,10 +120,10 @@ import { AdminListHeader } from '../list-header';
               page: null,
             }"
             queryParamsHandling="merge"
-            class="text-stone-400 hover:text-red-700"
+            class="flex items-center justify-center cursor-pointer rounded-full p-0.5 text-stone-400 hover:text-red-700"
             [attr.aria-label]="text.clearAttribute"
           >
-            <app-admin-icon name="x" class="h-4 w-4" />
+            <app-admin-icon name="x" class="h-3.5 h-3.5" />
           </a>
         </span>
       </p>
@@ -183,20 +206,26 @@ import { AdminListHeader } from '../list-header';
                 <div class="flex items-center">
                   <span class="line-clamp-2 wrap-break-word text-subtle">
                     @if (item.deletedAt) {
-                      <span
-                        class="rounded bg-stone-200 px-1.5 py-0.5 text-xs text-muted mr-2"
-                      >
+                      <span appStatusBadge class="mr-2">
                         {{ text.deletedBadge }}
                       </span>
                     } @else if (!item.publishedAt) {
-                      <span
-                        class="mr-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-900"
-                      >
+                      <span appStatusBadge tone="waiting" class="mr-2">
                         {{ text.unpublishedBadge }}
                       </span>
                     }
+                    <!-- The name goes to the product as a customer sees it;
+                         the pencil in the actions column is the way into the
+                         editor. Except where there is no such page — the
+                         storefront 404s a product that is unpublished or
+                         deleted, and the badge beside the name says which —
+                         so those rows keep the editor as their destination. -->
                     <a
-                      [routerLink]="['/admin/products', item.slug, 'edit']"
+                      [routerLink]="
+                        item.publishedAt && !item.deletedAt
+                          ? ['/product', item.slug]
+                          : ['/admin/products', item.slug, 'edit']
+                      "
                       [queryParams]="editorFrom"
                       class="font-medium text-stone-700 hover:text-accent"
                     >
@@ -355,6 +384,7 @@ import { AdminListHeader } from '../list-header';
 export class ProductListPage {
   private readonly admin = inject(AdminCatalogService);
   private readonly attributes = inject(AttributesService);
+  private readonly tierService = inject(TiersService);
   private readonly router = inject(Router);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productList;
@@ -429,6 +459,30 @@ export class ProductListPage {
    */
   readonly attributeKey = input('');
   readonly attributeValue = input('');
+
+  /**
+   * Where the tier list's price count drills down to: the products this tier
+   * has a price of its own for. Like the attribute filter it has no column —
+   * the grid shows the base price, not a tier's — so it is a chip too.
+   */
+  readonly tierId = input('');
+  /** The tiers, for the chip's name alone: fetched only while a chip is on
+   * screen, and a failure leaves the chip absent rather than the list broken. */
+  private readonly tiers = resource({
+    params: () => (this.tierId() ? { id: this.tierId() } : undefined),
+    loader: () =>
+      this.tierService.list().then(
+        (r) => r.tiers,
+        () => [],
+      ),
+  });
+  /** The tier's own label, or null until it is known. The chip waits for the
+   * name rather than showing a uuid nobody can read. */
+  protected readonly tierFilter = computed(() => {
+    const id = this.tierId();
+    if (!id) return null;
+    return (this.tiers.value() ?? []).find((t) => t.id === id)?.label ?? null;
+  });
   /**
    * The registry, for the chip's unit alone — so it is fetched only while a
    * chip is on screen, and a failure leaves the chip unadorned rather than
@@ -463,6 +517,7 @@ export class ProductListPage {
       !!this.query() ||
       !!this.categoryId() ||
       !!this.attributeFilter() ||
+      !!this.tierId() ||
       this.stateKey() !== DEFAULT_ADMIN_STATE,
   );
 
@@ -500,6 +555,7 @@ export class ProductListPage {
       categoryId: this.categoryId() || undefined,
       attributeKey: this.attributeKey() || undefined,
       attributeValue: this.attributeValue() || undefined,
+      tierId: this.tierId() || undefined,
     }),
     loader: ({ params }) => this.admin.listProducts(params),
   });

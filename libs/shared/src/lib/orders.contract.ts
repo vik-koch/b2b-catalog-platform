@@ -118,9 +118,6 @@ export const orderSubmissionSchema = z
     party: orderingPartySchema.nullable(),
     /** Required for delivery, absent for pickup. */
     deliveryAddress: orderAddressInputSchema.nullable(),
-    /** Which book row it came from, where it came from one — the next order's
-     * default is read from the last one, not from the book. */
-    deliveryAddressId: z.string().uuid().nullable().optional(),
     /** Required for pickup, absent for delivery. */
     pickupLocationKey: z
       .string()
@@ -129,7 +126,6 @@ export const orderSubmissionSchema = z
       .max(PICKUP_LOCATION_KEY_MAX)
       .nullable(),
     billingAddress: orderAddressInputSchema,
-    billingAddressId: z.string().uuid().nullable().optional(),
     paymentMethod: paymentMethodSchema,
     /**
      * The day the customer would like it, ISO `YYYY-MM-DD`. A wish, not a
@@ -316,6 +312,8 @@ export const ordersContract = c.router({
       400: apiErrorSchema([
         'invalid-company-id',
         'unsupported-country',
+        /** The postal code is not the shape its country's codes take. */
+        'invalid-postal-code',
         'unknown-pickup-location',
         /** Bank transfer invoices a legal entity, so it is available only
          * where the party has a registration number. Re-checked here because
@@ -324,6 +322,12 @@ export const ordersContract = c.router({
         /** An order with no account named no party. Only reachable by a guest,
          * whose form has nobody to resolve one from. */
         'party-required',
+        /** A staff session tried to place one. Role is authorization, not a
+         * pricing group: an admin or a manager has no tier, no address book
+         * worth the name and nobody to invoice, and an order in their name
+         * would land in the very inbox they answer. The storefront does not
+         * offer them a checkout; this is what makes that a rule. */
+        'staff-cannot-order',
         /** ADR 0015's honeypot caught it. Its own code rather than a borrowed
          * one: a bot never reads the answer, but a person tripped by an
          * autofill would, and being told a full cart is empty explains

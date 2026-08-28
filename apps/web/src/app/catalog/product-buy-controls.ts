@@ -12,19 +12,19 @@ import {
   CatalogImage,
   correctPieces,
   exactLineTotal,
+  fillText,
   pieceFloor,
   piecesFromUnitQuantity,
   ProductPackagingInfo,
   ProductUnit,
   stepFrom,
+  UnitPrices,
   unitQuantity,
   unitQuantityIsWhole,
-  UnitPrices,
 } from '@b2b-catalog-platform/shared';
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { fillText } from '../core/fill-text';
 import { AutoGrow } from '../ui/auto-grow';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
@@ -274,17 +274,11 @@ export interface BuyableProduct {
             @if (open.at === 'remove') {
               <app-popover align="start" (dismissed)="dismiss()">
                 <p>{{ open.message }}</p>
+                <!-- Keeping it first, removing it second — the order the
+                     confirmation dialog puts them in everywhere else. A yes/no
+                     pair that swaps sides between two screens is one somebody
+                     answers by position and gets wrong. -->
                 <div class="mt-2 flex gap-2">
-                  <button
-                    type="button"
-                    appButton
-                    variant="danger"
-                    size="sm"
-                    class="flex-1"
-                    (click)="confirmRemove()"
-                  >
-                    {{ text.removeYes }}
-                  </button>
                   <button
                     type="button"
                     appButton
@@ -294,6 +288,16 @@ export interface BuyableProduct {
                     (click)="dismiss()"
                   >
                     {{ text.removeNo }}
+                  </button>
+                  <button
+                    type="button"
+                    appButton
+                    variant="danger"
+                    size="sm"
+                    class="flex-1"
+                    (click)="confirmRemove()"
+                  >
+                    {{ text.removeYes }}
                   </button>
                 </div>
               </app-popover>

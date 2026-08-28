@@ -1,4 +1,5 @@
 import {
+  fillText,
   formatMoneyMinor,
   MoneyFormat,
   OrderDetail,
@@ -20,11 +21,11 @@ export function orderMailItem(
   const units = text.common.units;
   const quantity =
     line.unit === 'piece'
-      ? fill(text.common.quantity, {
+      ? fillText(text.common.quantity, {
           qty: line.quantity,
           unit: units.piece,
         })
-      : fill(text.common.quantityPieces, {
+      : fillText(text.common.quantityPieces, {
           qty: line.quantity,
           unit: units[line.unit],
           pieces: line.pieces,
@@ -37,15 +38,4 @@ export function orderMailItem(
     ...(line.note ? { note: line.note } : {}),
     total: formatMoneyMinor(line.lineTotalMinor, currency),
   };
-}
-
-/** The same `{placeholder}` substitution the frontend's app text uses. */
-function fill(
-  template: string,
-  values: Record<string, string | number>,
-): string {
-  return Object.entries(values).reduce(
-    (out, [key, value]) => out.split(`{${key}}`).join(String(value)),
-    template,
-  );
 }

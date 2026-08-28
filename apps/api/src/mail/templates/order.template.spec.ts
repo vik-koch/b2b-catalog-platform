@@ -1,80 +1,10 @@
-import { AdminOrderDetail, MoneyFormat } from '@b2b-catalog-platform/shared';
+import { MoneyFormat } from '@b2b-catalog-platform/shared';
+import { demoAdminOrder as order } from '../../orders/order.fixture';
 import { demoMailText } from '../mail-text.fixture';
 import { newOrderMail } from './new-order.template';
 import { orderReceivedMail } from './order-received.template';
 
 const currency: MoneyFormat = { code: 'EUR', locale: 'de-DE' };
-
-const address = {
-  street: 'Hafenstraße 12',
-  street2: null,
-  postalCode: '20359',
-  city: 'Hamburg',
-  region: null,
-  country: 'DE' as const,
-};
-
-const order: AdminOrderDetail = {
-  reference: 'CK-260826-4831',
-  status: 'requested',
-  createdAt: '2026-08-26T09:15:00.000Z',
-  statusChangedAt: '2026-08-26T09:15:00.000Z',
-  totalMinor: 12990,
-  currency: 'EUR',
-  itemCount: 2,
-  contact: {
-    name: 'Alex Fischer',
-    email: 'alex@example.com',
-    phone: '+49 40 1234567',
-  },
-  party: { name: 'Kontor GmbH', registrationId: 'DE123456789' },
-  fulfilmentMethod: 'delivery',
-  deliveryAddress: address,
-  pickup: null,
-  deliveryZone: null,
-  billingAddress: address,
-  paymentMethod: 'bank-transfer',
-  preferredDate: null,
-  customerNote: null,
-  customerEmail: 'alex@example.com',
-  tierKey: 'wholesale',
-  lines: [
-    {
-      name: 'Espresso cups',
-      slug: 'espresso-cups',
-      linked: true,
-      image: null,
-      unit: 'pack',
-      quantity: 2,
-      pieces: 12,
-      priceMinor: 1999,
-      priceBasisPieces: 10,
-      lineTotalMinor: 9990,
-      note: '100 in <red>',
-    },
-    {
-      name: 'Saucers',
-      slug: 'saucers',
-      linked: true,
-      image: null,
-      unit: 'piece',
-      quantity: 3,
-      pieces: 3,
-      priceMinor: 1000,
-      priceBasisPieces: 1,
-      lineTotalMinor: 3000,
-      note: null,
-    },
-  ],
-  shipment: {
-    cartons: 1,
-    volume: null,
-    weight: null,
-    coveredLines: 2,
-    uncoveredLines: 0,
-    approximate: false,
-  },
-};
 
 describe('orderReceivedMail', () => {
   const t = demoMailText.orderReceived;

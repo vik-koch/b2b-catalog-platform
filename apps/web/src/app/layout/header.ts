@@ -13,6 +13,7 @@ import { currentUrl } from '../core/current-url';
 import { AccountLink } from './account-link';
 import { CartLink } from './cart-link';
 import { CatalogLink } from './catalog-link';
+import { HeaderCollapse } from './header-collapse';
 import { ContactInfo } from './contact-info';
 import { NAV_ACTION } from './nav-action';
 import { SearchField } from './search-field';
@@ -23,12 +24,12 @@ import { Icon } from '../ui/icons/icon';
  * (company pages + contact details) above a main bar that carries the brand
  * and the primary actions — search, the catalogue, the cart and the account.
  *
- * On mobile there is no room for two rows: the utility bar is hidden, its
- * links move into the hamburger panel, the phone becomes a one-tap icon next
- * to the account link, and search collapses to an icon that expands into a row
- * of its own. Only one of the two panels is ever opened by hand — the search
- * row is also permanently open on the results page, where the field belongs to
- * the page rather than to the chrome.
+ * On mobile there is no room for two rows: the utility bar is hidden and its
+ * links and contact details move into the hamburger panel, while search
+ * collapses to an icon that expands into a row of its own. Only one of the two
+ * panels is ever opened by hand — the search row is also permanently open on
+ * the results page, where the field belongs to the page rather than to the
+ * chrome.
  */
 @Component({
   imports: [
@@ -62,7 +63,7 @@ import { Icon } from '../ui/icons/icon';
         <div
           class="mx-auto flex h-10 w-full max-w-7xl items-center justify-between gap-6 px-4"
         >
-          <nav class="flex gap-5 text-sm" [attr.aria-label]="a11y.utilityNav">
+          <nav class="flex gap-4 text-sm" [attr.aria-label]="a11y.utilityNav">
             @for (route of utilityRoutes; track route) {
               <a
                 [routerLink]="'/' + route"
@@ -76,7 +77,7 @@ import { Icon } from '../ui/icons/icon';
             }
           </nav>
           @if (contact?.phone || contact?.email) {
-            <app-contact-info variant="plain" />
+            <app-contact-info class="pr-1" />
           }
         </div>
       </div>
@@ -84,17 +85,18 @@ import { Icon } from '../ui/icons/icon';
       <div
         class="mx-auto flex h-15 w-full max-w-7xl items-center justify-between px-4"
       >
-        <a
-          routerLink="/"
-          [attr.aria-label]="homeLabel"
-          (click)="menuOpen.set(false)"
-        >
+        <a routerLink="/" [attr.aria-label]="homeLabel" (click)="closePanels()">
           <!-- Plain <img>: NgOptimizedImage adds nothing for a local SVG.
-               Intrinsic width/height prevent layout shift; CSS scales it. -->
+               Both dimensions come from the deployment's config rather than
+               being written here, because the asset they describe is the
+               deployment's too. They are never the drawn size — CSS sets the
+               height and the width follows — only the ratio the browser needs
+               to keep the space before the file arrives. -->
           <img
             src="logo.svg"
             alt=""
-            height="40"
+            [width]="logo.width"
+            [height]="logo.height"
             class="h-10 w-auto pr-3 transition-opacity hover:opacity-75"
           />
         </a>
@@ -107,14 +109,6 @@ import { Icon } from '../ui/icons/icon';
 
         <!-- Primary actions. Cart joins the account link here. -->
         <div class="flex items-center">
-          @if (contact?.phone; as phone) {
-            <!-- One-tap call, mobile only — on desktop the number is spelled
-                 out in the utility bar, so this label is never visible. -->
-            <a [href]="telHref(phone)" [class]="navAction + ' md:hidden'">
-              <app-icon name="phone" class="h-6 w-6" />
-              <span class="sr-only">{{ callLabel(phone) }}</span>
-            </a>
-          }
           <!-- Mobile-only counterpart of the inline field above. The glyph
                swaps to a close icon while the row is open, matching the
                hamburger beside it. On the results page the row is permanent,
@@ -141,9 +135,13 @@ import { Icon } from '../ui/icons/icon';
               searchOpen() ? search.closeSearch : search.openSearch
             }}</span>
           </button>
-          <app-catalog-link />
-          <app-cart-link />
-          <app-account-link />
+          <!-- Reaching for any of these is a decision to go somewhere else, so
+               whichever panel is open has been abandoned. Bound on the host
+               element of each control rather than inside it: the link they
+               each draw is the interactive thing, and its click bubbles. -->
+          <app-catalog-link (click)="closePanels()" />
+          <app-cart-link (click)="closePanels()" />
+          <app-account-link (click)="closePanels()" />
           <button
             type="button"
             [class]="navAction + ' -mr-2 md:hidden'"
@@ -189,10 +187,36 @@ import { Icon } from '../ui/icons/icon';
               [routerLink]="'/' + route"
               routerLinkActive
               ariaCurrentWhenActive="page"
-              class="block px-4 py-3 text-muted transition-colors hover:bg-stone-100 active:text-secondary aria-[current=page]:font-medium aria-[current=page]:text-primary"
-              (click)="menuOpen.set(false)"
+              [class]="
+                menuRow +
+                ' aria-[current=page]:font-medium aria-[current=page]:text-primary'
+              "
+              (click)="closePanels()"
             >
               {{ text.nav[route] }}
+            </a>
+          }
+          <!-- The contact details close the panel: on desktop they sit in the
+               utility bar, and this is the only place a phone viewport has
+               room for them. -->
+          @if (contact?.phone; as phone) {
+            <a
+              [href]="telHref(phone)"
+              [class]="menuRow"
+              (click)="closePanels()"
+            >
+              <app-icon name="phone" class="h-4 w-4" />
+              {{ phone }}
+            </a>
+          }
+          @if (contact?.email; as email) {
+            <a
+              [href]="'mailto:' + email"
+              [class]="menuRow"
+              (click)="closePanels()"
+            >
+              <app-icon name="mail" class="h-4 w-4" />
+              {{ email }}
             </a>
           }
         </nav>
@@ -219,12 +243,17 @@ export class Header {
   protected readonly searchOpen = computed(
     () => this.onSearchPage() || this.searchToggled(),
   );
-  protected readonly collapsed = signal(false);
+  private readonly headerCollapse = inject(HeaderCollapse);
+  protected readonly collapsed = this.headerCollapse.collapsed;
 
   protected readonly text = inject(APP_TEXT);
   protected readonly branding = this.config.branding;
+  protected readonly logo = this.branding.logo;
   protected readonly contact = this.config.contact;
   protected readonly navAction = NAV_ACTION;
+  /** One row of the mobile panel — page links and contact details alike. */
+  protected readonly menuRow =
+    'flex items-center gap-2 px-4 py-3 text-muted transition-colors hover:bg-stone-100 active:text-secondary';
   protected readonly a11y = this.text.a11y;
   protected readonly search = this.text.search;
   protected readonly homeLabel = this.text.a11y.homeLink.replace(
@@ -234,20 +263,12 @@ export class Header {
   /** Which company pages sit in the utility bar, and in what order. */
   protected readonly utilityRoutes = this.config.pages.headerNav;
 
-  // Collapse the utility bar once scrolled well off the top, and bring it back
-  // only at the very top — mid-page it would slide down over content the reader
-  // is looking at. Never fires on the server; the initial render is expanded and
-  // matches hydration. Since nothing reflows, neither threshold can feed back
-  // into window.scrollY, so no hysteresis gap is needed.
+  // The rule itself lives in HeaderCollapse, which the footer's back-to-top
+  // button reads too; the header is only what listens. Never fires on the
+  // server.
   @HostListener('window:scroll')
   protected onScroll(): void {
-    const COLLAPSE_AT = 96;
-    const currentScroll = window.scrollY;
-    if (!this.collapsed() && currentScroll > COLLAPSE_AT) {
-      this.collapsed.set(true);
-    } else if (this.collapsed() && currentScroll <= 0) {
-      this.collapsed.set(false);
-    }
+    this.headerCollapse.update(window.scrollY);
   }
 
   // The mobile panel is the header's only overlay now that the account popup is
@@ -277,11 +298,15 @@ export class Header {
     if (this.menuOpen()) this.searchToggled.set(false);
   }
 
-  protected callLabel(phone: string): string {
-    return this.a11y.callPhone.replace('{phone}', phone);
+  /** Both panels away, for anything in the navbar that is a departure rather
+   * than a second panel. Never touches the results page's permanent search row,
+   * which `searchOpen` decides on its own. */
+  protected closePanels(): void {
+    this.menuOpen.set(false);
+    this.searchToggled.set(false);
   }
 
-  /** tel: for the mobile call icon; dial characters only. */
+  /** tel: for the mobile panel's call row; dial characters only. */
   protected telHref(phone: string): string {
     return 'tel:' + phone.replace(/[^\d+]/g, '');
   }

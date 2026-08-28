@@ -74,6 +74,11 @@ interface Options {
   submit?: SubmitOrderResult;
   /** No session at all (FR-CART-03). */
   guest?: boolean;
+  /** An account whose record carries no telephone number — which staff can
+   * create, and which the order contract will not accept. */
+  noPhone?: boolean;
+  /** The session's role. Staff do not buy; everything else assumes a customer. */
+  role?: 'user' | 'manager' | 'admin';
 }
 
 /** Every submission the page sent, and what it was answered with. */
@@ -112,7 +117,11 @@ async function render(options: Options = {}) {
           user: signal(
             options.guest
               ? null
-              : { id: 'user-1', email: 'alex@example.com', role: 'user' },
+              : {
+                  id: 'user-1',
+                  email: 'alex@example.com',
+                  role: options.role ?? 'user',
+                },
           ),
         },
       },
@@ -137,7 +146,7 @@ async function render(options: Options = {}) {
             role: 'user',
             firstName: 'Alex',
             lastName: 'Fischer',
-            phone: '+494012345678',
+            phone: options.noPhone ? null : '+494012345678',
             customerType: options.person ? 'person' : 'company',
             companyName:
               options.companyName ?? (options.person ? null : 'Kontor GmbH'),
@@ -265,6 +274,61 @@ describe('CheckoutPage', () => {
         expect(page.text()).toContain(point.name);
         expect(page.text()).toContain(point.address);
       }
+    });
+
+    // A list of one is not a question — and the draft may arrive on pickup from
+    // a previous visit, never passing through the fulfilment click.
+    it('answers a single collection point itself, however pickup was reached', async () => {
+      const only = withPickupPoints(1);
+      const key = only.pickup?.locations[0].key;
+
+      const clicked = await render({ config: only });
+      clicked.pick('fulfilment', 'pickup');
+      await clicked.settle();
+      expect(clicked.drafts.draft().pickupLocationKey).toBe(key);
+
+      TestBed.resetTestingModule();
+      sessionStorage.setItem(
+        CHECKOUT_DRAFT_KEY,
+        JSON.stringify({
+          version: CHECKOUT_DRAFT_VERSION,
+          draft: { ...emptyDraft(), fulfilmentMethod: 'pickup' },
+        }),
+      );
+      const restored = await render({ config: only });
+      expect(restored.drafts.draft().pickupLocationKey).toBe(key);
+    });
+
+    // Two points is a real question, so nothing is chosen for the customer —
+    // which makes saying so on refusal the whole of the feedback they get.
+    it('says which answer is missing when several points go unchosen', async () => {
+      const page = await render();
+
+      page.drafts.patch({ fulfilmentMethod: 'pickup' });
+      await page.settle();
+      expect(page.drafts.draft().pickupLocationKey).toBeNull();
+      expect(page.text()).not.toContain(text.fulfilment.pickupRequired);
+
+      await page.review();
+
+      expect(page.text()).toContain(text.errors.incomplete);
+      // The generic error says the form is marked; this is that marking.
+      expect(page.text()).toContain(text.fulfilment.pickupRequired);
+    });
+
+    it('takes the message back once a point is chosen', async () => {
+      const page = await render();
+      const key = defaultDeploymentConfig.pickup?.locations[0].key ?? '';
+
+      page.drafts.patch({ fulfilmentMethod: 'pickup' });
+      await page.settle();
+      await page.review();
+      expect(page.text()).toContain(text.fulfilment.pickupRequired);
+
+      page.drafts.patch({ pickupLocationKey: key });
+      await page.settle();
+
+      expect(page.text()).not.toContain(text.fulfilment.pickupRequired);
     });
 
     it('offers no pickup where the deployment has no collection points', async () => {
@@ -680,7 +744,6 @@ describe('CheckoutPage', () => {
         name: 'Ada Lovelace',
         registrationId: null,
       });
-      expect(sent[0].deliveryAddressId).toBeNull();
     });
 
     it('asks a company for its own name and a person to ring', async () => {
@@ -804,6 +867,49 @@ describe('CheckoutPage', () => {
     });
   });
 
+  describe('an account with no telephone number', () => {
+    it('says so and will not send, rather than letting the API refuse it', async () => {
+      const page = await render({ noPhone: true });
+      await page.review();
+
+      expect(page.text()).toContain(text.phoneMissing);
+      expect(page.button(text.submit)?.disabled).toBe(true);
+
+      page.button(text.submit)?.click();
+      await page.settle();
+      expect(submitted).not.toHaveBeenCalled();
+    });
+
+    it('leaves an account that has one alone', async () => {
+      const page = await render();
+      await page.review();
+
+      expect(page.text()).not.toContain(text.phoneMissing);
+      expect(page.button(text.submit)?.disabled).toBe(false);
+    });
+  });
+
+  describe('a staff session', () => {
+    it('says staff do not buy and will not send', async () => {
+      const page = await render({ role: 'manager' });
+      await page.review();
+
+      expect(page.text()).toContain(text.errors.staffAccount);
+      expect(page.button(text.submit)?.disabled).toBe(true);
+
+      page.button(text.submit)?.click();
+      await page.settle();
+      expect(submitted).not.toHaveBeenCalled();
+    });
+
+    it('says that and not the missing-phone notice, which is not the reason', async () => {
+      const page = await render({ role: 'admin', noPhone: true });
+      await page.review();
+
+      expect(page.text()).not.toContain(text.phoneMissing);
+    });
+  });
+
   describe('sending the order', () => {
     it('refuses to send until the privacy notice is accepted', async () => {
       const page = await render();
@@ -835,7 +941,6 @@ describe('CheckoutPage', () => {
         fulfilmentMethod: 'delivery',
         // The account's own party is resolved by the server, not asserted here.
         party: null,
-        deliveryAddressId: saved.id,
         pickupLocationKey: null,
         paymentMethod: 'cash',
         preferredDate: '2026-09-03',

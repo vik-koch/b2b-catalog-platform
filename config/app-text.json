@@ -13,11 +13,11 @@
   },
   "a11y": {
     "homeLink": "{name} — home",
-    "callPhone": "Call {phone}",
     "toggleMenu": "Toggle menu",
     "utilityNav": "Utility",
     "legalNav": "Legal",
-    "consentBanner": "Cookie consent"
+    "consentBanner": "Cookie consent",
+    "scrollToTop": "Back to top"
   },
   "catalog": {
     "navLabel": "Catalogue",
@@ -100,7 +100,6 @@
     "notePrompt": "Anything we should know about this line?",
     "noteAdd": "Add a note to this line",
     "noteEdit": "Edit the note on this line",
-    "noteDone": "Done",
     "add": "Add to cart",
     "addedFor": "Added for {total}",
     "full": "Your cart is full — please place this order before adding more products.",
@@ -150,6 +149,8 @@
     "emptyCart": "There is nothing in your cart to order.",
     "signInPrompt": "Already a customer? Sign in and your agreed prices apply to this order.",
     "signInAction": "Sign in",
+    "phoneMissing": "An order request needs a telephone number, and this account has none on record — a manager answers it by phone. Please add one to your account, then come back here; the cart is kept.",
+    "phoneMissingAction": "Add a telephone number",
     "contact": {
       "heading": "Who is ordering?",
       "name": "Your name",
@@ -223,6 +224,7 @@
     "submitting": "Sending…",
     "successHeading": "Thank you — we have your order",
     "success": "Your order request is {reference}. We will confirm the details, the delivery and the price with you shortly.",
+    "successView": "View your order",
     "successAction": "Back to the catalogue",
     "successRegister": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
     "successRegisterAction": "Request an account",
@@ -230,12 +232,14 @@
       "incomplete": "Some answers are missing or need correcting — they are marked on the form.",
       "invalidCompanyId": "That company ID is not in a format we can invoice against. Please check it.",
       "unsupportedCountry": "We do not deliver to that country. Please choose another address.",
+      "invalidPostalCode": "That postcode does not look right for the country you chose. Please check it.",
       "unknownPickupLocation": "That collection point is no longer available. Please choose another.",
       "billingDetailsRequired": "Bank transfer needs a company to invoice. Please choose another party or another way to pay.",
       "partyRequired": "Please tell us who we should invoice.",
       "rejected": "We could not accept this order. Please try again.",
       "cartChanged": "Prices or quantities in your cart changed while you were filling this in — please check your order and send it again.",
-      "generic": "Something went wrong sending your order. Please try again."
+      "generic": "Something went wrong sending your order. Please try again.",
+      "staffAccount": "Staff accounts cannot place order requests — an order needs a customer account, which is what carries the agreed prices and the delivery address. Sign in as a customer to try the checkout."
     },
     "fulfilment": {
       "heading": "How would you like to receive your order?",
@@ -250,13 +254,14 @@
       "freeFrom": "Free delivery from {amount}",
       "noFreeDelivery": "Delivery is quoted per order",
       "pickupHeading": "Where would you like to collect your order?",
+      "pickupRequired": "Please choose where you would like to collect your order.",
       "mapLink": "Find on map"
     }
   },
   "orders": {
     "heading": "My orders",
     "intro": "Every order request you have sent us, with what was on it.",
-    "action": "View my orders",
+    "action": "View all my orders",
     "empty": "You have not sent us an order yet.",
     "emptyAction": "Browse the catalogue",
     "itemCount": "{count} lines",
@@ -315,6 +320,7 @@
     "invalid": "Invalid email or password.",
     "error": "Something went wrong logging you in. Please try again.",
     "myAccount": {
+      "profileHeading": "Details and addresses",
       "detailsHeading": "My details",
       "name": "Name",
       "email": "Email",
@@ -342,8 +348,9 @@
         "heading": "My addresses",
         "empty": "No saved addresses yet. Add one and it will be offered at checkout.",
         "add": "Add address",
-        "edit": "Edit",
+        "editLabel": "Edit {label}",
         "remove": "Remove",
+        "removeLabel": "Remove {label}",
         "removeHeading": "Remove address",
         "removeConfirm": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
         "error": "We could not load your addresses right now. Please try again later.",
@@ -360,12 +367,12 @@
         "city": "City",
         "region": "Region",
         "country": "Country",
-        "phone": "Phone for this address",
         "optional": "optional",
         "submit": "Save address",
         "submitting": "Saving…",
         "cancel": "Cancel",
         "required": "Please fill this in.",
+        "postalCodeFormat": "A postcode here looks like {example}.",
         "saveError": "Something went wrong saving this address. Please try again.",
         "limitReached": "You have reached the maximum number of saved addresses. Remove one to add another.",
         "unsupportedCountry": "We do not deliver to that country. Please choose another.",
@@ -467,6 +474,7 @@
     },
     "changePassword": {
       "heading": "Change password",
+      "intro": "Choose a new password for signing in. Changing it signs you out everywhere else.",
       "currentPassword": "Current password",
       "newPassword": "New password",
       "confirmPassword": "Confirm new password",

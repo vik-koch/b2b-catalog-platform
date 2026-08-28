@@ -10,7 +10,6 @@ import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
-import { Icon } from '../ui/icons/icon';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
 
@@ -25,13 +24,16 @@ const MAX_CHILD_LINKS = 3;
  */
 @Component({
   selector: 'app-category-overview',
-  imports: [RouterLink, ImagePlaceholder, Icon, EditActions, LoadErrorView],
+  imports: [RouterLink, ImagePlaceholder, EditActions, LoadErrorView],
   template: `
     <section class="relative pb-12 sm:pb-16">
       @if (editControls(); as editText) {
         <app-edit-actions
           [editLink]="['/admin/categories']"
           [editLabel]="editText.editCategories"
+          [addCategoryLink]="['/admin/categories/new']"
+          [addCategoryParams]="editorFrom"
+          [addCategoryLabel]="editText.addCategory"
         />
       }
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -48,23 +50,6 @@ const MAX_CHILD_LINKS = 3;
           <ul
             class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
           >
-            <!-- Top-level categories are created from here, the same gesture
-                 as adding a product from a category page. No parent: this grid
-                 is the top level. -->
-            @if (editControls(); as editText) {
-              <li>
-                <a
-                  [routerLink]="['/admin/categories/new']"
-                  [queryParams]="editorFrom"
-                  class="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent"
-                >
-                  <app-icon name="plus" class="h-8 w-8" />
-                  <span class="text-sm font-medium">{{
-                    editText.addCategory
-                  }}</span>
-                </a>
-              </li>
-            }
             @for (cat of cats; track cat.slug) {
               <li class="group relative">
                 @if (editControls(); as editText) {

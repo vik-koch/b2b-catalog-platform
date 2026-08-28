@@ -92,238 +92,249 @@ type EditTarget = { id: string } | { id: null } | null;
       </div>
     </div>
 
-    <p class="mb-6 max-w-xl text-sm text-muted">{{ text.intro }}</p>
-    @if (reorderError()) {
-      <p class="mb-4 text-sm text-red-700" role="alert">
-        {{ text.reorderError }}
-      </p>
-    }
+    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
 
-    @if (definitions.error()) {
-      <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
-    } @else if (definitions.hasValue()) {
-      <!-- overflow-hidden so a row's own background cannot square off the
+    <!-- Narrower than the heading above it: everything below is a column of
+         fields and rows to read down, not a table to scan across, and a line
+         that runs the full width of a desktop is a line nobody follows. -->
+    <div class="max-w-3xl">
+      @if (reorderError()) {
+        <p class="mb-4 text-sm text-red-700" role="alert">
+          {{ text.reorderError }}
+        </p>
+      }
+
+      @if (definitions.error()) {
+        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+      } @else if (definitions.hasValue()) {
+        <!-- overflow-hidden so a row's own background cannot square off the
            card's rounded corners. -->
-      <div class="overflow-hidden rounded-lg border border-border">
-        <ul
-          class="divide-y divide-border"
-          cdkDropList
-          [cdkDropListDisabled]="busy() || editing() !== null"
-          (cdkDropListDropped)="onDrop($event)"
-        >
-          @for (definition of definitions.value(); track definition.id) {
-            <!-- scroll-mt clears the sticky header (see the inventory). -->
-            <li
-              class="bg-white p-4 scroll-mt-24"
-              cdkDrag
-              [cdkDragData]="definition"
-              [id]="rowId(definition.name)"
-            >
-              @if (isEditing(definition.id)) {
-                <ng-container [ngTemplateOutlet]="form" class="bg-white" />
-              } @else {
-                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <span class="font-medium text-stone-700">
-                    {{ definition.name }}
-                  </span>
-                  <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
-                    {{ definition.slug }}
-                  </code>
-                  <span class="text-sm text-subtle">
-                    {{ typeLabel(definition) }} ·
-                    {{ productsLabel(definition.productCount) }} ·
-                    {{ valuesLabel(definition.valueCount) }}
-                  </span>
-                  <span class="ml-auto flex items-center gap-1">
-                    <!-- The other half of the row: this is what the shop
+        <div class="overflow-hidden rounded-lg border border-border">
+          <ul
+            class="divide-y divide-border"
+            cdkDropList
+            [cdkDropListDisabled]="busy() || editing() !== null"
+            (cdkDropListDropped)="onDrop($event)"
+          >
+            @for (definition of definitions.value(); track definition.id) {
+              <!-- scroll-mt clears the sticky header (see the inventory). -->
+              <li
+                class="bg-white p-4 scroll-mt-24"
+                cdkDrag
+                [cdkDragData]="definition"
+                [id]="rowId(definition.name)"
+              >
+                @if (isEditing(definition.id)) {
+                  <ng-container [ngTemplateOutlet]="form" class="bg-white" />
+                } @else {
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span class="font-medium text-stone-700">
+                      {{ definition.name }}
+                    </span>
+                    <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
+                      {{ definition.slug }}
+                    </code>
+                    <span class="text-sm text-subtle">
+                      {{ typeLabel(definition) }} ·
+                      {{ productsLabel(definition.productCount) }} ·
+                      {{ valuesLabel(definition.valueCount) }}
+                    </span>
+                    <span class="ml-auto flex items-center gap-1">
+                      <!-- The other half of the row: this is what the shop
                          filters by, the inventory is what the products
                          actually carry under that name — including the
                          spellings this definition does not match. Same icon
                          and same shape as the grid's own way in. -->
-                    <a
-                      class="p-1 text-stone-400 hover:text-accent"
-                      routerLink="/admin/attributes/inventory"
-                      [queryParams]="{ key: definition.name }"
-                      [attr.aria-label]="text.showUsage"
-                    >
-                      <app-admin-icon name="square-menu" class="h-4 w-4" />
-                    </a>
-                    <!-- Ordering is the filter panel's order and nothing else,
+                      <a
+                        class="p-1 text-stone-400 hover:text-accent"
+                        routerLink="/admin/attributes/inventory"
+                        [queryParams]="{ key: definition.name }"
+                        [attr.aria-label]="text.showUsage"
+                      >
+                        <app-admin-icon name="square-menu" class="h-4 w-4" />
+                      </a>
+                      <!-- Ordering is the filter panel's order and nothing else,
                          so the handle sits with the row's other actions rather
                          than claiming a column of its own. A handle, not a pair
                          of step buttons: the category list, the image gallery
                          and the attribute grid itself are all dragged, and a
                          button that has to disable itself at the ends of the
                          list flickers through every reorder. -->
-                    <span
-                      cdkDragHandle
-                      class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
-                      [attr.aria-label]="common.reorder"
-                      [title]="common.reorder"
-                    >
-                      <app-admin-icon name="grip-vertical" class="h-4 w-4" />
+                      <span
+                        cdkDragHandle
+                        class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
+                        [attr.aria-label]="common.reorder"
+                        [title]="common.reorder"
+                      >
+                        <app-admin-icon name="grip-vertical" class="h-4 w-4" />
+                      </span>
+                      <button
+                        type="button"
+                        class="p-1 text-stone-400 hover:text-accent"
+                        [attr.aria-label]="text.edit"
+                        [disabled]="editing() !== null"
+                        (click)="startEdit(definition)"
+                      >
+                        <app-admin-icon name="pencil" class="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        class="p-1 text-stone-400 hover:text-red-700"
+                        [attr.aria-label]="text.delete"
+                        [disabled]="busy()"
+                        (click)="remove(definition)"
+                      >
+                        <app-admin-icon name="trash-2" class="h-4 w-4" />
+                      </button>
                     </span>
-                    <button
-                      type="button"
-                      class="p-1 text-stone-400 hover:text-accent"
-                      [attr.aria-label]="text.edit"
-                      [disabled]="editing() !== null"
-                      (click)="startEdit(definition)"
-                    >
-                      <app-admin-icon name="pencil" class="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      class="p-1 text-stone-400 hover:text-red-700"
-                      [attr.aria-label]="text.delete"
-                      [disabled]="busy()"
-                      (click)="remove(definition)"
-                    >
-                      <app-admin-icon name="trash-2" class="h-4 w-4" />
-                    </button>
-                  </span>
-                </div>
-                <!-- Both notes are about the exact match, which is the one
+                  </div>
+                  <!-- Both notes are about the exact match, which is the one
                      thing about this screen that surprises people. -->
-                @if (definition.productCount === 0) {
-                  <p class="mt-2 text-sm text-amber-700">{{ text.noMatch }}</p>
-                } @else if (
-                  definition.type === 'number' && definition.unparsedCount > 0
-                ) {
-                  <p class="mt-2 text-sm text-amber-700">
-                    {{ unparsedLabel(definition.unparsedCount) }}
-                  </p>
+                  @if (definition.productCount === 0) {
+                    <p class="mt-2 text-sm text-amber-700">
+                      {{ text.noMatch }}
+                    </p>
+                  } @else if (
+                    definition.type === 'number' && definition.unparsedCount > 0
+                  ) {
+                    <p class="mt-2 text-sm text-amber-700">
+                      {{ unparsedLabel(definition.unparsedCount) }}
+                    </p>
+                  }
+                  @if (rowError()?.id === definition.id) {
+                    <p class="mt-2 text-sm text-red-700" role="alert">
+                      {{ rowError()?.message }}
+                    </p>
+                  }
                 }
-                @if (rowError()?.id === definition.id) {
-                  <p class="mt-2 text-sm text-red-700" role="alert">
-                    {{ rowError()?.message }}
-                  </p>
-                }
-              }
-            </li>
+              </li>
+            }
+          </ul>
+
+          @if (isEditing(null)) {
+            <div
+              class="p-4 bg-white"
+              [class]="
+                definitions.value().length !== 0 ? 'border-t border-border' : ''
+              "
+            >
+              <ng-container [ngTemplateOutlet]="form" />
+            </div>
+          } @else if (definitions.value().length === 0) {
+            <p class="p-4 bg-white text-sm text-muted">{{ text.empty }}</p>
           }
-        </ul>
+        </div>
+      } @else if (showSkeleton()) {
+        <app-skeleton [lines]="4" />
+      }
 
-        @if (isEditing(null)) {
-          <div
-            class="p-4 bg-white"
-            [class]="
-              definitions.value().length !== 0 ? 'border-t border-border' : ''
-            "
-          >
-            <ng-container [ngTemplateOutlet]="form" />
-          </div>
-        } @else if (definitions.value().length === 0) {
-          <p class="p-4 bg-white text-sm text-muted">{{ text.empty }}</p>
-        }
-      </div>
-    } @else if (showSkeleton()) {
-      <app-skeleton [lines]="4" />
-    }
-
-    <!-- One form for both add and edit: a definition is the same four fields
+      <!-- One form for both add and edit: a definition is the same four fields
          either way, and only the request differs. -->
-    <ng-template #form>
-      <!-- Fields and buttons share one baseline (items-end); the hints
+      <ng-template #form>
+        <!-- Fields and buttons share one baseline (items-end); the hints
            therefore sit on their own line below rather than lengthening one
            column and pulling the row out of alignment. -->
-      <form class="flex flex-wrap items-end gap-4" (submit)="save($event)">
-        <div>
-          <label appFieldLabel for="attribute-name">{{ text.name }}</label>
-          <input
-            appInput
-            size="sm"
-            id="attribute-name"
-            name="name"
-            class="w-56"
-            autocomplete="off"
-            [value]="draftName()"
-            [placeholder]="text.namePlaceholder"
-            (input)="draftName.set($any($event.target).value)"
-          />
-        </div>
-        <div>
-          <label appFieldLabel for="attribute-type">{{ text.type }}</label>
-          <app-select-field size="sm" class="w-36">
-            <select
-              appInput
-              size="sm"
-              id="attribute-type"
-              name="type"
-              class="w-full"
-              [value]="draftType()"
-              (change)="draftType.set($any($event.target).value)"
-            >
-              @for (type of types; track type) {
-                <option [value]="type">{{ text.types[type] }}</option>
-              }
-            </select>
-          </app-select-field>
-        </div>
-        <!-- A unit measures a quantity: a text attribute has none, and the
-             field would only invite "Blue cm". -->
-        @if (draftType() === 'number') {
+        <form class="flex flex-wrap items-end gap-4" (submit)="save($event)">
           <div>
-            <label appFieldLabel for="attribute-unit">{{ text.unit }}</label>
+            <label appFieldLabel for="attribute-name">
+              {{ text.name }}
+              <span class="text-accent" aria-hidden="true">*</span>
+            </label>
             <input
               appInput
               size="sm"
-              id="attribute-unit"
-              name="unit"
-              class="w-24"
+              id="attribute-name"
+              name="name"
+              class="w-56"
               autocomplete="off"
-              [value]="draftUnit()"
-              [placeholder]="text.unitPlaceholder"
-              (input)="draftUnit.set($any($event.target).value)"
+              [value]="draftName()"
+              [placeholder]="text.namePlaceholder"
+              (input)="draftName.set($any($event.target).value)"
             />
           </div>
-        }
-        <div>
-          <label appFieldLabel for="attribute-slug">{{ text.slug }}</label>
-          <input
-            appInput
-            size="sm"
-            id="attribute-slug"
-            name="slug"
-            class="w-44 font-mono"
-            autocomplete="off"
-            [value]="draftSlug()"
-            [placeholder]="text.slugPlaceholder"
-            (input)="draftSlug.set($any($event.target).value)"
-          />
-        </div>
-        <div class="flex items-center gap-2">
-          <button
-            appButton
-            size="sm"
-            type="submit"
-            class="gap-2"
-            [disabled]="busy()"
-          >
-            <app-admin-icon name="save" class="h-4 w-4" />
-            {{ busy() ? common.saving : common.save }}
-          </button>
-          <button
-            appButton
-            variant="secondary"
-            size="sm"
-            type="button"
-            class="gap-2"
-            [disabled]="busy()"
-            (click)="cancel()"
-          >
-            <app-admin-icon name="x" class="h-4 w-4" />
-            {{ common.cancel }}
-          </button>
-        </div>
-        <p class="w-full text-xs text-muted">{{ text.nameHint }}</p>
-        @if (formError()) {
-          <p class="w-full text-sm text-red-700" role="alert">
-            {{ formError() }}
-          </p>
-        }
-      </form>
-    </ng-template>
+          <div>
+            <label appFieldLabel for="attribute-type">{{ text.type }}</label>
+            <app-select-field size="sm" class="w-36">
+              <select
+                appInput
+                size="sm"
+                id="attribute-type"
+                name="type"
+                class="w-full"
+                [value]="draftType()"
+                (change)="draftType.set($any($event.target).value)"
+              >
+                @for (type of types; track type) {
+                  <option [value]="type">{{ text.types[type] }}</option>
+                }
+              </select>
+            </app-select-field>
+          </div>
+          <!-- A unit measures a quantity: a text attribute has none, and the
+             field would only invite "Blue cm". -->
+          @if (draftType() === 'number') {
+            <div>
+              <label appFieldLabel for="attribute-unit">{{ text.unit }}</label>
+              <input
+                appInput
+                size="sm"
+                id="attribute-unit"
+                name="unit"
+                class="w-24"
+                autocomplete="off"
+                [value]="draftUnit()"
+                [placeholder]="text.unitPlaceholder"
+                (input)="draftUnit.set($any($event.target).value)"
+              />
+            </div>
+          }
+          <div>
+            <label appFieldLabel for="attribute-slug">{{ text.slug }}</label>
+            <input
+              appInput
+              size="sm"
+              id="attribute-slug"
+              name="slug"
+              class="w-44 font-mono"
+              autocomplete="off"
+              [value]="draftSlug()"
+              [placeholder]="text.slugPlaceholder"
+              (input)="draftSlug.set($any($event.target).value)"
+            />
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              appButton
+              size="sm"
+              type="submit"
+              class="gap-2"
+              [disabled]="busy()"
+            >
+              <app-admin-icon name="save" class="h-4 w-4" />
+              {{ busy() ? common.saving : common.save }}
+            </button>
+            <button
+              appButton
+              variant="secondary"
+              size="sm"
+              type="button"
+              class="gap-2"
+              [disabled]="busy()"
+              (click)="cancel()"
+            >
+              <app-admin-icon name="x" class="h-4 w-4" />
+              {{ common.cancel }}
+            </button>
+          </div>
+          <p class="w-full text-xs text-muted">{{ text.nameHint }}</p>
+          @if (formError()) {
+            <p class="w-full text-sm text-red-700" role="alert">
+              {{ formError() }}
+            </p>
+          }
+        </form>
+      </ng-template>
+    </div>
   `,
 })
 export class AttributeListPage {

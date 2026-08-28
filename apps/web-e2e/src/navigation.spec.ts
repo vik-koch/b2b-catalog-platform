@@ -64,8 +64,8 @@ test('navigates between legal pages client-side without a full reload', async ({
 }) => {
   const legal = page.getByRole('navigation', { name: 'Legal' });
 
-  await page.goto('/privacy');
-  await expect(page.locator('h1')).toHaveText(privacyPageSeed.title);
+  await page.goto('/conditions');
+  await expect(page.locator('h1')).toHaveText(conditionsPageSeed.title);
 
   // Marker that a full document reload would wipe — lets us assert the hops
   // below stay within the SPA instead of round-tripping to the server.
@@ -78,9 +78,9 @@ test('navigates between legal pages client-side without a full reload', async ({
   await expect(page.locator('h1')).toHaveText(imprintPageSeed.title);
 
   // A second hop re-exercises the reused component's resource reload.
-  await legal.getByRole('link', { name: 'Payment & delivery' }).click();
-  await expect(page).toHaveURL(/\/conditions$/);
-  await expect(page.locator('h1')).toHaveText(conditionsPageSeed.title);
+  await legal.getByRole('link', { name: 'Privacy' }).click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.locator('h1')).toHaveText(privacyPageSeed.title);
 
   await expect(page.locator('html')).toHaveAttribute('data-spa', 'true');
 });

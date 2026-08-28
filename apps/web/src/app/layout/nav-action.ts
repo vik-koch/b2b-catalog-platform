@@ -47,6 +47,13 @@ export const NAV_ACTION_LABEL_ROW =
  * reserves the active (medium) weight's width — see styles.css — so the control
  * does not grow when its route becomes current. Call sites must set
  * `data-label` to the same text.
+ *
+ * The negative side margins let a long caption claim half of the control's own
+ * 12px paddings, the way the cart's chip claims all of it: the padding is there
+ * to keep the glyph off its neighbours, and the caption sitting under the glyph
+ * needs less of it than the glyph does. A word therefore has 60px of the 72px
+ * control before the control grows and pushes the row around — and it still
+ * cannot touch the control next to it.
  */
 export const NAV_ACTION_LABEL =
-  'text-stable sr-only text-xs leading-none md:not-sr-only';
+  'text-stable sr-only text-xs leading-none md:not-sr-only md:-mx-1.5';

@@ -1,30 +1,16 @@
 import {
+  currencyFractionDigits,
+  decimalSeparator,
   formatMoneyMinor,
+  MoneyFormat,
   PIECE_PRICE_SCALE,
 } from '@b2b-catalog-platform/shared';
 
-export interface CurrencyConfig {
-  /** ISO 4217, e.g. "EUR". */
-  code: string;
-  /** BCP 47 locale, e.g. "de-DE". */
-  locale: string;
-}
+/** What the page needs to write a price. The shape the mails use, under the
+ * name the storefront reads it by. */
+export type CurrencyConfig = MoneyFormat;
 
-// Formatter construction is comparatively expensive; cache one per code+locale.
-const formatterCache = new Map<string, Intl.NumberFormat>();
-
-function formatterFor(currency: CurrencyConfig): Intl.NumberFormat {
-  const key = `${currency.locale}:${currency.code}`;
-  let formatter = formatterCache.get(key);
-  if (!formatter) {
-    formatter = new Intl.NumberFormat(currency.locale, {
-      style: 'currency',
-      currency: currency.code,
-    });
-    formatterCache.set(key, formatter);
-  }
-  return formatter;
-}
+export { currencyFractionDigits, decimalSeparator };
 
 /**
  * Format an integer minor-unit amount (e.g. 1890) as a localised currency
@@ -82,11 +68,6 @@ export function formatPiecePrice(
   }).format(milliMinor / PIECE_PRICE_SCALE / 10 ** digits);
 }
 
-/** The currency's minor-unit exponent (2 for EUR, 0 for JPY, 3 for BHD). */
-export function currencyFractionDigits(currency: CurrencyConfig): number {
-  return formatterFor(currency).resolvedOptions().maximumFractionDigits ?? 2;
-}
-
 /** Minor units → a major-unit number for a decimal input (e.g. 1890 → 18.9). */
 export function minorToMajor(
   priceMinor: number,
@@ -101,15 +82,6 @@ export function majorToMinor(
   currency: CurrencyConfig,
 ): number {
   return Math.round(priceMajor * 10 ** currencyFractionDigits(currency));
-}
-
-/** The decimal separator this deployment's locale writes prices with. */
-export function decimalSeparator(currency: CurrencyConfig): string {
-  return (
-    formatterFor(currency)
-      .formatToParts(1.1)
-      .find((part) => part.type === 'decimal')?.value ?? '.'
-  );
 }
 
 /**

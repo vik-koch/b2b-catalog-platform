@@ -1,6 +1,7 @@
 import {
   addressConfigSchema,
   companyIdInputSchema,
+  phoneInputSchema,
   deliveryConfigSchema,
   orderReferenceConfigSchema,
   PAGE_SLUGS,
@@ -123,6 +124,21 @@ export const deploymentConfigSchema = z
          * launched this year shows a single year rather than a range.
          */
         startYear: z.number().int(),
+        /**
+         * The intrinsic size of `assets/logo.svg`, copied off the file itself.
+         * Not a display size — the header draws the logo 40px high whatever
+         * these say. They are there to reserve its box before it arrives: an
+         * <img> with neither dimension declared is zero wide until the file
+         * loads, so the search field beside it takes the space and gives it
+         * back a frame later. Cheap to keep right, and wrong only if the asset
+         * is replaced with one of another shape.
+         */
+        logo: z
+          .object({
+            width: z.number().int().positive(),
+            height: z.number().int().positive(),
+          })
+          .strict(),
         /**
          * Semantic color tokens. The three brand colors are required; the
          * neutrals default to the stone ramp in styles.css and are only worth
@@ -253,13 +269,7 @@ export const deploymentConfigSchema = z
      * national part as they type — `#` is one digit, any other character is a
      * literal separator.
      */
-    phoneInput: z
-      .object({
-        countryCode: z.string(),
-        mask: z.string().optional(),
-      })
-      .strict()
-      .optional(),
+    phoneInput: phoneInputSchema.optional(),
     /**
      * The business registration number a company gives when it registers
      * (FR-AUTH-01). Jurisdiction-specific, so it is deployment config rather

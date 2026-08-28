@@ -36,6 +36,7 @@ export class AdminCatalogController {
           sort: query.sort ?? 'relevance',
           attributeKey: query.attributeKey,
           attributeValue: query.attributeValue,
+          tierId: query.tierId,
         });
         return { status: 200, body };
       },

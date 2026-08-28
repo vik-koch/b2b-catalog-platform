@@ -51,6 +51,57 @@ describe('Header', () => {
     expect(toggle(el).disabled).toBe(true);
   });
 
+  // On desktop the number and address are spelled out in the utility bar;
+  // a phone viewport has no such bar, so the panel is the only place left.
+  it('closes the mobile panel with the contact details', async () => {
+    const { el, fixture } = await render('/catalog');
+    const { contact } = defaultDeploymentConfig;
+
+    // The utility bar's pill is the only place to dial from while the panel
+    // is shut: the action group's one-tap icon is gone.
+    expect(el.querySelectorAll('a[href^="tel:"]')).toHaveLength(1);
+
+    (
+      el.querySelector('button[aria-controls="mobile-menu"]') as HTMLElement
+    ).click();
+    await fixture.whenStable();
+
+    const rows = Array.from(
+      el.querySelectorAll<HTMLAnchorElement>('#mobile-menu a'),
+    );
+    expect(rows.at(-2)?.getAttribute('href')).toBe(
+      'tel:' + contact?.phone?.replace(/[^\d+]/g, ''),
+    );
+    expect(rows.at(-1)?.getAttribute('href')).toBe('mailto:' + contact?.email);
+  });
+
+  // Both panels are mobile-only overlays over a row of destinations: reaching
+  // past one for the cart or the account is leaving, not a second opinion.
+  it('drops whichever panel is open when a navbar destination is used', async () => {
+    const { el, fixture } = await render('/catalog');
+    const open = (controls: string) =>
+      (
+        el.querySelector(`button[aria-controls="${controls}"]`) as HTMLElement
+      ).click();
+    const cart = () => el.querySelector('app-cart-link a') as HTMLAnchorElement;
+
+    open('mobile-menu');
+    await fixture.whenStable();
+    expect(el.querySelector('#mobile-menu')).not.toBeNull();
+
+    cart().click();
+    await fixture.whenStable();
+    expect(el.querySelector('#mobile-menu')).toBeNull();
+
+    open('mobile-search');
+    await fixture.whenStable();
+    expect(el.querySelector('#mobile-search')).not.toBeNull();
+
+    cart().click();
+    await fixture.whenStable();
+    expect(el.querySelector('#mobile-search')).toBeNull();
+  });
+
   it('does not steal focus when the field opens on its own', async () => {
     const { el } = await render('/search?q=espresso');
 

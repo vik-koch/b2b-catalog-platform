@@ -101,7 +101,15 @@ test('a price update cannot be given the hide option', async ({ page }) => {
   await logIn(page);
   await page.goto('/admin/sync');
 
-  await page.getByLabel('Price update').check();
+  // Clicked on the card's own hit area rather than `.check()`ed on the input:
+  // the choice card lays an overlay over its whole surface, and that overlay
+  // is what a hand hits — and what intercepts a click aimed at the radio.
+  await page
+    .locator('app-choice-card')
+    .filter({ hasText: 'Price update' })
+    .locator('label')
+    .click();
+  await expect(page.getByRole('radio', { name: /Price update/ })).toBeChecked();
   await page.getByText('Advanced options').click();
 
   await expect(

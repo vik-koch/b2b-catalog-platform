@@ -3,6 +3,7 @@
     "name": "Coffee Kontor",
     "title": "Coffee Kontor — wholesale specialty coffee",
     "startYear": 2021,
+    "logo": { "width": 166, "height": 40 },
     "theme": {
       "primary": "#6f4e37",
       "secondary": "#8b6f52",
@@ -11,8 +12,8 @@
   },
   "pages": {
     "published": ["about", "conditions", "privacy", "imprint", "contact"],
-    "headerNav": ["about", "contact"],
-    "footerNav": ["conditions", "privacy", "imprint", "licenses"]
+    "headerNav": ["about", "contact", "conditions"],
+    "footerNav": ["privacy", "imprint", "licenses"]
   },
   "cookieConsentEnabled": false,
   "catalog": {
@@ -104,7 +105,12 @@
     "countries": [
       {
         "code": "DE",
-        "label": "Germany"
+        "label": "Germany",
+        "postalCode": {
+          "pattern": "^[0-9]{5}$",
+          "example": "20457",
+          "mask": "#####"
+        }
       }
     ]
   },

@@ -1,19 +1,21 @@
 import { OrderStatus } from '@b2b-catalog-platform/shared';
+import { StatusTone } from '../ui/status-badge';
 
 /**
- * The badge tone per status, shared by every screen that lists orders: amber
- * while the shop has not answered yet, green once it has, red for a refusal,
- * grey for one nobody is waiting on any more.
+ * The badge tone per status, shared by every screen that lists orders: waiting
+ * while the shop has not answered yet, settled once it has, a refusal for a
+ * decline, and history for one nobody is waiting on any more.
  *
- * The colours are shared; the wording is not — a customer reads "Awaiting
+ * The tone is shared; the wording is not — a customer reads "Awaiting
  * confirmation" where staff read the state itself, and the two texts live in
  * their own catalogues.
  */
-export function orderStatusClass(status: OrderStatus): string {
-  return {
-    requested: 'bg-amber-100 text-amber-800',
-    approved: 'bg-green-100 text-green-800',
-    declined: 'bg-red-100 text-red-800',
-    cancelled: 'bg-stone-200 text-muted',
-  }[status];
+export function orderStatusTone(status: OrderStatus): StatusTone {
+  const tones: Record<OrderStatus, StatusTone> = {
+    requested: 'waiting',
+    approved: 'ok',
+    declined: 'danger',
+    cancelled: 'neutral',
+  };
+  return tones[status];
 }

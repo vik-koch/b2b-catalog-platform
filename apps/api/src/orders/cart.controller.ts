@@ -17,9 +17,10 @@ import { priceCart } from './cart-pricing';
  * nothing about a POST. A guest is still priced — from the default list, and
  * without ever being told tiers exist.
  *
- * Throttled like search: this is called on page load, when the cart popup
- * opens and before checkout, not per keystroke — and it is an unauthenticated
- * N-product lookup, which the contract's `CART_LINES_MAX` bounds as well.
+ * Throttled like search: this is called when the cart page loads and when
+ * signing in re-prices what is held, not per keystroke — and it is an
+ * unauthenticated N-product lookup, which the contract's `CART_LINES_MAX`
+ * bounds as well.
  */
 @Controller()
 export class CartController {

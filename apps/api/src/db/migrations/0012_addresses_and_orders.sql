@@ -55,14 +55,12 @@ CREATE TABLE "orders" (
 	"billingCity" varchar(255) NOT NULL,
 	"billingRegion" varchar(255),
 	"billingCountry" varchar(2) NOT NULL,
-	"billingAddressId" uuid,
 	"deliveryStreet" varchar(255),
 	"deliveryStreet2" varchar(255),
 	"deliveryPostalCode" varchar(32),
 	"deliveryCity" varchar(255),
 	"deliveryRegion" varchar(255),
 	"deliveryCountry" varchar(2),
-	"deliveryAddressId" uuid,
 	"deliveryZoneKey" varchar(64),
 	"deliveryFreeFromMinor" integer,
 	"pickupLocationKey" varchar(64),
@@ -103,8 +101,6 @@ ALTER TABLE "order_items" ADD CONSTRAINT "order_items_orderId_orders_id_fk" FORE
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_productId_products_id_fk" FOREIGN KEY ("productId") REFERENCES "public"."products"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "orders_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "orders_statusChangedBy_users_id_fk" FOREIGN KEY ("statusChangedBy") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "orders" ADD CONSTRAINT "orders_billingAddressId_addresses_id_fk" FOREIGN KEY ("billingAddressId") REFERENCES "public"."addresses"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "orders" ADD CONSTRAINT "orders_deliveryAddressId_addresses_id_fk" FOREIGN KEY ("deliveryAddressId") REFERENCES "public"."addresses"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "addresses_userId_idx" ON "addresses" USING btree ("userId");--> statement-breakpoint
 CREATE INDEX "orders_userId_idx" ON "orders" USING btree ("userId");--> statement-breakpoint
 CREATE INDEX "orders_createdAt_idx" ON "orders" USING btree ("createdAt");--> statement-breakpoint

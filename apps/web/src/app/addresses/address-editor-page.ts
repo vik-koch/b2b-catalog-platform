@@ -1,6 +1,6 @@
 import { Component, effect, inject, resource, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Address } from '@b2b-catalog-platform/shared';
+import { Address, fillText } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { delayedLoading } from '../core/delayed-loading';
 import { FieldErrors } from '../core/form-errors';
@@ -112,13 +112,27 @@ export class AddressEditorPage {
     this.form.fill(address);
   }
 
-  /** The two refusals the form has to explain rather than throw. */
+  /** The refusals the form has to explain rather than throw. */
   private refusal(
     code: Extract<SaveAddressResult, { ok: false }>['code'],
   ): string {
-    return code === 'address-limit-reached'
-      ? this.text.limitReached
-      : this.text.unsupportedCountry;
+    switch (code) {
+      case 'address-limit-reached':
+        return this.text.limitReached;
+      case 'invalid-postal-code':
+        return this.postalCodeMessage();
+      case 'unsupported-country':
+        return this.text.unsupportedCountry;
+    }
+  }
+
+  /** The postcode's own rule, in the customer's words and with the example
+   * the deployment configured — the API answers with a code alone. */
+  private postalCodeMessage(): string {
+    const rule = this.form.postalCodeRule();
+    return rule
+      ? fillText(this.text.postalCodeFormat, { example: rule.example })
+      : this.text.required;
   }
 
   protected submitting(): boolean {

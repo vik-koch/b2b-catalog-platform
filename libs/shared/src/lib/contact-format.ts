@@ -11,11 +11,20 @@ import { z } from 'zod';
  * the web app (`core/masked-input.ts`, `core/contact-fields.ts`).
  */
 
-/** A deployment's phone-entry rule: the fixed country code, and how to group. */
-export interface PhoneConfig {
-  readonly countryCode: string;
-  readonly mask?: string;
-}
+/**
+ * A deployment's phone-entry rule: the fixed country code, and how to group.
+ * Shared for the same reason `companyIdInputSchema` is — the browser enters a
+ * number by it and the API formats one for a staff notification by it, so one
+ * schema rather than a copy on each side.
+ */
+export const phoneInputSchema = z
+  .object({
+    countryCode: z.string(),
+    mask: z.string().optional(),
+  })
+  .strict();
+
+export type PhoneConfig = z.infer<typeof phoneInputSchema>;
 
 /** The bare digits of a masked value — what actually gets stored. */
 export const digitsOf = (value: string | null | undefined): string =>
@@ -47,6 +56,39 @@ export const applyMask = (value: string, mask: string): string => {
   }
   return out;
 };
+
+/**
+ * Removes a leading international dial prefix from a value that is expected to
+ * hold the **national** part alone — the form displays the country code beside
+ * the field, so a number that carries one too would be counted twice.
+ *
+ * Written for autofill: a browser fills a phone field from whatever it stored,
+ * which is usually the full international number (`+49 40 1234567`, or
+ * `0049…`), while the field beneath the `+49` prefix wants `40 1234567`.
+ * Without this the digits are masked as they arrive and stored as `+4949…`.
+ *
+ * The two international forms are unambiguous, so both are stripped. A bare
+ * `49…` is left exactly as typed: a national number may legitimately begin with
+ * its own country's digits, and there is no way to tell the two apart.
+ */
+export function stripDialPrefix(value: string, prefix: string): string {
+  const code = digitsOf(prefix);
+  if (!code) return value;
+
+  const trimmed = value.trimStart();
+  const opener = /^(?:\+|00)/.exec(trimmed)?.[0];
+  if (!opener) return value;
+
+  // Matched digit by digit rather than as a string: the separators inside an
+  // autofilled number are the provider's, not ours ("+49 (40) 123").
+  let rest = trimmed.slice(opener.length);
+  for (const digit of code) {
+    const next = /^\D*(\d)/.exec(rest);
+    if (!next || next[1] !== digit) return value;
+    rest = rest.slice(next[0].length);
+  }
+  return rest;
+}
 
 /**
  * What gets stored: country code + the national digits, with no separators of

@@ -1,10 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { resolveDeliveryZone } from '@b2b-catalog-platform/shared';
+import { fillText, resolveDeliveryZone } from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { fillText } from '../core/fill-text';
 
 /**
  * Which delivery area the entered address falls into, and whether this order
@@ -53,7 +52,6 @@ export class DeliveryZoneHint {
   protected readonly text = inject(APP_TEXT).checkout.zone;
 
   readonly postalCode = input<string>('');
-  readonly city = input<string>('');
 
   protected readonly hasAddress = computed(
     () => this.postalCode().trim().length > 0,
@@ -63,7 +61,6 @@ export class DeliveryZoneHint {
     if (!this.hasAddress()) return null;
     const match = resolveDeliveryZone(this.zones, {
       postalCode: this.postalCode(),
-      city: this.city(),
     });
     if (!match) return null;
 

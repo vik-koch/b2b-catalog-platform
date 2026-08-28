@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import {
   AdminOrderDetail,
   AdminOrderLine,
+  fillText,
   OrderStatus,
 } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../cart/order-summary';
@@ -10,7 +11,6 @@ import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
-import { fillText } from '../../core/fill-text';
 import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
@@ -20,7 +20,8 @@ import {
   ReadBackLine,
   ReviewBlock,
 } from '../../orders/order-read-back';
-import { orderStatusClass } from '../../orders/order-status';
+import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { orderStatusTone } from '../../orders/order-status';
 import { AdminOrdersService } from './orders.service';
 
 /**
@@ -34,15 +35,19 @@ import { AdminOrdersService } from './orders.service';
  */
 @Component({
   selector: 'app-admin-order-detail-page',
-  imports: [RouterLink, Button, Skeleton, OrderReadBack, OrderSummary],
+  imports: [
+    RouterLink,
+    Button,
+    Skeleton,
+    OrderReadBack,
+    OrderSummary,
+    StatusBadge,
+  ],
   template: `
     @if (detail(); as order) {
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
         <h1 class="text-3xl font-bold tracking-tight">{{ order.reference }}</h1>
-        <span
-          class="rounded-full px-2 py-0.5 text-xs font-medium"
-          [class]="statusClass(order.status)"
-        >
+        <span appStatusBadge [tone]="statusTone(order.status)">
           {{ statusLabel(order.status) }}
         </span>
       </div>
@@ -57,7 +62,7 @@ import { AdminOrdersService } from './orders.service';
         <dd>{{ order.customerEmail ?? listText.guest }}</dd>
         <dt class="text-subtle">{{ text.tier }}</dt>
         <dd>{{ order.tierKey ?? text.tierDefault }}</dd>
-        <dt class="text-subtle">{{ statusText }}</dt>
+        <dt class="text-subtle">{{ text.statusChanged }}</dt>
         <dd>{{ statusChanged(order) }}</dd>
       </dl>
 
@@ -93,8 +98,6 @@ export class AdminOrderDetailPage {
 
   protected readonly text = inject(ADMIN_TEXT).orderDetail;
   protected readonly listText = inject(ADMIN_TEXT).orderList;
-  /** The row's own label reuses the list's status wording. */
-  protected readonly statusText = inject(ADMIN_TEXT).orderList.filterStatus;
 
   readonly reference = input.required<string>();
 
@@ -168,8 +171,8 @@ export class AdminOrderDetailPage {
     }[status];
   }
 
-  protected statusClass(status: OrderStatus): string {
-    return orderStatusClass(status);
+  protected statusTone(status: OrderStatus): StatusTone {
+    return orderStatusTone(status);
   }
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {

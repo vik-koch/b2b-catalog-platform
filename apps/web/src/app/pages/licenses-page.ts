@@ -38,37 +38,43 @@ import { LicenseNotice, parseLicenseNotices } from './license-notice';
   selector: 'app-licenses-page',
   imports: [Skeleton],
   template: `
-    <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
-    <p class="mb-8 max-w-xl text-muted">{{ text.intro }}</p>
+    <!-- A reading measure, like the static pages this page is read alongside:
+         it is prose and a list of names, and a package name three words long
+         stranded at the far edge of a wide screen is a line nobody follows
+         back. -->
+    <div class="max-w-3xl">
+      <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ heading }}</h1>
+      <p class="mb-8 text-muted">{{ text.intro }}</p>
 
-    @if (notices(); as list) {
-      @if (list.length === 0) {
-        <p class="text-muted">{{ text.unavailable }}</p>
-      } @else {
-        <ul class="divide-y divide-border border-t border-border">
-          @for (notice of list; track notice.name) {
-            <li class="py-3">
-              <details class="group">
-                <summary
-                  class="flex cursor-pointer flex-wrap items-baseline gap-x-3 gap-y-1 outline-offset-2 hover:text-accent"
-                >
-                  <span class="font-medium">{{ notice.name }}</span>
-                  <span class="text-sm text-subtle">{{
-                    notice.license ?? text.unknownLicense
-                  }}</span>
-                </summary>
-                <pre
-                  class="mt-3 overflow-x-auto rounded bg-stone-100 p-4 text-xs whitespace-pre-wrap text-muted"
-                  >{{ notice.text }}</pre
-                >
-              </details>
-            </li>
-          }
-        </ul>
+      @if (notices(); as list) {
+        @if (list.length === 0) {
+          <p class="text-muted">{{ text.unavailable }}</p>
+        } @else {
+          <ul class="divide-y divide-border border-t border-border">
+            @for (notice of list; track notice.name) {
+              <li class="py-3">
+                <details class="group">
+                  <summary
+                    class="flex cursor-pointer flex-wrap items-baseline gap-x-3 gap-y-1 outline-offset-2 hover:text-accent"
+                  >
+                    <span class="font-medium">{{ notice.name }}</span>
+                    <span class="text-sm text-subtle">{{
+                      notice.license ?? text.unknownLicense
+                    }}</span>
+                  </summary>
+                  <pre
+                    class="mt-3 overflow-x-auto rounded bg-stone-100 p-4 text-xs whitespace-pre-wrap text-muted"
+                    >{{ notice.text }}</pre
+                  >
+                </details>
+              </li>
+            }
+          </ul>
+        }
+      } @else if (showSkeleton()) {
+        <app-skeleton [lines]="6" />
       }
-    } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
-    }
+    </div>
   `,
 })
 export class LicensesPage {

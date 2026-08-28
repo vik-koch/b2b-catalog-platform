@@ -177,7 +177,8 @@ test.describe('my account', () => {
     await expect(page.getByText('20359 Hamburg')).toBeVisible();
 
     // Removing is confirmed first — the only destructive thing on the card.
-    await page.getByRole('button', { name: 'Remove' }).click();
+    // The row's bin is a glyph; the address is its accessible name.
+    await page.getByRole('button', { name: 'Remove Hafenstraße 12' }).click();
     const dialog = page.getByRole('dialog', { name: 'Remove address' });
     await expect(dialog).toBeVisible();
     await dialog.getByRole('button', { name: 'Remove' }).click();

@@ -23,6 +23,8 @@ import { Input } from '../../ui/input';
 import { SyncService } from './sync.service';
 import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
 import { Checkbox } from '../../ui/checkbox';
+import { ChoiceCard } from '../../ui/choice-card';
+import { StatusBadge, StatusTone } from '../../ui/status-badge';
 
 /**
  * Fills `{placeholders}` in a line of admin text with the names the API sent
@@ -52,341 +54,353 @@ function substitute(
  */
 @Component({
   selector: 'app-sync-page',
-  imports: [Checkbox, RouterLink, Button, AdminIcon, FieldLabel, Input],
+  imports: [
+    Checkbox,
+    ChoiceCard,
+    RouterLink,
+    Button,
+    AdminIcon,
+    FieldLabel,
+    Input,
+    StatusBadge,
+  ],
   template: `
-    <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
-    <p class="mb-8 max-w-xl text-muted">{{ text.description }}</p>
+    <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
+    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.description }}</p>
 
-    <!-- Step 1: what is this file? -->
-    <section class="mb-8">
-      <h2 class="mb-3 text-sm font-medium">{{ text.modeLabel }}</h2>
-      <div class="space-y-2">
-        @for (option of presets; track option.name) {
-          <label
-            class="flex cursor-pointer gap-3 rounded-md border p-3"
-            [class.border-primary]="preset() === option.name"
-            [class.border-border]="preset() !== option.name"
-          >
-            <input
-              type="radio"
+    <!-- Narrower than the heading above it: everything below is a column of
+         fields and rows to read down, not a table to scan across, and a line
+         that runs the full width of a desktop is a line nobody follows. -->
+    <div class="max-w-3xl">
+      <!-- Step 1: what is this file? -->
+      <section class="mb-8">
+        <h2 class="mb-3 text-sm font-medium">{{ text.modeLabel }}</h2>
+        <!-- Cards, the same control checkout uses for a choice that reshapes
+           what follows: each preset needs a sentence, and the destructive one
+           needs to be readable as the outlier it is. -->
+        <div class="space-y-2">
+          @for (option of presets; track option.name) {
+            <app-choice-card
               name="preset"
-              class="mt-1"
+              [value]="option.name"
               [checked]="preset() === option.name"
-              (change)="selectPreset(option.name)"
+              [title]="text.mode[option.label]"
+              [description]="option.hint ? text.mode[option.hint] : undefined"
+              (chosen)="selectPreset(option.name)"
             />
-            <span>
-              <span class="block text-sm font-medium">{{
-                text.mode[option.label]
-              }}</span>
-              @if (option.hint) {
-                <span class="block text-sm text-subtle">{{
-                  text.mode[option.hint]
-                }}</span>
-              }
-            </span>
-          </label>
-        }
-      </div>
-
-      <details class="mt-4">
-        <summary class="cursor-pointer text-sm text-muted">
-          {{ text.advanced }}
-        </summary>
-        <div class="mt-3 space-y-2 border-l-2 border-stone-100 pl-4">
-          @for (flag of flags; track flag.key) {
-            <label class="flex items-start gap-2 text-sm">
-              <input
-                type="checkbox"
-                appCheckbox
-                class="mt-0.5"
-                [checked]="isFlagOn(flag.key)"
-                [disabled]="
-                  flag.key === 'softDelete' &&
-                  !options().productSetAuthoritative
-                "
-                (change)="toggleFlag(flag.key, $any($event.target).checked)"
-              />
-              <span>
-                {{ text.option[flag.label] }}
-                @if (flag.hint) {
-                  <span class="block text-subtle">{{
-                    text.option[flag.hint]
-                  }}</span>
-                }
-              </span>
-            </label>
           }
         </div>
-      </details>
-    </section>
 
-    <!-- Step 2: the file -->
-    <section class="mb-8">
-      <span appFieldLabel>{{ text.file }}</span>
-
-      <!-- The picker is the drop target: a bare file input is easy to miss on
-           a screen where uploading is the whole point. -->
-      <input
-        #fileInput
-        type="file"
-        accept=".csv,text/csv"
-        class="sr-only"
-        (change)="onFile($event)"
-      />
-      <button
-        type="button"
-        class="flex w-full flex-col items-center gap-2 rounded-lg border-2 border-dashed px-6 py-8 text-center transition-colors"
-        [class]="dropZoneClass()"
-        (click)="openPicker(fileInput)"
-        (dragover)="onDragOver($event)"
-        (dragleave)="dragging.set(false)"
-        (drop)="onDrop($event)"
-      >
-        <app-admin-icon name="upload" class="h-6 w-6 text-stone-400" />
-        @if (file(); as chosen) {
-          <span class="font-medium">{{ chosen.name }}</span>
-          <span class="text-sm text-subtle">{{ text.changeFile }}</span>
-        } @else {
-          <span class="font-medium">{{ text.dropHint }}</span>
-          <span class="text-sm text-primary underline">{{ text.browse }}</span>
-        }
-      </button>
-      <p class="mt-1 text-sm text-subtle">{{ text.fileHint }}</p>
-
-      <div class="mt-4 flex items-center gap-3">
-        <button
-          appButton
-          type="button"
-          [disabled]="!file() || previewing()"
-          (click)="runPreview()"
-        >
-          {{ previewing() ? text.previewing : text.preview }}
-        </button>
-        @if (previewed()) {
-          <button appButton variant="secondary" type="button" (click)="reset()">
-            {{ text.discard }}
-          </button>
-        }
-      </div>
-
-      @if (previewError(); as message) {
-        <p class="mt-3 text-sm text-red-700" role="alert">{{ message }}</p>
-      }
-    </section>
-
-    <!-- Step 3: the diff -->
-    @if (previewed(); as response) {
-      @let plan = response.plan;
-      <section class="mb-8 rounded-md border border-border p-4">
-        <h2 class="mb-4 text-lg font-semibold">{{ text.summaryTitle }}</h2>
-
-        <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
-          @for (tile of summaryTiles(plan); track tile.label) {
-            <div>
-              <dt class="text-subtle">{{ text.count[tile.label] }}</dt>
-              <dd
-                class="text-lg font-semibold"
-                [class.text-red-700]="tile.danger"
-              >
-                {{ tile.value }}
-              </dd>
-            </div>
-          }
-        </dl>
-
-        @if (isNoop(plan)) {
-          <p class="text-muted">{{ text.nothingToApply }}</p>
-        }
-
-        @if (plan.rowErrors.length > 0) {
-          <h3 class="mt-6 mb-2 text-sm font-semibold text-red-700">
-            {{ text.errorsTitle }}
-          </h3>
-          <ul class="space-y-1 text-sm text-stone-700">
-            @for (error of plan.rowErrors; track $index) {
-              <li>
-                <span class="text-subtle">{{ rowLabel(error.row) }}</span>
-                — {{ rowErrorText(error) }}
-              </li>
-            }
-          </ul>
-        }
-
-        @if (categoriesOfKind(plan, 'create'); as created) {
-          @if (created.length > 0) {
-            <h3 class="mt-6 mb-1 text-sm font-semibold">
-              {{ text.categoriesTitle }}
-            </h3>
-            <p class="mb-2 text-sm text-subtle">{{ text.categoriesHint }}</p>
-            <ul class="space-y-1 text-sm">
-              @for (category of created; track category.name) {
-                <li>
-                  {{ category.name }}
-                  <span class="text-subtle">({{ category.productCount }})</span>
-                </li>
-              }
-            </ul>
-          }
-        }
-
-        @if (categoriesOfKind(plan, 'rename'); as renamed) {
-          @if (renamed.length > 0) {
-            <h3 class="mt-6 mb-1 text-sm font-semibold">
-              {{ text.renamedCategoriesTitle }}
-            </h3>
-            <p class="mb-2 text-sm text-subtle">
-              {{ text.renamedCategoriesHint }}
-            </p>
-            <ul class="space-y-1 text-sm">
-              @for (category of renamed; track category.name) {
-                <li>
-                  <span class="line-through text-subtle">{{
-                    category.from
-                  }}</span>
-                  → {{ category.name }}
-                  <span class="text-subtle">({{ category.productCount }})</span>
-                </li>
-              }
-            </ul>
-          }
-        }
-
-        @if (plan.products.length > 0) {
-          <h3 class="mt-6 mb-2 text-sm font-semibold">
-            {{ text.productsTitle }}
-          </h3>
-          <ul class="divide-y divide-stone-100 text-sm">
-            @for (product of plan.products; track product.sourceId) {
-              <li class="flex flex-wrap items-baseline gap-x-3 py-2">
-                <span
-                  class="rounded px-1.5 py-0.5 text-xs"
-                  [class]="badgeClass(product.kind)"
-                >
-                  {{ text.kind[product.kind] }}
+        <details class="mt-4">
+          <summary class="cursor-pointer text-sm text-muted">
+            {{ text.advanced }}
+          </summary>
+          <div class="mt-3 space-y-2 border-l-2 border-stone-100 pl-4">
+            @for (flag of flags; track flag.key) {
+              <label class="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  appCheckbox
+                  class="mt-0.5"
+                  [checked]="isFlagOn(flag.key)"
+                  [disabled]="
+                    flag.key === 'softDelete' &&
+                    !options().productSetAuthoritative
+                  "
+                  (change)="toggleFlag(flag.key, $any($event.target).checked)"
+                />
+                <span>
+                  {{ text.option[flag.label] }}
+                  @if (flag.hint) {
+                    <span class="block text-subtle">{{
+                      text.option[flag.hint]
+                    }}</span>
+                  }
                 </span>
-                <span class="font-medium">{{ product.name }}</span>
-                @for (change of product.changes; track change.field) {
-                  <span class="text-subtle">
-                    {{ change.field }}:
-                    <span class="line-through">{{
-                      display(change.field, change.from)
-                    }}</span>
-                    →
-                    <span class="text-stone-700">{{
-                      display(change.field, change.to)
-                    }}</span>
-                  </span>
-                }
-              </li>
+              </label>
             }
-          </ul>
-        }
-
-        @if (plan.emptiedCategories.length > 0) {
-          <h3 class="mt-6 mb-1 text-sm font-semibold">
-            {{ text.emptiedTitle }}
-          </h3>
-          <p class="mb-2 text-sm text-subtle">{{ text.emptiedHint }}</p>
-          <ul class="space-y-1 text-sm">
-            @for (category of plan.emptiedCategories; track category.slug) {
-              <li>{{ category.name }}</li>
-            }
-          </ul>
-        }
-
-        @if (plan.keptManual.length > 0) {
-          <h3 class="mt-6 mb-1 text-sm font-semibold">{{ text.keptTitle }}</h3>
-          <p class="mb-2 text-sm text-subtle">{{ text.keptHint }}</p>
-          <ul class="space-y-1 text-sm">
-            @for (kept of plan.keptManual; track kept.sourceId) {
-              <li>{{ kept.name }}</li>
-            }
-          </ul>
-        }
-
-        @if (plan.truncated) {
-          <p class="mt-4 text-sm text-subtle">{{ text.truncated }}</p>
-        }
-
-        <!-- The delete gate: typed confirmation, and only when it applies. -->
-        @if (plan.summary.softDelete > 0) {
-          <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-3">
-            <p class="text-sm text-red-800">
-              {{ deleteWarning(plan.summary.softDelete) }}
-            </p>
-            <label class="mt-2 block text-sm">
-              <span class="mb-1 block">{{ confirmLabel() }}</span>
-              <input
-                type="text"
-                appInput
-                class="font-mono"
-                [value]="confirmation()"
-                (input)="confirmation.set($any($event.target).value)"
-              />
-            </label>
           </div>
-        }
+        </details>
+      </section>
 
-        @if (!isNoop(plan)) {
-          <div class="mt-6 flex items-center gap-3">
+      <!-- Step 2: the file -->
+      <section class="mb-8">
+        <span appFieldLabel>{{ text.file }}</span>
+
+        <!-- The picker is the drop target: a bare file input is easy to miss on
+           a screen where uploading is the whole point. -->
+        <input
+          #fileInput
+          type="file"
+          accept=".csv,text/csv"
+          class="sr-only"
+          (change)="onFile($event)"
+        />
+        <button
+          type="button"
+          class="flex w-full flex-col items-center gap-2 rounded-lg border-2 border-dashed px-6 py-8 text-center transition-colors"
+          [class]="dropZoneClass()"
+          (click)="openPicker(fileInput)"
+          (dragover)="onDragOver($event)"
+          (dragleave)="dragging.set(false)"
+          (drop)="onDrop($event)"
+        >
+          <app-admin-icon name="upload" class="h-6 w-6 text-stone-400" />
+          @if (file(); as chosen) {
+            <span class="font-medium">{{ chosen.name }}</span>
+            <span class="text-sm text-subtle">{{ text.changeFile }}</span>
+          } @else {
+            <span class="font-medium">{{ text.dropHint }}</span>
+            <span class="text-sm text-primary underline">{{
+              text.browse
+            }}</span>
+          }
+        </button>
+        <p class="mt-1 text-sm text-subtle">{{ text.fileHint }}</p>
+
+        <div class="mt-4 flex items-center gap-3">
+          <button
+            appButton
+            type="button"
+            [disabled]="!file() || previewing()"
+            (click)="runPreview()"
+          >
+            {{ previewing() ? text.previewing : text.preview }}
+          </button>
+          @if (previewed()) {
             <button
               appButton
+              variant="secondary"
               type="button"
-              [disabled]="!canApply(plan) || applying()"
-              (click)="apply(response.run.id)"
+              (click)="reset()"
             >
-              {{ applying() ? text.applying : text.apply }}
+              {{ text.discard }}
             </button>
-          </div>
-        }
+          }
+        </div>
 
-        @if (applyError(); as message) {
-          <p class="mt-3 text-sm text-red-700" role="alert">
-            {{ message }}
-          </p>
+        @if (previewError(); as message) {
+          <p class="mt-3 text-sm text-red-700" role="alert">{{ message }}</p>
         }
       </section>
-    }
 
-    @if (appliedRun(); as run) {
-      <p class="mb-8 rounded-md bg-stone-100 p-3 text-sm" role="status">
-        {{ text.applied }} {{ changeSummary(run) }}
-        <a routerLink="/catalog" class="ml-2 underline">{{
-          catalogText.navLabel
-        }}</a>
-      </p>
-    }
+      <!-- Step 3: the diff -->
+      @if (previewed(); as response) {
+        @let plan = response.plan;
+        <section class="mb-8 rounded-md border border-border p-4">
+          <h2 class="mb-4 text-lg font-semibold">{{ text.summaryTitle }}</h2>
 
-    <!-- The audit trail -->
-    <section>
-      <h2 class="mb-3 text-lg font-semibold">{{ text.historyTitle }}</h2>
-      @if (runs.hasValue() && runs.value().runs.length > 0) {
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-border text-left text-subtle">
-              <th class="py-2 font-medium">{{ text.col.date }}</th>
-              <th class="py-2 font-medium">{{ text.col.file }}</th>
-              <th class="py-2 font-medium">{{ text.col.actor }}</th>
-              <th class="py-2 font-medium">{{ text.col.status }}</th>
-              <th class="py-2 font-medium">{{ text.col.changes }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-stone-100">
-            @for (run of runs.value().runs; track run.id) {
-              <tr>
-                <td class="py-2">{{ formatDate(run.startedAt) }}</td>
-                <td class="py-2 text-subtle">{{ run.filename }}</td>
-                <td class="py-2 text-subtle">{{ run.actorEmail }}</td>
-                <td class="py-2">{{ text.status[run.status] }}</td>
-                <td class="py-2 text-subtle">{{ changeSummary(run) }}</td>
-              </tr>
+          <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+            @for (tile of summaryTiles(plan); track tile.label) {
+              <div>
+                <dt class="text-subtle">{{ text.count[tile.label] }}</dt>
+                <dd
+                  class="text-lg font-semibold"
+                  [class.text-red-700]="tile.danger"
+                >
+                  {{ tile.value }}
+                </dd>
+              </div>
             }
-          </tbody>
-        </table>
-      } @else {
-        <p class="text-muted">{{ text.historyEmpty }}</p>
+          </dl>
+
+          @if (isNoop(plan)) {
+            <p class="text-muted">{{ text.nothingToApply }}</p>
+          }
+
+          @if (plan.rowErrors.length > 0) {
+            <h3 class="mt-6 mb-2 text-sm font-semibold text-red-700">
+              {{ text.errorsTitle }}
+            </h3>
+            <ul class="space-y-1 text-sm text-stone-700">
+              @for (error of plan.rowErrors; track $index) {
+                <li>
+                  <span class="text-subtle">{{ rowLabel(error.row) }}</span>
+                  — {{ rowErrorText(error) }}
+                </li>
+              }
+            </ul>
+          }
+
+          @if (categoriesOfKind(plan, 'create'); as created) {
+            @if (created.length > 0) {
+              <h3 class="mt-6 mb-1 text-sm font-semibold">
+                {{ text.categoriesTitle }}
+              </h3>
+              <p class="mb-2 text-sm text-subtle">{{ text.categoriesHint }}</p>
+              <ul class="space-y-1 text-sm">
+                @for (category of created; track category.name) {
+                  <li>
+                    {{ category.name }}
+                    <span class="text-subtle"
+                      >({{ category.productCount }})</span
+                    >
+                  </li>
+                }
+              </ul>
+            }
+          }
+
+          @if (categoriesOfKind(plan, 'rename'); as renamed) {
+            @if (renamed.length > 0) {
+              <h3 class="mt-6 mb-1 text-sm font-semibold">
+                {{ text.renamedCategoriesTitle }}
+              </h3>
+              <p class="mb-2 text-sm text-subtle">
+                {{ text.renamedCategoriesHint }}
+              </p>
+              <ul class="space-y-1 text-sm">
+                @for (category of renamed; track category.name) {
+                  <li>
+                    <span class="line-through text-subtle">{{
+                      category.from
+                    }}</span>
+                    → {{ category.name }}
+                    <span class="text-subtle"
+                      >({{ category.productCount }})</span
+                    >
+                  </li>
+                }
+              </ul>
+            }
+          }
+
+          @if (plan.products.length > 0) {
+            <h3 class="mt-6 mb-2 text-sm font-semibold">
+              {{ text.productsTitle }}
+            </h3>
+            <ul class="divide-y divide-stone-100 text-sm">
+              @for (product of plan.products; track product.sourceId) {
+                <li class="flex flex-wrap items-baseline gap-x-3 py-2">
+                  <span appStatusBadge [tone]="kindTone(product.kind)">
+                    {{ text.kind[product.kind] }}
+                  </span>
+                  <span class="font-medium">{{ product.name }}</span>
+                  @for (change of product.changes; track change.field) {
+                    <span class="text-subtle">
+                      {{ change.field }}:
+                      <span class="line-through">{{
+                        display(change.field, change.from)
+                      }}</span>
+                      →
+                      <span class="text-stone-700">{{
+                        display(change.field, change.to)
+                      }}</span>
+                    </span>
+                  }
+                </li>
+              }
+            </ul>
+          }
+
+          @if (plan.emptiedCategories.length > 0) {
+            <h3 class="mt-6 mb-1 text-sm font-semibold">
+              {{ text.emptiedTitle }}
+            </h3>
+            <p class="mb-2 text-sm text-subtle">{{ text.emptiedHint }}</p>
+            <ul class="space-y-1 text-sm">
+              @for (category of plan.emptiedCategories; track category.slug) {
+                <li>{{ category.name }}</li>
+              }
+            </ul>
+          }
+
+          @if (plan.keptManual.length > 0) {
+            <h3 class="mt-6 mb-1 text-sm font-semibold">
+              {{ text.keptTitle }}
+            </h3>
+            <p class="mb-2 text-sm text-subtle">{{ text.keptHint }}</p>
+            <ul class="space-y-1 text-sm">
+              @for (kept of plan.keptManual; track kept.sourceId) {
+                <li>{{ kept.name }}</li>
+              }
+            </ul>
+          }
+
+          @if (plan.truncated) {
+            <p class="mt-4 text-sm text-subtle">{{ text.truncated }}</p>
+          }
+
+          <!-- The delete gate: typed confirmation, and only when it applies. -->
+          @if (plan.summary.softDelete > 0) {
+            <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-3">
+              <p class="text-sm text-red-800">
+                {{ deleteWarning(plan.summary.softDelete) }}
+              </p>
+              <label class="mt-2 block text-sm">
+                <span class="mb-1 block">{{ confirmLabel() }}</span>
+                <input
+                  type="text"
+                  appInput
+                  class="font-mono"
+                  [value]="confirmation()"
+                  (input)="confirmation.set($any($event.target).value)"
+                />
+              </label>
+            </div>
+          }
+
+          @if (!isNoop(plan)) {
+            <div class="mt-6 flex items-center gap-3">
+              <button
+                appButton
+                type="button"
+                [disabled]="!canApply(plan) || applying()"
+                (click)="apply(response.run.id)"
+              >
+                {{ applying() ? text.applying : text.apply }}
+              </button>
+            </div>
+          }
+
+          @if (applyError(); as message) {
+            <p class="mt-3 text-sm text-red-700" role="alert">
+              {{ message }}
+            </p>
+          }
+        </section>
       }
-    </section>
+
+      @if (appliedRun(); as run) {
+        <p class="mb-8 rounded-md bg-stone-100 p-3 text-sm" role="status">
+          {{ text.applied }} {{ changeSummary(run) }}
+          <a routerLink="/catalog" class="ml-2 underline">{{
+            catalogText.navLabel
+          }}</a>
+        </p>
+      }
+
+      <!-- The audit trail -->
+      <section>
+        <h2 class="mb-3 text-lg font-semibold">{{ text.historyTitle }}</h2>
+        @if (runs.hasValue() && runs.value().runs.length > 0) {
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-border text-left text-subtle">
+                <th class="py-2 font-medium">{{ text.col.date }}</th>
+                <th class="py-2 font-medium">{{ text.col.file }}</th>
+                <th class="py-2 font-medium">{{ text.col.actor }}</th>
+                <th class="py-2 font-medium">{{ text.col.status }}</th>
+                <th class="py-2 font-medium">{{ text.col.changes }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+              @for (run of runs.value().runs; track run.id) {
+                <tr>
+                  <td class="py-2">{{ formatDate(run.startedAt) }}</td>
+                  <td class="py-2 text-subtle">{{ run.filename }}</td>
+                  <td class="py-2 text-subtle">{{ run.actorEmail }}</td>
+                  <td class="py-2">{{ text.status[run.status] }}</td>
+                  <td class="py-2 text-subtle">{{ changeSummary(run) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="text-muted">{{ text.historyEmpty }}</p>
+        }
+      </section>
+    </div>
   `,
 })
 export class SyncPage {
@@ -614,8 +628,8 @@ export class SyncPage {
     return value;
   }
 
-  protected badgeClass(kind: SyncProductChange['kind']): string {
-    return KIND_BADGE[kind];
+  protected kindTone(kind: SyncProductChange['kind']): StatusTone {
+    return KIND_TONE[kind];
   }
 
   protected rowLabel(row: number): string {
@@ -657,11 +671,14 @@ export class SyncPage {
 /** Keys of the option group, so a flag's label cannot name missing text. */
 type SyncOptionKey = keyof AdminText['sync']['option'];
 
-const KIND_BADGE: Record<SyncProductChange['kind'], string> = {
-  create: 'bg-green-100 text-green-800',
-  update: 'bg-stone-200 text-stone-700',
-  softDelete: 'bg-red-100 text-red-800',
-  restore: 'bg-blue-100 text-blue-800',
+/** What the run would do to a row, in the app's own status tones: a product
+ * arriving is settled, one leaving is a refusal, one coming back is worth
+ * pointing out, and a plain edit is neither. */
+const KIND_TONE: Record<SyncProductChange['kind'], StatusTone> = {
+  create: 'ok',
+  update: 'neutral',
+  softDelete: 'danger',
+  restore: 'info',
 };
 
 /**

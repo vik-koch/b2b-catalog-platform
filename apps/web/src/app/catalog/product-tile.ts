@@ -54,6 +54,21 @@ export const PRODUCT_GRID =
   'grid grid-cols-[repeat(auto-fill,minmax(min(15.125rem,100%),1fr))] gap-x-4 gap-y-8 @max-[593px]/listing:grid-cols-1 @max-[593px]/listing:gap-y-0 @max-[593px]/listing:divide-y @max-[593px]/listing:divide-border @max-[593px]/listing:border-y @max-[593px]/listing:border-border';
 
 /**
+ * The same grid at the card's true floor — 234px, what the buying controls
+ * need side by side — for a listing that has no filter panel to share the row
+ * with. It is the eight pixels back: at the page's full width they are the
+ * difference between four columns and five, and the reason they were given up
+ * (the panel taking a column away as the window widened past its threshold)
+ * cannot arise where a panel is never rendered at any width.
+ *
+ * A category with no attributes and a search with no facets are exactly that
+ * case, and they are the listings that most want the extra column: there is
+ * nothing beside the grid to look at instead.
+ */
+export const PRODUCT_GRID_FULL =
+  'grid grid-cols-[repeat(auto-fill,minmax(min(14.625rem,100%),1fr))] gap-x-4 gap-y-8 @max-[593px]/listing:grid-cols-1 @max-[593px]/listing:gap-y-0 @max-[593px]/listing:divide-y @max-[593px]/listing:divide-border @max-[593px]/listing:border-y @max-[593px]/listing:border-border';
+
+/**
  * One product card in a grid (FR-CAT-04) — gallery, name, price — shared by the
  * category grid and the search results so the two cannot drift apart.
  *
@@ -65,9 +80,10 @@ export const PRODUCT_GRID =
  * nothing is re-rendered, so there is no rearrangement after hydration and the
  * choice is still there when the window is wide again.
  *
- * Edit-mode controls are projected rather than built in: only the category grid
- * has them, and they are absolutely positioned inside this card's own stacking
- * context, which is why the card owns `relative` and the slot sits at its top.
+ * Edit-mode controls are projected rather than built in: the two listings that
+ * have them supply their own, and they are absolutely positioned inside this
+ * card's own stacking context, which is why the card owns `relative` and the
+ * slot sits at its top.
  */
 @Component({
   selector: 'app-product-tile',

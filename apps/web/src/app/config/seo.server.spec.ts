@@ -58,6 +58,17 @@ describe('injectNoindexMeta', () => {
     );
   });
 
+  it("rewrites the page's own robots tag rather than adding a second", async () => {
+    process.env['SEO_INDEXABLE'] = 'false';
+    const { injectNoindexMeta } = await load();
+    const html = injectNoindexMeta(
+      '<head><meta name="robots" content="noindex"></head>',
+    );
+    expect(html).toBe(
+      '<head><meta name="robots" content="noindex, nofollow"></head>',
+    );
+  });
+
   it('leaves the document untouched when indexable', async () => {
     process.env['SEO_INDEXABLE'] = 'true';
     const { injectNoindexMeta } = await load();

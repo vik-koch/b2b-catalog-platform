@@ -14,10 +14,11 @@ import { injectEditorReturnParams } from './editor-return';
 import { BuildInfoService } from './build-info.service';
 
 /**
- * Admin panel — a small dashboard over two cards: everything that changes shop
- * content (the catalog import, products and categories, the fixed static
- * pages), and site state (maintenance mode). Everything an admin can change is
- * discoverable from here, consistent with the storefront edit-mode affordances.
+ * Admin panel — a small dashboard: everything that changes shop content (the
+ * catalog import, products and categories, the fixed static pages), the two
+ * staff-facing halves (orders and accounts) side by side, and site state
+ * (maintenance mode). Everything an admin can change is discoverable from here,
+ * consistent with the storefront edit-mode affordances.
  */
 @Component({
   selector: 'app-admin-panel-page',
@@ -54,31 +55,24 @@ import { BuildInfoService } from './build-info.service';
             class="grid divide-y divide-border sm:grid-cols-4 sm:divide-x sm:divide-y-0"
           >
             <div class="p-5">
-              <!-- The status rides on the heading line rather than under the
-                   button: it describes the column, not the action, and up here
-                   it leaves every column ending on its buttons.
-                   Wraps to its own line where the column is too narrow. -->
-              <div class="mb-3 flex flex-wrap items-center gap-2">
-                <h3 class="text-sm font-semibold">{{ panelText.sync }}</h3>
-                <!-- The audit trail's newest applied run is the last-sync
-                     answer; there is no separate setting to keep in step. Until
-                     it arrives, hold the chip's space rather than showing
-                     "never synced" and correcting it a moment later. -->
-                @if (runs.isLoading()) {
-                  <div
-                    class="h-6 w-32 animate-pulse rounded bg-stone-200"
-                    aria-hidden="true"
-                  ></div>
-                } @else {
-                  <p class="rounded bg-stone-100 px-2 py-1 text-xs text-muted">
-                    {{ lastSync() }}
-                  </p>
-                }
-              </div>
+              <h3 class="mb-3 text-sm font-semibold">{{ panelText.sync }}</h3>
               <a appButton routerLink="/admin/sync" class="gap-2">
                 <app-admin-icon name="upload" class="h-4 w-4" />
                 {{ syncText.title }}
               </a>
+              <!-- Under the button, as a caption to it: the run it reports is
+                   the one that button starts again. The audit trail's newest
+                   applied run is the whole answer; there is no separate setting
+                   to keep in step. Until it arrives, hold the line's space
+                   rather than showing "never synced" and correcting it. -->
+              @if (runs.isLoading()) {
+                <div
+                  class="mt-3 h-4 w-32 animate-pulse rounded bg-stone-200"
+                  aria-hidden="true"
+                ></div>
+              } @else {
+                <p class="mt-3 text-xs text-muted">{{ lastSync() }}</p>
+              }
             </div>
 
             <div class="p-5">
@@ -184,44 +178,54 @@ import { BuildInfoService } from './build-info.service';
       </section>
     }
 
-    <!-- Orders, shown to managers too and before the accounts: answering
-         today's requests is the work, approving an account is occasional. -->
-    <section class="mt-10">
-      <h2
-        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
-      >
-        <app-admin-icon name="clipboard-list" class="h-4 w-4" />
-        {{ panelText.orders }}
-      </h2>
-      <div class="flex flex-wrap gap-3 rounded-lg border border-border p-5">
-        <a appButton variant="secondary" routerLink="/admin/orders">
-          {{ orderText.title }}
-        </a>
-      </div>
-    </section>
-
-    <!-- Accounts is its own section, shown to managers too: approving and
-         tiering customers is the whole of a manager's panel. -->
-    <section class="mt-10">
-      <h2
-        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
-      >
-        <app-admin-icon name="users" class="h-4 w-4" />
-        {{ panelText.accounts }}
-      </h2>
-      <!-- Two buttons rather than one screen with tabs: they are two
-           permissions, and a manager is only ever offered the one they have. -->
-      <div class="flex flex-wrap gap-3 rounded-lg border border-border p-5">
-        <a appButton variant="secondary" routerLink="/admin/users">
-          {{ userText.titleCustomers }}
-        </a>
-        @if (isAdmin()) {
-          <a appButton variant="secondary" routerLink="/admin/users/staff">
-            {{ userText.titleStaff }}
+    <!-- The two staff-facing halves side by side: neither holds enough buttons
+         to earn a row of its own, and both are shown to managers, whose panel
+         is these two cards and nothing else. Orders first — answering today's
+         requests is the work, approving an account is occasional. Stacked below
+         md, where two columns of buttons would each be too narrow. -->
+    <div class="mt-10 grid gap-6 md:grid-cols-2">
+      <section class="flex flex-col">
+        <h2
+          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+        >
+          <app-admin-icon name="clipboard-list" class="h-4 w-4" />
+          {{ panelText.orders }}
+        </h2>
+        <!-- Grows to its neighbour's height: side by side, two cards that end
+             at different points read as one being unfinished. -->
+        <div
+          class="flex grow flex-wrap items-start gap-3 rounded-lg border border-border p-5"
+        >
+          <a appButton variant="secondary" routerLink="/admin/orders">
+            {{ orderText.title }}
           </a>
-        }
-      </div>
-    </section>
+        </div>
+      </section>
+
+      <section class="flex flex-col">
+        <h2
+          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+        >
+          <app-admin-icon name="users" class="h-4 w-4" />
+          {{ panelText.accounts }}
+        </h2>
+        <!-- Two buttons rather than one screen with tabs: they are two
+             permissions, and a manager is only ever offered the one they
+             have. -->
+        <div
+          class="flex grow flex-wrap items-start gap-3 rounded-lg border border-border p-5"
+        >
+          <a appButton variant="secondary" routerLink="/admin/users">
+            {{ userText.titleCustomers }}
+          </a>
+          @if (isAdmin()) {
+            <a appButton variant="secondary" routerLink="/admin/users/staff">
+              {{ userText.titleStaff }}
+            </a>
+          }
+        </div>
+      </section>
+    </div>
 
     @if (isAdmin()) {
       <section class="mt-10">

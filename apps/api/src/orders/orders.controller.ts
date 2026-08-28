@@ -50,6 +50,20 @@ export class OrdersController {
         };
       }
 
+      // Staff do not buy. Role is authorization and tier is pricing (they are
+      // separate fields for exactly this reason), so a staff session has no
+      // tier to be priced at and no party to invoice — and the request would
+      // arrive in the inbox they are the ones answering.
+      if (user && user.role !== 'user') {
+        return {
+          status: 400 as const,
+          body: {
+            code: 'staff-cannot-order' as const,
+            message: 'A staff account cannot place an order request',
+          },
+        };
+      }
+
       try {
         const placed = await this.orders.submit(body, user?.id ?? null, tierId);
         this.audit.record('order.placed', user, {

@@ -32,7 +32,9 @@ import { AdminListHeader } from '../list-header';
 import { GridSortHeader } from '../products/grid-sort-header';
 import { TiersService } from '../tiers/tiers.service';
 import { injectEditorReturnParams } from '../editor-return';
+import { StatusBadge } from '../../ui/status-badge';
 import { StaffUsersService } from './users.service';
+import { userStatusTone } from './user-status';
 
 /**
  * The staff account list (FR-AUTH-03/04). One component, two views chosen by the
@@ -86,6 +88,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     GridSortHeader,
     GridFilterSelect,
     Skeleton,
+    StatusBadge,
   ],
   template: `
     <app-admin-list-header
@@ -239,11 +242,9 @@ const typeRank = (t: StaffUser['customerType']): number =>
                   </td>
                 }
                 <td>
-                  <span
-                    class="rounded px-1.5 py-0.5 text-xs"
-                    [class]="statusClass(user.status)"
-                    >{{ statusLabel(user.status) }}</span
-                  >
+                  <span appStatusBadge [tone]="statusTone(user.status)">{{
+                    statusLabel(user.status)
+                  }}</span>
                 </td>
                 <td class="text-subtle">{{ formatDate(user.createdAt) }}</td>
                 <!-- Both actions open the same editor; only the glyph differs,
@@ -591,19 +592,8 @@ export class UserListPage {
     }[status];
   }
 
-  /** A muted badge per state: amber for waiting, blue for invited-not-yet-in,
-   * green for active, red for switched off, grey for a closed account. */
-  protected statusClass(status: StaffUser['status']): string {
-    return {
-      pending: 'bg-amber-100 text-amber-800',
-      invited: 'bg-sky-100 text-sky-800',
-      active: 'bg-green-100 text-green-800',
-      // Red, not grey: a deactivated account is a deliberate block somebody
-      // has to notice, where a closed one is just history.
-      disabled: 'bg-red-100 text-red-800',
-      anonymized: 'bg-stone-200 text-muted',
-    }[status];
-  }
+  /** The shared palette; see user-status.ts. */
+  protected readonly statusTone = userStatusTone;
 
   protected formatDate(iso: string): string {
     return this.dateFormat.format(new Date(iso));

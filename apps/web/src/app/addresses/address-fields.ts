@@ -8,11 +8,12 @@ import {
   signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { AddressComponents } from '@b2b-catalog-platform/shared';
+import { AddressComponents, fillText } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { FieldErrors } from '../core/form-errors';
 import { FieldLabel } from '../ui/field-label';
+import { DigitMask } from '../ui/digit-mask';
 import { Input } from '../ui/input';
 import { SelectField } from '../ui/select-field';
 import { AddressForm } from './address-form';
@@ -47,6 +48,7 @@ let nextId = 0;
   imports: [
     ReactiveFormsModule,
     AddressSuggestField,
+    DigitMask,
     FieldLabel,
     Input,
     SelectField,
@@ -122,18 +124,42 @@ let nextId = 0;
               {{ text.postalCode }}
               <span class="text-accent" aria-hidden="true">*</span>
             </label>
-            <input
-              [id]="id('postalCode')"
-              type="text"
-              formControlName="postalCode"
-              autocomplete="postal-code"
-              aria-required="true"
-              appInput
-              class="w-full"
-              [attr.aria-invalid]="isInvalid('postalCode') || null"
-            />
+            <!-- Two fields, one drawn at a time: the mask is a
+                 ControlValueAccessor, and an empty mask means "digits only,
+                 no limit" — which would quietly strip the letters out of a
+                 code in a country whose codes carry them. So a deployment
+                 that configured a digit mask gets a field that enforces it,
+                 and everyone else gets a field that takes what is typed. -->
+            @if (postalMask(); as mask) {
+              <input
+                [id]="id('postalCode')"
+                type="text"
+                inputmode="numeric"
+                formControlName="postalCode"
+                autocomplete="postal-code"
+                aria-required="true"
+                appInput
+                appDigitMask
+                [mask]="mask"
+                class="w-full"
+                [attr.aria-invalid]="isInvalid('postalCode') || null"
+              />
+            } @else {
+              <input
+                [id]="id('postalCode')"
+                type="text"
+                formControlName="postalCode"
+                autocomplete="postal-code"
+                aria-required="true"
+                appInput
+                class="w-full"
+                [attr.aria-invalid]="isInvalid('postalCode') || null"
+              />
+            }
             @if (isInvalid('postalCode')) {
-              <p class="mt-1 text-sm text-red-600">{{ text.required }}</p>
+              <p class="mt-1 text-sm text-red-600">
+                {{ postalCodeError() }}
+              </p>
             }
           </div>
 
@@ -318,6 +344,32 @@ export class AddressFields {
 
   protected id(field: string): string {
     return `address-${this.instance}-${field}`;
+  }
+
+  /**
+   * The digit mask the chosen country's codes are entered through, where the
+   * deployment configured one. Read off the mirrored value rather than the
+   * control, so switching country regroups the field immediately.
+   */
+  protected readonly postalMask = computed(() => this.rule()?.mask ?? '');
+
+  /** Reads the country through the mirrored value, so it is a signal. */
+  private readonly rule = computed(() => {
+    this.value();
+    return this.form().postalCodeRule();
+  });
+
+  /**
+   * Why the postcode is refused: empty is one answer and the wrong shape is
+   * another, and telling somebody who left it blank what a valid code looks
+   * like is answering a question they did not ask.
+   */
+  protected postalCodeError(): string {
+    const control = this.form().group.controls.postalCode;
+    const rule = this.rule();
+    return control.hasError('postalCode') && rule
+      ? fillText(this.text.postalCodeFormat, { example: rule.example })
+      : this.text.required;
   }
 
   protected isInvalid(

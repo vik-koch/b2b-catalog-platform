@@ -27,7 +27,12 @@ import { Radio } from '../ui/radio';
     <fieldset>
       <legend class="mb-2 font-medium">{{ text.pickupHeading }}</legend>
 
-      <div class="space-y-2" role="radiogroup">
+      <div
+        class="space-y-2"
+        role="radiogroup"
+        [attr.aria-invalid]="invalid() || null"
+        [attr.aria-describedby]="invalid() ? 'pickup-error' : null"
+      >
         @for (location of locations; track location.key) {
           <!-- Three columns where they fit: the radio, the place, and the map
                link pushed to the right edge. The link keeps its own column
@@ -74,6 +79,12 @@ import { Radio } from '../ui/radio';
           </div>
         }
       </div>
+
+      @if (invalid()) {
+        <p id="pickup-error" class="mt-2 text-sm text-red-600">
+          {{ text.pickupRequired }}
+        </p>
+      }
     </fieldset>
   `,
 })
@@ -83,5 +94,8 @@ export class PickupChoice {
     inject(DEPLOYMENT_CONFIG).pickup?.locations ?? [];
 
   readonly pickupKey = input.required<string | null>();
+  /** Set once the form has been submitted without an answer here. The group
+   * has no FormControl to carry the error, so the page passes it in. */
+  readonly invalid = input(false);
   readonly pickupKeyChange = output<string>();
 }

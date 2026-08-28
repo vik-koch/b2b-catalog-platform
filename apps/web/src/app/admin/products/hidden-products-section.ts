@@ -13,6 +13,7 @@ import { PricePipe } from '../../catalog/price.pipe';
 import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
+import { StatusBadge } from '../../ui/status-badge';
 
 /**
  * The edit-mode overlay under a category grid (FR-ADM-01/06): what this category
@@ -30,7 +31,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
  */
 @Component({
   selector: 'app-hidden-products-section',
-  imports: [PricePipe, Button, AdminIcon],
+  imports: [PricePipe, Button, AdminIcon, StatusBadge],
   template: `
     @if (hidden.value(); as items) {
       @if (items.length) {
@@ -61,16 +62,12 @@ import { AdminCatalogService } from '../admin-catalog.service';
                          one action will not be enough to bring it back. -->
                     <p class="mb-1 flex flex-wrap gap-1">
                       @if (item.deleted) {
-                        <span
-                          class="rounded bg-stone-200 px-1.5 py-0.5 text-xs text-muted"
-                          >{{ text.deletedBadge }}</span
-                        >
+                        <span appStatusBadge>{{ text.deletedBadge }}</span>
                       }
                       @if (item.unpublished) {
-                        <span
-                          class="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-900"
-                          >{{ text.unpublishedBadge }}</span
-                        >
+                        <span appStatusBadge tone="waiting">{{
+                          text.unpublishedBadge
+                        }}</span>
                       }
                     </p>
                     <h3

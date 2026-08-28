@@ -129,6 +129,19 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     expect(el.textContent).toContain(placed.reference);
   });
 
+  // The URL is the whole credential (ADR 0038), so it must not travel in a
+  // `Referer` header to whatever the reader clicks next.
+  it('keeps the page out of the index and out of referrers', async () => {
+    await render(placed);
+
+    expect(
+      document.querySelector('meta[name="robots"]')?.getAttribute('content'),
+    ).toBe('noindex');
+    expect(
+      document.querySelector('meta[name="referrer"]')?.getAttribute('content'),
+    ).toBe('no-referrer');
+  });
+
   it('says a token that opens nothing opens nothing', async () => {
     const { el } = await render(null);
 

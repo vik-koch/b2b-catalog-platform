@@ -18,16 +18,16 @@ import { EditModeService } from './edit-mode.service';
     @if (editMode.isAdmin() && text(); as text) {
       <button
         type="button"
-        class="fixed right-4 bottom-4 z-40 flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-lg transition-colors cursor-pointer"
+        class="fixed right-4 bottom-5.5 z-40 flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-lg transition-colors cursor-pointer"
         [class]="
           editMode.enabled()
-            ? 'border border-primary bg-primary text-white hover:border-accent hover:bg-accent hover:text-white'
-            : 'border border-border-strong bg-white text-ink hover:text-accent'
+            ? 'bg-accent text-white hover:border-accent hover:bg-white hover:text-black'
+            : 'bg-white text-ink hover:text-accent'
         "
         [attr.aria-pressed]="editMode.enabled()"
         (click)="editMode.toggle()"
       >
-        <app-icon name="pencil" class="h-5 w-5" />
+        <app-icon name="pencil" class="h-4 w-4" />
         {{ editMode.enabled() ? text.editMode.disable : text.editMode.enable }}
       </button>
     }

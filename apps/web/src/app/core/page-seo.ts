@@ -19,6 +19,12 @@ export function usePageSeo(opts: {
    * not reactive: a route either is such a view or it is not.
    */
   noindex?: boolean;
+  /**
+   * Suppresses the `Referer` header this document sends (ADR 0038). For a page
+   * whose URL is itself the credential — the order token — so that following a
+   * link off it cannot hand the token to whoever is on the other end.
+   */
+  noreferrer?: boolean;
 }): void {
   const title = inject(Title);
   const meta = inject(Meta);
@@ -38,6 +44,13 @@ export function usePageSeo(opts: {
     // inherit it.
     meta.updateTag({ name: 'robots', content: 'noindex' });
     inject(DestroyRef).onDestroy(() => meta.removeTag('name="robots"'));
+  }
+
+  if (opts.noreferrer) {
+    // Removed on the way out for the same reason as the robots tag: a
+    // client-side navigation away must not leave the whole app referrer-less.
+    meta.updateTag({ name: 'referrer', content: 'no-referrer' });
+    inject(DestroyRef).onDestroy(() => meta.removeTag('name="referrer"'));
   }
 
   const describe = opts.description;

@@ -1,4 +1,10 @@
-import { moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, resource, signal } from '@angular/core';
 import { CustomerTier, tierKeySchema } from '@b2b-catalog-platform/shared';
@@ -13,6 +19,7 @@ import { FieldLabel } from '../../ui/field-label';
 import { Skeleton } from '../../ui/skeleton';
 import { ConfirmService } from '../../ui/confirm.service';
 import { TiersService } from './tiers.service';
+import { RouterLink } from '@angular/router';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -33,7 +40,18 @@ type EditTarget = { id: string } | { id: null } | null;
  */
 @Component({
   selector: 'app-tier-list-page',
-  imports: [NgTemplateOutlet, Button, AdminIcon, Input, FieldLabel, Skeleton],
+  imports: [
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    NgTemplateOutlet,
+    Button,
+    AdminIcon,
+    Input,
+    FieldLabel,
+    Skeleton,
+    RouterLink,
+  ],
   template: `
     <div class="mb-4 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
@@ -49,189 +67,210 @@ type EditTarget = { id: string } | { id: null } | null;
       </button>
     </div>
 
-    <p class="mb-6 max-w-xl text-sm text-muted">{{ text.intro }}</p>
-    @if (reorderError()) {
-      <p class="mb-4 text-sm text-red-700" role="alert">
-        {{ text.reorderError }}
-      </p>
-    }
+    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
 
-    @if (tiers.error()) {
-      <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
-    } @else if (tiers.hasValue()) {
-      <!-- overflow-hidden so a row's own background cannot square off the
+    <!-- Narrower than the heading above it: everything below is a column of
+         fields and rows to read down, not a table to scan across, and a line
+         that runs the full width of a desktop is a line nobody follows. -->
+    <div class="max-w-3xl">
+      @if (reorderError()) {
+        <p class="mb-4 text-sm text-red-700" role="alert">
+          {{ text.reorderError }}
+        </p>
+      }
+
+      @if (tiers.error()) {
+        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+      } @else if (tiers.hasValue()) {
+        <!-- overflow-hidden so a row's own background cannot square off the
            card's rounded corners. -->
-      <div
-        class="divide-y divide-border overflow-hidden rounded-lg border border-border"
-      >
-        <!-- The base list, pinned first and inert: nothing about it is stored,
+        <div
+          class="divide-y divide-border overflow-hidden rounded-lg border border-border"
+        >
+          <!-- The base list, pinned first and inert: nothing about it is stored,
              so there is nothing here to change. It sits outside the drop list
              too — it is not a row anyone can move. -->
-        <div class="bg-white flex flex-wrap items-baseline gap-x-3 gap-y-1 p-4">
-          <span class="font-medium text-stone-700">
-            {{ text.defaultLabel }}
-          </span>
-          <span class="text-sm text-subtle">
-            {{ accountsLabel(tiers.value().defaultUserCount) }}
-          </span>
-          <p class="w-full text-sm text-muted">{{ text.defaultHint }}</p>
-        </div>
-
-        <ul class="divide-y divide-border">
-          @for (tier of tiers.value().tiers; track tier.id; let i = $index) {
-            <li class="p-4 bg-white">
-              @if (isEditing(tier.id)) {
-                <ng-container [ngTemplateOutlet]="form" />
-              } @else {
-                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <!-- Ordering is for staff eyes only, so the handle sits with
-                       the row's other affordances and carries no explanation
-                       beyond its label. -->
-                  <span class="font-medium text-stone-700">{{
-                    tier.label
-                  }}</span>
-                  <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
-                    {{ tier.key }}
-                  </code>
-                  <span class="text-sm text-subtle">
-                    {{ accountsLabel(tier.userCount) }} ·
-                    {{ pricesLabel(tier.priceCount) }}
-                  </span>
-                  <span class="ml-auto flex items-center gap-1">
-                    <!-- Ordering is a secondary concern on this screen, so it
-                         sits with the row's other actions rather than claiming
-                         a handle column of its own. -->
-                    <button
-                      type="button"
-                      class="p-1 text-stone-400 hover:text-accent disabled:invisible"
-                      [attr.aria-label]="text.moveUp"
-                      [disabled]="i === 0 || busy() || editing() !== null"
-                      (click)="move(i, i - 1)"
-                    >
-                      <app-admin-icon name="chevron-up" class="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      class="p-1 text-stone-400 hover:text-accent disabled:invisible"
-                      [attr.aria-label]="text.moveDown"
-                      [disabled]="
-                        i === tiers.value().tiers.length - 1 ||
-                        busy() ||
-                        editing() !== null
-                      "
-                      (click)="move(i, i + 1)"
-                    >
-                      <app-admin-icon name="chevron-down" class="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      class="p-1 text-stone-400 hover:text-accent"
-                      [attr.aria-label]="text.edit"
-                      [disabled]="editing() !== null"
-                      (click)="startEdit(tier)"
-                    >
-                      <app-admin-icon name="pencil" class="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      class="p-1 text-stone-400 hover:text-red-700"
-                      [attr.aria-label]="text.delete"
-                      [disabled]="busy()"
-                      (click)="remove(tier)"
-                    >
-                      <app-admin-icon name="trash-2" class="h-4 w-4" />
-                    </button>
-                  </span>
-                </div>
-                @if (rowError()?.id === tier.id) {
-                  <p class="mt-2 text-sm text-red-700" role="alert">
-                    {{ rowError()?.message }}
-                  </p>
-                }
-              }
-            </li>
-          }
-        </ul>
-
-        @if (isEditing(null)) {
-          <div class="p-4 bg-white">
-            <ng-container [ngTemplateOutlet]="form" />
+          <div
+            class="bg-white flex flex-wrap items-baseline gap-x-3 gap-y-1 p-4"
+          >
+            <span class="font-medium text-stone-700">
+              {{ text.defaultLabel }}
+            </span>
+            <span class="text-sm text-subtle">
+              {{ accountsLabel(tiers.value().defaultUserCount) }}
+            </span>
+            <p class="w-full text-sm text-muted">{{ text.defaultHint }}</p>
           </div>
-        } @else if (tiers.value().tiers.length === 0) {
-          <p class="p-4 text-sm text-muted">{{ text.empty }}</p>
-        }
-      </div>
-    } @else if (showSkeleton()) {
-      <app-skeleton [lines]="4" />
-    }
 
-    <!-- One form for both add and edit: a tier is a name and a key either way,
+          <ul
+            class="divide-y divide-border"
+            cdkDropList
+            [cdkDropListDisabled]="busy() || editing() !== null"
+            (cdkDropListDropped)="onDrop($event)"
+          >
+            @for (tier of tiers.value().tiers; track tier.id) {
+              <li class="p-4 bg-white" cdkDrag [cdkDragData]="tier">
+                @if (isEditing(tier.id)) {
+                  <ng-container [ngTemplateOutlet]="form" />
+                } @else {
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span class="font-medium text-stone-700">{{
+                      tier.label
+                    }}</span>
+                    <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
+                      {{ tier.key }}
+                    </code>
+                    <span class="text-sm text-subtle">
+                      {{ accountsLabel(tier.userCount) }} ·
+                      {{ pricesLabel(tier.priceCount) }}
+                    </span>
+                    <!-- The same cluster the attribute rows carry, in the same
+                         order: where the row's subject is listed, the handle,
+                         then edit and delete. Two screens that are the same
+                         screen with different rows should not need learning
+                         twice. -->
+                    <span class="ml-auto flex items-center gap-1">
+                      <!-- "Which products did we agree a rate on?" is the
+                           question every review of a tier starts from, and the
+                           admin grid is where it is answered. Absent where the
+                           tier prices nothing: an empty grid is not an answer
+                           worth a click. -->
+                      @if (tier.priceCount > 0) {
+                        <a
+                          routerLink="/admin/products"
+                          [queryParams]="{ tierId: tier.id }"
+                          class="p-1 text-stone-400 hover:text-accent"
+                          [attr.aria-label]="text.seePrices"
+                          [title]="text.seePrices"
+                        >
+                          <app-admin-icon name="square-menu" class="h-4 w-4" />
+                        </a>
+                      }
+                      <!-- A handle, not a pair of step buttons: everything else
+                           in the panel that has an order is dragged, and a
+                           button that disables itself at the ends of the list
+                           flickers through every reorder. -->
+                      <span
+                        cdkDragHandle
+                        class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
+                        [attr.aria-label]="common.reorder"
+                        [title]="common.reorder"
+                      >
+                        <app-admin-icon name="grip-vertical" class="h-4 w-4" />
+                      </span>
+                      <button
+                        type="button"
+                        class="p-1 text-stone-400 hover:text-accent"
+                        [attr.aria-label]="text.edit"
+                        [disabled]="editing() !== null"
+                        (click)="startEdit(tier)"
+                      >
+                        <app-admin-icon name="pencil" class="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        class="p-1 text-stone-400 hover:text-red-700"
+                        [attr.aria-label]="text.delete"
+                        [disabled]="busy()"
+                        (click)="remove(tier)"
+                      >
+                        <app-admin-icon name="trash-2" class="h-4 w-4" />
+                      </button>
+                    </span>
+                  </div>
+                  @if (rowError()?.id === tier.id) {
+                    <p class="mt-2 text-sm text-red-700" role="alert">
+                      {{ rowError()?.message }}
+                    </p>
+                  }
+                }
+              </li>
+            }
+          </ul>
+
+          @if (isEditing(null)) {
+            <div class="p-4 bg-white">
+              <ng-container [ngTemplateOutlet]="form" />
+            </div>
+          } @else if (tiers.value().tiers.length === 0) {
+            <p class="p-4 text-sm text-muted">{{ text.empty }}</p>
+          }
+        </div>
+      } @else if (showSkeleton()) {
+        <app-skeleton [lines]="4" />
+      }
+
+      <!-- One form for both add and edit: a tier is a name and a key either way,
          and the only difference is which request the save makes. -->
-    <ng-template #form>
-      <!-- Fields and buttons share one baseline (items-end); the key hint
+      <ng-template #form>
+        <!-- Fields and buttons share one baseline (items-end); the key hint
            therefore sits on its own line below rather than lengthening one
            column and pulling the row out of alignment. -->
-      <form class="flex flex-wrap items-end gap-4" (submit)="save($event)">
-        <div>
-          <label appFieldLabel for="tier-label">{{ text.label }}</label>
-          <input
-            appInput
-            size="sm"
-            id="tier-label"
-            name="label"
-            class="w-56"
-            autocomplete="off"
-            [value]="draftLabel()"
-            [placeholder]="text.labelPlaceholder"
-            (input)="draftLabel.set($any($event.target).value)"
-          />
-        </div>
-        <div>
-          <label appFieldLabel for="tier-key">{{ text.key }}</label>
-          <input
-            appInput
-            size="sm"
-            id="tier-key"
-            name="key"
-            class="w-56 font-mono"
-            autocomplete="off"
-            [value]="draftKey()"
-            [placeholder]="text.keyPlaceholder"
-            (input)="draftKey.set($any($event.target).value)"
-          />
-        </div>
-        <div class="flex items-center gap-2">
-          <button
-            appButton
-            size="sm"
-            type="submit"
-            class="gap-2"
-            [disabled]="busy()"
-          >
-            <app-admin-icon name="save" class="h-4 w-4" />
-            {{ busy() ? common.saving : common.save }}
-          </button>
-          <button
-            appButton
-            variant="secondary"
-            size="sm"
-            type="button"
-            class="gap-2"
-            [disabled]="busy()"
-            (click)="cancel()"
-          >
-            <app-admin-icon name="x" class="h-4 w-4" />
-            {{ common.cancel }}
-          </button>
-        </div>
-        <p class="w-full text-xs text-muted">{{ text.keyHint }}</p>
-        @if (formError()) {
-          <p class="w-full text-sm text-red-700" role="alert">
-            {{ formError() }}
-          </p>
-        }
-      </form>
-    </ng-template>
+        <form class="flex flex-wrap items-end gap-4" (submit)="save($event)">
+          <div>
+            <label appFieldLabel for="tier-label">
+              {{ text.label }}
+              <span class="text-accent" aria-hidden="true">*</span>
+            </label>
+            <input
+              appInput
+              size="sm"
+              id="tier-label"
+              name="label"
+              class="w-56"
+              autocomplete="off"
+              [value]="draftLabel()"
+              [placeholder]="text.labelPlaceholder"
+              (input)="draftLabel.set($any($event.target).value)"
+            />
+          </div>
+          <div>
+            <label appFieldLabel for="tier-key">{{ text.key }}</label>
+            <input
+              appInput
+              size="sm"
+              id="tier-key"
+              name="key"
+              class="w-56 font-mono"
+              autocomplete="off"
+              [value]="draftKey()"
+              [placeholder]="text.keyPlaceholder"
+              (input)="draftKey.set($any($event.target).value)"
+            />
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              appButton
+              size="sm"
+              type="submit"
+              class="gap-2"
+              [disabled]="busy()"
+            >
+              <app-admin-icon name="save" class="h-4 w-4" />
+              {{ busy() ? common.saving : common.save }}
+            </button>
+            <button
+              appButton
+              variant="secondary"
+              size="sm"
+              type="button"
+              class="gap-2"
+              [disabled]="busy()"
+              (click)="cancel()"
+            >
+              <app-admin-icon name="x" class="h-4 w-4" />
+              {{ common.cancel }}
+            </button>
+          </div>
+          <p class="w-full text-xs text-muted">{{ text.keyHint }}</p>
+          @if (formError()) {
+            <p class="w-full text-sm text-red-700" role="alert">
+              {{ formError() }}
+            </p>
+          }
+        </form>
+      </ng-template>
+    </div>
   `,
 })
 export class TierListPage {
@@ -260,6 +299,15 @@ export class TierListPage {
    * Moves a tier one place and commits immediately — the click *is* the save,
    * so there is nothing to confirm.
    */
+  /**
+   * Moves a tier one place and commits immediately — the drop *is* the save,
+   * so there is nothing to confirm.
+   */
+  protected onDrop(event: CdkDragDrop<CustomerTier>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    void this.move(event.previousIndex, event.currentIndex);
+  }
+
   protected async move(from: number, to: number): Promise<void> {
     const current = this.tiers.value();
     if (!current || to < 0 || to >= current.tiers.length) return;

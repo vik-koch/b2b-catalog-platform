@@ -44,13 +44,13 @@ export const appTextSchema = z
       .object({
         /** Accessible name of the logo's home link; `{name}` is substituted. */
         homeLink: z.string(),
-        /** Mobile one-tap call action; `{phone}` is substituted. */
-        callPhone: z.string(),
         toggleMenu: z.string(),
         /** Landmark names for the three navigations and the consent banner. */
         utilityNav: z.string(),
         legalNav: z.string(),
         consentBanner: z.string(),
+        /** Floating back-to-top control. */
+        scrollToTop: z.string(),
       })
       .strict(),
     /** Storefront catalog chrome (FR-CAT). */
@@ -225,7 +225,6 @@ export const appTextSchema = z
         noteEdit: z.string(),
         /** Closes the note bubble on a line that is already in the cart, where
          * there is nothing left to confirm. */
-        noteDone: z.string(),
         add: z.string(),
         /** Replaces the add button once the product is in the cart, so the
          * controls above read as an edit of that line; `{total}` is what the
@@ -360,6 +359,11 @@ export const appTextSchema = z
          */
         signInPrompt: z.string(),
         signInAction: z.string(),
+        /** A signed-in account with no telephone number cannot place an order:
+         * the contact block the manager answers from requires one. Said here
+         * rather than left to a refusal, which arrives after the review. */
+        phoneMissing: z.string(),
+        phoneMissingAction: z.string(),
         /**
          * Everything a guest is asked about themselves (FR-CART-03/09) — who
          * is invoiced and how to reach them, which for a private person is one
@@ -541,6 +545,9 @@ export const appTextSchema = z
         successHeading: z.string(),
         /** `{reference}` — the number to quote when asking about the order. */
         success: z.string(),
+        /** Opens the order that was just sent — the account's own page for a
+         * customer, the mailed link's page for a guest. */
+        successView: z.string(),
         successAction: z.string(),
         /** Shown to a guest on the confirmation, where waiting for approval
          * costs them nothing: the one place an account is worth offering. */
@@ -559,10 +566,15 @@ export const appTextSchema = z
             incomplete: z.string(),
             invalidCompanyId: z.string(),
             unsupportedCountry: z.string(),
+            /** The postcode is not the shape its country's codes take. */
+            invalidPostalCode: z.string(),
             unknownPickupLocation: z.string(),
             billingDetailsRequired: z.string(),
             partyRequired: z.string(),
             rejected: z.string(),
+            /** Staff do not buy. Shown before the button is ever pressed as
+             * well as after, so the one sentence covers both. */
+            staffAccount: z.string(),
             /** The cart was re-priced under them; the corrected figures are
              * already on screen by the time this is read. */
             cartChanged: z.string(),
@@ -601,6 +613,10 @@ export const appTextSchema = z
              * the pickup answer to the delivery address — not inside the card,
              * where it would be a second question asked in the margin. */
             pickupHeading: z.string(),
+            /** Shown under the collection points when the form is submitted
+             * without one chosen — the radio group has no control of its own to
+             * carry the error. */
+            pickupRequired: z.string(),
             /** Opens one office's map, the same embed the contact page uses. */
             mapLink: z.string(),
           })
@@ -746,6 +762,9 @@ export const appTextSchema = z
          */
         myAccount: z
           .object({
+            /** The card that holds the details and the address book side by
+             * side, which needs a name neither of them owns. */
+            profileHeading: z.string(),
             detailsHeading: z.string(),
             name: z.string(),
             email: z.string(),
@@ -787,8 +806,12 @@ export const appTextSchema = z
                 heading: z.string(),
                 empty: z.string(),
                 add: z.string(),
-                edit: z.string(),
+                /** The icon-only row buttons take their accessible name from
+                 * `{label}`, the address itself. */
+                editLabel: z.string(),
+                /** The wording on the confirm dialog's own button. */
                 remove: z.string(),
+                removeLabel: z.string(),
                 /** `{label}` is the address's own name. */
                 removeConfirm: z.string(),
                 removeHeading: z.string(),
@@ -811,12 +834,14 @@ export const appTextSchema = z
                 city: z.string(),
                 region: z.string(),
                 country: z.string(),
-                phone: z.string(),
                 optional: z.string(),
                 submit: z.string(),
                 submitting: z.string(),
                 cancel: z.string(),
                 required: z.string(),
+                /** `{example}` — a real code in the shape this country's take,
+                 * from the deployment's own postal rule. */
+                postalCodeFormat: z.string(),
                 saveError: z.string(),
                 /** The book is full — a refusal the form has to explain. */
                 limitReached: z.string(),
@@ -976,6 +1001,8 @@ export const appTextSchema = z
         changePassword: z
           .object({
             heading: z.string(),
+            /** What the account page says beside the link to the form. */
+            intro: z.string(),
             currentPassword: z.string(),
             newPassword: z.string(),
             confirmPassword: z.string(),

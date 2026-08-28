@@ -29,7 +29,7 @@
     }
   },
   "panel": {
-    "manage": "Catalog & content",
+    "manage": "Catalog and content",
     "sync": "Import",
     "catalog": "Catalog",
     "attributes": "Attributes",
@@ -52,7 +52,6 @@
     "editCategory": "Edit category",
     "editCategories": "Edit categories",
     "addCategory": "Add category",
-    "deleteCategory": "Delete category",
     "hiddenHeading": "Not on the storefront",
     "hiddenHint": "These products are in this category but customers cannot see them.",
     "deletedBadge": "Deleted",
@@ -61,9 +60,7 @@
     "unpublishProduct": "Unpublish",
     "unpublishConfirm": "Take “{name}” off the storefront? Customers will no longer see it; you can publish it again at any time.",
     "cancel": "Cancel",
-    "restoring": "Restoring…",
-    "revealError": "Could not bring this product back. Please try again.",
-    "publishError": "Could not change whether this product is published. Please try again."
+    "revealError": "Could not bring this product back. Please try again."
   },
   "pageEditor": {
     "edit": "Edit page",
@@ -134,13 +131,13 @@
     "priceInvalid": "Please enter a valid price.",
     "saveError": "Something went wrong saving this product. Please try again.",
     "saveAndPublish": "Save and publish",
+    "cancelToPage": "Discard and view page",
     "publishError": "Could not change whether this product is published. Please try again.",
     "attributes": {
       "heading": "Characteristics",
       "key": "Name",
       "value": "Value",
       "add": "Add characteristic",
-      "empty": "No characteristics yet.",
       "addKeys": "Add attributes",
       "addKeysHint": "Attribute names the catalog already uses. Adding one appends an empty row — pick the name from here rather than retyping it, and the products stay comparable. A row you leave without a value is not saved.",
       "addKeysEmpty": "No product carries an attribute yet.",
@@ -154,8 +151,7 @@
     },
     "images": {
       "heading": "Images",
-      "add": "Add images",
-      "empty": "No images yet."
+      "add": "Add images"
     },
     "lineNote": {
       "heading": "Line note",
@@ -198,7 +194,6 @@
     "title": "Products",
     "deletedBadge": "Deleted",
     "unpublishedBadge": "Not published",
-    "liveBadge": "Live",
     "empty": "No products yet.",
     "noResults": "No products match these filters.",
     "updated": "Updated",
@@ -214,7 +209,9 @@
     "stateDeleted": "Deleted only",
     "allCategories": "All categories",
     "filterAttribute": "Attribute",
-    "clearAttribute": "Clear the attribute filter"
+    "clearAttribute": "Clear the attribute filter",
+    "filterTier": "Tier price",
+    "clearTier": "Clear the tier filter"
   },
   "categoryList": {
     "title": "Categories",
@@ -273,6 +270,7 @@
       "file-too-large": "That file is too large to upload. Split the export into smaller files.",
       "file-empty": "That file is empty.",
       "no-header-row": "That file has no header row, so its columns cannot be read.",
+      "malformed-quotes": "A quotation mark is opened and never closed around line {row}, so the rest of the file cannot be read. Check that every “ has its closing mark, and that a quotation mark inside a value is doubled.",
       "duplicate-column": "The column “{column}” appears more than once, so it is unclear which one counts.",
       "unknown-columns": "These columns are not recognised: {columns}. Expected any of: {expected}.",
       "missing-required-column": "The file needs a “{column}” column.",
@@ -309,7 +307,6 @@
     "deleteConfirmWord": "HIDE",
     "apply": "Apply these changes",
     "applying": "Applying…",
-    "applyError": "These changes could not be applied. Please try again.",
     "applyErrors": {
       "run-not-found": "This run no longer exists. Upload the file again.",
       "run-already-applied": "These changes have already been applied.",
@@ -390,11 +387,10 @@
     "keyHint": "The catalog file addresses this list as a “price:wholesale” column. Lowercase letters, digits and hyphens.",
     "accounts": "{count} account(s)",
     "prices": "{count} product price(s)",
+    "seePrices": "Show the products this tier prices",
     "defaultLabel": "Base price list",
     "defaultHint": "Every product's own price. Guests, staff and customers without a tier see it.",
     "edit": "Edit",
-    "moveUp": "Move up",
-    "moveDown": "Move down",
     "delete": "Delete",
     "empty": "No extra price lists yet — every customer sees the base price.",
     "saveError": "This tier could not be saved. Please try again.",
@@ -494,7 +490,7 @@
   },
   "orderDetail": {
     "placed": "Sent {date}",
-    "statusChanged": "Status changed {date}",
+    "statusChanged": "Status changed",
     "notFound": "There is no order with that reference.",
     "loadError": "The order could not be loaded. Please try again.",
     "back": "Back to orders",
@@ -529,7 +525,6 @@
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
-    "type": "Type",
     "companyId": "Company ID",
     "registered": "Registered",
     "filterRole": "Filter by role",

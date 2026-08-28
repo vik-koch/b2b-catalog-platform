@@ -98,7 +98,6 @@ export const adminTextSchema = z
         editCategory: z.string(),
         editCategories: z.string(),
         addCategory: z.string(),
-        deleteCategory: z.string(),
         /** The overlay under a category grid: everything the storefront hides. */
         hiddenHeading: z.string(),
         hiddenHint: z.string(),
@@ -111,9 +110,7 @@ export const adminTextSchema = z
          * reach into `common` — admin text is fetched, and only edit-mode
          * wording is gated on it having loaded. */
         cancel: z.string(),
-        restoring: z.string(),
         revealError: z.string(),
-        publishError: z.string(),
       })
       .strict(),
     /** Inline static-page editing (FR-ADM-03). */
@@ -201,6 +198,9 @@ export const adminTextSchema = z
         /** Commits the edits and puts the product on the storefront at once
          * (FR-ADM-06); shown only while it is not published. */
         saveAndPublish: z.string(),
+        /** Discards, and lands on the storefront page rather than back where
+         * the editor was opened from. */
+        cancelToPage: z.string(),
         publishError: z.string(),
         attributes: z
           .object({
@@ -208,7 +208,6 @@ export const adminTextSchema = z
             key: z.string(),
             value: z.string(),
             add: z.string(),
-            empty: z.string(),
             /** The picker of names the catalog already uses (FR-ATTR-09). */
             addKeys: z.string(),
             addKeysHint: z.string(),
@@ -245,7 +244,6 @@ export const adminTextSchema = z
           .object({
             heading: z.string(),
             add: z.string(),
-            empty: z.string(),
           })
           .strict(),
         /**
@@ -304,7 +302,6 @@ export const adminTextSchema = z
         deletedBadge: z.string(),
         /** Marks a product that is not on the storefront yet (FR-ADM-06). */
         unpublishedBadge: z.string(),
-        liveBadge: z.string(),
         empty: z.string(),
         /** Shown instead of `empty` when filters are what emptied the list. */
         noResults: z.string(),
@@ -320,6 +317,10 @@ export const adminTextSchema = z
         /** The attribute drill-down's chip, which has no column to sit in. */
         filterAttribute: z.string(),
         clearAttribute: z.string(),
+        /** The tier list's drill-down, shown as a chip for the same reason the
+         * attribute one is: no column of the grid says it. */
+        filterTier: z.string(),
+        clearTier: z.string(),
         stateAll: z.string(),
         stateLive: z.string(),
         stateUnpublished: z.string(),
@@ -428,7 +429,7 @@ export const adminTextSchema = z
         /**
          * Why the whole file was refused, keyed by the API's own `code`. The
          * substitutions name things in the admin's own file — `{column}`,
-         * `{columns}`, `{expected}`, `{rows}`, `{limit}` — and are supplied by
+         * `{columns}`, `{expected}`, `{rows}`, `{limit}`, `{row}` — and are supplied by
          * the response, so the sentence around them stays the deployment's.
          */
         formatErrors: z
@@ -437,6 +438,7 @@ export const adminTextSchema = z
             'file-too-large': z.string(),
             'file-empty': z.string(),
             'no-header-row': z.string(),
+            'malformed-quotes': z.string(),
             'duplicate-column': z.string(),
             'unknown-columns': z.string(),
             'missing-required-column': z.string(),
@@ -506,7 +508,6 @@ export const adminTextSchema = z
         deleteConfirmWord: z.string(),
         apply: z.string(),
         applying: z.string(),
-        applyError: z.string(),
         /** Why a previewed run could not be applied, keyed by the API's code. */
         applyErrors: z
           .object({
@@ -561,12 +562,11 @@ export const adminTextSchema = z
         /** Reference counts per row. `{count}` substituted at render. */
         accounts: z.string(),
         prices: z.string(),
+        /** The link on that count, into the product grid filtered to it. */
+        seePrices: z.string(),
         defaultLabel: z.string(),
         defaultHint: z.string(),
         edit: z.string(),
-        /** The one-place-at-a-time move buttons on each row. */
-        moveUp: z.string(),
-        moveDown: z.string(),
         delete: z.string(),
         empty: z.string(),
         saveError: z.string(),
@@ -769,7 +769,6 @@ export const adminTextSchema = z
         name: z.string(),
         email: z.string(),
         phone: z.string(),
-        type: z.string(),
         companyId: z.string(),
         registered: z.string(),
         /** Accessible names for the column-heading filters. */

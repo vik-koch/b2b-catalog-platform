@@ -10,9 +10,9 @@ import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPriceMinor } from '../catalog/price';
-import { fillText } from '../core/fill-text';
 import { Button } from '../ui/button';
 import { DialogPanel } from '../ui/dialog-panel';
+import { fillText } from '@b2b-catalog-platform/shared';
 
 /**
  * Where this deployment delivers, and what an order has to reach for delivery

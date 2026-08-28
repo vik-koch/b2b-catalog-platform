@@ -175,7 +175,7 @@ describe('CategoryGrid', () => {
     ).toBe('Espresso Roasts Light');
   });
 
-  it('collapses subcategories to four and reveals the rest on show-more', async () => {
+  it('clips the subcategory row to one line and unclips it on show-more', async () => {
     const subcategories = ['a', 'b', 'c', 'd', 'e', 'f'].map((s) => ({
       slug: s,
       name: s.toUpperCase(),
@@ -198,8 +198,13 @@ describe('CategoryGrid', () => {
       subcategories.filter((s) =>
         el(f).querySelector(`a[href="/catalog/${s.slug}"]`),
       ).length;
+    const list = () =>
+      el(f).querySelector('a[href="/catalog/a"]')?.closest('ul');
 
-    expect(chipCount()).toBe(4);
+    // Every chip is rendered at all times — how many are visible is the
+    // browser's answer, given by clipping the row to one line.
+    expect(chipCount()).toBe(6);
+    expect(list()?.className).toContain('overflow-hidden');
 
     // By its words: the listing header above the chips carries buttons of its
     // own (the layout toggle), so position says nothing.
@@ -213,7 +218,7 @@ describe('CategoryGrid', () => {
     await f.whenStable();
     f.detectChanges();
 
-    expect(chipCount()).toBe(6);
+    expect(list()?.className).not.toContain('overflow-hidden');
     expect(toggle(defaultAppText.catalog.showLess)).toBeTruthy();
   });
 

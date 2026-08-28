@@ -274,15 +274,16 @@ describe('SearchField suggestions (FR-SEARCH-05)', () => {
     ]);
   });
 
-  it('emboldens the part of the name the query matched', async () => {
+  it('marks the part of the name the query matched', async () => {
     const { el, fixture } = await render();
 
     await typeQuery(fixture, el, 'espresso');
 
-    // Only the matched run is emboldened — the rest of the name is plain, so
-    // the weight is telling the visitor why this row is here.
+    // Only the matched run is marked — the rest of the name is plain, so the
+    // tint is telling the visitor why this row is here. <mark>, the same
+    // element the address and company fields draw.
     expect(
-      options(el).map((o) => o.querySelector('.font-semibold')?.textContent),
+      options(el).map((o) => o.querySelector('mark')?.textContent),
     ).toEqual(['Espresso', 'Espresso']);
   });
 

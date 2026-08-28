@@ -13,6 +13,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AddressInput,
+  fillText,
   FulfilmentMethod,
   OrderContact,
   OrderSubmission,
@@ -35,11 +36,11 @@ import {
   companyIdFormat,
   phoneValidators,
 } from '../core/contact-fields';
-import { fillText } from '../core/fill-text';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
+import { EmptyState } from '../ui/empty-state';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
 import { OrderSummary } from '../cart/order-summary';
@@ -85,6 +86,7 @@ import { AddressForm } from '../addresses/address-form';
     Button,
     Checkbox,
     DeliveryZoneHint,
+    EmptyState,
     FulfilmentChoice,
     OrderNote,
     OrderReadBack,
@@ -101,11 +103,24 @@ import { AddressForm } from '../addresses/address-form';
   ],
   template: `
     @if (placed(); as reference) {
-      <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
-      <p class="text-muted">{{ successMessage(reference) }}</p>
-      <a appButton routerLink="/catalog" class="mt-4">
-        {{ text.successAction }}
-      </a>
+      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
+      <!-- The cart's and the account's own empty panel, read the other way
+           round: the same shape of screen says "there is nothing here" and
+           "that is done". Opening the order comes first — it is what somebody
+           who has just sent one wants, and for a guest the link is the only
+           copy they have besides the mail. -->
+      <app-empty-state
+        icon="circle-check"
+        tone="positive"
+        [message]="successMessage(reference)"
+      >
+        @if (placedLink(); as link) {
+          <a appButton [routerLink]="link">{{ text.successView }}</a>
+        }
+        <a appButton variant="secondary" routerLink="/catalog">
+          {{ text.successAction }}
+        </a>
+      </app-empty-state>
 
       @if (guest()) {
         <p class="mt-8 max-w-xl text-sm text-muted">
@@ -116,9 +131,15 @@ import { AddressForm } from '../addresses/address-form';
         </p>
       }
     } @else if (cart.isEmpty()) {
-      <h1 class="mb-2 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
-      <p class="text-subtle">{{ text.emptyCart }}</p>
-      <a appButton routerLink="/cart" class="mt-4">{{ cartText.navLabel }}</a>
+      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ heading() }}</h1>
+      <app-empty-state icon="shopping-basket" [message]="text.emptyCart">
+        <a appButton routerLink="/catalog">
+          {{ cartText.emptyAction }}
+        </a>
+        <a appButton variant="secondary" routerLink="/cart">
+          {{ cartText.navLabel }}
+        </a>
+      </app-empty-state>
     } @else {
       <!-- Form and summary, the pair the cart already draws — and at the width
            the cart draws it, not at whatever this page could get away with.
@@ -204,6 +225,7 @@ import { AddressForm } from '../addresses/address-form';
                 @if (isPickup()) {
                   <app-pickup-choice
                     [pickupKey]="draft().pickupLocationKey"
+                    [invalid]="pickupInvalid()"
                     (pickupKeyChange)="
                       drafts.patch({ pickupLocationKey: $event })
                     "
@@ -388,7 +410,6 @@ import { AddressForm } from '../addresses/address-form';
                 <app-delivery-zone-hint
                   class="mt-3 border-t border-border pt-3"
                   [postalCode]="deliveryPostalCode()"
-                  [city]="deliveryCity()"
                 />
               }
             </app-order-summary>
@@ -431,12 +452,39 @@ import { AddressForm } from '../addresses/address-form';
               </p>
             }
 
+            <!-- Said where the button is, and the button is dead. Both of
+                 these are refusals the server would give anyway; giving them
+                 here is the difference between a form somebody fills in for
+                 nothing and one they never start. -->
+            @if (staff()) {
+              <p class="mt-3 flex items-start gap-2 text-sm text-muted">
+                <app-icon
+                  name="lock"
+                  class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                />
+                <span>{{ text.errors.staffAccount }}</span>
+              </p>
+            } @else if (accountPhoneMissing()) {
+              <p class="mt-3 flex items-start gap-2 text-sm text-muted">
+                <app-icon
+                  name="phone"
+                  class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                />
+                <span>
+                  {{ text.phoneMissing }}
+                  <a routerLink="/account/edit" class="text-primary underline">
+                    {{ text.phoneMissingAction }}
+                  </a>
+                </span>
+              </p>
+            }
+
             @if (reviewing()) {
               <button
                 appButton
                 type="button"
                 class="mt-3 w-full"
-                [disabled]="sending()"
+                [disabled]="sending() || blocked()"
                 (click)="submit()"
               >
                 {{ sending() ? text.submitting : text.submit }}
@@ -576,14 +624,41 @@ export class CheckoutPage {
    * reference the customer quotes when they ring about it. */
   private readonly sendingState = signal(false);
   private readonly placedState = signal<string | null>(null);
+  /**
+   * The link the confirmation mail carries (FR-NOTIF-06), kept so the screen
+   * that follows can offer it too: a guest has no account to read the order
+   * from, and telling them a reference without a way to open it leaves the
+   * mail as their only copy.
+   */
+  private readonly placedToken = signal<string | null>(null);
   private readonly errorState = signal<string | null>(null);
   protected readonly acceptedPrivacy = signal(false);
   private readonly privacyChecked = signal(false);
   protected readonly revealDelivery = signal(false);
   protected readonly revealBilling = signal(false);
+  /** Set when a submission was refused for want of a collection point. The
+   * radio group has no control, so its error cannot come from a FieldErrors. */
+  private readonly pickupSubmitted = signal(false);
+
+  protected readonly pickupInvalid = computed(
+    () => this.pickupSubmitted() && !this.draft().pickupLocationKey,
+  );
 
   protected readonly sending = this.sendingState.asReadonly();
   protected readonly placed = this.placedState.asReadonly();
+
+  /**
+   * Where the order that was just sent can be read: the account's own page for
+   * a customer, the token link for a guest. The same order either way — the
+   * difference is only what the reader is holding to open it with.
+   */
+  protected readonly placedLink = computed(() => {
+    const reference = this.placedState();
+    if (!reference) return null;
+    if (!this.guest()) return ['/account/orders', reference];
+    const token = this.placedToken();
+    return token ? ['/orders', token] : null;
+  });
   protected readonly error = this.errorState.asReadonly();
 
   /** Only after a send has been attempted: an unticked box is not a mistake
@@ -637,6 +712,41 @@ export class CheckoutPage {
   private readonly lastOtherParty = signal<Party>('person');
   protected readonly otherParty = this.lastOtherParty.asReadonly();
 
+  /**
+   * Whether this account is missing the one contact detail an order cannot be
+   * placed without. A signed-in customer is never asked for their contact
+   * block — it is read from their record — and staff may create an account
+   * from an email alone, so an account can reach checkout with no number at
+   * all. The submission is then refused for a field the form never showed,
+   * which is exactly the refusal nobody can act on.
+   *
+   * False while the profile is still loading: the answer is not "no number"
+   * until the record says so.
+   */
+  protected readonly accountPhoneMissing = computed(() => {
+    if (this.guest() || this.staff() || this.profile.isLoading()) return false;
+    const profile = this.profile.value();
+    return !!profile && !profile.phone?.trim();
+  });
+
+  /** Either reason this session cannot place an order — both of which the
+   * server enforces, and both of which the button reflects. */
+  protected readonly blocked = computed(
+    () => this.staff() || this.accountPhoneMissing(),
+  );
+
+  /**
+   * Whether this session is staff, who do not buy. Role is authorization and
+   * tier is pricing — separate fields on purpose — so a staff session has no
+   * agreed prices, no address book worth the name and nobody to invoice, and
+   * the request would land in the very inbox they answer. The API refuses it
+   * outright; this is what keeps them from filling the form first.
+   */
+  protected readonly staff = computed(() => {
+    const role = this.auth.user()?.role;
+    return role === 'admin' || role === 'manager';
+  });
+
   protected readonly saveDelivery = computed(
     () => this.draft().saveDeliveryAddress,
   );
@@ -671,7 +781,7 @@ export class CheckoutPage {
    * dependency — and a snapshot rather than every value, because it is only
    * re-read when focus leaves the picker or a suggestion fills it.
    */
-  private readonly committedDelivery = signal({ postalCode: '', city: '' });
+  private readonly committedDelivery = signal({ postalCode: '' });
 
   private readonly chosenDelivery = computed(() =>
     this.addresses().find((row) => row.id === this.draft().deliveryAddressId),
@@ -681,18 +791,14 @@ export class CheckoutPage {
     () =>
       this.chosenDelivery()?.postalCode ?? this.committedDelivery().postalCode,
   );
-  protected readonly deliveryCity = computed(
-    () => this.chosenDelivery()?.city ?? this.committedDelivery().city,
-  );
 
   /** Re-reads what the picker is holding. Compared before it is written: a
    * signal set to the value it already had would redraw the card for every
    * field the customer tabs through. */
   protected commitDelivery(): void {
-    const { postalCode, city } = this.deliveryForm.group.getRawValue();
-    const current = this.committedDelivery();
-    if (current.postalCode === postalCode && current.city === city) return;
-    this.committedDelivery.set({ postalCode, city });
+    const { postalCode } = this.deliveryForm.group.getRawValue();
+    if (this.committedDelivery().postalCode === postalCode) return;
+    this.committedDelivery.set({ postalCode });
   }
 
   constructor() {
@@ -768,6 +874,18 @@ export class CheckoutPage {
       });
     });
 
+    // Pickup at a shop with one collection point answers itself: a list of one
+    // is not a question, and leaving it unanswered would fail a submission over
+    // a choice the customer was never really given. An effect rather than part
+    // of the click, because a draft restored from a previous visit arrives on
+    // pickup without ever passing through one.
+    effect(() => {
+      if (this.locations.length !== 1) return;
+      if (this.draft().fulfilmentMethod !== 'pickup') return;
+      if (this.draft().pickupLocationKey !== null) return;
+      this.drafts.patch({ pickupLocationKey: this.locations[0].key });
+    });
+
     // The addresses being typed, and the typed party, kept in the draft so a
     // trip back to the cart does not empty them.
     this.restoreDrafted();
@@ -819,19 +937,8 @@ export class CheckoutPage {
     });
   }
 
-  /**
-   * Choosing pickup where there is one collection point chooses it too: a list
-   * of one is not a question, and leaving it unanswered would fail a
-   * submission over a choice the customer was never really given.
-   */
   protected chooseFulfilment(method: FulfilmentMethod): void {
-    const only = this.locations.length === 1 ? this.locations[0].key : null;
-    this.drafts.patch({
-      fulfilmentMethod: method,
-      ...(method === 'pickup' && this.draft().pickupLocationKey === null && only
-        ? { pickupLocationKey: only }
-        : {}),
-    });
+    this.drafts.patch({ fulfilmentMethod: method });
   }
 
   /**
@@ -1064,6 +1171,7 @@ export class CheckoutPage {
   /** From here on every field says what is wrong with it, including the ones
    * nobody visited. */
   private markProblems(): void {
+    this.pickupSubmitted.set(true);
     this.partyErrors.markSubmitted();
     if (this.guest()) this.contactErrors.markSubmitted();
     if (this.deliveryTyped()) this.deliveryErrors.markSubmitted();
@@ -1110,7 +1218,7 @@ export class CheckoutPage {
    * which is why the button says so and the screen that follows says it again.
    */
   protected async submit(): Promise<void> {
-    if (this.sendingState()) return;
+    if (this.sendingState() || this.blocked()) return;
     this.errorState.set(null);
     this.privacyChecked.set(true);
     if (!this.acceptedPrivacy()) return;
@@ -1132,6 +1240,7 @@ export class CheckoutPage {
       if (result.ok) {
         await this.fileTypedAddresses();
         this.placedState.set(result.reference);
+        this.placedToken.set(result.publicToken);
         this.cart.clear();
         this.drafts.clear();
         this.goToStep(undefined);
@@ -1208,12 +1317,8 @@ export class CheckoutPage {
                 draft.party === 'company' ? companyId.trim() : null,
             },
       deliveryAddress: delivery,
-      deliveryAddressId: this.isPickup() ? null : draft.deliveryAddressId,
       pickupLocationKey: this.isPickup() ? draft.pickupLocationKey : null,
       billingAddress: billing,
-      billingAddressId: this.needsBillingPicker()
-        ? draft.billingAddressId
-        : draft.deliveryAddressId,
       paymentMethod: draft.paymentMethod,
       preferredDate: draft.preferredDate,
       customerNote: draft.customerNote,
@@ -1295,6 +1400,8 @@ export class CheckoutPage {
         return errors.invalidCompanyId;
       case 'unsupported-country':
         return errors.unsupportedCountry;
+      case 'invalid-postal-code':
+        return errors.invalidPostalCode;
       case 'unknown-pickup-location':
         return errors.unknownPickupLocation;
       case 'billing-details-required':
@@ -1305,6 +1412,12 @@ export class CheckoutPage {
         return errors.cartChanged;
       case 'rejected':
         return errors.rejected;
+      case 'staff-cannot-order':
+        return errors.staffAccount;
+      default:
+        // A 400 the contract does not name — a body the server rejected before
+        // any rule ran. Nothing useful to say about it, but silence is worse.
+        return errors.generic;
     }
   }
 }

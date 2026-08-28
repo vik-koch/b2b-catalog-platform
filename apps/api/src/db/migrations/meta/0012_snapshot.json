@@ -1,5 +1,5 @@
 {
-  "id": "b605564f-0f6a-4f4b-bfa0-967868b863ad",
+  "id": "dec0f1db-585c-4ca7-bbf1-074784938fa7",
   "prevId": "9c6e372f-35de-45e0-b404-4c6189dc0710",
   "version": "7",
   "dialect": "postgresql",
@@ -766,12 +766,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "billingAddressId": {
-          "name": "billingAddressId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
         "deliveryStreet": {
           "name": "deliveryStreet",
           "type": "varchar(255)",
@@ -805,12 +799,6 @@
         "deliveryCountry": {
           "name": "deliveryCountry",
           "type": "varchar(2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "deliveryAddressId": {
-          "name": "deliveryAddressId",
-          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -967,32 +955,6 @@
           "tableTo": "users",
           "columnsFrom": [
             "statusChangedBy"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "orders_billingAddressId_addresses_id_fk": {
-          "name": "orders_billingAddressId_addresses_id_fk",
-          "tableFrom": "orders",
-          "tableTo": "addresses",
-          "columnsFrom": [
-            "billingAddressId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "orders_deliveryAddressId_addresses_id_fk": {
-          "name": "orders_deliveryAddressId_addresses_id_fk",
-          "tableFrom": "orders",
-          "tableTo": "addresses",
-          "columnsFrom": [
-            "deliveryAddressId"
           ],
           "columnsTo": [
             "id"

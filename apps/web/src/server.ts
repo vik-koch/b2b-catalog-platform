@@ -15,7 +15,11 @@ import { preloadDeploymentConfig } from './app/config/deployment-config.server';
 import { injectCartShell } from './app/cart/cart-shell.server';
 import { injectSessionShell } from './app/auth/session-shell.server';
 import { injectShellState } from './app/config/shell-state.server';
-import { isGatedPath, isMaintenanceOn } from './app/config/maintenance.server';
+import {
+  isAdminPreview,
+  isGatedPath,
+  isMaintenanceOn,
+} from './app/config/maintenance.server';
 import {
   injectCanonicalLink,
   injectNoindexMeta,
@@ -173,9 +177,13 @@ app.use(async (req, res, next) => {
     // above has already matched the original path, so this only affects what
     // Angular renders. The engine derives the route from `originalUrl` (Express
     // sets it), so both must be rewritten or the original page renders behind
-    // the 503. The server is session-blind, so an admin's cold load sees the
-    // screen too; their preview happens on the subsequent client navigation.
-    const gated = isGatedPath(req.path) && (await isMaintenanceOn());
+    // the 503. An admin is recognised by the readable session hint and gets the
+    // storefront straight away, so previewing survives a reload; the
+    // client-side gate corrects a stale hint on hydration.
+    const gated =
+      isGatedPath(req.path) &&
+      !isAdminPreview(req.headers.cookie) &&
+      (await isMaintenanceOn());
     if (gated) {
       req.url = '/maintenance';
       req.originalUrl = '/maintenance';

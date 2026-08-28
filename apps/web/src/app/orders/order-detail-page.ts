@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  fillText,
   OrderDetail,
   OrderLine,
   OrderStatus,
@@ -11,13 +12,14 @@ import { formatUnitQuantity } from '../catalog/quantity';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { delayedLoading } from '../core/delayed-loading';
-import { fillText } from '../core/fill-text';
 import { usePageSeo } from '../core/page-seo';
+import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
-import { orderStatusClass } from './order-status';
+import { StatusBadge, StatusTone } from '../ui/status-badge';
+import { orderStatusTone } from './order-status';
 import { OrdersService } from './orders.service';
 
 /**
@@ -30,46 +32,90 @@ import { OrdersService } from './orders.service';
  */
 @Component({
   selector: 'app-order-detail-page',
-  imports: [RouterLink, Button, Skeleton, OrderReadBack, OrderSummary],
+  imports: [
+    RouterLink,
+    Button,
+    NotFoundView,
+    Skeleton,
+    OrderReadBack,
+    OrderSummary,
+    StatusBadge,
+  ],
   template: `
     @if (detail(); as detail) {
-      <div class="max-w-4xl">
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h1 class="text-3xl font-bold tracking-tight">
-            {{ detail.reference }}
-          </h1>
-          <span
-            class="rounded-full px-2 py-0.5 text-xs font-medium"
-            [class]="statusClass(detail.status)"
-          >
-            {{ statusLabel(detail.status) }}
-          </span>
-        </div>
-        <p class="mt-2 text-muted">{{ placed(detail) }}</p>
+      <!-- The cart's and the checkout's two columns, at the cart's own notch
+           and measured on the page rather than the window: an order is read
+           where it was last seen, so the card must not sit beside the lines on
+           one screen and under them on the next. -->
+      <div class="@container/order">
+        <div class="grid gap-8 @min-[72.5rem]/order:grid-cols-[1fr_20rem]">
+          <!-- A reading measure inside the track rather than a narrower track:
+               an order is read down its left edge and a name-and-price line
+               spanning a wide screen is one nobody follows across — but the
+               summary must stay where the cart and the checkout put it, and
+               narrowing the track would slide it inward on this page alone. -->
+          <div class="max-w-3xl">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <h1 class="text-3xl font-bold tracking-tight">
+                {{ detail.reference }}
+              </h1>
+              <span appStatusBadge [tone]="statusTone(detail.status)">
+                {{ statusLabel(detail.status) }}
+              </span>
+            </div>
+            <p class="mt-2 text-muted">{{ placed(detail) }}</p>
 
-        <!-- The lines and the answers on the left, what it came to on the
-             right — the same two columns the checkout read-back had, so the
-             order is laid out where the customer last saw it. -->
-        <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
-          <app-order-read-back [lines]="lines()" [blocks]="blocks()" />
-          <app-order-summary
-            [lineCount]="detail.lines.length"
-            [subtotalMinor]="detail.totalMinor"
-            [shipment]="detail.shipment"
-          />
+            <app-order-read-back
+              class="mt-8"
+              [lines]="lines()"
+              [blocks]="blocks()"
+            />
+          </div>
+
+          <!-- What it came to, and the way back under it: controls belong
+               below the card they act after, which is where the cart and the
+               checkout put theirs. -->
+          <aside
+            class="max-w-xl @min-[72.5rem]/order:mt-9 @min-[72.5rem]/order:sticky @min-[72.5rem]/order:top-20 @min-[72.5rem]/order:self-start"
+          >
+            <app-order-summary
+              [lineCount]="detail.lines.length"
+              [subtotalMinor]="detail.totalMinor"
+              [shipment]="detail.shipment"
+            />
+            <a
+              appButton
+              variant="secondary"
+              routerLink="/account/orders"
+              class="mt-5 w-full"
+            >
+              {{ text.backToList }}
+            </a>
+          </aside>
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ text.notFound }}</p>
+      <!-- The 404 screen rather than a sentence, the same as the token page
+           and the unknown-slug pages: a reference that is not on this account
+           is a page that is not there. -->
+      <app-not-found-view
+        [body]="text.notFound"
+        backLink="/account/orders"
+        [backLabel]="text.backToList"
+      />
     } @else if (order.error()) {
       <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+      <a
+        appButton
+        variant="secondary"
+        routerLink="/account/orders"
+        class="mt-5"
+      >
+        {{ text.backToList }}
+      </a>
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }
-
-    <a appButton variant="secondary" routerLink="/account/orders" class="mt-10">
-      {{ text.backToList }}
-    </a>
   `,
 })
 export class OrderDetailPage {
@@ -184,8 +230,8 @@ export class OrderDetailPage {
     }[status];
   }
 
-  protected statusClass(status: OrderStatus): string {
-    return orderStatusClass(status);
+  protected statusTone(status: OrderStatus): StatusTone {
+    return orderStatusTone(status);
   }
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {

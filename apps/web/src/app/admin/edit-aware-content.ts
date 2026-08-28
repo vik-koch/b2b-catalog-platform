@@ -1,4 +1,4 @@
-import { computed, inject, Signal } from '@angular/core';
+import { computed, effect, inject, Signal, signal } from '@angular/core';
 import { adminText } from '../config/admin-text';
 import { AdminText } from '../config/admin-text.type';
 import { delayedLoading } from '../core/delayed-loading';
@@ -57,9 +57,21 @@ export function editAwareContent<K extends keyof AdminText>(options: {
       (!editMode.enabled() || (options.alsoWaitFor?.() ?? true)),
   );
 
-  const ready = computed(() => options.ready() && decided());
+  // Once a page has been drawn it stays drawn. `decided` goes back to "not
+  // yet" every time edit mode is switched on, because whatever it waits for is
+  // fetched afresh — and without this latch that would tear the whole listing
+  // down and rebuild it under the pointer to reveal a pencil. Waiting is for
+  // the first paint, where there is nothing on screen to disturb.
+  const drawn = signal(false);
+  effect(() => {
+    if (options.ready() && decided()) drawn.set(true);
+  });
+
+  const ready = computed(() => options.ready() && (decided() || drawn()));
+  // Still gated on `decided`, so switching edit mode on reveals the whole set
+  // of affordances at once rather than a pencil now and an overlay later.
   const controls = computed(() =>
-    ready() && editMode.enabled()
+    ready() && decided() && editMode.enabled()
       ? (adminText()?.[options.section] ?? null)
       : null,
   );

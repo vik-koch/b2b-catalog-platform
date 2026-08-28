@@ -29,14 +29,29 @@ function formatterFor(currency: MoneyFormat): Intl.NumberFormat {
   return formatter;
 }
 
+/** The currency's minor-unit exponent (2 for EUR, 0 for JPY, 3 for BHD). Read
+ * off the formatter rather than tabulated, so no list has to be kept. */
+export function currencyFractionDigits(currency: MoneyFormat): number {
+  return formatterFor(currency).resolvedOptions().maximumFractionDigits ?? 2;
+}
+
+/** The decimal separator this currency's locale writes amounts with — read off
+ * the same formatter, so a field's input rules and its output agree. */
+export function decimalSeparator(currency: MoneyFormat): string {
+  return (
+    formatterFor(currency)
+      .formatToParts(1.1)
+      .find((part) => part.type === 'decimal')?.value ?? '.'
+  );
+}
+
 /**
  * An integer minor-unit amount (1890) as a localised currency string
- * ("18,90 €"). The divisor comes from the currency itself, via the formatter's
- * resolved fraction digits, so zero-decimal (JPY) and three-decimal (BHD)
- * currencies need no special case.
+ * ("18,90 €"). The divisor comes from the currency itself, so zero-decimal
+ * (JPY) and three-decimal (BHD) currencies need no special case.
  */
 export function formatMoneyMinor(minor: number, currency: MoneyFormat): string {
-  const formatter = formatterFor(currency);
-  const digits = formatter.resolvedOptions().maximumFractionDigits ?? 2;
-  return formatter.format(minor / 10 ** digits);
+  return formatterFor(currency).format(
+    minor / 10 ** currencyFractionDigits(currency),
+  );
 }

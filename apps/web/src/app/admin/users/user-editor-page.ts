@@ -37,6 +37,8 @@ import { injectEditorReturn } from '../editor-return';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { SelectField } from '../../ui/select-field';
+import { StatusBadge } from '../../ui/status-badge';
+import { userStatusTone } from './user-status';
 
 /**
  * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,
@@ -66,6 +68,7 @@ import { SelectField } from '../../ui/select-field';
     PhoneField,
     Skeleton,
     SelectField,
+    StatusBadge,
   ],
   template: `
     <!-- One narrow column for the whole screen, heading included: a full-width
@@ -91,11 +94,9 @@ import { SelectField } from '../../ui/select-field';
             <dd class="text-subtle">{{ registered() }}</dd>
             <dt class="text-subtle">{{ text.status }}</dt>
             <dd>
-              <span
-                class="rounded px-1.5 py-0.5 text-xs"
-                [class]="statusClass(user.status)"
-                >{{ statusLabel(user.status) }}</span
-              >
+              <span appStatusBadge [tone]="statusTone(user.status)">{{
+                statusLabel(user.status)
+              }}</span>
             </dd>
           </dl>
         }
@@ -585,15 +586,8 @@ export class UserEditorPage implements UnsavedChangesAware {
     }[status];
   }
 
-  protected statusClass(status: StaffUser['status']): string {
-    return {
-      pending: 'bg-amber-100 text-amber-800',
-      invited: 'bg-sky-100 text-sky-800',
-      active: 'bg-green-100 text-green-800',
-      disabled: 'bg-red-100 text-red-800',
-      anonymized: 'bg-stone-200 text-muted',
-    }[status];
-  }
+  /** The shared palette; see user-status.ts. */
+  protected readonly statusTone = userStatusTone;
 
   protected isInvalid(control: keyof typeof this.form.controls): boolean {
     return this.fieldErrors.show(this.form.controls[control]);

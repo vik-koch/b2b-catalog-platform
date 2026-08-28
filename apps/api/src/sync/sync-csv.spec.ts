@@ -31,6 +31,33 @@ describe('parseSyncCsv', () => {
     expect(rows).toEqual([{ sourceId: 'A-1', name: 'Beans, whole' }]);
   });
 
+  it('reads a fully quoted file, doubled quotes and all', () => {
+    const { rows, errors } = parseSyncCsv(
+      '"sourceId","name","price"\n"A-1","Beans, ""whole""","1890"\n',
+    );
+    expect(errors).toEqual([]);
+    expect(rows).toEqual([
+      { sourceId: 'A-1', name: 'Beans, "whole"', prices: { default: 1890 } },
+    ]);
+  });
+
+  it('reads a semicolon-separated export, quotes and all', () => {
+    // Which is what a spreadsheet in a comma-decimal locale writes.
+    const { rows, errors } = parseSyncCsv(
+      '"sourceId";"name"\n"A-1";"Beans, whole"\n',
+    );
+    expect(errors).toEqual([]);
+    expect(rows).toEqual([{ sourceId: 'A-1', name: 'Beans, whole' }]);
+  });
+
+  it('refuses a file with a quote nobody closed, naming the line', () => {
+    // The rows after the break would otherwise be swallowed into one field and
+    // vanish without a word — the worst possible outcome for an import.
+    expect(() =>
+      parseSyncCsv('sourceId,name\n"A-1","Beans\n"A-2","Rice"\n'),
+    ).toThrow(/Unclosed quote at line 3/);
+  });
+
   it('treats an empty cell as absent, never as a value to clear', () => {
     const { rows } = parseSyncCsv(
       'sourceId,name,categorySourceId,categoryName,price\nA-1,,,,\n',

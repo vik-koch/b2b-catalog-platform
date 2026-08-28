@@ -90,12 +90,12 @@ import {
       <!-- Fixed layout, like the packaging grid below: a long value wraps and
            grows the row instead of stretching the column, so the two tables
            cannot drift apart on one product and line up on the next. -->
-      <table class="w-full max-w-2xl table-fixed border-collapse text-sm">
+      <table class="w-full max-w-3xl table-fixed border-collapse text-sm">
         <thead>
           <tr class="text-left text-subtle">
             <th class="w-1/3 pb-1 font-medium">{{ text.key }}</th>
             <th class="pb-1 font-medium">{{ text.value }}</th>
-            <th class="w-32"></th>
+            <th class="w-48"></th>
           </tr>
         </thead>
         <tbody

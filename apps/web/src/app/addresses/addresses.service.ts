@@ -13,7 +13,10 @@ export type SaveAddressResult =
   | { ok: true; address: Address }
   | {
       ok: false;
-      code: 'address-limit-reached' | 'unsupported-country';
+      code:
+        | 'address-limit-reached'
+        | 'unsupported-country'
+        | 'invalid-postal-code';
     };
 
 /**

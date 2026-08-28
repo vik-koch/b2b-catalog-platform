@@ -52,9 +52,12 @@ import { CategoryPicker } from './category-picker';
     } @else if (!isNew && !category()) {
       <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else {
-      <div class="space-y-6">
+      <div class="max-w-3xl space-y-6">
         <label class="block">
-          <span appFieldLabel>{{ text.name }}</span>
+          <span appFieldLabel>
+            {{ text.name }}
+            <span class="text-accent" aria-hidden="true">*</span>
+          </span>
           <input
             type="text"
             appInput
@@ -142,7 +145,7 @@ import { CategoryPicker } from './category-picker';
         <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
       }
 
-      <div class="mt-6 flex flex-wrap gap-3">
+      <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
         <button
           appButton
           type="button"

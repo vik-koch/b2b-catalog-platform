@@ -152,8 +152,13 @@ export const addressesContract = c.router({
     responses: {
       201: addressSchema,
       401: commonAuthErrorSchema,
-      /** The book is full, or the country is not one this deployment ships to. */
-      409: apiErrorSchema(['address-limit-reached', 'unsupported-country']),
+      /** The book is full, the country is not one this deployment ships to,
+       * or the postal code is not the shape that country's codes take. */
+      409: apiErrorSchema([
+        'address-limit-reached',
+        'unsupported-country',
+        'invalid-postal-code',
+      ]),
     },
     summary: 'Save a new address',
   },
@@ -165,7 +170,7 @@ export const addressesContract = c.router({
       200: addressSchema,
       401: commonAuthErrorSchema,
       404: apiErrorSchema(['address-not-found']),
-      409: apiErrorSchema(['unsupported-country']),
+      409: apiErrorSchema(['unsupported-country', 'invalid-postal-code']),
     },
     summary: 'Correct a saved address',
   },

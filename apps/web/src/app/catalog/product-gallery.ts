@@ -8,21 +8,34 @@ import {
 } from '@angular/core';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { Button } from '../ui/button';
 import { ImagePlaceholder } from './image-placeholder';
 
+/** Thumbnails kept on screen before the show-more toggle reveals the rest —
+ * one row of the narrow grid, which is the width the cap is there for. Which
+ * row that is has to be written into the class as a literal (`n+6`), so the
+ * two move together: five columns, five kept, hide from the sixth. */
+const THUMBS_COLLAPSED = 5;
+
 /**
- * The product-page image viewer (FR-CAT-05): one large image with a strip of
+ * The product-page image viewer (FR-CAT-05): one large image with a grid of
  * thumbnails under it to switch between them. Under it at every width — the
  * gallery now shares its row with two other columns, and a strip beside the
  * image would take its width from the one thing on the page that has to stay
  * large. Selecting a thumbnail (click or hover) swaps the main image; there is
  * no auto-advance here — that belongs to the compact list-tile gallery.
+ *
+ * The thumbnails wrap into rows and take their size from the column they sit
+ * in, rather than scrolling sideways at a fixed 4rem: a strip that scrolls
+ * hides images behind a gesture, and its intrinsic width was wide enough to
+ * stretch the whole column — and with it the main image — past a phone screen.
+ * Narrow, only the first row is kept, with a toggle for the rest.
  */
 @Component({
   selector: 'app-product-gallery',
-  imports: [ImagePlaceholder],
+  imports: [ImagePlaceholder, Button],
   template: `
-    <div class="flex flex-col gap-3">
+    <div class="flex min-w-0 flex-col gap-3">
       <div
         data-main-image
         class="aspect-square overflow-hidden rounded-xl bg-stone-100"
@@ -48,12 +61,12 @@ import { ImagePlaceholder } from './image-placeholder';
       </div>
 
       @if (images().length > 1) {
-        <ul class="flex gap-3 overflow-x-auto">
+        <ul [class]="thumbsClass()">
           @for (img of images(); track $index) {
-            <li class="shrink-0">
+            <li>
               <button
                 type="button"
-                class="block aspect-square w-16 overflow-hidden rounded-md border-2 transition-colors"
+                class="block aspect-square w-full overflow-hidden rounded-md border-2 transition-colors"
                 [class.border-accent]="$index === selected()"
                 [class.border-transparent]="$index !== selected()"
                 [attr.aria-current]="$index === selected() || null"
@@ -76,12 +89,37 @@ import { ImagePlaceholder } from './image-placeholder';
             </li>
           }
         </ul>
+        @if (images().length > THUMBS_COLLAPSED) {
+          <div class="flex justify-center sm:hidden">
+            <button
+              type="button"
+              appButton
+              variant="ghost"
+              size="sm"
+              [attr.aria-expanded]="showAllThumbs()"
+              (click)="showAllThumbs.set(!showAllThumbs())"
+            >
+              {{ showAllThumbs() ? text.showLess : text.showMore }}
+            </button>
+          </div>
+        }
       }
     </div>
   `,
 })
 export class ProductGallery {
-  private readonly text = inject(APP_TEXT).catalog;
+  protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;
+
+  /** Only ever true on a narrow screen: from `sm` up every row is on screen and
+   * the toggle is hidden, so the extra class it would add is dropped there. */
+  protected readonly showAllThumbs = signal(false);
+  protected readonly thumbsClass = computed(() => {
+    const base = 'grid grid-cols-5 gap-2 sm:grid-cols-6 sm:gap-3';
+    return this.showAllThumbs()
+      ? base
+      : `${base} max-sm:[&>li:nth-child(n+6)]:hidden`;
+  });
 
   images = input.required<readonly CatalogImage[]>();
   /** Product name, used as the main image's alt text. */

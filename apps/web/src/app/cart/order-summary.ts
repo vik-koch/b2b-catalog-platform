@@ -1,9 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { ShipmentSummary } from '@b2b-catalog-platform/shared';
+import { fillText, ShipmentSummary } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { fillText } from '../core/fill-text';
 import { Skeleton } from '../ui/skeleton';
 
 /**

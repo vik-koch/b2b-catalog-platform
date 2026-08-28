@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { CustomerTier } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -52,6 +53,8 @@ async function render(
   TestBed.configureTestingModule({
     imports: [TierListPage],
     providers: [
+      // The price count links into the product grid.
+      provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
@@ -87,18 +90,19 @@ async function render(
   const byLabel = (label: string) =>
     el.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`);
 
-  /** Clicks a row's move button; `row` is the tier's position in the list. */
-  const move = async (row: number, direction: 'up' | 'down') => {
-    const label = direction === 'up' ? text.moveUp : text.moveDown;
-    const buttons = el.querySelectorAll<HTMLButtonElement>(
-      `[aria-label="${label}"]`,
-    );
-    buttons[row].click();
+  /** The CDK's own drop event: a real drag cannot be dispatched in jsdom, so
+   * the handler is called the way the attribute list's spec calls it. */
+  const drop = async (previousIndex: number, currentIndex: number) => {
+    (
+      fixture.componentInstance as unknown as {
+        onDrop(event: { previousIndex: number; currentIndex: number }): void;
+      }
+    ).onDrop({ previousIndex, currentIndex });
     await fixture.whenStable();
     fixture.detectChanges();
   };
 
-  return { el, service, confirm, click, type, submit, byLabel, move, fixture };
+  return { el, service, confirm, click, type, submit, byLabel, drop, fixture };
 }
 
 /** The pinned, non-draggable base-list block: the card's first child. */
@@ -257,12 +261,10 @@ describe('TierListPage', () => {
     });
 
     it('commits a move as a re-numbered sequence from zero', async () => {
-      const { service, move } = await render({ tiers: [a, b, c] });
+      const { service, drop } = await render({ tiers: [a, b, c] });
 
-      await move(2, 'up');
+      await drop(2, 1);
 
-      // Positions carry no meaning of their own — only the sequence does — so
-      // every row is renumbered rather than given a fractional index.
       // Positions carry no meaning of their own — only the sequence does — so
       // every row is renumbered rather than given a fractional index.
       expect(service.reorder).toHaveBeenCalledWith({
@@ -274,29 +276,22 @@ describe('TierListPage', () => {
       });
     });
 
-    it('offers no move out of the list at its ends', async () => {
-      const { el } = await render({ tiers: [a, b, c] });
+    it('ignores a drop that put the row back where it was', async () => {
+      const { drop, service } = await render({ tiers: [a, b, c] });
 
-      const up = el.querySelectorAll<HTMLButtonElement>(
-        `[aria-label="${text.moveUp}"]`,
-      );
-      const down = el.querySelectorAll<HTMLButtonElement>(
-        `[aria-label="${text.moveDown}"]`,
-      );
-      expect(up[0].disabled).toBe(true);
-      expect(up[2].disabled).toBe(false);
-      expect(down[2].disabled).toBe(true);
-      expect(down[0].disabled).toBe(false);
+      await drop(1, 1);
+
+      expect(service.reorder).not.toHaveBeenCalled();
     });
 
     it('adopts the server’s answer rather than the locally moved array', async () => {
-      const { el, move } = await render({
+      const { el, drop } = await render({
         tiers: [a, b, c],
         // The server is the authority on order; say it settled differently.
         reorder: [b, c, a],
       });
 
-      await move(0, 'down');
+      await drop(0, 1);
 
       const labels = [...el.querySelectorAll('li')].map((li) =>
         li.textContent?.trim().charAt(0),
@@ -305,10 +300,10 @@ describe('TierListPage', () => {
     });
 
     it('reports a failed move and reloads what is actually stored', async () => {
-      const { el, service, move } = await render({ tiers: [a, b, c] });
+      const { el, service, drop } = await render({ tiers: [a, b, c] });
       service.reorder.mockRejectedValueOnce(new Error('boom'));
 
-      await move(0, 'down');
+      await drop(0, 1);
 
       expect(el.textContent).toContain(text.reorderError);
       expect(service.list).toHaveBeenCalledTimes(2);

@@ -99,9 +99,12 @@ import { injectEditorReturn } from '../editor-return';
       </p>
       <app-product-detail-view [item]="previewItem()" [canAdd]="false" />
     } @else {
-      <div class="space-y-6">
+      <div class="max-w-3xl space-y-6">
         <label class="block">
-          <span appFieldLabel>{{ text.name }}</span>
+          <span appFieldLabel>
+            {{ text.name }}
+            <span class="text-accent" aria-hidden="true">*</span>
+          </span>
           <input
             type="text"
             appInput
@@ -113,7 +116,10 @@ import { injectEditorReturn } from '../editor-return';
 
         <div class="flex flex-wrap gap-6">
           <label class="block">
-            <span appFieldLabel>{{ text.price }}</span>
+            <span appFieldLabel>
+              {{ text.price }}
+              <span class="text-accent" aria-hidden="true">*</span>
+            </span>
             <!-- Text, not type=number: a number input reports a half-typed
                  "18." as an empty value, so binding the signal back to it wiped
                  the field the moment a decimal separator was pressed. The
@@ -131,7 +137,10 @@ import { injectEditorReturn } from '../editor-return';
           </label>
 
           <div class="flex-1">
-            <span appFieldLabel>{{ text.category }}</span>
+            <span appFieldLabel>
+              {{ text.category }}
+              <span class="text-accent" aria-hidden="true">*</span>
+            </span>
             <app-category-picker
               [categories]="categories()"
               [value]="categoryId()"
@@ -257,7 +266,7 @@ import { injectEditorReturn } from '../editor-return';
     }
 
     @if (!loading() && !notFound()) {
-      <div class="mt-6 flex flex-wrap gap-3">
+      <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
         <button
           appButton
           type="button"
@@ -306,6 +315,24 @@ import { injectEditorReturn } from '../editor-return';
           <app-admin-icon name="x" class="h-4 w-4" />
           {{ common.cancel }}
         </button>
+        <!-- Cancel puts the admin back where they came from, which for an
+             editor opened from the admin list is the admin list — so seeing
+             the product as a customer sees it meant saving first. This exit
+             discards the same way and lands on the page itself. Only where
+             there is a page to land on: the storefront 404s an unpublished
+             product. -->
+        @if (!isNew && published()) {
+          <button
+            appButton
+            variant="secondary"
+            type="button"
+            class="gap-2"
+            (click)="cancelToPage()"
+          >
+            <app-admin-icon name="eye" class="h-4 w-4" />
+            {{ text.cancelToPage }}
+          </button>
+        }
       </div>
     }
   `,
@@ -760,5 +787,13 @@ export class ProductEditorPage implements UnsavedChangesAware {
     void this.close(
       existingSlug === null ? '/catalog' : `/product/${existingSlug}`,
     );
+  }
+
+  /** The same discard, ignoring where the editor was opened from: the point of
+   * this one is the destination. Guarded by the same canDeactivate. */
+  protected cancelToPage(): void {
+    const existingSlug = this.slugParam;
+    if (existingSlug === null) return;
+    void this.router.navigateByUrl(`/product/${existingSlug}`);
   }
 }
