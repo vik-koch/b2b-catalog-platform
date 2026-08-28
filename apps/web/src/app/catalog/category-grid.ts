@@ -101,6 +101,13 @@ const SUBS_ASSUMED_FIT = 4;
                 gesture in the one place every page puts it. -->
           @if (editControls(); as editText) {
             <app-edit-actions
+              [filtersLink]="[
+                '/admin/categories',
+                data.category.slug,
+                'filters',
+              ]"
+              [filtersParams]="editorFrom()"
+              [filtersLabel]="editText.editFilters"
               [editLink]="['/admin/categories', data.category.slug, 'edit']"
               [editParams]="editorFrom()"
               [editLabel]="editText.editCategory"

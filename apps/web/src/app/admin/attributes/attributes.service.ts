@@ -6,6 +6,8 @@ import {
   AttributeKeyUsage,
   attributesContract,
   AttributeValueUsage,
+  CategoryFilters,
+  SaveCategoryFiltersRequest,
   RenameAttributeKeyRequest,
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
@@ -91,6 +93,41 @@ export class AttributesService {
     const response = await this.client.renameAttributeValue({ body });
     if (response.status === 200) return response.body.updated;
     throw new Error(`Failed to rename the value (${response.status})`);
+  }
+
+  /** One category's filter panel, resolved (FR-ATTR-11). */
+  async categoryFilters(slug: string): Promise<CategoryFilters | null> {
+    const response = await this.client.getCategoryFilters({ params: { slug } });
+    if (response.status === 200) return response.body;
+    if (response.status === 404) return null;
+    throw new Error(`Failed to load the category filters (${response.status})`);
+  }
+
+  /** Replaces the panel wholesale; returns it as stored. */
+  async saveCategoryFilters(
+    slug: string,
+    body: SaveCategoryFiltersRequest,
+  ): Promise<CategoryFilters | null> {
+    const response = await this.client.saveCategoryFilters({
+      params: { slug },
+      body,
+    });
+    if (response.status === 200) return response.body;
+    if (response.status === 404) return null;
+    throw new Error(`Failed to save the category filters (${response.status})`);
+  }
+
+  /** Drops the overlay, so the category inherits again. */
+  async resetCategoryFilters(slug: string): Promise<CategoryFilters | null> {
+    const response = await this.client.resetCategoryFilters({
+      params: { slug },
+      body: undefined,
+    });
+    if (response.status === 200) return response.body;
+    if (response.status === 404) return null;
+    throw new Error(
+      `Failed to reset the category filters (${response.status})`,
+    );
   }
 
   /**

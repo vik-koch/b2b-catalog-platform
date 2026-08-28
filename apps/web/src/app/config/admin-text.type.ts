@@ -98,6 +98,8 @@ export const adminTextSchema = z
         editCategory: z.string(),
         editCategories: z.string(),
         addCategory: z.string(),
+        /** The way into this category's filter panel (FR-ATTR-11). */
+        editFilters: z.string(),
         /** The overlay under a category grid: everything the storefront hides. */
         hiddenHeading: z.string(),
         hiddenHint: z.string(),
@@ -337,6 +339,8 @@ export const adminTextSchema = z
         addChild: z.string(),
         seeProducts: z.string(),
         editProducts: z.string(),
+        /** The row's way into the category's filter panel (FR-ATTR-11). */
+        editFilters: z.string(),
         edit: z.string(),
         delete: z.string(),
         deleting: z.string(),
@@ -640,6 +644,54 @@ export const adminTextSchema = z
             'attribute-not-found': z.string(),
             'attribute-name-taken': z.string(),
             'attribute-slug-taken': z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
+     * One category's filter panel (FR-ATTR-11). Nearly all of this wording is
+     * about where the panel comes from: a category shows its parent's list
+     * until it is given one, and the difference between "inherited" and "set
+     * here" is the only thing that makes the reset button legible.
+     */
+    categoryFilters: z
+      .object({
+        title: z.string(),
+        /** `{category}` substituted — the panel being edited. */
+        heading: z.string(),
+        intro: z.string(),
+        /** Where the list comes from, keyed by the contract's `source`.
+         * `inherited` takes `{category}`. */
+        sources: z
+          .object({
+            own: z.string(),
+            inherited: z.string(),
+            default: z.string(),
+          })
+          .strict(),
+        /** Per-row state. `{count}` substituted on `products`. */
+        products: z.string(),
+        notPresent: z.string(),
+        /** An attribute declared after this panel was saved, so it is absent
+         * from it rather than deliberately left out. */
+        isNew: z.string(),
+        show: z.string(),
+        reorder: z.string(),
+        save: z.string(),
+        saveError: z.string(),
+        /** Dropping the overlay so the category inherits again. */
+        reset: z.string(),
+        resetTitle: z.string(),
+        resetConfirm: z.string(),
+        /** Shown after a reset, which stays on the screen — unlike a save. */
+        resetDone: z.string(),
+        empty: z.string(),
+        /** Offered nowhere: the registry itself is empty. */
+        noDefinitions: z.string(),
+        errors: z
+          .object({
+            'category-not-found': z.string(),
+            'attribute-not-found': z.string(),
           })
           .strict(),
       })

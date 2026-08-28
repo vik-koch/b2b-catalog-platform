@@ -73,6 +73,18 @@ const variants = {
           <app-icon name="file-plus" [class]="style().icon" />
         </a>
       }
+      @if (filtersLink(); as link) {
+        <a
+          appIconButton
+          [size]="style().size"
+          [routerLink]="link"
+          [queryParams]="filtersParams()"
+          [attr.aria-label]="filtersLabel()"
+          [attr.title]="filtersLabel()"
+        >
+          <app-icon name="funnel" [class]="style().icon" />
+        </a>
+      }
       @if (editLink(); as link) {
         <a
           appIconButton
@@ -131,6 +143,14 @@ export class EditActions {
   readonly addProductLink = input<unknown[] | null>(null);
   readonly addProductParams = input<Params | undefined>(undefined);
   readonly addProductLabel = input<string>('');
+  /**
+   * The category's filter panel (FR-ATTR-11) — which attributes this listing
+   * offers as filters. Beside the pencil rather than inside the editor: it is
+   * about what the visitor sees on *this* page, which is what edit mode is for.
+   */
+  readonly filtersLink = input<unknown[] | null>(null);
+  readonly filtersParams = input<Params | undefined>(undefined);
+  readonly filtersLabel = input<string>('');
   /** Router link for the pencil; omit for a cluster with no editor to open. */
   readonly editLink = input<unknown[] | null>(null);
   readonly editParams = input<Params | undefined>(undefined);
