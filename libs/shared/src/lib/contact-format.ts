@@ -58,6 +58,39 @@ export const applyMask = (value: string, mask: string): string => {
 };
 
 /**
+ * Removes a leading international dial prefix from a value that is expected to
+ * hold the **national** part alone — the form displays the country code beside
+ * the field, so a number that carries one too would be counted twice.
+ *
+ * Written for autofill: a browser fills a phone field from whatever it stored,
+ * which is usually the full international number (`+49 40 1234567`, or
+ * `0049…`), while the field beneath the `+49` prefix wants `40 1234567`.
+ * Without this the digits are masked as they arrive and stored as `+4949…`.
+ *
+ * The two international forms are unambiguous, so both are stripped. A bare
+ * `49…` is left exactly as typed: a national number may legitimately begin with
+ * its own country's digits, and there is no way to tell the two apart.
+ */
+export function stripDialPrefix(value: string, prefix: string): string {
+  const code = digitsOf(prefix);
+  if (!code) return value;
+
+  const trimmed = value.trimStart();
+  const opener = /^(?:\+|00)/.exec(trimmed)?.[0];
+  if (!opener) return value;
+
+  // Matched digit by digit rather than as a string: the separators inside an
+  // autofilled number are the provider's, not ours ("+49 (40) 123").
+  let rest = trimmed.slice(opener.length);
+  for (const digit of code) {
+    const next = /^\D*(\d)/.exec(rest);
+    if (!next || next[1] !== digit) return value;
+    rest = rest.slice(next[0].length);
+  }
+  return rest;
+}
+
+/**
  * What gets stored: country code + the national digits, with no separators of
  * any kind (`+49401234501`). The mask groups digits for *reading* and is
  * deployment UI config, so storing its separators would bake a presentation

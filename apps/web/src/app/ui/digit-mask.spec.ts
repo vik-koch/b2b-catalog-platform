@@ -5,19 +5,28 @@ import { DigitMask } from './digit-mask';
 
 @Component({
   imports: [ReactiveFormsModule, DigitMask],
-  template: `<input appDigitMask [mask]="mask()" [formControl]="control" />`,
+  template: `
+    <input
+      appDigitMask
+      [mask]="mask()"
+      [prefix]="prefix()"
+      [formControl]="control"
+    />
+  `,
 })
 class Host {
+  prefix = signal('');
   // A signal, so changing it marks the view for check — which is what makes
   // the binding re-evaluate, as a picker changing the format does in the app.
   mask = signal('(###) ###-####');
   control = new FormControl('');
 }
 
-async function render(mask?: string) {
+async function render(mask?: string, prefix?: string) {
   TestBed.configureTestingModule({ imports: [Host] });
   const fixture = TestBed.createComponent(Host);
   if (mask !== undefined) fixture.componentInstance.mask.set(mask);
+  if (prefix !== undefined) fixture.componentInstance.prefix.set(prefix);
   await fixture.whenStable();
   const input = fixture.nativeElement.querySelector(
     'input',
@@ -84,5 +93,48 @@ describe('DigitMask', () => {
     await type('+49 (30) 12');
 
     expect(input.value).toBe('493012');
+  });
+
+  /**
+   * A browser fills a phone field with the whole number it stored, while the
+   * field sits under a `+49` the form draws itself. Without stripping it, the
+   * code is masked as part of the national number and stored twice over.
+   */
+  describe('a value that arrives carrying the prefix', () => {
+    it('has it taken off, typed or autofilled', async () => {
+      const { input, fixture, type } = await render('(###) ###-####', '+49');
+
+      await type('+49 40 1234567');
+      expect(input.value).toBe('(401) 234-567');
+      expect(fixture.componentInstance.control.value).toBe('(401) 234-567');
+
+      await type('004940 1234567');
+      expect(input.value).toBe('(401) 234-567');
+    });
+
+    it('has it taken off when the form writes one in', async () => {
+      const { input, fixture } = await render('(###) ###-####', '+49');
+
+      fixture.componentInstance.control.setValue('+49 40 1234567');
+      await fixture.whenStable();
+
+      expect(input.value).toBe('(401) 234-567');
+    });
+
+    it('leaves a national number that merely looks like one alone', async () => {
+      const { input, type } = await render('(###) ###-####', '+49');
+
+      await type('49 1234567');
+
+      expect(input.value).toBe('(491) 234-567');
+    });
+
+    it('strips nothing where the deployment configures no code', async () => {
+      const { input, type } = await render('(###) ###-####');
+
+      await type('+49 40 1234567');
+
+      expect(input.value).toBe('(494) 012-3456');
+    });
   });
 });

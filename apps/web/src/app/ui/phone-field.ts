@@ -54,6 +54,7 @@ export interface PhoneFieldText {
           type="tel"
           appDigitMask
           [mask]="phone.mask ?? ''"
+          [prefix]="phone.countryCode"
           [formControl]="control()"
           [autocomplete]="autocomplete()"
           inputmode="tel"

@@ -7,6 +7,7 @@ import {
   formatPhone,
   normalizeCompanyId,
   PhoneConfig,
+  stripDialPrefix,
   typedPhone,
 } from './contact-format';
 
@@ -35,6 +36,33 @@ describe('applyMask', () => {
 
   it('means digits-only when empty, with no length limit', () => {
     expect(applyMask('(401) 234-5678 90', '')).toBe('401234567890');
+  });
+});
+
+describe('stripDialPrefix', () => {
+  // The field shows "+49" beside itself and holds the national part alone, so
+  // an autofilled international number arrives with the code counted twice.
+  it('takes off the two international forms a browser writes', () => {
+    expect(stripDialPrefix('+49 40 1234567', '+49')).toBe(' 40 1234567');
+    expect(stripDialPrefix('004940 1234567', '+49')).toBe('40 1234567');
+    expect(stripDialPrefix('+49(40)1234567', '+49')).toBe('(40)1234567');
+  });
+
+  it('leaves a national number alone, however it starts', () => {
+    // Bare "49…" is ambiguous — a national number may open with its own
+    // country's digits — so it is never guessed at.
+    expect(stripDialPrefix('49 1234567', '+49')).toBe('49 1234567');
+    expect(stripDialPrefix('040 1234567', '+49')).toBe('040 1234567');
+    expect(stripDialPrefix('', '+49')).toBe('');
+  });
+
+  it('leaves a number whose code is somebody else’s', () => {
+    expect(stripDialPrefix('+33 1 23456789', '+49')).toBe('+33 1 23456789');
+    expect(stripDialPrefix('+4', '+49')).toBe('+4');
+  });
+
+  it('is a no-op without a configured code', () => {
+    expect(stripDialPrefix('+49 40 1234567', '')).toBe('+49 40 1234567');
   });
 });
 

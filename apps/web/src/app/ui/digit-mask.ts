@@ -8,7 +8,7 @@ import {
   input,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { applyMask } from '@b2b-catalog-platform/shared';
+import { applyMask, stripDialPrefix } from '@b2b-catalog-platform/shared';
 
 /**
  * Formats a digit-only field as the visitor types, per a configurable mask
@@ -19,7 +19,11 @@ import { applyMask } from '@b2b-catalog-platform/shared';
  *
  * The control value is the formatted, typed part only. Any fixed prefix — a
  * phone country code, a VAT country code — is owned and displayed by the form
- * and prepended when the value is submitted, never entered here.
+ * and prepended when the value is submitted, never entered here. Tell the
+ * directive what that prefix is (`[prefix]`) and a value arriving with one is
+ * relieved of it: a browser autofilling a full international number would
+ * otherwise have its country code masked as part of the national number, and
+ * stored doubled.
  *
  * The mask may change under a live field — the company-id picker swaps one
  * jurisdiction's grouping for another's — so it is watched rather than read
@@ -44,6 +48,9 @@ import { applyMask } from '@b2b-catalog-platform/shared';
 })
 export class DigitMask implements ControlValueAccessor {
   readonly mask = input('');
+  /** The fixed prefix the form shows beside this field, e.g. `+49`. Used only
+   * to recognise and remove one that arrives inside the value. */
+  readonly prefix = input('');
 
   private readonly el =
     inject<ElementRef<HTMLInputElement>>(ElementRef).nativeElement;
@@ -71,8 +78,10 @@ export class DigitMask implements ControlValueAccessor {
 
   @HostListener('input')
   handleInput(): void {
-    this.source = this.el.value;
-    const formatted = this.format(this.el.value);
+    // Autofill arrives as an `input` event like any other typing, so the
+    // prefix is taken off here as well as in `writeValue`.
+    this.source = this.stripPrefix(this.el.value);
+    const formatted = this.format(this.source);
     this.el.value = formatted;
     this.onChange(formatted);
   }
@@ -83,7 +92,7 @@ export class DigitMask implements ControlValueAccessor {
   }
 
   writeValue(value: string | null): void {
-    this.source = value ?? '';
+    this.source = this.stripPrefix(value ?? '');
     // Formatted with whatever mask is bound *now*. A form that sets the format
     // and the value together sets the value first as far as this directive is
     // concerned — the new mask arrives with the next change detection — and the
@@ -105,5 +114,10 @@ export class DigitMask implements ControlValueAccessor {
 
   private format(value: string): string {
     return applyMask(value, this.mask());
+  }
+
+  private stripPrefix(value: string): string {
+    const prefix = this.prefix();
+    return prefix ? stripDialPrefix(value, prefix) : value;
   }
 }
