@@ -11,11 +11,20 @@ import { z } from 'zod';
  * the web app (`core/masked-input.ts`, `core/contact-fields.ts`).
  */
 
-/** A deployment's phone-entry rule: the fixed country code, and how to group. */
-export interface PhoneConfig {
-  readonly countryCode: string;
-  readonly mask?: string;
-}
+/**
+ * A deployment's phone-entry rule: the fixed country code, and how to group.
+ * Shared for the same reason `companyIdInputSchema` is — the browser enters a
+ * number by it and the API formats one for a staff notification by it, so one
+ * schema rather than a copy on each side.
+ */
+export const phoneInputSchema = z
+  .object({
+    countryCode: z.string(),
+    mask: z.string().optional(),
+  })
+  .strict();
+
+export type PhoneConfig = z.infer<typeof phoneInputSchema>;
 
 /** The bare digits of a masked value — what actually gets stored. */
 export const digitsOf = (value: string | null | undefined): string =>

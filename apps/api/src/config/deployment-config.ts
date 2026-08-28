@@ -9,6 +9,7 @@ import {
   OrderReferenceConfig,
   orderReferenceConfigSchema,
   PhoneConfig,
+  phoneInputSchema,
 } from '@b2b-catalog-platform/shared';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { z } from 'zod';
@@ -43,13 +44,7 @@ export const apiDeploymentConfigSchema = z
      * so the API needs the mask for the same reason the browser does: a staff
      * notification has to be readable by whoever it wakes up.
      */
-    phoneInput: z
-      .object({
-        countryCode: z.string(),
-        mask: z.string().optional(),
-      })
-      .passthrough()
-      .optional(),
+    phoneInput: phoneInputSchema.optional(),
     /**
      * Where the deployment ships. The API applies the country list as well as
      * the browser — a `<select>` is an entry aid, not a rule.

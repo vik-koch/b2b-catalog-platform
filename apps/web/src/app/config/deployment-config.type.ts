@@ -1,6 +1,7 @@
 import {
   addressConfigSchema,
   companyIdInputSchema,
+  phoneInputSchema,
   deliveryConfigSchema,
   orderReferenceConfigSchema,
   PAGE_SLUGS,
@@ -253,13 +254,7 @@ export const deploymentConfigSchema = z
      * national part as they type — `#` is one digit, any other character is a
      * literal separator.
      */
-    phoneInput: z
-      .object({
-        countryCode: z.string(),
-        mask: z.string().optional(),
-      })
-      .strict()
-      .optional(),
+    phoneInput: phoneInputSchema.optional(),
     /**
      * The business registration number a company gives when it registers
      * (FR-AUTH-01). Jurisdiction-specific, so it is deployment config rather
