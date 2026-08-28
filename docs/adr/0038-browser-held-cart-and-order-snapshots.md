@@ -1,6 +1,6 @@
 # 0038 — Hold the cart in the browser, and store an order as a self-contained snapshot
 
-**Status:** accepted (partly superseded 2026-08-26) · **Date:** 2026-08-23
+**Status:** accepted (partly superseded by 0042) · **Date:** 2026-08-23
 
 ## Context
 
