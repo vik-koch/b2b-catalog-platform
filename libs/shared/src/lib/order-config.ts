@@ -27,8 +27,10 @@ const postalCodeConfigSchema = z
  * How a zone is matched. Prefixes cover formats that are not numeric at all;
  * a range covers a contiguous block, and only between codes of the same length
  * — a range from `1000` to `99999` compares strings of different widths and
- * would silently include or exclude by digit count. `cities` is the fallback
- * for an address whose code did not match; `all` is the catch-all.
+ * would silently include or exclude by digit count. `all` is the catch-all.
+ *
+ * A zone matches on the postal code, and on nothing else: city text is
+ * misspellable and a near-miss would quote the wrong threshold silently.
  */
 const zoneMatchSchema = z
   .object({
@@ -46,7 +48,6 @@ const zoneMatchSchema = z
           }),
       )
       .optional(),
-    cities: z.array(z.string().trim().min(1)).optional(),
     /** Matches anything the zones above did not. Only the last zone may. */
     all: z.literal(true).optional(),
   })
@@ -55,8 +56,7 @@ const zoneMatchSchema = z
     (match) =>
       match.all === true ||
       Boolean(match.postalPrefixes?.length) ||
-      Boolean(match.postalRanges?.length) ||
-      Boolean(match.cities?.length),
+      Boolean(match.postalRanges?.length),
     { message: 'a zone matches on something' },
   );
 
@@ -135,7 +135,6 @@ export type DeliveryConfig = z.infer<typeof deliveryConfigSchema>;
 
 export interface DeliveryZoneQuery {
   postalCode: string;
-  city: string;
 }
 
 /**
@@ -150,7 +149,6 @@ export interface ZoneMatcher {
       readonly from: string;
       readonly to: string;
     }[];
-    readonly cities?: readonly string[];
     readonly all?: true;
   };
 }
@@ -167,7 +165,6 @@ export function resolveDeliveryZone<T extends ZoneMatcher>(
   address: DeliveryZoneQuery,
 ): T | null {
   const code = normalizePostalCode(address.postalCode.trim());
-  const city = address.city.trim().toLocaleLowerCase();
 
   for (const zone of zones) {
     const { match } = zone;
@@ -182,11 +179,6 @@ export function resolveDeliveryZone<T extends ZoneMatcher>(
           code >= range.from &&
           code <= range.to,
       )
-    ) {
-      return zone;
-    }
-    if (
-      match.cities?.some((name) => name.trim().toLocaleLowerCase() === city)
     ) {
       return zone;
     }

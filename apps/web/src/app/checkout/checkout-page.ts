@@ -388,7 +388,6 @@ import { AddressForm } from '../addresses/address-form';
                 <app-delivery-zone-hint
                   class="mt-3 border-t border-border pt-3"
                   [postalCode]="deliveryPostalCode()"
-                  [city]="deliveryCity()"
                 />
               }
             </app-order-summary>
@@ -680,9 +679,6 @@ export class CheckoutPage {
   protected readonly deliveryPostalCode = computed(
     () =>
       this.chosenDelivery()?.postalCode ?? this.committedDelivery().postalCode,
-  );
-  protected readonly deliveryCity = computed(
-    () => this.chosenDelivery()?.city ?? this.committedDelivery().city,
   );
 
   /** Re-reads what the picker is holding. Compared before it is written: a

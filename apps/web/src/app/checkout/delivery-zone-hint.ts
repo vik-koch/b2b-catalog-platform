@@ -53,7 +53,6 @@ export class DeliveryZoneHint {
   protected readonly text = inject(APP_TEXT).checkout.zone;
 
   readonly postalCode = input<string>('');
-  readonly city = input<string>('');
 
   protected readonly hasAddress = computed(
     () => this.postalCode().trim().length > 0,
@@ -63,7 +62,6 @@ export class DeliveryZoneHint {
     if (!this.hasAddress()) return null;
     const match = resolveDeliveryZone(this.zones, {
       postalCode: this.postalCode(),
-      city: this.city(),
     });
     if (!match) return null;
 
