@@ -45,6 +45,36 @@ describe('productInputSchema packaging', () => {
     ]);
   });
 
+  // The shape the constraint used to refuse: a shop selling one package of a
+  // six-pack, which is a per-piece price and a minimum of one.
+  it('accepts a minimum under one pack', () => {
+    expect(
+      parse({ piecesPerPack: 6, packsPerBox: 4, minPieceQty: 1 }).success,
+    ).toBe(true);
+  });
+
+  it('refuses a minimum that sits across the pack', () => {
+    const result = parse({ piecesPerPack: 6, minPieceQty: 8 });
+
+    expect(result.success).toBe(false);
+    expect(result.success === false && result.error.issues[0].path).toEqual([
+      'minPieceQty',
+    ]);
+  });
+
+  it('refuses a lot price where packs are opened, since the step is a piece', () => {
+    const result = parse({
+      priceBasisPieces: 2,
+      piecesPerPack: 6,
+      minPieceQty: 2,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.success === false && result.error.issues[0].path).toEqual([
+      'priceBasisPieces',
+    ]);
+  });
+
   it('refuses a box without a pack', () => {
     const result = parse({ packsPerBox: 4 });
 

@@ -1,5 +1,9 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { piecePriceMilliMinor, totalMinor } from '@b2b-catalog-platform/shared';
+import {
+  basisDividesQuantities,
+  piecePriceMilliMinor,
+  totalMinor,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { formatPiecePrice, formatPriceMinor } from '../../catalog/price';
@@ -259,20 +263,24 @@ export class ProductPackagingEditor {
   /** Mirrors the server's rule, so the refusal arrives while typing. */
   protected readonly basisError = computed(() => {
     const v = this.value();
-    const basis = parseCount(v.priceBasisPieces) ?? 1;
-    const min = parseCount(v.minPieceQty) ?? 1;
-    const pack = parseCount(v.piecesPerPack);
-    return min % basis !== 0 || (pack !== null && pack % basis !== 0);
+    return !basisDividesQuantities(
+      {
+        piecesPerPack: parseCount(v.piecesPerPack),
+        packsPerBox: parseCount(v.packsPerBox),
+        minPieceQty: parseCount(v.minPieceQty) ?? 1,
+      },
+      parseCount(v.priceBasisPieces) ?? 1,
+    );
   });
 
   protected edit(key: keyof PackagingDraft, raw: string): void {
     const current = this.value();
     const next = { ...current, [key]: raw };
-    // The minimum is usually the pack size, so it tracks it while it is unset
-    // or still matching — like a slug tracking a name. A minimum somebody set to
-    // something else is left alone.
+    // A minimum that was following the pack keeps following it — like a slug
+    // tracking a name. Only an empty field or one still matching the old pack
+    // counts as following: a minimum of 1 is a shop that sells single pieces,
+    // which is a decision, not a blank.
     const tracking =
-      current.minPieceQty === '1' ||
       current.minPieceQty === '' ||
       current.minPieceQty === current.piecesPerPack;
     if (key === 'piecesPerPack' && tracking) {
@@ -301,15 +309,16 @@ export class ProductPackagingEditor {
 
   /**
    * Puts a required count back to 1 when it is left empty or at zero, and lifts
-   * a minimum that sits between two packs up to the next whole one. Done on
-   * blur rather than per keystroke, so clearing the field to retype it does not
+   * a minimum that sits across the pack up to the next whole one. Done on blur
+   * rather than per keystroke, so clearing the field to retype it does not
    * fight the typing.
    *
-   * The minimum is raised rather than refused: a piece order moves by one pack,
-   * so a minimum of 25 against a pack of 6 is not a rule the shop can keep, and
-   * 30 is the nearest one it can. Upward is the direction every other quantity
-   * correction goes. The save-time guard behind this catches a stored product
-   * that arrived off the lattice some other way.
+   * A minimum **under** a pack is left exactly as typed: that is a shop that
+   * opens packs, and pieces move by ones there. Only a minimum above the pack
+   * and between two of them — 25 against a pack of 6 — is a rule the shop
+   * cannot keep, and 30 is the nearest one it can. Upward is the direction
+   * every other quantity correction goes. The save-time guard behind this
+   * catches a stored product that arrived off the lattice some other way.
    */
   protected normalize(key: keyof PackagingDraft): void {
     const required =
@@ -325,7 +334,8 @@ export class ProductPackagingEditor {
     if (key === 'minPieceQty' || key === 'piecesPerPack') {
       const pack = parseCount(this.value().piecesPerPack);
       const min = parseCount(this.value().minPieceQty);
-      if (pack === null || min === null || min % pack === 0) return;
+      if (pack === null || min === null) return;
+      if (min < pack || min % pack === 0) return;
       const lifted = Math.ceil(min / pack) * pack;
       this.valueChange.emit({
         ...this.value(),

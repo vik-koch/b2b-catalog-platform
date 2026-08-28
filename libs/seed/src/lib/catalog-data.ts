@@ -187,13 +187,15 @@ const ESPRESSO = [
  * - every 5th: a minimum order well above the pack size
  * - every 6th: shipped as two boxes rather than one
  * - every 7th: packs but no box
+ * - every 8th: sold by the single bag, so the pack is opened and a piece
+ *   quantity moves by one rather than by six
  */
 const espressoPackaging = (i: number): ProductPackagingSeed | undefined => {
   if (i % 7 === 6) return { piecesPerPack: 6, minPieceQty: 6 };
   const base: ProductPackagingSeed = {
     piecesPerPack: 6,
     packsPerBox: 4,
-    minPieceQty: i % 5 === 4 ? 24 : 6,
+    minPieceQty: i % 5 === 4 ? 24 : i % 8 === 2 ? 1 : 6,
     boxVolume: '0.072',
     boxWeight: '6.400',
     // The rare case: a product that ships split across two boxes.

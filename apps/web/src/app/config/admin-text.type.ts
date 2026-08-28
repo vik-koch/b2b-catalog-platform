@@ -289,7 +289,7 @@ export const adminTextSchema = z
             pricePerPack: z.string(),
             pricePerBox: z.string(),
             basisMustDivide: z.string(),
-            minMustBeWholePacks: z.string(),
+            minMustFitPacks: z.string(),
             invalid: z.string(),
           })
           .strict(),

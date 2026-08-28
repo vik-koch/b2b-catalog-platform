@@ -1599,11 +1599,11 @@
         },
         "products_basis_divides_quantities": {
           "name": "products_basis_divides_quantities",
-          "value": "\"products\".\"minPieceQty\" % \"products\".\"priceBasisPieces\" = 0\n        and (\"products\".\"piecesPerPack\" is null\n             or \"products\".\"piecesPerPack\" % \"products\".\"priceBasisPieces\" = 0)"
+          "value": "\"products\".\"minPieceQty\" % \"products\".\"priceBasisPieces\" = 0\n        and (\"products\".\"piecesPerPack\" is null\n             or \"products\".\"piecesPerPack\" % \"products\".\"priceBasisPieces\" = 0)\n        and (\"products\".\"piecesPerPack\" is null\n             or \"products\".\"minPieceQty\" >= \"products\".\"piecesPerPack\"\n             or \"products\".\"priceBasisPieces\" = 1)"
         },
-        "products_minimum_is_whole_packs": {
-          "name": "products_minimum_is_whole_packs",
-          "value": "\"products\".\"piecesPerPack\" is null\n        or \"products\".\"minPieceQty\" % \"products\".\"piecesPerPack\" = 0"
+        "products_minimum_fits_packs": {
+          "name": "products_minimum_fits_packs",
+          "value": "\"products\".\"piecesPerPack\" is null\n        or \"products\".\"minPieceQty\" < \"products\".\"piecesPerPack\"\n        or \"products\".\"minPieceQty\" % \"products\".\"piecesPerPack\" = 0"
         }
       },
       "isRLSEnabled": false

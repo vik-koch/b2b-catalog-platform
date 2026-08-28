@@ -80,8 +80,9 @@ export function unitPricesOf(row: PricedProductRow): UnitPrices {
     pieceMilliMinor: piecePriceMilliMinor(row.priceMinor, row.priceBasisPieces),
     // The multiplicable piece figure — the price of one step, which is what
     // every piece quantity is a whole number of. Exact by construction: the
-    // basis divides the pack (products_basis_divides_quantities), and the
-    // minimum is itself a whole number of steps (products_minimum_is_whole_packs).
+    // basis divides the step and the pack alike
+    // (products_basis_divides_quantities), and the minimum sits on the step
+    // lattice (products_minimum_fits_packs).
     pieceLotMinor: totalMinor(
       row.priceMinor,
       row.priceBasisPieces,

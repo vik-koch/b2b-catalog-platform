@@ -131,8 +131,9 @@ export const products = pgTable(
     piecesPerPack: integer('piecesPerPack'),
     packsPerBox: integer('packsPerBox'),
     // The smallest piece quantity the shop will sell — a commercial floor, not
-    // the increment. Piece quantities move by one pack (see pieceStep); this
-    // only says where they start. Piece purchases only.
+    // the increment. Where it is a whole number of packs, piece quantities move
+    // by one pack; where it is under a pack, packs are opened and they move by
+    // ones (see pieceStep). This only says where they start.
     minPieceQty: integer('minPieceQty').notNull().default(1),
     // A box's shipping dimensions, shown among the product's attributes. Plain
     // numerics: the integer-money rule is about currency rounding, which does
@@ -229,18 +230,27 @@ export const products = pgTable(
     // What keeps totals exact: every purchasable quantity is a whole number of
     // basis units, so a total is a multiplication with nothing to round. In the
     // database, not only the editor — it is the guarantee, not a form nicety.
+    // The last clause is the broken-open case: a minimum under a pack lets
+    // pieces be bought one at a time, and only a per-piece price describes those
+    // totals exactly.
     check(
       'products_basis_divides_quantities',
       sql`${t.minPieceQty} % ${t.priceBasisPieces} = 0
         and (${t.piecesPerPack} is null
-             or ${t.piecesPerPack} % ${t.priceBasisPieces} = 0)`,
+             or ${t.piecesPerPack} % ${t.priceBasisPieces} = 0)
+        and (${t.piecesPerPack} is null
+             or ${t.minPieceQty} >= ${t.piecesPerPack}
+             or ${t.priceBasisPieces} = 1)`,
     ),
-    // A piece quantity moves by one pack, so the minimum has to sit on that
-    // lattice: otherwise the first orderable quantity is not a whole number of
-    // steps, and one published lot price can no longer describe every total.
+    // The minimum must sit with the pack rather than across it: either under one
+    // pack, where packs are opened and pieces move by ones, or a whole number of
+    // packs, where they are not. In between — a minimum of 8 against a pack of 6
+    // — the first orderable quantity is off every lattice, and one published lot
+    // price can no longer describe every total.
     check(
-      'products_minimum_is_whole_packs',
+      'products_minimum_fits_packs',
       sql`${t.piecesPerPack} is null
+        or ${t.minPieceQty} < ${t.piecesPerPack}
         or ${t.minPieceQty} % ${t.piecesPerPack} = 0`,
     ),
   ],

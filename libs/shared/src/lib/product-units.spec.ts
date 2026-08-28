@@ -5,7 +5,7 @@ import {
   exactLineTotal,
   LINE_PIECES_MAX,
   stepFrom,
-  minimumIsWholeSteps,
+  minimumFitsPacks,
   pieceFloor,
   piecePriceMilliMinor,
   piecesFromUnitQuantity,
@@ -29,6 +29,14 @@ const packaged: ProductPackaging = {
 const plain: ProductPackaging = {
   piecesPerPack: null,
   packsPerBox: null,
+  minPieceQty: 1,
+};
+
+/** The same coffee in a shop that will sell a single package: packs exist, but
+ * the minimum is under one, so packs are opened. */
+const loose: ProductPackaging = {
+  piecesPerPack: 6,
+  packsPerBox: 4,
   minPieceQty: 1,
 };
 
@@ -74,6 +82,11 @@ describe('pieceStep', () => {
   it('is the pack, which is what cannot be broken open', () => {
     expect(pieceStep(packaged)).toBe(6);
     expect(pieceStep(packOnly)).toBe(10);
+  });
+
+  it('is one piece where the shop sells fewer than a pack', () => {
+    expect(pieceStep(loose)).toBe(1);
+    expect(pieceStep({ ...packaged, minPieceQty: 2 })).toBe(1);
   });
 
   it('falls back to the minimum where there is no pack to move by', () => {
@@ -169,10 +182,15 @@ describe('pieceFloor', () => {
     expect(pieceFloor(plain)).toBe(1);
   });
 
-  it('raises a minimum that sits between steps', () => {
-    // Refused by products_minimum_is_whole_packs, so this is the belt to that
-    // braces: a row that predates the rule still lands on the lattice.
-    expect(pieceFloor({ ...packOnly, minPieceQty: 95 })).toBe(100);
+  it('is the minimum itself where packs are opened', () => {
+    expect(pieceFloor(loose)).toBe(1);
+    expect(pieceFloor({ ...packaged, minPieceQty: 2 })).toBe(2);
+  });
+
+  it('does not raise a minimum that sits across the pack', () => {
+    // Refused by products_minimum_fits_packs; the step falls back to one piece
+    // rather than pushing a row that slips past it up to the next pack.
+    expect(pieceFloor({ ...packOnly, minPieceQty: 95 })).toBe(95);
   });
 
   // The rounding a lens used to need: a minimum of 24 read through a box of 24
@@ -186,15 +204,23 @@ describe('pieceFloor', () => {
   });
 });
 
-describe('minimumIsWholeSteps', () => {
+describe('minimumFitsPacks', () => {
   it('accepts a minimum that is a whole number of packs', () => {
-    expect(minimumIsWholeSteps(packOnly)).toBe(true);
-    expect(minimumIsWholeSteps(packaged)).toBe(true);
-    expect(minimumIsWholeSteps(plain)).toBe(true);
+    expect(minimumFitsPacks(packOnly)).toBe(true);
+    expect(minimumFitsPacks(packaged)).toBe(true);
+    expect(minimumFitsPacks(plain)).toBe(true);
   });
 
-  it('refuses one that would put the first orderable quantity off the lattice', () => {
-    expect(minimumIsWholeSteps({ ...packOnly, minPieceQty: 95 })).toBe(false);
+  // The case the rule used to refuse, wrongly: a shop selling one package of a
+  // six-pack was made to sell six.
+  it('accepts a minimum under one pack, where packs are opened', () => {
+    expect(minimumFitsPacks(loose)).toBe(true);
+    expect(minimumFitsPacks({ ...packaged, minPieceQty: 5 })).toBe(true);
+  });
+
+  it('refuses one that sits across the pack, where no step fits it', () => {
+    expect(minimumFitsPacks({ ...packOnly, minPieceQty: 95 })).toBe(false);
+    expect(minimumFitsPacks({ ...packaged, minPieceQty: 8 })).toBe(false);
   });
 });
 
@@ -207,6 +233,15 @@ describe('correctPieces', () => {
     expect(correctPieces(packOnly, 101)).toBe(110);
     expect(correctPieces(packOnly, 199)).toBe(200);
     expect(correctPieces(packaged, 13)).toBe(18);
+  });
+
+  // The bug this rule was written for: a shop that sells a single package of a
+  // six-pack had every order pushed up to six.
+  it('leaves single pieces alone where the minimum is under a pack', () => {
+    expect(correctPieces(loose, 1)).toBe(1);
+    expect(correctPieces(loose, 2)).toBe(2);
+    expect(correctPieces(loose, 7)).toBe(7);
+    expect(correctPieces({ ...packaged, minPieceQty: 2 }, 3)).toBe(3);
   });
 
   it('leaves an already-valid quantity alone', () => {
@@ -402,6 +437,15 @@ describe('basisDividesQuantities', () => {
     expect(basisDividesQuantities(packOnly, 3)).toBe(false);
     // Divides the minimum but not the pack.
     expect(basisDividesQuantities(packaged, 4)).toBe(false);
+  });
+
+  it('rejects anything but a per-piece basis where packs are opened', () => {
+    // The step is one piece, so a two-piece price cannot describe an order of
+    // three.
+    expect(basisDividesQuantities({ ...packaged, minPieceQty: 2 }, 2)).toBe(
+      false,
+    );
+    expect(basisDividesQuantities(loose, 1)).toBe(true);
   });
 
   it('rejects a basis below one', () => {
