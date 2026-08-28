@@ -31,7 +31,7 @@ import { Icon, IconName } from './icons/icon';
         [class]="tone() === 'positive' ? 'text-primary' : 'text-subtle'"
       />
       @if (heading()) {
-        <h2 class="mt-4 text-xl font-semibold tracking-tight">
+        <h2 class="mt-4 text-xl font-normal tracking-tight">
           {{ heading() }}
         </h2>
       }

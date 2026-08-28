@@ -140,7 +140,7 @@ const NARROW = '(max-width: 39.999rem)';
     <!-- Above the columns rather than inside one: with the way to buy in a
          column of its own, a name in the middle column would sit level with the
          price instead of over the whole page. -->
-    <h1 class="mt-4 text-2xl font-bold tracking-tight sm:text-3xl">
+    <h1 class="mt-4 text-2xl font-medium tracking-tight sm:text-3xl">
       {{ item().name }}
     </h1>
 
@@ -271,7 +271,7 @@ const NARROW = '(max-width: 39.999rem)';
 })
 export class ProductDetailView {
   protected readonly text = inject(APP_TEXT).catalog;
-  protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-4`;
+  protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-6`;
   protected readonly imageColumnClass = `order-1 min-w-0 ${IMAGE_CAP}`;
   /** The description is trusted rich text (server-sanitized, same as pages). */
   protected readonly safeDescription = trustedRichText();

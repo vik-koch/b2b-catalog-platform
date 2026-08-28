@@ -33,7 +33,10 @@ import { AdminCatalogService } from '../admin-catalog.service';
       aria-labelledby="product-delete-heading"
       appDialogPanel
     >
-      <h2 id="product-delete-heading" class="text-xl font-bold tracking-tight">
+      <h2
+        id="product-delete-heading"
+        class="text-xl font-normal tracking-tight"
+      >
         {{ text.deleteProduct }}
       </h2>
       <p class="mt-3 text-muted">{{ confirmMessage() }}</p>

@@ -108,7 +108,7 @@ const EDGE_SLACK = 24;
   `,
   template: `
     <div class="mb-4 flex items-center justify-between gap-4">
-      <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
       <a
         appButton
         routerLink="/admin/categories/new"

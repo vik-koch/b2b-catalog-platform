@@ -42,7 +42,10 @@ import { categoryDescendantIds } from './category-tree';
       aria-labelledby="category-delete-heading"
       appDialogPanel
     >
-      <h2 id="category-delete-heading" class="text-xl font-bold tracking-tight">
+      <h2
+        id="category-delete-heading"
+        class="text-xl font-normal tracking-tight"
+      >
         {{ text.deleteTitle }}
       </h2>
 

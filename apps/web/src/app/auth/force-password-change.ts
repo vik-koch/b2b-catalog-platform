@@ -47,7 +47,7 @@ import { ChangePasswordForm } from './change-password-form';
         @if (changed()) {
           <h2
             id="force-password-change-heading"
-            class="mb-2 text-xl font-bold tracking-tight"
+            class="mb-2 text-xl font-normal tracking-tight"
           >
             {{ text.heading }}
           </h2>
@@ -60,7 +60,7 @@ import { ChangePasswordForm } from './change-password-form';
         } @else {
           <h2
             id="force-password-change-heading"
-            class="mb-2 text-xl font-bold tracking-tight"
+            class="mb-2 text-xl font-normal tracking-tight"
           >
             {{ text.forcedHeading }}
           </h2>

@@ -297,7 +297,7 @@ export class AddressFields {
    * stacked once every field is on screen. The narrow column is the postcode's
    * own, so the two states line up. */
   protected readonly streetRow = computed(() =>
-    this.collapsed() ? 'grid gap-6 sm:grid-cols-[1fr_10rem]' : 'grid gap-6',
+    this.collapsed() ? 'grid gap-6 sm:grid-cols-2' : 'grid gap-6',
   );
 
   /**

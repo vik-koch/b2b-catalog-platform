@@ -187,6 +187,18 @@ html {
 }
 
 /*
+ * Headings inside rich text follow the app's own: size carries the hierarchy,
+ * weight stays at 400. Typography ships 700/600 here, which next to a page
+ * title at 500 reads as the body shouting over it. Covers the three levels the
+ * editor offers, and applies while editing too — the ProseMirror surface is
+ * itself a `.prose` container.
+ */
+.prose :where(h2, h3, h4) {
+  font-weight: 400;
+  letter-spacing: -0.025em;
+}
+
+/*
  * Rich-text image placement. Width arrives inline (width:N%, sanitizer-built);
  * alignment is these attribute rules, matched by the same enum the sanitizer
  * allows. The container clears its floats so a floated image never spills past

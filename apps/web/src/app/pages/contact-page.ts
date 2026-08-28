@@ -42,7 +42,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
       <app-load-error-view [heading]="errorText.cannotLoadTitle" />
     } @else if (ready()) {
       <div class="flex items-start justify-between gap-4">
-        <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ heading }}</h1>
+        <h1 class="mb-6 text-3xl font-medium tracking-tight">{{ heading }}</h1>
         @if (canEdit(); as editorText) {
           <app-edit-actions
             variant="inline"
@@ -67,7 +67,9 @@ import { trustedRichText } from '../core/trusted-rich-text';
       <div class="space-y-10">
         @for (location of locations; track location.name) {
           <section>
-            <h2 class="text-xl font-semibold">{{ location.name }}</h2>
+            <h2 class="text-xl font-normal tracking-tight">
+              {{ location.name }}
+            </h2>
             @if (location.description) {
               <p class="mt-1 text-muted">{{ location.description }}</p>
             }

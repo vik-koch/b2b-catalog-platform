@@ -175,7 +175,7 @@ const SUBS_ASSUMED_FIT = 4;
           <div
             class="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
           >
-            <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
+            <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
               {{ data.category.name }}
             </h1>
 
@@ -220,7 +220,7 @@ const SUBS_ASSUMED_FIT = 4;
                     <a
                       [routerLink]="['/catalog', sub.slug]"
                       [queryParams]="{ sort: sortParam(), attr: attrParam() }"
-                      class="flex h-14 max-w-52 min-w-28 items-center justify-center rounded-xl border border-border bg-stone-100 px-4 text-center text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:text-accent"
+                      class="flex h-14 max-w-52 min-w-28 items-center justify-center rounded-xl border border-border bg-stone-100 px-4 text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:text-accent"
                     >
                       <span class="line-clamp-2">{{ displayName(sub) }}</span>
                     </a>

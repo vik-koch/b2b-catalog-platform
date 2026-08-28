@@ -65,7 +65,7 @@ function substitute(
     StatusBadge,
   ],
   template: `
-    <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ text.title }}</h1>
+    <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ text.title }}</h1>
     <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.description }}</p>
 
     <!-- Narrower than the heading above it: everything below is a column of
@@ -188,7 +188,9 @@ function substitute(
       @if (previewed(); as response) {
         @let plan = response.plan;
         <section class="mb-8 rounded-md border border-border p-4">
-          <h2 class="mb-4 text-lg font-semibold">{{ text.summaryTitle }}</h2>
+          <h2 class="mb-4 text-lg font-normal tracking-tight">
+            {{ text.summaryTitle }}
+          </h2>
 
           <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
             @for (tile of summaryTiles(plan); track tile.label) {
@@ -372,7 +374,9 @@ function substitute(
 
       <!-- The audit trail -->
       <section>
-        <h2 class="mb-3 text-lg font-semibold">{{ text.historyTitle }}</h2>
+        <h2 class="mb-3 text-lg font-normal tracking-tight">
+          {{ text.historyTitle }}
+        </h2>
         @if (runs.hasValue() && runs.value().runs.length > 0) {
           <table class="w-full text-sm">
             <thead>

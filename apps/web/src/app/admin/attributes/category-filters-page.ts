@@ -67,7 +67,7 @@ const FALLBACK_RETURN = '/admin/categories';
            later reads as the page changing its mind. A bar of the same height
            holds the row instead. -->
       @if (loaded(); as panel) {
-        <h1 class="text-3xl font-bold tracking-tight">
+        <h1 class="text-3xl font-medium tracking-tight">
           {{ headingFor(panel) }}
         </h1>
       } @else {

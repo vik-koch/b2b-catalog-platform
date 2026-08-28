@@ -38,7 +38,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
       >
         {{ text.previewNotice }}
       </p>
-      <h1 class="mb-6 text-3xl font-bold tracking-tight">{{ title() }}</h1>
+      <h1 class="mb-6 text-3xl font-medium tracking-tight">{{ title() }}</h1>
       <!-- The published width, so the preview shows the line breaks the
            visitor will get — the same measure the editing surface uses. -->
       <div
@@ -46,7 +46,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         [innerHTML]="safeBody(body())"
       ></div>
     } @else {
-      <h1 class="mb-6 text-3xl font-bold tracking-tight">
+      <h1 class="mb-6 text-3xl font-medium tracking-tight">
         {{ isNew() ? text.newTitle : text.editTitle }}
       </h1>
       <!-- The published measure, which is what the preview above uses: text

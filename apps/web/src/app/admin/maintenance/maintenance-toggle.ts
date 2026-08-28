@@ -13,7 +13,7 @@ import { MaintenanceService } from './maintenance.service';
   imports: [Switch],
   template: `
     <section class="rounded-lg border border-border p-5">
-      <h2 class="text-lg font-semibold">{{ text.heading }}</h2>
+      <h2 class="text-lg font-normal tracking-tight">{{ text.heading }}</h2>
       <p class="mt-1 text-sm text-muted">{{ text.description }}</p>
 
       @if (status(); as state) {

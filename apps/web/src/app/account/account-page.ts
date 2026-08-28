@@ -67,7 +67,7 @@ interface DetailRow {
     Icon,
   ],
   template: `
-    <h1 class="mb-4 text-3xl font-bold tracking-tight">{{ text.account }}</h1>
+    <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ text.account }}</h1>
     <app-signed-in-as />
 
     <!-- Section headings carry a muted glyph for the topic, as the admin

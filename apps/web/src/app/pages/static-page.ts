@@ -29,7 +29,7 @@ import { LoadErrorView } from './load-error-view';
     } @else if (ready()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
-        <h1 class="mb-6 text-3xl font-bold tracking-tight">
+        <h1 class="mb-6 text-3xl font-medium tracking-tight">
           {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {

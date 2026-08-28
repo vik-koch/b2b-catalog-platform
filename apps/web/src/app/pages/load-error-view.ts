@@ -17,7 +17,7 @@ import { APP_TEXT } from '../config/app-text';
   selector: 'app-load-error-view',
   template: `
     @if (heading()) {
-      <h1 class="text-3xl font-bold tracking-tight">{{ heading() }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ heading() }}</h1>
       <p class="mt-4 text-muted">{{ message() ?? text.cannotLoadBody }}</p>
     } @else {
       <p class="text-muted">{{ message() ?? text.cannotLoadBody }}</p>

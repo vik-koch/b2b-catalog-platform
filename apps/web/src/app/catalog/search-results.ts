@@ -51,7 +51,7 @@ import {
       [attr.aria-busy]="results.isLoading() ? 'true' : null"
     >
       @if (results.error()) {
-        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
+        <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
           {{ heading() }}
         </h1>
         <app-load-error-view [message]="text.loadError" />
@@ -61,7 +61,7 @@ import {
             class="flex flex-row flex-wrap justify-between items-stretch gap-3"
           >
             <div class="flex w-full flex-col justify-between sm:w-auto">
-              <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
+              <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
                 {{ heading() }}
               </h1>
               <p class="mt-2 text-sm text-subtle">
@@ -187,7 +187,7 @@ import {
             </div>
           </div>
         } @else if (query()) {
-          <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
             {{ heading() }}
           </h1>
           <p class="mt-4 text-subtle">
@@ -205,7 +205,7 @@ import {
           <p class="mt-8 text-muted">{{ text.emptyQuery }}</p>
         }
       } @else if (showSkeleton()) {
-        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
+        <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
           {{ heading() }}
         </h1>
         <div class="mt-8 animate-pulse" aria-hidden="true">

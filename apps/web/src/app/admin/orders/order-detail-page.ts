@@ -46,7 +46,9 @@ import { AdminOrdersService } from './orders.service';
   template: `
     @if (detail(); as order) {
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <h1 class="text-3xl font-bold tracking-tight">{{ order.reference }}</h1>
+        <h1 class="text-3xl font-medium tracking-tight">
+          {{ order.reference }}
+        </h1>
         <span appStatusBadge [tone]="statusTone(order.status)">
           {{ statusLabel(order.status) }}
         </span>

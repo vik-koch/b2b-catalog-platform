@@ -31,7 +31,7 @@ import { landingFor } from './auth.guard';
   ],
   template: `
     <app-auth-card>
-      <h1 class="mb-8 text-3xl font-bold tracking-tight">{{ text.login }}</h1>
+      <h1 class="mb-8 text-3xl font-medium tracking-tight">{{ text.login }}</h1>
 
       <form
         [formGroup]="form"

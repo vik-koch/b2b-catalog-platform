@@ -47,7 +47,7 @@ type Status = 'checking' | 'ready' | 'expired' | 'submitting' | 'done';
           <p class="text-muted">{{ text.checking }}</p>
         }
         @case ('expired') {
-          <h1 class="mb-4 text-3xl font-bold tracking-tight">
+          <h1 class="mb-4 text-3xl font-medium tracking-tight">
             {{ text.expiredHeading }}
           </h1>
           <p class="text-muted">{{ text.expired }}</p>
@@ -64,13 +64,13 @@ type Status = 'checking' | 'ready' | 'expired' | 'submitting' | 'done';
           </div>
         }
         @case ('done') {
-          <h1 class="mb-4 text-3xl font-bold tracking-tight">
+          <h1 class="mb-4 text-3xl font-medium tracking-tight">
             {{ text.successHeading }}
           </h1>
           <p class="text-muted">{{ text.success }}</p>
         }
         @default {
-          <h1 class="mb-2 text-3xl font-bold tracking-tight">
+          <h1 class="mb-2 text-3xl font-medium tracking-tight">
             {{ purpose() === 'set' ? text.setHeading : text.resetHeading }}
           </h1>
           <p class="mb-8 text-muted">

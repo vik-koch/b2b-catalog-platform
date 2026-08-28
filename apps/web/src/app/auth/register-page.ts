@@ -59,7 +59,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
   template: `
     <app-auth-card>
       @if (status() === 'success') {
-        <h1 class="mb-4 text-3xl font-bold tracking-tight">
+        <h1 class="mb-4 text-3xl font-medium tracking-tight">
           {{ text.register.successHeading }}
         </h1>
         <p class="text-muted">{{ text.register.success }}</p>
@@ -67,7 +67,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           {{ home }}
         </a>
       } @else {
-        <h1 class="mb-4 text-3xl font-bold tracking-tight">
+        <h1 class="mb-4 text-3xl font-medium tracking-tight">
           {{ text.register.heading }}
         </h1>
         <p class="mb-8 text-muted">{{ text.register.intro }}</p>

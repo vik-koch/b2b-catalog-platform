@@ -36,7 +36,7 @@ const MAX_CHILD_LINKS = 3;
           [addCategoryLabel]="editText.addCategory"
         />
       }
-      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+      <h1 class="text-3xl font-medium tracking-tight sm:text-4xl">
         {{ text.overviewTitle }}
       </h1>
       <p class="mt-3 max-w-xl text-lg text-muted">
