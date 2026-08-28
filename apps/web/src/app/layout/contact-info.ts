@@ -10,7 +10,7 @@ import { Icon } from '../ui/icons/icon';
 @Component({
   selector: 'app-contact-info',
   imports: [Icon],
-  host: { class: 'flex flex-wrap items-center gap-4' },
+  host: { class: 'flex flex-wrap items-center' },
   template: `
     @if (contact?.phone; as phone) {
       <a [href]="telHref(phone)" [class]="pillClass">

@@ -33,7 +33,12 @@ import { Input } from '../ui/input';
          native button is drawn differently in every engine and pinned to the
          right edge, where no other field in the app keeps its affordance.
          Hidden, not removed — the control is still a real date input, and
-         clicking anywhere in it opens the same picker. -->
+         clicking anywhere in it opens the same picker.
+
+         It takes all three: appearance-none for the engines that draw the
+         affordance as part of the control itself (Chrome on Android draws a
+         chevron there), and the two pseudo-elements for those that make it a
+         child. Each is inert where it does not apply. -->
     <div class="relative flex max-w-56 items-center">
       <app-icon
         name="calendar"
@@ -45,7 +50,7 @@ import { Input } from '../ui/input';
         [min]="today"
         [value]="date() ?? ''"
         appInput
-        class="w-full pl-9 [&::-webkit-calendar-picker-indicator]:hidden"
+        class="w-full appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
         (click)="openPicker($event)"
         (change)="picked($event)"
       />
