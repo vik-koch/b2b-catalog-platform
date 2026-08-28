@@ -33,6 +33,23 @@ const packaged = productDetail({
   },
 });
 
+/**
+ * The same packaging in a shop that sells a single bag: the minimum is under a
+ * pack, so packs are opened and a piece quantity moves by one. The lot is a
+ * piece, and every other figure is that multiplied out.
+ */
+const loose = productDetail({
+  slug: 'single-bag',
+  name: 'Single Bag',
+  packaging: { ...packagedPackaging, piecesPerPack: 10, minPieceQty: 1 },
+  prices: {
+    pieceMilliMinor: 70_000,
+    pieceLotMinor: 70,
+    pack: 700,
+    box: 2800,
+  },
+});
+
 async function render(
   item: ProductDetail,
   canAdd = true,
@@ -387,6 +404,25 @@ describe('ProductBuyControls', () => {
     expect(view.quantityInput().getAttribute('inputmode')).toBe('numeric');
 
     await view.chooseUnit(unitText.select.box);
+    expect(view.quantityInput().getAttribute('inputmode')).toBe('decimal');
+  });
+
+  // The bug this case was added for: a minimum of one against a pack of ten was
+  // pushed up to a whole pack, so a shop selling single bags sold ten.
+  it('takes single pieces where the minimum is under a pack', async () => {
+    const view = await render(loose);
+
+    await view.type('3');
+    await view.blurQuantity();
+
+    expect(view.quantityInput().value).toBe('3');
+    expect(view.text()).not.toContain(corrected);
+  });
+
+  it('reads an opened pack as the fraction it is', async () => {
+    const view = await render(loose);
+    await view.chooseUnit(unitText.select.pack);
+
     expect(view.quantityInput().getAttribute('inputmode')).toBe('decimal');
   });
 

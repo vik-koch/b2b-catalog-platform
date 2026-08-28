@@ -8,7 +8,7 @@ import {
   productListItemSchema,
   SEARCH_QUERY_MAX_LENGTH,
 } from './catalog.contract';
-import { basisDividesQuantities, minimumIsWholeSteps } from './product-units';
+import { basisDividesQuantities, minimumFitsPacks } from './product-units';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
@@ -155,8 +155,9 @@ export const productInputSchema = z
     /** Null means the product is not sold in that unit. */
     piecesPerPack: z.number().int().positive().nullable().default(null),
     packsPerBox: z.number().int().positive().nullable().default(null),
-    /** The smallest quantity the shop will sell, as a whole number of packs.
-     * Not the increment — a piece quantity moves by one pack. */
+    /** The smallest quantity the shop will sell: under one pack, or a whole
+     * number of packs. Not the increment — a piece quantity moves by one pack
+     * unless the minimum is under one, in which case packs are opened. */
     minPieceQty: z.number().int().positive().default(1),
     boxVolume: boxDimensionInputSchema,
     boxWeight: boxDimensionInputSchema,
@@ -199,13 +200,14 @@ export const productInputSchema = z
   // 400 naming the field rather than a constraint violation.
   .refine((input) => basisDividesQuantities(input, input.priceBasisPieces), {
     message:
-      'The price basis must divide the minimum quantity and the pack size',
+      'The price basis must divide the minimum quantity, the pack size and the quantity step',
     path: ['priceBasisPieces'],
   })
-  // A piece quantity moves by one pack, so the minimum has to sit on that
-  // lattice — mirrors products_minimum_is_whole_packs.
-  .refine(minimumIsWholeSteps, {
-    message: 'The minimum quantity must be a whole number of packs',
+  // The minimum sits with the pack or under it, never across it — mirrors
+  // products_minimum_fits_packs.
+  .refine(minimumFitsPacks, {
+    message:
+      'The minimum quantity must be under one pack or a whole number of packs',
     path: ['minPieceQty'],
   });
 export type ProductInput = z.infer<typeof productInputSchema>;

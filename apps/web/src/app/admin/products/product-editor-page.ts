@@ -7,7 +7,7 @@ import {
   CatalogImage,
   CustomerTier,
   basisDividesQuantities,
-  minimumIsWholeSteps,
+  minimumFitsPacks,
   piecePriceMilliMinor,
   piecesPerUnit,
   ProductAttribute,
@@ -701,8 +701,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
     if (!basisDividesQuantities(packaging, packaging.priceBasisPieces)) {
       return this.error.set(this.text.packaging.basisMustDivide);
     }
-    if (!minimumIsWholeSteps(packaging)) {
-      return this.error.set(this.text.packaging.minMustBeWholePacks);
+    if (!minimumFitsPacks(packaging)) {
+      return this.error.set(this.text.packaging.minMustFitPacks);
     }
 
     // A hand-typed slug (or, when new, the name-derived one) is sent as an

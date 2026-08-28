@@ -63,18 +63,26 @@ export function availableUnits(packaging: ProductPackaging): ProductUnit[] {
 }
 
 /**
- * What a piece quantity moves in: **one pack**, because a pack is what cannot be
- * broken open. A product with no pack has nothing to stop it moving by ones, so
- * its own minimum serves — that is the only quantity it is known to sell in.
+ * What a piece quantity moves in: **one pack**, but only where the shop will not
+ * break one open — that is, where the minimum is a whole number of packs. A shop
+ * that will sell fewer pieces than a pack holds is opening packs already, so
+ * there is nothing left to stop the quantity moving by ones. A product with no
+ * pack has only its own minimum to go by; that is the one quantity it is known
+ * to sell in.
  *
- * Deliberately not the minimum, which is a separate thing: the minimum says how
- * little the shop will bother shipping, the step says what the goods physically
- * come in. Fusing them made a shop that will not sell fewer than 24 also refuse
- * to sell 30.
+ * Deliberately not the minimum wherever a pack says otherwise, which is a
+ * separate thing: the minimum says how little the shop will bother shipping, the
+ * step says what the goods physically come in. Fusing them made a shop that will
+ * not sell fewer than 24 also refuse to sell 30 — and, read the other way, made
+ * a shop that sells single pieces refuse to sell fewer than a whole pack.
  */
 export function pieceStep(packaging: ProductPackaging): number {
-  const step = packaging.piecesPerPack ?? packaging.minPieceQty;
-  return Math.max(1, Math.trunc(step));
+  const min = Math.max(1, Math.trunc(packaging.minPieceQty));
+  const lot = Math.max(
+    1,
+    Math.trunc(packaging.piecesPerPack ?? packaging.minPieceQty),
+  );
+  return min % lot === 0 ? lot : 1;
 }
 
 /**
@@ -86,9 +94,9 @@ export function pieceStep(packaging: ProductPackaging): number {
  * lens only reads pieces out, half a box is a perfectly ordinary way of saying
  * "one pack" and there is nothing left to round.
  *
- * `minimumIsWholeSteps` keeps the raising a no-op in practice; it is here so a
- * row that predates the rule, or slips past it, still lands on the lattice
- * rather than one step below it.
+ * The step is chosen so that the minimum always sits on it, which keeps the
+ * raising a no-op in practice; it is here so a row that slips past the rule
+ * still lands on the lattice rather than one step below it.
  */
 export function pieceFloor(packaging: ProductPackaging): number {
   const min = Math.max(1, Math.trunc(packaging.minPieceQty));
@@ -98,7 +106,7 @@ export function pieceFloor(packaging: ProductPackaging): number {
 
 /**
  * How many pieces one press of the stepper moves, seen through `unit`: one of
- * that unit, except that pieces move by a pack — the smallest thing the shop
+ * that unit, except that pieces move by the step — the smallest thing the shop
  * can actually pick.
  *
  * Always a whole number of steps, so stepping through any lens keeps the piece
@@ -139,9 +147,10 @@ export function stepFrom(
  * Whether a quantity read through `unit` is always a whole number.
  *
  * It is for every unit at or below the step: a piece count is a whole number of
- * packs by construction, so a pack reading cannot be a fraction and a field
- * offering it decimals would only invite one to be typed and rounded away. Only
- * a box — which holds several steps — reads in fractions.
+ * steps by construction, so a unit no larger than the step cannot read as a
+ * fraction, and a field offering it decimals would only invite one to be typed
+ * and rounded away. A unit holding several steps — a box always, and a pack
+ * wherever packs are broken open — reads in fractions.
  */
 export function unitQuantityIsWhole(
   packaging: ProductPackaging,
@@ -249,8 +258,13 @@ export function piecePriceMilliMinor(
 
 /**
  * Whether the basis divides every quantity that can be bought, which is what
- * keeps totals exact. Mirrors the `products_basis_divides_quantities` check
- * constraint so the editor can refuse with a useful message.
+ * keeps totals exact. Orderable quantities start at the floor and move by the
+ * step, so the basis has to divide both; the pack is checked too, because the
+ * pack price is a basis multiple as well. Where packs are broken open the step
+ * is one piece, and only a per-piece price can describe a total exactly.
+ *
+ * Mirrors the `products_basis_divides_quantities` check constraint so the editor
+ * can refuse with a useful message.
  */
 export function basisDividesQuantities(
   packaging: ProductPackaging,
@@ -258,6 +272,7 @@ export function basisDividesQuantities(
 ): boolean {
   if (basisPieces < 1) return false;
   if (packaging.minPieceQty % basisPieces !== 0) return false;
+  if (pieceStep(packaging) % basisPieces !== 0) return false;
   return (
     packaging.piecesPerPack === null ||
     packaging.piecesPerPack % basisPieces === 0
@@ -265,18 +280,23 @@ export function basisDividesQuantities(
 }
 
 /**
- * Whether the minimum is a whole number of steps — i.e. of packs, where the
- * product has them.
+ * Whether the minimum sits with the pack rather than across it: either under one
+ * pack, or a whole number of them.
  *
- * This is what lets one lot price describe every quantity: with the minimum on
- * the step lattice, every orderable piece count is a multiple of the step, so a
- * total is `pieceLotMinor × (pieces ÷ step)` with nothing divided and nothing
- * rounded. A minimum of 25 against a pack of 6 would put the first orderable
- * quantity off the lattice and cost a second published price to describe.
- * Mirrors `products_minimum_is_whole_packs`.
+ * This is what lets one lot price describe every quantity. Under a pack, packs
+ * are broken open and pieces move by ones, so the lot is a piece; at a whole
+ * number of packs, nothing is broken open and the lot is a pack. Either way
+ * every orderable quantity is a multiple of the step, so a total is
+ * `pieceLotMinor × (pieces ÷ step)` with nothing divided and nothing rounded.
+ * A minimum of 8 against a pack of 6 is the case in between — a shop that opens
+ * packs but not for the first one — and is refused for now rather than modelled.
+ *
+ * Mirrors `products_minimum_fits_packs`.
  */
-export function minimumIsWholeSteps(packaging: ProductPackaging): boolean {
-  return packaging.minPieceQty % pieceStep(packaging) === 0;
+export function minimumFitsPacks(packaging: ProductPackaging): boolean {
+  const pack = packaging.piecesPerPack;
+  if (pack === null) return true;
+  return packaging.minPieceQty < pack || packaging.minPieceQty % pack === 0;
 }
 
 /**

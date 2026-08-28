@@ -105,5 +105,13 @@ CREATE INDEX "addresses_userId_idx" ON "addresses" USING btree ("userId");--> st
 CREATE INDEX "orders_userId_idx" ON "orders" USING btree ("userId");--> statement-breakpoint
 CREATE INDEX "orders_createdAt_idx" ON "orders" USING btree ("createdAt");--> statement-breakpoint
 ALTER TABLE "products" ADD CONSTRAINT "products_line_note_prompt_needs_note" CHECK ("products"."lineNotePrompt" is null or "products"."lineNoteEnabled");--> statement-breakpoint
-ALTER TABLE "products" ADD CONSTRAINT "products_minimum_is_whole_packs" CHECK ("products"."piecesPerPack" is null
+ALTER TABLE "products" DROP CONSTRAINT "products_basis_divides_quantities";--> statement-breakpoint
+ALTER TABLE "products" ADD CONSTRAINT "products_basis_divides_quantities" CHECK ("products"."minPieceQty" % "products"."priceBasisPieces" = 0
+        and ("products"."piecesPerPack" is null
+             or "products"."piecesPerPack" % "products"."priceBasisPieces" = 0)
+        and ("products"."piecesPerPack" is null
+             or "products"."minPieceQty" >= "products"."piecesPerPack"
+             or "products"."priceBasisPieces" = 1));--> statement-breakpoint
+ALTER TABLE "products" ADD CONSTRAINT "products_minimum_fits_packs" CHECK ("products"."piecesPerPack" is null
+        or "products"."minPieceQty" < "products"."piecesPerPack"
         or "products"."minPieceQty" % "products"."piecesPerPack" = 0);

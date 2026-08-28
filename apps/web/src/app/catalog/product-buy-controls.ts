@@ -307,9 +307,9 @@ export interface BuyableProduct {
 
         <div class="relative flex flex-1">
           <!-- Decimal only where a reading can actually be one: a piece count
-               is a whole number of packs, so only a box divides into fractions.
-               Offering them elsewhere would invite a figure that is rounded
-               away the moment the field is left.
+               is a whole number of steps, so only a unit holding several of them
+               divides into fractions. Offering them elsewhere would invite a
+               figure that is rounded away the moment the field is left.
 
                The value is what is being typed while the field has it, and the
                quantity otherwise — see fieldText below. -->

@@ -200,15 +200,17 @@ no pack** — a product with nothing to stop it moving by ones has only its own
 minimum to go by. `pieceStep` and `pieceFloor` in `product-units.ts` name the two
 figures, and every surface reads them rather than the column.
 
-**The minimum must be a whole number of packs**, enforced by
-`products_minimum_is_whole_packs` and mirrored in the editor. This is what keeps
+⚠ **The minimum must be a whole number of packs**, enforced by
+`products_minimum_is_whole_packs` and mirrored in the editor — reversed by the
+2026-08-28 amendment below, which allows a minimum under one pack. This is what keeps
 one published price able to describe every piece total: with the minimum on the
 step lattice, every orderable quantity is a multiple of the step, so a total is
 `pieceLotMinor × (quantity ÷ step)` — still plain multiplication, still nothing
 divided and nothing rounded. A minimum of 25 against a pack of 6 would put the
 first orderable quantity off the lattice and cost a second published figure to
-describe. The migration raises any existing minimum to the next whole pack, which
-is the direction FR-UNIT-03 already corrects in.
+describe. ⚠ Claimed here that the migration raises any existing minimum to the
+next whole pack; it never did, and adding the constraint over real data is what
+failed.
 
 **`pieceLotMinor` is now the price of one step, not of the minimum.** The
 2026-08-23 amendment defined it as `priceMinor × (minPieceQty ÷ basis)`; it is
@@ -242,3 +244,41 @@ rung, a paper roll that is a pack physically and an atom commercially, a
 200-filter pack sold and priced whole. The likely answer is a variable-length
 ladder of named sale units rather than three fixed columns, and it is parked
 pending a survey of the real catalog rather than designed from examples.
+
+## Amendment — 2026-08-28: a minimum under one pack opens the pack
+
+The whole-pack rule was the wrong half of the split it came from. A shop that
+sells one 200 g package out of a six-pack has a minimum of one and a pack of
+six, and the constraint refused the row: the first orderable quantity became six,
+which is the very "bought at least as a pack" behaviour the previous amendment
+set out to remove. It surfaced as a failed production deploy — `ALTER TABLE ADD
+CONSTRAINT` over a real catalog — because no data anywhere else had a minimum
+under its pack.
+
+**The step is the pack only where the shop will not break one open.** Where the
+minimum is under a pack, packs are opened by definition, so pieces move by ones:
+`pieceStep` is `piecesPerPack` where the minimum is a whole number of packs, one
+piece where it is under one, and `minPieceQty` where there is no pack.
+
+**The minimum must sit with the pack, not across it** — under one pack, or a
+whole number of them — enforced by `products_minimum_fits_packs`. Either way the
+minimum lands on the step lattice, so one lot price still describes every total.
+The case in between, a minimum of 8 against a pack of 6, is a shop that opens
+packs but not for the first order; it is refused rather than modelled, pending a
+real product that needs it.
+
+**Where packs are opened the price basis must be one piece**, added to
+`products_basis_divides_quantities`. The step is a single piece there, so a total
+of three pieces has no exact expression in a price covering two. A per-pack price
+for a product sold by the piece was never representable; the constraint now says
+so at the editor rather than surfacing as a missing total in the cart.
+
+The editor followed the old rule twice over, which made the shape unreachable
+even once the constraint allowed it: adding a pack raised a minimum of 1 to the
+pack size, and leaving the minimum field lifted anything that was not a whole
+number of packs. A minimum of 1 is now a decision rather than a blank — only an
+empty field or one still matching the old pack follows the pack — and the blur
+correction fires only on a minimum **above** a pack and between two of them.
+
+No data migration: the rules only widen what is accepted, and the constraint that
+refused this shape had not reached production.
