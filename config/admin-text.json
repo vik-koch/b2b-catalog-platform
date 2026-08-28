@@ -209,7 +209,9 @@
     "stateDeleted": "Deleted only",
     "allCategories": "All categories",
     "filterAttribute": "Attribute",
-    "clearAttribute": "Clear the attribute filter"
+    "clearAttribute": "Clear the attribute filter",
+    "filterTier": "Tier price",
+    "clearTier": "Clear the tier filter"
   },
   "categoryList": {
     "title": "Categories",
@@ -385,6 +387,7 @@
     "keyHint": "The catalog file addresses this list as a “price:wholesale” column. Lowercase letters, digits and hyphens.",
     "accounts": "{count} account(s)",
     "prices": "{count} product price(s)",
+    "seePrices": "Show the products this tier prices",
     "defaultLabel": "Base price list",
     "defaultHint": "Every product's own price. Guests, staff and customers without a tier see it.",
     "edit": "Edit",

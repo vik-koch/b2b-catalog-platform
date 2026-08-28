@@ -13,6 +13,7 @@ import { FieldLabel } from '../../ui/field-label';
 import { Skeleton } from '../../ui/skeleton';
 import { ConfirmService } from '../../ui/confirm.service';
 import { TiersService } from './tiers.service';
+import { RouterLink } from '@angular/router';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -33,7 +34,15 @@ type EditTarget = { id: string } | { id: null } | null;
  */
 @Component({
   selector: 'app-tier-list-page',
-  imports: [NgTemplateOutlet, Button, AdminIcon, Input, FieldLabel, Skeleton],
+  imports: [
+    NgTemplateOutlet,
+    Button,
+    AdminIcon,
+    Input,
+    FieldLabel,
+    Skeleton,
+    RouterLink,
+  ],
   template: `
     <div class="mb-4 flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold tracking-tight">{{ text.title }}</h1>
@@ -102,7 +111,23 @@ type EditTarget = { id: string } | { id: null } | null;
                     </code>
                     <span class="text-sm text-subtle">
                       {{ accountsLabel(tier.userCount) }} ·
-                      {{ pricesLabel(tier.priceCount) }}
+                      <!-- The count is the way to the products behind it:
+                           "which products did we agree a rate on?" is the
+                           question every review of a tier starts from, and the
+                           admin grid is where it is answered. A link only when
+                           there is something to show. -->
+                      @if (tier.priceCount > 0) {
+                        <a
+                          routerLink="/admin/products"
+                          [queryParams]="{ tierId: tier.id }"
+                          class="underline hover:text-accent"
+                          [title]="text.seePrices"
+                        >
+                          {{ pricesLabel(tier.priceCount) }}
+                        </a>
+                      } @else {
+                        {{ pricesLabel(tier.priceCount) }}
+                      }
                     </span>
                     <span class="ml-auto flex items-center gap-1">
                       <!-- Ordering is a secondary concern on this screen, so it

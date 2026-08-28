@@ -169,6 +169,8 @@ export interface ProductGridQuery {
   /** The inventory's drill-down; the value only narrows an already-given key. */
   attributeKey?: string;
   attributeValue?: string;
+  /** The tier list's drill-down: products priced for one tier. */
+  tierId?: string;
 }
 
 /**

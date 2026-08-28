@@ -317,6 +317,10 @@ export const adminTextSchema = z
         /** The attribute drill-down's chip, which has no column to sit in. */
         filterAttribute: z.string(),
         clearAttribute: z.string(),
+        /** The tier list's drill-down, shown as a chip for the same reason the
+         * attribute one is: no column of the grid says it. */
+        filterTier: z.string(),
+        clearTier: z.string(),
         stateAll: z.string(),
         stateLive: z.string(),
         stateUnpublished: z.string(),
@@ -558,6 +562,8 @@ export const adminTextSchema = z
         /** Reference counts per row. `{count}` substituted at render. */
         accounts: z.string(),
         prices: z.string(),
+        /** The link on that count, into the product grid filtered to it. */
+        seePrices: z.string(),
         defaultLabel: z.string(),
         defaultHint: z.string(),
         edit: z.string(),

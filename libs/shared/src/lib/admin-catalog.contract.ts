@@ -334,6 +334,13 @@ export const adminProductListQuerySchema = z.object({
    */
   attributeKey: z.string().max(ATTRIBUTE_NAME_MAX_LENGTH).optional(),
   attributeValue: z.string().max(ATTRIBUTE_VALUE_MAX_LENGTH).optional(),
+  /**
+   * The products carrying a price of their own for one tier — where the tier
+   * list's price count leads. "Which products did we agree a rate with this
+   * group on?" has no other way of being asked, and it is the question behind
+   * every review of a tier.
+   */
+  tierId: z.string().uuid().optional(),
 });
 export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 
