@@ -12,8 +12,9 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
 ## The files
 
 - `deployment.json` → `DeploymentConfig` (branding, contact, locations,
-  cookie-consent flag, phone and company-id input rules, address rules, currency,
-  collection points, delivery zones, order-reference format).
+  cookie-consent flag, whether orders carry an invoice address, phone and
+  company-id input rules, address rules, currency, collection points, delivery
+  zones, order-reference format).
   **Browser-delivered** via shell state, and **also loaded by the API**, which
   reads the halves an order depends on: it validates a submitted collection
   point, resolves the delivery zone itself rather than trusting the browser's,

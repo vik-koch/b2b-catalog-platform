@@ -229,3 +229,22 @@ anything is charged.
 
 Nothing outstanding. Address suggestion, which this form's prefill cannot cover,
 and the delivery-zone rules the fulfilment choice reads are ADR 0040.
+
+## Amendment — 2026-08-29: the invoice address is a deployment's answer
+
+Testing the first real deployment found this ADR's "asked for pickup too" wrong
+for it: it invoices to the address the goods go to, and a collected order to no
+address at all. That is a **locale**, not a preference — where an invoice
+carries an address at all differs by jurisdiction — so it joins the config file
+as `billingAddressEnabled` rather than becoming a second checkout design.
+
+Where it is off, the delivery picker loses its "send the invoice here as well"
+tick, the second picker never appears, a collected order asks for no address,
+and neither the read-back nor the order afterwards says anything about an
+invoice address. The order's `billing*` columns are **nullable** and empty —
+not the delivery address copied across, which would be the order claiming
+something nobody asked for, and not empty strings, which cannot be told from a
+column nobody filled in. The server holds every submission to the deployment's
+own answer: it refuses one that carries no address where it invoices one, and
+stores none where it does not, because a form that stops asking is not what
+makes a column empty.

@@ -113,6 +113,11 @@ Notes:
   catalog-wide had meant every listing that carried it offered it, which is right for a
   category whose products share a vocabulary and wrong for one that does not. Both are
   additive; neither changes what the client has already entered.
+- A first pass on the real deployment (2026-08-29) found the checkout asking
+  for things that locale does not have. **Whether an order carries an invoice address
+  is now deployment config** (`billingAddressEnabled`, FR-CART-07 reworded, ADR 0039
+  amended); off, a delivery gives one address and a collected order none, and the
+  order's `billing*` columns are nullable rather than filled with blanks.
 - Iteration 8 is what a manager does with an order once it exists — status transitions, the
   payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
   schema be reviewed before a processing workflow is built on top of it.
