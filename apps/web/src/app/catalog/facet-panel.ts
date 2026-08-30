@@ -17,15 +17,16 @@ const VALUES_COLLAPSED = 8;
  * Where the panel stops being a disclosure above the listing and becomes a
  * column beside it, and how wide that column is.
  *
- * Neither is a matter of taste. The column takes its width off the listing,
- * and the listing rearranges itself at widths of its own: the panel may not
- * arrive before a line beside it can still hold its three columns
- * (`ProductRow`), and it may not cost the grid a column on the way in
- * (`PRODUCT_GRID`, whose card width is cut to that).
+ * Neither is a matter of taste. The panel is a column of the same grid the
+ * cards are in — one track wide, with the grid's own gap beside it — so at
+ * the page's full width it is the first of five and the cards beside it keep
+ * the width they have without it.
  *
- * So it is the line that sets this: 49rem for the line, plus the 13rem column
- * and the 1.5rem gap it takes off it. Any earlier and the lines beside it
- * would rearrange the moment the panel appeared.
+ * It arrives where a listing one track and one gap narrower still holds three
+ * of them: 63.75rem. That one width answers both layouts. The grid keeps the
+ * three columns it had just below it, and a line keeps its three (47.5rem —
+ * `ProductRow`, which is what three tracks come to). Any earlier and whatever
+ * is beside the panel would rearrange the moment it appeared.
  *
  * Measured against the listing's own width, not the window's — a scrollbar is
  * 15px the media query does not see but the grid does, which is most of that
@@ -35,8 +36,8 @@ const VALUES_COLLAPSED = 8;
  * site, because all three have to name the same width.
  */
 export const FACET_LAYOUT =
-  'flex flex-col gap-6 @min-[63.5rem]/listing:flex-row @min-[63.5rem]/listing:items-start';
-export const FACET_COLUMN = 'shrink-0 @min-[63.5rem]/listing:w-52';
+  'flex flex-col gap-5 @min-[63.75rem]/listing:flex-row @min-[63.75rem]/listing:items-start';
+export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
 
 /**
  * The attribute filter panel (FR-ATTR-04…07) — the left column of the category
@@ -64,7 +65,7 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.5rem]/listing:w-52';
          count anyway. -->
     <button
       type="button"
-      class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-md border border-border-strong px-4 py-2.5 text-sm font-medium @min-[63.5rem]/listing:hidden"
+      class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-md border border-border-strong px-4 py-2.5 text-sm font-medium @min-[63.75rem]/listing:hidden"
       [attr.aria-expanded]="open()"
       [attr.aria-controls]="panelId"
       (click)="open.set(!open())"
@@ -84,7 +85,7 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.5rem]/listing:w-52';
 
     <div
       [id]="panelId"
-      class="mt-4 @min-[63.5rem]/listing:mt-0 @min-[63.5rem]/listing:block"
+      class="mt-4 @min-[63.75rem]/listing:mt-0 @min-[63.75rem]/listing:block"
       [class.hidden]="!open()"
       role="group"
       [attr.aria-label]="text.title"

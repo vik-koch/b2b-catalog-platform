@@ -61,7 +61,7 @@ import { Icon } from '../ui/icons/icon';
            makes hiding it safe. -->
       <div class="hidden md:block">
         <div
-          class="mx-auto flex h-10 w-full max-w-7xl items-center justify-between gap-6 px-4"
+          class="mx-auto flex h-10 w-full max-w-[82rem] items-center justify-between gap-6 px-4"
         >
           <nav class="flex gap-4 text-sm" [attr.aria-label]="a11y.utilityNav">
             @for (route of utilityRoutes; track route) {
@@ -83,7 +83,7 @@ import { Icon } from '../ui/icons/icon';
       </div>
 
       <div
-        class="mx-auto flex h-15 w-full max-w-7xl items-center justify-between px-4"
+        class="mx-auto flex h-15 w-full max-w-[82rem] items-center justify-between px-4"
       >
         <a routerLink="/" [attr.aria-label]="homeLabel" (click)="closePanels()">
           <!-- Plain <img>: NgOptimizedImage adds nothing for a local SVG.

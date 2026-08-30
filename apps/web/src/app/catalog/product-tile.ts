@@ -23,8 +23,8 @@ import { TileGallery } from './tile-gallery';
  * heading does; on one of those the window is far below either figure anyway.
  *
  * Comfortably above the floor, which is what a line needs to hold a thumbnail
- * and two columns of buying controls beside it — 6rem of photo, a 1rem gap and
- * the controls' own 27.5rem.
+ * and two columns of buying controls beside it — 5rem of photo, a 1rem gap and
+ * the controls' own 28.5rem.
  *
  * Both layouts leave the shape at the same width, which is the point: below it
  * a card and a line are the same drawing, and above it each becomes itself.
@@ -37,36 +37,21 @@ export const LISTING_NARROW = '593px';
  * The classes every grid of product cards uses.
  *
  * Columns are fitted, not counted: a card carries a price, a three-way unit
- * selector, a stepper and a button, and below about 234px those stop fitting
- * side by side. Fixed column counts kept breaking that promise at the widths in
- * between — a phone in landscape, or the moment the filter panel appears beside
- * the grid — so the track is `minmax(min(242px, 100%), 1fr)`: as many columns as
- * fit at that width and no narrower, down to one on a phone. The `min()` is what
- * keeps a container narrower than a card from overflowing sideways.
+ * selector, a stepper and a button, and they need 13.5rem side by side. Fixed
+ * column counts kept breaking that promise at the widths in between — a phone
+ * in landscape, or the moment the filter panel appears beside the grid — so
+ * the track is `minmax(min(15rem, 100%), 1fr)`: as many columns as fit at that
+ * width and no narrower, down to one on a phone. The `min()` is what keeps a
+ * container narrower than a card from overflowing sideways.
  *
- * 242px rather than the 234px the controls need, because the width where the
- * filter panel arrives is set by the *line* layout (`FACET_LAYOUT`), and at
- * that width a 234px card fits four columns without the panel and three with
- * it: widening the window would have taken a column away as the panel
- * appeared. Eight pixels more, and the count is the same on both sides of it.
+ * 15rem is that 13.5rem plus the card's own `px-3` either side, and nothing
+ * else: the frame is an inset ring rather than a border, so it costs the
+ * content no width. With the 1.25rem gap, five tracks are exactly the page's
+ * full width, and a filter panel is the first of the five — which is why the
+ * track and the gap are read together and neither is a matter of taste.
  */
 export const PRODUCT_GRID =
-  'grid grid-cols-[repeat(auto-fill,minmax(min(15.125rem,100%),1fr))] gap-x-4 gap-y-8 @max-[593px]/listing:grid-cols-1 @max-[593px]/listing:gap-y-0 @max-[593px]/listing:divide-y @max-[593px]/listing:divide-border @max-[593px]/listing:border-y @max-[593px]/listing:border-border';
-
-/**
- * The same grid at the card's true floor — 234px, what the buying controls
- * need side by side — for a listing that has no filter panel to share the row
- * with. It is the eight pixels back: at the page's full width they are the
- * difference between four columns and five, and the reason they were given up
- * (the panel taking a column away as the window widened past its threshold)
- * cannot arise where a panel is never rendered at any width.
- *
- * A category with no attributes and a search with no facets are exactly that
- * case, and they are the listings that most want the extra column: there is
- * nothing beside the grid to look at instead.
- */
-export const PRODUCT_GRID_FULL =
-  'grid grid-cols-[repeat(auto-fill,minmax(min(14.625rem,100%),1fr))] gap-x-4 gap-y-8 @max-[593px]/listing:grid-cols-1 @max-[593px]/listing:gap-y-0 @max-[593px]/listing:divide-y @max-[593px]/listing:divide-border @max-[593px]/listing:border-y @max-[593px]/listing:border-border';
+  'grid grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))] gap-x-5 gap-y-6 @max-[593px]/listing:grid-cols-1 @max-[593px]/listing:gap-y-0 @max-[593px]/listing:divide-y @max-[593px]/listing:divide-border @max-[593px]/listing:border-y @max-[593px]/listing:border-border';
 
 /**
  * One product card in a grid (FR-CAT-04) — gallery, name, price — shared by the
@@ -91,7 +76,7 @@ export const PRODUCT_GRID_FULL =
   host: { class: 'h-full' },
   template: `
     <div
-      class="group relative flex h-full flex-col rounded-lg border border-border bg-white transition-shadow hover:shadow-md @max-[593px]/listing:flex-row @max-[593px]/listing:items-stretch @max-[593px]/listing:gap-4 @max-[593px]/listing:rounded-none @max-[593px]/listing:border-0 @max-[593px]/listing:bg-transparent @max-[593px]/listing:py-4 @max-[593px]/listing:hover:shadow-none"
+      class="group relative flex h-full flex-col rounded-lg bg-white inset-ring-1 inset-ring-border transition-shadow hover:shadow-md @max-[593px]/listing:flex-row @max-[593px]/listing:items-stretch @max-[593px]/listing:gap-4 @max-[593px]/listing:rounded-none @max-[593px]/listing:inset-ring-0 @max-[593px]/listing:bg-transparent @max-[593px]/listing:py-4 @max-[593px]/listing:hover:shadow-none"
     >
       <ng-content />
       <!-- The clipping lives here, not on the card: the card has to let the
@@ -105,7 +90,7 @@ export const PRODUCT_GRID_FULL =
       <!-- Grows to fill the tallest card in the row, so the buying controls
            below it sit on one line whatever the names above them do. -->
       <div
-        class="flex flex-1 flex-col p-3 @max-[593px]/listing:min-w-52 @max-[593px]/listing:p-0"
+        class="flex flex-1 flex-col px-3 py-3 @max-[593px]/listing:min-w-52 @max-[593px]/listing:p-0"
       >
         <a [routerLink]="['/product', item().slug]" class="block">
           <h2

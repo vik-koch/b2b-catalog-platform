@@ -57,11 +57,27 @@ export interface RowProduct extends BuyableProduct {
              that the line is the same drawing a card makes at that width, and
              the photo takes whatever the controls do not need.
 
+             Worth what stands beside it, and no wider than the room that
+             block does not need. With the name above the controls it is two
+             rows tall, so the photo grows to meet it — to 7.75rem, and until
+             then to whatever is left once the controls have the 28.5rem their
+             two columns cost and the gap beside them. Beside the name the
+             block is one row and 6rem, which is what the name's column is
+             held open to.
+
+             Left over rather than stepped: a step drops the photo to its
+             floor for the few pixels before the step is affordable, and a
+             photo that shrinks by 40px as the window widens is a photo that
+             looks broken. Left over also means the controls can never be
+             squeezed by it — what is left is measured after their two
+             columns, so the width they need is the one width the photo will
+             not take.
+
              Its own stacking context, so anything pinned over it lands on the
              photo's corner rather than the line's — a row is wide, and a
              cluster in *its* corner sits on top of the controls. -->
         <div
-          class="relative flex w-24 shrink-0 @max-[593px]/line:w-auto @max-[593px]/line:min-w-16 @max-[593px]/line:max-w-48 @max-[593px]/line:flex-1 @max-[593px]/line:shrink"
+          class="relative flex w-[min(7.75rem,100%_-_29.5rem)] shrink-0 @max-[593px]/line:w-auto @max-[593px]/line:min-w-16 @max-[593px]/line:max-w-48 @max-[593px]/line:flex-1 @max-[593px]/line:shrink @min-[47.5rem]/row:w-24"
         >
           <app-tile-gallery
             class="block aspect-square w-full overflow-hidden rounded-md"
@@ -77,15 +93,21 @@ export interface RowProduct extends BuyableProduct {
              that, so between the two widths the line reads as a title with
              the two columns underneath.
 
-             Wide enough is three columns of 13rem and the gaps between them,
-             which is what the name asks for as much as the controls do: a
-             title squeezed into what two columns of controls left over is a
-             title read four words to the line. -->
+             Wide enough is 47.5rem: the two 13.5rem columns of controls,
+             11rem for the name, the photo at its full width and 1rem at each
+             seam. That is what three cards come to, which is what a listing
+             beside the filter panel is given — so a line and a grid take
+             their third column at one width, and the panel can arrive beside
+             either without rearranging it.
+
+             The name's 11rem is a floor rather than a width: it is what the
+             column may not go under before the line has room for it at all,
+             and past that it takes everything the controls do not. -->
         <!-- A container of its own: what the controls have to lay themselves
              out in is this column, not the line — the name's own column comes
              off it first once there are three of them. -->
         <div
-          class="@container/body flex min-w-0 flex-1 flex-col gap-2 @max-[593px]/line:min-w-52 @min-[49rem]/row:flex-row @min-[49rem]/row:items-start @min-[49rem]/row:gap-6"
+          class="@container/body flex min-w-0 flex-1 flex-col gap-2 @max-[593px]/line:min-w-52 @min-[47.5rem]/row:flex-row @min-[47.5rem]/row:items-start @min-[47.5rem]/row:gap-4"
         >
           <!-- As tall as the photo beside it once the two sit side by side, so
                what the caller projects last — the cart's note field — can drop
@@ -93,7 +115,7 @@ export interface RowProduct extends BuyableProduct {
                instead, which is the column growing rather than the note
                moving. -->
           <div
-            class="flex min-w-0 flex-1 flex-col @min-[49rem]/row:min-h-24 @min-[49rem]/row:min-w-52"
+            class="flex min-w-0 flex-1 flex-col @min-[47.5rem]/row:min-h-24 @min-[47.5rem]/row:min-w-44"
           >
             <!-- A heading, as on a card: the same product listed two ways is
                  the same document outline either way, down to its size — a

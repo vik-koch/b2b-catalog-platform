@@ -48,13 +48,15 @@ import { OrdersService } from './orders.service';
            where it was last seen, so the card must not sit beside the lines on
            one screen and under them on the next. -->
       <div class="@container/order">
-        <div class="grid gap-8 @min-[72.5rem]/order:grid-cols-[1fr_20rem]">
-          <!-- A reading measure inside the track rather than a narrower track:
-               an order is read down its left edge and a name-and-price line
-               spanning a wide screen is one nobody follows across — but the
-               summary must stay where the cart and the checkout put it, and
-               narrowing the track would slide it inward on this page alone. -->
-          <div class="max-w-3xl">
+        <div
+          class="grid gap-8 @min-[945px]/order:grid-cols-[36rem_20rem] @min-[945px]/order:justify-between"
+        >
+          <!-- The track is the measure: an order is read down its left edge,
+               and a name-and-price line spanning a wide screen is one nobody
+               follows across. The same 36rem the cart gives its lines and the
+               checkout its form, so the card beside it lands in one place on
+               all three. -->
+          <div class="max-w-xl">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
               <h1 class="text-3xl font-medium tracking-tight">
                 {{ detail.reference }}
@@ -76,7 +78,7 @@ import { OrdersService } from './orders.service';
                below the card they act after, which is where the cart and the
                checkout put theirs. -->
           <aside
-            class="max-w-xl @min-[72.5rem]/order:mt-9 @min-[72.5rem]/order:sticky @min-[72.5rem]/order:top-20 @min-[72.5rem]/order:self-start"
+            class="max-w-xl @min-[945px]/order:mt-9 @min-[945px]/order:sticky @min-[945px]/order:top-20 @min-[945px]/order:self-start"
           >
             <app-order-summary
               [lineCount]="detail.lines.length"

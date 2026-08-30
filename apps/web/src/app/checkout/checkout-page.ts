@@ -150,19 +150,22 @@ import { AddressForm } from '../addresses/address-form';
            The card is the same card on both, so a customer moving from one to
            the other at a given window size must not find it beside the content
            on one and under it on the other. The number is the cart's own: the
-           width at which taking a 20rem column off its lines still leaves them
-           their three (see cart-page.ts).
+           width at which its lines still hold their shape beside the card
+           (see cart-page.ts). The form itself is narrower than the track that
+           notch buys, and the slack sits between the two columns.
 
            Measured on the page rather than the window for the same reason it
            is there: the frame's padding and the scrollbar are most of a
            column, and the media query cannot see either. Below the notch the
            summary sits under the form instead of beside it. -->
       <div class="@container/checkout">
-        <div class="grid gap-8 @min-[72.5rem]/checkout:grid-cols-[1fr_20rem]">
+        <div
+          class="grid gap-8 @min-[945px]/checkout:grid-cols-[36rem_20rem] @min-[945px]/checkout:justify-between"
+        >
           <!-- Heading and intro in the column, not above the grid: the summary
                beside them then starts level with the heading, and the same card
                sits at the same height on the cart, here, and on the read-back. -->
-          <div>
+          <div class="max-w-xl">
             <!-- The heading and the line under it run the width of the column;
                  the form itself is narrower. A sentence set to the width of a
                  form field wraps for no reason, and the questions below want
@@ -406,7 +409,7 @@ import { AddressForm } from '../addresses/address-form';
                long as the answers are, and the total is what the customer is
                reading them against. -->
           <aside
-            class="max-w-xl @min-[72.5rem]/checkout:mt-9 @min-[72.5rem]/checkout:sticky @min-[72.5rem]/checkout:top-20 @min-[72.5rem]/checkout:self-start"
+            class="max-w-xl @min-[945px]/checkout:mt-9 @min-[945px]/checkout:sticky @min-[945px]/checkout:top-20 @min-[945px]/checkout:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"
