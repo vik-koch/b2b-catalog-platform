@@ -173,7 +173,7 @@ import {
                 @if (valueMark(row); as mark) {
                   @if (mark === 'not-numeric') {
                     <app-hint-badge
-                      class="absolute top-1/2 right-32 mr-2 -translate-y-1/2"
+                      class="absolute top-1/2 right-48 mr-2 -translate-y-1/2"
                       tone="warning"
                       [label]="text.notNumeric"
                     >
@@ -188,7 +188,7 @@ import {
                          small grey. It is never part of the value — the cell
                          holds "1000", the shop shows "1000 g". -->
                     <span
-                      class="absolute top-1/2 right-32 mr-2 -translate-y-1/2 text-xs text-subtle"
+                      class="absolute top-1/2 right-48 mr-2 -translate-y-1/2 text-xs text-subtle"
                       >{{ mark }}</span
                     >
                   }
@@ -404,7 +404,7 @@ export class ProductAttributesEditor {
    * border so it never overlaps its neighbours. */
   protected cellFocus(row: number, col: number): string {
     return this.activeCell() === `${row}:${col}`
-      ? 'outline-2 -outline-offset-2 outline-secondary'
+      ? 'outline-1 -outline-offset-1 outline-secondary'
       : '';
   }
 
