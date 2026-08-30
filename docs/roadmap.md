@@ -119,7 +119,10 @@ Notes:
   amended); off, a delivery gives one address and a collected order none, and the
   order's `billing*` columns are nullable rather than filled with blanks. **Cash is no
   longer offered for a company** (FR-CART-04 reworded) — the mirror of the rule that
-  already made bank transfer company-only.
+  already made bank transfer company-only. And the **preferred date** offers working
+  days from the next one onwards; the stricter lead times the shop actually keeps
+  (an order placed at a weekend is ready on the Tuesday) are deliberately not modelled
+  yet, and neither is a holiday calendar.
 - Iteration 8 is what a manager does with an order once it exists — status transitions, the
   payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
   schema be reviewed before a processing workflow is built on top of it.

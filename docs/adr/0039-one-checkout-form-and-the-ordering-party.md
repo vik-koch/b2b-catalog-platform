@@ -249,7 +249,12 @@ own answer: it refuses one that carries no address where it invoices one, and
 stores none where it does not, because a form that stops asking is not what
 makes a column empty.
 
-One more rule that was pending here are also settled. Cash is **not offered for
-a company** — a company is invoiced or pays by card (FR-CART-04) — which makes
+Two rules that were pending here are also settled. Cash is **not offered for a
+company** — a company is invoiced or pays by card (FR-CART-04) — which makes
 the payment row the mirror of the transfer rule it already had: each party sees
-one method and the other greyed with its reason.
+one method and the other greyed with its reason. And the preferred date now
+offers only days the shop could work on: nothing today or earlier, and no
+weekend (`order-dates`). No holiday calendar — it differs by deployment and by
+year, a manager confirms every date anyway, and a half-right calendar is worse
+than two rules a customer can predict. A draft restored from an earlier visit
+drops a date that has since gone stale rather than being refused over it.
