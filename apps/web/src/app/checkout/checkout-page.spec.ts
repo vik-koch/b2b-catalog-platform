@@ -795,6 +795,28 @@ describe('CheckoutPage', () => {
       });
     });
 
+    // The one input rule the form and the server used to disagree about: a
+    // domain with no TLD passes Angular's own email validator and is refused
+    // by the contract, so the form applies the contract's rule instead.
+    it('holds the email to the same rule sign-up does', async () => {
+      const page = await render({ guest: true });
+
+      page.type('#contact-name', 'Ada Lovelace');
+      page.type('#contact-email', 'ada@example');
+      page.type('#contact-phone', '4012345678');
+      page.type('input[autocomplete="street-address"]', 'Hafenstraße 12');
+      page.type('[id$="-postalCode"]', '20359');
+      page.type('[id$="-city"]', 'Hamburg');
+      await page.settle();
+
+      await page.review();
+
+      expect(page.text()).not.toContain(text.review.title);
+      expect(page.text()).toContain(
+        defaultAppText.auth.validation.emailInvalid,
+      );
+    });
+
     it('asks a company for its own name and a person to ring', async () => {
       const page = await render({ guest: true });
 

@@ -13,6 +13,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AddressInput,
+  emailSchema,
   fillText,
   FulfilmentMethod,
   OrderContact,
@@ -38,6 +39,7 @@ import {
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
+import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { EmptyState } from '../ui/empty-state';
@@ -568,7 +570,9 @@ export class CheckoutPage {
    */
   protected readonly contactForm = inject(FormBuilder).nonNullable.group({
     name: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
+    // The contract's own rule, not Angular's: `Validators.email` accepts a
+    // domain with no TLD, which the server then refuses.
+    email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
     phone: ['', phoneValidators(this.config.phoneInput, true)],
     website: [''],
   });
