@@ -15,6 +15,7 @@ export * from './lib/inquiry.contract';
 export * from './lib/media.contract';
 export * from './lib/money';
 export * from './lib/order-config';
+export * from './lib/order-dates';
 export * from './lib/orders.contract';
 export * from './lib/page.contract';
 export * from './lib/party.contract';

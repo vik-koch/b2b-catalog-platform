@@ -16,6 +16,8 @@ import {
   emailSchema,
   fillText,
   FulfilmentMethod,
+  isOrderDateAllowed,
+  localToday,
   OrderContact,
   OrderSubmission,
   PartySuggestion,
@@ -378,6 +380,7 @@ import { AddressForm } from '../addresses/address-form';
                 <app-preferred-date
                   [method]="draft().fulfilmentMethod"
                   [date]="draft().preferredDate"
+                  [invalid]="preferredDateInvalid()"
                   (dateChange)="drafts.patch({ preferredDate: $event })"
                 />
 
@@ -627,6 +630,17 @@ export class CheckoutPage {
       this.billingEnabled &&
       (this.isPickup() || !this.draft().billingSameAsDelivery),
   );
+
+  /**
+   * A date the shop does not offer — a weekend, or one too soon (`order-dates`).
+   * The field says so under itself; this is what keeps it from being sent.
+   * `today` is read once, like the field's own floor.
+   */
+  private readonly today = localToday();
+  protected readonly preferredDateInvalid = computed(() => {
+    const date = this.draft().preferredDate;
+    return date !== null && !isOrderDateAllowed(date, this.today);
+  });
 
   /**
    * Whether the party being invoiced is a company, which is what a bank
@@ -914,6 +928,11 @@ export class CheckoutPage {
     // The addresses being typed, and the typed party, kept in the draft so a
     // trip back to the cart does not empty them.
     this.restoreDrafted();
+    // A draft written on an earlier visit can name a date this one no longer
+    // offers — the day it was chosen for has since passed. Dropped rather than
+    // kept and refused: no date is the form's own default and the ordinary
+    // answer, and a stale one nobody chose today is not worth an error over.
+    if (this.preferredDateInvalid()) this.drafts.patch({ preferredDate: null });
     // A restored address was already finished with; the zone need not wait for
     // a blur that has already happened once.
     this.commitDelivery();
@@ -1306,6 +1325,7 @@ export class CheckoutPage {
     if (this.deliveryTyped() && this.deliveryForm.group.invalid) return null;
     if (this.billingTyped() && this.billingForm.group.invalid) return null;
     if (this.isPickup() && !draft.pickupLocationKey) return null;
+    if (this.preferredDateInvalid()) return null;
 
     const delivery = this.isPickup()
       ? null

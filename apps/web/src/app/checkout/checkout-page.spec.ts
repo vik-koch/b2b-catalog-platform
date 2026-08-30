@@ -1,7 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { Address, OrderSubmission } from '@b2b-catalog-platform/shared';
+import {
+  Address,
+  firstOrderDate,
+  localToday,
+  OrderSubmission,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -21,6 +26,10 @@ import {
 } from './checkout-draft.service';
 import { CheckoutPage } from './checkout-page';
 import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
+
+/** A day the form actually offers, from whenever the suite is run: a literal
+ * date here would be a working weekday now and a past Saturday later. */
+const wishedDate = firstOrderDate(localToday());
 
 const text = defaultAppText.checkout;
 
@@ -612,13 +621,56 @@ describe('CheckoutPage', () => {
     it('keeps the wished date and the note in the draft', async () => {
       const page = await render();
 
-      page.type('#preferred-date', '2026-09-03');
+      page.type('#preferred-date', wishedDate);
       page.type('#order-note', 'Ring the bell at the back gate.');
 
-      expect(page.drafts.draft().preferredDate).toBe('2026-09-03');
+      expect(page.drafts.draft().preferredDate).toBe(wishedDate);
       expect(page.drafts.draft().customerNote).toBe(
         'Ring the bell at the back gate.',
       );
+    });
+
+    // Two rules the picker can only draw half of, so the field says both and
+    // refuses what it is given anyway (`order-dates`).
+    it('offers nothing before the next working day', async () => {
+      const page = await render();
+
+      expect(page.value('#preferred-date')).toBe('');
+      expect(
+        page.el.querySelector<HTMLInputElement>('#preferred-date')?.min,
+      ).toBe(wishedDate);
+      expect(page.text()).toContain(text.timing.deliveryHint);
+    });
+
+    it('will not send a day the shop does not work', async () => {
+      const page = await render();
+
+      // The Saturday of the week the field's floor falls in.
+      const floor = new Date(`${wishedDate}T00:00:00Z`);
+      floor.setUTCDate(floor.getUTCDate() + ((6 - floor.getUTCDay() + 7) % 7));
+      page.type('#preferred-date', floor.toISOString().slice(0, 10));
+      await page.settle();
+
+      expect(page.text()).toContain(text.timing.unavailable);
+
+      await page.review();
+      expect(page.text()).not.toContain(text.review.title);
+    });
+
+    // A draft outlives the day it was written on, so the date in it can have
+    // gone stale while the tab was closed.
+    it('drops a stale date out of a restored draft', async () => {
+      sessionStorage.setItem(
+        CHECKOUT_DRAFT_KEY,
+        JSON.stringify({
+          version: CHECKOUT_DRAFT_VERSION,
+          draft: { ...emptyDraft(), preferredDate: '2020-01-04' },
+        }),
+      );
+      const page = await render();
+
+      expect(page.drafts.draft().preferredDate).toBeNull();
+      expect(page.value('#preferred-date')).toBe('');
     });
 
     it('says when cash is handed over, in the words of the fulfilment', async () => {
@@ -997,7 +1049,7 @@ describe('CheckoutPage', () => {
       const page = await render();
 
       page.drafts.patch({
-        preferredDate: '2026-09-03',
+        preferredDate: wishedDate,
         customerNote: 'Ring the bell at the back gate.',
       });
       await page.review();
@@ -1015,7 +1067,7 @@ describe('CheckoutPage', () => {
         pickupLocationKey: null,
         // The account is a company, so the transfer is the method it can take.
         paymentMethod: 'bank-transfer',
-        preferredDate: '2026-09-03',
+        preferredDate: wishedDate,
         customerNote: 'Ring the bell at the back gate.',
         acceptPrivacy: true,
       });

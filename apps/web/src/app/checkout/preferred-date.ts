@@ -1,5 +1,9 @@
 import { Component, inject, input, output } from '@angular/core';
-import { FulfilmentMethod } from '@b2b-catalog-platform/shared';
+import {
+  firstOrderDate,
+  FulfilmentMethod,
+  localToday,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { FieldLabel } from '../ui/field-label';
 import { Icon } from '../ui/icons/icon';
@@ -9,16 +13,22 @@ import { Input } from '../ui/input';
  * When the customer would like the order (FR-CART-07) — a wish, not a booking.
  * Scheduling is settled between customer and manager, so this is a date beside
  * the order rather than a window anything reserves — which "preferred" in the
- * label already says, without a sentence under the field repeating it.
+ * label already says.
  *
  * A native date field: it is one date, the browser's own picker is the one the
  * customer already knows, and it hands back an ISO day with no parsing of what
  * anybody typed. Optional throughout — an order with no date is the ordinary
  * case, meaning "whenever suits you".
  *
- * Nothing before today, because a date in the past is a typo rather than a
- * wish. The floor is the browser's own day, which is the one the customer is
- * reading the field in.
+ * The days on offer are the ones the shop could work on (`order-dates`):
+ * nothing today or earlier, and no weekend. The floor is measured from the
+ * browser's own day, which is the one the customer is reading the field in.
+ *
+ * `min` alone does not cover it — a native picker greys out what falls before
+ * the floor and offers every Saturday after it — so the rule is also said in
+ * words under the field and checked when a date arrives. The message replaces
+ * the hint rather than joining it: both say the same rule, and one of them is
+ * about the date that is actually in the field.
  */
 @Component({
   selector: 'app-preferred-date',
@@ -47,14 +57,29 @@ import { Input } from '../ui/input';
       <input
         [id]="id"
         type="date"
-        [min]="today"
+        [min]="floor"
         [value]="date() ?? ''"
         appInput
         class="w-full appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
         (click)="openPicker($event)"
         (change)="picked($event)"
+        [attr.aria-invalid]="invalid() || null"
+        [attr.aria-describedby]="id + '-hint'"
       />
     </div>
+    <p
+      [id]="id + '-hint'"
+      class="mt-1 text-sm"
+      [class]="invalid() ? 'text-red-600' : 'text-muted'"
+    >
+      {{
+        invalid()
+          ? text.unavailable
+          : method() === 'pickup'
+            ? text.pickupHint
+            : text.deliveryHint
+      }}
+    </p>
   `,
 })
 export class PreferredDate {
@@ -66,16 +91,15 @@ export class PreferredDate {
   readonly method = input.required<FulfilmentMethod>();
   /** ISO `YYYY-MM-DD`, or null for no date at all. */
   readonly date = input.required<string | null>();
+  /** Whether the date in the field is one the shop does not offer — the page's
+   * answer, since it is what refuses the submission over it. */
+  readonly invalid = input(false);
 
   readonly dateChange = output<string | null>();
 
-  /** Today where the customer is, in the field's own format. `en-CA` renders
-   * ISO, which `toISOString` would not — that is UTC, and a day ahead or
-   * behind for most of the world for part of every day. Read once: a checkout
-   * open across midnight is not worth a ticking clock. */
-  protected readonly today = new Intl.DateTimeFormat('en-CA').format(
-    new Date(),
-  );
+  /** The earliest day on offer, from the customer's own today. Read once: a
+   * checkout open across midnight is not worth a ticking clock. */
+  protected readonly floor = firstOrderDate(localToday());
 
   /** Opens the native picker from a click anywhere in the field, since the
    * button that would have done it is hidden. Guarded: `showPicker` is absent

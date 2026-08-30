@@ -466,6 +466,13 @@ export const appTextSchema = z
           .object({
             deliveryLabel: z.string(),
             pickupLabel: z.string(),
+            /** Which days are on offer, in words: a native picker can grey out
+             * what falls before the floor but not every weekend after it. */
+            deliveryHint: z.string(),
+            pickupHint: z.string(),
+            /** Shown in the hint's place when the field holds a day the shop
+             * does not offer. */
+            unavailable: z.string(),
           })
           .strict(),
         /**

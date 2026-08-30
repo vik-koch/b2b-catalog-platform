@@ -187,7 +187,10 @@
     },
     "timing": {
       "deliveryLabel": "Preferred delivery date",
-      "pickupLabel": "Preferred collection date"
+      "pickupLabel": "Preferred collection date",
+      "deliveryHint": "Your preference only: the actual delivery date will be confirmed by a manager.",
+      "pickupHint": "Your preference only: the actual collection date will be confirmed by a manager.",
+      "unavailable": "We cannot manage that day. Please choose a working day from the next one onwards."
     },
     "payment": {
       "heading": "How would you like to pay?",
