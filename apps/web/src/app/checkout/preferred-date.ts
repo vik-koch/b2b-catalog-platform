@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import {
   firstOrderDate,
   FulfilmentMethod,
@@ -8,6 +8,22 @@ import { APP_TEXT } from '../config/app-text';
 import { FieldLabel } from '../ui/field-label';
 import { Icon } from '../ui/icons/icon';
 import { Input } from '../ui/input';
+
+/*
+ * The day/month/year segments a date is typed into, which only the WebKit
+ * engines expose. Held here rather than in the template because the selector
+ * list is longer than the rule it carries.
+ *
+ * The segment being typed in is highlighted in our own focused colour, in
+ * place of the OS blue that matches nothing else on the page. Inert elsewhere —
+ * a segment that highlights the platform's way is still a working field.
+ */
+const segments =
+  '[&::-webkit-datetime-edit-day-field:focus,&::-webkit-datetime-edit-month-field:focus,&::-webkit-datetime-edit-year-field:focus]:bg-secondary [&::-webkit-datetime-edit-day-field:focus,&::-webkit-datetime-edit-month-field:focus,&::-webkit-datetime-edit-year-field:focus]:text-white';
+
+/** An empty field reads `dd.mm.yyyy` at full strength otherwise, which looks
+ * like a date somebody chose. Meta text, like every other placeholder. */
+const empty = '[&::-webkit-datetime-edit]:text-subtle';
 
 /**
  * When the customer would like the order (FR-CART-07) — a wish, not a booking.
@@ -49,7 +65,7 @@ import { Input } from '../ui/input';
          affordance as part of the control itself (Chrome on Android draws a
          chevron there), and the two pseudo-elements for those that make it a
          child. Each is inert where it does not apply. -->
-    <div class="relative flex max-w-56 items-center">
+    <div class="relative flex max-w-46 items-center">
       <app-icon
         name="calendar"
         class="pointer-events-none absolute left-3 h-4 w-4 text-subtle"
@@ -61,6 +77,7 @@ import { Input } from '../ui/input';
         [value]="date() ?? ''"
         appInput
         class="w-full appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
+        [class]="fieldClass()"
         (click)="openPicker($event)"
         (change)="picked($event)"
         [attr.aria-invalid]="invalid() || null"
@@ -100,6 +117,10 @@ export class PreferredDate {
   /** The earliest day on offer, from the customer's own today. Read once: a
    * checkout open across midnight is not worth a ticking clock. */
   protected readonly floor = firstOrderDate(localToday());
+
+  protected readonly fieldClass = computed(() =>
+    this.date() === null ? `${segments} ${empty}` : segments,
+  );
 
   /** Opens the native picker from a click anywhere in the field, since the
    * button that would have done it is hidden. Guarded: `showPicker` is absent
