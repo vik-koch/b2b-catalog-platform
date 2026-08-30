@@ -686,12 +686,16 @@ export const orders = pgTable(
     // column width as `users.companyRegistrationId`, and the deployment's own
     // formats apply to both.
     partyRegistrationId: varchar('partyRegistrationId', { length: 64 }),
-    billingStreet: varchar('billingStreet', { length: 255 }).notNull(),
+    // The invoice snapshot, or nothing at all where the deployment invoices no
+    // address of its own (`billingAddressEnabled`). Nullable rather than
+    // blank: an empty street is a street somebody could try to print, and a
+    // column of empty strings cannot be told from one nobody filled in.
+    billingStreet: varchar('billingStreet', { length: 255 }),
     billingStreet2: varchar('billingStreet2', { length: 255 }),
-    billingPostalCode: varchar('billingPostalCode', { length: 32 }).notNull(),
-    billingCity: varchar('billingCity', { length: 255 }).notNull(),
+    billingPostalCode: varchar('billingPostalCode', { length: 32 }),
+    billingCity: varchar('billingCity', { length: 255 }),
     billingRegion: varchar('billingRegion', { length: 255 }),
-    billingCountry: varchar('billingCountry', { length: 2 }).notNull(),
+    billingCountry: varchar('billingCountry', { length: 2 }),
     // The delivery snapshot, or nothing at all for a pickup.
     deliveryStreet: varchar('deliveryStreet', { length: 255 }),
     deliveryStreet2: varchar('deliveryStreet2', { length: 255 }),
