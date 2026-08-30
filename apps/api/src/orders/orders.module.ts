@@ -3,12 +3,14 @@ import { AddressBookModule } from '../addresses/address-book.module';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import {
+  BILLING_ADDRESS_ENABLED,
   COMPANY_ID_RULE,
   DELIVERY_CONFIG,
   MONEY_FORMAT,
   ORDER_CURRENCY,
   ORDER_REFERENCE_CONFIG,
   PICKUP_LOCATIONS,
+  loadBillingAddressEnabled,
   loadCompanyIdRule,
   loadDeliveryConfig,
   loadMoneyFormat,
@@ -43,6 +45,11 @@ import { OrdersService } from './orders.service';
     // the same ones registration applies.
     { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
     { provide: DELIVERY_CONFIG, useFactory: loadDeliveryConfig },
+    // Whether an order carries an invoice address of its own.
+    {
+      provide: BILLING_ADDRESS_ENABLED,
+      useFactory: loadBillingAddressEnabled,
+    },
     { provide: ORDER_REFERENCE_CONFIG, useFactory: loadOrderReferenceConfig },
     { provide: ORDER_CURRENCY, useFactory: loadOrderCurrency },
     // The same currency with its locale: what the order mails format against.

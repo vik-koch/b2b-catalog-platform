@@ -125,7 +125,14 @@ export const orderSubmissionSchema = z
       .min(1)
       .max(PICKUP_LOCATION_KEY_MAX)
       .nullable(),
-    billingAddress: orderAddressInputSchema,
+    /**
+     * Where the invoice goes, or null where the deployment invoices no address
+     * of its own (`billingAddressEnabled`). Null then means there is none —
+     * not that it is the delivery one, which the order would have said by
+     * carrying it. The server holds the submission to the deployment's answer
+     * either way.
+     */
+    billingAddress: orderAddressInputSchema.nullable(),
     paymentMethod: paymentMethodSchema,
     /**
      * The day the customer would like it, ISO `YYYY-MM-DD`. A wish, not a
@@ -259,7 +266,9 @@ export const orderDetailSchema = orderSummarySchema.extend({
   deliveryAddress: orderAddressSchema.nullable(),
   pickup: orderPickupSchema.nullable(),
   deliveryZone: orderDeliveryZoneSchema.nullable(),
-  billingAddress: orderAddressSchema,
+  /** Null where the deployment invoices no address of its own, and on orders
+   * placed before it stopped asking for one. */
+  billingAddress: orderAddressSchema.nullable(),
   paymentMethod: paymentMethodSchema,
   preferredDate: z.string().date().nullable(),
   customerNote: z.string().nullable(),
@@ -319,6 +328,10 @@ export const ordersContract = c.router({
          * where the party has a registration number. Re-checked here because
          * what the form offered is not what the server trusts. */
         'billing-details-required',
+        /** The deployment invoices an address of its own and the submission
+         * carried none. Only reachable by a browser out of step with the
+         * config the form was drawn from. */
+        'billing-address-required',
         /** An order with no account named no party. Only reachable by a guest,
          * whose form has nobody to resolve one from. */
         'party-required',

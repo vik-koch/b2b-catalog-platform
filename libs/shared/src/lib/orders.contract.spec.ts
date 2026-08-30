@@ -83,9 +83,10 @@ describe('orderSubmissionSchema', () => {
     });
   });
 
-  // The invoice address is a property of the order, so it is asked for however
-  // the goods travel — pickup included.
-  it('requires a billing address even for pickup', () => {
+  // Whether an order carries an invoice address is the deployment's answer
+  // (`billingAddressEnabled`), which a shared schema cannot see — so the
+  // envelope takes either and the server holds the submission to the config.
+  it('takes an order with no billing address', () => {
     expect(
       accepts({
         fulfilmentMethod: 'pickup',
@@ -93,7 +94,7 @@ describe('orderSubmissionSchema', () => {
         pickupLocationKey: 'speicherstadt',
         billingAddress: null,
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   // FR-CART-03: consent is a `literal(true)`, so an order cannot be sent with

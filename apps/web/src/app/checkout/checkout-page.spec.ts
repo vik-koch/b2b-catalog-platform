@@ -234,6 +234,12 @@ async function render(options: Options = {}) {
   };
 }
 
+/** A deployment that invoices no address of its own (FR-CART-07). */
+const noBillingAddress: DeploymentConfig = {
+  ...defaultDeploymentConfig,
+  billingAddressEnabled: false,
+};
+
 function withPickupPoints(count: number): DeploymentConfig {
   const locations = (defaultDeploymentConfig.pickup?.locations ?? []).slice(
     0,
@@ -541,6 +547,43 @@ describe('CheckoutPage', () => {
 
       expect(page.text()).toContain(text.addresses.billingOnlyHeading);
       expect(page.text()).not.toContain(text.addresses.deliveryHeading);
+    });
+
+    // FR-CART-07: where a deployment invoices no address of its own, a
+    // delivery gives the one address it needs and a collected order none.
+    it('offers no invoice address where the deployment invoices none', async () => {
+      const page = await render({ config: noBillingAddress });
+
+      expect(page.text()).toContain(text.addresses.deliveryHeading);
+      expect(page.text()).not.toContain(text.addresses.sameAsDelivery);
+      expect(page.text()).not.toContain(text.addresses.billingHeading);
+    });
+
+    it('asks a collected order for no address at all', async () => {
+      const page = await render({ config: noBillingAddress });
+
+      page.drafts.patch({ fulfilmentMethod: 'pickup' });
+      await page.settle();
+
+      expect(page.text()).not.toContain(text.addresses.billingOnlyHeading);
+      expect(page.text()).not.toContain(text.addresses.deliveryHeading);
+      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+    });
+
+    it('sends no invoice address, and says nothing about one', async () => {
+      const page = await render({ config: noBillingAddress });
+
+      await page.review();
+      expect(page.text()).not.toContain(text.review.billingSame);
+
+      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
+      await page.settle();
+      page.button(text.submit)?.click();
+      await page.settle();
+
+      expect(sent).toHaveLength(1);
+      expect(sent[0].billingAddress).toBeNull();
+      expect(sent[0].deliveryAddress).toMatchObject({ postalCode: '20359' });
     });
 
     it('is the fields alone where there is nothing saved to choose from', async () => {

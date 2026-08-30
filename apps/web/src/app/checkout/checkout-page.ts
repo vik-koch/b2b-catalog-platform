@@ -324,26 +324,33 @@ import { AddressForm } from '../addresses/address-form';
                     (saveChange)="drafts.patch({ saveDeliveryAddress: $event })"
                   >
                     <!-- Checked, because one address usually serves both.
-                     Unchecking is what reveals the second picker. -->
-                    <label
-                      class="mt-4 flex cursor-pointer items-start gap-2 text-sm"
-                    >
-                      <input
-                        type="checkbox"
-                        appCheckbox
-                        class="mt-0.5"
-                        [checked]="draft().billingSameAsDelivery"
-                        (change)="toggleSameBilling()"
-                      />
-                      <span>{{ addressText.sameAsDelivery }}</span>
-                    </label>
+                     Unchecking is what reveals the second picker. Absent
+                     altogether where the deployment invoices no address of its
+                     own: there is no second address for this one to be the
+                     same as. -->
+                    @if (billingEnabled) {
+                      <label
+                        class="mt-4 flex cursor-pointer items-start gap-2 text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          appCheckbox
+                          class="mt-0.5"
+                          [checked]="draft().billingSameAsDelivery"
+                          (change)="toggleSameBilling()"
+                        />
+                        <span>{{ addressText.sameAsDelivery }}</span>
+                      </label>
+                    }
                   </app-address-picker>
                 }
 
-                <!-- Pickup asks for an address anyway: the one on the paperwork
-                 belongs to the order, not to whoever carries the goods — and
-                 with nothing being delivered it is the only address asked
-                 for, which is what its own heading says. -->
+                <!-- Pickup asks for an address anyway, where the deployment
+                 invoices one: the one on the paperwork belongs to the order,
+                 not to whoever carries the goods — and with nothing being
+                 delivered it is the only address asked for, which is what its
+                 own heading says. A deployment that invoices no address of its
+                 own asks a collected order for none at all. -->
                 @if (needsBillingPicker()) {
                   <app-address-picker
                     [heading]="
@@ -601,10 +608,19 @@ export class CheckoutPage {
   protected readonly isPickup = computed(
     () => this.draft().fulfilmentMethod === 'pickup',
   );
+  /**
+   * Whether this deployment invoices an address of its own (FR-CART-07). Where
+   * it does not, no invoice address is asked for, offered or sent: a delivery
+   * gives the one address it needs and a collected order gives none.
+   */
+  protected readonly billingEnabled = this.config.billingAddressEnabled;
+
   /** Pickup always asks; delivery only once the invoice is said to go
-   * somewhere else. */
+   * somewhere else. Neither, where there is no invoice address to ask for. */
   protected readonly needsBillingPicker = computed(
-    () => this.isPickup() || !this.draft().billingSameAsDelivery,
+    () =>
+      this.billingEnabled &&
+      (this.isPickup() || !this.draft().billingSameAsDelivery),
   );
 
   /**
@@ -1065,6 +1081,8 @@ export class CheckoutPage {
           ),
         ];
 
+    // The party, and where its invoice goes — the second half only where the
+    // deployment invoices an address at all.
     const invoice = [this.partyName()];
     if (this.needsBillingPicker()) {
       invoice.push(
@@ -1072,7 +1090,7 @@ export class CheckoutPage {
           this.addressFor(draft.billingAddressId, this.billingForm),
         ),
       );
-    } else {
+    } else if (this.billingEnabled) {
       invoice.push(review.billingSame);
     }
 
@@ -1284,11 +1302,15 @@ export class CheckoutPage {
       ? null
       : this.addressFor(draft.deliveryAddressId, this.deliveryForm);
     // Unticked "the same address" is the only thing that makes the invoice go
-    // somewhere else; ticked, it is literally the delivery one.
-    const billing = this.needsBillingPicker()
-      ? this.addressFor(draft.billingAddressId, this.billingForm)
-      : delivery;
-    if (!billing) return null;
+    // somewhere else; ticked, it is literally the delivery one. Null where the
+    // deployment invoices no address of its own — which is not "the delivery
+    // address", or the order would have carried it.
+    const billing = !this.billingEnabled
+      ? null
+      : this.needsBillingPicker()
+        ? this.addressFor(draft.billingAddressId, this.billingForm)
+        : delivery;
+    if (this.billingEnabled && !billing) return null;
 
     const { personName, companyName, companyId } = this.partyForm.getRawValue();
     const contact = this.contact();
@@ -1406,6 +1428,8 @@ export class CheckoutPage {
         return errors.unknownPickupLocation;
       case 'billing-details-required':
         return errors.billingDetailsRequired;
+      case 'billing-address-required':
+        return errors.incomplete;
       case 'party-required':
         return errors.partyRequired;
       case 'cart-changed':
