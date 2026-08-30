@@ -40,6 +40,12 @@ export const apiDeploymentConfigSchema = z
      */
     companyIdInput: companyIdInputSchema.optional(),
     /**
+     * Whether an order carries an invoice address of its own (FR-CART-07).
+     * The API applies it as well as the browser: a form that stops asking is
+     * not what makes an order's billing columns empty — this is.
+     */
+    billingAddressEnabled: z.boolean(),
+    /**
      * How this deployment groups a phone number. Numbers are stored unmasked,
      * so the API needs the mask for the same reason the browser does: a staff
      * notification has to be readable by whoever it wakes up.
@@ -116,6 +122,16 @@ export function loadApiDeploymentConfig(): ApiDeploymentConfig {
 /** Test seam: drops the memoized config so a spec can load a different file. */
 export function resetApiDeploymentConfig(): void {
   cached = undefined;
+}
+
+/**
+ * Whether orders carry an invoice address of its own. Injected rather than
+ * read where it is used, like the rules beside it.
+ */
+export const BILLING_ADDRESS_ENABLED = 'BILLING_ADDRESS_ENABLED';
+
+export function loadBillingAddressEnabled(): boolean {
+  return loadApiDeploymentConfig().billingAddressEnabled;
 }
 
 /**

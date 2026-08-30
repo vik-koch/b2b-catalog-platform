@@ -215,6 +215,15 @@ export const deploymentConfigSchema = z
      */
     cookieConsentEnabled: z.boolean(),
     /**
+     * Whether an order carries an invoice address of its own. Where a
+     * deployment invoices to the address the goods go to — or, for a
+     * self-pickup, to no address at all — checkout asks for none: no second
+     * picker, no "send the invoice here as well", and nothing about an invoice
+     * address on the read-back or the order afterwards. The order's own
+     * billing columns are then empty, which is what the flag means.
+     */
+    billingAddressEnabled: z.boolean(),
+    /**
      * Catalog presentation. Prices come from the API as integer minor units and
      * are currency-agnostic; this is where a deployment names its single
      * currency and how to format it. `locale` is required so formatting is

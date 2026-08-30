@@ -16,6 +16,7 @@
     "footerNav": ["privacy", "imprint", "licenses"]
   },
   "cookieConsentEnabled": false,
+  "billingAddressEnabled": true,
   "catalog": {
     "currency": {
       "code": "EUR",
