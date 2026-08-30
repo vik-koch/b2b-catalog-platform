@@ -117,7 +117,9 @@ Notes:
   for things that locale does not have. **Whether an order carries an invoice address
   is now deployment config** (`billingAddressEnabled`, FR-CART-07 reworded, ADR 0039
   amended); off, a delivery gives one address and a collected order none, and the
-  order's `billing*` columns are nullable rather than filled with blanks.
+  order's `billing*` columns are nullable rather than filled with blanks. **Cash is no
+  longer offered for a company** (FR-CART-04 reworded) — the mirror of the rule that
+  already made bank transfer company-only.
 - Iteration 8 is what a manager does with an order once it exists — status transitions, the
   payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
   schema be reviewed before a processing workflow is built on top of it.

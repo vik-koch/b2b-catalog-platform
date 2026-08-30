@@ -248,3 +248,8 @@ column nobody filled in. The server holds every submission to the deployment's
 own answer: it refuses one that carries no address where it invoices one, and
 stores none where it does not, because a form that stops asking is not what
 makes a column empty.
+
+One more rule that was pending here are also settled. Cash is **not offered for
+a company** — a company is invoiced or pays by card (FR-CART-04) — which makes
+the payment row the mirror of the transfer rule it already had: each party sees
+one method and the other greyed with its reason.
