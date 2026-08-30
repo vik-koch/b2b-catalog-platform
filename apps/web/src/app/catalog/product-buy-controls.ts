@@ -723,7 +723,7 @@ export class ProductBuyControls {
    */
   protected readonly stepperGroup = computed(
     () =>
-      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch rounded-md border border-border-strong ${
+      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch rounded-md border border-border-strong has-[input:focus-visible]:border-secondary ${
         this.compact() ? 'h-9' : 'h-10'
       }`,
   );
@@ -741,8 +741,14 @@ export class ProductBuyControls {
         this.compact() ? 'w-9' : 'w-10'
       }`,
   );
-  /** Everything the ends leave over. No ring of its own: it is welded into a
-   * row that is already outlined. */
+  /**
+   * Everything the ends leave over. No ring of its own — it is welded into a
+   * row, and a ring around the middle of one draws lines through it. What it
+   * does instead is what every other field does: its two edges recolour, from
+   * the app-wide rule, and the group's border recolours with them (see
+   * stepperGroup), so the whole control says it has the caret rather than the
+   * slice between the keys.
+   */
   protected readonly quantityField = computed(
     () =>
       `h-full w-full min-w-0 rounded-none border-x border-y-0 border-border-strong px-1 py-0 text-center focus-visible:outline-none ${

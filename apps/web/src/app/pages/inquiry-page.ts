@@ -239,7 +239,7 @@ export class InquiryPage {
     // radio by clicking it is still focus, so focus-within lit the ring up on
     // every mouse press. Same 2px secondary, flush, as everything else.
     const base =
-      'cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-secondary';
+      'cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-secondary';
     const state =
       this.preferred() === value
         ? 'bg-primary text-white'

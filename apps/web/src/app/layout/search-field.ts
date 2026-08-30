@@ -166,7 +166,7 @@ let nextId = 0;
              drawn inside. -->
         <button
           type="submit"
-          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-4 text-sm font-medium text-white transition-colors peer-hover:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-white"
+          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-4 text-sm font-medium text-white transition-colors peer-hover:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent focus-visible:-outline-offset-2 focus-visible:outline-1 focus-visible:outline-white"
         >
           {{ text.submit }}
         </button>

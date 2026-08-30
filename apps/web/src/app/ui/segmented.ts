@@ -21,7 +21,7 @@
  * platform, and `has-[:focus-visible]` puts that ring on the segment.
  */
 const SEGMENT_BASE =
-  'rounded-md px-2 py-0.5 text-center text-sm transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary';
+  'rounded-md px-2 py-0.5 text-center text-sm transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary';
 
 /** The pill around the segments, sized to its content. */
 export const SEGMENTED_GROUP =
