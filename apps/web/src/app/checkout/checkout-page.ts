@@ -383,6 +383,7 @@ import { AddressForm } from '../addresses/address-form';
                   [method]="draft().paymentMethod"
                   [fulfilment]="draft().fulfilmentMethod"
                   [transferAllowed]="partyIsCompany()"
+                  [cashAllowed]="!partyIsCompany()"
                   (methodChange)="drafts.patch({ paymentMethod: $event })"
                 />
 
@@ -868,12 +869,16 @@ export class CheckoutPage {
       untracked(() => this.applyPartyValidators(party));
     });
 
-    // A payment method the party can no longer take falls back to the default
-    // rather than waiting to be refused: the customer changes who is invoiced,
-    // and the row below it stops offering what it just offered.
+    // A payment method the party can no longer take falls back to the one it
+    // can, rather than waiting to be refused: the customer changes who is
+    // invoiced, and the row below it stops offering what it just offered. The
+    // two rules are opposites (FR-CART-04) — a transfer invoices a company,
+    // cash is not taken from one — so today each party has exactly one method
+    // to fall back to.
     effect(() => {
-      if (!this.partyIsCompany() && this.draft().paymentMethod !== 'cash') {
-        this.drafts.patch({ paymentMethod: 'cash' });
+      const wanted = this.partyIsCompany() ? 'bank-transfer' : 'cash';
+      if (this.draft().paymentMethod !== wanted) {
+        this.drafts.patch({ paymentMethod: wanted });
       }
     });
 
@@ -1428,6 +1433,8 @@ export class CheckoutPage {
         return errors.unknownPickupLocation;
       case 'billing-details-required':
         return errors.billingDetailsRequired;
+      case 'cash-not-available':
+        return errors.cashNotAvailable;
       case 'billing-address-required':
         return errors.incomplete;
       case 'party-required':

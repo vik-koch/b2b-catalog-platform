@@ -622,7 +622,8 @@ describe('CheckoutPage', () => {
     });
 
     it('says when cash is handed over, in the words of the fulfilment', async () => {
-      const page = await render();
+      // A private customer: cash is not offered to a company at all.
+      const page = await render({ person: true });
 
       expect(page.text()).toContain(text.payment.cashDeliveryDescription);
 
@@ -633,7 +634,7 @@ describe('CheckoutPage', () => {
     });
 
     it('offers cash and bank transfer, and never card', async () => {
-      const page = await render();
+      const page = await render({ person: true });
 
       expect(page.text()).toContain(text.payment.cashTitle);
       expect(page.text()).toContain(text.payment.transferTitle);
@@ -641,14 +642,21 @@ describe('CheckoutPage', () => {
       expect(page.drafts.draft().paymentMethod).toBe('cash');
     });
 
+    // The mirror of the transfer rule (FR-CART-04): a company is invoiced or
+    // pays by card, so cash is greyed with its reason rather than dropped.
+    it('says why a company cannot pay cash, rather than hiding it', async () => {
+      const page = await render();
+
+      expect(page.radio('payment', 'cash')?.disabled).toBe(true);
+      expect(page.text()).toContain(text.payment.cashPersonOnly);
+      expect(page.text()).not.toContain(text.payment.cashDeliveryDescription);
+      expect(page.drafts.draft().paymentMethod).toBe('bank-transfer');
+    });
+
     it('lets a company account pay by transfer', async () => {
       const page = await render();
 
       expect(page.radio('payment', 'bank-transfer')?.disabled).toBe(false);
-
-      page.pick('payment', 'bank-transfer');
-      await page.settle();
-
       expect(page.drafts.draft().paymentMethod).toBe('bank-transfer');
     });
 
@@ -663,8 +671,6 @@ describe('CheckoutPage', () => {
     it('falls back to cash when the party stops being a company', async () => {
       const page = await render();
 
-      page.pick('payment', 'bank-transfer');
-      await page.settle();
       expect(page.drafts.draft().paymentMethod).toBe('bank-transfer');
 
       page.pick('party', 'other');
@@ -878,7 +884,7 @@ describe('CheckoutPage', () => {
       expect(page.text()).toContain(text.review.whenAny);
       // The unit it was bought in, and what that comes to in pieces.
       expect(page.text()).toContain('2 pk (12 pcs)');
-      expect(page.text()).toContain(text.payment.cashTitle);
+      expect(page.text()).toContain(text.payment.transferTitle);
       expect(page.text()).toContain('Ring the bell at the back gate.');
       // Nothing to edit here: the form is one click back.
       expect(page.el.querySelector('#order-note')).toBeNull();
@@ -985,7 +991,8 @@ describe('CheckoutPage', () => {
         // The account's own party is resolved by the server, not asserted here.
         party: null,
         pickupLocationKey: null,
-        paymentMethod: 'cash',
+        // The account is a company, so the transfer is the method it can take.
+        paymentMethod: 'bank-transfer',
         preferredDate: '2026-09-03',
         customerNote: 'Ring the bell at the back gate.',
         acceptPrivacy: true,

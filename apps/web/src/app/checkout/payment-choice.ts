@@ -13,9 +13,14 @@ import { ChoiceCard } from '../ui/choice-card';
  *
  * Two options rather than three. Card payment is reachable only after a manager
  * approves the request (FR-CART-06), so it is not a choice that can be made
- * here. Bank transfer invoices a legal entity, so it needs a company party —
- * shown greyed with the reason rather than hidden, or a customer who came for
- * it would think the shop dropped it. The server re-checks the same rule at
+ * here.
+ *
+ * Which of the two is on offer follows from the party being invoiced, and the
+ * two rules are opposites: a bank transfer invoices a legal entity, so it needs
+ * a company; cash is not taken from one, which is invoiced or pays by card
+ * (FR-CART-04). So a company sees one option and a private person the other —
+ * each shown greyed with its reason rather than hidden, or a customer who came
+ * for it would think the shop dropped it. The server re-checks both rules at
  * submission; this row only saves them the trip.
  */
 @Component({
@@ -33,6 +38,7 @@ import { ChoiceCard } from '../ui/choice-card';
           [title]="text.cashTitle"
           [description]="cashDescription()"
           [checked]="method() === 'cash'"
+          [disabled]="!cashAllowed()"
           (chosen)="methodChange.emit('cash')"
         />
 
@@ -64,12 +70,15 @@ export class PaymentChoice {
   /** Whether the party being invoiced is a company — the page's answer, since
    * it is the one holding both the choice and the account. */
   readonly transferAllowed = input(false);
+  /** The same answer read the other way: cash is for a private person. */
+  readonly cashAllowed = input(true);
 
   readonly methodChange = output<PaymentMethod>();
 
-  protected readonly cashDescription = computed(() =>
-    this.fulfilment() === 'pickup'
+  protected readonly cashDescription = computed(() => {
+    if (!this.cashAllowed()) return this.text.cashPersonOnly;
+    return this.fulfilment() === 'pickup'
       ? this.text.cashPickupDescription
-      : this.text.cashDeliveryDescription,
-  );
+      : this.text.cashDeliveryDescription;
+  });
 }

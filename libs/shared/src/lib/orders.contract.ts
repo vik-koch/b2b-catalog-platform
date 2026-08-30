@@ -328,6 +328,10 @@ export const ordersContract = c.router({
          * where the party has a registration number. Re-checked here because
          * what the form offered is not what the server trusts. */
         'billing-details-required',
+        /** Cash is not offered for an order invoiced to a company: a company
+         * is invoiced or pays by card (FR-CART-04). The form does not offer
+         * it either; this is what makes it a rule. */
+        'cash-not-available',
         /** The deployment invoices an address of its own and the submission
          * carried none. Only reachable by a browser out of step with the
          * config the form was drawn from. */

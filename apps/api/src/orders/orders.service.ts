@@ -232,6 +232,13 @@ export class OrdersService {
       });
     }
 
+    if (submission.paymentMethod === 'cash' && party.registrationId) {
+      throw new BadRequestException({
+        code: 'cash-not-available',
+        message: 'A company is invoiced or pays by card, never in cash',
+      });
+    }
+
     return party;
   }
 

@@ -175,8 +175,10 @@ const address = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-/** What a guest submits: nobody to resolve a party from, so they name one. */
+/** What a guest submits: nobody to resolve a party from, so they name one. A
+ * private person, so cash is the method that goes with it. */
 const guestParty = { name: 'Ada Byron', registrationId: null };
+const asGuest = { party: guestParty, paymentMethod: 'cash' } as const;
 
 const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
   ({
@@ -189,7 +191,9 @@ const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
     deliveryAddress: address(),
     pickupLocationKey: null,
     billingAddress: address(),
-    paymentMethod: 'cash',
+    // The fixture's default party is the account's own, and that account is a
+    // company — which is invoiced rather than paying cash (FR-CART-04).
+    paymentMethod: 'bank-transfer',
     preferredDate: null,
     customerNote: null,
     expectedTotalMinor: 3998,
@@ -238,7 +242,7 @@ describe('OrdersService.submit', () => {
         fulfilmentMethod: 'pickup',
         deliveryAddress: null,
         pickupLocationKey: 'speicherstadt',
-        party: guestParty,
+        ...asGuest,
       }),
       null,
       null,
@@ -265,11 +269,7 @@ describe('OrdersService.submit', () => {
       .mockReturnValueOnce('CK-260824-0001')
       .mockReturnValueOnce('CK-260824-0002');
 
-    const placed = await service(db).submit(
-      submission({ party: guestParty }),
-      null,
-      null,
-    );
+    const placed = await service(db).submit(submission(asGuest), null, null);
 
     expect(attempted).toEqual(['CK-260824-0001', 'CK-260824-0002']);
     expect(placed.reference).toBe('CK-260824-0002');
@@ -281,7 +281,7 @@ describe('OrdersService.submit', () => {
     const { db } = testDb(99);
 
     await expect(
-      service(db).submit(submission({ party: guestParty }), null, null),
+      service(db).submit(submission(asGuest), null, null),
     ).rejects.toThrow(/free order reference/);
   });
 
@@ -290,7 +290,7 @@ describe('OrdersService.submit', () => {
 
     await expect(
       service(db).submit(
-        submission({ expectedTotalMinor: 1999, party: guestParty }),
+        submission({ ...asGuest, expectedTotalMinor: 1999 }),
         null,
         null,
       ),
@@ -310,6 +310,14 @@ describe('OrdersService.submit', () => {
     ).rejects.toMatchObject({
       response: { code: 'billing-details-required' },
     });
+  });
+
+  it('refuses cash for an order invoiced to a company', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(submission({ paymentMethod: 'cash' }), 'user-1', null),
+    ).rejects.toMatchObject({ response: { code: 'cash-not-available' } });
   });
 
   // The deployment's answer, not the browser's: a form drawn from an older
@@ -410,7 +418,7 @@ describe('OrdersService.submit', () => {
           fulfilmentMethod: 'pickup',
           deliveryAddress: null,
           pickupLocationKey: 'no-such-office',
-          party: guestParty,
+          ...asGuest,
         }),
         null,
         null,
