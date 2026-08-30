@@ -15,6 +15,7 @@ import { preloadDeploymentConfig } from './app/config/deployment-config.server';
 import { injectCartShell } from './app/cart/cart-shell.server';
 import { injectSessionShell } from './app/auth/session-shell.server';
 import { injectShellState } from './app/config/shell-state.server';
+import { injectFontHead } from './app/config/font.server';
 import {
   isAdminPreview,
   isGatedPath,
@@ -195,7 +196,9 @@ app.use(async (req, res, next) => {
       // URL it is answering, so it must not name one as its preferred form.
       const html = injectNoindexMeta(
         injectSessionShell(
-          injectCartShell(injectShellState(await response.text())),
+          injectCartShell(
+            injectFontHead(injectShellState(await response.text())),
+          ),
         ),
       );
       const headers = new Headers(response.headers);
@@ -217,7 +220,9 @@ app.use(async (req, res, next) => {
     const html = injectNoindexMeta(
       injectCanonicalLink(
         injectSessionShell(
-          injectCartShell(injectShellState(await response.text())),
+          injectCartShell(
+            injectFontHead(injectShellState(await response.text())),
+          ),
         ),
         req.path,
       ),

@@ -62,7 +62,7 @@ each is its Zod schema: `apps/web/src/app/config/deployment-config.type.ts`,
 schema stays the authority on the whole file. The committed demo files are the
 worked example to copy from.
 
-## Assets (logo, favicon)
+## Assets (logo, favicon, fonts)
 
 Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:
 
@@ -77,6 +77,7 @@ config/
     logo.svg
     favicon.svg
     favicon.png
+    fonts/             # optional: @font-face css + woff2 files
 ```
 
 The path of the folder is defined by the following environment variable:
@@ -98,6 +99,24 @@ logo 40px high, so these are not a display size — they are what lets the brows
 keep the logo's space before the file has arrived, instead of letting the search
 field beside it take the width and hand it straight back. Replace the logo with
 one of another shape and these two go with it.
+
+A deployment that wants its own typeface adds `branding.font` to
+`deployment.json`:
+
+```json
+"font": {
+  "family": "'Some Sans', system-ui, sans-serif",
+  "stylesheet": "fonts/fonts.css"
+}
+```
+
+`family` is applied to everything the app draws. `stylesheet` is a path under
+`assets/` holding the `@font-face` rules, linked into every document by the SSR
+server; put the `woff2` files beside it and reference them relatively. Serving
+them from the deployment's own origin rather than a font CDN is the point — a
+CDN link makes every visitor's browser announce itself to a third party before
+the page has drawn, which is also a consent question nobody wants to answer.
+Omit `font` entirely to keep the system stack.
 
 The document `<title>` is not an asset: it is `branding.title` in
 `deployment.json`, set at runtime so it needs no rebuild either.

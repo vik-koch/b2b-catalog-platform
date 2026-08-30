@@ -140,6 +140,25 @@ export const deploymentConfigSchema = z
           })
           .strict(),
         /**
+         * The typeface, when a deployment wants one of its own. `family` is a
+         * CSS font-family list, applied to everything the app draws; leaving it
+         * out keeps the system stack, which is a real choice rather than a
+         * fallback — no file to load and the shop looks native everywhere.
+         *
+         * `stylesheet` names a CSS file in the assets mount (see
+         * config/README.md) that declares the @font-face rules the family needs;
+         * the server links it into every document. Self-hosted on purpose: a
+         * link to a font CDN makes every visitor's browser announce itself to a
+         * third party before the page has drawn.
+         */
+        font: z
+          .object({
+            family: z.string().min(1),
+            stylesheet: z.string().min(1).optional(),
+          })
+          .strict()
+          .optional(),
+        /**
          * Semantic color tokens. The three brand colors are required; the
          * neutrals default to the stone ramp in styles.css and are only worth
          * setting for a deployment whose palette is not warm-gray.
