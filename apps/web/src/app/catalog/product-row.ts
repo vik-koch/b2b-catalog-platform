@@ -40,7 +40,7 @@ export interface RowProduct extends BuyableProduct {
          become the same drawing — is asked of the whole line, tick box and
          all, so a cart and a listing take the shape in the same drag of the
          window edge. -->
-    <div class="@container/line relative flex items-start gap-4 py-4">
+    <div class="@container/line relative flex items-start gap-4 py-3">
       <ng-content select="[rowSelect]" />
 
       <!-- How the photo and the controls arrange themselves *within* the

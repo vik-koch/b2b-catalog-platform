@@ -51,7 +51,7 @@ export const LISTING_NARROW = '593px';
  * track and the gap are read together and neither is a matter of taste.
  */
 export const PRODUCT_GRID =
-  'grid grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))] gap-x-5 gap-y-6 @max-[593px]/listing:grid-cols-1 @max-[593px]/listing:gap-y-0 @max-[593px]/listing:divide-y @max-[593px]/listing:divide-border @max-[593px]/listing:border-y @max-[593px]/listing:border-border';
+  'grid grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))] gap-5 @max-[593px]/listing:grid-cols-1 @max-[593px]/listing:gap-y-0 @max-[593px]/listing:divide-y @max-[593px]/listing:divide-border @max-[593px]/listing:border-y @max-[593px]/listing:border-border';
 
 /**
  * One product card in a grid (FR-CAT-04) — gallery, name, price — shared by the
