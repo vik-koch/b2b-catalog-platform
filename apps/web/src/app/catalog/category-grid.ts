@@ -37,7 +37,7 @@ import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
-import { PRODUCT_GRID, PRODUCT_GRID_FULL, ProductTile } from './product-tile';
+import { PRODUCT_GRID, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
   resolveCategorySort,
@@ -254,7 +254,7 @@ const SUBS_ASSUMED_FIT = 4;
               @if (data.items.length) {
                 <!-- The same products, drawn the way the visitor last asked
                      for: fitted cards, or full-width lines. -->
-                <ul [class]="list(data.facets.length > 0)">
+                <ul [class]="list()">
                   <!-- One cluster, placed twice: a card takes it in its own
                        corner, a line in the corner of its photo, and the two
                        must be the same control. -->
@@ -389,14 +389,12 @@ export class CategoryGrid {
     () => this.productLayout.layout() === 'grid',
   );
   /**
-   * Which listing this is: lines, cards beside a filter panel, or cards with
-   * the whole row to themselves. A category with nothing to filter by renders
-   * no panel at any width, so its grid can use the card's true floor and fit
-   * one more column (see PRODUCT_GRID_FULL).
+   * Which listing this is: lines, or cards. The filter panel is a column of
+   * the card grid rather than something taken off it, so a listing with
+   * nothing to filter by lays its cards out exactly like one that has.
    */
-  protected list(hasFacets: boolean): string {
-    if (!this.cards()) return PRODUCT_ROWS;
-    return hasFacets ? PRODUCT_GRID : PRODUCT_GRID_FULL;
+  protected list(): string {
+    return this.cards() ? PRODUCT_GRID : PRODUCT_ROWS;
   }
 
   private catalog = inject(CatalogService);

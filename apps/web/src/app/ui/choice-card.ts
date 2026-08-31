@@ -93,6 +93,6 @@ export class ChoiceCard {
       : this.checked()
         ? 'border-primary bg-stone-50'
         : 'border-border-strong hover:border-accent';
-    return `relative h-full rounded-lg border p-3 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary ${state}`;
+    return `relative h-full rounded-lg border p-3 transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary ${state}`;
   });
 }

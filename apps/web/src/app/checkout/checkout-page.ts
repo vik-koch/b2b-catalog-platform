@@ -13,8 +13,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AddressInput,
+  emailSchema,
   fillText,
   FulfilmentMethod,
+  isOrderDateAllowed,
+  localToday,
   OrderContact,
   OrderSubmission,
   PartySuggestion,
@@ -38,6 +41,7 @@ import {
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
+import { zodValidator } from '../core/zod-validator';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { EmptyState } from '../ui/empty-state';
@@ -146,19 +150,22 @@ import { AddressForm } from '../addresses/address-form';
            The card is the same card on both, so a customer moving from one to
            the other at a given window size must not find it beside the content
            on one and under it on the other. The number is the cart's own: the
-           width at which taking a 20rem column off its lines still leaves them
-           their three (see cart-page.ts).
+           width at which its lines still hold their shape beside the card
+           (see cart-page.ts). The form itself is narrower than the track that
+           notch buys, and the slack sits between the two columns.
 
            Measured on the page rather than the window for the same reason it
            is there: the frame's padding and the scrollbar are most of a
            column, and the media query cannot see either. Below the notch the
            summary sits under the form instead of beside it. -->
       <div class="@container/checkout">
-        <div class="grid gap-8 @min-[72.5rem]/checkout:grid-cols-[1fr_20rem]">
+        <div
+          class="grid gap-8 @min-[945px]/checkout:grid-cols-[36rem_20rem] @min-[945px]/checkout:justify-between"
+        >
           <!-- Heading and intro in the column, not above the grid: the summary
                beside them then starts level with the heading, and the same card
                sits at the same height on the cart, here, and on the read-back. -->
-          <div>
+          <div class="max-w-xl">
             <!-- The heading and the line under it run the width of the column;
                  the form itself is narrower. A sentence set to the width of a
                  form field wraps for no reason, and the questions below want
@@ -324,26 +331,33 @@ import { AddressForm } from '../addresses/address-form';
                     (saveChange)="drafts.patch({ saveDeliveryAddress: $event })"
                   >
                     <!-- Checked, because one address usually serves both.
-                     Unchecking is what reveals the second picker. -->
-                    <label
-                      class="mt-4 flex cursor-pointer items-start gap-2 text-sm"
-                    >
-                      <input
-                        type="checkbox"
-                        appCheckbox
-                        class="mt-0.5"
-                        [checked]="draft().billingSameAsDelivery"
-                        (change)="toggleSameBilling()"
-                      />
-                      <span>{{ addressText.sameAsDelivery }}</span>
-                    </label>
+                     Unchecking is what reveals the second picker. Absent
+                     altogether where the deployment invoices no address of its
+                     own: there is no second address for this one to be the
+                     same as. -->
+                    @if (billingEnabled) {
+                      <label
+                        class="mt-4 flex cursor-pointer items-start gap-2 text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          appCheckbox
+                          class="mt-0.5"
+                          [checked]="draft().billingSameAsDelivery"
+                          (change)="toggleSameBilling()"
+                        />
+                        <span>{{ addressText.sameAsDelivery }}</span>
+                      </label>
+                    }
                   </app-address-picker>
                 }
 
-                <!-- Pickup asks for an address anyway: the one on the paperwork
-                 belongs to the order, not to whoever carries the goods — and
-                 with nothing being delivered it is the only address asked
-                 for, which is what its own heading says. -->
+                <!-- Pickup asks for an address anyway, where the deployment
+                 invoices one: the one on the paperwork belongs to the order,
+                 not to whoever carries the goods — and with nothing being
+                 delivered it is the only address asked for, which is what its
+                 own heading says. A deployment that invoices no address of its
+                 own asks a collected order for none at all. -->
                 @if (needsBillingPicker()) {
                   <app-address-picker
                     [heading]="
@@ -369,6 +383,7 @@ import { AddressForm } from '../addresses/address-form';
                 <app-preferred-date
                   [method]="draft().fulfilmentMethod"
                   [date]="draft().preferredDate"
+                  [invalid]="preferredDateInvalid()"
                   (dateChange)="drafts.patch({ preferredDate: $event })"
                 />
 
@@ -376,6 +391,7 @@ import { AddressForm } from '../addresses/address-form';
                   [method]="draft().paymentMethod"
                   [fulfilment]="draft().fulfilmentMethod"
                   [transferAllowed]="partyIsCompany()"
+                  [cashAllowed]="!partyIsCompany()"
                   (methodChange)="drafts.patch({ paymentMethod: $event })"
                 />
 
@@ -393,7 +409,7 @@ import { AddressForm } from '../addresses/address-form';
                long as the answers are, and the total is what the customer is
                reading them against. -->
           <aside
-            class="max-w-xl @min-[72.5rem]/checkout:mt-9 @min-[72.5rem]/checkout:sticky @min-[72.5rem]/checkout:top-20 @min-[72.5rem]/checkout:self-start"
+            class="max-w-xl @min-[945px]/checkout:mt-9 @min-[945px]/checkout:sticky @min-[945px]/checkout:top-20 @min-[945px]/checkout:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"
@@ -560,7 +576,9 @@ export class CheckoutPage {
    */
   protected readonly contactForm = inject(FormBuilder).nonNullable.group({
     name: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
+    // The contract's own rule, not Angular's: `Validators.email` accepts a
+    // domain with no TLD, which the server then refuses.
+    email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
     phone: ['', phoneValidators(this.config.phoneInput, true)],
     website: [''],
   });
@@ -601,11 +619,31 @@ export class CheckoutPage {
   protected readonly isPickup = computed(
     () => this.draft().fulfilmentMethod === 'pickup',
   );
+  /**
+   * Whether this deployment invoices an address of its own (FR-CART-07). Where
+   * it does not, no invoice address is asked for, offered or sent: a delivery
+   * gives the one address it needs and a collected order gives none.
+   */
+  protected readonly billingEnabled = this.config.billingAddressEnabled;
+
   /** Pickup always asks; delivery only once the invoice is said to go
-   * somewhere else. */
+   * somewhere else. Neither, where there is no invoice address to ask for. */
   protected readonly needsBillingPicker = computed(
-    () => this.isPickup() || !this.draft().billingSameAsDelivery,
+    () =>
+      this.billingEnabled &&
+      (this.isPickup() || !this.draft().billingSameAsDelivery),
   );
+
+  /**
+   * A date the shop does not offer — a weekend, or one too soon (`order-dates`).
+   * The field says so under itself; this is what keeps it from being sent.
+   * `today` is read once, like the field's own floor.
+   */
+  private readonly today = localToday();
+  protected readonly preferredDateInvalid = computed(() => {
+    const date = this.draft().preferredDate;
+    return date !== null && !isOrderDateAllowed(date, this.today);
+  });
 
   /**
    * Whether the party being invoiced is a company, which is what a bank
@@ -852,12 +890,16 @@ export class CheckoutPage {
       untracked(() => this.applyPartyValidators(party));
     });
 
-    // A payment method the party can no longer take falls back to the default
-    // rather than waiting to be refused: the customer changes who is invoiced,
-    // and the row below it stops offering what it just offered.
+    // A payment method the party can no longer take falls back to the one it
+    // can, rather than waiting to be refused: the customer changes who is
+    // invoiced, and the row below it stops offering what it just offered. The
+    // two rules are opposites (FR-CART-04) — a transfer invoices a company,
+    // cash is not taken from one — so today each party has exactly one method
+    // to fall back to.
     effect(() => {
-      if (!this.partyIsCompany() && this.draft().paymentMethod !== 'cash') {
-        this.drafts.patch({ paymentMethod: 'cash' });
+      const wanted = this.partyIsCompany() ? 'bank-transfer' : 'cash';
+      if (this.draft().paymentMethod !== wanted) {
+        this.drafts.patch({ paymentMethod: wanted });
       }
     });
 
@@ -889,6 +931,11 @@ export class CheckoutPage {
     // The addresses being typed, and the typed party, kept in the draft so a
     // trip back to the cart does not empty them.
     this.restoreDrafted();
+    // A draft written on an earlier visit can name a date this one no longer
+    // offers — the day it was chosen for has since passed. Dropped rather than
+    // kept and refused: no date is the form's own default and the ordinary
+    // answer, and a stale one nobody chose today is not worth an error over.
+    if (this.preferredDateInvalid()) this.drafts.patch({ preferredDate: null });
     // A restored address was already finished with; the zone need not wait for
     // a blur that has already happened once.
     this.commitDelivery();
@@ -1065,6 +1112,8 @@ export class CheckoutPage {
           ),
         ];
 
+    // The party, and where its invoice goes — the second half only where the
+    // deployment invoices an address at all.
     const invoice = [this.partyName()];
     if (this.needsBillingPicker()) {
       invoice.push(
@@ -1072,7 +1121,7 @@ export class CheckoutPage {
           this.addressFor(draft.billingAddressId, this.billingForm),
         ),
       );
-    } else {
+    } else if (this.billingEnabled) {
       invoice.push(review.billingSame);
     }
 
@@ -1279,16 +1328,21 @@ export class CheckoutPage {
     if (this.deliveryTyped() && this.deliveryForm.group.invalid) return null;
     if (this.billingTyped() && this.billingForm.group.invalid) return null;
     if (this.isPickup() && !draft.pickupLocationKey) return null;
+    if (this.preferredDateInvalid()) return null;
 
     const delivery = this.isPickup()
       ? null
       : this.addressFor(draft.deliveryAddressId, this.deliveryForm);
     // Unticked "the same address" is the only thing that makes the invoice go
-    // somewhere else; ticked, it is literally the delivery one.
-    const billing = this.needsBillingPicker()
-      ? this.addressFor(draft.billingAddressId, this.billingForm)
-      : delivery;
-    if (!billing) return null;
+    // somewhere else; ticked, it is literally the delivery one. Null where the
+    // deployment invoices no address of its own — which is not "the delivery
+    // address", or the order would have carried it.
+    const billing = !this.billingEnabled
+      ? null
+      : this.needsBillingPicker()
+        ? this.addressFor(draft.billingAddressId, this.billingForm)
+        : delivery;
+    if (this.billingEnabled && !billing) return null;
 
     const { personName, companyName, companyId } = this.partyForm.getRawValue();
     const contact = this.contact();
@@ -1406,6 +1460,10 @@ export class CheckoutPage {
         return errors.unknownPickupLocation;
       case 'billing-details-required':
         return errors.billingDetailsRequired;
+      case 'cash-not-available':
+        return errors.cashNotAvailable;
+      case 'billing-address-required':
+        return errors.incomplete;
       case 'party-required':
         return errors.partyRequired;
       case 'cart-changed':

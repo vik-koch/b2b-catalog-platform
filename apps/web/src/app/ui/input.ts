@@ -1,13 +1,18 @@
 import { computed, Directive, ElementRef, inject, input } from '@angular/core';
 
 /*
- * Focus is the app-wide outline from styles.css and nothing of its own — not a
- * border recolor, which at 1px is not a perceivable focus indicator (WCAG
- * 2.4.7 / 1.4.11), and no inset offset either: a field that ringed itself
- * differently from the button beside it is the inconsistency this replaced.
+ * Focus is the app-wide rule from styles.css and nothing of its own: a focused
+ * field there recolors the edge it already has rather than gaining a ring
+ * outside it, so nothing about it belongs at a call site.
+ *
+ * A refused field recolors that same border red, and keeps it while unfocused:
+ * the message under it is easy to miss on a long form, and the border is not
+ * the only indicator — it is the field the message already names. Keyed on the
+ * presence of aria-invalid, which every field binds as `… || null`, so a valid
+ * one carries no attribute and no red.
  */
 const base =
-  'block rounded-md border border-border-strong bg-white disabled:cursor-not-allowed disabled:bg-stone-100';
+  'block rounded-md border border-border-strong bg-white [&[aria-invalid]]:border-red-600 disabled:cursor-not-allowed disabled:bg-stone-100';
 
 const sizes = {
   md: 'px-3 py-2',

@@ -1,7 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { Address, OrderSubmission } from '@b2b-catalog-platform/shared';
+import {
+  Address,
+  firstOrderDate,
+  localToday,
+  OrderSubmission,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -21,6 +26,10 @@ import {
 } from './checkout-draft.service';
 import { CheckoutPage } from './checkout-page';
 import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
+
+/** A day the form actually offers, from whenever the suite is run: a literal
+ * date here would be a working weekday now and a past Saturday later. */
+const wishedDate = firstOrderDate(localToday());
 
 const text = defaultAppText.checkout;
 
@@ -234,6 +243,12 @@ async function render(options: Options = {}) {
   };
 }
 
+/** A deployment that invoices no address of its own (FR-CART-07). */
+const noBillingAddress: DeploymentConfig = {
+  ...defaultDeploymentConfig,
+  billingAddressEnabled: false,
+};
+
 function withPickupPoints(count: number): DeploymentConfig {
   const locations = (defaultDeploymentConfig.pickup?.locations ?? []).slice(
     0,
@@ -244,6 +259,15 @@ function withPickupPoints(count: number): DeploymentConfig {
     pickup: locations.length ? { locations } : undefined,
   };
 }
+
+/**
+ * Whether the compacted address form is asking for the postcode itself. The
+ * field is in the page either way — folded away it sits off-screen and out of
+ * the tab order, so browser autofill can still reach it — so its absence is no
+ * longer the tell.
+ */
+const postcodeShown = (el: HTMLElement): boolean =>
+  el.querySelector('[id$="-postalCode"]')?.getAttribute('tabindex') !== '-1';
 
 describe('CheckoutPage', () => {
   beforeEach(() => {
@@ -451,7 +475,7 @@ describe('CheckoutPage', () => {
       expect(
         page.el.querySelector('input[autocomplete="street-address"]'),
       ).not.toBeNull();
-      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+      expect(postcodeShown(page.el)).toBe(false);
       // The way out is on screen from the start, not after a provider fails.
       expect(page.text()).toContain(
         defaultAppText.auth.myAccount.addresses.enterManually,
@@ -482,14 +506,14 @@ describe('CheckoutPage', () => {
       );
       const page = await render({ suggests: true, addresses: [] });
 
-      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+      expect(postcodeShown(page.el)).toBe(false);
       expect(page.text()).toContain('20359 Hamburg');
     });
 
     it('opens the rest when the street was typed and nothing resolved', async () => {
       const page = await render({ suggests: true, addresses: [] });
 
-      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+      expect(postcodeShown(page.el)).toBe(false);
 
       page.type('input[autocomplete="street-address"]', 'Hafenstraße 12');
       page.blur('input[autocomplete="street-address"]');
@@ -497,7 +521,7 @@ describe('CheckoutPage', () => {
 
       // No postcode behind the street line, so the fields it was folding away
       // are the ones the customer now has to fill.
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
     });
 
     it('opens the rest when the order is sent with the address unfinished', async () => {
@@ -505,7 +529,7 @@ describe('CheckoutPage', () => {
 
       await page.review();
 
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
       expect(page.text()).toContain(text.errors.incomplete);
     });
 
@@ -515,7 +539,7 @@ describe('CheckoutPage', () => {
       page.drafts.patch({ deliveryAddressId: null });
       await page.settle();
 
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
       expect(page.text()).not.toContain(
         defaultAppText.auth.myAccount.addresses.enterManually,
       );
@@ -543,12 +567,49 @@ describe('CheckoutPage', () => {
       expect(page.text()).not.toContain(text.addresses.deliveryHeading);
     });
 
+    // FR-CART-07: where a deployment invoices no address of its own, a
+    // delivery gives the one address it needs and a collected order none.
+    it('offers no invoice address where the deployment invoices none', async () => {
+      const page = await render({ config: noBillingAddress });
+
+      expect(page.text()).toContain(text.addresses.deliveryHeading);
+      expect(page.text()).not.toContain(text.addresses.sameAsDelivery);
+      expect(page.text()).not.toContain(text.addresses.billingHeading);
+    });
+
+    it('asks a collected order for no address at all', async () => {
+      const page = await render({ config: noBillingAddress });
+
+      page.drafts.patch({ fulfilmentMethod: 'pickup' });
+      await page.settle();
+
+      expect(page.text()).not.toContain(text.addresses.billingOnlyHeading);
+      expect(page.text()).not.toContain(text.addresses.deliveryHeading);
+      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+    });
+
+    it('sends no invoice address, and says nothing about one', async () => {
+      const page = await render({ config: noBillingAddress });
+
+      await page.review();
+      expect(page.text()).not.toContain(text.review.billingSame);
+
+      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
+      await page.settle();
+      page.button(text.submit)?.click();
+      await page.settle();
+
+      expect(sent).toHaveLength(1);
+      expect(sent[0].billingAddress).toBeNull();
+      expect(sent[0].deliveryAddress).toMatchObject({ postalCode: '20359' });
+    });
+
     it('is the fields alone where there is nothing saved to choose from', async () => {
       const page = await render({ addresses: [] });
 
       // No list, so no option to tick and nothing to say about an empty book.
       expect(page.text()).not.toContain(text.addresses.addNew);
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
       expect(page.drafts.draft().deliveryAddressId).toBeNull();
     });
   });
@@ -569,17 +630,61 @@ describe('CheckoutPage', () => {
     it('keeps the wished date and the note in the draft', async () => {
       const page = await render();
 
-      page.type('#preferred-date', '2026-09-03');
+      page.type('#preferred-date', wishedDate);
       page.type('#order-note', 'Ring the bell at the back gate.');
 
-      expect(page.drafts.draft().preferredDate).toBe('2026-09-03');
+      expect(page.drafts.draft().preferredDate).toBe(wishedDate);
       expect(page.drafts.draft().customerNote).toBe(
         'Ring the bell at the back gate.',
       );
     });
 
-    it('says when cash is handed over, in the words of the fulfilment', async () => {
+    // Two rules the picker can only draw half of, so the field says both and
+    // refuses what it is given anyway (`order-dates`).
+    it('offers nothing before the next working day', async () => {
       const page = await render();
+
+      expect(page.value('#preferred-date')).toBe('');
+      expect(
+        page.el.querySelector<HTMLInputElement>('#preferred-date')?.min,
+      ).toBe(wishedDate);
+      expect(page.text()).toContain(text.timing.deliveryHint);
+    });
+
+    it('will not send a day the shop does not work', async () => {
+      const page = await render();
+
+      // The Saturday of the week the field's floor falls in.
+      const floor = new Date(`${wishedDate}T00:00:00Z`);
+      floor.setUTCDate(floor.getUTCDate() + ((6 - floor.getUTCDay() + 7) % 7));
+      page.type('#preferred-date', floor.toISOString().slice(0, 10));
+      await page.settle();
+
+      expect(page.text()).toContain(text.timing.unavailable);
+
+      await page.review();
+      expect(page.text()).not.toContain(text.review.title);
+    });
+
+    // A draft outlives the day it was written on, so the date in it can have
+    // gone stale while the tab was closed.
+    it('drops a stale date out of a restored draft', async () => {
+      sessionStorage.setItem(
+        CHECKOUT_DRAFT_KEY,
+        JSON.stringify({
+          version: CHECKOUT_DRAFT_VERSION,
+          draft: { ...emptyDraft(), preferredDate: '2020-01-04' },
+        }),
+      );
+      const page = await render();
+
+      expect(page.drafts.draft().preferredDate).toBeNull();
+      expect(page.value('#preferred-date')).toBe('');
+    });
+
+    it('says when cash is handed over, in the words of the fulfilment', async () => {
+      // A private customer: cash is not offered to a company at all.
+      const page = await render({ person: true });
 
       expect(page.text()).toContain(text.payment.cashDeliveryDescription);
 
@@ -590,7 +695,7 @@ describe('CheckoutPage', () => {
     });
 
     it('offers cash and bank transfer, and never card', async () => {
-      const page = await render();
+      const page = await render({ person: true });
 
       expect(page.text()).toContain(text.payment.cashTitle);
       expect(page.text()).toContain(text.payment.transferTitle);
@@ -598,14 +703,21 @@ describe('CheckoutPage', () => {
       expect(page.drafts.draft().paymentMethod).toBe('cash');
     });
 
+    // The mirror of the transfer rule (FR-CART-04): a company is invoiced or
+    // pays by card, so cash is greyed with its reason rather than dropped.
+    it('says why a company cannot pay cash, rather than hiding it', async () => {
+      const page = await render();
+
+      expect(page.radio('payment', 'cash')?.disabled).toBe(true);
+      expect(page.text()).toContain(text.payment.cashPersonOnly);
+      expect(page.text()).not.toContain(text.payment.cashDeliveryDescription);
+      expect(page.drafts.draft().paymentMethod).toBe('bank-transfer');
+    });
+
     it('lets a company account pay by transfer', async () => {
       const page = await render();
 
       expect(page.radio('payment', 'bank-transfer')?.disabled).toBe(false);
-
-      page.pick('payment', 'bank-transfer');
-      await page.settle();
-
       expect(page.drafts.draft().paymentMethod).toBe('bank-transfer');
     });
 
@@ -620,8 +732,6 @@ describe('CheckoutPage', () => {
     it('falls back to cash when the party stops being a company', async () => {
       const page = await render();
 
-      page.pick('payment', 'bank-transfer');
-      await page.settle();
       expect(page.drafts.draft().paymentMethod).toBe('bank-transfer');
 
       page.pick('party', 'other');
@@ -713,7 +823,7 @@ describe('CheckoutPage', () => {
     it('types its own address, with nothing to save it to', async () => {
       const page = await render({ guest: true });
 
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
       expect(page.text()).not.toContain(text.addresses.saveToBook);
     });
 
@@ -744,6 +854,28 @@ describe('CheckoutPage', () => {
         name: 'Ada Lovelace',
         registrationId: null,
       });
+    });
+
+    // The one input rule the form and the server used to disagree about: a
+    // domain with no TLD passes Angular's own email validator and is refused
+    // by the contract, so the form applies the contract's rule instead.
+    it('holds the email to the same rule sign-up does', async () => {
+      const page = await render({ guest: true });
+
+      page.type('#contact-name', 'Ada Lovelace');
+      page.type('#contact-email', 'ada@example');
+      page.type('#contact-phone', '4012345678');
+      page.type('input[autocomplete="street-address"]', 'Hafenstraße 12');
+      page.type('[id$="-postalCode"]', '20359');
+      page.type('[id$="-city"]', 'Hamburg');
+      await page.settle();
+
+      await page.review();
+
+      expect(page.text()).not.toContain(text.review.title);
+      expect(page.text()).toContain(
+        defaultAppText.auth.validation.emailInvalid,
+      );
     });
 
     it('asks a company for its own name and a person to ring', async () => {
@@ -795,7 +927,7 @@ describe('CheckoutPage', () => {
       const page = await render({ guest: true });
 
       expect(page.drafts.draft().deliveryAddressId).toBeNull();
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
     });
 
     it('drops a submission whose honeypot was filled', async () => {
@@ -835,7 +967,7 @@ describe('CheckoutPage', () => {
       expect(page.text()).toContain(text.review.whenAny);
       // The unit it was bought in, and what that comes to in pieces.
       expect(page.text()).toContain('2 pk (12 pcs)');
-      expect(page.text()).toContain(text.payment.cashTitle);
+      expect(page.text()).toContain(text.payment.transferTitle);
       expect(page.text()).toContain('Ring the bell at the back gate.');
       // Nothing to edit here: the form is one click back.
       expect(page.el.querySelector('#order-note')).toBeNull();
@@ -926,7 +1058,7 @@ describe('CheckoutPage', () => {
       const page = await render();
 
       page.drafts.patch({
-        preferredDate: '2026-09-03',
+        preferredDate: wishedDate,
         customerNote: 'Ring the bell at the back gate.',
       });
       await page.review();
@@ -942,8 +1074,9 @@ describe('CheckoutPage', () => {
         // The account's own party is resolved by the server, not asserted here.
         party: null,
         pickupLocationKey: null,
-        paymentMethod: 'cash',
-        preferredDate: '2026-09-03',
+        // The account is a company, so the transfer is the method it can take.
+        paymentMethod: 'bank-transfer',
+        preferredDate: wishedDate,
         customerNote: 'Ring the bell at the back gate.',
         acceptPrivacy: true,
       });

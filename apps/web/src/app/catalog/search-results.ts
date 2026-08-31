@@ -19,7 +19,7 @@ import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
-import { PRODUCT_GRID, PRODUCT_GRID_FULL, ProductTile } from './product-tile';
+import { PRODUCT_GRID, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
   resolveSearchSort,
@@ -99,7 +99,7 @@ import {
               }
               <!-- The same products, drawn the way the visitor last asked for
                    in either listing: fitted cards, or full-width lines. -->
-              <ul [class]="list(data.facets.length > 0)">
+              <ul [class]="list()">
                 <!-- The same cluster the category listing puts on its items:
                      a product found by searching is as editable as one found
                      by browsing, and reaching it through the admin list to
@@ -229,11 +229,10 @@ export class SearchResults {
   protected readonly cards = computed(
     () => this.productLayout.layout() === 'grid',
   );
-  /** Lines, cards beside a filter panel, or cards with the row to themselves
-   * — see the category listing, which makes the same three-way choice. */
-  protected list(hasFacets: boolean): string {
-    if (!this.cards()) return PRODUCT_ROWS;
-    return hasFacets ? PRODUCT_GRID : PRODUCT_GRID_FULL;
+  /** Lines, or cards — see the category listing, which makes the same
+   * choice. */
+  protected list(): string {
+    return this.cards() ? PRODUCT_GRID : PRODUCT_ROWS;
   }
 
   private readonly catalog = inject(CatalogService);

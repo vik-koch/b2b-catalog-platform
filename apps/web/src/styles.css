@@ -159,10 +159,12 @@ html {
  * primitives, but equally the plain links, cards and native controls that
  * never had a class for it and fell back to the browser's black ring.
  *
- * Secondary, per the token rule above, and flush against the element: an
- * offset draws the page's own background as a gap between the control and its
- * ring, which on a filled button reads as a white halo. Being a base rule, any
- * utility class beats it, so a control on a dark fill can still say otherwise.
+ * Secondary, per the token rule above, and one pixel: two read as a ring drawn
+ * around the control, one reads as the control's own edge lighting up, which is
+ * what focus is. Flush against the element, because an offset draws the page's
+ * own background as a gap between the control and its ring — on a filled button
+ * that is a white halo. Being a base rule, any utility class beats it, so a
+ * control on a dark fill can still say otherwise.
  */
 @layer base {
   /*
@@ -176,9 +178,57 @@ html {
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-secondary);
+    outline: 1px solid var(--color-secondary);
     outline-offset: 0;
   }
+
+  /*
+   * Text entry recolours its edge instead of gaining one. The outline is pulled
+   * inward by its own width, so it lands exactly on top of the field's 1px
+   * border: one line where the resting field has one line, rather than a
+   * second line in a second colour outside the first. It covers the red border
+   * of a refused field too, which is deliberate — while the caret is in it, the
+   * field is being answered rather than reported on, and the message beneath it
+   * has not gone anywhere.
+   *
+   * Not checkboxes and radios: they have no border to recolour, so they keep
+   * the ring above. Wrappers that hold a field (the rich-text frame, the
+   * packaging cell) do the same thing with `focus-within` and their own
+   * classes, since the border to cover is theirs rather than the input's.
+   */
+  :where(
+    input:not([type='checkbox'], [type='radio']),
+    select,
+    textarea,
+    [contenteditable]
+  ):focus-visible {
+    outline: 1px solid var(--color-secondary);
+    outline-offset: -1px;
+  }
+}
+
+/*
+ * …and the border itself, which is the same statement made where the pixels
+ * actually are. The inset outline above covers a field's border, but only where
+ * the two are the same shape: at a rounded corner the border's curve is a
+ * fraction wider than the outline's, so a refused field kept a thread of red
+ * around each corner while focused. Recolouring the border leaves nothing to
+ * show through.
+ *
+ * Unlayered on purpose. This has to beat two utilities on the same element —
+ * the resting `border-border-strong` and the refusal's `border-red-600` — and
+ * between two utility classes the winner is the order Tailwind emitted them in,
+ * which is not something a call site can see or a reader can predict. Outside
+ * the layers it beats both by origin, whatever that order turns out to be.
+ * The outline stays for fields that have no border to recolour, and stays in
+ * the base layer so `focus-visible:outline-none` can still turn it off.
+ */
+:where(
+  input:not([type='checkbox'], [type='radio']),
+  select,
+  textarea
+):focus-visible {
+  border-color: var(--color-secondary);
 }
 
 /* Rich-text page bodies: brand the links, keep the rest prose-stone. */

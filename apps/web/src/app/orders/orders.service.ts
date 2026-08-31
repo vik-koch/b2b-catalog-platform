@@ -28,6 +28,8 @@ export type SubmitOrderResult =
         | 'invalid-postal-code'
         | 'unknown-pickup-location'
         | 'billing-details-required'
+        | 'cash-not-available'
+        | 'billing-address-required'
         | 'party-required'
         | 'staff-cannot-order'
         | 'rejected';

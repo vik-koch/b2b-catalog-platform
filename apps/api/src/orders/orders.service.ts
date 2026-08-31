@@ -28,6 +28,7 @@ import { AddressesService } from '../addresses/addresses.service';
 import { OrderNotifications } from './order-notifications';
 import { publiclyVisible } from '../catalog/product-view';
 import {
+  BILLING_ADDRESS_ENABLED,
   COMPANY_ID_RULE,
   CompanyIdRule,
   DELIVERY_CONFIG,
@@ -92,6 +93,8 @@ export class OrdersService {
     private readonly reference: OrderReferenceConfig,
     @Inject(ORDER_CURRENCY) private readonly currency: string,
     @Inject(COMPANY_ID_RULE) private readonly companyIdRule: CompanyIdRule,
+    @Inject(BILLING_ADDRESS_ENABLED)
+    private readonly billingAddressEnabled: boolean,
     private readonly notifications: OrderNotifications,
   ) {}
 
@@ -153,10 +156,28 @@ export class OrdersService {
    * through the book, so this is the only place it is checked.
    */
   private assertAddresses(submission: OrderSubmission): void {
-    this.checkAddress(submission.billingAddress);
+    const billing = this.billingAddress(submission);
+    if (billing) this.checkAddress(billing);
     if (submission.deliveryAddress) {
       this.checkAddress(submission.deliveryAddress);
     }
+  }
+
+  /**
+   * The address the invoice goes to, as this deployment answers the question.
+   * Where it invoices none of its own (FR-CART-07), a browser sending one
+   * anyway is out of step with the config its form was drawn from, and the
+   * order carries nothing rather than an address the shop does not use.
+   */
+  private billingAddress(submission: OrderSubmission): AddressInput | null {
+    if (!this.billingAddressEnabled) return null;
+    if (!submission.billingAddress) {
+      throw new BadRequestException({
+        code: 'billing-address-required',
+        message: 'This deployment invoices an address of its own',
+      });
+    }
+    return submission.billingAddress;
   }
 
   /**
@@ -208,6 +229,13 @@ export class OrdersService {
       throw new BadRequestException({
         code: 'billing-details-required',
         message: 'Bank transfer invoices a company, which needs its number',
+      });
+    }
+
+    if (submission.paymentMethod === 'cash' && party.registrationId) {
+      throw new BadRequestException({
+        code: 'cash-not-available',
+        message: 'A company is invoiced or pays by card, never in cash',
       });
     }
 
@@ -319,7 +347,7 @@ export class OrdersService {
       party: OrderingParty;
     },
   ): Promise<{ reference: string; publicToken: string }> {
-    const billing = submission.billingAddress;
+    const billing = this.billingAddress(submission);
     const { address: delivery, pickup, zone } = context.fulfilment;
     const { shipment } = priced.preview;
     // A random reference collides now and then by design (see order-reference).
@@ -346,12 +374,12 @@ export class OrdersService {
               fulfilmentMethod: submission.fulfilmentMethod,
               partyName: context.party.name,
               partyRegistrationId: context.party.registrationId,
-              billingStreet: billing.street,
-              billingStreet2: billing.street2,
-              billingPostalCode: billing.postalCode,
-              billingCity: billing.city,
-              billingRegion: billing.region,
-              billingCountry: billing.country,
+              billingStreet: billing?.street ?? null,
+              billingStreet2: billing?.street2 ?? null,
+              billingPostalCode: billing?.postalCode ?? null,
+              billingCity: billing?.city ?? null,
+              billingRegion: billing?.region ?? null,
+              billingCountry: billing?.country ?? null,
               deliveryStreet: delivery?.street ?? null,
               deliveryStreet2: delivery?.street2 ?? null,
               deliveryPostalCode: delivery?.postalCode ?? null,
@@ -671,14 +699,20 @@ export class OrdersService {
             freeFromMinor: row.deliveryFreeFromMinor,
           }
         : null,
-      billingAddress: {
-        street: row.billingStreet,
-        street2: row.billingStreet2,
-        postalCode: row.billingPostalCode,
-        city: row.billingCity,
-        region: row.billingRegion,
-        country: row.billingCountry,
-      },
+      billingAddress:
+        row.billingStreet &&
+        row.billingPostalCode &&
+        row.billingCity &&
+        row.billingCountry
+          ? {
+              street: row.billingStreet,
+              street2: row.billingStreet2,
+              postalCode: row.billingPostalCode,
+              city: row.billingCity,
+              region: row.billingRegion,
+              country: row.billingCountry,
+            }
+          : null,
       paymentMethod: row.paymentMethod as OrderDetail['paymentMethod'],
       preferredDate: row.preferredDate,
       customerNote: row.customerNote,

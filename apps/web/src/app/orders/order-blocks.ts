@@ -56,6 +56,8 @@ export function orderBlocks(
   const party = order.party.registrationId
     ? `${order.party.name} · ${order.party.registrationId}`
     : order.party.name;
+  // Nothing at all where the order carries no invoice address — the
+  // deployment invoices none of its own, or the order predates it asking.
   const billing =
     order.deliveryAddress &&
     lines(order.deliveryAddress).join('\n') ===

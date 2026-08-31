@@ -47,7 +47,7 @@ interface ToolbarAction {
   template: `
     <div class="relative">
       <div
-        class="overflow-hidden rounded-md border border-border-strong bg-white focus-within:outline-2 focus-within:outline-secondary"
+        class="overflow-hidden rounded-md border border-border-strong bg-white focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
       >
         <div
           role="toolbar"

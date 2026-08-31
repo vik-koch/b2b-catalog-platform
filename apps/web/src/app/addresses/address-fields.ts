@@ -117,7 +117,18 @@ let nextId = 0;
         </div>
       </div>
 
-      @if (!collapsed()) {
+      <!-- Kept in the page while collapsed rather than dropped from it, and
+           moved off-screen instead. Browser autofill fills a form field it can
+           see in the DOM; a postcode and a city that are not there are simply
+           not filled, and the customer who let the browser type the address
+           got the street line alone. Off-screen they are filled like any
+           other, and the read-back above prints what landed in them.
+
+           Taken out of the tab order and hidden from assistive technology
+           while they are off-screen. Saying that with inert, or with a
+           display of none, would be tidier — and both are also how a browser
+           decides a field is not worth filling. -->
+      <div [class]="restClass()" [attr.aria-hidden]="collapsed() || null">
         <div class="grid gap-6 sm:grid-cols-[10rem_1fr]">
           <div>
             <label [for]="id('postalCode')" appFieldLabel>
@@ -138,6 +149,7 @@ let nextId = 0;
                 formControlName="postalCode"
                 autocomplete="postal-code"
                 aria-required="true"
+                [attr.tabindex]="collapsed() ? -1 : null"
                 appInput
                 appDigitMask
                 [mask]="mask"
@@ -151,6 +163,7 @@ let nextId = 0;
                 formControlName="postalCode"
                 autocomplete="postal-code"
                 aria-required="true"
+                [attr.tabindex]="collapsed() ? -1 : null"
                 appInput
                 class="w-full"
                 [attr.aria-invalid]="isInvalid('postalCode') || null"
@@ -174,6 +187,7 @@ let nextId = 0;
               formControlName="city"
               autocomplete="address-level2"
               aria-required="true"
+              [attr.tabindex]="collapsed() ? -1 : null"
               appInput
               class="w-full"
               [attr.aria-invalid]="isInvalid('city') || null"
@@ -196,6 +210,7 @@ let nextId = 0;
             type="text"
             formControlName="region"
             autocomplete="address-level1"
+            [attr.tabindex]="collapsed() ? -1 : null"
             appInput
             class="w-full"
           />
@@ -214,6 +229,7 @@ let nextId = 0;
                 [id]="id('country')"
                 formControlName="country"
                 autocomplete="country"
+                [attr.tabindex]="collapsed() ? -1 : null"
                 appInput
                 class="w-full"
               >
@@ -224,7 +240,7 @@ let nextId = 0;
             </app-select-field>
           </div>
         }
-      }
+      </div>
 
       <!-- Always on screen, not revealed by a failure: there is then no state
            a customer can be stuck in, and nothing here has to detect one. -->
@@ -298,6 +314,16 @@ export class AddressFields {
    * own, so the two states line up. */
   protected readonly streetRow = computed(() =>
     this.collapsed() ? 'grid gap-6 sm:grid-cols-2' : 'grid gap-6',
+  );
+
+  /** Where the rest of the fields sit. Off to the left of the page while the
+   * form is collapsed — still laid out, still fillable, just nowhere anyone
+   * can see them. Left rather than up: a page does not scroll to what is
+   * beyond its left edge. */
+  protected readonly restClass = computed(() =>
+    this.collapsed()
+      ? 'absolute -left-[9999px] top-0 w-80 space-y-4'
+      : 'space-y-4',
   );
 
   /**

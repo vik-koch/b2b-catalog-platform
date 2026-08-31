@@ -141,7 +141,10 @@ const delivery = deliveryConfigSchema.parse({
   ],
 });
 
-function service(db: NodePgDatabase<typeof schema>) {
+function service(
+  db: NodePgDatabase<typeof schema>,
+  billingAddressEnabled = true,
+) {
   const addresses = { assertValid: jest.fn() } as unknown as AddressesService;
   // The mails are sent from a placed order and never allowed to fail it; what
   // they say is the templates' own suite.
@@ -156,6 +159,7 @@ function service(db: NodePgDatabase<typeof schema>) {
     { prefix: 'CK', timezone: 'UTC' },
     'EUR',
     (value: string) => /^DE[0-9]{9}$/.test(value),
+    billingAddressEnabled,
     notifications,
   );
 }
@@ -171,8 +175,10 @@ const address = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-/** What a guest submits: nobody to resolve a party from, so they name one. */
+/** What a guest submits: nobody to resolve a party from, so they name one. A
+ * private person, so cash is the method that goes with it. */
 const guestParty = { name: 'Ada Byron', registrationId: null };
+const asGuest = { party: guestParty, paymentMethod: 'cash' } as const;
 
 const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
   ({
@@ -185,7 +191,9 @@ const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
     deliveryAddress: address(),
     pickupLocationKey: null,
     billingAddress: address(),
-    paymentMethod: 'cash',
+    // The fixture's default party is the account's own, and that account is a
+    // company — which is invoiced rather than paying cash (FR-CART-04).
+    paymentMethod: 'bank-transfer',
     preferredDate: null,
     customerNote: null,
     expectedTotalMinor: 3998,
@@ -234,7 +242,7 @@ describe('OrdersService.submit', () => {
         fulfilmentMethod: 'pickup',
         deliveryAddress: null,
         pickupLocationKey: 'speicherstadt',
-        party: guestParty,
+        ...asGuest,
       }),
       null,
       null,
@@ -261,11 +269,7 @@ describe('OrdersService.submit', () => {
       .mockReturnValueOnce('CK-260824-0001')
       .mockReturnValueOnce('CK-260824-0002');
 
-    const placed = await service(db).submit(
-      submission({ party: guestParty }),
-      null,
-      null,
-    );
+    const placed = await service(db).submit(submission(asGuest), null, null);
 
     expect(attempted).toEqual(['CK-260824-0001', 'CK-260824-0002']);
     expect(placed.reference).toBe('CK-260824-0002');
@@ -277,7 +281,7 @@ describe('OrdersService.submit', () => {
     const { db } = testDb(99);
 
     await expect(
-      service(db).submit(submission({ party: guestParty }), null, null),
+      service(db).submit(submission(asGuest), null, null),
     ).rejects.toThrow(/free order reference/);
   });
 
@@ -286,7 +290,7 @@ describe('OrdersService.submit', () => {
 
     await expect(
       service(db).submit(
-        submission({ expectedTotalMinor: 1999, party: guestParty }),
+        submission({ ...asGuest, expectedTotalMinor: 1999 }),
         null,
         null,
       ),
@@ -308,6 +312,38 @@ describe('OrdersService.submit', () => {
     });
   });
 
+  it('refuses cash for an order invoiced to a company', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(submission({ paymentMethod: 'cash' }), 'user-1', null),
+    ).rejects.toMatchObject({ response: { code: 'cash-not-available' } });
+  });
+
+  // The deployment's answer, not the browser's: a form drawn from an older
+  // config would send one, and the order must not carry an address the shop
+  // does not invoice to.
+  it('stores no billing address where the deployment invoices none', async () => {
+    const { db, orderRows } = testDb();
+
+    await service(db, false).submit(submission(), 'user-1', null);
+
+    expect(orderRows()[0]).toMatchObject({
+      billingStreet: null,
+      billingPostalCode: null,
+      billingCity: null,
+      billingCountry: null,
+    });
+  });
+
+  it('refuses a submission with no billing address where it invoices one', async () => {
+    const { db } = testDb();
+
+    await expect(
+      service(db).submit(submission({ billingAddress: null }), 'user-1', null),
+    ).rejects.toMatchObject({ response: { code: 'billing-address-required' } });
+  });
+
   it('reads the party off the account where the order names none', async () => {
     const { db, orderRows } = testDb();
 
@@ -322,7 +358,10 @@ describe('OrdersService.submit', () => {
   it('invoices a private customer by name, whatever else their record carries', async () => {
     // A customer who registered as a person keeps their own name on the
     // invoice: the type is the answer, not whichever field is not empty.
-    const { db, orderRows } = testDb(0, { customerType: 'person' });
+    const { db, orderRows } = testDb(0, {
+      customerType: 'person',
+      companyRegistrationId: null,
+    });
 
     await service(db).submit(
       submission({ paymentMethod: 'cash' }),
@@ -379,7 +418,7 @@ describe('OrdersService.submit', () => {
           fulfilmentMethod: 'pickup',
           deliveryAddress: null,
           pickupLocationKey: 'no-such-office',
-          party: guestParty,
+          ...asGuest,
         }),
         null,
         null,

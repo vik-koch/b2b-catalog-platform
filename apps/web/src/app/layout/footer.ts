@@ -15,7 +15,7 @@ import { ScrollToTop } from './scroll-to-top';
       [class.border-t]="!seamless()"
       [class.border-border]="!seamless()"
     >
-      <div class="mx-auto w-full max-w-7xl px-4 py-6 text-sm">
+      <div class="mx-auto w-full max-w-[82rem] px-4 py-6 text-sm">
         <div
           class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
         >

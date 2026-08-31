@@ -174,7 +174,8 @@ export const orderSeeds: OrderSeed[] = [
     placedOn: '2026-08-17',
     email: 'office@hafenkantine.example',
     status: 'requested',
-    paymentMethod: 'cash',
+    // A company, so never cash (FR-CART-04).
+    paymentMethod: 'card-later',
     contactName: 'Marlene Suhr',
     contactEmail: 'office@hafenkantine.example',
     contactPhone: '+494012010003',

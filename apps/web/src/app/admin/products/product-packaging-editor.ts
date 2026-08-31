@@ -94,7 +94,7 @@ export function parseCount(text: string): number | null {
                    and the focus ring is drawn around the pair — so the cell
                    behaves as one field, like the attribute grid's. -->
               <td
-                class="border border-border-strong p-0 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-secondary"
+                class="border border-border-strong p-0 focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
                 [class]="row.disabled ? 'bg-stone-100' : 'bg-white'"
               >
                 <div class="flex items-center">

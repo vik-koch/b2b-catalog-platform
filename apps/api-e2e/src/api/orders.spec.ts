@@ -176,7 +176,9 @@ const submission = (overrides: Record<string, unknown> = {}) => ({
   deliveryAddress: address(),
   pickupLocationKey: null,
   billingAddress: address(),
-  paymentMethod: 'cash',
+  // The default party is a company, which is invoiced rather than paying cash
+  // (FR-CART-04).
+  paymentMethod: 'bank-transfer',
   preferredDate: null,
   customerNote: null,
   expectedTotalMinor: BASE_MINOR * 2,
@@ -548,6 +550,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       expect(res.status).toBe(400);
       expect(res.data.code).toBe('billing-details-required');
+    });
+
+    it('refuses cash for an order invoiced to a company', async () => {
+      const res = await post('/orders', submission({ paymentMethod: 'cash' }));
+
+      expect(res.status).toBe(400);
+      expect(res.data.code).toBe('cash-not-available');
     });
 
     // The same rule registration is checked against — a picker and a mask are

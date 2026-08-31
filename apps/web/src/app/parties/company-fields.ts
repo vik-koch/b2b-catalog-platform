@@ -39,35 +39,37 @@ export interface CompanyFieldsText extends SuggestListText {
   imports: [PartySuggestField],
   host: { class: 'block' },
   template: `
-    <div class="grid gap-x-6 gap-y-1 sm:grid-cols-[10rem_1fr]">
-      <app-party-suggest-field
-        [inputId]="idInputId()"
-        [control]="idControl()"
-        [label]="text().idLabel"
-        [text]="suggestText()"
-        [required]="required()"
-        [optionalLabel]="text().optional"
-        [invalid]="idInvalid()"
-        (picked)="picked.emit($event)"
-      />
+    <div>
+      <div class="grid gap-6 sm:grid-cols-[10rem_1fr]">
+        <app-party-suggest-field
+          [inputId]="idInputId()"
+          [control]="idControl()"
+          [label]="text().idLabel"
+          [text]="suggestText()"
+          [required]="required()"
+          [optionalLabel]="text().optional"
+          [invalid]="idInvalid()"
+          (picked)="picked.emit($event)"
+        />
 
-      <app-party-suggest-field
-        [inputId]="nameInputId()"
-        autocomplete="organization"
-        [control]="nameControl()"
-        [label]="text().nameLabel"
-        [text]="suggestText()"
-        [required]="required()"
-        [optionalLabel]="text().optional"
-        [invalid]="nameInvalid()"
-        (picked)="picked.emit($event)"
-      />
+        <app-party-suggest-field
+          [inputId]="nameInputId()"
+          autocomplete="organization"
+          [control]="nameControl()"
+          [label]="text().nameLabel"
+          [text]="suggestText()"
+          [required]="required()"
+          [optionalLabel]="text().optional"
+          [invalid]="nameInvalid()"
+          (picked)="picked.emit($event)"
+        />
+      </div>
 
       <!-- Gone entirely when there is nothing to say, rather than an empty
            grid row: with no hint configured it would still take the row gap,
            and the notice under a company would sit lower than under a
            person. -->
-      <div class="empty:hidden sm:col-span-2">
+      <div class="empty:hidden mt-1">
         @for (message of messages(); track message) {
           <p class="text-sm text-red-600">{{ message }}</p>
         } @empty {

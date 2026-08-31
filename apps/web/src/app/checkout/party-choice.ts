@@ -7,7 +7,7 @@ import { CompanyFields } from '../parties/company-fields';
 import { ChoiceBranch } from '../ui/choice-branch';
 import { Input } from '../ui/input';
 import { FieldLabel } from '../ui/field-label';
-import { SEGMENTED_GROUP, segmentClass } from '../ui/segmented';
+import { Segmented, SegmentOption } from '../ui/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
 
 /**
@@ -40,6 +40,7 @@ import { PartyChoice as Party } from './checkout-draft.service';
     FieldLabel,
     Input,
     ReactiveFormsModule,
+    Segmented,
   ],
   host: { class: 'block' },
   template: `
@@ -83,21 +84,12 @@ import { PartyChoice as Party } from './checkout-draft.service';
 
       <ng-template #otherParty>
         <div class="space-y-4">
-          <div role="radiogroup" [class]="group">
-            @for (kind of kinds; track kind) {
-              <label [class]="segment(kind)">
-                <input
-                  type="radio"
-                  class="sr-only"
-                  name="party-kind"
-                  [value]="kind"
-                  [checked]="party() === kind"
-                  (change)="partyChange.emit(kind)"
-                />
-                {{ kind === 'person' ? text.person : text.company }}
-              </label>
-            }
-          </div>
+          <app-segmented
+            name="party-kind"
+            [options]="kinds"
+            [value]="party()"
+            (chosen)="partyChange.emit($event)"
+          />
 
           @if (party() === 'person') {
             <div>
@@ -150,8 +142,12 @@ export class PartyChoice {
   private readonly registerText = inject(APP_TEXT).auth.register;
 
   protected readonly text = inject(APP_TEXT).checkout.party;
-  protected readonly kinds = ['person', 'company'] as const;
-  protected readonly group = SEGMENTED_GROUP;
+  /** Typed as the whole choice, not just these two: the pill hands back
+   * what the page holds, and the page also knows about the account. */
+  protected readonly kinds: readonly SegmentOption<Party>[] = [
+    { value: 'person', label: this.text.person },
+    { value: 'company', label: this.text.company },
+  ];
   protected readonly companyText = {
     ...this.registerText.companySuggest,
     idLabel: this.registerText.companyId,
@@ -191,8 +187,4 @@ export class PartyChoice {
 
   readonly partyChange = output<Party>();
   readonly picked = output<PartySuggestion>();
-
-  protected segment(kind: Party): string {
-    return segmentClass(this.party() === kind ? 'selected' : 'available');
-  }
 }

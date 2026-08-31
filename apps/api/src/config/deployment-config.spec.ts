@@ -9,10 +9,13 @@ import {
 
 const branding = { name: 'Shop', theme: { primary: '#000000' } };
 
+/** Required of every config, and beside the point of every test here. */
+const required = { billingAddressEnabled: true };
+
 /** Points DEPLOYMENT_CONFIG_FILE at a config written for this test. */
 function withConfig(config: Record<string, unknown>): void {
   const file = join(mkdtempSync(join(tmpdir(), 'deployment-')), 'config.json');
-  writeFileSync(file, JSON.stringify({ branding, ...config }));
+  writeFileSync(file, JSON.stringify({ branding, ...required, ...config }));
   process.env['DEPLOYMENT_CONFIG_FILE'] = file;
   resetApiDeploymentConfig();
 }

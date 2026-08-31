@@ -61,7 +61,7 @@ export type AddressSuggestFieldText = SuggestListText;
 
       @if (list.panelOpen()) {
         <div
-          class="absolute top-full right-0 left-0 z-20 mt-1 overflow-hidden rounded-md border border-border-strong bg-white py-1 shadow-lg"
+          class="absolute top-full left-0 z-20 mt-1 w-full max-w-[calc(100vw-2rem)] min-w-[26rem] overflow-hidden rounded-md border border-border-strong bg-white py-1 shadow-lg"
         >
           @if (list.suggestions().length === 0) {
             <p class="px-3 py-2 text-sm text-subtle">

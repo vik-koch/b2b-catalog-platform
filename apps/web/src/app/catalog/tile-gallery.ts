@@ -74,7 +74,7 @@ const SWIPE_THRESHOLD_PX = 30;
             <span
               class="h-0.5 flex-1 rounded-full transition-colors"
               [class.bg-white]="$index === selected()"
-              [class.bg-white/50]="$index !== selected()"
+              [class.bg-border-strong]="$index !== selected()"
             ></span>
           }
         </div>

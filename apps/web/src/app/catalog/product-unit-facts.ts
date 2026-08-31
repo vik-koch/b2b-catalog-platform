@@ -27,11 +27,11 @@ import { useProductUnits } from './product-units-view';
   host: { class: 'block text-xs leading-snug text-subtle' },
   template: `
     @if (shows('minimum')) {
-      <p>{{ minimum() }}</p>
+      <p class="tracking-tight">{{ minimum() }}</p>
     }
     @if (shows('packaging')) {
       @if (packaging(); as line) {
-        <p>{{ line }}</p>
+        <p class="tracking-tight">{{ line }}</p>
       }
     }
   `,

@@ -14,7 +14,11 @@ function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
   const config = join(dir, 'config.json');
   writeFileSync(
     config,
-    JSON.stringify({ branding: { name, theme: { primary: '#000' } } }),
+    JSON.stringify({
+      branding: { name, theme: { primary: '#000' } },
+      // Required of every config, and beside the point of this spec.
+      billingAddressEnabled: true,
+    }),
   );
   process.env['DEPLOYMENT_CONFIG_FILE'] = config;
 

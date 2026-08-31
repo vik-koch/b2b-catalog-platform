@@ -187,7 +187,10 @@
     },
     "timing": {
       "deliveryLabel": "Preferred delivery date",
-      "pickupLabel": "Preferred collection date"
+      "pickupLabel": "Preferred collection date",
+      "deliveryHint": "Your preference only: the actual delivery date will be confirmed by a manager.",
+      "pickupHint": "Your preference only: the actual collection date will be confirmed by a manager.",
+      "unavailable": "We cannot manage that day. Please choose a working day from the next one onwards."
     },
     "payment": {
       "heading": "How would you like to pay?",
@@ -196,7 +199,8 @@
       "cashPickupDescription": "Pay when you collect your order.",
       "transferTitle": "Bank transfer",
       "transferDescription": "We invoice you with our bank details once we confirm your order.",
-      "transferCompanyOnly": "Only for an order invoiced to a company."
+      "transferCompanyOnly": "Only for an order invoiced to a company.",
+      "cashPersonOnly": "Only for an order invoiced to a private person."
     },
     "note": {
       "label": "Anything we should know?",
@@ -235,6 +239,7 @@
       "invalidPostalCode": "That postcode does not look right for the country you chose. Please check it.",
       "unknownPickupLocation": "That collection point is no longer available. Please choose another.",
       "billingDetailsRequired": "Bank transfer needs a company to invoice. Please choose another party or another way to pay.",
+      "cashNotAvailable": "We cannot take cash for an order invoiced to a company. Please pay by bank transfer.",
       "partyRequired": "Please tell us who we should invoice.",
       "rejected": "We could not accept this order. Please try again.",
       "cartChanged": "Prices or quantities in your cart changed while you were filling this in — please check your order and send it again.",

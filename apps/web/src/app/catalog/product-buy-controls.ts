@@ -666,7 +666,7 @@ export class ProductBuyControls {
    *
    * Measured on the column these controls were given rather than on the line,
    * because they are not the same width: the cart's tick box comes off the
-   * line first. The threshold is exactly what two columns cost — 13rem each
+   * line first. The threshold is exactly what two columns cost — 13.5rem each
    * and the gap between them — so they pair the moment they fit.
    *
    * Stacked, the single column fills what it was given. Capping it made a line
@@ -674,7 +674,7 @@ export class ProductBuyControls {
    * the same thing.
    */
   protected readonly rowGrid =
-    'grid grid-cols-1 @min-[27.5rem]/body:grid-cols-[13rem_13rem] @min-[27.5rem]/body:gap-x-6';
+    'grid grid-cols-1 @min-[28.5rem]/body:grid-cols-[13.5rem_13.5rem] @min-[28.5rem]/body:gap-x-6';
 
   /**
    * Where each block sits, and what it stands off from what is above it.
@@ -688,32 +688,35 @@ export class ProductBuyControls {
     // the segments beside it are a pill, and starting at the same edge is not
     // the same as sitting on the same axis.
     price:
-      '@min-[27.5rem]/body:col-start-2 @min-[27.5rem]/body:row-start-1 @min-[27.5rem]/body:mt-0.5',
+      '@min-[28.5rem]/body:col-start-2 @min-[28.5rem]/body:row-start-1 @min-[28.5rem]/body:mt-0.5',
     units:
-      'mt-2 @min-[27.5rem]/body:col-start-1 @min-[27.5rem]/body:row-start-1 @min-[27.5rem]/body:mt-0',
+      'mt-2 @min-[28.5rem]/body:col-start-1 @min-[28.5rem]/body:row-start-1 @min-[28.5rem]/body:mt-0',
     // The stepper follows its pill as closely as it does on a card, and the
     // action follows the price by exactly as much — they share a grid row, so
     // what one stands off by is what keeps the two columns on one axis.
     stepper:
-      'mt-1 @min-[27.5rem]/body:col-start-1 @min-[27.5rem]/body:row-start-2 @min-[27.5rem]/body:mt-1',
+      'mt-1 @min-[28.5rem]/body:col-start-1 @min-[28.5rem]/body:row-start-2 @min-[28.5rem]/body:mt-1',
     // The facts stand off the block above them by as much as a card's do,
     // either way round: they are a caption, and a caption crowding what it
     // captions reads as part of it.
     minimum:
-      'mt-2 @min-[27.5rem]/body:col-start-1 @min-[27.5rem]/body:row-start-3',
+      'mt-2 @min-[28.5rem]/body:col-start-1 @min-[28.5rem]/body:row-start-3',
     // Under the minimum while the blocks are stacked (the two facts read as
     // one small block there), under the price and the button once they are
     // not — a packaging line qualifies the price it sits with.
     packaging:
-      '@min-[27.5rem]/body:col-start-2 @min-[27.5rem]/body:row-start-3 @min-[27.5rem]/body:mt-2',
+      '@min-[28.5rem]/body:col-start-2 @min-[28.5rem]/body:row-start-3 @min-[28.5rem]/body:mt-2',
     // The same offset as the stepper it sits beside, so the two start on one
     // axis; only the price needs the half-step, being text against a pill.
     action:
-      'mt-2 @min-[27.5rem]/body:col-start-2 @min-[27.5rem]/body:row-start-2 @min-[27.5rem]/body:mt-1',
+      'mt-2 @min-[28.5rem]/body:col-start-2 @min-[28.5rem]/body:row-start-2 @min-[28.5rem]/body:mt-1',
   } as const;
 
   protected readonly segment = (unit: ProductUnit): string =>
-    segmentClass(this.segmentState(unit), true, !this.available());
+    segmentClass(this.segmentState(unit), {
+      grow: true,
+      locked: !this.available(),
+    });
 
   /**
    * The row's height is set here rather than left to the field, so the ends can
@@ -723,7 +726,7 @@ export class ProductBuyControls {
    */
   protected readonly stepperGroup = computed(
     () =>
-      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch rounded-md border border-border-strong ${
+      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch rounded-md border border-border-strong has-[input:focus-visible]:border-secondary ${
         this.compact() ? 'h-9' : 'h-10'
       }`,
   );
@@ -741,8 +744,14 @@ export class ProductBuyControls {
         this.compact() ? 'w-9' : 'w-10'
       }`,
   );
-  /** Everything the ends leave over. No ring of its own: it is welded into a
-   * row that is already outlined. */
+  /**
+   * Everything the ends leave over. No ring of its own — it is welded into a
+   * row, and a ring around the middle of one draws lines through it. What it
+   * does instead is what every other field does: its two edges recolour, from
+   * the app-wide rule, and the group's border recolours with them (see
+   * stepperGroup), so the whole control says it has the caret rather than the
+   * slice between the keys.
+   */
   protected readonly quantityField = computed(
     () =>
       `h-full w-full min-w-0 rounded-none border-x border-y-0 border-border-strong px-1 py-0 text-center focus-visible:outline-none ${

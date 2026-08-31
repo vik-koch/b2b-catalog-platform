@@ -466,6 +466,13 @@ export const appTextSchema = z
           .object({
             deliveryLabel: z.string(),
             pickupLabel: z.string(),
+            /** Which days are on offer, in words: a native picker can grey out
+             * what falls before the floor but not every weekend after it. */
+            deliveryHint: z.string(),
+            pickupHint: z.string(),
+            /** Shown in the hint's place when the field holds a day the shop
+             * does not offer. */
+            unavailable: z.string(),
           })
           .strict(),
         /**
@@ -488,6 +495,9 @@ export const appTextSchema = z
              * invoices a legal entity, so it needs a company party. Said at
              * the row rather than refused after the form is filled. */
             transferCompanyOnly: z.string(),
+            /** The same rule read the other way: cash is not taken from a
+             * company, which is invoiced or pays by card. */
+            cashPersonOnly: z.string(),
           })
           .strict(),
         /** Anything the customer wants to say in words, copied onto the order
@@ -570,6 +580,8 @@ export const appTextSchema = z
             invalidPostalCode: z.string(),
             unknownPickupLocation: z.string(),
             billingDetailsRequired: z.string(),
+            /** Cash was sent for an order invoiced to a company. */
+            cashNotAvailable: z.string(),
             partyRequired: z.string(),
             rejected: z.string(),
             /** Staff do not buy. Shown before the button is ever pressed as
