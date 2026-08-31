@@ -9,6 +9,7 @@ import {
 import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { Button } from '../ui/button';
+import { FRAME, FRAME_SELECTED } from '../ui/frame';
 import { ImagePlaceholder } from './image-placeholder';
 
 /** Thumbnails kept on screen before the show-more toggle reveals the rest —
@@ -36,10 +37,7 @@ const THUMBS_COLLAPSED = 5;
   imports: [ImagePlaceholder, Button],
   template: `
     <div class="flex min-w-0 flex-col gap-3">
-      <div
-        data-main-image
-        class="aspect-square overflow-hidden rounded-xl bg-stone-100"
-      >
+      <div data-main-image [class]="mainImage">
         @if (current(); as img) {
           @if (failed().has(img.full)) {
             <app-image-placeholder [label]="productName()" />
@@ -66,9 +64,7 @@ const THUMBS_COLLAPSED = 5;
             <li>
               <button
                 type="button"
-                class="block aspect-square w-full overflow-hidden rounded-md border-2 transition-colors"
-                [class.border-accent]="$index === selected()"
-                [class.border-transparent]="$index !== selected()"
+                [class]="thumb($index === selected())"
                 [attr.aria-current]="$index === selected() || null"
                 [attr.aria-label]="thumbLabel($index)"
                 (click)="selected.set($index)"
@@ -109,6 +105,11 @@ const THUMBS_COLLAPSED = 5;
 })
 export class ProductGallery {
   protected readonly text = inject(APP_TEXT).catalog;
+
+  /** Framed like a photo in a listing: the same hairline, at the radius the
+   * page's largest image is given. */
+  protected readonly mainImage = `aspect-square overflow-hidden rounded-xl bg-stone-100 ${FRAME}`;
+
   protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;
 
   /** Only ever true on a narrow screen: from `sm` up every row is on screen and
@@ -142,6 +143,17 @@ export class ProductGallery {
 
   protected markFailed(src: string): void {
     this.failed.update((set) => new Set(set).add(src));
+  }
+
+  /** Every thumbnail carries the hairline the photos elsewhere have; the
+   * chosen one wears it at accent, two pixels wide. Weight rather than colour
+   * alone, so which one is chosen survives a page of photos that are already
+   * the accent's colour — and outwards, so the photo inside is the same size
+   * whichever one is chosen. */
+  protected thumb(selected: boolean): string {
+    return `block aspect-square w-full overflow-hidden rounded-md transition-shadow ${
+      selected ? FRAME_SELECTED : FRAME
+    }`;
   }
 
   protected thumbLabel(index: number): string {

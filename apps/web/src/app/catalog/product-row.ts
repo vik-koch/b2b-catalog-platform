@@ -2,6 +2,7 @@ import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { BuyableProduct, ProductBuyControls } from './product-buy-controls';
+import { FRAME } from '../ui/frame';
 import { TileGallery } from './tile-gallery';
 
 /** The classes a list of product rows uses: hairlines between the lines, and
@@ -78,14 +79,12 @@ export interface RowProduct extends BuyableProduct {
              cluster in *its* corner sits on top of the controls.
 
              Framed like the photo on a card, and for the same reason: a shot
-             on a white ground has no edge of its own. The frame is on a
-             pseudo-element, since an inset ring here would be painted under
-             the photo filling it. -->
+             on a white ground has no edge of its own. -->
         <div
-          class="relative flex w-[min(7.75rem,100%_-_29.5rem)] shrink-0 after:pointer-events-none after:absolute after:inset-0 after:rounded-md after:inset-ring-1 after:inset-ring-border @max-[593px]/line:w-auto @max-[593px]/line:min-w-16 @max-[593px]/line:max-w-48 @max-[593px]/line:flex-1 @max-[593px]/line:shrink @min-[47.5rem]/row:w-24"
+          class="relative flex w-[min(7.75rem,100%_-_29.5rem)] shrink-0 @max-[593px]/line:w-auto @max-[593px]/line:min-w-16 @max-[593px]/line:max-w-48 @max-[593px]/line:flex-1 @max-[593px]/line:shrink @min-[47.5rem]/row:w-24"
         >
           <app-tile-gallery
-            class="block aspect-square w-full overflow-hidden rounded-md"
+            [class]="photo"
             [images]="item().images"
             [link]="link()"
             [productName]="item().name"
@@ -160,6 +159,9 @@ export interface RowProduct extends BuyableProduct {
   `,
 })
 export class ProductRow {
+  /** The frame is on the gallery itself, which is what clips the photo. */
+  protected readonly photo = `block aspect-square w-full overflow-hidden rounded-md ${FRAME}`;
+
   readonly item = input.required<RowProduct>();
   /** False in a preview: the row is there to show what a visitor will see,
    * not to fill a manager's own cart. */

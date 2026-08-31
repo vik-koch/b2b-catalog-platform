@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 import { ProductBuyControls } from './product-buy-controls';
 import { ProductUnitFacts } from './product-unit-facts';
+import { FRAME } from '../ui/frame';
 import { TileGallery } from './tile-gallery';
 
 /**
@@ -75,9 +76,7 @@ export const PRODUCT_GRID =
   imports: [RouterLink, TileGallery, ProductBuyControls, ProductUnitFacts],
   host: { class: 'h-full' },
   template: `
-    <div
-      class="group relative flex h-full flex-col rounded-lg bg-white inset-ring-1 inset-ring-border transition-shadow hover:shadow-md @max-[593px]/listing:flex-row @max-[593px]/listing:items-stretch @max-[593px]/listing:gap-4 @max-[593px]/listing:rounded-none @max-[593px]/listing:inset-ring-0 @max-[593px]/listing:bg-transparent @max-[593px]/listing:py-4 @max-[593px]/listing:hover:shadow-none"
-    >
+    <div [class]="card">
       <ng-content />
       <!-- The clipping lives here, not on the card: the card has to let the
            stepper's bubble hang below its edge. -->
@@ -125,5 +124,13 @@ export const PRODUCT_GRID =
   `,
 })
 export class ProductTile {
+  /** The card's own hairline, which is also the frame around the photo at its
+   * top — the photo is flush with three of the card's edges. Dropped in the
+   * narrow shape, where the card is a line with nothing drawn around it. */
+  protected readonly card =
+    'group relative flex h-full flex-col rounded-lg bg-white transition-shadow hover:shadow-md ' +
+    FRAME +
+    ' @max-[593px]/listing:flex-row @max-[593px]/listing:items-stretch @max-[593px]/listing:gap-4 @max-[593px]/listing:rounded-none @max-[593px]/listing:ring-0 @max-[593px]/listing:bg-transparent @max-[593px]/listing:py-4 @max-[593px]/listing:hover:shadow-none';
+
   readonly item = input.required<ProductListItem>();
 }
