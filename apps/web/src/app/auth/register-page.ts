@@ -25,6 +25,7 @@ import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
 import { AuthService } from './auth.service';
 import { Checkbox } from '../ui/checkbox';
+import { Segmented, SegmentOption } from '../ui/segmented';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -55,6 +56,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     FieldLabel,
     Input,
     PhoneField,
+    Segmented,
   ],
   template: `
     <app-auth-card>
@@ -80,29 +82,11 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
         >
           <fieldset>
             <legend appFieldLabel>{{ text.register.customerType }}</legend>
-            <div
-              role="radiogroup"
-              class="inline-flex gap-1 rounded-lg border border-border-strong bg-white p-1"
-            >
-              <label [class]="segClass('person')">
-                <input
-                  type="radio"
-                  class="sr-only"
-                  formControlName="customerType"
-                  value="person"
-                />
-                {{ text.register.person }}
-              </label>
-              <label [class]="segClass('company')">
-                <input
-                  type="radio"
-                  class="sr-only"
-                  formControlName="customerType"
-                  value="company"
-                />
-                {{ text.register.company }}
-              </label>
-            </div>
+            <app-segmented
+              [options]="customerTypes"
+              size="md"
+              formControlName="customerType"
+            />
           </fieldset>
 
           <div class="grid gap-6 sm:grid-cols-2">
@@ -251,6 +235,10 @@ export class RegisterPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
   protected readonly text = inject(APP_TEXT).auth;
+  protected readonly customerTypes: readonly SegmentOption<CustomerType>[] = [
+    { value: 'person', label: this.text.register.person },
+    { value: 'company', label: this.text.register.company },
+  ];
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;
   private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
@@ -307,17 +295,6 @@ export class RegisterPage {
         this.customerType.set(type);
         this.applyValidators(type);
       });
-  }
-
-  // Segmented control: the selected kind fills with the theme primary.
-  protected segClass(value: CustomerType): string {
-    const base =
-      'cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary';
-    const state =
-      this.customerType() === value
-        ? 'bg-primary text-white'
-        : 'text-ink hover:bg-stone-100';
-    return `${base} ${state}`;
   }
 
   /**

@@ -13,6 +13,7 @@ import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
+import { Segmented, SegmentOption } from '../ui/segmented';
 import { InquiryService } from './inquiry.service';
 import { Checkbox } from '../ui/checkbox';
 
@@ -35,6 +36,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     FieldLabel,
     Input,
     PhoneField,
+    Segmented,
   ],
   template: `
     <div class="max-w-xl">
@@ -79,29 +81,11 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             <legend appFieldLabel>
               {{ text.preferredContact }}
             </legend>
-            <div
-              role="radiogroup"
-              class="inline-flex gap-1 rounded-lg border border-border-strong bg-white p-1"
-            >
-              <label [class]="segClass('email')">
-                <input
-                  type="radio"
-                  class="sr-only"
-                  formControlName="preferredContact"
-                  value="email"
-                />
-                {{ text.preferredEmail }}
-              </label>
-              <label [class]="segClass('phone')">
-                <input
-                  type="radio"
-                  class="sr-only"
-                  formControlName="preferredContact"
-                  value="phone"
-                />
-                {{ text.preferredPhone }}
-              </label>
-            </div>
+            <app-segmented
+              [options]="contactChannels"
+              size="md"
+              formControlName="preferredContact"
+            />
           </fieldset>
 
           <!-- Whichever channel was picked is the required one; the other stays
@@ -196,6 +180,11 @@ export class InquiryPage {
   private readonly inquiry = inject(InquiryService);
 
   protected readonly text = inject(APP_TEXT).inquiry;
+  protected readonly contactChannels: readonly SegmentOption<PreferredContact>[] =
+    [
+      { value: 'email', label: this.text.preferredEmail },
+      { value: 'phone', label: this.text.preferredPhone },
+    ];
   protected readonly errors = inject(APP_TEXT).errors;
   protected readonly heading = inject(APP_TEXT).nav['inquiry'];
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
@@ -229,22 +218,6 @@ export class InquiryPage {
         this.preferred.set(preferred);
         this.applyPreferredValidators(preferred);
       });
-  }
-
-  // Segmented control: the selected channel fills with the theme primary.
-  protected segClass(value: PreferredContact): string {
-    // The radio itself is sr-only, so the focus treatment has to be borrowed by
-    // its label — the app-wide outline cannot reach a hidden input's label on
-    // its own. `has-[:focus-visible]` rather than `focus-within`: focusing a
-    // radio by clicking it is still focus, so focus-within lit the ring up on
-    // every mouse press. Same 2px secondary, flush, as everything else.
-    const base =
-      'cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-secondary';
-    const state =
-      this.preferred() === value
-        ? 'bg-primary text-white'
-        : 'text-ink hover:bg-stone-100';
-    return `${base} ${state}`;
   }
 
   /**

@@ -9,7 +9,7 @@ import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
-import { SEGMENTED_GROUP, segmentClass } from '../ui/segmented';
+import { Segmented, SegmentOption } from '../ui/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
 
 /**
@@ -35,27 +35,19 @@ import { PartyChoice as Party } from './checkout-draft.service';
     NgTemplateOutlet,
     PhoneField,
     ReactiveFormsModule,
+    Segmented,
   ],
   host: { class: 'block' },
   template: `
     <fieldset class="space-y-4">
       <legend class="mb-2 font-medium">{{ text.heading }}</legend>
 
-      <div role="radiogroup" [class]="group">
-        @for (kind of kinds; track kind) {
-          <label [class]="segment(kind)">
-            <input
-              type="radio"
-              class="sr-only"
-              name="party-kind"
-              [value]="kind"
-              [checked]="party() === kind"
-              (change)="partyChange.emit(kind)"
-            />
-            {{ kind === 'person' ? partyText.person : partyText.company }}
-          </label>
-        }
-      </div>
+      <app-segmented
+        name="party-kind"
+        [options]="kinds"
+        [value]="party()"
+        (chosen)="partyChange.emit($event)"
+      />
 
       <!-- The company first, then who at it we ring: the order is invoiced to
            the one and confirmed with the other, and that is the order they are
@@ -125,8 +117,12 @@ export class GuestDetails {
   protected readonly authText = inject(APP_TEXT).auth;
   protected readonly text = inject(APP_TEXT).checkout.contact;
   protected readonly partyText = inject(APP_TEXT).checkout.party;
-  protected readonly kinds = ['person', 'company'] as const;
-  protected readonly group = SEGMENTED_GROUP;
+  /** Typed as the whole choice, not just these two: the pill hands back
+   * what the page holds, and the page also knows about the account. */
+  protected readonly kinds: readonly SegmentOption<Party>[] = [
+    { value: 'person', label: this.partyText.person },
+    { value: 'company', label: this.partyText.company },
+  ];
 
   /** The same messages the sign-up form shows for the same fields. */
   protected readonly emailText = {
@@ -160,8 +156,4 @@ export class GuestDetails {
 
   readonly partyChange = output<Party>();
   readonly picked = output<PartySuggestion>();
-
-  protected segment(kind: Party): string {
-    return segmentClass(this.party() === kind ? 'selected' : 'available');
-  }
 }

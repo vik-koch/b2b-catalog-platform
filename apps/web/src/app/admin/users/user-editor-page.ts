@@ -39,6 +39,7 @@ import { StaffUsersService } from './users.service';
 import { SelectField } from '../../ui/select-field';
 import { StatusBadge } from '../../ui/status-badge';
 import { userStatusTone } from './user-status';
+import { Segmented, SegmentOption } from '../../ui/segmented';
 
 /**
  * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,
@@ -69,6 +70,7 @@ import { userStatusTone } from './user-status';
     Skeleton,
     SelectField,
     StatusBadge,
+    Segmented,
   ],
   template: `
     <!-- One narrow column for the whole screen, heading included: a full-width
@@ -129,29 +131,11 @@ import { userStatusTone } from './user-status';
           @if (isCustomer()) {
             <fieldset>
               <legend appFieldLabel>{{ text.customerType }}</legend>
-              <div
-                role="radiogroup"
-                class="inline-flex gap-1 rounded-lg border border-border-strong bg-white p-1"
-              >
-                <label [class]="segClass('person')">
-                  <input
-                    type="radio"
-                    class="sr-only"
-                    formControlName="customerType"
-                    value="person"
-                  />
-                  {{ listText.typePerson }}
-                </label>
-                <label [class]="segClass('company')">
-                  <input
-                    type="radio"
-                    class="sr-only"
-                    formControlName="customerType"
-                    value="company"
-                  />
-                  {{ listText.typeCompany }}
-                </label>
-              </div>
+              <app-segmented
+                [options]="customerTypes"
+                size="md"
+                formControlName="customerType"
+              />
             </fieldset>
           }
 
@@ -363,6 +347,10 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly text = inject(ADMIN_TEXT).userEditor;
   /** Shared vocabulary — the same words the list uses for the same things. */
   protected readonly listText = inject(ADMIN_TEXT).userList;
+  protected readonly customerTypes: readonly SegmentOption<CustomerType>[] = [
+    { value: 'person', label: this.listText.typePerson },
+    { value: 'company', label: this.listText.typeCompany },
+  ];
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly baseTierLabel = inject(ADMIN_TEXT).tierList.defaultLabel;
 
@@ -540,17 +528,6 @@ export class UserEditorPage implements UnsavedChangesAware {
 
   private snapshot(): string {
     return JSON.stringify(this.form.getRawValue());
-  }
-
-  // Segmented control: the selected kind fills with the theme primary.
-  protected segClass(value: CustomerType): string {
-    const base =
-      'cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-secondary';
-    const state =
-      this.form.controls.customerType.value === value
-        ? 'bg-primary text-white'
-        : 'text-ink hover:bg-stone-100';
-    return `${base} ${state}`;
   }
 
   /**

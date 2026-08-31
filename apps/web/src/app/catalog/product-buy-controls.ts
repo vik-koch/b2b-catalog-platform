@@ -713,7 +713,10 @@ export class ProductBuyControls {
   } as const;
 
   protected readonly segment = (unit: ProductUnit): string =>
-    segmentClass(this.segmentState(unit), true, !this.available());
+    segmentClass(this.segmentState(unit), {
+      grow: true,
+      locked: !this.available(),
+    });
 
   /**
    * The row's height is set here rather than left to the field, so the ends can
