@@ -91,7 +91,7 @@ describe('CompanyFields', () => {
     const message = [...el.querySelectorAll('p')].find((p) =>
       p.textContent?.includes('expected formats'),
     );
-    expect(message?.parentElement?.className).toContain('col-span-2');
+    expect(message?.closest('.grid')).toBeNull();
   });
 
   it('names every accepted shape in its hint', async () => {

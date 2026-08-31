@@ -260,6 +260,15 @@ function withPickupPoints(count: number): DeploymentConfig {
   };
 }
 
+/**
+ * Whether the compacted address form is asking for the postcode itself. The
+ * field is in the page either way — folded away it sits off-screen and out of
+ * the tab order, so browser autofill can still reach it — so its absence is no
+ * longer the tell.
+ */
+const postcodeShown = (el: HTMLElement): boolean =>
+  el.querySelector('[id$="-postalCode"]')?.getAttribute('tabindex') !== '-1';
+
 describe('CheckoutPage', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -466,7 +475,7 @@ describe('CheckoutPage', () => {
       expect(
         page.el.querySelector('input[autocomplete="street-address"]'),
       ).not.toBeNull();
-      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+      expect(postcodeShown(page.el)).toBe(false);
       // The way out is on screen from the start, not after a provider fails.
       expect(page.text()).toContain(
         defaultAppText.auth.myAccount.addresses.enterManually,
@@ -497,14 +506,14 @@ describe('CheckoutPage', () => {
       );
       const page = await render({ suggests: true, addresses: [] });
 
-      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+      expect(postcodeShown(page.el)).toBe(false);
       expect(page.text()).toContain('20359 Hamburg');
     });
 
     it('opens the rest when the street was typed and nothing resolved', async () => {
       const page = await render({ suggests: true, addresses: [] });
 
-      expect(page.el.querySelector('[id$="-postalCode"]')).toBeNull();
+      expect(postcodeShown(page.el)).toBe(false);
 
       page.type('input[autocomplete="street-address"]', 'Hafenstraße 12');
       page.blur('input[autocomplete="street-address"]');
@@ -512,7 +521,7 @@ describe('CheckoutPage', () => {
 
       // No postcode behind the street line, so the fields it was folding away
       // are the ones the customer now has to fill.
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
     });
 
     it('opens the rest when the order is sent with the address unfinished', async () => {
@@ -520,7 +529,7 @@ describe('CheckoutPage', () => {
 
       await page.review();
 
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
       expect(page.text()).toContain(text.errors.incomplete);
     });
 
@@ -530,7 +539,7 @@ describe('CheckoutPage', () => {
       page.drafts.patch({ deliveryAddressId: null });
       await page.settle();
 
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
       expect(page.text()).not.toContain(
         defaultAppText.auth.myAccount.addresses.enterManually,
       );
@@ -600,7 +609,7 @@ describe('CheckoutPage', () => {
 
       // No list, so no option to tick and nothing to say about an empty book.
       expect(page.text()).not.toContain(text.addresses.addNew);
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
       expect(page.drafts.draft().deliveryAddressId).toBeNull();
     });
   });
@@ -814,7 +823,7 @@ describe('CheckoutPage', () => {
     it('types its own address, with nothing to save it to', async () => {
       const page = await render({ guest: true });
 
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
       expect(page.text()).not.toContain(text.addresses.saveToBook);
     });
 
@@ -918,7 +927,7 @@ describe('CheckoutPage', () => {
       const page = await render({ guest: true });
 
       expect(page.drafts.draft().deliveryAddressId).toBeNull();
-      expect(page.el.querySelector('[id$="-postalCode"]')).not.toBeNull();
+      expect(postcodeShown(page.el)).toBe(true);
     });
 
     it('drops a submission whose honeypot was filled', async () => {
