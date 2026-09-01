@@ -55,7 +55,10 @@ let nextId = 0;
   ],
   host: { class: 'block' },
   template: `
-    <div class="space-y-4" [formGroup]="form().group">
+    <!-- A container, for the suggestion panel under the street: it is allowed
+         to be wider than its own field, but never wider than the form it
+         drops into. -->
+    <div class="@container space-y-4" [formGroup]="form().group">
       @if (showLabel()) {
         <div>
           <label [for]="id('label')" appFieldLabel>

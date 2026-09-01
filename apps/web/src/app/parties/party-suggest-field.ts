@@ -5,7 +5,11 @@ import {
   PartySuggestion,
 } from '@b2b-catalog-platform/shared';
 import { HighlightedLine } from '../core/highlighted-line';
-import { SuggestList, SuggestListText } from '../core/suggest-list';
+import {
+  SUGGEST_PANEL,
+  SuggestList,
+  SuggestListText,
+} from '../core/suggest-list';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PartiesService } from './parties.service';
@@ -68,9 +72,7 @@ let nextId = 0;
         <!-- As wide as the field, but never narrower than a company name and
              the number under it: this field shares a row with the other, so
              its own column is too narrow to read a suggestion in. -->
-        <div
-          class="absolute top-full left-0 z-20 mt-1 w-full max-w-[calc(100vw-2rem)] min-w-[20rem] overflow-hidden rounded-md border border-border-strong bg-white py-1 shadow-lg"
-        >
+        <div [class]="panel">
           @if (list.suggestions().length === 0) {
             <p class="px-3 py-2 text-sm text-subtle">
               {{ text().noSuggestions }}
@@ -131,6 +133,10 @@ export class PartySuggestField {
 
   /** The whole party the customer picked — both fields fill from it. */
   readonly picked = output<PartySuggestion>();
+
+  /** Wide enough for a company's registered name, which the ten-character
+   * number field beside it is nowhere near — where the form has the room. */
+  protected readonly panel = `${SUGGEST_PANEL} min-w-[min(20rem,100cqw)]`;
 
   protected readonly listId = `party-suggestions-${nextId++}`;
 

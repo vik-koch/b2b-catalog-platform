@@ -40,7 +40,9 @@ export interface CompanyFieldsText extends SuggestListText {
   host: { class: 'block' },
   template: `
     <div>
-      <div class="grid gap-6 sm:grid-cols-[10rem_1fr]">
+      <!-- A container, so a suggestion panel under the ten-character number
+           field may cross into the name's column but not past the row. -->
+      <div class="@container grid gap-6 sm:grid-cols-[10rem_1fr]">
         <app-party-suggest-field
           [inputId]="idInputId()"
           [control]="idControl()"
