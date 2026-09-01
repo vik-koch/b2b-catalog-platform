@@ -124,7 +124,9 @@ export const appTextSchema = z
             noMatches: z.string(),
           })
           .strict(),
-        /** Product detail (FR-CAT-05). */
+        /** Product detail (FR-CAT-05). The two headings the page's lower
+         * half is split into, each of which is also its own anchor. */
+        description: z.string(),
         specifications: z.string(),
         productNotFound: z.string(),
         categoryNotFound: z.string(),

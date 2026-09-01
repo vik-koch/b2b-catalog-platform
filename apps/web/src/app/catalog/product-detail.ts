@@ -21,7 +21,7 @@ import { NotFoundView } from '../pages/not-found-view';
 import { CatalogService } from './catalog.service';
 import {
   PRODUCT_PAGE_COLUMNS,
-  PRODUCT_PAGE_INFO_COLUMN,
+  PRODUCT_PAGE_SECTION_CELL,
   ProductDetailView,
 } from './product-detail-view';
 
@@ -43,6 +43,10 @@ import {
     LoadErrorView,
   ],
   template: `
+    <!-- The section keeps the frame's full width, because the edit-mode icons
+         are anchored to its top-right corner and that corner is the same one
+         on every storefront page. The narrower page width belongs to the
+         content inside it (see ProductDetailView). -->
     <section class="relative pb-8 sm:pb-12">
       @if (product.error()) {
         <app-load-error-view [message]="text.loadError" />
@@ -82,7 +86,7 @@ import {
           }
         }
       } @else if (showSkeleton()) {
-        <div class="animate-pulse" aria-hidden="true">
+        <div class="max-w-5xl animate-pulse" aria-hidden="true">
           <!-- The breadcrumb is part of the loaded page, so it is part of the
                placeholder too — otherwise everything below shifts up a row
                when the real content arrives. -->
@@ -91,13 +95,16 @@ import {
           <!-- The page's own columns, so nothing moves sideways when the real
                content arrives. -->
           <div [class]="columns">
-            <div class="aspect-square rounded-xl bg-stone-200"></div>
-            <div [class]="infoColumn + ' space-y-4'">
+            <div
+              class="aspect-square w-full rounded-xl bg-stone-200 md:max-w-120"
+            ></div>
+            <div class="h-64 rounded-xl bg-stone-200"></div>
+            <div [class]="sectionCell + ' space-y-4'">
               <div class="h-4 w-full rounded bg-stone-200"></div>
               <div class="h-4 w-5/6 rounded bg-stone-200"></div>
               <div class="h-4 w-4/6 rounded bg-stone-200"></div>
             </div>
-            <div class="order-2 h-64 rounded-xl bg-stone-200 lg:order-3"></div>
+            <div [class]="sectionCell + ' h-24 rounded bg-stone-200'"></div>
           </div>
         </div>
       }
@@ -111,7 +118,7 @@ export class ProductDetail {
   private readonly router = inject(Router);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly columns = PRODUCT_PAGE_COLUMNS;
-  protected readonly infoColumn = PRODUCT_PAGE_INFO_COLUMN;
+  protected readonly sectionCell = PRODUCT_PAGE_SECTION_CELL;
   protected readonly editorFrom = injectEditorReturnParams();
 
   slug = input.required<string>();

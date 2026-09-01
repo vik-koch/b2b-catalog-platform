@@ -21,9 +21,9 @@ import { ProductUnitFacts } from './product-unit-facts';
  * tile does not have: the packaging facts at full size, and the note where the
  * product asks for one.
  *
- * It sits above the description rather than below it: a description can be
- * arbitrarily long, and the price and the way to buy are what a returning
- * customer came for.
+ * It sits beside the photo, above the description rather than below it: a
+ * description can be arbitrarily long, and the price and the way to buy are
+ * what a returning customer came for.
  *
  * Nothing here is captioned that the control already says. The unit segments
  * read "Piece / Pack / Box" and the quantity is a number with steppers welded
@@ -34,7 +34,12 @@ import { ProductUnitFacts } from './product-unit-facts';
   selector: 'app-product-buy-block',
   imports: [AutoGrow, FieldLabel, Input, ProductBuyControls, ProductUnitFacts],
   template: `
-    <div class="rounded-xl border border-border p-3">
+    <!-- The padding follows the column: at its 15rem floor the panel gives it
+         back, so the controls keep the 13.5rem they have inside a catalogue
+         tile. 11px rather than 12 because the panel is a bordered box and the
+         tile is not — the border is the pixel a side that would otherwise go
+         missing. -->
+    <div class="rounded-xl border border-border p-2.75 @min-[17rem]/buy:p-4">
       <app-product-buy-controls
         [item]="item()"
         [image]="item().images[0]"
