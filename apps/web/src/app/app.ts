@@ -4,6 +4,7 @@ import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
+import { CartFigures } from './cart/cart-figures';
 import { LastListingService } from './catalog/last-listing.service';
 import { CookieConsent } from './consent/cookie-consent';
 import { ForcePasswordChange } from './auth/force-password-change';
@@ -101,5 +102,9 @@ export class App {
     // Starts recording which listing the visitor is standing at, so leaving
     // the cart returns to the shelf rather than to the front of the shop.
     inject(LastListingService);
+
+    // Starts keeping the navbar cart's figures on <html>, where both navbars
+    // and the pre-paint script read them from.
+    inject(CartFigures);
   }
 }

@@ -119,45 +119,7 @@ describe('CartLink', () => {
     expect(view.ariaLabel()).toBe('Cart: 0 lines, 0,00 €');
   });
 
-  it('counts the lines and totals them from what the cart stored', async () => {
-    const view = await render();
-
-    view.cart.add(addition({ pieces: 2 }));
-    view.cart.add(addition({ slug: 'filter-roast', pieces: 1 }));
-    await view.rerender();
-
-    // The chip drops the cents; the spoken label, which costs no width, does
-    // not.
-    expect(view.figures()).toEqual({ count: '2', total: '38 €' });
-    expect(view.ariaLabel()).toBe('Cart: 2 lines, 37,50 €');
-  });
-
-  // A fraction that is not zero cannot be dropped without losing money on
-  // screen; a whole amount can, and usually should.
-  it('writes a whole total without its decimals', async () => {
-    const view = await render();
-
-    view.cart.add(addition({ pieces: 2, prices: wholePrices }));
-    await view.rerender();
-
-    expect(view.figures()?.total).toBe('20 €');
-  });
-
-  // Emptying the cart has to put the label back — the stylesheet keys the swap
-  // on the class, so leaving it behind would leave an empty chip in the navbar.
-  it('takes the figures down again when the cart is emptied', async () => {
-    const view = await render();
-    view.cart.add(addition());
-    await view.rerender();
-
-    view.cart.clear();
-    await view.rerender();
-
-    expect(view.figures()).toBeNull();
-    expect(view.text()).toBe(text.navLabel);
-  });
-
-  // The server cannot read localStorage, so anything it emitted would be an
+  // The server cannot read localStorage, so anything it announced would be an
   // empty cart the hydrated app immediately contradicts.
   it('emits no figures at all on the server', async () => {
     const view = await render('server');

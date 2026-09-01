@@ -129,30 +129,4 @@ export class CartLink {
       total: formatPriceMinor(this.cart.totalMinor(), this.currency),
     }),
   );
-
-  constructor() {
-    if (!this.isBrowser) return;
-    effect(() => writeCartFigures(this.count(), this.total()));
-  }
-}
-
-/**
- * The one writer of the cart's presentation state after the first paint — the
- * inline script is the other, and they agree on all three values by
- * construction. Emptying the cart takes the class off again, which is what
- * puts the "Cart" label back.
- */
-function writeCartFigures(count: number, total: string): void {
-  const root = document.documentElement;
-  if (count === 0) {
-    root.classList.remove('cart-filled');
-    root.style.removeProperty('--cart-count');
-    root.style.removeProperty('--cart-total');
-    return;
-  }
-  // JSON quoting, because `content` takes a CSS string and the total carries
-  // spaces and a currency sign.
-  root.style.setProperty('--cart-count', JSON.stringify(String(count)));
-  root.style.setProperty('--cart-total', JSON.stringify(total));
-  root.classList.add('cart-filled');
 }
