@@ -2,22 +2,61 @@
   "version": "0.2.0",
   "configurations": [
     {
+      // @nx/js:node already starts the app with --inspect=9229, so this only
+      // has to attach. Survives the executor's rebuild-restarts.
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to api",
+      "port": 9229,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/dist/apps/api/**/*.js"]
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Debug api with Nx",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["nx", "serve", "api"],
-      "env": {
-        "NODE_OPTIONS": "--inspect=9229"
-      },
+      "autoAttachChildProcesses": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/apps/api/dist/**/*.(m|c|)js",
+        "${workspaceFolder}/dist/apps/api/**/*.js",
         "!**/node_modules/**"
       ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug api tests (current file)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "jest",
+        "--config",
+        "apps/api/jest.config.cts",
+        "--runInBand",
+        "--watch",
+        "${relativeFile}"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug web unit tests",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "test", "web", "--no-watch"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
     }
   ]
 }

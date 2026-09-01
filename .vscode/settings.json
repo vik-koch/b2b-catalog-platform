@@ -1,0 +1,77 @@
+{
+  // Use the workspace TypeScript (~6.0.x), not the older one VS Code ships with.
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
+  "js/ts.tsserver.maxMemory": 4096,
+
+  "js/ts.suggest.autoImports": true,
+  "js/ts.updateImportsOnFileMove.enabled": "always",
+  // Relative inside a project, "@b2b-catalog-platform/*" across them.
+  "js/ts.preferences.importModuleSpecifier": "project-relative",
+  "js/ts.preferences.preferTypeOnlyAutoImports": true,
+
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.prettierPath": "node_modules/prettier",
+  "editor.rulers": [80],
+
+  "[typescript]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit"
+    }
+  },
+  "[javascript]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit"
+    }
+  },
+  "[html]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+
+  "eslint.useFlatConfig": true,
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "eslint.validate": ["javascript", "typescript", "html", "json", "jsonc"],
+
+  "css.lint.unknownAtRules": "ignore",
+
+  "terminal.integrated.defaultProfile.linux": "bash",
+
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.angular": true,
+    "**/.nx": true,
+    "dist": true,
+    "tmp": true,
+    "coverage": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.angular": true,
+    "**/.nx": true,
+    "dist": true,
+    "tmp": true,
+    "coverage": true,
+    "package-lock.json": true,
+    ".media": true,
+    "backups": true
+  },
+  // WSL2 file watching is expensive — keep it off generated trees.
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.angular/**": true,
+    "**/.nx/**": true,
+    "**/dist/**": true,
+    "**/.media/**": true,
+    "**/.git/objects/**": true
+  },
+
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "[markdown]": { "files.trimTrailingWhitespace": false },
+  "files.associations": { "compose*.yml": "dockercompose" }
+}
