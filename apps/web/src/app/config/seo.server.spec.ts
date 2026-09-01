@@ -1,11 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /**
- * Each test re-imports the module so the in-process sitemap/maintenance caches
- * start empty, and drives both the maintenance probe and the sitemap source
- * through a stubbed `fetch` keyed by URL.
+ * Each test drives the maintenance probe and the sitemap source through a
+ * stubbed `fetch` keyed by URL.
+ *
+ * Both of those answers are cached in-process behind a TTL, in module state
+ * that outlives a test: `vi.resetModules()` re-imports `seo.server` but no
+ * longer re-evaluates the modules underneath it, so a maintenance answer
+ * cached by one test was still being served to the next. So the caches are
+ * expired rather than cleared — the clock jumps well past the longest TTL
+ * between tests, which is what a cache with a TTL is entitled to expect and
+ * needs nothing test-only in the code being tested.
  */
 const OLD_ENV = process.env;
+
+/** Longer than any TTL in seo.server or maintenance.server. */
+const PAST_EVERY_TTL_MS = 10 * 60 * 1000;
+let clock = Date.now();
 
 function stubFetch(handlers: {
   maintenance?: boolean;
@@ -37,6 +48,8 @@ async function load() {
 
 beforeEach(() => {
   vi.resetModules();
+  clock += PAST_EVERY_TTL_MS;
+  vi.spyOn(Date, 'now').mockReturnValue(clock);
   process.env = {
     ...OLD_ENV,
     API_URL: 'http://api:3000/api',
@@ -47,6 +60,7 @@ beforeEach(() => {
 afterEach(() => {
   process.env = OLD_ENV;
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe('injectNoindexMeta', () => {
