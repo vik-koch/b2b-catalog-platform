@@ -44,9 +44,9 @@ export const appTextSchema = z
       .object({
         /** Accessible name of the logo's home link; `{name}` is substituted. */
         homeLink: z.string(),
-        toggleMenu: z.string(),
-        /** Landmark names for the three navigations and the consent banner. */
+        /** Landmark names for the navigations and the consent banner. */
         utilityNav: z.string(),
+        primaryNav: z.string(),
         legalNav: z.string(),
         consentBanner: z.string(),
         /** Floating back-to-top control. */

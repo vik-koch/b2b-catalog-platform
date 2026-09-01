@@ -3,18 +3,20 @@
     "copyright": "© {name} {years}"
   },
   "nav": {
+    "home": "Home",
     "about": "About us",
     "conditions": "Payment & delivery",
     "privacy": "Privacy",
     "imprint": "Imprint",
     "contact": "Contact",
     "inquiry": "Get in touch",
-    "licenses": "Licenses"
+    "licenses": "Licenses",
+    "more": "More"
   },
   "a11y": {
     "homeLink": "{name} — home",
-    "toggleMenu": "Toggle menu",
     "utilityNav": "Utility",
+    "primaryNav": "Main",
     "legalNav": "Legal",
     "consentBanner": "Cookie consent",
     "scrollToTop": "Back to top"

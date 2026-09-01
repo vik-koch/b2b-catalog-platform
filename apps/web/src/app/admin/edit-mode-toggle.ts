@@ -18,7 +18,7 @@ import { EditModeService } from './edit-mode.service';
     @if (editMode.isAdmin() && text(); as text) {
       <button
         type="button"
-        class="fixed right-4 bottom-5.5 z-40 flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-lg transition-colors cursor-pointer"
+        class="fixed right-4 bottom-[calc(4.25rem+1px+env(safe-area-inset-bottom))] z-40 sm:bottom-5.5 flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-lg transition-colors cursor-pointer"
         [class]="
           editMode.enabled()
             ? 'bg-accent text-white hover:border-accent hover:bg-white hover:text-black'

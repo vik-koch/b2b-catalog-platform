@@ -3,19 +3,23 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { DEPLOYMENT_CONFIG } from './config/deployment-config';
+import { EditModeToggle } from './admin/edit-mode-toggle';
+import { ForcePasswordChange } from './auth/force-password-change';
 import { CartFigures } from './cart/cart-figures';
 import { LastListingService } from './catalog/last-listing.service';
+import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 import { CookieConsent } from './consent/cookie-consent';
-import { ForcePasswordChange } from './auth/force-password-change';
+import { BottomNav } from './layout/bottom-nav';
+import { SearchOverlay } from './layout/search-overlay';
 import { Footer } from './layout/footer';
 import { Header } from './layout/header';
-import { EditModeToggle } from './admin/edit-mode-toggle';
 
 @Component({
   imports: [
     RouterOutlet,
     Header,
+    BottomNav,
+    SearchOverlay,
     Footer,
     CookieConsent,
     ForcePasswordChange,
@@ -41,7 +45,18 @@ import { EditModeToggle } from './admin/edit-mode-toggle';
       <!-- No top border where the page behind it is already stone: the line
            would divide two areas of the same colour. -->
       <app-footer [seamless]="centered()" />
+      <!-- The bottom bar is fixed, so it covers whatever the page ends with.
+           The reserve is on the column rather than on <main>, because the
+           footer is what actually reaches the bottom edge. -->
+      <div
+        aria-hidden="true"
+        class="h-[calc(3.25rem+1px+env(safe-area-inset-bottom))] sm:hidden"
+      ></div>
     </div>
+    <app-bottom-nav />
+    <!-- The phone's search field over the page, opened from the bottom bar
+         once the header's own has scrolled away. -->
+    <app-search-overlay />
     <app-cookie-consent />
     <!-- Renders nothing unless a signed-in account still owes a password
          change, so public pages carry only the (empty) component instance. -->

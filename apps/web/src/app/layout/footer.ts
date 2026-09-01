@@ -16,8 +16,12 @@ import { ScrollToTop } from './scroll-to-top';
       [class.border-border]="!seamless()"
     >
       <div class="mx-auto w-full max-w-[82rem] px-4 py-6 text-sm">
+        <!-- One row from "sm", a column below it — and in the column the
+             copyright comes last, where a copyright line belongs and where it
+             is not standing between a reader and the links they came down here
+             for. -->
         <div
-          class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+          class="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <p class="text-xs text-subtle">{{ copyright }}</p>
           <!-- The call to action sits on the same line as the legal links, but
@@ -25,10 +29,15 @@ import { ScrollToTop } from './scroll-to-top';
                quiet links plus one filled button reads as one row either way.
                It closes the row on the right, where the eye lands last. -->
           <div
-            class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end"
+            class="flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-y-2"
           >
+            <!-- Stacked on a phone: four quiet links wrapped across two lines
+                 are a paragraph, and these are the ones a reader scans for by
+                 name. No disclosure over them — a legal link behind a toggle
+                 is one that is not readily reachable, and folding away four
+                 lines is not worth that. -->
             <nav
-              class="flex flex-wrap items-center gap-x-4 gap-y-2 text-subtle"
+              class="flex flex-col gap-2 text-subtle sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4"
               [attr.aria-label]="text.a11y.legalNav"
             >
               @for (slug of legalSlugs; track slug) {
@@ -54,8 +63,10 @@ import { ScrollToTop } from './scroll-to-top';
                 </button>
               }
             </nav>
-            <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
-            <app-scroll-to-top />
+            <div class="flex items-center gap-4">
+              <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
+              <app-scroll-to-top />
+            </div>
           </div>
         </div>
       </div>

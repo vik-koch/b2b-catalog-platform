@@ -12,6 +12,66 @@
  * used as text on white (needs >= 4.5:1) and as a background under white text.
  */
 @theme {
+  /*
+   * The phone's search field arriving over the page: the row drops from the
+   * top edge, the dimming fades up behind it. Compositor-only properties, so
+   * it costs a phone nothing — and it is a CSS animation on an element the
+   * template has just inserted, so nothing drives it frame by frame.
+   *
+   * It leaves the same way, faster — a dismissal is the direction where
+   * waiting for an animation is felt as lag. The exits hold their last frame,
+   * because the element is still in the document while they run: SearchOverlay
+   * keeps it for exactly this long, an element the template has removed having
+   * nothing left to animate.
+   */
+  --animate-search-drop: search-drop 200ms ease-out;
+  --animate-search-dim: search-dim 200ms ease-out;
+  --animate-search-lift: search-lift 150ms ease-in forwards;
+  --animate-search-clear: search-clear 150ms ease-in forwards;
+
+  /*
+   * The bottom bar's "More" panel, the same movement measured from the other
+   * edge: it rises out of the bar it was opened from and sinks back into it.
+   */
+  --animate-menu-rise: menu-rise 200ms ease-out;
+  --animate-menu-sink: menu-sink 150ms ease-in forwards;
+
+  @keyframes search-drop {
+    from {
+      transform: translateY(-100%);
+    }
+  }
+
+  @keyframes search-dim {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes search-lift {
+    to {
+      transform: translateY(-100%);
+    }
+  }
+
+  @keyframes search-clear {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes menu-rise {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes menu-sink {
+    to {
+      transform: translateY(100%);
+    }
+  }
+
   /* "Coffee" — 7.5:1 on white */
   --color-primary: #6f4e37;
   /*
@@ -88,12 +148,16 @@
   display: inline-flex;
 }
 
-/* The total replaces the label rather than joining it; below `md` there is no
-   room for either, and the count badge carries the cart on its own. */
+/* The total replaces the caption rather than joining it. Only in the header's
+   control: the bottom bar draws no total, so its caption carries no
+   `cart-label` and nothing here takes it away. */
 .cart-filled .cart-label {
   display: none;
 }
 
+/* Below `md` the header's controls are glyphs alone — no caption, and so no
+   row reserved for one. The badge carries the cart there, as it does in the
+   bottom bar. */
 @media (width < 48rem) {
   .cart-filled .cart-total {
     display: none;
@@ -152,6 +216,24 @@ html.session-anonymous [data-session='known'] {
  */
 html {
   scrollbar-gutter: stable;
+}
+
+/*
+ * While the phone's search field is open over the page. The page behind a
+ * keyboard must not move: it would take the field with it, which is the whole
+ * reason the field left the header.
+ *
+ * Fixed rather than merely `overflow: hidden`, and offset by the amount the
+ * page was scrolled to — see MobileSearch, which sets `top` and puts the
+ * offset back. Taking the scrollability off the document loses the offset with
+ * it, which shows as the page jumping to its top behind the dimming.
+ */
+html.search-locked body {
+  position: fixed;
+  right: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 /*

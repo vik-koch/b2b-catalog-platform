@@ -75,7 +75,7 @@ let nextId = 0;
              being typed, not with the submit button. The border lives on the
              wrapper, not the input, so the leading glyph sits inside it. -->
         <div
-          class="peer relative flex min-w-0 flex-1 items-center rounded-l-md border-2 border-r-0 border-primary bg-white hover:border-accent focus-within:border-secondary"
+          class="peer relative flex min-w-0 flex-1 items-center rounded-l-md border-2 border-r-0 border-primary bg-white/80 hover:border-accent focus-within:border-secondary"
         >
           <!-- Leading glyph: a label for the field rather than a control, so it
                is muted and takes no pointer events. -->
@@ -166,7 +166,7 @@ let nextId = 0;
              drawn inside. -->
         <button
           type="submit"
-          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-4 text-sm font-medium text-white transition-colors peer-hover:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent focus-visible:-outline-offset-2 focus-visible:outline-1 focus-visible:outline-white"
+          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-3 text-sm font-medium text-white transition-colors peer-hover:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent focus-visible:-outline-offset-2 focus-visible:outline-1 focus-visible:outline-white"
         >
           {{ text.submit }}
         </button>
@@ -201,7 +201,8 @@ export class SearchField {
   protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly listId = `search-suggestions-${nextId++}`;
 
-  /** Focus on first render — set by the mobile panel, which opens on demand. */
+  /** Focus on first render — set by the phone's search overlay, which opens on
+   * demand. */
   readonly autoFocus = input(false);
   /**
    * Seeded from the URL rather than bound to it: landing on `/search?q=…`
@@ -391,6 +392,18 @@ export class SearchField {
     if (!q) return;
     this.close();
     void this.router.navigate(['/search'], { queryParams: { q } });
+  }
+
+  /** Puts the caret in the field. Called straight out of a tap on the bottom
+   * bar's search tab, and synchronously: a mobile browser opens its keyboard
+   * for a focus that happened inside the gesture and not for one that happened
+   * a tick later.
+   *
+   * `preventScroll` because the caller may want to do the scrolling itself:
+   * the browser's own is an instant jump, and a field being fetched from
+   * off-screen is worth watching arrive. */
+  focus(): void {
+    this.input()?.nativeElement.focus({ preventScroll: true });
   }
 
   /** Empties the field and hands focus back, so the next query can be typed

@@ -15,14 +15,6 @@ function normalize(value: string | null | undefined): string {
   return (value ?? '').replace(/\s+/g, ' ').trim();
 }
 
-/** €10.00 a piece, so two of them come to a whole amount. */
-const wholePrices = {
-  pieceMilliMinor: 1000,
-  pieceLotMinor: 1000,
-  pack: null,
-  box: null,
-};
-
 function addition(overrides: Partial<CartAddition> = {}): CartAddition {
   return {
     slug: 'espresso-roast',
@@ -44,7 +36,7 @@ function addition(overrides: Partial<CartAddition> = {}): CartAddition {
   };
 }
 
-async function render(platformId = 'browser') {
+async function render(platformId = 'browser', variant: 'bar' | 'tab' = 'bar') {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [CartLink],
@@ -58,6 +50,7 @@ async function render(platformId = 'browser') {
 
   const cart = TestBed.inject(CartService);
   const fixture = TestBed.createComponent(CartLink);
+  fixture.componentRef.setInput('variant', variant);
   await fixture.whenStable();
   const el = fixture.nativeElement as HTMLElement;
 
@@ -65,19 +58,12 @@ async function render(platformId = 'browser') {
     cart,
     link: () => el.querySelector('a'),
     text: () => normalize(el.textContent),
-    // The figures live on <html>, not in the markup — see cart-link.ts. What
-    // the stylesheet would draw is what these read back.
-    figures: () => {
-      const root = document.documentElement;
-      return root.classList.contains('cart-filled')
-        ? {
-            count: JSON.parse(root.style.getPropertyValue('--cart-count')),
-            total: normalize(
-              JSON.parse(root.style.getPropertyValue('--cart-total')),
-            ),
-          }
-        : null;
-    },
+    // The header's caption steps aside for the total chip; the bottom bar's
+    // does not, and says so by carrying no `cart-label` for the stylesheet to
+    // key on. What each control offers the stylesheet is the whole of the
+    // difference — see cart-figures.ts for where the figures come from.
+    chip: () => el.querySelector('.cart-total'),
+    caption: () => el.querySelector('.cart-label'),
     // Intl separates a currency with a non-breaking space, which nothing in a
     // spec should have to spell out.
     ariaLabel: () =>
@@ -89,20 +75,8 @@ async function render(platformId = 'browser') {
   };
 }
 
-/** The figures live on <html>, which outlives a TestBed — so a cart left
- * behind by one spec would otherwise look like the next one's. */
-function clearFigures(): void {
-  document.documentElement.classList.remove('cart-filled');
-  document.documentElement.style.removeProperty('--cart-count');
-  document.documentElement.style.removeProperty('--cart-total');
-}
-
 describe('CartLink', () => {
-  beforeEach(() => {
-    localStorage.clear();
-    clearFigures();
-  });
-  afterEach(clearFigures);
+  beforeEach(() => localStorage.clear());
 
   it('links to the cart', async () => {
     const view = await render();
@@ -114,20 +88,18 @@ describe('CartLink', () => {
     const view = await render();
 
     expect(view.text()).toBe(text.navLabel);
-    expect(view.figures()).toBeNull();
     // The spoken label carries the exact figure; only the chip is shortened.
     expect(view.ariaLabel()).toBe('Cart: 0 lines, 0,00 €');
   });
 
   // The server cannot read localStorage, so anything it announced would be an
   // empty cart the hydrated app immediately contradicts.
-  it('emits no figures at all on the server', async () => {
+  it('announces no figure at all on the server', async () => {
     const view = await render('server');
     view.cart.add(addition({ pieces: 2 }));
     await view.rerender();
 
     expect(view.text()).toBe(text.navLabel);
-    expect(view.figures()).toBeNull();
     // Not even the accessible name, which would otherwise announce a total
     // that the visitor's own browser is about to replace.
     expect(view.ariaLabel()).toBe(text.navLabel);
@@ -141,5 +113,22 @@ describe('CartLink', () => {
     await view.rerender();
 
     expect(view.link()?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('offers the stylesheet a total to swap in, in the header', async () => {
+    const view = await render();
+
+    expect(view.chip()).not.toBeNull();
+    expect(view.caption()).not.toBeNull();
+  });
+
+  // A fifth of a phone's width, with the caption always showing: the badge is
+  // the whole of what a glance needs there, and the figure is one tap away.
+  it('draws no total in the bottom bar, and keeps its caption', async () => {
+    const view = await render('browser', 'tab');
+
+    expect(view.chip()).toBeNull();
+    expect(view.caption()).toBeNull();
+    expect(view.text()).toBe(text.navLabel);
   });
 });
