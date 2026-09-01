@@ -181,7 +181,7 @@ interface CartRow {
            and the scrollbar are most of a column of controls, and the media
            query cannot see either. -->
       <div class="@container/cart">
-        <div class="grid gap-8 @min-[60rem]/cart:grid-cols-[1fr_20rem]">
+        <div class="grid gap-8 @min-[63.75rem]/cart:grid-cols-[1fr_20rem]">
           <div>
             <!-- In the column, not above the grid: the summary beside it then
                  starts level with the heading, and the same card sits at the
@@ -368,7 +368,7 @@ interface CartRow {
              checkout gives it too: stacked, the card is the page, and three
              pages that agree about the card should agree about its width. -->
           <aside
-            class="max-w-xl @min-[60rem]/cart:mt-9 @min-[60rem]/cart:sticky @min-[60rem]/cart:top-20 @min-[60rem]/cart:self-start"
+            class="max-w-xl @min-[63.75rem]/cart:mt-9 @min-[63.75rem]/cart:sticky @min-[63.75rem]/cart:top-20 @min-[63.75rem]/cart:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"

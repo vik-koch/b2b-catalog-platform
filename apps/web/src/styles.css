@@ -13,6 +13,27 @@
  */
 @theme {
   /*
+   * The breakpoints, redefined from Tailwind's defaults so that the whole app
+   * turns on the same widths the catalogue does.
+   *
+   * A listing is a grid of 15rem columns with a 1.25rem gap inside the page's
+   * 82rem frame and its 1rem padding, so a column is won at 792px (three),
+   * 1052px (four) and 1312px (five) of window. Those are the only widths at
+   * which the busiest page on the site visibly reflows, and every other grid
+   * on `md`/`lg`/`xl` used to reflow 24-32px away from them — close enough to
+   * read as jitter while dragging a window edge, never close enough to look
+   * deliberate. Pointing the three names at the column widths costs nothing and
+   * makes one drag move everything at once.
+   *
+   * `sm` keeps Tailwind's 40rem: it is the phone/desktop line rather than a
+   * column count, and a listing has already given up on columns by then (see
+   * LISTING_NARROW, which is the same width measured on the listing itself).
+   */
+  --breakpoint-md: 49.5rem;
+  --breakpoint-lg: 65.75rem;
+  --breakpoint-xl: 82rem;
+
+  /*
    * The phone's search field arriving over the page: the row drops from the
    * top edge, the dimming fades up behind it. Compositor-only properties, so
    * it costs a phone nothing — and it is a CSS animation on an element the
@@ -166,8 +187,9 @@
 
 /* Below `md` the header's controls are glyphs alone — no caption, and so no
    row reserved for one. The badge carries the cart there, as it does in the
-   bottom bar. */
-@media (width < 48rem) {
+   bottom bar. The width is `md` written out: a media query cannot read the
+   theme, so this one has to be kept in step with it by hand. */
+@media (width < 49.5rem) {
   .cart-filled .cart-total {
     display: none;
   }
@@ -422,7 +444,8 @@ html.search-locked body {
   margin-left: 1rem;
   margin-bottom: 0.5rem;
 }
-@media (max-width: 640px) {
+/* `sm`, written out — the same line the rest of the app turns on. */
+@media (width < 40rem) {
   .prose img[data-align='left'],
   .prose img[data-align='right'] {
     float: none;
