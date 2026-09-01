@@ -29,10 +29,10 @@ const sizes = {
 } as const;
 
 const variants = {
-  default: 'text-muted hover:text-accent active:text-primary',
+  default: 'text-muted hover:text-accent active:text-primary-deep',
   /** A control whose glyph already says something has been set. */
-  marked: 'text-primary hover:text-accent',
-  danger: 'text-muted hover:text-red-700',
+  marked: 'text-primary hover:text-accent active:text-primary-deep',
+  danger: 'text-muted hover:text-red-700 active:text-red-900',
 } as const;
 
 /**

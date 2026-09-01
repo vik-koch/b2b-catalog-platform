@@ -36,7 +36,7 @@ const LEAVE_MS = 150;
         <app-search-field class="min-w-0 flex-1" [autoFocus]="true" />
         <button
           type="button"
-          class="-mr-2 inline-flex cursor-pointer items-center justify-center rounded-lg p-2 text-primary transition-colors hover:text-accent active:text-secondary"
+          class="-mr-2 inline-flex cursor-pointer items-center justify-center rounded-lg p-2 text-primary transition-colors hover:text-accent active:text-primary-deep"
           (click)="search.close()"
         >
           <app-icon name="close" class="h-6 w-6" />

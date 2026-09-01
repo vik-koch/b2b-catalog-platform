@@ -17,20 +17,21 @@ const sizes = {
 } as const;
 
 /*
- * Press deepens rather than lightens, which is why `active:` lands back on
- * primary instead of on secondary: secondary is the *lighter* roast, so a
- * button that switched to it under the cursor would look like it was rising
- * out of the page at the exact moment it was being pushed into it. Hover goes
- * outward to accent, press comes back down.
+ * Press deepens rather than lightens: hover goes outward to accent, press goes
+ * down to `primary-deep`. It has to be a shade of its own rather than the
+ * resting colour — a press that merely undoes the hover reads as a press only
+ * to a cursor that was hovering, and a finger never hovers, so on a phone the
+ * whole press was invisible. Every variant therefore ends up somewhere it has
+ * not already been: a fill darkens, an outline gains one.
  */
 const variants = {
-  primary: 'bg-primary text-white hover:bg-accent active:bg-primary',
+  primary: 'bg-primary text-white hover:bg-accent active:bg-primary-deep',
   // Hover recolors border and text rather than the background: this variant
   // appears both on the white page and inside stone-100 blocks (the signed-in
   // bar), where a stone background change is invisible. Accent is the app's
   // interactive-hover color throughout.
   secondary:
-    'border border-border-strong text-ink hover:border-accent hover:text-accent active:border-primary active:text-primary',
+    'border border-border-strong text-ink hover:border-accent hover:text-accent active:border-primary active:bg-primary/10 active:text-primary',
   danger: 'bg-red-700 text-white hover:bg-red-800 active:bg-red-900',
   /**
    * The way *into* a destructive flow — a link that only opens the page
@@ -39,13 +40,13 @@ const variants = {
    * solid variant above is left to the click that cannot be taken back.
    */
   dangerOutline:
-    'border border-red-300 text-red-700 hover:border-red-700 hover:bg-red-700 hover:text-white active:bg-red-900 active:border-red-900',
+    'border border-red-300 text-red-700 hover:border-red-700 hover:bg-red-700 hover:text-white active:border-red-900 active:bg-red-900 active:text-white',
   /**
    * Chromeless until hovered — for controls that repeat in a row and would be
    * noisy as outlined buttons: pagination, table row actions.
    */
   ghost:
-    'text-stone-700 hover:bg-stone-100 hover:text-accent active:text-primary',
+    'text-stone-700 hover:bg-stone-100 hover:text-accent active:bg-stone-200 active:text-primary',
 } as const;
 
 /**

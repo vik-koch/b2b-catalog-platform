@@ -46,7 +46,7 @@ export class ContactInfo {
   /** `whitespace-nowrap` so a pill wraps as a whole or not at all — a broken
    * address on two lines would show its first half and clip the rest. */
   protected readonly pillClass =
-    'inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm whitespace-nowrap text-subtle transition-colors hover:text-accent';
+    'inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm whitespace-nowrap text-subtle transition-colors hover:text-accent active:text-primary-deep';
 
   /** tel: needs dial characters only; the displayed value keeps its spacing. */
   protected telHref(phone: string): string {

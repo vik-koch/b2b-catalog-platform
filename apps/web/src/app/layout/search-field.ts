@@ -115,7 +115,7 @@ let nextId = 0;
                  rather than on the field's centre line. -->
             <button
               type="button"
-              class="mr-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-subtle transition-colors hover:text-accent"
+              class="mr-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-subtle transition-colors hover:text-accent active:text-primary-deep"
               (click)="clear()"
             >
               <app-icon name="close" class="h-4 w-4" />
@@ -172,7 +172,7 @@ let nextId = 0;
              drawn inside. -->
         <button
           type="submit"
-          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-3 text-sm font-medium text-white transition-colors peer-[:hover:not(:focus-within)]:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent focus-visible:-outline-offset-2 focus-visible:outline-1 focus-visible:outline-white"
+          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-3 text-sm font-medium text-white transition-colors peer-[:hover:not(:focus-within)]:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent active:border-primary-deep active:bg-primary-deep focus-visible:-outline-offset-2 focus-visible:outline-1 focus-visible:outline-white"
         >
           {{ text.submit }}
         </button>

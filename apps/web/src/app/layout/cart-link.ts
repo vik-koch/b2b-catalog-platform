@@ -67,7 +67,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
         @if (variant() === 'bar') {
           <span
             aria-hidden="true"
-            class="cart-total -mx-3 items-center justify-center rounded bg-primary px-1 py-1 text-[0.6875rem] leading-4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-secondary"
+            class="cart-total -mx-3 items-center justify-center rounded bg-primary px-1 py-1 text-[0.6875rem] leading-4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-primary-deep"
           ></span>
         }
         <span [class]="labelClass()" [attr.data-label]="text.navLabel">

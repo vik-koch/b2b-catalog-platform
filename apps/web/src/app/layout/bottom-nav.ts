@@ -242,7 +242,7 @@ export class BottomNav {
   protected readonly menuRoutes = this.config.pages.headerNav;
   /** One row of the panel — page links and contact details alike. */
   protected readonly menuRow =
-    'flex items-center gap-2 px-4 py-3 text-muted transition-colors hover:bg-stone-100 active:bg-primary/10 active:text-secondary aria-[current=page]:font-medium aria-[current=page]:text-primary';
+    'flex items-center gap-2 px-4 py-3 text-muted transition-colors hover:bg-stone-100 active:bg-primary/10 active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary';
 
   /** Signed in as a customer — the answer once there is one, the browser's own
    * hint until then, exactly as the account control decides its destination. */

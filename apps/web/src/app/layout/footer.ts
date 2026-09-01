@@ -46,7 +46,7 @@ import { ScrollToTop } from './scroll-to-top';
                   routerLinkActive
                   ariaCurrentWhenActive="page"
                   [attr.data-label]="text.nav[slug]"
-                  class="text-stable transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                  class="text-stable transition-colors hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary"
                 >
                   {{ text.nav[slug] }}
                 </a>
@@ -56,7 +56,7 @@ import { ScrollToTop } from './scroll-to-top';
               @if (consent.enabled) {
                 <button
                   type="button"
-                  class="cursor-pointer text-left transition-colors hover:text-accent"
+                  class="cursor-pointer text-left transition-colors hover:text-accent active:text-primary-deep"
                   (click)="consent.withdraw()"
                 >
                   {{ text.consent.settings }}

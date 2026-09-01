@@ -22,7 +22,7 @@ import { HeaderCollapse } from './header-collapse';
   template: `
     <button
       type="button"
-      class="inline-flex cursor-pointer rounded-full text-primary transition-colors hover:text-accent active:text-secondary disabled:cursor-default disabled:hover:text-primary"
+      class="inline-flex cursor-pointer rounded-full text-primary transition-colors hover:text-accent active:text-primary-deep disabled:cursor-default disabled:hover:text-primary"
       [disabled]="!collapsed()"
       [title]="label"
       (click)="toTop()"

@@ -19,12 +19,10 @@
  * it wins regardless of the order Tailwind emits utilities in — and it is the
  * signal a screen reader announces as "current page".
  *
- * `active:` is the press, and it is secondary rather than primary: primary is
- * where the control already rests, so pressing it would look like nothing
- * happened, and it is what the current page's own label uses. Hover is accent
- * and only exists where there is a pointer — Tailwind's `hover:` carries
- * `(hover: hover)` — so a touch goes straight to the press, and a cursor goes
- * through accent on the way to it.
+ * `active:` is the press: `primary-deep`, the app's press colour everywhere.
+ * Hover is accent and only exists where there is a pointer — Tailwind's
+ * `hover:` carries `(hover: hover)` — so a touch goes straight to the press,
+ * and a cursor goes through accent on the way to it.
  *
  * The current control also thickens its glyph. A caption at medium weight is
  * the header's tell and it is the one thing the bottom bar cannot use, since
@@ -34,7 +32,7 @@
 export type NavVariant = 'bar' | 'tab';
 
 const SHARED =
-  'group flex flex-col items-center text-primary transition-colors hover:text-accent active:text-secondary aria-[current=page]:font-medium aria-[current=page]:[--icon-stroke-width:2.25]';
+  'group flex flex-col items-center text-primary transition-colors hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:[--icon-stroke-width:2.25]';
 
 /**
  * Header row. The padding is what it is so the icon and its caption together
@@ -83,8 +81,8 @@ export const TAB_CURRENT = 'before:bg-primary/10 [--icon-stroke-width:2.25]';
  * The current tab tints its disc and thickens its glyph; it does not recolour
  * it. Accent is hover across the whole app, and a mouse in a narrow window
  * would otherwise make every tab it passes over look like the page you are on.
- * The press paints the same disc in secondary, so it reads as the current tab
- * answering rather than as a second mark appearing next to the first.
+ * The press deepens the same disc, so it reads as the current tab answering
+ * rather than as a second mark appearing next to the first.
  */
 const TAB =
   `${SHARED} relative isolate flex-1 justify-center rounded-lg ` +
@@ -98,7 +96,7 @@ const TAB =
   // `not-active` because the two rules are the same weight and Tailwind emits
   // the press first, so the current tab would keep its own disc under a
   // thumb — the one tab where the press most needs to be visible.
-  `active:before:bg-secondary/15 aria-[current=page]:not-active:before:bg-primary/10`;
+  `active:before:bg-primary/20 aria-[current=page]:not-active:before:bg-primary/10`;
 
 /**
  * Wrapper for whatever a control puts under its icon — a caption, or the
