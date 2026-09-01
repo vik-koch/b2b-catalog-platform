@@ -4,35 +4,12 @@ import { ProductListItem } from '@b2b-catalog-platform/shared';
 import { ProductBuyControls } from './product-buy-controls';
 import { ProductUnitFacts } from './product-unit-facts';
 import { FRAME } from '../ui/frame';
+import {
+  NARROW_BODY_IN_GRID,
+  NARROW_PADDING_IN_GRID,
+  NARROW_PHOTO_IN_GRID,
+} from './listing-narrow';
 import { TileGallery } from './tile-gallery';
-
-/**
- * The width below which a listing gives up on columns of any kind: one product
- * to a line, whichever layout the visitor chose.
- *
- * It is the app's one narrow threshold, and it is set where the rest of the
- * page already turns: 593px is what a window at the `sm` breakpoint (640px)
- * leaves once the frame's padding and a scrollbar come off, so the listing
- * takes its narrow shape in the same drag of the window edge that shrinks the
- * heading above it and drops the filter chips. Two thresholds a few dozen
- * pixels apart made one resize rearrange the page twice.
- *
- * A px figure rather than a round number of rem, because it is arithmetic and
- * exact to the pixel: `@max` is a strict comparison and `@min` is not, so the
- * two share one figure and partition on it. A viewport with no classic
- * scrollbar — a phone, a trackpad — turns a few pixels earlier than the
- * heading does; on one of those the window is far below either figure anyway.
- *
- * Comfortably above the floor, which is what a line needs to hold a thumbnail
- * and two columns of buying controls beside it — 5rem of photo, a 1rem gap and
- * the controls' own 28.5rem.
- *
- * Both layouts leave the shape at the same width, which is the point: below it
- * a card and a line are the same drawing, and above it each becomes itself.
- * Measured on the listing, not the window, so a listing beside the filter
- * panel counts its own width.
- */
-export const LISTING_NARROW = '593px';
 
 /**
  * The classes every grid of product cards uses.
@@ -67,9 +44,8 @@ export const PRODUCT_GRID =
  * choice is still there when the window is wide again.
  *
  * Edit-mode controls are projected rather than built in: the two listings that
- * have them supply their own, and they are absolutely positioned inside this
- * card's own stacking context, which is why the card owns `relative` and the
- * slot sits at its top.
+ * have them supply their own, and they are pinned inside the photo's box —
+ * the corner a row puts the same cluster in.
  */
 @Component({
   selector: 'app-product-tile',
@@ -77,20 +53,26 @@ export const PRODUCT_GRID =
   host: { class: 'h-full' },
   template: `
     <div [class]="card">
-      <ng-content />
-      <!-- The clipping lives here, not on the card: the card has to let the
-           stepper's bubble hang below its edge. -->
-      <app-tile-gallery
-        class="block aspect-square overflow-hidden rounded-t-lg @max-[593px]/listing:w-auto @max-[593px]/listing:min-w-16 @max-[593px]/listing:max-w-48 @max-[593px]/listing:flex-1 @max-[593px]/listing:self-start @max-[593px]/listing:rounded-none"
-        [images]="item().images"
-        [link]="['/product', item().slug]"
-        [productName]="item().name"
-      />
+      <!-- Its own stacking context, so what the caller pins over it lands on
+           the photo's corner rather than the card's — which is the same corner
+           at card width, and nowhere near it once the photo is a thumbnail on
+           the left. A box around the photo rather than the card also keeps the
+           projected cluster out of the card's own flex flow: an empty slot
+           between the card edge and the photo still took a gap. -->
+      <div [class]="photoBox">
+        <!-- The clipping lives here, not on the card: the card has to let the
+             stepper's bubble hang below its edge. -->
+        <app-tile-gallery
+          [class]="photo"
+          [images]="item().images"
+          [link]="['/product', item().slug]"
+          [productName]="item().name"
+        />
+        <ng-content />
+      </div>
       <!-- Grows to fill the tallest card in the row, so the buying controls
            below it sit on one line whatever the names above them do. -->
-      <div
-        class="flex flex-1 flex-col px-3 py-3 @max-[593px]/listing:min-w-52 @max-[593px]/listing:p-0"
-      >
+      <div [class]="body">
         <a [routerLink]="['/product', item().slug]" class="block">
           <h2
             class="line-clamp-2 text-sm text-stone-700 group-hover:text-accent"
@@ -130,7 +112,20 @@ export class ProductTile {
   protected readonly card =
     'group relative flex h-full flex-col rounded-lg bg-white transition-shadow hover:shadow-md ' +
     FRAME +
-    ' @max-[593px]/listing:flex-row @max-[593px]/listing:items-stretch @max-[593px]/listing:gap-4 @max-[593px]/listing:rounded-none @max-[593px]/listing:ring-0 @max-[593px]/listing:bg-transparent @max-[593px]/listing:py-4 @max-[593px]/listing:hover:shadow-none';
+    ' @max-[593px]/listing:flex-row @max-[593px]/listing:items-stretch @max-[593px]/listing:gap-4 @max-[593px]/listing:rounded-none @max-[593px]/listing:ring-0 @max-[593px]/listing:bg-transparent @max-[593px]/listing:hover:shadow-none ' +
+    NARROW_PADDING_IN_GRID;
+
+  protected readonly photoBox = 'relative flex ' + NARROW_PHOTO_IN_GRID;
+
+  /** Flush with three of the card's edges, so the card's own frame is the
+   * photo's. In the narrow shape the card has no frame to lend it, and the
+   * photo takes the one a line's photo carries at every width. */
+  protected readonly photo =
+    'block aspect-square w-full overflow-hidden rounded-t-lg @max-[593px]/listing:rounded-md @max-[593px]/listing:ring-1 @max-[593px]/listing:ring-border';
+
+  protected readonly body =
+    'flex flex-1 flex-col px-3 py-3 @max-[593px]/listing:p-0 ' +
+    NARROW_BODY_IN_GRID;
 
   readonly item = input.required<ProductListItem>();
 }

@@ -3,7 +3,7 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
-import { LISTING_NARROW } from './product-tile';
+import { LISTING_NARROW } from './listing-narrow';
 
 const text = defaultAppText.catalog.layout;
 

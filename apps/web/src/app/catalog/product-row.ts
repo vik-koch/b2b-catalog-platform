@@ -3,6 +3,11 @@ import { RouterLink } from '@angular/router';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { BuyableProduct, ProductBuyControls } from './product-buy-controls';
 import { FRAME } from '../ui/frame';
+import {
+  NARROW_BODY_IN_LINE,
+  NARROW_PADDING_IN_LINE,
+  NARROW_PHOTO_IN_LINE,
+} from './listing-narrow';
 import { TileGallery } from './tile-gallery';
 
 /** The classes a list of product rows uses: hairlines between the lines, and
@@ -34,14 +39,17 @@ export interface RowProduct extends BuyableProduct {
 @Component({
   selector: 'app-product-row',
   imports: [RouterLink, TileGallery, ProductBuyControls],
-  host: { class: 'block' },
+  // The narrow container is the host rather than the line inside it: the line
+  // asks it what room to leave, and no element can answer its own container
+  // query. Same width either way — the line fills the host.
+  host: { class: 'block @container/line' },
   template: `
     <!-- Two containers, because the line is asked two different questions.
          Whether the page is narrow — the width at which a card and a line
          become the same drawing — is asked of the whole line, tick box and
          all, so a cart and a listing take the shape in the same drag of the
          window edge. -->
-    <div class="@container/line relative flex items-start gap-4 py-3">
+    <div [class]="line">
       <ng-content select="[rowSelect]" />
 
       <!-- How the photo and the controls arrange themselves *within* the
@@ -80,9 +88,7 @@ export interface RowProduct extends BuyableProduct {
 
              Framed like the photo on a card, and for the same reason: a shot
              on a white ground has no edge of its own. -->
-        <div
-          class="relative flex w-[min(7.75rem,100%_-_29.5rem)] shrink-0 @max-[593px]/line:w-auto @max-[593px]/line:min-w-16 @max-[593px]/line:max-w-48 @max-[593px]/line:flex-1 @max-[593px]/line:shrink @min-[47.5rem]/row:w-24"
-        >
+        <div [class]="photoBox">
           <app-tile-gallery
             [class]="photo"
             [images]="item().images"
@@ -110,9 +116,7 @@ export interface RowProduct extends BuyableProduct {
         <!-- A container of its own: what the controls have to lay themselves
              out in is this column, not the line — the name's own column comes
              off it first once there are three of them. -->
-        <div
-          class="@container/body flex min-w-0 flex-1 flex-col gap-2 @max-[593px]/line:min-w-52 @min-[47.5rem]/row:flex-row @min-[47.5rem]/row:items-start @min-[47.5rem]/row:gap-4"
-        >
+        <div [class]="bodyColumn">
           <!-- As tall as the photo beside it once the two sit side by side, so
                what the caller projects last — the cart's note field — can drop
                to the photo's own bottom edge. A longer name pushes it down
@@ -161,6 +165,19 @@ export interface RowProduct extends BuyableProduct {
 export class ProductRow {
   /** The frame is on the gallery itself, which is what clips the photo. */
   protected readonly photo = `block aspect-square w-full overflow-hidden rounded-md ${FRAME}`;
+
+  /** Roomier in the narrow shape, where a line is the whole of what a product
+   * gets on the page and there is no frame around it. */
+  protected readonly line =
+    'relative flex items-start gap-4 py-3 ' + NARROW_PADDING_IN_LINE;
+
+  protected readonly photoBox =
+    'relative flex w-[min(7.75rem,100%_-_29.5rem)] shrink-0 @min-[47.5rem]/row:w-24 ' +
+    NARROW_PHOTO_IN_LINE;
+
+  protected readonly bodyColumn =
+    '@container/body flex min-w-0 flex-1 flex-col gap-2 @min-[47.5rem]/row:flex-row @min-[47.5rem]/row:items-start @min-[47.5rem]/row:gap-4 ' +
+    NARROW_BODY_IN_LINE;
 
   readonly item = input.required<RowProduct>();
   /** False in a preview: the row is there to show what a visitor will see,
