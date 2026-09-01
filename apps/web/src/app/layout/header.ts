@@ -104,7 +104,7 @@ import { SearchField } from './search-field';
                 routerLinkActive
                 ariaCurrentWhenActive="page"
                 [attr.data-label]="text.nav[route]"
-                class="text-stable text-subtle transition-colors hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                class="text-stable text-center text-subtle transition-colors hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary"
               >
                 {{ text.nav[route] }}
               </a>

@@ -29,7 +29,7 @@ import { ScrollToTop } from './scroll-to-top';
                shape that does not apply is display:none, so a screen reader
                is never offered two of them. -->
           <div class="flex items-center justify-between gap-4">
-          <p class="text-xs text-subtle">{{ copyright }}</p>
+            <p class="text-xs text-subtle">{{ copyright }}</p>
             <span class="sm:hidden"><app-scroll-to-top /></span>
           </div>
           <!-- The call to action sits on the same line as the legal links, but
@@ -54,7 +54,7 @@ import { ScrollToTop } from './scroll-to-top';
                   routerLinkActive
                   ariaCurrentWhenActive="page"
                   [attr.data-label]="text.nav[slug]"
-                  class="text-stable transition-colors hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                  class="text-stable transition-colors sm:text-center hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary"
                 >
                   {{ text.nav[slug] }}
                 </a>

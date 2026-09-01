@@ -113,7 +113,11 @@ const TAB_LABEL_ROW = 'contents';
  * The caption itself — visible in the header, and the tab's accessible name
  * below it. `text-stable` reserves the active (medium) weight's
  * width — see styles.css — so a control does not grow when its route becomes
- * current; call sites must set `data-label` to the same text.
+ * current; call sites must set `data-label` to the same text. `text-center`
+ * is the other half of that: the box is reserved at the wider of the two
+ * weights, and a label left-aligned inside it puts the whole difference on one
+ * side, so going medium read as the word growing rightwards. Centred, it
+ * thickens in place.
  *
  * The header caption's negative side margins let a long word claim half of the
  * control's own 12px paddings, the way the cart's chip claims all of it: the
@@ -123,7 +127,7 @@ const TAB_LABEL_ROW = 'contents';
  * the row around — and it still cannot touch the control next to it.
  */
 const BAR_LABEL =
-  'text-stable sr-only text-xs leading-none md:not-sr-only md:-mx-1.5';
+  'text-stable sr-only text-center text-xs leading-none md:not-sr-only md:-mx-1.5';
 const TAB_LABEL = 'sr-only';
 
 /** The three class strings a nav control needs, for one of the two shapes. */
