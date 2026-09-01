@@ -90,7 +90,7 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
       role="group"
       [attr.aria-label]="text.title"
     >
-      <h2 class="text-xs font-semibold tracking-wide text-subtle uppercase">
+      <h2 class="text-xs font-medium tracking-wide text-subtle uppercase">
         {{ text.title }}
       </h2>
 

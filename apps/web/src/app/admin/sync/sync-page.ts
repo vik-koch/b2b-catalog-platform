@@ -10,21 +10,21 @@ import {
   SyncRowError,
   SyncRun,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../config/app-text';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { usePageSeo } from '../../core/page-seo';
-import { AdminText } from '../../config/admin-text.type';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { formatPriceMinor } from '../../catalog/price';
+import { ADMIN_TEXT } from '../../config/admin-text';
+import { AdminText } from '../../config/admin-text.type';
+import { APP_TEXT } from '../../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { FieldLabel } from '../../ui/field-label';
-import { Input } from '../../ui/input';
-import { SyncService } from './sync.service';
-import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
 import { Checkbox } from '../../ui/checkbox';
 import { ChoiceCard } from '../../ui/choice-card';
+import { FieldLabel } from '../../ui/field-label';
+import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Input } from '../../ui/input';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
+import { SyncService } from './sync.service';
 
 /**
  * Fills `{placeholders}` in a line of admin text with the names the API sent
@@ -197,7 +197,7 @@ function substitute(
               <div>
                 <dt class="text-subtle">{{ text.count[tile.label] }}</dt>
                 <dd
-                  class="text-lg font-semibold"
+                  class="text-lg font-medium"
                   [class.text-red-700]="tile.danger"
                 >
                   {{ tile.value }}
@@ -211,7 +211,7 @@ function substitute(
           }
 
           @if (plan.rowErrors.length > 0) {
-            <h3 class="mt-6 mb-2 text-sm font-semibold text-red-700">
+            <h3 class="mt-6 mb-2 text-sm font-medium text-red-700">
               {{ text.errorsTitle }}
             </h3>
             <ul class="space-y-1 text-sm text-stone-700">
@@ -226,7 +226,7 @@ function substitute(
 
           @if (categoriesOfKind(plan, 'create'); as created) {
             @if (created.length > 0) {
-              <h3 class="mt-6 mb-1 text-sm font-semibold">
+              <h3 class="mt-6 mb-1 text-sm font-medium">
                 {{ text.categoriesTitle }}
               </h3>
               <p class="mb-2 text-sm text-subtle">{{ text.categoriesHint }}</p>
@@ -245,7 +245,7 @@ function substitute(
 
           @if (categoriesOfKind(plan, 'rename'); as renamed) {
             @if (renamed.length > 0) {
-              <h3 class="mt-6 mb-1 text-sm font-semibold">
+              <h3 class="mt-6 mb-1 text-sm font-medium">
                 {{ text.renamedCategoriesTitle }}
               </h3>
               <p class="mb-2 text-sm text-subtle">
@@ -268,7 +268,7 @@ function substitute(
           }
 
           @if (plan.products.length > 0) {
-            <h3 class="mt-6 mb-2 text-sm font-semibold">
+            <h3 class="mt-6 mb-2 text-sm font-medium">
               {{ text.productsTitle }}
             </h3>
             <ul class="divide-y divide-stone-100 text-sm">
@@ -296,7 +296,7 @@ function substitute(
           }
 
           @if (plan.emptiedCategories.length > 0) {
-            <h3 class="mt-6 mb-1 text-sm font-semibold">
+            <h3 class="mt-6 mb-1 text-sm font-medium">
               {{ text.emptiedTitle }}
             </h3>
             <p class="mb-2 text-sm text-subtle">{{ text.emptiedHint }}</p>
@@ -308,7 +308,7 @@ function substitute(
           }
 
           @if (plan.keptManual.length > 0) {
-            <h3 class="mt-6 mb-1 text-sm font-semibold">
+            <h3 class="mt-6 mb-1 text-sm font-medium">
               {{ text.keptTitle }}
             </h3>
             <p class="mb-2 text-sm text-subtle">{{ text.keptHint }}</p>

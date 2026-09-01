@@ -222,6 +222,7 @@
       "payment": "How it is paid",
       "note": "Your note",
       "back": "Change something",
+      "backToCart": "Back to cart",
       "send": "Review and send"
     },
     "privacyConsent": "I agree that my details will be used to handle this order. See our",

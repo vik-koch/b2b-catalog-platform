@@ -17,32 +17,32 @@ import {
   encodeAttributeParams,
   parseAttributeParams,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { LoadErrorView } from '../pages/load-error-view';
-import { stableValue } from '../core/stable-value';
-import { injectEditorReturnParams } from '../admin/editor-return';
-import { editAwareContent } from '../admin/edit-aware-content';
-import { EditActions } from '../admin/edit-actions';
-import { usePageSeo } from '../core/page-seo';
-import { EditModeService } from '../admin/edit-mode.service';
-import { HiddenProductsSection } from '../admin/products/hidden-products-section';
 import { AdminCatalogService } from '../admin/admin-catalog.service';
-import { ConfirmService } from '../ui/confirm.service';
-import { Button } from '../ui/button';
-import { Icon } from '../ui/icons/icon';
+import { EditActions } from '../admin/edit-actions';
+import { editAwareContent } from '../admin/edit-aware-content';
+import { EditModeService } from '../admin/edit-mode.service';
+import { injectEditorReturnParams } from '../admin/editor-return';
+import { HiddenProductsSection } from '../admin/products/hidden-products-section';
+import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
+import { stableValue } from '../core/stable-value';
+import { LoadErrorView } from '../pages/load-error-view';
 import { NotFoundView } from '../pages/not-found-view';
+import { Button } from '../ui/button';
+import { ConfirmService } from '../ui/confirm.service';
+import { Icon } from '../ui/icons/icon';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
 import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
-import { PRODUCT_GRID, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
   resolveCategorySort,
   sortParam,
 } from './product-sort-select';
+import { PRODUCT_GRID, ProductTile } from './product-tile';
 
 /**
  * A subcategory chip's height, in px — two lines of `text-sm` plus its padding
@@ -87,7 +87,7 @@ const SUBS_ASSUMED_FIT = 4;
          own padding is the exception — no element can query its own
          container. -->
     <section
-      class="@container/listing relative pb-8 sm:pb-12"
+      class="@container/listing relative pb-6"
       [attr.aria-busy]="products.isLoading() ? 'true' : null"
     >
       @if (products.error()) {

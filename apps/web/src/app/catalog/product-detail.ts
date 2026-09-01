@@ -8,16 +8,16 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { LoadErrorView } from '../pages/load-error-view';
-import { injectEditorReturnParams } from '../admin/editor-return';
-import { editAwareContent } from '../admin/edit-aware-content';
-import { EditActions } from '../admin/edit-actions';
 import { AdminCatalogService } from '../admin/admin-catalog.service';
-import { ConfirmService } from '../ui/confirm.service';
-import { usePageSeo } from '../core/page-seo';
+import { EditActions } from '../admin/edit-actions';
+import { editAwareContent } from '../admin/edit-aware-content';
+import { injectEditorReturnParams } from '../admin/editor-return';
 import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
+import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
+import { LoadErrorView } from '../pages/load-error-view';
 import { NotFoundView } from '../pages/not-found-view';
+import { ConfirmService } from '../ui/confirm.service';
 import { CatalogService } from './catalog.service';
 import {
   PRODUCT_PAGE_COLUMNS,
@@ -47,7 +47,7 @@ import {
          are anchored to its top-right corner and that corner is the same one
          on every storefront page. The narrower page width belongs to the
          content inside it (see ProductDetailView). -->
-    <section class="relative pb-8 sm:pb-12">
+    <section class="relative pb-6">
       @if (product.error()) {
         <app-load-error-view [message]="text.loadError" />
       } @else if (shown(); as loaded) {

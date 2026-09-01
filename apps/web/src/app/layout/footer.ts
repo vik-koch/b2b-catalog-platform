@@ -15,13 +15,13 @@ import { ScrollToTop } from './scroll-to-top';
       [class.border-t]="!seamless()"
       [class.border-border]="!seamless()"
     >
-      <div class="mx-auto w-full max-w-[82rem] px-4 py-6 text-sm">
+      <div class="mx-auto w-full max-w-[82rem] px-4 py-4 sm:py-6 text-sm">
         <!-- One row from "sm", a column below it — and in the column the
              copyright comes last, where a copyright line belongs and where it
              is not standing between a reader and the links they came down here
              for. -->
         <div
-          class="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between"
+          class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"
         >
           <!-- On a phone the way back to the top rides the copyright line,
                which is the last thing on the page and the one row down here
@@ -37,7 +37,7 @@ import { ScrollToTop } from './scroll-to-top';
                quiet links plus one filled button reads as one row either way.
                It closes the row on the right, where the eye lands last. -->
           <div
-            class="flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-y-2"
+            class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
           >
             <!-- Stacked on a phone: four quiet links wrapped across two lines
                  are a paragraph, and these are the ones a reader scans for by

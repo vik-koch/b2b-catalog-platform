@@ -79,7 +79,8 @@ export class ChoiceCard {
   readonly chosen = output<void>();
 
   protected readonly contentClass = computed(
-    () => `relative ml-7 empty:hidden ${this.description() ? 'mt-3' : 'mt-1'}`,
+    () =>
+      `relative ml-7 w-fit empty:hidden ${this.description() ? 'mt-3' : 'mt-1'}`,
   );
 
   protected readonly cardClass = computed(() => {

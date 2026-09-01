@@ -1,17 +1,17 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { APP_TEXT } from '../config/app-text';
-import { usePageSeo } from '../core/page-seo';
-import { ADMIN_TEXT } from '../config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
+import { ADMIN_TEXT } from '../config/admin-text';
+import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
 import { AdminIcon } from '../ui/icons/admin-icon';
+import { BuildInfoService } from './build-info.service';
+import { injectEditorReturnParams } from './editor-return';
 import { MaintenanceToggle } from './maintenance/maintenance-toggle';
 import { SyncService } from './sync/sync.service';
-import { injectEditorReturnParams } from './editor-return';
-import { BuildInfoService } from './build-info.service';
 
 /**
  * Admin panel — a small dashboard: everything that changes shop content (the
@@ -40,7 +40,7 @@ import { BuildInfoService } from './build-info.service';
              list of unrelated destinations, and the icon is what makes one
              findable at a glance. Only at this level — one per card. -->
         <h2
-          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
         >
           <app-admin-icon name="package" class="h-4 w-4" />
           {{ panelText.manage }}
@@ -55,7 +55,7 @@ import { BuildInfoService } from './build-info.service';
             class="grid divide-y divide-border sm:grid-cols-4 sm:divide-x sm:divide-y-0"
           >
             <div class="p-5">
-              <h3 class="mb-3 text-sm font-semibold">{{ panelText.sync }}</h3>
+              <h3 class="mb-3 text-sm font-medium">{{ panelText.sync }}</h3>
               <a appButton routerLink="/admin/sync" class="gap-2">
                 <app-admin-icon name="upload" class="h-4 w-4" />
                 {{ syncText.title }}
@@ -76,7 +76,7 @@ import { BuildInfoService } from './build-info.service';
             </div>
 
             <div class="p-5">
-              <h3 id="admin-catalog-heading" class="mb-3 text-sm font-semibold">
+              <h3 id="admin-catalog-heading" class="mb-3 text-sm font-medium">
                 {{ panelText.catalog }}
               </h3>
               <ul
@@ -107,7 +107,7 @@ import { BuildInfoService } from './build-info.service';
             <div class="p-5">
               <h3
                 id="admin-attributes-heading"
-                class="mb-3 text-sm font-semibold"
+                class="mb-3 text-sm font-medium"
               >
                 {{ panelText.attributes }}
               </h3>
@@ -137,7 +137,7 @@ import { BuildInfoService } from './build-info.service';
             </div>
 
             <div class="p-5">
-              <h3 class="mb-3 text-sm font-semibold">
+              <h3 class="mb-3 text-sm font-medium">
                 {{ panelText.pricing }}
               </h3>
               <a appButton variant="secondary" routerLink="/admin/tiers">
@@ -147,7 +147,7 @@ import { BuildInfoService } from './build-info.service';
           </div>
 
           <div class="border-t border-border p-5">
-            <h3 id="admin-pages-heading" class="mb-3 text-sm font-semibold">
+            <h3 id="admin-pages-heading" class="mb-3 text-sm font-medium">
               {{ panelText.pages }}
             </h3>
             <!-- Named after its heading: several of these labels ("About us")
@@ -186,7 +186,7 @@ import { BuildInfoService } from './build-info.service';
     <div class="mt-10 grid gap-6 md:grid-cols-2">
       <section class="flex flex-col">
         <h2
-          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
         >
           <app-admin-icon name="clipboard-list" class="h-4 w-4" />
           {{ panelText.orders }}
@@ -204,7 +204,7 @@ import { BuildInfoService } from './build-info.service';
 
       <section class="flex flex-col">
         <h2
-          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
         >
           <app-admin-icon name="users" class="h-4 w-4" />
           {{ panelText.accounts }}
@@ -230,7 +230,7 @@ import { BuildInfoService } from './build-info.service';
     @if (isAdmin()) {
       <section class="mt-10">
         <h2
-          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
         >
           <app-admin-icon name="wrench" class="h-4 w-4" />
           {{ panelText.site }}
@@ -242,7 +242,7 @@ import { BuildInfoService } from './build-info.service';
     <!-- The session's own password, in the same place a customer finds it. -->
     <section class="mt-10">
       <h2
-        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+        class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
       >
         <app-admin-icon name="lock" class="h-4 w-4" />
         {{ text.securityHeading }}

@@ -5,10 +5,10 @@ import {
   encodeAttributeParams,
   parseAttributeParams,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
 import { EditActions } from '../admin/edit-actions';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { injectEditorReturnParams } from '../admin/editor-return';
+import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
 import { stableValue } from '../core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
@@ -19,12 +19,12 @@ import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
-import { PRODUCT_GRID, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
   resolveSearchSort,
   sortParam,
 } from './product-sort-select';
+import { PRODUCT_GRID, ProductTile } from './product-tile';
 
 /**
  * Search results — the same product tiles the category grid
@@ -53,7 +53,7 @@ import {
          own padding is the exception — no element can query its own
          container. -->
     <section
-      class="@container/listing pb-8 sm:pb-12"
+      class="@container/listing pb-6"
       [attr.aria-busy]="results.isLoading() ? 'true' : null"
     >
       @if (results.error()) {

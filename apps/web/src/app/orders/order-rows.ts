@@ -37,7 +37,7 @@ import { orderStatusTone } from './order-status';
             [routerLink]="['/account/orders', order.reference]"
           >
             <div>
-              <p class="text-sm font-semibold">{{ order.reference }}</p>
+              <p class="text-sm font-medium">{{ order.reference }}</p>
               <p class="mt-1 text-sm text-muted">
                 {{ formatDate(order.createdAt) }} ·
                 {{ lineCount(order.itemCount) }}
@@ -47,7 +47,7 @@ import { orderStatusTone } from './order-status';
               <span appStatusBadge [tone]="statusTone(order.status)">
                 {{ statusLabel(order.status) }}
               </span>
-              <p class="text-sm font-semibold tabular-nums">
+              <p class="text-sm font-medium tabular-nums">
                 {{ total(order) }}
               </p>
             </div>

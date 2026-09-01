@@ -273,7 +273,13 @@ interface CartRow {
                          and dense to match: the row is a line of small
                          controls, and a full-sized field among them reads as
                          the thing to fill in. -->
-                      <div class="mt-auto pt-2">
+                      <!-- No wider than the controls it stands over while the
+                         line is stacked: a field that ran past their right
+                         edge read as belonging to the row, not to the column
+                         it is in. -->
+                      <div
+                        class="mt-auto pt-2 @max-[47.5rem]/row:max-w-[28.5rem]"
+                      >
                         <textarea
                           appInput
                           appAutoGrow

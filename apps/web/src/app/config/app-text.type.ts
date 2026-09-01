@@ -543,6 +543,7 @@ export const appTextSchema = z
             /** Back to the form. Not "edit": there is one form and this is a
              * look at it, not a separate document. */
             back: z.string(),
+            backToCart: z.string(),
             /** The form's own button, which leads here rather than sending. */
             send: z.string(),
           })

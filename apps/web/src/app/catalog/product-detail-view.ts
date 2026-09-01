@@ -21,10 +21,10 @@ import {
 import { APP_TEXT } from '../config/app-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { Button } from '../ui/button';
+import { Icon } from '../ui/icons/icon';
 import { ProductBuyBlock } from './product-buy-block';
 import { ProductGallery } from './product-gallery';
 import { useProductUnits } from './product-units-view';
-import { Icon } from '../ui/icons/icon';
 
 /**
  * The product page's grid: one 30rem column of prose beside one 20rem column
@@ -291,7 +291,7 @@ export class ProductDetailView {
    * is what carries the editor's return path.
    */
   protected readonly sectionHeading =
-    'text-xs font-semibold tracking-wide text-subtle uppercase';
+    'text-xs font-medium tracking-wide text-subtle uppercase';
   protected readonly sectionAnchor = 'transition-colors hover:text-accent';
   protected readonly descriptionId = 'description';
   protected readonly specsId = 'specifications';
