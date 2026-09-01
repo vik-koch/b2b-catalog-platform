@@ -22,6 +22,7 @@ export type IconName =
   | 'calendar'
   | 'chevron-right'
   | 'chevron-down'
+  | 'chevron-up'
   | 'close'
   | 'mail'
   | 'menu'
@@ -37,7 +38,6 @@ export type IconName =
   | 'shopping-basket'
   | 'circle-user-round'
   | 'circle-check'
-  | 'circle-chevron-up'
   | 'book-check'
   | 'book-dashed'
   | 'layout-grid'
@@ -77,6 +77,9 @@ export type IconName =
         }
         @case ('chevron-down') {
           <path d="m6 9 6 6 6-6" />
+        }
+        @case ('chevron-up') {
+          <path d="m18 15-6-6-6 6" />
         }
         @case ('close') {
           <path d="M18 6 6 18M6 6l12 12" />
@@ -170,10 +173,6 @@ export type IconName =
           <path d="M4.5 15.5h15" />
           <path d="m5 11 4-7" />
           <path d="m9 11 1 9" />
-        }
-        @case ('circle-chevron-up') {
-          <circle cx="12" cy="12" r="10" />
-          <path d="m8 14 4-4 4 4" />
         }
         @case ('circle-check') {
           <circle cx="12" cy="12" r="10" />

@@ -23,7 +23,15 @@ import { ScrollToTop } from './scroll-to-top';
         <div
           class="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
+          <!-- On a phone the way back to the top rides the copyright line,
+               which is the last thing on the page and the one row down here
+               with space to spare. It is only ever in the document once: the
+               shape that does not apply is display:none, so a screen reader
+               is never offered two of them. -->
+          <div class="flex items-center justify-between gap-4">
           <p class="text-xs text-subtle">{{ copyright }}</p>
+            <span class="sm:hidden"><app-scroll-to-top /></span>
+          </div>
           <!-- The call to action sits on the same line as the legal links, but
                outside the <nav>: it is not a legal link, and a nav of three
                quiet links plus one filled button reads as one row either way.
@@ -65,7 +73,7 @@ import { ScrollToTop } from './scroll-to-top';
             </nav>
             <div class="flex items-center gap-4">
               <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
-              <app-scroll-to-top />
+              <span class="hidden sm:block"><app-scroll-to-top /></span>
             </div>
           </div>
         </div>
