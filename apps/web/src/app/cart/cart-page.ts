@@ -169,28 +169,19 @@ interface CartRow {
       }
 
       <!-- The card moves out to the right exactly where the lines can keep
-           the shape they have without it: 593px, the width at which a line
-           gives up its columns for the narrow one (LISTING_NARROW), plus the
-           card's 20rem and the gap between them. A card beside lines drawn as
-           though there were no room for it is the one arrangement that reads
-           as a mistake, and any figure above this one buys nothing — the
-           photo takes up the slack by itself, 97px at the notch and 124px by
-           the time the lines have grown 3rem. Past it the lines take
-           everything the card does not.
-
-           In px, for the same reason 593 is: it is that number plus two
-           lengths, and rounding it to rem would move it off the width it is
-           derived from.
-
-           Under the card rather than beside it, the lines keep the page: a
-           line reads better with the room than lined up with a card it is no
-           longer beside.
+           the shape they have without it: LISTING_NARROW, plus the card's
+           20rem and the gap between them. A card beside lines drawn as though
+           there were no room for it is the one arrangement that reads as a
+           mistake, and any figure above this one buys nothing — the photo
+           takes up the slack by itself. Under the card, the lines take the
+           whole page rather than lining up with a card they are no longer
+           beside.
 
            Measured on the page rather than on the window: the frame's padding
            and the scrollbar are most of a column of controls, and the media
            query cannot see either. -->
       <div class="@container/cart">
-        <div class="grid gap-8 @min-[945px]/cart:grid-cols-[1fr_20rem]">
+        <div class="grid gap-8 @min-[60rem]/cart:grid-cols-[1fr_20rem]">
           <div>
             <!-- In the column, not above the grid: the summary beside it then
                  starts level with the heading, and the same card sits at the
@@ -377,7 +368,7 @@ interface CartRow {
              checkout gives it too: stacked, the card is the page, and three
              pages that agree about the card should agree about its width. -->
           <aside
-            class="max-w-xl @min-[945px]/cart:mt-9 @min-[945px]/cart:sticky @min-[945px]/cart:top-20 @min-[945px]/cart:self-start"
+            class="max-w-xl @min-[60rem]/cart:mt-9 @min-[60rem]/cart:sticky @min-[60rem]/cart:top-20 @min-[60rem]/cart:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"

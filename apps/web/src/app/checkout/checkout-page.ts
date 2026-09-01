@@ -160,7 +160,7 @@ import { AddressForm } from '../addresses/address-form';
            summary sits under the form instead of beside it. -->
       <div class="@container/checkout">
         <div
-          class="grid gap-8 @min-[945px]/checkout:grid-cols-[36rem_20rem] @min-[945px]/checkout:justify-between"
+          class="grid gap-8 @min-[60rem]/checkout:grid-cols-[36rem_20rem] @min-[60rem]/checkout:justify-between"
         >
           <!-- Heading and intro in the column, not above the grid: the summary
                beside them then starts level with the heading, and the same card
@@ -409,7 +409,7 @@ import { AddressForm } from '../addresses/address-form';
                long as the answers are, and the total is what the customer is
                reading them against. -->
           <aside
-            class="max-w-xl @min-[945px]/checkout:mt-9 @min-[945px]/checkout:sticky @min-[945px]/checkout:top-20 @min-[945px]/checkout:self-start"
+            class="max-w-xl @min-[60rem]/checkout:mt-9 @min-[60rem]/checkout:sticky @min-[60rem]/checkout:top-20 @min-[60rem]/checkout:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"

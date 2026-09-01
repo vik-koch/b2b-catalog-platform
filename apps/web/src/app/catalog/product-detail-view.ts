@@ -43,17 +43,17 @@ const TWO_COLUMN = '(min-width: 64rem)';
  * sized for that width and stops fitting below it.
  *
  * Below lg the description drops underneath, but the image and the buying
- * column stay side by side down to 576px, the narrowest viewport where the
+ * column stay side by side down to 36rem, the narrowest viewport where the
  * image still clears 234px beside them. Only under that does the page become
  * one column.
  */
 export const PRODUCT_PAGE_COLUMNS =
-  'grid gap-8 min-[576px]:grid-cols-[minmax(0,1fr)_16.25rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_16.25rem]';
+  'grid gap-8 min-[36rem]:grid-cols-[minmax(0,1fr)_16.25rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_16.25rem]';
 
 /** Where the description and specifications sit in those columns: under both
  * while there are two, in the middle once there are three. */
 export const PRODUCT_PAGE_INFO_COLUMN =
-  'order-3 min-[576px]:col-span-2 lg:order-2 lg:col-span-1';
+  'order-3 min-[36rem]:col-span-2 lg:order-2 lg:col-span-1';
 
 /**
  * Spanning the full width under the image, the description and the
@@ -69,7 +69,7 @@ const INFO_SIDE_BY_SIDE =
  * description. Left to the full `1fr` it is a 700px square on a tablet, which
  * is the whole screen for a photo the page has already shown at tile size.
  */
-const IMAGE_CAP = 'min-[576px]:max-lg:max-w-96';
+const IMAGE_CAP = 'min-[36rem]:max-lg:max-w-96';
 
 /** Where the description is collapsed behind a show-more: only where it has no
  * column of its own, which is a phone. */
