@@ -80,6 +80,12 @@ const SUBS_ASSUMED_FIT = 4;
     LoadErrorView,
   ],
   template: `
+    <!-- Everything inside measures this container rather than the window, so
+         the heading, the chips and the listing take their narrow shape in one
+         step: a viewport breakpoint and a container query on the same page
+         disagree by the width of the frame and the scrollbar. The section's
+         own padding is the exception — no element can query its own
+         container. -->
     <section
       class="@container/listing relative pb-8 sm:pb-12"
       [attr.aria-busy]="products.isLoading() ? 'true' : null"
@@ -175,7 +181,9 @@ const SUBS_ASSUMED_FIT = 4;
           <div
             class="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
           >
-            <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
+            <h1
+              class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+            >
               {{ data.category.name }}
             </h1>
 
@@ -183,7 +191,7 @@ const SUBS_ASSUMED_FIT = 4;
                  their own: a row that appears with the first selection would
                  push the grid down as it was ticked. -->
             <app-applied-filters
-              class="hidden min-w-0 flex-1 sm:block"
+              class="hidden min-w-0 flex-1 @min-[38rem]/listing:block"
               [facets]="data.facets"
             />
 
@@ -352,7 +360,9 @@ const SUBS_ASSUMED_FIT = 4;
                placeholder too — otherwise the title jumps down a row when the
                real content arrives. -->
           <div class="space-y-3">
-            <div class="h-4 w-1/2 rounded bg-stone-200 sm:w-1/3"></div>
+            <div
+              class="h-4 w-1/2 rounded bg-stone-200 @min-[38rem]/listing:w-1/3"
+            ></div>
             <div class="h-8 w-1/3 rounded bg-stone-200"></div>
           </div>
           <div [class]="productGrid">

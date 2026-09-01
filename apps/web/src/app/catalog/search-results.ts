@@ -46,12 +46,20 @@ import {
     LoadErrorView,
   ],
   template: `
+    <!-- Everything inside measures this container rather than the window, so
+         the heading, the chips and the listing take their narrow shape in one
+         step: a viewport breakpoint and a container query on the same page
+         disagree by the width of the frame and the scrollbar. The section's
+         own padding is the exception — no element can query its own
+         container. -->
     <section
       class="@container/listing pb-8 sm:pb-12"
       [attr.aria-busy]="results.isLoading() ? 'true' : null"
     >
       @if (results.error()) {
-        <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
+        <h1
+          class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+        >
           {{ heading() }}
         </h1>
         <app-load-error-view [message]="text.loadError" />
@@ -60,8 +68,12 @@ import {
           <div
             class="flex flex-row flex-wrap justify-between items-stretch gap-3"
           >
-            <div class="flex w-full flex-col justify-between sm:w-auto">
-              <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
+            <div
+              class="flex w-full flex-col justify-between @min-[38rem]/listing:w-auto"
+            >
+              <h1
+                class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+              >
                 {{ heading() }}
               </h1>
               <p class="mt-2 text-sm text-subtle">
@@ -72,10 +84,12 @@ import {
                  their own: a row that appears with the first selection would
                  push the grid down as it was ticked. -->
             <app-applied-filters
-              class="mt-3 hidden min-w-0 flex-1 sm:block"
+              class="mt-3 hidden min-w-0 flex-1 @min-[38rem]/listing:block"
               [facets]="data.facets"
             />
-            <div class="mt-2 flex w-full items-end justify-end gap-3 sm:w-auto">
+            <div
+              class="mt-2 flex w-full items-end justify-end gap-3 @min-[38rem]/listing:w-auto"
+            >
               <app-product-sort-select
                 [value]="sortKey()"
                 defaultSort="relevance"
@@ -187,7 +201,9 @@ import {
             </div>
           </div>
         } @else if (query()) {
-          <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
+          <h1
+            class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+          >
             {{ heading() }}
           </h1>
           <p class="mt-4 text-subtle">
@@ -205,7 +221,9 @@ import {
           <p class="mt-8 text-muted">{{ text.emptyQuery }}</p>
         }
       } @else if (showSkeleton()) {
-        <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
+        <h1
+          class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+        >
           {{ heading() }}
         </h1>
         <div class="mt-8 animate-pulse" aria-hidden="true">
