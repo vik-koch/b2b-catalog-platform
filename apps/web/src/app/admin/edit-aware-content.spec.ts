@@ -13,6 +13,7 @@ function gate(options: {
   settled: WritableSignal<boolean>;
   enabled?: WritableSignal<boolean>;
   alsoWaitFor?: WritableSignal<boolean>;
+  registerEditable?: () => () => void;
 }) {
   TestBed.configureTestingModule({
     providers: [
@@ -21,6 +22,7 @@ function gate(options: {
         useValue: {
           settled: options.settled,
           enabled: options.enabled ?? signal(false),
+          registerEditable: options.registerEditable ?? (() => () => undefined),
         },
       },
     ],
@@ -74,5 +76,22 @@ describe('editAwareContent', () => {
 
     alsoWaitFor.set(true);
     expect(content.ready()).toBe(true);
+  });
+  // What the floating toggle is drawn from: a page that goes through this gate
+  // is a page with something on it to edit, whether or not edit mode is on.
+  it('announces the surface to edit mode for as long as it is mounted', () => {
+    let registered = 0;
+    gate({
+      dataReady: signal(true),
+      settled: signal(true),
+      registerEditable: () => {
+        registered++;
+        return () => registered--;
+      },
+    });
+
+    expect(registered).toBe(1);
+    TestBed.resetTestingModule();
+    expect(registered).toBe(0);
   });
 });

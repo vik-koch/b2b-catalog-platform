@@ -34,7 +34,11 @@ async function render(
       { provide: PageService, useValue: { getPage } },
       {
         provide: EditModeService,
-        useValue: { enabled: () => false, settled: () => true },
+        useValue: {
+          enabled: () => false,
+          settled: () => true,
+          registerEditable: () => () => undefined,
+        },
       },
     ],
   });

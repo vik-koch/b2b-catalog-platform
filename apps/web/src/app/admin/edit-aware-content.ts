@@ -1,4 +1,11 @@
-import { computed, effect, inject, Signal, signal } from '@angular/core';
+import {
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  Signal,
+  signal,
+} from '@angular/core';
 import { adminText } from '../config/admin-text';
 import { AdminText } from '../config/admin-text.type';
 import { delayedLoading } from '../core/delayed-loading';
@@ -48,6 +55,9 @@ export function editAwareContent<K extends keyof AdminText>(options: {
   alsoWaitFor?: Signal<boolean>;
 }): EditAwareContent<AdminText[K]> {
   const editMode = inject(EditModeService);
+  // Tells the floating toggle there is something on this page to reveal, for
+  // as long as this surface is on it.
+  inject(DestroyRef).onDestroy(editMode.registerEditable());
 
   /** Whether the affordances are decided: the session has answered, and
    * anything edit mode itself waits on has arrived. */

@@ -10,9 +10,9 @@ import { LastListingService } from './catalog/last-listing.service';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 import { CookieConsent } from './consent/cookie-consent';
 import { BottomNav } from './layout/bottom-nav';
-import { SearchOverlay } from './layout/search-overlay';
 import { Footer } from './layout/footer';
 import { Header } from './layout/header';
+import { SearchOverlay } from './layout/search-overlay';
 
 @Component({
   imports: [
@@ -39,9 +39,13 @@ import { Header } from './layout/header';
            Those narrow columns are centered only on the signed-out screens
            (login, register, password reset), where the page is the whole task;
            inside the app they stay left, under a left-aligned heading. -->
-      <main class="mx-auto w-full max-w-[82rem] flex-1 px-4 py-6">
+      <main class="mx-auto w-full max-w-[82rem] flex-1 p-4">
         <router-outlet />
       </main>
+      <!-- Admin-only storefront edit-mode toggle; empty for everyone else, and
+           for any page with nothing on it to edit. Between the page and the
+           footer, which is the line it comes to rest on. -->
+      <app-edit-mode-toggle />
       <!-- No top border where the page behind it is already stone: the line
            would divide two areas of the same colour. -->
       <app-footer [seamless]="centered()" />
@@ -61,8 +65,6 @@ import { Header } from './layout/header';
     <!-- Renders nothing unless a signed-in account still owes a password
          change, so public pages carry only the (empty) component instance. -->
     <app-force-password-change />
-    <!-- Admin-only storefront edit-mode toggle; empty for everyone else. -->
-    <app-edit-mode-toggle />
   `,
   host: {
     '[style.--color-primary]': 'branding.theme.primary',

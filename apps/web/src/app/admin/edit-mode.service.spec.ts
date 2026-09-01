@@ -83,4 +83,23 @@ describe('EditModeService', () => {
 
     expect(svc.enabled()).toBe(false);
   });
+  // The toggle is drawn from this: a page with nothing editable on it — the
+  // cart, an account page, the admin panel — should not float an affordance
+  // that answers nothing.
+  it('knows whether the page has anything to edit', () => {
+    const svc = setup(adminUser);
+
+    expect(svc.hasEditables()).toBe(false);
+
+    const release = svc.registerEditable();
+    const releaseSecond = svc.registerEditable();
+    expect(svc.hasEditables()).toBe(true);
+
+    // Two surfaces on one page (a catalogue grid inside an overview) leave
+    // something to edit until the last of them goes.
+    release();
+    expect(svc.hasEditables()).toBe(true);
+    releaseSecond();
+    expect(svc.hasEditables()).toBe(false);
+  });
 });
