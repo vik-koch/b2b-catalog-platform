@@ -17,7 +17,7 @@ import { CartLink } from './cart-link';
 import { CatalogLink } from './catalog-link';
 import { withExitAnimation } from './leave-animation';
 import { MobileSearch } from './mobile-search';
-import { navActionClasses } from './nav-action';
+import { navActionClasses, TAB_CURRENT } from './nav-action';
 
 /** Must match the exit animation in styles.css. */
 const LEAVE_MS = 150;
@@ -50,6 +50,14 @@ const LEAVE_MS = 150;
   selector: 'app-bottom-nav',
   imports: [RouterLink, AccountLink, CartLink, CatalogLink, Icon],
   host: { class: 'sm:hidden' },
+  // The browser's own grey flash would land on top of the tabs' press tint,
+  // a beat later and in a colour the app does not own. Inherited, so this one
+  // declaration covers the bar and the panel above it.
+  styles: `
+    :host {
+      -webkit-tap-highlight-color: transparent;
+    }
+  `,
   template: `
     <!-- Fixed, and deliberately not a descendant of the header: a
          backdrop-filter makes an element the containing block for its fixed
@@ -152,9 +160,12 @@ const LEAVE_MS = 150;
             class="flex flex-1"
             (click)="close()"
           />
+          <!-- Lit for as long as the field it opens is the thing being
+               answered, whether that is the overlay or the header's own field.
+               Not aria-current: the tab goes nowhere. -->
           <button
             type="button"
-            [class]="tab.action + ' cursor-pointer'"
+            [class]="searchClasses()"
             (click)="openSearch()"
           >
             <app-icon name="search" class="h-6 w-6" />
@@ -168,9 +179,11 @@ const LEAVE_MS = 150;
             class="flex flex-1"
             (click)="close()"
           />
+          <!-- Open, the button carries the current tab's own tint: the panel
+               is where you are, and it is what the next tap closes. -->
           <button
             type="button"
-            [class]="tab.action + ' cursor-pointer'"
+            [class]="moreClasses()"
             [attr.aria-expanded]="menuOpen()"
             aria-controls="more-menu"
             (click)="toggle()"
@@ -214,11 +227,22 @@ export class BottomNav {
   protected readonly a11y = this.text.a11y;
   protected readonly contact = this.config.contact;
   protected readonly tab = navActionClasses('tab');
+  protected readonly moreClasses = computed(() =>
+    this.tabButton(this.menuOpen()),
+  );
+  protected readonly searchClasses = computed(() =>
+    this.tabButton(this.mobileSearch.active()),
+  );
+
+  /** A tab that is a state of this bar rather than a route. */
+  private tabButton(current: boolean): string {
+    return `${this.tab.action} cursor-pointer${current ? ` ${TAB_CURRENT}` : ''}`;
+  }
   /** The company pages, in the order the deployment lists them for the header. */
   protected readonly menuRoutes = this.config.pages.headerNav;
   /** One row of the panel — page links and contact details alike. */
   protected readonly menuRow =
-    'flex items-center gap-2 px-4 py-3 text-muted transition-colors hover:bg-stone-100 active:text-secondary aria-[current=page]:font-medium aria-[current=page]:text-primary';
+    'flex items-center gap-2 px-4 py-3 text-muted transition-colors hover:bg-stone-100 active:bg-primary/10 active:text-secondary aria-[current=page]:font-medium aria-[current=page]:text-primary';
 
   /** Signed in as a customer — the answer once there is one, the browser's own
    * hint until then, exactly as the account control decides its destination. */

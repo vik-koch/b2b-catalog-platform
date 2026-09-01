@@ -154,4 +154,54 @@ describe('BottomNav', () => {
     );
     expect(rows.at(-1)?.getAttribute('href')).toBe('mailto:' + contact?.email);
   });
+  // The tell is the whole tab, not the glyph's colour: the caption is sr-only
+  // down here, and accent means hover everywhere else in the app.
+  it('marks the current tab with a tint and a heavier glyph', async () => {
+    const view = await render('/cart');
+    const current = view.el.querySelector<HTMLElement>(
+      'a[aria-current="page"]',
+    );
+
+    expect(current?.getAttribute('href')).toBe('/cart');
+    expect(current?.classList).toContain(
+      'aria-[current=page]:not-active:before:bg-primary/10',
+    );
+    expect(current?.classList).toContain(
+      'aria-[current=page]:[--icon-stroke-width:2.25]',
+    );
+    // A stroke-width attribute on the SVG outranks anything it inherits, which
+    // is what left the previous marking drawing nothing.
+    expect(current?.querySelector('svg')?.hasAttribute('stroke-width')).toBe(
+      false,
+    );
+  });
+
+  // Open, the panel is where you are, and the button is what closes it.
+  it('tints the more tab while its panel is open', async () => {
+    const view = await render();
+
+    expect(view.more().classList.contains('before:bg-primary/10')).toBe(false);
+    view.more().click();
+    await view.rerender();
+
+    expect(view.more().classList.contains('before:bg-primary/10')).toBe(true);
+  });
+
+  // The search tab is not a route, so nothing in the URL says it is the thing
+  // being used; the field says so instead, wherever the field happens to be.
+  it('lights the search tab while a search field has the caret', async () => {
+    const view = await render();
+    const search = TestBed.inject(MobileSearch);
+    const tab = () => view.el.querySelector<HTMLButtonElement>('button');
+
+    expect(tab()?.classList.contains('before:bg-primary/10')).toBe(false);
+
+    search.setFocused(true);
+    await view.rerender();
+    expect(tab()?.classList.contains('before:bg-primary/10')).toBe(true);
+
+    search.setFocused(false);
+    await view.rerender();
+    expect(tab()?.classList.contains('before:bg-primary/10')).toBe(false);
+  });
 });

@@ -21,12 +21,20 @@
  *
  * `active:` is the press, and it is secondary rather than primary: primary is
  * where the control already rests, so pressing it would look like nothing
- * happened, and it is what the current page's own label uses.
+ * happened, and it is what the current page's own label uses. Hover is accent
+ * and only exists where there is a pointer — Tailwind's `hover:` carries
+ * `(hover: hover)` — so a touch goes straight to the press, and a cursor goes
+ * through accent on the way to it.
+ *
+ * The current control also thickens its glyph. A caption at medium weight is
+ * the header's tell and it is the one thing the bottom bar cannot use, since
+ * its captions are for screen readers only; carrying the weight in the glyph
+ * as well says the same thing in both shapes.
  */
 export type NavVariant = 'bar' | 'tab';
 
 const SHARED =
-  'group flex flex-col items-center text-primary transition-colors hover:text-accent active:text-secondary aria-[current=page]:stroke-3 aria-[current=page]:font-medium';
+  'group flex flex-col items-center text-primary transition-colors hover:text-accent active:text-secondary aria-[current=page]:font-medium aria-[current=page]:[--icon-stroke-width:2.25]';
 
 /**
  * Header row. The padding is what it is so the icon and its caption together
@@ -50,13 +58,47 @@ const SHARED =
 const BAR = `${SHARED} rounded-lg px-3 py-2.5 md:min-w-18`;
 
 /**
+ * What a tab shows when it is the one in use: the disc behind the glyph, and
+ * the same heavier stroke `aria-current` gives the tabs that are links. Kept
+ * separate because two of the five tabs are not routes — the search field and
+ * the panel are states of this bar, and `aria-current="page"` on a button that
+ * goes nowhere would tell a screen reader something untrue.
+ */
+export const TAB_CURRENT = 'before:bg-primary/10 [--icon-stroke-width:2.25]';
+
+/**
  * Bottom bar. Each control takes an equal share of the width and the whole tab
  * is the tap target, so there is no minimum to set and no field to align with.
  * `flex-1` is on the control itself, which means the element that hosts it has
  * to be a flex item of the bar and pass the share on — see BottomNav, which
  * also sets the row's height for all five to fill.
+ *
+ * Press and current state are drawn behind the glyph rather than in it, which
+ * is what the header can get away with: a thumb covers a fifth of a phone's
+ * width, so a colour shift inside a 24px glyph happens under the hand that
+ * caused it. A 36px disc around the glyph is still visible past a fingertip,
+ * and it is a shape the row can carry five of without becoming a row of
+ * blocks.
+ *
+ * The current tab tints its disc and thickens its glyph; it does not recolour
+ * it. Accent is hover across the whole app, and a mouse in a narrow window
+ * would otherwise make every tab it passes over look like the page you are on.
+ * The press paints the same disc in secondary, so it reads as the current tab
+ * answering rather than as a second mark appearing next to the first.
  */
-const TAB = `${SHARED} flex-1 justify-center rounded-md`;
+const TAB =
+  `${SHARED} relative isolate flex-1 justify-center rounded-lg ` +
+  // The disc, drawn as the tab's own ::before rather than as a wrapper around
+  // each glyph — five controls in three components would each need the same
+  // box. Centred on the tab, which is where the icon is: the caption below it
+  // is `sr-only`, so it takes no room and nothing pulls the glyph off centre.
+  // Behind the icon, and `isolate` so that `-z-10` cannot reach past the tab
+  // and hide under the bar's own surface.
+  `before:absolute before:top-1/2 before:left-1/2 before:-z-10 before:h-9 before:w-9 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:transition-colors before:content-[''] ` +
+  // `not-active` because the two rules are the same weight and Tailwind emits
+  // the press first, so the current tab would keep its own disc under a
+  // thumb — the one tab where the press most needs to be visible.
+  `active:before:bg-secondary/15 aria-[current=page]:not-active:before:bg-primary/10`;
 
 /**
  * Wrapper for whatever a control puts under its icon — a caption, or the

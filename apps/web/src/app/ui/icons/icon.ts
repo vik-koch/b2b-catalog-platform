@@ -51,13 +51,21 @@ export type IconName =
 @Component({
   selector: 'app-icon',
   host: { class: 'inline-flex' },
+  // Set as a property rather than as the SVG's own stroke-width attribute: a
+  // presentation attribute on the element beats any value inherited from an
+  // ancestor, so a caller asking for a heavier glyph would be ignored. As a
+  // custom property it inherits, and anything above the icon can raise it.
+  styles: `
+    svg {
+      stroke-width: var(--icon-stroke-width, 1.75);
+    }
+  `,
   template: `
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.75"
       stroke-linecap="round"
       stroke-linejoin="round"
       class="h-full w-full"

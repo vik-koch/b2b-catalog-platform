@@ -20,6 +20,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { CatalogService } from '../catalog/catalog.service';
 import { APP_TEXT } from '../config/app-text';
+import { MobileSearch } from './mobile-search';
 import { currentUrl } from '../core/current-url';
 import { debounced } from '../core/debounced';
 import { HighlightedLine } from '../core/highlighted-line';
@@ -66,7 +67,11 @@ let nextId = 0;
            between them is a single line — the button's left border, the field
            having none on that side — and it belongs to whichever control is
            lit: the field's hover and focus reach across through peer-*, and
-           the button's own hover takes it back. Either highlight therefore
+           the button's own hover takes it back. Focus outranks hover on the
+           field, rather than the two being left to whichever order Tailwind
+           emits — with a cursor the pointer is still over the field it just
+           put the caret in, so the field would light amber where a phone lit
+           it secondary and the same state would have two colours. Either highlight therefore
            closes around its control instead of stopping short of the seam.
            Both stretch to the row's height, which keeps them the same size. -->
       <div class="flex items-stretch">
@@ -75,7 +80,7 @@ let nextId = 0;
              being typed, not with the submit button. The border lives on the
              wrapper, not the input, so the leading glyph sits inside it. -->
         <div
-          class="peer relative flex min-w-0 flex-1 items-center rounded-l-md border-2 border-r-0 border-primary bg-white/80 hover:border-accent focus-within:border-secondary"
+          class="peer relative flex min-w-0 flex-1 items-center rounded-l-md border-2 border-r-0 border-primary bg-white/80 not-focus-within:hover:border-accent focus-within:border-secondary"
         >
           <!-- Leading glyph: a label for the field rather than a control, so it
                is muted and takes no pointer events. -->
@@ -100,7 +105,8 @@ let nextId = 0;
             [value]="value()"
             (input)="type($any($event.target).value)"
             (keydown)="keydown($event)"
-            (blur)="close()"
+            (focus)="mobileSearch.setFocused(true)"
+            (blur)="blurred()"
             class="min-w-0 flex-1 bg-transparent py-2 pr-1 pl-9 text-sm text-stone-800 placeholder:text-subtle focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
           @if (value()) {
@@ -166,7 +172,7 @@ let nextId = 0;
              drawn inside. -->
         <button
           type="submit"
-          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-3 text-sm font-medium text-white transition-colors peer-hover:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent focus-visible:-outline-offset-2 focus-visible:outline-1 focus-visible:outline-white"
+          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-3 text-sm font-medium text-white transition-colors peer-[:hover:not(:focus-within)]:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent focus-visible:-outline-offset-2 focus-visible:outline-1 focus-visible:outline-white"
         >
           {{ text.submit }}
         </button>
@@ -180,6 +186,9 @@ let nextId = 0;
 })
 export class SearchField {
   private readonly router = inject(Router);
+  /** Only to say whether the caret is here — see MobileSearch.active, which the
+   * bottom bar's search tab is lit from. */
+  protected readonly mobileSearch = inject(MobileSearch);
   private readonly catalog = inject(CatalogService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
@@ -375,6 +384,13 @@ export class SearchField {
   private go(slug: string): void {
     this.close();
     void this.router.navigate(['/product', slug]);
+  }
+
+  /** The caret leaving takes the suggestions with it, and unlights the bottom
+   * bar's search tab — the tab is the field's, wherever the field is. */
+  protected blurred(): void {
+    this.close();
+    this.mobileSearch.setFocused(false);
   }
 
   protected close(): void {

@@ -1,5 +1,12 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import {
+  computed,
+  effect,
+  inject,
+  Injectable,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
@@ -44,6 +51,15 @@ export class MobileSearch {
 
   /** Whether the field is open over the page. */
   readonly open = signal(false);
+  /** Whether a search field has the caret — set by the field itself. */
+  private readonly focused = signal(false);
+  /**
+   * Whether searching is what the visitor is currently doing, either way the
+   * tab can answer: the field over the page, or the header's own field with
+   * the caret in it. The bottom bar lights its search tab from this — the tab
+   * is not a route, so there is no URL to read it off.
+   */
+  readonly active = computed(() => this.open() || this.focused());
 
   constructor() {
     inject(Router)
@@ -68,6 +84,11 @@ export class MobileSearch {
 
   release(anchor: SearchAnchor): void {
     if (this.anchor === anchor) this.anchor = null;
+  }
+
+  /** The field reports the caret arriving and leaving. */
+  setFocused(focused: boolean): void {
+    this.focused.set(focused);
   }
 
   /** What the search tab does. */
