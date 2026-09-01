@@ -6,9 +6,11 @@ import { APP_TEXT } from '../config/app-text';
  * concern only — the API models absence as an empty `images` array; the galleries
  * render this in its place. Fills its container (`aspect-square` framings on the
  * grid tile and the product page alike), so one component covers a tiny thumb and
- * the large product image. The caption is deployment text (`catalog.imagePlaceholder`)
- * and hides on small renders where it would be unreadable; the glyph is the owned
- * Lucide `image-off` (ISC), inlined as page-level chrome rather than pulled from the
+ * the large product image. The caption is deployment text
+ * (`catalog.imagePlaceholder`), shown from the width where the box can hold it —
+ * measured on the box, since the same component is a 4rem thumbnail and a
+ * full-width product image on one screen. The glyph is the owned Lucide
+ * `image-off` (ISC), inlined as page-level chrome rather than pulled from the
  * editor-only icon set.
  */
 @Component({
@@ -17,7 +19,7 @@ import { APP_TEXT } from '../config/app-text';
     role: 'img',
     '[attr.aria-label]': 'ariaLabel()',
     class:
-      'flex h-full w-full flex-col items-center justify-center gap-2 bg-stone-100 text-stone-400',
+      '@container/placeholder flex h-full w-full flex-col items-center justify-center gap-2 bg-stone-100 text-stone-400',
   },
   template: `
     <svg
@@ -40,9 +42,13 @@ import { APP_TEXT } from '../config/app-text';
       />
       <path d="M21 15V5a2 2 0 0 0-2-2H9" />
     </svg>
-    <span class="hidden px-2 text-center text-xs sm:block">{{
-      text.imagePlaceholder
-    }}</span>
+    <!-- 6rem holds the glyph, the gap and two wrapped lines of caption in a
+         box as tall as it is wide. Below that it is a thumbnail, and the
+         glyph says the same thing on its own. -->
+    <span
+      class="hidden px-2 text-center text-xs text-balance @min-[6rem]/placeholder:block"
+      >{{ text.imagePlaceholder }}</span
+    >
   `,
 })
 export class ImagePlaceholder {
