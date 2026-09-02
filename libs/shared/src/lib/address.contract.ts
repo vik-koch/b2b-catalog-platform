@@ -1,8 +1,7 @@
-import { initContract } from '@ts-rest/core';
+import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
+import { commonAuthErrors } from './api-error';
 
-const c = initContract();
 
 /**
  * The address book (FR-CART-04) and the suggestion that fills a form in it
@@ -135,56 +134,76 @@ export type AddressSuggestion = z.infer<typeof addressSuggestionSchema>;
  * own user, so no route takes an account id — there is no "may I see this one"
  * question to get wrong.
  */
-export const addressesContract = c.router({
-  listAddresses: {
-    method: 'GET',
-    path: '/account/addresses',
-    responses: {
-      200: z.object({ items: z.array(addressSchema) }),
-      401: commonAuthErrorSchema,
-    },
-    summary: "The signed-in account's saved addresses",
-  },
-  createAddress: {
-    method: 'POST',
-    path: '/account/addresses',
-    body: addressInputSchema,
-    responses: {
-      201: addressSchema,
-      401: commonAuthErrorSchema,
-      /** The book is full, the country is not one this deployment ships to,
-       * or the postal code is not the shape that country's codes take. */
-      409: apiErrorSchema([
-        'address-limit-reached',
-        'unsupported-country',
-        'invalid-postal-code',
-      ]),
-    },
-    summary: 'Save a new address',
-  },
-  updateAddress: {
-    method: 'PUT',
-    path: '/account/addresses/:id',
-    body: addressInputSchema,
-    responses: {
-      200: addressSchema,
-      401: commonAuthErrorSchema,
-      404: apiErrorSchema(['address-not-found']),
-      409: apiErrorSchema(['unsupported-country', 'invalid-postal-code']),
-    },
-    summary: 'Correct a saved address',
-  },
-  deleteAddress: {
-    method: 'DELETE',
-    path: '/account/addresses/:id',
-    responses: {
-      200: z.object({ message: z.string() }),
-      401: commonAuthErrorSchema,
-      404: apiErrorSchema(['address-not-found']),
-    },
-    summary: 'Remove a saved address',
-  },
-});
+/** Every route on the address book belongs to the signed-in account. */
+const account = oc.errors(commonAuthErrors);
+
+/** What a saved address can be refused for. */
+const addressErrors = {
+  'address-not-found': { status: 404 },
+  /** The book is full. */
+  'address-limit-reached': { status: 409 },
+  /** Not a country this deployment ships to. */
+  'unsupported-country': { status: 409 },
+  /** Not the shape that country's postal codes take. */
+  'invalid-postal-code': { status: 409 },
+} as const;
+
+export const addressesContract = {
+  listAddresses: account
+    .route({
+      method: 'GET',
+      path: '/account/addresses',
+      summary: "The signed-in account's saved addresses",
+    })
+    .output(z.object({ items: z.array(addressSchema) })),
+
+  createAddress: account
+    .route({
+      method: 'POST',
+      path: '/account/addresses',
+      successStatus: 201,
+      inputStructure: 'detailed',
+      summary: 'Save a new address',
+    })
+    .errors({
+      'address-limit-reached': addressErrors['address-limit-reached'],
+      'unsupported-country': addressErrors['unsupported-country'],
+      'invalid-postal-code': addressErrors['invalid-postal-code'],
+    })
+    .input(z.object({ body: addressInputSchema }))
+    .output(addressSchema),
+
+  updateAddress: account
+    .route({
+      method: 'PUT',
+      path: '/account/addresses/{id}',
+      inputStructure: 'detailed',
+      summary: 'Correct a saved address',
+    })
+    .errors({
+      'address-not-found': addressErrors['address-not-found'],
+      'unsupported-country': addressErrors['unsupported-country'],
+      'invalid-postal-code': addressErrors['invalid-postal-code'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.string() }),
+        body: addressInputSchema,
+      }),
+    )
+    .output(addressSchema),
+
+  deleteAddress: account
+    .route({
+      method: 'DELETE',
+      path: '/account/addresses/{id}',
+      inputStructure: 'detailed',
+      summary: 'Remove a saved address',
+    })
+    .errors({ 'address-not-found': addressErrors['address-not-found'] })
+    .input(z.object({ params: z.object({ id: z.string() }) }))
+    .output(z.object({ message: z.string() })),
+};
 
 /**
  * Address suggestion (FR-CART-11), proxied so the provider credential stays
@@ -192,18 +211,22 @@ export const addressesContract = c.router({
  * form at checkout. A deployment with no adapter configured answers with an
  * empty list, which is what makes the field degrade to plain typing.
  */
-export const addressSuggestionContract = c.router({
-  suggestAddresses: {
-    method: 'GET',
-    path: '/addresses/suggestions',
-    query: z.object({
-      q: z.string().trim().min(1).max(ADDRESS_QUERY_MAX_LENGTH),
-      /** Bias the provider; the deployment's default where absent. */
-      country: countryCodeSchema.optional(),
-    }),
-    responses: {
-      200: z.object({ items: z.array(addressSuggestionSchema) }),
-    },
-    summary: 'Addresses matching what the customer is typing',
-  },
-});
+export const addressSuggestionContract = {
+  suggestAddresses: oc
+    .route({
+      method: 'GET',
+      path: '/addresses/suggestions',
+      inputStructure: 'detailed',
+      summary: 'Addresses matching what the customer is typing',
+    })
+    .input(
+      z.object({
+        query: z.object({
+          q: z.string().trim().min(1).max(ADDRESS_QUERY_MAX_LENGTH),
+          /** Bias the provider; the deployment's default where absent. */
+          country: countryCodeSchema.optional(),
+        }),
+      }),
+    )
+    .output(z.object({ items: z.array(addressSuggestionSchema) })),
+};

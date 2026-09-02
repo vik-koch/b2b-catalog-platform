@@ -1,6 +1,6 @@
-import { initContract } from '@ts-rest/core';
+import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
+import { commonAuthErrors } from './api-error';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
@@ -8,7 +8,6 @@ import {
 } from './attribute-value';
 import { slugSchema } from './slug';
 
-const c = initContract();
 
 /**
  * The registry of filterable attributes (FR-ATTR-01), admin side.
@@ -101,7 +100,13 @@ export const ATTRIBUTE_ERROR_CODES = [
   'attribute-slug-taken',
 ] as const;
 export type AttributeErrorCode = (typeof ATTRIBUTE_ERROR_CODES)[number];
-const attributeErrorSchema = apiErrorSchema(ATTRIBUTE_ERROR_CODES);
+
+/** A missing definition is a 404; a name or slug already taken is a conflict. */
+const attributeErrors = {
+  'attribute-not-found': { status: 404 },
+  'attribute-name-taken': { status: 409 },
+  'attribute-slug-taken': { status: 409 },
+} as const satisfies Record<AttributeErrorCode, { status: number }>;
 
 /**
  * One attribute key in use across the catalog, defined or freetext
@@ -249,133 +254,173 @@ export type SaveCategoryFiltersRequest = z.infer<
   typeof saveCategoryFiltersSchema
 >;
 
-const categoryFilterErrorSchema = apiErrorSchema([
-  'category-not-found',
-  'attribute-not-found',
-]);
+/** A filter panel names a category and the attributes on it; either can be gone. */
+const categoryFilterErrors = {
+  'category-not-found': { status: 404 },
+  'attribute-not-found': attributeErrors['attribute-not-found'],
+} as const;
 
-export const attributesContract = c.router(
-  {
-    listAttributes: {
+/** Every route here is admin-only. */
+const admin = oc.errors(commonAuthErrors);
+
+export const attributesContract = {
+  listAttributes: admin
+    .route({
       method: 'GET',
       path: '/admin/attributes',
-      responses: {
-        200: z
-          .object({ definitions: z.array(attributeDefinitionSchema) })
-          .strict(),
-      },
       summary: 'List the filterable attribute definitions (admin)',
-    },
-    listAttributeKeys: {
+    })
+    .output(
+      z.object({ definitions: z.array(attributeDefinitionSchema) }).strict(),
+    ),
+
+  listAttributeKeys: admin
+    .route({
       method: 'GET',
       path: '/admin/attributes/inventory',
-      responses: {
-        200: z.object({ keys: z.array(attributeKeyUsageSchema) }).strict(),
-      },
       summary: 'List every attribute key in use, defined or freetext (admin)',
-    },
-    listAttributeValues: {
+    })
+    .output(z.object({ keys: z.array(attributeKeyUsageSchema) }).strict()),
+
+  listAttributeValues: admin
+    .route({
       method: 'GET',
       path: '/admin/attributes/inventory/values',
-      query: z.object({
-        key: z.string().min(1).max(ATTRIBUTE_NAME_MAX_LENGTH),
-      }),
-      responses: {
-        200: z
-          .object({
-            key: z.string(),
-            values: z.array(attributeValueUsageSchema),
-          })
-          .strict(),
-      },
+      inputStructure: 'detailed',
       summary: 'List the values in use under one attribute key (admin)',
-    },
-    renameAttributeKey: {
+    })
+    .input(
+      z.object({
+        query: z.object({
+          key: z.string().min(1).max(ATTRIBUTE_NAME_MAX_LENGTH),
+        }),
+      }),
+    )
+    .output(
+      z
+        .object({
+          key: z.string(),
+          values: z.array(attributeValueUsageSchema),
+        })
+        .strict(),
+    ),
+
+  renameAttributeKey: admin
+    .route({
       method: 'POST',
       path: '/admin/attributes/inventory/rename-key',
-      body: renameAttributeKeySchema,
-      responses: { 200: renameResultSchema },
+      inputStructure: 'detailed',
       summary: 'Rename an attribute key across all products (admin)',
-    },
-    renameAttributeValue: {
+    })
+    .input(z.object({ body: renameAttributeKeySchema }))
+    .output(renameResultSchema),
+
+  renameAttributeValue: admin
+    .route({
       method: 'POST',
       path: '/admin/attributes/inventory/rename-value',
-      body: renameAttributeValueSchema,
-      responses: { 200: renameResultSchema },
-      summary:
-        "Rename one of an attribute's values across all products (admin)",
-    },
-    createAttribute: {
+      inputStructure: 'detailed',
+      summary: "Rename one of an attribute's values across all products (admin)",
+    })
+    .input(z.object({ body: renameAttributeValueSchema }))
+    .output(renameResultSchema),
+
+  createAttribute: admin
+    .route({
       method: 'POST',
       path: '/admin/attributes',
-      body: attributeDefinitionInputSchema,
-      responses: {
-        201: attributeDefinitionSchema,
-        // Name or slug already taken.
-        409: attributeErrorSchema,
-      },
+      successStatus: 201,
+      inputStructure: 'detailed',
       summary: 'Declare an attribute filterable (admin)',
-    },
-    updateAttribute: {
+    })
+    // Name or slug already taken.
+    .errors({
+      'attribute-name-taken': attributeErrors['attribute-name-taken'],
+      'attribute-slug-taken': attributeErrors['attribute-slug-taken'],
+    })
+    .input(z.object({ body: attributeDefinitionInputSchema }))
+    .output(attributeDefinitionSchema),
+
+  updateAttribute: admin
+    .route({
       method: 'PUT',
-      path: '/admin/attributes/:id',
-      pathParams: z.object({ id: z.string().uuid() }),
-      body: attributeDefinitionInputSchema,
-      responses: {
-        200: attributeDefinitionSchema,
-        404: attributeErrorSchema,
-        409: attributeErrorSchema,
-      },
+      path: '/admin/attributes/{id}',
+      inputStructure: 'detailed',
       summary: 'Rename or retype an attribute definition (admin)',
-    },
-    reorderAttributes: {
+    })
+    .errors(attributeErrors)
+    .input(
+      z.object({
+        params: z.object({ id: z.string().uuid() }),
+        body: attributeDefinitionInputSchema,
+      }),
+    )
+    .output(attributeDefinitionSchema),
+
+  reorderAttributes: admin
+    .route({
       method: 'PATCH',
+      // No clash with `/admin/attributes/{id}`: nothing else answers PATCH here.
       path: '/admin/attributes/order',
-      body: reorderAttributesSchema,
-      responses: {
-        200: z
-          .object({ definitions: z.array(attributeDefinitionSchema) })
-          .strict(),
-        404: attributeErrorSchema,
-      },
+      inputStructure: 'detailed',
       summary: 'Set the order of the filter panel (admin)',
-    },
-    getCategoryFilters: {
+    })
+    .errors({
+      'attribute-not-found': attributeErrors['attribute-not-found'],
+    })
+    .input(z.object({ body: reorderAttributesSchema }))
+    .output(
+      z.object({ definitions: z.array(attributeDefinitionSchema) }).strict(),
+    ),
+
+  getCategoryFilters: admin
+    .route({
       method: 'GET',
-      path: '/admin/categories/:slug/filters',
-      pathParams: z.object({ slug: slugSchema }),
-      responses: { 200: categoryFiltersSchema, 404: categoryFilterErrorSchema },
+      path: '/admin/categories/{slug}/filters',
+      inputStructure: 'detailed',
       summary: "Read one category's filter panel (admin)",
-    },
-    saveCategoryFilters: {
+    })
+    .errors(categoryFilterErrors)
+    .input(z.object({ params: z.object({ slug: slugSchema }) }))
+    .output(categoryFiltersSchema),
+
+  saveCategoryFilters: admin
+    .route({
       method: 'PUT',
-      path: '/admin/categories/:slug/filters',
-      pathParams: z.object({ slug: slugSchema }),
-      body: saveCategoryFiltersSchema,
-      responses: { 200: categoryFiltersSchema, 404: categoryFilterErrorSchema },
+      path: '/admin/categories/{slug}/filters',
+      inputStructure: 'detailed',
       summary: "Set one category's filter panel (admin)",
-    },
-    resetCategoryFilters: {
+    })
+    .errors(categoryFilterErrors)
+    .input(
+      z.object({
+        params: z.object({ slug: slugSchema }),
+        body: saveCategoryFiltersSchema,
+      }),
+    )
+    .output(categoryFiltersSchema),
+
+  resetCategoryFilters: admin
+    .route({
       method: 'DELETE',
-      path: '/admin/categories/:slug/filters',
-      pathParams: z.object({ slug: slugSchema }),
-      body: z.void(),
-      responses: { 200: categoryFiltersSchema, 404: categoryFilterErrorSchema },
+      path: '/admin/categories/{slug}/filters',
+      inputStructure: 'detailed',
       summary: 'Drop a category overlay and inherit again (admin)',
-    },
-    deleteAttribute: {
+    })
+    .errors(categoryFilterErrors)
+    .input(z.object({ params: z.object({ slug: slugSchema }) }))
+    .output(categoryFiltersSchema),
+
+  deleteAttribute: admin
+    .route({
       method: 'DELETE',
-      path: '/admin/attributes/:id',
-      pathParams: z.object({ id: z.string().uuid() }),
-      body: z.void(),
-      responses: {
-        200: z.object({ message: z.string() }),
-        404: attributeErrorSchema,
-      },
+      path: '/admin/attributes/{id}',
+      inputStructure: 'detailed',
       summary: 'Stop filtering by an attribute (admin)',
-    },
-  },
-  {
-    commonResponses: { 401: commonAuthErrorSchema, 403: commonAuthErrorSchema },
-  },
-);
+    })
+    .errors({
+      'attribute-not-found': attributeErrors['attribute-not-found'],
+    })
+    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .output(z.object({ message: z.string() })),
+};

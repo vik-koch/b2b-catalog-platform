@@ -7,7 +7,8 @@ import {
   ordersContract,
   Pagination,
 } from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../core/api-client';
+import { safe } from '@orpc/client';
+import { createOrpcClient } from '../core/orpc-client';
 
 /**
  * What placing an order came to. The refusals are the ones the form has to
@@ -45,31 +46,30 @@ export type SubmitOrderResult =
  */
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
-  private readonly client = createApiClient(ordersContract);
+  private readonly client = createOrpcClient(ordersContract);
 
   async submit(order: OrderSubmission): Promise<SubmitOrderResult> {
-    const response = await this.client.submitOrder({ body: order });
-    if (response.status === 201) return { ok: true, ...response.body };
-    if (response.status === 400) {
-      return { ok: false, code: response.body.code };
-    }
-    if (response.status === 409) {
-      return {
-        ok: false,
-        code: 'cart-changed',
-        preview: response.body.preview,
-      };
-    }
-    throw new Error(`Failed to place the order (status ${response.status})`);
+    const result = await safe(this.client.submitOrder({ body: order }));
+
+    if (result.isSuccess) return { ok: true, ...result.data };
+    if (!result.isDefined) throw result.error;
+
+    // The one refusal that carries an answer: the fresh pricing rides along as
+    // the error's own data, so the page can show what moved.
+    return result.error.code === 'cart-changed'
+      ? {
+          ok: false,
+          code: 'cart-changed',
+          preview: result.error.data.preview,
+        }
+      : { ok: false, code: result.error.code };
   }
 
   /** The account's own order requests, newest first (FR-ACC-01). */
   async listMine(
     page: number,
   ): Promise<{ items: OrderSummary[]; pagination: Pagination }> {
-    const response = await this.client.listMyOrders({ query: { page } });
-    if (response.status === 200) return response.body;
-    throw new Error(`Failed to load your orders (status ${response.status})`);
+    return this.client.listMyOrders({ query: { page } });
   }
 
   /**
@@ -78,10 +78,12 @@ export class OrdersService {
    * somebody else's, and the page has nothing else to say about either.
    */
   async getMine(reference: string): Promise<OrderDetail | null> {
-    const response = await this.client.getMyOrder({ params: { reference } });
-    if (response.status === 200) return response.body;
-    if (response.status === 404) return null;
-    throw new Error(`Failed to load the order (status ${response.status})`);
+    const result = await safe(this.client.getMyOrder({ params: { reference } }));
+    if (result.isDefined && result.error.code === 'order-not-found') {
+      return null;
+    }
+    if (!result.isSuccess) throw result.error;
+    return result.data;
   }
 
   /**
@@ -90,9 +92,11 @@ export class OrdersService {
    * stale one is simply an order nobody can open.
    */
   async getByToken(token: string): Promise<OrderDetail | null> {
-    const response = await this.client.getOrderByToken({ params: { token } });
-    if (response.status === 200) return response.body;
-    if (response.status === 404) return null;
-    throw new Error(`Failed to load the order (status ${response.status})`);
+    const result = await safe(this.client.getOrderByToken({ params: { token } }));
+    if (result.isDefined && result.error.code === 'order-not-found') {
+      return null;
+    }
+    if (!result.isSuccess) throw result.error;
+    return result.data;
   }
 }

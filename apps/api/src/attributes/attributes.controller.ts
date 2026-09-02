@@ -1,9 +1,10 @@
 import { Controller } from '@nestjs/common';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import { attributesContract, AuthUser } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { AuditLogger } from '../audit/audit.logger';
+import { refusals } from '../orpc/refusals';
 import { AttributesService } from './attributes.service';
 
 /**
@@ -19,14 +20,11 @@ export class AttributesController {
     private readonly audit: AuditLogger,
   ) {}
 
-  @TsRestHandler(attributesContract.listAttributes, { validateResponses: true })
+  @Implement(attributesContract.listAttributes)
   listAttributes() {
-    return tsRestHandler(attributesContract.listAttributes, async () => {
-      return {
-        status: 200,
-        body: { definitions: await this.service.listAttributes() },
-      };
-    });
+    return implement(attributesContract.listAttributes).handler(async () => ({
+      definitions: await this.service.listAttributes(),
+    }));
   }
 
   /**
@@ -34,30 +32,20 @@ export class AttributesController {
    * reads product data, but it is keyed by attribute rather than by product,
    * which is why it lives here and not on the catalog surface.
    */
-  @TsRestHandler(attributesContract.listAttributeKeys, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.listAttributeKeys)
   listAttributeKeys() {
-    return tsRestHandler(attributesContract.listAttributeKeys, async () => {
-      return {
-        status: 200,
-        body: { keys: await this.service.listAttributeKeys() },
-      };
-    });
+    return implement(attributesContract.listAttributeKeys).handler(
+      async () => ({ keys: await this.service.listAttributeKeys() }),
+    );
   }
 
-  @TsRestHandler(attributesContract.listAttributeValues, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.listAttributeValues)
   listAttributeValues() {
-    return tsRestHandler(
-      attributesContract.listAttributeValues,
-      async ({ query: { key } }) => {
-        return {
-          status: 200,
-          body: { key, values: await this.service.listAttributeValues(key) },
-        };
-      },
+    return implement(attributesContract.listAttributeValues).handler(
+      async ({ input: { query } }) => ({
+        key: query.key,
+        values: await this.service.listAttributeValues(query.key),
+      }),
     );
   }
 
@@ -66,13 +54,11 @@ export class AttributesController {
    * both are audited with the text on either side — the trail is what makes a
    * merge answerable afterwards.
    */
-  @TsRestHandler(attributesContract.renameAttributeKey, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.renameAttributeKey)
   renameAttributeKey(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      attributesContract.renameAttributeKey,
-      async ({ body }) => {
+    return implement(attributesContract.renameAttributeKey)
+      .use(refusals)
+      .handler(async ({ input: { body } }) => {
         const result = await this.service.renameAttributeKey(body);
         // The trail's `name` carries both spellings and the row count: a
         // rename is a merge as often as a correction, and afterwards the
@@ -80,53 +66,44 @@ export class AttributesController {
         this.audit.record('attribute.keyRenamed', user, {
           name: `${body.from} → ${body.to} (${result.updated})`,
         });
-        return { status: 200, body: result };
-      },
-    );
+        return result;
+      });
   }
 
-  @TsRestHandler(attributesContract.renameAttributeValue, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.renameAttributeValue)
   renameAttributeValue(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      attributesContract.renameAttributeValue,
-      async ({ body }) => {
+    return implement(attributesContract.renameAttributeValue)
+      .use(refusals)
+      .handler(async ({ input: { body } }) => {
         const result = await this.service.renameAttributeValue(body);
         this.audit.record('attribute.valueRenamed', user, {
           name: `${body.key}: ${body.from} → ${body.to} (${result.updated})`,
         });
-        return { status: 200, body: result };
-      },
-    );
+        return result;
+      });
   }
 
-  @TsRestHandler(attributesContract.createAttribute, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.createAttribute)
   createAttribute(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      attributesContract.createAttribute,
-      async ({ body }) => {
+    return implement(attributesContract.createAttribute)
+      .use(refusals)
+      .handler(async ({ input: { body } }) => {
         const definition = await this.service.createAttribute(body, user.id);
         this.audit.record('attribute.created', user, {
           id: definition.id,
           name: definition.name,
         });
-        return { status: 201, body: definition };
-      },
-    );
+        return definition;
+      });
   }
 
-  @TsRestHandler(attributesContract.updateAttribute, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.updateAttribute)
   updateAttribute(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      attributesContract.updateAttribute,
-      async ({ params: { id }, body }) => {
+    return implement(attributesContract.updateAttribute)
+      .use(refusals)
+      .handler(async ({ input: { params, body } }) => {
         const definition = await this.service.updateAttribute(
-          id,
+          params.id,
           body,
           user.id,
         );
@@ -134,23 +111,22 @@ export class AttributesController {
           id: definition.id,
           name: definition.name,
         });
-        return { status: 200, body: definition };
-      },
-    );
+        return definition;
+      });
   }
 
-  @TsRestHandler(attributesContract.reorderAttributes, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.reorderAttributes)
   reorderAttributes(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      attributesContract.reorderAttributes,
-      async ({ body }) => {
-        const definitions = await this.service.reorderAttributes(body, user.id);
+    return implement(attributesContract.reorderAttributes)
+      .use(refusals)
+      .handler(async ({ input: { body } }) => {
+        const definitions = await this.service.reorderAttributes(
+          body,
+          user.id,
+        );
         this.audit.record('attribute.reordered', user, {});
-        return { status: 200, body: { definitions } };
-      },
-    );
+        return { definitions };
+      });
   }
 
   /**
@@ -159,58 +135,48 @@ export class AttributesController {
    * an attribute is otherwise indistinguishable from one that never offered
    * it.
    */
-  @TsRestHandler(attributesContract.getCategoryFilters, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.getCategoryFilters)
   getCategoryFilters() {
-    return tsRestHandler(
-      attributesContract.getCategoryFilters,
-      async ({ params: { slug } }) => ({
-        status: 200 as const,
-        body: await this.service.getCategoryFilters(slug),
-      }),
-    );
+    return implement(attributesContract.getCategoryFilters)
+      .use(refusals)
+      .handler(({ input: { params } }) =>
+        this.service.getCategoryFilters(params.slug),
+      );
   }
 
-  @TsRestHandler(attributesContract.saveCategoryFilters, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.saveCategoryFilters)
   saveCategoryFilters(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      attributesContract.saveCategoryFilters,
-      async ({ params: { slug }, body }) => {
-        const result = await this.service.saveCategoryFilters(slug, body);
-        this.audit.record('category.filtersSaved', user, { slug });
-        return { status: 200 as const, body: result };
-      },
-    );
+    return implement(attributesContract.saveCategoryFilters)
+      .use(refusals)
+      .handler(async ({ input: { params, body } }) => {
+        const result = await this.service.saveCategoryFilters(
+          params.slug,
+          body,
+        );
+        this.audit.record('category.filtersSaved', user, { slug: params.slug });
+        return result;
+      });
   }
 
-  @TsRestHandler(attributesContract.resetCategoryFilters, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.resetCategoryFilters)
   resetCategoryFilters(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      attributesContract.resetCategoryFilters,
-      async ({ params: { slug } }) => {
-        const result = await this.service.resetCategoryFilters(slug);
-        this.audit.record('category.filtersReset', user, { slug });
-        return { status: 200 as const, body: result };
-      },
-    );
+    return implement(attributesContract.resetCategoryFilters)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => {
+        const result = await this.service.resetCategoryFilters(params.slug);
+        this.audit.record('category.filtersReset', user, { slug: params.slug });
+        return result;
+      });
   }
 
-  @TsRestHandler(attributesContract.deleteAttribute, {
-    validateResponses: true,
-  })
+  @Implement(attributesContract.deleteAttribute)
   deleteAttribute(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      attributesContract.deleteAttribute,
-      async ({ params: { id } }) => {
-        const body = await this.service.deleteAttribute(id);
-        this.audit.record('attribute.deleted', user, { id });
-        return { status: 200, body };
-      },
-    );
+    return implement(attributesContract.deleteAttribute)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => {
+        const result = await this.service.deleteAttribute(params.id);
+        this.audit.record('attribute.deleted', user, { id: params.id });
+        return result;
+      });
   }
 }
