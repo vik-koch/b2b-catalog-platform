@@ -81,7 +81,16 @@ test('re-reads a quantity in another unit without asking anything', async ({
   const units = page.getByRole('radiogroup', { name: 'Unit' });
   const quantity = page.getByRole('textbox', { name: 'Quantity' });
   await units.getByText('Pack', { exact: true }).click();
+  // Both waits are for hydration, not for the app: a press or a keystroke that
+  // lands on the server's HTML before the listeners are attached is simply
+  // lost, and the next step then reads the field in a unit that never changed.
+  // The field, not the radio: a press before hydration ticks the radio itself
+  // — that is the browser's own doing — while the six pieces behind it are
+  // still read as pieces. One pack is what the minimum becomes once the app
+  // has the press.
+  await expect(quantity).toHaveValue('1');
   await quantity.fill('2');
+  await expect(quantity).toHaveValue('2');
   await units.getByText('Box', { exact: true }).click();
 
   // Two packs of the four a box holds. Nothing was rounded, so nothing is
@@ -167,6 +176,7 @@ test('carries a line note through to the cart', async ({ page }) => {
 // beside the price — and what is written there rides with the line.
 test('writes a note from a listing card, beside the price', async ({
   page,
+  isMobile,
 }) => {
   await page.goto('/search?q=Cappuccino');
 
@@ -175,14 +185,24 @@ test('writes a note from a listing card, beside the price', async ({
     .filter({ has: page.locator('a[href="/product/cappuccino-cup-set"]') })
     .first();
   await card.getByRole('button', { name: /note/i }).click();
-  const bubble = page.locator('app-popover');
-  await expect(bubble.getByRole('textbox')).toHaveAttribute(
+  // The same field in the shape the width allows: a bubble beside the price
+  // where there is room beside anything, a modal on a phone — which is closed
+  // by its own button rather than by leaving the field.
+  const panel = isMobile
+    ? page.getByRole('dialog')
+    : page.locator('app-popover');
+  const field = panel.getByRole('textbox');
+  await expect(field).toHaveAttribute(
     'placeholder',
     'Which glaze colours? Sand, slate or off-white.',
   );
 
-  await bubble.getByRole('textbox').fill('Sand only');
-  await bubble.getByRole('textbox').blur();
+  await field.fill('Sand only');
+  if (isMobile) {
+    await panel.getByRole('button', { name: 'Done' }).click();
+  } else {
+    await field.blur();
+  }
   await card.getByRole('button', { name: 'Add to cart' }).click();
 
   await expect(cartLink(page)).toHaveAttribute('aria-label', /Cart: 1 lines/);
