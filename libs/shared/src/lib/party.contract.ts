@@ -1,8 +1,7 @@
-import { initContract } from '@ts-rest/core';
+import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { addressComponentsSchema } from './address.contract';
 
-const c = initContract();
 
 /**
  * Company suggestion (FR-AUTH-09, ADR 0041). The twin of the address
@@ -60,17 +59,21 @@ export type PartySuggestion = z.infer<typeof partySuggestionSchema>;
  * A deployment with no sidecar configured answers with an empty list, which is
  * what makes the field degrade to plain typing.
  */
-export const partySuggestionContract = c.router({
-  suggestParties: {
-    method: 'GET',
-    path: '/companies/suggestions',
-    query: z.object({
-      /** A name or a registration number — the provider decides which it is. */
-      q: z.string().trim().min(1).max(PARTY_QUERY_MAX_LENGTH),
-    }),
-    responses: {
-      200: z.object({ items: z.array(partySuggestionSchema) }),
-    },
-    summary: 'Companies matching what the customer is typing',
-  },
-});
+export const partySuggestionContract = {
+  suggestParties: oc
+    .route({
+      method: 'GET',
+      path: '/companies/suggestions',
+      inputStructure: 'detailed',
+      summary: 'Companies matching what the customer is typing',
+    })
+    .input(
+      z.object({
+        query: z.object({
+          /** A name or a registration number — the provider decides which. */
+          q: z.string().trim().min(1).max(PARTY_QUERY_MAX_LENGTH),
+        }),
+      }),
+    )
+    .output(z.object({ items: z.array(partySuggestionSchema) })),
+};

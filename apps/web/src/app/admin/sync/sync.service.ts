@@ -10,7 +10,8 @@ import {
   SyncPreviewResponse,
   syncContract,
 } from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../../core/api-client';
+import { safe } from '@orpc/client';
+import { createOrpcClient } from '../../core/orpc-client';
 
 /**
  * A preview the server refused — a malformed file, a file too large, or refused
@@ -29,7 +30,7 @@ export type CommitResult =
 /**
  * The bulk-sync client. The upload is multipart, so it goes through HttpClient
  * directly (like the media upload) while commit and the run history use the
- * ts-rest client; both halves share the contract's types, so the screen never
+ * contract client; both halves share the contract's types, so the screen never
  * restates a shape.
  *
  * The server's rejections are returned as typed results rather than thrown:
@@ -40,7 +41,7 @@ export type CommitResult =
 export class SyncService {
   private readonly http = inject(HttpClient);
   private readonly document = inject(DOCUMENT);
-  private readonly client = createApiClient(syncContract);
+  private readonly client = createOrpcClient(syncContract);
 
   /** Uploads a file and returns what it would change. Writes nothing. */
   async preview(file: File, options: SyncOptions): Promise<PreviewResult> {
@@ -72,17 +73,21 @@ export class SyncService {
 
   /** Applies a previewed run. */
   async commit(id: string): Promise<CommitResult> {
-    const response = await this.client.commitRun({ params: { id }, body: {} });
-    if (response.status === 200) return { ok: true, result: response.body };
-    if (response.status === 404 || response.status === 409) {
-      return { ok: false, code: response.body.code };
+    const result = await safe(this.client.commitRun({ params: { id } }));
+
+    if (result.isSuccess) return { ok: true, result: result.data };
+    // The session refusals are the guards' to answer, not this screen's.
+    if (
+      result.isDefined &&
+      result.error.code !== 'not-authenticated' &&
+      result.error.code !== 'insufficient-role'
+    ) {
+      return { ok: false, code: result.error.code };
     }
-    throw new Error(`Failed to apply the sync (status ${response.status})`);
+    throw result.error;
   }
 
-  async listRuns(page = 1) {
-    const response = await this.client.listRuns({ query: { page } });
-    if (response.status === 200) return response.body;
-    throw new Error(`Failed to list sync runs (status ${response.status})`);
+  listRuns(page = 1) {
+    return this.client.listRuns({ query: { page } });
   }
 }

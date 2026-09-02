@@ -1,19 +1,13 @@
 import { Injectable } from '@angular/core';
 import { inquiryContract, InquiryRequest } from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../core/api-client';
+import { createOrpcClient } from '../core/orpc-client';
 
 @Injectable({ providedIn: 'root' })
 export class InquiryService {
-  private client = createApiClient(inquiryContract);
+  private client = createOrpcClient(inquiryContract);
 
-  /** Posts the inquiry; resolves on success, throws on any non-200. */
+  /** Posts the inquiry; resolves on success, throws on anything else. */
   async submit(body: InquiryRequest): Promise<void> {
-    const response = await this.client.submit({ body });
-
-    if (response.status === 200) {
-      return;
-    }
-
-    throw new Error(`Inquiry submission failed (status ${response.status})`);
+    await this.client.submit({ body });
   }
 }

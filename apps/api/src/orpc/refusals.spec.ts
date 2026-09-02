@@ -4,6 +4,8 @@ import {
   ForbiddenException,
   INestApplication,
   InternalServerErrorException,
+  PayloadTooLargeException,
+  Post,
 } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
@@ -67,6 +69,16 @@ class ProbeController {
   @Implement(contract.guarded)
   guarded() {
     return implement(contract.guarded).handler(async () => ({ ok: true }));
+  }
+
+  /** A plain Nest route, as the two file uploads are. */
+  @Post('/uploaded')
+  uploaded(): never {
+    throw new PayloadTooLargeException({
+      code: 'file-too-large',
+      message: 'The file exceeds the size limit',
+      params: { limit: '5242880' },
+    });
   }
 }
 
@@ -144,6 +156,23 @@ describe('carrying a refusal to the client', () => {
 
     expect(status).toBe(500);
     expect(body.defined).toBe(false);
+  });
+
+  // The uploads are not contract routes, but their refusals go through the
+  // same filter — so whatever the wording needs has to survive it. Dropping
+  // `params` here would have left the sync page unable to say which limit a
+  // file exceeded.
+  it('keeps what a non-contract route sent besides the code', async () => {
+    const response = await fetch(`${baseUrl}/uploaded`, { method: 'POST' });
+
+    expect(response.status).toBe(413);
+    expect(await response.json()).toEqual({
+      defined: true,
+      code: 'file-too-large',
+      status: 413,
+      message: 'The file exceeds the size limit',
+      data: { params: { limit: '5242880' } },
+    });
   });
 
   // A guard throws before oRPC sees the request, so this one is the filter's

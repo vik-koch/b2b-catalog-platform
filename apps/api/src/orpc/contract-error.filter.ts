@@ -39,10 +39,15 @@ export class ContractErrorFilter implements ExceptionFilter {
       return;
     }
 
-    const message =
-      typeof body === 'object' && body !== null && 'message' in body
-        ? (body as { message: unknown }).message
-        : undefined;
+    const {
+      code: _code,
+      message,
+      ...rest
+    } = body as {
+      code: string;
+      message?: unknown;
+      [key: string]: unknown;
+    };
 
     response.status(status).json({
       // The guarded routes all declare these codes, which is what `defined`
@@ -52,6 +57,11 @@ export class ContractErrorFilter implements ExceptionFilter {
       code,
       status,
       message: typeof message === 'string' ? message : exception.message,
+      // Anything the refusal carried besides the code travels here, which is
+      // where the contract's own errors put their payload. The sync upload's
+      // `params` — the numbers its wording is filled in from — is the one that
+      // would otherwise be dropped.
+      ...(Object.keys(rest).length > 0 ? { data: rest } : {}),
     });
   }
 }

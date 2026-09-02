@@ -1,4 +1,4 @@
-import { initContract } from '@ts-rest/core';
+import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import {
   catalogImageSchema,
@@ -7,7 +7,6 @@ import {
 } from './catalog.contract';
 import { LINE_PIECES_MAX, PRODUCT_UNITS } from './product-units';
 
-const c = initContract();
 
 /**
  * Pricing a cart (FR-CART-01/02). The cart itself lives in the browser — there
@@ -164,12 +163,14 @@ export const cartPreviewSchema = z
   .strict();
 export type CartPreview = z.infer<typeof cartPreviewSchema>;
 
-export const cartContract = c.router({
-  previewCart: {
-    method: 'POST',
-    path: '/cart/preview',
-    body: cartRequestSchema,
-    responses: { 200: cartPreviewSchema },
-    summary: 'Price a cart as it stands, with per-line advisories',
-  },
-});
+export const cartContract = {
+  previewCart: oc
+    .route({
+      method: 'POST',
+      path: '/cart/preview',
+      inputStructure: 'detailed',
+      summary: 'Price a cart as it stands, with per-line advisories',
+    })
+    .input(z.object({ body: cartRequestSchema }))
+    .output(cartPreviewSchema),
+};

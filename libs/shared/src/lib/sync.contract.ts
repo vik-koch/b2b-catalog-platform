@@ -1,6 +1,6 @@
-import { initContract } from '@ts-rest/core';
+import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
+import { commonAuthErrors } from './api-error';
 import { priceMinorSchema } from './catalog.contract';
 import {
   CATEGORY_NAME_MAX_LENGTH,
@@ -9,7 +9,6 @@ import {
 } from './admin-catalog.contract';
 import { TIER_KEY_MAX_LENGTH } from './tiers.contract';
 
-const c = initContract();
 
 /**
  * The bulk catalog sync.
@@ -374,14 +373,34 @@ export const SYNC_FORMAT_CODES = [
 ] as const;
 export type SyncFormatCode = (typeof SYNC_FORMAT_CODES)[number];
 
+/**
+ * A refused upload, as it arrives.
+ *
+ * The upload is multipart and so not a contract route, but its refusals travel
+ * in the same envelope as every other one — code at the top, anything the
+ * wording needs under `data`. Read here and flattened, so the screen keeps
+ * working with a plain `{ code, message, params }`.
+ *
+ * Not strict: the envelope carries `defined` and `status` as well, and neither
+ * is this schema's business.
+ */
 export const syncFormatErrorSchema = z
   .object({
     code: z.enum(SYNC_FORMAT_CODES),
     message: z.string(),
-    /** Substituted into the deployment's wording; absent where none is needed. */
-    params: z.record(z.string(), z.string()).optional(),
+    data: z
+      .object({
+        /** Substituted into the deployment's wording; absent where none is
+         * needed. */
+        params: z.record(z.string(), z.string()).optional(),
+      })
+      .optional(),
   })
-  .strict();
+  .transform(({ code, message, data }) => ({
+    code,
+    message,
+    params: data?.params,
+  }));
 export type SyncFormatErrorBody = z.infer<typeof syncFormatErrorSchema>;
 
 /** What a preview returns: the staged run plus the plan it computed. */
@@ -414,7 +433,14 @@ export const SYNC_COMMIT_CODES = [
   'run-rows-pruned',
 ] as const;
 export type SyncCommitCode = (typeof SYNC_COMMIT_CODES)[number];
-const commitErrorSchema = apiErrorSchema(SYNC_COMMIT_CODES);
+
+/** A run nobody staged is a 404; one that cannot be applied is a conflict. */
+const commitErrors = {
+  'run-not-found': { status: 404 },
+  'run-already-applied': { status: 409 },
+  'run-failed': { status: 409 },
+  'run-rows-pruned': { status: 409 },
+} as const satisfies Record<SyncCommitCode, { status: number }>;
 
 /**
  * The JSON half of the sync surface. The preview *upload* is not here: it is
@@ -422,52 +448,54 @@ const commitErrorSchema = apiErrorSchema(SYNC_COMMIT_CODES);
  * lives on a plain Nest handler that returns `SyncPreviewResponse` (the same
  * split the media upload uses).
  */
-export const syncContract = c.router(
-  {
-    commitRun: {
+/** Every sync route is admin-only. */
+const admin = oc.errors(commonAuthErrors);
+
+export const syncContract = {
+  commitRun: admin
+    .route({
       method: 'POST',
-      path: '/admin/sync/runs/:id/commit',
-      pathParams: z.object({ id: z.string().uuid() }),
-      // No payload; an empty object is the repo's no-body POST convention.
-      body: z.object({}),
-      responses: {
-        200: syncCommitResponseSchema,
-        404: commitErrorSchema,
-        // Already committed, failed, or its staged rows were pruned.
-        409: commitErrorSchema,
-      },
+      path: '/admin/sync/runs/{id}/commit',
+      inputStructure: 'detailed',
       summary: 'Apply a previewed run in one transaction (admin)',
-    },
-    getRun: {
+    })
+    .errors(commitErrors)
+    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .output(syncCommitResponseSchema),
+
+  getRun: admin
+    .route({
       method: 'GET',
-      path: '/admin/sync/runs/:id',
-      pathParams: z.object({ id: z.string().uuid() }),
-      responses: {
-        200: z
-          .object({ run: syncRunSchema, plan: syncPlanSchema.nullable() })
-          .strict(),
-        404: commitErrorSchema,
-      },
+      path: '/admin/sync/runs/{id}',
+      inputStructure: 'detailed',
       summary: 'Fetch one run and its plan (admin; plan is null once pruned)',
-    },
-    listRuns: {
+    })
+    .errors({ 'run-not-found': commitErrors['run-not-found'] })
+    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .output(
+      z.object({ run: syncRunSchema, plan: syncPlanSchema.nullable() }).strict(),
+    ),
+
+  listRuns: admin
+    .route({
       method: 'GET',
       path: '/admin/sync/runs',
-      query: z.object({ page: z.coerce.number().int().min(1).default(1) }),
-      responses: {
-        200: z
-          .object({
-            runs: z.array(syncRunSchema),
-            total: z.number().int().nonnegative(),
-            /** The newest *applied* run — the admin dashboard's "last sync". */
-            lastApplied: syncRunSchema.nullable(),
-          })
-          .strict(),
-      },
+      inputStructure: 'detailed',
       summary: 'List sync runs, newest first (admin)',
-    },
-  },
-  {
-    commonResponses: { 401: commonAuthErrorSchema, 403: commonAuthErrorSchema },
-  },
-);
+    })
+    .input(
+      z.object({
+        query: z.object({ page: z.coerce.number().int().min(1).default(1) }),
+      }),
+    )
+    .output(
+      z
+        .object({
+          runs: z.array(syncRunSchema),
+          total: z.number().int().nonnegative(),
+          /** The newest *applied* run — the admin dashboard's "last sync". */
+          lastApplied: syncRunSchema.nullable(),
+        })
+        .strict(),
+    ),
+};

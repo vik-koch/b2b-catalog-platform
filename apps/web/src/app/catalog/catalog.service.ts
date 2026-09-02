@@ -6,8 +6,7 @@ import {
   SearchSuggestion,
 } from '@b2b-catalog-platform/shared';
 import { safe } from '@orpc/client';
-import { deferSessionReads } from '../core/api-client';
-import { createOrpcClient } from '../core/orpc-client';
+import { createOrpcClient, deferSessionReads } from '../core/orpc-client';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogService {

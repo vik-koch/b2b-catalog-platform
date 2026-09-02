@@ -1,5 +1,5 @@
 import { Controller, Inject } from '@nestjs/common';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import {
   PARTY_QUERY_MIN_LENGTH,
   PARTY_SUGGESTION_LIMIT,
@@ -29,24 +29,17 @@ export class PartySuggestionController {
   ) {}
 
   @SidecarSuggestionThrottle()
-  @TsRestHandler(partySuggestionContract.suggestParties, {
-    validateResponses: true,
-  })
+  @Implement(partySuggestionContract.suggestParties)
   suggestParties() {
-    return tsRestHandler(
-      partySuggestionContract.suggestParties,
-      async ({ query }) => {
+    return implement(partySuggestionContract.suggestParties).handler(
+      async ({ input: { query } }) => {
         const q = query.q.trim();
-        if (q.length < PARTY_QUERY_MIN_LENGTH) {
-          return { status: 200 as const, body: { items: [] } };
-        }
+        if (q.length < PARTY_QUERY_MIN_LENGTH) return { items: [] };
+
         const items = await this.parties.suggest(q, PARTY_SUGGESTION_LIMIT);
         // Trimmed here as well as asked for: the cap is the API's promise, not
         // the provider's.
-        return {
-          status: 200 as const,
-          body: { items: items.slice(0, PARTY_SUGGESTION_LIMIT) },
-        };
+        return { items: items.slice(0, PARTY_SUGGESTION_LIMIT) };
       },
     );
   }

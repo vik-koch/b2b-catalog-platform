@@ -8,7 +8,7 @@ import {
   Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import {
   AuthUser,
   SYNC_MAX_UPLOAD_BYTES,
@@ -18,16 +18,18 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { refusals } from '../orpc/refusals';
 import { SyncFormatError, parseSyncCsv } from './sync-csv';
 import { SyncService } from './sync.service';
 
 /**
  * The bulk-sync surface. Admin-only.
  *
- * The preview *upload* is not a ts-rest route: it is multipart/form-data, which
- * the JSON contracts do not model — the same split the media upload uses. Its
- * response shape still comes from the shared contract, so the admin UI and this
- * handler cannot drift. Commit, fetch and list are ordinary ts-rest routes.
+ * The preview *upload* is not a contract route: it is multipart/form-data,
+ * which the JSON contracts do not model — the same split the media upload uses.
+ * Its response shape still comes from the shared contract, so the admin UI and
+ * this handler cannot drift, and its refusals travel in the same envelope as
+ * every other one. Commit, fetch and list are ordinary contract routes.
  */
 @Auth('admin')
 @Controller()
@@ -92,31 +94,27 @@ export class SyncController {
     );
   }
 
-  @TsRestHandler(syncContract.commitRun, { validateResponses: true })
+  @Implement(syncContract.commitRun)
   commitRun(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(syncContract.commitRun, async ({ params: { id } }) => {
-      const body = await this.service.commit(id, {
-        id: user.id,
-        email: user.email,
-      });
-      return { status: 200, body };
-    });
+    return implement(syncContract.commitRun)
+      .use(refusals)
+      .handler(({ input: { params } }) =>
+        this.service.commit(params.id, { id: user.id, email: user.email }),
+      );
   }
 
-  @TsRestHandler(syncContract.getRun, { validateResponses: true })
+  @Implement(syncContract.getRun)
   getRun() {
-    return tsRestHandler(syncContract.getRun, async ({ params: { id } }) => {
-      const body = await this.service.getRun(id);
-      return { status: 200, body };
-    });
+    return implement(syncContract.getRun)
+      .use(refusals)
+      .handler(({ input: { params } }) => this.service.getRun(params.id));
   }
 
-  @TsRestHandler(syncContract.listRuns, { validateResponses: true })
+  @Implement(syncContract.listRuns)
   listRuns() {
-    return tsRestHandler(syncContract.listRuns, async ({ query }) => {
-      const body = await this.service.listRuns(query.page ?? 1);
-      return { status: 200, body };
-    });
+    return implement(syncContract.listRuns)
+      .use(refusals)
+      .handler(({ input: { query } }) => this.service.listRuns(query.page));
   }
 
   /**
