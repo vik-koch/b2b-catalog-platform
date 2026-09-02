@@ -28,11 +28,11 @@ import { MediaService } from './media.service';
         >
           <button
             type="button"
-            class="cursor-pointer p-0.5 text-white/90 hover:text-white"
+            class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white md:p-1"
             [attr.aria-label]="common.remove"
             (click)="valueChange.emit(null)"
           >
-            <app-admin-icon name="trash-2" class="h-4 w-4" />
+            <app-admin-icon name="trash-2" class="size-5 md:size-4" />
           </button>
         </div>
       </div>

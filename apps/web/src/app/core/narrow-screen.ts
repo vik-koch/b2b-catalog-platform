@@ -5,8 +5,9 @@ import { isPlatformBrowser } from '@angular/common';
  * The widths below which a screen is treated as narrow.
  *
  * `md` (49.5rem) is the everyday line: it is where the app's other three-column
- * layouts fold, and a table of six or seven columns is already unreadable well
- * before a phone's width. `lg` (65.75rem) is for the few screens carrying more
+ * layouts fold, where a table of six or seven columns is already unreadable,
+ * and where the product editor's two grids of typed cells give up on being
+ * tables at all. `lg` (65.75rem) is for the few screens carrying more
  * columns than that — the customer list's nine — which run out of room a whole
  * breakpoint earlier.
  *

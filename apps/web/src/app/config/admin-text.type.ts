@@ -30,6 +30,9 @@ export const adminTextSchema = z
         discardTitle: z.string(),
         discard: z.string(),
         keepEditing: z.string(),
+        /** Open a record for editing; finish editing it. */
+        edit: z.string(),
+        done: z.string(),
         remove: z.string(),
         restore: z.string(),
         reorder: z.string(),
@@ -47,8 +50,10 @@ export const adminTextSchema = z
         resizeColumnOf: z.string(),
         resetWidths: z.string(),
         filters: z.string(),
-        /** How many filters are in effect, beside the word: `{count}`. */
-        filtersCount: z.string(),
+        /** How many of something are in effect, beside the word that names
+         * them — filters on a grid, checked names in the attribute picker:
+         * `{count}`. */
+        countSuffix: z.string(),
         sortLabel: z.string(),
         /** The ordering a grid has when nothing is chosen. */
         sortDefault: z.string(),
@@ -589,6 +594,8 @@ export const adminTextSchema = z
         prices: z.string(),
         /** The link on that count, into the product grid filtered to it. */
         seePrices: z.string(),
+        /** The same control, dead: the tier prices nothing to show. */
+        noPrices: z.string(),
         defaultLabel: z.string(),
         defaultHint: z.string(),
         edit: z.string(),
@@ -641,8 +648,6 @@ export const adminTextSchema = z
         slug: z.string(),
         slugPlaceholder: z.string(),
         slugInvalid: z.string(),
-        /** The way over to the inventory of everything actually in use. */
-        toInventory: z.string(),
         /** Usage per row. `{count}` substituted at render. */
         products: z.string(),
         values: z.string(),

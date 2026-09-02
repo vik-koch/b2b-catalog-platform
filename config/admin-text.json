@@ -8,6 +8,8 @@
     "discardTitle": "Discard changes?",
     "discard": "Discard changes",
     "keepEditing": "Keep editing",
+    "edit": "Edit",
+    "done": "Done",
     "remove": "Remove",
     "restore": "Restore",
     "reorder": "Drag to reorder",
@@ -18,7 +20,7 @@
     "resizeColumnOf": "Resize {column}",
     "resetWidths": "Reset column widths",
     "filters": "Filters",
-    "filtersCount": "({count})",
+    "countSuffix": "({count})",
     "sortLabel": "Sort",
     "sortDefault": "Default order",
     "sortAscending": "{column}, ascending",
@@ -400,6 +402,7 @@
     "accounts": "{count} account(s)",
     "prices": "{count} product price(s)",
     "seePrices": "Show the products this tier prices",
+    "noPrices": "No product has a price in this tier yet",
     "defaultLabel": "Base price list",
     "defaultHint": "Every product's own price. Guests, staff and customers without a tier see it.",
     "edit": "Edit",
@@ -455,8 +458,7 @@
       "attribute-not-found": "This attribute no longer exists. Reload the page to see the current list.",
       "attribute-name-taken": "Another definition already uses that name.",
       "attribute-slug-taken": "Another definition already uses that URL key."
-    },
-    "toInventory": "Attributes in use"
+    }
   },
   "categoryFilters": {
     "title": "Filters",

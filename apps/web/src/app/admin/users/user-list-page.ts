@@ -29,6 +29,7 @@ import { GridColumn } from '../grid/grid-column';
 import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
 import { GridTimestamp } from '../grid/grid-timestamp';
+import { RecordRow } from '../records/record-row';
 import { AdminListHeader } from '../list-header';
 import { TiersService } from '../tiers/tiers.service';
 import { UserRowActions } from './user-row-actions';
@@ -105,6 +106,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     GridRowTemplate,
     GridCardTemplate,
     GridTimestamp,
+    RecordRow,
     Skeleton,
     StatusBadge,
     UserRowActions,
@@ -208,26 +210,29 @@ const typeRank = (t: StaffUser['customerType']): number =>
         <ng-template appGridCard [of]="data" let-user>
           <!-- Only the account is greyed once it is closed, never the badge
                that says so — the same rule the table follows cell by cell. -->
-          <div class="flex items-baseline justify-between gap-3">
+          <app-record-row>
             <span
               class="truncate font-medium text-stone-700"
               [class.opacity-50]="isClosed(user)"
             >
               {{ name(user) }}
             </span>
-            <span appStatusBadge [tone]="statusTone(user.status)">{{
-              statusLabel(user.status)
-            }}</span>
-          </div>
-          <div [class.opacity-50]="isClosed(user)">
-            <p class="mt-1 truncate text-sm text-subtle">{{ user.email }}</p>
-            @if (phone(user)) {
-              <p class="truncate text-sm text-subtle">{{ phone(user) }}</p>
-            }
-          </div>
-          <div class="mt-1 flex items-center justify-between gap-3">
             <span
-              class="flex min-w-0 items-baseline gap-1 text-sm text-subtle"
+              recordBadge
+              appStatusBadge
+              class="shrink-0"
+              [tone]="statusTone(user.status)"
+              >{{ statusLabel(user.status) }}</span
+            >
+            <div recordBody [class.opacity-50]="isClosed(user)">
+              <p class="mt-1 truncate text-sm text-subtle">{{ user.email }}</p>
+              @if (phone(user)) {
+                <p class="truncate text-sm text-subtle">{{ phone(user) }}</p>
+              }
+            </div>
+            <span
+              recordMeta
+              class="flex min-w-0 items-baseline gap-1"
               [class.opacity-50]="isClosed(user)"
             >
               <span class="truncate">
@@ -236,13 +241,13 @@ const typeRank = (t: StaffUser['customerType']): number =>
               <app-grid-timestamp [value]="user.createdAt" inline />
             </span>
             <app-user-row-actions
-              class="shrink-0"
+              recordActions
               [user]="user"
               [returnParams]="editorFrom()"
               (declined)="decline($event)"
               (activeChanged)="setActive($event.user, $event.active)"
             />
-          </div>
+          </app-record-row>
         </ng-template>
       </app-admin-grid>
     } @else if (showSkeleton()) {

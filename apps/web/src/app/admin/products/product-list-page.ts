@@ -37,6 +37,7 @@ import {
 } from '../grid/grid-query';
 import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
 import { GridTimestamp } from '../grid/grid-timestamp';
+import { RecordRow } from '../records/record-row';
 import { AdminListHeader } from '../list-header';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductDeleteDialog } from './product-delete-dialog';
@@ -66,6 +67,7 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
     GridTimestamp,
     Skeleton,
     StatusBadge,
+    RecordRow,
   ],
   template: `
     <app-admin-list-header
@@ -118,7 +120,12 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
             </div>
           </td>
           <td>
-            <div class="flex items-center">
+            <!-- The sync key beside the name, dropping under it where the
+                 column is too narrow to hold both: it is this product's
+                 identifier, the same grey chip the tiers and the attribute
+                 definitions wear for theirs. It is shown because the search box
+                 matches it, not because it is worth a column of its own. -->
+            <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <span class="line-clamp-2 wrap-break-word text-subtle">
                 <!-- The name goes to the product as a customer sees it; the
                      pencil in the actions column is the way into the editor.
@@ -134,17 +141,12 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
                   {{ item.name }}
                 </a>
               </span>
+              <span
+                class="max-w-full truncate rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs"
+                [title]="item.sourceId"
+                >{{ item.sourceId }}</span
+              >
             </div>
-            <!-- The sync key under the name, as the account lists put the email
-                 under the person: it is shown because the search box matches it,
-                 not because it is worth a column of its own. Monospaced — an
-                 identifier to compare character by character, not prose — and
-                 truncated, since a legacy key can be long. -->
-            <span
-              class="block truncate font-mono text-xs text-subtle"
-              [title]="item.sourceId"
-              >{{ item.sourceId }}</span
-            >
           </td>
           <td>
             <div class="flex items-center">
@@ -185,8 +187,9 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
           <!-- Only the product is greyed once it is deleted, never the badge
                that says so nor the buttons that undo it — the same rule the
                table follows cell by cell. -->
-          <div class="flex gap-3">
+          <app-record-row>
             <div
+              recordLead
               class="h-14 w-14 shrink-0 overflow-hidden rounded border border-border bg-stone-100"
               [class.opacity-50]="isDeleted(item)"
             >
@@ -198,48 +201,46 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
                 />
               }
             </div>
-            <div class="min-w-0 flex-1">
-              <div class="flex items-baseline justify-between gap-3">
-                <a
-                  [routerLink]="storefrontOrEditor(item)"
-                  [queryParams]="editorFrom()"
-                  class="font-medium wrap-break-word line-clamp-2 text-stone-700"
-                  [class.opacity-50]="isDeleted(item)"
-                >
-                  {{ item.name }}
-                </a>
-                <span
-                  appStatusBadge
-                  class="shrink-0"
-                  [tone]="stateTone(item)"
-                  >{{ stateLabel(item) }}</span
-                >
-              </div>
-              <p
-                class="mt-0.5 flex items-baseline gap-2 truncate text-xs text-subtle"
+            <a
+              [routerLink]="storefrontOrEditor(item)"
+              [queryParams]="editorFrom()"
+              class="font-medium wrap-break-word line-clamp-2 text-stone-700"
+              [class.opacity-50]="isDeleted(item)"
+            >
+              {{ item.name }}
+            </a>
+            <span
+              recordBadge
+              appStatusBadge
+              class="shrink-0"
+              [tone]="stateTone(item)"
+              >{{ stateLabel(item) }}</span
+            >
+            <span
+              class="max-w-full truncate rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs"
+              [class.opacity-50]="isDeleted(item)"
+              >{{ item.sourceId }}</span
+            >
+            <ng-container recordMeta>
+              <span class="text-stone-700" [class.opacity-50]="isDeleted(item)">
+                {{ item.priceMinor | price }}
+              </span>
+              <app-grid-timestamp
+                [value]="item.updatedAt"
+                inline
                 [class.opacity-50]="isDeleted(item)"
-              >
-                <span class="truncate font-mono">{{ item.sourceId }}</span>
-                <app-grid-timestamp [value]="item.updatedAt" inline />
-              </p>
-              <div class="mt-1 flex items-center justify-between gap-3">
-                <span
-                  class="text-stone-700"
-                  [class.opacity-50]="isDeleted(item)"
-                  >{{ item.priceMinor | price }}</span
-                >
-                <app-product-row-actions
-                  class="shrink-0"
-                  [product]="item"
-                  [returnParams]="editorFrom()"
-                  [busy]="publishing() === item.slug"
-                  (publishToggled)="togglePublished($event)"
-                  (restored)="restore($event)"
-                  (deleteRequested)="deletingProduct.set($event)"
-                />
-              </div>
-            </div>
-          </div>
+              />
+            </ng-container>
+            <app-product-row-actions
+              recordActions
+              [product]="item"
+              [returnParams]="editorFrom()"
+              [busy]="publishing() === item.slug"
+              (publishToggled)="togglePublished($event)"
+              (restored)="restore($event)"
+              (deleteRequested)="deletingProduct.set($event)"
+            />
+          </app-record-row>
         </ng-template>
       </app-admin-grid>
 

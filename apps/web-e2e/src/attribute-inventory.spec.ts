@@ -20,9 +20,10 @@ test('the values placeholder is the exact size of the rows it stands in for', as
   page,
 }) => {
   // The whole point of shaping it after a value row: the list must not resize
-  // when the values land. The height comes from the row's action icons — a
-  // 16px icon on a 20px line inside p-1 — so plain bars fall ~6px short and
-  // every row below shifts.
+  // when the values land. A value row is two lines — what it is, then what can
+  // be done to it — and the second is a row of touch-sized glyphs, so a block
+  // of bars standing in for the first one alone falls short by half a row and
+  // everything below shifts.
   await logIn(page);
 
   let release: (() => void) | undefined;

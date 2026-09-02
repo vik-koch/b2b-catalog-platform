@@ -27,12 +27,15 @@ import { usePageSeo } from '../../core/page-seo';
 import { useRowAnchor } from '../../core/row-anchor';
 import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
+import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
 import { FieldLabel } from '../../ui/field-label';
 import { SelectField } from '../../ui/select-field';
 import { Skeleton } from '../../ui/skeleton';
 import { ConfirmService } from '../../ui/confirm.service';
+import { RecordFields, RecordFormActions } from '../records/record-form';
+import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
 
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
@@ -60,36 +63,29 @@ type EditTarget = { id: string } | { id: null } | null;
     CdkDrag,
     CdkDragHandle,
     Button,
+    IconButton,
     AdminIcon,
+    RecordRow,
+    RecordFields,
+    RecordFormActions,
     Input,
     FieldLabel,
     SelectField,
     Skeleton,
   ],
   template: `
-    <div class="mb-4 flex items-center justify-between gap-4">
+    <div class="mb-4 flex items-start justify-between gap-4">
       <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
-      <div class="flex items-center gap-2">
-        <!-- The inventory answers the other half of the question: this list is
-             what the shop filters by, that one is what the products carry. -->
-        <a
-          appButton
-          variant="secondary"
-          routerLink="/admin/attributes/inventory"
-        >
-          {{ text.toInventory }}
-        </a>
-        <button
-          appButton
-          type="button"
-          class="gap-2"
-          [disabled]="editing() !== null"
-          (click)="startAdd()"
-        >
-          <app-admin-icon name="plus" class="h-4 w-4" />
-          {{ text.add }}
-        </button>
-      </div>
+      <button
+        appButton
+        type="button"
+        class="gap-2"
+        [disabled]="editing() !== null"
+        (click)="startAdd()"
+      >
+        <app-admin-icon name="plus" class="h-4 w-4" />
+        {{ text.add }}
+      </button>
     </div>
 
     <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
@@ -107,9 +103,9 @@ type EditTarget = { id: string } | { id: null } | null;
       @if (definitions.error()) {
         <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
       } @else if (definitions.hasValue()) {
-        <!-- overflow-hidden so a row's own background cannot square off the
-           card's rounded corners. -->
-        <div class="overflow-hidden rounded-lg border border-border">
+        <!-- Divided rules on the page, not a card: this is the same list of
+             records an admin grid draws on a phone. -->
+        <div class="border-y border-border">
           <ul
             class="divide-y divide-border"
             cdkDropList
@@ -119,7 +115,7 @@ type EditTarget = { id: string } | { id: null } | null;
             @for (definition of definitions.value(); track definition.id) {
               <!-- scroll-mt clears the sticky header (see the inventory). -->
               <li
-                class="bg-white p-4 scroll-mt-24"
+                class="scroll-mt-24 py-3"
                 cdkDrag
                 [cdkDragData]="definition"
                 [id]="rowId(definition.name)"
@@ -127,67 +123,75 @@ type EditTarget = { id: string } | { id: null } | null;
                 @if (isEditing(definition.id)) {
                   <ng-container [ngTemplateOutlet]="form" class="bg-white" />
                 } @else {
-                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <app-record-row>
+                    <!-- Ordering is the filter panel's order and nothing else.
+                         A handle, not a pair of step buttons: the category
+                         list, the image gallery and the attribute grid itself
+                         are all dragged, and a button that has to disable
+                         itself at the ends of the list flickers through every
+                         reorder. -->
+                    <span
+                      recordControl
+                      cdkDragHandle
+                      appIconButton
+                      size="lead"
+                      class="cursor-grab active:cursor-grabbing"
+                      [attr.aria-label]="common.reorder"
+                      [title]="common.reorder"
+                    >
+                      <app-admin-icon name="grip-vertical" />
+                    </span>
                     <span class="font-medium text-stone-700">
                       {{ definition.name }}
                     </span>
+                    <!-- The URL key beside the name it belongs to: the two are
+                         read as a pair, not as two ends of the row. -->
                     <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
                       {{ definition.slug }}
                     </code>
-                    <span class="text-sm text-subtle">
-                      {{ typeLabel(definition) }} ·
-                      {{ productsLabel(definition.productCount) }} ·
-                      {{ valuesLabel(definition.valueCount) }}
-                    </span>
-                    <span class="ml-auto flex items-center gap-1">
+                    <ng-container recordMeta>
+                      <span>
+                        {{ typeLabel(definition) }} ·
+                        {{ productsLabel(definition.productCount) }} ·
+                        {{ valuesLabel(definition.valueCount) }}
+                      </span>
+                    </ng-container>
+                    <ng-container recordActions>
                       <!-- The other half of the row: this is what the shop
-                         filters by, the inventory is what the products
-                         actually carry under that name — including the
-                         spellings this definition does not match. Same icon
-                         and same shape as the grid's own way in. -->
+                           filters by, the inventory is what the products
+                           actually carry under that name — including the
+                           spellings this definition does not match. Same icon
+                           and same shape as the grid's own way in. -->
                       <a
-                        class="p-1 text-stone-400 hover:text-accent"
+                        appIconButton
                         routerLink="/admin/attributes/inventory"
                         [queryParams]="{ key: definition.name }"
                         [attr.aria-label]="text.showUsage"
+                        [title]="text.showUsage"
                       >
-                        <app-admin-icon name="square-menu" class="h-4 w-4" />
+                        <app-admin-icon name="square-menu" />
                       </a>
-                      <!-- Ordering is the filter panel's order and nothing else,
-                         so the handle sits with the row's other actions rather
-                         than claiming a column of its own. A handle, not a pair
-                         of step buttons: the category list, the image gallery
-                         and the attribute grid itself are all dragged, and a
-                         button that has to disable itself at the ends of the
-                         list flickers through every reorder. -->
-                      <span
-                        cdkDragHandle
-                        class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
-                        [attr.aria-label]="common.reorder"
-                        [title]="common.reorder"
-                      >
-                        <app-admin-icon name="grip-vertical" class="h-4 w-4" />
-                      </span>
                       <button
+                        appIconButton
                         type="button"
-                        class="p-1 text-stone-400 hover:text-accent"
                         [attr.aria-label]="text.edit"
                         [disabled]="editing() !== null"
                         (click)="startEdit(definition)"
                       >
-                        <app-admin-icon name="pencil" class="h-4 w-4" />
+                        <app-admin-icon name="pencil" />
                       </button>
                       <button
+                        appIconButton
+                        variant="danger"
                         type="button"
-                        class="p-1 text-stone-400 hover:text-red-700"
                         [attr.aria-label]="text.delete"
                         [disabled]="busy()"
                         (click)="remove(definition)"
                       >
-                        <app-admin-icon name="trash-2" class="h-4 w-4" />
+                        <app-admin-icon name="trash-2" />
                       </button>
-                    </span>
-                  </div>
+                    </ng-container>
+                  </app-record-row>
                   <!-- Both notes are about the exact match, which is the one
                      thing about this screen that surprises people. -->
                   @if (definition.productCount === 0) {
@@ -213,7 +217,7 @@ type EditTarget = { id: string } | { id: null } | null;
 
           @if (isEditing(null)) {
             <div
-              class="p-4 bg-white"
+              class="py-3"
               [class]="
                 definitions.value().length !== 0 ? 'border-t border-border' : ''
               "
@@ -221,7 +225,7 @@ type EditTarget = { id: string } | { id: null } | null;
               <ng-container [ngTemplateOutlet]="form" />
             </div>
           } @else if (definitions.value().length === 0) {
-            <p class="p-4 bg-white text-sm text-muted">{{ text.empty }}</p>
+            <p class="py-3 text-sm text-muted">{{ text.empty }}</p>
           }
         </div>
       } @else if (showSkeleton()) {
@@ -231,10 +235,10 @@ type EditTarget = { id: string } | { id: null } | null;
       <!-- One form for both add and edit: a definition is the same four fields
          either way, and only the request differs. -->
       <ng-template #form>
-        <!-- Fields and buttons share one baseline (items-end); the hints
-           therefore sit on their own line below rather than lengthening one
-           column and pulling the row out of alignment. -->
-        <form class="flex flex-wrap items-end gap-4" (submit)="save($event)">
+        <!-- Name and URL key across the top, since one is derived from the
+             other; the type below with the unit it measures beside it, which
+             is the pair that only exists together. One field per line below sm. -->
+        <form appRecordFields (submit)="save($event)">
           <div>
             <label appFieldLabel for="attribute-name">
               {{ text.name }}
@@ -245,7 +249,7 @@ type EditTarget = { id: string } | { id: null } | null;
               size="sm"
               id="attribute-name"
               name="name"
-              class="w-56"
+              class="w-full"
               autocomplete="off"
               [value]="draftName()"
               [placeholder]="text.namePlaceholder"
@@ -253,8 +257,22 @@ type EditTarget = { id: string } | { id: null } | null;
             />
           </div>
           <div>
+            <label appFieldLabel for="attribute-slug">{{ text.slug }}</label>
+            <input
+              appInput
+              size="sm"
+              id="attribute-slug"
+              name="slug"
+              class="w-full font-mono"
+              autocomplete="off"
+              [value]="draftSlug()"
+              [placeholder]="text.slugPlaceholder"
+              (input)="draftSlug.set($any($event.target).value)"
+            />
+          </div>
+          <div>
             <label appFieldLabel for="attribute-type">{{ text.type }}</label>
-            <app-select-field size="sm" class="w-36">
+            <app-select-field size="sm" class="block w-full">
               <select
                 appInput
                 size="sm"
@@ -280,7 +298,7 @@ type EditTarget = { id: string } | { id: null } | null;
                 size="sm"
                 id="attribute-unit"
                 name="unit"
-                class="w-24"
+                class="w-full"
                 autocomplete="off"
                 [value]="draftUnit()"
                 [placeholder]="text.unitPlaceholder"
@@ -288,21 +306,8 @@ type EditTarget = { id: string } | { id: null } | null;
               />
             </div>
           }
-          <div>
-            <label appFieldLabel for="attribute-slug">{{ text.slug }}</label>
-            <input
-              appInput
-              size="sm"
-              id="attribute-slug"
-              name="slug"
-              class="w-44 font-mono"
-              autocomplete="off"
-              [value]="draftSlug()"
-              [placeholder]="text.slugPlaceholder"
-              (input)="draftSlug.set($any($event.target).value)"
-            />
-          </div>
-          <div class="flex items-center gap-2">
+          <p class="text-xs text-muted sm:col-span-2">{{ text.nameHint }}</p>
+          <div appRecordFormActions>
             <button
               appButton
               size="sm"
@@ -326,9 +331,8 @@ type EditTarget = { id: string } | { id: null } | null;
               {{ common.cancel }}
             </button>
           </div>
-          <p class="w-full text-xs text-muted">{{ text.nameHint }}</p>
           @if (formError()) {
-            <p class="w-full text-sm text-red-700" role="alert">
+            <p class="text-sm text-red-700 sm:col-span-2" role="alert">
               {{ formError() }}
             </p>
           }

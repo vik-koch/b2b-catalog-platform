@@ -214,7 +214,7 @@ export class GridNarrowControls {
   /** The count as the deployment words it — parentheses, as the storefront's
    * facet panel has always shown it. */
   protected readonly countLabel = computed(() =>
-    fillText(this.common.filtersCount, { count: this.activeCount() }),
+    fillText(this.common.countSuffix, { count: this.activeCount() }),
   );
 
   protected readonly filters = computed(() =>

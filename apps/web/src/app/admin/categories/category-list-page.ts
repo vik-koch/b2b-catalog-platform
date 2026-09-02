@@ -1,6 +1,7 @@
 import {
   CdkDrag,
   CdkDragEnd,
+  CdkDragHandle,
   CdkDragMove,
   CdkDropList,
 } from '@angular/cdk/drag-drop';
@@ -25,9 +26,11 @@ import { usePageSeo } from '../../core/page-seo';
 import { Skeleton } from '../../ui/skeleton';
 import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
+import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../editor-return';
+import { RecordRow } from '../records/record-row';
 import { CategoryDeleteDialog } from './category-delete-dialog';
 import {
   CategoryDropTarget,
@@ -40,8 +43,12 @@ import {
   resolveDropTarget,
 } from './category-tree';
 
-/** Pixels of indent per tree level, shared by the rows and the drop line. */
-const INDENT = 36;
+/**
+ * Pixels of indent per tree level, shared by the rows and the drop line. 1.5rem,
+ * the same step the attribute inventory nests its values by — two lists that
+ * step by different amounts read as two different kinds of nesting.
+ */
+const INDENT = 24;
 
 /** How far past the list's top and bottom edge still counts as a drop. */
 const EDGE_SLACK = 24;
@@ -74,10 +81,13 @@ const EDGE_SLACK = 24;
   imports: [
     RouterLink,
     Button,
+    IconButton,
     AdminIcon,
+    RecordRow,
     CategoryDeleteDialog,
     CdkDropList,
     CdkDrag,
+    CdkDragHandle,
     Skeleton,
   ],
   styles: `
@@ -107,7 +117,7 @@ const EDGE_SLACK = 24;
     }
   `,
   template: `
-    <div class="mb-4 flex items-center justify-between gap-4">
+    <div class="mb-4 flex items-start justify-between gap-4">
       <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
       <a
         appButton
@@ -178,85 +188,98 @@ const EDGE_SLACK = 24;
                      is one row at its real size and type, never its subtree —
                      children are their own rows and stay where they are. -->
                   <div
-                    class="flex items-center gap-2 border-stone-100 py-2"
+                    class="border-border py-3"
+                    [class]="depthTint(node.depth)"
                     [class.border-t]="!first"
                     [style.marginLeft.px]="node.depth * indent"
                   >
-                    <span
-                      cdkDragHandle
-                      class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
-                      [attr.aria-label]="common.reorder"
-                      [title]="common.reorder"
-                    >
-                      <app-admin-icon name="grip-vertical" class="h-4 w-4" />
-                    </span>
-                    <span class="flex-1 font-medium text-stone-700">
-                      {{ node.category.name }}
-                    </span>
-                    <a
-                      routerLink="/admin/categories/new"
-                      [queryParams]="{
-                        parent: node.category.slug,
-                        from: editorFrom().from,
-                      }"
-                      class="p-1 text-stone-400 hover:text-accent"
-                      [attr.aria-label]="text.addChild"
-                      [title]="text.addChild"
-                    >
-                      <app-admin-icon name="plus" class="h-4 w-4" />
-                    </a>
-                    <a
-                      [routerLink]="['/catalog', node.category.slug]"
-                      class="p-1 text-stone-400 hover:text-accent"
-                      [attr.aria-label]="text.seeProducts"
-                      [title]="text.seeProducts"
-                    >
-                      <app-admin-icon name="eye" class="h-4 w-4" />
-                    </a>
-                    <a
-                      routerLink="/admin/products"
-                      [queryParams]="{ categoryId: node.category.id }"
-                      class="p-1 text-stone-400 hover:text-accent"
-                      [attr.aria-label]="text.editProducts"
-                      [title]="text.editProducts"
-                    >
-                      <app-admin-icon name="square-menu" class="h-4 w-4" />
-                    </a>
-                    <a
-                      [routerLink]="[
-                        '/admin/categories',
-                        node.category.slug,
-                        'filters',
-                      ]"
-                      [queryParams]="editorFrom()"
-                      class="p-1 text-stone-400 hover:text-accent"
-                      [attr.aria-label]="text.editFilters"
-                      [title]="text.editFilters"
-                    >
-                      <app-admin-icon name="funnel" class="h-4 w-4" />
-                    </a>
-                    <a
-                      [routerLink]="[
-                        '/admin/categories',
-                        node.category.slug,
-                        'edit',
-                      ]"
-                      [queryParams]="editorFrom()"
-                      class="p-1 text-stone-400 hover:text-accent"
-                      [attr.aria-label]="text.edit"
-                      [title]="text.edit"
-                    >
-                      <app-admin-icon name="pencil" class="h-4 w-4" />
-                    </a>
-                    <button
-                      type="button"
-                      class="p-1 text-stone-400 hover:text-red-700"
-                      [attr.aria-label]="text.delete"
-                      [title]="text.delete"
-                      (click)="deletingCategory.set(node.category)"
-                    >
-                      <app-admin-icon name="trash-2" class="h-4 w-4" />
-                    </button>
+                    <app-record-row [compact]="true">
+                      <span
+                        recordControl
+                        cdkDragHandle
+                        appIconButton
+                        size="lead"
+                        class="cursor-grab active:cursor-grabbing"
+                        [attr.aria-label]="common.reorder"
+                        [title]="common.reorder"
+                      >
+                        <app-admin-icon name="grip-vertical" />
+                      </span>
+                      <!-- The whole line, and it wraps: a category's name is
+                           written for the shelf it heads, not for this list,
+                           and truncating it here would hide the very words the
+                           tree is scanned for. -->
+                      <span class="font-medium break-words text-stone-700">
+                        {{ node.category.name }}
+                      </span>
+                      <ng-container recordActions>
+                        <a
+                          appIconButton
+                          routerLink="/admin/categories/new"
+                          [queryParams]="{
+                            parent: node.category.slug,
+                            from: editorFrom().from,
+                          }"
+                          [attr.aria-label]="text.addChild"
+                          [title]="text.addChild"
+                        >
+                          <app-admin-icon name="plus" />
+                        </a>
+                        <a
+                          appIconButton
+                          [routerLink]="['/catalog', node.category.slug]"
+                          [attr.aria-label]="text.seeProducts"
+                          [title]="text.seeProducts"
+                        >
+                          <app-admin-icon name="eye" />
+                        </a>
+                        <a
+                          appIconButton
+                          routerLink="/admin/products"
+                          [queryParams]="{ categoryId: node.category.id }"
+                          [attr.aria-label]="text.editProducts"
+                          [title]="text.editProducts"
+                        >
+                          <app-admin-icon name="square-menu" />
+                        </a>
+                        <a
+                          appIconButton
+                          [routerLink]="[
+                            '/admin/categories',
+                            node.category.slug,
+                            'filters',
+                          ]"
+                          [queryParams]="editorFrom()"
+                          [attr.aria-label]="text.editFilters"
+                          [title]="text.editFilters"
+                        >
+                          <app-admin-icon name="funnel" />
+                        </a>
+                        <a
+                          appIconButton
+                          [routerLink]="[
+                            '/admin/categories',
+                            node.category.slug,
+                            'edit',
+                          ]"
+                          [queryParams]="editorFrom()"
+                          [attr.aria-label]="text.edit"
+                          [title]="text.edit"
+                        >
+                          <app-admin-icon name="pencil" />
+                        </a>
+                        <button
+                          appIconButton
+                          variant="danger"
+                          type="button"
+                          [attr.aria-label]="text.delete"
+                          [title]="text.delete"
+                          (click)="deletingCategory.set(node.category)"
+                        >
+                          <app-admin-icon name="trash-2" />
+                        </button>
+                      </ng-container>
+                    </app-record-row>
                   </div>
                 </li>
               }
@@ -300,6 +323,19 @@ export class CategoryListPage {
 
   private readonly list = viewChild<ElementRef<HTMLElement>>('list');
   protected readonly indent = INDENT;
+
+  /**
+   * How deep a row sits, as a shade. The indent alone says it, but only against
+   * the row above — a subcategory read on its own is just a row starting a
+   * little to the right, and on a phone, where the whole list is 340px wide,
+   * two levels of indent are 72px of that. A tint gives each level an edge of
+   * its own, and stops after two: a third grey is a grey nobody can tell from
+   * the second.
+   */
+  protected depthTint(depth: number): string {
+    if (depth <= 0) return '';
+    return depth === 1 ? 'bg-stone-100 pl-2' : 'bg-stone-200 pl-2';
+  }
 
   /** The category whose delete confirmation modal is open, if any. */
   protected readonly deletingCategory = signal<AdminCategory | null>(null);

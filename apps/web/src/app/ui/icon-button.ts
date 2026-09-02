@@ -19,6 +19,13 @@ const sizes = {
   sm: 'p-2 [&>*]:size-5 md:p-1 md:[&>*]:size-4',
   md: 'p-2.5 [&>*]:size-6 md:p-1.5 md:[&>*]:size-5',
   /**
+   * The one that leads a record row. No padding on the sides, so the glyph's
+   * own left edge is the row's left edge and everything under it — the meta
+   * line, the second line of a wrapped name — starts on the same vertical. It
+   * keeps the height, which is what a thumb aims at.
+   */
+  lead: 'px-0 py-2 [&>*]:size-5 md:py-1 md:[&>*]:size-4',
+  /**
    * The finger-sized end of `sm`, held at every width. For a control whose
    * neighbours are laid out by a *container* query rather than by the window:
    * the storefront's filter disclosure is still the phone's shape on a
@@ -29,17 +36,18 @@ const sizes = {
 } as const;
 
 const variants = {
-  default: 'text-muted hover:text-accent active:text-primary-deep',
   /**
-   * The same control where it repeats down a column — a row's actions in an
-   * admin grid. Meta weight, like the timestamps and column headings beside
-   * it, so a list of two hundred rows is not a list of six hundred glyphs
-   * competing with the values they belong to.
+   * One weight for every icon button in the app. Lighter than any text it sits
+   * beside, because these repeat — a list of two hundred rows carries six
+   * hundred of them, and at text weight the glyphs shout down the values they
+   * belong to. There was briefly a second, subtler variant for exactly that
+   * case; two weights of the same control read as two controls, so this is the
+   * lighter of them and the only one.
    */
-  subtle: 'text-subtle hover:text-accent active:text-primary-deep',
+  default: 'text-stone-400 hover:text-accent active:text-primary-deep',
   /** A control whose glyph already says something has been set. */
   marked: 'text-primary hover:text-accent active:text-primary-deep',
-  danger: 'text-subtle hover:text-red-700 active:text-red-900',
+  danger: 'text-stone-400 hover:text-red-700 active:text-red-900',
 } as const;
 
 /**

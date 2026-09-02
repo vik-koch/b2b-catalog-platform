@@ -19,7 +19,7 @@ import { IconButton } from '../../ui/icon-button';
 @Component({
   selector: 'app-user-row-actions',
   imports: [RouterLink, AdminIcon, IconButton],
-  host: { class: 'flex items-center justify-end gap-2 md:gap-1' },
+  host: { class: 'flex items-center justify-end gap-2 sm:gap-1' },
   template: `
     <!-- Both open the same editor; only the glyph differs, because on a pending
          row the job is a decision and not a correction. The check carries the
@@ -30,7 +30,7 @@ import { IconButton } from '../../ui/icon-button';
         [routerLink]="['/admin/users', user().id, 'edit']"
         [queryParams]="returnParams()"
         appIconButton
-        [variant]="user().status === 'pending' ? 'marked' : 'subtle'"
+        [variant]="user().status === 'pending' ? 'marked' : 'default'"
         [attr.aria-label]="
           user().status === 'pending' ? text.approve : text.edit
         "
@@ -59,7 +59,6 @@ import { IconButton } from '../../ui/icon-button';
       <button
         type="button"
         appIconButton
-        variant="subtle"
         [attr.aria-label]="text.reactivate"
         (click)="activeChanged.emit({ user: user(), active: true })"
       >

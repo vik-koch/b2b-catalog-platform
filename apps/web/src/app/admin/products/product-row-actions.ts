@@ -24,13 +24,12 @@ export interface ProductRowState {
 @Component({
   selector: 'app-product-row-actions',
   imports: [RouterLink, AdminIcon, IconButton],
-  host: { class: 'flex items-center justify-end gap-2 md:gap-1' },
+  host: { class: 'flex items-center justify-end gap-2 sm:gap-1' },
   template: `
     <a
       [routerLink]="['/admin/products', product().slug, 'edit']"
       [queryParams]="returnParams()"
       appIconButton
-      variant="subtle"
       [attr.aria-label]="editText.editProduct"
       [title]="editText.editProduct"
     >
@@ -43,7 +42,6 @@ export interface ProductRowState {
     <button
       type="button"
       appIconButton
-      variant="subtle"
       [disabled]="busy()"
       [attr.aria-label]="publishLabel()"
       [title]="publishLabel()"
@@ -58,7 +56,6 @@ export interface ProductRowState {
       <button
         type="button"
         appIconButton
-        variant="subtle"
         [attr.aria-label]="common.restore"
         [title]="common.restore"
         (click)="restored.emit(product())"

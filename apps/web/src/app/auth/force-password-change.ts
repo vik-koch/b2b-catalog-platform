@@ -10,6 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { Button } from '../ui/button';
+import { DialogPanel } from '../ui/dialog-panel';
 import { AuthService } from './auth.service';
 import { ChangePasswordForm } from './change-password-form';
 
@@ -35,14 +36,14 @@ import { ChangePasswordForm } from './change-password-form';
  */
 @Component({
   selector: 'app-force-password-change',
-  imports: [ChangePasswordForm, Button],
+  imports: [ChangePasswordForm, Button, DialogPanel],
   template: `
     @if (open()) {
       <dialog
         #dialog
         (cancel)="$event.preventDefault()"
         aria-labelledby="force-password-change-heading"
-        class="m-auto max-w-md rounded-xl border border-border bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50"
+        appDialogPanel
       >
         @if (changed()) {
           <h2

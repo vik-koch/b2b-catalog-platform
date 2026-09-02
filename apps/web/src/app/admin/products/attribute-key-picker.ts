@@ -6,9 +6,11 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
+import { DisclosureToggle } from '../../ui/disclosure-toggle';
 import { HintBadge } from '../../ui/hint-badge';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AttributeHint } from './attribute-hints';
@@ -31,27 +33,25 @@ import { AttributeHint } from './attribute-hints';
  */
 @Component({
   selector: 'app-attribute-key-picker',
-  imports: [AdminIcon, Button, Checkbox, HintBadge],
+  imports: [AdminIcon, Button, Checkbox, DisclosureToggle, HintBadge],
   template: `
-    <div class="mb-2 max-w-xl">
-      <button
-        appButton
-        variant="secondary"
-        size="sm"
-        type="button"
-        class="gap-2"
-        [attr.aria-expanded]="open()"
-        (click)="toggle()"
-      >
-        <app-admin-icon
-          [name]="open() ? 'chevron-down' : 'plus'"
-          class="h-4 w-4"
-        />
-        {{ text.addKeys }}
-      </button>
-
+    <!-- One box: the lid and everything it opens share a border, the same
+         disclosure the admin grids and the storefront's facets wear. Its
+         chevron is the affordance, so nothing here says "plus" twice. -->
+    <div
+      class="mb-4 max-w-xl rounded-md border transition-colors"
+      [class]="open() ? 'border-accent' : 'border-border-strong'"
+    >
+      <app-disclosure-toggle
+        [label]="text.addKeys"
+        [count]="picked().length"
+        [countLabel]="countLabel()"
+        [open]="open()"
+        panelId="attribute-key-picker-panel"
+        (toggled)="toggle()"
+      />
       @if (open()) {
-        <div class="mt-2 rounded-md border border-border bg-stone-50 p-3">
+        <div id="attribute-key-picker-panel" class="border-t border-border p-4">
           <p class="text-xs text-subtle">{{ text.addKeysHint }}</p>
           @if (hints().length === 0) {
             <p class="mt-2 text-sm text-muted">{{ text.addKeysEmpty }}</p>
@@ -108,6 +108,7 @@ import { AttributeHint } from './attribute-hints';
   `,
 })
 export class AttributeKeyPicker {
+  protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.attributes;
 
   /** Every name the catalog knows, declared or freetext, alphabetically. */
@@ -132,6 +133,11 @@ export class AttributeKeyPicker {
 
   protected readonly applyLabel = computed(() =>
     this.text.addKeysApply.replace('{count}', String(this.picked().length)),
+  );
+
+  /** What the lid says is checked, in the deployment's own bracketing. */
+  protected readonly countLabel = computed(() =>
+    fillText(this.common.countSuffix, { count: this.picked().length }),
   );
 
   protected toggle(): void {

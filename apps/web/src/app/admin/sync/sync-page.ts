@@ -378,28 +378,33 @@ function substitute(
           {{ text.historyTitle }}
         </h2>
         @if (runs.hasValue() && runs.value().runs.length > 0) {
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-border text-left text-subtle">
-                <th class="py-2 font-medium">{{ text.col.date }}</th>
-                <th class="py-2 font-medium">{{ text.col.file }}</th>
-                <th class="py-2 font-medium">{{ text.col.actor }}</th>
-                <th class="py-2 font-medium">{{ text.col.status }}</th>
-                <th class="py-2 font-medium">{{ text.col.changes }}</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-stone-100">
-              @for (run of runs.value().runs; track run.id) {
-                <tr>
-                  <td class="py-2">{{ formatDate(run.startedAt) }}</td>
-                  <td class="py-2 text-subtle">{{ run.filename }}</td>
-                  <td class="py-2 text-subtle">{{ run.actorEmail }}</td>
-                  <td class="py-2">{{ text.status[run.status] }}</td>
-                  <td class="py-2 text-subtle">{{ changeSummary(run) }}</td>
+          <!-- Five short columns that are read across, not down: a phone
+               scrolls them rather than stacking them into five labelled lines
+               apiece. -->
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[36rem] text-sm">
+              <thead>
+                <tr class="border-b border-border text-left text-subtle">
+                  <th class="py-2 font-medium">{{ text.col.date }}</th>
+                  <th class="py-2 font-medium">{{ text.col.file }}</th>
+                  <th class="py-2 font-medium">{{ text.col.actor }}</th>
+                  <th class="py-2 font-medium">{{ text.col.status }}</th>
+                  <th class="py-2 font-medium">{{ text.col.changes }}</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody class="divide-y divide-stone-100">
+                @for (run of runs.value().runs; track run.id) {
+                  <tr>
+                    <td class="py-2">{{ formatDate(run.startedAt) }}</td>
+                    <td class="py-2 text-subtle">{{ run.filename }}</td>
+                    <td class="py-2 text-subtle">{{ run.actorEmail }}</td>
+                    <td class="py-2">{{ text.status[run.status] }}</td>
+                    <td class="py-2 text-subtle">{{ changeSummary(run) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         } @else {
           <p class="text-muted">{{ text.historyEmpty }}</p>
         }

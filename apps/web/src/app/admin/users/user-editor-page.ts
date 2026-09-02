@@ -216,7 +216,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                   <span class="text-accent" aria-hidden="true">*</span>
                 }
               </label>
-              <app-select-field class="max-w-72">
+              <app-select-field class="w-full">
                 <select
                   appInput
                   id="tier"
@@ -249,7 +249,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
           @if (showsRole()) {
             <div>
               <label for="role" appFieldLabel>{{ text.role }}</label>
-              <app-select-field class="w-full sm:w-72">
+              <app-select-field class="w-full">
                 <select
                   id="role"
                   formControlName="role"

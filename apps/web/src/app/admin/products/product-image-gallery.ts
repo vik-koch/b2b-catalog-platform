@@ -11,8 +11,8 @@ import {
   CatalogImage,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { MediaService } from '../media/media.service';
 
 /**
@@ -56,16 +56,16 @@ import { MediaService } from '../media/media.service';
             <div
               class="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 p-1"
             >
-              <span class="p-0.5 text-white/70">
-                <app-admin-icon name="grip-vertical" class="h-4 w-4" />
+              <span class="p-1.5 inline-flex text-white/70 md:p-1">
+                <app-admin-icon name="grip-vertical" class="size-5 md:size-4" />
               </span>
               <button
                 type="button"
-                class="p-0.5 text-white/90 hover:text-white"
+                class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white md:p-1"
                 [attr.aria-label]="common.remove"
                 (click)="remove($index)"
               >
-                <app-admin-icon name="trash-2" class="h-4 w-4" />
+                <app-admin-icon name="trash-2" class="size-5 md:size-4" />
               </button>
             </div>
           </li>

@@ -571,9 +571,14 @@ export class RichTextEditor {
     }
   }
 
+  /**
+   * A toggle, not an icon button: it says what it is with a fill, so it keeps
+   * its own colours. Only the room follows the rest of the admin — a finger's
+   * width below `md`, a pointer's above, glyph included.
+   */
   protected buttonClass(active: boolean): string {
     const base =
-      'flex h-8 w-8 items-center justify-center rounded transition-colors';
+      'flex size-9 cursor-pointer items-center justify-center rounded transition-colors [&>*]:size-5 md:size-8 md:[&>*]:size-4';
     return active
       ? `${base} bg-primary text-white`
       : `${base} text-ink hover:bg-stone-200`;

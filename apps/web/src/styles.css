@@ -288,6 +288,18 @@ html.search-locked body {
 }
 
 /*
+ * While a modal <dialog> is open. The browser makes the page behind it inert to
+ * clicks and to the keyboard, but not to a wheel or a thumb: the dialog stays
+ * put and the page slides about underneath it, which on a phone reads as the
+ * dialog having lost its place. `html` never sets an overflow of its own, so
+ * the body's propagates to the viewport and the document simply stops
+ * scrolling; `scrollbar-gutter` above keeps the width it had.
+ */
+body:has(dialog[open]) {
+  overflow: hidden;
+}
+
+/*
  * One focus indicator for the whole app, on everything focusable — the
  * primitives, but equally the plain links, cards and native controls that
  * never had a class for it and fell back to the browser's black ring.

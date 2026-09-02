@@ -5,6 +5,7 @@ import {
   totalMinor,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { injectNarrowScreen } from '../../core/narrow-screen';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { formatPiecePrice, formatPriceMinor } from '../../catalog/price';
 import { FieldLabel } from '../../ui/field-label';
@@ -66,64 +67,119 @@ export function parseCount(text: string): number | null {
   selector: 'app-product-packaging-editor',
   imports: [FieldLabel, NumericField],
   template: `
-    <fieldset>
+    <!-- min-w-0 for the same reason as the attribute grid above: a <fieldset>
+         will not shrink below its content's min-content width. -->
+    <fieldset class="min-w-0">
       <legend appFieldLabel>{{ text.heading }}</legend>
       <p class="mb-2 text-xs text-subtle">{{ text.hint }}</p>
 
-      <!-- Column widths mirror the attribute grid above, so the two tables line
-           up. The third column stands where its row actions are, and carries
-           what each row costs once the price is applied to it. -->
-      <table class="w-full max-w-3xl table-fixed border-collapse text-sm">
-        <tbody>
+      @if (narrow()) {
+        <!-- The same seven fields, stacked. Not the record list the attribute
+             grid gets below this width: those rows are the admin's own and vary
+             in number, while these are a fixed form — and a form whose every
+             field has to be opened with a pencil first is a form nobody
+             finishes. What the third column carried becomes a caption under the
+             field it is derived from.
+
+             One outlined box rather than seven divided rows: these are not
+             records, they are the parts of one answer about how the product is
+             packed, and rules between them would say the opposite. -->
+        <div class="max-w-xl space-y-4 rounded-md border border-border p-4">
           @for (row of rows(); track row.key) {
-            <tr>
-              <th
-                scope="row"
-                class="w-1/3 border border-border-strong bg-stone-50 px-2 py-1.5 text-left font-medium"
-              >
-                <label [attr.for]="'packaging-' + row.key">{{
-                  row.label
-                }}</label>
-                @if (row.hint) {
-                  <span class="mt-0.5 block text-xs font-normal text-subtle">{{
-                    row.hint
-                  }}</span>
-                }
-              </th>
-              <!-- The unit sits inside the cell, after the value it measures,
-                   and the focus ring is drawn around the pair — so the cell
-                   behaves as one field, like the attribute grid's. -->
-              <td
-                class="border border-border-strong p-0 focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
+            <label class="block">
+              <span class="mb-1 block text-sm font-medium text-stone-700">
+                {{ row.label }}
+              </span>
+              @if (row.hint) {
+                <span class="mb-1 block text-xs text-subtle">{{
+                  row.hint
+                }}</span>
+              }
+              <span
+                class="flex items-center rounded-md border border-border-strong focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
                 [class]="row.disabled ? 'bg-stone-100' : 'bg-white'"
               >
-                <div class="flex items-center">
-                  <input
-                    [id]="'packaging-' + row.key"
-                    type="text"
-                    [attr.inputmode]="row.inputMode"
-                    [appNumericField]="row.inputMode"
-                    class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none disabled:cursor-not-allowed"
-                    [value]="row.value"
-                    [placeholder]="row.placeholder"
-                    [disabled]="row.disabled"
-                    (input)="edit(row.key, $any($event.target).value)"
-                    (blur)="normalize(row.key)"
-                  />
-                  @if (row.suffix) {
-                    <span class="pr-2 text-xs text-subtle">{{
-                      row.suffix
-                    }}</span>
-                  }
-                </div>
-              </td>
-              <td class="w-48 border-0 pl-3 align-middle text-xs text-subtle">
-                {{ row.price }}
-              </td>
-            </tr>
+                <input
+                  [id]="'packaging-narrow-' + row.key"
+                  type="text"
+                  [attr.inputmode]="row.inputMode"
+                  [appNumericField]="row.inputMode"
+                  class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none disabled:cursor-not-allowed"
+                  [value]="row.value"
+                  [placeholder]="row.placeholder"
+                  [disabled]="row.disabled"
+                  (input)="edit(row.key, $any($event.target).value)"
+                  (blur)="normalize(row.key)"
+                />
+                @if (row.suffix) {
+                  <span class="pr-2 text-xs text-subtle">{{ row.suffix }}</span>
+                }
+              </span>
+              @if (row.price) {
+                <span class="mt-1 block text-xs text-subtle">{{
+                  row.price
+                }}</span>
+              }
+            </label>
           }
-        </tbody>
-      </table>
+        </div>
+      } @else {
+        <!-- Column widths mirror the attribute grid above, so the two tables line
+           up. The third column stands where its row actions are, and carries
+           what each row costs once the price is applied to it. -->
+        <table class="w-full max-w-3xl table-fixed border-collapse text-sm">
+          <tbody>
+            @for (row of rows(); track row.key) {
+              <tr>
+                <th
+                  scope="row"
+                  class="w-1/3 border border-border-strong bg-stone-50 px-2 py-1.5 text-left font-medium"
+                >
+                  <label [attr.for]="'packaging-' + row.key">{{
+                    row.label
+                  }}</label>
+                  @if (row.hint) {
+                    <span
+                      class="mt-0.5 block text-xs font-normal text-subtle"
+                      >{{ row.hint }}</span
+                    >
+                  }
+                </th>
+                <!-- The unit sits inside the cell, after the value it measures,
+                   and the focus ring is drawn around the pair — so the cell
+                   behaves as one field, like the attribute grid's. -->
+                <td
+                  class="border border-border-strong p-0 focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
+                  [class]="row.disabled ? 'bg-stone-100' : 'bg-white'"
+                >
+                  <div class="flex items-center">
+                    <input
+                      [id]="'packaging-' + row.key"
+                      type="text"
+                      [attr.inputmode]="row.inputMode"
+                      [appNumericField]="row.inputMode"
+                      class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none disabled:cursor-not-allowed"
+                      [value]="row.value"
+                      [placeholder]="row.placeholder"
+                      [disabled]="row.disabled"
+                      (input)="edit(row.key, $any($event.target).value)"
+                      (blur)="normalize(row.key)"
+                    />
+                    @if (row.suffix) {
+                      <span class="pr-2 text-xs text-subtle">{{
+                        row.suffix
+                      }}</span>
+                    }
+                  </div>
+                </td>
+                <td class="w-48 border-0 pl-3 align-middle text-xs text-subtle">
+                  {{ row.price }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
 
       @if (basisError()) {
         <p class="mt-2 text-sm text-red-700" role="alert">
@@ -135,6 +191,9 @@ export function parseCount(text: string): number | null {
 })
 export class ProductPackagingEditor {
   protected readonly text = inject(ADMIN_TEXT).productEditor.packaging;
+  /** Below `md` a three-column table of typed cells has no room; the glyph
+   * sizes turn on the same line. */
+  protected readonly narrow = injectNarrowScreen('md');
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
   readonly value = input.required<PackagingDraft>();

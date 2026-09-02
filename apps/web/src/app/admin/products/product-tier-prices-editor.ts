@@ -32,9 +32,20 @@ export interface TierPriceDraft {
   imports: [FieldLabel, Input, PriceField],
   template: `
     <span appFieldLabel>{{ text.heading }}</span>
-    <div class="flex flex-wrap gap-6">
+    <!-- A line each below sm, as the base price above them takes: a row of
+         10rem fields on a phone is a row of fields with more chrome than value
+         in them, and the form reads as one column of prices either way.
+
+         Boxed at that width, and only there: stacked, the tiers read as three
+         more fields of the product form rather than as one question with one
+         answer per tier. The outline is what puts them back together; side by
+         side they are already a group and the box would only be a box around a
+         row. -->
+    <div
+      class="flex flex-wrap gap-4 rounded-md border border-border p-4 sm:gap-6 sm:rounded-none sm:border-0 sm:p-0"
+    >
       @for (tier of tiers(); track tier.id) {
-        <label class="block">
+        <label class="block w-full sm:w-auto">
           <span class="mb-1 block text-sm text-muted">{{ tier.label }}</span>
           <!-- Text with inputmode, for the same reason as the base price
                field: a number input drops a half-typed decimal. -->
@@ -43,7 +54,7 @@ export interface TierPriceDraft {
             inputmode="decimal"
             appInput
             appPriceField
-            class="w-40"
+            class="w-full sm:w-40"
             [attr.aria-label]="tier.label"
             [value]="valueFor(tier.id)"
             [placeholder]="placeholder()"

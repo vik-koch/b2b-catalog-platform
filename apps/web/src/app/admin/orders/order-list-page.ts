@@ -23,6 +23,7 @@ import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridPagination } from '../grid/grid-pagination';
 import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
 import { GridTimestamp } from '../grid/grid-timestamp';
+import { RecordRow } from '../records/record-row';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 
 /**
@@ -49,6 +50,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
     GridTimestamp,
     Skeleton,
     StatusBadge,
+    RecordRow,
   ],
   template: `
     <app-admin-list-header
@@ -121,30 +123,45 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
           >
             <!-- Only the order is greyed once it is over, never the badge that
                  says so — the same rule the table follows cell by cell. -->
-            <div class="flex items-baseline justify-between gap-3">
+            <app-record-row>
               <span
                 class="truncate font-medium"
                 [class.opacity-50]="isEnded(order)"
                 >{{ order.reference }}</span
               >
-              <span appStatusBadge [tone]="statusTone(order.status)">
+              <span
+                recordBadge
+                appStatusBadge
+                class="shrink-0"
+                [tone]="statusTone(order.status)"
+              >
                 {{ statusLabel(order.status) }}
               </span>
-            </div>
-            <div [class.opacity-50]="isEnded(order)">
-              <p class="mt-1 truncate text-subtle">
+              <p
+                recordBody
+                class="mt-1 truncate text-subtle"
+                [class.opacity-50]="isEnded(order)"
+              >
                 {{ order.contactName }}
               </p>
-              <p class="mt-1 flex items-baseline justify-between gap-3 text-sm">
-                <span class="flex min-w-0 items-baseline gap-1 text-subtle">
-                  <app-grid-timestamp [value]="order.createdAt" inline />
-                  <span class="truncate"
-                    >· {{ lineCount(order.itemCount) }}</span
-                  >
-                </span>
-                <span class="tabular-nums">{{ total(order) }}</span>
-              </p>
-            </div>
+              <span
+                recordMeta
+                class="flex min-w-0 items-baseline gap-1"
+                [class.opacity-50]="isEnded(order)"
+              >
+                <app-grid-timestamp [value]="order.createdAt" inline />
+                <span class="truncate">· {{ lineCount(order.itemCount) }}</span>
+              </span>
+              <!-- The total takes the place a row's buttons take: an order is
+                   opened by tapping it, so what belongs bottom-right here is
+                   the number the row is scanned for. -->
+              <span
+                recordActions
+                class="text-sm tabular-nums"
+                [class.opacity-50]="isEnded(order)"
+                >{{ total(order) }}</span
+              >
+            </app-record-row>
           </a>
         </ng-template>
       </app-admin-grid>
