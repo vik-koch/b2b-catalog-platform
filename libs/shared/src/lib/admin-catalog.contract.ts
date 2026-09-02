@@ -309,6 +309,14 @@ export const adminProductSortSchema = z.enum([
   /** Least recently updated first; `updated_desc` is the useful one. */
   'updated',
   'updated_desc',
+  /**
+   * By what the row needs: unpublished first (somebody has to look at it),
+   * then what is live, then what has been deleted. It is also what an
+   * unscored `relevance` falls back to, so opening the grid puts the arrivals
+   * a sync left unpublished at the top.
+   */
+  'state',
+  'state_desc',
 ]);
 export type AdminProductSort = z.infer<typeof adminProductSortSchema>;
 

@@ -33,6 +33,23 @@ export const ORDER_STATUSES = [
 export const orderStatusSchema = z.enum(ORDER_STATUSES);
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 
+/**
+ * How the staff list is ordered (FR-AUTH-03).
+ *
+ * `status` is the default and the reason this exists: it puts the orders
+ * nobody has answered yet at the top, which is the question the list is opened
+ * with. Requested first, then approved, then the two ways an order ends; each
+ * group newest first, as the list has always been.
+ */
+export const STAFF_ORDER_SORTS = [
+  'status',
+  'status_desc',
+  'placed',
+  'placed_desc',
+] as const;
+export const staffOrderSortSchema = z.enum(STAFF_ORDER_SORTS);
+export type StaffOrderSort = z.infer<typeof staffOrderSortSchema>;
+
 /** How the goods reach the customer. */
 export const FULFILMENT_METHODS = ['delivery', 'pickup'] as const;
 export const fulfilmentMethodSchema = z.enum(FULFILMENT_METHODS);
@@ -405,6 +422,7 @@ export const ordersContract = c.router({
        * a reference as readily as all of it.
        */
       q: z.string().trim().max(ORDER_QUERY_MAX_LENGTH).optional(),
+      sort: staffOrderSortSchema.optional(),
     }),
     responses: {
       200: z

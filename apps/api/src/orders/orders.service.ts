@@ -5,8 +5,20 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, count, desc, eq, ilike, inArray, or, SQL } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  or,
+  sql,
+  SQL,
+} from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PgColumn } from 'drizzle-orm/pg-core';
 import {
   AddressInput,
   AdminOrderDetail,
@@ -23,6 +35,7 @@ import {
   Pagination,
   ProductUnit,
   resolveDeliveryZone,
+  StaffOrderSort,
 } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../addresses/addresses.service';
 import { OrderNotifications } from './order-notifications';
@@ -80,6 +93,42 @@ interface Fulfilment {
  * customer's `expectedTotalMinor` is a comparand and never an input; nothing a
  * browser sends decides what an order costs.
  */
+/**
+ * How the staff list is ordered (FR-AUTH-03).
+ *
+ * By default the orders nobody has answered yet come first, then those that
+ * have been approved, then the two ways an order ends — which is the order a
+ * manager works down. Within a group, and for the date sort, newest first.
+ *
+ * Every ordering closes with the reference, so two orders placed in the same
+ * millisecond cannot swap pages between requests and be shown twice.
+ */
+function orderListOrderBy(sort: StaffOrderSort): (SQL | PgColumn)[] {
+  const newest = [desc(orders.createdAt), desc(orders.reference)];
+  switch (sort) {
+    case 'placed':
+      return [asc(orders.createdAt), desc(orders.reference)];
+    case 'placed_desc':
+      return newest;
+    case 'status':
+      return [asc(statusPriority), ...newest];
+    case 'status_desc':
+      return [desc(statusPriority), ...newest];
+  }
+}
+
+/**
+ * What an order needs, as a number to sort by: a request is waiting on staff,
+ * an approved order is in hand, and the two refusals are over. Columns are
+ * qualified by hand — a bare name in a template binds to whatever table the
+ * surrounding query happens to make available.
+ */
+const statusPriority = sql<number>`case ${orders.status}
+  when 'requested' then 0
+  when 'approved' then 1
+  else 2
+end`;
+
 @Injectable()
 export class OrdersService {
   constructor(
@@ -451,6 +500,7 @@ export class OrdersService {
     page = 1,
     status?: OrderStatus,
     q?: string,
+    sort: StaffOrderSort = 'status',
   ): Promise<{
     items: (OrderSummary & {
       customerEmail: string | null;
@@ -463,7 +513,7 @@ export class OrdersService {
     const search = this.searchCondition(q);
     if (search) conditions.push(search);
     const where = conditions.length ? and(...conditions) : undefined;
-    const { rows, pagination } = await this.page(where, page);
+    const { rows, pagination } = await this.page(where, page, sort);
     const counts = await this.itemCounts(rows.map((row) => row.id));
     const emails = await this.customerEmails(rows);
 
@@ -564,6 +614,7 @@ export class OrdersService {
   private async page(
     where: SQL | undefined,
     page: number,
+    sort: StaffOrderSort = 'placed_desc',
   ): Promise<{ rows: OrderRow[]; pagination: Pagination }> {
     const total = await this.db.$count(orders, where);
     const totalPages = Math.ceil(total / ORDER_PAGE_SIZE);
@@ -572,9 +623,7 @@ export class OrdersService {
       .select()
       .from(orders)
       .where(where)
-      // Newest first, with the reference as the tiebreaker so two orders placed
-      // in the same millisecond cannot swap pages between requests.
-      .orderBy(desc(orders.createdAt), desc(orders.reference))
+      .orderBy(...orderListOrderBy(sort))
       .limit(ORDER_PAGE_SIZE)
       .offset((current - 1) * ORDER_PAGE_SIZE);
 
