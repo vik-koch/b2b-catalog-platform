@@ -14,11 +14,11 @@ import { MaintenanceToggle } from './maintenance/maintenance-toggle';
 import { SyncService } from './sync/sync.service';
 
 /**
- * Admin panel — a small dashboard: everything that changes shop content (the
- * catalog import, products and categories, the fixed static pages), the two
- * staff-facing halves (orders and accounts) side by side, and site state
- * (maintenance mode). Everything an admin can change is discoverable from here,
- * consistent with the storefront edit-mode affordances.
+ * Admin panel — a small dashboard: the two staff-facing halves (orders and
+ * accounts) side by side, then everything that changes shop content (the
+ * catalog import, products and categories, the fixed static pages), then site
+ * state (maintenance mode). Everything an admin can change is discoverable
+ * from here, consistent with the storefront edit-mode affordances.
  */
 @Component({
   selector: 'app-admin-panel-page',
@@ -29,160 +29,14 @@ import { SyncService } from './sync/sync.service';
     </h1>
     <app-signed-in-as />
 
-    <!-- Everything that changes shop content lives in one card: the three
-         catalog-side groups side by side (ingest, catalog, pricing), the static
-         pages on a row of their own beneath — they are a different kind of
-         content and there are more of them than fit a third of the card.
-         Admin-only — a manager's panel holds only the accounts card below. -->
-    @if (isAdmin()) {
-      <section class="mt-10">
-        <!-- Section headings carry a muted glyph for the topic: the panel is a
-             list of unrelated destinations, and the icon is what makes one
-             findable at a glance. Only at this level — one per card. -->
-        <h2
-          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
-        >
-          <app-admin-icon name="package" class="h-4 w-4" />
-          {{ panelText.manage }}
-        </h2>
-        <div class="rounded-lg border border-border">
-          <!-- Four groups, one track each, in the order the work happens:
-               import, then the catalog itself, then how its products are
-               described, then what they cost. Stacked below sm, where the
-               columns would each be too narrow for their buttons; the divider
-               turns with them. -->
-          <div
-            class="grid divide-y divide-border sm:grid-cols-4 sm:divide-x sm:divide-y-0"
-          >
-            <div class="p-5">
-              <h3 class="mb-3 text-sm font-medium">{{ panelText.sync }}</h3>
-              <a appButton routerLink="/admin/sync" class="gap-2">
-                <app-admin-icon name="upload" class="h-4 w-4" />
-                {{ syncText.title }}
-              </a>
-              <!-- Under the button, as a caption to it: the run it reports is
-                   the one that button starts again. The audit trail's newest
-                   applied run is the whole answer; there is no separate setting
-                   to keep in step. Until it arrives, hold the line's space
-                   rather than showing "never synced" and correcting it. -->
-              @if (runs.isLoading()) {
-                <div
-                  class="mt-3 h-4 w-32 animate-pulse rounded bg-stone-200"
-                  aria-hidden="true"
-                ></div>
-              } @else {
-                <p class="mt-3 text-xs text-muted">{{ lastSync() }}</p>
-              }
-            </div>
-
-            <div class="p-5">
-              <h3 id="admin-catalog-heading" class="mb-3 text-sm font-medium">
-                {{ panelText.catalog }}
-              </h3>
-              <ul
-                class="flex flex-wrap gap-3"
-                aria-labelledby="admin-catalog-heading"
-              >
-                <li>
-                  <a
-                    appButton
-                    variant="secondary"
-                    routerLink="/admin/categories"
-                  >
-                    {{ categoryText.title }}
-                  </a>
-                </li>
-                <li>
-                  <a appButton variant="secondary" routerLink="/admin/products">
-                    {{ productText.title }}
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <!-- Attributes are their own group: one screen declares what the
-                 shop filters by, the other shows what the products actually
-                 carry. Both are about how a product is described rather than
-                 about the catalog's structure. -->
-            <div class="p-5">
-              <h3
-                id="admin-attributes-heading"
-                class="mb-3 text-sm font-medium"
-              >
-                {{ panelText.attributes }}
-              </h3>
-              <ul
-                class="flex flex-wrap gap-3"
-                aria-labelledby="admin-attributes-heading"
-              >
-                <li>
-                  <a
-                    appButton
-                    variant="secondary"
-                    routerLink="/admin/attributes"
-                  >
-                    {{ attributeText.title }}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    appButton
-                    variant="secondary"
-                    routerLink="/admin/attributes/inventory"
-                  >
-                    {{ inventoryText.title }}
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div class="p-5">
-              <h3 class="mb-3 text-sm font-medium">
-                {{ panelText.pricing }}
-              </h3>
-              <a appButton variant="secondary" routerLink="/admin/tiers">
-                {{ tierText.title }}
-              </a>
-            </div>
-          </div>
-
-          <div class="border-t border-border p-5">
-            <h3 id="admin-pages-heading" class="mb-3 text-sm font-medium">
-              {{ panelText.pages }}
-            </h3>
-            <!-- Named after its heading: several of these labels ("About us")
-               also appear in the site header, so the group needs to be
-               distinguishable to a screen reader moving through the page. -->
-            <ul
-              class="flex flex-wrap gap-3"
-              aria-labelledby="admin-pages-heading"
-            >
-              @for (slug of pageSlugs; track slug) {
-                <li>
-                  <!-- Straight into the editor: linking to the public page would
-                     land an admin on a read-only view whose pencil only appears
-                     when storefront edit mode happens to be on. -->
-                  <a
-                    appButton
-                    variant="secondary"
-                    [routerLink]="['/admin/pages', slug, 'edit']"
-                    [queryParams]="editorFrom()"
-                  >
-                    {{ navText[slug] }}
-                  </a>
-                </li>
-              }
-            </ul>
-          </div>
-        </div>
-      </section>
-    }
-
     <!-- The two staff-facing halves side by side: neither holds enough buttons
          to earn a row of its own, and both are shown to managers, whose panel
          is these two cards and nothing else. Orders first — answering today's
-         requests is the work, approving an account is occasional. Stacked below
-         md, where two columns of buttons would each be too narrow. -->
+         requests is the work, approving an account is occasional. First on the
+         panel for the same reason: a manager has nothing else here, and an
+         admin arriving at this screen is far more often answering an order
+         than importing a catalog. Stacked below md, where two columns of
+         buttons would each be too narrow. -->
     <div class="mt-10 grid gap-6 md:grid-cols-2">
       <section class="flex flex-col">
         <h2
@@ -226,6 +80,156 @@ import { SyncService } from './sync/sync.service';
         </div>
       </section>
     </div>
+
+    <!-- Everything that changes shop content lives in one card: the four
+         catalog-side groups (ingest, catalog, attributes, pricing), the static
+         pages on a row of their own beneath — they are a different kind of
+         content and there are more of them than fit one of the groups.
+         Admin-only — a manager's panel holds only the cards above. -->
+    @if (isAdmin()) {
+      <section class="mt-10">
+        <!-- Section headings carry a muted glyph for the topic: the panel is a
+             list of unrelated destinations, and the icon is what makes one
+             findable at a glance. Only at this level — one per card. -->
+        <h2
+          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
+        >
+          <app-admin-icon name="package" class="h-4 w-4" />
+          {{ panelText.manage }}
+        </h2>
+        <div class="rounded-lg border border-border">
+          <!-- Four groups, one track each, in the order the work happens:
+               import, then the catalog itself, then how its products are
+               described, then what they cost. Four abreast only at xl: below
+               that they pair up, and below lg they stack, each group needing
+               room for buttons whose labels are deployment text.
+               Borders per cell rather than divide utilities, which count in DOM
+               order and so draws a left edge down the middle of a wrapped
+               row. -->
+          <div class="grid lg:grid-cols-2 xl:grid-cols-4">
+            <div class="p-5">
+              <h3 class="mb-3 text-sm font-medium">{{ panelText.sync }}</h3>
+              <a appButton routerLink="/admin/sync" class="gap-2">
+                <app-admin-icon name="upload" class="h-4 w-4" />
+                {{ syncText.title }}
+              </a>
+              <!-- Under the button, as a caption to it: the run it reports is
+                   the one that button starts again. The audit trail's newest
+                   applied run is the whole answer; there is no separate setting
+                   to keep in step. Until it arrives, hold the line's space
+                   rather than showing "never synced" and correcting it. -->
+              @if (runs.isLoading()) {
+                <div
+                  class="mt-3 h-4 w-32 animate-pulse rounded bg-stone-200"
+                  aria-hidden="true"
+                ></div>
+              } @else {
+                <p class="mt-3 text-xs text-muted">{{ lastSync() }}</p>
+              }
+            </div>
+
+            <div class="border-t border-border p-5 lg:border-t-0 lg:border-l">
+              <h3 id="admin-catalog-heading" class="mb-3 text-sm font-medium">
+                {{ panelText.catalog }}
+              </h3>
+              <ul
+                class="flex flex-wrap gap-3"
+                aria-labelledby="admin-catalog-heading"
+              >
+                <li>
+                  <a
+                    appButton
+                    variant="secondary"
+                    routerLink="/admin/categories"
+                  >
+                    {{ categoryText.title }}
+                  </a>
+                </li>
+                <li>
+                  <a appButton variant="secondary" routerLink="/admin/products">
+                    {{ productText.title }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Attributes are their own group: one screen declares what the
+                 shop filters by, the other shows what the products actually
+                 carry. Both are about how a product is described rather than
+                 about the catalog's structure. -->
+            <div class="border-t border-border p-5 xl:border-t-0 xl:border-l">
+              <h3
+                id="admin-attributes-heading"
+                class="mb-3 text-sm font-medium"
+              >
+                {{ panelText.attributes }}
+              </h3>
+              <ul
+                class="flex flex-wrap gap-3"
+                aria-labelledby="admin-attributes-heading"
+              >
+                <li>
+                  <a
+                    appButton
+                    variant="secondary"
+                    routerLink="/admin/attributes"
+                  >
+                    {{ attributeText.title }}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    appButton
+                    variant="secondary"
+                    routerLink="/admin/attributes/inventory"
+                  >
+                    {{ inventoryText.title }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="border-t border-border p-5 lg:border-l xl:border-t-0">
+              <h3 class="mb-3 text-sm font-medium">
+                {{ panelText.pricing }}
+              </h3>
+              <a appButton variant="secondary" routerLink="/admin/tiers">
+                {{ tierText.title }}
+              </a>
+            </div>
+          </div>
+
+          <div class="border-t border-border p-5">
+            <h3 id="admin-pages-heading" class="mb-3 text-sm font-medium">
+              {{ panelText.pages }}
+            </h3>
+            <!-- Named after its heading: several of these labels ("About us")
+               also appear in the site header, so the group needs to be
+               distinguishable to a screen reader moving through the page. -->
+            <ul
+              class="flex flex-wrap gap-3"
+              aria-labelledby="admin-pages-heading"
+            >
+              @for (slug of pageSlugs; track slug) {
+                <li>
+                  <!-- Straight into the editor: linking to the public page would
+                     land an admin on a read-only view whose pencil only appears
+                     when storefront edit mode happens to be on. -->
+                  <a
+                    appButton
+                    variant="secondary"
+                    [routerLink]="['/admin/pages', slug, 'edit']"
+                    [queryParams]="editorFrom()"
+                  >
+                    {{ navText[slug] }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </section>
+    }
 
     @if (isAdmin()) {
       <section class="mt-10">
