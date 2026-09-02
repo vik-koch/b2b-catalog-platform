@@ -145,7 +145,7 @@ const LEAVE_MS = 150;
       <div
         class="relative border-t border-border bg-surface/85 backdrop-blur pb-[env(safe-area-inset-bottom)]"
       >
-        <div class="flex h-13 items-stretch px-1">
+        <div class="flex h-14 items-stretch px-1">
           <!-- Reaching for any of these is a decision to go somewhere else, so
                the panel, if it is open, has been abandoned. Bound on the host
                element of each control rather than inside it: the link they each
