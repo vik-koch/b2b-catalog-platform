@@ -14,12 +14,20 @@ import { expect, Page, test } from '@playwright/test';
 const tiles = (page: Page) => page.locator('li:has(a[href^="/product/"])');
 
 /**
+ * The disclosure's own toggle, found by what it opens rather than by its name:
+ * the name gains the count of what is ticked, and "Filters" also matches the
+ * clear-all button beside it.
+ */
+const filtersToggle = (page: Page) =>
+  page.locator('button[aria-controls="facet-panel"]');
+
+/**
  * The panel is the left column from `lg` up and a disclosure below it, so every
  * test opens it first where it is closed.
  */
 async function openFilters(page: Page, isMobile: boolean) {
   if (isMobile) {
-    await page.getByRole('button', { name: 'Filters' }).click();
+    await filtersToggle(page).click();
   }
   return page.getByRole('group', { name: 'Filters' });
 }
@@ -60,7 +68,13 @@ test('restores a shared filtered link, ticked, and clears it again', async ({
   const panel = await openFilters(page, isMobile);
   await expect(panel.getByRole('checkbox', { name: 'Kenya' })).toBeChecked();
 
-  await panel.getByRole('button', { name: 'Clear all filters' }).click();
+  // Beside the panel rather than inside it — it undoes what the panel holds,
+  // so on a phone it cannot live in the part that closes. Only one of its two
+  // copies (column heading, disclosure row) is ever on screen.
+  await page
+    .getByRole('button', { name: 'Clear all filters' })
+    .locator('visible=true')
+    .click();
 
   await expect(page).not.toHaveURL(/attr=/);
   await settled(page);
@@ -96,9 +110,7 @@ test('reports the selection on the disclosure where the chips do not fit', async
   test.skip(!isMobile, 'the disclosure is the narrow-screen affordance');
   await page.goto('/catalog/filter?attr=origin:Kenya');
 
-  await expect(page.getByRole('button', { name: 'Filters' })).toContainText(
-    '(1)',
-  );
+  await expect(filtersToggle(page)).toContainText('(1)');
 });
 
 test('says so when the selection matches nothing, without taking the panel away', async ({

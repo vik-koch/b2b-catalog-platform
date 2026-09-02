@@ -250,6 +250,26 @@ html {
 }
 
 /*
+ * Keep whatever the browser scrolls to clear of the phone's bottom bar.
+ *
+ * The bar is fixed, so it covers the last few rem of the viewport, and
+ * scrolling something into view puts it exactly there: focusing a field near
+ * the foot of a long form, or a test clicking a control halfway down one,
+ * lands it under the bar with nothing to press. The column already reserves the
+ * bar's height at its end (see App), which only helps whatever is *last* on the
+ * page.
+ *
+ * scroll-padding is the whole answer, because it belongs to the scroll port
+ * rather than to the elements in it: every scroll-into-view inside the document
+ * stops short of the bar, whoever asked for it.
+ */
+@media (width < 40rem) {
+  html {
+    scroll-padding-bottom: calc(4.25rem + env(safe-area-inset-bottom));
+  }
+}
+
+/*
  * While the phone's search field is open over the page. The page behind a
  * keyboard must not move: it would take the field with it, which is the whole
  * reason the field left the header.

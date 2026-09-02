@@ -12,8 +12,11 @@ import { SelectField } from '../ui/select-field';
 
 /**
  * Ties the visible label to the field. A constant rather than a generated id:
- * a listing renders exactly one sort control, and a counter would hand the
- * server and the browser different ids for the same element.
+ * a counter would hand the server and the browser different ids for the same
+ * element. A listing renders this twice — once above the grid for a window wide
+ * enough for the filter column, once inside the filter disclosure below that —
+ * and only one of the two is ever on screen, so the second is given an id of
+ * its own rather than repeating this one.
  */
 const SORT_FIELD_ID = 'product-sort';
 
@@ -37,7 +40,7 @@ const SORT_FIELD_ID = 'product-sort';
   imports: [Input, SelectField],
   template: `
     <div class="flex items-center gap-2">
-      <label [attr.for]="id" class="text-sm whitespace-nowrap text-subtle">{{
+      <label [attr.for]="id()" class="text-sm whitespace-nowrap text-subtle">{{
         text.sort.label
       }}</label>
       <app-select-field class="max-w-52">
@@ -55,7 +58,7 @@ const SORT_FIELD_ID = 'product-sort';
         <select
           appInput
           size="sm"
-          [id]="id"
+          [id]="id()"
           (change)="onSelect($event)"
           class="w-full"
         >
@@ -77,7 +80,10 @@ export class ProductSortSelect {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(APP_TEXT).catalog;
-  protected readonly id = SORT_FIELD_ID;
+  /** Overridden by the copy inside the filter panel, so the two instances
+   * cannot label each other's field. */
+  readonly fieldId = input(SORT_FIELD_ID);
+  protected readonly id = this.fieldId;
 
   /** The sort in effect — already resolved to a valid key by the host. */
   readonly value = input.required<SearchSort>();

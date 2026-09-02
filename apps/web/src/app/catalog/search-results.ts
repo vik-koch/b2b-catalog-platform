@@ -90,7 +90,11 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
             <div
               class="mt-2 flex w-full items-end justify-end gap-3 @min-[38rem]/listing:w-auto"
             >
+              <!-- The sort keeps this row only while there is a filter column
+                   beside the results to hold the other copy of it; below that
+                   it moves inside the filter disclosure. -->
               <app-product-sort-select
+                [class]="data.facets.length ? headerSortAt : ''"
                 [value]="sortKey()"
                 defaultSort="relevance"
                 [withRelevance]="true"
@@ -104,7 +108,12 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
           <div class="mt-6" [class]="facetLayout">
             @if (data.facets.length) {
               <aside [class]="facetColumn">
-                <app-facet-panel [facets]="data.facets" />
+                <app-facet-panel
+                  [facets]="data.facets"
+                  [sort]="sortKey()"
+                  defaultSort="relevance"
+                  [withRelevance]="true"
+                />
               </aside>
             }
             <div class="min-w-0 flex-1">
@@ -239,6 +248,14 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
 })
 export class SearchResults {
   protected readonly productGrid = PRODUCT_GRID;
+
+  /**
+   * The sort above the grid is hidden wherever the filter panel is a disclosure
+   * that carries a copy of it — but only where there *is* a panel: a listing
+   * with no attributes to filter by has no disclosure to hold the control, and
+   * losing it would leave a narrow screen with no way to reorder at all.
+   */
+  protected readonly headerSortAt = 'hidden @min-[63.75rem]/listing:block';
   protected readonly facetLayout = FACET_LAYOUT;
   protected readonly facetColumn = FACET_COLUMN;
   private readonly productLayout = inject(ProductLayoutService);

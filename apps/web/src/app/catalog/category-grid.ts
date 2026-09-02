@@ -199,8 +199,13 @@ const SUBS_ASSUMED_FIT = 4;
                 title row belongs to the breadcrumb and, in edit mode, to the
                 category controls pinned top-right. -->
             @if (data.items.length) {
+              <!-- The sort keeps this row only while there is a filter column
+                   beside the grid to hold the other copy of it; below that it
+                   moves inside the filter disclosure, so a narrow screen has
+                   one place to arrange the listing rather than two. -->
               <div class="flex items-end justify-end gap-3">
                 <app-product-sort-select
+                  [class]="data.facets.length ? headerSortAt : ''"
                   [value]="sortKey()"
                   defaultSort="name"
                 />
@@ -255,7 +260,11 @@ const SUBS_ASSUMED_FIT = 4;
           <div class="mt-6" [class]="facetLayout">
             @if (data.facets.length) {
               <aside [class]="facetColumn">
-                <app-facet-panel [facets]="data.facets" />
+                <app-facet-panel
+                  [facets]="data.facets"
+                  [sort]="sortKey()"
+                  defaultSort="name"
+                />
               </aside>
             }
             <div class="min-w-0 flex-1">
@@ -391,6 +400,14 @@ const SUBS_ASSUMED_FIT = 4;
 })
 export class CategoryGrid {
   protected readonly productGrid = PRODUCT_GRID;
+
+  /**
+   * The sort above the grid is hidden wherever the filter panel is a disclosure
+   * that carries a copy of it — but only where there *is* a panel: a listing
+   * with no attributes to filter by has no disclosure to hold the control, and
+   * losing it would leave a narrow screen with no way to reorder at all.
+   */
+  protected readonly headerSortAt = 'hidden @min-[63.75rem]/listing:block';
   protected readonly facetLayout = FACET_LAYOUT;
   protected readonly facetColumn = FACET_COLUMN;
   private readonly productLayout = inject(ProductLayoutService);
