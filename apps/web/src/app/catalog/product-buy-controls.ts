@@ -147,7 +147,6 @@ export interface BuyableProduct {
             <button
               type="button"
               appIconButton
-              shape="plain"
               [variant]="hasNote() ? 'marked' : 'default'"
               [attr.aria-label]="hasNote() ? text.noteEdit : text.noteAdd"
               [title]="hasNote() ? text.noteEdit : text.noteAdd"
@@ -158,7 +157,6 @@ export interface BuyableProduct {
                 [name]="
                   hasNote() ? 'message-circle-check' : 'message-circle-plus'
                 "
-                class="h-4 w-4"
               />
             </button>
 

@@ -192,7 +192,6 @@ interface DetailRow {
                       <div class="flex shrink-0 gap-1">
                         <a
                           appIconButton
-                          shape="plain"
                           [attr.aria-label]="editLabel(address)"
                           [routerLink]="[
                             '/account/addresses',
@@ -200,17 +199,16 @@ interface DetailRow {
                             'edit',
                           ]"
                         >
-                          <app-icon name="pencil" class="h-4 w-4" />
+                          <app-icon name="pencil" />
                         </a>
                         <button
                           appIconButton
-                          shape="plain"
                           variant="danger"
                           type="button"
                           [attr.aria-label]="removeLabel(address)"
                           (click)="remove(address)"
                         >
-                          <app-icon name="trash-2" class="h-4 w-4" />
+                          <app-icon name="trash-2" />
                         </button>
                       </div>
                     </li>

@@ -152,12 +152,11 @@ interface CartRow {
             <button
               type="button"
               appIconButton
-              shape="plain"
               class="-mt-1 -mr-1 shrink-0"
               [attr.aria-label]="changeText.dismiss"
               (click)="cart.dismissChanges()"
             >
-              <app-icon name="close" class="h-4 w-4" />
+              <app-icon name="close" />
             </button>
           </div>
           <ul class="mt-1 space-y-1">
@@ -309,13 +308,12 @@ interface CartRow {
                       rowActions
                       type="button"
                       appIconButton
-                      shape="plain"
                       variant="danger"
                       class="shrink-0"
                       [attr.aria-label]="removeLabel(row)"
                       (click)="remove(row)"
                     >
-                      <app-icon name="trash-2" class="h-4 w-4" />
+                      <app-icon name="trash-2" />
                     </button>
                   </app-product-row>
                 </li>

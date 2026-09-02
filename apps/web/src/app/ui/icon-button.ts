@@ -5,45 +5,48 @@ const base =
   'inline-flex cursor-pointer items-center justify-center transition-colors disabled:cursor-not-allowed';
 
 /**
- * A disc that lifts off whatever it sits on, or the bare glyph.
+ * How much room the glyph gets — the padding *and* the glyph, because the two
+ * only ever change together and a call site that set one without the other was
+ * the bug this fixes.
  *
- * The disc is the admin affordance: it appears *over* content — a tile, a
- * photo, a page corner — and needs its own surface to be legible there. Inside
- * a line of content the surface is what makes it read as a second control
- * beside the one it belongs to, so a storefront control (the cart's bin, the
- * note button) takes the glyph alone.
- */
-const shapes = {
-  circle: 'rounded-full bg-white shadow-sm ring-1 ring-border',
-  plain: 'rounded-md',
-} as const;
-
-/**
- * How much room the glyph gets. `sm` is the default because it is what a
- * control sitting inside a line of content wants; `md` is for a disc that has
- * to be hit on its own, away from anything else to aim at.
+ * Both are roomier below `md`, where the pointer is a finger: a 16px glyph with
+ * 4px around it is a 24px target, under half of what a thumb actually lands on,
+ * and these sit in rows of two or three beside each other. Sizing the glyph
+ * from here is what makes that true everywhere without eleven call sites
+ * remembering to say so.
  */
 const sizes = {
-  sm: 'p-1',
-  md: 'p-1.5',
+  sm: 'p-2 [&>*]:size-5 md:p-1 md:[&>*]:size-4',
+  md: 'p-2.5 [&>*]:size-6 md:p-1.5 md:[&>*]:size-5',
+  /**
+   * The finger-sized end of `sm`, held at every width. For a control whose
+   * neighbours are laid out by a *container* query rather than by the window:
+   * the storefront's filter disclosure is still the phone's shape on a
+   * thousand-pixel window, and the glyph beside it shrank to the desktop size
+   * a whole breakpoint before the panel it belongs to changed shape.
+   */
+  touch: 'p-2 [&>*]:size-5',
 } as const;
 
 const variants = {
   default: 'text-muted hover:text-accent active:text-primary-deep',
   /** A control whose glyph already says something has been set. */
   marked: 'text-primary hover:text-accent active:text-primary-deep',
-  danger: 'text-muted hover:text-red-700 active:text-red-900',
+  danger: 'text-subtle hover:text-red-700 active:text-red-900',
 } as const;
 
 /**
- * Styling-only directive for an icon button — the edit-mode edit/delete
- * affordances across the storefront (product page, category grid tiles, catalog
- * overview) and the icon-sized controls inside a product line. Applies to
- * <button> and <a> so links and actions look identical, keeping their native
- * semantics and router integration.
+ * Styling-only directive for an icon button — a glyph-sized control sitting
+ * inside a line of content: a row's actions in an admin grid, the bin on a cart
+ * line, the edit and delete beside a saved address. Applies to <button> and <a>
+ * so links and actions look identical, keeping their native semantics and
+ * router integration.
  *
  *   <a appIconButton routerLink="…"><app-icon name="pencil" /></a>
- *   <button appIconButton shape="plain" variant="danger" (click)="…">…</button>
+ *   <button appIconButton variant="danger" (click)="…">…</button>
+ *
+ * The glyph needs no size of its own — see the sizes above. For the disc laid
+ * over content in edit mode, see DiscButton.
  */
 @Directive({
   selector: '[appIconButton]',
@@ -51,11 +54,10 @@ const variants = {
 })
 export class IconButton {
   variant = input<keyof typeof variants>('default');
-  shape = input<keyof typeof shapes>('circle');
   size = input<keyof typeof sizes>('sm');
 
   protected classes = computed(
     () =>
-      `${base} ${shapes[this.shape()]} ${sizes[this.size()]} ${variants[this.variant()]}`,
+      `${base} rounded-md ${sizes[this.size()]} ${variants[this.variant()]}`,
   );
 }

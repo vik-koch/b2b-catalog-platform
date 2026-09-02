@@ -1,6 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import { IconButton } from '../ui/icon-button';
+import { DiscButton } from '../ui/disc-button';
 import { Icon } from '../ui/icons/icon';
 
 /**
@@ -44,14 +44,14 @@ const variants = {
  */
 @Component({
   selector: 'app-edit-actions',
-  imports: [RouterLink, IconButton, Icon],
+  imports: [RouterLink, DiscButton, Icon],
   template: `
     <div [class]="style().box">
       <!-- Creating comes before editing, and a container before what goes in
            it: folder, file, then the pencil that acts on this page itself. -->
       @if (addCategoryLink(); as link) {
         <a
-          appIconButton
+          appDiscButton
           [size]="style().size"
           [routerLink]="link"
           [queryParams]="addCategoryParams()"
@@ -63,7 +63,7 @@ const variants = {
       }
       @if (addProductLink(); as link) {
         <a
-          appIconButton
+          appDiscButton
           [size]="style().size"
           [routerLink]="link"
           [queryParams]="addProductParams()"
@@ -75,7 +75,7 @@ const variants = {
       }
       @if (filtersLink(); as link) {
         <a
-          appIconButton
+          appDiscButton
           [size]="style().size"
           [routerLink]="link"
           [queryParams]="filtersParams()"
@@ -87,7 +87,7 @@ const variants = {
       }
       @if (editLink(); as link) {
         <a
-          appIconButton
+          appDiscButton
           [size]="style().size"
           [routerLink]="link"
           [queryParams]="editParams()"
@@ -99,7 +99,7 @@ const variants = {
       }
       @if (publishLabel(); as label) {
         <button
-          appIconButton
+          appDiscButton
           [size]="style().size"
           type="button"
           [attr.aria-label]="label"
@@ -114,7 +114,7 @@ const variants = {
       }
       @if (deleteLabel(); as label) {
         <button
-          appIconButton
+          appDiscButton
           variant="danger"
           [size]="style().size"
           type="button"
