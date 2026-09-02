@@ -1,5 +1,6 @@
 import {
   afterNextRender,
+  afterRenderEffect,
   Component,
   computed,
   DestroyRef,
@@ -20,6 +21,9 @@ import {
   RICH_TEXT_LINK_SCHEMES,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { Button } from '../../ui/button';
+import { DialogActions } from '../../ui/dialog-actions';
+import { DialogPanel } from '../../ui/dialog-panel';
 import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
@@ -43,7 +47,7 @@ interface ToolbarAction {
  */
 @Component({
   selector: 'app-rich-text-editor',
-  imports: [AdminIcon, FieldLabel, Input],
+  imports: [AdminIcon, Button, DialogActions, DialogPanel, FieldLabel, Input],
   template: `
     <div class="relative">
       <div
@@ -63,7 +67,7 @@ interface ToolbarAction {
               [class]="buttonClass(activeIds().includes(action.id))"
               (click)="run(action)"
             >
-              <app-admin-icon [name]="action.icon" class="h-4 w-4" />
+              <app-admin-icon [name]="action.icon" />
             </button>
           }
         </div>
@@ -95,11 +99,16 @@ interface ToolbarAction {
         </p>
       }
 
+      <!-- A real modal, not a box floated over the corner of the editor: the
+           old panel was a fixed 18rem pinned to the toolbar, which on a phone
+           sat half over the text it was about and had nowhere to go when the
+           keyboard came up. -->
       @if (linkPanelOpen()) {
-        <div
-          class="absolute left-2 top-14 z-10 w-72 rounded-md border border-border-strong bg-white p-3 shadow-lg"
-          role="dialog"
+        <dialog
+          #linkDialog
+          appDialogPanel
           [attr.aria-label]="link.heading"
+          (cancel)="closeLinkPanel()"
         >
           <label class="block">
             <span appFieldLabel>{{ link.urlLabel }}</span>
@@ -116,40 +125,47 @@ interface ToolbarAction {
               (keydown.escape)="closeLinkPanel()"
             />
           </label>
-          <div class="mt-3 flex justify-end gap-2">
+          <div appDialogActions>
             @if (editingExistingLink()) {
               <button
+                appButton
+                variant="dangerOutline"
+                size="sm"
                 type="button"
-                class="mr-auto rounded px-2 py-1 text-sm text-red-700 hover:bg-red-50"
+                class="sm:mr-auto"
                 (click)="removeLink()"
               >
                 {{ common.remove }}
               </button>
             }
             <button
+              appButton
+              variant="secondary"
+              size="sm"
               type="button"
-              class="rounded px-2 py-1 text-sm text-ink hover:bg-stone-100"
               (click)="closeLinkPanel()"
             >
               {{ common.cancel }}
             </button>
             <button
+              appButton
+              size="sm"
               type="button"
-              class="rounded bg-primary px-2 py-1 text-sm text-white hover:bg-primary/90 disabled:opacity-50"
               [disabled]="!linkDraft().trim()"
               (click)="applyLink()"
             >
               {{ link.apply }}
             </button>
           </div>
-        </div>
+        </dialog>
       }
 
       @if (imagePanelOpen()) {
-        <div
-          class="absolute right-2 top-14 z-10 w-72 rounded-md border border-border-strong bg-white p-3 shadow-lg"
-          role="dialog"
+        <dialog
+          #imageDialog
+          appDialogPanel
           [attr.aria-label]="image.heading"
+          (cancel)="closeImagePanel()"
         >
           <label class="block">
             <span appFieldLabel>{{ image.altLabel }}</span>
@@ -217,23 +233,27 @@ interface ToolbarAction {
             />
           </label>
 
-          <div class="mt-3 flex justify-end gap-2">
+          <div appDialogActions>
             <button
+              appButton
+              variant="dangerOutline"
+              size="sm"
               type="button"
-              class="mr-auto rounded px-2 py-1 text-sm text-red-700 hover:bg-red-50"
+              class="sm:mr-auto"
               (click)="removeImage()"
             >
               {{ image.remove }}
             </button>
             <button
+              appButton
+              size="sm"
               type="button"
-              class="rounded bg-primary px-2 py-1 text-sm text-white hover:bg-primary/90"
               (click)="closeImagePanel()"
             >
               {{ image.done }}
             </button>
           </div>
-        </div>
+        </dialog>
       }
     </div>
   `,
@@ -253,6 +273,10 @@ export class RichTextEditor {
   private readonly host = viewChild.required<ElementRef<HTMLElement>>('host');
   private readonly linkInput =
     viewChild<ElementRef<HTMLInputElement>>('linkInput');
+  private readonly linkDialog =
+    viewChild<ElementRef<HTMLDialogElement>>('linkDialog');
+  private readonly imageDialog =
+    viewChild<ElementRef<HTMLDialogElement>>('imageDialog');
   private readonly fileInput =
     viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
@@ -408,6 +432,7 @@ export class RichTextEditor {
 
   constructor() {
     afterNextRender(() => this.createEditor());
+    afterRenderEffect(() => this.openDialogs());
     inject(DestroyRef).onDestroy(() => this.editor?.destroy());
   }
 
@@ -526,6 +551,18 @@ export class RichTextEditor {
     return this.host().nativeElement.querySelector<HTMLImageElement>(
       'img.ProseMirror-selectednode',
     );
+  }
+
+  /**
+   * `showModal()` has to be called imperatively for the focus trap, the inert
+   * background and the top layer; the `@if` above is what closes them, a
+   * removed <dialog> being a closed one.
+   */
+  private openDialogs(): void {
+    for (const ref of [this.linkDialog(), this.imageDialog()]) {
+      const dialog = ref?.nativeElement;
+      if (dialog && !dialog.open) dialog.showModal();
+    }
   }
 
   protected run(action: ToolbarAction): void {

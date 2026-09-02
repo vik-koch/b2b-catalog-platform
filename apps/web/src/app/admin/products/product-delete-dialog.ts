@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
+import { DialogActions } from '../../ui/dialog-actions';
 import { DialogPanel } from '../../ui/dialog-panel';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
@@ -25,7 +26,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
  */
 @Component({
   selector: 'app-product-delete-dialog',
-  imports: [Button, AdminIcon, DialogPanel],
+  imports: [Button, AdminIcon, DialogActions, DialogPanel],
   template: `
     <dialog
       #dialog
@@ -45,7 +46,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
         <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
       }
 
-      <div class="mt-6 flex flex-wrap justify-end gap-3">
+      <div appDialogActions>
         <button
           appButton
           variant="secondary"
