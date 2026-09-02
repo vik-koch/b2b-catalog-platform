@@ -379,6 +379,10 @@ body:has(dialog[open]) {
 /* Rich-text page bodies: brand the links, keep the rest prose-stone. */
 .prose {
   --tw-prose-links: var(--color-primary);
+  /* A body is written by an admin, so a pasted URL or a long word arrives with
+     no break in it. On a phone that word is wider than the screen and takes
+     the whole page sideways with it, so it breaks rather than overflows. */
+  overflow-wrap: break-word;
 }
 
 /*

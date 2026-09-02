@@ -58,7 +58,7 @@ import { AdminOrdersService } from './orders.service';
       <!-- What only staff see, above the order itself: whose it is and what it
            was priced from are why a manager opened this page. -->
       <dl
-        class="mt-6 grid gap-x-8 gap-y-2 rounded-lg border border-border p-5 text-sm sm:grid-cols-[10rem_1fr]"
+        class="mt-6 grid gap-x-8 gap-y-2 rounded-lg border border-border p-5 text-sm break-words sm:grid-cols-[10rem_1fr]"
       >
         <dt class="text-subtle">{{ text.customer }}</dt>
         <dd>{{ order.customerEmail ?? listText.guest }}</dd>
@@ -68,17 +68,24 @@ import { AdminOrdersService } from './orders.service';
         <dd>{{ statusChanged(order) }}</dd>
       </dl>
 
-      <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
-        <app-order-read-back
-          [itemsHeading]="text.items"
-          [lines]="lines()"
-          [blocks]="blocks()"
-        />
-        <app-order-summary
-          [lineCount]="order.lines.length"
-          [subtotalMinor]="order.totalMinor"
-          [shipment]="order.shipment"
-        />
+      <!-- The notch the customer's own order page folds at, measured on the
+           page rather than the window: the same order must not sit beside its
+           card for staff and under it for the customer at one width. -->
+      <div class="@container/order">
+        <div
+          class="mt-8 grid gap-8 @min-[63.75rem]/order:grid-cols-[1fr_20rem]"
+        >
+          <app-order-read-back
+            [itemsHeading]="text.items"
+            [lines]="lines()"
+            [blocks]="blocks()"
+          />
+          <app-order-summary
+            [lineCount]="order.lines.length"
+            [subtotalMinor]="order.totalMinor"
+            [shipment]="order.shipment"
+          />
+        </div>
       </div>
     } @else if (missing()) {
       <p class="text-muted">{{ text.notFound }}</p>

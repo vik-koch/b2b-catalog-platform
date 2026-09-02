@@ -10,6 +10,12 @@ import {
 import { HiddenProduct } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { PricePipe } from '../../catalog/price.pipe';
+import { PRODUCT_GRID } from '../../catalog/product-tile';
+import {
+  NARROW_BODY_IN_GRID,
+  NARROW_PADDING_IN_GRID,
+  NARROW_PHOTO_IN_GRID,
+} from '../../catalog/listing-narrow';
 import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
@@ -40,24 +46,22 @@ import { StatusBadge } from '../../ui/status-badge';
             {{ text.hiddenHeading }}
           </h2>
           <p class="mt-1 text-sm text-subtle">{{ text.hiddenHint }}</p>
-          <ul
-            class="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-          >
+          <ul [class]="grid">
             @for (item of items; track item.slug) {
               <li class="h-full">
-                <div
-                  class="flex h-full flex-col overflow-hidden rounded-lg border border-dashed border-border-strong bg-stone-50"
-                >
-                  <div class="aspect-square overflow-hidden bg-stone-100">
-                    @if (item.images[0]; as image) {
-                      <img
-                        [src]="image.thumb"
-                        [alt]="item.name"
-                        class="h-full w-full object-cover opacity-50 grayscale"
-                      />
-                    }
+                <div [class]="card">
+                  <div [class]="photoBox">
+                    <div [class]="photo">
+                      @if (item.images[0]; as image) {
+                        <img
+                          [src]="image.thumb"
+                          [alt]="item.name"
+                          class="h-full w-full object-cover opacity-50 grayscale"
+                        />
+                      }
+                    </div>
                   </div>
-                  <div class="flex flex-1 flex-col p-3">
+                  <div [class]="body">
                     <!-- Both reasons where both apply: the tile has to say why
                          one action will not be enough to bring it back. -->
                     <p class="mb-1 flex flex-wrap gap-1">
@@ -119,6 +123,32 @@ export class HiddenProductsSection {
   /** Fires once the set has settled (loaded or errored). The host gates its
    * edit affordances on this so they and this overlay appear together. */
   readonly loaded = output<void>();
+
+  /** The storefront listing's own grid, measured on the same container: these
+   * tiles sit under that listing, and a grid of its own put them in two
+   * columns while the products above them were already one to a line. */
+  protected readonly grid = 'mt-5 ' + PRODUCT_GRID;
+
+  /**
+   * ProductTile's card, in the one state a hidden product is in: dashed and on
+   * a tinted ground, which is what says the storefront is not showing it.
+   * Below `LISTING_NARROW` it folds into a line exactly as the tile does — the
+   * grid draws the rules between them, so the card drops its own frame.
+   */
+  protected readonly card =
+    'flex h-full flex-col rounded-lg border border-dashed border-border-strong bg-stone-50 ' +
+    '@max-[38rem]/listing:flex-row @max-[38rem]/listing:items-stretch @max-[38rem]/listing:gap-4 @max-[38rem]/listing:rounded-none @max-[38rem]/listing:border-0 @max-[38rem]/listing:bg-transparent ' +
+    NARROW_PADDING_IN_GRID;
+
+  protected readonly photoBox = 'relative flex ' + NARROW_PHOTO_IN_GRID;
+
+  /** Flush with the card's top edge, and its own framed square once the card
+   * has no frame to lend it — the tile's rule, and a row's at every width. */
+  protected readonly photo =
+    'block aspect-square w-full overflow-hidden rounded-t-lg bg-stone-100 @max-[38rem]/listing:rounded-md @max-[38rem]/listing:ring-1 @max-[38rem]/listing:ring-border';
+
+  protected readonly body =
+    'flex flex-1 flex-col p-3 @max-[38rem]/listing:p-0 ' + NARROW_BODY_IN_GRID;
 
   protected readonly busy = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
