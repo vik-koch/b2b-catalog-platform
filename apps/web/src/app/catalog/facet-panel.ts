@@ -100,9 +100,13 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
         <!-- Grown and shrunk rather than shown and hidden, which is what says
              the two are one thing: a grid row going from 0fr to 1fr, since a
              height cannot be transitioned to "as tall as the content". Always
-             open at column width, where there is no toggle to open it. -->
+             open at column width, where there is no toggle to open it.
+
+             Slower than the admin's short filter row, because this panel is
+             usually several facets of a dozen values each: over that distance
+             200ms reads as the page jumping rather than as the panel opening. -->
         <div
-          class="grid transition-[grid-template-rows] duration-200 ease-out"
+          class="grid transition-[grid-template-rows] duration-300 ease-out"
           [class]="
             open()
               ? 'grid-rows-[1fr]'

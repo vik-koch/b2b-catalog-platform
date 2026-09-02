@@ -57,12 +57,18 @@ export class FacetSelection {
    * nothing in particular in the new one — the same rule the sort control
    * follows. An empty selection is an absent parameter, so the unfiltered
    * listing keeps exactly one URL.
+   *
+   * `scroll: 'manual'` opts this one navigation out of the router's scroll to
+   * the top: the panel a value is ticked in is halfway down the page on a
+   * phone, and ticking a second value from the top of the listing is not what
+   * anybody meant to do.
    */
   private navigate(attr: string[] | null): void {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { attr, page: null },
       queryParamsHandling: 'merge',
+      scroll: 'manual',
     });
   }
 }

@@ -134,22 +134,25 @@ const EDGE_SLACK = 24;
          fields and rows to read down, not a table to scan across, and a line
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
-      <div class="mb-4 flex min-h-8 items-center justify-between gap-4">
+      <!-- The way back from a move sits where every admin grid puts its way
+           back to the unfiltered list: a glyph at the right of the line under
+           the heading, under the button that adds one. Always drawn and inert
+           until there is something to undo, so nothing moves at the moment a
+           drop lands and the admin is looking at the row that just moved. -->
+      <div class="mb-4 flex min-h-8 items-start justify-between gap-4">
         <p class="text-sm text-muted">{{ text.reorderHint }}</p>
-        @if (undoStack().length > 0) {
-          <button
-            appButton
-            variant="ghost"
-            size="sm"
-            type="button"
-            class="gap-2"
-            [disabled]="busy()"
-            (click)="undo()"
-          >
-            <app-admin-icon name="rotate-ccw" class="h-4 w-4" />
-            {{ text.undo }}
-          </button>
-        }
+        <button
+          appIconButton
+          type="button"
+          class="shrink-0"
+          [class.opacity-40]="!canUndo()"
+          [disabled]="!canUndo()"
+          [attr.aria-label]="text.undo"
+          [title]="text.undo"
+          (click)="undo()"
+        >
+          <app-admin-icon name="rotate-ccw" />
+        </button>
       </div>
 
       @if (reorderError()) {
@@ -356,6 +359,10 @@ export class CategoryListPage {
    * the affected categories exactly as they were stored beforehand.
    */
   protected readonly undoStack = signal<CategoryOrderEntry[][]>([]);
+  /** Something to undo, and a moment free to undo it in. */
+  protected readonly canUndo = computed(
+    () => this.undoStack().length > 0 && !this.busy(),
+  );
 
   protected categories = resource({
     loader: () => this.admin.listCategories(),

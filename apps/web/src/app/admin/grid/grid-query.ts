@@ -45,6 +45,11 @@ export function gridParam<T>(value: T, fallback: T): T | null {
  * points at nothing in particular under the new one. `replaceUrl` is for the
  * search box, where one history entry per keystroke would make the back button
  * useless; a filter or a sort is a deliberate step and keeps its entry.
+ *
+ * `scroll: 'manual'` because the router is configured to start every navigation
+ * at the top of the page, which is right for opening a record or turning a page
+ * and wrong here: narrowing a list is done from a control the visitor is looking
+ * at, and throwing them to the top loses the place they were reading.
  */
 export function injectGridNav(): (
   params: Params,
@@ -59,6 +64,7 @@ export function injectGridNav(): (
       queryParams: { ...params, page: null },
       queryParamsHandling: 'merge',
       replaceUrl: options.replaceUrl ?? false,
+      scroll: 'manual',
     });
   };
 }

@@ -11,6 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import {
@@ -21,6 +22,7 @@ import {
   RICH_TEXT_LINK_SCHEMES,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { injectNarrowScreen } from '../../core/narrow-screen';
 import { Button } from '../../ui/button';
 import { DialogActions } from '../../ui/dialog-actions';
 import { DialogPanel } from '../../ui/dialog-panel';
@@ -47,7 +49,15 @@ interface ToolbarAction {
  */
 @Component({
   selector: 'app-rich-text-editor',
-  imports: [AdminIcon, Button, DialogActions, DialogPanel, FieldLabel, Input],
+  imports: [
+    AdminIcon,
+    Button,
+    DialogActions,
+    DialogPanel,
+    FieldLabel,
+    Input,
+    NgTemplateOutlet,
+  ],
   template: `
     <div class="relative">
       <div
@@ -99,161 +109,186 @@ interface ToolbarAction {
         </p>
       }
 
-      <!-- A real modal, not a box floated over the corner of the editor: the
-           old panel was a fixed 18rem pinned to the toolbar, which on a phone
-           sat half over the text it was about and had nowhere to go when the
-           keyboard came up. -->
-      @if (linkPanelOpen()) {
-        <dialog
-          #linkDialog
-          appDialogPanel
-          [attr.aria-label]="link.heading"
-          (cancel)="closeLinkPanel()"
-        >
-          <label class="block">
-            <span appFieldLabel>{{ link.urlLabel }}</span>
-            <input
-              #linkInput
-              type="text"
-              appInput
-              size="sm"
-              class="w-full"
-              [placeholder]="link.placeholder"
-              [value]="linkDraft()"
-              (input)="linkDraft.set($any($event.target).value)"
-              (keydown.enter)="applyLink()"
-              (keydown.escape)="closeLinkPanel()"
-            />
-          </label>
-          <div appDialogActions>
-            @if (editingExistingLink()) {
-              <button
-                appButton
-                variant="dangerOutline"
-                size="sm"
-                type="button"
-                class="sm:mr-auto"
-                (click)="removeLink()"
-              >
-                {{ common.remove }}
-              </button>
-            }
-            <button
-              appButton
-              variant="secondary"
-              size="sm"
-              type="button"
-              (click)="closeLinkPanel()"
-            >
-              {{ common.cancel }}
-            </button>
-            <button
-              appButton
-              size="sm"
-              type="button"
-              [disabled]="!linkDraft().trim()"
-              (click)="applyLink()"
-            >
-              {{ link.apply }}
-            </button>
-          </div>
-        </dialog>
-      }
-
-      @if (imagePanelOpen()) {
-        <dialog
-          #imageDialog
-          appDialogPanel
-          [attr.aria-label]="image.heading"
-          (cancel)="closeImagePanel()"
-        >
-          <label class="block">
-            <span appFieldLabel>{{ image.altLabel }}</span>
-            <input
-              type="text"
-              appInput
-              size="sm"
-              class="w-full"
-              [placeholder]="image.altPlaceholder"
-              [value]="imageAlt()"
-              (input)="onImageAltInput($any($event.target).value)"
-            />
-            <span class="mt-1 block text-xs text-subtle">{{
-              image.altHint
-            }}</span>
-          </label>
-
-          <label class="mt-3 block">
-            <span appFieldLabel>{{ image.linkLabel }}</span>
-            <input
-              type="text"
-              appInput
-              size="sm"
-              class="w-full"
-              [placeholder]="image.linkPlaceholder"
-              [value]="imageHref()"
-              (input)="onImageHrefInput($any($event.target).value)"
-            />
-          </label>
-
-          <div class="mt-3">
-            <span appFieldLabel>{{ image.alignLabel }}</span>
-            <div class="flex gap-1">
-              <button
-                type="button"
-                [class]="alignButtonClass(imageAlign() === null)"
-                (click)="setImageAlign(null)"
-              >
-                {{ image.alignNone }}
-              </button>
-              @for (a of alignments; track a) {
-                <button
-                  type="button"
-                  [class]="alignButtonClass(imageAlign() === a)"
-                  (click)="setImageAlign(a)"
-                >
-                  {{ alignLabel(a) }}
-                </button>
-              }
-            </div>
-          </div>
-
-          <label class="mt-3 block">
-            <span class="mb-1 flex justify-between text-sm font-medium">
-              <span>{{ image.widthLabel }}</span>
-              <span class="text-subtle">{{ imageSize() }}%</span>
-            </span>
-            <input
-              type="range"
-              class="w-full accent-primary"
-              [min]="sizeMin"
-              [max]="sizeMax"
-              [value]="imageSize()"
-              (input)="onImageSizeInput($any($event.target).value)"
-            />
-          </label>
-
-          <div appDialogActions>
+      <!-- Two shapes for one panel. On a pointer it is a box floated over the
+           corner of the editor: what it is about — the selected link, the
+           selected image and the slider that resizes it — is on the page
+           behind it, and a modal covers the very thing being adjusted. Below
+           the phone line there is no room beside anything and the software keyboard
+           takes half of what there is, so the same fields are a modal. -->
+      <ng-template #linkBody>
+        <label class="block">
+          <span appFieldLabel>{{ link.urlLabel }}</span>
+          <input
+            #linkInput
+            type="text"
+            appInput
+            size="sm"
+            class="w-full"
+            [placeholder]="link.placeholder"
+            [value]="linkDraft()"
+            (input)="linkDraft.set($any($event.target).value)"
+            (keydown.enter)="applyLink()"
+            (keydown.escape)="closeLinkPanel()"
+          />
+        </label>
+        <div appDialogActions>
+          @if (editingExistingLink()) {
             <button
               appButton
               variant="dangerOutline"
               size="sm"
               type="button"
               class="sm:mr-auto"
-              (click)="removeImage()"
+              (click)="removeLink()"
             >
-              {{ image.remove }}
+              {{ common.remove }}
             </button>
+          }
+          <button
+            appButton
+            variant="secondary"
+            size="sm"
+            type="button"
+            (click)="closeLinkPanel()"
+          >
+            {{ common.cancel }}
+          </button>
+          <button
+            appButton
+            size="sm"
+            type="button"
+            [disabled]="!linkDraft().trim()"
+            (click)="applyLink()"
+          >
+            {{ link.apply }}
+          </button>
+        </div>
+      </ng-template>
+
+      <ng-template #imageBody>
+        <label class="block">
+          <span appFieldLabel>{{ image.altLabel }}</span>
+          <input
+            type="text"
+            appInput
+            size="sm"
+            class="w-full"
+            [placeholder]="image.altPlaceholder"
+            [value]="imageAlt()"
+            (input)="onImageAltInput($any($event.target).value)"
+          />
+          <span class="mt-1 block text-xs text-subtle">{{
+            image.altHint
+          }}</span>
+        </label>
+
+        <label class="mt-3 block">
+          <span appFieldLabel>{{ image.linkLabel }}</span>
+          <input
+            type="text"
+            appInput
+            size="sm"
+            class="w-full"
+            [placeholder]="image.linkPlaceholder"
+            [value]="imageHref()"
+            (input)="onImageHrefInput($any($event.target).value)"
+          />
+        </label>
+
+        <div class="mt-3">
+          <span appFieldLabel>{{ image.alignLabel }}</span>
+          <div class="flex gap-1">
             <button
-              appButton
-              size="sm"
               type="button"
-              (click)="closeImagePanel()"
+              [class]="alignButtonClass(imageAlign() === null)"
+              (click)="setImageAlign(null)"
             >
-              {{ image.done }}
+              {{ image.alignNone }}
             </button>
+            @for (a of alignments; track a) {
+              <button
+                type="button"
+                [class]="alignButtonClass(imageAlign() === a)"
+                (click)="setImageAlign(a)"
+              >
+                {{ alignLabel(a) }}
+              </button>
+            }
           </div>
-        </dialog>
+        </div>
+
+        <label class="mt-3 block">
+          <span class="mb-1 flex justify-between text-sm font-medium">
+            <span>{{ image.widthLabel }}</span>
+            <span class="text-subtle">{{ imageSize() }}%</span>
+          </span>
+          <input
+            type="range"
+            class="w-full accent-primary"
+            [min]="sizeMin"
+            [max]="sizeMax"
+            [value]="imageSize()"
+            (input)="onImageSizeInput($any($event.target).value)"
+          />
+        </label>
+
+        <div appDialogActions>
+          <button
+            appButton
+            variant="dangerOutline"
+            size="sm"
+            type="button"
+            class="sm:mr-auto"
+            (click)="removeImage()"
+          >
+            {{ image.remove }}
+          </button>
+          <button appButton size="sm" type="button" (click)="closeImagePanel()">
+            {{ image.done }}
+          </button>
+        </div>
+      </ng-template>
+
+      @if (linkPanelOpen()) {
+        @if (narrow()) {
+          <dialog
+            #linkDialog
+            appDialogPanel
+            [attr.aria-label]="link.heading"
+            (cancel)="closeLinkPanel()"
+          >
+            <ng-container [ngTemplateOutlet]="linkBody" />
+          </dialog>
+        } @else {
+          <div
+            [class]="panelClass + ' left-2'"
+            role="dialog"
+            [attr.aria-label]="link.heading"
+          >
+            <ng-container [ngTemplateOutlet]="linkBody" />
+          </div>
+        }
+      }
+
+      @if (imagePanelOpen()) {
+        @if (narrow()) {
+          <dialog
+            #imageDialog
+            appDialogPanel
+            [attr.aria-label]="image.heading"
+            (cancel)="closeImagePanel()"
+          >
+            <ng-container [ngTemplateOutlet]="imageBody" />
+          </dialog>
+        } @else {
+          <div
+            [class]="panelClass + ' right-2'"
+            role="dialog"
+            [attr.aria-label]="image.heading"
+          >
+            <ng-container [ngTemplateOutlet]="imageBody" />
+          </div>
+        }
       }
     </div>
   `,
@@ -262,6 +297,15 @@ export class RichTextEditor {
   protected readonly text = inject(ADMIN_TEXT).pageEditor;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly link = this.text.linkPanel;
+  /** Which shape the two panels take — see the template. */
+  protected readonly narrow = injectNarrowScreen('sm');
+  /**
+   * The floating panel, above `sm`. Pinned under the toolbar at whichever
+   * corner of the editor its button is on, and wide enough for the row of
+   * answers at its foot — the old 18rem left them wrapping.
+   */
+  protected readonly panelClass =
+    'absolute top-14 z-10 w-80 max-w-[calc(100%-1rem)] rounded-md border border-border-strong bg-white p-3 shadow-lg';
   protected readonly image = this.text.imagePanel;
   private readonly media = inject(MediaService);
 

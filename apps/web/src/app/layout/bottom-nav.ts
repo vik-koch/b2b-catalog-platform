@@ -145,7 +145,7 @@ const LEAVE_MS = 150;
       <div
         class="relative border-t border-border bg-surface/85 backdrop-blur pb-[env(safe-area-inset-bottom)]"
       >
-        <div class="flex h-13 items-stretch px-1">
+        <div class="flex h-14 items-stretch px-1">
           <!-- Reaching for any of these is a decision to go somewhere else, so
                the panel, if it is open, has been abandoned. Bound on the host
                element of each control rather than inside it: the link they each
@@ -214,8 +214,12 @@ export class BottomNav {
   private readonly exit = withExitAnimation(this.menuOpen, LEAVE_MS);
   protected readonly menuShown = this.exit.shown;
 
+  /** `-mb-px` sits the panel one pixel *into* the bar rather than exactly on
+   * its edge: at a fractional device pixel ratio the two boxes rounded apart
+   * and the page showed through the hairline between them. The bar is the
+   * positioned sibling, so it keeps painting over that pixel. */
   private readonly panel =
-    'absolute inset-x-0 bottom-full max-h-[60dvh] overflow-y-auto border-t border-border bg-surface/85 backdrop-blur shadow-[0_-4px_16px_rgba(0,0,0,0.08)] motion-reduce:animate-none';
+    'absolute inset-x-0 bottom-full -mb-px max-h-[60dvh] overflow-y-auto border-t border-border bg-surface/85 backdrop-blur shadow-[0_-4px_16px_rgba(0,0,0,0.08)] motion-reduce:animate-none';
   protected readonly panelClasses = computed(
     () =>
       `${this.panel} ${this.exit.leaving() ? 'animate-menu-sink' : 'animate-menu-rise'}`,

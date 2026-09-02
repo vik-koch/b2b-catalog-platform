@@ -6,8 +6,38 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
+import { NARROW_SCREEN_QUERIES } from '../core/narrow-screen';
 import { ProductBuyControls } from './product-buy-controls';
 import { packagedPackaging, productDetail } from './product.fixture';
+
+/** jsdom's <dialog> has no showModal/close; the note opens itself on render. */
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = vi.fn();
+  HTMLDialogElement.prototype.close = vi.fn();
+});
+
+/** The real one, captured once at module load, and put back after every test —
+ * a stub left behind here would answer breakpoint questions asked by whichever
+ * spec file happens to run next. */
+const realMatchMedia = window.matchMedia;
+afterEach(() => {
+  window.matchMedia = realMatchMedia;
+});
+
+/** A phone. Only the breakpoint queries are answered; anything else is left to
+ * the real implementation. */
+function onNarrowScreen(): void {
+  const queries: readonly string[] = Object.values(NARROW_SCREEN_QUERIES);
+  window.matchMedia = ((query: string) =>
+    queries.includes(query)
+      ? ({
+          matches: true,
+          media: query,
+          addEventListener: () => undefined,
+          removeEventListener: () => undefined,
+        } as unknown as MediaQueryList)
+      : realMatchMedia.call(window, query)) as typeof window.matchMedia;
+}
 
 const text = defaultAppText.cart;
 const unitText = defaultAppText.catalog.units;
@@ -680,6 +710,46 @@ describe('ProductBuyControls, a product that takes a note', () => {
 
     await view.click(text.noteAdd);
     await view.typeNote('Sand only');
+
+    expect(view.cart.lines()[0].note).toBe('Sand only');
+  });
+
+  // On a phone the bubble has nothing to sit beside and the keyboard takes
+  // what room is left, so the same field is a modal — and a modal has no
+  // "click away", which is why its own button records what was typed.
+  it('opens the note as a modal on a phone', async () => {
+    onNarrowScreen();
+    const view = await render(noted);
+
+    await view.click(text.noteAdd);
+    expect(view.el.querySelector('dialog')).not.toBe(null);
+
+    const field = view.noteField() as HTMLTextAreaElement;
+    field.value = 'Slate only';
+    field.dispatchEvent(new Event('input'));
+    await view.click(text.noteDone);
+
+    expect(view.el.querySelector('dialog')).toBe(null);
+    await view.click(text.add);
+    expect(view.cart.lines()[0].note).toBe('Slate only');
+  });
+
+  // Cancel is not "close": what was typed is dropped, including the line
+  // already in the cart, which the field's own blur has by then recorded.
+  it('puts the old note back when the modal is cancelled', async () => {
+    onNarrowScreen();
+    const view = await render(noted);
+    await view.click(text.noteAdd);
+    await view.typeNote('Sand only');
+    await view.click(text.noteDone);
+    await view.click(text.add);
+
+    // Typed and left, which is the sequence pressing Cancel really makes: the
+    // press takes the focus out of the field first.
+    await view.click(text.noteEdit);
+    await view.typeNote('Slate after all');
+    expect(view.cart.lines()[0].note).toBe('Slate after all');
+    await view.click(text.cancel);
 
     expect(view.cart.lines()[0].note).toBe('Sand only');
   });

@@ -16,6 +16,11 @@ function anchorAt(bottom: number, top = 0): SearchAnchor & { focused: number } {
   return anchor;
 }
 
+/** The reals, captured once at module load, and put back after every test —
+ * a global left behind is what makes these fail only in CI. */
+const realScrollTo = window.scrollTo;
+const realMatchMedia = window.matchMedia;
+
 function setUp() {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -27,12 +32,31 @@ function setUp() {
   return TestBed.inject(MobileSearch);
 }
 
+/**
+ * Whether the visitor has asked for less movement. Stated rather than assumed:
+ * a smooth scroll is only the answer for someone who has not, so a test that
+ * asserts one has to say which visitor it is talking about — otherwise it is
+ * really asserting whatever `matchMedia` some earlier spec happened to leave
+ * on the window.
+ */
+function prefersReducedMotion(reduced: boolean): void {
+  window.matchMedia = ((query: string) =>
+    ({
+      matches: query === '(prefers-reduced-motion: reduce)' && reduced,
+      media: query,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+    }) as unknown as MediaQueryList) as typeof window.matchMedia;
+}
+
 let scrolled: ScrollToOptions[] = [];
 
 describe('MobileSearch', () => {
   afterEach(() => {
     document.documentElement.classList.remove('search-locked');
     document.body.style.top = '';
+    window.scrollTo = realScrollTo;
+    window.matchMedia = realMatchMedia;
   });
 
   // A visitor who can see the field expects a search button to put the caret
@@ -57,6 +81,7 @@ describe('MobileSearch', () => {
   // this is the only scroll and it is a smooth one.
   it('brings a half-shown row back to the top', () => {
     const search = setUp();
+    prefersReducedMotion(false);
     const anchor = anchorAt(10, -30);
     search.register(anchor);
 
@@ -64,6 +89,18 @@ describe('MobileSearch', () => {
 
     expect(anchor.focused).toBe(1);
     expect(scrolled).toEqual([{ top: 0, behavior: 'smooth' }]);
+  });
+
+  // The same journey, for a visitor who has asked not to be moved through it.
+  it('makes that trip instant where less movement was asked for', () => {
+    const search = setUp();
+    prefersReducedMotion(true);
+    const anchor = anchorAt(10, -30);
+    search.register(anchor);
+
+    search.activate();
+
+    expect(scrolled).toEqual([{ top: 0, behavior: 'auto' }]);
   });
 
   it('opens over the page once the row has scrolled away', () => {

@@ -73,7 +73,7 @@ import { SearchField } from './search-field';
            page or from the bottom bar's panel, which is what makes hiding it
            on scroll safe. -->
       <div
-        class="flex h-10 w-full items-center justify-between gap-4 px-4 sm:hidden"
+        class="flex mt-2 h-8 w-full items-center justify-between gap-4 px-4 sm:hidden"
       >
         <a [routerLink]="'/'" [attr.aria-label]="homeLabel" class="shrink-0">
           <img
@@ -92,7 +92,7 @@ import { SearchField } from './search-field';
            address ends in an ellipsis rather than the row losing a channel. -->
       <div class="hidden sm:block">
         <div
-          class="mx-auto flex h-10 w-full max-w-[82rem] items-center justify-between gap-4 px-4"
+          class="mx-auto flex mt-2 h-8 w-full max-w-[82rem] items-center justify-between gap-4 px-4"
         >
           <nav
             class="flex shrink-0 gap-4 text-sm"

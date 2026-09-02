@@ -103,6 +103,7 @@
     "notePrompt": "Anything we should know about this line?",
     "noteAdd": "Add a note to this line",
     "noteEdit": "Edit the note on this line",
+    "noteDone": "Done",
     "add": "Add to cart",
     "addedFor": "Added for {total}",
     "full": "Your cart is full — please place this order before adding more products.",
