@@ -101,8 +101,6 @@
     "@tiptap/extension-image": "^3.29.0",
     "@tiptap/pm": "^3.29.0",
     "@tiptap/starter-kit": "^3.29.0",
-    "@ts-rest/core": "^3.52.1",
-    "@ts-rest/nest": "^3.52.1",
     "@types/papaparse": "^5.5.2",
     "axios": "^1.18.1",
     "cookie-parser": "^1.4.7",

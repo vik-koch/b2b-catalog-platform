@@ -38,12 +38,6 @@ async function bootstrap() {
     app.getHttpAdapter().getInstance().set('trust proxy', env.TRUST_PROXY_HOPS);
   }
 
-  // Express 5 parses query strings with Node's own parser, which does not
-  // understand the bracket notation the ts-rest client writes an array with
-  // (`attr[0]=…`, the attribute filter). The extended parser is what both ends
-  // already assume, so ask for it explicitly.
-  app.getHttpAdapter().getInstance().set('query parser', 'extended');
-
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
   const port = env.API_PORT;
