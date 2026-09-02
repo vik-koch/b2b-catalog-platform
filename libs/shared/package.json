@@ -12,6 +12,7 @@
     "zod": "3.25.76",
     "vitest": "^4.0.8",
     "vite-tsconfig-paths": "^6.1.1",
-    "slugify": "^1.6.9"
+    "slugify": "^1.6.9",
+    "@orpc/contract": "^1.15.0"
   }
 }

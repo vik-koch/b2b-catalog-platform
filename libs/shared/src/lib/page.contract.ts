@@ -1,7 +1,6 @@
-import { initContract } from '@ts-rest/core';
+import { oc } from '@orpc/contract';
 import { z } from 'zod';
-
-const c = initContract();
+import { commonAuthErrors } from './api-error';
 
 /**
  * The static pages are a fixed set — content is edited, pages are never
@@ -133,29 +132,33 @@ export const updatePageSchema = z
   .strict();
 export type UpdatePageRequest = z.infer<typeof updatePageSchema>;
 
-export const pageContract = c.router({
-  getPage: {
-    method: 'GET',
-    path: '/pages/:slug',
-    responses: {
-      200: pageSchema,
-      404: z.object({ message: z.string() }),
-    },
-    summary: 'Get page content',
-  },
-  updatePage: {
-    method: 'PUT',
-    path: '/pages/:slug',
-    // The enum makes "create a page" unrepresentable: an unknown slug is a 400
-    // from contract validation, never an insert.
-    pathParams: z.object({ slug: pageSlugSchema }),
-    body: updatePageSchema,
-    responses: {
-      200: pageSchema,
-      401: z.object({ message: z.string() }),
-      403: z.object({ message: z.string() }),
-      404: z.object({ message: z.string() }),
-    },
-    summary: 'Replace a page title and body (admin only; body is sanitized)',
-  },
-});
+export const pageContract = {
+  getPage: oc
+    .route({
+      method: 'GET',
+      path: '/pages/{slug}',
+      inputStructure: 'detailed',
+      summary: 'Get page content',
+    })
+    .errors({ 'page-not-found': { status: 404 } })
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(pageSchema),
+
+  updatePage: oc
+    .route({
+      method: 'PUT',
+      path: '/pages/{slug}',
+      inputStructure: 'detailed',
+      summary: 'Replace a page title and body (admin only; body is sanitized)',
+    })
+    .errors({ ...commonAuthErrors, 'page-not-found': { status: 404 } })
+    .input(
+      z.object({
+        // The enum makes "create a page" unrepresentable: an unknown slug is a
+        // 400 from contract validation, never an insert.
+        params: z.object({ slug: pageSlugSchema }),
+        body: updatePageSchema,
+      }),
+    )
+    .output(pageSchema),
+};
