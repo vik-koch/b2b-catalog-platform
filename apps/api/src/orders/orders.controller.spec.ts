@@ -11,10 +11,10 @@ import { OrdersService } from './orders.service';
  */
 describe('OrdersController submitOrder', () => {
   const orders = {
-    submit: jest.fn(async () => ({ reference: 'X', publicToken: 't' })),
-    notifyPlaced: jest.fn(async () => undefined),
+    submit: vi.fn(async () => ({ reference: 'X', publicToken: 't' })),
+    notifyPlaced: vi.fn(async () => undefined),
   };
-  const audit = { record: jest.fn() };
+  const audit = { record: vi.fn() };
   const controller = new OrdersController(
     orders as unknown as OrdersService,
     audit as unknown as AuditLogger,
@@ -31,7 +31,7 @@ describe('OrdersController submitOrder', () => {
     return handler({ body: {} });
   };
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   it.each(['admin', 'manager'] as const)(
     'refuses a %s session',

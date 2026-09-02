@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRow, UsersService } from '../users/users.service';
@@ -21,16 +22,16 @@ const user = (overrides: Partial<UserRow> = {}): UserRow =>
 
 describe('AuthService', () => {
   const users = {
-    findByEmail: jest.fn(),
-    findById: jest.fn(),
-    setPassword: jest.fn(),
+    findByEmail: vi.fn(),
+    findById: vi.fn(),
+    setPassword: vi.fn(),
   };
-  const passwords = { hash: jest.fn(), verify: jest.fn() };
-  const jwt = { signAsync: jest.fn() };
+  const passwords = { hash: vi.fn(), verify: vi.fn() };
+  const jwt = { signAsync: vi.fn() };
 
   // A policy that accepts everything: what it refuses is PasswordPolicy's own
   // spec, and this one is about credentials and session state.
-  const policy = { assertAcceptable: jest.fn() } as unknown as PasswordPolicy;
+  const policy = { assertAcceptable: vi.fn() } as unknown as PasswordPolicy;
 
   const service = new AuthService(
     users as unknown as UsersService,
@@ -39,7 +40,7 @@ describe('AuthService', () => {
     policy,
   );
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   describe('validate', () => {
     it('returns the user when the password matches', async () => {
@@ -154,7 +155,7 @@ describe('AuthService', () => {
       passwords.verify.mockResolvedValue(true);
       // Once: `clearAllMocks` clears calls but keeps implementations, so a
       // persistent throw here would fail every later test in this block.
-      (policy.assertAcceptable as jest.Mock).mockImplementationOnce(() => {
+      (policy.assertAcceptable as Mock).mockImplementationOnce(() => {
         throw new PasswordRejectedError('password-common', 'too common');
       });
 

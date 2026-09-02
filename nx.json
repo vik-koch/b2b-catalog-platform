@@ -71,7 +71,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/api-e2e/**/*"]
+      "exclude": ["apps/api-e2e/**/*", "apps/api/**/*"]
     }
   ],
   "generators": {

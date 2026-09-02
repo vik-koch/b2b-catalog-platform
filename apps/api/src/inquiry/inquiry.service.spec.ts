@@ -15,7 +15,7 @@ import { InquiryService } from './inquiry.service';
 // Honeypot behaviour: the service is the last line — even if a bot
 // bypasses the client form, a filled decoy field must never send mail.
 describe('InquiryService', () => {
-  const send = jest.fn<Promise<void>, [unknown]>();
+  const send = vi.fn<(mail: unknown) => Promise<void>>();
   let service: InquiryService;
 
   const base: InquiryRequest = {

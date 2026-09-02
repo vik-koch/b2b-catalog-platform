@@ -1,3 +1,4 @@
+import type { MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import { AuditLogger } from './audit.logger';
@@ -14,11 +15,11 @@ const actor = {
  */
 describe('AuditLogger', () => {
   let lines: string[];
-  let spy: jest.SpyInstance;
+  let spy: MockInstance;
 
   beforeEach(() => {
     lines = [];
-    spy = jest
+    spy = vi
       .spyOn(Logger.prototype, 'log')
       .mockImplementation((message: unknown) => {
         lines.push(String(message));

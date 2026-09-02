@@ -1,3 +1,4 @@
+import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
 import { MailService } from '../mail/mail.service';
 import { demoMailText } from '../mail/mail-text.fixture';
@@ -16,15 +17,15 @@ const currency = { code: 'EUR', locale: 'de-DE' };
  * behind rather than propagated into the submission that placed the row.
  */
 describe('OrderNotifications', () => {
-  let send: jest.Mock;
-  let error: jest.SpyInstance;
+  let send: Mock;
+  let error: MockInstance;
   let notifications: OrderNotifications;
 
   const staffInbox = env.MAIL_STAFF_TO;
 
   beforeEach(() => {
-    send = jest.fn().mockResolvedValue(undefined);
-    error = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {
+    send = vi.fn().mockResolvedValue(undefined);
+    error = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => {
       // The failure paths log; the assertions are about what survives them.
     });
     notifications = new OrderNotifications(

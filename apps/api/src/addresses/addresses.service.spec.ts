@@ -1,3 +1,4 @@
+import type { MockInstance } from 'vitest';
 import { ConflictException, Logger } from '@nestjs/common';
 import { AddressConfig, AddressInput } from '@b2b-catalog-platform/shared';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -124,10 +125,10 @@ describe('AddressesService.assertValid', () => {
  * worth less because a registry answered half an address.
  */
 describe('AddressesService.seed', () => {
-  let warn: jest.SpyInstance;
+  let warn: MockInstance;
 
   beforeEach(() => {
-    warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
+    warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
       // The swallowed failure logs; the assertion is that it is swallowed.
     });
   });

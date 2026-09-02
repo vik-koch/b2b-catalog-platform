@@ -42,8 +42,8 @@ const contextWith = (cookies: Record<string, string>) => {
  * touch the database for a request that carries no session.
  */
 describe('OptionalAuthGuard', () => {
-  const verifyAsync = jest.fn();
-  const findById = jest.fn();
+  const verifyAsync = vi.fn();
+  const findById = vi.fn();
   const guard = new OptionalAuthGuard(
     { verifyAsync } as unknown as JwtService,
     { findById } as unknown as UsersService,

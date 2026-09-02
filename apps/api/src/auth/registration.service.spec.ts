@@ -16,10 +16,10 @@ import { RegistrationService } from './registration.service';
  * caller is always the same.
  */
 describe('RegistrationService', () => {
-  const findByEmail = jest.fn();
-  const createPending = jest.fn();
-  const seed = jest.fn();
-  const send = jest.fn<Promise<void>, [unknown, { to: string }]>();
+  const findByEmail = vi.fn();
+  const createPending = vi.fn();
+  const seed = vi.fn();
+  const send = vi.fn<(mail: unknown, to: { to: string }) => Promise<void>>();
   let service: RegistrationService;
 
   // The demo deployment's rule: a German VAT number (see config/deployment.json).
@@ -57,7 +57,7 @@ describe('RegistrationService', () => {
         {
           provide: PasswordService,
           useValue: {
-            unusableHash: jest.fn().mockResolvedValue('$argon2id$generated'),
+            unusableHash: vi.fn().mockResolvedValue('$argon2id$generated'),
           },
         },
       ],

@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthUser } from '@b2b-catalog-platform/shared';
@@ -20,14 +21,14 @@ const admin: AuthUser = {
 
 describe('RolesGuard', () => {
   const reflector = {
-    getAllAndOverride: jest.fn(),
+    getAllAndOverride: vi.fn(),
   } as unknown as Reflector;
   const guard = new RolesGuard(reflector);
 
   const requireRoles = (roles: unknown) =>
-    (reflector.getAllAndOverride as jest.Mock).mockReturnValue(roles);
+    (reflector.getAllAndOverride as Mock).mockReturnValue(roles);
 
-  beforeEach(() => (reflector.getAllAndOverride as jest.Mock).mockReset());
+  beforeEach(() => (reflector.getAllAndOverride as Mock).mockReset());
 
   it('allows any authenticated user when no roles are required', () => {
     requireRoles(undefined);

@@ -145,11 +145,11 @@ function service(
   db: NodePgDatabase<typeof schema>,
   billingAddressEnabled = true,
 ) {
-  const addresses = { assertValid: jest.fn() } as unknown as AddressesService;
+  const addresses = { assertValid: vi.fn() } as unknown as AddressesService;
   // The mails are sent from a placed order and never allowed to fail it; what
   // they say is the templates' own suite.
   const notifications = {
-    placed: jest.fn().mockResolvedValue(undefined),
+    placed: vi.fn().mockResolvedValue(undefined),
   } as unknown as OrderNotifications;
   return new OrdersService(
     db,
@@ -202,7 +202,7 @@ const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
   }) as OrderSubmission;
 
 describe('OrdersService.submit', () => {
-  afterEach(() => jest.restoreAllMocks());
+  afterEach(() => vi.restoreAllMocks());
 
   it('writes the order and its lines, with the server’s own zone', async () => {
     const { db, orderRows, itemRows } = testDb();
@@ -264,8 +264,7 @@ describe('OrdersService.submit', () => {
     // Pinned rather than left to the generator: what this asserts is that the
     // retry draws again, and a random suffix that happened to repeat would
     // make the test lie about it either way.
-    jest
-      .spyOn(reference, 'orderReference')
+    vi.spyOn(reference, 'orderReference')
       .mockReturnValueOnce('CK-260824-0001')
       .mockReturnValueOnce('CK-260824-0002');
 

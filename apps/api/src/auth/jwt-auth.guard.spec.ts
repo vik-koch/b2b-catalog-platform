@@ -35,8 +35,8 @@ const contextWith = (cookies: Record<string, string>) => {
 };
 
 describe('JwtAuthGuard', () => {
-  const verifyAsync = jest.fn();
-  const findById = jest.fn();
+  const verifyAsync = vi.fn();
+  const findById = vi.fn();
   const guard = new JwtAuthGuard(
     { verifyAsync } as unknown as JwtService,
     { findById } as unknown as UsersService,
