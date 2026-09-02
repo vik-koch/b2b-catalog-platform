@@ -37,6 +37,24 @@ export const adminTextSchema = z
         uploadError: z.string(),
         /** The way back to an unfiltered grid, on every admin list. */
         clearFilters: z.string(),
+        /*
+         * The admin grids' own controls: the column widths an admin drags, and
+         * the filter and sort pickers a phone gets in place of the column
+         * headings it has no room for.
+         */
+        resizeColumn: z.string(),
+        /** Names the boundary being dragged: `{column}`. */
+        resizeColumnOf: z.string(),
+        resetWidths: z.string(),
+        filters: z.string(),
+        /** How many filters are in effect, beside the word: `{count}`. */
+        filtersCount: z.string(),
+        sortLabel: z.string(),
+        /** The ordering a grid has when nothing is chosen. */
+        sortDefault: z.string(),
+        /** One line of the phone's sort picker: `{column}`. */
+        sortAscending: z.string(),
+        sortDescending: z.string(),
         /**
          * Every refusal a catalog write can answer with, keyed by the API's own
          * `code`. Shared rather than per-screen because it genuinely is: the

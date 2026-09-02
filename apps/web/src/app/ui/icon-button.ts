@@ -30,6 +30,13 @@ const sizes = {
 
 const variants = {
   default: 'text-muted hover:text-accent active:text-primary-deep',
+  /**
+   * The same control where it repeats down a column — a row's actions in an
+   * admin grid. Meta weight, like the timestamps and column headings beside
+   * it, so a list of two hundred rows is not a list of six hundred glyphs
+   * competing with the values they belong to.
+   */
+  subtle: 'text-subtle hover:text-accent active:text-primary-deep',
   /** A control whose glyph already says something has been set. */
   marked: 'text-primary hover:text-accent active:text-primary-deep',
   danger: 'text-subtle hover:text-red-700 active:text-red-900',
