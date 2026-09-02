@@ -24,13 +24,14 @@ import { Button } from '../../ui/button';
 import { ConfirmService } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
-import {
-  GridFilterOption,
-  GridFilterSelect,
-} from '../products/grid-filter-select';
+import { AdminGrid } from '../grid/admin-grid';
+import { GridColumn } from '../grid/grid-column';
+import { GridFilterOption } from '../grid/grid-filter-select';
+import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
+import { GridTimestamp } from '../grid/grid-timestamp';
 import { AdminListHeader } from '../list-header';
-import { GridSortHeader } from '../products/grid-sort-header';
 import { TiersService } from '../tiers/tiers.service';
+import { UserRowActions } from './user-row-actions';
 import { injectEditorReturnParams } from '../editor-return';
 import { StatusBadge } from '../../ui/status-badge';
 import { StaffUsersService } from './users.service';
@@ -56,15 +57,30 @@ import { userStatusTone } from './user-status';
 const USER_SORTS = [
   'name',
   'name_desc',
-  'email',
-  'email_desc',
   'type',
   'type_desc',
   'registered',
   'registered_desc',
+  'status',
+  'status_desc',
 ] as const;
 type UserSort = (typeof USER_SORTS)[number];
-const DEFAULT_USER_SORT: UserSort = 'registered_desc';
+
+/**
+ * Registrations nobody has decided on first — the reason a manager opens this
+ * list — then the accounts in use, then the ones that are over. Everything
+ * else about the order is a click away in a column heading.
+ */
+const DEFAULT_USER_SORT: UserSort = 'status';
+
+/** What an account needs, as a number to sort by. */
+const STATUS_RANK: Record<StaffUser['status'], number> = {
+  pending: 0,
+  invited: 1,
+  active: 2,
+  disabled: 3,
+  anonymized: 4,
+};
 
 /** A hand-edited parameter resolves to the default rather than nothing. */
 function resolveUserSort(raw: string): UserSort {
@@ -85,10 +101,13 @@ const typeRank = (t: StaffUser['customerType']): number =>
     Button,
     AdminIcon,
     AdminListHeader,
-    GridSortHeader,
-    GridFilterSelect,
+    AdminGrid,
+    GridRowTemplate,
+    GridCardTemplate,
+    GridTimestamp,
     Skeleton,
     StatusBadge,
+    UserRowActions,
   ],
   template: `
     <app-admin-list-header
@@ -98,6 +117,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
+      [narrowBelow]="narrowBelow"
     >
       <a
         appButton
@@ -119,210 +139,112 @@ const typeRank = (t: StaffUser['customerType']): number =>
     @if (users.error()) {
       <p class="text-muted" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
-      <!-- The table renders even when empty: its header carries the filters that
-           produced the empty result. table-fixed so a filter never reflows the
-           columns — in percentages, because rem widths summed past the shell's
-           content box and put a scrollbar under every screen size. -->
-      <div class="overflow-x-auto">
-        <table
-          class="w-full table-fixed text-sm text-left [&_th,&_td]:py-2 [&_th,&_td]:pr-4 [&_th:last-child,&_td:last-child]:pr-0"
-          [attr.aria-busy]="users.isLoading() ? 'true' : null"
-        >
-          <thead>
-            <tr class="border-b border-border text-subtle">
-              <th class="w-[18%]">
-                <app-grid-sort
-                  asc="name"
-                  desc="name_desc"
-                  [label]="text.name"
-                  [sort]="sortKey()"
-                  [defaultSort]="defaultSort"
-                />
-              </th>
-              <th class="w-[20%]">
-                <app-grid-sort
-                  asc="email"
-                  desc="email_desc"
-                  [label]="text.email"
-                  [sort]="sortKey()"
-                  [defaultSort]="defaultSort"
-                />
-              </th>
-              <th class="w-[13%] font-medium">{{ text.phone }}</th>
-              @if (isCustomers()) {
-                <!-- The heading itself, as with role/tier/status: its "all"
-                     option is what names the column. A plain label only where
-                     the deployment configures no formats, since then there is
-                     nothing to name. -->
-                @if (hasCompanyIdFormats) {
-                  <th class="w-[11%]">
-                    <app-grid-filter-select
-                      param="companyIdFormat"
-                      [options]="companyIdFormatOptions"
-                      [value]="companyIdFormat()"
-                      [ariaLabel]="text.filterCompanyIdFormat"
-                    />
-                  </th>
-                } @else {
-                  <th class="w-[11%] font-medium">{{ text.companyId }}</th>
-                }
-              }
-              @if (isStaff()) {
-                <th class="w-[19%]">
-                  <app-grid-filter-select
-                    param="role"
-                    [options]="staffRoleOptions"
-                    [value]="roleParam()"
-                    [ariaLabel]="text.filterRole"
-                  />
-                </th>
-              }
-              @if (isCustomers()) {
-                <th class="w-[12%]">
-                  <app-grid-filter-select
-                    param="tier"
-                    [options]="tierOptions()"
-                    [value]="tier()"
-                    [ariaLabel]="text.filterTier"
-                  />
-                </th>
-              }
-              <th class="w-[10%]">
-                <app-grid-filter-select
-                  param="status"
-                  [options]="statusOptions"
-                  [value]="statusParam()"
-                  [ariaLabel]="text.filterStatus"
-                />
-              </th>
-              <th class="w-[10%]">
-                <app-grid-sort
-                  asc="registered"
-                  desc="registered_desc"
-                  [label]="text.registered"
-                  [descFirst]="true"
-                  [sort]="sortKey()"
-                  [defaultSort]="defaultSort"
-                />
-              </th>
-              <th class="w-[4%] text-right">
-                <span class="sr-only">{{ text.actions }}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-stone-100">
-            @for (user of data; track user.id) {
-              <tr>
-                <td
-                  class="truncate font-medium text-stone-700"
-                  [title]="name(user)"
-                >
-                  {{ name(user) }}
-                </td>
-                <td class="truncate text-subtle" [title]="user.email">
-                  {{ user.email }}
-                </td>
-                <td class="truncate text-subtle" [title]="phone(user)">
-                  {{ phone(user) || dash }}
-                </td>
-                @if (isCustomers()) {
-                  <td
-                    class="truncate font-mono text-xs text-subtle"
-                    [title]="user.companyRegistrationId"
-                  >
-                    {{ user.companyRegistrationId || dash }}
-                  </td>
-                }
-                @if (isStaff()) {
-                  <td class="text-subtle">{{ roleLabel(user.role) }}</td>
-                }
-                @if (isCustomers()) {
-                  <td class="truncate text-subtle">
-                    {{ tierName(user.tierId) }}
-                  </td>
-                }
-                <td>
-                  <span appStatusBadge [tone]="statusTone(user.status)">{{
-                    statusLabel(user.status)
-                  }}</span>
-                </td>
-                <td class="text-subtle">{{ formatDate(user.createdAt) }}</td>
-                <!-- Both actions open the same editor; only the glyph differs,
-                     because on a pending row the job is a decision and not a
-                     correction. The check carries the accent colour so that
-                     intent reads at a glance down a column of grey pencils. -->
-                <td>
-                  <div class="flex items-center justify-end gap-1">
-                    @if (user.status !== 'anonymized') {
-                      <a
-                        [routerLink]="['/admin/users', user.id, 'edit']"
-                        [queryParams]="editorFrom()"
-                        class="p-1.5"
-                        [class]="
-                          user.status === 'pending'
-                            ? 'text-accent hover:text-primary'
-                            : 'text-subtle hover:text-accent'
-                        "
-                        [attr.aria-label]="
-                          user.status === 'pending' ? text.approve : text.edit
-                        "
-                      >
-                        <app-admin-icon
-                          [name]="
-                            user.status === 'pending'
-                              ? 'circle-check'
-                              : 'pencil'
-                          "
-                          class="h-4 w-4"
-                        />
-                      </a>
-                    }
-                    <!-- One slot for "stop this account", with the meaning the
-                         row's state gives it: an undecided registration is
-                         thrown away, an approved account is switched off
-                         (whether or not its owner ever signed in), and a
-                         switched-off one is switched back on. -->
-                    @if (user.status === 'pending') {
-                      <button
-                        type="button"
-                        class="p-1.5 text-subtle hover:text-red-700"
-                        [attr.aria-label]="text.decline"
-                        (click)="decline(user)"
-                      >
-                        <app-admin-icon name="trash-2" class="h-4 w-4" />
-                      </button>
-                    } @else if (user.status === 'disabled') {
-                      <button
-                        type="button"
-                        class="p-1.5 text-subtle hover:text-accent"
-                        [attr.aria-label]="text.reactivate"
-                        (click)="setActive(user, true)"
-                      >
-                        <app-admin-icon name="rotate-ccw" class="h-4 w-4" />
-                      </button>
-                    } @else if (user.status !== 'anonymized') {
-                      <button
-                        type="button"
-                        class="p-1.5 text-subtle hover:text-red-700"
-                        [attr.aria-label]="text.deactivate"
-                        (click)="setActive(user, false)"
-                      >
-                        <app-admin-icon name="circle-slash" class="h-4 w-4" />
-                      </button>
-                    }
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-admin-grid
+        [gridId]="gridId()"
+        [columns]="columns()"
+        [rows]="data"
+        [trackBy]="byId"
+        [sort]="sortKey()"
+        [defaultSort]="defaultSort"
+        [muted]="isClosed"
+        [busy]="users.isLoading()"
+        [filtered]="filtered()"
+        [narrowBelow]="narrowBelow"
+        [emptyMessage]="filtered() ? text.noResults : text.empty"
+      >
+        <ng-template appGridRow [of]="data" let-user>
+          <!-- Who to call, and underneath the address to write to — the same
+               pair the order list draws in one cell, for the same reason: two
+               columns of the same person cost a third of the table. -->
+          <td class="truncate" [title]="user.email">
+            <span class="block truncate font-medium text-stone-700">
+              {{ name(user) }}
+            </span>
+            <span class="block truncate text-xs text-subtle">
+              {{ user.email }}
+            </span>
+          </td>
+          <td class="truncate text-subtle" [title]="phone(user)">
+            {{ phone(user) || dash }}
+          </td>
+          @if (isCustomers()) {
+            <td
+              class="truncate font-mono text-xs text-subtle"
+              [title]="user.companyRegistrationId"
+            >
+              {{ user.companyRegistrationId || dash }}
+            </td>
+          }
+          @if (isStaff()) {
+            <td class="text-subtle">{{ roleLabel(user.role) }}</td>
+          }
+          @if (isCustomers()) {
+            <td class="truncate text-subtle">
+              {{ tierName(user.tierId) }}
+            </td>
+          }
+          <td data-keep>
+            <span appStatusBadge [tone]="statusTone(user.status)">{{
+              statusLabel(user.status)
+            }}</span>
+          </td>
+          <td class="text-subtle">
+            <app-grid-timestamp [value]="user.createdAt" />
+          </td>
+          <td data-keep>
+            <app-user-row-actions
+              [user]="user"
+              [returnParams]="editorFrom()"
+              (declined)="decline($event)"
+              (activeChanged)="setActive($event.user, $event.active)"
+            />
+          </td>
+        </ng-template>
 
-      @if (data.length === 0) {
-        <p class="mt-6 text-muted">
-          {{ filtered() ? text.noResults : text.empty }}
-        </p>
-      }
+        <!-- The same account on a phone: who it is and whether it can sign in
+             on the first line, then the two ways to reach them, then what
+             prices they get — the tier is why a manager opens this list, and it
+             is invisible to the customer themselves. -->
+        <ng-template appGridCard [of]="data" let-user>
+          <!-- Only the account is greyed once it is closed, never the badge
+               that says so — the same rule the table follows cell by cell. -->
+          <div class="flex items-baseline justify-between gap-3">
+            <span
+              class="truncate font-medium text-stone-700"
+              [class.opacity-50]="isClosed(user)"
+            >
+              {{ name(user) }}
+            </span>
+            <span appStatusBadge [tone]="statusTone(user.status)">{{
+              statusLabel(user.status)
+            }}</span>
+          </div>
+          <div [class.opacity-50]="isClosed(user)">
+            <p class="mt-1 truncate text-sm text-subtle">{{ user.email }}</p>
+            @if (phone(user)) {
+              <p class="truncate text-sm text-subtle">{{ phone(user) }}</p>
+            }
+          </div>
+          <div class="mt-1 flex items-center justify-between gap-3">
+            <span
+              class="flex min-w-0 items-baseline gap-1 text-sm text-subtle"
+              [class.opacity-50]="isClosed(user)"
+            >
+              <span class="truncate">
+                {{ isStaff() ? roleLabel(user.role) : tierName(user.tierId) }} ·
+              </span>
+              <app-grid-timestamp [value]="user.createdAt" inline />
+            </span>
+            <app-user-row-actions
+              class="shrink-0"
+              [user]="user"
+              [returnParams]="editorFrom()"
+              (declined)="decline($event)"
+              (activeChanged)="setActive($event.user, $event.active)"
+            />
+          </div>
+        </ng-template>
+      </app-admin-grid>
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }
@@ -337,9 +259,6 @@ export class UserListPage {
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
-  private readonly dateFormat = new Intl.DateTimeFormat(this.locale, {
-    dateStyle: 'medium',
-  });
   private readonly collator = new Intl.Collator(this.locale, {
     sensitivity: 'base',
   });
@@ -444,6 +363,121 @@ export class UserListPage {
       label: t.label,
     })),
   ]);
+
+  /**
+   * The columns, declared once for the headings, the phone's filter sheet and
+   * the widths an admin drags. Two lists share this component, so the set
+   * differs by kind — and each kind's widths are remembered under its own id,
+   * since a column that only customers have has no width on the staff list.
+   */
+  protected readonly gridId = computed(() => `users-${this.kind()}`);
+
+  protected readonly columns = computed<GridColumn[]>(() => [
+    {
+      key: 'name',
+      label: this.text.name,
+      sort: { asc: 'name', desc: 'name_desc' },
+      minWidth: 180,
+    },
+    { key: 'phone', label: this.text.phone, minWidth: 110 },
+    // The heading itself, as with role/tier/status: its "all" option is what
+    // names the column. A plain label only where the deployment configures no
+    // formats, since then there is nothing to name.
+    ...(this.isCustomers()
+      ? [
+          {
+            key: 'companyId',
+            label: this.text.companyId,
+            minWidth: 100,
+            ...(this.hasCompanyIdFormats
+              ? {
+                  filter: {
+                    param: 'companyIdFormat',
+                    options: this.companyIdFormatOptions,
+                    value: this.companyIdFormat(),
+                    ariaLabel: this.text.filterCompanyIdFormat,
+                  },
+                }
+              : {}),
+          } satisfies GridColumn,
+        ]
+      : []),
+    ...(this.isStaff()
+      ? [
+          {
+            key: 'role',
+            label: this.text.roleAll,
+            minWidth: 110,
+            filter: {
+              param: 'role',
+              options: this.staffRoleOptions,
+              value: this.roleParam(),
+              ariaLabel: this.text.filterRole,
+            },
+          } satisfies GridColumn,
+        ]
+      : []),
+    ...(this.isCustomers()
+      ? [
+          {
+            key: 'tier',
+            label: this.text.tierAll,
+            minWidth: 110,
+            filter: {
+              param: 'tier',
+              options: this.tierOptions(),
+              value: this.tier(),
+              ariaLabel: this.text.filterTier,
+            },
+          } satisfies GridColumn,
+        ]
+      : []),
+    {
+      key: 'status',
+      label: this.text.statusAll,
+      sortName: this.text.status,
+      minWidth: 110,
+      // Both a filter and a sort: what the list is narrowed by is also what a
+      // manager wants at the top when they open it.
+      sort: { asc: 'status', desc: 'status_desc' },
+      filter: {
+        param: 'status',
+        options: this.statusOptions,
+        value: this.statusParam(),
+        ariaLabel: this.text.filterStatus,
+      },
+    },
+    {
+      key: 'registered',
+      label: this.text.registered,
+      sort: { asc: 'registered', desc: 'registered_desc', descFirst: true },
+      minWidth: 110,
+    },
+    // Two or three glyphs need what they need: a share of the table is the
+    // wrong way to describe a column of buttons.
+    // Two glyphs at 24px, with the gap and the cell's own padding.
+    {
+      key: 'actions',
+      srLabel: this.text.actions,
+      align: 'right',
+      fixedWidth: 64,
+    },
+  ]);
+
+  /**
+   * Even with the email folded into the name, this list carries a phone number,
+   * a registration number, a tier and a status beside it — seven columns that
+   * are readable on a laptop and a wall of truncation on a tablet. So it gives
+   * up on columns a whole breakpoint before the others do.
+   */
+  protected readonly narrowBelow = 'lg' as const;
+
+  protected readonly byId = (user: StaffUser): string => user.id;
+
+  /** An account that is over — switched off, or closed and anonymised. Greyed
+   * like a deleted product; a pending one is not, because it is work. */
+  protected readonly isClosed = (user: StaffUser): boolean =>
+    user.status === 'disabled' || user.status === 'anonymized';
 
   protected readonly statusOptions: GridFilterOption[] = [
     { value: '', label: this.text.statusAll },
@@ -595,10 +629,6 @@ export class UserListPage {
   /** The shared palette; see user-status.ts. */
   protected readonly statusTone = userStatusTone;
 
-  protected formatDate(iso: string): string {
-    return this.dateFormat.format(new Date(iso));
-  }
-
   private comparator(): (a: StaffUser, b: StaffUser) => number {
     switch (this.sortKey()) {
       case 'name':
@@ -607,10 +637,6 @@ export class UserListPage {
       case 'name_desc':
         return (a, b) =>
           this.collator.compare(this.nameKey(b), this.nameKey(a));
-      case 'email':
-        return (a, b) => this.collator.compare(a.email, b.email);
-      case 'email_desc':
-        return (a, b) => this.collator.compare(b.email, a.email);
       case 'type':
         return (a, b) => typeRank(a.customerType) - typeRank(b.customerType);
       case 'type_desc':
@@ -619,6 +645,16 @@ export class UserListPage {
         return (a, b) => a.createdAt.localeCompare(b.createdAt);
       case 'registered_desc':
         return (a, b) => b.createdAt.localeCompare(a.createdAt);
+      // Newest first inside each group: two registrations waiting since
+      // different days are not equally old news.
+      case 'status':
+        return (a, b) =>
+          STATUS_RANK[a.status] - STATUS_RANK[b.status] ||
+          b.createdAt.localeCompare(a.createdAt);
+      case 'status_desc':
+        return (a, b) =>
+          STATUS_RANK[b.status] - STATUS_RANK[a.status] ||
+          b.createdAt.localeCompare(a.createdAt);
     }
   }
 

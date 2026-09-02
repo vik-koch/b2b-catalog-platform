@@ -110,9 +110,10 @@ async function render(
     fixture.componentRef.setInput(name, value);
     await settle();
   };
+  /** The name, which shares its cell with the email — the first line of it. */
   const names = () =>
     [...el.querySelectorAll('tbody tr')].map((row) =>
-      row.querySelector('td')?.textContent?.trim(),
+      row.querySelector('td span')?.textContent?.trim(),
     );
 
   /** Click a row action button by its text or aria-label. */
@@ -166,6 +167,19 @@ describe('UserListPage', () => {
     expect(row?.textContent).toContain('jane@example.com');
     expect(row?.textContent).toContain(text.statusActive);
     expect(row?.textContent).toContain('Wholesale');
+  });
+
+  // The cells of a row are written by the page and the columns are declared
+  // beside them, so nothing but this holds the two lists to the same length —
+  // and this component has two column sets, one per kind.
+  it('draws one cell per declared column, on both lists', async () => {
+    for (const kind of ['customer', 'staff'] as const) {
+      const { el } = await render({ kind, users: [user()] });
+
+      const headings = el.querySelectorAll('thead th').length;
+      expect(headings).toBeGreaterThan(0);
+      expect(el.querySelectorAll('tbody tr td').length).toBe(headings);
+    }
   });
 
   it('names the base price list for an account with no tier', async () => {
@@ -223,7 +237,25 @@ describe('UserListPage', () => {
     expect(service.list).toHaveBeenCalledTimes(1);
   });
 
-  it('defaults to newest registration first, whatever order the server sent', async () => {
+  /*
+   * What the list is opened for: a registration nobody has decided on, then the
+   * accounts in use, then the ones that are over. Newest first inside each
+   * group, so two registrations waiting since different days are not equally
+   * old news.
+   */
+  it('defaults to the rows that need somebody, whatever order the server sent', async () => {
+    const { names } = await render({
+      users: [
+        user({ id: 'off', lastName: 'Closed', status: 'disabled' }),
+        user({ id: 'live', lastName: 'Active', status: 'active' }),
+        user({ id: 'new', lastName: 'Waiting', status: 'pending' }),
+      ],
+    });
+
+    expect(names()).toEqual(['Waiting, Jane', 'Active, Jane', 'Closed, Jane']);
+  });
+
+  it('breaks that tie by newest registration first', async () => {
     const { names } = await render({
       users: [
         user({

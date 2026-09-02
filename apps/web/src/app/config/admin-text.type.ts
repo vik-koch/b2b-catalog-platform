@@ -342,6 +342,9 @@ export const adminTextSchema = z
         filterTier: z.string(),
         clearTier: z.string(),
         stateAll: z.string(),
+        /** The column's own noun, for the phone's sort picker — where "All
+         * states" would read as an ordering rather than a column. */
+        state: z.string(),
         stateLive: z.string(),
         stateUnpublished: z.string(),
         stateDeleted: z.string(),
@@ -776,6 +779,9 @@ export const adminTextSchema = z
         total: z.string(),
         filterStatus: z.string(),
         statusAll: z.string(),
+        /** The column's own noun, for the phone's sort picker — where "All
+         * statuses" would read as an ordering rather than a column. */
+        status: z.string(),
         statusRequested: z.string(),
         statusApproved: z.string(),
         statusDeclined: z.string(),
@@ -856,6 +862,9 @@ export const adminTextSchema = z
         /** The accounts carrying no registration number — private persons. */
         companyIdFormatNone: z.string(),
         statusAll: z.string(),
+        /** The column's own noun, for the phone's sort picker — where "All
+         * statuses" would read as an ordering rather than a column. */
+        status: z.string(),
         statusPending: z.string(),
         statusInvited: z.string(),
         statusActive: z.string(),

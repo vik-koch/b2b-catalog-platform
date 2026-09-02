@@ -5,6 +5,8 @@ import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultAdminText } from '../config/admin-text.fixture';
 import { AdminListHeader } from './list-header';
 
+const clearLabel = defaultAdminText.common.clearFilters;
+
 /** A caller, since the actions are projected rather than configured. */
 @Component({
   imports: [AdminListHeader],
@@ -30,10 +32,8 @@ function render(filtered: boolean) {
   fixture.componentInstance.filtered = filtered;
   fixture.detectChanges();
   const el = fixture.nativeElement as HTMLElement;
-  const clear = [...el.querySelectorAll('a')].find((a) =>
-    a.textContent?.includes(defaultAdminText.common.clearFilters),
-  );
-  if (!clear) throw new Error('no clear-filters link');
+  const clear = el.querySelector<HTMLElement>(`[aria-label="${clearLabel}"]`);
+  if (!clear) throw new Error('no clear-filters control');
   return { fixture, el, clear };
 }
 
@@ -46,22 +46,25 @@ describe('AdminListHeader', () => {
     expect(el.textContent).toContain('Add product');
   });
 
-  it('keeps the clear-filters button as a spacer while nothing is filtered', () => {
-    // Present so the search box beside it never moves, but not a control: no
-    // hit area, no tab stop, and nothing for a screen reader to offer.
+  /*
+   * The way back to the whole list sits beside the search box, glyph-sized and
+   * always there. It used to be a labelled button in the row of actions,
+   * reserved as an invisible spacer so the box would not move when it appeared
+   * — which pushed the page's own "Add" button a line below the box it was
+   * meant to sit beside. Inert is now a real disabled button rather than a
+   * hidden link: the difference is whether it can be tabbed to and pressed.
+   */
+  it('keeps the clear-filters control inert while nothing is filtered', () => {
     const { clear } = render(false);
 
-    expect(clear.classList).toContain('invisible');
-    expect(clear.getAttribute('aria-hidden')).toBe('true');
-    expect(clear.getAttribute('tabindex')).toBe('-1');
+    expect(clear.tagName).toBe('BUTTON');
+    expect(clear.hasAttribute('disabled')).toBe(true);
   });
 
   it('turns it into a real control once the list is filtered', () => {
     const { clear } = render(true);
 
-    expect(clear.classList).not.toContain('invisible');
-    expect(clear.getAttribute('aria-hidden')).toBeNull();
-    expect(clear.getAttribute('tabindex')).toBeNull();
+    expect(clear.tagName).toBe('A');
     // Same route, no query parameters: everything narrowing the list goes.
     expect(clear.getAttribute('href')).toBe('/');
   });
