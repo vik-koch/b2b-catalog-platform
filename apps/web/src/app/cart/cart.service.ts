@@ -88,6 +88,18 @@ export interface CartStoredLine {
    * field with the row rather than when the pricing call answers. */
   noteEnabled: boolean;
   notePrompt: string | null;
+  /**
+   * Whether the shop still offered this product the last time the cart was
+   * priced. Written down for the same reason the prices are: the row is drawn
+   * from the browser's own copy, and a withdrawn line that only remembers its
+   * last price would show it again on every visit to the cart until the
+   * pricing call answered — the figure the customer was told a moment ago was
+   * no longer valid, back on screen.
+   *
+   * True for a cart written before this was recorded, and for a line nobody
+   * has priced yet: the product page it was added from was offering it.
+   */
+  available: boolean;
 }
 
 /** The whole cart as it is written down: the lines, and whose prices they were
@@ -335,6 +347,7 @@ export class CartService {
           boxWeight: null,
           boxCount: null,
           noteEnabled: addition.lineNoteEnabled,
+          available: true,
           notePrompt: addition.lineNotePrompt,
           ...priceLine(addition, pieces),
         },
@@ -351,6 +364,7 @@ export class CartService {
           packaging: addition.packaging,
           image: addition.image,
           noteEnabled: addition.lineNoteEnabled,
+          available: true,
           notePrompt: addition.lineNotePrompt,
           ...priceLine(addition, pieces),
         }),
@@ -381,6 +395,7 @@ export class CartService {
         packaging: addition.packaging,
         image: addition.image,
         noteEnabled: addition.lineNoteEnabled,
+        available: true,
         notePrompt: addition.lineNotePrompt,
         ...priceLine(addition, addition.pieces),
       }),
@@ -474,6 +489,9 @@ export class CartService {
         boxCount: fresh.boxCount ?? line.boxCount,
         noteEnabled: fresh.lineNoteEnabled,
         notePrompt: fresh.lineNotePrompt,
+        // The same reading the page makes of a fresh line: prices the shop
+        // will not state are a product it no longer offers.
+        available: fresh.prices !== null,
         unitPriceMinor:
           fresh.prices === null ? null : unitPriceOf(fresh.prices, fresh.unit),
         lineTotalMinor: fresh.lineTotalMinor,
@@ -553,7 +571,10 @@ export class CartService {
         return { lines: [] };
       }
       return {
-        lines: parsed.lines.filter(isStoredLine).slice(0, CART_LINES_MAX),
+        lines: parsed.lines
+          .map(withAvailability)
+          .filter(isStoredLine)
+          .slice(0, CART_LINES_MAX),
         pricedFor: readPricedFor(parsed.pricedFor),
       };
     } catch {
@@ -601,6 +622,19 @@ function readPricedFor(value: unknown): UserRole | null | undefined {
     : undefined;
 }
 
+/**
+ * Fills in a line stored before availability was written down, so a cart in a
+ * browser today is read rather than discarded: what it holds was on offer when
+ * it was put there, and the next pricing says whether it still is.
+ */
+function withAvailability(line: unknown): unknown {
+  const candidate = line as { available?: unknown } | null;
+  if (!candidate || typeof candidate !== 'object') return line;
+  return typeof candidate.available === 'boolean'
+    ? candidate
+    : { ...candidate, available: true };
+}
+
 function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
   return (
     a.unit === b.unit &&
@@ -611,6 +645,7 @@ function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
     a.lineTotalMinor === b.lineTotalMinor &&
     a.noteEnabled === b.noteEnabled &&
     a.notePrompt === b.notePrompt &&
+    a.available === b.available &&
     a.boxVolume === b.boxVolume &&
     a.boxWeight === b.boxWeight &&
     a.boxCount === b.boxCount &&
@@ -698,7 +733,9 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     (candidate.boxWeight === null || typeof candidate.boxWeight === 'string') &&
     (candidate.boxCount === null || Number.isInteger(candidate.boxCount)) &&
     typeof candidate.noteEnabled === 'boolean' &&
-    (candidate.notePrompt === null || typeof candidate.notePrompt === 'string')
+    (candidate.notePrompt === null ||
+      typeof candidate.notePrompt === 'string') &&
+    typeof candidate.available === 'boolean'
   );
 }
 

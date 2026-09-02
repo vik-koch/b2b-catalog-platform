@@ -489,8 +489,10 @@ export class CartPage {
         key: line.slug,
         // A product preview answered no prices for is one the shop no longer
         // offers: the row keeps the last-known figures so its controls can be
-        // drawn, and states none of them.
-        available: fresh ? fresh.prices !== null : true,
+        // drawn, and states none of them. Until an answer arrives, what the
+        // last one said — a line already known to be withdrawn must not show
+        // its old price again for the length of a call.
+        available: fresh ? fresh.prices !== null : line.available,
         slug: line.slug,
         // Every part of the row from the browser's own copy, photo included:
         // preview writes what it answers back into the store, so reading the
@@ -510,9 +512,16 @@ export class CartPage {
         note: line.note,
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
-        issues: (fresh?.issues ?? [])
-          .filter((issue) => !NOTICE_ISSUES.includes(issue))
-          .map((issue) => this.issueText(issue)),
+        // Before an answer arrives, the one thing the browser wrote down about
+        // the line's state — so a withdrawn line says why it is priceless
+        // rather than showing "on request" with nothing to explain it.
+        issues: fresh
+          ? fresh.issues
+              .filter((issue) => !NOTICE_ISSUES.includes(issue))
+              .map((issue) => this.issueText(issue))
+          : line.available
+            ? []
+            : [this.issueText('unavailable')],
         notice: this.noticeFor(fresh?.issues ?? []),
       };
     }),
