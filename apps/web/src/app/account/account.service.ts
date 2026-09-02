@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
+import { isDefinedError, safe } from '@orpc/client';
 import {
   accountContract,
   AccountProfile,
   UpdateAccountProfileRequest,
 } from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../core/api-client';
+import { createOrpcClient } from '../core/orpc-client';
 
 /** What the delete form has to tell apart. */
 export type DeleteAccountResult = 'ok' | 'wrong-password' | 'last-admin';
@@ -16,25 +17,21 @@ export type DeleteAccountResult = 'ok' | 'wrong-password' | 'last-admin';
  */
 @Injectable({ providedIn: 'root' })
 export class AccountService {
-  private client = createApiClient(accountContract);
+  private client = createOrpcClient(accountContract);
 
-  async getProfile(): Promise<AccountProfile> {
-    const response = await this.client.getProfile();
-    if (response.status === 200) return response.body;
-    throw new Error(`Failed to load the account (status ${response.status})`);
+  getProfile(): Promise<AccountProfile> {
+    return this.client.getProfile();
   }
 
   /**
    * Correct the name and phone number. Nothing here is a refusal the form can
    * act on — the fields are validated before they are sent, and a 401 means the
-   * session is gone, which the guards handle — so anything but a 200 throws.
+   * session is gone, which the guards handle — so anything but success throws.
    */
-  async updateProfile(
+  updateProfile(
     request: UpdateAccountProfileRequest,
   ): Promise<AccountProfile> {
-    const response = await this.client.updateProfile({ body: request });
-    if (response.status === 200) return response.body;
-    throw new Error(`Failed to save the account (status ${response.status})`);
+    return this.client.updateProfile({ body: request });
   }
 
   /**
@@ -43,10 +40,15 @@ export class AccountService {
    * rather than a fault — so they come back as results; anything else throws.
    */
   async deleteAccount(password: string): Promise<DeleteAccountResult> {
-    const response = await this.client.deleteAccount({ body: { password } });
-    if (response.status === 200) return 'ok';
-    if (response.status === 400) return 'wrong-password';
-    if (response.status === 409) return 'last-admin';
-    throw new Error(`Failed to delete the account (status ${response.status})`);
+    const { error } = await safe(
+      this.client.deleteAccount({ body: { password } }),
+    );
+
+    if (!error) return 'ok';
+    if (isDefinedError(error)) {
+      if (error.code === 'wrong-current-password') return 'wrong-password';
+      if (error.code === 'last-admin') return 'last-admin';
+    }
+    throw error;
   }
 }

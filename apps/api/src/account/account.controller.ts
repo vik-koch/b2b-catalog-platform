@@ -1,6 +1,6 @@
-import { Controller, Req, Res, UnauthorizedException } from '@nestjs/common';
+import { Controller, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import {
   AccountProfile,
   accountContract,
@@ -45,79 +45,67 @@ export class AccountController {
     private readonly audit: AuditLogger,
   ) {}
 
-  @TsRestHandler(accountContract.getProfile, { validateResponses: true })
+  @Implement(accountContract.getProfile)
   getProfile(@CurrentUser() actor: AuthUser) {
-    return tsRestHandler(accountContract.getProfile, async () => {
+    return implement(accountContract.getProfile).handler(async ({ errors }) => {
       const user = await this.users.findById(actor.id);
       // The guard read this row a moment ago, so this is the account deleting
       // itself mid-request rather than a real 404 — the session is what is
       // gone, and 401 is what the client already knows how to handle.
-      if (!user)
-        throw new UnauthorizedException({
-          code: 'not-authenticated',
-          message: 'Session no longer valid',
-        });
+      if (!user) throw errors['not-authenticated']();
 
-      return { status: 200 as const, body: toAccountProfile(user) };
+      return toAccountProfile(user);
     });
   }
 
-  @TsRestHandler(accountContract.updateProfile, { validateResponses: true })
+  @Implement(accountContract.updateProfile)
   updateProfile(@CurrentUser() actor: AuthUser) {
-    return tsRestHandler(accountContract.updateProfile, async ({ body }) => {
-      const updated = await this.users.updateOwnProfile(actor.id, body);
-      // No row means the account stopped being `active` between the guard and
-      // the write — deactivated or anonymized underneath the session.
-      if (!updated)
-        throw new UnauthorizedException({
-          code: 'not-authenticated',
-          message: 'Session no longer valid',
-        });
+    return implement(accountContract.updateProfile).handler(
+      async ({ input: { body }, errors }) => {
+        const updated = await this.users.updateOwnProfile(actor.id, body);
+        // No row means the account stopped being `active` between the guard and
+        // the write — deactivated or anonymized underneath the session.
+        if (!updated) throw errors['not-authenticated']();
 
-      // Its own action rather than `user.updated`: what an auditor asks about a
-      // changed phone number is whether staff changed it or the customer did,
-      // and the two stay greppable apart only if they are named apart.
-      this.audit.record('account.updated', actor, { id: updated.id });
+        // Its own action rather than `user.updated`: what an auditor asks about
+        // a changed phone number is whether staff changed it or the customer
+        // did, and the two stay greppable apart only if they are named apart.
+        this.audit.record('account.updated', actor, { id: updated.id });
 
-      return { status: 200 as const, body: toAccountProfile(updated) };
-    });
+        return toAccountProfile(updated);
+      },
+    );
   }
 
-  @TsRestHandler(accountContract.deleteAccount, { validateResponses: true })
+  @Implement(accountContract.deleteAccount)
   deleteAccount(
     @CurrentUser() actor: AuthUser,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return tsRestHandler(accountContract.deleteAccount, async ({ body }) => {
-      const result = await this.deletion.delete(actor.id, body.password);
+    return implement(accountContract.deleteAccount).handler(
+      async ({ input: { body }, errors }) => {
+        const result = await this.deletion.delete(actor.id, body.password);
 
-      if (!result.ok) {
-        return result.reason === 'last-admin'
-          ? {
-              status: 409 as const,
-              body: {
-                code: 'last-admin' as const,
+        if (!result.ok) {
+          throw result.reason === 'last-admin'
+            ? errors['last-admin']({
                 message: 'This is the only admin account',
-              },
-            }
-          : {
-              status: 400 as const,
-              body: {
-                code: 'wrong-current-password' as const,
+              })
+            : errors['wrong-current-password']({
                 message: 'Password is incorrect',
-              },
-            };
-      }
+              });
+        }
 
-      // Audited before the cookie goes, and with the actor as they still were:
-      // afterwards there is no address left to attribute it to.
-      this.audit.record('account.deleted', actor, { id: actor.id });
-      // The bumped tokenVersion already makes the cookie useless; clearing it
-      // is what stops the browser presenting a dead session on every request.
-      endSession(req, res);
+        // Audited before the cookie goes, and with the actor as they still
+        // were: afterwards there is no address left to attribute it to.
+        this.audit.record('account.deleted', actor, { id: actor.id });
+        // The bumped tokenVersion already makes the cookie useless; clearing it
+        // is what stops the browser presenting a dead session on every request.
+        endSession(req, res);
 
-      return { status: 200 as const, body: { message: 'Account deleted' } };
-    });
+        return { message: 'Account deleted' };
+      },
+    );
   }
 }
