@@ -5,6 +5,7 @@ import {
   OrderSummary,
   ordersContract,
   Pagination,
+  StaffOrderSort,
 } from '@b2b-catalog-platform/shared';
 import { createApiClient } from '../../core/api-client';
 
@@ -28,6 +29,7 @@ export class AdminOrdersService {
     page: number;
     status?: OrderStatus;
     q?: string;
+    sort?: StaffOrderSort;
   }): Promise<{ items: StaffOrderSummary[]; pagination: Pagination }> {
     const response = await this.client.listOrders({ query });
     if (response.status === 200) return response.body;

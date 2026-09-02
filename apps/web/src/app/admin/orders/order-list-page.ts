@@ -4,23 +4,26 @@ import {
   fillText,
   OrderStatus,
   orderStatusSchema,
+  StaffOrderSort,
+  staffOrderSortSchema,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
 import { stableValue } from '../../core/stable-value';
-import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { orderStatusTone } from '../../orders/order-status';
 import { AdminListHeader } from '../list-header';
-import {
-  GridFilterOption,
-  GridFilterSelect,
-} from '../products/grid-filter-select';
+import { AdminGrid } from '../grid/admin-grid';
+import { GridColumn } from '../grid/grid-column';
+import { GridFilterOption } from '../grid/grid-filter-select';
+import { GridPagination } from '../grid/grid-pagination';
+import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
+import { GridTimestamp } from '../grid/grid-timestamp';
+import { RecordRow } from '../records/record-row';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 
 /**
@@ -39,11 +42,15 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
   selector: 'app-admin-order-list-page',
   imports: [
     RouterLink,
-    Button,
     AdminListHeader,
-    GridFilterSelect,
+    AdminGrid,
+    GridRowTemplate,
+    GridCardTemplate,
+    GridPagination,
+    GridTimestamp,
     Skeleton,
     StatusBadge,
+    RecordRow,
   ],
   template: `
     <app-admin-list-header
@@ -58,115 +65,108 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
     @if (orders.error()) {
       <p class="text-muted" role="alert">{{ text.loadError }}</p>
     } @else if (shown(); as data) {
-      <!-- The table renders even when empty: its header carries the filter that
-           produced the empty result. -->
-      <div class="overflow-x-auto">
-        <table
-          class="w-full table-fixed text-left text-sm [&_th,&_td]:py-2 [&_th,&_td]:pr-4 [&_th:last-child,&_td:last-child]:pr-0"
-          [attr.aria-busy]="orders.isLoading() ? 'true' : null"
-        >
-          <thead>
-            <tr class="border-b border-border text-subtle">
-              <th class="w-[22%] font-medium">{{ text.reference }}</th>
-              <th class="w-[16%] font-medium">{{ text.placed }}</th>
-              <th class="w-[26%] font-medium">{{ text.customer }}</th>
-              <th class="w-[14%]">
-                <app-grid-filter-select
-                  param="status"
-                  [options]="statusOptions"
-                  [value]="statusParam()"
-                  [ariaLabel]="text.filterStatus"
-                />
-              </th>
-              <th class="w-[10%] font-medium">{{ text.items }}</th>
-              <th class="w-[12%] text-right font-medium">{{ text.total }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-stone-100">
-            @for (order of data.items; track order.reference) {
-              <tr>
-                <td class="truncate font-medium">
-                  <a
-                    class="hover:text-accent"
-                    [routerLink]="['/admin/orders', order.reference]"
-                  >
-                    {{ order.reference }}
-                  </a>
-                </td>
-                <td class="truncate text-subtle">
-                  {{ formatDate(order.createdAt) }}
-                </td>
-                <!-- Who to call, and underneath the account it came from — or
-                     that it came from nobody, which is what a guest order is. -->
-                <td class="truncate" [title]="order.customerEmail ?? ''">
-                  <span class="block truncate text-stone-700">
-                    {{ order.contactName }}
-                  </span>
-                  <span class="block truncate text-xs text-subtle">
-                    {{ order.customerEmail ?? text.guest }}
-                  </span>
-                </td>
-                <td>
-                  <span appStatusBadge [tone]="statusTone(order.status)">
-                    {{ statusLabel(order.status) }}
-                  </span>
-                </td>
-                <td class="truncate text-subtle">
-                  {{ lineCount(order.itemCount) }}
-                </td>
-                <td class="text-right tabular-nums">{{ total(order) }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      @if (data.items.length === 0) {
-        <!-- Two different nothings: no orders at all is a state nobody can fix,
-             an empty result is one to fix by widening the filters. -->
-        <p class="mt-6 text-muted">
-          {{ filtered() ? text.noResults : text.empty }}
-        </p>
-      }
-
-      @if (data.pagination.totalPages > 1) {
-        <nav
-          class="mt-8 flex items-center justify-center gap-4 text-sm"
-          [attr.aria-label]="common.pageStatus"
-        >
-          @if (data.pagination.page > 1) {
+      <app-admin-grid
+        gridId="orders"
+        [columns]="columns()"
+        [rows]="data.items"
+        [trackBy]="byReference"
+        [sort]="sortKey()"
+        [defaultSort]="defaultSort"
+        [muted]="isEnded"
+        [busy]="orders.isLoading()"
+        [filtered]="filtered()"
+        [emptyMessage]="filtered() ? text.noResults : text.empty"
+      >
+        <ng-template appGridRow [of]="data.items" let-order>
+          <td class="truncate font-medium">
             <a
-              routerLink="/admin/orders"
-              [queryParams]="{ page: data.pagination.page - 1 }"
-              queryParamsHandling="merge"
-              appButton
-              variant="ghost"
-              size="sm"
-              >{{ common.prevPage }}</a
+              class="hover:text-accent"
+              [routerLink]="['/admin/orders', order.reference]"
             >
-          } @else {
-            <span class="px-3 py-1.5 text-stone-300">{{
-              common.prevPage
-            }}</span>
-          }
-          <span class="text-subtle">{{ pageStatus(data.pagination) }}</span>
-          @if (data.pagination.page < data.pagination.totalPages) {
-            <a
-              routerLink="/admin/orders"
-              [queryParams]="{ page: data.pagination.page + 1 }"
-              queryParamsHandling="merge"
-              appButton
-              variant="ghost"
-              size="sm"
-              >{{ common.nextPage }}</a
-            >
-          } @else {
-            <span class="px-3 py-1.5 text-stone-300">{{
-              common.nextPage
-            }}</span>
-          }
-        </nav>
-      }
+              {{ order.reference }}
+            </a>
+          </td>
+          <td class="text-subtle">
+            <app-grid-timestamp [value]="order.createdAt" />
+          </td>
+          <!-- Who to call, and underneath the account it came from — or
+               that it came from nobody, which is what a guest order is. -->
+          <td class="truncate" [title]="order.customerEmail ?? ''">
+            <span class="block truncate text-stone-700">
+              {{ order.contactName }}
+            </span>
+            <span class="block truncate text-xs text-subtle">
+              {{ order.customerEmail ?? text.guest }}
+            </span>
+          </td>
+          <td data-keep>
+            <span appStatusBadge [tone]="statusTone(order.status)">
+              {{ statusLabel(order.status) }}
+            </span>
+          </td>
+          <td class="truncate text-subtle">
+            {{ lineCount(order.itemCount) }}
+          </td>
+          <td class="text-right tabular-nums">{{ total(order) }}</td>
+        </ng-template>
+
+        <!-- The same order on a phone: what it is and where it stands on the
+             first line, who to call on the second, and the two figures a
+             manager is looking for — when it came in and what it comes to — on
+             the third. The account it came from is a detail for the order's own
+             page; the name and the reference are what a phone call is about. -->
+        <ng-template appGridCard [of]="data.items" let-order>
+          <a
+            class="block"
+            [routerLink]="['/admin/orders', order.reference]"
+            [attr.aria-label]="order.reference"
+          >
+            <!-- Only the order is greyed once it is over, never the badge that
+                 says so — the same rule the table follows cell by cell. -->
+            <app-record-row>
+              <span
+                class="truncate font-medium"
+                [class.opacity-50]="isEnded(order)"
+                >{{ order.reference }}</span
+              >
+              <span
+                recordBadge
+                appStatusBadge
+                class="shrink-0"
+                [tone]="statusTone(order.status)"
+              >
+                {{ statusLabel(order.status) }}
+              </span>
+              <p
+                recordBody
+                class="mt-1 truncate text-subtle"
+                [class.opacity-50]="isEnded(order)"
+              >
+                {{ order.contactName }}
+              </p>
+              <span
+                recordMeta
+                class="flex min-w-0 items-baseline gap-1"
+                [class.opacity-50]="isEnded(order)"
+              >
+                <app-grid-timestamp [value]="order.createdAt" inline />
+                <span class="truncate">· {{ lineCount(order.itemCount) }}</span>
+              </span>
+              <!-- The total takes the place a row's buttons take: an order is
+                   opened by tapping it, so what belongs bottom-right here is
+                   the number the row is scanned for. -->
+              <span
+                recordActions
+                class="text-sm tabular-nums"
+                [class.opacity-50]="isEnded(order)"
+                >{{ total(order) }}</span
+              >
+            </app-record-row>
+          </a>
+        </ng-template>
+      </app-admin-grid>
+
+      <app-grid-pagination [pagination]="data.pagination" />
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }
@@ -177,9 +177,6 @@ export class AdminOrderListPage {
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
   protected readonly text = inject(ADMIN_TEXT).orderList;
-  // Paging wording is the storefront's, as on the product grid: the words for
-  // "next page" do not differ by audience.
-  protected readonly common = inject(APP_TEXT).catalog;
 
   /** Bound from the query parameters; both are narrowed before they reach the
    * API, so a hand-edited URL falls back to the default view. */
@@ -206,6 +203,19 @@ export class AdminOrderListPage {
   protected readonly statusParam = computed(() => this.statusKey() ?? '');
 
   /**
+   * The ordering, server-side like the filter: the list is paged, and sorting
+   * one page would be sorting one twentieth of the orders. The default is
+   * unanswered-first, which is the question this screen is opened with — so it
+   * is the sort written as an *absent* parameter.
+   */
+  readonly sort = input('');
+  protected readonly defaultSort: StaffOrderSort = 'status';
+  protected readonly sortKey = computed<StaffOrderSort>(() => {
+    const parsed = staffOrderSortSchema.safeParse(this.sort());
+    return parsed.success ? parsed.data : this.defaultSort;
+  });
+
+  /**
    * Router input binding sets an *absent* parameter to undefined, whatever the
    * input's default says — so every one of these is read through a guard
    * rather than used straight. A page opened from the panel carries no
@@ -223,6 +233,7 @@ export class AdminOrderListPage {
       page: this.currentPage(),
       status: this.statusKey(),
       q: this.query() || undefined,
+      sort: this.sortKey(),
     }),
     loader: ({ params }) => this.api.list(params),
   });
@@ -231,6 +242,47 @@ export class AdminOrderListPage {
    * blanking the table the filter sits in. */
   protected readonly shown = stableValue(this.orders);
   protected readonly showSkeleton = delayedLoading(this.orders.isLoading);
+
+  /**
+   * The columns, declared once: the headings on a desktop, the filter sheet and
+   * the sort picker on a phone, and the widths an admin drags all read the same
+   * list. A computed because the status filter's own value is part of it.
+   */
+  protected readonly columns = computed<GridColumn[]>(() => [
+    { key: 'reference', label: this.text.reference, minWidth: 140 },
+    {
+      key: 'placed',
+      label: this.text.placed,
+      sort: { asc: 'placed', desc: 'placed_desc', descFirst: true },
+      minWidth: 110,
+    },
+    { key: 'customer', label: this.text.customer, minWidth: 140 },
+    {
+      key: 'status',
+      label: this.text.statusAll,
+      sortName: this.text.status,
+      // The one column that both filters and sorts: what a manager narrows by
+      // is also what they want at the top when they open the list.
+      sort: { asc: 'status', desc: 'status_desc' },
+      filter: {
+        param: 'status',
+        options: this.statusOptions,
+        value: this.statusParam(),
+        ariaLabel: this.text.filterStatus,
+      },
+      minWidth: 110,
+    },
+    { key: 'items', label: this.text.items, minWidth: 80 },
+    { key: 'total', label: this.text.total, align: 'right', minWidth: 90 },
+  ]);
+
+  protected readonly byReference = (order: StaffOrderSummary): string =>
+    order.reference;
+
+  /** An order nobody is going to act on again, greyed the way a deleted
+   * product is: it is still listed, but it is not work. */
+  protected readonly isEnded = (order: StaffOrderSummary): boolean =>
+    order.status === 'declined' || order.status === 'cancelled';
 
   protected readonly statusOptions: GridFilterOption[] = [
     { value: '', label: this.text.statusAll },
@@ -259,21 +311,6 @@ export class AdminOrderListPage {
 
   protected statusTone(status: OrderStatus): StatusTone {
     return orderStatusTone(status);
-  }
-
-  protected formatDate(iso: string): string {
-    return this.dateFormat.format(new Date(iso));
-  }
-
-  private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {
-    dateStyle: 'medium',
-  });
-
-  protected pageStatus(p: { page: number; totalPages: number }): string {
-    return fillText(this.common.pageStatus, {
-      page: p.page,
-      total: p.totalPages,
-    });
   }
 
   constructor() {

@@ -1,12 +1,19 @@
 import { computed, Directive, input } from '@angular/core';
 
+/**
+ * Every width is capped against the viewport as well: a modal is centred by
+ * `m-auto`, which on a phone narrower than the panel leaves it flush against
+ * both edges. The gutter is part of the size rather than a margin, because a
+ * <dialog> in the top layer is laid out against the viewport box and a margin
+ * would fight the centring.
+ */
 const widths = {
   /** A question and two answers. */
-  md: 'max-w-md',
+  md: 'w-[min(28rem,calc(100%-2rem))]',
   /** A short list to read — zones, offices. */
-  lg: 'max-w-lg',
+  lg: 'w-[min(32rem,calc(100%-2rem))]',
   /** Something with a picture in it. */
-  xl: 'max-w-2xl',
+  xl: 'w-[min(42rem,calc(100%-2rem))]',
 } as const;
 
 /**
@@ -29,6 +36,6 @@ export class DialogPanel {
 
   protected readonly classes = computed(
     () =>
-      `m-auto ${widths[this.size()]} rounded-lg border border-border bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50`,
+      `m-auto ${widths[this.size()]} max-h-[calc(100%-2rem)] overflow-y-auto rounded-lg border border-border bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50`,
   );
 }

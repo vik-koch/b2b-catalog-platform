@@ -100,6 +100,34 @@ describe('adminProductOrderBy', () => {
     );
   });
 
+  it.each([
+    ['state', 'asc'],
+    ['state_desc', 'desc'],
+  ] as const)('sorts %s on what the row needs, %s', (option, direction) => {
+    const rendered = render(adminProductOrderBy(option));
+
+    // Unpublished (0) before live (1) before deleted (2), so ascending is
+    // "what still needs somebody" first.
+    expect(rendered).toContain('"deletedAt" is not null then 2');
+    expect(rendered).toContain('"publishedAt" is null then 0');
+    expect(rendered).toMatch(new RegExp(`end ${direction}`));
+  });
+
+  /*
+   * The admin grid opens with no sort and no query, and alphabetical is not
+   * what that screen is for: a sync leaves its new products unpublished, and
+   * those are what an admin came to deal with. The storefront's own fallback is
+   * untouched — see the shared ordering above.
+   */
+  it('falls back to state order when relevance has nothing to score', () => {
+    expect(render(adminProductOrderBy('relevance'))).toBe(
+      render(adminProductOrderBy('state')),
+    );
+    expect(render(productOrderBy('relevance'))).toBe(
+      render(productOrderBy('name')),
+    );
+  });
+
   it.each(searchSortSchema.options)(
     'delegates %s to the shared ordering, so both grids agree',
     (option) => {

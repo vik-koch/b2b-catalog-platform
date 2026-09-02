@@ -17,32 +17,32 @@ import {
   encodeAttributeParams,
   parseAttributeParams,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { LoadErrorView } from '../pages/load-error-view';
-import { stableValue } from '../core/stable-value';
-import { injectEditorReturnParams } from '../admin/editor-return';
-import { editAwareContent } from '../admin/edit-aware-content';
-import { EditActions } from '../admin/edit-actions';
-import { usePageSeo } from '../core/page-seo';
-import { EditModeService } from '../admin/edit-mode.service';
-import { HiddenProductsSection } from '../admin/products/hidden-products-section';
 import { AdminCatalogService } from '../admin/admin-catalog.service';
-import { ConfirmService } from '../ui/confirm.service';
-import { Button } from '../ui/button';
-import { Icon } from '../ui/icons/icon';
+import { EditActions } from '../admin/edit-actions';
+import { editAwareContent } from '../admin/edit-aware-content';
+import { EditModeService } from '../admin/edit-mode.service';
+import { injectEditorReturnParams } from '../admin/editor-return';
+import { HiddenProductsSection } from '../admin/products/hidden-products-section';
+import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
+import { stableValue } from '../core/stable-value';
+import { LoadErrorView } from '../pages/load-error-view';
 import { NotFoundView } from '../pages/not-found-view';
+import { Button } from '../ui/button';
+import { ConfirmService } from '../ui/confirm.service';
+import { Icon } from '../ui/icons/icon';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
 import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
-import { PRODUCT_GRID, ProductTile } from './product-tile';
 import {
   ProductSortSelect,
   resolveCategorySort,
   sortParam,
 } from './product-sort-select';
+import { PRODUCT_GRID, ProductTile } from './product-tile';
 
 /**
  * A subcategory chip's height, in px — two lines of `text-sm` plus its padding
@@ -80,8 +80,14 @@ const SUBS_ASSUMED_FIT = 4;
     LoadErrorView,
   ],
   template: `
+    <!-- Everything inside measures this container rather than the window, so
+         the heading, the chips and the listing take their narrow shape in one
+         step: a viewport breakpoint and a container query on the same page
+         disagree by the width of the frame and the scrollbar. The section's
+         own padding is the exception — no element can query its own
+         container. -->
     <section
-      class="@container/listing relative pb-8 sm:pb-12"
+      class="@container/listing relative pb-6"
       [attr.aria-busy]="products.isLoading() ? 'true' : null"
     >
       @if (products.error()) {
@@ -175,7 +181,9 @@ const SUBS_ASSUMED_FIT = 4;
           <div
             class="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
           >
-            <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
+            <h1
+              class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+            >
               {{ data.category.name }}
             </h1>
 
@@ -183,7 +191,7 @@ const SUBS_ASSUMED_FIT = 4;
                  their own: a row that appears with the first selection would
                  push the grid down as it was ticked. -->
             <app-applied-filters
-              class="hidden min-w-0 flex-1 sm:block"
+              class="hidden min-w-0 flex-1 @min-[38rem]/listing:block"
               [facets]="data.facets"
             />
 
@@ -191,8 +199,13 @@ const SUBS_ASSUMED_FIT = 4;
                 title row belongs to the breadcrumb and, in edit mode, to the
                 category controls pinned top-right. -->
             @if (data.items.length) {
+              <!-- The sort keeps this row only while there is a filter column
+                   beside the grid to hold the other copy of it; below that it
+                   moves inside the filter disclosure, so a narrow screen has
+                   one place to arrange the listing rather than two. -->
               <div class="flex items-end justify-end gap-3">
                 <app-product-sort-select
+                  [class]="data.facets.length ? headerSortAt : ''"
                   [value]="sortKey()"
                   defaultSort="name"
                 />
@@ -247,7 +260,11 @@ const SUBS_ASSUMED_FIT = 4;
           <div class="mt-6" [class]="facetLayout">
             @if (data.facets.length) {
               <aside [class]="facetColumn">
-                <app-facet-panel [facets]="data.facets" />
+                <app-facet-panel
+                  [facets]="data.facets"
+                  [sort]="sortKey()"
+                  defaultSort="name"
+                />
               </aside>
             }
             <div class="min-w-0 flex-1">
@@ -352,7 +369,9 @@ const SUBS_ASSUMED_FIT = 4;
                placeholder too — otherwise the title jumps down a row when the
                real content arrives. -->
           <div class="space-y-3">
-            <div class="h-4 w-1/2 rounded bg-stone-200 sm:w-1/3"></div>
+            <div
+              class="h-4 w-1/2 rounded bg-stone-200 @min-[38rem]/listing:w-1/3"
+            ></div>
             <div class="h-8 w-1/3 rounded bg-stone-200"></div>
           </div>
           <div [class]="productGrid">
@@ -381,6 +400,14 @@ const SUBS_ASSUMED_FIT = 4;
 })
 export class CategoryGrid {
   protected readonly productGrid = PRODUCT_GRID;
+
+  /**
+   * The sort above the grid is hidden wherever the filter panel is a disclosure
+   * that carries a copy of it — but only where there *is* a panel: a listing
+   * with no attributes to filter by has no disclosure to hold the control, and
+   * losing it would leave a narrow screen with no way to reorder at all.
+   */
+  protected readonly headerSortAt = 'hidden @min-[63.75rem]/listing:block';
   protected readonly facetLayout = FACET_LAYOUT;
   protected readonly facetColumn = FACET_COLUMN;
   private readonly productLayout = inject(ProductLayoutService);

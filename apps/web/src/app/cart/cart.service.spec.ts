@@ -279,6 +279,9 @@ describe('CartService', () => {
     const cart = service();
     expect(cart.count()).toBe(1);
     expect(cart.lines()[0].slug).toBe('filter-roast');
+    // A cart written before availability was recorded is read, not discarded:
+    // what it holds was on offer when it was put there.
+    expect(cart.lines()[0].available).toBe(true);
   });
 
   // The three fields nothing on this page reads yet, and which a shape check
@@ -499,6 +502,34 @@ describe('CartService', () => {
       expect(cart.lines()[0].name).toBe('Filter Roast');
       expect(cart.lines()[0].lineTotalMinor).toBeNull();
       expect(cart.totalComplete()).toBe(false);
+    });
+
+    // Otherwise the cart page draws the row from the last-known prices it kept
+    // for the controls, and a withdrawn product shows its old price again on
+    // every visit until the pricing call answers.
+    it('writes down that a withdrawn line is no longer offered', () => {
+      const cart = service();
+      cart.add(packAddition());
+      expect(cart.lines()[0].available).toBe(true);
+
+      cart.applyPreview(
+        preview([
+          {
+            name: null,
+            prices: null,
+            packaging: null,
+            lineTotalMinor: null,
+            issues: ['unavailable'],
+          },
+        ]),
+      );
+
+      expect(cart.lines()[0].available).toBe(false);
+      expect(stored()?.lines[0].available).toBe(false);
+
+      // And offered again once the shop prices it again.
+      cart.applyPreview(preview([{ lineTotalMinor: 7000 }]));
+      expect(cart.lines()[0].available).toBe(true);
     });
 
     // The answer may carry another unit than the one that was sent, and it is

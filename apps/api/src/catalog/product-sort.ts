@@ -1,4 +1,4 @@
-import { asc, desc, SQL } from 'drizzle-orm';
+import { asc, desc, sql, SQL } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { AdminProductSort, SearchSort } from '@b2b-catalog-platform/shared';
 import { products } from '../db/schema';
@@ -69,7 +69,30 @@ export function adminProductOrderBy(
       return [asc(products.updatedAt), ...tiebreak];
     case 'updated_desc':
       return [desc(products.updatedAt), ...tiebreak];
+    case 'state':
+      return [asc(statePriority), ...tiebreak];
+    case 'state_desc':
+      return [desc(statePriority), ...tiebreak];
+    case 'relevance':
+      // With nothing to score against, the useful order is not alphabetical:
+      // it is what the grid was opened to deal with. A sync leaves its new
+      // products unpublished, and those are what an admin came here for.
+      return score
+        ? productOrderBy(sort, score)
+        : [asc(statePriority), ...tiebreak];
     default:
       return productOrderBy(sort, score);
   }
 }
+
+/**
+ * What a row needs, as a number to sort by: nobody has looked at an unpublished
+ * product yet, a live one is settled, and a deleted one is over. Columns are
+ * qualified by hand — a bare name in a template binds to whatever table the
+ * surrounding query happens to make available.
+ */
+const statePriority = sql<number>`case
+  when ${products.deletedAt} is not null then 2
+  when ${products.publishedAt} is null then 0
+  else 1
+end`;

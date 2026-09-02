@@ -6,8 +6,8 @@ import {
 } from '@b2b-catalog-platform/seed';
 import { expect, test } from '@playwright/test';
 
-// Exactly one utility nav is visible at a time: the desktop top bar (md+) or
-// the hamburger panel once opened.
+// Exactly one utility nav is visible at a time: the header's top bar (sm+) or
+// the bottom bar's "More" panel once opened.
 const visibleUtilityNav = 'nav[aria-label="Utility"]:visible';
 
 /* The suite runs these specs in a mobile project and a desktop one, so the
@@ -23,7 +23,7 @@ test('navigates from home to the about page via the utility nav', async ({
   await page.goto('/');
 
   if (isMobile) {
-    const toggle = page.getByRole('button', { name: 'Toggle menu' });
+    const toggle = page.getByRole('button', { name: 'More' });
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');

@@ -4,12 +4,12 @@ import {
   categoryDisplayName,
   CategoryNode,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { LoadErrorView } from '../pages/load-error-view';
-import { injectEditorReturnParams } from '../admin/editor-return';
-import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
+import { editAwareContent } from '../admin/edit-aware-content';
+import { injectEditorReturnParams } from '../admin/editor-return';
+import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
+import { LoadErrorView } from '../pages/load-error-view';
 import { CatalogService } from './catalog.service';
 import { ImagePlaceholder } from './image-placeholder';
 
@@ -36,7 +36,7 @@ const MAX_CHILD_LINKS = 3;
           [addCategoryLabel]="editText.addCategory"
         />
       }
-      <h1 class="text-3xl font-medium tracking-tight sm:text-4xl">
+      <h1 class="mb-4 text-3xl font-medium tracking-tight">
         {{ text.overviewTitle }}
       </h1>
       <p class="mt-3 max-w-xl text-lg text-muted">

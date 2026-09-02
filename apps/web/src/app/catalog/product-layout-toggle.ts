@@ -30,7 +30,7 @@ import { ProductLayout, ProductLayoutService } from './product-layout';
   // listing turns some pixels before `sm` does, and for that band the control
   // disappeared while the two layouts still looked different. One figure,
   // one container, no band.
-  host: { class: 'hidden @min-[593px]/listing:block' },
+  host: { class: 'hidden @min-[38rem]/listing:block' },
   imports: [Icon],
   template: `
     <div role="group" [attr.aria-label]="text.label" [class]="group">

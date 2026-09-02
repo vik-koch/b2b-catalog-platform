@@ -15,11 +15,13 @@ import { usePageSeo } from '../../core/page-seo';
 import { useRowAnchor } from '../../core/row-anchor';
 import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
+import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
 import { HintBadge } from '../../ui/hint-badge';
 import { Skeleton } from '../../ui/skeleton';
 import { ConfirmService } from '../../ui/confirm.service';
+import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
@@ -48,13 +50,15 @@ type RenameTarget =
     NgTemplateOutlet,
     RouterLink,
     Button,
+    IconButton,
     AdminIcon,
+    RecordRow,
     HintBadge,
     Input,
     Skeleton,
   ],
   template: `
-    <div class="mb-4 flex items-center justify-between gap-4">
+    <div class="mb-4 flex items-start justify-between gap-4">
       <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
       <a appButton variant="secondary" routerLink="/admin/attributes">
         {{ text.toDefinitions }}
@@ -73,87 +77,99 @@ type RenameTarget =
         @if (keys.value().length === 0) {
           <p class="text-sm text-muted">{{ text.empty }}</p>
         } @else {
-          <div class="overflow-hidden bg-white rounded-lg border border-border">
+          <!-- Divided rules on the page, not a card: this is the same list of
+               records an admin grid draws on a phone. -->
+          <div class="border-y border-border">
             <ul class="divide-y divide-border">
               @for (entry of keys.value(); track entry.key) {
                 <!-- scroll-mt clears the sticky header: without it the anchor
                    puts the row's own heading under the bar and the values look
                    like the top of the list. -->
                 <li [id]="rowId(entry.key)" class="scroll-mt-24">
-                  <div class="p-4">
+                  <div class="py-3">
                     @if (isRenaming({ kind: 'key', key: entry.key })) {
                       <ng-container [ngTemplateOutlet]="form" />
                     } @else {
-                      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <app-record-row>
+                        <!-- Opening the key is the one thing done to the row,
+                             so it leads it — where the other lists put their
+                             grip or their checkbox. Chevron and name are one
+                             button, not two beside each other: split, the pair
+                             had to be lit from a shared parent, and that parent
+                             was the whole title line — so the row highlighted
+                             under a pointer sitting in the empty space to the
+                             right of the name, where there is nothing to
+                             press. -->
                         <button
+                          recordControl
                           type="button"
-                          class="flex items-center gap-2 font-medium text-stone-700 hover:text-accent"
+                          class="flex cursor-pointer items-center gap-2 self-stretch text-left font-medium text-stone-700 hover:text-accent"
                           [attr.aria-expanded]="expanded() === entry.key"
                           (click)="toggle(entry.key)"
                         >
                           <app-admin-icon
+                            class="size-5 shrink-0 md:size-4"
                             [name]="
                               expanded() === entry.key
                                 ? 'chevron-down'
                                 : 'chevron-right'
                             "
-                            class="h-4 w-4"
                           />
                           {{ entry.key }}
                         </button>
-                        <span class="text-sm text-subtle">
-                          {{ productsLabel(entry.productCount) }} ·
-                          {{ valuesLabel(entry.valueCount) }}
-                        </span>
-                        <span class="ml-auto flex items-center gap-1">
-                          <!-- Whether the shop filters by this key, and the way to
-                             its definition. States the fact where a freetext key
-                             is concerned — most attributes are freetext and none
-                             of them is a problem to be fixed — so it is deadened
-                             rather than dropped, and never offers to declare
-                             one. -->
+                        <ng-container recordMeta>
+                          <span>
+                            {{ productsLabel(entry.productCount) }} ·
+                            {{ valuesLabel(entry.valueCount) }}
+                          </span>
+                        </ng-container>
+                        <ng-container recordActions>
+                          <!-- Whether the shop filters by this key, and the way
+                               to its definition. States the fact where a
+                               freetext key is concerned — most attributes are
+                               freetext and none of them is a problem to be
+                               fixed — so it is deadened rather than dropped,
+                               and never offers to declare one. -->
                           @if (entry.definition) {
                             <a
-                              class="p-1 text-stone-400 hover:text-accent"
+                              appIconButton
                               routerLink="/admin/attributes"
                               [queryParams]="{ name: entry.key }"
                               [attr.aria-label]="text.toDefinition"
                             >
-                              <app-admin-icon name="funnel" class="h-4 w-4" />
+                              <app-admin-icon name="funnel" />
                             </a>
                           } @else {
                             <span
-                              class="p-1 text-stone-300"
+                              appIconButton
+                              class="pointer-events-none opacity-40"
                               [attr.aria-label]="text.notFilterable"
                               [title]="text.notFilterable"
                             >
-                              <app-admin-icon name="funnel" class="h-4 w-4" />
+                              <app-admin-icon name="funnel" />
                             </span>
                           }
                           <a
-                            class="p-1 text-stone-400 hover:text-accent"
+                            appIconButton
                             routerLink="/admin/products"
                             [queryParams]="{ attributeKey: entry.key }"
                             [attr.aria-label]="text.showProducts"
                           >
-                            <app-admin-icon
-                              name="square-menu"
-                              class="h-4 w-4"
-                            />
+                            <app-admin-icon name="square-menu" />
                           </a>
                           <button
+                            appIconButton
                             type="button"
-                            class="p-1 text-stone-400 hover:text-accent"
                             [attr.aria-label]="text.renameKey"
                             [disabled]="busy()"
                             (click)="
                               startRename({ kind: 'key', key: entry.key })
                             "
                           >
-                            <app-admin-icon name="pencil" class="h-4 w-4" />
+                            <app-admin-icon name="pencil" />
                           </button>
-                        </span>
-                      </div>
+                        </ng-container>
+                      </app-record-row>
                     }
                   </div>
 
@@ -161,7 +177,11 @@ type RenameTarget =
                     <!-- Values sit inside their key's row rather than on a screen
                        of their own: the comparison that matters is between two
                        spellings of one attribute. -->
-                    <div class="border-t border-border px-4">
+                    <!-- Tinted and indented, the way the category tree marks a
+                         subcategory: these values belong to the key above them,
+                         and a flat list of both reads as one list of
+                         everything. -->
+                    <div class="border-t border-border bg-stone-100 ml-6 pl-2">
                       @if (values.error()) {
                         <p class="py-3 text-sm text-muted" role="alert">
                           {{ catalogText.loadError }}
@@ -179,29 +199,32 @@ type RenameTarget =
                               ) {
                                 <ng-container [ngTemplateOutlet]="form" />
                               } @else {
-                                <div
-                                  class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
-                                >
+                                <app-record-row>
                                   <!-- An empty value is a row stored before
-                                     valueless attributes stopped being saved.
-                                     Named, or it reads as a rendering fault. -->
+                                       valueless attributes stopped being
+                                       saved. Named, or it reads as a rendering
+                                       fault. -->
+                                  <!-- The same size the key above it is set in:
+                                       a nested row set smaller is a nested row
+                                       of a different height, and the two lists
+                                       stop lining up. -->
                                   <span
                                     class="text-stone-700"
                                     [class.text-muted]="value.value === ''"
                                   >
                                     {{ value.value || text.emptyValue }}
                                   </span>
-                                  <span class="text-subtle">
-                                    {{ productsLabel(value.productCount) }}
-                                  </span>
-                                  <!-- Only worth saying where it costs something:
-                                     a value with no numeric form drops out of a
-                                     number attribute's filter. -->
+                                  <!-- Only worth saying where it costs
+                                       something: a value with no numeric form
+                                       drops out of a number attribute's
+                                       filter. -->
                                   @if (
                                     !value.numeric &&
                                     entry.definition?.type === 'number'
                                   ) {
                                     <app-hint-badge
+                                      recordBadge
+                                      class="shrink-0"
                                       tone="warning"
                                       [label]="text.notNumeric"
                                     >
@@ -211,9 +234,14 @@ type RenameTarget =
                                       />
                                     </app-hint-badge>
                                   }
-                                  <span class="ml-auto flex items-center gap-1">
+                                  <ng-container recordMeta>
+                                    <span>
+                                      {{ productsLabel(value.productCount) }}
+                                    </span>
+                                  </ng-container>
+                                  <ng-container recordActions>
                                     <a
-                                      class="p-1 text-stone-400 hover:text-accent"
+                                      appIconButton
                                       routerLink="/admin/products"
                                       [queryParams]="{
                                         attributeKey: entry.key,
@@ -221,14 +249,11 @@ type RenameTarget =
                                       }"
                                       [attr.aria-label]="text.showProducts"
                                     >
-                                      <app-admin-icon
-                                        name="square-menu"
-                                        class="h-4 w-4"
-                                      />
+                                      <app-admin-icon name="square-menu" />
                                     </a>
                                     <button
+                                      appIconButton
                                       type="button"
-                                      class="p-1 text-stone-400 hover:text-accent"
                                       [attr.aria-label]="text.renameValue"
                                       [disabled]="busy()"
                                       (click)="
@@ -239,13 +264,10 @@ type RenameTarget =
                                         })
                                       "
                                     >
-                                      <app-admin-icon
-                                        name="pencil"
-                                        class="h-4 w-4"
-                                      />
+                                      <app-admin-icon name="pencil" />
                                     </button>
-                                  </span>
-                                </div>
+                                  </ng-container>
+                                </app-record-row>
                               }
                             </li>
                           }
@@ -255,10 +277,9 @@ type RenameTarget =
                            of bars: the row count is already known from the
                            key's own line, so the values arrive into exactly
                            the space they will occupy and nothing below moves.
-                           The markup mirrors a value row rather than
-                           approximating it — the height comes from the action
-                           icons (a 16px icon on a 20px line, plus p-1), not
-                           from the text, so bars alone would be 6px short. -->
+                           It is the value row's own component, so the two
+                           cannot drift: only the text and the glyphs are
+                           replaced by bars. -->
                         <ul
                           class="animate-pulse divide-y divide-border"
                           aria-hidden="true"
@@ -268,29 +289,36 @@ type RenameTarget =
                             track $index
                           ) {
                             <li class="py-3">
-                              <div
-                                class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
-                              >
-                                <span
-                                  class="h-4 rounded bg-stone-200"
-                                  [style.width]="width"
-                                ></span>
-                                <span
-                                  class="h-4 w-20 rounded bg-stone-200"
-                                ></span>
-                                <span class="ml-auto flex items-center gap-1">
-                                  <span class="p-1">
-                                    <span
-                                      class="inline-flex h-4 w-4 rounded bg-stone-200"
-                                    ></span>
-                                  </span>
-                                  <span class="p-1">
-                                    <span
-                                      class="inline-flex h-4 w-4 rounded bg-stone-200"
-                                    ></span>
-                                  </span>
+                              <app-record-row>
+                                <!-- Each bar in a box the height of the line it
+                                     stands in — 20px of text-sm, 20px of meta,
+                                     a glyph's worth of button — rather than the
+                                     bar's own 16px, which is what left the
+                                     placeholder short of the real row. -->
+                                <span class="flex h-5 items-center">
+                                  <span
+                                    class="h-4 rounded bg-stone-200"
+                                    [style.width]="width"
+                                  ></span>
                                 </span>
-                              </div>
+                                <span recordMeta class="flex h-5 items-center">
+                                  <span
+                                    class="h-4 w-20 rounded bg-stone-200"
+                                  ></span>
+                                </span>
+                                <ng-container recordActions>
+                                  <span appIconButton>
+                                    <span
+                                      class="block rounded bg-stone-200"
+                                    ></span>
+                                  </span>
+                                  <span appIconButton>
+                                    <span
+                                      class="block rounded bg-stone-200"
+                                    ></span>
+                                  </span>
+                                </ng-container>
+                              </app-record-row>
                             </li>
                           }
                         </ul>

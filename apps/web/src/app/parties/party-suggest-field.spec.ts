@@ -159,13 +159,14 @@ describe('PartySuggestField (FR-AUTH-09)', () => {
   });
 
   // The field shares a row with the other company field, so its own column is
-  // too narrow to read a suggestion in — the panel has to escape it.
-  it('draws a panel wider than a narrow column', async () => {
+  // too narrow to read a suggestion in — the panel has to escape it, and stop
+  // at the form's own edge rather than the window's.
+  it('draws a panel wider than a narrow column, up to the form width', async () => {
     const { type, el } = await render();
 
     await type('Kontor');
 
     const panel = el.querySelector('[role="listbox"]')?.parentElement;
-    expect(panel?.className).toContain('min-w-[20rem]');
+    expect(panel?.className).toContain('min-w-[min(20rem,100cqw)]');
   });
 });

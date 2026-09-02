@@ -7,6 +7,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Button } from './button';
+import { DialogActions } from './dialog-actions';
 import { DialogPanel } from './dialog-panel';
 
 /**
@@ -15,7 +16,7 @@ import { DialogPanel } from './dialog-panel';
  */
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [Button, DialogPanel],
+  imports: [Button, DialogActions, DialogPanel],
   template: `
     <dialog
       #dialog
@@ -31,7 +32,7 @@ import { DialogPanel } from './dialog-panel';
       </h2>
       <p class="mt-3 text-muted">{{ message() }}</p>
 
-      <div class="mt-6 flex flex-wrap justify-end gap-3">
+      <div appDialogActions>
         <button
           appButton
           variant="secondary"

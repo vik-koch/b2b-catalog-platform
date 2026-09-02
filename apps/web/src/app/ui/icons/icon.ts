@@ -22,6 +22,7 @@ export type IconName =
   | 'calendar'
   | 'chevron-right'
   | 'chevron-down'
+  | 'chevron-up'
   | 'close'
   | 'mail'
   | 'menu'
@@ -32,12 +33,12 @@ export type IconName =
   | 'lock'
   | 'pencil'
   | 'funnel'
+  | 'funnel-x'
   | 'trash-2'
   | 'minus'
   | 'shopping-basket'
   | 'circle-user-round'
   | 'circle-check'
-  | 'circle-chevron-up'
   | 'book-check'
   | 'book-dashed'
   | 'layout-grid'
@@ -51,13 +52,21 @@ export type IconName =
 @Component({
   selector: 'app-icon',
   host: { class: 'inline-flex' },
+  // Set as a property rather than as the SVG's own stroke-width attribute: a
+  // presentation attribute on the element beats any value inherited from an
+  // ancestor, so a caller asking for a heavier glyph would be ignored. As a
+  // custom property it inherits, and anything above the icon can raise it.
+  styles: `
+    svg {
+      stroke-width: var(--icon-stroke-width, 1.75);
+    }
+  `,
   template: `
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.75"
       stroke-linecap="round"
       stroke-linejoin="round"
       class="h-full w-full"
@@ -69,6 +78,9 @@ export type IconName =
         }
         @case ('chevron-down') {
           <path d="m6 9 6 6 6-6" />
+        }
+        @case ('chevron-up') {
+          <path d="m18 15-6-6-6 6" />
         }
         @case ('close') {
           <path d="M18 6 6 18M6 6l12 12" />
@@ -142,6 +154,11 @@ export type IconName =
         @case ('funnel') {
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
         }
+        @case ('funnel-x') {
+          <path d="M13.013 3H2l8 9.46V19l4 2v-8.54l.9-1.055" />
+          <path d="m22 3-5 5" />
+          <path d="m17 3 5 5" />
+        }
         @case ('trash-2') {
           <path d="M3 6h18" />
           <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
@@ -162,10 +179,6 @@ export type IconName =
           <path d="M4.5 15.5h15" />
           <path d="m5 11 4-7" />
           <path d="m9 11 1 9" />
-        }
-        @case ('circle-chevron-up') {
-          <circle cx="12" cy="12" r="10" />
-          <path d="m8 14 4-4 4 4" />
         }
         @case ('circle-check') {
           <circle cx="12" cy="12" r="10" />

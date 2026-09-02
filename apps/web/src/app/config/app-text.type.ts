@@ -44,9 +44,9 @@ export const appTextSchema = z
       .object({
         /** Accessible name of the logo's home link; `{name}` is substituted. */
         homeLink: z.string(),
-        toggleMenu: z.string(),
-        /** Landmark names for the three navigations and the consent banner. */
+        /** Landmark names for the navigations and the consent banner. */
         utilityNav: z.string(),
+        primaryNav: z.string(),
         legalNav: z.string(),
         consentBanner: z.string(),
         /** Floating back-to-top control. */
@@ -124,7 +124,9 @@ export const appTextSchema = z
             noMatches: z.string(),
           })
           .strict(),
-        /** Product detail (FR-CAT-05). */
+        /** Product detail (FR-CAT-05). The two headings the page's lower
+         * half is split into, each of which is also its own anchor. */
+        description: z.string(),
         specifications: z.string(),
         productNotFound: z.string(),
         categoryNotFound: z.string(),
@@ -541,6 +543,7 @@ export const appTextSchema = z
             /** Back to the form. Not "edit": there is one form and this is a
              * look at it, not a separate document. */
             back: z.string(),
+            backToCart: z.string(),
             /** The form's own button, which leads here rather than sending. */
             send: z.string(),
           })

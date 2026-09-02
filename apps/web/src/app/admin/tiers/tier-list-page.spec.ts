@@ -105,9 +105,9 @@ async function render(
   return { el, service, confirm, click, type, submit, byLabel, drop, fixture };
 }
 
-/** The pinned, non-draggable base-list block: the card's first child. */
+/** The pinned, non-draggable base-list block: the list's first child. */
 function baseRow(el: HTMLElement): HTMLElement {
-  const row = el.querySelector<HTMLElement>('.rounded-lg > div:first-child');
+  const row = el.querySelector<HTMLElement>('.divide-y > div:first-child');
   if (!row) throw new Error('no base price list row');
   return row;
 }

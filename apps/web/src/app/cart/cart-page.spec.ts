@@ -502,6 +502,32 @@ describe('CartPage', () => {
     expect(view.text()).toContain(text.noPrice);
   });
 
+  // The row is drawn from the browser's own copy, which keeps the last-known
+  // prices so the controls can be drawn at all. Without the availability the
+  // cart writes down, coming back to the page would show the withdrawn
+  // product's old price again until the pricing call answered.
+  it('keeps a withdrawn line unpriced before an answer arrives', async () => {
+    await render({
+      lines: [addition()],
+      answer: preview([
+        {
+          name: null,
+          prices: null,
+          packaging: null,
+          lineTotalMinor: null,
+          issues: ['unavailable'],
+        },
+      ]),
+    });
+
+    // The same cart, opened again with nothing yet answered for it.
+    const view = await render({ reload: true, answer: new Error('offline') });
+
+    expect(view.text()).toContain(text.noPrice);
+    expect(view.text()).toContain(text.issues.unavailable);
+    expect(view.text()).not.toContain('140,00');
+  });
+
   // There is no quantity of a withdrawn product to choose, and letting one be
   // chosen moved a total the shop is no longer offering.
   it('takes no input on a line it cannot price', async () => {

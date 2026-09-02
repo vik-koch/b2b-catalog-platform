@@ -30,12 +30,18 @@ const SEARCH_DEBOUNCE_MS = 200;
  *
  * The wording is passed in rather than injected, so the same field serves any
  * admin grid — its labels are the caller's.
+ *
+ * It fills whatever column it is given rather than carrying a width of its own:
+ * stacked on a phone that is the line, and from `md` up it is the wide middle
+ * column of the heading. A fixed width left a phone with a field ending halfway
+ * across the screen, and a desktop with one shrinking while the row beside it
+ * had space to spare.
  */
 @Component({
   selector: 'app-grid-search-field',
   imports: [Input, Icon],
   template: `
-    <div class="relative">
+    <div class="relative w-full min-w-0 flex-1">
       <!-- Leading glyph: a label for the field rather than a control, so it is
            muted and takes no pointer events. -->
       <app-icon
@@ -53,7 +59,7 @@ const SEARCH_DEBOUNCE_MS = 200;
         [value]="value()"
         (input)="value.set($any($event.target).value)"
         (keydown.escape)="clear()"
-        class="w-56 pr-8 pl-9 sm:w-72 [&::-webkit-search-cancel-button]:hidden text-sm"
+        class="w-full pr-8 pl-9 text-sm [&::-webkit-search-cancel-button]:hidden"
       />
       @if (value()) {
         <button

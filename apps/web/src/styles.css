@@ -12,13 +12,103 @@
  * used as text on white (needs >= 4.5:1) and as a background under white text.
  */
 @theme {
+  /*
+   * The breakpoints, redefined from Tailwind's defaults so that the whole app
+   * turns on the same widths the catalogue does.
+   *
+   * A listing is a grid of 15rem columns with a 1.25rem gap inside the page's
+   * 82rem frame and its 1rem padding, so a column is won at 792px (three),
+   * 1052px (four) and 1312px (five) of window. Those are the only widths at
+   * which the busiest page on the site visibly reflows, and every other grid
+   * on `md`/`lg`/`xl` used to reflow 24-32px away from them — close enough to
+   * read as jitter while dragging a window edge, never close enough to look
+   * deliberate. Pointing the three names at the column widths costs nothing and
+   * makes one drag move everything at once.
+   *
+   * `sm` keeps Tailwind's 40rem: it is the phone/desktop line rather than a
+   * column count, and a listing has already given up on columns by then (see
+   * LISTING_NARROW, which is the same width measured on the listing itself).
+   */
+  --breakpoint-md: 49.5rem;
+  --breakpoint-lg: 65.75rem;
+  --breakpoint-xl: 82rem;
+
+  /*
+   * The phone's search field arriving over the page: the row drops from the
+   * top edge, the dimming fades up behind it. Compositor-only properties, so
+   * it costs a phone nothing — and it is a CSS animation on an element the
+   * template has just inserted, so nothing drives it frame by frame.
+   *
+   * It leaves the same way, faster — a dismissal is the direction where
+   * waiting for an animation is felt as lag. The exits hold their last frame,
+   * because the element is still in the document while they run: SearchOverlay
+   * keeps it for exactly this long, an element the template has removed having
+   * nothing left to animate.
+   */
+  --animate-search-drop: search-drop 200ms ease-out;
+  --animate-search-dim: search-dim 200ms ease-out;
+  --animate-search-lift: search-lift 150ms ease-in forwards;
+  --animate-search-clear: search-clear 150ms ease-in forwards;
+
+  /*
+   * The bottom bar's "More" panel, the same movement measured from the other
+   * edge: it rises out of the bar it was opened from and sinks back into it.
+   */
+  --animate-menu-rise: menu-rise 200ms ease-out;
+  --animate-menu-sink: menu-sink 150ms ease-in forwards;
+
+  @keyframes search-drop {
+    from {
+      transform: translateY(-100%);
+    }
+  }
+
+  @keyframes search-dim {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes search-lift {
+    to {
+      transform: translateY(-100%);
+    }
+  }
+
+  @keyframes search-clear {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes menu-rise {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes menu-sink {
+    to {
+      transform: translateY(100%);
+    }
+  }
+
   /* "Coffee" — 7.5:1 on white */
   --color-primary: #6f4e37;
   /*
+   * Darker roast of primary — 10.6:1 on white. The press, on everything that
+   * can be pressed. It has to be a colour of its own: a press that returns a
+   * control to its resting colour is only legible on the way back from hover,
+   * and a finger never goes through hover, so on a phone it showed nothing at
+   * all. Deeper rather than lighter, so a control being pushed into the page
+   * does not look like it is rising out of it.
+   */
+  --color-primary-deep: #573d2b;
+  /*
    * Lighter roast of primary — 4.7:1 on white, still text-safe. Carries the
    * focus state across every control (fields, buttons, switches, grid cells),
-   * which keeps the three brand colors on one state each: primary = resting
-   * and active, accent = hover, secondary = focused.
+   * which keeps the brand colors on one state each: primary = resting,
+   * accent = hover, primary-deep = pressed, secondary = focused.
    */
   --color-secondary: #8b6f52;
   /* Highlights, badges, eyebrows, hover (amber-700) */
@@ -88,13 +178,18 @@
   display: inline-flex;
 }
 
-/* The total replaces the label rather than joining it; below `md` there is no
-   room for either, and the count badge carries the cart on its own. */
+/* The total replaces the caption rather than joining it. Only in the header's
+   control: the bottom bar draws no total, so its caption carries no
+   `cart-label` and nothing here takes it away. */
 .cart-filled .cart-label {
   display: none;
 }
 
-@media (width < 48rem) {
+/* Below `md` the header's controls are glyphs alone — no caption, and so no
+   row reserved for one. The badge carries the cart there, as it does in the
+   bottom bar. The width is `md` written out: a media query cannot read the
+   theme, so this one has to be kept in step with it by hand. */
+@media (width < 49.5rem) {
   .cart-filled .cart-total {
     display: none;
   }
@@ -152,6 +247,56 @@ html.session-anonymous [data-session='known'] {
  */
 html {
   scrollbar-gutter: stable;
+}
+
+/*
+ * Keep whatever the browser scrolls to clear of the phone's bottom bar.
+ *
+ * The bar is fixed, so it covers the last few rem of the viewport, and
+ * scrolling something into view puts it exactly there: focusing a field near
+ * the foot of a long form, or a test clicking a control halfway down one,
+ * lands it under the bar with nothing to press. The column already reserves the
+ * bar's height at its end (see App), which only helps whatever is *last* on the
+ * page.
+ *
+ * scroll-padding is the whole answer, because it belongs to the scroll port
+ * rather than to the elements in it: every scroll-into-view inside the document
+ * stops short of the bar, whoever asked for it.
+ */
+@media (width < 40rem) {
+  html {
+    scroll-padding-bottom: calc(4.25rem + env(safe-area-inset-bottom));
+  }
+}
+
+/*
+ * While the phone's search field is open over the page. The page behind a
+ * keyboard must not move: it would take the field with it, which is the whole
+ * reason the field left the header.
+ *
+ * Fixed rather than merely `overflow: hidden`, and offset by the amount the
+ * page was scrolled to — see MobileSearch, which sets `top` and puts the
+ * offset back. Taking the scrollability off the document loses the offset with
+ * it, which shows as the page jumping to its top behind the dimming.
+ */
+html.search-locked body {
+  position: fixed;
+  right: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+/*
+ * While a modal <dialog> is open. The browser makes the page behind it inert to
+ * clicks and to the keyboard, but not to a wheel or a thumb: the dialog stays
+ * put and the page slides about underneath it, which on a phone reads as the
+ * dialog having lost its place. `html` never sets an overflow of its own, so
+ * the body's propagates to the viewport and the document simply stops
+ * scrolling; `scrollbar-gutter` above keeps the width it had.
+ */
+body:has(dialog[open]) {
+  overflow: hidden;
 }
 
 /*
@@ -234,6 +379,10 @@ html {
 /* Rich-text page bodies: brand the links, keep the rest prose-stone. */
 .prose {
   --tw-prose-links: var(--color-primary);
+  /* A body is written by an admin, so a pasted URL or a long word arrives with
+     no break in it. On a phone that word is wider than the screen and takes
+     the whole page sideways with it, so it breaks rather than overflows. */
+  overflow-wrap: break-word;
 }
 
 /*
@@ -331,7 +480,8 @@ html {
   margin-left: 1rem;
   margin-bottom: 0.5rem;
 }
-@media (max-width: 640px) {
+/* `sm`, written out — the same line the rest of the app turns on. */
+@media (width < 40rem) {
   .prose img[data-align='left'],
   .prose img[data-align='right'] {
     float: none;

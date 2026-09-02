@@ -3,16 +3,21 @@ import { provideRouter, Router } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { DeploymentConfig } from '../config/deployment-config.type';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { Header } from './header';
 
-async function render(url = '/') {
+async function render(
+  url = '/',
+  deployment: DeploymentConfig = defaultDeploymentConfig,
+) {
+  TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [Header],
     providers: [
       provideRouter([{ path: '**', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      { provide: DEPLOYMENT_CONFIG, useValue: deployment },
     ],
   });
   await TestBed.inject(Router).navigateByUrl(url);
@@ -22,89 +27,82 @@ async function render(url = '/') {
   return { fixture, el: fixture.nativeElement as HTMLElement };
 }
 
-/** The mobile search toggle, identified by what it controls. */
-function toggle(el: HTMLElement): HTMLButtonElement {
-  return el.querySelector(
-    'button[aria-controls="mobile-search"]',
-  ) as HTMLButtonElement;
-}
-
 describe('Header', () => {
-  it('collapses mobile search behind the toggle off the results page', async () => {
-    const { el, fixture } = await render('/catalog');
+  // The field used to hide behind a toggle on a phone. It is the primary way
+  // into a catalogue this size, and the bottom bar took the glyphs that were
+  // crowding it out — so there is one field, always in the document, on every
+  // route.
+  it('carries one search field, on the results page and off it', async () => {
+    const listing = await render('/catalog');
+    expect(listing.el.querySelectorAll('app-search-field')).toHaveLength(1);
+    expect(
+      listing.el.querySelector('button[aria-controls="mobile-search"]'),
+    ).toBeNull();
 
-    expect(el.querySelector('#mobile-search')).toBeNull();
-    expect(toggle(el).disabled).toBe(false);
-
-    toggle(el).click();
-    await fixture.whenStable();
-
-    expect(el.querySelector('#mobile-search')).not.toBeNull();
+    const results = await render('/search?q=espresso');
+    expect(results.el.querySelectorAll('app-search-field')).toHaveLength(1);
   });
 
-  it('keeps the mobile field open on the results page, with nothing left to toggle', async () => {
-    const { el } = await render('/search?q=espresso');
+  // Below `sm` the header is the page's masthead and scrolls away with it,
+  // which leaves the bottom bar as the only permanent chrome on a phone. The
+  // results page is the exception: there the field carries the query being
+  // viewed, so it sticks at every width.
+  it('sticks below sm on the results page only', async () => {
+    const listing = await render('/catalog');
+    const header = () =>
+      listing.el.querySelector('header')?.className as string;
+    expect(header()).toContain('sm:sticky');
+    expect(header().split(' ')).not.toContain('sticky');
 
-    // The field carries the query being viewed, so it is part of the page
-    // rather than an overlay — and the toggle would only be able to hide it.
-    expect(el.querySelector('#mobile-search')).not.toBeNull();
-    expect(toggle(el).disabled).toBe(true);
+    const results = await render('/search?q=espresso');
+    expect(
+      (results.el.querySelector('header')?.className as string).split(' '),
+    ).toContain('sticky');
   });
 
-  // On desktop the number and address are spelled out in the utility bar;
-  // a phone viewport has no such bar, so the panel is the only place left.
-  it('closes the mobile panel with the contact details', async () => {
-    const { el, fixture } = await render('/catalog');
+  // Both channels at every width — what a narrow row takes is the address's
+  // width, not the address.
+  it('carries every configured contact channel in both rows', async () => {
+    const { el } = await render('/catalog');
+    const contacts = Array.from(el.querySelectorAll('app-contact-info'));
     const { contact } = defaultDeploymentConfig;
 
-    // The utility bar's pill is the only place to dial from while the panel
-    // is shut: the action group's one-tap icon is gone.
-    expect(el.querySelectorAll('a[href^="tel:"]')).toHaveLength(1);
-
-    (
-      el.querySelector('button[aria-controls="mobile-menu"]') as HTMLElement
-    ).click();
-    await fixture.whenStable();
-
-    const rows = Array.from(
-      el.querySelectorAll<HTMLAnchorElement>('#mobile-menu a'),
-    );
-    expect(rows.at(-2)?.getAttribute('href')).toBe(
-      'tel:' + contact?.phone?.replace(/[^\d+]/g, ''),
-    );
-    expect(rows.at(-1)?.getAttribute('href')).toBe('mailto:' + contact?.email);
+    // Two instances — the phone's brand row and the utility bar — of which
+    // only one is ever displayed.
+    expect(contacts).toHaveLength(2);
+    for (const info of contacts) {
+      const hrefs = Array.from(info.querySelectorAll('a')).map((a) =>
+        a.getAttribute('href'),
+      );
+      expect(hrefs).toEqual([
+        'tel:' + contact?.phone?.replace(/[^\d+]/g, ''),
+        'mailto:' + contact?.email,
+      ]);
+    }
   });
 
-  // Both panels are mobile-only overlays over a row of destinations: reaching
-  // past one for the cart or the account is leaving, not a second opinion.
-  it('drops whichever panel is open when a navbar destination is used', async () => {
-    const { el, fixture } = await render('/catalog');
-    const open = (controls: string) =>
-      (
-        el.querySelector(`button[aria-controls="${controls}"]`) as HTMLElement
-      ).click();
-    const cart = () => el.querySelector('app-cart-link a') as HTMLAnchorElement;
+  // The actions live in the bottom bar below `sm`, so the header's copies are
+  // display:none there rather than absent — which is what keeps them out of
+  // the accessibility tree without a second set of components.
+  it('keeps its own action group behind the sm breakpoint', async () => {
+    const { el } = await render('/catalog');
+    const group = el.querySelector('app-catalog-link')?.parentElement;
 
-    open('mobile-menu');
-    await fixture.whenStable();
-    expect(el.querySelector('#mobile-menu')).not.toBeNull();
-
-    cart().click();
-    await fixture.whenStable();
-    expect(el.querySelector('#mobile-menu')).toBeNull();
-
-    open('mobile-search');
-    await fixture.whenStable();
-    expect(el.querySelector('#mobile-search')).not.toBeNull();
-
-    cart().click();
-    await fixture.whenStable();
-    expect(el.querySelector('#mobile-search')).toBeNull();
+    expect(group?.className).toContain('hidden');
+    expect(group?.className).toContain('sm:flex');
   });
 
-  it('does not steal focus when the field opens on its own', async () => {
-    const { el } = await render('/search?q=espresso');
+  it('links the wordmark home, from both rows', async () => {
+    const { el } = await render('/catalog');
+    const home = Array.from(
+      el.querySelectorAll<HTMLAnchorElement>('a[href="/"]'),
+    );
 
-    expect(document.activeElement).not.toBe(el.querySelector('input'));
+    expect(home).toHaveLength(2);
+    for (const link of home) {
+      expect(link.getAttribute('aria-label')).toContain(
+        defaultDeploymentConfig.branding.name,
+      );
+    }
   });
 });

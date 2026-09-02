@@ -3,18 +3,20 @@
     "copyright": "© {name} {years}"
   },
   "nav": {
+    "home": "Home",
     "about": "About us",
     "conditions": "Payment & delivery",
     "privacy": "Privacy",
     "imprint": "Imprint",
     "contact": "Contact",
     "inquiry": "Get in touch",
-    "licenses": "Licenses"
+    "licenses": "Licenses",
+    "more": "More"
   },
   "a11y": {
     "homeLink": "{name} — home",
-    "toggleMenu": "Toggle menu",
     "utilityNav": "Utility",
+    "primaryNav": "Main",
     "legalNav": "Legal",
     "consentBanner": "Cookie consent",
     "scrollToTop": "Back to top"
@@ -54,6 +56,7 @@
       "remove": "Remove the filter {label}",
       "noMatches": "No products match the selected filters."
     },
+    "description": "Description",
     "specifications": "Specifications",
     "productNotFound": "This product could not be found. It may have been removed.",
     "categoryNotFound": "This category could not be found. It may have been removed.",
@@ -219,6 +222,7 @@
       "payment": "How it is paid",
       "note": "Your note",
       "back": "Change something",
+      "backToCart": "Back to cart",
       "send": "Review and send"
     },
     "privacyConsent": "I agree that my details will be used to handle this order. See our",

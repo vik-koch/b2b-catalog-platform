@@ -45,6 +45,7 @@ async function render(
         useValue: {
           enabled: signal(editModeEnabled),
           settled: signal(settled),
+          registerEditable: () => () => undefined,
         },
       },
       { provide: PageService, useValue: { getPage: async () => page } },
@@ -180,7 +181,11 @@ describe('StaticPage — when the API cannot be reached', () => {
         },
         {
           provide: EditModeService,
-          useValue: { enabled: signal(false), settled: signal(true) },
+          useValue: {
+            enabled: signal(false),
+            settled: signal(true),
+            registerEditable: () => () => undefined,
+          },
         },
         {
           provide: PageService,

@@ -152,12 +152,11 @@ interface CartRow {
             <button
               type="button"
               appIconButton
-              shape="plain"
               class="-mt-1 -mr-1 shrink-0"
               [attr.aria-label]="changeText.dismiss"
               (click)="cart.dismissChanges()"
             >
-              <app-icon name="close" class="h-4 w-4" />
+              <app-icon name="close" />
             </button>
           </div>
           <ul class="mt-1 space-y-1">
@@ -169,28 +168,19 @@ interface CartRow {
       }
 
       <!-- The card moves out to the right exactly where the lines can keep
-           the shape they have without it: 593px, the width at which a line
-           gives up its columns for the narrow one (LISTING_NARROW), plus the
-           card's 20rem and the gap between them. A card beside lines drawn as
-           though there were no room for it is the one arrangement that reads
-           as a mistake, and any figure above this one buys nothing — the
-           photo takes up the slack by itself, 97px at the notch and 124px by
-           the time the lines have grown 3rem. Past it the lines take
-           everything the card does not.
-
-           In px, for the same reason 593 is: it is that number plus two
-           lengths, and rounding it to rem would move it off the width it is
-           derived from.
-
-           Under the card rather than beside it, the lines keep the page: a
-           line reads better with the room than lined up with a card it is no
-           longer beside.
+           the shape they have without it: LISTING_NARROW, plus the card's
+           20rem and the gap between them. A card beside lines drawn as though
+           there were no room for it is the one arrangement that reads as a
+           mistake, and any figure above this one buys nothing — the photo
+           takes up the slack by itself. Under the card, the lines take the
+           whole page rather than lining up with a card they are no longer
+           beside.
 
            Measured on the page rather than on the window: the frame's padding
            and the scrollbar are most of a column of controls, and the media
            query cannot see either. -->
       <div class="@container/cart">
-        <div class="grid gap-8 @min-[945px]/cart:grid-cols-[1fr_20rem]">
+        <div class="grid gap-8 @min-[63.75rem]/cart:grid-cols-[1fr_20rem]">
           <div>
             <!-- In the column, not above the grid: the summary beside it then
                  starts level with the heading, and the same card sits at the
@@ -282,7 +272,13 @@ interface CartRow {
                          and dense to match: the row is a line of small
                          controls, and a full-sized field among them reads as
                          the thing to fill in. -->
-                      <div class="mt-auto pt-2">
+                      <!-- No wider than the controls it stands over while the
+                         line is stacked: a field that ran past their right
+                         edge read as belonging to the row, not to the column
+                         it is in. -->
+                      <div
+                        class="mt-auto pt-2 @max-[47.5rem]/row:max-w-[28.5rem]"
+                      >
                         <textarea
                           appInput
                           appAutoGrow
@@ -312,13 +308,12 @@ interface CartRow {
                       rowActions
                       type="button"
                       appIconButton
-                      shape="plain"
                       variant="danger"
                       class="shrink-0"
                       [attr.aria-label]="removeLabel(row)"
                       (click)="remove(row)"
                     >
-                      <app-icon name="trash-2" class="h-4 w-4" />
+                      <app-icon name="trash-2" />
                     </button>
                   </app-product-row>
                 </li>
@@ -377,7 +372,7 @@ interface CartRow {
              checkout gives it too: stacked, the card is the page, and three
              pages that agree about the card should agree about its width. -->
           <aside
-            class="max-w-xl @min-[945px]/cart:mt-9 @min-[945px]/cart:sticky @min-[945px]/cart:top-20 @min-[945px]/cart:self-start"
+            class="max-w-xl @min-[63.75rem]/cart:mt-9 @min-[63.75rem]/cart:sticky @min-[63.75rem]/cart:top-20 @min-[63.75rem]/cart:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"
@@ -494,8 +489,10 @@ export class CartPage {
         key: line.slug,
         // A product preview answered no prices for is one the shop no longer
         // offers: the row keeps the last-known figures so its controls can be
-        // drawn, and states none of them.
-        available: fresh ? fresh.prices !== null : true,
+        // drawn, and states none of them. Until an answer arrives, what the
+        // last one said — a line already known to be withdrawn must not show
+        // its old price again for the length of a call.
+        available: fresh ? fresh.prices !== null : line.available,
         slug: line.slug,
         // Every part of the row from the browser's own copy, photo included:
         // preview writes what it answers back into the store, so reading the
@@ -515,9 +512,16 @@ export class CartPage {
         note: line.note,
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
-        issues: (fresh?.issues ?? [])
-          .filter((issue) => !NOTICE_ISSUES.includes(issue))
-          .map((issue) => this.issueText(issue)),
+        // Before an answer arrives, the one thing the browser wrote down about
+        // the line's state — so a withdrawn line says why it is priceless
+        // rather than showing "on request" with nothing to explain it.
+        issues: fresh
+          ? fresh.issues
+              .filter((issue) => !NOTICE_ISSUES.includes(issue))
+              .map((issue) => this.issueText(issue))
+          : line.available
+            ? []
+            : [this.issueText('unavailable')],
         notice: this.noticeFor(fresh?.issues ?? []),
       };
     }),

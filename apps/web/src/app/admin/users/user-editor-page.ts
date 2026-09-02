@@ -89,7 +89,12 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
              existing account leads with them because they are the context for
              every field below. -->
         @if (account(); as user) {
-          <dl class="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+          <!-- Breaking, because an address is one word: the value track
+               floors at its longest word, so an email nobody shortened widens
+               the grid past the screen rather than wrapping inside it. -->
+          <dl
+            class="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm break-words"
+          >
             <dt class="text-subtle">{{ text.email }}</dt>
             <dd class="font-medium text-stone-700">{{ user.email }}</dd>
             <dt class="text-subtle">{{ listText.registered }}</dt>
@@ -216,7 +221,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                   <span class="text-accent" aria-hidden="true">*</span>
                 }
               </label>
-              <app-select-field class="max-w-72">
+              <app-select-field class="w-full">
                 <select
                   appInput
                   id="tier"
@@ -249,7 +254,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
           @if (showsRole()) {
             <div>
               <label for="role" appFieldLabel>{{ text.role }}</label>
-              <app-select-field class="w-full sm:w-72">
+              <app-select-field class="w-full">
                 <select
                   id="role"
                   formControlName="role"

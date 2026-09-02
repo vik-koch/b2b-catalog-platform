@@ -1,14 +1,10 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { AuthService } from '../auth/auth.service';
 import { landingFor } from '../auth/auth.guard';
 import { currentUrl } from '../core/current-url';
-import {
-  NAV_ACTION,
-  NAV_ACTION_LABEL,
-  NAV_ACTION_LABEL_ROW,
-} from './nav-action';
+import { navActionClasses, NavVariant } from './nav-action';
 import { Icon } from '../ui/icons/icon';
 
 /**
@@ -19,10 +15,8 @@ import { Icon } from '../ui/icons/icon';
  *
  * **Both the glyph and the label carry the state**: the enclosed
  * `circle-user-round` once signed in, the plain `user` while signed out. The
- * label is what actually names the destination, but it is `sr-only` below `md`
- * — on a phone the glyph is the only thing there is, which is what makes the
- * pair worth drawing rather than one glyph for both. The identity itself is
- * shown on the page the link leads to.
+ * label is what actually names the destination, in both navbars. The identity
+ * itself is shown on the page the link leads to.
  *
  * **The unresolved state is answered rather than guessed.** The server is
  * session-blind by design (see AuthService) — it renders one document for
@@ -45,7 +39,7 @@ import { Icon } from '../ui/icons/icon';
     <a
       [routerLink]="target()"
       [attr.aria-current]="active() ? 'page' : null"
-      [class]="navAction"
+      [class]="cls().action"
     >
       <!-- Both glyphs in one cell, swapped the way the labels are: nothing
            moves, and the pre-paint stylesheet can pick one before Angular has
@@ -64,8 +58,8 @@ import { Icon } from '../ui/icons/icon';
           [class.opacity-0]="!signedOut()"
         />
       </span>
-      <span [class]="labelRow">
-        <span [class]="labelClass" [attr.data-label]="widestLabel">
+      <span [class]="cls().labelRow">
+        <span [class]="cls().label" [attr.data-label]="widestLabel">
           <!-- One grid cell holding both labels: the column is as wide as the
                longer of the two, so the fade never resizes the control, and
                the hidden one is taken out of the accessible name rather than
@@ -92,13 +86,14 @@ import { Icon } from '../ui/icons/icon';
   `,
 })
 export class AccountLink {
+  /** Which of the two navbars is drawing this control. */
+  readonly variant = input<NavVariant>('bar');
+  protected readonly cls = computed(() => navActionClasses(this.variant()));
+
   private readonly auth = inject(AuthService);
   private readonly url = currentUrl();
 
   protected readonly text = inject(APP_TEXT).auth;
-  protected readonly navAction = NAV_ACTION;
-  protected readonly labelClass = NAV_ACTION_LABEL;
-  protected readonly labelRow = NAV_ACTION_LABEL_ROW;
 
   /** `text-stable` reserves the active weight's width from `data-label`, so it
    * has to be given the label that will need the most of it. */

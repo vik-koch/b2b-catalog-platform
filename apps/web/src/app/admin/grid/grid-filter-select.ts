@@ -23,6 +23,11 @@ export interface GridFilterOption {
  * Like the sort headers, it owns its own navigation: the filter is a query
  * parameter, and merging one parameter is the same operation wherever it is
  * used, so the host never has to know how the URL is built.
+ *
+ * The padding that draws its hover box is pulled back out on the left, so the
+ * heading's text starts exactly where the column's own content starts. Without
+ * that the filtered columns sat a few pixels right of every value under them —
+ * invisible on its own, obvious in a row of headings.
  */
 @Component({
   selector: 'app-grid-filter-select',
@@ -43,7 +48,7 @@ export interface GridFilterOption {
       <select
         [attr.aria-label]="ariaLabel()"
         (change)="onSelect($event)"
-        class="w-full cursor-pointer appearance-none truncate rounded border border-transparent bg-transparent py-1 pr-7 pl-1 font-medium hover:border-border-strong hover:bg-white"
+        class="-ml-1 w-full cursor-pointer appearance-none truncate rounded border border-transparent bg-transparent py-1 pr-7 pl-1 font-medium hover:border-border-strong hover:bg-white"
         [class.text-stone-700]="value()"
       >
         @for (option of options(); track option.value) {

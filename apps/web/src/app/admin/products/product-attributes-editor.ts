@@ -26,6 +26,8 @@ import {
   ProductAttribute,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { injectNarrowScreen } from '../../core/narrow-screen';
+import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { HintBadge } from '../../ui/hint-badge';
 import { FieldLabel } from '../../ui/field-label';
@@ -37,6 +39,7 @@ import {
   attributeRowStatus,
 } from './attribute-hints';
 import { AttributeKeyPicker } from './attribute-key-picker';
+import { ProductAttributesNarrow } from './product-attributes-narrow';
 import {
   applyPastedGrid,
   clearRange,
@@ -68,7 +71,9 @@ import {
   selector: 'app-product-attributes-editor',
   imports: [
     AdminIcon,
+    IconButton,
     AttributeKeyPicker,
+    ProductAttributesNarrow,
     HintBadge,
     CdkDropList,
     CdkDrag,
@@ -78,7 +83,10 @@ import {
     RouterLink,
   ],
   template: `
-    <fieldset>
+    <!-- min-w-0 because a <fieldset> defaults to min-width:min-content, which
+         on a phone is however wide the table below wants to be — and the
+         picker above it was dragged out past the screen edge with it. -->
+    <fieldset class="min-w-0">
       <legend appFieldLabel>{{ text.heading }}</legend>
 
       <app-attribute-key-picker
@@ -87,182 +95,198 @@ import {
         (add)="addKeys($event)"
       />
 
-      <!-- Fixed layout, like the packaging grid below: a long value wraps and
+      @if (narrow()) {
+        <app-product-attributes-narrow
+          [value]="value()"
+          [hints]="hints()"
+          (valueChange)="valueChange.emit($event)"
+        />
+      } @else {
+        <!-- Fixed layout, like the packaging grid below: a long value wraps and
            grows the row instead of stretching the column, so the two tables
            cannot drift apart on one product and line up on the next. -->
-      <table class="w-full max-w-3xl table-fixed border-collapse text-sm">
-        <thead>
-          <tr class="text-left text-subtle">
-            <th class="w-1/3 pb-1 font-medium">{{ text.key }}</th>
-            <th class="pb-1 font-medium">{{ text.value }}</th>
-            <th class="w-48"></th>
-          </tr>
-        </thead>
-        <tbody
-          #grid
-          cdkDropList
-          contenteditable="true"
-          class="focus:outline-none"
-          (cdkDropListDropped)="onDrop($event)"
-          (input)="onInput()"
-          (mousedown)="onMouseDown($event)"
-          (copy)="onCopy($event)"
-          (paste)="onPaste($event)"
-          (keydown)="onKeydown($event)"
-        >
-          @for (row of rows(); track $index) {
-            <!-- The badges are positioned against the row, not the cells they
+        <table class="w-full max-w-3xl table-fixed border-collapse text-sm">
+          <thead>
+            <tr class="text-left text-subtle">
+              <th class="w-1/3 pb-1 font-medium">{{ text.key }}</th>
+              <th class="pb-1 font-medium">{{ text.value }}</th>
+              <th class="w-48"></th>
+            </tr>
+          </thead>
+          <tbody
+            #grid
+            cdkDropList
+            contenteditable="true"
+            class="focus:outline-none"
+            (cdkDropListDropped)="onDrop($event)"
+            (input)="onInput()"
+            (mousedown)="onMouseDown($event)"
+            (copy)="onCopy($event)"
+            (paste)="onPaste($event)"
+            (keydown)="onKeydown($event)"
+          >
+            @for (row of rows(); track $index) {
+              <!-- The badges are positioned against the row, not the cells they
                  mark: they are rendered from the action cell (the only part of
                  the row outside the editable region) and the column edges are
                  fractions of a fixed-layout table, so a fraction of the row is
                  exactly the boundary they sit on. -->
-            <tr cdkDrag [cdkDragData]="row" class="relative">
-              <!-- A detached table row collapses (loses cell widths), so the
+              <tr cdkDrag [cdkDragData]="row" class="relative">
+                <!-- A detached table row collapses (loses cell widths), so the
                    floating drag preview is a plain labelled chip instead. -->
-              <div
-                *cdkDragPreview
-                class="rounded-md border border-border-strong bg-white px-3 py-1.5 text-sm shadow-md"
-              >
-                {{ row.key || text.key }}
-              </div>
-              <!-- An explicit line-height, not just a cell height: an empty cell
+                <div
+                  *cdkDragPreview
+                  class="rounded-md border border-border-strong bg-white px-3 py-1.5 text-sm shadow-md"
+                >
+                  {{ row.key || text.key }}
+                </div>
+                <!-- An explicit line-height, not just a cell height: an empty cell
                    otherwise has a zero-height line box, so the caret sits at the
                    top on the first click and only drops into place once a
                    character gives the line something to measure. It has to stay
                    under the cell's content box (h-10 less padding and borders),
                    or the first character grows the row instead. -->
-              <!-- The funnel overlaps this cell from the action cell (see
+                <!-- The funnel overlaps this cell from the action cell (see
                    below), so the text gets out of its way. -->
-              <td
-                [attr.data-row]="$index"
-                data-col="0"
-                class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
-                [class]="
-                  cellFocus($index, 0) + (isFilterable(row) ? ' pr-9' : '')
-                "
-              ></td>
-              <!-- The badge overlaps this cell from the action cell beside it
+                <td
+                  [attr.data-row]="$index"
+                  data-col="0"
+                  class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
+                  [class]="
+                    cellFocus($index, 0) + (isFilterable(row) ? ' pr-9' : '')
+                  "
+                ></td>
+                <!-- The badge overlaps this cell from the action cell beside it
                    (see below), so the text gets out of its way. -->
-              <td
-                [attr.data-row]="$index"
-                data-col="1"
-                class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
-                [class]="cellFocus($index, 1) + (valueMark(row) ? ' pr-9' : '')"
-              ></td>
-              <td
-                contenteditable="false"
-                class="w-32 border-0 pl-3 align-middle select-none"
-              >
-                <!-- Everything here is outside the editable region, so it is
+                <td
+                  [attr.data-row]="$index"
+                  data-col="1"
+                  class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
+                  [class]="
+                    cellFocus($index, 1) + (valueMark(row) ? ' pr-9' : '')
+                  "
+                ></td>
+                <td
+                  contenteditable="false"
+                  class="w-32 border-0 pl-3 align-middle select-none"
+                >
+                  <!-- Everything here is outside the editable region, so it is
                      safe to render — which is also why the marks live here and
                      are positioned back over the cells they belong to rather
                      than inside them: a node inside a cell would be wiped by
                      the next write from the model. -->
-                @if (isFilterable(row)) {
-                  <!-- Over the key cell, because it is the *key* that the shop
+                  @if (isFilterable(row)) {
+                    <!-- Over the key cell, because it is the *key* that the shop
                        filters by; the value cell says what happens to this
                        row's value. -->
-                  <app-hint-badge
-                    class="absolute top-1/2 right-2/3 mr-2 -translate-y-1/2"
-                    tone="neutral"
-                    [label]="text.filterable"
-                  >
-                    <app-admin-icon name="funnel" class="h-3.5 w-3.5" />
-                  </app-hint-badge>
-                }
-                @if (valueMark(row); as mark) {
-                  @if (mark === 'not-numeric') {
                     <app-hint-badge
-                      class="absolute top-1/2 right-48 mr-2 -translate-y-1/2"
-                      tone="warning"
-                      [label]="text.notNumeric"
+                      class="absolute top-1/2 right-2/3 mr-2 -translate-y-1/2"
+                      tone="neutral"
+                      [label]="text.filterable"
                     >
-                      <app-admin-icon
-                        name="triangle-alert"
-                        class="h-3.5 w-3.5"
-                      />
+                      <app-admin-icon name="funnel" class="h-3.5 w-3.5" />
                     </app-hint-badge>
-                  } @else {
-                    <!-- The declared unit, where the packaging grid below puts
+                  }
+                  @if (valueMark(row); as mark) {
+                    @if (mark === 'not-numeric') {
+                      <app-hint-badge
+                        class="absolute top-1/2 right-48 mr-2 -translate-y-1/2"
+                        tone="warning"
+                        [label]="text.notNumeric"
+                      >
+                        <app-admin-icon
+                          name="triangle-alert"
+                          class="h-3.5 w-3.5"
+                        />
+                      </app-hint-badge>
+                    } @else {
+                      <!-- The declared unit, where the packaging grid below puts
                          its own: after the number it measures, in the same
                          small grey. It is never part of the value — the cell
                          holds "1000", the shop shows "1000 g". -->
-                    <span
-                      class="absolute top-1/2 right-48 mr-2 -translate-y-1/2 text-xs text-subtle"
-                      >{{ mark }}</span
-                    >
+                      <span
+                        class="absolute top-1/2 right-48 mr-2 -translate-y-1/2 text-xs text-subtle"
+                        >{{ mark }}</span
+                      >
+                    }
                   }
-                }
-                <!-- Tighter than a normal control row: four affordances have
-                     to fit the same column width the packaging grid uses, so
-                     the two tables keep lining up. -->
-                <div class="flex items-center gap-0.5">
-                  <!-- Where else this attribute is used, in the inventory:
+                  <!-- Tight: four affordances have to fit a 12rem column, and
+                     on a touch screen each of them is 36px wide. -->
+                  <div class="flex items-center">
+                    <!-- Where else this attribute is used, in the inventory:
                        every value in use under the key, with its counts, and
                        the product drill-down from there. A new tab on purpose —
                        leaving a half-edited product would trip the
                        unsaved-changes guard for what is only a glance. -->
-                  @if (isKnown(row)) {
-                    <a
-                      class="p-1 text-stone-400 hover:text-accent"
-                      target="_blank"
-                      routerLink="/admin/attributes/inventory"
-                      [queryParams]="{ key: row.key.trim() }"
-                      [attr.aria-label]="text.showUsage"
-                      [title]="text.showUsage"
-                    >
-                      <app-admin-icon name="square-menu" class="h-4 w-4" />
-                    </a>
-                  } @else {
-                    <!-- Kept in place rather than dropped: the row actions
+                    @if (isKnown(row)) {
+                      <a
+                        appIconButton
+                        target="_blank"
+                        routerLink="/admin/attributes/inventory"
+                        [queryParams]="{ key: row.key.trim() }"
+                        [attr.aria-label]="text.showUsage"
+                        [title]="text.showUsage"
+                      >
+                        <app-admin-icon name="square-menu" />
+                      </a>
+                    } @else {
+                      <!-- Kept in place rather than dropped: the row actions
                          would otherwise shift a column as a key is typed. Its
                          being dead *is* the statement that nothing else in the
                          catalog carries the name. -->
-                    <span
-                      aria-disabled="true"
-                      class="p-1 text-stone-200"
-                      [title]="linkHint(row)"
-                      [attr.aria-label]="linkHint(row)"
+                      <span
+                        appIconButton
+                        aria-disabled="true"
+                        class="pointer-events-none opacity-30"
+                        [title]="linkHint(row)"
+                        [attr.aria-label]="linkHint(row)"
+                      >
+                        <app-admin-icon name="square-menu" />
+                      </span>
+                    }
+                    <button
+                      appIconButton
+                      type="button"
+                      cdkDragHandle
+                      class="cursor-grab active:cursor-grabbing"
+                      [attr.aria-label]="common.reorder"
                     >
-                      <app-admin-icon name="square-menu" class="h-4 w-4" />
-                    </span>
-                  }
-                  <button
-                    type="button"
-                    cdkDragHandle
-                    class="cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
-                    [attr.aria-label]="common.reorder"
-                  >
-                    <app-admin-icon name="grip-vertical" class="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    class="p-1 text-stone-400 hover:text-accent"
-                    [attr.aria-label]="text.add"
-                    (click)="addBelow($index)"
-                  >
-                    <app-admin-icon name="plus" class="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    class="p-1 text-stone-400 hover:text-red-700"
-                    [attr.aria-label]="common.remove"
-                    (click)="remove($index)"
-                  >
-                    <app-admin-icon name="trash-2" class="h-5 w-5" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+                      <app-admin-icon name="grip-vertical" />
+                    </button>
+                    <button
+                      appIconButton
+                      type="button"
+                      [attr.aria-label]="text.add"
+                      (click)="addBelow($index)"
+                    >
+                      <app-admin-icon name="plus" />
+                    </button>
+                    <button
+                      appIconButton
+                      variant="danger"
+                      type="button"
+                      [attr.aria-label]="common.remove"
+                      (click)="remove($index)"
+                    >
+                      <app-admin-icon name="trash-2" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
     </fieldset>
   `,
 })
 export class ProductAttributesEditor {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.attributes;
+  /** Below `md` the spreadsheet is unusable — see the narrow view. Not `sm`:
+   * the action glyphs are already finger-sized a breakpoint earlier, and four
+   * of them plus two cells do not fit the table between the two. */
+  protected readonly narrow = injectNarrowScreen('md');
   private readonly grid =
     viewChild<ElementRef<HTMLTableSectionElement>>('grid');
 

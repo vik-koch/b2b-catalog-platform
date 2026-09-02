@@ -7,7 +7,11 @@ import {
   AddressSuggestion,
 } from '@b2b-catalog-platform/shared';
 import { HighlightedLine } from '../core/highlighted-line';
-import { SuggestList, SuggestListText } from '../core/suggest-list';
+import {
+  SUGGEST_PANEL,
+  SuggestList,
+  SuggestListText,
+} from '../core/suggest-list';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { AddressesService } from './addresses.service';
@@ -60,9 +64,7 @@ export type AddressSuggestFieldText = SuggestListText;
       />
 
       @if (list.panelOpen()) {
-        <div
-          class="absolute top-full left-0 z-20 mt-1 w-full max-w-[calc(100vw-2rem)] min-w-[26rem] overflow-hidden rounded-md border border-border-strong bg-white py-1 shadow-lg"
-        >
+        <div [class]="panel">
           @if (list.suggestions().length === 0) {
             <p class="px-3 py-2 text-sm text-subtle">
               {{ text().noSuggestions }}
@@ -120,6 +122,10 @@ export class AddressSuggestField {
 
   /** The components of the row the customer picked. */
   readonly picked = output<AddressComponents>();
+
+  /** Wide enough for a street, a postcode and a town on one line, where the
+   * form has that much room to give. */
+  protected readonly panel = `${SUGGEST_PANEL} min-w-[min(26rem,100cqw)]`;
 
   protected readonly maxLength = ADDRESS_LINE_MAX_LENGTH;
   protected readonly inputId = `address-street-${nextId}`;

@@ -1,12 +1,8 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { currentUrl } from '../core/current-url';
-import {
-  NAV_ACTION,
-  NAV_ACTION_LABEL,
-  NAV_ACTION_LABEL_ROW,
-} from './nav-action';
+import { navActionClasses, NavVariant } from './nav-action';
 import { Icon } from '../ui/icons/icon';
 
 /** Routes that count as "browsing the catalogue" for the navbar's active state. */
@@ -14,7 +10,7 @@ const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
 
 /**
  * The catalogue button in the main navbar — a plain link to the storefront,
- * built on the same NAV_ACTION look as the account link (icon over label,
+ * built on the same shared look as the account link (icon over label,
  * active state driven by `aria-current="page"`).
  *
  * The active state is computed from the URL rather than left to
@@ -29,11 +25,11 @@ const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
     <a
       routerLink="/catalog"
       [attr.aria-current]="active() ? 'page' : null"
-      [class]="navAction"
+      [class]="cls().action"
     >
       <app-icon name="store" class="h-6 w-6" />
-      <span [class]="labelRow">
-        <span [class]="labelClass" [attr.data-label]="text.navLabel">{{
+      <span [class]="cls().labelRow">
+        <span [class]="cls().label" [attr.data-label]="text.navLabel">{{
           text.navLabel
         }}</span>
       </span>
@@ -41,6 +37,10 @@ const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
   `,
 })
 export class CatalogLink {
+  /** Which of the two navbars is drawing this control. */
+  readonly variant = input<NavVariant>('bar');
+  protected readonly cls = computed(() => navActionClasses(this.variant()));
+
   private readonly url = currentUrl();
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly active = computed(() => {
@@ -49,7 +49,4 @@ export class CatalogLink {
       (route) => path === route || path.startsWith(`${route}/`),
     );
   });
-  protected readonly navAction = NAV_ACTION;
-  protected readonly labelClass = NAV_ACTION_LABEL;
-  protected readonly labelRow = NAV_ACTION_LABEL_ROW;
 }

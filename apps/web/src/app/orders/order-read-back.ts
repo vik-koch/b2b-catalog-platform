@@ -59,7 +59,12 @@ import { APP_TEXT } from '../config/app-text';
         <section>
           <h2 class="mb-2 font-medium">{{ block.heading }}</h2>
           @for (line of block.lines; track $index) {
-            <p class="text-sm" [class.text-subtle]="$index > 0">{{ line }}</p>
+            <!-- An answer can be one long word — an email, a company with no
+                 spaces in its name — and a block that will not break takes the
+                 page sideways on a phone. -->
+            <p class="text-sm break-words" [class.text-subtle]="$index > 0">
+              {{ line }}
+            </p>
           }
         </section>
       }

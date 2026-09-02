@@ -147,7 +147,6 @@ export interface BuyableProduct {
             <button
               type="button"
               appIconButton
-              shape="plain"
               [variant]="hasNote() ? 'marked' : 'default'"
               [attr.aria-label]="hasNote() ? text.noteEdit : text.noteAdd"
               [title]="hasNote() ? text.noteEdit : text.noteAdd"
@@ -158,7 +157,6 @@ export interface BuyableProduct {
                 [name]="
                   hasNote() ? 'message-circle-check' : 'message-circle-plus'
                 "
-                class="h-4 w-4"
               />
             </button>
 
@@ -740,7 +738,7 @@ export class ProductBuyControls {
    */
   protected readonly stepperButton = computed(
     () =>
-      `flex shrink-0 cursor-pointer items-center justify-center text-ink transition-colors hover:bg-stone-100 hover:text-accent active:text-primary focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-stone-400 disabled:hover:bg-transparent disabled:hover:text-stone-400 ${
+      `flex shrink-0 cursor-pointer items-center justify-center text-ink transition-colors hover:bg-stone-100 hover:text-accent active:bg-stone-200 active:text-primary focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-stone-400 disabled:hover:bg-transparent disabled:hover:text-stone-400 ${
         this.compact() ? 'w-9' : 'w-10'
       }`,
   );

@@ -3,18 +3,23 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { DEPLOYMENT_CONFIG } from './config/deployment-config';
-import { LastListingService } from './catalog/last-listing.service';
-import { CookieConsent } from './consent/cookie-consent';
+import { EditModeToggle } from './admin/edit-mode-toggle';
 import { ForcePasswordChange } from './auth/force-password-change';
+import { CartFigures } from './cart/cart-figures';
+import { LastListingService } from './catalog/last-listing.service';
+import { DEPLOYMENT_CONFIG } from './config/deployment-config';
+import { CookieConsent } from './consent/cookie-consent';
+import { BottomNav } from './layout/bottom-nav';
 import { Footer } from './layout/footer';
 import { Header } from './layout/header';
-import { EditModeToggle } from './admin/edit-mode-toggle';
+import { SearchOverlay } from './layout/search-overlay';
 
 @Component({
   imports: [
     RouterOutlet,
     Header,
+    BottomNav,
+    SearchOverlay,
     Footer,
     CookieConsent,
     ForcePasswordChange,
@@ -34,19 +39,32 @@ import { EditModeToggle } from './admin/edit-mode-toggle';
            Those narrow columns are centered only on the signed-out screens
            (login, register, password reset), where the page is the whole task;
            inside the app they stay left, under a left-aligned heading. -->
-      <main class="mx-auto w-full max-w-[82rem] flex-1 px-4 py-6">
+      <main class="mx-auto w-full max-w-[82rem] flex-1 p-4">
         <router-outlet />
       </main>
+      <!-- Admin-only storefront edit-mode toggle; empty for everyone else, and
+           for any page with nothing on it to edit. Between the page and the
+           footer, which is the line it comes to rest on. -->
+      <app-edit-mode-toggle />
       <!-- No top border where the page behind it is already stone: the line
            would divide two areas of the same colour. -->
       <app-footer [seamless]="centered()" />
+      <!-- The bottom bar is fixed, so it covers whatever the page ends with.
+           The reserve is on the column rather than on <main>, because the
+           footer is what actually reaches the bottom edge. -->
+      <div
+        aria-hidden="true"
+        class="h-[calc(3.25rem+1px+env(safe-area-inset-bottom))] sm:hidden"
+      ></div>
     </div>
+    <app-bottom-nav />
+    <!-- The phone's search field over the page, opened from the bottom bar
+         once the header's own has scrolled away. -->
+    <app-search-overlay />
     <app-cookie-consent />
     <!-- Renders nothing unless a signed-in account still owes a password
          change, so public pages carry only the (empty) component instance. -->
     <app-force-password-change />
-    <!-- Admin-only storefront edit-mode toggle; empty for everyone else. -->
-    <app-edit-mode-toggle />
   `,
   host: {
     '[style.--color-primary]': 'branding.theme.primary',
@@ -101,5 +119,9 @@ export class App {
     // Starts recording which listing the visitor is standing at, so leaving
     // the cart returns to the shelf rather than to the front of the shop.
     inject(LastListingService);
+
+    // Starts keeping the navbar cart's figures on <html>, where both navbars
+    // and the pre-paint script read them from.
+    inject(CartFigures);
   }
 }

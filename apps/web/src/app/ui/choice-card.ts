@@ -79,7 +79,8 @@ export class ChoiceCard {
   readonly chosen = output<void>();
 
   protected readonly contentClass = computed(
-    () => `relative ml-7 empty:hidden ${this.description() ? 'mt-3' : 'mt-1'}`,
+    () =>
+      `relative ml-7 w-fit empty:hidden ${this.description() ? 'mt-3' : 'mt-1'}`,
   );
 
   protected readonly cardClass = computed(() => {
@@ -92,7 +93,7 @@ export class ChoiceCard {
       ? 'border-border opacity-60'
       : this.checked()
         ? 'border-primary bg-stone-50'
-        : 'border-border-strong hover:border-accent';
+        : 'border-border-strong hover:border-accent active:border-primary active:bg-stone-100';
     return `relative h-full rounded-lg border p-3 transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary ${state}`;
   });
 }

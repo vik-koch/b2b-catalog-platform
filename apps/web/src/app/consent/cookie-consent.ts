@@ -21,7 +21,7 @@ import { ConsentService } from './consent.service';
     @if (ready() && consent.needsDecision()) {
       <aside
         [attr.aria-label]="a11y.consentBanner"
-        class="fixed inset-x-4 bottom-4 z-20 mx-auto max-w-3xl rounded-xl border border-border bg-surface shadow-xl"
+        class="fixed inset-x-4 bottom-[calc(4.25rem+1px+env(safe-area-inset-bottom))] z-20 sm:bottom-4 mx-auto max-w-3xl rounded-xl border border-border bg-surface shadow-xl"
       >
         <div
           class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"

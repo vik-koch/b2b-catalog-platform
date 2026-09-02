@@ -23,33 +23,38 @@ import {
   PartySuggestion,
   unitQuantity,
 } from '@b2b-catalog-platform/shared';
+import { AccountService } from '../account/account.service';
+import { AddressForm, createAddressForm } from '../addresses/address-form';
+import { addressLines } from '../addresses/address-format';
+import { AddressesService } from '../addresses/addresses.service';
+import { AuthService } from '../auth/auth.service';
+import { CartService, CartStoredLine } from '../cart/cart.service';
+import { OrderSummary } from '../cart/order-summary';
 import { formatPriceMinor } from '../catalog/price';
 import { formatUnitQuantity } from '../catalog/quantity';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { AccountService } from '../account/account.service';
-import { AuthService } from '../auth/auth.service';
-import { AddressesService } from '../addresses/addresses.service';
-import { addressLines } from '../addresses/address-format';
-import { createAddressForm } from '../addresses/address-form';
-import { CartService, CartStoredLine } from '../cart/cart.service';
-import { delayedLoading } from '../core/delayed-loading';
 import {
   canonicalPhone,
   companyIdFormat,
   phoneValidators,
 } from '../core/contact-fields';
+import { delayedLoading } from '../core/delayed-loading';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
 import { zodValidator } from '../core/zod-validator';
+import {
+  OrderReadBack,
+  ReadBackLine,
+  ReviewBlock,
+} from '../orders/order-read-back';
+import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { EmptyState } from '../ui/empty-state';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
-import { OrderSummary } from '../cart/order-summary';
 import { AddressPicker } from './address-picker';
-import { GuestDetails } from './guest-details';
 import {
   CheckoutDraft,
   CheckoutDraftService,
@@ -57,18 +62,12 @@ import {
 } from './checkout-draft.service';
 import { DeliveryZoneHint } from './delivery-zone-hint';
 import { FulfilmentChoice } from './fulfilment-choice';
+import { GuestDetails } from './guest-details';
 import { OrderNote } from './order-note';
-import {
-  OrderReadBack,
-  ReadBackLine,
-  ReviewBlock,
-} from '../orders/order-read-back';
 import { PartyChoice } from './party-choice';
 import { PaymentChoice } from './payment-choice';
-import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 import { PickupChoice } from './pickup-choice';
 import { PreferredDate } from './preferred-date';
-import { AddressForm } from '../addresses/address-form';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -160,7 +159,7 @@ import { AddressForm } from '../addresses/address-form';
            summary sits under the form instead of beside it. -->
       <div class="@container/checkout">
         <div
-          class="grid gap-8 @min-[945px]/checkout:grid-cols-[36rem_20rem] @min-[945px]/checkout:justify-between"
+          class="grid gap-8 @min-[63.75rem]/checkout:grid-cols-[36rem_20rem] @min-[63.75rem]/checkout:justify-between"
         >
           <!-- Heading and intro in the column, not above the grid: the summary
                beside them then starts level with the heading, and the same card
@@ -409,7 +408,7 @@ import { AddressForm } from '../addresses/address-form';
                long as the answers are, and the total is what the customer is
                reading them against. -->
           <aside
-            class="max-w-xl @min-[945px]/checkout:mt-9 @min-[945px]/checkout:sticky @min-[945px]/checkout:top-20 @min-[945px]/checkout:self-start"
+            class="max-w-xl @min-[63.75rem]/checkout:mt-9 @min-[63.75rem]/checkout:sticky @min-[63.75rem]/checkout:top-20 @min-[63.75rem]/checkout:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"
@@ -529,7 +528,7 @@ import { AddressForm } from '../addresses/address-form';
                 routerLink="/cart"
                 class="mt-2 w-full"
               >
-                {{ cartText.navLabel }}
+                {{ text.review.backToCart }}
               </a>
             }
           </aside>

@@ -67,6 +67,23 @@ export class EditModeService {
         (!(this.isAdmin() && this.wanted()) || this.textLoaded())),
   );
 
+  /**
+   * How many edit-aware surfaces are on the page. The toggle is drawn only
+   * where there is something for it to reveal — on the cart, an account page
+   * or the admin panel it was an affordance that answered nothing. Counted
+   * rather than declared per route: every editable surface already goes
+   * through `editAwareContent`, whether edit mode is on or not, so the page
+   * itself is the answer and no route table has to be kept in step with it.
+   */
+  private readonly editables = signal(0);
+  readonly hasEditables = computed(() => this.editables() > 0);
+
+  /** Registers one surface; the returned function releases it. */
+  registerEditable(): () => void {
+    this.editables.update((n) => n + 1);
+    return () => this.editables.update((n) => n - 1);
+  }
+
   toggle(): void {
     const next = !this.wanted();
     this.wanted.set(next);

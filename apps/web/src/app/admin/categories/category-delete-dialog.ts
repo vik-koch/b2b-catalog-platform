@@ -12,6 +12,7 @@ import {
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
+import { DialogActions } from '../../ui/dialog-actions';
 import { DialogPanel } from '../../ui/dialog-panel';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
@@ -34,7 +35,14 @@ import { categoryDescendantIds } from './category-tree';
  */
 @Component({
   selector: 'app-category-delete-dialog',
-  imports: [Button, AdminIcon, CategoryPicker, FieldLabel, DialogPanel],
+  imports: [
+    Button,
+    AdminIcon,
+    CategoryPicker,
+    FieldLabel,
+    DialogActions,
+    DialogPanel,
+  ],
   template: `
     <dialog
       #dialog
@@ -73,7 +81,7 @@ import { categoryDescendantIds } from './category-tree';
         <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
       }
 
-      <div class="mt-6 flex flex-wrap justify-end gap-3">
+      <div appDialogActions>
         <button
           appButton
           variant="secondary"

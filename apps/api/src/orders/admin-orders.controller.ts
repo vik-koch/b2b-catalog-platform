@@ -23,7 +23,12 @@ export class AdminOrdersController {
   listOrders() {
     return tsRestHandler(ordersContract.listOrders, async ({ query }) => ({
       status: 200 as const,
-      body: await this.orders.listAll(query.page ?? 1, query.status, query.q),
+      body: await this.orders.listAll(
+        query.page ?? 1,
+        query.status,
+        query.q,
+        query.sort ?? 'status',
+      ),
     }));
   }
 

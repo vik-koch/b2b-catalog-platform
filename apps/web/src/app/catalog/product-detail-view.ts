@@ -21,55 +21,44 @@ import {
 import { APP_TEXT } from '../config/app-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { Button } from '../ui/button';
+import { Icon } from '../ui/icons/icon';
 import { ProductBuyBlock } from './product-buy-block';
 import { ProductGallery } from './product-gallery';
 import { useProductUnits } from './product-units-view';
-import { Icon } from '../ui/icons/icon';
 
 /**
- * The two-column breakpoint (Tailwind `lg`). Above it the specifications table
- * can move under the image; below it the page is a single column and the
- * description is collapsed instead.
- */
-const TWO_COLUMN = '(min-width: 64rem)';
-
-/**
- * The product page's columns, shared with the loading placeholder so nothing
- * moves sideways when the real page arrives.
+ * The product page's grid: one 30rem column of prose beside one 20rem column
+ * of controls, four cells in two rows — the photo over the description, the
+ * way to buy over what the thing is. The buying panel and the specifications
+ * share a column because they are the same kind of reading: short lines,
+ * scanned rather than read, and both about the item rather than about the
+ * shop.
  *
- * Three from lg up: what it looks like, what it is, and how to buy it. The
- * buying column is a fixed 16.25rem — 234px of content inside its p-3 — because
- * everything in it (a three-way selector, a stepper, a packaging line) was
- * sized for that width and stops fitting below it.
- *
- * Below lg the description drops underneath, but the image and the buying
- * column stay side by side down to 576px, the narrowest viewport where the
- * image still clears 234px beside them. Only under that does the page become
- * one column.
+ * The widths are the catalogue's own 15rem rule again. The right column wants
+ * 20rem and will give up 5 of them before the page breaks; the left will not
+ * go under 30rem of prose. Together with the 2.5rem gutter that is 760px of
+ * content — `md`, the same drag of the window edge that gives a listing its
+ * third column. Under it the page keeps the photo and the panel side by side
+ * but hands the description and the table a row each, and the photo shrinks to
+ * the 15rem that leaves the panel its 20rem. Under `sm` there is one column and
+ * everything is as wide as the page.
  */
 export const PRODUCT_PAGE_COLUMNS =
-  'grid gap-8 min-[576px]:grid-cols-[minmax(0,1fr)_16.25rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_16.25rem]';
-
-/** Where the description and specifications sit in those columns: under both
- * while there are two, in the middle once there are three. */
-export const PRODUCT_PAGE_INFO_COLUMN =
-  'order-3 min-[576px]:col-span-2 lg:order-2 lg:col-span-1';
+  'grid gap-x-10 gap-y-8 sm:grid-cols-[minmax(0,15rem)_20rem] md:grid-cols-[minmax(30rem,1fr)_minmax(15rem,20rem)]';
 
 /**
- * Spanning the full width under the image, the description and the
- * specifications read as two columns rather than one long scroll — which is
- * also why the description is not collapsed at those widths: side by side,
- * neither block pushes the other off the screen.
+ * The description and the specifications: a column each once there are two
+ * rows to fill, a row each while the page is too narrow for that.
  */
-const INFO_SIDE_BY_SIDE =
-  'sm:max-lg:grid sm:max-lg:grid-cols-2 sm:max-lg:items-start sm:max-lg:gap-8';
+export const PRODUCT_PAGE_SECTION_CELL =
+  'scroll-mt-24 sm:col-span-2 md:col-span-1';
 
 /**
- * Where the image stops growing before the page has a third column for the
- * description. Left to the full `1fr` it is a 700px square on a tablet, which
- * is the whole screen for a photo the page has already shown at tile size.
+ * The gallery takes the column it is in and caps itself: 25rem of photo, plus
+ * the strip of thumbnails when they stand beside it. Whichever it is, the
+ * photo is the same 25rem — see ProductGallery.
  */
-const IMAGE_CAP = 'min-[576px]:max-lg:max-w-96';
+const IMAGE_CAP = 'w-full';
 
 /** Where the description is collapsed behind a show-more: only where it has no
  * column of its own, which is a phone. */
@@ -84,6 +73,12 @@ const NARROW = '(max-width: 39.999rem)';
  */
 @Component({
   selector: 'app-product-detail-view',
+  // A fourth page width, beside the wide, form and reading columns: the page's
+  // two columns are 30rem of prose and 20rem of controls, and the width past
+  // those is width it has nothing to do with — a description set 1200px wide
+  // is not one anyone finishes reading. On the component rather than on the
+  // route's section, so the editor's live preview is the same page.
+  host: { class: 'block max-w-5xl' },
   imports: [
     RouterLink,
     ProductGallery,
@@ -145,75 +140,85 @@ const NARROW = '(max-width: 39.999rem)';
     </h1>
 
     <div [class]="columnsClass">
-      <div #imageColumn [class]="imageColumnClass">
+      <div [class]="imageColumnClass">
         <app-product-gallery
           [images]="item().images"
           [productName]="item().name"
         />
-
-        @if (specsUnderImage()) {
-          <ng-container
-            [ngTemplateOutlet]="specs"
-            [ngTemplateOutletContext]="{ $implicit: 'mt-8' }"
-          />
-        }
       </div>
 
-      <aside class="order-2 lg:order-3">
+      <aside class="@container/buy">
         <app-product-buy-block [item]="item()" [canAdd]="canAdd()" />
       </aside>
 
-      <div [class]="infoColumnClass()">
-        <div #infoColumn>
-          @if (item().descriptionHtml) {
-            <div class="relative">
+      <!-- The seam between the two rows, drawn only where they are rows: with
+           one column under md the gap already says it, and a rule across a
+           stack is one more line in a page of them. -->
+      <div
+        aria-hidden="true"
+        class="col-span-2 hidden border-t border-border md:block"
+      ></div>
+
+      @if (item().descriptionHtml) {
+        <div [id]="descriptionId" [class]="sectionCellClass">
+          <h2 [class]="sectionHeading">
+            <a
+              [routerLink]="[]"
+              [fragment]="descriptionId"
+              queryParamsHandling="preserve"
+              [class]="sectionAnchor"
+            >
+              {{ text.description }}
+            </a>
+          </h2>
+          <div class="relative mt-3">
+            <div
+              #description
+              class="prose prose-stone max-w-none"
+              [class]="descriptionClass()"
+              [innerHTML]="safeDescription(item().descriptionHtml)"
+            ></div>
+            @if (descriptionFaded()) {
               <div
-                #description
-                class="prose prose-stone max-w-none"
-                [class]="descriptionClass()"
-                [innerHTML]="safeDescription(item().descriptionHtml)"
+                aria-hidden="true"
+                class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-surface to-surface/0"
               ></div>
-              @if (descriptionFaded()) {
-                <div
-                  aria-hidden="true"
-                  class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-surface to-surface/0"
-                ></div>
-              }
-            </div>
-            @if (descriptionToggle()) {
-              <div class="mt-1 flex justify-center">
-                <button
-                  type="button"
-                  appButton
-                  variant="ghost"
-                  size="sm"
-                  [attr.aria-expanded]="descriptionExpanded()"
-                  (click)="descriptionExpanded.set(!descriptionExpanded())"
-                >
-                  {{ descriptionExpanded() ? text.showLess : text.showMore }}
-                </button>
-              </div>
             }
+          </div>
+          @if (descriptionToggle()) {
+            <div class="mt-1 flex justify-center">
+              <button
+                type="button"
+                appButton
+                variant="ghost"
+                size="sm"
+                [attr.aria-expanded]="descriptionExpanded()"
+                (click)="descriptionExpanded.set(!descriptionExpanded())"
+              >
+                {{ descriptionExpanded() ? text.showLess : text.showMore }}
+              </button>
+            </div>
           }
         </div>
+      }
 
-        @if (!specsUnderImage()) {
-          <ng-container
-            [ngTemplateOutlet]="specs"
-            [ngTemplateOutletContext]="{ $implicit: specsWrapClass() }"
-          />
-        }
-      </div>
+      <ng-container [ngTemplateOutlet]="specs" />
     </div>
 
-    <!-- Wrapped in an element of its own, so that where the description and
-         the specifications are two grid columns the table is one item rather
-         than a heading and a table landing in separate cells. -->
-    <ng-template #specs let-wrapClass>
+    <!-- Wrapped in an element of its own, so the heading and its table land
+         in one grid cell rather than in two. -->
+    <ng-template #specs>
       @if (attributes().length || packagingRows().length) {
-        <div [class]="wrapClass">
-          <h2 class="text-xs font-semibold tracking-wide text-subtle uppercase">
-            {{ text.specifications }}
+        <div [id]="specsId" [class]="sectionCellClass">
+          <h2 [class]="sectionHeading">
+            <a
+              [routerLink]="[]"
+              [fragment]="specsId"
+              queryParamsHandling="preserve"
+              [class]="sectionAnchor"
+            >
+              {{ text.specifications }}
+            </a>
           </h2>
           <!-- A real table (not a dl) so selecting rows and copying yields
              tab-separated key/value pairs — paste-ready into a spreadsheet or
@@ -272,7 +277,24 @@ const NARROW = '(max-width: 39.999rem)';
 export class ProductDetailView {
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-6`;
-  protected readonly imageColumnClass = `order-1 min-w-0 ${IMAGE_CAP}`;
+  protected readonly imageColumnClass = `min-w-0 ${IMAGE_CAP}`;
+  protected readonly sectionCellClass = PRODUCT_PAGE_SECTION_CELL;
+  /**
+   * Both halves of the lower row are headed the same way, and each heading is
+   * the link to its own section — a specification worth quoting to a colleague
+   * has an address now.
+   *
+   * Written as a router link with a fragment and no path, rather than as a
+   * plain `href="#id"`: the document carries `<base href="/">`, against which
+   * a bare fragment resolves to the site root, so the link that was meant to
+   * move down the page left it. The router keeps the query string too, which
+   * is what carries the editor's return path.
+   */
+  protected readonly sectionHeading =
+    'text-xs font-medium tracking-wide text-subtle uppercase';
+  protected readonly sectionAnchor = 'transition-colors hover:text-accent';
+  protected readonly descriptionId = 'description';
+  protected readonly specsId = 'specifications';
   /** The description is trusted rich text (server-sanitized, same as pages). */
   protected readonly safeDescription = trustedRichText();
 
@@ -309,55 +331,19 @@ export class ProductDetailView {
       })),
   );
 
-  /** The two blocks stand side by side only where both are there to stand. */
-  protected readonly sideBySide = computed(
-    () =>
-      !!this.item().descriptionHtml &&
-      (this.attributes().length > 0 || this.packagingRows().length > 0),
-  );
-  protected readonly infoColumnClass = computed(() =>
-    this.sideBySide()
-      ? `${PRODUCT_PAGE_INFO_COLUMN} ${INFO_SIDE_BY_SIDE}`
-      : PRODUCT_PAGE_INFO_COLUMN,
-  );
-  /** The gap over the table is the one between it and the description above —
-   * so it goes when the table moves beside the description instead. */
-  protected readonly specsWrapClass = computed(() =>
-    this.sideBySide() ? 'mt-8 sm:max-lg:mt-0' : 'mt-8',
-  );
-
   protected readonly packagingRows = computed(() =>
     this.units.packagingRows(this.item().boxDimensions),
   );
 
-  private readonly imageColumn =
-    viewChild.required<ElementRef<HTMLElement>>('imageColumn');
-  private readonly infoColumn =
-    viewChild.required<ElementRef<HTMLElement>>('infoColumn');
   private readonly description =
     viewChild<ElementRef<HTMLElement>>('description');
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Live viewport state. Both stay false on the server (and in unit tests),
-   * which renders the plain layout: the whole description, specifications
-   * beside the image — so crawlers always see the full text. */
-  private readonly twoColumn = signal(false);
+  /** Live viewport state. Stays false on the server (and in unit tests), which
+   * renders the whole description — so crawlers always see the full text. */
   private readonly narrow = signal(false);
-
-  /** True while the name/price/description block is at least as tall as the
-   * image, which leaves dead space under the gallery for the table to fill. */
-  private readonly infoTallerThanImage = signal(false);
-
-  /**
-   * On a wide screen the specifications table moves under the image once the
-   * description makes the right column the taller one — the table then fills
-   * the whitespace beside the description instead of extending the page.
-   */
-  protected readonly specsUnderImage = computed(
-    () => this.twoColumn() && this.infoTallerThanImage(),
-  );
 
   protected readonly descriptionExpanded = signal(false);
   /** Set while the collapsed description actually has more text to reveal. */
@@ -387,23 +373,21 @@ export class ProductDetailView {
       return;
     }
     afterNextRender(() => {
-      // Both adjustments depend on measured heights, so without a layout engine
-      // (jsdom, in unit tests) neither is armed and the plain layout stands.
+      // The collapse depends on a measured height, so without a layout engine
+      // (jsdom, in unit tests) it is not armed and the whole text stands.
       if (typeof ResizeObserver === 'undefined') {
         return;
       }
-      this.watch(TWO_COLUMN, this.twoColumn);
       this.watch(NARROW, this.narrow);
 
-      // Heights change with the image loading, the viewport resizing and the
-      // description expanding, so measure continuously rather than once.
-      const observer = new ResizeObserver(() => this.measure());
-      observer.observe(this.imageColumn().nativeElement);
-      observer.observe(this.infoColumn().nativeElement);
+      // The height changes with the description expanding and with the phone
+      // turning, so measure continuously rather than once.
       const desc = this.description()?.nativeElement;
-      if (desc) {
-        observer.observe(desc);
+      if (!desc) {
+        return;
       }
+      const observer = new ResizeObserver(() => this.measure());
+      observer.observe(desc);
       this.destroyRef.onDestroy(() => observer.disconnect());
       this.measure();
     });
@@ -419,16 +403,6 @@ export class ProductDetailView {
   }
 
   private measure() {
-    // The image column carries the table once it moves, so compare against the
-    // gallery alone — otherwise the swap would undo itself.
-    const gallery =
-      this.imageColumn().nativeElement.firstElementChild ??
-      this.imageColumn().nativeElement;
-    this.infoTallerThanImage.set(
-      this.infoColumn().nativeElement.offsetHeight >=
-        gallery.getBoundingClientRect().height,
-    );
-
     const desc = this.description()?.nativeElement;
     if (desc && this.descriptionCollapsed()) {
       this.descriptionOverflows.set(desc.scrollHeight > desc.clientHeight + 1);

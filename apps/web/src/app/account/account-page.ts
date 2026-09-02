@@ -1,23 +1,23 @@
 import { Component, computed, inject, resource, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Address, fillText } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { SignedInAs } from '../auth/signed-in-as';
-import { formatPhone } from '../core/contact-fields';
-import { usePageSeo } from '../core/page-seo';
-import { Button } from '../ui/button';
-import { IconButton } from '../ui/icon-button';
-import { Icon } from '../ui/icons/icon';
-import { Skeleton } from '../ui/skeleton';
-import { AddressesService } from '../addresses/addresses.service';
 import {
   addressDetailLines,
   addressDisplayName,
 } from '../addresses/address-format';
-import { ConfirmService } from '../ui/confirm.service';
+import { AddressesService } from '../addresses/addresses.service';
+import { SignedInAs } from '../auth/signed-in-as';
+import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { formatPhone } from '../core/contact-fields';
+import { usePageSeo } from '../core/page-seo';
 import { OrderRows } from '../orders/order-rows';
 import { OrdersService } from '../orders/orders.service';
+import { Button } from '../ui/button';
+import { ConfirmService } from '../ui/confirm.service';
+import { IconButton } from '../ui/icon-button';
+import { Icon } from '../ui/icons/icon';
+import { Skeleton } from '../ui/skeleton';
 import { AccountService } from './account.service';
 
 /**
@@ -85,7 +85,7 @@ interface DetailRow {
          and want the width, an address is short lines and a pair of glyphs. -->
     <section class="mt-10">
       <h2
-        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+        class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
       >
         <app-icon name="user" class="h-4 w-4" />
         {{ accountText.profileHeading }}
@@ -101,7 +101,7 @@ interface DetailRow {
           class="grid divide-y divide-border md:grid-cols-2 md:divide-x md:divide-y-0"
         >
           <div class="p-5">
-            <h3 class="mb-3 text-sm font-semibold">
+            <h3 class="mb-3 text-sm font-medium">
               {{ accountText.detailsHeading }}
             </h3>
             <!-- Both halves at once, never each as it lands. They are two
@@ -116,10 +116,16 @@ interface DetailRow {
                    would shrink it instead. -->
               <app-skeleton [lines]="5" />
             } @else if (profile.hasValue()) {
-              <dl class="grid gap-x-8 gap-y-3 sm:grid-cols-[10rem_1fr]">
+              <dl class="grid gap-x-8 sm:grid-cols-[10rem_1fr]">
                 @for (row of rows(); track row.label) {
-                  <dt class="text-sm text-muted">{{ row.label }}</dt>
-                  <dd class="text-sm">{{ row.value }}</dd>
+                  <dt
+                    class="text-sm text-muted odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                  >
+                    {{ row.label }}
+                  </dt>
+                  <dd class="text-sm even:mb-3 sm:even:mb-3 last:mb-0">
+                    {{ row.value }}
+                  </dd>
                 }
               </dl>
               <p class="mt-5 text-sm text-subtle">
@@ -144,7 +150,7 @@ interface DetailRow {
                its own: it is one short list, and checkout is where it is
                actually used — this is where it is kept. -->
           <div class="p-5">
-            <h3 class="mb-3 text-sm font-semibold">
+            <h3 class="mb-3 text-sm font-medium">
               {{ addressText.heading }}
             </h3>
             @if (!profileReady()) {
@@ -167,7 +173,7 @@ interface DetailRow {
                       class="flex flex-wrap items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
                     >
                       <div>
-                        <p class="text-sm font-semibold">
+                        <p class="text-sm font-medium">
                           {{ name(address) }}
                         </p>
                         @if (lines(address)) {
@@ -186,7 +192,6 @@ interface DetailRow {
                       <div class="flex shrink-0 gap-1">
                         <a
                           appIconButton
-                          shape="plain"
                           [attr.aria-label]="editLabel(address)"
                           [routerLink]="[
                             '/account/addresses',
@@ -194,17 +199,16 @@ interface DetailRow {
                             'edit',
                           ]"
                         >
-                          <app-icon name="pencil" class="h-4 w-4" />
+                          <app-icon name="pencil" />
                         </a>
                         <button
                           appIconButton
-                          shape="plain"
                           variant="danger"
                           type="button"
                           [attr.aria-label]="removeLabel(address)"
                           (click)="remove(address)"
                         >
-                          <app-icon name="trash-2" class="h-4 w-4" />
+                          <app-icon name="trash-2" />
                         </button>
                       </div>
                     </li>
@@ -236,7 +240,7 @@ interface DetailRow {
          still there for the rest of it. -->
     <section class="mt-10">
       <h2
-        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+        class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
       >
         <app-icon name="shopping-basket" class="h-4 w-4" />
         {{ orderText.heading }}
@@ -281,7 +285,7 @@ interface DetailRow {
          their own page rather than being crammed in beside the link. -->
     <section class="mt-10">
       <h2
-        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+        class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
       >
         <app-icon name="lock" class="h-4 w-4" />
         {{ text.securityHeading }}
@@ -291,7 +295,7 @@ interface DetailRow {
           class="grid divide-y divide-border md:grid-cols-2 md:divide-x md:divide-y-0"
         >
           <div class="flex flex-col p-5">
-            <h3 class="mb-2 text-sm font-semibold">
+            <h3 class="mb-2 text-sm font-medium">
               {{ text.changePassword.heading }}
             </h3>
             <p class="mb-4 text-sm text-muted">
@@ -310,7 +314,7 @@ interface DetailRow {
           </div>
 
           <div class="flex flex-col p-5">
-            <h3 class="mb-2 text-sm font-semibold">{{ deleteText.heading }}</h3>
+            <h3 class="mb-2 text-sm font-medium">{{ deleteText.heading }}</h3>
             <p class="mb-4 text-sm text-muted">{{ deleteText.intro }}</p>
             <!-- Outlined, not solid: this only opens the page that explains what
                  would be lost. The solid red belongs to the click that confirms. -->

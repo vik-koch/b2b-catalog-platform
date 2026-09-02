@@ -14,7 +14,7 @@ import { usePageSeo } from '../core/page-seo';
         {{ text.home.eyebrow }}
       </p>
       <h1
-        class="mt-3 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl"
+        class="mt-3 max-w-2xl text-4xl font-medium tracking-tight sm:text-5xl"
       >
         {{ text.home.title }}
       </h1>

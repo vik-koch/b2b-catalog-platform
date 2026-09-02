@@ -53,6 +53,7 @@ export type AdminIconName =
   | 'wrench'
   | 'lock'
   | 'funnel'
+  | 'funnel-x'
   | 'triangle-alert'
   | 'circle-alert';
 
@@ -324,6 +325,11 @@ export type AdminIconName =
         }
         @case ('funnel') {
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+        }
+        @case ('funnel-x') {
+          <path d="M13.013 3H2l8 9.46V19l4 2v-8.54l.9-1.055" />
+          <path d="m22 3-5 5" />
+          <path d="m17 3 5 5" />
         }
         @case ('triangle-alert') {
           <path

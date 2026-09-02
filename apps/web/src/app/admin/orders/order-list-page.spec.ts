@@ -35,7 +35,7 @@ function page(overrides: Partial<Pagination> = {}): Pagination {
 async function render(
   items: StaffOrderSummary[] | 'reject',
   query:
-    | { page?: string; status?: string; searchTerm?: string }
+    | { page?: string; status?: string; searchTerm?: string; sort?: string }
     | 'unbound' = {},
 ) {
   const list = vi.fn(() =>
@@ -73,6 +73,10 @@ async function render(
     'searchTerm',
     unbound ? undefined : (query.searchTerm ?? ''),
   );
+  fixture.componentRef.setInput(
+    'sort',
+    unbound ? undefined : (query.sort ?? ''),
+  );
   await fixture.whenStable();
   fixture.detectChanges();
   return { fixture, el: fixture.nativeElement as HTMLElement, list };
@@ -89,6 +93,8 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
       page: 1,
       status: undefined,
       q: undefined,
+      // Unanswered first, which is the question this screen is opened with.
+      sort: 'status',
     });
     expect(el.textContent).toContain(placed.reference);
   });
@@ -105,6 +111,16 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
     ).not.toBeNull();
   });
 
+  // The cells of a row are written by the page and the columns are declared
+  // beside them, so nothing but this holds the two lists to the same length.
+  it('draws one cell per declared column', async () => {
+    const { el } = await render([placed]);
+
+    const headings = el.querySelectorAll('thead th').length;
+    expect(headings).toBeGreaterThan(0);
+    expect(el.querySelectorAll('tbody tr td').length).toBe(headings);
+  });
+
   // A guest order has no account behind it, which is a fact about the order
   // rather than a missing value.
   it('names a guest order as one', async () => {
@@ -119,6 +135,7 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
       page: 1,
       status: 'approved',
       q: undefined,
+      sort: 'status',
     });
 
     const nonsense = await render([placed], { status: 'unfiled' });
@@ -126,6 +143,7 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
       page: 1,
       status: undefined,
       q: undefined,
+      sort: 'status',
     });
   });
 
@@ -138,6 +156,7 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
       page: 1,
       status: undefined,
       q: '4831',
+      sort: 'status',
     });
   });
 
@@ -152,6 +171,34 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
     // A search that found nothing is the same kind of nothing as a filter.
     const unmatched = await render([], { searchTerm: 'nobody' });
     expect(unmatched.el.textContent).toContain(text.noResults);
+  });
+
+  // Server-side, like the filter: the list is paged, so ordering the page on
+  // screen would be ordering one twentieth of the orders.
+  it('sends the ordering to the API, and drops a nonsense one', async () => {
+    const chosen = await render([placed], { sort: 'placed' });
+    expect(chosen.list).toHaveBeenCalledWith(
+      expect.objectContaining({ sort: 'placed' }),
+    );
+
+    const nonsense = await render([placed], { sort: 'sideways' });
+    expect(nonsense.list).toHaveBeenCalledWith(
+      expect.objectContaining({ sort: 'status' }),
+    );
+  });
+
+  // An order nobody is going to act on again is still listed, but it is not
+  // work — greyed the way a deleted product is, except for its own controls.
+  it('greys an order that is over', async () => {
+    const ended = await render([{ ...placed, status: 'cancelled' }]);
+    expect(ended.el.querySelector('tbody tr')?.className).toContain(
+      'opacity-50',
+    );
+
+    const open = await render([placed]);
+    expect(open.el.querySelector('tbody tr')?.className).not.toContain(
+      'opacity-50',
+    );
   });
 
   it('says so when the list cannot be read', async () => {

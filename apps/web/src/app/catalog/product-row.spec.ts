@@ -5,7 +5,7 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
-import { LISTING_NARROW } from './product-tile';
+import { LISTING_NARROW } from './listing-narrow';
 import { ProductRow } from './product-row';
 import { packagedPackaging, productListItem } from './product.fixture';
 

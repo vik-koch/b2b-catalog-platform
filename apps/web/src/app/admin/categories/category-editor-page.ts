@@ -92,19 +92,38 @@ import { CategoryPicker } from './category-picker';
           />
         </div>
 
-        <label class="block">
-          <span appFieldLabel>{{ text.slug }}</span>
-          <input
-            type="text"
-            appInput
-            class="w-full font-mono text-sm"
-            [value]="effectiveSlug()"
-            (input)="onSlugInput($any($event.target).value)"
-          />
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.slugHint
-          }}</span>
-        </label>
+        <!-- The category's two identifiers side by side, as the product
+             editor pairs them: the one the shop addresses it by and the one
+             the source system knows it as. One per line below sm. -->
+        <div class="grid gap-6 sm:grid-cols-2">
+          <label class="block">
+            <span appFieldLabel>{{ text.slug }}</span>
+            <input
+              type="text"
+              appInput
+              class="w-full font-mono text-sm"
+              [value]="effectiveSlug()"
+              (input)="onSlugInput($any($event.target).value)"
+            />
+            <span class="mt-1 block text-xs text-subtle">{{
+              text.slugHint
+            }}</span>
+          </label>
+
+          <label class="block">
+            <span appFieldLabel>{{ text.sourceId }}</span>
+            <input
+              type="text"
+              appInput
+              class="w-full font-mono text-sm"
+              [value]="sourceId()"
+              (input)="sourceId.set($any($event.target).value)"
+            />
+            <span class="mt-1 block text-xs text-subtle">{{
+              text.sourceIdHint
+            }}</span>
+          </label>
+        </div>
 
         <label class="block">
           <span appFieldLabel>{{ text.description }}</span>
@@ -125,20 +144,6 @@ import { CategoryPicker } from './category-picker';
             (valueChange)="image.set($event)"
           />
         </div>
-
-        <label class="block">
-          <span appFieldLabel>{{ text.sourceId }}</span>
-          <input
-            type="text"
-            appInput
-            class="w-full font-mono text-sm"
-            [value]="sourceId()"
-            (input)="sourceId.set($any($event.target).value)"
-          />
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.sourceIdHint
-          }}</span>
-        </label>
       </div>
 
       @if (error()) {

@@ -12,31 +12,47 @@ import { Button } from '../ui/button';
 import { FRAME, FRAME_SELECTED } from '../ui/frame';
 import { ImagePlaceholder } from './image-placeholder';
 
-/** Thumbnails kept on screen before the show-more toggle reveals the rest —
- * one row of the narrow grid, which is the width the cap is there for. Which
- * row that is has to be written into the class as a literal (`n+6`), so the
- * two move together: five columns, five kept, hide from the sixth. */
+/** Thumbnails a phone keeps before the show-more toggle takes over — one row
+ * of the narrow grid. Which row that is has to be written into the class as a
+ * literal (`n+6`), so the two move together: five columns, five kept, hide
+ * from the sixth. */
 const THUMBS_COLLAPSED = 5;
 
 /**
- * The product-page image viewer (FR-CAT-05): one large image with a grid of
- * thumbnails under it to switch between them. Under it at every width — the
- * gallery now shares its row with two other columns, and a strip beside the
- * image would take its width from the one thing on the page that has to stay
- * large. Selecting a thumbnail (click or hover) swaps the main image; there is
- * no auto-advance here — that belongs to the compact list-tile gallery.
+ * The most that stand beside the photo. Six, because six squares and their
+ * five gutters divide the photo's height exactly — the sixth is paid for by
+ * all of them shrinking a little rather than by the column outgrowing the
+ * picture it belongs to.
+ */
+const THUMBS_BESIDE = 6;
+
+/**
+ * The product-page image viewer (FR-CAT-05): one large image with the other
+ * images beside it to switch between. Selecting a thumbnail (click or hover)
+ * swaps the main image; there is no auto-advance here — that belongs to the
+ * compact list-tile gallery.
  *
- * The thumbnails wrap into rows and take their size from the column they sit
- * in, rather than scrolling sideways at a fixed 4rem: a strip that scrolls
- * hides images behind a gesture, and its intrinsic width was wide enough to
- * stretch the whole column — and with it the main image — past a phone screen.
- * Narrow, only the first row is kept, with a toggle for the rest.
+ * From `md` up to six thumbnails stand in a strip to the left of the photo,
+ * where they cost the page no height — a column of them is no taller than the
+ * photo beside it. Left rather than right because the page's other column is
+ * on the right: thumbnails on that side would stand between the photo and the
+ * way to buy it, and the two smallest things on the page would be the two in
+ * the middle.
+ *
+ * Past six they go under the photo instead, six to a row and every one of
+ * them on screen, taking their size from the picture they belong to. A column
+ * that outgrows the photo would decide the gallery's height, and a product
+ * with a dozen photographs would be a page about its photographs.
+ *
+ * Narrower than `md` the photo is 15rem and there is no column to stand a
+ * strip in, so the thumbnails are always a row under it — and there only the
+ * first five are kept, with a toggle for the rest.
  */
 @Component({
   selector: 'app-product-gallery',
   imports: [ImagePlaceholder, Button],
   template: `
-    <div class="flex min-w-0 flex-col gap-3">
+    <div [class]="frameClass()">
       <div data-main-image [class]="mainImage">
         @if (current(); as img) {
           @if (failed().has(img.full)) {
@@ -86,7 +102,7 @@ const THUMBS_COLLAPSED = 5;
           }
         </ul>
         @if (images().length > THUMBS_COLLAPSED) {
-          <div class="flex justify-center sm:hidden">
+          <div class="flex justify-center md:hidden">
             <button
               type="button"
               appButton
@@ -108,18 +124,64 @@ export class ProductGallery {
 
   /** Framed like a photo in a listing: the same hairline, at the radius the
    * page's largest image is given. */
-  protected readonly mainImage = `aspect-square overflow-hidden rounded-xl bg-stone-100 ${FRAME}`;
+  /** 25rem from `md` up whatever else is in the frame: a product with one
+   * image and a product with twelve show it at the same size. Uncapped below
+   * that — on a phone the photo is the page, and a column narrower than the
+   * cap is doing the capping anyway. */
+  protected readonly mainImage = `aspect-square w-full min-w-0 overflow-hidden rounded-xl bg-stone-100 md:w-100 md:shrink-0 ${FRAME}`;
 
   protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;
 
-  /** Only ever true on a narrow screen: from `sm` up every row is on screen and
-   * the toggle is hidden, so the extra class it would add is dropped there. */
+  /** Only ever true below `md`: from there the thumbnails stand in a column of
+   * their own, every one of them on screen, and the toggle is hidden — so the
+   * extra class it would add is dropped there. */
   protected readonly showAllThumbs = signal(false);
+  /** Whether the thumbnails stand beside the photo. Only while a column of
+   * them fits in the photo's own height: past that the strip would decide the
+   * gallery's height, and a taller stack of small squares next to a picture
+   * reads as the squares being the point. */
+  protected readonly beside = computed(() => {
+    const count = this.images().length;
+    return count > 1 && count <= THUMBS_BESIDE;
+  });
+
+  /** The sixth thumbnail is the one that no longer fits at 4rem, so the six of
+   * them share the photo's height instead — a little under 3.6rem each. */
+  protected readonly shared = computed(
+    () => this.images().length === THUMBS_BESIDE,
+  );
+
+  /**
+   * The photo and its thumbnails. Beside, the frame is 30rem — the photo's
+   * 25rem, the strip's 4rem and the gutter between them — and reversed, so the
+   * strip is on the left while the photo stays the first thing in the
+   * document. Underneath, the frame is the photo's own 25rem and the row of
+   * thumbnails is as wide as the picture it belongs to.
+   *
+   * Either way the frame is exactly as wide as what is in it, so the gallery
+   * sits at the left edge of its column rather than floating in the middle of
+   * it.
+   */
+  protected readonly frameClass = computed(() => {
+    const base = 'flex min-w-0 flex-col gap-3';
+    return this.beside()
+      ? `${base} md:max-w-120 md:flex-row-reverse md:items-start md:gap-4`
+      : `${base} md:max-w-100`;
+  });
+
   protected readonly thumbsClass = computed(() => {
-    const base = 'grid grid-cols-5 gap-2 sm:grid-cols-6 sm:gap-3';
+    // Under the photo, six to a row at the width the photo gives them; beside
+    // it, one column of 4rem squares.
+    const beside = this.shared()
+      ? // The photo's 25rem less the five gutters between six squares.
+        'grid grid-cols-5 gap-2 md:w-[calc((25rem-5*0.75rem)/6)] md:shrink-0 md:grid-cols-1 md:gap-3'
+      : 'grid grid-cols-5 gap-2 md:w-16 md:shrink-0 md:grid-cols-1 md:gap-3';
+    const base = this.beside()
+      ? beside
+      : 'grid grid-cols-5 gap-2 md:grid-cols-6 md:gap-3';
     return this.showAllThumbs()
       ? base
-      : `${base} max-sm:[&>li:nth-child(n+6)]:hidden`;
+      : `${base} [&>li:nth-child(n+6)]:max-md:hidden`;
   });
 
   images = input.required<readonly CatalogImage[]>();

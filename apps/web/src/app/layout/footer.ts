@@ -15,20 +15,37 @@ import { ScrollToTop } from './scroll-to-top';
       [class.border-t]="!seamless()"
       [class.border-border]="!seamless()"
     >
-      <div class="mx-auto w-full max-w-[82rem] px-4 py-6 text-sm">
+      <div class="mx-auto w-full max-w-[82rem] px-4 py-4 sm:py-6 text-sm">
+        <!-- One row from "sm", a column below it — and in the column the
+             copyright comes last, where a copyright line belongs and where it
+             is not standing between a reader and the links they came down here
+             for. -->
         <div
-          class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+          class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"
         >
-          <p class="text-xs text-subtle">{{ copyright }}</p>
+          <!-- On a phone the way back to the top rides the copyright line,
+               which is the last thing on the page and the one row down here
+               with space to spare. It is only ever in the document once: the
+               shape that does not apply is display:none, so a screen reader
+               is never offered two of them. -->
+          <div class="flex items-center justify-between gap-4">
+            <p class="text-xs text-subtle">{{ copyright }}</p>
+            <span class="sm:hidden"><app-scroll-to-top /></span>
+          </div>
           <!-- The call to action sits on the same line as the legal links, but
                outside the <nav>: it is not a legal link, and a nav of three
                quiet links plus one filled button reads as one row either way.
                It closes the row on the right, where the eye lands last. -->
           <div
-            class="flex flex-wrap items-center gap-x-4 gap-y-2 md:justify-end"
+            class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
           >
+            <!-- Stacked on a phone: four quiet links wrapped across two lines
+                 are a paragraph, and these are the ones a reader scans for by
+                 name. No disclosure over them — a legal link behind a toggle
+                 is one that is not readily reachable, and folding away four
+                 lines is not worth that. -->
             <nav
-              class="flex flex-wrap items-center gap-x-4 gap-y-2 text-subtle"
+              class="flex flex-col gap-2 text-subtle sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4"
               [attr.aria-label]="text.a11y.legalNav"
             >
               @for (slug of legalSlugs; track slug) {
@@ -37,7 +54,7 @@ import { ScrollToTop } from './scroll-to-top';
                   routerLinkActive
                   ariaCurrentWhenActive="page"
                   [attr.data-label]="text.nav[slug]"
-                  class="text-stable transition-colors hover:text-accent aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                  class="text-stable transition-colors sm:text-center hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary"
                 >
                   {{ text.nav[slug] }}
                 </a>
@@ -47,15 +64,17 @@ import { ScrollToTop } from './scroll-to-top';
               @if (consent.enabled) {
                 <button
                   type="button"
-                  class="cursor-pointer text-left transition-colors hover:text-accent"
+                  class="cursor-pointer text-left transition-colors hover:text-accent active:text-primary-deep"
                   (click)="consent.withdraw()"
                 >
                   {{ text.consent.settings }}
                 </button>
               }
             </nav>
-            <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
-            <app-scroll-to-top />
+            <div class="flex items-center gap-4">
+              <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
+              <span class="hidden sm:block"><app-scroll-to-top /></span>
+            </div>
           </div>
         </div>
       </div>

@@ -3,11 +3,15 @@ import {
   Facet,
   FacetValue,
   formatAttributeValue,
+  SearchSort,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
-import { Button } from '../ui/button';
+import { NgTemplateOutlet } from '@angular/common';
 import { Checkbox } from '../ui/checkbox';
+import { DisclosureToggle } from '../ui/disclosure-toggle';
+import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
+import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection, selectedValues } from './facet-selection';
 
 /** Values a facet shows before its own "show more" reveals the rest. */
@@ -56,109 +60,193 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
  */
 @Component({
   selector: 'app-facet-panel',
-  imports: [Checkbox, Button, Icon],
+  imports: [
+    NgTemplateOutlet,
+    Checkbox,
+    DisclosureToggle,
+    Icon,
+    IconButton,
+    ProductSortSelect,
+  ],
   providers: [FacetSelection],
   template: `
     <!-- One details-free disclosure: the summary element cannot host the
          "always open once it is a column" behaviour without JavaScript
          re-opening it on every resize, and the button carries the selected
-         count anyway. -->
-    <button
-      type="button"
-      class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-md border border-border-strong px-4 py-2.5 text-sm font-medium @min-[63.75rem]/listing:hidden"
-      [attr.aria-expanded]="open()"
-      [attr.aria-controls]="panelId"
-      (click)="open.set(!open())"
-    >
-      <span>
-        {{ text.title }}
-        @if (selectedCount(); as count) {
-          <span class="ml-1 text-accent">{{ selectedLabel(count) }}</span>
-        }
-      </span>
-      <app-icon
-        name="chevron-down"
-        class="h-4 w-4 text-subtle transition-transform"
-        [class.rotate-180]="open()"
-      />
-    </button>
+         count anyway. The button itself is the app's shared one — the admin
+         grids open their filters with the same control.
 
-    <div
-      [id]="panelId"
-      class="mt-4 @min-[63.75rem]/listing:mt-0 @min-[63.75rem]/listing:block"
-      [class.hidden]="!open()"
-      role="group"
-      [attr.aria-label]="text.title"
-    >
-      <h2 class="text-xs font-semibold tracking-wide text-subtle uppercase">
-        {{ text.title }}
-      </h2>
+         Toggle and panel share one border, so it is visible which controls
+         belong to the disclosure; at column width that border, and the toggle
+         with it, are gone and this is simply the column. -->
+    <div class="flex items-start gap-1">
+      <div
+        class="min-w-0 flex-1 rounded-md border transition-colors @min-[63.75rem]/listing:rounded-none @min-[63.75rem]/listing:border-0"
+        [class]="
+          open()
+            ? 'border-accent'
+            : 'border-border-strong @min-[63.75rem]/listing:border-transparent'
+        "
+      >
+        <app-disclosure-toggle
+          class="@min-[63.75rem]/listing:hidden"
+          [label]="text.title"
+          [count]="selectedCount()"
+          [countLabel]="selectedLabel(selectedCount())"
+          [open]="open()"
+          [panelId]="panelId"
+          (toggled)="open.set(!open())"
+        />
+        <!-- Grown and shrunk rather than shown and hidden, which is what says
+             the two are one thing: a grid row going from 0fr to 1fr, since a
+             height cannot be transitioned to "as tall as the content". Always
+             open at column width, where there is no toggle to open it. -->
+        <div
+          class="grid transition-[grid-template-rows] duration-200 ease-out"
+          [class]="
+            open()
+              ? 'grid-rows-[1fr]'
+              : 'grid-rows-[0fr] @min-[63.75rem]/listing:grid-rows-[1fr]'
+          "
+        >
+          <div class="overflow-hidden">
+            <div
+              [id]="panelId"
+              class="border-t border-border px-4 py-4 @min-[63.75rem]/listing:border-t-0 @min-[63.75rem]/listing:p-0"
+              role="group"
+              [attr.aria-label]="text.title"
+            >
+              <!-- Only as a column: opened as a disclosure the button above
+                   already says what this is, and a heading under it says it
+                   twice. It shares its line with the way back to the whole
+                   catalogue, which is the disclosure's own toggle row at any
+                   narrower width. -->
+              <div
+                class="hidden items-center justify-between gap-2 @min-[63.75rem]/listing:flex"
+              >
+                <h2
+                  class="text-xs font-medium tracking-wide text-subtle uppercase"
+                >
+                  {{ text.title }}
+                </h2>
+                <ng-container [ngTemplateOutlet]="clearAll" />
+              </div>
 
-      <ul class="mt-4 space-y-6">
-        @for (facet of facets(); track facet.slug) {
-          <li>
-            <h3 class="text-sm font-medium text-stone-800">{{ facet.name }}</h3>
-            <ul class="mt-2 space-y-1.5">
-              @for (value of shownValues(facet); track value.value) {
-                <li>
-                  <!-- A zero-count value is disabled rather than hidden
+              <!-- The ordering, for as long as there is no room for the row
+                   above the grid that normally carries it: one control to
+                   arrange the listing rather than two places to look. -->
+              @if (sort(); as value) {
+                <div class="@min-[63.75rem]/listing:hidden">
+                  <app-product-sort-select
+                    fieldId="facet-panel-sort"
+                    [value]="value"
+                    [defaultSort]="defaultSort()"
+                    [withRelevance]="withRelevance()"
+                  />
+                </div>
+              }
+
+              <ul class="mt-4 space-y-6">
+                @for (facet of facets(); track facet.slug) {
+                  <li>
+                    <h3 class="text-sm font-medium text-stone-800">
+                      {{ facet.name }}
+                    </h3>
+                    <ul class="mt-2 space-y-1.5">
+                      @for (value of shownValues(facet); track value.value) {
+                        <li>
+                          <!-- A zero-count value is disabled rather than hidden
                        (FR-ATTR-05): a list that reshuffles as it is clicked
                        cannot be read, and the greyed row is the answer to
                        "why can I not combine these two?". -->
-                  <label
-                    class="flex cursor-pointer items-start gap-2 text-sm"
-                    [class.text-muted]="disabled(value)"
-                    [class.cursor-not-allowed]="disabled(value)"
-                  >
-                    <input
-                      type="checkbox"
-                      appCheckbox
-                      class="mt-0.5"
-                      [checked]="value.selected"
-                      [attr.checked]="value.selected ? '' : null"
-                      [disabled]="disabled(value)"
-                      (change)="toggle(facet, value)"
-                    />
-                    <span class="min-w-0 flex-1">
-                      {{ label(facet, value) }}
-                    </span>
-                    <span class="text-xs text-subtle tabular-nums">
-                      {{ value.count }}
-                    </span>
-                  </label>
-                </li>
-              }
-            </ul>
-            @if (facet.values.length > VALUES_COLLAPSED) {
-              <button
-                type="button"
-                class="mt-2 cursor-pointer text-xs text-accent hover:underline"
-                (click)="toggleExpanded(facet)"
-              >
-                {{
-                  expanded(facet) ? catalogText.showLess : catalogText.showMore
-                }}
-              </button>
-            }
-          </li>
-        }
-      </ul>
+                          <label
+                            class="flex cursor-pointer items-start gap-2 text-sm"
+                            [class.text-muted]="disabled(value)"
+                            [class.cursor-not-allowed]="disabled(value)"
+                          >
+                            <input
+                              type="checkbox"
+                              appCheckbox
+                              class="mt-0.5"
+                              [checked]="value.selected"
+                              [attr.checked]="value.selected ? '' : null"
+                              [disabled]="disabled(value)"
+                              (change)="toggle(facet, value)"
+                            />
+                            <span class="min-w-0 flex-1">
+                              {{ label(facet, value) }}
+                            </span>
+                            <span class="text-xs text-subtle tabular-nums">
+                              {{ value.count }}
+                            </span>
+                          </label>
+                        </li>
+                      }
+                    </ul>
+                    @if (facet.values.length > VALUES_COLLAPSED) {
+                      <button
+                        type="button"
+                        class="mt-2 cursor-pointer text-xs text-accent hover:underline"
+                        (click)="toggleExpanded(facet)"
+                      >
+                        {{
+                          expanded(facet)
+                            ? catalogText.showLess
+                            : catalogText.showMore
+                        }}
+                      </button>
+                    }
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <!-- Below the whole panel and always rendered, disabled while nothing is
-           ticked: appearing with the first selection would shift every facet
-           list the moment one was clicked. -->
-      <button
-        type="button"
-        appButton
-        variant="secondary"
-        size="sm"
-        class="mt-6 w-full disabled:opacity-50"
-        [disabled]="!selectedCount()"
-        (click)="selection.clearAll()"
-      >
-        {{ text.clearAll }}
-      </button>
+      <!-- Beside the disclosure rather than inside it, where the admin grids
+           put the same control: it undoes what the box holds, so it cannot be
+           inside the part that is closed. Always rendered and inert while
+           nothing is ticked, so nothing moves when the first box is ticked. -->
+      <div class="@min-[63.75rem]/listing:hidden">
+        <!-- Finger-sized for as long as the panel beside it is a disclosure,
+             which a container query decides and the viewport-based default
+             cannot see: on a thousand-pixel window this is still the phone's
+             layout. -->
+        <ng-container
+          [ngTemplateOutlet]="clearAll"
+          [ngTemplateOutletContext]="{ size: 'touch' }"
+        />
+      </div>
     </div>
+
+    <ng-template #clearAll let-size="size">
+      @if (selectedCount()) {
+        <button
+          appIconButton
+          variant="danger"
+          type="button"
+          [size]="size ?? 'sm'"
+          [attr.aria-label]="text.clearAll"
+          [title]="text.clearAll"
+          (click)="selection.clearAll()"
+        >
+          <app-icon name="funnel-x" />
+        </button>
+      } @else {
+        <button
+          appIconButton
+          type="button"
+          disabled
+          class="opacity-40"
+          [size]="size ?? 'sm'"
+          [attr.aria-label]="text.clearAll"
+          [title]="text.clearAll"
+        >
+          <app-icon name="funnel-x" />
+        </button>
+      }
+    </ng-template>
   `,
 })
 export class FacetPanel {
@@ -172,6 +260,15 @@ export class FacetPanel {
 
   /** The facets for the products in scope, in the registry's order. */
   readonly facets = input.required<readonly Facet[]>();
+
+  /**
+   * The listing's ordering, so the panel can carry the control where the row
+   * above the grid has no room for it. Absent leaves it out — a listing with
+   * nothing to sort passes nothing.
+   */
+  readonly sort = input<SearchSort | null>(null);
+  readonly defaultSort = input<SearchSort>('name');
+  readonly withRelevance = input(false);
 
   /** Open on narrow screens only; from the lg breakpoint up the panel is the
    * left column. */

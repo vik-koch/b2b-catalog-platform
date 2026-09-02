@@ -18,6 +18,23 @@ export interface SuggestListText {
 }
 
 /**
+ * The dropdown itself, shared by every suggesting field so two panels are one
+ * panel. Anchored under the field and at least as wide as it, and — where the
+ * field shares its row with another, as the street does with what is inside
+ * the building — wider than the field, since an address truncated to half a
+ * row is a row nobody can choose between.
+ *
+ * `100cqw` is what keeps that from being wider than the form: each field's
+ * width floor is spelled `min(<the width the rows want>, 100cqw)`, so the
+ * panel spills into the column beside it where there is one and stops at the
+ * form's own edge where there is not. It measures the form rather than the
+ * window because a form is not the width of the page — the checkout draws two
+ * of these in cards — and the containing form declares the container.
+ */
+export const SUGGEST_PANEL =
+  'absolute top-full left-0 z-20 mt-1 w-full overflow-hidden rounded-md border border-border-strong bg-white py-1 shadow-lg';
+
+/**
  * Long enough that a fast typist produces one call per word — and every call
  * behind one of these is a metered one at a provider, not a query against our
  * own index.

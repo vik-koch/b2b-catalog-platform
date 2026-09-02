@@ -1,24 +1,24 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { APP_TEXT } from '../config/app-text';
-import { usePageSeo } from '../core/page-seo';
-import { ADMIN_TEXT } from '../config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
+import { ADMIN_TEXT } from '../config/admin-text';
+import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { usePageSeo } from '../core/page-seo';
 import { Button } from '../ui/button';
 import { AdminIcon } from '../ui/icons/admin-icon';
+import { BuildInfoService } from './build-info.service';
+import { injectEditorReturnParams } from './editor-return';
 import { MaintenanceToggle } from './maintenance/maintenance-toggle';
 import { SyncService } from './sync/sync.service';
-import { injectEditorReturnParams } from './editor-return';
-import { BuildInfoService } from './build-info.service';
 
 /**
- * Admin panel — a small dashboard: everything that changes shop content (the
- * catalog import, products and categories, the fixed static pages), the two
- * staff-facing halves (orders and accounts) side by side, and site state
- * (maintenance mode). Everything an admin can change is discoverable from here,
- * consistent with the storefront edit-mode affordances.
+ * Admin panel — a small dashboard: the two staff-facing halves (orders and
+ * accounts) side by side, then everything that changes shop content (the
+ * catalog import, products and categories, the fixed static pages), then site
+ * state (maintenance mode). Everything an admin can change is discoverable
+ * from here, consistent with the storefront edit-mode affordances.
  */
 @Component({
   selector: 'app-admin-panel-page',
@@ -29,18 +29,70 @@ import { BuildInfoService } from './build-info.service';
     </h1>
     <app-signed-in-as />
 
-    <!-- Everything that changes shop content lives in one card: the three
-         catalog-side groups side by side (ingest, catalog, pricing), the static
+    <!-- The two staff-facing halves side by side: neither holds enough buttons
+         to earn a row of its own, and both are shown to managers, whose panel
+         is these two cards and nothing else. Orders first — answering today's
+         requests is the work, approving an account is occasional. First on the
+         panel for the same reason: a manager has nothing else here, and an
+         admin arriving at this screen is far more often answering an order
+         than importing a catalog. Stacked below md, where two columns of
+         buttons would each be too narrow. -->
+    <div class="mt-10 grid gap-6 md:grid-cols-2">
+      <section class="flex flex-col">
+        <h2
+          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
+        >
+          <app-admin-icon name="clipboard-list" class="h-4 w-4" />
+          {{ panelText.orders }}
+        </h2>
+        <!-- Grows to its neighbour's height: side by side, two cards that end
+             at different points read as one being unfinished. -->
+        <div
+          class="flex grow flex-wrap items-start gap-3 rounded-lg border border-border p-5"
+        >
+          <a appButton variant="secondary" routerLink="/admin/orders">
+            {{ orderText.title }}
+          </a>
+        </div>
+      </section>
+
+      <section class="flex flex-col">
+        <h2
+          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
+        >
+          <app-admin-icon name="users" class="h-4 w-4" />
+          {{ panelText.accounts }}
+        </h2>
+        <!-- Two buttons rather than one screen with tabs: they are two
+             permissions, and a manager is only ever offered the one they
+             have. -->
+        <div
+          class="flex grow flex-wrap items-start gap-3 rounded-lg border border-border p-5"
+        >
+          <a appButton variant="secondary" routerLink="/admin/users">
+            {{ userText.titleCustomers }}
+          </a>
+          @if (isAdmin()) {
+            <a appButton variant="secondary" routerLink="/admin/users/staff">
+              {{ userText.titleStaff }}
+            </a>
+          }
+        </div>
+      </section>
+    </div>
+
+    <!-- Everything that changes shop content lives in one card: the four
+         catalog-side groups (ingest, catalog, attributes, pricing), the static
          pages on a row of their own beneath — they are a different kind of
-         content and there are more of them than fit a third of the card.
-         Admin-only — a manager's panel holds only the accounts card below. -->
+         content and there are more of them than fit one of the groups.
+         Admin-only — a manager's panel holds only the cards above. -->
     @if (isAdmin()) {
       <section class="mt-10">
         <!-- Section headings carry a muted glyph for the topic: the panel is a
              list of unrelated destinations, and the icon is what makes one
              findable at a glance. Only at this level — one per card. -->
         <h2
-          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
         >
           <app-admin-icon name="package" class="h-4 w-4" />
           {{ panelText.manage }}
@@ -48,14 +100,15 @@ import { BuildInfoService } from './build-info.service';
         <div class="rounded-lg border border-border">
           <!-- Four groups, one track each, in the order the work happens:
                import, then the catalog itself, then how its products are
-               described, then what they cost. Stacked below sm, where the
-               columns would each be too narrow for their buttons; the divider
-               turns with them. -->
-          <div
-            class="grid divide-y divide-border sm:grid-cols-4 sm:divide-x sm:divide-y-0"
-          >
+               described, then what they cost. Four abreast only at xl: below
+               that they pair up, and below lg they stack, each group needing
+               room for buttons whose labels are deployment text.
+               Borders per cell rather than divide utilities, which count in DOM
+               order and so draws a left edge down the middle of a wrapped
+               row. -->
+          <div class="grid lg:grid-cols-2 xl:grid-cols-4">
             <div class="p-5">
-              <h3 class="mb-3 text-sm font-semibold">{{ panelText.sync }}</h3>
+              <h3 class="mb-3 text-sm font-medium">{{ panelText.sync }}</h3>
               <a appButton routerLink="/admin/sync" class="gap-2">
                 <app-admin-icon name="upload" class="h-4 w-4" />
                 {{ syncText.title }}
@@ -75,8 +128,8 @@ import { BuildInfoService } from './build-info.service';
               }
             </div>
 
-            <div class="p-5">
-              <h3 id="admin-catalog-heading" class="mb-3 text-sm font-semibold">
+            <div class="border-t border-border p-5 lg:border-t-0 lg:border-l">
+              <h3 id="admin-catalog-heading" class="mb-3 text-sm font-medium">
                 {{ panelText.catalog }}
               </h3>
               <ul
@@ -104,10 +157,10 @@ import { BuildInfoService } from './build-info.service';
                  shop filters by, the other shows what the products actually
                  carry. Both are about how a product is described rather than
                  about the catalog's structure. -->
-            <div class="p-5">
+            <div class="border-t border-border p-5 xl:border-t-0 xl:border-l">
               <h3
                 id="admin-attributes-heading"
-                class="mb-3 text-sm font-semibold"
+                class="mb-3 text-sm font-medium"
               >
                 {{ panelText.attributes }}
               </h3>
@@ -136,8 +189,8 @@ import { BuildInfoService } from './build-info.service';
               </ul>
             </div>
 
-            <div class="p-5">
-              <h3 class="mb-3 text-sm font-semibold">
+            <div class="border-t border-border p-5 lg:border-l xl:border-t-0">
+              <h3 class="mb-3 text-sm font-medium">
                 {{ panelText.pricing }}
               </h3>
               <a appButton variant="secondary" routerLink="/admin/tiers">
@@ -147,7 +200,7 @@ import { BuildInfoService } from './build-info.service';
           </div>
 
           <div class="border-t border-border p-5">
-            <h3 id="admin-pages-heading" class="mb-3 text-sm font-semibold">
+            <h3 id="admin-pages-heading" class="mb-3 text-sm font-medium">
               {{ panelText.pages }}
             </h3>
             <!-- Named after its heading: several of these labels ("About us")
@@ -178,59 +231,10 @@ import { BuildInfoService } from './build-info.service';
       </section>
     }
 
-    <!-- The two staff-facing halves side by side: neither holds enough buttons
-         to earn a row of its own, and both are shown to managers, whose panel
-         is these two cards and nothing else. Orders first — answering today's
-         requests is the work, approving an account is occasional. Stacked below
-         md, where two columns of buttons would each be too narrow. -->
-    <div class="mt-10 grid gap-6 md:grid-cols-2">
-      <section class="flex flex-col">
-        <h2
-          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
-        >
-          <app-admin-icon name="clipboard-list" class="h-4 w-4" />
-          {{ panelText.orders }}
-        </h2>
-        <!-- Grows to its neighbour's height: side by side, two cards that end
-             at different points read as one being unfinished. -->
-        <div
-          class="flex grow flex-wrap items-start gap-3 rounded-lg border border-border p-5"
-        >
-          <a appButton variant="secondary" routerLink="/admin/orders">
-            {{ orderText.title }}
-          </a>
-        </div>
-      </section>
-
-      <section class="flex flex-col">
-        <h2
-          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
-        >
-          <app-admin-icon name="users" class="h-4 w-4" />
-          {{ panelText.accounts }}
-        </h2>
-        <!-- Two buttons rather than one screen with tabs: they are two
-             permissions, and a manager is only ever offered the one they
-             have. -->
-        <div
-          class="flex grow flex-wrap items-start gap-3 rounded-lg border border-border p-5"
-        >
-          <a appButton variant="secondary" routerLink="/admin/users">
-            {{ userText.titleCustomers }}
-          </a>
-          @if (isAdmin()) {
-            <a appButton variant="secondary" routerLink="/admin/users/staff">
-              {{ userText.titleStaff }}
-            </a>
-          }
-        </div>
-      </section>
-    </div>
-
     @if (isAdmin()) {
       <section class="mt-10">
         <h2
-          class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
         >
           <app-admin-icon name="wrench" class="h-4 w-4" />
           {{ panelText.site }}
@@ -242,7 +246,7 @@ import { BuildInfoService } from './build-info.service';
     <!-- The session's own password, in the same place a customer finds it. -->
     <section class="mt-10">
       <h2
-        class="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-subtle uppercase"
+        class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
       >
         <app-admin-icon name="lock" class="h-4 w-4" />
         {{ text.securityHeading }}

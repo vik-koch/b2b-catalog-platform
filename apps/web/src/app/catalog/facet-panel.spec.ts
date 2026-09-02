@@ -55,9 +55,14 @@ async function render(facets: Facet[], startUrl = '/catalog/espresso') {
     boxes()[index].click();
     await fixture.whenStable();
   };
+  /** By text or by accessible name: the clear-all is a glyph now, and the
+   * panel draws it twice — as the column heading's control, and beside the
+   * disclosure toggle — of which only one is ever on screen. */
   const buttonWith = (label: string) =>
     [...host.querySelectorAll('button')].find(
-      (b) => b.textContent?.trim() === label,
+      (b) =>
+        b.textContent?.trim() === label ||
+        b.getAttribute('aria-label') === label,
     );
 
   return { router, host, boxes, click, buttonWith, fixture };

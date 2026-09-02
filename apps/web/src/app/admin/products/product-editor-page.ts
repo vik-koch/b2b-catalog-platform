@@ -4,45 +4,45 @@ import {
   AdminCategory,
   AttributeDefinition,
   AttributeKeyUsage,
+  basisDividesQuantities,
   CatalogImage,
   CustomerTier,
-  basisDividesQuantities,
   minimumFitsPacks,
   piecePriceMilliMinor,
   piecesPerUnit,
+  PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
   ProductAttribute,
   ProductDetail,
   ProductInput,
-  PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
   slugify,
   totalMinor,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { usePageSeo } from '../../core/page-seo';
-import { Skeleton } from '../../ui/skeleton';
-import { delayedLoading } from '../../core/delayed-loading';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import {
   decimalSeparator,
   formatPriceInput,
   parsePriceInput,
 } from '../../catalog/price';
 import { ProductDetailView } from '../../catalog/product-detail-view';
+import { ADMIN_TEXT } from '../../config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { delayedLoading } from '../../core/delayed-loading';
+import { usePageSeo } from '../../core/page-seo';
 import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
 import { Button } from '../../ui/button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Checkbox } from '../../ui/checkbox';
 import { FieldLabel } from '../../ui/field-label';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
 import { PriceField } from '../../ui/price-field';
-import { RichTextEditor } from '../rich-text/rich-text-editor';
+import { Skeleton } from '../../ui/skeleton';
+import { AdminCatalogService } from '../admin-catalog.service';
+import { AttributesService } from '../attributes/attributes.service';
 import { CategoryPicker } from '../categories/category-picker';
 import { categoryAncestors } from '../categories/category-tree';
+import { injectEditorReturn } from '../editor-return';
+import { RichTextEditor } from '../rich-text/rich-text-editor';
+import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
-import {
-  ProductTierPricesEditor,
-  TierPriceDraft,
-} from './product-tier-prices-editor';
 import { ProductImageGallery } from './product-image-gallery';
 import {
   emptyPackaging,
@@ -50,10 +50,10 @@ import {
   parseCount,
   ProductPackagingEditor,
 } from './product-packaging-editor';
-import { AdminCatalogService } from '../admin-catalog.service';
-import { TiersService } from '../tiers/tiers.service';
-import { AttributesService } from '../attributes/attributes.service';
-import { injectEditorReturn } from '../editor-return';
+import {
+  ProductTierPricesEditor,
+  TierPriceDraft,
+} from './product-tier-prices-editor';
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
@@ -114,8 +114,12 @@ import { injectEditorReturn } from '../editor-return';
           />
         </label>
 
+        <!-- Side by side from sm up: the price is a short field and the
+             category picker is the long one beside it. Below that each takes a
+             line of its own — a 10rem price field and a picker sharing 360px
+             are two fields too narrow to read. -->
         <div class="flex flex-wrap gap-6">
-          <label class="block">
+          <label class="block w-full sm:w-auto">
             <span appFieldLabel>
               {{ text.price }}
               <span class="text-accent" aria-hidden="true">*</span>
@@ -129,14 +133,14 @@ import { injectEditorReturn } from '../editor-return';
               inputmode="decimal"
               appInput
               appPriceField
-              class="w-40"
+              class="w-full sm:w-40"
               [value]="priceInput()"
               [placeholder]="pricePlaceholder"
               (input)="priceInput.set($any($event.target).value)"
             />
           </label>
 
-          <div class="flex-1">
+          <div class="w-full sm:w-auto sm:flex-1">
             <span appFieldLabel>
               {{ text.category }}
               <span class="text-accent" aria-hidden="true">*</span>
@@ -165,19 +169,40 @@ import { injectEditorReturn } from '../editor-return';
           </div>
         }
 
-        <label class="block">
-          <span appFieldLabel>{{ text.slug }}</span>
-          <input
-            type="text"
-            appInput
-            class="w-full font-mono text-sm"
-            [value]="effectiveSlug()"
-            (input)="onSlugInput($any($event.target).value)"
-          />
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.slugHint
-          }}</span>
-        </label>
+        <!-- The product's two identifiers, side by side: the one the shop
+             addresses it by and the one the source system knows it as. They
+             are read and corrected together, and neither is worth a full line
+             of a 48rem form. One per line below sm, like every other pair on
+             this page. -->
+        <div class="grid gap-x-6 gap-y-6 sm:grid-cols-2">
+          <label class="block">
+            <span appFieldLabel>{{ text.slug }}</span>
+            <input
+              type="text"
+              appInput
+              class="w-full font-mono text-sm"
+              [value]="effectiveSlug()"
+              (input)="onSlugInput($any($event.target).value)"
+            />
+            <span class="mt-1 block text-xs text-subtle">{{
+              text.slugHint
+            }}</span>
+          </label>
+
+          <label class="block">
+            <span appFieldLabel>{{ text.sourceId }}</span>
+            <input
+              type="text"
+              appInput
+              class="w-full font-mono text-sm"
+              [value]="sourceId()"
+              (input)="sourceId.set($any($event.target).value)"
+            />
+            <span class="mt-1 block text-xs text-subtle">{{
+              text.sourceIdHint
+            }}</span>
+          </label>
+        </div>
 
         <div>
           <span appFieldLabel>{{ text.description }}</span>
@@ -220,7 +245,7 @@ import { injectEditorReturn } from '../editor-return';
             <span>{{ text.lineNote.enable }}</span>
           </label>
           @if (lineNoteEnabled()) {
-            <label class="mt-3 block max-w-2xl">
+            <label class="mt-3 block max-w-xl">
               <span appFieldLabel>{{ text.lineNote.prompt }}</span>
               <input
                 type="text"
@@ -244,20 +269,6 @@ import { injectEditorReturn } from '../editor-return';
             (valueChange)="images.set($event)"
           />
         </div>
-
-        <label class="block">
-          <span appFieldLabel>{{ text.sourceId }}</span>
-          <input
-            type="text"
-            appInput
-            class="w-full font-mono text-sm"
-            [value]="sourceId()"
-            (input)="sourceId.set($any($event.target).value)"
-          />
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.sourceIdHint
-          }}</span>
-        </label>
       </div>
     }
 

@@ -71,9 +71,9 @@ export function segmentClass(
   { size = 'sm', grow = false, locked = false }: SegmentOptions = {},
 ): string {
   const states: Record<SegmentState, string> = {
-    selected: 'bg-primary text-white',
-    available: 'text-ink hover:bg-stone-100',
-    unavailable: 'text-stone-400 hover:bg-stone-50',
+    selected: 'bg-primary text-white active:bg-primary-deep',
+    available: 'text-ink hover:bg-stone-100 active:bg-stone-200',
+    unavailable: 'text-stone-400 hover:bg-stone-50 active:bg-stone-100',
   };
   const lockedStates: Record<SegmentState, string> = {
     selected: 'bg-stone-400 text-white',

@@ -21,10 +21,12 @@ import { usePageSeo } from '../../core/page-seo';
 import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
+import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
 import { ConfirmService } from '../../ui/confirm.service';
 import { injectEditorReturn } from '../editor-return';
+import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
@@ -57,11 +59,13 @@ const FALLBACK_RETURN = '/admin/categories';
     CdkDragHandle,
     Button,
     Checkbox,
+    IconButton,
     AdminIcon,
+    RecordRow,
     Skeleton,
   ],
   template: `
-    <div class="mb-4 flex items-center justify-between gap-4">
+    <div class="mb-4 flex items-start justify-between gap-4">
       <!-- The category is in the heading, so the heading waits for it: drawing
            "Filters" first and growing it into "Filters in Coffee" a moment
            later reads as the page changing its mind. A bar of the same height
@@ -96,7 +100,9 @@ const FALLBACK_RETURN = '/admin/categories';
           @if (draft().length === 0) {
             <p class="text-sm text-muted">{{ text.noDefinitions }}</p>
           } @else {
-            <div class="overflow-hidden rounded-lg border border-border">
+            <!-- Divided rules on the page, not a card: this is the same list
+                 of records the rest of the panel draws. -->
+            <div class="border-y border-border">
               <ul
                 class="divide-y divide-border"
                 cdkDropList
@@ -104,39 +110,47 @@ const FALLBACK_RETURN = '/admin/categories';
                 (cdkDropListDropped)="onDrop($event)"
               >
                 @for (filter of draft(); track filter.attributeId) {
-                  <li class="flex items-center gap-3 bg-white p-4" cdkDrag>
-                    <label class="flex items-center gap-3 text-sm">
+                  <li class="py-3" cdkDrag>
+                    <app-record-row>
+                      <!-- Whether the panel offers this filter at all is the
+                           one thing done to the row, so it leads it — where the
+                           other lists put their grip. -->
                       <input
+                        recordControl
                         type="checkbox"
                         appCheckbox
+                        class="self-center"
                         [checked]="filter.visible"
-                        [attr.aria-label]="text.show"
+                        [attr.aria-label]="filter.name"
+                        [title]="text.show"
                         (change)="toggle(filter)"
                       />
                       <span class="font-medium text-stone-700">
                         {{ filter.name }}
                       </span>
-                    </label>
-                    <span class="text-sm text-subtle">
-                      @if (filter.productCount === 0) {
-                        {{ text.notPresent }}
-                      } @else {
-                        {{ productsLabel(filter.productCount) }}
-                      }
-                    </span>
-                    @if (filter.isNew) {
-                      <span class="text-sm text-amber-700">
-                        {{ text.isNew }}
+                      <ng-container recordMeta>
+                        <span>
+                          @if (filter.productCount === 0) {
+                            {{ text.notPresent }}
+                          } @else {
+                            {{ productsLabel(filter.productCount) }}
+                          }
+                        </span>
+                        @if (filter.isNew) {
+                          <span class="text-amber-700">{{ text.isNew }}</span>
+                        }
+                      </ng-container>
+                      <span
+                        recordActions
+                        cdkDragHandle
+                        appIconButton
+                        class="cursor-grab active:cursor-grabbing"
+                        [attr.aria-label]="text.reorder"
+                        [title]="text.reorder"
+                      >
+                        <app-admin-icon name="grip-vertical" />
                       </span>
-                    }
-                    <span
-                      cdkDragHandle
-                      class="ml-auto cursor-grab p-1 text-stone-300 hover:text-subtle active:cursor-grabbing"
-                      [attr.aria-label]="text.reorder"
-                      [title]="text.reorder"
-                    >
-                      <app-admin-icon name="grip-vertical" class="h-4 w-4" />
-                    </span>
+                    </app-record-row>
                   </li>
                 }
               </ul>
@@ -146,7 +160,7 @@ const FALLBACK_RETURN = '/admin/categories';
               <p class="mt-4 text-sm text-amber-700">{{ text.empty }}</p>
             }
 
-            <div class="mt-6 flex items-center gap-2">
+            <div class="mt-6 flex flex-wrap items-center gap-2">
               <button
                 appButton
                 type="button"
