@@ -1,11 +1,14 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
+  afterRenderEffect,
   Component,
   computed,
+  ElementRef,
   inject,
   input,
   linkedSignal,
   signal,
+  viewChild,
 } from '@angular/core';
 import {
   CART_NOTE_MAX,
@@ -25,8 +28,11 @@ import {
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { injectNarrowScreen } from '../core/narrow-screen';
 import { AutoGrow } from '../ui/auto-grow';
 import { Button } from '../ui/button';
+import { DialogActions } from '../ui/dialog-actions';
+import { DialogPanel } from '../ui/dialog-panel';
 import { FieldLabel } from '../ui/field-label';
 import { Icon } from '../ui/icons/icon';
 import { IconButton } from '../ui/icon-button';
@@ -114,6 +120,8 @@ export interface BuyableProduct {
   imports: [
     AutoGrow,
     Button,
+    DialogActions,
+    DialogPanel,
     FieldLabel,
     Icon,
     IconButton,
@@ -125,6 +133,27 @@ export interface BuyableProduct {
   ],
   host: { class: 'block' },
   template: `
+    <!-- The note field, in a bubble on a pointer and in a modal on a phone.
+         The product's question is the field's placeholder, not a line under
+         it: it is what to write, and it is read while the field is empty —
+         which is the only time it has anything to say. -->
+    <ng-template #noteField>
+      <label class="block text-left">
+        <span appFieldLabel>{{ text.noteLabel }}</span>
+        <textarea
+          appInput
+          appAutoGrow
+          rows="3"
+          class="w-full"
+          [attr.maxlength]="noteMax"
+          [attr.placeholder]="notePrompt()"
+          [value]="ownNote()"
+          (input)="onNoteInput($event)"
+          (blur)="saveNote()"
+        ></textarea>
+      </label>
+    </ng-template>
+
     <!-- Fragments, so the two arrangements are two orders of the same five
          blocks rather than two copies of them. -->
     <ng-template #priceBlock>
@@ -162,34 +191,50 @@ export interface BuyableProduct {
 
             @if (popup(); as open) {
               @if (open.at === 'note') {
-                <!-- Upwards: everything else on this block is below the price
-                     line, and a bubble over the stepper and the button is one
-                     the customer has to clear before buying. -->
-                <app-popover
-                  align="end"
-                  placement="above"
-                  [roomy]="true"
-                  (dismissed)="dismiss()"
-                >
-                  <!-- The product's question is the field's placeholder, not
-                       a line under it: it is what to write, and it is read
-                       while the field is empty — which is the only time it has
-                       anything to say. -->
-                  <label class="block">
-                    <span appFieldLabel>{{ text.noteLabel }}</span>
-                    <textarea
-                      appInput
-                      appAutoGrow
-                      rows="3"
-                      class="w-full"
-                      [attr.maxlength]="noteMax"
-                      [attr.placeholder]="notePrompt()"
-                      [value]="ownNote()"
-                      (input)="onNoteInput($event)"
-                      (blur)="saveNote()"
-                    ></textarea>
-                  </label>
-                </app-popover>
+                <!-- A bubble is a thing beside the control it belongs to, and
+                     on a phone there is nothing beside anything: a field to
+                     type a sentence in, with the keyboard up, is the width of
+                     the screen. So on a phone the same field is a modal, which
+                     is also what gives it a way out that is not "tap the page
+                     behind the keyboard". -->
+                @if (narrow()) {
+                  <dialog
+                    #noteDialog
+                    appDialogPanel
+                    [attr.aria-label]="text.noteLabel"
+                    (cancel)="cancelNote()"
+                  >
+                    <ng-container [ngTemplateOutlet]="noteField" />
+                    <!-- Two answers, because a modal took the choice the
+                         bubble made by being dismissed: away from it kept
+                         nothing, and there is no away here. -->
+                    <div appDialogActions>
+                      <button
+                        appButton
+                        variant="secondary"
+                        type="button"
+                        (click)="cancelNote()"
+                      >
+                        {{ text.cancel }}
+                      </button>
+                      <button appButton type="button" (click)="closeNote()">
+                        {{ text.noteDone }}
+                      </button>
+                    </div>
+                  </dialog>
+                } @else {
+                  <!-- Upwards: everything else on this block is below the price
+                       line, and a bubble over the stepper and the button is one
+                       the customer has to clear before buying. -->
+                  <app-popover
+                    align="end"
+                    placement="above"
+                    [roomy]="true"
+                    (dismissed)="dismiss()"
+                  >
+                    <ng-container [ngTemplateOutlet]="noteField" />
+                  </app-popover>
+                }
               }
             }
           </div>
@@ -573,6 +618,25 @@ export class ProductBuyControls {
    * made, a segment that is not sold, the question under `−`. */
   private readonly ownPopup = signal<Popup | null>(null);
 
+  /** Below `sm` the note is a modal rather than a bubble. Safe on an SSR page
+   * because nothing here depends on it until the customer opens the note,
+   * which cannot happen before the browser has answered. */
+  protected readonly narrow = injectNarrowScreen('sm');
+  private readonly noteDialog =
+    viewChild<ElementRef<HTMLDialogElement>>('noteDialog');
+  /** What the note said when it was opened — what cancelling puts back. */
+  private noteAtOpen = '';
+
+  constructor() {
+    // `showModal()` has to be called imperatively for the focus trap, the
+    // backdrop and the top layer; the `@if` in the template is what closes the
+    // note again, a removed <dialog> being a closed one.
+    afterRenderEffect(() => {
+      const dialog = this.noteDialog()?.nativeElement;
+      if (dialog && !dialog.open) dialog.showModal();
+    });
+  }
+
   /**
    * The caller's notice, **held once it has arrived**. It is feedback on
    * something already done, and the thing it is about is over by the time it
@@ -780,7 +844,29 @@ export class ProductBuyControls {
   }
 
   protected openNote(): void {
+    this.noteAtOpen = this.ownNote();
     this.ownPopup.set({ at: 'note', message: '' });
+  }
+
+  /** The modal's way out. The bubble is dismissed by clicking away from it,
+   * which takes the focus out of the field and saves on the way; a modal has
+   * no "away", so its button does both. */
+  protected closeNote(): void {
+    this.saveNote();
+    this.dismiss();
+  }
+
+  /**
+   * Puts back what was written before the note was opened. It saves on the way
+   * out like every other close, because it has to: pressing this button takes
+   * the focus out of the field, and leaving the field is what records a note —
+   * so the discarded text is already on its way to the cart, and what this
+   * writes is the old one over it.
+   */
+  protected cancelNote(): void {
+    this.ownNote.set(this.noteAtOpen);
+    this.saveNote();
+    this.dismiss();
   }
 
   protected onNoteInput(event: Event): void {

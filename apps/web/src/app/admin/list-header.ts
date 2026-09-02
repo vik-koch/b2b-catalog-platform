@@ -11,6 +11,7 @@ import { GridSearchField } from './grid/grid-search-field';
  * never built.
  */
 const CLEAR_AT: Record<NarrowBreakpoint, string> = {
+  sm: 'hidden sm:block',
   md: 'hidden md:block',
   lg: 'hidden lg:block',
 };

@@ -28,9 +28,12 @@ import { Component, input } from '@angular/core';
     <!-- A hair of right padding on every row: the last action button is flush
          against whatever encloses the list otherwise, and on a tinted or
          bordered row that reads as clipped. -->
-    <div class="flex gap-3 pr-1">
+    <div class="flex items-center gap-3 pr-1">
       <!-- A picture, where the record has one. Its own column, so the three
-           lines beside it stay a block rather than wrapping under it. -->
+           lines beside it stay a block rather than wrapping under it, and
+           centred against them: a picture taller than the first line sat with
+           its top at the row's top edge and its middle beside the second line,
+           which read as hanging off the row rather than belonging to it. -->
       <ng-content select="[recordLead]" />
 
       <div

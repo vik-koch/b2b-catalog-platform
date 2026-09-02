@@ -4,7 +4,9 @@ import { isPlatformBrowser } from '@angular/common';
 /**
  * The widths below which a screen is treated as narrow.
  *
- * `md` (49.5rem) is the everyday line: it is where the app's other three-column
+ * `sm` (40rem) is the phone line — where a bubble beside a control stops
+ * fitting beside anything and becomes a modal. `md` (49.5rem) is the everyday
+ * line: it is where the app's other three-column
  * layouts fold, where a table of six or seven columns is already unreadable,
  * and where the product editor's two grids of typed cells give up on being
  * tables at all. `lg` (65.75rem) is for the few screens carrying more
@@ -15,6 +17,7 @@ import { isPlatformBrowser } from '@angular/common';
  * styles.css by the fraction of a pixel a `max-width` has to subtract.
  */
 export const NARROW_SCREEN_QUERIES = {
+  sm: '(width < 40rem)',
   md: '(width < 49.5rem)',
   lg: '(width < 65.75rem)',
 } as const;
@@ -28,9 +31,11 @@ export type NarrowBreakpoint = keyof typeof NARROW_SCREEN_QUERIES;
  * list of records on a phone, and rendering both to hide one would double the
  * rows.
  *
- * Only safe where the page is client-rendered, which the admin panel is: the
- * server has no window to measure and answers "not narrow", so an SSR page
- * asking this would render the desktop shape and rearrange itself on boot.
+ * Only safe where the page is client-rendered, which the admin panel is, or
+ * where what it decides is not in the first paint — an overlay a tap opens:
+ * the server has no window to measure and answers "not narrow", so an SSR page
+ * asking this about its own markup would render the desktop shape and
+ * rearrange itself on boot.
  */
 export function injectNarrowScreen(
   breakpoint: NarrowBreakpoint = 'md',

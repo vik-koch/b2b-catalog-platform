@@ -225,8 +225,9 @@ export const appTextSchema = z
          * pressing it does — there is no room there for a labelled field. */
         noteAdd: z.string(),
         noteEdit: z.string(),
-        /** Closes the note bubble on a line that is already in the cart, where
-         * there is nothing left to confirm. */
+        /** Closes the note on a phone, where it is a modal rather than a
+         * bubble and so has no "click away" to close it. */
+        noteDone: z.string(),
         add: z.string(),
         /** Replaces the add button once the product is in the cart, so the
          * controls above read as an edit of that line; `{total}` is what the
