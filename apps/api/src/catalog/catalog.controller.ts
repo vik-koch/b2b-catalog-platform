@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import {
   catalogContract,
   parseAttributeParams,
@@ -13,9 +13,9 @@ import {
 } from '../throttling/throttle-presets';
 
 /**
- * The storefront read API (FR-CAT-01…05), backed by the database. Response
- * validation (`validateResponses`) enforces the contract on the way out, so no
- * internal column (e.g. a product's private `sourceId`) can leak.
+ * The storefront read API (FR-CAT-01…05), backed by the database. The
+ * contract's output schemas are enforced on the way out, so no internal column
+ * (e.g. a product's private `sourceId`) can leak.
  *
  * Public, but not session-blind: `@TierPriced()` reads a session if one is
  * offered so a signed-in customer gets their tier's prices (FR-AUTH-05), and
@@ -26,89 +26,72 @@ import {
 export class CatalogController {
   constructor(private readonly catalog: CatalogService) {}
 
-  @TsRestHandler(catalogContract.getCategoryTree, { validateResponses: true })
-  async getCategoryTree() {
-    return tsRestHandler(catalogContract.getCategoryTree, async () => ({
-      status: 200,
-      body: { categories: await this.catalog.getCategoryTree() },
+  @Implement(catalogContract.getCategoryTree)
+  getCategoryTree() {
+    return implement(catalogContract.getCategoryTree).handler(async () => ({
+      categories: await this.catalog.getCategoryTree(),
     }));
   }
 
   @TierPriced()
-  @TsRestHandler(catalogContract.getCategoryProducts, {
-    validateResponses: true,
-  })
-  async getCategoryProducts(@PricingTier() tierId: string | null) {
-    return tsRestHandler(
-      catalogContract.getCategoryProducts,
-      async ({ params: { slug }, query: { page, sort, attr } }) => {
+  @Implement(catalogContract.getCategoryProducts)
+  getCategoryProducts(@PricingTier() tierId: string | null) {
+    return implement(catalogContract.getCategoryProducts).handler(
+      async ({ input: { params, query }, errors }) => {
         const result = await this.catalog.getCategoryProducts(
-          slug,
-          page,
-          sort,
+          params.slug,
+          query.page,
+          query.sort,
           tierId,
-          parseAttributeParams(attr),
+          parseAttributeParams(query.attr),
         );
-        if (!result) {
-          return { status: 404, body: { message: 'Category not found' } };
-        }
-        return { status: 200, body: result };
+        if (!result) throw errors['not-found']({ message: 'Category not found' });
+        return result;
       },
     );
   }
 
   @SearchThrottle()
   @TierPriced()
-  @TsRestHandler(catalogContract.searchProducts, { validateResponses: true })
-  async searchProducts(@PricingTier() tierId: string | null) {
-    return tsRestHandler(
-      catalogContract.searchProducts,
-      async ({ query: { q, page, sort, attr } }) => ({
-        status: 200,
-        body: await this.catalog.searchProducts(
-          q,
-          page,
-          sort,
+  @Implement(catalogContract.searchProducts)
+  searchProducts(@PricingTier() tierId: string | null) {
+    return implement(catalogContract.searchProducts).handler(
+      ({ input: { query } }) =>
+        this.catalog.searchProducts(
+          query.q,
+          query.page,
+          query.sort,
           tierId,
-          parseAttributeParams(attr),
+          parseAttributeParams(query.attr),
         ),
-      }),
     );
   }
 
   @SuggestionThrottle()
-  @TsRestHandler(catalogContract.getSearchSuggestions, {
-    validateResponses: true,
-  })
-  async getSearchSuggestions() {
-    return tsRestHandler(
-      catalogContract.getSearchSuggestions,
-      async ({ query: { q } }) => ({
-        status: 200,
-        body: { items: await this.catalog.getSearchSuggestions(q) },
+  @Implement(catalogContract.getSearchSuggestions)
+  getSearchSuggestions() {
+    return implement(catalogContract.getSearchSuggestions).handler(
+      async ({ input: { query } }) => ({
+        items: await this.catalog.getSearchSuggestions(query.q),
       }),
     );
   }
 
-  @TsRestHandler(catalogContract.getSitemap, { validateResponses: true })
-  async getSitemap() {
-    return tsRestHandler(catalogContract.getSitemap, async () => ({
-      status: 200,
-      body: await this.catalog.getSitemap(),
-    }));
+  @Implement(catalogContract.getSitemap)
+  getSitemap() {
+    return implement(catalogContract.getSitemap).handler(() =>
+      this.catalog.getSitemap(),
+    );
   }
 
   @TierPriced()
-  @TsRestHandler(catalogContract.getProduct, { validateResponses: true })
-  async getProduct(@PricingTier() tierId: string | null) {
-    return tsRestHandler(
-      catalogContract.getProduct,
-      async ({ params: { slug } }) => {
-        const product = await this.catalog.getProduct(slug, tierId);
-        if (!product) {
-          return { status: 404, body: { message: 'Product not found' } };
-        }
-        return { status: 200, body: product };
+  @Implement(catalogContract.getProduct)
+  getProduct(@PricingTier() tierId: string | null) {
+    return implement(catalogContract.getProduct).handler(
+      async ({ input: { params }, errors }) => {
+        const product = await this.catalog.getProduct(params.slug, tierId);
+        if (!product) throw errors['not-found']({ message: 'Product not found' });
+        return product;
       },
     );
   }

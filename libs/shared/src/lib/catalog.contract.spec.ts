@@ -1,21 +1,17 @@
 import { productListQuerySchema } from './catalog.contract';
 
 /**
- * A query string has no array type, and every layer between the panel and the
- * API spells one differently — so the filter parameter has to read all three.
+ * A query string has no array type, so one selected value and several arrive
+ * as different things — and the panel is one checkbox away from crossing that
+ * line either way.
  */
 describe('productListQuerySchema.attr', () => {
   const attr = (query: Record<string, unknown>) =>
     productListQuerySchema.parse(query).attr;
 
-  it('reads a single parameter, an indexed array and qs’ object form alike', () => {
+  it('reads one selected value and several alike', () => {
     expect(attr({ attr: 'colour:Blue' })).toEqual(['colour:Blue']);
     expect(attr({ attr: ['colour:Blue', 'length:30'] })).toEqual([
-      'colour:Blue',
-      'length:30',
-    ]);
-    // What qs returns once there are more than 20 entries.
-    expect(attr({ attr: { '0': 'colour:Blue', '1': 'length:30' } })).toEqual([
       'colour:Blue',
       'length:30',
     ]);
