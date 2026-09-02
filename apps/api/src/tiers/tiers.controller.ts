@@ -1,9 +1,10 @@
 import { Controller } from '@nestjs/common';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import { AuthUser, tiersContract } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { AuditLogger } from '../audit/audit.logger';
+import { refusals } from '../orpc/refusals';
 import { TiersService } from './tiers.service';
 
 /**
@@ -21,62 +22,64 @@ export class TiersController {
   ) {}
 
   // Readable by managers (the class guard); the writes below are admin-only.
-  @TsRestHandler(tiersContract.listTiers, { validateResponses: true })
+  @Implement(tiersContract.listTiers)
   listTiers() {
-    return tsRestHandler(tiersContract.listTiers, async () => {
-      return { status: 200, body: await this.service.listTiers() };
-    });
+    return implement(tiersContract.listTiers).handler(() =>
+      this.service.listTiers(),
+    );
   }
 
   @Auth('admin')
-  @TsRestHandler(tiersContract.createTier, { validateResponses: true })
+  @Implement(tiersContract.createTier)
   createTier(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(tiersContract.createTier, async ({ body }) => {
-      const tier = await this.service.createTier(body, user.id);
-      this.audit.record('tier.created', user, {
-        id: tier.id,
-        name: tier.label,
+    return implement(tiersContract.createTier)
+      .use(refusals)
+      .handler(async ({ input: { body } }) => {
+        const tier = await this.service.createTier(body, user.id);
+        this.audit.record('tier.created', user, {
+          id: tier.id,
+          name: tier.label,
+        });
+        return tier;
       });
-      return { status: 201, body: tier };
-    });
   }
 
   @Auth('admin')
-  @TsRestHandler(tiersContract.updateTier, { validateResponses: true })
+  @Implement(tiersContract.updateTier)
   updateTier(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      tiersContract.updateTier,
-      async ({ params: { id }, body }) => {
-        const tier = await this.service.updateTier(id, body, user.id);
+    return implement(tiersContract.updateTier)
+      .use(refusals)
+      .handler(async ({ input: { params, body } }) => {
+        const tier = await this.service.updateTier(params.id, body, user.id);
         this.audit.record('tier.updated', user, {
           id: tier.id,
           name: tier.label,
         });
-        return { status: 200, body: tier };
-      },
-    );
+        return tier;
+      });
   }
 
   @Auth('admin')
-  @TsRestHandler(tiersContract.reorderTiers, { validateResponses: true })
+  @Implement(tiersContract.reorderTiers)
   reorderTiers(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(tiersContract.reorderTiers, async ({ body }) => {
-      const tiers = await this.service.reorderTiers(body, user.id);
-      this.audit.record('tier.reordered', user, {});
-      return { status: 200, body: { tiers } };
-    });
+    return implement(tiersContract.reorderTiers)
+      .use(refusals)
+      .handler(async ({ input: { body } }) => {
+        const tiers = await this.service.reorderTiers(body, user.id);
+        this.audit.record('tier.reordered', user, {});
+        return { tiers };
+      });
   }
 
   @Auth('admin')
-  @TsRestHandler(tiersContract.deleteTier, { validateResponses: true })
+  @Implement(tiersContract.deleteTier)
   deleteTier(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      tiersContract.deleteTier,
-      async ({ params: { id } }) => {
-        const body = await this.service.deleteTier(id);
-        this.audit.record('tier.deleted', user, { id });
-        return { status: 200, body };
-      },
-    );
+    return implement(tiersContract.deleteTier)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => {
+        const result = await this.service.deleteTier(params.id);
+        this.audit.record('tier.deleted', user, { id: params.id });
+        return result;
+      });
   }
 }

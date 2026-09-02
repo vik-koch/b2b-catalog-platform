@@ -1,8 +1,6 @@
-import { initContract } from '@ts-rest/core';
+import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
-
-const c = initContract();
+import { commonAuthErrors } from './api-error';
 
 /**
  * Customer tiers (FR-AUTH-05), admin side.
@@ -90,79 +88,101 @@ export const TIER_ERROR_CODES = [
   'tier-has-prices',
 ] as const;
 export type TierErrorCode = (typeof TIER_ERROR_CODES)[number];
-const tierErrorSchema = apiErrorSchema(TIER_ERROR_CODES);
 
-export const tiersContract = c.router(
-  {
-    listTiers: {
+/**
+ * Each code carries its own status here, where the ts-rest shape only paired
+ * them by convention: a status listed one schema of four possible codes, and
+ * nothing stopped the server answering 409 with `tier-not-found`.
+ */
+const tierErrors = {
+  'tier-not-found': { status: 404 },
+  'tier-key-taken': { status: 409 },
+  'tier-has-accounts': { status: 409 },
+  'tier-has-prices': { status: 409 },
+} as const;
+
+/** Every route here is admin-only, so they all carry the two auth refusals. */
+const admin = oc.errors(commonAuthErrors);
+
+export const tiersContract = {
+  listTiers: admin
+    .route({
       method: 'GET',
       path: '/admin/tiers',
-      responses: {
-        200: z
-          .object({
-            tiers: z.array(customerTierSchema),
-            /**
-             * Customer accounts on the base list — the one figure the synthetic
-             * default entry cannot derive on the client, since "no tier" is a
-             * null, not a row. A sibling field rather than a tier-shaped object
-             * with a null id: the default list is a column, and nothing that
-             * consumes a `CustomerTier` should have to handle an id-less one.
-             */
-            defaultUserCount: z.number().int().nonnegative(),
-          })
-          .strict(),
-      },
       summary: 'List the additional customer tiers (admin)',
-    },
-    createTier: {
+    })
+    .output(
+      z
+        .object({
+          tiers: z.array(customerTierSchema),
+          /**
+           * Customer accounts on the base list — the one figure the synthetic
+           * default entry cannot derive on the client, since "no tier" is a
+           * null, not a row. A sibling field rather than a tier-shaped object
+           * with a null id: the default list is a column, and nothing that
+           * consumes a `CustomerTier` should have to handle an id-less one.
+           */
+          defaultUserCount: z.number().int().nonnegative(),
+        })
+        .strict(),
+    ),
+
+  createTier: admin
+    .route({
       method: 'POST',
       path: '/admin/tiers',
-      body: tierInputSchema,
-      responses: {
-        201: customerTierSchema,
-        // Key already taken.
-        409: tierErrorSchema,
-      },
+      successStatus: 201,
+      inputStructure: 'detailed',
       summary: 'Create a customer tier (admin)',
-    },
-    updateTier: {
+    })
+    .errors({ 'tier-key-taken': tierErrors['tier-key-taken'] })
+    .input(z.object({ body: tierInputSchema }))
+    .output(customerTierSchema),
+
+  updateTier: admin
+    .route({
       method: 'PUT',
-      path: '/admin/tiers/:id',
-      pathParams: z.object({ id: z.string().uuid() }),
-      body: tierInputSchema,
-      responses: {
-        200: customerTierSchema,
-        404: tierErrorSchema,
-        // Key already taken by another tier.
-        409: tierErrorSchema,
-      },
+      path: '/admin/tiers/{id}',
+      inputStructure: 'detailed',
       summary: 'Rename a customer tier or change its sync key (admin)',
-    },
-    reorderTiers: {
+    })
+    .errors({
+      'tier-not-found': tierErrors['tier-not-found'],
+      'tier-key-taken': tierErrors['tier-key-taken'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.string().uuid() }),
+        body: tierInputSchema,
+      }),
+    )
+    .output(customerTierSchema),
+
+  reorderTiers: admin
+    .route({
       method: 'PATCH',
+      // No clash with `/admin/tiers/{id}`: nothing else answers PATCH here.
       path: '/admin/tiers/order',
-      body: reorderTiersSchema,
-      responses: {
-        200: z.object({ tiers: z.array(customerTierSchema) }).strict(),
-        404: tierErrorSchema,
-      },
+      inputStructure: 'detailed',
       summary: 'Set the display order of the tier list (admin)',
-    },
-    deleteTier: {
+    })
+    .errors({ 'tier-not-found': tierErrors['tier-not-found'] })
+    .input(z.object({ body: reorderTiersSchema }))
+    .output(z.object({ tiers: z.array(customerTierSchema) }).strict()),
+
+  deleteTier: admin
+    .route({
       method: 'DELETE',
-      path: '/admin/tiers/:id',
-      pathParams: z.object({ id: z.string().uuid() }),
-      body: z.void(),
-      responses: {
-        200: z.object({ message: z.string() }),
-        404: tierErrorSchema,
-        // Still referenced by accounts or product prices.
-        409: tierErrorSchema,
-      },
+      path: '/admin/tiers/{id}',
+      inputStructure: 'detailed',
       summary: 'Delete an unreferenced customer tier (admin)',
-    },
-  },
-  {
-    commonResponses: { 401: commonAuthErrorSchema, 403: commonAuthErrorSchema },
-  },
-);
+    })
+    .errors({
+      'tier-not-found': tierErrors['tier-not-found'],
+      // Still referenced by accounts or product prices.
+      'tier-has-accounts': tierErrors['tier-has-accounts'],
+      'tier-has-prices': tierErrors['tier-has-prices'],
+    })
+    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .output(z.object({ message: z.string() })),
+};
