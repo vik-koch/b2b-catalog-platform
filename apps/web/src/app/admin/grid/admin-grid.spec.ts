@@ -88,8 +88,9 @@ afterEach(() => {
  * `prefers-reduced-motion` somewhere else in the app, say — is left to the
  * real implementation, so nothing this file does can decide a question it was
  * not asked. */
-const BREAKPOINT_QUERIES: readonly string[] =
-  Object.values(NARROW_SCREEN_QUERIES);
+const BREAKPOINT_QUERIES: readonly string[] = Object.values(
+  NARROW_SCREEN_QUERIES,
+);
 
 function screen(narrow: boolean): void {
   window.matchMedia = ((query: string) =>
