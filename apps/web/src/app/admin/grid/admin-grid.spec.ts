@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { NARROW_SCREEN_QUERIES } from '../../core/narrow-screen';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { AdminGrid } from './admin-grid';
 import { GridColumn } from './grid-column';
@@ -66,21 +67,40 @@ class Host {
   readonly byId = (row: Row): string => row.id;
 }
 
+/** The real one, captured once at module load — before any test has had the
+ * chance to replace it. */
+const realMatchMedia = window.matchMedia;
+
+// Restored after every test, from a hook registered once at collection time.
+// Registering it from inside `screen()` instead meant one hook per test, each
+// capturing whatever `window.matchMedia` happened to be when that test
+// started — which from the second test on was the previous test's stub. The
+// stub therefore outlived this file and, since it answered `matches` to every
+// query asked of it, changed what unrelated specs saw for queries of their
+// own. That is exactly the kind of leak that only ever fails in CI, where the
+// file order differs.
+afterEach(() => {
+  window.matchMedia = realMatchMedia;
+});
+
 /** A window of the given shape, for the two markups this component chooses
- * between. Restored after every test — a leaked global is the one thing that
- * makes these fail only in CI. */
+ * between. Only the breakpoint queries are answered; anything else — a
+ * `prefers-reduced-motion` somewhere else in the app, say — is left to the
+ * real implementation, so nothing this file does can decide a question it was
+ * not asked. */
+const BREAKPOINT_QUERIES: readonly string[] =
+  Object.values(NARROW_SCREEN_QUERIES);
+
 function screen(narrow: boolean): void {
-  const original = window.matchMedia;
   window.matchMedia = ((query: string) =>
-    ({
-      matches: narrow,
-      media: query,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-    }) as unknown as MediaQueryList) as typeof window.matchMedia;
-  afterEach(() => {
-    window.matchMedia = original;
-  });
+    BREAKPOINT_QUERIES.includes(query)
+      ? ({
+          matches: narrow,
+          media: query,
+          addEventListener: () => undefined,
+          removeEventListener: () => undefined,
+        } as unknown as MediaQueryList)
+      : realMatchMedia.call(window, query)) as typeof window.matchMedia;
 }
 
 function render(stored?: GridWidths) {
