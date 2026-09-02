@@ -18,6 +18,10 @@ import { EditModeService } from './edit-mode.service';
  * reader reaches the end, the button straddling the line rather than covering
  * the footer's own links.
  *
+ * It sits at the bottom of the floating layer rather than the top: it is a
+ * switch for a mode, not a thing to answer, so the bar's own panel, the cookie
+ * notice and every modal pass over it.
+ *
  * Straddling costs the one number here: the button is pulled down by half its
  * own height, so both floating offsets carry a `+1rem` that puts it back where
  * it was while it floats. That rem is half the pill — if its padding or type
@@ -39,7 +43,7 @@ import { EditModeService } from './edit-mode.service';
   // is the seam itself and it adds nothing to either side of it.
   host: {
     class:
-      'sticky bottom-[calc(4.25rem+1px+1rem+env(safe-area-inset-bottom))] z-40 block h-0 sm:bottom-[calc(1.375rem+1rem)]',
+      'sticky bottom-[calc(4.25rem+1px+1rem+env(safe-area-inset-bottom))] z-20 block h-0 sm:bottom-[calc(1.375rem+1rem)]',
   },
   template: `
     @if (editMode.isAdmin() && editMode.hasEditables() && text(); as text) {
