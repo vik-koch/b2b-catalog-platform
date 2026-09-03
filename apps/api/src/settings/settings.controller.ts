@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import { AuthUser, settingsContract } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -13,43 +13,37 @@ export class SettingsController {
   // Public and gate-exempt: the storefront asks this to decide whether to show
   // the maintenance screen, so it must answer even while the gate is on.
   @MaintenanceExempt()
-  @TsRestHandler(settingsContract.checkMaintenance, { validateResponses: true })
-  async checkMaintenance() {
-    return tsRestHandler(settingsContract.checkMaintenance, async () => {
-      return {
-        status: 200,
-        body: { enabled: this.settings.isMaintenanceEnabled() },
-      };
-    });
+  @Implement(settingsContract.checkMaintenance)
+  checkMaintenance() {
+    return implement(settingsContract.checkMaintenance).handler(async () => ({
+      enabled: this.settings.isMaintenanceEnabled(),
+    }));
   }
 
   // Managers reach the admin panel too, and "what is deployed" is not an admin
   // secret — it is the first thing either role needs when reporting a problem.
   @Auth('admin', 'manager')
-  @TsRestHandler(settingsContract.getBuildInfo, { validateResponses: true })
-  async getBuildInfo() {
-    return tsRestHandler(settingsContract.getBuildInfo, async () => {
-      return { status: 200, body: this.settings.getBuildInfo() };
-    });
+  @Implement(settingsContract.getBuildInfo)
+  getBuildInfo() {
+    return implement(settingsContract.getBuildInfo).handler(async () =>
+      this.settings.getBuildInfo(),
+    );
   }
 
   @Auth('admin')
-  @TsRestHandler(settingsContract.getMaintenance, { validateResponses: true })
-  async getMaintenance() {
-    return tsRestHandler(settingsContract.getMaintenance, async () => {
-      return { status: 200, body: await this.settings.getMaintenance() };
-    });
+  @Implement(settingsContract.getMaintenance)
+  getMaintenance() {
+    return implement(settingsContract.getMaintenance).handler(() =>
+      this.settings.getMaintenance(),
+    );
   }
 
   @Auth('admin')
-  @TsRestHandler(settingsContract.setMaintenance, { validateResponses: true })
-  async setMaintenance(@CurrentUser() user: AuthUser) {
-    return tsRestHandler(
-      settingsContract.setMaintenance,
-      async ({ body: { enabled } }) => {
-        const status = await this.settings.setMaintenance(enabled, user.id);
-        return { status: 200, body: status };
-      },
+  @Implement(settingsContract.setMaintenance)
+  setMaintenance(@CurrentUser() user: AuthUser) {
+    return implement(settingsContract.setMaintenance).handler(
+      ({ input: { body } }) =>
+        this.settings.setMaintenance(body.enabled, user.id),
     );
   }
 }

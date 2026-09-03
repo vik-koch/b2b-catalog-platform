@@ -1,5 +1,5 @@
 import { Controller, Inject } from '@nestjs/common';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import {
   ADDRESS_QUERY_MIN_LENGTH,
   ADDRESS_SUGGESTION_LIMIT,
@@ -29,17 +29,13 @@ export class AddressSuggestionController {
   ) {}
 
   @SidecarSuggestionThrottle()
-  @TsRestHandler(addressSuggestionContract.suggestAddresses, {
-    validateResponses: true,
-  })
+  @Implement(addressSuggestionContract.suggestAddresses)
   suggestAddresses() {
-    return tsRestHandler(
-      addressSuggestionContract.suggestAddresses,
-      async ({ query }) => {
+    return implement(addressSuggestionContract.suggestAddresses).handler(
+      async ({ input: { query } }) => {
         const q = query.q.trim();
-        if (q.length < ADDRESS_QUERY_MIN_LENGTH) {
-          return { status: 200 as const, body: { items: [] } };
-        }
+        if (q.length < ADDRESS_QUERY_MIN_LENGTH) return { items: [] };
+
         const items = await this.suggestions.suggest(
           q,
           query.country,
@@ -47,10 +43,7 @@ export class AddressSuggestionController {
         );
         // Trimmed here as well as asked for: the cap is the API's promise, not
         // the provider's.
-        return {
-          status: 200 as const,
-          body: { items: items.slice(0, ADDRESS_SUGGESTION_LIMIT) },
-        };
+        return { items: items.slice(0, ADDRESS_SUGGESTION_LIMIT) };
       },
     );
   }

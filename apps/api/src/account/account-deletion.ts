@@ -8,8 +8,7 @@ import { UsersService } from '../users/users.service';
 
 /** Why a deletion was refused, when it was. */
 export type DeleteAccountResult =
-  | { ok: true }
-  | { ok: false; reason: 'wrong-password' | 'last-admin' };
+  { ok: true } | { ok: false; reason: 'wrong-password' | 'last-admin' };
 
 /**
  * Deleting your own account (FR-AUTH-06). Anonymization, not a DELETE — the

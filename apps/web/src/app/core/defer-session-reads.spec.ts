@@ -1,7 +1,7 @@
 import { PLATFORM_ID, REQUEST } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AUTH_COOKIE } from '@b2b-catalog-platform/shared';
-import { deferSessionReads } from './api-client';
+import { deferSessionReads } from './orpc-client';
 
 /** A render of `platform` for a visitor whose request carries `cookie`. Resets
  * first, so a test may set up more than one render. */

@@ -173,7 +173,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
       expect(res.status).toBe(400);
       expect(res.data).toMatchObject({
         code: 'missing-required-column',
-        params: { column: 'sourceId' },
+        data: { params: { column: 'sourceId' } },
       });
     });
 

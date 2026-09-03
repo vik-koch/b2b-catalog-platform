@@ -1,5 +1,5 @@
 import { Controller, Inject, UseGuards } from '@nestjs/common';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import { cartContract } from '@b2b-catalog-platform/shared';
 import { OptionalAuthGuard } from '../auth/optional-auth.guard';
 import { PricingTier } from '../auth/pricing-tier.decorator';
@@ -30,13 +30,16 @@ export class CartController {
 
   @SearchThrottle()
   @UseGuards(OptionalAuthGuard)
-  @TsRestHandler(cartContract.previewCart, { validateResponses: true })
+  @Implement(cartContract.previewCart)
   previewCart(@PricingTier() tierId: string | null) {
-    return tsRestHandler(cartContract.previewCart, async ({ body }) => {
-      const { preview } = await priceCart(this.db, body.lines, tierId);
-      // 200 with advisories, never a refusal: a stale cart is a normal state
-      // to be shown, and nothing here changes what the browser holds.
-      return { status: 200 as const, body: preview };
-    });
+    return implement(cartContract.previewCart).handler(
+      async ({ input: { body } }) => {
+        const { preview } = await priceCart(this.db, body.lines, tierId);
+        // A priced cart with advisories, never a refusal: a stale cart is a
+        // normal state to be shown, and nothing here changes what the browser
+        // holds.
+        return preview;
+      },
+    );
   }
 }

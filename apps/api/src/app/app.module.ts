@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { AccountModule } from '../account/account.module';
 import { AddressesModule } from '../addresses/addresses.module';
 import { PartiesModule } from '../parties/parties.module';
@@ -35,5 +37,8 @@ import { StaffUsersModule } from '../users/staff-users.module';
     AddressesModule,
     PartiesModule,
   ],
+  // Global, because the refusals it restates come from the guards, which run
+  // ahead of every route rather than inside any one module.
+  providers: [{ provide: APP_FILTER, useClass: ContractErrorFilter }],
 })
 export class AppModule {}

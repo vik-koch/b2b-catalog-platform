@@ -23,24 +23,24 @@ function build(options: {
   const calls: string[] = [];
 
   const users = {
-    findById: jest.fn(async () => options.user ?? row()),
-    hasAnotherAdmin: jest.fn(async () => options.anotherAdmin ?? true),
-    anonymize: jest.fn(async () => {
+    findById: vi.fn(async () => options.user ?? row()),
+    hasAnotherAdmin: vi.fn(async () => options.anotherAdmin ?? true),
+    anonymize: vi.fn(async () => {
       calls.push('anonymize');
       return row({ status: 'anonymized', email: 'deleted-u1@deleted.invalid' });
     }),
   };
   const passwords = {
-    verify: jest.fn(async () => options.passwordOk ?? true),
-    unusableHash: jest.fn(async () => 'unusable'),
+    verify: vi.fn(async () => options.passwordOk ?? true),
+    unusableHash: vi.fn(async () => 'unusable'),
   };
   const tokens = {
-    revokeOutstanding: jest.fn(async () => {
+    revokeOutstanding: vi.fn(async () => {
       calls.push('revoke');
     }),
   };
   const mail = {
-    send: jest.fn(async (_content: unknown, envelope: { to: string }) => {
+    send: vi.fn(async (_content: unknown, envelope: { to: string }) => {
       calls.push(`mail:${envelope.to}`);
       if (options.mailFails) throw new Error('smtp is down');
     }),

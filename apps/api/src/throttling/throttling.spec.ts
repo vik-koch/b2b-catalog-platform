@@ -18,7 +18,9 @@ import {
 describe('Throttling', () => {
   let app: INestApplication;
   let baseUrl: string;
-  const send = jest.fn<Promise<void>, [unknown]>().mockResolvedValue(undefined);
+  const send = vi
+    .fn<(mail: unknown) => Promise<void>>()
+    .mockResolvedValue(undefined);
 
   const validSubmission = {
     name: 'Jane Doe',

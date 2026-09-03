@@ -1,5 +1,6 @@
+import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { z } from 'zod';
+import * as z from 'zod';
 import { SuggestionSidecar } from './sidecar';
 
 const schema = z.object({ items: z.array(z.object({ label: z.string() })) });
@@ -14,14 +15,14 @@ const schema = z.object({ items: z.array(z.object({ label: z.string() })) });
  * that a stalled sidecar is abandoned rather than waited on.
  */
 describe('SuggestionSidecar', () => {
-  let fetchMock: jest.Mock;
-  let warn: jest.SpyInstance;
+  let fetchMock: Mock;
+  let warn: MockInstance;
   let sidecar: SuggestionSidecar;
 
   beforeEach(() => {
-    fetchMock = jest.fn();
+    fetchMock = vi.fn();
     global.fetch = fetchMock as unknown as typeof fetch;
-    warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
+    warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
       // Every failure path logs; the assertions are about what it returns.
     });
     sidecar = new SuggestionSidecar('http://sidecar:8080', new Logger('test'));

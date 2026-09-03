@@ -557,13 +557,11 @@ export class OrdersService {
       // Built from the customer's own lines — from the very same rows, so the
       // two views cannot describe the same order differently and the index
       // pairing below cannot slip. Staff simply see more of each line.
-      lines: detail.lines.map(
-        (line, index): AdminOrderLine => ({
-          ...line,
-          priceMinor: items[index].priceMinor,
-          priceBasisPieces: items[index].priceBasisPieces,
-        }),
-      ),
+      lines: detail.lines.map((line, index): AdminOrderLine => ({
+        ...line,
+        priceMinor: items[index].priceMinor,
+        priceBasisPieces: items[index].priceBasisPieces,
+      })),
       customerEmail: customer?.email ?? null,
       tierKey: row.tierKey,
       statusChangedAt: row.statusChangedAt.toISOString(),

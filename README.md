@@ -74,5 +74,9 @@ Planned:
 
 ## Workflow
 
-Trunk-based development on `main` with short-lived `feat/*` / `fix/*` branches and strict semver.
+Trunk-based development on `main` with short-lived `feat/*` / `fix/*` branches and strict semver,
+where the version says how far a release reaches (ADR 0044): a **major** changes something outside
+the deploy unit — a port's contract, or a migration a person has to run; a **minor** carries new
+scope, a requirement the platform did not have before; a **patch** carries none, fixing and
+finishing what the last minor shipped.
 Issues carry requirement IDs; iterations are tracked as GitHub Milestones and releases as GitHub Releases per tag.

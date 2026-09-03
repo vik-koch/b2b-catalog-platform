@@ -1,45 +1,19 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
+import { oc } from '@orpc/contract';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_TOKEN_INVALID,
+  USER_ROLES,
+} from './auth-constants';
+import * as z from 'zod';
 import { addressComponentsSchema } from './address.contract';
 import { partyEntityTypeSchema } from './party.contract';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
-} from './contact-format';
-import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
+  emailField,
+} from './contact-config';
+import { commonAuthErrors } from './api-error';
 
-const c = initContract();
-
-/**
- * Name of the httpOnly cookie carrying the session JWT. Shared because it is
- * not only the API's business: the SSR tier looks for it by name to tell
- * whether the visitor it is rendering for has a session at all (it never reads
- * the value — it cannot, and does not need to).
- */
-export const AUTH_COOKIE = 'session';
-
-/**
- * Name of the readable companion to `AUTH_COOKIE`, carrying the signed-in
- * role and nothing else.
- *
- * It exists so the *browser* can answer "is anyone signed in, and as what?"
- * before `/auth/me` does — the session cookie is httpOnly and unreadable by
- * page script, which is what left the navbar's account control guessing on
- * every cold load. It is written and cleared in the same responses as the
- * session cookie, with the same attributes and lifetime, so the two can only
- * disagree when a live session is invalidated server-side.
- *
- * It is a **rendering hint, never an authorization**. Anyone can edit it; the
- * API verifies the JWT and the database role on every request, and the worst a
- * forged value buys is a navbar link to a page that answers 403.
- */
-export const SESSION_HINT_COOKIE = 'session_role';
-
-/**
- * Authorization roles.
- * Kept in sync with the `user_role` pg enum in the API schema.
- */
-export const USER_ROLES = ['admin', 'manager', 'user'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 export const userRoleSchema = z.enum(USER_ROLES);
 
@@ -48,8 +22,8 @@ export const userRoleSchema = z.enum(USER_ROLES);
  * hash, and never a pricing tier — role is authorization only.
  */
 export const authUserSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
+  id: z.uuid(),
+  email: z.email(),
   role: userRoleSchema,
   /**
    * Enough to greet the account holder by name, and nothing more — the rest of
@@ -70,25 +44,12 @@ export type AuthUser = z.infer<typeof authUserSchema>;
 // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
 export const loginSchema = z
   .object({
-    email: z.string().trim().email(),
+    email: emailField(320),
     password: z.string().min(1),
   })
   .strict();
 export type LoginRequest = z.infer<typeof loginSchema>;
 
-/**
- * Length is the only password rule this contract carries, so the browser can
- * check the same floor the server does. Twelve rather than eight because
- * length is what actually resists guessing; there are deliberately **no**
- * composition rules (a digit, a symbol, a capital), which NIST 800-63B
- * recommends against — they produce predictable passwords like `Passwort1!`
- * without making them harder to guess.
- *
- * What replaces them is server-side and cannot live here: a blocklist of
- * common passwords, and a refusal of anything containing the account's own
- * address or the shop's name (see PasswordPolicy).
- */
-export const PASSWORD_MIN_LENGTH = 12;
 export const newPasswordSchema = z.string().min(PASSWORD_MIN_LENGTH).max(200);
 
 /**
@@ -109,12 +70,6 @@ export const PASSWORD_REJECTION_CODES = [
   'password-unchanged',
 ] as const;
 export type PasswordRejectionCode = (typeof PASSWORD_REJECTION_CODES)[number];
-
-/**
- * A set-a-password link that is no good. Unknown, already used and expired are
- * deliberately one code, as they are one answer.
- */
-export const PASSWORD_TOKEN_INVALID = 'password-token-invalid' as const;
 
 /**
  * Redeeming a set-a-password link (FR-AUTH-01/02). The token is the whole
@@ -150,7 +105,7 @@ export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
  * nothing to prove yet, and the proof is that the mail arrives.
  */
 export const forgotPasswordSchema = z
-  .object({ email: z.string().trim().email().max(320) })
+  .object({ email: emailField(320) })
   .strict();
 export type ForgotPasswordRequest = z.infer<typeof forgotPasswordSchema>;
 
@@ -172,7 +127,7 @@ export const customerTypeSchema = z.enum(CUSTOMER_TYPES);
  */
 export const registerSchema = z
   .object({
-    email: z.string().trim().email().max(320),
+    email: emailField(320),
     firstName: z.string().trim().min(1).max(200),
     lastName: z.string().trim().min(1).max(200),
     phone: z.string().trim().min(1).max(50),
@@ -238,116 +193,134 @@ export type RegisterRequest = z.infer<typeof registerSchema>;
  * by the server, so the token never touches client JavaScript; the contract
  * carries only the user identity, not the token.
  */
-export const authContract = c.router({
-  register: {
-    method: 'POST',
-    path: '/auth/register',
-    body: registerSchema,
-    responses: {
-      // Always the same answer, whether the address was new, already
-      // registered, or a honeypot hit: the response must not reveal which
-      // addresses have accounts. What actually happened is explained by mail,
-      // to the address itself.
-      200: z.object({ ok: z.literal(true) }),
-      // The one thing a registration is told outright. The number's format is
-      // deployment config, so the browser checks the same rule and this is the
-      // server having the last word — and unlike an address that already has an
-      // account, a bad format reveals nothing about anyone.
-      400: apiErrorSchema(['company-id-format']),
-    },
-    summary: 'Request an account (creates a pending registration)',
-  },
-  forgotPassword: {
-    method: 'POST',
-    path: '/auth/forgot-password',
-    body: forgotPasswordSchema,
-    responses: {
-      // The same answer for an address with an account, one without, and one
-      // whose account may not sign in — for the same reason `register` gives
-      // one answer: this form must not become a way to test which addresses
-      // are customers. What happened is explained by mail, to the address.
-      200: z.object({ ok: z.literal(true) }),
-    },
-    summary: 'Ask for a password-reset link (FR-AUTH-02)',
-  },
-  checkPasswordToken: {
-    method: 'GET',
-    path: '/auth/password-token/:token',
-    pathParams: z.object({ token: z.string() }),
-    responses: {
-      200: z
+/**
+ * The password policy's refusals, all 400s: the rule that refused is the whole
+ * message, and the form shows its own wording for each.
+ */
+const passwordRejections = {
+  'password-common': { status: 400 },
+  'password-predictable': { status: 400 },
+  'password-contains-email': { status: 400 },
+  'password-contains-shop-name': { status: 400 },
+  'password-unchanged': { status: 400 },
+} as const satisfies Record<PasswordRejectionCode, { status: number }>;
+
+/** A set-a-password link that is no good — unknown, used and expired alike. */
+const badToken = { [PASSWORD_TOKEN_INVALID]: { status: 404 } } as const;
+
+export const authContract = {
+  register: oc
+    .route({
+      method: 'POST',
+      path: '/auth/register',
+      inputStructure: 'detailed',
+      summary: 'Request an account (creates a pending registration)',
+    })
+    // The one thing a registration is told outright. The number's format is
+    // deployment config, so the browser checks the same rule and this is the
+    // server having the last word — and unlike an address that already has an
+    // account, a bad format reveals nothing about anyone.
+    .errors({ 'company-id-format': { status: 400 } })
+    .input(z.object({ body: registerSchema }))
+    // Always the same answer, whether the address was new, already registered,
+    // or a honeypot hit: the response must not reveal which addresses have
+    // accounts. What actually happened is explained by mail, to the address.
+    .output(z.object({ ok: z.literal(true) })),
+
+  forgotPassword: oc
+    .route({
+      method: 'POST',
+      path: '/auth/forgot-password',
+      inputStructure: 'detailed',
+      summary: 'Ask for a password-reset link (FR-AUTH-02)',
+    })
+    .input(z.object({ body: forgotPasswordSchema }))
+    // The same answer for an address with an account, one without, and one
+    // whose account may not sign in — for the same reason `register` gives one
+    // answer: this form must not become a way to test which addresses are
+    // customers. What happened is explained by mail, to the address.
+    .output(z.object({ ok: z.literal(true) })),
+
+  checkPasswordToken: oc
+    .route({
+      method: 'GET',
+      path: '/auth/password-token/{token}',
+      inputStructure: 'detailed',
+      summary: 'Check a set-a-password link before showing the form',
+    })
+    .errors(badToken)
+    .input(z.object({ params: z.object({ token: z.string() }) }))
+    .output(
+      z
         .object({
           purpose: passwordTokenPurposeSchema,
           /** Shown so the visitor sees which account they are setting up. */
-          email: z.string().email(),
+          email: z.email(),
         })
         .strict(),
-      404: apiErrorSchema([PASSWORD_TOKEN_INVALID]),
-    },
-    summary: 'Check a set-a-password link before showing the form',
-  },
-  setPassword: {
-    method: 'POST',
-    path: '/auth/set-password',
-    body: setPasswordSchema,
-    responses: {
-      // Signs the visitor in: they have just proved control of the address and
-      // chosen a password, so a login form here would be ceremony.
-      200: authUserSchema,
-      // The password was refused by the policy; the code says which rule.
-      400: apiErrorSchema(PASSWORD_REJECTION_CODES),
-      404: apiErrorSchema([PASSWORD_TOKEN_INVALID]),
-    },
-    summary: 'Redeem a link and set the account password',
-  },
-  login: {
-    method: 'POST',
-    path: '/auth/login',
-    body: loginSchema,
-    responses: {
-      200: authUserSchema,
-      // Deliberately one code for a wrong address, a wrong password and an
-      // account that may not sign in: the form says the same thing to all three.
-      401: apiErrorSchema(['invalid-credentials']),
-    },
-    summary: 'Authenticate and start a session (sets an httpOnly cookie)',
-  },
-  logout: {
-    method: 'POST',
-    path: '/auth/logout',
-    // Idempotent and safe to call unauthenticated — it only clears the cookie.
-    body: z.object({}),
-    responses: {
-      200: z.object({ message: z.string() }),
-    },
-    summary: 'Clear the session cookie',
-  },
-  me: {
-    method: 'GET',
-    path: '/auth/me',
-    responses: {
-      200: authUserSchema,
-      401: commonAuthErrorSchema,
-    },
-    summary: 'Return the currently authenticated user',
-  },
-  changePassword: {
-    method: 'POST',
-    path: '/auth/change-password',
-    body: changePasswordSchema,
-    responses: {
-      // The refreshed identity (with mustChangePassword cleared), so the client
-      // updates its session state from the response rather than re-fetching.
-      200: authUserSchema,
-      // Two different kinds of 400, told apart by `code` rather than by the
-      // client guessing: the current password was wrong, or the *new* one was
-      // refused by the policy — and in that case which rule refused it.
-      400: apiErrorSchema([
-        'wrong-current-password',
-        ...PASSWORD_REJECTION_CODES,
-      ]),
-      401: commonAuthErrorSchema,
-    },
-    summary: "Change the current user's password",
-  },
-});
+    ),
+
+  setPassword: oc
+    .route({
+      method: 'POST',
+      path: '/auth/set-password',
+      inputStructure: 'detailed',
+      summary: 'Redeem a link and set the account password',
+    })
+    .errors({ ...passwordRejections, ...badToken })
+    .input(z.object({ body: setPasswordSchema }))
+    // Signs the visitor in: they have just proved control of the address and
+    // chosen a password, so a login form here would be ceremony.
+    .output(authUserSchema),
+
+  login: oc
+    .route({
+      method: 'POST',
+      path: '/auth/login',
+      inputStructure: 'detailed',
+      summary: 'Authenticate and start a session (sets an httpOnly cookie)',
+    })
+    // Deliberately one code for a wrong address, a wrong password and an
+    // account that may not sign in: the form says the same thing to all three.
+    .errors({ 'invalid-credentials': { status: 401 } })
+    .input(z.object({ body: loginSchema }))
+    .output(authUserSchema),
+
+  logout: oc
+    .route({
+      method: 'POST',
+      // Idempotent and safe to call unauthenticated — it only clears the cookie.
+      path: '/auth/logout',
+      summary: 'Clear the session cookie',
+    })
+    .output(z.object({ message: z.string() })),
+
+  me: oc
+    .route({
+      method: 'GET',
+      path: '/auth/me',
+      summary: 'Return the currently authenticated user',
+    })
+    .errors(commonAuthErrors)
+    .output(authUserSchema),
+
+  changePassword: oc
+    .route({
+      method: 'POST',
+      path: '/auth/change-password',
+      inputStructure: 'detailed',
+      summary: "Change the current user's password",
+    })
+    // Two different kinds of 400, told apart by `code` rather than by the
+    // client guessing: the current password was wrong, or the *new* one was
+    // refused by the policy — and in that case which rule refused it.
+    .errors({
+      ...commonAuthErrors,
+      'wrong-current-password': { status: 400 },
+      ...passwordRejections,
+    })
+    .input(z.object({ body: changePasswordSchema }))
+    // The refreshed identity (with mustChangePassword cleared), so the client
+    // updates its session state from the response rather than re-fetching.
+    .output(authUserSchema),
+};

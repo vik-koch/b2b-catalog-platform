@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { hash } from '@node-rs/argon2';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 import {
@@ -143,6 +143,13 @@ const get = (url: string, cookie?: string) =>
   request('get')(url, undefined, cookie);
 const post = (url: string, body: unknown, cookie?: string) =>
   request('post')(url, body, cookie);
+
+/**
+ * What a refusal carries with it. A coded error travels as
+ * `{ defined, code, status, message, data }`, so the payload a refusal answers
+ * with — here the re-priced cart — sits one level in, under `data`.
+ */
+const refusal = (res: AxiosResponse) => res.data.data;
 
 const address = (overrides: Record<string, unknown> = {}) => ({
   label: null,
@@ -508,7 +515,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(res.status).toBe(409);
       expect(res.data.code).toBe('cart-changed');
       // The corrected cart travels with the refusal.
-      expect(res.data.preview.totalMinor).toBe(BASE_MINOR * 2);
+      expect(refusal(res).preview.totalMinor).toBe(BASE_MINOR * 2);
     });
 
     it('prices a signed-in customer from their own list', async () => {
@@ -536,7 +543,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       );
 
       expect(res.status).toBe(409);
-      expect(res.data.preview.lines[0].issues).toEqual(['unavailable']);
+      expect(refusal(res).preview.lines[0].issues).toEqual(['unavailable']);
     });
 
     it('needs the invoiced company for a bank transfer', async () => {
@@ -603,7 +610,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // An advisory in the preview is still a refusal at submission: the note
       // goes, and the customer sees it go before the order is placed without it.
       expect(res.status).toBe(409);
-      expect(res.data.preview.lines[0]).toMatchObject({
+      expect(refusal(res).preview.lines[0]).toMatchObject({
         note: null,
         issues: ['note-not-allowed'],
       });

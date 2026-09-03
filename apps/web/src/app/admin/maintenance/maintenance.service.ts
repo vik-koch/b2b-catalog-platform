@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import {
-  MaintenanceStatus,
-  settingsContract,
-} from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../../core/api-client';
+import { MaintenanceStatus } from '@b2b-catalog-platform/shared';
+import { settingsContract } from '../../core/contract-routes.generated';
+import { createOrpcClient } from '../../core/orpc-client';
 
 /**
  * The browser's window onto maintenance mode (FR-ADM-04). Two audiences:
@@ -20,7 +18,7 @@ import { createApiClient } from '../../core/api-client';
  */
 @Injectable({ providedIn: 'root' })
 export class MaintenanceService {
-  private readonly client = createApiClient(settingsContract);
+  private readonly client = createOrpcClient(settingsContract);
   private enabled?: Promise<boolean>;
 
   /** Public check, memoized. Fails open (false) so a hiccup never hides a live shop. */
@@ -30,34 +28,22 @@ export class MaintenanceService {
 
   private async fetchEnabled(): Promise<boolean> {
     try {
-      const response = await this.client.checkMaintenance();
-      return response.status === 200 ? response.body.enabled : false;
+      return (await this.client.checkMaintenance()).enabled;
     } catch {
       return false;
     }
   }
 
   /** Admin: the current toggle with its audit timestamp. */
-  async getStatus(): Promise<MaintenanceStatus> {
-    const response = await this.client.getMaintenance();
-    if (response.status === 200) {
-      return response.body;
-    }
-    throw new Error(
-      `Failed to read maintenance mode (status ${response.status})`,
-    );
+  getStatus(): Promise<MaintenanceStatus> {
+    return this.client.getMaintenance();
   }
 
   /** Admin: flip the toggle; returns the stored state. */
   async setEnabled(enabled: boolean): Promise<MaintenanceStatus> {
-    const response = await this.client.setMaintenance({ body: { enabled } });
-    if (response.status === 200) {
-      // Keep the memoized public read consistent for this app instance.
-      this.enabled = Promise.resolve(response.body.enabled);
-      return response.body;
-    }
-    throw new Error(
-      `Failed to set maintenance mode (status ${response.status})`,
-    );
+    const status = await this.client.setMaintenance({ body: { enabled } });
+    // Keep the memoized public read consistent for this app instance.
+    this.enabled = Promise.resolve(status.enabled);
+    return status;
   }
 }

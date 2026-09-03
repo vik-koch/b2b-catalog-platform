@@ -10,6 +10,7 @@ import {
   stripDialPrefix,
   typedPhone,
 } from './contact-format';
+import { emailField, lowercaseEmailField } from './contact-config';
 
 const config: PhoneConfig = { countryCode: '+49', mask: '(###) ###-####' };
 /** A deployment that fixes a country code but does not group the digits. */
@@ -213,5 +214,37 @@ describe('companyIdMatchesAny', () => {
   it('has no shape rule where no formats are configured', () => {
     expect(companyIdMatchesAny('anything', undefined)).toBe(true);
     expect(companyIdMatchesAny('anything', [])).toBe(true);
+  });
+});
+
+/**
+ * The trim has to happen before the format check, not after. Writing the field
+ * the other way round — an email schema with a trim hung off it — reads the
+ * same and refuses an address pasted with a space around it, which is most of
+ * the ways one arrives.
+ */
+describe('emailField', () => {
+  const field = emailField(320);
+
+  it('accepts an address pasted with space around it, and keeps the trim', () => {
+    expect(field.parse('  jane@example.com  ')).toBe('jane@example.com');
+  });
+
+  it('still refuses one that is not an address', () => {
+    expect(field.safeParse('  not-an-address  ').success).toBe(false);
+  });
+
+  it('measures the length against the trimmed value', () => {
+    // 300 + '@example.com' = 312 characters.
+    const long = `${'a'.repeat(300)}@example.com`;
+
+    expect(emailField(320).safeParse(`  ${long}  `).success).toBe(true);
+    expect(emailField(100).safeParse(long).success).toBe(false);
+  });
+
+  it('lowercases where the address is stored folded', () => {
+    expect(lowercaseEmailField(255).parse(' Jane@Example.COM ')).toBe(
+      'jane@example.com',
+    );
   });
 });

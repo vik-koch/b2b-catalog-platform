@@ -2,16 +2,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "module": "commonjs",
+    "module": "esnext",
     "moduleResolution": "bundler",
-    // ts-jest must transpile the ESM-only packages the shared preset's
-    // transformIgnorePatterns lets through, not just our TypeScript.
-    "allowJs": true,
-    "types": ["jest", "node", "multer"]
+    "types": ["vitest/globals", "node", "multer"]
   },
   "include": [
-    "jest.config.ts",
-    "jest.config.cts",
+    "vite.config.ts",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
     "src/**/*.d.ts"

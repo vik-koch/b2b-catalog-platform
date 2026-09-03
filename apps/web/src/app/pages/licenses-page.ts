@@ -64,8 +64,7 @@ import { LicenseNotice, parseLicenseNotices } from './license-notice';
                   </summary>
                   <pre
                     class="mt-3 overflow-x-auto rounded bg-stone-100 p-4 text-xs whitespace-pre-wrap text-muted"
-                    >{{ notice.text }}</pre
-                  >
+                    >{{ notice.text }}</pre>
                 </details>
               </li>
             }

@@ -1,5 +1,5 @@
 import { Controller, Logger, UseGuards } from '@nestjs/common';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import { AuthUser, ordersContract } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
 import {
@@ -13,6 +13,7 @@ import {
   PublicFormThrottle,
 } from '../throttling/throttle-presets';
 import { AuditLogger } from '../audit/audit.logger';
+import { refusals } from '../orpc/refusals';
 import { CartChangedException, OrdersService } from './orders.service';
 
 /**
@@ -33,78 +34,78 @@ export class OrdersController {
 
   @PublicFormThrottle()
   @UseGuards(OptionalAuthGuard)
-  @TsRestHandler(ordersContract.submitOrder, { validateResponses: true })
+  @Implement(ordersContract.submitOrder)
   submitOrder(
     @CurrentUserOptional() user: AuthUser | null,
     @PricingTier() tierId: string | null,
   ) {
-    return tsRestHandler(ordersContract.submitOrder, async ({ body }) => {
-      // ADR 0015's honeypot: a bot fills it, a person never sees it. Refused
-      // rather than silently accepted — unlike the inquiry form, an order the
-      // customer believes was placed and was not is worse than a plain refusal.
-      if (body.website) {
-        this.logger.warn('Rejected order: honeypot field populated');
-        return {
-          status: 400 as const,
-          body: { code: 'rejected' as const, message: 'Rejected' },
-        };
-      }
-
-      // Staff do not buy. Role is authorization and tier is pricing (they are
-      // separate fields for exactly this reason), so a staff session has no
-      // tier to be priced at and no party to invoice — and the request would
-      // arrive in the inbox they are the ones answering.
-      if (user && user.role !== 'user') {
-        return {
-          status: 400 as const,
-          body: {
-            code: 'staff-cannot-order' as const,
-            message: 'A staff account cannot place an order request',
-          },
-        };
-      }
-
-      try {
-        const placed = await this.orders.submit(body, user?.id ?? null, tierId);
-        this.audit.record('order.placed', user, {
-          reference: placed.reference,
-        });
-        // After the order exists, and never able to fail it: a customer who
-        // was shown a reference has an order, mail or no mail.
-        await this.orders.notifyPlaced(placed);
-        return { status: 201 as const, body: placed };
-      } catch (error) {
-        if (error instanceof CartChangedException) {
-          return {
-            status: 409 as const,
-            body: {
-              code: 'cart-changed' as const,
-              message: 'The cart changed since it was last priced',
-              preview: error.priced.preview,
-            },
-          };
+    return implement(ordersContract.submitOrder)
+      .use(refusals)
+      .handler(async ({ input: { body }, errors }) => {
+        // ADR 0015's honeypot: a bot fills it, a person never sees it. Refused
+        // rather than silently accepted — unlike the inquiry form, an order the
+        // customer believes was placed and was not is worse than a plain
+        // refusal.
+        if (body.website) {
+          this.logger.warn('Rejected order: honeypot field populated');
+          throw errors.rejected({ message: 'Rejected' });
         }
-        throw error;
-      }
-    });
+
+        // Staff do not buy. Role is authorization and tier is pricing (they are
+        // separate fields for exactly this reason), so a staff session has no
+        // tier to be priced at and no party to invoice — and the request would
+        // arrive in the inbox they are the ones answering.
+        if (user && user.role !== 'user') {
+          throw errors['staff-cannot-order']({
+            message: 'A staff account cannot place an order request',
+          });
+        }
+
+        try {
+          const placed = await this.orders.submit(
+            body,
+            user?.id ?? null,
+            tierId,
+          );
+          this.audit.record('order.placed', user, {
+            reference: placed.reference,
+          });
+          // After the order exists, and never able to fail it: a customer who
+          // was shown a reference has an order, mail or no mail.
+          await this.orders.notifyPlaced(placed);
+          return placed;
+        } catch (error) {
+          if (error instanceof CartChangedException) {
+            // The fresh pricing travels as the refusal's own data, so the page
+            // can show what moved rather than asking again.
+            throw errors['cart-changed']({
+              message: 'The cart changed since it was last priced',
+              data: { preview: error.priced.preview },
+            });
+          }
+          throw error;
+        }
+      });
   }
 
   @Auth()
-  @TsRestHandler(ordersContract.listMyOrders, { validateResponses: true })
+  @Implement(ordersContract.listMyOrders)
   listMyOrders(@CurrentUser() actor: AuthUser) {
-    return tsRestHandler(ordersContract.listMyOrders, async ({ query }) => ({
-      status: 200 as const,
-      body: await this.orders.listForUser(actor.id, query.page ?? 1),
-    }));
+    return implement(ordersContract.listMyOrders)
+      .use(refusals)
+      .handler(({ input: { query } }) =>
+        this.orders.listForUser(actor.id, query.page ?? 1),
+      );
   }
 
   @Auth()
-  @TsRestHandler(ordersContract.getMyOrder, { validateResponses: true })
+  @Implement(ordersContract.getMyOrder)
   getMyOrder(@CurrentUser() actor: AuthUser) {
-    return tsRestHandler(ordersContract.getMyOrder, async ({ params }) => ({
-      status: 200 as const,
-      body: await this.orders.getForUser(actor.id, params.reference),
-    }));
+    return implement(ordersContract.getMyOrder)
+      .use(refusals)
+      .handler(({ input: { params } }) =>
+        this.orders.getForUser(actor.id, params.reference),
+      );
   }
 
   /**
@@ -114,14 +115,10 @@ export class OrdersController {
    * nothing honest reads this endpoint in a loop.
    */
   @OrderTokenThrottle()
-  @TsRestHandler(ordersContract.getOrderByToken, { validateResponses: true })
+  @Implement(ordersContract.getOrderByToken)
   getOrderByToken() {
-    return tsRestHandler(
-      ordersContract.getOrderByToken,
-      async ({ params }) => ({
-        status: 200 as const,
-        body: await this.orders.getByToken(params.token),
-      }),
-    );
+    return implement(ordersContract.getOrderByToken)
+      .use(refusals)
+      .handler(({ input: { params } }) => this.orders.getByToken(params.token));
   }
 }

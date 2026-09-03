@@ -1,17 +1,12 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
+import { oc } from '@orpc/contract';
+import * as z from 'zod';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
-} from './contact-format';
-import {
-  apiErrorSchema,
-  COMMON_AUTH_ERROR_CODES,
-  commonAuthErrorSchema,
-} from './api-error';
+  emailField,
+} from './contact-config';
+import { COMMON_AUTH_ERROR_CODES, commonAuthErrors } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
-
-const c = initContract();
 
 /**
  * Account management (FR-AUTH-01/03/04), staff side.
@@ -55,8 +50,8 @@ export const userStatusSchema = z.enum(USER_STATUSES);
  */
 export const staffUserSchema = z
   .object({
-    id: z.string().uuid(),
-    email: z.string().email(),
+    id: z.uuid(),
+    email: z.email(),
     role: userRoleSchema,
     status: userStatusSchema,
     firstName: z.string().nullable(),
@@ -67,10 +62,10 @@ export const staffUserSchema = z
     companyName: z.string().nullable(),
     companyRegistrationId: z.string().nullable(),
     /** Null means the base price list, which is a normal, permanent state. */
-    tierId: z.string().uuid().nullable(),
-    createdAt: z.string().datetime(),
-    approvedAt: z.string().datetime().nullable(),
-    approvedBy: z.string().uuid().nullable(),
+    tierId: z.uuid().nullable(),
+    createdAt: z.iso.datetime(),
+    approvedAt: z.iso.datetime().nullable(),
+    approvedBy: z.uuid().nullable(),
   })
   .strict();
 export type StaffUser = z.infer<typeof staffUserSchema>;
@@ -81,7 +76,7 @@ export type StaffUser = z.infer<typeof staffUserSchema>;
  * deliberate choice of the base price list, not an omission.
  */
 export const approveUserSchema = z
-  .object({ tierId: z.string().uuid().nullable() })
+  .object({ tierId: z.uuid().nullable() })
   .strict();
 export type ApproveUserRequest = z.infer<typeof approveUserSchema>;
 
@@ -109,7 +104,7 @@ export const updateUserSchema = z
     companyName: companyNameSchema.nullable(),
     companyRegistrationId: companyRegistrationIdSchema.nullable(),
     /** Null is the base price list — a real choice, not an omission. */
-    tierId: z.string().uuid().nullable(),
+    tierId: z.uuid().nullable(),
     role: userRoleSchema.optional(),
   })
   .strict()
@@ -142,9 +137,9 @@ export type UpdateUserRequest = z.infer<typeof updateUserSchema>;
  */
 export const createUserSchema = z
   .object({
-    email: z.string().trim().email().max(320),
+    email: emailField(320),
     role: userRoleSchema,
-    tierId: z.string().uuid().nullable(),
+    tierId: z.uuid().nullable(),
     firstName: z.string().trim().min(1).max(200),
     lastName: z.string().trim().min(1).max(200),
     phone: z.string().trim().max(50).optional(),
@@ -194,7 +189,7 @@ export const listUsersQuerySchema = z.object({
   /** Narrows within `staff` (admin vs manager); customers are all one role. */
   role: userRoleSchema.optional(),
   /** `null` is not expressible in a query string; `default` means the base list. */
-  tierId: z.union([z.string().uuid(), z.literal('default')]).optional(),
+  tierId: z.union([z.uuid(), z.literal('default')]).optional(),
   /**
    * A `companyIdInput.formats` key: the accounts whose registration number is
    * in that shape. Which keys exist is deployment config, so this is a plain
@@ -231,7 +226,25 @@ export const USER_ERROR_CODES = [
   'account-not-purgeable',
 ] as const;
 export type UserErrorCode = (typeof USER_ERROR_CODES)[number];
-const userErrorSchema = apiErrorSchema(USER_ERROR_CODES);
+
+/**
+ * The status each refusal travels with. `account-not-found` is the only 404;
+ * every other one is a conflict — the account exists, and what was asked of it
+ * is what cannot be done.
+ */
+const notFound = { 'account-not-found': { status: 404 } } as const;
+const conflicts = {
+  'account-not-pending': { status: 409 },
+  'account-closed': { status: 409 },
+  'email-taken': { status: 409 },
+  'account-not-approved': { status: 409 },
+  'account-not-disabled': { status: 409 },
+  'account-not-invited': { status: 409 },
+  'self-deactivate': { status: 409 },
+  'self-demote': { status: 409 },
+  'last-admin': { status: 409 },
+  'account-not-purgeable': { status: 409 },
+} as const;
 
 /**
  * The two things a manager may not do, both about who decides who is staff.
@@ -246,115 +259,146 @@ export const USER_FORBIDDEN_CODES = [
 ] as const;
 export type UserForbiddenCode = (typeof USER_FORBIDDEN_CODES)[number];
 
-export const usersContract = c.router(
-  {
-    listUsers: {
+/** Staff-only, and the two manager limits reach a screen rather than a redirect. */
+const staff = oc.errors({
+  ...commonAuthErrors,
+  'role-change-admin-only': { status: 403 },
+  'staff-create-admin-only': { status: 403 },
+});
+
+export const usersContract = {
+  listUsers: staff
+    .route({
       method: 'GET',
       path: '/admin/users',
-      query: listUsersQuerySchema,
-      responses: {
-        200: z.object({ users: z.array(staffUserSchema) }).strict(),
-      },
+      inputStructure: 'detailed',
       summary: 'List accounts, filtered (admin, manager)',
-    },
-    approveUser: {
+    })
+    .input(z.object({ query: listUsersQuerySchema }))
+    .output(z.object({ users: z.array(staffUserSchema) }).strict()),
+
+  approveUser: staff
+    .route({
       method: 'POST',
-      path: '/admin/users/:id/approve',
-      pathParams: z.object({ id: z.string().uuid() }),
-      body: approveUserSchema,
-      responses: {
-        200: staffUserSchema,
-        404: userErrorSchema,
-        // Only a pending registration can be approved.
-        409: userErrorSchema,
-      },
+      path: '/admin/users/{id}/approve',
+      inputStructure: 'detailed',
       summary: 'Approve a registration, assign a tier, send the invitation',
-    },
-    createUser: {
+    })
+    .errors({
+      ...notFound,
+      // Only a pending registration can be approved.
+      'account-not-pending': conflicts['account-not-pending'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: approveUserSchema,
+      }),
+    )
+    .output(staffUserSchema),
+
+  createUser: staff
+    .route({
       method: 'POST',
       path: '/admin/users',
-      body: createUserSchema,
-      responses: {
-        201: staffUserSchema,
-        // Email already has an account.
-        409: userErrorSchema,
-      },
+      successStatus: 201,
+      inputStructure: 'detailed',
       summary: 'Create an account and invite it (admin, manager)',
-    },
-    getUser: {
+    })
+    // Email already has an account.
+    .errors({ 'email-taken': conflicts['email-taken'] })
+    .input(z.object({ body: createUserSchema }))
+    .output(staffUserSchema),
+
+  getUser: staff
+    .route({
       method: 'GET',
-      path: '/admin/users/:id',
-      pathParams: z.object({ id: z.string().uuid() }),
-      responses: {
-        200: staffUserSchema,
-        404: userErrorSchema,
-      },
+      path: '/admin/users/{id}',
+      inputStructure: 'detailed',
       // The editor is a route, so a reload of it has no list to read from.
       summary: 'One account (admin, manager)',
-    },
-    updateUser: {
+    })
+    .errors(notFound)
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(staffUserSchema),
+
+  updateUser: staff
+    .route({
       method: 'PATCH',
-      path: '/admin/users/:id',
-      pathParams: z.object({ id: z.string().uuid() }),
-      body: updateUserSchema,
-      responses: {
-        200: staffUserSchema,
-        404: userErrorSchema,
-        // Would leave the deployment with no admin, or demote yourself.
-        409: userErrorSchema,
-      },
+      path: '/admin/users/{id}',
+      inputStructure: 'detailed',
       summary: 'Edit an account; role is admin only (admin, manager)',
-    },
-    setUserActive: {
+    })
+    .errors({
+      ...notFound,
+      // Would leave the deployment with no admin, or demote yourself.
+      'self-demote': conflicts['self-demote'],
+      'last-admin': conflicts['last-admin'],
+      'email-taken': conflicts['email-taken'],
+      'account-closed': conflicts['account-closed'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: updateUserSchema,
+      }),
+    )
+    .output(staffUserSchema),
+
+  setUserActive: staff
+    .route({
       method: 'PATCH',
-      path: '/admin/users/:id/active',
-      pathParams: z.object({ id: z.string().uuid() }),
-      body: setUserActiveSchema,
-      responses: {
-        200: staffUserSchema,
-        404: userErrorSchema,
-        // Your own account, the last admin, a registration nobody has decided
-        // on yet, or an anonymized one — which has nothing left to switch on.
-        409: userErrorSchema,
-      },
+      path: '/admin/users/{id}/active',
+      inputStructure: 'detailed',
       summary: 'Deactivate or reactivate an account (admin, manager)',
-    },
-    resendInvitation: {
+    })
+    .errors({
+      ...notFound,
+      // Your own account, the last admin, a registration nobody has decided
+      // on yet, or an anonymized one — which has nothing left to switch on.
+      'account-not-approved': conflicts['account-not-approved'],
+      'account-not-disabled': conflicts['account-not-disabled'],
+      'self-deactivate': conflicts['self-deactivate'],
+      'last-admin': conflicts['last-admin'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: setUserActiveSchema,
+      }),
+    )
+    .output(staffUserSchema),
+
+  resendInvitation: staff
+    .route({
       method: 'POST',
-      path: '/admin/users/:id/invite',
-      pathParams: z.object({ id: z.string().uuid() }),
-      // No payload; an empty object is the repo's no-body POST convention
-      // (a POST body is parsed to `{}`, which `z.void()` would reject).
-      body: z.object({}),
-      responses: {
-        200: z.object({ message: z.string() }),
-        404: userErrorSchema,
-        // Nothing to send to: a pending, disabled or anonymized account.
-        409: userErrorSchema,
-      },
+      path: '/admin/users/{id}/invite',
+      inputStructure: 'detailed',
       // The first link expires, and mail gets lost; this is the way back
       // without touching the account itself.
       summary: 'Send a fresh set-your-password link (admin, manager)',
-    },
-    deleteUser: {
+    })
+    .errors({
+      ...notFound,
+      // Nothing to send to: a pending, disabled or anonymized account.
+      'account-not-invited': conflicts['account-not-invited'],
+    })
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(z.object({ message: z.string() })),
+
+  deleteUser: staff
+    .route({
       method: 'DELETE',
-      path: '/admin/users/:id',
-      pathParams: z.object({ id: z.string().uuid() }),
-      body: z.void(),
-      responses: {
-        200: z.object({ message: z.string() }),
-        404: userErrorSchema,
-        // Only an unapproved registration can be deleted outright; an account
-        // that has ever been usable is anonymized instead, never removed.
-        409: userErrorSchema,
-      },
+      path: '/admin/users/{id}',
+      inputStructure: 'detailed',
       summary: 'Decline and purge a pending registration (admin, manager)',
-    },
-  },
-  {
-    commonResponses: {
-      401: commonAuthErrorSchema,
-      403: apiErrorSchema(USER_FORBIDDEN_CODES),
-    },
-  },
-);
+    })
+    .errors({
+      ...notFound,
+      // Only an unapproved registration can be deleted outright; an account
+      // that has ever been usable is anonymized instead, never removed.
+      'account-not-purgeable': conflicts['account-not-purgeable'],
+    })
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(z.object({ message: z.string() })),
+};

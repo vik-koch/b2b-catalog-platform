@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { countryCodeSchema } from './address.contract';
 import { normalizePostalCode } from './order-config';
 
@@ -121,8 +121,7 @@ export interface PostalCodeRuleLike {
 export function postalCodeRuleFor<R extends PostalCodeRuleLike>(
   country: string,
   countries:
-    | readonly { readonly code: string; readonly postalCode?: R }[]
-    | undefined,
+    readonly { readonly code: string; readonly postalCode?: R }[] | undefined,
 ): R | undefined {
   return countries?.find((entry) => entry.code === country)?.postalCode;
 }

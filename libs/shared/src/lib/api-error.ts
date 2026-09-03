@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 /**
  * The shape of every refusal this API answers with.
@@ -37,3 +37,16 @@ export const COMMON_AUTH_ERROR_CODES = [
 ] as const;
 export type CommonAuthErrorCode = (typeof COMMON_AUTH_ERROR_CODES)[number];
 export const commonAuthErrorSchema = apiErrorSchema(COMMON_AUTH_ERROR_CODES);
+
+/**
+ * The two refusals every guarded endpoint shares, as an oRPC error map.
+ *
+ * The codes are the same strings the `{ code, message }` bodies carried, and
+ * mean the same thing — only the envelope around them changed, so the client
+ * text keyed by them did not have to move. `message` is developer-facing here
+ * too: oRPC puts it in the same place with the same meaning.
+ */
+export const commonAuthErrors = {
+  'not-authenticated': { status: 401 },
+  'insufficient-role': { status: 403 },
+} as const;

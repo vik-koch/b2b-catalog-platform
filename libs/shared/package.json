@@ -7,11 +7,11 @@
   "main": "./index.cjs",
   "types": "./index.d.ts",
   "dependencies": {
-    "@ts-rest/core": "^3.52.1",
     "sanitize-html": "^2.17.6",
-    "zod": "3.25.76",
+    "zod": "^4.5.4",
     "vitest": "^4.0.8",
     "vite-tsconfig-paths": "^6.1.1",
-    "slugify": "^1.6.9"
+    "slugify": "^1.6.9",
+    "@orpc/contract": "^1.15.0"
   }
 }

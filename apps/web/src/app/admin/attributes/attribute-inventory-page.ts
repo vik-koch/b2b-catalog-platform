@@ -26,8 +26,7 @@ import { AttributesService } from './attributes.service';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =
-  | { kind: 'key'; key: string }
-  | { kind: 'value'; key: string; value: string };
+  { kind: 'key'; key: string } | { kind: 'value'; key: string; value: string };
 
 /**
  * The attribute inventory (FR-ATTR-09) — every key and value in use across the

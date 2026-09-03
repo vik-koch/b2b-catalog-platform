@@ -1,4 +1,5 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PgDialect } from 'drizzle-orm/pg-core';
 import * as schema from '../db/schema';
 import { priceCart } from './cart-pricing';
 
@@ -24,7 +25,6 @@ function dbWith(rows: unknown[]) {
 
 function rendered(condition: unknown): string {
   // drizzle's own renderer, so the assertion reads the SQL the database gets.
-  const { PgDialect } = jest.requireActual('drizzle-orm/pg-core');
   return new PgDialect().sqlToQuery(condition as never).sql;
 }
 

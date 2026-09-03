@@ -1,7 +1,6 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
-
-const c = initContract();
+import { oc } from '@orpc/contract';
+import * as z from 'zod';
+import { commonAuthErrors } from './api-error';
 
 /**
  * Runtime settings the admin controls from the panel.
@@ -9,7 +8,7 @@ const c = initContract();
 export const maintenanceStatusSchema = z.object({
   enabled: z.boolean(),
   /** ISO 8601. When the toggle was last changed. */
-  updatedAt: z.string().datetime(),
+  updatedAt: z.iso.datetime(),
 });
 export type MaintenanceStatus = z.infer<typeof maintenanceStatusSchema>;
 
@@ -40,48 +39,45 @@ export const buildInfoSchema = z.object({
   /** The deployed image tag — a semver for prod, `sha-<commit>` for dev. */
   version: z.string().nullable(),
   /** ISO 8601. When the running stack was deployed. */
-  deployedAt: z.string().datetime().nullable(),
+  deployedAt: z.iso.datetime().nullable(),
 });
 export type BuildInfo = z.infer<typeof buildInfoSchema>;
 
-export const settingsContract = c.router({
-  checkMaintenance: {
-    method: 'GET',
-    path: '/maintenance',
-    responses: {
-      200: maintenanceCheckSchema,
-    },
-    summary: 'Public: is the storefront in maintenance mode?',
-  },
-  getBuildInfo: {
-    method: 'GET',
-    path: '/settings/build-info',
-    responses: {
-      200: buildInfoSchema,
-      401: z.object({ message: z.string() }),
-      403: z.object({ message: z.string() }),
-    },
-    summary: 'What version is deployed, and since when (admin/manager only)',
-  },
-  getMaintenance: {
-    method: 'GET',
-    path: '/settings/maintenance',
-    responses: {
-      200: maintenanceStatusSchema,
-      401: z.object({ message: z.string() }),
-      403: z.object({ message: z.string() }),
-    },
-    summary: 'Read the maintenance-mode toggle (admin only)',
-  },
-  setMaintenance: {
-    method: 'PUT',
-    path: '/settings/maintenance',
-    body: setMaintenanceSchema,
-    responses: {
-      200: maintenanceStatusSchema,
-      401: z.object({ message: z.string() }),
-      403: z.object({ message: z.string() }),
-    },
-    summary: 'Turn maintenance mode on or off (admin only)',
-  },
-});
+export const settingsContract = {
+  checkMaintenance: oc
+    .route({
+      method: 'GET',
+      path: '/maintenance',
+      summary: 'Public: is the storefront in maintenance mode?',
+    })
+    .output(maintenanceCheckSchema),
+
+  getBuildInfo: oc
+    .route({
+      method: 'GET',
+      path: '/settings/build-info',
+      summary: 'What version is deployed, and since when (admin/manager only)',
+    })
+    .errors(commonAuthErrors)
+    .output(buildInfoSchema),
+
+  getMaintenance: oc
+    .route({
+      method: 'GET',
+      path: '/settings/maintenance',
+      summary: 'Read the maintenance-mode toggle (admin only)',
+    })
+    .errors(commonAuthErrors)
+    .output(maintenanceStatusSchema),
+
+  setMaintenance: oc
+    .route({
+      method: 'PUT',
+      path: '/settings/maintenance',
+      inputStructure: 'detailed',
+      summary: 'Turn maintenance mode on or off (admin only)',
+    })
+    .errors(commonAuthErrors)
+    .input(z.object({ body: setMaintenanceSchema }))
+    .output(maintenanceStatusSchema),
+};

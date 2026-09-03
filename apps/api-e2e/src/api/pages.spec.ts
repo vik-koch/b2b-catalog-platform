@@ -54,7 +54,7 @@ describe('GET /pages/:slug', () => {
     });
 
     expect(res.status).toBe(404);
-    expect(res.data).toEqual({ message: 'Page not found' });
+    expect(res.data).toMatchObject({ code: 'page-not-found' });
   });
 });
 

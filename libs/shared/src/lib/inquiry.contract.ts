@@ -1,7 +1,6 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
-
-const c = initContract();
+import { oc } from '@orpc/contract';
+import * as z from 'zod';
+import { emailField } from './contact-config';
 
 // Empty form fields arrive as '' — treat them as absent so optional fields
 // (and the email-format check) behave correctly.
@@ -17,7 +16,7 @@ const emptyToUndefined = (value: unknown): unknown =>
 export const nameSchema = z.string().trim().min(1).max(200);
 export const emailSchema = z.preprocess(
   emptyToUndefined,
-  z.string().trim().email().max(320).optional(),
+  emailField(320).optional(),
 );
 export const phoneSchema = z.preprocess(
   emptyToUndefined,
@@ -61,15 +60,14 @@ export const inquiryRequestSchema = z
 
 export type InquiryRequest = z.infer<typeof inquiryRequestSchema>;
 
-export const inquiryContract = c.router({
-  submit: {
-    method: 'POST',
-    path: '/inquiry',
-    body: inquiryRequestSchema,
-    responses: {
-      200: z.object({ ok: z.literal(true) }),
-      400: z.object({ message: z.string() }),
-    },
-    summary: 'Submit the inquiry form',
-  },
-});
+export const inquiryContract = {
+  submit: oc
+    .route({
+      method: 'POST',
+      path: '/inquiry',
+      inputStructure: 'detailed',
+      summary: 'Submit the inquiry form',
+    })
+    .input(z.object({ body: inquiryRequestSchema }))
+    .output(z.object({ ok: z.literal(true) })),
+};

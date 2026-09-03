@@ -22,8 +22,8 @@ function dbReturning(row: { enabled: boolean; updatedAt: Date } | 'throw') {
 
 describe('SettingsService', () => {
   afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it('warms the cache from the singleton row at boot', async () => {
@@ -39,7 +39,7 @@ describe('SettingsService', () => {
   it('does not fail the boot when the table is not there yet', async () => {
     // The e2e harness starts the server concurrently with migrations, so the
     // table can be missing here — the boot must survive it (fail-open), not crash.
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     const service = new SettingsService(dbReturning('throw'));
 
     await expect(service.onModuleInit()).resolves.toBeUndefined();

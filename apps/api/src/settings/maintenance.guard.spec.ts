@@ -28,9 +28,9 @@ const adminClaims = {
 };
 
 describe('MaintenanceGuard', () => {
-  const isMaintenanceEnabled = jest.fn();
-  const verifyAsync = jest.fn();
-  const findById = jest.fn();
+  const isMaintenanceEnabled = vi.fn();
+  const verifyAsync = vi.fn();
+  const findById = vi.fn();
   // Emulates the reflector reading metadata off the route: returns the roles
   // array when the route is marked as auth-guarded, or the exempt flag.
   const metadata: { roles?: unknown; exempt?: boolean } = {};
@@ -46,7 +46,7 @@ describe('MaintenanceGuard', () => {
     { findById } as unknown as UsersService,
   );
 
-  const setHeader = jest.fn();
+  const setHeader = vi.fn();
   const contextWith = (cookies: Record<string, string>) =>
     ({
       getHandler: () => undefined,

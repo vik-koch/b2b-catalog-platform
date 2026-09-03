@@ -1,17 +1,18 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
+import { oc } from '@orpc/contract';
+import * as z from 'zod';
 import { addressInputSchema, countryCodeSchema } from './address.contract';
-import { companyRegistrationIdSchema } from './contact-format';
-import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
 import {
-  CART_LINES_MAX,
+  companyRegistrationIdSchema,
+  lowercaseEmailField,
+} from './contact-config';
+import { commonAuthErrors } from './api-error';
+import {
   cartLineSchema,
   cartPreviewSchema,
   productUnitSchema,
 } from './cart.contract';
+import { CART_LINES_MAX } from './cart-constants';
 import { catalogImageSchema, paginationSchema } from './catalog.contract';
-
-const c = initContract();
 
 /**
  * Placing an order request and reading it back (FR-CART-03/04/07, FR-ACC-01,
@@ -106,7 +107,7 @@ export type OrderingParty = z.infer<typeof orderingPartySchema>;
 export const orderContactSchema = z
   .object({
     name: z.string().trim().min(1).max(200),
-    email: z.string().trim().toLowerCase().email().max(255),
+    email: lowercaseEmailField(255),
     phone: z.string().trim().min(1).max(50),
   })
   .strict();
@@ -158,7 +159,7 @@ export const orderSubmissionSchema = z
      * is one — a manager sorting by it, or a later screen showing this week's
      * requests, cannot do either with a sentence.
      */
-    preferredDate: z.string().date().nullable(),
+    preferredDate: z.iso.date().nullable(),
     customerNote: z.string().trim().min(1).max(ORDER_NOTE_MAX).nullable(),
     expectedTotalMinor: z.number().int().nonnegative(),
     /** FR-CART-03: the privacy notice has to be accepted, as on every other
@@ -225,7 +226,7 @@ export const orderSummarySchema = z
   .object({
     reference: z.string(),
     status: orderStatusSchema,
-    createdAt: z.string().datetime(),
+    createdAt: z.iso.datetime(),
     totalMinor: z.number().int().nonnegative(),
     currency: z.string(),
     itemCount: z.number().int().nonnegative(),
@@ -287,7 +288,7 @@ export const orderDetailSchema = orderSummarySchema.extend({
    * placed before it stopped asking for one. */
   billingAddress: orderAddressSchema.nullable(),
   paymentMethod: paymentMethodSchema,
-  preferredDate: z.string().date().nullable(),
+  preferredDate: z.iso.date().nullable(),
   customerNote: z.string().nullable(),
   lines: z.array(orderLineSchema),
   shipment: cartPreviewSchema.shape.shipment,
@@ -304,7 +305,7 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   customerEmail: z.string().nullable(),
   /** Which list it was priced from; null means the default one. */
   tierKey: z.string().nullable(),
-  statusChangedAt: z.string().datetime(),
+  statusChangedAt: z.iso.datetime(),
 });
 export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
 
@@ -317,17 +318,69 @@ export const ORDER_QUERY_MAX_LENGTH = 200;
  * fresh preview travels with the refusal so the customer sees the corrected
  * cart rather than being told to try again.
  */
-export const cartChangedSchema = apiErrorSchema(['cart-changed']).extend({
-  preview: cartPreviewSchema,
-});
+/**
+ * The refusal that carries an answer with it: the cart was priced differently
+ * from what the browser held, and the fresh pricing rides along so the page can
+ * show what changed instead of asking again.
+ */
+export const cartChangedDataSchema = z.object({ preview: cartPreviewSchema });
 
-export const ordersContract = c.router({
-  submitOrder: {
-    method: 'POST',
-    path: '/orders',
-    body: orderSubmissionSchema,
-    responses: {
-      201: z
+/** Every refusal the checkout can be given. All 400s but one. */
+const submissionErrors = {
+  'invalid-company-id': { status: 400 },
+  'unsupported-country': { status: 400 },
+  /** The postal code is not the shape its country's codes take. */
+  'invalid-postal-code': { status: 400 },
+  'unknown-pickup-location': { status: 400 },
+  /** Bank transfer invoices a legal entity, so it is available only where the
+   * party has a registration number. Re-checked here because what the form
+   * offered is not what the server trusts. */
+  'billing-details-required': { status: 400 },
+  /** Cash is not offered for an order invoiced to a company: a company is
+   * invoiced or pays by card (FR-CART-04). The form does not offer it either;
+   * this is what makes it a rule. */
+  'cash-not-available': { status: 400 },
+  /** The deployment invoices an address of its own and the submission carried
+   * none. Only reachable by a browser out of step with the config the form was
+   * drawn from. */
+  'billing-address-required': { status: 400 },
+  /** An order with no account named no party. Only reachable by a guest, whose
+   * form has nobody to resolve one from. */
+  'party-required': { status: 400 },
+  /** A staff session tried to place one. Role is authorization, not a pricing
+   * group: an admin or a manager has no tier, no address book worth the name
+   * and nobody to invoice, and an order in their name would land in the very
+   * inbox they answer. The storefront does not offer them a checkout; this is
+   * what makes that a rule. */
+  'staff-cannot-order': { status: 400 },
+  /** ADR 0015's honeypot caught it. Its own code rather than a borrowed one: a
+   * bot never reads the answer, but a person tripped by an autofill would, and
+   * being told a full cart is empty explains nothing. */
+  rejected: { status: 400 },
+  'cart-changed': { status: 409, data: cartChangedDataSchema },
+} as const;
+
+/** Reading an order the caller may not have is the same answer as it not
+ * existing: whether a reference exists is not something a stranger gets to
+ * learn. */
+const orderNotFound = { 'order-not-found': { status: 404 } } as const;
+
+/** The signed-in account's own orders, and staff's view of all of them. */
+const authed = oc.errors(commonAuthErrors);
+
+export const ordersContract = {
+  submitOrder: oc
+    .route({
+      method: 'POST',
+      path: '/orders',
+      successStatus: 201,
+      inputStructure: 'detailed',
+      summary: 'Place an order request',
+    })
+    .errors(submissionErrors)
+    .input(z.object({ body: orderSubmissionSchema }))
+    .output(
+      z
         .object({
           reference: z.string(),
           /** The guest's only record of the order (FR-NOTIF-06): the mailed
@@ -335,97 +388,79 @@ export const ordersContract = c.router({
           publicToken: z.string(),
         })
         .strict(),
-      400: apiErrorSchema([
-        'invalid-company-id',
-        'unsupported-country',
-        /** The postal code is not the shape its country's codes take. */
-        'invalid-postal-code',
-        'unknown-pickup-location',
-        /** Bank transfer invoices a legal entity, so it is available only
-         * where the party has a registration number. Re-checked here because
-         * what the form offered is not what the server trusts. */
-        'billing-details-required',
-        /** Cash is not offered for an order invoiced to a company: a company
-         * is invoiced or pays by card (FR-CART-04). The form does not offer
-         * it either; this is what makes it a rule. */
-        'cash-not-available',
-        /** The deployment invoices an address of its own and the submission
-         * carried none. Only reachable by a browser out of step with the
-         * config the form was drawn from. */
-        'billing-address-required',
-        /** An order with no account named no party. Only reachable by a guest,
-         * whose form has nobody to resolve one from. */
-        'party-required',
-        /** A staff session tried to place one. Role is authorization, not a
-         * pricing group: an admin or a manager has no tier, no address book
-         * worth the name and nobody to invoice, and an order in their name
-         * would land in the very inbox they answer. The storefront does not
-         * offer them a checkout; this is what makes that a rule. */
-        'staff-cannot-order',
-        /** ADR 0015's honeypot caught it. Its own code rather than a borrowed
-         * one: a bot never reads the answer, but a person tripped by an
-         * autofill would, and being told a full cart is empty explains
-         * nothing. */
-        'rejected',
-      ]),
-      409: cartChangedSchema,
-    },
-    summary: 'Place an order request',
-  },
-  listMyOrders: {
-    method: 'GET',
-    path: '/account/orders',
-    query: z.object({ page: z.coerce.number().int().positive().optional() }),
-    responses: {
-      200: z
+    ),
+
+  listMyOrders: authed
+    .route({
+      method: 'GET',
+      path: '/account/orders',
+      inputStructure: 'detailed',
+      summary: "The signed-in account's order requests (FR-ACC-01)",
+    })
+    .input(
+      z.object({
+        query: z.object({
+          page: z.coerce.number().int().positive().optional(),
+        }),
+      }),
+    )
+    .output(
+      z
         .object({
           items: z.array(orderSummarySchema),
           pagination: paginationSchema,
         })
         .strict(),
-      401: commonAuthErrorSchema,
-    },
-    summary: "The signed-in account's order requests (FR-ACC-01)",
-  },
-  getMyOrder: {
-    method: 'GET',
-    path: '/account/orders/:reference',
-    responses: {
-      200: orderDetailSchema,
-      401: commonAuthErrorSchema,
-      /** Another account's order is a 404, never a 403: whether a reference
-       * exists is not something a stranger gets to learn. */
-      404: apiErrorSchema(['order-not-found']),
-    },
-    summary: 'One of the account’s own order requests',
-  },
-  getOrderByToken: {
-    method: 'GET',
-    path: '/orders/by-token/:token',
-    responses: {
-      200: orderDetailSchema,
-      404: apiErrorSchema(['order-not-found']),
-    },
-    summary: 'A mailed order summary, readable without signing in',
-  },
-  listOrders: {
-    method: 'GET',
-    path: '/admin/orders',
-    query: z.object({
-      page: z.coerce.number().int().positive().optional(),
-      status: orderStatusSchema.optional(),
-      /**
-       * Find-an-order, matched against the reference, who to ask for, the
-       * party being invoiced and either email on the order — the handful of
-       * things a manager has in front of them when the phone rings. A
-       * fragment, not a whole value: a customer reads out the last digits of
-       * a reference as readily as all of it.
-       */
-      q: z.string().trim().max(ORDER_QUERY_MAX_LENGTH).optional(),
-      sort: staffOrderSortSchema.optional(),
-    }),
-    responses: {
-      200: z
+    ),
+
+  getMyOrder: authed
+    .route({
+      method: 'GET',
+      path: '/account/orders/{reference}',
+      inputStructure: 'detailed',
+      summary: 'One of the account’s own order requests',
+    })
+    .errors(orderNotFound)
+    .input(z.object({ params: z.object({ reference: z.string() }) }))
+    .output(orderDetailSchema),
+
+  getOrderByToken: oc
+    .route({
+      method: 'GET',
+      path: '/orders/by-token/{token}',
+      inputStructure: 'detailed',
+      summary: 'A mailed order summary, readable without signing in',
+    })
+    .errors(orderNotFound)
+    .input(z.object({ params: z.object({ token: z.string() }) }))
+    .output(orderDetailSchema),
+
+  listOrders: authed
+    .route({
+      method: 'GET',
+      path: '/admin/orders',
+      inputStructure: 'detailed',
+      summary: 'All order requests, for staff (FR-AUTH-03)',
+    })
+    .input(
+      z.object({
+        query: z.object({
+          page: z.coerce.number().int().positive().optional(),
+          status: orderStatusSchema.optional(),
+          /**
+           * Find-an-order, matched against the reference, who to ask for, the
+           * party being invoiced and either email on the order — the handful
+           * of things a manager has in front of them when the phone rings. A
+           * fragment, not a whole value: a customer reads out the last digits
+           * of a reference as readily as all of it.
+           */
+          q: z.string().trim().max(ORDER_QUERY_MAX_LENGTH).optional(),
+          sort: staffOrderSortSchema.optional(),
+        }),
+      }),
+    )
+    .output(
+      z
         .object({
           items: z.array(
             orderSummarySchema.extend({
@@ -436,18 +471,16 @@ export const ordersContract = c.router({
           pagination: paginationSchema,
         })
         .strict(),
-      401: commonAuthErrorSchema,
-    },
-    summary: 'All order requests, for staff (FR-AUTH-03)',
-  },
-  getOrder: {
-    method: 'GET',
-    path: '/admin/orders/:reference',
-    responses: {
-      200: adminOrderDetailSchema,
-      401: commonAuthErrorSchema,
-      404: apiErrorSchema(['order-not-found']),
-    },
-    summary: 'One order request, for staff',
-  },
-});
+    ),
+
+  getOrder: authed
+    .route({
+      method: 'GET',
+      path: '/admin/orders/{reference}',
+      inputStructure: 'detailed',
+      summary: 'One order request, for staff',
+    })
+    .errors(orderNotFound)
+    .input(z.object({ params: z.object({ reference: z.string() }) }))
+    .output(adminOrderDetailSchema),
+};

@@ -74,10 +74,7 @@ export function attributeHints(
  * cheap to fix while it is still being typed.
  */
 export type AttributeRowStatus =
-  | 'none'
-  | 'unknown'
-  | 'filterable'
-  | 'not-numeric';
+  'none' | 'unknown' | 'filterable' | 'not-numeric';
 
 export function attributeRowStatus(
   row: ProductAttribute,

@@ -17,6 +17,7 @@ import { AuthService } from '../../auth/auth.service';
 import {
   canonicalPhone,
   companyIdValidators,
+  emailFormat,
   phoneValidators,
   typedPhone,
 } from '../../core/contact-fields';
@@ -24,7 +25,6 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { FieldErrors } from '../../core/form-errors';
 import { usePageSeo } from '../../core/page-seo';
 import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
-import { zodValidator } from '../../core/zod-validator';
 import { Button } from '../../ui/button';
 import { CompanyFields } from '../../parties/company-fields';
 import { EmailField } from '../../ui/email-field';
@@ -419,7 +419,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly resent = signal(false);
 
   protected readonly form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
+    email: ['', [Validators.required, emailFormat()]],
     customerType: ['person' as CustomerType],
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],

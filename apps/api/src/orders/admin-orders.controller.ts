@@ -1,7 +1,8 @@
 import { Controller } from '@nestjs/common';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+import { Implement, implement } from '@orpc/nest';
 import { ordersContract } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
+import { refusals } from '../orpc/refusals';
 import { OrdersService } from './orders.service';
 
 /**
@@ -19,24 +20,26 @@ import { OrdersService } from './orders.service';
 export class AdminOrdersController {
   constructor(private readonly orders: OrdersService) {}
 
-  @TsRestHandler(ordersContract.listOrders, { validateResponses: true })
+  @Implement(ordersContract.listOrders)
   listOrders() {
-    return tsRestHandler(ordersContract.listOrders, async ({ query }) => ({
-      status: 200 as const,
-      body: await this.orders.listAll(
-        query.page ?? 1,
-        query.status,
-        query.q,
-        query.sort ?? 'status',
-      ),
-    }));
+    return implement(ordersContract.listOrders)
+      .use(refusals)
+      .handler(({ input: { query } }) =>
+        this.orders.listAll(
+          query.page ?? 1,
+          query.status,
+          query.q,
+          query.sort ?? 'status',
+        ),
+      );
   }
 
-  @TsRestHandler(ordersContract.getOrder, { validateResponses: true })
+  @Implement(ordersContract.getOrder)
   getOrder() {
-    return tsRestHandler(ordersContract.getOrder, async ({ params }) => ({
-      status: 200 as const,
-      body: await this.orders.getForStaff(params.reference),
-    }));
+    return implement(ordersContract.getOrder)
+      .use(refusals)
+      .handler(({ input: { params } }) =>
+        this.orders.getForStaff(params.reference),
+      );
   }
 }

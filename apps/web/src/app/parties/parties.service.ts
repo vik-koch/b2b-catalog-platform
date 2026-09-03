@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-import {
-  PartySuggestion,
-  partySuggestionContract,
-} from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../core/api-client';
+import { PartySuggestion } from '@b2b-catalog-platform/shared';
+import { partySuggestionContract } from '../core/contract-routes.generated';
+import { safe } from '@orpc/client';
+import { createOrpcClient } from '../core/orpc-client';
 
 /**
  * Companies matching what is being typed (FR-AUTH-09). A deployment with no
@@ -12,12 +11,14 @@ import { createApiClient } from '../core/api-client';
  */
 @Injectable({ providedIn: 'root' })
 export class PartiesService {
-  private readonly client = createApiClient(partySuggestionContract);
+  private readonly client = createOrpcClient(partySuggestionContract);
 
   async suggest(q: string): Promise<PartySuggestion[]> {
-    const response = await this.client.suggestParties({ query: { q } });
+    const { error, data } = await safe(
+      this.client.suggestParties({ query: { q } }),
+    );
     // A suggestion is an accelerator, never a step: a provider that is down or
     // out of quota must not take the registration form down with it.
-    return response.status === 200 ? response.body.items : [];
+    return error ? [] : data.items;
   }
 }

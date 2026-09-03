@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import {
-  catalogContract,
   ProductSort,
   SearchSort,
   SearchSuggestion,
 } from '@b2b-catalog-platform/shared';
-import { createApiClient, deferSessionReads } from '../core/api-client';
+import { catalogContract } from '../core/contract-routes.generated';
+import { safe } from '@orpc/client';
+import { createOrpcClient, deferSessionReads } from '../core/orpc-client';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogService {
-  private client = createApiClient(catalogContract);
+  private client = createOrpcClient(catalogContract);
   /**
    * Prices depend on the caller's tier (FR-AUTH-05), so the reads carrying them
    * answer `undefined` on a server render for a signed-in visitor: the browser
@@ -20,11 +21,7 @@ export class CatalogService {
 
   /** The full category tree for the main-page overview (FR-CAT-01/02). */
   async getCategoryTree() {
-    const response = await this.client.getCategoryTree();
-    if (response.status === 200) {
-      return response.body.categories;
-    }
-    throw new Error(`Failed to load categories (status ${response.status})`);
+    return (await this.client.getCategoryTree()).categories;
   }
 
   /** A page of products in a category (FR-CAT-03/04). `null` when the category
@@ -37,19 +34,15 @@ export class CatalogService {
     attr: string[] = [],
   ) {
     if (this.deferPrices) return undefined;
-    const response = await this.client.getCategoryProducts({
-      params: { slug },
-      query: { page, sort, attr },
-    });
-    if (response.status === 200) {
-      return response.body;
-    }
-    if (response.status === 404) {
-      return null;
-    }
-    throw new Error(
-      `Failed to load products for "${slug}" (status ${response.status})`,
+    const result = await safe(
+      this.client.getCategoryProducts({
+        params: { slug },
+        query: { page, sort, attr },
+      }),
     );
+    if (result.isDefined) return null;
+    if (!result.isSuccess) throw result.error;
+    return result.data;
   }
 
   /** A page of search results, best match first (FR-SEARCH-01…03). An
@@ -61,13 +54,7 @@ export class CatalogService {
     attr: string[] = [],
   ) {
     if (this.deferPrices) return undefined;
-    const response = await this.client.searchProducts({
-      query: { q, page, sort, attr },
-    });
-    if (response.status === 200) {
-      return response.body;
-    }
-    throw new Error(`Search failed (status ${response.status})`);
+    return this.client.searchProducts({ query: { q, page, sort, attr } });
   }
 
   /**
@@ -77,23 +64,19 @@ export class CatalogService {
    * not to interrupt someone mid-query.
    */
   async getSearchSuggestions(q: string): Promise<SearchSuggestion[]> {
-    const response = await this.client.getSearchSuggestions({ query: { q } });
-    return response.status === 200 ? response.body.items : [];
+    const { error, data } = await safe(
+      this.client.getSearchSuggestions({ query: { q } }),
+    );
+    return error ? [] : data.items;
   }
 
   /** A single product (FR-CAT-05). `null` when it does not exist, `undefined`
    * when this render defers prices — see `deferPrices`. */
   async getProduct(slug: string) {
     if (this.deferPrices) return undefined;
-    const response = await this.client.getProduct({ params: { slug } });
-    if (response.status === 200) {
-      return response.body;
-    }
-    if (response.status === 404) {
-      return null;
-    }
-    throw new Error(
-      `Failed to load product "${slug}" (status ${response.status})`,
-    );
+    const result = await safe(this.client.getProduct({ params: { slug } }));
+    if (result.isDefined) return null;
+    if (!result.isSuccess) throw result.error;
+    return result.data;
   }
 }

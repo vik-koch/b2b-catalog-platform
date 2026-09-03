@@ -1,41 +1,9 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
+import { oc } from '@orpc/contract';
+import { PAGE_SLUGS } from './page-constants';
+import * as z from 'zod';
+import { commonAuthErrors } from './api-error';
 
-const c = initContract();
-
-/**
- * The static pages are a fixed set — content is edited, pages are never
- * created or deleted. The API answers 404 for any other slug. Which of them a
- * deployment publishes, and where they appear in the navigation, is deployment
- * config; the set itself is a compile-time contract shared with the database,
- * whose page rows are keyed by these slugs.
- */
-export const PAGE_SLUGS = [
-  'about',
-  'conditions',
-  'privacy',
-  'imprint',
-  'contact',
-] as const;
-export type PageSlug = (typeof PAGE_SLUGS)[number];
 export const pageSlugSchema = z.enum(PAGE_SLUGS);
-
-/**
- * The subset served by the generic `/:slug` route. `contact` is deliberately
- * absent: it has an editable body like the others, but a code route renders it
- * so the office list and map embeds — structured deployment config, not
- * content — keep their own markup around the prose.
- *
- * Which of these a given deployment actually publishes is a separate,
- * per-deployment decision (see the `pages` block in the deployment config).
- */
-export const STANDALONE_PAGE_SLUGS = [
-  'about',
-  'conditions',
-  'privacy',
-  'imprint',
-] as const satisfies readonly PageSlug[];
-export type StandalonePageSlug = (typeof STANDALONE_PAGE_SLUGS)[number];
 
 /**
  * The rich-text vocabulary, declared once and isomorphic on purpose:
@@ -113,7 +81,7 @@ export const pageSchema = z.object({
    * a page. The editing admin is recorded in the database but deliberately
    * not exposed here: this endpoint is public.
    */
-  updatedAt: z.string().datetime(),
+  updatedAt: z.iso.datetime(),
 });
 export type Page = z.infer<typeof pageSchema>;
 
@@ -133,29 +101,33 @@ export const updatePageSchema = z
   .strict();
 export type UpdatePageRequest = z.infer<typeof updatePageSchema>;
 
-export const pageContract = c.router({
-  getPage: {
-    method: 'GET',
-    path: '/pages/:slug',
-    responses: {
-      200: pageSchema,
-      404: z.object({ message: z.string() }),
-    },
-    summary: 'Get page content',
-  },
-  updatePage: {
-    method: 'PUT',
-    path: '/pages/:slug',
-    // The enum makes "create a page" unrepresentable: an unknown slug is a 400
-    // from contract validation, never an insert.
-    pathParams: z.object({ slug: pageSlugSchema }),
-    body: updatePageSchema,
-    responses: {
-      200: pageSchema,
-      401: z.object({ message: z.string() }),
-      403: z.object({ message: z.string() }),
-      404: z.object({ message: z.string() }),
-    },
-    summary: 'Replace a page title and body (admin only; body is sanitized)',
-  },
-});
+export const pageContract = {
+  getPage: oc
+    .route({
+      method: 'GET',
+      path: '/pages/{slug}',
+      inputStructure: 'detailed',
+      summary: 'Get page content',
+    })
+    .errors({ 'page-not-found': { status: 404 } })
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(pageSchema),
+
+  updatePage: oc
+    .route({
+      method: 'PUT',
+      path: '/pages/{slug}',
+      inputStructure: 'detailed',
+      summary: 'Replace a page title and body (admin only; body is sanitized)',
+    })
+    .errors({ ...commonAuthErrors, 'page-not-found': { status: 404 } })
+    .input(
+      z.object({
+        // The enum makes "create a page" unrepresentable: an unknown slug is a
+        // 400 from contract validation, never an insert.
+        params: z.object({ slug: pageSlugSchema }),
+        body: updatePageSchema,
+      }),
+    )
+    .output(pageSchema),
+};

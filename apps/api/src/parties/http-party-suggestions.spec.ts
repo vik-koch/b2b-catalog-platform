@@ -1,3 +1,4 @@
+import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
 import { HttpPartySuggestions } from './http-party-suggestions';
 import {
@@ -13,8 +14,8 @@ const kontor = {
 };
 
 describe('HttpPartySuggestions', () => {
-  let fetchMock: jest.Mock;
-  let warn: jest.SpyInstance;
+  let fetchMock: Mock;
+  let warn: MockInstance;
 
   const answer = (body: unknown, ok = true) =>
     fetchMock.mockResolvedValue({
@@ -24,9 +25,9 @@ describe('HttpPartySuggestions', () => {
     });
 
   beforeEach(() => {
-    fetchMock = jest.fn();
+    fetchMock = vi.fn();
     global.fetch = fetchMock as unknown as typeof fetch;
-    warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
+    warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => {
       // The failure paths log; the assertions are about what they return.
     });
   });
@@ -97,10 +98,10 @@ describe('HttpPartySuggestions', () => {
 });
 
 describe('createPartySuggestionPort', () => {
-  let log: jest.SpyInstance;
+  let log: MockInstance;
 
   beforeEach(() => {
-    log = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {
+    log = vi.spyOn(Logger.prototype, 'log').mockImplementation(() => {
       // Asserted on below; not wanted in the test output.
     });
   });

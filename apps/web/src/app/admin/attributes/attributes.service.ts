@@ -4,7 +4,6 @@ import {
   AttributeDefinitionInput,
   AttributeErrorCode,
   AttributeKeyUsage,
-  attributesContract,
   AttributeValueUsage,
   CategoryFilters,
   SaveCategoryFiltersRequest,
@@ -12,7 +11,9 @@ import {
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
 } from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../../core/api-client';
+import { attributesContract } from '../../core/contract-routes.generated';
+import { safe, type ClientPromiseResult } from '@orpc/client';
+import { createOrpcClient } from '../../core/orpc-client';
 
 /**
  * A save the server refused, as its own code. The list looks the wording up in
@@ -23,84 +24,85 @@ export type AttributeResult =
   | { ok: false; code: AttributeErrorCode };
 
 /**
+ * Every route also declares the two auth refusals; those mean the session is
+ * wrong rather than the edit, and reach a redirect instead of this screen.
+ */
+function renderable(code: string): code is AttributeErrorCode {
+  return code !== 'not-authenticated' && code !== 'insufficient-role';
+}
+
+/**
  * The filterable-attribute registry client. Same discipline as
  * `TiersService`: the declared refusals (409 duplicate name or slug, 404 gone)
  * come back as typed results, and only the unexpected throws.
  */
 @Injectable({ providedIn: 'root' })
 export class AttributesService {
-  private client = createApiClient(attributesContract);
+  private client = createOrpcClient(attributesContract);
+
+  /** A saved definition, or the code the server refused it with. */
+  private async saved<TError extends Error>(
+    call: ClientPromiseResult<AttributeDefinition, TError>,
+  ): Promise<AttributeResult> {
+    const result = await safe(call);
+    if (result.isDefined && renderable(result.error.code)) {
+      return { ok: false, code: result.error.code };
+    }
+    if (!result.isSuccess) throw result.error;
+    return { ok: true, definition: result.data };
+  }
+
+  /** A category's panel, or null when the category (or an attribute) is gone. */
+  private async panel<TError extends Error>(
+    call: ClientPromiseResult<CategoryFilters, TError>,
+  ): Promise<CategoryFilters | null> {
+    const result = await safe(call);
+    if (result.isDefined && renderable(result.error.code)) return null;
+    if (!result.isSuccess) throw result.error;
+    return result.data;
+  }
 
   async list(): Promise<AttributeDefinition[]> {
-    const response = await this.client.listAttributes();
-    if (response.status === 200) return response.body.definitions;
-    throw new Error(`Failed to list attributes (status ${response.status})`);
+    return (await this.client.listAttributes()).definitions;
   }
 
-  async create(body: AttributeDefinitionInput): Promise<AttributeResult> {
-    const response = await this.client.createAttribute({ body });
-    if (response.status === 201) return { ok: true, definition: response.body };
-    if (response.status === 409) return { ok: false, code: response.body.code };
-    throw new Error(`Failed to create attribute (status ${response.status})`);
+  create(body: AttributeDefinitionInput): Promise<AttributeResult> {
+    return this.saved(this.client.createAttribute({ body }));
   }
 
-  async update(
-    id: string,
-    body: AttributeDefinitionInput,
-  ): Promise<AttributeResult> {
-    const response = await this.client.updateAttribute({
-      params: { id },
-      body,
-    });
-    if (response.status === 200) return { ok: true, definition: response.body };
-    if (response.status === 409 || response.status === 404) {
-      return { ok: false, code: response.body.code };
-    }
-    throw new Error(`Failed to save attribute (status ${response.status})`);
+  update(id: string, body: AttributeDefinitionInput): Promise<AttributeResult> {
+    return this.saved(this.client.updateAttribute({ params: { id }, body }));
   }
 
   /** Commits a whole filter-panel order; returns the list as stored. */
   async reorder(
     body: ReorderAttributesRequest,
   ): Promise<AttributeDefinition[]> {
-    const response = await this.client.reorderAttributes({ body });
-    if (response.status === 200) return response.body.definitions;
-    throw new Error(`Failed to reorder attributes (status ${response.status})`);
+    return (await this.client.reorderAttributes({ body })).definitions;
   }
 
   /** Every attribute key in use across the catalog, declared or freetext. */
   async listKeys(): Promise<AttributeKeyUsage[]> {
-    const response = await this.client.listAttributeKeys();
-    if (response.status === 200) return response.body.keys;
-    throw new Error(`Failed to list attribute keys (${response.status})`);
+    return (await this.client.listAttributeKeys()).keys;
   }
 
   /** The values in use under one key, numbers first and in numeric order. */
   async listValues(key: string): Promise<AttributeValueUsage[]> {
-    const response = await this.client.listAttributeValues({ query: { key } });
-    if (response.status === 200) return response.body.values;
-    throw new Error(`Failed to list attribute values (${response.status})`);
+    return (await this.client.listAttributeValues({ query: { key } })).values;
   }
 
   /** Rewrites a key on every product carrying it; returns how many rows moved. */
   async renameKey(body: RenameAttributeKeyRequest): Promise<number> {
-    const response = await this.client.renameAttributeKey({ body });
-    if (response.status === 200) return response.body.updated;
-    throw new Error(`Failed to rename the attribute (${response.status})`);
+    return (await this.client.renameAttributeKey({ body })).updated;
   }
 
   async renameValue(body: RenameAttributeValueRequest): Promise<number> {
-    const response = await this.client.renameAttributeValue({ body });
-    if (response.status === 200) return response.body.updated;
-    throw new Error(`Failed to rename the value (${response.status})`);
+    return (await this.client.renameAttributeValue({ body })).updated;
   }
 
   /** One category's filter panel, resolved (FR-ATTR-11). */
   async categoryFilters(slug: string): Promise<CategoryFilters | null> {
-    const response = await this.client.getCategoryFilters({ params: { slug } });
-    if (response.status === 200) return response.body;
-    if (response.status === 404) return null;
-    throw new Error(`Failed to load the category filters (${response.status})`);
+    return this.panel(this.client.getCategoryFilters({ params: { slug } }));
   }
 
   /** Replaces the panel wholesale; returns it as stored. */
@@ -108,26 +110,14 @@ export class AttributesService {
     slug: string,
     body: SaveCategoryFiltersRequest,
   ): Promise<CategoryFilters | null> {
-    const response = await this.client.saveCategoryFilters({
-      params: { slug },
-      body,
-    });
-    if (response.status === 200) return response.body;
-    if (response.status === 404) return null;
-    throw new Error(`Failed to save the category filters (${response.status})`);
+    return this.panel(
+      this.client.saveCategoryFilters({ params: { slug }, body }),
+    );
   }
 
   /** Drops the overlay, so the category inherits again. */
   async resetCategoryFilters(slug: string): Promise<CategoryFilters | null> {
-    const response = await this.client.resetCategoryFilters({
-      params: { slug },
-      body: undefined,
-    });
-    if (response.status === 200) return response.body;
-    if (response.status === 404) return null;
-    throw new Error(
-      `Failed to reset the category filters (${response.status})`,
-    );
+    return this.panel(this.client.resetCategoryFilters({ params: { slug } }));
   }
 
   /**
@@ -137,12 +127,11 @@ export class AttributesService {
   async remove(
     id: string,
   ): Promise<{ ok: true } | { ok: false; code: AttributeErrorCode }> {
-    const response = await this.client.deleteAttribute({
-      params: { id },
-      body: undefined,
-    });
-    if (response.status === 200) return { ok: true };
-    if (response.status === 404) return { ok: false, code: response.body.code };
-    throw new Error(`Failed to delete attribute (status ${response.status})`);
+    const result = await safe(this.client.deleteAttribute({ params: { id } }));
+    if (result.isDefined && renderable(result.error.code)) {
+      return { ok: false, code: result.error.code };
+    }
+    if (!result.isSuccess) throw result.error;
+    return { ok: true };
   }
 }

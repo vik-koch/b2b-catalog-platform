@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 /** Treats an empty variable as an unset one, then applies the schema. */
 const emptyAsUndefined = <T extends z.ZodTypeAny>(schema: T) =>
@@ -10,7 +10,7 @@ const emptyAsUndefined = <T extends z.ZodTypeAny>(schema: T) =>
 const EnvSchema = z
   .object({
     API_PORT: z.coerce.number().int().positive(),
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.url(),
     // Set by the one-shot tool containers (see compose.yml): "migrate" applies
     // pending migrations, "seed" upserts demo content, "bootstrap-admin" creates
     // the seeded admin if missing. Unset = normal server.
@@ -19,7 +19,7 @@ const EnvSchema = z
     // refinement below). Plaintext is hashed by the one-shot and never stored;
     // the account is created-if-missing, so this is meaningful on first deploy
     // only. The admin rotates it via the app afterwards.
-    ADMIN_EMAIL: z.string().email().optional(),
+    ADMIN_EMAIL: z.email().optional(),
     ADMIN_PASSWORD: z.string().min(8).optional(),
     // SMTP mail transport. Declared optional but required in server
     // mode by the refinement below — the migrate/seed one-shots never send
@@ -38,7 +38,7 @@ const EnvSchema = z
     // Public origin of this deployment (the same value the web app gets), used
     // to build the absolute links every email needs — mail is read outside the
     // app, so nothing relative resolves. Required in server mode.
-    APP_ORIGIN: z.string().url().optional(),
+    APP_ORIGIN: z.url().optional(),
     // Secret that signs the session JWT. Required in server mode
     // (see refinement below); the migrate/seed one-shots never sign tokens.
     // Min length keeps a weak/short key from being accepted.
@@ -72,7 +72,7 @@ const EnvSchema = z
     // Not in deployment.json — that file is serialized into every page, nothing
     // in the browser needs to know, and two switches could contradict each
     // other. Which way it resolved is logged at boot.
-    SUGGESTION_SIDECAR_URL: emptyAsUndefined(z.string().url()),
+    SUGGESTION_SIDECAR_URL: emptyAsUndefined(z.url()),
     // What is running, shown in the admin panel. Stamped onto the stack by
     // infra/deploy.sh rather than baked into the image (a release retags the
     // image main built, so a baked value could only ever be the commit sha).
@@ -81,7 +81,7 @@ const EnvSchema = z
     // Empty-to-absent: compose always sets these two (with a `:-` fallback), so
     // an undeployed stack passes "" rather than leaving them unset.
     APP_VERSION: emptyAsUndefined(z.string().min(1)),
-    APP_DEPLOYED_AT: emptyAsUndefined(z.string().datetime()),
+    APP_DEPLOYED_AT: emptyAsUndefined(z.iso.datetime()),
   })
   .superRefine((val, ctx) => {
     // Only the running server sends mail; require its config there, not on the

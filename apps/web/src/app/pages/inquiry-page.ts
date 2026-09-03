@@ -2,20 +2,23 @@ import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { emailSchema, InquiryRequest } from '@b2b-catalog-platform/shared';
+import { InquiryRequest } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { zodValidator } from '../core/zod-validator';
-import { canonicalPhone, phoneValidators } from '../core/contact-fields';
+import {
+  canonicalPhone,
+  emailFormat,
+  phoneValidators,
+} from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
 import { Segmented, SegmentOption } from '../ui/segmented';
 import { InquiryService } from './inquiry.service';
-import { Checkbox } from '../ui/checkbox';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -246,12 +249,12 @@ export class InquiryPage {
   }
 
   // The chosen channel is required; the other field stays optional. Email keeps
-  // the shared contract's format check either way; a masked phone must also be
-  // complete. `emailFormat` is the contract's own rule, so client and server
-  // agree on what a valid address is.
+  // the shared format check either way; a masked phone must also be complete.
+  // `emailFormat` is built from the pattern the API validates with, so client
+  // and server agree on what a valid address is.
   private applyPreferredValidators(preferred: PreferredContact): void {
     const { email, phone } = this.form.controls;
-    const emailFormat = zodValidator(emailSchema, 'email');
+    const format = emailFormat();
 
     // Completeness applies either way: the chosen channel must be filled in,
     // but a number typed into the *other* field is still going to be dialled,
@@ -260,9 +263,7 @@ export class InquiryPage {
       phoneValidators(this.phoneInput, preferred === 'phone'),
     );
     email.setValidators(
-      preferred === 'email'
-        ? [Validators.required, emailFormat]
-        : [emailFormat],
+      preferred === 'email' ? [Validators.required, format] : [format],
     );
 
     email.updateValueAndValidity({ emitEvent: false });

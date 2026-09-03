@@ -1,13 +1,12 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
+import { oc } from '@orpc/contract';
+import { CART_LINES_MAX, CART_NOTE_MAX } from './cart-constants';
+import * as z from 'zod';
 import {
   catalogImageSchema,
   productPackagingSchema,
   unitPricesSchema,
 } from './catalog.contract';
 import { LINE_PIECES_MAX, PRODUCT_UNITS } from './product-units';
-
-const c = initContract();
 
 /**
  * Pricing a cart (FR-CART-01/02). The cart itself lives in the browser — there
@@ -20,16 +19,6 @@ const c = initContract();
  * mutates the browser's cart — a dead line is flagged, and removing it is the
  * customer's action.
  */
-
-/** One note describes a whole line ("100 in colour A, 100 in colour B"), so it
- * has room to. */
-export const CART_NOTE_MAX = 500;
-/**
- * How many distinct lines may be priced in one call. A bound, not a business
- * rule: this is an unauthenticated N-product lookup, and a hand-written body
- * must not be able to ask for ten thousand.
- */
-export const CART_LINES_MAX = 100;
 
 /** The unit a line is read and stepped in. A lens on the line's piece count,
  * not a second quantity: the customer's choice of it is kept exactly as made,
@@ -164,12 +153,14 @@ export const cartPreviewSchema = z
   .strict();
 export type CartPreview = z.infer<typeof cartPreviewSchema>;
 
-export const cartContract = c.router({
-  previewCart: {
-    method: 'POST',
-    path: '/cart/preview',
-    body: cartRequestSchema,
-    responses: { 200: cartPreviewSchema },
-    summary: 'Price a cart as it stands, with per-line advisories',
-  },
-});
+export const cartContract = {
+  previewCart: oc
+    .route({
+      method: 'POST',
+      path: '/cart/preview',
+      inputStructure: 'detailed',
+      summary: 'Price a cart as it stands, with per-line advisories',
+    })
+    .input(z.object({ body: cartRequestSchema }))
+    .output(cartPreviewSchema),
+};

@@ -43,7 +43,7 @@ export function matchSegments(name: string, query: string): NameSegment[] {
     const needle = fold(term);
     if (!needle) continue;
 
-    for (let at = folded.indexOf(needle); at >= 0; ) {
+    for (let at = folded.indexOf(needle); at >= 0;) {
       if (startsWord(folded, at)) {
         matched.fill(true, at, at + needle.length);
       }

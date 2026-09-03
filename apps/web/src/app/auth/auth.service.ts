@@ -7,17 +7,19 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
+import { safe } from '@orpc/client';
 import {
-  authContract,
   AuthUser,
   ChangePasswordRequest,
   LoginRequest,
   PasswordRejectionCode,
+  PASSWORD_TOKEN_INVALID,
   PasswordTokenPurpose,
   RegisterRequest,
   SetPasswordRequest,
 } from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../core/api-client';
+import { authContract } from '../core/contract-routes.generated';
+import { createOrpcClient } from '../core/orpc-client';
 import { readSessionHint } from './session-hint';
 
 /** What the login form needs to distinguish: bad credentials vs. anything else. */
@@ -45,7 +47,7 @@ export type ChangePasswordResult =
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly client = createApiClient(authContract);
+  private readonly client = createOrpcClient(authContract);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly document = inject(DOCUMENT);
 
@@ -99,12 +101,8 @@ export class AuthService {
    * approve it.
    */
   async register(request: RegisterRequest): Promise<'ok' | 'error'> {
-    try {
-      const response = await this.client.register({ body: request });
-      return response.status === 200 ? 'ok' : 'error';
-    } catch {
-      return 'error';
-    }
+    const { error } = await safe(this.client.register({ body: request }));
+    return error ? 'error' : 'ok';
   }
 
   /**
@@ -113,12 +111,10 @@ export class AuthService {
    * the only failure worth reporting is the request not going through at all.
    */
   async forgotPassword(email: string): Promise<'ok' | 'error'> {
-    try {
-      const response = await this.client.forgotPassword({ body: { email } });
-      return response.status === 200 ? 'ok' : 'error';
-    } catch {
-      return 'error';
-    }
+    const { error } = await safe(
+      this.client.forgotPassword({ body: { email } }),
+    );
+    return error ? 'error' : 'ok';
   }
 
   /**
@@ -129,14 +125,10 @@ export class AuthService {
   async checkPasswordToken(
     token: string,
   ): Promise<{ purpose: PasswordTokenPurpose; email: string } | null> {
-    try {
-      const response = await this.client.checkPasswordToken({
-        params: { token },
-      });
-      return response.status === 200 ? response.body : null;
-    } catch {
-      return null;
-    }
+    const { error, data } = await safe(
+      this.client.checkPasswordToken({ params: { token } }),
+    );
+    return error ? null : data;
   }
 
   /**
@@ -149,34 +141,28 @@ export class AuthService {
     result: 'ok' | 'rejected' | 'expired' | 'error';
     code?: PasswordRejectionCode;
   }> {
-    try {
-      const response = await this.client.setPassword({ body: request });
-      if (response.status === 200) {
-        this.session.set(response.body);
-        return { result: 'ok' };
-      }
-      if (response.status === 400) {
-        return { result: 'rejected', code: response.body.code };
-      }
-      return { result: response.status === 404 ? 'expired' : 'error' };
-    } catch {
-      return { result: 'error' };
+    const result = await safe(this.client.setPassword({ body: request }));
+
+    if (result.isSuccess) {
+      this.session.set(result.data);
+      return { result: 'ok' };
     }
+    if (!result.isDefined) return { result: 'error' };
+    return result.error.code === PASSWORD_TOKEN_INVALID
+      ? { result: 'expired' }
+      : { result: 'rejected', code: result.error.code };
   }
 
   async login(credentials: LoginRequest): Promise<LoginResult> {
-    try {
-      const response = await this.client.login({ body: credentials });
-      if (response.status === 200) {
-        this.session.set(response.body);
-        return 'ok';
-      }
-      // 401 is the deliberately vague "invalid email or password"; anything
-      // else (429 from the login throttle, 5xx) is not the user's fault.
-      return response.status === 401 ? 'invalid' : 'error';
-    } catch {
-      return 'error';
+    const result = await safe(this.client.login({ body: credentials }));
+    if (result.isSuccess) {
+      this.session.set(result.data);
+      return 'ok';
     }
+    // `invalid-credentials` is the deliberately vague "invalid email or
+    // password"; anything else (429 from the login throttle, 5xx) is not the
+    // visitor's fault and must not be phrased as though it were.
+    return result.isDefined ? 'invalid' : 'error';
   }
 
   /**
@@ -188,22 +174,21 @@ export class AuthService {
   async changePassword(
     request: ChangePasswordRequest,
   ): Promise<ChangePasswordResult> {
-    try {
-      const response = await this.client.changePassword({ body: request });
-      if (response.status === 200) {
-        this.session.set(response.body);
-        return { result: 'ok' };
-      }
-      if (response.status === 400) {
-        const { code } = response.body;
-        return code === 'wrong-current-password'
-          ? { result: 'wrong-current' }
-          : { result: 'rejected', code };
-      }
-      return { result: 'error' };
-    } catch {
+    const result = await safe(this.client.changePassword({ body: request }));
+
+    if (result.isSuccess) {
+      this.session.set(result.data);
+      return { result: 'ok' };
+    }
+    if (!result.isDefined) return { result: 'error' };
+
+    const { code } = result.error;
+    if (code === 'wrong-current-password') return { result: 'wrong-current' };
+    // The session refusals reach a redirect, not this form.
+    if (code === 'not-authenticated' || code === 'insufficient-role') {
       return { result: 'error' };
     }
+    return { result: 'rejected', code };
   }
 
   /**
@@ -213,7 +198,7 @@ export class AuthService {
    */
   async logout(): Promise<void> {
     try {
-      await this.client.logout({ body: {} });
+      await this.client.logout();
     } finally {
       this.session.set(null);
       this.dropPrePaintHint();
@@ -228,8 +213,8 @@ export class AuthService {
    */
   async refresh(): Promise<void> {
     try {
-      const response = await this.client.me();
-      this.session.set(response.status === 200 ? response.body : null);
+      const { error, data } = await safe(this.client.me());
+      this.session.set(error ? null : data);
     } catch {
       this.session.set(null);
     } finally {

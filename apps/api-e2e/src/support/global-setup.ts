@@ -1,18 +1,14 @@
-import { waitForPortOpen } from '@nx/node/utils';
+import { killPort, waitForPortOpen } from '@nx/node/utils';
 import { execSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
 
-// Passed from here to global-teardown via globalThis (Nx's own convention).
-// Declared globally so both halves see the same type under `strict`.
-declare global {
-  var __TEARDOWN_MESSAGE__: string;
-}
+// This file runs as ESM under vitest, so there is no __dirname to resolve from.
+const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 
-const workspaceRoot = join(__dirname, '../../../..');
-
-module.exports = async function () {
+export async function setup() {
   console.log('\nSetting up...\n');
 
   // 0. Create the media dir the LocalMediaStore writes to (MEDIA_ROOT=./.media)
@@ -42,15 +38,24 @@ module.exports = async function () {
 
   // 4. Seed the data the specs assert against, through the real one-shot
   // (idempotent). Running the built bundle rather than importing the seed lib
-  // is deliberate: jest resolves globalSetup outside its module resolver, so
-  // workspace path aliases are unavailable here — and this exercises the same
-  // container entry point a deployment uses.
+  // exercises the same container entry point a deployment uses.
   execSync('node dist/apps/api/main.js', {
     cwd: workspaceRoot,
     stdio: 'inherit',
     env: { ...process.env, RUN_MODE: 'seed' },
   });
+}
 
-  // Hint: Use `globalThis` to pass variables to global teardown.
-  globalThis.__TEARDOWN_MESSAGE__ = '\nTearing down...\n';
-};
+export async function teardown() {
+  // The API process is managed by Nx (continuous api:serve dependency) and the
+  // Postgres container stays up for local development — nothing to stop here
+  // besides making sure the port is released when the server was started
+  // outside of Nx.
+  console.log('\nTearing down...\n');
+  const port = Number(requireEnv('API_PORT'));
+  try {
+    await killPort(port);
+  } catch {
+    // Port already released — fine.
+  }
+}

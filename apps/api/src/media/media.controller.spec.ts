@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import {
   BadRequestException,
   PayloadTooLargeException,
@@ -22,11 +23,11 @@ const pngFile = async (): Promise<Express.Multer.File> => {
 };
 
 describe('MediaController', () => {
-  let store: { put: jest.Mock };
+  let store: { put: Mock };
   let controller: MediaController;
 
   beforeEach(() => {
-    store = { put: jest.fn(async () => ({ url: '/media/abc.webp' })) };
+    store = { put: vi.fn(async () => ({ url: '/media/abc.webp' })) };
     controller = new MediaController(store as unknown as MediaStore);
   });
 

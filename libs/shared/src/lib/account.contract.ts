@@ -1,9 +1,7 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
-import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
+import { oc } from '@orpc/contract';
+import * as z from 'zod';
+import { commonAuthErrors } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
-
-const c = initContract();
 
 /**
  * What the account holder sees of their own record (FR-AUTH-06's neighbourhood:
@@ -16,7 +14,7 @@ const c = initContract();
  * created by other staff and describe nobody.
  */
 export const accountProfileSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   role: userRoleSchema,
   firstName: z.string().nullable(),
   lastName: z.string().nullable(),
@@ -25,7 +23,7 @@ export const accountProfileSchema = z.object({
   companyName: z.string().nullable(),
   companyRegistrationId: z.string().nullable(),
   /** When the account was registered — the "member since" line. */
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 });
 export type AccountProfile = z.infer<typeof accountProfileSchema>;
 
@@ -70,41 +68,44 @@ export type DeleteAccountRequest = z.infer<typeof deleteAccountSchema>;
  * because the question "what is on my account" is the account holder's,
  * whatever their role.
  */
-export const accountContract = c.router({
-  getProfile: {
-    method: 'GET',
-    path: '/account/profile',
-    responses: {
-      200: accountProfileSchema,
-      401: commonAuthErrorSchema,
-    },
-    summary: "The signed-in account's own details",
-  },
-  updateProfile: {
-    method: 'PATCH',
-    path: '/account/profile',
-    body: updateAccountProfileSchema,
-    responses: {
-      200: accountProfileSchema,
-      401: commonAuthErrorSchema,
-    },
-    summary: "Correct the signed-in account's own name and phone number",
-  },
-  deleteAccount: {
-    method: 'POST',
-    path: '/account/delete',
-    // A POST with a body rather than DELETE: the request carries the password
-    // that authorises it, and a body on DELETE is the kind of thing
-    // intermediaries feel free to drop.
-    body: deleteAccountSchema,
-    responses: {
-      200: z.object({ message: z.string() }),
+export const accountContract = {
+  getProfile: oc
+    .route({
+      method: 'GET',
+      path: '/account/profile',
+      summary: "The signed-in account's own details",
+    })
+    .errors(commonAuthErrors)
+    .output(accountProfileSchema),
+
+  updateProfile: oc
+    .route({
+      method: 'PATCH',
+      path: '/account/profile',
+      inputStructure: 'detailed',
+      summary: "Correct the signed-in account's own name and phone number",
+    })
+    .errors(commonAuthErrors)
+    .input(z.object({ body: updateAccountProfileSchema }))
+    .output(accountProfileSchema),
+
+  deleteAccount: oc
+    .route({
+      method: 'POST',
+      // A POST with a body rather than DELETE: the request carries the password
+      // that authorises it, and a body on DELETE is the kind of thing
+      // intermediaries feel free to drop.
+      path: '/account/delete',
+      inputStructure: 'detailed',
+      summary: 'Delete your own account, anonymizing it (FR-AUTH-06)',
+    })
+    .errors({
+      ...commonAuthErrors,
       /** The password did not match. The only refusal the form can act on. */
-      400: apiErrorSchema(['wrong-current-password']),
-      401: commonAuthErrorSchema,
+      'wrong-current-password': { status: 400 },
       /** The last admin. Deleting it would leave nobody able to let anyone in. */
-      409: apiErrorSchema(['last-admin']),
-    },
-    summary: 'Delete your own account, anonymizing it (FR-AUTH-06)',
-  },
-});
+      'last-admin': { status: 409 },
+    })
+    .input(z.object({ body: deleteAccountSchema }))
+    .output(z.object({ message: z.string() })),
+};

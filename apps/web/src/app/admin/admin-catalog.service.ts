@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {
-  adminCatalogContract,
   AdminProduct,
   CatalogErrorCode,
   AdminProductSort,
@@ -10,34 +9,57 @@ import {
   HiddenProduct,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../core/api-client';
+import { adminCatalogContract } from '../core/contract-routes.generated';
+import { safe, type ClientPromiseResult } from '@orpc/client';
+import { createOrpcClient } from '../core/orpc-client';
+
+/**
+ * The refusals the editor can render. Every route also declares the two auth
+ * ones, and those mean the session is wrong rather than the edit — not this
+ * screen's to phrase, so they throw like anything unexpected.
+ */
+function renderable(code: string): code is CatalogErrorCode {
+  return code !== 'not-authenticated' && code !== 'insufficient-role';
+}
 
 /**
  * The admin catalog write client — the counterpart to the public
- * `CatalogService`. Thin wrappers over the ts-rest contract that surface the
- * declared error statuses (404/409) as typed results the editor can act on,
- * and throw only on the unexpected.
+ * `CatalogService`. Thin wrappers over the contract that surface the declared
+ * refusals as typed results the editor can act on, and throw only on the
+ * unexpected.
  */
 @Injectable({ providedIn: 'root' })
 export class AdminCatalogService {
-  private client = createApiClient(adminCatalogContract);
+  private client = createOrpcClient(adminCatalogContract);
+
+  /** The stored row, or the code the server refused with. */
+  private async saved<TError extends Error>(
+    call: ClientPromiseResult<AdminProduct, TError>,
+  ): Promise<SaveResult> {
+    const result = await safe(call);
+    if (result.isDefined && renderable(result.error.code)) {
+      return { ok: false, code: result.error.code };
+    }
+    if (!result.isSuccess) throw result.error;
+    return { ok: true, product: result.data };
+  }
 
   // --- Products ---------------------------------------------------------
 
   /** The grid's filter/search/sort surface (FR-ADM-05). Every part is optional:
    * an omitted parameter and the contract's default mean the same thing. */
-  async listProducts(query: ProductGridQuery = {}) {
-    const response = await this.client.listProducts({ query });
-    if (response.status === 200) return response.body;
-    throw new Error(`Failed to list products (status ${response.status})`);
+  listProducts(query: ProductGridQuery = {}) {
+    return this.client.listProducts({ query });
   }
 
   /** `null` when the product does not exist. */
   async getProduct(slug: string): Promise<AdminProduct | null> {
-    const response = await this.client.getProduct({ params: { slug } });
-    if (response.status === 200) return response.body;
-    if (response.status === 404) return null;
-    throw new Error(`Failed to load product "${slug}" (${response.status})`);
+    const result = await safe(this.client.getProduct({ params: { slug } }));
+    if (result.isDefined && result.error.code === 'product-not-found') {
+      return null;
+    }
+    if (!result.isSuccess) throw result.error;
+    return result.data;
   }
 
   /**
@@ -45,89 +67,51 @@ export class AdminCatalogService {
    * result the editor can render inline (duplicate slug/sourceId → 409; unknown
    * category → 404) rather than a thrown error.
    */
-  async createProduct(body: ProductInput): Promise<SaveResult> {
-    const response = await this.client.createProduct({ body });
-    if (response.status === 201) return { ok: true, product: response.body };
-    if (response.status === 409 || response.status === 404) {
-      return { ok: false, code: response.body.code };
-    }
-    throw new Error(`Failed to create product (status ${response.status})`);
+  createProduct(body: ProductInput): Promise<SaveResult> {
+    return this.saved(this.client.createProduct({ body }));
   }
 
-  async updateProduct(slug: string, body: ProductInput): Promise<SaveResult> {
-    const response = await this.client.updateProduct({
-      params: { slug },
-      body,
-    });
-    if (response.status === 200) return { ok: true, product: response.body };
-    if (response.status === 409 || response.status === 404) {
-      return { ok: false, code: response.body.code };
-    }
-    throw new Error(`Failed to save product "${slug}" (${response.status})`);
+  updateProduct(slug: string, body: ProductInput): Promise<SaveResult> {
+    return this.saved(this.client.updateProduct({ params: { slug }, body }));
   }
 
-  async deleteProduct(slug: string): Promise<AdminProduct> {
-    const response = await this.client.deleteProduct({
-      params: { slug },
-      body: undefined,
-    });
-    if (response.status === 200) return response.body;
-    throw new Error(`Failed to delete product "${slug}" (${response.status})`);
+  deleteProduct(slug: string): Promise<AdminProduct> {
+    return this.client.deleteProduct({ params: { slug } });
   }
 
   /** The soft-deleted products in a category subtree — the edit-mode overlay. */
   async listHiddenProducts(slug: string): Promise<HiddenProduct[]> {
-    const response = await this.client.listHiddenProducts({
-      params: { slug },
-    });
-    if (response.status === 200) return response.body.items;
-    if (response.status === 404) return [];
-    throw new Error(
-      `Failed to list deleted products for "${slug}" (${response.status})`,
+    const result = await safe(
+      this.client.listHiddenProducts({ params: { slug } }),
     );
+    if (result.isDefined) return [];
+    if (!result.isSuccess) throw result.error;
+    return result.data.items;
   }
 
-  async restoreProduct(slug: string): Promise<AdminProduct> {
-    const response = await this.client.restoreProduct({
-      params: { slug },
-      body: {},
-    });
-    if (response.status === 200) return response.body;
-    throw new Error(`Failed to restore product "${slug}" (${response.status})`);
+  restoreProduct(slug: string): Promise<AdminProduct> {
+    return this.client.restoreProduct({ params: { slug } });
   }
 
-  async setProductPublished(
-    slug: string,
-    published: boolean,
-  ): Promise<AdminProduct> {
-    const response = await this.client.setProductPublished({
+  setProductPublished(slug: string, published: boolean): Promise<AdminProduct> {
+    return this.client.setProductPublished({
       params: { slug },
       body: { published },
     });
-    if (response.status === 200) return response.body;
-    throw new Error(
-      `Failed to change publication of "${slug}" (${response.status})`,
-    );
   }
 
   // --- Categories -------------------------------------------------------
 
   async listCategories() {
-    const response = await this.client.listCategories();
-    if (response.status === 200) return response.body.categories;
-    throw new Error(`Failed to list categories (status ${response.status})`);
+    return (await this.client.listCategories()).categories;
   }
 
-  async createCategory(body: CategoryInput) {
-    const response = await this.client.createCategory({ body });
-    if (response.status === 201) return response.body;
-    throw new Error(`Failed to create category (status ${response.status})`);
+  createCategory(body: CategoryInput) {
+    return this.client.createCategory({ body });
   }
 
-  async updateCategory(id: string, body: CategoryInput) {
-    const response = await this.client.updateCategory({ params: { id }, body });
-    if (response.status === 200) return response.body;
-    throw new Error(`Failed to update category "${id}" (${response.status})`);
+  updateCategory(id: string, body: CategoryInput) {
+    return this.client.updateCategory({ params: { id }, body });
   }
 
   /**
@@ -140,22 +124,21 @@ export class AdminCatalogService {
     id: string,
     reassignTo?: string,
   ): Promise<CategoryDeleteResult> {
-    const response = await this.client.deleteCategory({
-      params: { id },
-      query: reassignTo ? { reassignTo } : {},
-      body: undefined,
-    });
-    if (response.status === 200) return { ok: true };
-    if (response.status === 409 || response.status === 404) {
-      return { ok: false, code: response.body.code };
+    const result = await safe(
+      this.client.deleteCategory({
+        params: { id },
+        query: reassignTo ? { reassignTo } : {},
+      }),
+    );
+    if (result.isDefined && renderable(result.error.code)) {
+      return { ok: false, code: result.error.code };
     }
-    throw new Error(`Failed to delete category "${id}" (${response.status})`);
+    if (!result.isSuccess) throw result.error;
+    return { ok: true };
   }
 
   async reorderCategories(body: ReorderCategoriesRequest) {
-    const response = await this.client.reorderCategories({ body });
-    if (response.status === 200) return response.body.categories;
-    throw new Error(`Failed to reorder categories (status ${response.status})`);
+    return (await this.client.reorderCategories({ body })).categories;
   }
 }
 
@@ -179,10 +162,8 @@ export interface ProductGridQuery {
  * wrote is shown.
  */
 export type SaveResult =
-  | { ok: true; product: AdminProduct }
-  | { ok: false; code: CatalogErrorCode };
+  { ok: true; product: AdminProduct } | { ok: false; code: CatalogErrorCode };
 
 /** A category delete outcome: done, or blocked with a code to explain. */
 export type CategoryDeleteResult =
-  | { ok: true }
-  | { ok: false; code: CatalogErrorCode };
+  { ok: true } | { ok: false; code: CatalogErrorCode };

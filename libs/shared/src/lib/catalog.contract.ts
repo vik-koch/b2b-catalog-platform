@@ -1,13 +1,16 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
+import { oc } from '@orpc/contract';
+import {
+  PRODUCT_SORTS,
+  SEARCH_QUERY_MAX_LENGTH,
+  SEARCH_SORTS,
+} from './catalog-constants';
+import * as z from 'zod';
 import { ATTRIBUTE_FILTER_MAX_PARAMS } from './attribute-filter';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
-  attributeTypeSchema,
 } from './attribute-value';
-
-const c = initContract();
+import { attributeTypeSchema } from './attributes.contract';
 
 /**
  * The internal read API the storefront consumes — deliberately independent of
@@ -194,15 +197,6 @@ export const PRODUCT_RICH_TEXT_TAGS = [
  */
 export const shortNameSchema = z.string().nullable();
 
-/** The name to display where the parent is visible: the nickname, or the full
- * name when there is none. */
-export function categoryDisplayName(category: {
-  name: string;
-  shortName?: string | null;
-}): string {
-  return category.shortName || category.name;
-}
-
 /** A breadcrumb ancestor of the selected category, root-first. Carries the
  * nickname too: a crumb always sits next to its parent. */
 export const categoryCrumbSchema = z
@@ -294,30 +288,11 @@ export const paginationSchema = z
   .strict();
 export type Pagination = z.infer<typeof paginationSchema>;
 
-/**
- * How a product listing is ordered (FR-SEARCH-04). Name and price, each in both
- * directions — the only two fields a tile shows that a visitor can meaningfully
- * order by. Every sort is total: the server appends name and id as tiebreakers,
- * so a row cannot swap pages between requests.
- */
-export const productSortSchema = z.enum([
-  'name',
-  'name_desc',
-  'price',
-  'price_desc',
-]);
-export type ProductSort = z.infer<typeof productSortSchema>;
+export const productSortSchema = z.enum(PRODUCT_SORTS);
+export type ProductSort = (typeof PRODUCT_SORTS)[number];
 
-/**
- * The same, plus relevance — only meaningful where there is a query to be
- * relevant to, so it exists on the search endpoint alone rather than as a
- * fourth option the category listing has to reject.
- */
-export const searchSortSchema = z.enum([
-  'relevance',
-  ...productSortSchema.options,
-]);
-export type SearchSort = z.infer<typeof searchSortSchema>;
+export const searchSortSchema = z.enum(SEARCH_SORTS);
+export type SearchSort = (typeof SEARCH_SORTS)[number];
 
 /** Longest `attr` entry: a slug, the separator, and a value. */
 const ATTRIBUTE_FILTER_PARAM_MAX_LENGTH =
@@ -328,22 +303,21 @@ const ATTRIBUTE_FILTER_PARAM_MAX_LENGTH =
  * `<definition-slug>:<value>` — see `attribute-filter.ts` for why the values
  * are not packed into one parameter.
  *
- * Three shapes, because a query string has no array type and every layer
- * spells one differently: a single entry arrives as a bare string, the ts-rest
- * client writes `attr[0]=…` (qs index notation), and qs hands back an
- * object rather than an array once there are more than 20 of either. All three
- * normalize to a list here, so the panel is never one checkbox away from a 400.
+ * Two shapes, because a query string has no array type: a single entry arrives
+ * as a bare string, and anything more as a list. The client writes `attr[0]=…`
+ * and the contract layer reads that, `attr[]=…` and a repeated `attr=…` all
+ * back as a list, at any length — so the panel is never one checkbox away from
+ * a 400, and a hand-written or bookmarked URL in any of the three works.
  *
  * Entries naming an attribute nobody declared are ignored server-side rather
  * than refused: a link outlives the definition it was written from.
  */
 export const attributeParamSchema = z
-  .union([z.string(), z.array(z.string()), z.record(z.string(), z.string())])
+  .union([z.string(), z.array(z.string())])
   .optional()
   .transform((value) => {
     if (value === undefined) return [];
-    if (typeof value === 'string') return [value];
-    return Array.isArray(value) ? value : Object.values(value);
+    return typeof value === 'string' ? [value] : value;
   })
   .pipe(
     z
@@ -400,15 +374,6 @@ export const productListQuerySchema = z.object({
 });
 
 /**
- * Upper bound on a search term. Longer than any real product query,
- * short enough that no caller can hand the matcher an expensive string.
- * Rejected at the contract rather than truncated, so an over-long query is an
- * explainable 400 instead of silently searching for something else — the search
- * bar caps its own input at the same number.
- */
-export const SEARCH_QUERY_MAX_LENGTH = 100;
-
-/**
  * Search query (FR-SEARCH-01…03). `q` is free text and may be anything a
  * visitor types: the server tokenizes it, and a query with nothing searchable
  * in it (blank, punctuation only, one character) is answered with an empty
@@ -460,25 +425,36 @@ export const sitemapEntrySchema = z
   .strict();
 export type SitemapEntry = z.infer<typeof sitemapEntrySchema>;
 
-const notFoundSchema = z.object({ message: z.string() });
+/** The storefront's only refusal: a slug nothing answers to. */
+const notFound = { 'not-found': { status: 404 } } as const;
 
-export const catalogContract = c.router({
+export const catalogContract = {
   /** The full category tree for the main-page overview (FR-CAT-01/02). */
-  getCategoryTree: {
-    method: 'GET',
-    path: '/catalog/categories',
-    responses: {
-      200: z.object({ categories: z.array(categoryNodeSchema) }).strict(),
-    },
-    summary: 'Get the full category tree',
-  },
+  getCategoryTree: oc
+    .route({
+      method: 'GET',
+      path: '/catalog/categories',
+      summary: 'Get the full category tree',
+    })
+    .output(z.object({ categories: z.array(categoryNodeSchema) }).strict()),
+
   /** Paginated products within a category (FR-CAT-03/04). */
-  getCategoryProducts: {
-    method: 'GET',
-    path: '/catalog/categories/:slug/products',
-    query: productListQuerySchema,
-    responses: {
-      200: z
+  getCategoryProducts: oc
+    .route({
+      method: 'GET',
+      path: '/catalog/categories/{slug}/products',
+      inputStructure: 'detailed',
+      summary: 'List products in a category (paginated)',
+    })
+    .errors(notFound)
+    .input(
+      z.object({
+        params: z.object({ slug: z.string() }),
+        query: productListQuerySchema,
+      }),
+    )
+    .output(
+      z
         .object({
           /** The selected category, plus its ancestors for the breadcrumb. */
           category: z
@@ -496,10 +472,8 @@ export const catalogContract = c.router({
           facets: z.array(facetSchema),
         })
         .strict(),
-      404: notFoundSchema,
-    },
-    summary: 'List products in a category (paginated)',
-  },
+    ),
+
   /**
    * Product search by name (FR-SEARCH-01…03), ordered by relevance unless the
    * caller asks for another sort (FR-SEARCH-04). Its own
@@ -507,21 +481,24 @@ export const catalogContract = c.router({
    * to describe, so the response carries no breadcrumb or subcategory envelope
    * — just the same product tiles the grid renders, in match order.
    */
-  searchProducts: {
-    method: 'GET',
-    path: '/catalog/search',
-    query: productSearchQuerySchema,
-    responses: {
-      200: z
+  searchProducts: oc
+    .route({
+      method: 'GET',
+      path: '/catalog/search',
+      inputStructure: 'detailed',
+      summary: 'Search products by name, best match first',
+    })
+    .input(z.object({ query: productSearchQuerySchema }))
+    .output(
+      z
         .object({
           items: z.array(productListItemSchema),
           pagination: paginationSchema,
           facets: z.array(facetSchema),
         })
         .strict(),
-    },
-    summary: 'Search products by name, best match first',
-  },
+    ),
+
   /**
    * Type-ahead suggestions for the search bar (FR-SEARCH-05). The same matcher
    * and the same ordering as `searchProducts`, so the list is a truthful prefix
@@ -530,43 +507,47 @@ export const catalogContract = c.router({
    * keystroke. Suggestions are an accelerator only: the full result list stays
    * reachable by submitting.
    */
-  getSearchSuggestions: {
-    method: 'GET',
-    path: '/catalog/search/suggestions',
-    query: searchSuggestionQuerySchema,
-    responses: {
-      200: z.object({ items: z.array(searchSuggestionSchema) }).strict(),
-    },
-    summary: 'Suggest product names for a partial query',
-  },
+  getSearchSuggestions: oc
+    .route({
+      method: 'GET',
+      path: '/catalog/search/suggestions',
+      inputStructure: 'detailed',
+      summary: 'Suggest product names for a partial query',
+    })
+    .input(z.object({ query: searchSuggestionQuerySchema }))
+    .output(z.object({ items: z.array(searchSuggestionSchema) }).strict()),
+
   /**
    * Every indexable slug for the sitemap (NFR-SEO-02) — all categories and all
    * non-deleted products, each with its `updatedAt`. Consumed only by the SSR
    * server to build sitemap.xml; the maintenance guard gates it like the rest
    * of the storefront read API (ADR 0022), so it 503s while the site is gated.
    */
-  getSitemap: {
-    method: 'GET',
-    path: '/catalog/sitemap',
-    responses: {
-      200: z
+  getSitemap: oc
+    .route({
+      method: 'GET',
+      path: '/catalog/sitemap',
+      summary: 'List all indexable slugs for the sitemap',
+    })
+    .output(
+      z
         .object({
           categories: z.array(sitemapEntrySchema),
           products: z.array(sitemapEntrySchema),
           pages: z.array(sitemapEntrySchema),
         })
         .strict(),
-    },
-    summary: 'List all indexable slugs for the sitemap',
-  },
+    ),
+
   /** The full product page (FR-CAT-05). */
-  getProduct: {
-    method: 'GET',
-    path: '/catalog/products/:slug',
-    responses: {
-      200: productDetailSchema,
-      404: notFoundSchema,
-    },
-    summary: 'Get a product by slug',
-  },
-});
+  getProduct: oc
+    .route({
+      method: 'GET',
+      path: '/catalog/products/{slug}',
+      inputStructure: 'detailed',
+      summary: 'Get a product by slug',
+    })
+    .errors(notFound)
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(productDetailSchema),
+};

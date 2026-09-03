@@ -12,7 +12,7 @@ import {
   phoneInputSchema,
 } from '@b2b-catalog-platform/shared';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
-import { z } from 'zod';
+import * as z from 'zod';
 
 /**
  * The slice of the deployment config the **API** needs. The web app validates

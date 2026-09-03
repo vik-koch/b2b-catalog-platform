@@ -3,11 +3,12 @@ import {
   AdminOrderDetail,
   OrderStatus,
   OrderSummary,
-  ordersContract,
   Pagination,
   StaffOrderSort,
 } from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../../core/api-client';
+import { ordersContract } from '../../core/contract-routes.generated';
+import { safe } from '@orpc/client';
+import { createOrpcClient } from '../../core/orpc-client';
 
 /** A row of the staff list: the order, plus who it came from. */
 export type StaffOrderSummary = OrderSummary & {
@@ -23,7 +24,7 @@ export type StaffOrderSummary = OrderSummary & {
  */
 @Injectable({ providedIn: 'root' })
 export class AdminOrdersService {
-  private readonly client = createApiClient(ordersContract);
+  private readonly client = createOrpcClient(ordersContract);
 
   async list(query: {
     page: number;
@@ -31,16 +32,16 @@ export class AdminOrdersService {
     q?: string;
     sort?: StaffOrderSort;
   }): Promise<{ items: StaffOrderSummary[]; pagination: Pagination }> {
-    const response = await this.client.listOrders({ query });
-    if (response.status === 200) return response.body;
-    throw new Error(`Failed to load the orders (status ${response.status})`);
+    return this.client.listOrders({ query });
   }
 
   /** One order in full. Null where the reference opens nothing. */
   async get(reference: string): Promise<AdminOrderDetail | null> {
-    const response = await this.client.getOrder({ params: { reference } });
-    if (response.status === 200) return response.body;
-    if (response.status === 404) return null;
-    throw new Error(`Failed to load the order (status ${response.status})`);
+    const result = await safe(this.client.getOrder({ params: { reference } }));
+    if (result.isDefined && result.error.code === 'order-not-found') {
+      return null;
+    }
+    if (!result.isSuccess) throw result.error;
+    return result.data;
   }
 }

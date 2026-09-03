@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import {
   CustomerTier,
   ReorderTiersRequest,
+  TIER_ERROR_CODES,
   TierErrorCode,
   TierInput,
-  tiersContract,
 } from '@b2b-catalog-platform/shared';
-import { createApiClient } from '../../core/api-client';
+import { tiersContract } from '../../core/contract-routes.generated';
+import { safe } from '@orpc/client';
+import { createOrpcClient } from '../../core/orpc-client';
 
 /**
  * A save or delete the server refused. The refusal travels as the API's own
@@ -14,8 +16,17 @@ import { createApiClient } from '../../core/api-client';
  * wrote reaches the screen.
  */
 export type TierResult =
-  | { ok: true; tier: CustomerTier }
-  | { ok: false; code: TierErrorCode };
+  { ok: true; tier: CustomerTier } | { ok: false; code: TierErrorCode };
+
+/**
+ * Every route here also declares the two auth refusals, and those are not this
+ * screen's to phrase: `not-authenticated` and `insufficient-role` mean the
+ * session is wrong, which the guards answer with a redirect. Only the tier
+ * codes have wording in the admin text, so only they come back as results.
+ */
+function isTierCode(code: string): code is TierErrorCode {
+  return (TIER_ERROR_CODES as readonly string[]).includes(code);
+}
 
 /**
  * The customer-tier admin client. Same discipline as `AdminCatalogService`:
@@ -25,37 +36,37 @@ export type TierResult =
  */
 @Injectable({ providedIn: 'root' })
 export class TiersService {
-  private client = createApiClient(tiersContract);
+  private client = createOrpcClient(tiersContract);
 
-  async list(): Promise<{ tiers: CustomerTier[]; defaultUserCount: number }> {
-    const response = await this.client.listTiers();
-    if (response.status === 200) return response.body;
-    throw new Error(`Failed to list tiers (status ${response.status})`);
+  list(): Promise<{ tiers: CustomerTier[]; defaultUserCount: number }> {
+    return this.client.listTiers();
   }
 
   async create(body: TierInput): Promise<TierResult> {
-    const response = await this.client.createTier({ body });
-    if (response.status === 201) return { ok: true, tier: response.body };
-    if (response.status === 409) {
-      return { ok: false, code: response.body.code };
+    const { error, data, isDefined } = await safe(
+      this.client.createTier({ body }),
+    );
+    if (isDefined && isTierCode(error.code)) {
+      return { ok: false, code: error.code };
     }
-    throw new Error(`Failed to create tier (status ${response.status})`);
+    if (error) throw error;
+    return { ok: true, tier: data };
   }
 
   async update(id: string, body: TierInput): Promise<TierResult> {
-    const response = await this.client.updateTier({ params: { id }, body });
-    if (response.status === 200) return { ok: true, tier: response.body };
-    if (response.status === 409 || response.status === 404) {
-      return { ok: false, code: response.body.code };
+    const { error, data, isDefined } = await safe(
+      this.client.updateTier({ params: { id }, body }),
+    );
+    if (isDefined && isTierCode(error.code)) {
+      return { ok: false, code: error.code };
     }
-    throw new Error(`Failed to save tier (status ${response.status})`);
+    if (error) throw error;
+    return { ok: true, tier: data };
   }
 
   /** Commits a whole display order; returns the list as stored. */
   async reorder(body: ReorderTiersRequest): Promise<CustomerTier[]> {
-    const response = await this.client.reorderTiers({ body });
-    if (response.status === 200) return response.body.tiers;
-    throw new Error(`Failed to reorder tiers (status ${response.status})`);
+    return (await this.client.reorderTiers({ body })).tiers;
   }
 
   /**
@@ -66,14 +77,13 @@ export class TiersService {
   async remove(
     id: string,
   ): Promise<{ ok: true } | { ok: false; code: TierErrorCode }> {
-    const response = await this.client.deleteTier({
-      params: { id },
-      body: undefined,
-    });
-    if (response.status === 200) return { ok: true };
-    if (response.status === 409 || response.status === 404) {
-      return { ok: false, code: response.body.code };
+    const { error, isDefined } = await safe(
+      this.client.deleteTier({ params: { id } }),
+    );
+    if (isDefined && isTierCode(error.code)) {
+      return { ok: false, code: error.code };
     }
-    throw new Error(`Failed to delete tier (status ${response.status})`);
+    if (error) throw error;
+    return { ok: true };
   }
 }

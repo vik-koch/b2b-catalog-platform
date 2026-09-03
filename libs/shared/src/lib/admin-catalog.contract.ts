@@ -1,13 +1,13 @@
-import { initContract } from '@ts-rest/core';
-import { z } from 'zod';
-import { apiErrorSchema, commonAuthErrorSchema } from './api-error';
+import { oc } from '@orpc/contract';
+import * as z from 'zod';
+import { commonAuthErrors } from './api-error';
 import {
   catalogImageSchema,
   priceMinorSchema,
   productAttributeSchema,
   productListItemSchema,
-  SEARCH_QUERY_MAX_LENGTH,
 } from './catalog.contract';
+import { SEARCH_QUERY_MAX_LENGTH } from './catalog-constants';
 import { basisDividesQuantities, minimumFitsPacks } from './product-units';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
@@ -17,8 +17,6 @@ import { slugSchema } from './slug';
 
 /** Admin grid page size — denser than the storefront's, for scanning. */
 export const ADMIN_CATALOG_PAGE_SIZE = 50;
-
-const c = initContract();
 
 /**
  * The admin write surface for the catalog — the counterpart to the public read
@@ -70,7 +68,7 @@ export const PRODUCT_TIER_PRICES_MAX = 50;
  */
 export const productTierPriceSchema = z
   .object({
-    tierId: z.string().uuid(),
+    tierId: z.uuid(),
     priceMinor: priceMinorSchema,
   })
   .strict();
@@ -121,7 +119,7 @@ export const productInputSchema = z
     slug: slugSchema.optional(),
     priceMinor: priceMinorSchema,
     /** The single owning category (FR-CAT-05); picked from the admin tree. */
-    categoryId: z.string().uuid(),
+    categoryId: z.uuid(),
     /** Sanitized server-side before storage, same discipline as page bodies.
      * May be empty. The editor is limited to PRODUCT_RICH_TEXT_TAGS. */
     descriptionHtml: z.string().max(PRODUCT_DESCRIPTION_MAX_LENGTH).default(''),
@@ -221,7 +219,7 @@ export const adminProductSchema = z
     slug: z.string(),
     name: z.string(),
     priceMinor: priceMinorSchema,
-    categoryId: z.string().uuid(),
+    categoryId: z.uuid(),
     sourceId: z.string(),
     descriptionHtml: z.string(),
     attributes: z.array(productAttributeSchema),
@@ -238,10 +236,10 @@ export const adminProductSchema = z
     lineNoteEnabled: z.boolean(),
     lineNotePrompt: z.string().nullable(),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
-    deletedAt: z.string().datetime().nullable(),
+    deletedAt: z.iso.datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
-    publishedAt: z.string().datetime().nullable(),
-    updatedAt: z.string().datetime(),
+    publishedAt: z.iso.datetime().nullable(),
+    updatedAt: z.iso.datetime(),
   })
   .strict();
 export type AdminProduct = z.infer<typeof adminProductSchema>;
@@ -254,13 +252,13 @@ export const adminProductListItemSchema = z
     slug: z.string(),
     name: z.string(),
     priceMinor: priceMinorSchema,
-    categoryId: z.string().uuid(),
+    categoryId: z.uuid(),
     sourceId: z.string(),
     thumb: z.string().nullable(),
-    deletedAt: z.string().datetime().nullable(),
+    deletedAt: z.iso.datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
-    publishedAt: z.string().datetime().nullable(),
-    updatedAt: z.string().datetime(),
+    publishedAt: z.iso.datetime().nullable(),
+    updatedAt: z.iso.datetime(),
   })
   .strict();
 export type AdminProductListItem = z.infer<typeof adminProductListItemSchema>;
@@ -331,7 +329,7 @@ export type AdminProductSort = z.infer<typeof adminProductSortSchema>;
  */
 export const adminProductListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
-  categoryId: z.string().uuid().optional(),
+  categoryId: z.uuid().optional(),
   state: adminProductStateSchema.optional().default('all'),
   q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
   sort: adminProductSortSchema.optional().default('relevance'),
@@ -350,7 +348,7 @@ export const adminProductListQuerySchema = z.object({
    * group on?" has no other way of being asked, and it is the question behind
    * every review of a tier.
    */
-  tierId: z.string().uuid().optional(),
+  tierId: z.uuid().optional(),
 });
 export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 
@@ -362,10 +360,10 @@ export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
  */
 export const adminCategorySchema = z
   .object({
-    id: z.string().uuid(),
+    id: z.uuid(),
     slug: z.string(),
     name: z.string(),
-    parentId: z.string().uuid().nullable(),
+    parentId: z.uuid().nullable(),
     sortOrder: z.number().int(),
     image: catalogImageSchema.nullable(),
     sourceId: z.string(),
@@ -397,7 +395,7 @@ export const categoryInputSchema = z
       .transform((value) => value || null),
     /** Optional slug override; see the product schema doc. */
     slug: slugSchema.optional(),
-    parentId: z.string().uuid().nullable().default(null),
+    parentId: z.uuid().nullable().default(null),
     image: catalogImageSchema.nullable().default(null),
     /** Private sync key. Admin-settable to pre-assign a legacy key for future
      * file reconciliation; omit to let the server generate `manual:<uuid>`. */
@@ -419,8 +417,8 @@ export type CategoryInput = z.infer<typeof categoryInputSchema>;
  */
 export const categoryOrderEntrySchema = z
   .object({
-    id: z.string().uuid(),
-    parentId: z.string().uuid().nullable(),
+    id: z.uuid(),
+    parentId: z.uuid().nullable(),
     sortOrder: z.number().int().nonnegative(),
   })
   .strict();
@@ -459,172 +457,259 @@ export const CATALOG_ERROR_CODES = [
   'slug-or-source-id-taken',
 ] as const;
 export type CatalogErrorCode = (typeof CATALOG_ERROR_CODES)[number];
-const catalogErrorSchema = apiErrorSchema(CATALOG_ERROR_CODES);
 
-export const adminCatalogContract = c.router(
-  {
-    // --- Products ---------------------------------------------------------
-    listProducts: {
+/**
+ * The status each refusal travels with. A missing row is a 404; everything
+ * else is a conflict — the row is there, and what was asked of it is what
+ * cannot be done.
+ */
+const e = {
+  'product-not-found': { status: 404 },
+  'category-not-found': { status: 404 },
+  'reassign-target-not-found': { status: 404 },
+  'tier-not-found': { status: 404 },
+  'category-has-subcategories': { status: 409 },
+  'category-has-products': { status: 409 },
+  'category-reassign-to-self': { status: 409 },
+  'category-cycle': { status: 409 },
+  'slug-taken': { status: 409 },
+  'source-id-taken': { status: 409 },
+  'slug-or-source-id-taken': { status: 409 },
+} as const satisfies Record<CatalogErrorCode, { status: number }>;
+
+/** Saving a product can collide on either unique column, or name a gone tier. */
+const productWriteErrors = {
+  'category-not-found': e['category-not-found'],
+  'tier-not-found': e['tier-not-found'],
+  'slug-taken': e['slug-taken'],
+  'source-id-taken': e['source-id-taken'],
+  'slug-or-source-id-taken': e['slug-or-source-id-taken'],
+} as const;
+
+/**
+ * Every admin catalog route can be rejected by the auth guards; declared once
+ * here rather than on each route.
+ */
+const admin = oc.errors(commonAuthErrors);
+
+export const adminCatalogContract = {
+  // --- Products -----------------------------------------------------------
+  listProducts: admin
+    .route({
       method: 'GET',
       path: '/admin/catalog/products',
-      query: adminProductListQuerySchema,
-      responses: {
-        200: z
-          .object({
-            items: z.array(adminProductListItemSchema),
-            pagination: z
-              .object({
-                page: z.number().int().positive(),
-                pageSize: z.number().int().positive(),
-                total: z.number().int().nonnegative(),
-                totalPages: z.number().int().nonnegative(),
-              })
-              .strict(),
-          })
-          .strict(),
-      },
+      inputStructure: 'detailed',
       summary: 'List products for the admin grid (includes soft-deleted)',
-    },
-    getProduct: {
+    })
+    .input(z.object({ query: adminProductListQuerySchema }))
+    .output(
+      z
+        .object({
+          items: z.array(adminProductListItemSchema),
+          pagination: z
+            .object({
+              page: z.number().int().positive(),
+              pageSize: z.number().int().positive(),
+              total: z.number().int().nonnegative(),
+              totalPages: z.number().int().nonnegative(),
+            })
+            .strict(),
+        })
+        .strict(),
+    ),
+
+  getProduct: admin
+    .route({
       method: 'GET',
-      path: '/admin/catalog/products/:slug',
-      responses: { 200: adminProductSchema, 404: catalogErrorSchema },
+      path: '/admin/catalog/products/{slug}',
+      inputStructure: 'detailed',
       summary: 'Get a product in editable form (admin)',
-    },
-    createProduct: {
+    })
+    .errors({ 'product-not-found': e['product-not-found'] })
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(adminProductSchema),
+
+  createProduct: admin
+    .route({
       method: 'POST',
       path: '/admin/catalog/products',
-      body: productInputSchema,
-      responses: {
-        201: adminProductSchema,
-        // Category not found.
-        404: catalogErrorSchema,
-        // Duplicate sourceId.
-        409: catalogErrorSchema,
-      },
+      successStatus: 201,
+      inputStructure: 'detailed',
       summary: 'Create a product (admin; body sanitized, slug generated)',
-    },
-    updateProduct: {
+    })
+    .errors(productWriteErrors)
+    .input(z.object({ body: productInputSchema }))
+    .output(adminProductSchema),
+
+  updateProduct: admin
+    .route({
       method: 'PUT',
-      path: '/admin/catalog/products/:slug',
-      body: productInputSchema,
-      responses: {
-        200: adminProductSchema,
-        404: catalogErrorSchema,
-        409: catalogErrorSchema,
-      },
+      path: '/admin/catalog/products/{slug}',
+      inputStructure: 'detailed',
       summary: 'Replace a product (admin; slug stays fixed)',
-    },
-    deleteProduct: {
+    })
+    .errors({
+      'product-not-found': e['product-not-found'],
+      ...productWriteErrors,
+    })
+    .input(
+      z.object({
+        params: z.object({ slug: z.string() }),
+        body: productInputSchema,
+      }),
+    )
+    .output(adminProductSchema),
+
+  deleteProduct: admin
+    .route({
       method: 'DELETE',
-      path: '/admin/catalog/products/:slug',
       // No body; soft delete only (sets deletedAt).
-      body: z.void(),
-      responses: { 200: adminProductSchema, 404: catalogErrorSchema },
+      path: '/admin/catalog/products/{slug}',
+      inputStructure: 'detailed',
       summary: 'Soft-delete a product (admin; reversible via restore)',
-    },
-    restoreProduct: {
+    })
+    .errors({ 'product-not-found': e['product-not-found'] })
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(adminProductSchema),
+
+  restoreProduct: admin
+    .route({
       method: 'POST',
-      path: '/admin/catalog/products/:slug/restore',
-      // No payload; an empty object is the repo's no-body POST convention
-      // (cf. auth logout) — a POST body is parsed to `{}`, which `z.void()`
-      // would reject.
-      body: z.object({}),
-      responses: { 200: adminProductSchema, 404: catalogErrorSchema },
+      path: '/admin/catalog/products/{slug}/restore',
+      inputStructure: 'detailed',
       summary: 'Restore a soft-deleted product (admin)',
-    },
-    /**
-     * Put a product on the storefront, or take it off (FR-ADM-06).
-     *
-     * The body names the state rather than the action, because this is one
-     * reversible switch rather than a pair — and unlike restore, it says
-     * nothing about whether the product is deleted: the two are independent,
-     * so restoring an unpublished product leaves it unpublished.
-     */
-    setProductPublished: {
+    })
+    .errors({ 'product-not-found': e['product-not-found'] })
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(adminProductSchema),
+
+  /**
+   * Put a product on the storefront, or take it off (FR-ADM-06).
+   *
+   * The body names the state rather than the action, because this is one
+   * reversible switch rather than a pair — and unlike restore, it says
+   * nothing about whether the product is deleted: the two are independent,
+   * so restoring an unpublished product leaves it unpublished.
+   */
+  setProductPublished: admin
+    .route({
       method: 'PATCH',
-      path: '/admin/catalog/products/:slug/published',
-      body: z.object({ published: z.boolean() }).strict(),
-      responses: { 200: adminProductSchema, 404: catalogErrorSchema },
+      path: '/admin/catalog/products/{slug}/published',
+      inputStructure: 'detailed',
       summary: 'Publish or unpublish a product (admin)',
-    },
-    listHiddenProducts: {
+    })
+    .errors({ 'product-not-found': e['product-not-found'] })
+    .input(
+      z.object({
+        params: z.object({ slug: z.string() }),
+        body: z.object({ published: z.boolean() }).strict(),
+      }),
+    )
+    .output(adminProductSchema),
+
+  listHiddenProducts: admin
+    .route({
       method: 'GET',
-      path: '/admin/catalog/categories/:slug/hidden-products',
       // Powers the storefront edit-mode overlay under a category grid: what is
       // in this subtree but not on the storefront — soft-deleted, unpublished,
       // or both (Pattern A, same aggregation as the public grid). Without it an
       // admin browsing a category sees a catalogue that looks complete and is
       // not. Unpaginated: a category's hidden set is small. Fetched only when
       // edit mode is on, so the public read path stays untouched.
-      responses: {
-        200: z.object({ items: z.array(hiddenProductSchema) }).strict(),
-        404: catalogErrorSchema,
-      },
+      path: '/admin/catalog/categories/{slug}/hidden-products',
+      inputStructure: 'detailed',
       summary:
         'List products in a category subtree that the storefront hides (admin)',
-    },
+    })
+    .errors({ 'category-not-found': e['category-not-found'] })
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(z.object({ items: z.array(hiddenProductSchema) }).strict()),
 
-    // --- Categories -------------------------------------------------------
-    listCategories: {
+  // --- Categories ---------------------------------------------------------
+  listCategories: admin
+    .route({
       method: 'GET',
       path: '/admin/catalog/categories',
-      responses: {
-        200: z.object({ categories: z.array(adminCategorySchema) }).strict(),
-      },
       summary: 'List all categories with counts (admin management view)',
-    },
-    createCategory: {
+    })
+    .output(z.object({ categories: z.array(adminCategorySchema) }).strict()),
+
+  createCategory: admin
+    .route({
       method: 'POST',
       path: '/admin/catalog/categories',
-      body: categoryInputSchema,
-      responses: { 201: adminCategorySchema, 404: catalogErrorSchema },
+      successStatus: 201,
+      inputStructure: 'detailed',
       summary: 'Create a category (admin; slug/sourceId generated)',
-    },
-    updateCategory: {
+    })
+    .errors({ 'category-not-found': e['category-not-found'] })
+    .input(z.object({ body: categoryInputSchema }))
+    .output(adminCategorySchema),
+
+  updateCategory: admin
+    .route({
       method: 'PUT',
-      path: '/admin/catalog/categories/:id',
-      pathParams: z.object({ id: z.string().uuid() }),
-      body: categoryInputSchema,
-      responses: { 200: adminCategorySchema, 404: catalogErrorSchema },
+      path: '/admin/catalog/categories/{id}',
+      inputStructure: 'detailed',
       summary: 'Update a category name/overlay (admin)',
-    },
-    deleteCategory: {
+    })
+    .errors({
+      'category-not-found': e['category-not-found'],
+      'category-cycle': e['category-cycle'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: categoryInputSchema,
+      }),
+    )
+    .output(adminCategorySchema),
+
+  deleteCategory: admin
+    .route({
       method: 'DELETE',
-      path: '/admin/catalog/categories/:id',
-      pathParams: z.object({ id: z.string().uuid() }),
-      // `reassignTo` moves every product (including soft-deleted ones — the FK
-      // is `restrict` and blocks on those too) to another category first, so a
-      // populated category can be deleted without orphaning its products. Omit
-      // it to keep the strict guard (409 if the category has any products).
-      // Subcategories always block regardless — the admin resolves the subtree
-      // first; reassignment never merges child categories.
-      query: z.object({ reassignTo: z.string().uuid().optional() }),
-      body: z.void(),
-      responses: {
-        200: z.object({ message: z.string() }),
-        // Category (or the reassign target) not found.
-        404: catalogErrorSchema,
-        // Blocked: has subcategories, or has products and no `reassignTo`.
-        409: catalogErrorSchema,
-      },
+      path: '/admin/catalog/categories/{id}',
+      inputStructure: 'detailed',
       summary:
         'Delete a category (admin; optionally reassign its products first)',
-    },
-    reorderCategories: {
+    })
+    .errors({
+      // Category (or the reassign target) not found.
+      'category-not-found': e['category-not-found'],
+      'reassign-target-not-found': e['reassign-target-not-found'],
+      // Blocked: has subcategories, or has products and no `reassignTo`.
+      'category-has-subcategories': e['category-has-subcategories'],
+      'category-has-products': e['category-has-products'],
+      'category-reassign-to-self': e['category-reassign-to-self'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        // `reassignTo` moves every product (including soft-deleted ones — the
+        // FK is `restrict` and blocks on those too) to another category first,
+        // so a populated category can be deleted without orphaning its
+        // products. Omit it to keep the strict guard (409 if the category has
+        // any products). Subcategories always block regardless — the admin
+        // resolves the subtree first; reassignment never merges child
+        // categories.
+        query: z.object({ reassignTo: z.uuid().optional() }),
+      }),
+    )
+    .output(z.object({ message: z.string() })),
+
+  reorderCategories: admin
+    .route({
       method: 'PATCH',
+      // No clash with `/admin/catalog/categories/{id}`: nothing else answers
+      // PATCH here.
       path: '/admin/catalog/categories/order',
-      body: reorderCategoriesSchema,
-      responses: {
-        200: z.object({ categories: z.array(adminCategorySchema) }).strict(),
-        404: catalogErrorSchema,
-      },
+      inputStructure: 'detailed',
       summary: 'Reparent/reorder categories in one transaction (admin)',
-    },
-  },
-  {
-    // Every admin catalog route can be rejected by the auth guards; declare the
-    // shared statuses once rather than on each route.
-    commonResponses: { 401: commonAuthErrorSchema, 403: commonAuthErrorSchema },
-  },
-);
+    })
+    .errors({
+      'category-not-found': e['category-not-found'],
+      'category-cycle': e['category-cycle'],
+    })
+    .input(z.object({ body: reorderCategoriesSchema }))
+    .output(z.object({ categories: z.array(adminCategorySchema) }).strict()),
+};

@@ -37,10 +37,10 @@
       "name": "Debug api tests (current file)",
       "runtimeExecutable": "npx",
       "runtimeArgs": [
-        "jest",
+        "vitest",
         "--config",
-        "apps/api/jest.config.cts",
-        "--runInBand",
+        "apps/api/vite.config.ts",
+        "--no-file-parallelism",
         "--watch",
         "${relativeFile}"
       ],
