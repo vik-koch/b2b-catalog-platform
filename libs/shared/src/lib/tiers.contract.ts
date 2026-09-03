@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 
 /**
@@ -47,7 +47,7 @@ export type TierInput = z.infer<typeof tierInputSchema>;
  */
 export const customerTierSchema = z
   .object({
-    id: z.string().uuid(),
+    id: z.uuid(),
     key: z.string(),
     label: z.string(),
     /** Customer accounts currently on this tier (staff are never counted). */
@@ -61,14 +61,14 @@ export const customerTierSchema = z
      * question the pricing model can answer.
      */
     sortOrder: z.number().int(),
-    updatedAt: z.string().datetime(),
+    updatedAt: z.iso.datetime(),
   })
   .strict();
 export type CustomerTier = z.infer<typeof customerTierSchema>;
 
 /** One tier's new place in the list. */
 export const tierOrderEntrySchema = z
-  .object({ id: z.string().uuid(), sortOrder: z.number().int() })
+  .object({ id: z.uuid(), sortOrder: z.number().int() })
   .strict();
 
 export const reorderTiersSchema = z
@@ -152,7 +152,7 @@ export const tiersContract = {
     })
     .input(
       z.object({
-        params: z.object({ id: z.string().uuid() }),
+        params: z.object({ id: z.uuid() }),
         body: tierInputSchema,
       }),
     )
@@ -183,6 +183,6 @@ export const tiersContract = {
       'tier-has-accounts': tierErrors['tier-has-accounts'],
       'tier-has-prices': tierErrors['tier-has-prices'],
     })
-    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(z.object({ message: z.string() })),
 };

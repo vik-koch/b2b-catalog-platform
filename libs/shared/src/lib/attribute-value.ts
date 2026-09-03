@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 /**
  * The numeric reading of an attribute value. Parsed unconditionally for every

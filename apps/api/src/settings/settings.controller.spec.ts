@@ -1,4 +1,8 @@
-import { INestApplication, UnauthorizedException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  INestApplication,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { SettingsController } from './settings.controller';
@@ -7,6 +11,7 @@ import { MaintenanceGuard } from './maintenance.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import type { UserRole } from '@b2b-catalog-platform/shared';
 
 /**
  * Over a real server, because the questions here are about what the framework
@@ -18,7 +23,7 @@ describe('SettingsController', () => {
   let app: INestApplication;
   let baseUrl: string;
   let maintenanceOn = false;
-  let signedInAs: { id: string; role: string } | null = null;
+  let signedInAs: { id: string; role: UserRole } | null = null;
 
   const settings = {
     isMaintenanceEnabled: () => maintenanceOn,
@@ -67,10 +72,7 @@ describe('SettingsController', () => {
       })
       .overrideGuard(RolesGuard)
       .useValue({
-        canActivate: (context: {
-          getHandler(): unknown;
-          getClass(): unknown;
-        }) => {
+        canActivate: (context: ExecutionContext) => {
           const roles = new Reflector().getAllAndOverride(Roles, [
             context.getHandler(),
             context.getClass(),

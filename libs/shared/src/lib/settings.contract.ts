@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 
 /**
@@ -8,7 +8,7 @@ import { commonAuthErrors } from './api-error';
 export const maintenanceStatusSchema = z.object({
   enabled: z.boolean(),
   /** ISO 8601. When the toggle was last changed. */
-  updatedAt: z.string().datetime(),
+  updatedAt: z.iso.datetime(),
 });
 export type MaintenanceStatus = z.infer<typeof maintenanceStatusSchema>;
 
@@ -39,7 +39,7 @@ export const buildInfoSchema = z.object({
   /** The deployed image tag — a semver for prod, `sha-<commit>` for dev. */
   version: z.string().nullable(),
   /** ISO 8601. When the running stack was deployed. */
-  deployedAt: z.string().datetime().nullable(),
+  deployedAt: z.iso.datetime().nullable(),
 });
 export type BuildInfo = z.infer<typeof buildInfoSchema>;
 

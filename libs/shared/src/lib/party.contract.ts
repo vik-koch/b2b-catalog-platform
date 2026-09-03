@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { addressComponentsSchema } from './address.contract';
 
 

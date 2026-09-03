@@ -1,7 +1,10 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { addressInputSchema, countryCodeSchema } from './address.contract';
-import { companyRegistrationIdSchema } from './contact-format';
+import {
+  companyRegistrationIdSchema,
+  lowercaseEmailField,
+} from './contact-format';
 import { commonAuthErrors } from './api-error';
 import {
   CART_LINES_MAX,
@@ -105,7 +108,7 @@ export type OrderingParty = z.infer<typeof orderingPartySchema>;
 export const orderContactSchema = z
   .object({
     name: z.string().trim().min(1).max(200),
-    email: z.string().trim().toLowerCase().email().max(255),
+    email: lowercaseEmailField(255),
     phone: z.string().trim().min(1).max(50),
   })
   .strict();
@@ -157,7 +160,7 @@ export const orderSubmissionSchema = z
      * is one — a manager sorting by it, or a later screen showing this week's
      * requests, cannot do either with a sentence.
      */
-    preferredDate: z.string().date().nullable(),
+    preferredDate: z.iso.date().nullable(),
     customerNote: z.string().trim().min(1).max(ORDER_NOTE_MAX).nullable(),
     expectedTotalMinor: z.number().int().nonnegative(),
     /** FR-CART-03: the privacy notice has to be accepted, as on every other
@@ -224,7 +227,7 @@ export const orderSummarySchema = z
   .object({
     reference: z.string(),
     status: orderStatusSchema,
-    createdAt: z.string().datetime(),
+    createdAt: z.iso.datetime(),
     totalMinor: z.number().int().nonnegative(),
     currency: z.string(),
     itemCount: z.number().int().nonnegative(),
@@ -286,7 +289,7 @@ export const orderDetailSchema = orderSummarySchema.extend({
    * placed before it stopped asking for one. */
   billingAddress: orderAddressSchema.nullable(),
   paymentMethod: paymentMethodSchema,
-  preferredDate: z.string().date().nullable(),
+  preferredDate: z.iso.date().nullable(),
   customerNote: z.string().nullable(),
   lines: z.array(orderLineSchema),
   shipment: cartPreviewSchema.shape.shipment,
@@ -303,7 +306,7 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   customerEmail: z.string().nullable(),
   /** Which list it was priced from; null means the default one. */
   tierKey: z.string().nullable(),
-  statusChangedAt: z.string().datetime(),
+  statusChangedAt: z.iso.datetime(),
 });
 export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
 

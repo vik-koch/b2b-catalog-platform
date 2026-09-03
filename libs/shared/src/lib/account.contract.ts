@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
 
@@ -14,7 +14,7 @@ import { customerTypeSchema, userRoleSchema } from './auth.contract';
  * created by other staff and describe nobody.
  */
 export const accountProfileSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   role: userRoleSchema,
   firstName: z.string().nullable(),
   lastName: z.string().nullable(),
@@ -23,7 +23,7 @@ export const accountProfileSchema = z.object({
   companyName: z.string().nullable(),
   companyRegistrationId: z.string().nullable(),
   /** When the account was registered — the "member since" line. */
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 });
 export type AccountProfile = z.infer<typeof accountProfileSchema>;
 

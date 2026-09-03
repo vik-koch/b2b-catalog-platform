@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { countryCodeSchema } from './address.contract';
 import { normalizePostalCode } from './order-config';
 

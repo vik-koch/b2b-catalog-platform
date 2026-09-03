@@ -11,7 +11,7 @@ import { PLATFORM_ID, TransferState, makeStateKey } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideClientHydration } from '@angular/platform-browser';
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { createOrpcClient } from './orpc-client';
 
 const API_ORIGIN = 'http://api.internal:3000';

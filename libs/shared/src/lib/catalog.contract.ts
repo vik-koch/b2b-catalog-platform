@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { ATTRIBUTE_FILTER_MAX_PARAMS } from './attribute-filter';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,

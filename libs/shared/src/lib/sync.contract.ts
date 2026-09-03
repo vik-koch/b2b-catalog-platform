@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 import { priceMinorSchema } from './catalog.contract';
 import {
@@ -326,12 +326,12 @@ export const syncRunSourceSchema = z.enum(['upload', 'api']);
 
 export const syncRunSchema = z
   .object({
-    id: z.string().uuid(),
+    id: z.uuid(),
     status: syncRunStatusSchema,
     source: syncRunSourceSchema,
     filename: z.string().nullable(),
-    startedAt: z.string().datetime(),
-    finishedAt: z.string().datetime().nullable(),
+    startedAt: z.iso.datetime(),
+    finishedAt: z.iso.datetime().nullable(),
     /** Who ran it; null if that account has since been deleted. */
     actorEmail: z.string().nullable(),
     options: syncOptionsSchema,
@@ -460,7 +460,7 @@ export const syncContract = {
       summary: 'Apply a previewed run in one transaction (admin)',
     })
     .errors(commitErrors)
-    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(syncCommitResponseSchema),
 
   getRun: admin
@@ -471,7 +471,7 @@ export const syncContract = {
       summary: 'Fetch one run and its plan (admin; plan is null once pruned)',
     })
     .errors({ 'run-not-found': commitErrors['run-not-found'] })
-    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(
       z.object({ run: syncRunSchema, plan: syncPlanSchema.nullable() }).strict(),
     ),

@@ -1,5 +1,5 @@
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
-import { z } from 'zod';
+import * as z from 'zod';
 
 /**
  * Server-side wording for every email the app sends — the API's analog of the

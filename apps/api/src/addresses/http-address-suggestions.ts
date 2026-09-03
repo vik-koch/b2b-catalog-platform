@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { z } from 'zod';
+import * as z from 'zod';
 import { addressSuggestionSchema } from '@b2b-catalog-platform/shared';
 import { SuggestionSidecar } from '../suggestions/sidecar';
 import {

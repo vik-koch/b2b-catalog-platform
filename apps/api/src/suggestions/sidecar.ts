@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { z } from 'zod';
+import * as z from 'zod';
 
 /**
  * A provider is an accelerator, never a step: a sidecar that is slow, down or

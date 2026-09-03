@@ -8,7 +8,7 @@ import {
   pageSlugSchema,
 } from '@b2b-catalog-platform/shared';
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
-import { z } from 'zod';
+import * as z from 'zod';
 
 /**
  * A map embed — restricted to an iframe URL by design.

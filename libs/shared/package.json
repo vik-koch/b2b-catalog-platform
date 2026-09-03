@@ -8,7 +8,7 @@
   "types": "./index.d.ts",
   "dependencies": {
     "sanitize-html": "^2.17.6",
-    "zod": "3.25.76",
+    "zod": "^4.5.4",
     "vitest": "^4.0.8",
     "vite-tsconfig-paths": "^6.1.1",
     "slugify": "^1.6.9",

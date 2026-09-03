@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 
 /**
@@ -112,7 +112,7 @@ export const pageSchema = z.object({
    * a page. The editing admin is recorded in the database but deliberately
    * not exposed here: this endpoint is public.
    */
-  updatedAt: z.string().datetime(),
+  updatedAt: z.iso.datetime(),
 });
 export type Page = z.infer<typeof pageSchema>;
 

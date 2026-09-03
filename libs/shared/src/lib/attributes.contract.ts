@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
@@ -56,7 +56,7 @@ export type AttributeDefinitionInput = z.infer<
  */
 export const attributeDefinitionSchema = z
   .object({
-    id: z.string().uuid(),
+    id: z.uuid(),
     name: z.string(),
     slug: z.string(),
     type: attributeTypeSchema,
@@ -73,14 +73,14 @@ export const attributeDefinitionSchema = z
      * definitions carry it too rather than a null nobody would render.
      */
     unparsedCount: z.number().int().nonnegative(),
-    updatedAt: z.string().datetime(),
+    updatedAt: z.iso.datetime(),
   })
   .strict();
 export type AttributeDefinition = z.infer<typeof attributeDefinitionSchema>;
 
 /** One definition's new place in the filter panel. */
 export const attributeOrderEntrySchema = z
-  .object({ id: z.string().uuid(), sortOrder: z.number().int() })
+  .object({ id: z.uuid(), sortOrder: z.number().int() })
   .strict();
 
 export const reorderAttributesSchema = z
@@ -125,7 +125,7 @@ export const attributeKeyUsageSchema = z
      * attribute, a value with no numeric form is a finding.
      */
     definition: z
-      .object({ id: z.string().uuid(), type: attributeTypeSchema })
+      .object({ id: z.uuid(), type: attributeTypeSchema })
       .strict()
       .nullable(),
   })
@@ -196,7 +196,7 @@ export const renameResultSchema = z
  */
 export const categoryFilterSchema = z
   .object({
-    attributeId: z.string().uuid(),
+    attributeId: z.uuid(),
     name: z.string(),
     slug: z.string(),
     type: attributeTypeSchema,
@@ -245,7 +245,7 @@ export const saveCategoryFiltersSchema = z
   .object({
     filters: z.array(
       z
-        .object({ attributeId: z.string().uuid(), visible: z.boolean() })
+        .object({ attributeId: z.uuid(), visible: z.boolean() })
         .strict(),
     ),
   })
@@ -351,7 +351,7 @@ export const attributesContract = {
     .errors(attributeErrors)
     .input(
       z.object({
-        params: z.object({ id: z.string().uuid() }),
+        params: z.object({ id: z.uuid() }),
         body: attributeDefinitionInputSchema,
       }),
     )
@@ -421,6 +421,6 @@ export const attributesContract = {
     .errors({
       'attribute-not-found': attributeErrors['attribute-not-found'],
     })
-    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(z.object({ message: z.string() })),
 };

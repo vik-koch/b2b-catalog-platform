@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 /**
  * The deployment-owned half of checkout: how an order is referenced, and which

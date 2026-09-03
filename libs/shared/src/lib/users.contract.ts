@@ -1,8 +1,9 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
+  emailField,
 } from './contact-format';
 import { COMMON_AUTH_ERROR_CODES, commonAuthErrors } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
@@ -49,8 +50,8 @@ export const userStatusSchema = z.enum(USER_STATUSES);
  */
 export const staffUserSchema = z
   .object({
-    id: z.string().uuid(),
-    email: z.string().email(),
+    id: z.uuid(),
+    email: z.email(),
     role: userRoleSchema,
     status: userStatusSchema,
     firstName: z.string().nullable(),
@@ -61,10 +62,10 @@ export const staffUserSchema = z
     companyName: z.string().nullable(),
     companyRegistrationId: z.string().nullable(),
     /** Null means the base price list, which is a normal, permanent state. */
-    tierId: z.string().uuid().nullable(),
-    createdAt: z.string().datetime(),
-    approvedAt: z.string().datetime().nullable(),
-    approvedBy: z.string().uuid().nullable(),
+    tierId: z.uuid().nullable(),
+    createdAt: z.iso.datetime(),
+    approvedAt: z.iso.datetime().nullable(),
+    approvedBy: z.uuid().nullable(),
   })
   .strict();
 export type StaffUser = z.infer<typeof staffUserSchema>;
@@ -75,7 +76,7 @@ export type StaffUser = z.infer<typeof staffUserSchema>;
  * deliberate choice of the base price list, not an omission.
  */
 export const approveUserSchema = z
-  .object({ tierId: z.string().uuid().nullable() })
+  .object({ tierId: z.uuid().nullable() })
   .strict();
 export type ApproveUserRequest = z.infer<typeof approveUserSchema>;
 
@@ -103,7 +104,7 @@ export const updateUserSchema = z
     companyName: companyNameSchema.nullable(),
     companyRegistrationId: companyRegistrationIdSchema.nullable(),
     /** Null is the base price list — a real choice, not an omission. */
-    tierId: z.string().uuid().nullable(),
+    tierId: z.uuid().nullable(),
     role: userRoleSchema.optional(),
   })
   .strict()
@@ -136,9 +137,9 @@ export type UpdateUserRequest = z.infer<typeof updateUserSchema>;
  */
 export const createUserSchema = z
   .object({
-    email: z.string().trim().email().max(320),
+    email: emailField(320),
     role: userRoleSchema,
-    tierId: z.string().uuid().nullable(),
+    tierId: z.uuid().nullable(),
     firstName: z.string().trim().min(1).max(200),
     lastName: z.string().trim().min(1).max(200),
     phone: z.string().trim().max(50).optional(),
@@ -188,7 +189,7 @@ export const listUsersQuerySchema = z.object({
   /** Narrows within `staff` (admin vs manager); customers are all one role. */
   role: userRoleSchema.optional(),
   /** `null` is not expressible in a query string; `default` means the base list. */
-  tierId: z.union([z.string().uuid(), z.literal('default')]).optional(),
+  tierId: z.union([z.uuid(), z.literal('default')]).optional(),
   /**
    * A `companyIdInput.formats` key: the accounts whose registration number is
    * in that shape. Which keys exist is deployment config, so this is a plain
@@ -290,7 +291,7 @@ export const usersContract = {
     })
     .input(
       z.object({
-        params: z.object({ id: z.string().uuid() }),
+        params: z.object({ id: z.uuid() }),
         body: approveUserSchema,
       }),
     )
@@ -318,7 +319,7 @@ export const usersContract = {
       summary: 'One account (admin, manager)',
     })
     .errors(notFound)
-    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(staffUserSchema),
 
   updateUser: staff
@@ -338,7 +339,7 @@ export const usersContract = {
     })
     .input(
       z.object({
-        params: z.object({ id: z.string().uuid() }),
+        params: z.object({ id: z.uuid() }),
         body: updateUserSchema,
       }),
     )
@@ -362,7 +363,7 @@ export const usersContract = {
     })
     .input(
       z.object({
-        params: z.object({ id: z.string().uuid() }),
+        params: z.object({ id: z.uuid() }),
         body: setUserActiveSchema,
       }),
     )
@@ -382,7 +383,7 @@ export const usersContract = {
       // Nothing to send to: a pending, disabled or anonymized account.
       'account-not-invited': conflicts['account-not-invited'],
     })
-    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(z.object({ message: z.string() })),
 
   deleteUser: staff
@@ -398,6 +399,6 @@ export const usersContract = {
       // that has ever been usable is anonymized instead, never removed.
       'account-not-purgeable': conflicts['account-not-purgeable'],
     })
-    .input(z.object({ params: z.object({ id: z.string().uuid() }) }))
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(z.object({ message: z.string() })),
 };

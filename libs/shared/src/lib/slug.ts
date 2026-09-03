@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 /**
  * A URL-safe slug: one or more lowercase alphanumeric words joined by single

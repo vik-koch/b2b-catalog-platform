@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 
 
@@ -66,9 +66,9 @@ export type AddressInput = z.infer<typeof addressInputSchema>;
 
 /** A stored row, as the book lists it. */
 export const addressSchema = addressInputSchema.extend({
-  id: z.string().uuid(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  id: z.uuid(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 export type Address = z.infer<typeof addressSchema>;
 

@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 import {
   catalogImageSchema,
@@ -69,7 +69,7 @@ export const PRODUCT_TIER_PRICES_MAX = 50;
  */
 export const productTierPriceSchema = z
   .object({
-    tierId: z.string().uuid(),
+    tierId: z.uuid(),
     priceMinor: priceMinorSchema,
   })
   .strict();
@@ -120,7 +120,7 @@ export const productInputSchema = z
     slug: slugSchema.optional(),
     priceMinor: priceMinorSchema,
     /** The single owning category (FR-CAT-05); picked from the admin tree. */
-    categoryId: z.string().uuid(),
+    categoryId: z.uuid(),
     /** Sanitized server-side before storage, same discipline as page bodies.
      * May be empty. The editor is limited to PRODUCT_RICH_TEXT_TAGS. */
     descriptionHtml: z.string().max(PRODUCT_DESCRIPTION_MAX_LENGTH).default(''),
@@ -220,7 +220,7 @@ export const adminProductSchema = z
     slug: z.string(),
     name: z.string(),
     priceMinor: priceMinorSchema,
-    categoryId: z.string().uuid(),
+    categoryId: z.uuid(),
     sourceId: z.string(),
     descriptionHtml: z.string(),
     attributes: z.array(productAttributeSchema),
@@ -237,10 +237,10 @@ export const adminProductSchema = z
     lineNoteEnabled: z.boolean(),
     lineNotePrompt: z.string().nullable(),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
-    deletedAt: z.string().datetime().nullable(),
+    deletedAt: z.iso.datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
-    publishedAt: z.string().datetime().nullable(),
-    updatedAt: z.string().datetime(),
+    publishedAt: z.iso.datetime().nullable(),
+    updatedAt: z.iso.datetime(),
   })
   .strict();
 export type AdminProduct = z.infer<typeof adminProductSchema>;
@@ -253,13 +253,13 @@ export const adminProductListItemSchema = z
     slug: z.string(),
     name: z.string(),
     priceMinor: priceMinorSchema,
-    categoryId: z.string().uuid(),
+    categoryId: z.uuid(),
     sourceId: z.string(),
     thumb: z.string().nullable(),
-    deletedAt: z.string().datetime().nullable(),
+    deletedAt: z.iso.datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
-    publishedAt: z.string().datetime().nullable(),
-    updatedAt: z.string().datetime(),
+    publishedAt: z.iso.datetime().nullable(),
+    updatedAt: z.iso.datetime(),
   })
   .strict();
 export type AdminProductListItem = z.infer<typeof adminProductListItemSchema>;
@@ -330,7 +330,7 @@ export type AdminProductSort = z.infer<typeof adminProductSortSchema>;
  */
 export const adminProductListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
-  categoryId: z.string().uuid().optional(),
+  categoryId: z.uuid().optional(),
   state: adminProductStateSchema.optional().default('all'),
   q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
   sort: adminProductSortSchema.optional().default('relevance'),
@@ -349,7 +349,7 @@ export const adminProductListQuerySchema = z.object({
    * group on?" has no other way of being asked, and it is the question behind
    * every review of a tier.
    */
-  tierId: z.string().uuid().optional(),
+  tierId: z.uuid().optional(),
 });
 export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 
@@ -361,10 +361,10 @@ export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
  */
 export const adminCategorySchema = z
   .object({
-    id: z.string().uuid(),
+    id: z.uuid(),
     slug: z.string(),
     name: z.string(),
-    parentId: z.string().uuid().nullable(),
+    parentId: z.uuid().nullable(),
     sortOrder: z.number().int(),
     image: catalogImageSchema.nullable(),
     sourceId: z.string(),
@@ -396,7 +396,7 @@ export const categoryInputSchema = z
       .transform((value) => value || null),
     /** Optional slug override; see the product schema doc. */
     slug: slugSchema.optional(),
-    parentId: z.string().uuid().nullable().default(null),
+    parentId: z.uuid().nullable().default(null),
     image: catalogImageSchema.nullable().default(null),
     /** Private sync key. Admin-settable to pre-assign a legacy key for future
      * file reconciliation; omit to let the server generate `manual:<uuid>`. */
@@ -418,8 +418,8 @@ export type CategoryInput = z.infer<typeof categoryInputSchema>;
  */
 export const categoryOrderEntrySchema = z
   .object({
-    id: z.string().uuid(),
-    parentId: z.string().uuid().nullable(),
+    id: z.uuid(),
+    parentId: z.uuid().nullable(),
     sortOrder: z.number().int().nonnegative(),
   })
   .strict();
@@ -660,7 +660,7 @@ export const adminCatalogContract = {
     })
     .input(
       z.object({
-        params: z.object({ id: z.string().uuid() }),
+        params: z.object({ id: z.uuid() }),
         body: categoryInputSchema,
       }),
     )
@@ -685,7 +685,7 @@ export const adminCatalogContract = {
     })
     .input(
       z.object({
-        params: z.object({ id: z.string().uuid() }),
+        params: z.object({ id: z.uuid() }),
         // `reassignTo` moves every product (including soft-deleted ones — the
         // FK is `restrict` and blocks on those too) to another category first,
         // so a populated category can be deleted without orphaning its
@@ -693,7 +693,7 @@ export const adminCatalogContract = {
         // any products). Subcategories always block regardless — the admin
         // resolves the subtree first; reassignment never merges child
         // categories.
-        query: z.object({ reassignTo: z.string().uuid().optional() }),
+        query: z.object({ reassignTo: z.uuid().optional() }),
       }),
     )
     .output(z.object({ message: z.string() })),

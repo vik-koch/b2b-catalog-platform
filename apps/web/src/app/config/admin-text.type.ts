@@ -1,5 +1,5 @@
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
-import { z } from 'zod';
+import * as z from 'zod';
 
 /**
  * UI text for the admin surfaces only — the editors, the management screens and

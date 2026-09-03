@@ -1,10 +1,11 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
 import { addressComponentsSchema } from './address.contract';
 import { partyEntityTypeSchema } from './party.contract';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
+  emailField,
 } from './contact-format';
 import { commonAuthErrors } from './api-error';
 
@@ -47,8 +48,8 @@ export const userRoleSchema = z.enum(USER_ROLES);
  * hash, and never a pricing tier — role is authorization only.
  */
 export const authUserSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
+  id: z.uuid(),
+  email: z.email(),
   role: userRoleSchema,
   /**
    * Enough to greet the account holder by name, and nothing more — the rest of
@@ -69,7 +70,7 @@ export type AuthUser = z.infer<typeof authUserSchema>;
 // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
 export const loginSchema = z
   .object({
-    email: z.string().trim().email(),
+    email: emailField(320),
     password: z.string().min(1),
   })
   .strict();
@@ -149,7 +150,7 @@ export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
  * nothing to prove yet, and the proof is that the mail arrives.
  */
 export const forgotPasswordSchema = z
-  .object({ email: z.string().trim().email().max(320) })
+  .object({ email: emailField(320) })
   .strict();
 export type ForgotPasswordRequest = z.infer<typeof forgotPasswordSchema>;
 
@@ -171,7 +172,7 @@ export const customerTypeSchema = z.enum(CUSTOMER_TYPES);
  */
 export const registerSchema = z
   .object({
-    email: z.string().trim().email().max(320),
+    email: emailField(320),
     firstName: z.string().trim().min(1).max(200),
     lastName: z.string().trim().min(1).max(200),
     phone: z.string().trim().min(1).max(50),
@@ -299,7 +300,7 @@ export const authContract = {
         .object({
           purpose: passwordTokenPurposeSchema,
           /** Shown so the visitor sees which account they are setting up. */
-          email: z.string().email(),
+          email: z.email(),
         })
         .strict(),
     ),

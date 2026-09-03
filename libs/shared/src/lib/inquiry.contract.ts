@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
+import * as z from 'zod';
+import { emailField } from './contact-format';
 
 
 // Empty form fields arrive as '' — treat them as absent so optional fields
@@ -16,7 +17,7 @@ const emptyToUndefined = (value: unknown): unknown =>
 export const nameSchema = z.string().trim().min(1).max(200);
 export const emailSchema = z.preprocess(
   emptyToUndefined,
-  z.string().trim().email().max(320).optional(),
+  emailField(320).optional(),
 );
 export const phoneSchema = z.preprocess(
   emptyToUndefined,

@@ -1,6 +1,6 @@
 import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { z } from 'zod';
+import * as z from 'zod';
 import { SuggestionSidecar } from './sidecar';
 
 const schema = z.object({ items: z.array(z.object({ label: z.string() })) });

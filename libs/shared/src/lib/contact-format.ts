@@ -1,4 +1,6 @@
-import { z } from 'zod';
+// Namespace import, not `{ z }`: the named form defeats tree shaking and
+// pulls zod's 63 locale files into the bundle (colinhacks/zod#6050).
+import * as z from 'zod';
 
 /**
  * Digit masks, the one phone-number format, and the company registration
@@ -341,3 +343,19 @@ export const companyRegistrationIdSchema = z.preprocess(
  * registry spelling is authoritative enough to correct it with.
  */
 export const companyNameSchema = z.string().trim().min(1).max(255);
+
+/**
+ * An email address as somebody types it: trimmed first, then checked.
+ *
+ * The order is the whole point. `z.email()` is a string schema with the format
+ * check already on it, so `z.email().trim()` checks the raw input and refuses
+ * an address that was pasted with a space around it — which is most of the
+ * ways one arrives. Piping keeps the trim (and any lowercasing) ahead of the
+ * check, where it was.
+ */
+export const emailField = (max: number) =>
+  z.string().trim().pipe(z.email().max(max));
+
+/** The same, for the addresses stored and looked up in lower case. */
+export const lowercaseEmailField = (max: number) =>
+  z.string().trim().toLowerCase().pipe(z.email().max(max));

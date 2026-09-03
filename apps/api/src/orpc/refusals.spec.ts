@@ -11,7 +11,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { oc } from '@orpc/contract';
 import { Implement, implement } from '@orpc/nest';
-import { z } from 'zod';
+import * as z from 'zod';
 import { ContractErrorFilter } from './contract-error.filter';
 import { refusals } from './refusals';
 
