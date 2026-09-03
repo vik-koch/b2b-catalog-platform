@@ -45,6 +45,7 @@ const FIXED_COLUMNS = new Set<string>([
   SYNC_CSV_COLUMNS.name,
   SYNC_CSV_COLUMNS.categorySourceId,
   SYNC_CSV_COLUMNS.categoryName,
+  SYNC_CSV_COLUMNS.stock,
 ]);
 
 /**
@@ -248,6 +249,23 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
       return;
     }
     if (Object.keys(prices).length > 0) row.prices = prices;
+
+    // Pieces, so a plain integer — and a signed one: a stocktake correction can
+    // leave the figure below zero, which reads as none in stock rather than as
+    // a bad cell. An empty cell is "not in this file", like every other column.
+    const stock = value(SYNC_CSV_COLUMNS.stock);
+    if (stock !== undefined && stock !== '') {
+      if (!/^-?\d+$/.test(stock)) {
+        errors.push({
+          row: rowNumber,
+          sourceId,
+          code: 'stock-not-an-integer',
+          params: { stock },
+        });
+        return;
+      }
+      row.stockPieces = Number(stock);
+    }
 
     rows.push(row);
   });

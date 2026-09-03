@@ -66,11 +66,12 @@ is already grouped. Leaving it out also means the one deployment that hides the
 sort controls loses nothing: the ordering customers actually need is not a
 control at all.
 
-**The sync writes stock the way it writes prices.** FR-ADM-02 gains a per-run
-statement of which fields a run writes, so a price-only export cannot blank a
-stock figure and a stock-only export cannot blank a price. Admin edits are not
-protected from a later run — they are the correction between runs, which is what
-the client already does with prices.
+**The sync writes stock the way it writes prices.** Stock is one more member of
+the per-run field set FR-ADM-02 already has, and an absent cell already means
+untouched rather than empty — so a price-only export cannot blank a stock figure
+and a stock-only export cannot blank a price, without any new machinery. Admin
+edits are not protected from a later run: they are the correction between runs,
+which is what the client already does with prices.
 
 **Untracked has to be a value, not an absence.** The shop counts some of what
 it sells and none of the rest, and a deployment may count nothing at all. A

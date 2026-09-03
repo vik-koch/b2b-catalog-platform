@@ -83,7 +83,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
 
   const productBySourceId = async (sourceId: string) => {
     const { rows } = await client.query(
-      'SELECT name, "defaultPriceMinor" AS "priceMinor", slug, "deletedAt", "publishedAt", "categoryId" FROM products WHERE "sourceId" = $1',
+      'SELECT name, "defaultPriceMinor" AS "priceMinor", slug, "deletedAt", "publishedAt", "categoryId", "stockPieces", availability FROM products WHERE "sourceId" = $1',
       [sourceId],
     );
     return rows[0];
@@ -420,6 +420,82 @@ describe('Catalog sync (FR-ADM-02)', () => {
       expect(await productBySourceId(`${SOURCE_PREFIX}-2`)).toMatchObject({
         deletedAt: null,
       });
+    });
+  });
+
+  describe('stock (FR-STOCK-01/02)', () => {
+    const sourceId = `${SOURCE_PREFIX}-stock`;
+
+    it('writes the figure and the state it resolves to', async () => {
+      await run(
+        [
+          'sourceId,name,categorySourceId,categoryName,price,stock',
+          `${sourceId},Stocked Beans,${CATEGORY_SOURCE_ID},${CATEGORY_NAME},1890,400`,
+        ].join('\n'),
+      );
+
+      const product = await productBySourceId(sourceId);
+      expect(product.stockPieces).toBe(400);
+      expect(product.availability).toBe('in');
+    });
+
+    it('moves the state when the figure crosses the threshold', async () => {
+      await run(`sourceId,stock\n${sourceId},4\n`);
+
+      const product = await productBySourceId(sourceId);
+      expect(product.stockPieces).toBe(4);
+      expect(product.availability).toBe('low');
+    });
+
+    it('reads a negative correction as out of stock', async () => {
+      await run(`sourceId,stock\n${sourceId},-2\n`);
+
+      expect((await productBySourceId(sourceId)).availability).toBe('out');
+    });
+
+    it('leaves the figure alone when the run does not write stock', async () => {
+      // A price-only run: the file carries a stock column and the run ignores
+      // it, which is the whole point of the per-run field set.
+      await run(`sourceId,price,stock\n${sourceId},1990,999\n`, {
+        fields: [],
+      });
+
+      const product = await productBySourceId(sourceId);
+      expect(product.priceMinor).toBe(1990);
+      expect(product.stockPieces).toBe(-2);
+      expect(product.availability).toBe('out');
+    });
+
+    it('leaves the price alone on a stock-only file', async () => {
+      // Prices are self-describing rather than members of the field set: a
+      // file that carries no price column cannot move a price.
+      await run(`sourceId,stock\n${sourceId},50\n`, { fields: ['stock'] });
+
+      const product = await productBySourceId(sourceId);
+      expect(product.priceMinor).toBe(1990);
+      expect(product.stockPieces).toBe(50);
+    });
+
+    it('shows the figures in the preview before anything is written', async () => {
+      const previewed = await preview(
+        csvForm(`sourceId,stock\n${sourceId},7\n`),
+      );
+
+      expect(previewed.status).toBe(201);
+      expect(previewed.data.plan.products[0].changes).toEqual([
+        { field: 'stock', from: 50, to: 7 },
+      ]);
+      // Still a dry run.
+      expect((await productBySourceId(sourceId)).stockPieces).toBe(50);
+    });
+
+    it('never untracks a product through an empty cell', async () => {
+      await run(`sourceId,name,stock\n${sourceId},Stocked Beans,\n`);
+
+      // Absent is not empty, here as everywhere else in a sync row.
+      const product = await productBySourceId(sourceId);
+      expect(product.stockPieces).toBe(50);
+      expect(product.availability).toBe('in');
     });
   });
 

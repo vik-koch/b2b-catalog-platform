@@ -1,6 +1,8 @@
 import {
   DEFAULT_PRICE_LIST_KEY,
   MANUAL_SOURCE_ID_PREFIX,
+  ProductAvailability,
+  productAvailability,
   SYNC_PREVIEW_MAX_ITEMS,
   SyncOptions,
   SyncPlan,
@@ -27,6 +29,14 @@ export interface SyncCatalogState {
   /** The deployment's additional price lists. The base list is not among them:
    * it is a column, addressed by the reserved `default` key. */
   tiers: ExistingTier[];
+  /**
+   * The deployment's own "few left" figure — the last rung of the ladder, for
+   * a product with neither a box nor a pack. Deployment config rather than
+   * catalog, but the differ has to be told it: it resolves the stored
+   * availability itself, so that preview and commit agree on the badge the way
+   * they already agree on everything else.
+   */
+  lowStockFallback: number;
 }
 
 export interface ExistingTier {
@@ -45,6 +55,13 @@ export interface ExistingProduct {
   tierPrices: Record<string, number>;
   categoryId: string;
   deletedAt: Date | null;
+  /** Null where this product's stock is not tracked. */
+  stockPieces: number | null;
+  /** What the resolved state depends on besides the figure: the packaging the
+   * threshold is measured in, and the product's own override of it. */
+  piecesPerPack: number | null;
+  packsPerBox: number | null;
+  lowStockThresholdPieces: number | null;
 }
 
 export interface ExistingCategory {
@@ -69,6 +86,10 @@ export interface SyncActions {
     categoryId: string | null;
     categorySourceId: string | null;
     tierPrices: TierPriceWrite[];
+    /** Absent where the file carries no figure; the two travel together, so a
+     * row cannot leave a state without the count behind it. */
+    stockPieces?: number;
+    availability?: ProductAvailability;
   }[];
   updateProducts: {
     id: string;
@@ -83,6 +104,10 @@ export interface SyncActions {
      * product editor, where the posted set is the whole truth.
      */
     tierPrices?: TierPriceWrite[];
+    /** Recomputed here rather than in the applier: the threshold follows the
+     * product's packaging, which the differ has already read. */
+    stockPieces?: number;
+    availability?: ProductAvailability;
   }[];
   softDeleteProductIds: string[];
   restoreProductIds: string[];
@@ -122,6 +147,7 @@ export function planSync(
 ): SyncPlanResult {
   const writesName = options.fields.includes('name');
   const writesCategory = options.fields.includes('category');
+  const writesStock = options.fields.includes('stock');
 
   const productsBySourceId = new Map(
     state.products.map((p) => [p.sourceId, p]),
@@ -288,6 +314,7 @@ export function planSync(
         });
         continue;
       }
+      const stock = writesStock ? row.stockPieces : undefined;
       actions.createProducts.push({
         sourceId: row.sourceId,
         name,
@@ -295,6 +322,19 @@ export function planSync(
         categoryId,
         categorySourceId: categorySourceId ?? null,
         tierPrices: tierPricesOf(row),
+        ...(stock === undefined
+          ? {}
+          : {
+              stockPieces: stock,
+              // A new product has no packaging yet — nobody has entered it —
+              // so its threshold is the deployment's own figure.
+              availability: productAvailability(
+                stock,
+                { piecesPerPack: null, packsPerBox: null },
+                null,
+                state.lowStockFallback,
+              ) as ProductAvailability,
+            }),
       });
       productChanges.push({
         kind: 'create',
@@ -365,6 +405,28 @@ export function planSync(
       if (!existing.deletedAt) {
         countDelta(existing.categoryId, -1);
         if (categoryId) countDelta(categoryId, 1);
+      }
+    }
+
+    // Recomputed against this product's own packaging and override, which is
+    // why the differ reads them: the same figure means "few left" for a product
+    // boxed in 24s and "in stock" for one sold loose. Written only when the
+    // file carries a figure — an absent cell leaves both columns alone.
+    if (writesStock && row.stockPieces !== undefined) {
+      const stock = row.stockPieces;
+      if (stock !== existing.stockPieces) {
+        changes.push({
+          field: 'stock',
+          from: existing.stockPieces,
+          to: stock,
+        });
+        update.stockPieces = stock;
+        update.availability = productAvailability(
+          stock,
+          existing,
+          existing.lowStockThresholdPieces,
+          state.lowStockFallback,
+        ) as ProductAvailability;
       }
     }
 

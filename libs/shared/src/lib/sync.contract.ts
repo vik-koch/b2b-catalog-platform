@@ -84,6 +84,14 @@ export const syncRowSchema = z
      * price and every other list untouched.
      */
     prices: z.record(syncPriceListKeySchema, priceMinorSchema).optional(),
+    /**
+     * Pieces on hand (FR-STOCK-01). Not bounded below — a stocktake correction
+     * may leave a figure negative, and the state reads that as none in stock.
+     * Absent is untouched, as everywhere else here: a run cannot stop tracking
+     * a product's stock by leaving the cell empty, only by an admin clearing
+     * the field.
+     */
+    stockPieces: z.number().int().optional(),
   })
   .strict()
   .refine(
@@ -114,6 +122,7 @@ export const SYNC_CSV_COLUMNS = {
   categoryName: 'categoryName',
   price: 'price',
   pricePrefix: 'price:',
+  stock: 'stock',
 } as const;
 
 /** `price:default` etc. — the canonical spelling of a price column. */
@@ -232,6 +241,8 @@ export const SYNC_ROW_ERROR_CODES = [
   'category-name-without-id',
   /** `{price}` and `{column}` */
   'price-not-an-integer',
+  /** `{stock}` — a stock cell that is not a whole number. */
+  'stock-not-an-integer',
   /** `{key}` and `{known}` */
   'unknown-price-list',
   /** `{key}`, `{first}` and `{second}` — the file names one category twice. */
