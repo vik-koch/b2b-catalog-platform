@@ -31,17 +31,21 @@ export function anyAvailability(
   imports: [StatusBadge],
   template: `
     @if (availability(); as state) {
-      <span appStatusBadge [tone]="tone()">{{ label() }}</span>
+      <span appStatusBadge variant="dot" [tone]="tone()">{{ label() }}</span>
     } @else if (reserve()) {
       <!-- The badge's own height, held open by a space rather than a fixed
            figure, so it tracks the pill's line box if that ever changes. -->
       <span aria-hidden="true" [class]="spacer">&nbsp;</span>
     }
   `,
+  // A flex container rather than a block: the badge is an inline box, and in a
+  // block it sits on a line whose height is the *parent's* font — four pixels
+  // of leading above a 22px pill that no margin here could take back.
+  //
   // Out of the flow entirely when it has nothing to render, so a margin the
   // caller set on it does not leave a gap under an untracked product.
   host: {
-    class: 'block',
+    class: 'flex items-start',
     '[style.display]': "availability() || reserve() ? null : 'none'",
   },
 })
@@ -67,6 +71,7 @@ export class ProductAvailabilityBadge {
     return state === null ? '' : this.text[state];
   });
 
+  // The badge's own box, borders included, with nothing in it.
   protected readonly spacer =
-    'inline-flex items-center px-2 py-0.5 text-xs font-medium';
+    'inline-flex items-center border border-transparent px-2 py-0.5 text-xs font-medium';
 }

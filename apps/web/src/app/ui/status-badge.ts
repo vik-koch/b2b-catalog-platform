@@ -18,7 +18,38 @@ const tones = {
   info: 'bg-sky-100 text-sky-800',
 } as const;
 
+/**
+ * The same five states in the quiet variant, where the dot is the only thing
+ * that carries the tone: the field is white, the border is the app's ordinary
+ * hairline and the label is body-coloured whatever the state. A shelf being
+ * empty is a fact about a product, not a warning about it, so in a listing the
+ * badge should read at the weight of the words around it — the colour is there
+ * to be scanned down a column, not to shout from inside a card.
+ */
+const dots = {
+  neutral: 'before:bg-stone-400',
+  waiting: 'before:bg-amber-500',
+  ok: 'before:bg-green-500',
+  danger: 'before:bg-red-500',
+  info: 'before:bg-sky-500',
+} as const;
+
 export type StatusTone = keyof typeof tones;
+
+/**
+ * `solid` is the pill this started as; `dot` is the bordered variant. The dot
+ * is a `::before` rather than an element so both variants stay one directive
+ * with no content of their own, and no caller has to know which shape it asked
+ * for beyond naming it.
+ */
+export type StatusBadgeVariant = 'solid' | 'dot';
+
+const shapes = {
+  solid: 'rounded-full px-2 py-0.5',
+  dot:
+    'gap-x-1.5 rounded-md border border-border bg-white px-2 py-0.5 text-muted ' +
+    "before:size-1.5 before:shrink-0 before:rounded-full before:content-['']",
+} as const;
 
 /**
  * The pill that says what state a thing is in — an order's status, an account's,
@@ -36,9 +67,11 @@ export type StatusTone = keyof typeof tones;
 })
 export class StatusBadge {
   readonly tone = input<StatusTone>('neutral');
+  readonly variant = input<StatusBadgeVariant>('solid');
 
-  protected readonly classes = computed(
-    () =>
-      `inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${tones[this.tone()]}`,
-  );
+  protected readonly classes = computed(() => {
+    const variant = this.variant();
+    const colours = variant === 'dot' ? dots[this.tone()] : tones[this.tone()];
+    return `inline-flex items-center text-xs font-medium ${shapes[variant]} ${colours}`;
+  });
 }
