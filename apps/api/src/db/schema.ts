@@ -3,6 +3,7 @@ import {
   FULFILMENT_METHODS,
   ORDER_STATUSES,
   PAYMENT_METHODS,
+  PRODUCT_AVAILABILITIES,
   PRODUCT_UNITS,
   type SyncOptions,
   type SyncRow,
@@ -103,6 +104,11 @@ export const categories = pgTable('categories', {
  */
 export type ProductImageRef = { full: string; thumb: string };
 
+/** The three states a stock figure resolves to (FR-STOCK-02). */
+export const productAvailabilityEnum = pgEnum('product_availability', [
+  ...PRODUCT_AVAILABILITIES,
+]);
+
 /**
  * Catalog products. `sourceId` (the legacy system's private id) is the sync
  * upsert key and is never serialized to the API. `name`, `defaultPriceMinor` and
@@ -144,6 +150,19 @@ export const products = pgTable(
     // weight above already describe the whole consignment, so nothing is
     // multiplied by this. Shown to the customer only where it exceeds 1.
     boxCount: integer('boxCount').notNull().default(1),
+    // How many pieces are on hand (FR-STOCK-01). Staff-facing: the figure
+    // never leaves the API. Null means this deployment does not track stock for
+    // this product, which is the default — no badge, no restriction. A negative
+    // figure is a stocktake correction and reads as none in stock.
+    stockPieces: integer('stockPieces'),
+    // Where "few left" sits for this product, overriding the box/pack/config
+    // ladder. Null is the ladder.
+    lowStockThresholdPieces: integer('lowStockThresholdPieces'),
+    // The public half of the two above, recomputed on every write that can move
+    // it — stock, threshold or packaging (FR-STOCK-02). Stored rather than
+    // derived per query so it can lead an indexed sort; null wherever
+    // stockPieces is.
+    availability: productAvailabilityEnum('availability'),
     categoryId: uuid('categoryId')
       .notNull()
       .references(() => categories.id, { onDelete: 'restrict' }),
@@ -197,12 +216,29 @@ export const products = pgTable(
     ),
   },
   (t) => [
+    // Availability leads every listing's sort (FR-STOCK-05), so it is indexed
+    // rather than computed per query.
+    index('products_availability_idx').on(t.availability),
     index('products_nameTsv_idx').using('gin', t.nameTsv),
     // The trigram half of the score. An expression index, so it must spell the
     // unaccent wrapper exactly as the query does or the query will not use it.
     index('products_name_trgm_idx').using(
       'gin',
       sql`search_unaccent("name") gin_trgm_ops`,
+    ),
+    // The stored state is the stock figure's shadow: either both are there or
+    // neither is. A recompute that forgot one of them is a constraint
+    // violation rather than a wrong badge.
+    check(
+      'products_availability_tracks_stock',
+      sql`(${t.stockPieces} is null) = (${t.availability} is null)`,
+    ),
+    // A threshold describes a stock nobody is counting otherwise, and "few
+    // left at or below zero" is out of stock, which the state already says.
+    check(
+      'products_low_stock_threshold_positive',
+      sql`${t.lowStockThresholdPieces} is null
+        or (${t.lowStockThresholdPieces} >= 1 and ${t.stockPieces} is not null)`,
     ),
     check(
       'products_units_positive',
