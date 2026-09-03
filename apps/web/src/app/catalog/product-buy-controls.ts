@@ -1,47 +1,33 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
-  afterRenderEffect,
   Component,
   computed,
-  ElementRef,
   inject,
   input,
   linkedSignal,
   signal,
-  viewChild,
 } from '@angular/core';
 import {
-  CART_NOTE_MAX,
   CatalogImage,
   correctPieces,
   exactLineTotal,
   fillText,
-  pieceFloor,
-  piecesFromUnitQuantity,
   ProductPackagingInfo,
   ProductUnit,
-  stepFrom,
   UnitPrices,
-  unitQuantity,
-  unitQuantityIsWhole,
 } from '@b2b-catalog-platform/shared';
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { injectNarrowScreen } from '../core/narrow-screen';
-import { AutoGrow } from '../ui/auto-grow';
 import { Button } from '../ui/button';
-import { DialogActions } from '../ui/dialog-actions';
-import { DialogPanel } from '../ui/dialog-panel';
-import { FieldLabel } from '../ui/field-label';
 import { Icon } from '../ui/icons/icon';
-import { IconButton } from '../ui/icon-button';
 import { Input } from '../ui/input';
 import { NumericField } from '../ui/numeric-field';
 import { Popover } from '../ui/popover';
 import { SEGMENTED_GROUP, SegmentState, segmentClass } from '../ui/segmented';
+import { createBuyQuantity } from './buy-quantity';
 import { formatPriceMinor } from './price';
-import { formatUnitQuantity, parseUnitQuantity } from './quantity';
+import { ProductNoteEditor } from './product-note-editor';
 import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
 
@@ -118,42 +104,17 @@ export interface BuyableProduct {
 @Component({
   selector: 'app-product-buy-controls',
   imports: [
-    AutoGrow,
     Button,
-    DialogActions,
-    DialogPanel,
-    FieldLabel,
     Icon,
-    IconButton,
     Input,
     NgTemplateOutlet,
     NumericField,
     Popover,
+    ProductNoteEditor,
     ProductUnitFacts,
   ],
   host: { class: 'block' },
   template: `
-    <!-- The note field, in a bubble on a pointer and in a modal on a phone.
-         The product's question is the field's placeholder, not a line under
-         it: it is what to write, and it is read while the field is empty —
-         which is the only time it has anything to say. -->
-    <ng-template #noteField>
-      <label class="block text-left">
-        <span appFieldLabel>{{ text.noteLabel }}</span>
-        <textarea
-          appInput
-          appAutoGrow
-          rows="3"
-          class="w-full"
-          [attr.maxlength]="noteMax"
-          [attr.placeholder]="notePrompt()"
-          [value]="ownNote()"
-          (input)="onNoteInput($event)"
-          (blur)="saveNote()"
-        ></textarea>
-      </label>
-    </ng-template>
-
     <!-- Fragments, so the two arrangements are two orders of the same five
          blocks rather than two copies of them. -->
     <ng-template #priceBlock>
@@ -172,72 +133,17 @@ export interface BuyableProduct {
         <ng-content select="[priceAction]" />
 
         @if (asksForNote()) {
-          <div class="relative flex">
-            <button
-              type="button"
-              appIconButton
-              [variant]="hasNote() ? 'marked' : 'default'"
-              [attr.aria-label]="hasNote() ? text.noteEdit : text.noteAdd"
-              [title]="hasNote() ? text.noteEdit : text.noteAdd"
-              (click)="openNote()"
-            >
-              <!-- The glyph says whether anything is written. -->
-              <app-icon
-                [name]="
-                  hasNote() ? 'message-circle-check' : 'message-circle-plus'
-                "
-              />
-            </button>
-
-            @if (popup(); as open) {
-              @if (open.at === 'note') {
-                <!-- A bubble is a thing beside the control it belongs to, and
-                     on a phone there is nothing beside anything: a field to
-                     type a sentence in, with the keyboard up, is the width of
-                     the screen. So on a phone the same field is a modal, which
-                     is also what gives it a way out that is not "tap the page
-                     behind the keyboard". -->
-                @if (narrow()) {
-                  <dialog
-                    #noteDialog
-                    appDialogPanel
-                    [attr.aria-label]="text.noteLabel"
-                    (cancel)="cancelNote()"
-                  >
-                    <ng-container [ngTemplateOutlet]="noteField" />
-                    <!-- Two answers, because a modal took the choice the
-                         bubble made by being dismissed: away from it kept
-                         nothing, and there is no away here. -->
-                    <div appDialogActions>
-                      <button
-                        appButton
-                        variant="secondary"
-                        type="button"
-                        (click)="cancelNote()"
-                      >
-                        {{ text.cancel }}
-                      </button>
-                      <button appButton type="button" (click)="closeNote()">
-                        {{ text.noteDone }}
-                      </button>
-                    </div>
-                  </dialog>
-                } @else {
-                  <!-- Upwards: everything else on this block is below the price
-                       line, and a bubble over the stepper and the button is one
-                       the customer has to clear before buying. -->
-                  <app-popover
-                    align="end"
-                    placement="above"
-                    [roomy]="true"
-                    (dismissed)="dismiss()"
-                  >
-                    <ng-container [ngTemplateOutlet]="noteField" />
-                  </app-popover>
-                }
-              }
-            }
-          </div>
+          <app-product-note-editor
+            [value]="ownNote()"
+            [prompt]="notePrompt()"
+            [open]="popup()?.at === 'note'"
+            (requestOpen)="openNote()"
+            (valueChange)="ownNote.set($event)"
+            (save)="saveNote()"
+            (done)="closeNote()"
+            (cancelled)="cancelNote()"
+            (dismissed)="dismiss()"
+          />
         }
       </div>
     </ng-template>
@@ -511,7 +417,6 @@ export class ProductBuyControls {
   protected readonly row = computed(() => this.layout() === 'row');
 
   protected readonly radioName = `unit-${nextGroupId++}`;
-  protected readonly noteMax = CART_NOTE_MAX;
 
   protected readonly packaging = computed(() => this.item().packaging);
   protected readonly options = computed(() =>
@@ -524,69 +429,30 @@ export class ProductBuyControls {
   protected readonly inCart = computed(() => this.line() !== undefined);
 
   /**
-   * The piece is the default — the smallest commitment, and the one unit every
-   * product is sold in. The choice resets when the product does: a unit chosen
-   * on one product means nothing on the next.
+   * How much, in which unit — the draft field and the stepper's arithmetic,
+   * which is a machine of its own (see `buy-quantity.ts`). It reads the cart's
+   * line where there is one and writes through it, so these controls edit that
+   * line rather than describing a second one.
    */
-  private readonly chosenUnit = linkedSignal<string, ProductUnit>({
-    source: () => this.item().slug,
-    computation: () => 'piece',
+  private readonly chosen = createBuyQuantity({
+    packaging: this.packaging,
+    product: computed(() => this.item().slug),
+    line: this.line,
+    write: (unit, pieces) => this.writeLine(unit, pieces),
+    currency: this.currency,
   });
 
-  /** Reset with the product, not with the unit: a unit is a lens on this
-   * count, so switching one re-reads it rather than restarting it. */
-  private readonly chosenPieces = linkedSignal<string, number>({
-    source: () => this.item().slug,
-    computation: () => pieceFloor(this.item().packaging),
-  });
-
-  protected readonly unit = computed(
-    () => this.line()?.unit ?? this.chosenUnit(),
-  );
-  /** The quantity, in pieces — what is stored, priced and shipped. */
-  protected readonly pieces = computed(
-    () => this.line()?.pieces ?? this.chosenPieces(),
-  );
-  /** The same quantity as the chosen unit reads it, which is the figure the
-   * field shows. Never null: the selector only offers units the product has. */
-  protected readonly quantity = computed(
-    () =>
-      unitQuantity(this.packaging(), this.unit(), this.pieces()) ??
-      this.pieces(),
-  );
-  protected readonly quantityText = computed(() =>
-    formatUnitQuantity(this.quantity(), this.currency),
-  );
-  protected readonly whole = computed(() =>
-    unitQuantityIsWhole(this.packaging(), this.unit()),
-  );
-
-  /**
-   * What is being typed, while it is being typed — and null the rest of the
-   * time, which is when the field shows the quantity itself.
-   *
-   * **The field is a draft, committed when it is left** (`commit`), and this is
-   * what makes it one. Everything else works in pieces, so a field bound to the
-   * piece count would round-trip text → pieces → text on every keystroke and
-   * land every rounding on the caret. Nothing reads a draft until it is
-   * finished.
-   *
-   * Reset with the product, like every other held choice.
-   */
-  private readonly typing = linkedSignal<string, string | null>({
-    source: () => this.item().slug,
-    computation: () => null,
-  });
-  protected readonly fieldText = computed(
-    () => this.typing() ?? this.quantityText(),
-  );
+  protected readonly unit = this.chosen.unit;
+  protected readonly pieces = this.chosen.pieces;
+  protected readonly whole = this.chosen.whole;
+  protected readonly fieldText = this.chosen.fieldText;
 
   /**
    * The note as these controls hold it, where nothing else does. Seeded from
    * the cart's line so the bubble opens on what was written, and reset when
    * the product changes — a note belongs to the line it was typed for.
    */
-  protected readonly ownNote = linkedSignal<string, string>({
+  readonly ownNote = linkedSignal<string, string>({
     source: () => this.item().slug,
     computation: () => this.line()?.note ?? '',
   });
@@ -595,9 +461,6 @@ export class ProductBuyControls {
    * has offered a field for it. */
   protected readonly asksForNote = computed(
     () => this.item().lineNoteEnabled && !this.externalNote(),
-  );
-  protected readonly hasNote = computed(
-    () => (this.effectiveNote() ?? '').trim() !== '',
   );
   protected readonly notePrompt = computed(
     () => this.item().lineNotePrompt ?? this.text.notePrompt,
@@ -618,24 +481,8 @@ export class ProductBuyControls {
    * made, a segment that is not sold, the question under `−`. */
   private readonly ownPopup = signal<Popup | null>(null);
 
-  /** Below `sm` the note is a modal rather than a bubble. Safe on an SSR page
-   * because nothing here depends on it until the customer opens the note,
-   * which cannot happen before the browser has answered. */
-  protected readonly narrow = injectNarrowScreen('sm');
-  private readonly noteDialog =
-    viewChild<ElementRef<HTMLDialogElement>>('noteDialog');
   /** What the note said when it was opened — what cancelling puts back. */
   private noteAtOpen = '';
-
-  constructor() {
-    // `showModal()` has to be called imperatively for the focus trap, the
-    // backdrop and the top layer; the `@if` in the template is what closes the
-    // note again, a removed <dialog> being a closed one.
-    afterRenderEffect(() => {
-      const dialog = this.noteDialog()?.nativeElement;
-      if (dialog && !dialog.open) dialog.showModal();
-    });
-  }
 
   /**
    * The caller's notice, **held once it has arrived**. It is feedback on
@@ -830,17 +677,8 @@ export class ProductBuyControls {
     () => `${this.row() ? '' : 'mt-2'} w-full`,
   );
 
-  /**
-   * Changes the lens, and nothing else. The goods do not move: two packs read
-   * through the box are 0.2 bx of the same twelve pieces, so there is nothing
-   * to round, nothing to confirm and nothing to say.
-   */
   protected chooseUnit(unit: ProductUnit): void {
-    if (unit === this.unit()) return;
-    this.commit();
-    if (this.inCart()) this.writeLine(unit, this.pieces());
-    else this.chosenUnit.set(unit);
-    this.edited();
+    if (this.chosen.chooseUnit(unit)) this.edited();
   }
 
   protected openNote(): void {
@@ -869,10 +707,6 @@ export class ProductBuyControls {
     this.dismiss();
   }
 
-  protected onNoteInput(event: Event): void {
-    this.ownNote.set((event.target as HTMLTextAreaElement).value);
-  }
-
   /**
    * Written to the cart when the field is left, not on every keystroke: a note
    * is a sentence, and a line rewritten letter by letter is a line the browser
@@ -890,14 +724,8 @@ export class ProductBuyControls {
     this.ownPopup.set({ at: unit, message: this.text.unitNotSold });
   }
 
-  /**
-   * Takes the keystroke and nothing else. Nothing is parsed, priced or written
-   * down until the field is left: a number half-typed is not a quantity, and
-   * pricing one moved the line's total, the cart and the header behind the
-   * caret while the customer was still typing it.
-   */
   protected onQuantityInput(event: Event): void {
-    this.typing.set((event.target as HTMLInputElement).value);
+    this.chosen.type((event.target as HTMLInputElement).value);
     this.edited();
   }
 
@@ -910,82 +738,36 @@ export class ProductBuyControls {
    */
   protected onQuantityBlur(event: Event): void {
     this.commit();
-    (event.target as HTMLInputElement).value = this.quantityText();
+    (event.target as HTMLInputElement).value = this.chosen.quantityText();
   }
 
   /**
-   * One step is one of the chosen unit, except for pieces, which move by one
-   * pack — so `+` on a product packed in sixes moves by six rather than into a
-   * quantity the shop cannot break open. It **snaps** rather than adds: `+` on
-   * a quarter of a box offers a box, not a box and a quarter.
-   *
-   * The floor it stops at is the *minimum*, which is a different figure: a shop
-   * that will not ship fewer than 24 still sells them 6 at a time above that.
-   * There is nothing below the minimum except not buying the product at all, so
-   * that is what `−` offers there — once it is in the cart and there is
+   * There is nothing below the minimum except not buying the product at all,
+   * so that is what `−` offers there — once it is in the cart and there is
    * something to take out.
    */
   protected step(direction: 1 | -1): void {
-    // Whatever is in the field is the quantity being stepped from, so it is
-    // settled first — a browser blurs the field on the press, but a keyboard
-    // press on the key itself does not.
-    this.commit();
-    const floor = this.floorPieces();
-    const wanted = stepFrom(
-      this.packaging(),
-      this.unit(),
-      this.pieces(),
-      direction,
-    );
-    if (wanted < floor) {
-      this.edited();
-      // A whole box below the minimum is still a step down to the minimum:
-      // only a line already sitting on it has nowhere left to go.
-      if (this.pieces() > floor) {
-        this.setPieces(floor);
-        return;
-      }
-      if (this.inCart()) {
-        this.ownPopup.set({ at: 'remove', message: this.text.removeQuestion });
-      }
-      return;
-    }
-    this.setPieces(wanted);
+    const outcome = this.chosen.step(direction);
     this.edited();
+    if (outcome === 'at-floor' && this.inCart()) {
+      this.ownPopup.set({ at: 'remove', message: this.text.removeQuestion });
+    }
   }
 
   /**
-   * Turns whatever is in the field into a quantity the shop can supply, and
-   * writes it down. Every path out of the field goes through here — leaving it,
-   * pressing a stepper key, changing unit, adding to the cart — so a draft is
-   * never abandoned and never committed twice.
-   *
-   * Rounds **up** to the nearest orderable piece count, whichever unit it was
-   * typed in: the lattice is the same one either way, so 0.25 bx of a 24-piece
-   * box is six pieces, which a product packed in sixes supplies exactly. A
-   * field left empty or unreadable asked for nothing, so the quantity that
-   * stands is kept — the customer cleared a figure, they did not order none.
+   * Settles the draft in the field. Every path out of it goes through here —
+   * leaving it, pressing a stepper key, changing unit, adding to the cart — so
+   * a draft is never abandoned and never committed twice.
    *
    * The correction names no figures: the field beside the bubble already shows
    * the one that stands, and the pair it replaced read out as thirds of a pack.
    */
   protected commit(): void {
-    const raw = this.typing();
-    this.typing.set(null);
-    const typed = raw === null ? null : parseUnitQuantity(raw);
-    const wanted =
-      typed === null
-        ? this.pieces()
-        : (piecesFromUnitQuantity(this.packaging(), this.unit(), typed) ??
-          this.floorPieces());
-    const corrected = correctPieces(this.packaging(), wanted);
-    if (corrected !== this.pieces()) this.setPieces(corrected);
-    if (corrected !== wanted) {
-      this.ownPopup.set({
-        at: 'quantity',
-        message: this.text.issues.quantityCorrected,
-      });
-    }
+    if (!this.chosen.commit()) return;
+    this.ownPopup.set({
+      at: 'quantity',
+      message: this.text.issues.quantityCorrected,
+    });
   }
 
   protected add(): void {
@@ -1022,17 +804,6 @@ export class ProductBuyControls {
       return 'unavailable';
     }
     return unit === this.unit() ? 'selected' : 'available';
-  }
-
-  /** The smallest quantity worth keeping: below it the only sensible quantity
-   * is none. One figure, whichever unit is reading it. */
-  private floorPieces(): number {
-    return pieceFloor(this.packaging());
-  }
-
-  private setPieces(pieces: number): void {
-    if (this.inCart()) this.writeLine(this.unit(), pieces);
-    else this.chosenPieces.set(pieces);
   }
 
   private writeLine(unit: ProductUnit, pieces: number): void {
