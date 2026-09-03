@@ -25,7 +25,13 @@ const sizes = {
  * not already been: a fill darkens, an outline gains one.
  */
 const variants = {
-  primary: 'bg-primary text-white hover:bg-accent active:bg-primary-deep',
+  // The one variant with a disabled look of its own: it is the variant a page
+  // puts its single action in, and that is the button a page has a reason to
+  // switch off — an order that cannot be placed, a product that is off the
+  // shelf. The fill has to go, or a button that refuses the press still
+  // invites it.
+  primary:
+    'bg-primary text-white hover:bg-accent active:bg-primary-deep disabled:bg-stone-200 disabled:text-stone-500 disabled:hover:bg-stone-200 disabled:active:bg-stone-200',
   // Hover recolors border and text rather than the background: this variant
   // appears both on the white page and inside stone-100 blocks (the signed-in
   // bar), where a stone background change is invisible. Accent is the app's

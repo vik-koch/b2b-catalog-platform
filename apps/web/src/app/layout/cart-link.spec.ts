@@ -25,6 +25,7 @@ function addition(overrides: Partial<CartAddition> = {}): CartAddition {
     image: null,
     lineNoteEnabled: false,
     lineNotePrompt: null,
+    availability: null,
     prices: {
       pieceMilliMinor: 1250,
       pieceLotMinor: 1250,

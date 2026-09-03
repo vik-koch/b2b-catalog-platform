@@ -325,6 +325,11 @@ export const appTextSchema = z
             /** The line can no longer be priced exactly, so it is confirmed by
              * hand instead. */
             unpriced: z.string(),
+            /** The shelf emptied, or filled again, while the cart waited
+             * (FR-STOCK-04). "Few left" is not reported: it restricts nothing,
+             * and the line's own badge states it. */
+            outOfStock: z.string(),
+            backInStock: z.string(),
           })
           .strict(),
 
@@ -347,6 +352,10 @@ export const appTextSchema = z
             quantityCorrected: z.string(),
             noteNotAllowed: z.string(),
             priceUnavailable: z.string(),
+            /** The product is listed and priced but cannot be ordered
+             * (FR-STOCK-04) — the badge says the state, and this says what it
+             * means for the order. */
+            outOfStock: z.string(),
           })
           .strict(),
       })

@@ -235,6 +235,38 @@ describe('priceCart', () => {
     expect(lines[0].row).toMatchObject({ pieces: 10, quantity: 0.25 });
   });
 
+  it('flags an out-of-stock line without unpricing it', async () => {
+    // Listed, reachable and priced — only the order it is part of is refused
+    // (FR-STOCK-04). The count behind the state never leaves the API.
+    const { db } = dbWith([{ ...coffee, availability: 'out' }]);
+
+    const { preview, lines } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
+      null,
+    );
+
+    expect(preview.lines[0].issues).toEqual(['out-of-stock']);
+    expect(preview.lines[0].availability).toBe('out');
+    expect(preview.lines[0].lineTotalMinor).toBe(1999);
+    expect(preview.complete).toBe(true);
+    expect(lines[0].row).not.toBeNull();
+    expect(JSON.stringify(preview)).not.toContain('stockPieces');
+  });
+
+  it('restricts nothing where only a few are left', async () => {
+    const { db } = dbWith([{ ...coffee, availability: 'low' }]);
+
+    const { preview } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
+      null,
+    );
+
+    expect(preview.lines[0].issues).toEqual([]);
+    expect(preview.lines[0].availability).toBe('low');
+  });
+
   it('asks the database nothing for an empty cart', async () => {
     const { db, sql } = dbWith([]);
 

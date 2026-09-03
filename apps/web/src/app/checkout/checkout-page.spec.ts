@@ -43,6 +43,7 @@ function addition(): CartAddition {
     image: null,
     lineNoteEnabled: false,
     lineNotePrompt: null,
+    availability: null,
     prices: {
       pieceMilliMinor: 1_166_667,
       pieceLotMinor: 7000,

@@ -12,6 +12,7 @@ import {
   correctPieces,
   exactLineTotal,
   fillText,
+  ProductAvailability,
   ProductPackagingInfo,
   ProductUnit,
   UnitPrices,
@@ -55,6 +56,16 @@ export interface BuyableProduct {
   name: string;
   prices: UnitPrices;
   packaging: ProductPackagingInfo;
+  /**
+   * What the shop says about its stock (FR-STOCK-02), or null where it is not
+   * tracked — which is the default and restricts nothing.
+   *
+   * Read here rather than passed by every caller: out of stock takes the
+   * controls out of use (FR-STOCK-04), and a card, a line and a product page
+   * that had to remember to say so separately would be three chances to
+   * forget.
+   */
+  availability?: ProductAvailability | null;
   /** Whether this product's line takes a free-text note (FR-CART-08), and its
    * own wording for the question. */
   lineNoteEnabled: boolean;
@@ -161,7 +172,7 @@ export interface BuyableProduct {
           <!-- Flex, so the segment inside fills the share of the row it was
                given: its own width plus an equal part of what is left over. -->
           <div class="relative flex flex-auto">
-            @if (option.available && available()) {
+            @if (option.available && sellable()) {
               <label [class]="segment(option.unit)">
                 <input
                   type="radio"
@@ -178,13 +189,14 @@ export interface BuyableProduct {
                    is pressable, and what it does is say why. A disabled control
                    would take itself out of the tab order and answer nothing.
 
-                   Unless the whole line is unavailable, where there is nothing
-                   to explain unit by unit — the row says it once, above these,
-                   and every segment here is genuinely disabled. -->
+                   Unless the whole line cannot be bought — withdrawn, or off
+                   the shelf — where there is nothing to explain unit by unit:
+                   the badge or the row says it once, and every segment here is
+                   genuinely disabled. -->
               <button
                 type="button"
                 [class]="segment(option.unit) + ' w-full'"
-                [disabled]="!available()"
+                [disabled]="!sellable()"
                 (click)="explainUnit(option.unit)"
               >
                 {{ option.label }}
@@ -213,7 +225,7 @@ export interface BuyableProduct {
             type="button"
             [class]="stepperButton() + ' rounded-l-md'"
             [attr.aria-label]="text.decrease"
-            [disabled]="!available()"
+            [disabled]="!sellable()"
             (click)="step(-1)"
           >
             <app-icon name="minus" class="h-4 w-4" />
@@ -268,7 +280,7 @@ export interface BuyableProduct {
             [attr.inputmode]="whole() ? 'numeric' : 'decimal'"
             [class]="quantityField()"
             [attr.aria-label]="text.quantityLabel"
-            [disabled]="!available()"
+            [disabled]="!sellable()"
             [value]="fieldText()"
             (input)="onQuantityInput($event)"
             (blur)="onQuantityBlur($event)"
@@ -287,7 +299,7 @@ export interface BuyableProduct {
           type="button"
           [class]="stepperButton() + ' rounded-r-md'"
           [attr.aria-label]="text.increase"
-          [disabled]="!available()"
+          [disabled]="!sellable()"
           (click)="step(1)"
         >
           <app-icon name="plus" class="h-4 w-4" />
@@ -303,7 +315,17 @@ export interface BuyableProduct {
                nothing left to press — the stepper is what changes the line. -->
           <p [class]="addedField()" role="status">{{ addedMessage() }}</p>
         } @else {
-          <button type="button" appButton [class]="addButton()" (click)="add()">
+          <!-- Switched off rather than taken away where the product cannot be
+               bought (FR-STOCK-04): the badge beside it already says why, and a
+               button that disappears leaves a card a row shorter than the ones
+               it sits next to. -->
+          <button
+            type="button"
+            appButton
+            [class]="addButton()"
+            [disabled]="!sellable()"
+            (click)="add()"
+          >
             <app-icon name="shopping-basket" class="mr-2 h-4 w-4" />
             {{ text.add }}
           </button>
@@ -407,6 +429,23 @@ export class ProductBuyControls {
    * with the line is take it out.
    */
   readonly available = input(true);
+
+  /**
+   * Whether the product may be put in the cart at all: what the shop can price
+   * *and* has on the shelf (FR-STOCK-04).
+   *
+   * The two are not the same refusal and are not drawn the same way. A line the
+   * shop cannot price states no figure, because there is none. An empty shelf
+   * is still listed, reachable and priced — only the controls are out of use,
+   * and the badge beside them says why. "Few left" restricts nothing.
+   */
+  protected readonly inStock = computed(
+    () => this.item().availability !== 'out',
+  );
+  protected readonly sellable = computed(
+    () => this.available() && this.inStock(),
+  );
+
   /**
    * `stack` reads top to bottom down a card or a product page; `row` lays the
    * same blocks out as two columns of a product line — the unit, the quantity
@@ -624,7 +663,7 @@ export class ProductBuyControls {
   protected readonly segment = (unit: ProductUnit): string =>
     segmentClass(this.segmentState(unit), {
       grow: true,
-      locked: !this.available(),
+      locked: !this.sellable(),
     });
 
   /**
@@ -794,10 +833,10 @@ export class ProductBuyControls {
   }
 
   private segmentState(unit: ProductUnit): SegmentState {
-    // A line the shop cannot price is not a choice any more, but it is still a
+    // A line that cannot be bought is not a choice any more, but it is still a
     // reading: the quantity beside the segments is in one of these units, and
     // dropping the mark would leave "12" meaning nothing in particular.
-    if (!this.available()) {
+    if (!this.sellable()) {
       return unit === this.unit() ? 'selected' : 'unavailable';
     }
     if (!this.options().find((option) => option.unit === unit)?.available) {
@@ -833,6 +872,9 @@ export class ProductBuyControls {
       image: this.image() ?? null,
       prices: item.prices,
       packaging: item.packaging,
+      // What the card or the page said when the line was written: the baseline
+      // the next visit's pricing is compared against (FR-CART-10).
+      availability: item.availability ?? null,
       lineNoteEnabled: item.lineNoteEnabled,
       lineNotePrompt: item.lineNotePrompt,
     };
