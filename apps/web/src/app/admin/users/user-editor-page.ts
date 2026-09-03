@@ -6,7 +6,6 @@ import {
   CustomerTier,
   CustomerType,
   PartySuggestion,
-  emailSchema,
   StaffUser,
   UserKind,
   UserRole,
@@ -24,7 +23,7 @@ import {
 import { delayedLoading } from '../../core/delayed-loading';
 import { FieldErrors } from '../../core/form-errors';
 import { usePageSeo } from '../../core/page-seo';
-import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
+import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '../../ui/button';
 import { CompanyFields } from '../../parties/company-fields';
 import { EmailField } from '../../ui/email-field';

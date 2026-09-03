@@ -1,25 +1,7 @@
-import { inject } from '@angular/core';
 import {
   ActivatedRouteSnapshot,
   BaseRouteReuseStrategy,
-  CanDeactivateFn,
 } from '@angular/router';
-import { confirmDiscard } from '../admin/confirm-discard';
-import { ADMIN_TEXT } from '../config/admin-text';
-
-export interface UnsavedChangesAware {
-  hasUnsavedChanges(): boolean;
-}
-
-/** Confirms before a navigation drops unsaved edits. */
-export const unsavedChangesGuard: CanDeactivateFn<UnsavedChangesAware> = (
-  component,
-) => {
-  if (!component.hasUnsavedChanges()) {
-    return true;
-  }
-  return confirmDiscard(inject(ADMIN_TEXT).pageEditor.discardConfirm);
-};
 
 /**
  * Angular reuses a component across param-only changes, so navigating between

@@ -27,7 +27,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
-import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
+import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
 import { FieldLabel } from '../../ui/field-label';

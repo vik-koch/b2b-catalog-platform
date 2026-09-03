@@ -5,9 +5,7 @@ import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 import { guestOnly, requireAuth } from './auth/auth.guard';
 import { adminTextGuard } from './config/admin-text';
 import { maintenanceGate } from './admin/maintenance/maintenance.guard';
-import { productUnsavedChangesGuard } from './admin/products/unsaved-changes.guard';
-import { userUnsavedChangesGuard } from './admin/users/unsaved-changes.guard';
-import { categoryUnsavedChangesGuard } from './admin/categories/unsaved-changes.guard';
+import { unsavedChangesGuard } from './admin/unsaved-changes.guard';
 import { NotFoundPage } from './pages/not-found-page';
 import { ContactPage } from './pages/contact-page';
 import { InquiryPage } from './pages/inquiry-page';
@@ -18,7 +16,6 @@ import { CategoryGrid } from './catalog/category-grid';
 import { SearchResults } from './catalog/search-results';
 import { ProductDetail } from './catalog/product-detail';
 import { StaticPage } from './pages/static-page';
-import { unsavedChangesGuard } from './core/unsaved-changes.guard';
 
 /**
  * The generic page route serves a slug only when the deployment publishes it,
@@ -156,7 +153,7 @@ export const appRoutes: Route[] = [
     path: 'admin/users/new',
     data: { kind: 'customer' },
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
-    canDeactivate: [userUnsavedChangesGuard],
+    canDeactivate: [unsavedChangesGuard((t) => t.userEditor.discardConfirm)],
     loadComponent: () =>
       import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
   },
@@ -164,7 +161,7 @@ export const appRoutes: Route[] = [
     path: 'admin/users/staff/new',
     data: { kind: 'staff' },
     canActivate: [requireAuth('admin'), adminTextGuard],
-    canDeactivate: [userUnsavedChangesGuard],
+    canDeactivate: [unsavedChangesGuard((t) => t.userEditor.discardConfirm)],
     loadComponent: () =>
       import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
   },
@@ -173,7 +170,7 @@ export const appRoutes: Route[] = [
     // call (a staff account is 404 for them), not a second list of rules here.
     path: 'admin/users/:id/edit',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
-    canDeactivate: [userUnsavedChangesGuard],
+    canDeactivate: [unsavedChangesGuard((t) => t.userEditor.discardConfirm)],
     loadComponent: () =>
       import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
   },
@@ -209,7 +206,9 @@ export const appRoutes: Route[] = [
   {
     path: 'admin/categories/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
-    canDeactivate: [categoryUnsavedChangesGuard],
+    canDeactivate: [
+      unsavedChangesGuard((t) => t.categoryEditor.discardConfirm),
+    ],
     loadComponent: () =>
       import('./admin/categories/category-editor-page').then(
         (m) => m.CategoryEditorPage,
@@ -218,7 +217,9 @@ export const appRoutes: Route[] = [
   {
     path: 'admin/categories/:slug/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
-    canDeactivate: [categoryUnsavedChangesGuard],
+    canDeactivate: [
+      unsavedChangesGuard((t) => t.categoryEditor.discardConfirm),
+    ],
     loadComponent: () =>
       import('./admin/categories/category-editor-page').then(
         (m) => m.CategoryEditorPage,
@@ -238,7 +239,7 @@ export const appRoutes: Route[] = [
   {
     path: 'admin/products/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
-    canDeactivate: [productUnsavedChangesGuard],
+    canDeactivate: [unsavedChangesGuard((t) => t.productEditor.discardConfirm)],
     loadComponent: () =>
       import('./admin/products/product-editor-page').then(
         (m) => m.ProductEditorPage,
@@ -247,7 +248,7 @@ export const appRoutes: Route[] = [
   {
     path: 'admin/products/:slug/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
-    canDeactivate: [productUnsavedChangesGuard],
+    canDeactivate: [unsavedChangesGuard((t) => t.productEditor.discardConfirm)],
     loadComponent: () =>
       import('./admin/products/product-editor-page').then(
         (m) => m.ProductEditorPage,
@@ -258,7 +259,7 @@ export const appRoutes: Route[] = [
   {
     path: 'admin/pages/:slug/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
-    canDeactivate: [unsavedChangesGuard],
+    canDeactivate: [unsavedChangesGuard((t) => t.pageEditor.discardConfirm)],
     // noReuse makes a slug change a fresh activation, so the unsaved-changes
     // guard runs and the editor re-reads its slug (see the strategy).
     data: { noReuse: true },

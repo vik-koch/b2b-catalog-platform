@@ -9,7 +9,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { usePageSeo } from '../../core/page-seo';
 import { Skeleton } from '../../ui/skeleton';
 import { delayedLoading } from '../../core/delayed-loading';
-import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
+import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
