@@ -206,7 +206,9 @@ export const appRoutes: Route[] = [
   {
     path: 'admin/categories/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
-    canDeactivate: [unsavedChangesGuard((t) => t.categoryEditor.discardConfirm)],
+    canDeactivate: [
+      unsavedChangesGuard((t) => t.categoryEditor.discardConfirm),
+    ],
     loadComponent: () =>
       import('./admin/categories/category-editor-page').then(
         (m) => m.CategoryEditorPage,
@@ -215,7 +217,9 @@ export const appRoutes: Route[] = [
   {
     path: 'admin/categories/:slug/edit',
     canActivate: [requireAuth('admin'), adminTextGuard],
-    canDeactivate: [unsavedChangesGuard((t) => t.categoryEditor.discardConfirm)],
+    canDeactivate: [
+      unsavedChangesGuard((t) => t.categoryEditor.discardConfirm),
+    ],
     loadComponent: () =>
       import('./admin/categories/category-editor-page').then(
         (m) => m.CategoryEditorPage,

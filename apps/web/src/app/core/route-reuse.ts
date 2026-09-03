@@ -1,4 +1,7 @@
-import { ActivatedRouteSnapshot, BaseRouteReuseStrategy } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  BaseRouteReuseStrategy,
+} from '@angular/router';
 
 /**
  * Angular reuses a component across param-only changes, so navigating between

@@ -4,7 +4,10 @@ import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultAdminText } from '../config/admin-text.fixture';
 import { ConfirmService } from '../ui/confirm.service';
-import { unsavedChangesGuard, UnsavedChangesAware } from './unsaved-changes.guard';
+import {
+  unsavedChangesGuard,
+  UnsavedChangesAware,
+} from './unsaved-changes.guard';
 
 const snapshot = {} as ActivatedRouteSnapshot;
 const state = {} as RouterStateSnapshot;
