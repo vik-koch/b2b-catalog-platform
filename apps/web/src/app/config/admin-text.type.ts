@@ -448,6 +448,8 @@ export const adminTextSchema = z
             fullHint: z.string(),
             prices: z.string(),
             pricesHint: z.string(),
+            stock: z.string(),
+            stockHint: z.string(),
             custom: z.string(),
           })
           .strict(),
@@ -456,6 +458,7 @@ export const adminTextSchema = z
           .object({
             name: z.string(),
             category: z.string(),
+            stock: z.string(),
             createMissing: z.string(),
             updateExisting: z.string(),
             restoreReturning: z.string(),
@@ -533,6 +536,7 @@ export const adminTextSchema = z
             'category-id-without-name': z.string(),
             'category-name-without-id': z.string(),
             'price-not-an-integer': z.string(),
+            'stock-not-an-integer': z.string(),
             'unknown-price-list': z.string(),
             'category-name-conflict': z.string(),
             'unknown-category': z.string(),

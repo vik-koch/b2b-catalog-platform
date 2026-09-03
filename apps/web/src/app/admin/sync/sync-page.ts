@@ -691,13 +691,14 @@ const KIND_TONE: Record<SyncProductChange['kind'], StatusTone> = {
 };
 
 /**
- * The advanced checkboxes. `name`/`category` are members of the `fields`
- * whitelist rather than booleans of their own, so each flag carries its own
- * read and write rather than the template branching on shape.
+ * The advanced checkboxes. `name`/`category`/`stock` are members of the
+ * `fields` whitelist rather than booleans of their own, so each flag carries
+ * its own read and write rather than the template branching on shape.
  */
 type FlagKey =
   | 'name'
   | 'category'
+  | 'stock'
   | 'createMissing'
   | 'updateExisting'
   | 'restoreReturning'
@@ -708,6 +709,7 @@ type FlagKey =
 const FLAGS: { key: FlagKey; label: SyncOptionKey; hint?: SyncOptionKey }[] = [
   { key: 'name', label: 'name' },
   { key: 'category', label: 'category' },
+  { key: 'stock', label: 'stock' },
   { key: 'createMissing', label: 'createMissing' },
   { key: 'updateExisting', label: 'updateExisting' },
   { key: 'restoreReturning', label: 'restoreReturning' },
@@ -723,6 +725,7 @@ const FLAGS: { key: FlagKey; label: SyncOptionKey; hint?: SyncOptionKey }[] = [
 const FLAG_VALUE: Record<FlagKey, (o: SyncOptions) => boolean> = {
   name: (o) => o.fields.includes('name'),
   category: (o) => o.fields.includes('category'),
+  stock: (o) => o.fields.includes('stock'),
   createMissing: (o) => o.createMissing,
   updateExisting: (o) => o.updateExisting,
   restoreReturning: (o) => o.restoreReturning,
@@ -735,6 +738,7 @@ const FLAG_SET: Record<FlagKey, (o: SyncOptions, on: boolean) => SyncOptions> =
   {
     name: (o, on) => ({ ...o, fields: withField(o, 'name', on) }),
     category: (o, on) => ({ ...o, fields: withField(o, 'category', on) }),
+    stock: (o, on) => ({ ...o, fields: withField(o, 'stock', on) }),
     createMissing: (o, on) => ({ ...o, createMissing: on }),
     updateExisting: (o, on) => ({ ...o, updateExisting: on }),
     restoreReturning: (o, on) => ({ ...o, restoreReturning: on }),
