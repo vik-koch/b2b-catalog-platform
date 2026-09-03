@@ -32,8 +32,9 @@ import { fillText } from '@b2b-catalog-platform/shared';
  * anything else in the navbar has to move.
  *
  * The bottom bar shows no total. Its tabs are a fifth of a phone's width and
- * they carry their captions at all times, so the badge is the whole of what a
- * glance needs there; the figure is one tap away on the cart itself.
+ * their captions are for screen readers only, so the badge is the whole of
+ * what a glance needs there; the figure is one tap away on the cart itself,
+ * and the spoken label carries it either way.
  */
 @Component({
   selector: 'app-cart-link',

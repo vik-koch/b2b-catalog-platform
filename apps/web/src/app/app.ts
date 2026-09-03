@@ -54,7 +54,7 @@ import { SearchOverlay } from './layout/search-overlay';
            footer is what actually reaches the bottom edge. -->
       <div
         aria-hidden="true"
-        class="h-[calc(3.25rem+1px+env(safe-area-inset-bottom))] sm:hidden"
+        class="h-[calc(3.5rem+1px+env(safe-area-inset-bottom))] sm:hidden"
       ></div>
     </div>
     <app-bottom-nav />
