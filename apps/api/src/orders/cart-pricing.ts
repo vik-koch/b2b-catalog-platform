@@ -5,6 +5,7 @@ import {
   CartLineIssue,
   CartPreview,
   CartPreviewLine,
+  ProductAvailability,
   correctPieces,
   exactLineTotal,
   piecesPerUnit,
@@ -16,6 +17,7 @@ import * as schema from '../db/schema';
 import { products } from '../db/schema';
 import { resolvedPriceMinor } from '../catalog/product-price';
 import {
+  availabilityColumns,
   packagingOf,
   publiclyVisible,
   unitColumns,
@@ -74,6 +76,8 @@ type ProductRow = {
   boxCount: number;
   lineNoteEnabled: boolean;
   lineNotePrompt: string | null;
+  /** The stored state, never the count behind it (FR-STOCK-01). */
+  availability: ProductAvailability | null;
   priceBasisPieces: number;
   piecesPerPack: number | null;
   packsPerBox: number | null;
@@ -141,6 +145,7 @@ async function loadProducts(
       boxCount: products.boxCount,
       lineNoteEnabled: products.lineNoteEnabled,
       lineNotePrompt: products.lineNotePrompt,
+      ...availabilityColumns,
       ...unitColumns,
     })
     .from(products)
@@ -168,6 +173,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
         image: null,
         packaging: null,
         prices: null,
+        availability: null,
         boxVolume: null,
         boxWeight: null,
         boxCount: null,
@@ -210,6 +216,12 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
   const lineTotalMinor = exactLineTotal(prices, packaging, pieces);
   if (lineTotalMinor === null) issues.push('price-unavailable');
 
+  // The line stays exactly as it is — named, priced and orderable in every
+  // other respect (FR-STOCK-04). What the issue does is refuse the *order*:
+  // submission takes any issue as a refusal, so nothing more is needed to stop
+  // an empty shelf being sold. "Few left" restricts nothing.
+  if (product.availability === 'out') issues.push('out-of-stock');
+
   return {
     row:
       lineTotalMinor === null
@@ -234,6 +246,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
       image,
       packaging,
       prices,
+      availability: product.availability,
       boxVolume: product.boxVolume,
       boxWeight: product.boxWeight,
       boxCount: product.boxCount,

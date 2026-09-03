@@ -2,6 +2,7 @@ import { oc } from '@orpc/contract';
 import { CART_LINES_MAX, CART_NOTE_MAX } from './cart-constants';
 import * as z from 'zod';
 import {
+  availabilitySchema,
   catalogImageSchema,
   productPackagingSchema,
   unitPricesSchema,
@@ -65,6 +66,11 @@ export type CartRequest = z.infer<typeof cartRequestSchema>;
  * `price-unavailable` means the line cannot be priced exactly (a repackaged
  * product whose stored basis no longer divides the quantity); its total is null
  * and must never be shown as a zero.
+ *
+ * `out-of-stock` is the one issue on a line that is otherwise perfectly well
+ * described (FR-STOCK-04): it is named, priced and still in the cart, and only
+ * the order it is part of is refused. **Few left** is not an issue — a customer
+ * may order more than the threshold and a manager reviews it.
  */
 export const CART_LINE_ISSUES = [
   'unavailable',
@@ -72,6 +78,7 @@ export const CART_LINE_ISSUES = [
   'quantity-corrected',
   'note-not-allowed',
   'price-unavailable',
+  'out-of-stock',
 ] as const;
 export type CartLineIssue = (typeof CART_LINE_ISSUES)[number];
 
@@ -95,6 +102,16 @@ export const cartPreviewLineSchema = z
     image: catalogImageSchema.nullable(),
     packaging: productPackagingSchema.nullable(),
     prices: unitPricesSchema.nullable(),
+    /**
+     * What the shop can say about this product's stock (FR-STOCK-03) — null
+     * where it is untracked, and null throughout for a product that is gone.
+     * The count behind it never leaves the API.
+     *
+     * Carried so the cart line wears the same badge as the card it was added
+     * from, and so the browser can tell an item that has gone out of stock
+     * while the cart waited from one that has come back (FR-CART-10).
+     */
+    availability: availabilitySchema,
     /**
      * What one box unit weighs and takes up, and how many cartons it ships as
      * — null where the product states none, and null throughout for a product

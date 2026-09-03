@@ -45,6 +45,9 @@ const slugs = {
   /** Ten to a pack, but the shop will not ship fewer than a hundred — the
    * case where the floor and the step are different figures. */
   stepped: `e2e-orders-stepped-${SUFFIX}`,
+  /** On sale in every other respect, with nothing on the shelf
+   * (FR-STOCK-04). */
+  empty: `e2e-orders-empty-${SUFFIX}`,
 };
 
 /**
@@ -236,15 +239,17 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       state: 'live' | 'unpublished' | 'deleted',
       lineNoteEnabled = true,
       minPieceQty = 10,
+      /** Both or neither: the stored state is the figure's shadow. */
+      stockPieces: number | null = null,
     ) => {
       await client.query(
         `INSERT INTO products (
            "sourceId", slug, name, "defaultPriceMinor", "priceBasisPieces",
            "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume",
            "boxWeight", "boxCount", "categoryId", "lineNoteEnabled",
-           "publishedAt", "deletedAt")
+           "publishedAt", "deletedAt", "stockPieces", availability)
          VALUES ($1, $2, $3, $4, $5, 10, 4, $10, '0.240', '12.500', 1, $6, $7,
-                 $8, $9)`,
+                 $8, $9, $11, $12)`,
         [
           `${SOURCE_PREFIX}-${slug}`,
           slug,
@@ -256,6 +261,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           state === 'unpublished' ? null : new Date(),
           state === 'deleted' ? new Date() : null,
           minPieceQty,
+          stockPieces,
+          stockPieces === null ? null : stockPieces > 0 ? 'in' : 'out',
         ],
       );
     };
@@ -264,6 +271,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     await product(slugs.deleted, 'deleted');
     await product(slugs.noNote, 'live', false);
     await product(slugs.stepped, 'live', true, 100);
+    await product(slugs.empty, 'live', true, 10, 0);
 
     const { rows: tiers } = await client.query(
       'INSERT INTO customer_tiers (key, label) VALUES ($1, $2) RETURNING id',
@@ -364,6 +372,21 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         res.data.lines.map((line: { issues: string[] }) => line.issues),
       ).toEqual([['unavailable'], ['unavailable'], ['unavailable']]);
       expect(res.data.complete).toBe(false);
+    });
+
+    it('flags an out-of-stock line and prices it anyway', async () => {
+      // Listed, reachable and priced (FR-STOCK-04): only the order is refused,
+      // and the count behind the state never leaves the API.
+      const res = await post('/cart/preview', {
+        lines: [{ slug: slugs.empty, unit: 'pack', pieces: 10 }],
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data.lines[0].issues).toEqual(['out-of-stock']);
+      expect(res.data.lines[0].availability).toBe('out');
+      expect(res.data.lines[0].lineTotalMinor).toBe(BASE_MINOR);
+      expect(res.data.complete).toBe(true);
+      expect(JSON.stringify(res.data)).not.toContain('stockPieces');
     });
 
     it('corrects a below-minimum piece quantity instead of refusing it', async () => {
@@ -544,6 +567,19 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       expect(res.status).toBe(409);
       expect(refusal(res).preview.lines[0].issues).toEqual(['unavailable']);
+    });
+
+    it('refuses an order holding an out-of-stock line', async () => {
+      const res = await post(
+        '/orders',
+        submission({
+          lines: [{ slug: slugs.empty, unit: 'pack', pieces: 10 }],
+          expectedTotalMinor: BASE_MINOR,
+        }),
+      );
+
+      expect(res.status).toBe(409);
+      expect(refusal(res).preview.lines[0].issues).toEqual(['out-of-stock']);
     });
 
     it('needs the invoiced company for a bank transfer', async () => {
