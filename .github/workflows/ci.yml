@@ -53,6 +53,11 @@ jobs:
 
       - run: npx nx run-many -t lint test build format-check
 
+      # ADR 0043's rule, not its size budget: the first load must contain no
+      # schema runtime. The budget moves as the app grows; this does not.
+      - run: npx nx build web --statsJson
+      - run: node tools/check-initial-bundle.mjs
+
       - run: npx nx e2e api-e2e
 
   # Boots the deploy stack from freshly built amd64 images (compose.yml +

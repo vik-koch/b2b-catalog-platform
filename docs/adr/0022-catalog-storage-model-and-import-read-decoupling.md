@@ -22,8 +22,8 @@ read contract, and these futures don't entangle.
 ## Decision
 
 - **Three independent boundaries.** The **import contract** (file → DB, a Zod
-  DTO, built with FR-ADM), the **read contract** (DB → web, ts-rest, already
-  shipped), and **storage** (Postgres, reached only through `CatalogService`).
+  DTO, built with FR-ADM), the **read contract** (DB → web, the shared
+  contract, already shipped), and **storage** (Postgres, reached only through `CatalogService`).
   A client-specific **Python converter** turns the raw export into the import
   format, so the backend only ever consumes the stable format — the file's shape
   is the converter's problem, not ours (the ports-and-adapters seam again).
