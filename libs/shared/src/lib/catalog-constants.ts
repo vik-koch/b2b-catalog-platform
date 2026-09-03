@@ -41,3 +41,53 @@ export function categoryDisplayName(category: {
 }): string {
   return category.shortName || category.name;
 }
+
+/** Admin grid page size — denser than the storefront's, for scanning. */
+export const ADMIN_CATALOG_PAGE_SIZE = 50;
+
+/** Matches the `products.name` varchar(512). */
+export const PRODUCT_NAME_MAX_LENGTH = 512;
+
+/**
+ * A DoS guard on the description, not an editorial rule — comfortably more than
+ * any product needs while staying well under Express's default body limit, so an
+ * oversized body fails contract validation with an explainable 400 rather than
+ * an opaque 413. Smaller than a static page's cap (product copy is short).
+ */
+export const PRODUCT_DESCRIPTION_MAX_LENGTH = 32_000;
+
+/** Caps on the custom-attribute table (FR-CAT-05). Bounds, not business rules. */
+export const PRODUCT_ATTRIBUTES_MAX = 100;
+
+/**
+ * The admin write surface for the catalog — the counterpart to the public read
+ * contract in `catalog.contract.ts`, kept deliberately separate so the
+ * storefront's stable read shapes never entangle with editing.
+ *
+ * Every route here is admin-only and speaks the *editable* shape, which
+ * — unlike the public read model — exposes fields the storefront never sees:
+ * a product's `categoryId` (the picker's handle), its private `sourceId` sync
+ * key, and its `deletedAt` (so the admin grid can render soft-deleted rows).
+ */
+
+export const PRODUCT_ATTRIBUTE_KEY_MAX_LENGTH = 200;
+
+export const PRODUCT_ATTRIBUTE_VALUE_MAX_LENGTH = 2000;
+
+/** Matches the `products.lineNotePrompt` varchar(200) — one short question. */
+export const PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH = 200;
+
+/** A gallery is a short ordered list, not an archive. */
+export const PRODUCT_IMAGES_MAX = 20;
+
+/**
+ * A bound, not a business rule: a deployment sells to a handful of customer
+ * kinds, and a product can be priced in each at most once.
+ */
+export const PRODUCT_TIER_PRICES_MAX = 50;
+
+/** Matches the `products.sourceId` / `categories.sourceId` varchar(255). */
+export const SOURCE_ID_MAX_LENGTH = 255;
+
+/** Matches the `categories.name` varchar(255). */
+export const CATEGORY_NAME_MAX_LENGTH = 255;

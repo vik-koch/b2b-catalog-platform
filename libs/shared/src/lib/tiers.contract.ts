@@ -1,5 +1,10 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+import {
+  TIER_ERROR_CODES,
+  TIER_KEY_MAX_LENGTH,
+  TIER_LABEL_MAX_LENGTH,
+} from './tier-constants';
 import { commonAuthErrors } from './api-error';
 
 /**
@@ -9,11 +14,6 @@ import { commonAuthErrors } from './api-error';
  * `products.defaultPriceMinor`, not a row, so it has no id and cannot be
  * created, renamed or deleted through this surface.
  */
-
-/** Matches the `customer_tiers.key` varchar(64). */
-export const TIER_KEY_MAX_LENGTH = 64;
-/** Matches the `customer_tiers.label` varchar(255). */
-export const TIER_LABEL_MAX_LENGTH = 255;
 
 /**
  * The key a catalog sync file addresses a price list by (`price:<key>`
@@ -76,17 +76,6 @@ export const reorderTiersSchema = z
   .strict();
 export type ReorderTiersRequest = z.infer<typeof reorderTiersSchema>;
 
-/**
- * Why a tier action was refused. `tier-has-*` are the delete guard, and the
- * list already knows both counts, so it says which of its own numbers is in the
- * way without the server phrasing it.
- */
-export const TIER_ERROR_CODES = [
-  'tier-not-found',
-  'tier-key-taken',
-  'tier-has-accounts',
-  'tier-has-prices',
-] as const;
 export type TierErrorCode = (typeof TIER_ERROR_CODES)[number];
 
 /**

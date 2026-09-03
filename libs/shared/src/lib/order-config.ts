@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { normalizePostalCode } from './postal-code';
 
 /**
  * The deployment-owned half of checkout: how an order is referenced, and which
@@ -6,15 +7,6 @@ import * as z from 'zod';
  * a zone the browser resolved and the server did not re-derive would be a
  * threshold the customer could choose for themselves.
  */
-
-/**
- * Postal codes are compared as **fixed-width strings**, never numbers: leading
- * zeros are part of the code, and `01067` as an integer is a different place.
- * Normalized first so `AB1 2CD` and `ab12cd` are the same code.
- */
-export function normalizePostalCode(value: string): string {
-  return value.replace(/\s+/g, '').toUpperCase();
-}
 
 const postalCodeConfigSchema = z
   .string()
@@ -132,59 +124,6 @@ export const deliveryConfigSchema = z
   })
   .strict();
 export type DeliveryConfig = z.infer<typeof deliveryConfigSchema>;
-
-export interface DeliveryZoneQuery {
-  postalCode: string;
-}
-
-/**
- * What matching a zone actually reads, spelled structurally so a deeply
- * readonly configuration — which is how the browser holds it — is accepted as
- * readily as a freshly parsed one.
- */
-export interface ZoneMatcher {
-  readonly match: {
-    readonly postalPrefixes?: readonly string[];
-    readonly postalRanges?: readonly {
-      readonly from: string;
-      readonly to: string;
-    }[];
-    readonly all?: true;
-  };
-}
-
-/**
- * The first zone the address falls into, or null where none does — which is a
- * normal answer: a deployment need not describe every address it ships to.
- *
- * Generic in the zone, so a caller gets its own row back with whatever else it
- * carries — the key and the threshold an order snapshots.
- */
-export function resolveDeliveryZone<T extends ZoneMatcher>(
-  zones: readonly T[],
-  address: DeliveryZoneQuery,
-): T | null {
-  const code = normalizePostalCode(address.postalCode.trim());
-
-  for (const zone of zones) {
-    const { match } = zone;
-    if (match.all === true) return zone;
-    if (match.postalPrefixes?.some((prefix) => code.startsWith(prefix))) {
-      return zone;
-    }
-    if (
-      match.postalRanges?.some(
-        (range) =>
-          code.length === range.from.length &&
-          code >= range.from &&
-          code <= range.to,
-      )
-    ) {
-      return zone;
-    }
-  }
-  return null;
-}
 
 function isKnownTimezone(zone: string): boolean {
   try {

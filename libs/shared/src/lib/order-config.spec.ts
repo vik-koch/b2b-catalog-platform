@@ -1,60 +1,7 @@
 import {
   deliveryConfigSchema,
-  normalizePostalCode,
   orderReferenceConfigSchema,
-  resolveDeliveryZone,
 } from './order-config';
-
-const zones = deliveryConfigSchema.parse({
-  zones: [
-    {
-      key: 'city',
-      title: 'Within the city',
-      freeFromMinor: 5000,
-      match: { postalPrefixes: ['200', '201'] },
-    },
-    {
-      key: 'region',
-      title: 'The surrounding region',
-      freeFromMinor: 25_000,
-      match: { postalRanges: [{ from: '21000', to: '22999' }] },
-    },
-    { key: 'rest', title: 'Everywhere else', match: { all: true } },
-  ],
-}).zones;
-
-describe('resolveDeliveryZone', () => {
-  it('takes the first zone that matches, not the best one', () => {
-    // 20095 matches the city prefix; the catch-all further down never runs.
-    expect(resolveDeliveryZone(zones, { postalCode: '20095' })).toMatchObject({
-      key: 'city',
-      freeFromMinor: 5000,
-    });
-  });
-
-  it('matches a range as fixed-width strings', () => {
-    expect(resolveDeliveryZone(zones, { postalCode: '21079' })?.key).toBe(
-      'region',
-    );
-    // Same digits, different width: 2107 is not inside 21000–22999.
-    expect(resolveDeliveryZone(zones, { postalCode: '2107' })?.key).toBe(
-      'rest',
-    );
-  });
-
-  it('ignores spacing and case in a postal code', () => {
-    expect(normalizePostalCode(' ab1 2cd ')).toBe('AB12CD');
-    expect(resolveDeliveryZone(zones, { postalCode: '20 095' })?.key).toBe(
-      'city',
-    );
-  });
-
-  it('answers null where no zone covers the address', () => {
-    const narrow = zones.filter((zone) => zone.key === 'city');
-    expect(resolveDeliveryZone(narrow, { postalCode: '99999' })).toBeNull();
-    expect(resolveDeliveryZone([], { postalCode: '20095' })).toBeNull();
-  });
-});
 
 describe('deliveryConfigSchema', () => {
   it('refuses a catch-all that is not last, since it hides the rest', () => {
