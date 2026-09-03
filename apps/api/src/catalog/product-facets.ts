@@ -206,13 +206,11 @@ export async function buildFacets(
     // link would filter by something the panel cannot show or clear.
     const values = [...new Set([...inScope.keys(), ...chosen])]
       .filter((value) => isFilterable(definition, value))
-      .map(
-        (value): FacetValue => ({
-          value,
-          count: counts.get(value) ?? 0,
-          selected: chosen.has(value),
-        }),
-      );
+      .map((value): FacetValue => ({
+        value,
+        count: counts.get(value) ?? 0,
+        selected: chosen.has(value),
+      }));
     if (values.length === 0) return [];
 
     return [

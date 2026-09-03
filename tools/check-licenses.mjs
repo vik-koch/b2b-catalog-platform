@@ -38,8 +38,27 @@ const ALLOWED = new Set([
   // File-level copyleft. Fine as long as we consume it unmodified, which we do
   // — it arrives as a build-time binary and we never patch its sources.
   'MPL-2.0',
-  '(Apache-2.0 AND BSD-3-Clause)',
 ]);
+
+/**
+ * Whether a license expression is acceptable. The expressions that turn up here
+ * are simple — a list of SPDX ids joined by OR or AND, sometimes parenthesised
+ * — so they are evaluated directly rather than by pulling in a parser. OR
+ * passes when *any* choice is allowed, because we get to take that one; AND
+ * passes only when *every* part is. Anything mixing both is left to a human.
+ */
+function isAllowed(expression) {
+  const clean = expression
+    .trim()
+    .replace(/^\((.*)\)$/, '$1')
+    .trim();
+  if (ALLOWED.has(clean)) return true;
+  const hasOr = / OR /i.test(clean);
+  const hasAnd = / AND /i.test(clean);
+  if (hasOr && !hasAnd) return clean.split(/ OR /i).some(isAllowed);
+  if (hasAnd && !hasOr) return clean.split(/ AND /i).every(isAllowed);
+  return false;
+}
 
 /**
  * Packages whose license is outside the allowlist but has been reviewed and
@@ -115,7 +134,7 @@ for (const dir of dirs) {
   seen.add(id);
 
   const license = licenseOf(pkg);
-  if (ALLOWED.has(license)) continue;
+  if (isAllowed(license)) continue;
 
   const exception = EXCEPTIONS.get(pkg.name);
   if (exception) {

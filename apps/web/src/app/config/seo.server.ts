@@ -76,8 +76,7 @@ let sitemapCache: { xml: string; at: number } | undefined;
  * `404` when the deployment is not indexable.
  */
 export type SitemapResult =
-  | { kind: 'xml'; body: string }
-  | { kind: 'status'; status: 404 | 503 };
+  { kind: 'xml'; body: string } | { kind: 'status'; status: 404 | 503 };
 
 function publishes(slug: string): boolean {
   return (getDeploymentConfig().pages.published as readonly string[]).includes(

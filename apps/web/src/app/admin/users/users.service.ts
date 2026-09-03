@@ -17,9 +17,7 @@ import { createOrpcClient } from '../../core/orpc-client';
  * is left to throw like any other unexpected answer.
  */
 export type UserActionError =
-  | UserErrorCode
-  | 'role-change-admin-only'
-  | 'staff-create-admin-only';
+  UserErrorCode | 'role-change-admin-only' | 'staff-create-admin-only';
 
 /**
  * The outcome of a row action: the updated account, or the code the server
@@ -28,8 +26,7 @@ export type UserActionError =
  * the admin text's. Only the unexpected throws.
  */
 export type UserActionResult =
-  | { ok: true; user: StaffUser }
-  | { ok: false; code: UserActionError };
+  { ok: true; user: StaffUser } | { ok: false; code: UserActionError };
 
 /**
  * Every route declares the two auth refusals alongside its own, and those two

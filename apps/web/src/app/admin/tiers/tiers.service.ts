@@ -16,8 +16,7 @@ import { createOrpcClient } from '../../core/orpc-client';
  * wrote reaches the screen.
  */
 export type TierResult =
-  | { ok: true; tier: CustomerTier }
-  | { ok: false; code: TierErrorCode };
+  { ok: true; tier: CustomerTier } | { ok: false; code: TierErrorCode };
 
 /**
  * Every route here also declares the two auth refusals, and those are not this

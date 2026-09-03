@@ -11,13 +11,10 @@ import { createOrpcClient } from '../core/orpc-client';
 
 /** The refusals the address form has to explain rather than throw. */
 export type SaveAddressResult =
-  | { ok: true; address: Address }
-  | { ok: false; code: SaveAddressRefusal };
+  { ok: true; address: Address } | { ok: false; code: SaveAddressRefusal };
 
 type SaveAddressRefusal =
-  | 'address-limit-reached'
-  | 'unsupported-country'
-  | 'invalid-postal-code';
+  'address-limit-reached' | 'unsupported-country' | 'invalid-postal-code';
 
 /**
  * Both writes also declare the two auth refusals and, on an update, a gone

@@ -162,10 +162,8 @@ export interface ProductGridQuery {
  * wrote is shown.
  */
 export type SaveResult =
-  | { ok: true; product: AdminProduct }
-  | { ok: false; code: CatalogErrorCode };
+  { ok: true; product: AdminProduct } | { ok: false; code: CatalogErrorCode };
 
 /** A category delete outcome: done, or blocked with a code to explain. */
 export type CategoryDeleteResult =
-  | { ok: true }
-  | { ok: false; code: CatalogErrorCode };
+  { ok: true } | { ok: false; code: CatalogErrorCode };
