@@ -504,6 +504,9 @@ export class CartPage {
           name: line.name,
           prices: line.prices,
           packaging: line.packaging,
+          // The badge the row wears, and what takes its controls out of use
+          // where the shelf is empty (FR-STOCK-03/04).
+          availability: line.availability,
           lineNoteEnabled: line.noteEnabled,
           lineNotePrompt: line.notePrompt,
           images: line.image ? [line.image] : [],

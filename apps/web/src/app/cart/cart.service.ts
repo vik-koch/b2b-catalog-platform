@@ -17,6 +17,8 @@ import {
   correctPieces,
   exactLineTotal,
   LineUnitPrices,
+  PRODUCT_AVAILABILITIES,
+  ProductAvailability,
   ProductPackagingInfo,
   ProductUnit,
   shipmentEstimate,
@@ -100,6 +102,16 @@ export interface CartStoredLine {
    * has priced yet: the product page it was added from was offering it.
    */
   available: boolean;
+  /**
+   * What the shop last said about this product's stock, or null where it is
+   * untracked — the badge the row wears (FR-STOCK-03), and the baseline the
+   * next pricing is compared against: a line that went off the shelf while the
+   * cart waited, or came back onto it, is news (FR-CART-10).
+   *
+   * Null for a cart written before this was recorded, which reads as untracked
+   * and reports nothing until the shop says otherwise.
+   */
+  availability: ProductAvailability | null;
 }
 
 /** The whole cart as it is written down: the lines, and whose prices they were
@@ -154,6 +166,9 @@ export interface CartAddition {
   /** The photo the customer was looking at, so the cart can draw the line
    * before it has asked the server anything. */
   image: CatalogImage | null;
+  /** What the view it was added from said about the stock — the first baseline
+   * the line has. */
+  availability: ProductAvailability | null;
   lineNoteEnabled: boolean;
   lineNotePrompt: string | null;
 }
@@ -348,6 +363,7 @@ export class CartService {
           boxCount: null,
           noteEnabled: addition.lineNoteEnabled,
           available: true,
+          availability: addition.availability,
           notePrompt: addition.lineNotePrompt,
           ...priceLine(addition, pieces),
         },
@@ -365,6 +381,7 @@ export class CartService {
           image: addition.image,
           noteEnabled: addition.lineNoteEnabled,
           available: true,
+          availability: addition.availability,
           notePrompt: addition.lineNotePrompt,
           ...priceLine(addition, pieces),
         }),
@@ -396,6 +413,7 @@ export class CartService {
         image: addition.image,
         noteEnabled: addition.lineNoteEnabled,
         available: true,
+        availability: addition.availability,
         notePrompt: addition.lineNotePrompt,
         ...priceLine(addition, addition.pieces),
       }),
@@ -492,6 +510,7 @@ export class CartService {
         // The same reading the page makes of a fresh line: prices the shop
         // will not state are a product it no longer offers.
         available: fresh.prices !== null,
+        availability: fresh.availability,
         unitPriceMinor:
           fresh.prices === null ? null : unitPriceOf(fresh.prices, fresh.unit),
         lineTotalMinor: fresh.lineTotalMinor,
@@ -573,6 +592,7 @@ export class CartService {
       return {
         lines: parsed.lines
           .map(withAvailability)
+          .map(withStockState)
           .filter(isStoredLine)
           .slice(0, CART_LINES_MAX),
         pricedFor: readPricedFor(parsed.pricedFor),
@@ -635,6 +655,20 @@ function withAvailability(line: unknown): unknown {
     : { ...candidate, available: true };
 }
 
+/**
+ * Fills in a line stored before the stock state was written down. Null is
+ * "nobody said", which is also what an untracked product answers — so a cart
+ * in a browser today reports nothing about stock until the first pricing of
+ * the visit says otherwise.
+ */
+function withStockState(line: unknown): unknown {
+  const candidate = line as { availability?: unknown } | null;
+  if (!candidate || typeof candidate !== 'object') return line;
+  return 'availability' in candidate
+    ? candidate
+    : { ...candidate, availability: null };
+}
+
 function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
   return (
     a.unit === b.unit &&
@@ -646,6 +680,7 @@ function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
     a.noteEnabled === b.noteEnabled &&
     a.notePrompt === b.notePrompt &&
     a.available === b.available &&
+    a.availability === b.availability &&
     a.boxVolume === b.boxVolume &&
     a.boxWeight === b.boxWeight &&
     a.boxCount === b.boxCount &&
@@ -735,7 +770,17 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     typeof candidate.noteEnabled === 'boolean' &&
     (candidate.notePrompt === null ||
       typeof candidate.notePrompt === 'string') &&
-    typeof candidate.available === 'boolean'
+    typeof candidate.available === 'boolean' &&
+    isAvailability(candidate.availability)
+  );
+}
+
+/** The stored stock state, which reaches a badge and a tone lookup — a payload
+ * edited by hand must not put a fourth word in either. */
+function isAvailability(value: unknown): boolean {
+  return (
+    value === null ||
+    (PRODUCT_AVAILABILITIES as readonly unknown[]).includes(value)
   );
 }
 

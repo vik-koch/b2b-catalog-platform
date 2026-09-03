@@ -24,6 +24,7 @@ function pieceAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     image: null,
     lineNoteEnabled: false,
     lineNotePrompt: null,
+    availability: null,
     prices: {
       pieceMilliMinor: 1250,
       pieceLotMinor: 1250,
@@ -51,6 +52,7 @@ function packAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     image: null,
     lineNoteEnabled: false,
     lineNotePrompt: null,
+    availability: null,
     prices: {
       pieceMilliMinor: 1_166_667,
       pieceLotMinor: 7000,
@@ -429,6 +431,7 @@ describe('CartService', () => {
           boxCount: 1,
           lineNoteEnabled: false,
           lineNotePrompt: null,
+          availability: null,
           prices: {
             pieceMilliMinor: 1_166_667,
             pieceLotMinor: 7000,
