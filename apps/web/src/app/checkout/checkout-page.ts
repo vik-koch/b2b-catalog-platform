@@ -9,7 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AddressInput,
@@ -17,37 +17,20 @@ import {
   FulfilmentMethod,
   isOrderDateAllowed,
   localToday,
-  OrderContact,
-  OrderSubmission,
   PartySuggestion,
-  unitQuantity,
 } from '@b2b-catalog-platform/shared';
 import { AccountService } from '../account/account.service';
-import { AddressForm, createAddressForm } from '../addresses/address-form';
-import { addressLines } from '../addresses/address-format';
+import { AddressForm } from '../addresses/address-form';
 import { AddressesService } from '../addresses/addresses.service';
 import { AuthService } from '../auth/auth.service';
-import { CartService, CartStoredLine } from '../cart/cart.service';
+import { CartService } from '../cart/cart.service';
 import { OrderSummary } from '../cart/order-summary';
-import { formatPriceMinor } from '../catalog/price';
-import { formatUnitQuantity } from '../catalog/quantity';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import {
-  canonicalPhone,
-  companyIdFormat,
-  emailFormat,
-  phoneValidators,
-} from '../core/contact-fields';
 import { delayedLoading } from '../core/delayed-loading';
-import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
-import {
-  OrderReadBack,
-  ReadBackLine,
-  ReviewBlock,
-} from '../orders/order-read-back';
-import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
+import { OrderReadBack } from '../orders/order-read-back';
+import { OrdersService } from '../orders/orders.service';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { EmptyState } from '../ui/empty-state';
@@ -59,6 +42,9 @@ import {
   CheckoutDraftService,
   PartyChoice as Party,
 } from './checkout-draft.service';
+import { createCheckoutForms } from './checkout-forms';
+import { createCheckoutReadBack } from './checkout-read-back';
+import { createCheckoutSubmission } from './checkout-submission';
 import { DeliveryZoneHint } from './delivery-zone-hint';
 import { FulfilmentChoice } from './fulfilment-choice';
 import { GuestDetails } from './guest-details';
@@ -552,40 +538,7 @@ export class CheckoutPage {
 
   protected readonly text = inject(APP_TEXT).checkout;
   protected readonly cartText = inject(APP_TEXT).cart;
-  private readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly addressText = this.text.addresses;
-
-  /**
-   * The party being invoiced, as its own two controls rather than as fields of
-   * an address: whichever address the invoice goes to — a saved row or a typed
-   * one — carries the same answer, so it cannot live on either form.
-   */
-  protected readonly partyForm = inject(FormBuilder).nonNullable.group({
-    personName: [''],
-    companyName: [''],
-    companyId: ['', companyIdFormat(this.config.companyIdInput?.formats)],
-  });
-  protected readonly partyErrors = new FieldErrors(this.partyForm);
-
-  /**
-   * Who to talk to about the order — a guest's own, since there is no account
-   * to read it off (FR-CART-03). `website` is ADR 0015's honeypot: a bot fills
-   * it, a person never sees it, and this is the one form here a bot can reach.
-   */
-  protected readonly contactForm = inject(FormBuilder).nonNullable.group({
-    name: ['', Validators.required],
-    // The contract's own rule, not Angular's: `Validators.email` accepts a
-    // domain with no TLD, which the server then refuses.
-    email: ['', [Validators.required, emailFormat()]],
-    phone: ['', phoneValidators(this.config.phoneInput, true)],
-    website: [''],
-  });
-  protected readonly contactErrors = new FieldErrors(this.contactForm);
-
-  protected readonly deliveryForm = createAddressForm();
-  protected readonly deliveryErrors = new FieldErrors(this.deliveryForm.group);
-  protected readonly billingForm = createAddressForm();
-  protected readonly billingErrors = new FieldErrors(this.billingForm.group);
 
   /**
    * A visitor with no session (FR-CART-03). Read through `resolved`, so the
@@ -593,6 +546,22 @@ export class CheckoutPage {
    * ask different questions, and half of one is not a form.
    */
   protected readonly guest = computed(() => this.auth.user() === null);
+
+  /**
+   * What the screen asks and what counts as an answer (see `checkout-forms`).
+   * Built after `guest`, because who is asking decides which of the party's
+   * fields are required.
+   */
+  private readonly forms = createCheckoutForms({ guest: this.guest });
+
+  protected readonly partyForm = this.forms.party;
+  protected readonly contactForm = this.forms.contact;
+  protected readonly deliveryForm = this.forms.delivery;
+  protected readonly billingForm = this.forms.billing;
+  protected readonly partyErrors = this.forms.partyErrors;
+  protected readonly contactErrors = this.forms.contactErrors;
+  protected readonly deliveryErrors = this.forms.deliveryErrors;
+  protected readonly billingErrors = this.forms.billingErrors;
 
   /**
    * The book and the account, neither of which a guest has. Idle rather than
@@ -837,6 +806,45 @@ export class CheckoutPage {
     this.committedDelivery.set({ postalCode });
   }
 
+  /**
+   * The answers, resolved for the read-back — the same resolutions the
+   * submission is built from, so what is shown and what is sent cannot differ
+   * (see `checkout-read-back`).
+   */
+  private readonly readBack = createCheckoutReadBack({
+    draft: this.draft,
+    isPickup: this.isPickup,
+    needsBillingPicker: this.needsBillingPicker,
+    billingEnabled: this.billingEnabled,
+    guest: this.guest,
+    accountName: this.accountName,
+    addressFor: (id, form) => this.addressFor(id, form),
+    deliveryForm: this.deliveryForm,
+    billingForm: this.billingForm,
+    typedParty: () => this.partyForm.getRawValue(),
+    guestName: () => this.contactForm.controls.name.value,
+  });
+
+  protected readonly reviewLines = this.readBack.lines;
+  protected readonly reviewBlocks = this.readBack.blocks;
+
+  /** Building the order, and wording what the server says back to it (see
+   * `checkout-submission`). */
+  private readonly submission = createCheckoutSubmission({
+    forms: this.forms,
+    draft: this.draft,
+    guest: this.guest,
+    isPickup: this.isPickup,
+    billingEnabled: this.billingEnabled,
+    needsBillingPicker: this.needsBillingPicker,
+    deliveryTyped: this.deliveryTyped,
+    billingTyped: this.billingTyped,
+    preferredDateInvalid: this.preferredDateInvalid,
+    profile: () => this.profile.value(),
+    accountName: this.accountName,
+    addressFor: (id, form) => this.addressFor(id, form),
+  });
+
   constructor() {
     usePageSeo({ name: () => this.text.title });
 
@@ -851,7 +859,7 @@ export class CheckoutPage {
       ) {
         return;
       }
-      if (!this.buildSubmission()) this.goToStep(undefined);
+      if (!this.submission.build()) this.goToStep(undefined);
     });
 
     // A draft outlives the session it was written in: signing out, or coming
@@ -885,7 +893,7 @@ export class CheckoutPage {
         untracked(() => this.chooseParty('person'));
         return;
       }
-      untracked(() => this.applyPartyValidators(party));
+      untracked(() => this.forms.applyPartyValidators(party));
     });
 
     // A payment method the party can no longer take falls back to the one it
@@ -928,7 +936,7 @@ export class CheckoutPage {
 
     // The addresses being typed, and the typed party, kept in the draft so a
     // trip back to the cart does not empty them.
-    this.restoreDrafted();
+    this.forms.restore(this.draft());
     // A draft written on an earlier visit can name a date this one no longer
     // offers — the day it was chosen for has since passed. Dropped rather than
     // kept and refused: no date is the form's own default and the ordinary
@@ -963,25 +971,6 @@ export class CheckoutPage {
     });
   }
 
-  /** What the draft was holding when this page was last left. */
-  private restoreDrafted(): void {
-    const draft = this.draft();
-    if (draft.newDeliveryAddress)
-      this.deliveryForm.fill(draft.newDeliveryAddress);
-    if (draft.newBillingAddress) this.billingForm.fill(draft.newBillingAddress);
-    if (draft.contact) {
-      this.contactForm.patchValue(draft.contact, { emitEvent: false });
-    }
-    // Only the chosen party's own fields: the other branch is empty, which is
-    // what it is on a form that has never been touched.
-    this.partyForm.setValue({
-      personName: draft.party === 'person' ? (draft.otherPartyName ?? '') : '',
-      companyName:
-        draft.party === 'company' ? (draft.otherPartyName ?? '') : '',
-      companyId: draft.party === 'company' ? (draft.otherPartyId ?? '') : '',
-    });
-  }
-
   protected chooseFulfilment(method: FulfilmentMethod): void {
     this.drafts.patch({ fulfilmentMethod: method });
   }
@@ -1001,203 +990,17 @@ export class CheckoutPage {
     // on which party is chosen, and they fire on the way through.
     this.drafts.patch({ party });
     if (party !== 'account') this.lastOtherParty.set(party);
-    this.applyPartyValidators(party);
+    this.forms.applyPartyValidators(party);
   }
 
-  /**
-   * Which of the party's fields are required, given who is asking. A guest's
-   * private party has no name field of its own — they are the contact, and
-   * asking a person for their name twice is asking one of the two for nothing.
-   */
-  private applyPartyValidators(party: Party): void {
-    const { personName, companyName, companyId } = this.partyForm.controls;
-
-    personName.setValue(party === 'person' ? personName.value : '');
-    companyName.setValue(party === 'company' ? companyName.value : '');
-    companyId.setValue(party === 'company' ? companyId.value : '');
-
-    personName.setValidators(
-      party === 'person' && !this.guest() ? Validators.required : [],
-    );
-    companyName.setValidators(party === 'company' ? Validators.required : []);
-    companyId.setValidators(
-      party === 'company'
-        ? [
-            Validators.required,
-            companyIdFormat(this.config.companyIdInput?.formats),
-          ]
-        : [],
-    );
-
-    personName.updateValueAndValidity();
-    companyName.updateValueAndValidity();
-    companyId.updateValueAndValidity();
-  }
-
-  /** A picked company fills both halves at once — the provider takes either as
-   * its query, so whichever field was being typed in, the other follows. */
   protected pickParty(suggestion: PartySuggestion): void {
-    this.partyForm.patchValue({
-      companyName: suggestion.name,
-      ...(suggestion.registrationId
-        ? { companyId: suggestion.registrationId }
-        : {}),
-    });
+    this.forms.pickParty(suggestion);
   }
 
   protected toggleSameBilling(): void {
     this.drafts.patch({
       billingSameAsDelivery: !this.draft().billingSameAsDelivery,
     });
-  }
-
-  /**
-   * The answers, resolved for the read-back — the same resolutions the
-   * submission is built from, so what is shown and what is sent cannot differ.
-   */
-  /**
-   * The cart's lines as the read-back states them: the quantity in the unit
-   * the line was bought through and, where that is not the piece, what it
-   * comes to in pieces — a unit is a lens on a piece count (FR-UNIT-01), and
-   * this is the one screen where the figure the shop actually picks is worth
-   * spelling out beside the one that was ordered.
-   */
-  protected readonly reviewLines = computed<ReadBackLine[]>(() =>
-    this.cart.lines().map((line) => ({
-      key: line.slug,
-      name: line.name,
-      note: line.note,
-      quantity: this.lineQuantity(line),
-      // A dash rather than a zero: a line the shop cannot price yet is not a
-      // free one, and the summary beside this says so in full.
-      total:
-        line.lineTotalMinor === null
-          ? '—'
-          : formatPriceMinor(line.lineTotalMinor, this.config.catalog.currency),
-    })),
-  );
-
-  private lineQuantity(line: CartStoredLine): string {
-    const review = this.text.review;
-    const units = this.catalogText.units;
-    const qty = formatUnitQuantity(
-      unitQuantity(line.packaging, line.unit, line.pieces) ?? line.pieces,
-      this.config.catalog.currency,
-    );
-    const unit = units[line.unit];
-    if (line.unit === 'piece') {
-      return fillText(review.quantity, { qty, unit });
-    }
-    return fillText(review.quantityPieces, {
-      qty,
-      unit,
-      pieces: formatUnitQuantity(line.pieces, this.config.catalog.currency),
-      pieceUnit: units.piece,
-    });
-  }
-
-  protected readonly reviewBlocks = computed<ReviewBlock[]>(() => {
-    const draft = this.draft();
-    const review = this.text.review;
-    const fulfilment = this.text.fulfilment;
-
-    const arrival = this.isPickup()
-      ? [fulfilment.pickupTitle, ...this.pickupLines()]
-      : [
-          fulfilment.deliveryTitle,
-          ...this.addressLines(
-            this.addressFor(draft.deliveryAddressId, this.deliveryForm),
-          ),
-        ];
-
-    // The party, and where its invoice goes — the second half only where the
-    // deployment invoices an address at all.
-    const invoice = [this.partyName()];
-    if (this.needsBillingPicker()) {
-      invoice.push(
-        ...this.addressLines(
-          this.addressFor(draft.billingAddressId, this.billingForm),
-        ),
-      );
-    } else if (this.billingEnabled) {
-      invoice.push(review.billingSame);
-    }
-
-    const blocks: ReviewBlock[] = [
-      { heading: review.fulfilment, lines: arrival },
-      { heading: review.invoice, lines: invoice },
-      {
-        // The form's own words for the question, so the read-back is the same
-        // question and not a shorter one: what is recorded is a wish.
-        heading: this.isPickup()
-          ? this.text.timing.pickupLabel
-          : this.text.timing.deliveryLabel,
-        lines: [
-          draft.preferredDate
-            ? this.formatDate(draft.preferredDate)
-            : review.whenAny,
-        ],
-      },
-      {
-        heading: review.payment,
-        lines: [
-          draft.paymentMethod === 'bank-transfer'
-            ? this.text.payment.transferTitle
-            : this.text.payment.cashTitle,
-        ],
-      },
-    ];
-    // Only where there is one: an empty heading is a question the customer
-    // answered by leaving it alone.
-    if (draft.customerNote) {
-      blocks.push({ heading: review.note, lines: [draft.customerNote] });
-    }
-    // A blank line would be a claim that something was answered with nothing.
-    return blocks.map((block) => ({
-      ...block,
-      lines: block.lines.filter((line) => line.trim().length > 0),
-    }));
-  });
-
-  /** The chosen collection point, as it is configured. */
-  private pickupLines(): string[] {
-    const point = this.locations.find(
-      (location) => location.key === this.draft().pickupLocationKey,
-    );
-    return point ? [point.name, point.address] : [];
-  }
-
-  /** Who the invoice is made out to — the account's own party, or the one the
-   * form named. The number under the name, where there is one. */
-  private partyName(): string {
-    const draft = this.draft();
-    if (draft.party === 'account') {
-      return this.accountName() ?? this.text.party.own;
-    }
-    const { personName, companyName, companyId } = this.partyForm.getRawValue();
-    const name =
-      draft.party === 'company'
-        ? companyName
-        : this.guest()
-          ? this.contactForm.controls.name.value
-          : personName;
-    return draft.party === 'company' && companyId.trim()
-      ? `${name.trim()} · ${companyId.trim()}`
-      : name.trim();
-  }
-
-  private addressLines(address: AddressInput | null): string[] {
-    if (!address) return [];
-    return addressLines(
-      { ...address, id: '', createdAt: '', updatedAt: '' },
-      this.config.address,
-    );
-  }
-
-  private formatDate(iso: string): string {
-    return new Intl.DateTimeFormat(this.config.catalog.currency.locale, {
-      dateStyle: 'long',
-    }).format(new Date(`${iso}T00:00:00`));
   }
 
   /**
@@ -1208,7 +1011,7 @@ export class CheckoutPage {
     this.errorState.set(null);
     this.markProblems();
 
-    if (!this.buildSubmission()) {
+    if (!this.submission.build()) {
       this.errorState.set(this.text.errors.incomplete);
       return;
     }
@@ -1270,7 +1073,7 @@ export class CheckoutPage {
     this.privacyChecked.set(true);
     if (!this.acceptedPrivacy()) return;
 
-    const submission = this.buildSubmission();
+    const submission = this.submission.build();
     if (!submission) {
       // Only reachable if something changed under the read-back; the form is
       // where it can be corrected, so that is where the customer is put, with
@@ -1298,109 +1101,12 @@ export class CheckoutPage {
         // them: the customer is reading a summary that is already right.
         this.cart.applyPreview(result.preview);
       }
-      this.errorState.set(this.refusal(result.code));
+      this.errorState.set(this.submission.refusal(result.code));
     } catch {
       this.errorState.set(this.text.errors.generic);
     } finally {
       this.sendingState.set(false);
     }
-  }
-
-  /** The order as the contract wants it, or null where the form is not
-   * finished — which the fields themselves have just been told to say.
-   * Consent is not part of it: that is the send screen's own gate, asked after
-   * this has already been built once to get there. */
-  private buildSubmission(): OrderSubmission | null {
-    const profile = this.profile.value();
-    const draft = this.draft();
-
-    if (this.guest()) {
-      if (this.contactForm.invalid) return null;
-      // A filled honeypot is a bot; the form goes no further and says nothing
-      // about why (ADR 0015). The server refuses it again.
-      if (this.contactForm.controls.website.value.trim()) return null;
-    } else if (!profile) {
-      return null;
-    }
-    if (this.partyForm.invalid) return null;
-    if (this.deliveryTyped() && this.deliveryForm.group.invalid) return null;
-    if (this.billingTyped() && this.billingForm.group.invalid) return null;
-    if (this.isPickup() && !draft.pickupLocationKey) return null;
-    if (this.preferredDateInvalid()) return null;
-
-    const delivery = this.isPickup()
-      ? null
-      : this.addressFor(draft.deliveryAddressId, this.deliveryForm);
-    // Unticked "the same address" is the only thing that makes the invoice go
-    // somewhere else; ticked, it is literally the delivery one. Null where the
-    // deployment invoices no address of its own — which is not "the delivery
-    // address", or the order would have carried it.
-    const billing = !this.billingEnabled
-      ? null
-      : this.needsBillingPicker()
-        ? this.addressFor(draft.billingAddressId, this.billingForm)
-        : delivery;
-    if (this.billingEnabled && !billing) return null;
-
-    const { personName, companyName, companyId } = this.partyForm.getRawValue();
-    const contact = this.contact();
-    // A guest ordering as a private person *is* the party, so the one name
-    // they gave answers both. A company is its own party, with somebody at it
-    // as the contact.
-    const partyName =
-      draft.party === 'company'
-        ? companyName
-        : this.guest()
-          ? contact.name
-          : personName;
-
-    return {
-      lines: this.cart.request(),
-      contact,
-      fulfilmentMethod: draft.fulfilmentMethod,
-      // Null is "the party this account is registered as": its own record,
-      // which the server reads rather than takes from a browser.
-      party:
-        draft.party === 'account' && !this.guest()
-          ? null
-          : {
-              name: partyName.trim(),
-              registrationId:
-                draft.party === 'company' ? companyId.trim() : null,
-            },
-      deliveryAddress: delivery,
-      pickupLocationKey: this.isPickup() ? draft.pickupLocationKey : null,
-      billingAddress: billing,
-      paymentMethod: draft.paymentMethod,
-      preferredDate: draft.preferredDate,
-      customerNote: draft.customerNote,
-      expectedTotalMinor: this.cart.totalMinor(),
-      acceptPrivacy: true,
-    };
-  }
-
-  /**
-   * Who to talk to about this order: the guest's own answers, or the account's
-   * record. A signed-in customer is never asked, so there is one place either
-   * can come from and no chance of the two disagreeing.
-   */
-  private contact(): OrderContact {
-    if (!this.guest()) {
-      const profile = this.profile.value();
-      return {
-        name: this.accountName() ?? profile?.email ?? '',
-        email: profile?.email ?? '',
-        phone: profile?.phone ?? '',
-      };
-    }
-    const { name, email, phone } = this.contactForm.getRawValue();
-    return {
-      name: name.trim(),
-      email: email.trim(),
-      // Stored the way every other number is: the prefix the field showed plus
-      // what was typed into it.
-      phone: canonicalPhone(phone, this.config.phoneInput),
-    };
   }
 
   /** The chosen row, or what is in the picker's own fields. */
@@ -1438,42 +1144,6 @@ export class CheckoutPage {
       } catch {
         // Nothing to say: the order is placed, which is what was asked for.
       }
-    }
-  }
-
-  /** A refusal in the customer's words. The API answers with a code and never
-   * with a sentence, so every one of them is named in the text catalog. */
-  private refusal(
-    code: Exclude<SubmitOrderResult, { ok: true }>['code'],
-  ): string {
-    const errors = this.text.errors;
-    switch (code) {
-      case 'invalid-company-id':
-        return errors.invalidCompanyId;
-      case 'unsupported-country':
-        return errors.unsupportedCountry;
-      case 'invalid-postal-code':
-        return errors.invalidPostalCode;
-      case 'unknown-pickup-location':
-        return errors.unknownPickupLocation;
-      case 'billing-details-required':
-        return errors.billingDetailsRequired;
-      case 'cash-not-available':
-        return errors.cashNotAvailable;
-      case 'billing-address-required':
-        return errors.incomplete;
-      case 'party-required':
-        return errors.partyRequired;
-      case 'cart-changed':
-        return errors.cartChanged;
-      case 'rejected':
-        return errors.rejected;
-      case 'staff-cannot-order':
-        return errors.staffAccount;
-      default:
-        // A 400 the contract does not name — a body the server rejected before
-        // any rule ran. Nothing useful to say about it, but silence is worse.
-        return errors.generic;
     }
   }
 }
