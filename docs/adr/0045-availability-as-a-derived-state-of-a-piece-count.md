@@ -19,6 +19,10 @@ option beside name and price.
 
 ## Decision
 
+- **Tracking stock is optional, and off by default.** A product with no stock
+  figure has no state: no badge, no restriction, no effect on the order of a
+  listing. It is the default a deployment stays in until someone enters a
+  number, and it is what a null in either column means.
 - **The count is staff-facing; the state is public.** `stockPieces` is written
   by the bulk sync and by the admin form, and never leaves the API except to
   staff. The storefront read model carries `availability` — `out` | `low` |
@@ -68,10 +72,18 @@ stock figure and a stock-only export cannot blank a price. Admin edits are not
 protected from a later run — they are the correction between runs, which is what
 the client already does with prices.
 
+**Untracked has to be a value, not an absence.** The shop counts some of what
+it sells and none of the rest, and a deployment may count nothing at all. A
+zero cannot say that — zero is out of stock, and the difference between "none
+left" and "nobody is counting" is the whole of what the badge is for. The state
+column is null exactly where the figure is, which the database checks.
+
 ## Consequences
 
 - (+) One integer column and one nullable override carry the whole feature; there
   is no per-product rule object and no rule engine.
+- (+) Shipping it changes nothing on a storefront until stock is entered, so the
+  feature can go out ahead of the data it describes.
 - (+) The badge is one more thing the shared buying-control widget renders, so
   tile, row, product page and cart line get it at once.
 - (−) A stale `availability` column is possible if a write path forgets to
