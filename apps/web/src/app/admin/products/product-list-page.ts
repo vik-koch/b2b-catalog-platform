@@ -175,6 +175,7 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
             } @else {
               <span
                 appStatusBadge
+                variant="dot"
                 [tone]="stockTone(item)"
                 [attr.aria-label]="stockLabel(item)"
               >
@@ -250,6 +251,7 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
               @if (item.stockPieces !== null) {
                 <span
                   appStatusBadge
+                  variant="dot"
                   [tone]="stockTone(item)"
                   [attr.aria-label]="stockLabel(item)"
                   [class.opacity-50]="isDeleted(item)"
