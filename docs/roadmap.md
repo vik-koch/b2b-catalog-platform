@@ -13,7 +13,11 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 5   | Units of sale, pack pricing & product publication → **tag v1.3.0**                             | FR-UNIT-01…06/08/09/10, FR-ADM-06, FR-ADM-01/05 + FR-CAT-04/05 amended                                                                                                              |
 | 6   | Attribute definitions & faceted filtering → **tag v1.4.0**                                     | FR-ATTR-01…10, FR-UNIT-11, FR-UNIT-06/09 amended, NFR-SEO-04 amended                                                                                                                |
 | 7   | Cart & order-request checkout → **tag v1.5.0**                                                 | FR-UNIT-07, FR-UNIT-01/03/04/10/11 amended, FR-CART-01…04/07…11 (02 rewritten), FR-ATTR-11, FR-CAT-06, FR-AUTH-09/10 + FR-AUTH-01 amended, FR-ACC-01, FR-NOTIF-05/06, NFR-SEC-06/08 |
-| 8   | Order processing, payment & manual delivery/pickup coordination → **tag v1.6.0**               | FR-CART-05/06, FR-NOTIF-03, FR-ACC-02, NFR-LEGAL-04                                                                                                                                 |
+| 8   | Stock availability & work-awaiting indicators → **tag v1.6.0**                                 | FR-STOCK-01…05, FR-WORK-01…04, FR-ADM-02/05 + FR-SEARCH-04 + FR-CAT-04/05 + FR-CART-02 amended                                                                                      |
+| 9   | Sold-together sets → **tag v1.7.0**                                                            | FR-SET-01…05                                                                                                                                                                        |
+| 10  | Product documents & certificates → **tag v1.8.0**                                              | FR-DOC-01…04, FR-CAT-05 amended                                                                                                                                                     |
+| 11  | Order processing, payment & manual delivery/pickup coordination → **tag v1.9.0**               | FR-CART-05/06, FR-NOTIF-03, FR-ACC-02, NFR-LEGAL-04                                                                                                                                 |
+| 12  | Automated catalog sync → **tag v1.10.0**                                                       | FR-ADM-07, NFR-SEC-09, FR-ADM-02 amended                                                                                                                                            |
 
 Notes:
 
@@ -31,7 +35,7 @@ Notes:
   content now and is the one feeling it. The three NFRs are the tail search drags in: a new
   unauthenticated endpoint to rate-limit, listing variants to keep out of the index, and
   zero-result queries to make visible. All additive → **v1.1.0**, no contract breakage.
-- Iterations 5–8 were re-cut from what used to be two rows ("cart & checkout", then
+- Iterations 5–7, and what is now iteration 11, were re-cut from what used to be two rows ("cart & checkout", then
   "payment & delivery"). Planning the cart surfaced a question the requirements had never
   asked — whether the shop sells by the piece. It does not: products sell by piece, pack or
   box, some prices in the source system cover a pack rather than a piece, and some products
@@ -123,9 +127,38 @@ Notes:
   days from the next one onwards; the stricter lead times the shop actually keeps
   (an order placed at a weekend is ready on the Tuesday) are deliberately not modelled
   yet, and neither is a holiday calendar.
-- Iteration 8 is what a manager does with an order once it exists — status transitions, the
+- Iterations 8–10 were inserted ahead of order processing (2026-09-03), which moved from
+  row 8 to row 11. All three change **what the client enters into the catalog**, and the
+  client is still entering it — the same argument that gave units of sale and attribute
+  filtering their own iterations. They are three iterations rather than one because each is
+  the size of iteration 5 or 6 on its own, and because bundling them would mean building the
+  cart's validation, the buying controls and the admin grid against three unsettled models at
+  once. They are deliberately small after iteration 7, which was not.
+- Iteration 8 sequences first because it is the only one of the three that needs **no data
+  entry**: stock arrives from the sync, so it can ship while the client is still typing
+  packaging and attributes. Sets and documents are entered by hand, so the sooner each ships
+  the sooner that entry can start — which is also why neither waits for order processing.
+- The **work-awaiting indicators** (FR-WORK-\*) ride in iteration 8 rather than with order
+  processing, where they were first proposed. Three consumers already exist — registrations
+  awaiting approval since iteration 4, products awaiting publication since 5, orders awaiting
+  payment since 7 — so the mechanism has customers the day it ships, and each later iteration
+  registers a count instead of retrofitting one into a finished screen. Nothing is
+  acknowledged and no table records that it was: every count is a query over state that is
+  already there, so it appears when the work does and clears when the work is done (ADR 0046).
+- Iteration 11 is what a manager does with an order once it exists — status transitions, the
   payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
-  schema be reviewed before a processing workflow is built on top of it.
+  schema be reviewed before a processing workflow is built on top of it. Waiting three
+  releases is affordable only while the shop is not yet taking real orders: until then an
+  order is a request that a manager reads and answers by phone or mail. **If prod goes live
+  before iteration 11**, the status transitions and FR-NOTIF-03 are pulled forward as a
+  second slice of whichever iteration is current, and the payment and PDF work stays in 11.
+- Iteration 12 gives the automated sync a **generic machine-import port** (FR-ADM-07) and the
+  scoped tokens it needs (NFR-SEC-09); the concrete adapter for a particular source system's
+  exchange format is a private sidecar speaking that public contract, as the address
+  suggestion provider already is. The format is not named here, for the same reason the
+  suggestion provider is not. The manual upload is **not** retired behind a flag when the
+  automated feed exists: it is the operator's fallback when the feed breaks or a run needs
+  correcting by hand, and hiding it removes an escape hatch without saving anything.
 - Client reviews v1.0.0 on the **dev** environment only. Frame that feedback round as
   catalog/content/UX review — no accounts or cart exist yet, and prices are default-list only.
 - SSR and sitemap (NFR-SEO-01/02) are built in iteration 2, but the dev environment stays
@@ -139,6 +172,6 @@ Notes:
 ## Explicitly out of scope for now
 
 - UI localization / i18n — both deployments are single-locale; revisit only if a deployment ever needs a second language
-- Product availability/stock status
 - Automated delivery/courier API integration
-- Live/automatic sync from the legacy source system
+- Live/automatic sync from the legacy source system — moved into scope as iteration 12
+  (FR-ADM-07); what stays out is a live two-way integration
