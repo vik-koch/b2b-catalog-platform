@@ -4,7 +4,6 @@ import {
   AttributeDefinitionInput,
   AttributeErrorCode,
   AttributeKeyUsage,
-  attributesContract,
   AttributeValueUsage,
   CategoryFilters,
   SaveCategoryFiltersRequest,
@@ -12,6 +11,7 @@ import {
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
 } from '@b2b-catalog-platform/shared';
+import { attributesContract } from '../../core/contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../core/orpc-client';
 

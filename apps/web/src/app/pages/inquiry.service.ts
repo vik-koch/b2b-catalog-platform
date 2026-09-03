@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { inquiryContract, InquiryRequest } from '@b2b-catalog-platform/shared';
+import { InquiryRequest } from '@b2b-catalog-platform/shared';
+import { inquiryContract } from '../core/contract-routes.generated';
 import { createOrpcClient } from '../core/orpc-client';
 
 @Injectable({ providedIn: 'root' })

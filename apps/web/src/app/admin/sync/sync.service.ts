@@ -8,8 +8,8 @@ import {
   syncFormatErrorSchema,
   SyncOptions,
   SyncPreviewResponse,
-  syncContract,
 } from '@b2b-catalog-platform/shared';
+import { syncContract } from '../../core/contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../core/orpc-client';
 

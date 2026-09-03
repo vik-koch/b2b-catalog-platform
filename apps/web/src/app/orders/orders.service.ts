@@ -4,9 +4,9 @@ import {
   OrderSubmission,
   OrderDetail,
   OrderSummary,
-  ordersContract,
   Pagination,
 } from '@b2b-catalog-platform/shared';
+import { ordersContract } from '../core/contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../core/orpc-client';
 

@@ -45,6 +45,10 @@ jobs:
       # Attribution itself needs no CI step: the build emits the notice file.
       - run: node tools/check-licenses.mjs
 
+      # The browser's copy of the contracts is generated from them, so a route
+      # changed without regenerating would ship a client calling the old path.
+      - run: node tools/generate-contract-routes.mjs --check
+
       - run: cp .env.example .env
 
       - run: npx nx run-many -t lint test build format-check

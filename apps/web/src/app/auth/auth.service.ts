@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { safe } from '@orpc/client';
 import {
-  authContract,
   AuthUser,
   ChangePasswordRequest,
   LoginRequest,
@@ -19,6 +18,7 @@ import {
   RegisterRequest,
   SetPasswordRequest,
 } from '@b2b-catalog-platform/shared';
+import { authContract } from '../core/contract-routes.generated';
 import { createOrpcClient } from '../core/orpc-client';
 import { readSessionHint } from './session-hint';
 

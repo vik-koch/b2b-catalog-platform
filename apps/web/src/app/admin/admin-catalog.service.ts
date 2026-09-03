@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {
-  adminCatalogContract,
   AdminProduct,
   CatalogErrorCode,
   AdminProductSort,
@@ -10,6 +9,7 @@ import {
   HiddenProduct,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared';
+import { adminCatalogContract } from '../core/contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../core/orpc-client';
 

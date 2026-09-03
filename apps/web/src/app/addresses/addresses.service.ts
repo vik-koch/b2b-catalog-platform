@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import {
   Address,
-  addressesContract,
   AddressInput,
   AddressSuggestion,
-  addressSuggestionContract,
 } from '@b2b-catalog-platform/shared';
+import {
+  addressSuggestionContract,
+  addressesContract,
+} from '../core/contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../core/orpc-client';
 

@@ -5,8 +5,8 @@ import {
   StaffUser,
   UpdateUserRequest,
   UserErrorCode,
-  usersContract,
 } from '@b2b-catalog-platform/shared';
+import { usersContract } from '../../core/contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../core/orpc-client';
 

@@ -5,8 +5,8 @@ import {
   TIER_ERROR_CODES,
   TierErrorCode,
   TierInput,
-  tiersContract,
 } from '@b2b-catalog-platform/shared';
+import { tiersContract } from '../../core/contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../core/orpc-client';
 
