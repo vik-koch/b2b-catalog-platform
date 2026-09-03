@@ -38,51 +38,56 @@ import { ChangePasswordForm } from './change-password-form';
   selector: 'app-force-password-change',
   imports: [ChangePasswordForm, Button, DialogPanel],
   template: `
-    @if (open()) {
-      <dialog
-        #dialog
-        (cancel)="$event.preventDefault()"
-        aria-labelledby="force-password-change-heading"
-        appDialogPanel
-      >
-        @if (changed()) {
-          <h2
-            id="force-password-change-heading"
-            class="mb-2 text-xl font-normal tracking-tight"
-          >
-            {{ text.heading }}
-          </h2>
-          <p class="mb-6 text-sm text-muted" role="status">
-            {{ text.success }}
-          </p>
-          <button appButton type="button" (click)="changed.set(false)">
-            {{ text.forcedContinue }}
-          </button>
-        } @else {
-          <h2
-            id="force-password-change-heading"
-            class="mb-2 text-xl font-normal tracking-tight"
-          >
-            {{ text.forcedHeading }}
-          </h2>
-          <p class="mb-6 text-sm text-muted">{{ text.forcedIntro }}</p>
+    <!-- Deferred, not merely hidden: this component is mounted on every page,
+         and the form it holds carries the password schemas. A visitor who owes
+         no password change should never download them. -->
+    @defer (when open()) {
+      @if (open()) {
+        <dialog
+          #dialog
+          (cancel)="$event.preventDefault()"
+          aria-labelledby="force-password-change-heading"
+          appDialogPanel
+        >
+          @if (changed()) {
+            <h2
+              id="force-password-change-heading"
+              class="mb-2 text-xl font-normal tracking-tight"
+            >
+              {{ text.heading }}
+            </h2>
+            <p class="mb-6 text-sm text-muted" role="status">
+              {{ text.success }}
+            </p>
+            <button appButton type="button" (click)="changed.set(false)">
+              {{ text.forcedContinue }}
+            </button>
+          } @else {
+            <h2
+              id="force-password-change-heading"
+              class="mb-2 text-xl font-normal tracking-tight"
+            >
+              {{ text.forcedHeading }}
+            </h2>
+            <p class="mb-6 text-sm text-muted">{{ text.forcedIntro }}</p>
 
-          <app-change-password-form
-            idPrefix="forced-change-password"
-            (changed)="changed.set(true)"
-          />
+            <app-change-password-form
+              idPrefix="forced-change-password"
+              (changed)="changed.set(true)"
+            />
 
-          <button
-            appButton
-            variant="secondary"
-            type="button"
-            class="mt-6"
-            (click)="logout()"
-          >
-            {{ authText.logout }}
-          </button>
-        }
-      </dialog>
+            <button
+              appButton
+              variant="secondary"
+              type="button"
+              class="mt-6"
+              (click)="logout()"
+            >
+              {{ authText.logout }}
+            </button>
+          }
+        </dialog>
+      }
     }
   `,
 })

@@ -1,10 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  PRODUCT_SORTS,
   ProductSort,
-  productSortSchema,
+  SEARCH_SORTS,
   SearchSort,
-  searchSortSchema,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { Input } from '../ui/input';
@@ -96,7 +96,7 @@ export class ProductSortSelect {
   readonly defaultSort = input.required<SearchSort>();
 
   protected readonly options = computed<readonly SearchSort[]>(() =>
-    this.withRelevance() ? searchSortSchema.options : productSortSchema.options,
+    this.withRelevance() ? SEARCH_SORTS : PRODUCT_SORTS,
   );
 
   /**
@@ -138,11 +138,13 @@ export function sortParam(
  */
 
 export function resolveCategorySort(raw: string): ProductSort {
-  const parsed = productSortSchema.safeParse(raw);
-  return parsed.success ? parsed.data : 'name';
+  return PRODUCT_SORTS.includes(raw as ProductSort)
+    ? (raw as ProductSort)
+    : 'name';
 }
 
 export function resolveSearchSort(raw: string): SearchSort {
-  const parsed = searchSortSchema.safeParse(raw);
-  return parsed.success ? parsed.data : 'relevance';
+  return SEARCH_SORTS.includes(raw as SearchSort)
+    ? (raw as SearchSort)
+    : 'relevance';
 }

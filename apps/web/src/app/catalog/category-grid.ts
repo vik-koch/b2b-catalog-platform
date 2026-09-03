@@ -17,7 +17,6 @@ import {
   encodeAttributeParams,
   parseAttributeParams,
 } from '@b2b-catalog-platform/shared';
-import { AdminCatalogService } from '../admin/admin-catalog.service';
 import { EditActions } from '../admin/edit-actions';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { EditModeService } from '../admin/edit-mode.service';
@@ -425,7 +424,6 @@ export class CategoryGrid {
   }
 
   private catalog = inject(CatalogService);
-  private readonly admin = inject(AdminCatalogService);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);

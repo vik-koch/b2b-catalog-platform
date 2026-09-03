@@ -2,13 +2,13 @@ import {
   Component,
   computed,
   inject,
+  Injector,
   input,
   resource,
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
-import { AdminCatalogService } from '../admin/admin-catalog.service';
 import { EditActions } from '../admin/edit-actions';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { injectEditorReturnParams } from '../admin/editor-return';
@@ -113,7 +113,7 @@ import {
 })
 export class ProductDetail {
   private catalog = inject(CatalogService);
-  private readonly admin = inject(AdminCatalogService);
+  private readonly injector = inject(Injector);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   protected readonly text = inject(APP_TEXT).catalog;
@@ -168,7 +168,14 @@ export class ProductDetail {
       confirmVariant: 'danger',
     });
     if (!ok) return;
-    await this.admin.setProductPublished(item.slug, false);
+    // Imported here, not at the top: this is the one admin call a storefront
+    // page makes, and a static import would put the admin catalog service —
+    // and the whole admin contract behind it — in every visitor's first load.
+    const { AdminCatalogService } =
+      await import('../admin/admin-catalog.service');
+    await this.injector
+      .get(AdminCatalogService)
+      .setProductPublished(item.slug, false);
     void this.router.navigate(['/catalog', item.category.slug]);
   }
 
