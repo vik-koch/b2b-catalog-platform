@@ -3,7 +3,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
-import { zodValidator } from '../core/zod-validator';
 import { FieldErrors } from '../core/form-errors';
 import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
@@ -12,6 +11,7 @@ import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { AuthService, LoginResult } from './auth.service';
 import { landingFor } from './auth.guard';
+import { emailFormat } from '../core/contact-fields';
 
 /**
  * The one login form, for every role (FR-AUTH-07). Where it lands afterwards
@@ -127,7 +127,7 @@ export class LoginPage {
     // The contract's own rule, so client and server agree on what a valid
     // address is; the password is only checked for presence here — length and
     // strength rules belong to the account that owns it, not to this form.
-    email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
+    email: ['', [Validators.required, emailFormat()]],
     password: ['', Validators.required],
   });
 

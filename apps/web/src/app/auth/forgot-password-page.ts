@@ -5,11 +5,11 @@ import { emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
-import { zodValidator } from '../core/zod-validator';
 import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
 import { EmailField } from '../ui/email-field';
 import { AuthService } from './auth.service';
+import { emailFormat } from '../core/contact-fields';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -96,7 +96,7 @@ export class ForgotPasswordPage {
   protected readonly form = this.fb.nonNullable.group({
     // The contract's own rule, so the browser and the server agree on what a
     // valid address is.
-    email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
+    email: ['', [Validators.required, emailFormat()]],
   });
   private readonly fieldErrors = new FieldErrors(this.form);
 

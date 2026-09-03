@@ -12,10 +12,10 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   canonicalPhone,
   companyIdValidators,
+  emailFormat,
   phoneValidators,
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
-import { zodValidator } from '../core/zod-validator';
 import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
 import { CompanyFields } from '../parties/company-fields';
@@ -279,7 +279,7 @@ export class RegisterPage {
     lastName: ['', Validators.required],
     // The contract's own rule, so client and server agree on what a valid
     // address is.
-    email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
+    email: ['', [Validators.required, emailFormat()]],
     phone: ['', phoneValidators(this.phoneInput, true)],
     companyName: [''],
     companyRegistrationId: [''],

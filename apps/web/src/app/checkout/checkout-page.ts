@@ -37,12 +37,12 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   canonicalPhone,
   companyIdFormat,
+  emailFormat,
   phoneValidators,
 } from '../core/contact-fields';
 import { delayedLoading } from '../core/delayed-loading';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
-import { zodValidator } from '../core/zod-validator';
 import {
   OrderReadBack,
   ReadBackLine,
@@ -577,7 +577,7 @@ export class CheckoutPage {
     name: ['', Validators.required],
     // The contract's own rule, not Angular's: `Validators.email` accepts a
     // domain with no TLD, which the server then refuses.
-    email: ['', [Validators.required, zodValidator(emailSchema, 'email')]],
+    email: ['', [Validators.required, emailFormat()]],
     phone: ['', phoneValidators(this.config.phoneInput, true)],
     website: [''],
   });

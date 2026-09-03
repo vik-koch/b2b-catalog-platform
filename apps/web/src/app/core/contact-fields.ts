@@ -2,6 +2,7 @@ import { ValidatorFn, Validators } from '@angular/forms';
 import {
   type CompanyIdFormat,
   companyIdMatchesAny,
+  isEmailAddress,
   type PhoneConfig,
 } from '@b2b-catalog-platform/shared';
 import { completeMask } from './masked-input';
@@ -75,4 +76,18 @@ export function phoneValidators(
     ...(required ? [Validators.required] : []),
     ...(config?.mask ? [completeMask(config.mask)] : []),
   ];
+}
+
+/**
+ * The email rule the API applies, applied in the form. Built from the shared
+ * pattern rather than from the contract's schema: the rule is the same one, and
+ * this way a page that only needs to check an address does not pull Zod in to
+ * do it (see `email-format.ts`).
+ */
+export function emailFormat(): ValidatorFn {
+  return (control) => {
+    const value = control.value;
+    if (typeof value !== 'string' || value.trim() === '') return null;
+    return isEmailAddress(value.trim()) ? null : { email: true };
+  };
 }
