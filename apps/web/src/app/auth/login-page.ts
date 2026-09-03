@@ -1,17 +1,16 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { emailFormat } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
-import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
 import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
-import { AuthService, LoginResult } from './auth.service';
+import { AuthCard } from './auth-card';
 import { landingFor } from './auth.guard';
-import { emailFormat } from '../core/contact-fields';
+import { AuthService, LoginResult } from './auth.service';
 
 /**
  * The one login form, for every role (FR-AUTH-07). Where it lands afterwards

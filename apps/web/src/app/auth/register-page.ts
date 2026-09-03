@@ -2,11 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import {
-  CustomerType,
-  emailSchema,
-  PartySuggestion,
-} from '@b2b-catalog-platform/shared';
+import { CustomerType, PartySuggestion } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
@@ -16,16 +12,16 @@ import {
   phoneValidators,
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
-import { AuthCard } from './auth-card';
-import { Button } from '../ui/button';
 import { CompanyFields } from '../parties/company-fields';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
-import { AuthService } from './auth.service';
-import { Checkbox } from '../ui/checkbox';
 import { Segmented, SegmentOption } from '../ui/segmented';
+import { AuthCard } from './auth-card';
+import { AuthService } from './auth.service';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 

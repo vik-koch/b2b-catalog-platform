@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { emailSchema, InquiryRequest } from '@b2b-catalog-platform/shared';
+import { InquiryRequest } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
@@ -12,13 +12,13 @@ import {
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
 import { Segmented, SegmentOption } from '../ui/segmented';
 import { InquiryService } from './inquiry.service';
-import { Checkbox } from '../ui/checkbox';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'submitting' | 'success' | 'error';

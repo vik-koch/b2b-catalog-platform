@@ -13,7 +13,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AddressInput,
-  emailSchema,
   fillText,
   FulfilmentMethod,
   isOrderDateAllowed,

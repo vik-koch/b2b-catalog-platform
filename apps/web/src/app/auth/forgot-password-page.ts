@@ -1,15 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { emailSchema } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { emailFormat } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
-import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
 import { EmailField } from '../ui/email-field';
+import { AuthCard } from './auth-card';
 import { AuthService } from './auth.service';
-import { emailFormat } from '../core/contact-fields';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
