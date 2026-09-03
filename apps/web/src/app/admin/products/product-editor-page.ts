@@ -277,9 +277,9 @@ import {
           <!-- The badge itself rather than its name: what the admin is
                choosing is what a customer will see, and the preview panel is
                too far down the page to answer that while typing. As tall as
-               the pill either way, so entering a figure does not nudge the
-               line down as the pill appears. -->
-          <p class="mt-3 flex min-h-5 items-center gap-2 text-xs text-subtle">
+               the pill either way — 22px, the badge's own height — so entering
+               a figure does not nudge the line down as the pill appears. -->
+          <p class="mt-3 flex min-h-5.5 items-center gap-2 text-xs text-subtle">
             <span>{{ text.stock.preview }}</span>
             @if (previewAvailability(); as state) {
               <app-product-availability-badge [availability]="state" />

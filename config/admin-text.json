@@ -235,7 +235,7 @@
     "stockAll": "Any stock",
     "filterStock": "Filter by stock",
     "stockLabel": "{count} in stock — {state}",
-    "stockUntracked": "Not tracked",
+    "stockUntracked": "—",
     "filterAttribute": "Attribute",
     "clearAttribute": "Clear the attribute filter",
     "filterTier": "Tier price",
