@@ -235,3 +235,107 @@ test('prices the cart on the server and empties it when asked', async ({
   await expect(page.getByText('Your cart is empty.')).toBeVisible();
   await expect(cartLink(page)).toHaveAttribute('aria-label', /Cart: 0 lines/);
 });
+
+/**
+ * FR-STOCK-04. `nordic-pull` is seeded with nothing on the shelf, packaged the
+ * same way `hafen-espresso` is. The product stays listed, reachable and priced
+ * — what goes is every control that would put it in a cart.
+ */
+test('will not sell a product that is out of stock', async ({ page }) => {
+  await page.goto('/product/nordic-pull');
+
+  await expect(page.getByText('Out of stock')).toBeVisible();
+  // Priced, as the requirement says: what is refused is the buying.
+  await expect(page.getByText('On request')).toHaveCount(0);
+
+  // Not one unit is selectable — the segments are disabled buttons rather
+  // than radios, so there is nothing to choose and nothing to explain.
+  await expect(page.getByRole('radio')).toHaveCount(0);
+  const units = page.getByRole('radiogroup', { name: 'Unit' });
+  await expect(units.getByRole('button', { name: 'Pack' })).toBeDisabled();
+
+  await expect(page.getByRole('textbox', { name: 'Quantity' })).toBeDisabled();
+  await expect(
+    page.getByRole('button', { name: 'Increase the quantity' }),
+  ).toBeDisabled();
+  const add = page.getByRole('button', { name: 'Add to cart' });
+  await expect(add).toBeDisabled();
+
+  // And the same refusal on the listing the product is reached through, where
+  // its neighbours are still perfectly buyable.
+  await page.goto('/search?q=Nordic+Pull');
+  const card = page
+    .locator('li')
+    .filter({ has: page.locator('a[href="/product/nordic-pull"]') })
+    .first();
+  await expect(card.getByText('Out of stock')).toBeVisible();
+  await expect(
+    card.getByRole('button', { name: 'Add to cart' }),
+  ).toBeDisabled();
+
+  await expect(cartLink(page)).toHaveAttribute('aria-label', /Cart: 0 lines/);
+});
+
+/**
+ * FR-CART-10 over FR-STOCK-04: a cart written while the product was on the
+ * shelf, read back after it emptied. The line is stored by hand because the
+ * shop will no longer let it be added — which is the point of the case.
+ */
+test('says on return that a line went out of stock while the cart waited', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    localStorage.setItem(
+      'cart',
+      JSON.stringify({
+        version: 1,
+        pricedFor: null,
+        lines: [
+          {
+            slug: 'nordic-pull',
+            unit: 'pack',
+            pieces: 6,
+            note: null,
+            name: 'Nordic Pull',
+            addedAt: new Date().toISOString(),
+            unitPriceMinor: 12_060,
+            lineTotalMinor: 12_060,
+            prices: {
+              pieceMilliMinor: 2_010_000,
+              pieceLotMinor: 12_060,
+              pack: 12_060,
+              box: 48_240,
+            },
+            packaging: { piecesPerPack: 6, packsPerBox: 4, minPieceQty: 6 },
+            image: null,
+            boxVolume: null,
+            boxWeight: null,
+            boxCount: null,
+            noteEnabled: false,
+            notePrompt: null,
+            available: true,
+            // What the shop said when the line was written down.
+            availability: 'in',
+          },
+        ],
+      }),
+    );
+  });
+
+  await page.goto('/cart');
+
+  await expect(
+    page.getByText(
+      'Nordic Pull is out of stock and cannot be ordered right now.',
+    ),
+  ).toBeVisible();
+  // And the line itself says what to do about it, beside controls that no
+  // longer do anything.
+  await expect(
+    page.getByText(
+      'Out of stock — please remove this line to place your order.',
+    ),
+  ).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Quantity' })).toBeDisabled();
+});

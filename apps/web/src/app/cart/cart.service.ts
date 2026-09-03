@@ -136,7 +136,13 @@ interface StoredCart {
 /** What happened to one line while the cart waited (FR-CART-10), most
  * consequential first — one per line, so a summary reads as a list of
  * products rather than a list of faults. */
-export type CartChangeKind = 'unavailable' | 'quantity' | 'unpriced' | 'price';
+export type CartChangeKind =
+  | 'unavailable'
+  | 'out-of-stock'
+  | 'back-in-stock'
+  | 'quantity'
+  | 'unpriced'
+  | 'price';
 
 /**
  * A line the shop no longer describes the way the browser wrote it down.
@@ -624,6 +630,17 @@ function changeFor(
   };
   if (fresh.issues.includes('unavailable')) {
     return { ...change, kind: 'unavailable' };
+  }
+  // Whether the shelf emptied or filled while the cart waited (FR-STOCK-04):
+  // the first is what stops the order being placed, and the second is the news
+  // that it no longer does. Ahead of the quantity and the price, because both
+  // of those are questions of how much and this one is whether at all. "Few
+  // left" is not reported — it restricts nothing, and the badge states it.
+  if (fresh.availability === 'out' && line.availability !== 'out') {
+    return { ...change, kind: 'out-of-stock' };
+  }
+  if (line.availability === 'out' && fresh.availability !== 'out') {
+    return { ...change, kind: 'back-in-stock' };
   }
   if (fresh.pieces !== line.pieces) return { ...change, kind: 'quantity' };
   if (line.lineTotalMinor === null) return null;

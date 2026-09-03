@@ -142,14 +142,17 @@
       "unavailable": "{name} is no longer available.",
       "quantity": "{name}: the quantity was adjusted to the nearest we can supply.",
       "price": "{name}: the price changed from {from} to {to}.",
-      "unpriced": "{name}: we cannot price this line right now — we will confirm it with you."
+      "unpriced": "{name}: we cannot price this line right now — we will confirm it with you.",
+      "outOfStock": "{name} is out of stock and cannot be ordered right now.",
+      "backInStock": "{name} is back in stock."
     },
     "issues": {
       "unavailable": "No longer available — please remove this line.",
       "unitUnavailable": "This product is no longer packed that way, so the quantity is now shown in pieces.",
       "quantityCorrected": "The quantity was adjusted to the nearest we can supply.",
       "noteNotAllowed": "This product no longer takes a note, so yours was dropped.",
-      "priceUnavailable": "We cannot price this line right now — we will confirm it with you."
+      "priceUnavailable": "We cannot price this line right now — we will confirm it with you.",
+      "outOfStock": "Out of stock — please remove this line to place your order."
     }
   },
   "checkout": {

@@ -630,6 +630,62 @@ describe('CartService', () => {
         ]);
       });
 
+      /**
+       * FR-STOCK-04 through FR-CART-10: the shelf emptying is what stops the
+       * order being placed, and it filling again is the news that it no longer
+       * does. Both are reported ahead of a price or a quantity, and neither is
+       * reported for "few left".
+       */
+      it('says when a line went off the shelf while the cart waited', () => {
+        service().add(packAddition({ pieces: 6, availability: 'in' }));
+
+        const cart = returning();
+        cart.applyPreview(
+          preview([{ availability: 'out', issues: ['out-of-stock'] }]),
+        );
+
+        expect(cart.changes().map((change) => change.kind)).toEqual([
+          'out-of-stock',
+        ]);
+        // The line is otherwise untouched — named, priced, still in the cart.
+        expect(cart.lines()[0]).toMatchObject({
+          availability: 'out',
+          lineTotalMinor: 7000,
+          available: true,
+        });
+      });
+
+      it('says when a line came back onto it', () => {
+        service().add(packAddition({ pieces: 6, availability: 'out' }));
+
+        const cart = returning();
+        cart.applyPreview(preview([{ availability: 'in' }]));
+
+        expect(cart.changes().map((change) => change.kind)).toEqual([
+          'back-in-stock',
+        ]);
+      });
+
+      it('says nothing about a line that is merely running low', () => {
+        service().add(packAddition({ pieces: 6, availability: 'in' }));
+
+        const cart = returning();
+        cart.applyPreview(preview([{ availability: 'low' }]));
+
+        expect(cart.changes()).toEqual([]);
+      });
+
+      // A cart written before the state was recorded reads as untracked, and a
+      // product nobody counts stays untracked — so neither is news.
+      it('says nothing where nobody is counting the stock', () => {
+        service().add(packAddition({ pieces: 6 }));
+
+        const cart = returning();
+        cart.applyPreview(preview([{}]));
+
+        expect(cart.changes()).toEqual([]);
+      });
+
       // Shown once: every answer after the first one is the answer to an edit
       // the customer just made.
       it('reports the first pricing of a visit and no other', () => {

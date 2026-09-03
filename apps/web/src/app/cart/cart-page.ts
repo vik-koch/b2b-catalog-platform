@@ -653,6 +653,12 @@ export class CartPage {
     if (change.kind === 'unpriced') {
       return fillText(text.unpriced, { name: change.name });
     }
+    if (change.kind === 'out-of-stock') {
+      return fillText(text.outOfStock, { name: change.name });
+    }
+    if (change.kind === 'back-in-stock') {
+      return fillText(text.backInStock, { name: change.name });
+    }
     return fillText(text.price, {
       name: change.name,
       from: this.money(change.fromMinor),
@@ -742,6 +748,7 @@ export class CartPage {
     if (issue === 'quantity-corrected') return issues.quantityCorrected;
     if (issue === 'note-not-allowed') return issues.noteNotAllowed;
     if (issue === 'price-unavailable') return issues.priceUnavailable;
+    if (issue === 'out-of-stock') return issues.outOfStock;
     return issues.unavailable;
   }
 }
