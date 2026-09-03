@@ -175,6 +175,12 @@ export class AdminProductsService {
         ? and(isNull(products.deletedAt), isNull(products.publishedAt))
         : undefined,
       query.state === 'deleted' ? isNotNull(products.deletedAt) : undefined,
+      // The stored state, not the count: the threshold that decides "few left"
+      // follows the packaging, and a filter that re-derived it here would go
+      // out of step with the badge beside it the first time a box changed size.
+      query.availability
+        ? eq(products.availability, query.availability)
+        : undefined,
       // The inventory's drill-down: the products carrying one attribute key,
       // and optionally one of its values.
       attributeFilterCondition(
@@ -211,6 +217,7 @@ export class AdminProductsService {
           publishedAt: products.publishedAt,
           updatedAt: products.updatedAt,
           availability: products.availability,
+          stockPieces: products.stockPieces,
         })
         .from(products)
         .where(where)
@@ -227,6 +234,7 @@ export class AdminProductsService {
           sourceId: r.sourceId,
           thumb: r.images[0]?.thumb ?? null,
           availability: r.availability,
+          stockPieces: r.stockPieces,
           deletedAt: r.deletedAt?.toISOString() ?? null,
           publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),

@@ -9,7 +9,9 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import {
   AdminProductSort,
+  fillText,
   formatAttributeValue,
+  ProductAvailability,
 } from '@b2b-catalog-platform/shared';
 import { PricePipe } from '../../catalog/price.pipe';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -32,6 +34,7 @@ import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridPagination } from '../grid/grid-pagination';
 import {
   DEFAULT_ADMIN_STATE,
+  resolveAdminAvailability,
   resolveAdminSort,
   resolveAdminState,
 } from '../grid/grid-query';
@@ -77,6 +80,7 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
+      [narrowBelow]="narrowBelow"
     >
       <a
         appButton
@@ -103,6 +107,7 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
         [chips]="chips()"
         [busy]="products.isLoading()"
         [filtered]="filtered()"
+        [narrowBelow]="narrowBelow"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
       >
         <ng-template appGridRow [of]="data.items" let-item>
@@ -159,6 +164,23 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
             <span appStatusBadge [tone]="stateTone(item)">
               {{ stateLabel(item) }}
             </span>
+          </td>
+          <td>
+            <!-- The figure inside the badge, not the word: what a manager
+                 restocking needs is how many, and the colour is what the three
+                 states are for. The word is read out with it, so the colour is
+                 never carrying the state on its own. -->
+            @if (item.stockPieces === null) {
+              <span class="text-muted">{{ text.stockUntracked }}</span>
+            } @else {
+              <span
+                appStatusBadge
+                [tone]="stockTone(item)"
+                [attr.aria-label]="stockLabel(item)"
+              >
+                {{ item.stockPieces }}
+              </span>
+            }
           </td>
           <td class="text-stone-700">
             {{ item.priceMinor | price }}
@@ -225,6 +247,15 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
               <span class="text-stone-700" [class.opacity-50]="isDeleted(item)">
                 {{ item.priceMinor | price }}
               </span>
+              @if (item.stockPieces !== null) {
+                <span
+                  appStatusBadge
+                  [tone]="stockTone(item)"
+                  [attr.aria-label]="stockLabel(item)"
+                  [class.opacity-50]="isDeleted(item)"
+                  >{{ item.stockPieces }}</span
+                >
+              }
               <app-grid-timestamp
                 [value]="item.updatedAt"
                 inline
@@ -270,6 +301,9 @@ export class ProductListPage {
   private readonly confirm = inject(ConfirmService);
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  /** The storefront's three words for a stock state, reused rather than
+   * restated: the grid and the badge a customer sees name one fact. */
+  protected readonly availabilityText = this.catalogText.availability;
   protected readonly editorFrom = injectEditorReturnParams();
 
   /** Bound from the `page` query param (a string); coerced and floored to 1. */
@@ -310,6 +344,16 @@ export class ProductListPage {
    * carries the empty value that clears the parameter. */
   protected readonly stateParam = computed(() =>
     this.stateKey() === DEFAULT_ADMIN_STATE ? '' : this.stateKey(),
+  );
+
+  /**
+   * One of the three stock states, or empty for any (FR-ADM-05). Not narrowed
+   * here: a value that is not one of them fails contract validation, which is
+   * the same answer a hand-edited URL deserves anywhere else in this grid.
+   */
+  readonly availability = input('');
+  protected readonly availabilityKey = computed(() =>
+    resolveAdminAvailability(this.availability()),
   );
 
   /** Not narrowed here — an unknown id is a uuid the API answers with an empty
@@ -381,6 +425,7 @@ export class ProductListPage {
     () =>
       !!this.query() ||
       !!this.categoryId() ||
+      !!this.availabilityKey() ||
       !!this.attributeFilter() ||
       !!this.tierId() ||
       this.stateKey() !== DEFAULT_ADMIN_STATE,
@@ -449,6 +494,22 @@ export class ProductListPage {
       },
       minWidth: 120,
     },
+    // Filtered but not sorted: the storefront leads every listing with
+    // availability (FR-STOCK-05), and the grid answers the same question the
+    // other way round — "show me only what is out" — because a manager is
+    // working through a list, not shopping in it.
+    {
+      key: 'stock',
+      label: this.text.stockAll,
+      sortName: this.text.stock,
+      filter: {
+        param: 'availability',
+        options: this.stockOptions,
+        value: this.availabilityKey() ?? '',
+        ariaLabel: this.text.filterStock,
+      },
+      minWidth: 110,
+    },
     {
       key: 'price',
       label: this.productText.price,
@@ -501,6 +562,14 @@ export class ProductListPage {
     return chips;
   });
 
+  /**
+   * The stock column is the seventh thing in a row that already carries a
+   * photo, a name with its sync key, a category, a state, a price and a
+   * timestamp — the same wall of truncation the customer list gives up on a
+   * breakpoint early, so this one now does too.
+   */
+  protected readonly narrowBelow = 'lg' as const;
+
   protected readonly bySlug = (item: { slug: string }): string => item.slug;
 
   /** A deleted product is still listed — this is where undeleting happens — but
@@ -529,6 +598,30 @@ export class ProductListPage {
     return item.publishedAt ? 'ok' : 'waiting';
   }
 
+  /** The badge's colour, the storefront's own: green for what is there, amber
+   * for what is nearly gone, grey for an empty shelf. Never red — an empty
+   * shelf is a fact, not a fault of the row. */
+  protected stockTone(item: { availability: ProductAvailability | null }) {
+    const tones: Record<ProductAvailability, StatusTone> = {
+      in: 'ok',
+      low: 'waiting',
+      out: 'neutral',
+    };
+    return tones[item.availability ?? 'in'];
+  }
+
+  /** What the badge says when it is read rather than seen: the figure and the
+   * state it resolves to. */
+  protected stockLabel(item: {
+    stockPieces: number | null;
+    availability: ProductAvailability | null;
+  }): string {
+    return fillText(this.text.stockLabel, {
+      count: String(item.stockPieces ?? 0),
+      state: this.availabilityText[item.availability ?? 'in'],
+    });
+  }
+
   /** Where a row's name goes: the storefront page for a product a customer can
    * see, the editor for one they cannot. */
   protected storefrontOrEditor(item: {
@@ -540,6 +633,19 @@ export class ProductListPage {
       ? ['/product', item.slug]
       : ['/admin/products', item.slug, 'edit'];
   }
+
+  /**
+   * The three states, in the order a manager reads them — what is gone first,
+   * because that is the list they came to act on. The words are the
+   * storefront's own, so a grid row and a product page cannot describe one
+   * stock in two vocabularies.
+   */
+  protected readonly stockOptions: GridFilterOption[] = [
+    { value: '', label: this.text.stockAll },
+    { value: 'out', label: this.availabilityText.out },
+    { value: 'low', label: this.availabilityText.low },
+    { value: 'in', label: this.availabilityText.in },
+  ];
 
   protected readonly stateOptions: GridFilterOption[] = [
     { value: '', label: this.text.stateAll },
@@ -554,6 +660,7 @@ export class ProductListPage {
       q: this.query(),
       sort: this.sortKey(),
       state: this.stateKey(),
+      availability: this.availabilityKey(),
       categoryId: this.categoryId() || undefined,
       attributeKey: this.attributeKey() || undefined,
       attributeValue: this.attributeValue() || undefined,

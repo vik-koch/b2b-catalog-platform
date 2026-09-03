@@ -372,6 +372,22 @@ export const adminTextSchema = z
         stateUnpublished: z.string(),
         stateDeleted: z.string(),
         allCategories: z.string(),
+        /**
+         * The stock column (FR-ADM-05). The cell is the piece count in the
+         * badge the storefront's three words colour, so the *states* are not
+         * worded again here — they come from the public app text, and a grid
+         * that called "few left" something else would be a second vocabulary
+         * for one fact. These are the column and its filter.
+         */
+        stock: z.string(),
+        stockAll: z.string(),
+        filterStock: z.string(),
+        /** Read out with the figure, so the badge's colour is never the only
+         * thing carrying the state. `{count}` and `{state}`. */
+        stockLabel: z.string(),
+        /** The cell of a product whose stock nobody is counting — a word, not
+         * an empty cell, so "untracked" and "none left" cannot be confused. */
+        stockUntracked: z.string(),
       })
       .strict(),
     /** The category list screen (FR-ADM-01): the tree, its row actions and the

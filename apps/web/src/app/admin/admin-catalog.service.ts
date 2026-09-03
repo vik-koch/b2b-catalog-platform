@@ -5,6 +5,7 @@ import {
   AdminProductSort,
   AdminProductState,
   CategoryInput,
+  ProductAvailability,
   ProductInput,
   HiddenProduct,
   ReorderCategoriesRequest,
@@ -147,6 +148,8 @@ export interface ProductGridQuery {
   page?: number;
   categoryId?: string;
   state?: AdminProductState;
+  /** One of the three stock states (FR-STOCK-02); absent is any. */
+  availability?: ProductAvailability;
   q?: string;
   sort?: AdminProductSort;
   /** The inventory's drill-down; the value only narrows an already-given key. */
