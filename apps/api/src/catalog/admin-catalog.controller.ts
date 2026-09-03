@@ -5,7 +5,8 @@ import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { AuditLogger } from '../audit/audit.logger';
 import { refusals } from '../orpc/refusals';
-import { AdminCatalogService } from './admin-catalog.service';
+import { AdminCategoriesService } from './admin-categories.service';
+import { AdminProductsService } from './admin-products.service';
 
 /**
  * The admin catalog write surface. Every route is admin-only; the service
@@ -18,7 +19,8 @@ import { AdminCatalogService } from './admin-catalog.service';
 @Controller()
 export class AdminCatalogController {
   constructor(
-    private readonly service: AdminCatalogService,
+    private readonly products: AdminProductsService,
+    private readonly categories: AdminCategoriesService,
     private readonly audit: AuditLogger,
   ) {}
 
@@ -26,7 +28,7 @@ export class AdminCatalogController {
   listProducts() {
     return implement(adminCatalogContract.listProducts)
       .use(refusals)
-      .handler(({ input: { query } }) => this.service.listProducts(query));
+      .handler(({ input: { query } }) => this.products.listProducts(query));
   }
 
   @Implement(adminCatalogContract.getProduct)
@@ -34,7 +36,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.getProduct)
       .use(refusals)
       .handler(async ({ input: { params }, errors }) => {
-        const product = await this.service.getProduct(params.slug);
+        const product = await this.products.getProduct(params.slug);
         if (!product) {
           throw errors['product-not-found']({ message: 'Product not found' });
         }
@@ -47,7 +49,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.createProduct)
       .use(refusals)
       .handler(async ({ input: { body } }) => {
-        const product = await this.service.createProduct(body, user.id);
+        const product = await this.products.createProduct(body, user.id);
         this.audit.record('product.created', user, product);
         return product;
       });
@@ -58,7 +60,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.updateProduct)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
-        const product = await this.service.updateProduct(
+        const product = await this.products.updateProduct(
           params.slug,
           body,
           user.id,
@@ -73,7 +75,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.deleteProduct)
       .use(refusals)
       .handler(async ({ input: { params } }) => {
-        const product = await this.service.deleteProduct(params.slug, user.id);
+        const product = await this.products.deleteProduct(params.slug, user.id);
         this.audit.record('product.deleted', user, product);
         return product;
       });
@@ -84,7 +86,10 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.restoreProduct)
       .use(refusals)
       .handler(async ({ input: { params } }) => {
-        const product = await this.service.restoreProduct(params.slug, user.id);
+        const product = await this.products.restoreProduct(
+          params.slug,
+          user.id,
+        );
         this.audit.record('product.restored', user, product);
         return product;
       });
@@ -95,7 +100,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.setProductPublished)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
-        const product = await this.service.setProductPublished(
+        const product = await this.products.setProductPublished(
           params.slug,
           body.published,
           user.id,
@@ -114,7 +119,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.listHiddenProducts)
       .use(refusals)
       .handler(async ({ input: { params } }) => ({
-        items: await this.service.listHiddenProducts(params.slug),
+        items: await this.products.listHiddenProducts(params.slug),
       }));
   }
 
@@ -123,7 +128,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.listCategories)
       .use(refusals)
       .handler(async () => ({
-        categories: await this.service.listCategories(),
+        categories: await this.categories.listCategories(),
       }));
   }
 
@@ -132,7 +137,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.createCategory)
       .use(refusals)
       .handler(async ({ input: { body } }) => {
-        const category = await this.service.createCategory(body, user.id);
+        const category = await this.categories.createCategory(body, user.id);
         this.audit.record('category.created', user, category);
         return category;
       });
@@ -143,7 +148,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.updateCategory)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
-        const category = await this.service.updateCategory(
+        const category = await this.categories.updateCategory(
           params.id,
           body,
           user.id,
@@ -158,7 +163,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.deleteCategory)
       .use(refusals)
       .handler(async ({ input: { params, query } }) => {
-        const result = await this.service.deleteCategory(
+        const result = await this.categories.deleteCategory(
           params.id,
           query.reassignTo,
         );
@@ -172,7 +177,7 @@ export class AdminCatalogController {
     return implement(adminCatalogContract.reorderCategories)
       .use(refusals)
       .handler(async ({ input: { body } }) => {
-        const categories = await this.service.reorderCategories(body);
+        const categories = await this.categories.reorderCategories(body);
         this.audit.record('category.reordered', user, {});
         return { categories };
       });
