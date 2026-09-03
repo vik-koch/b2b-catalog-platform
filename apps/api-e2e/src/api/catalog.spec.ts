@@ -128,16 +128,32 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
    * compared directly.
    */
   describe('sort controls (FR-SEARCH-04)', () => {
+    type Item = {
+      name: string;
+      priceMinor: number;
+      availability: string | null;
+    };
+
     /** Both pages of the espresso category, concatenated, for one sort. */
-    const allNames = async (sort?: string): Promise<string[]> => {
+    const allItems = async (sort?: string): Promise<Item[]> => {
       const url = (page: number) =>
         `/catalog/categories/espresso/products?page=${page}` +
         (sort ? `&sort=${sort}` : '');
       const [first, second] = await Promise.all([get(url(1)), get(url(2))]);
-      return [...first.data.items, ...second.data.items].map(
-        (i: { name: string }) => i.name,
-      );
+      return [...first.data.items, ...second.data.items] as Item[];
     };
+    const allNames = async (sort?: string): Promise<string[]> =>
+      (await allItems(sort)).map((i) => i.name);
+
+    /**
+     * The listing split at the availability boundary (FR-STOCK-05): the chosen
+     * sort holds *within* each half, never across the seam, so every assertion
+     * about an ordering is made on one half at a time.
+     */
+    const halves = (items: Item[]): [Item[], Item[]] => [
+      items.filter((i) => i.availability !== 'out'),
+      items.filter((i) => i.availability === 'out'),
+    ];
     const prices = (res: { data: { items: { priceMinor: number }[] } }) =>
       res.data.items.map((i) => i.priceMinor);
 
@@ -145,22 +161,54 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
       expect(await allNames()).toEqual(await allNames('name'));
     });
 
-    it('reverses the whole listing on name_desc', async () => {
-      const ascending = await allNames('name');
+    it('reverses each availability half on name_desc', async () => {
+      // Not the whole listing: what is out of stock stays at the bottom
+      // whichever way the names run (FR-STOCK-05).
+      const [available, out] = halves(await allItems('name'));
+      const [availableDesc, outDesc] = halves(await allItems('name_desc'));
 
-      expect(await allNames('name_desc')).toEqual([...ascending].reverse());
+      expect(availableDesc.map((i) => i.name)).toEqual(
+        available.map((i) => i.name).reverse(),
+      );
+      expect(outDesc.map((i) => i.name)).toEqual(
+        out.map((i) => i.name).reverse(),
+      );
     });
+
+    /**
+     * FR-STOCK-05, the property the halves above rest on: an empty shelf is
+     * last whatever was asked for, and it is a lead rather than a sort option
+     * of its own — there is no key that undoes it.
+     */
+    it.each(['name', 'name_desc', 'price', 'price_desc'])(
+      'leaves what is out of stock at the end on %s',
+      async (sort) => {
+        const items = await allItems(sort);
+        const first = items.findIndex((i) => i.availability === 'out');
+
+        // The seed has some of each; without that this asserts nothing.
+        expect(first).toBeGreaterThan(0);
+        expect(items.slice(first).every((i) => i.availability === 'out')).toBe(
+          true,
+        );
+      },
+    );
 
     it.each([
       ['price', (a: number, b: number) => a - b],
       ['price_desc', (a: number, b: number) => b - a],
-    ])('orders by %s', async (sort, compare) => {
+    ])('orders by %s within what can be had', async (sort, compare) => {
       const res = await get(
         `/catalog/categories/espresso/products?sort=${sort}`,
       );
 
       expect(res.status).toBe(200);
-      expect(prices(res)).toEqual([...prices(res)].sort(compare));
+      for (const half of halves(res.data.items as Item[])) {
+        const figures = half.map((i) => i.priceMinor);
+        expect(figures).toEqual([...figures].sort(compare));
+      }
+      // And the whole page is still priced — the split is about order alone.
+      expect(prices(res).length).toBeGreaterThan(0);
     });
 
     it('rejects an unknown sort key at the contract', async () => {

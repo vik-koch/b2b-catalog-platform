@@ -67,13 +67,17 @@ describe('resolvedPriceMinor', () => {
 });
 
 describe('price sorting follows resolution', () => {
+  /** Rendered without the availability lead every listing opens with
+   * (FR-STOCK-05) — what is under test here is the price key it precedes. */
   const renderOrder = (clauses: ReturnType<typeof productOrderBy>) =>
-    new PgDialect().sqlToQuery(
-      sql.join(
-        clauses.map((clause) => sql`${clause}`),
-        sql`, `,
-      ),
-    ).sql;
+    new PgDialect()
+      .sqlToQuery(
+        sql.join(
+          clauses.map((clause) => sql`${clause}`),
+          sql`, `,
+        ),
+      )
+      .sql.replace(/^case[\s\S]*?end asc, /, '');
 
   it('sorts a tiered caller on the resolved price, not the base column', () => {
     const price = resolvedPriceMinor('tier-1');

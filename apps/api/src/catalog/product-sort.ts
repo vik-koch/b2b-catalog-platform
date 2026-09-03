@@ -17,6 +17,22 @@ import { resolvedPiecePrice } from './product-price';
 type OrderBy = (SQL | PgColumn)[];
 
 /**
+ * What a listing leads with (FR-STOCK-05): everything that can be had, then
+ * what cannot. Binary rather than three-way — "few left" is still on the shelf,
+ * and a listing that floated the nearly-gone products to the top would be
+ * advertising what it is about to run out of. A product whose stock is
+ * untracked sorts with the ones that are there, which is what it is.
+ *
+ * The chosen sort is applied *within* it, so availability is never a sort
+ * option of its own. Columns are qualified by hand — a bare name in a template
+ * binds to whatever table the surrounding query happens to make available.
+ */
+const availabilityLast = sql<number>`case
+  when ${products.availability} = 'out' then 1
+  else 0
+end`;
+
+/**
  * `score` is the relevance expression, present only on the search path. It is
  * required for the `relevance` sort and ignored by the others; a caller without
  * one (the category listing) cannot ask for it, because its contract does not
@@ -31,6 +47,21 @@ type OrderBy = (SQL | PgColumn)[];
  */
 
 export function productOrderBy(
+  sort: SearchSort,
+  score?: SQL<number>,
+  price: SQL<number> | PgColumn = resolvedPiecePrice(null),
+): OrderBy {
+  return [asc(availabilityLast), ...sortKeys(sort, score, price)];
+}
+
+/**
+ * The chosen sort alone, without the availability lead — what the admin grid
+ * orders by. A manager narrowing the catalog by name or by price is answering a
+ * question about the catalog, not shopping in it, and a column of empty shelves
+ * pinned to the bottom of every page would be in the way of every one of those
+ * questions. The grid filters by availability instead (FR-ADM-05).
+ */
+function sortKeys(
   sort: SearchSort,
   score?: SQL<number>,
   price: SQL<number> | PgColumn = resolvedPiecePrice(null),
@@ -77,11 +108,9 @@ export function adminProductOrderBy(
       // With nothing to score against, the useful order is not alphabetical:
       // it is what the grid was opened to deal with. A sync leaves its new
       // products unpublished, and those are what an admin came here for.
-      return score
-        ? productOrderBy(sort, score)
-        : [asc(statePriority), ...tiebreak];
+      return score ? sortKeys(sort, score) : [asc(statePriority), ...tiebreak];
     default:
-      return productOrderBy(sort, score);
+      return sortKeys(sort, score);
   }
 }
 
