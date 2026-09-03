@@ -66,14 +66,17 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
   config. Navigation, header/footer, and interactive widgets (contact form, map embed)
   are code; the map embed URL and header contact info come from deployment config, not
   CMS content.
-- Catalog sync: manual file-based, upsert by SKU, soft-delete missing, diff preview before
-  commit, audit-logged. No live sync with the legacy source system.
+- Catalog sync: manual file-based, upsert by private `sourceId` (never serialized to the
+  storefront; SKU is display only), soft-delete missing, diff preview before commit,
+  audit-logged. No live sync with the legacy source system.
 - Account deletion anonymizes past orders, never deletes them.
 
 ## Workflow conventions
 
 - Trunk-based: `main` only, branch protection (PR + green CI required), short-lived
   `feat/123-*` / `fix/123-*` branches. Issue titles carry requirement IDs: `[FR-CAT-04] ...`.
-- Strict semver; breaking changes avoided — new features are minor versions. API contracts
-  (esp. the sync import shape) stay stable; internals may change freely.
+- Versioning by what a release changes (ADR 0044): major = a port contract breaks or a
+  migration cannot be applied unattended; minor = new scope; patch = no new scope.
+  Config keys are version-neutral. API contracts (esp. the sync import shape) stay stable;
+  internals may change freely.
 - Deploys: merge to `main` → auto-deploy `dev` environment. Semver tag is used for deploy to `prod`.
