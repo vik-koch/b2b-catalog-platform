@@ -35,15 +35,17 @@ export class AuthController {
   @PublicFormThrottle()
   @Implement(authContract.register)
   register() {
-    return implement(authContract.register)
-      // The company-id format rule is raised by the service.
-      .use(refusals)
-      .handler(async ({ input: { body } }) => {
-        await this.registration.register(body);
-        // The same answer for a new address, a known one and a honeypot hit —
-        // the response must not reveal which addresses have accounts.
-        return { ok: true as const };
-      });
+    return (
+      implement(authContract.register)
+        // The company-id format rule is raised by the service.
+        .use(refusals)
+        .handler(async ({ input: { body } }) => {
+          await this.registration.register(body);
+          // The same answer for a new address, a known one and a honeypot hit —
+          // the response must not reveal which addresses have accounts.
+          return { ok: true as const };
+        })
+    );
   }
 
   /**

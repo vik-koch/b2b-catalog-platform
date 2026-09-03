@@ -39,7 +39,6 @@ export function deferSessionReads(): boolean {
   return isPlatformServer(inject(PLATFORM_ID)) && hasSessionCookie();
 }
 
-
 /** oRPC's header bag → Angular's, dropping the ones it leaves unset. */
 function toHttpHeaders(headers: StandardHeaders): HttpHeaders {
   let result = new HttpHeaders();

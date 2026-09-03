@@ -2,7 +2,6 @@ import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { addressComponentsSchema } from './address.contract';
 
-
 /**
  * Company suggestion (FR-AUTH-09, ADR 0041). The twin of the address
  * suggestion, and deliberately its own contract: a company and an address are

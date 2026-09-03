@@ -119,8 +119,6 @@ export class OrdersController {
   getOrderByToken() {
     return implement(ordersContract.getOrderByToken)
       .use(refusals)
-      .handler(({ input: { params } }) =>
-        this.orders.getByToken(params.token),
-      );
+      .handler(({ input: { params } }) => this.orders.getByToken(params.token));
   }
 }

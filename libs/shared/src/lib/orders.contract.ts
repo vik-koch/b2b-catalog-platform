@@ -14,7 +14,6 @@ import {
 } from './cart.contract';
 import { catalogImageSchema, paginationSchema } from './catalog.contract';
 
-
 /**
  * Placing an order request and reading it back (FR-CART-03/04/07, FR-ACC-01,
  * FR-NOTIF-06). An order is a **request**: it is priced, recorded and mailed,

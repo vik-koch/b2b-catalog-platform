@@ -18,7 +18,6 @@ import { slugSchema } from './slug';
 /** Admin grid page size — denser than the storefront's, for scanning. */
 export const ADMIN_CATALOG_PAGE_SIZE = 50;
 
-
 /**
  * The admin write surface for the catalog — the counterpart to the public read
  * contract in `catalog.contract.ts`, kept deliberately separate so the

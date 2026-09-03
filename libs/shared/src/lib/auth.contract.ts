@@ -9,7 +9,6 @@ import {
 } from './contact-format';
 import { commonAuthErrors } from './api-error';
 
-
 /**
  * Name of the httpOnly cookie carrying the session JWT. Shared because it is
  * not only the API's business: the SSR tier looks for it by name to tell

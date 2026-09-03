@@ -144,11 +144,9 @@ describe('AccountController', () => {
     });
 
     expect(response.status).toBe(200);
-    expect(record).toHaveBeenCalledWith(
-      'account.updated',
-      signedInAs,
-      { id: 'user-1' },
-    );
+    expect(record).toHaveBeenCalledWith('account.updated', signedInAs, {
+      id: 'user-1',
+    });
   });
 
   // strict: it is what stops `role`, `tierId` or `status` riding along on a

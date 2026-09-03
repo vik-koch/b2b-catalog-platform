@@ -8,7 +8,6 @@ import {
 } from './attribute-value';
 import { slugSchema } from './slug';
 
-
 /**
  * The registry of filterable attributes (FR-ATTR-01), admin side.
  *
@@ -244,9 +243,7 @@ export type CategoryFilters = z.infer<typeof categoryFiltersSchema>;
 export const saveCategoryFiltersSchema = z
   .object({
     filters: z.array(
-      z
-        .object({ attributeId: z.uuid(), visible: z.boolean() })
-        .strict(),
+      z.object({ attributeId: z.uuid(), visible: z.boolean() }).strict(),
     ),
   })
   .strict();
@@ -320,7 +317,8 @@ export const attributesContract = {
       method: 'POST',
       path: '/admin/attributes/inventory/rename-value',
       inputStructure: 'detailed',
-      summary: "Rename one of an attribute's values across all products (admin)",
+      summary:
+        "Rename one of an attribute's values across all products (admin)",
     })
     .input(z.object({ body: renameAttributeValueSchema }))
     .output(renameResultSchema),

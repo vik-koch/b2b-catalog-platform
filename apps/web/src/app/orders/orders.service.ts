@@ -78,7 +78,9 @@ export class OrdersService {
    * somebody else's, and the page has nothing else to say about either.
    */
   async getMine(reference: string): Promise<OrderDetail | null> {
-    const result = await safe(this.client.getMyOrder({ params: { reference } }));
+    const result = await safe(
+      this.client.getMyOrder({ params: { reference } }),
+    );
     if (result.isDefined && result.error.code === 'order-not-found') {
       return null;
     }
@@ -92,7 +94,9 @@ export class OrdersService {
    * stale one is simply an order nobody can open.
    */
   async getByToken(token: string): Promise<OrderDetail | null> {
-    const result = await safe(this.client.getOrderByToken({ params: { token } }));
+    const result = await safe(
+      this.client.getOrderByToken({ params: { token } }),
+    );
     if (result.isDefined && result.error.code === 'order-not-found') {
       return null;
     }

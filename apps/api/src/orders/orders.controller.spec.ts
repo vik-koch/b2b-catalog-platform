@@ -84,7 +84,9 @@ describe('OrdersController', () => {
 
   beforeEach(() => {
     signedInAs = null;
-    submit.mockReset().mockResolvedValue({ reference: 'X-1', publicToken: 't' });
+    submit
+      .mockReset()
+      .mockResolvedValue({ reference: 'X-1', publicToken: 't' });
     notifyPlaced.mockReset().mockResolvedValue(undefined);
   });
 
@@ -159,9 +161,7 @@ describe('OrdersController', () => {
         approximate: false,
       },
     };
-    submit.mockRejectedValue(
-      new CartChangedException({ preview } as never),
-    );
+    submit.mockRejectedValue(new CartChangedException({ preview } as never));
 
     const response = await place();
 

@@ -93,10 +93,7 @@ export class AdminCatalogService {
     return this.client.restoreProduct({ params: { slug } });
   }
 
-  setProductPublished(
-    slug: string,
-    published: boolean,
-  ): Promise<AdminProduct> {
+  setProductPublished(slug: string, published: boolean): Promise<AdminProduct> {
     return this.client.setProductPublished({
       params: { slug },
       body: { published },

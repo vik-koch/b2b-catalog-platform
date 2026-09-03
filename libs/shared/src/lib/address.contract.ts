@@ -2,7 +2,6 @@ import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 
-
 /**
  * The address book (FR-CART-04) and the suggestion that fills a form in it
  * (FR-CART-11). Both live here rather than on the account contract: a guest

@@ -7,7 +7,6 @@ import {
 } from './catalog.contract';
 import { LINE_PIECES_MAX, PRODUCT_UNITS } from './product-units';
 
-
 /**
  * Pricing a cart (FR-CART-01/02). The cart itself lives in the browser — there
  * is no cart table — so this endpoint takes the whole cart on every call and

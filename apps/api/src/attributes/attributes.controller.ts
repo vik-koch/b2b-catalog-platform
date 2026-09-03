@@ -120,10 +120,7 @@ export class AttributesController {
     return implement(attributesContract.reorderAttributes)
       .use(refusals)
       .handler(async ({ input: { body } }) => {
-        const definitions = await this.service.reorderAttributes(
-          body,
-          user.id,
-        );
+        const definitions = await this.service.reorderAttributes(body, user.id);
         this.audit.record('attribute.reordered', user, {});
         return { definitions };
       });

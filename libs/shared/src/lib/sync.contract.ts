@@ -9,7 +9,6 @@ import {
 } from './admin-catalog.contract';
 import { TIER_KEY_MAX_LENGTH } from './tiers.contract';
 
-
 /**
  * The bulk catalog sync.
  *
@@ -473,7 +472,9 @@ export const syncContract = {
     .errors({ 'run-not-found': commitErrors['run-not-found'] })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(
-      z.object({ run: syncRunSchema, plan: syncPlanSchema.nullable() }).strict(),
+      z
+        .object({ run: syncRunSchema, plan: syncPlanSchema.nullable() })
+        .strict(),
     ),
 
   listRuns: admin

@@ -45,7 +45,8 @@ export class CatalogController {
           tierId,
           parseAttributeParams(query.attr),
         );
-        if (!result) throw errors['not-found']({ message: 'Category not found' });
+        if (!result)
+          throw errors['not-found']({ message: 'Category not found' });
         return result;
       },
     );
@@ -90,7 +91,8 @@ export class CatalogController {
     return implement(catalogContract.getProduct).handler(
       async ({ input: { params }, errors }) => {
         const product = await this.catalog.getProduct(params.slug, tierId);
-        if (!product) throw errors['not-found']({ message: 'Product not found' });
+        if (!product)
+          throw errors['not-found']({ message: 'Product not found' });
         return product;
       },
     );

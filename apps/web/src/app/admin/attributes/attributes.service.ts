@@ -70,10 +70,7 @@ export class AttributesService {
     return this.saved(this.client.createAttribute({ body }));
   }
 
-  update(
-    id: string,
-    body: AttributeDefinitionInput,
-  ): Promise<AttributeResult> {
+  update(id: string, body: AttributeDefinitionInput): Promise<AttributeResult> {
     return this.saved(this.client.updateAttribute({ params: { id }, body }));
   }
 
@@ -130,9 +127,7 @@ export class AttributesService {
   async remove(
     id: string,
   ): Promise<{ ok: true } | { ok: false; code: AttributeErrorCode }> {
-    const result = await safe(
-      this.client.deleteAttribute({ params: { id } }),
-    );
+    const result = await safe(this.client.deleteAttribute({ params: { id } }));
     if (result.isDefined && renderable(result.error.code)) {
       return { ok: false, code: result.error.code };
     }

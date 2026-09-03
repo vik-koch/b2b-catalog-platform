@@ -182,10 +182,7 @@ describe('AdminCatalogController', () => {
 
     await send(`/admin/catalog/categories/${category.id}`, 'DELETE');
 
-    expect(service.deleteCategory).toHaveBeenCalledWith(
-      category.id,
-      undefined,
-    );
+    expect(service.deleteCategory).toHaveBeenCalledWith(category.id, undefined);
   });
 
   it('rejects a reassign target that is not a uuid', async () => {

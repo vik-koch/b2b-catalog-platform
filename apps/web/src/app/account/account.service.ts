@@ -28,9 +28,7 @@ export class AccountService {
    * act on — the fields are validated before they are sent, and a 401 means the
    * session is gone, which the guards handle — so anything but success throws.
    */
-  updateProfile(
-    request: UpdateAccountProfileRequest,
-  ): Promise<AccountProfile> {
+  updateProfile(request: UpdateAccountProfileRequest): Promise<AccountProfile> {
     return this.client.updateProfile({ body: request });
   }
 

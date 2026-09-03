@@ -7,7 +7,6 @@ import {
   attributeTypeSchema,
 } from './attribute-value';
 
-
 /**
  * The internal read API the storefront consumes — deliberately independent of
  * the file-sync import shape. What the legacy source file looks like never
