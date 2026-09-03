@@ -32,7 +32,7 @@ export const SYNC_RUNS_PAGE_SIZE = 20;
 
 /** The non-price fields a run can write, and the source `syncFieldSchema` is
  * built from — the list is stated once. */
-export const SYNC_FIELDS = ['name', 'category'] as const;
+export const SYNC_FIELDS = ['name', 'category', 'stock'] as const;
 
 /** All of them: the default when a run does not narrow the set. */
 export const SYNC_ALL_FIELDS: (typeof SYNC_FIELDS)[number][] = [...SYNC_FIELDS];

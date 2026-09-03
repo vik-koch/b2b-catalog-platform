@@ -36,6 +36,10 @@ const product = (over: Partial<ExistingProduct> = {}): ExistingProduct => ({
   tierPrices: {},
   categoryId: beans.id,
   deletedAt: null,
+  stockPieces: null,
+  piecesPerPack: null,
+  packsPerBox: null,
+  lowStockThresholdPieces: null,
   ...over,
 });
 
@@ -43,6 +47,7 @@ const state = (over: Partial<SyncCatalogState> = {}): SyncCatalogState => ({
   products: [product()],
   categories: [beans, gear],
   tiers: [wholesale],
+  lowStockFallback: 10,
   ...over,
 });
 
@@ -395,6 +400,117 @@ describe('planSync', () => {
 
     expect(plan.summary.errors).toBe(1);
     expect(plan.rowErrors).toHaveLength(1);
+  });
+
+  describe('stock (FR-STOCK-01/02)', () => {
+    it('writes the figure and the state it resolves to', () => {
+      const { plan, actions } = planSync(
+        [row({ stockPieces: 4 })],
+        options(),
+        state(),
+      );
+
+      expect(plan.products[0].changes).toEqual([
+        { field: 'stock', from: null, to: 4 },
+      ]);
+      expect(actions.updateProducts).toEqual([
+        { id: 'p-1', stockPieces: 4, availability: 'low' },
+      ]);
+    });
+
+    it('measures the threshold in this product’s own boxes', () => {
+      // Twenty pieces is under one box of 24 and well over the ten a product
+      // sold loose is measured against — one figure, two states.
+      const boxed = planSync(
+        [row({ stockPieces: 20 })],
+        options(),
+        state({
+          products: [product({ piecesPerPack: 6, packsPerBox: 4 })],
+        }),
+      );
+      const loose = planSync([row({ stockPieces: 20 })], options(), state());
+
+      expect(boxed.actions.updateProducts[0].availability).toBe('low');
+      expect(loose.actions.updateProducts[0].availability).toBe('in');
+    });
+
+    it('honours the product’s own threshold over the packaging', () => {
+      const { actions } = planSync(
+        [row({ stockPieces: 20 })],
+        options(),
+        state({ products: [product({ lowStockThresholdPieces: 50 })] }),
+      );
+
+      expect(actions.updateProducts[0].availability).toBe('low');
+    });
+
+    it('reads zero and below as out of stock', () => {
+      const { actions } = planSync(
+        [row({ stockPieces: -2 })],
+        options(),
+        state(),
+      );
+
+      expect(actions.updateProducts[0].availability).toBe('out');
+    });
+
+    it('leaves stock alone when the run does not write it', () => {
+      // A price-only file must not touch a figure it does not carry — and a
+      // stock-carrying file must not either, unless the run says so.
+      const { plan, actions } = planSync(
+        [row({ stockPieces: 4 })],
+        options({ fields: ['name', 'category'] }),
+        state(),
+      );
+
+      expect(actions.updateProducts).toEqual([]);
+      expect(plan.summary.unchanged).toBe(1);
+    });
+
+    it('writes nothing for a row that carries no figure', () => {
+      const { actions } = planSync(
+        [row({ prices: { default: 1990 } })],
+        options(),
+        state({ products: [product({ stockPieces: 40 })] }),
+      );
+
+      expect(actions.updateProducts[0]).not.toHaveProperty('stockPieces');
+      expect(actions.updateProducts[0]).not.toHaveProperty('availability');
+    });
+
+    it('is unchanged where the file states the figure the catalog already has', () => {
+      const { plan } = planSync(
+        [row({ stockPieces: 40 })],
+        options(),
+        state({ products: [product({ stockPieces: 40 })] }),
+      );
+
+      expect(plan.summary.unchanged).toBe(1);
+    });
+
+    it('carries a new product’s stock into its creation', () => {
+      // A new product has no packaging yet, so its threshold is the
+      // deployment's own figure.
+      const { actions } = planSync(
+        [
+          row({
+            sourceId: 'NEW-1',
+            name: 'New Roast',
+            prices: { default: 1500 },
+            categorySourceId: 'C-1',
+            categoryName: 'Coffee Beans',
+            stockPieces: 8,
+          }),
+        ],
+        options(),
+        state(),
+      );
+
+      expect(actions.createProducts[0]).toMatchObject({
+        stockPieces: 8,
+        availability: 'low',
+      });
+    });
   });
 
   describe('tier prices (FR-AUTH-05)', () => {

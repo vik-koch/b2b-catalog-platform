@@ -26,6 +26,7 @@ import {
   syncRuns,
 } from '../db/schema';
 import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
+import { LOW_STOCK_THRESHOLD_PIECES } from '../config/deployment-config';
 
 /** Staged rows and finished runs are audit data, not archive data. */
 const RUN_RETENTION_DAYS = 90;
@@ -53,6 +54,9 @@ interface Actor {
 export class SyncService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    // Handed to the differ, which resolves the stored availability itself.
+    @Inject(LOW_STOCK_THRESHOLD_PIECES)
+    private readonly lowStockFallback: number,
   ) {}
 
   /** Parse-free entry point: rows are already validated (CSV or JSON). */
@@ -212,6 +216,12 @@ export class SyncService {
           priceMinor: products.defaultPriceMinor,
           categoryId: products.categoryId,
           deletedAt: products.deletedAt,
+          // Read for the availability recompute: a figure alone does not say
+          // which state it lands in.
+          stockPieces: products.stockPieces,
+          piecesPerPack: products.piecesPerPack,
+          packsPerBox: products.packsPerBox,
+          lowStockThresholdPieces: products.lowStockThresholdPieces,
         })
         .from(products),
       this.db
@@ -253,6 +263,7 @@ export class SyncService {
       })),
       categories: categoryRows,
       tiers: tierRows,
+      lowStockFallback: this.lowStockFallback,
     };
   }
 
@@ -362,6 +373,14 @@ export class SyncService {
             name: product.name,
             defaultPriceMinor: product.priceMinor,
             categoryId: categoryId as string,
+            // Both or neither: the state is the figure's shadow, and the check
+            // constraint on the table says so.
+            ...(product.stockPieces === undefined
+              ? {}
+              : {
+                  stockPieces: product.stockPieces,
+                  availability: product.availability,
+                }),
           })
           .returning({ id: products.id });
         await writeTierPrices(created.id, product.tierPrices);
@@ -380,6 +399,12 @@ export class SyncService {
               ? { defaultPriceMinor: update.priceMinor }
               : {}),
             ...(categoryId !== undefined ? { categoryId } : {}),
+            ...(update.stockPieces === undefined
+              ? {}
+              : {
+                  stockPieces: update.stockPieces,
+                  availability: update.availability,
+                }),
             updatedAt: new Date(),
           })
           .where(eq(products.id, update.id));

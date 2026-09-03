@@ -132,6 +132,41 @@ describe('parseSyncCsv', () => {
     ]);
   });
 
+  describe('the stock column (FR-STOCK-01)', () => {
+    it('reads a whole number of pieces', () => {
+      const { rows, errors } = parseSyncCsv('sourceId,stock\nA-1,120\n');
+
+      expect(errors).toEqual([]);
+      expect(rows[0].stockPieces).toBe(120);
+    });
+
+    it('accepts a negative figure — a stocktake correction is not a typo', () => {
+      const { rows } = parseSyncCsv('sourceId,stock\nA-1,-3\n');
+      expect(rows[0].stockPieces).toBe(-3);
+    });
+
+    it('leaves an empty cell out, so a blank never untracks a product', () => {
+      const { rows, errors } = parseSyncCsv('sourceId,stock\nA-1,\n');
+
+      expect(errors).toEqual([]);
+      expect(rows[0]).not.toHaveProperty('stockPieces');
+    });
+
+    it('skips a row whose stock is not a whole number', () => {
+      const { rows, errors } = parseSyncCsv('sourceId,stock\nA-1,12.5\n');
+
+      expect(rows).toEqual([]);
+      expect(errors).toEqual([
+        {
+          row: 1,
+          sourceId: 'A-1',
+          code: 'stock-not-an-integer',
+          params: { stock: '12.5' },
+        },
+      ]);
+    });
+  });
+
   describe('tier price columns (FR-AUTH-05)', () => {
     it('accepts any price:<key> column — the keys are deployment data', () => {
       const { rows, errors } = parseSyncCsv(
