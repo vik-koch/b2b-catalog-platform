@@ -7,7 +7,7 @@ import { usePageSeo } from '../../core/page-seo';
 import { delayedLoading } from '../../core/delayed-loading';
 import { PageEditor } from './page-editor';
 import { PageService } from '../../pages/page.service';
-import { UnsavedChangesAware } from '../../core/unsaved-changes.guard';
+import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { injectEditorReturn } from '../editor-return';
 
 /**
