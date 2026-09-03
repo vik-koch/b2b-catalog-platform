@@ -12,8 +12,7 @@
     "@angular/compiler-cli": "~22.0.4",
     "@angular/language-service": "~22.0.4",
     "@eslint/js": "^9.8.0",
-    "@nestjs/schematics": "^11.0.0",
-    "@nestjs/testing": "^11.0.0",
+    "@nestjs/testing": "^12.0.1",
     "@nx/angular": "^23.1.0",
     "@nx/devkit": "23.1.0",
     "@nx/esbuild": "23.1.0",
@@ -21,7 +20,6 @@
     "@nx/eslint-plugin": "23.1.0",
     "@nx/jest": "23.1.0",
     "@nx/js": "23.1.0",
-    "@nx/nest": "^23.1.0",
     "@nx/node": "23.1.0",
     "@nx/playwright": "23.1.0",
     "@nx/vitest": "^23.1.0",
@@ -85,10 +83,10 @@
     "@angular/platform-server": "~22.0.4",
     "@angular/router": "~22.0.4",
     "@angular/ssr": "~22.0.4",
-    "@nestjs/common": "^11.0.0",
-    "@nestjs/core": "^11.0.0",
-    "@nestjs/jwt": "^11.0.2",
-    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/common": "^12.0.1",
+    "@nestjs/core": "^12.0.1",
+    "@nestjs/jwt": "^12.0.1",
+    "@nestjs/platform-express": "^12.0.1",
     "@nestjs/throttler": "^6.5.0",
     "@node-rs/argon2": "^2.0.2",
     "@orpc/client": "^1.15.0",
@@ -125,6 +123,10 @@
     "brace-expansion": "5.0.8",
     "fast-uri": "3.1.4",
     "tar": "7.5.22",
-    "uuid": "11.1.1"
+    "uuid": "11.1.1",
+    "@nestjs/throttler": {
+      "@nestjs/common": "$@nestjs/common",
+      "@nestjs/core": "$@nestjs/core"
+    }
   }
 }
