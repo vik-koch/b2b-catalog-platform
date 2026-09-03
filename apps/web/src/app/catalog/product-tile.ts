@@ -1,6 +1,7 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
+import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductBuyControls } from './product-buy-controls';
 import { ProductUnitFacts } from './product-unit-facts';
 import { FRAME } from '../ui/frame';
@@ -40,7 +41,13 @@ export const PRODUCT_GRID =
  */
 @Component({
   selector: 'app-product-tile',
-  imports: [RouterLink, TileGallery, ProductBuyControls, ProductUnitFacts],
+  imports: [
+    RouterLink,
+    TileGallery,
+    ProductAvailabilityBadge,
+    ProductBuyControls,
+    ProductUnitFacts,
+  ],
   host: { class: 'h-full' },
   template: `
     <div [class]="card">
@@ -63,6 +70,13 @@ export const PRODUCT_GRID =
       <!-- Grows to fill the tallest card in the row, so the buying controls
            below it sit on one line whatever the names above them do. -->
       <div [class]="body">
+        <!-- Over the name, where the eye lands before it reads: whether the
+             thing can be had at all outranks what it is called. -->
+        <app-product-availability-badge
+          class="mb-1"
+          [availability]="item().availability"
+          [reserve]="reserveAvailability()"
+        />
         <a [routerLink]="['/product', item().slug]" class="block">
           <h2
             class="line-clamp-2 text-sm text-stone-700 group-hover:text-accent"
@@ -114,4 +128,7 @@ export class ProductTile {
     NARROW_BODY_IN_GRID;
 
   readonly item = input.required<ProductListItem>();
+  /** True where some product in this listing has a state, so every card leaves
+   * the line and the names sit level. */
+  readonly reserveAvailability = input(false);
 }

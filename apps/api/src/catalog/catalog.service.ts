@@ -48,6 +48,7 @@ import {
   displayPriceMinor,
   packagingOf,
   publiclyVisible,
+  availabilityColumns,
   toListItem,
   noteColumns,
   unitColumns,
@@ -161,6 +162,7 @@ export class CatalogService {
         images: products.images,
         ...unitColumns,
         ...noteColumns,
+        ...availabilityColumns,
       })
       .from(products)
       .where(where)
@@ -245,6 +247,7 @@ export class CatalogService {
           images: products.images,
           ...unitColumns,
           ...noteColumns,
+          ...availabilityColumns,
         })
         .from(products)
         .where(where)
@@ -440,6 +443,7 @@ export class CatalogService {
         lineNoteEnabled: products.lineNoteEnabled,
         lineNotePrompt: products.lineNotePrompt,
         ...unitColumns,
+        ...availabilityColumns,
       })
       .from(products)
       .where(and(eq(products.slug, slug), publiclyVisible))
@@ -468,6 +472,7 @@ export class CatalogService {
       attributes,
       lineNoteEnabled: product.lineNoteEnabled,
       lineNotePrompt: product.lineNotePrompt,
+      availability: product.availability,
       category: {
         slug: category.slug,
         name: category.name,

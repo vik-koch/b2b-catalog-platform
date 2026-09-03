@@ -3,6 +3,7 @@ import {
   addressConfigSchema,
   CompanyIdFormat,
   companyIdInputSchema,
+  DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   DeliveryConfig,
   deliveryConfigSchema,
   MoneyFormat,
@@ -98,6 +99,12 @@ export const apiDeploymentConfigSchema = z
         currency: z
           .object({ code: z.string(), locale: z.string().optional() })
           .passthrough(),
+        /**
+         * Where "few left" sits for a product with neither a box nor a pack to
+         * measure it in (FR-STOCK-02) — the last rung of the ladder, so it is
+         * only ever reached by a product sold loose.
+         */
+        lowStockThresholdPieces: z.number().int().positive().optional(),
       })
       .passthrough()
       .optional(),
@@ -238,6 +245,20 @@ export const MONEY_FORMAT = 'MONEY_FORMAT';
 export function loadMoneyFormat(): MoneyFormat {
   const currency = loadApiDeploymentConfig().catalog?.currency;
   return { code: currency?.code ?? 'EUR', locale: currency?.locale };
+}
+
+/**
+ * The deployment-wide "few left" figure. Defaulted rather than required: a
+ * deployment that tracks no stock never reaches it, and one that does is not
+ * asked to configure a number before its first badge can appear.
+ */
+export const LOW_STOCK_THRESHOLD_PIECES = 'LOW_STOCK_THRESHOLD_PIECES';
+
+export function loadLowStockThresholdPieces(): number {
+  return (
+    loadApiDeploymentConfig().catalog?.lowStockThresholdPieces ??
+    DEFAULT_LOW_STOCK_THRESHOLD_PIECES
+  );
 }
 
 export function loadCompanyIdRule(): CompanyIdRule {

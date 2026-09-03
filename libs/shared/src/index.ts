@@ -31,6 +31,7 @@ export * from './lib/page.contract';
 export * from './lib/party-constants';
 export * from './lib/party.contract';
 export * from './lib/postal-code';
+export * from './lib/product-availability';
 export * from './lib/product-units';
 export * from './lib/search-terms';
 export * from './lib/settings.contract';

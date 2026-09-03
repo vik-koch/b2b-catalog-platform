@@ -106,6 +106,13 @@
       "when": 1788030818923,
       "tag": "0014_billing_address_optional",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1788448279860,
+      "tag": "0015_product_stock_availability",
+      "breakpoints": true
     }
   ]
 }

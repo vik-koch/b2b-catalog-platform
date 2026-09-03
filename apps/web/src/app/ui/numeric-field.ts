@@ -8,6 +8,9 @@ const DECIMAL_PLACES = 3;
 const PARTIAL = {
   /** A count: digits only, so no separator, sign or exponent can be typed. */
   integer: /^\d*$/,
+  /** The same, but a leading minus is allowed — a stock figure a stocktake has
+   * corrected below zero is a real value, not a typo. */
+  signed: /^-?\d*$/,
   /** A measurement. Either separator while typing, like a price field. */
   decimal: new RegExp(`^\\d*([.,]\\d{0,${DECIMAL_PLACES}})?$`),
 } as const;
@@ -26,7 +29,7 @@ const PARTIAL = {
   host: { '(beforeinput)': 'onBeforeInput($event)' },
 })
 export class NumericField {
-  readonly appNumericField = input<'integer' | 'decimal'>('integer');
+  readonly appNumericField = input<'integer' | 'signed' | 'decimal'>('integer');
 
   protected onBeforeInput(event: InputEvent): void {
     refuseUnless(event, (next) => PARTIAL[this.appNumericField()].test(next));

@@ -29,6 +29,9 @@ export interface ProductSeed {
   imageCount: number;
   /** Units of sale. Absent means the product is sold by the piece. */
   packaging?: ProductPackagingSeed;
+  /** Pieces on hand. Absent means the stock is not tracked, which shows the
+   * customer nothing at all. */
+  stockPieces?: number;
   /** A collective item whose cart line may name the variant wanted. */
   lineNoteEnabled?: boolean;
   lineNotePrompt?: string;
@@ -472,11 +475,32 @@ const allProducts: ProductSeed[] = [
 ];
 
 /**
+ * Pieces on hand, so the demo shows all four cases a listing can hold at once —
+ * including the default one, an untracked product with no badge, which is what
+ * a deployment that never enters a figure looks like everywhere.
+ *
+ * The low figure is under every threshold in the catalog (a box of 24, a pack
+ * of 6, the shop's own 10), so a "few left" row reads the same whatever the
+ * product is packed in.
+ */
+const demoStock = (n: number): number | undefined => {
+  if (n % 11 === 0) return undefined;
+  if (n % 9 === 0) return 0;
+  if (n % 7 === 0) return 4;
+  return 120 + n;
+};
+
+/**
  * Every 5th ships without images, so the demo exercises the no-photo placeholder
  * (real deployments will always have products awaiting photography).
  * Deterministic by position → a re-seed leaves the same rows imageless.
  */
 export const productSeeds: ProductSeed[] = allProducts.map((product, i) => {
   const n = i + 1;
-  return n % 5 === 0 ? { ...product, imageCount: 0 } : product;
+  const stockPieces = demoStock(n);
+  return {
+    ...product,
+    ...(stockPieces === undefined ? {} : { stockPieces }),
+    ...(n % 5 === 0 ? { imageCount: 0 } : {}),
+  };
 });

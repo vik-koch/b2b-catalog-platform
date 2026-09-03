@@ -1,7 +1,9 @@
 import { Client } from 'pg';
 import {
+  DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   parseAttributeNumber,
   ProductAttribute,
+  productAvailability,
 } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import {
@@ -68,13 +70,26 @@ export async function seedCatalog(
     );
 
     const packaging = product.packaging ?? {};
+    // The seed writes rows directly, so it owns the recompute the admin save
+    // does: the stored state has to match the figure beside it or the check
+    // constraint rejects the row.
+    const stockPieces = product.stockPieces ?? null;
+    const availability = productAvailability(
+      stockPieces,
+      {
+        piecesPerPack: packaging.piecesPerPack ?? null,
+        packsPerBox: packaging.packsPerBox ?? null,
+      },
+      null,
+      DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
+    );
 
     const { rows: productRows } = await client.query<{ id: string }>(
       `INSERT INTO products
          ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "descriptionHtml", images,
           "piecesPerPack", "packsPerBox", "minPieceQty", "priceBasisPieces", "boxVolume", "boxWeight",
-          "boxCount", "lineNoteEnabled", "lineNotePrompt", "publishedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14, $15, $16, now())
+          "boxCount", "lineNoteEnabled", "lineNotePrompt", "stockPieces", availability, "publishedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, now())
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "defaultPriceMinor" = EXCLUDED."defaultPriceMinor", "categoryId" = EXCLUDED."categoryId",
@@ -86,6 +101,8 @@ export async function seedCatalog(
          "boxCount" = EXCLUDED."boxCount",
          "lineNoteEnabled" = EXCLUDED."lineNoteEnabled",
          "lineNotePrompt" = EXCLUDED."lineNotePrompt",
+         "stockPieces" = EXCLUDED."stockPieces",
+         availability = EXCLUDED.availability,
          -- The demo catalog is meant to be on the storefront; a re-seed of an
          -- unpublished row puts it back.
          "publishedAt" = EXCLUDED."publishedAt"
@@ -107,6 +124,8 @@ export async function seedCatalog(
         packaging.boxCount ?? 1,
         product.lineNoteEnabled ?? false,
         product.lineNotePrompt ?? null,
+        stockPieces,
+        availability,
       ],
     );
 

@@ -1,11 +1,11 @@
 import {
   addressConfigSchema,
   companyIdInputSchema,
-  phoneInputSchema,
   deliveryConfigSchema,
   orderReferenceConfigSchema,
   PAGE_SLUGS,
   pageSlugSchema,
+  phoneInputSchema,
 } from '@b2b-catalog-platform/shared';
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
 import * as z from 'zod';
@@ -259,6 +259,13 @@ export const deploymentConfigSchema = z
             locale: z.string(),
           })
           .strict(),
+        /**
+         * Where "few left" sits for a product with neither a box nor a pack to
+         * measure it in (FR-STOCK-02). The API applies the same figure; the
+         * browser needs it only to tell an admin what threshold a product will
+         * actually resolve to.
+         */
+        lowStockThresholdPieces: z.number().int().positive().optional(),
         /** Units a box's volume and weight are measured in. Labels only — the
          * numbers are stored as entered. */
         boxUnits: z

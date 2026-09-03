@@ -28,6 +28,7 @@ const TIER_KEY = `e2e-admincat-${R}`;
 
 const PRODUCT_KEYS = [
   'attributes',
+  'availability',
   'boxCount',
   'boxVolume',
   'boxWeight',
@@ -37,6 +38,7 @@ const PRODUCT_KEYS = [
   'images',
   'lineNoteEnabled',
   'lineNotePrompt',
+  'lowStockThresholdPieces',
   'minPieceQty',
   'name',
   'packsPerBox',
@@ -46,6 +48,7 @@ const PRODUCT_KEYS = [
   'publishedAt',
   'slug',
   'sourceId',
+  'stockPieces',
   'tierPrices',
   'updatedAt',
 ];
@@ -674,6 +677,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
 
       // The public tile shape plus the two reasons — no internal columns leak.
       expect(Object.keys(items[0]).sort()).toEqual([
+        'availability',
         'deleted',
         'images',
         'lineNoteEnabled',
@@ -887,6 +891,98 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(res.status).toBe(200);
       expect(res.data.lineNoteEnabled).toBe(false);
       expect(res.data.lineNotePrompt).toBeNull();
+    });
+  });
+
+  describe('stock availability (FR-STOCK-01/02/03)', () => {
+    it('answers with the state the save caused, not the one before it', async () => {
+      // The state is stored, so a response built from anything but the row
+      // that was written would show the badge the product had a moment ago.
+      const created = await createProduct({
+        name: `Restocked ${R}`,
+        stockPieces: 500,
+      });
+      expect(created.data.availability).toBe('in');
+
+      const res = await put(`/admin/catalog/products/${created.data.slug}`, {
+        name: `Restocked ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        stockPieces: 0,
+      });
+      expect(res.status).toBe(200);
+      expect(res.data.stockPieces).toBe(0);
+      expect(res.data.availability).toBe('out');
+    });
+
+    it('reads a negative figure as out of stock rather than refusing it', async () => {
+      const res = await createProduct({
+        name: `Corrected ${R}`,
+        stockPieces: -3,
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.data.availability).toBe('out');
+    });
+
+    it('measures "few left" in boxes, so the same figure differs by packaging', async () => {
+      const boxed = await createProduct({
+        name: `Boxed ${R}`,
+        stockPieces: 20,
+        piecesPerPack: 6,
+        packsPerBox: 4,
+        minPieceQty: 6,
+      });
+      const loose = await createProduct({
+        name: `Loose ${R}`,
+        stockPieces: 20,
+      });
+
+      // A box holds 24, so twenty pieces is under one box.
+      expect(boxed.data.availability).toBe('low');
+      // With no box and no pack the deployment's own figure applies, and
+      // twenty is comfortably above it.
+      expect(loose.data.availability).toBe('in');
+    });
+
+    it('moves the line when the product overrides it', async () => {
+      const res = await createProduct({
+        name: `Overridden ${R}`,
+        stockPieces: 20,
+        lowStockThresholdPieces: 50,
+      });
+
+      expect(res.data.availability).toBe('low');
+    });
+
+    it('refuses a threshold with no stock figure behind it', async () => {
+      const res = await createProduct({
+        name: `Threshold only ${R}`,
+        lowStockThresholdPieces: 50,
+      });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('tracks nothing by default, and says so as null', async () => {
+      const res = await createProduct({ name: `Untracked ${R}` });
+
+      expect(res.data.stockPieces).toBeNull();
+      expect(res.data.lowStockThresholdPieces).toBeNull();
+      expect(res.data.availability).toBeNull();
+    });
+
+    it('publishes the state to the storefront and never the count', async () => {
+      const created = await createProduct({
+        name: `Shown ${R}`,
+        stockPieces: 500,
+      });
+      await publishProduct(created.data.slug);
+
+      const detail = await axios.get(`/catalog/products/${created.data.slug}`);
+      expect(detail.data.availability).toBe('in');
+      expect(detail.data).not.toHaveProperty('stockPieces');
+      expect(detail.data).not.toHaveProperty('lowStockThresholdPieces');
     });
   });
 
