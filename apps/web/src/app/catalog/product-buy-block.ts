@@ -11,6 +11,7 @@ import { APP_TEXT } from '../config/app-text';
 import { AutoGrow } from '../ui/auto-grow';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
+import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductBuyControls } from './product-buy-controls';
 import { ProductUnitFacts } from './product-unit-facts';
 
@@ -32,7 +33,14 @@ import { ProductUnitFacts } from './product-unit-facts';
  */
 @Component({
   selector: 'app-product-buy-block',
-  imports: [AutoGrow, FieldLabel, Input, ProductBuyControls, ProductUnitFacts],
+  imports: [
+    AutoGrow,
+    FieldLabel,
+    Input,
+    ProductAvailabilityBadge,
+    ProductBuyControls,
+    ProductUnitFacts,
+  ],
   template: `
     <!-- The padding follows the column: at its 15rem floor the panel gives it
          back, so the controls keep the 13.5rem they have inside a catalogue
@@ -69,6 +77,14 @@ import { ProductUnitFacts } from './product-unit-facts';
           </label>
         }
       </app-product-buy-controls>
+
+      <!-- Under the button rather than over the name: on a page this size the
+           badge is a footnote to the decision to buy, not the first thing read.
+           Inside the panel, so it stays with the control it qualifies. -->
+      <app-product-availability-badge
+        class="mt-3"
+        [availability]="item().availability"
+      />
     </div>
   `,
 })

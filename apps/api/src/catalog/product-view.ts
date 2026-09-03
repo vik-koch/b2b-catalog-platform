@@ -1,5 +1,6 @@
 import {
   BoxDimensions,
+  ProductAvailability,
   ProductListItem,
   ProductPackagingInfo,
   UnitPrices,
@@ -41,6 +42,12 @@ export const unitColumns = {
 export const noteColumns = {
   lineNoteEnabled: products.lineNoteEnabled,
   lineNotePrompt: products.lineNotePrompt,
+} as const;
+
+/** The stored state, never the count behind it (FR-STOCK-01). Its own group so
+ * that reading a product publicly cannot pick up the figure by accident. */
+export const availabilityColumns = {
+  availability: products.availability,
 } as const;
 
 export interface PricedProductRow {
@@ -105,6 +112,7 @@ export function toListItem<
     images: ProductImageRef[];
     lineNoteEnabled: boolean;
     lineNotePrompt: string | null;
+    availability: ProductAvailability | null;
   },
 >(row: T): ProductListItem {
   return {
@@ -116,6 +124,7 @@ export function toListItem<
     images: row.images,
     lineNoteEnabled: row.lineNoteEnabled,
     lineNotePrompt: row.lineNotePrompt,
+    availability: row.availability,
   };
 }
 

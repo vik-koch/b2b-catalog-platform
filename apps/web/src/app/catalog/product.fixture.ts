@@ -41,6 +41,7 @@ export function productListItem(
     images: [],
     lineNoteEnabled: false,
     lineNotePrompt: null,
+    availability: null,
     ...overrides,
   };
 }
@@ -61,6 +62,7 @@ export function productDetail(
     attributes: [],
     lineNoteEnabled: false,
     lineNotePrompt: null,
+    availability: null,
     category: {
       slug: 'coffee-beans',
       name: 'Coffee Beans',

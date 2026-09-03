@@ -11,6 +11,7 @@ import {
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from './attribute-value';
 import { attributeTypeSchema } from './attributes.contract';
+import { PRODUCT_AVAILABILITIES } from './product-availability';
 
 /**
  * The internal read API the storefront consumes — deliberately independent of
@@ -108,6 +109,13 @@ export const boxDimensionsSchema = z
   .strict();
 export type BoxDimensions = z.infer<typeof boxDimensionsSchema>;
 
+/**
+ * What a customer learns about the stock (FR-STOCK-02/03) — the state, never
+ * the count, which stays staff-facing. Null where the deployment does not track
+ * this product's stock, and every surface renders that as nothing at all.
+ */
+export const availabilitySchema = z.enum(PRODUCT_AVAILABILITIES).nullable();
+
 /** A tile in the product grid (FR-CAT-04). */
 export const productListItemSchema = z
   .object({
@@ -125,6 +133,8 @@ export const productListItemSchema = z
     lineNoteEnabled: z.boolean(),
     /** The product's own wording for the note; null falls back to app-text. */
     lineNotePrompt: z.string().nullable(),
+    /** Whether it can be had at all (FR-STOCK-03); null where untracked. */
+    availability: availabilitySchema,
   })
   .strict();
 export type ProductListItem = z.infer<typeof productListItemSchema>;
@@ -227,6 +237,8 @@ export const productDetailSchema = z
     lineNoteEnabled: z.boolean(),
     /** The product's own wording for the note; null falls back to app-text. */
     lineNotePrompt: z.string().nullable(),
+    /** Whether it can be had at all (FR-STOCK-03); null where untracked. */
+    availability: availabilitySchema,
     /** The single category this product belongs to, with its own ancestors —
      * the breadcrumb shows the whole path, not just the leaf. */
     category: categoryCrumbSchema.extend({

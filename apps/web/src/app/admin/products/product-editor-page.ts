@@ -590,6 +590,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       images: this.images(),
       lineNoteEnabled: this.lineNoteEnabled(),
       lineNotePrompt: this.lineNotePrompt().trim() || null,
+      availability: this.previewAvailability(),
       // The unit is the registry's, not the row's — the preview joins it on
       // exactly as the storefront's read does, so a declared attribute reads
       // the same here as on the live page.

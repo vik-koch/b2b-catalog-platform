@@ -65,6 +65,7 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
 
     const item = res.data.items[0];
     expect(Object.keys(item).sort()).toEqual([
+      'availability',
       'images',
       'lineNoteEnabled',
       'lineNotePrompt',
@@ -200,6 +201,7 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
     expect(res.status).toBe(200);
     expect(Object.keys(res.data).sort()).toEqual([
       'attributes',
+      'availability',
       'boxDimensions',
       'category',
       'descriptionHtml',

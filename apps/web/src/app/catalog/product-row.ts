@@ -1,13 +1,17 @@
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CatalogImage } from '@b2b-catalog-platform/shared';
-import { BuyableProduct, ProductBuyControls } from './product-buy-controls';
+import {
+  CatalogImage,
+  ProductAvailability,
+} from '@b2b-catalog-platform/shared';
 import { FRAME } from '../ui/frame';
 import {
   NARROW_BODY_IN_LINE,
   NARROW_PADDING_IN_LINE,
   NARROW_PHOTO_IN_LINE,
 } from './listing-narrow';
+import { ProductAvailabilityBadge } from './product-availability-badge';
+import { BuyableProduct, ProductBuyControls } from './product-buy-controls';
 import { TileGallery } from './tile-gallery';
 
 /** The classes a list of product rows uses: hairlines between the lines, and
@@ -17,6 +21,9 @@ export const PRODUCT_ROWS = 'divide-y divide-border border-y border-border';
 /** What a row needs: the little that makes a product buyable, plus its photos. */
 export interface RowProduct extends BuyableProduct {
   images: CatalogImage[];
+  /** Null where stock is untracked, and null for a cart line, whose product
+   * shape does not carry one. */
+  availability?: ProductAvailability | null;
 }
 
 /**
@@ -37,7 +44,12 @@ export interface RowProduct extends BuyableProduct {
  */
 @Component({
   selector: 'app-product-row',
-  imports: [RouterLink, TileGallery, ProductBuyControls],
+  imports: [
+    RouterLink,
+    TileGallery,
+    ProductAvailabilityBadge,
+    ProductBuyControls,
+  ],
   // The narrow container is the host rather than the line inside it: the line
   // asks it what room to leave, and no element can answer its own container
   // query. Same width either way — the line fills the host.
@@ -91,6 +103,12 @@ export interface RowProduct extends BuyableProduct {
           <div
             class="flex min-w-0 flex-1 flex-col @min-[47.5rem]/row:min-h-24 @min-[47.5rem]/row:min-w-44"
           >
+            <!-- Over the name, as on a card: the same fact in the same place
+                 whichever way the listing is drawn. -->
+            <app-product-availability-badge
+              class="mb-1"
+              [availability]="item().availability ?? null"
+            />
             <!-- A heading, as on a card: the same product listed two ways is
                  the same document outline either way, down to its size — a
                  line and a card that differed by nothing but their headings

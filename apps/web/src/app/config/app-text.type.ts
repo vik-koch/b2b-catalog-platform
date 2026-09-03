@@ -78,6 +78,18 @@ export const appTextSchema = z
          * The cards/lines toggle (FR-CAT-04). Two glyphs, so these are the
          * buttons' accessible names rather than visible labels.
          */
+        /**
+         * The three words a stock badge is (FR-STOCK-03). Wording only — the
+         * tone is the design system's, and a product whose stock is untracked
+         * shows no badge at all, so there is no fourth key.
+         */
+        availability: z
+          .object({
+            in: z.string(),
+            low: z.string(),
+            out: z.string(),
+          })
+          .strict(),
         layout: z
           .object({
             label: z.string(),

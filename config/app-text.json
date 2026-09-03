@@ -35,6 +35,11 @@
     "prevPage": "Previous",
     "nextPage": "Next",
     "pageStatus": "Page {page} of {total}",
+    "availability": {
+      "in": "In stock",
+      "low": "Few left",
+      "out": "Out of stock"
+    },
     "layout": {
       "label": "Layout",
       "grid": "Show as cards",

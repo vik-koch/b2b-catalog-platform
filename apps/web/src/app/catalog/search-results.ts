@@ -16,6 +16,7 @@ import { Button } from '../ui/button';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
 import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
+import { anyAvailability } from './product-availability-badge';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
@@ -137,10 +138,18 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
                     />
                   }
                 </ng-template>
+                <!-- Asked once for the page: a listing where one product
+                     states a stock leaves the line for all of them, so the
+                     names sit level. -->
+                @let reserveAvailability = anyAvailability(data.items);
+
                 @for (item of data.items; track item.slug) {
                   <li [class]="cards() ? 'h-full' : ''">
                     @if (cards()) {
-                      <app-product-tile [item]="item">
+                      <app-product-tile
+                        [item]="item"
+                        [reserveAvailability]="reserveAvailability"
+                      >
                         <ng-container
                           [ngTemplateOutlet]="productEdit"
                           [ngTemplateOutletContext]="{ $implicit: item.slug }"
@@ -247,6 +256,9 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
   `,
 })
 export class SearchResults {
+  /** Whether this page of products states any stock at all — see the badge. */
+  protected readonly anyAvailability = anyAvailability;
+
   protected readonly productGrid = PRODUCT_GRID;
 
   /**
