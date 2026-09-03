@@ -21,6 +21,21 @@ function render(clauses: ReturnType<typeof productOrderBy>): string {
 const score = sql<number>`relevance_placeholder`;
 
 /**
+ * The availability lead every storefront listing now opens with
+ * (FR-STOCK-05). The chosen sort is applied *within* it, so the assertions
+ * below read the keys that follow rather than the first one.
+ */
+const LEAD = /^case[\s\S]*?end asc, /;
+
+/** What a storefront listing sorts by once the availability lead is taken off
+ * — and proof that the lead is there at all. */
+function within(clauses: ReturnType<typeof productOrderBy>): string {
+  const text = render(clauses);
+  expect(text).toMatch(LEAD);
+  return text.replace(LEAD, '');
+}
+
+/**
  * What matters about the ordering is not the SQL text but two properties:
  * every sort ends in a total order, and each key sorts on the column and in
  * the direction it names. Whether the rows come out in the right *order* needs
@@ -43,8 +58,21 @@ describe('productOrderBy', () => {
     },
   );
 
+  // FR-STOCK-05: out of stock last, everything else — including a product
+  // nobody is counting — ahead of it, whatever the chosen sort is.
+  it.each(searchSortSchema.options)(
+    'leads %s with the availability of the row',
+    (option) => {
+      const text = render(productOrderBy(option, score));
+
+      expect(text).toMatch(/^case/);
+      expect(text).toContain(`"products"."availability" = 'out' then 1`);
+      expect(text).toMatch(/end asc, /);
+    },
+  );
+
   it('leads with the relevance score when asked for relevance', () => {
-    expect(render(productOrderBy('relevance', score))).toMatch(
+    expect(within(productOrderBy('relevance', score))).toMatch(
       /^relevance_placeholder desc/,
     );
   });
@@ -61,7 +89,7 @@ describe('productOrderBy', () => {
     ['name', 'name', 'asc'],
     ['name_desc', 'name', 'desc'],
   ] as const)('sorts %s on %s %s', (option, column, direction) => {
-    expect(render(productOrderBy(option))).toMatch(
+    expect(within(productOrderBy(option))).toMatch(
       new RegExp(`^"products"\\."${column}" ${direction}`),
     );
   });
@@ -74,7 +102,7 @@ describe('productOrderBy', () => {
     (option, direction) => {
       // Ordering on the raw column would put a €50-per-100-pieces product above
       // a €10-per-piece one.
-      expect(render(productOrderBy(option))).toMatch(
+      expect(within(productOrderBy(option))).toMatch(
         new RegExp(
           `^\\("products"\\."defaultPriceMinor"\\)::numeric / "products"\\."priceBasisPieces" ${direction}`,
         ),
@@ -128,12 +156,19 @@ describe('adminProductOrderBy', () => {
     );
   });
 
+  /**
+   * The keys agree; the lead does not. A manager narrowing the catalog is
+   * answering a question about it rather than shopping in it, so the grid is
+   * not to pin every empty shelf to the bottom of every page — it filters by
+   * stock instead (FR-ADM-05).
+   */
   it.each(searchSortSchema.options)(
-    'delegates %s to the shared ordering, so both grids agree',
+    'delegates %s to the shared ordering, without the availability lead',
     (option) => {
-      expect(render(adminProductOrderBy(option, score))).toBe(
-        render(productOrderBy(option, score)),
-      );
+      const admin = render(adminProductOrderBy(option, score));
+
+      expect(admin).toBe(within(productOrderBy(option, score)));
+      expect(admin).not.toContain('"availability"');
     },
   );
 });

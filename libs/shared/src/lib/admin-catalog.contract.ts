@@ -26,6 +26,7 @@ import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from './attribute-value';
+import { PRODUCT_AVAILABILITIES } from './product-availability';
 import { slugSchema } from './slug';
 
 /**
@@ -252,6 +253,13 @@ export const adminProductListItemSchema = z
     /** The same badge the storefront shows, so a grid row says what a visitor
      * sees without opening it. */
     availability: availabilitySchema,
+    /**
+     * The figure behind the badge (FR-STOCK-01), null where the stock is
+     * untracked. Staff-facing, which this grid is: the badge alone answers
+     * "can it be sold", and a manager restocking needs "how many" — and going
+     * into the editor row by row to read one number is not a way to work.
+     */
+    stockPieces: z.number().int().nullable(),
     deletedAt: z.iso.datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
     publishedAt: z.iso.datetime().nullable(),
@@ -285,6 +293,19 @@ export const adminProductStateSchema = z.enum([
   'deleted',
 ]);
 export type AdminProductState = z.infer<typeof adminProductStateSchema>;
+
+/**
+ * Which stock states the grid shows (FR-ADM-05) — the three of FR-STOCK-02,
+ * filtered on the stored state rather than on the count, so the grid and the
+ * badge can never disagree about where a product's threshold falls.
+ *
+ * Absent is "any", which includes the untracked. There is deliberately no
+ * "untracked" choice: it is a fourth thing the storefront never shows, and
+ * nobody has asked the catalog that question yet.
+ */
+export const adminProductAvailabilityFilterSchema = z.enum(
+  PRODUCT_AVAILABILITIES,
+);
 
 /**
  * Grid sort keys (FR-ADM-05): the storefront's name/price pairs, plus recency
@@ -328,6 +349,8 @@ export const adminProductListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   categoryId: z.uuid().optional(),
   state: adminProductStateSchema.optional().default('all'),
+  /** One of the three stock states, or absent for any (FR-STOCK-02). */
+  availability: adminProductAvailabilityFilterSchema.optional(),
   q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
   sort: adminProductSortSchema.optional().default('relevance'),
   /**

@@ -632,6 +632,103 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
+  /**
+   * The stock column and its filter (FR-ADM-05, FR-STOCK-02). Its own category
+   * so the four rows below are the whole population, and the assertions are
+   * about which of them come back rather than about global counts.
+   */
+  describe('the stock filter (FR-ADM-05)', () => {
+    let stockCategoryId: string;
+    const slugs: Record<string, string> = {};
+
+    const byStock = async (params = '') => {
+      const res = await adminGet(
+        `/admin/catalog/products?categoryId=${stockCategoryId}&${params}`,
+      );
+      expect(res.status).toBe(200);
+      return (
+        res.data as {
+          items: {
+            slug: string;
+            availability: string | null;
+            stockPieces: number | null;
+          }[];
+        }
+      ).items;
+    };
+
+    beforeAll(async () => {
+      const category = await createCategory({ name: `Stock ${R}` });
+      stockCategoryId = category.data.id;
+
+      // A box of 24, so twenty pieces is "few left" and five hundred is not.
+      const packaging = { piecesPerPack: 6, packsPerBox: 4, minPieceQty: 6 };
+      for (const [state, stockPieces] of [
+        ['in', 500],
+        ['low', 20],
+        ['out', 0],
+      ] as const) {
+        const res = await createProduct({
+          name: `Stock ${state} ${R}`,
+          categoryId: stockCategoryId,
+          stockPieces,
+          ...packaging,
+        });
+        expect(res.data.availability).toBe(state);
+        slugs[state] = res.data.slug;
+      }
+      const untracked = await createProduct({
+        name: `Stock untracked ${R}`,
+        categoryId: stockCategoryId,
+        ...packaging,
+      });
+      slugs['untracked'] = untracked.data.slug;
+    });
+
+    it('carries the count beside the state, so the grid can show the figure', async () => {
+      const rows = await byStock();
+
+      expect(rows).toHaveLength(4);
+      expect(
+        rows.map((row) => [row.availability, row.stockPieces]).sort(),
+      ).toEqual(
+        [
+          ['in', 500],
+          ['low', 20],
+          ['out', 0],
+          [null, null],
+        ].sort(),
+      );
+    });
+
+    it.each(['in', 'low', 'out'] as const)(
+      'narrows to %s alone',
+      async (state) => {
+        const rows = await byStock(`availability=${state}`);
+
+        expect(rows.map((row) => row.slug)).toEqual([slugs[state]]);
+      },
+    );
+
+    it('shows the untracked ones only when nothing is asked', async () => {
+      // There is no filter that selects them: "any" is the whole list, and
+      // each of the three states excludes a product nobody is counting.
+      const all = await byStock();
+      expect(all.map((row) => row.slug)).toContain(slugs['untracked']);
+
+      for (const state of ['in', 'low', 'out'] as const) {
+        const rows = await byStock(`availability=${state}`);
+        expect(rows.map((row) => row.slug)).not.toContain(slugs['untracked']);
+      }
+    });
+
+    it('refuses a state that is not one of the three', async () => {
+      const res = await adminGet(`/admin/catalog/products?availability=plenty`);
+
+      expect(res.status).toBe(400);
+    });
+  });
+
   describe('GET /admin/catalog/categories/:slug/hidden-products', () => {
     it('lists everything the storefront hides across the subtree, with its reason', async () => {
       // Deleted directly under the parent and deleted under a child — both must

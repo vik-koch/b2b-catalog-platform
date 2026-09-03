@@ -1,10 +1,12 @@
 import { inject } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
+  adminProductAvailabilityFilterSchema,
   AdminProductSort,
   adminProductSortSchema,
   AdminProductState,
   adminProductStateSchema,
+  ProductAvailability,
 } from '@b2b-catalog-platform/shared';
 
 /**
@@ -30,6 +32,18 @@ export function resolveAdminSort(raw: string): AdminProductSort {
 export function resolveAdminState(raw: string): AdminProductState {
   const parsed = adminProductStateSchema.safeParse(raw);
   return parsed.success ? parsed.data : DEFAULT_ADMIN_STATE;
+}
+
+/**
+ * The stock filter (FR-ADM-05), whose default is *no* filter rather than a
+ * value — so an unreadable or absent parameter resolves to undefined and the
+ * grid shows everything, untracked products included.
+ */
+export function resolveAdminAvailability(
+  raw: string,
+): ProductAvailability | undefined {
+  const parsed = adminProductAvailabilityFilterSchema.safeParse(raw);
+  return parsed.success ? parsed.data : undefined;
 }
 
 /** A parameter's URL form: omitted when it is the default. */

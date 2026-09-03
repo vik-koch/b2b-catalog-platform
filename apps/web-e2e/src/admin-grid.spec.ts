@@ -109,7 +109,9 @@ test.describe('admin grids on a desktop', () => {
     await expect(page.locator('tbody tr').first()).toBeVisible();
 
     const wide = await columnWidths(page);
-    await page.setViewportSize({ width: 900, height: 900 });
+    // Still a table: this grid gives up on columns at `lg` (65.75rem), a whole
+    // breakpoint before the others, since the stock column made it seven wide.
+    await page.setViewportSize({ width: 1100, height: 900 });
     await expect.poll(async () => (await columnWidths(page))[0]).toBe(wide[0]);
 
     const narrow = await columnWidths(page);
@@ -120,10 +122,48 @@ test.describe('admin grids on a desktop', () => {
     expect(sum(narrow)).toBeLessThan(sum(wide));
 
     // Neither fixed column owns a boundary: there is one for each pair of
-    // neighbours that actually has a share to trade — five flexible columns
+    // neighbours that actually has a share to trade — six flexible columns
     // between the thumbnail and the actions.
     const handles = page.locator('thead th [role="separator"]');
-    await expect(handles).toHaveCount(4);
+    await expect(handles).toHaveCount(5);
+  });
+});
+
+/**
+ * The product grid's stock column (FR-ADM-05, FR-STOCK-02). The cell is the
+ * piece count in the badge the three states colour, and the heading is the
+ * filter — `nordic-pull` is seeded with nothing on the shelf.
+ */
+test.describe('the product grid stock column', () => {
+  test.skip(
+    ({ isMobile }) => !!isMobile,
+    'a phone gets the records, whose own case is below',
+  );
+
+  test('shows the figure and narrows by the state behind it', async ({
+    page,
+  }) => {
+    await logIn(page);
+    await page.goto('/admin/products');
+
+    const row = (name: string) =>
+      page.locator('tbody tr').filter({ hasText: name });
+    await expect(row('Nordic Pull').first()).toBeVisible();
+
+    await page.getByLabel('Filter by stock').selectOption('out');
+    await expect(page).toHaveURL(/availability=out/);
+
+    // The count, not the word: an empty shelf reads 0, in the grey badge.
+    const empty = row('Nordic Pull').first();
+    await expect(empty).toBeVisible();
+    await expect(empty.getByLabel('0 in stock — Out of stock')).toHaveText('0');
+
+    // And the other two states exclude it, so the filter is the stored state
+    // rather than a text match.
+    await page.getByLabel('Filter by stock').selectOption('in');
+    await expect(page).toHaveURL(/availability=in/);
+    await expect(row('Nordic Pull')).toHaveCount(0);
+    await expect(page.locator('tbody tr').first()).toBeVisible();
   });
 });
 
@@ -152,6 +192,31 @@ test.describe('admin grids on a phone', () => {
     await page.getByLabel('Filter by status').selectOption('requested');
     await expect(page).toHaveURL(/status=requested/);
     await expect(filters).toContainText('1');
+  });
+
+  test('carries the stock figure on a product record, and can narrow by it', async ({
+    page,
+  }) => {
+    await logIn(page);
+    await page.goto('/admin/products?availability=out');
+
+    await expect(page.locator('app-admin-grid table')).toHaveCount(0);
+    const record = page
+      .locator('app-admin-grid li')
+      .filter({ hasText: 'Nordic Pull' })
+      .first();
+    await expect(record).toBeVisible();
+    await expect(record.getByLabel('0 in stock — Out of stock')).toHaveText(
+      '0',
+    );
+
+    // The column heading a desktop filters from is in the sheet here, and the
+    // filter already in effect is counted on the disclosure.
+    const filters = page.locator('button[aria-controls="grid-filters-panel"]');
+    await expect(filters).toContainText('1');
+    await filters.click();
+    await page.getByLabel('Filter by stock').selectOption('');
+    await expect(page).not.toHaveURL(/availability=/);
   });
 });
 
