@@ -48,6 +48,14 @@ import { ProductUnitFacts } from './product-unit-facts';
          tile is not — the border is the pixel a side that would otherwise go
          missing. -->
     <div class="rounded-xl border border-border p-2.75 @min-[17rem]/buy:p-4">
+      <!-- Over the price, as it is over the name on a card: whether the thing
+           can be had is read before what it costs, and the panel's first line
+           is where the eye enters it. -->
+      <app-product-availability-badge
+        class="mb-1"
+        [availability]="item().availability"
+      />
+
       <app-product-buy-controls
         [item]="item()"
         [image]="item().images[0]"
@@ -77,14 +85,6 @@ import { ProductUnitFacts } from './product-unit-facts';
           </label>
         }
       </app-product-buy-controls>
-
-      <!-- Under the button rather than over the name: on a page this size the
-           badge is a footnote to the decision to buy, not the first thing read.
-           Inside the panel, so it stays with the control it qualifies. -->
-      <app-product-availability-badge
-        class="mt-3"
-        [availability]="item().availability"
-      />
     </div>
   `,
 })

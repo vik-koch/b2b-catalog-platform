@@ -67,8 +67,9 @@ export interface RowProduct extends BuyableProduct {
            or a cart beside its summary, is narrower than both. -->
       <div class="@container/row flex min-w-0 flex-1 items-start gap-4">
         <!-- Square either way, and worth what stands beside it: whatever is
-             left once the controls have their 28.5rem, up to 7.75rem while
+             left once the controls have their 28.5rem, up to 8.125rem while
              the name sits above them and 6rem once it moves beside them.
+             At 8.125rem it should be aligned with the controls at the bottom.
 
              Left over rather than stepped, so the controls can never be
              squeezed by it and the photo never drops 40px as the window
@@ -106,7 +107,7 @@ export interface RowProduct extends BuyableProduct {
             <!-- Over the name, as on a card: the same fact in the same place
                  whichever way the listing is drawn. -->
             <app-product-availability-badge
-              class="mb-1"
+              class="mb-1.5"
               [availability]="item().availability ?? null"
             />
             <!-- A heading, as on a card: the same product listed two ways is
@@ -156,7 +157,7 @@ export class ProductRow {
     'relative flex items-start gap-4 py-3 ' + NARROW_PADDING_IN_LINE;
 
   protected readonly photoBox =
-    'relative flex w-[min(7.75rem,100%_-_29.5rem)] shrink-0 @min-[47.5rem]/row:w-24 ' +
+    'relative flex w-[min(8.125rem,100%_-_29.5rem)] shrink-0 @min-[47.5rem]/row:w-24 ' +
     NARROW_PHOTO_IN_LINE;
 
   protected readonly bodyColumn =

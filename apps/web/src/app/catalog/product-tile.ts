@@ -1,15 +1,15 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
-import { ProductAvailabilityBadge } from './product-availability-badge';
-import { ProductBuyControls } from './product-buy-controls';
-import { ProductUnitFacts } from './product-unit-facts';
 import { FRAME } from '../ui/frame';
 import {
   NARROW_BODY_IN_GRID,
   NARROW_PADDING_IN_GRID,
   NARROW_PHOTO_IN_GRID,
 } from './listing-narrow';
+import { ProductAvailabilityBadge } from './product-availability-badge';
+import { ProductBuyControls } from './product-buy-controls';
+import { ProductUnitFacts } from './product-unit-facts';
 import { TileGallery } from './tile-gallery';
 
 /**
@@ -73,7 +73,7 @@ export const PRODUCT_GRID =
         <!-- Over the name, where the eye lands before it reads: whether the
              thing can be had at all outranks what it is called. -->
         <app-product-availability-badge
-          class="mb-1"
+          class="mb-1.5"
           [availability]="item().availability"
           [reserve]="reserveAvailability()"
         />
