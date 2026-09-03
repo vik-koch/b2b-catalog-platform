@@ -1,18 +1,14 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+import {
+  ADDRESS_LABEL_MAX_LENGTH,
+  ADDRESS_LINE_MAX_LENGTH,
+  ADDRESS_POSTAL_CODE_MAX_LENGTH,
+  ADDRESS_QUERY_MAX_LENGTH,
+  ADDRESS_QUERY_MIN_LENGTH,
+} from './address-constants';
 import { commonAuthErrors } from './api-error';
 
-/**
- * The address book (FR-CART-04) and the suggestion that fills a form in it
- * (FR-CART-11). Both live here rather than on the account contract: a guest
- * checks out with an address too, so only the *book* is account-scoped.
- */
-
-/** An optional short name for the row, to tell two addresses apart. */
-export const ADDRESS_LABEL_MAX_LENGTH = 100;
-/** Matches the varchar the columns carry; a bound, not an editorial rule. */
-export const ADDRESS_LINE_MAX_LENGTH = 255;
-export const ADDRESS_POSTAL_CODE_MAX_LENGTH = 32;
 /**
  * How many addresses one account may keep. A bound, not a business rule: a
  * customer orders to a handful of places, and an unbounded book is a write
@@ -70,15 +66,6 @@ export const addressSchema = addressInputSchema.extend({
   updatedAt: z.iso.datetime(),
 });
 export type Address = z.infer<typeof addressSchema>;
-
-/**
- * NFR-SEC-08: the suggestion endpoint is metered, so the query is bounded at
- * both ends — too short and every keystroke is a paid call that cannot match
- * anything useful.
- */
-export const ADDRESS_QUERY_MIN_LENGTH = 3;
-export const ADDRESS_QUERY_MAX_LENGTH = 120;
-export const ADDRESS_SUGGESTION_LIMIT = 8;
 
 /**
  * What a provider gives back (ADR 0040): components, never one formatted line.

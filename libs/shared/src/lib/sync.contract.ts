@@ -1,13 +1,14 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+import { SYNC_ALL_FIELDS, SYNC_FIELDS } from './sync-constants';
 import { commonAuthErrors } from './api-error';
 import { priceMinorSchema } from './catalog.contract';
 import {
   CATEGORY_NAME_MAX_LENGTH,
   PRODUCT_NAME_MAX_LENGTH,
   SOURCE_ID_MAX_LENGTH,
-} from './admin-catalog.contract';
-import { TIER_KEY_MAX_LENGTH } from './tiers.contract';
+} from './catalog-constants';
+import { TIER_KEY_MAX_LENGTH } from './tier-constants';
 
 /**
  * The bulk catalog sync.
@@ -24,12 +25,6 @@ import { TIER_KEY_MAX_LENGTH } from './tiers.contract';
  */
 
 // --- The row -------------------------------------------------------------
-
-/**
- * The key that addresses the base price list — `products.defaultPriceMinor`,
- * which is a column rather than a tier row, so no tier may claim this name.
- */
-export const DEFAULT_PRICE_LIST_KEY = 'default';
 
 /**
  * A price-list key: `default` for the base list, otherwise a
@@ -102,12 +97,6 @@ export const syncRowSchema = z
   );
 export type SyncRow = z.infer<typeof syncRowSchema>;
 
-/** A whole catalog in one request, with a DoS bound well above any real one. */
-export const SYNC_MAX_ROWS = 50_000;
-
-/** Upper bound on an uploaded file (a DoS guard, not an editorial limit). */
-export const SYNC_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
-
 // --- CSV encoding --------------------------------------------------------
 
 /**
@@ -138,9 +127,8 @@ export function syncPriceColumn(key: SyncPriceListKey): string {
  * Non-price fields a run may write. Prices are self-describing (a run writes
  * exactly the price-list keys its rows carry), so they are not listed here.
  */
-export const syncFieldSchema = z.enum(['name', 'category']);
+export const syncFieldSchema = z.enum(SYNC_FIELDS);
 export type SyncField = z.infer<typeof syncFieldSchema>;
-export const SYNC_ALL_FIELDS: SyncField[] = ['name', 'category'];
 
 /**
  * What a run is allowed to do. Anything not declared here is not written, so a
@@ -180,13 +168,6 @@ export const syncOptionsSchema = z
     path: ['softDeleteMissingProducts'],
   });
 export type SyncOptions = z.infer<typeof syncOptionsSchema>;
-
-/**
- * `sourceId` prefix for products created in the admin UI rather than by an
- * import. They are absent from every real export by construction, so the
- * delete sweep skips them and reports them as kept.
- */
-export const MANUAL_SOURCE_ID_PREFIX = 'manual:';
 
 // --- The diff ------------------------------------------------------------
 
@@ -292,10 +273,6 @@ export const syncSummarySchema = z
   })
   .strict();
 export type SyncSummary = z.infer<typeof syncSummarySchema>;
-
-/** Per-entity lists are capped so a first-import preview stays a response, not
- * a download; the summary counts remain exact. */
-export const SYNC_PREVIEW_MAX_ITEMS = 2000;
 
 export const syncPlanSchema = z
   .object({
@@ -414,9 +391,6 @@ export const syncCommitResponseSchema = z
   .object({ run: syncRunSchema, applied: syncSummarySchema })
   .strict();
 export type SyncCommitResponse = z.infer<typeof syncCommitResponseSchema>;
-
-/** How many runs the history screen lists. */
-export const SYNC_RUNS_PAGE_SIZE = 20;
 
 /**
  * Why a previewed run could not be applied. `run-already-applied` and

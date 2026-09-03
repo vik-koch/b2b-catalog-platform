@@ -1,8 +1,5 @@
-import {
-  ADDRESS_LINE_MAX_LENGTH,
-  addressInputSchema,
-  countryCodeSchema,
-} from './address.contract';
+import { ADDRESS_LINE_MAX_LENGTH } from './address-constants';
+import { addressInputSchema, countryCodeSchema } from './address.contract';
 
 const address = (overrides: Record<string, unknown> = {}) => ({
   label: null,

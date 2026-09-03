@@ -3,9 +3,12 @@ import {
   RICH_TEXT_IMAGE_ALIGNMENTS,
   RICH_TEXT_LINK_SCHEMES,
   RICH_TEXT_TAGS,
-} from '../lib/page.contract';
+} from '../lib/page-constants';
 import { PRODUCT_RICH_TEXT_TAGS } from '../lib/catalog.contract';
-import { MEDIA_MAX_IMAGE_WIDTH, MEDIA_URL_PREFIX } from '../lib/media.contract';
+import {
+  MEDIA_MAX_IMAGE_WIDTH,
+  MEDIA_URL_PREFIX,
+} from '../lib/media-constants';
 
 const IMAGE_ALIGNMENTS = new Set<string>(RICH_TEXT_IMAGE_ALIGNMENTS);
 

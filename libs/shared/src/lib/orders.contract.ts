@@ -1,5 +1,15 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+import {
+  FULFILMENT_METHODS,
+  ORDER_NOTE_MAX,
+  ORDER_QUERY_MAX_LENGTH,
+  ORDER_STATUSES,
+  PARTY_NAME_MAX,
+  PAYMENT_METHODS,
+  PICKUP_LOCATION_KEY_MAX,
+  STAFF_ORDER_SORTS,
+} from './order-constants';
 import { addressInputSchema, countryCodeSchema } from './address.contract';
 import {
   companyRegistrationIdSchema,
@@ -20,54 +30,17 @@ import { catalogImageSchema, paginationSchema } from './catalog.contract';
  * and a manager confirms it. Nothing here charges anybody.
  */
 
-/**
- * Where an order stands. Only `requested` is ever written today; the rest are
- * the transitions a manager gets later, listed now so the column's check
- * constraint and the read contract agree from the start.
- */
-export const ORDER_STATUSES = [
-  'requested',
-  'approved',
-  'declined',
-  'cancelled',
-] as const;
 export const orderStatusSchema = z.enum(ORDER_STATUSES);
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 
-/**
- * How the staff list is ordered (FR-AUTH-03).
- *
- * `status` is the default and the reason this exists: it puts the orders
- * nobody has answered yet at the top, which is the question the list is opened
- * with. Requested first, then approved, then the two ways an order ends; each
- * group newest first, as the list has always been.
- */
-export const STAFF_ORDER_SORTS = [
-  'status',
-  'status_desc',
-  'placed',
-  'placed_desc',
-] as const;
 export const staffOrderSortSchema = z.enum(STAFF_ORDER_SORTS);
 export type StaffOrderSort = z.infer<typeof staffOrderSortSchema>;
 
-/** How the goods reach the customer. */
-export const FULFILMENT_METHODS = ['delivery', 'pickup'] as const;
 export const fulfilmentMethodSchema = z.enum(FULFILMENT_METHODS);
 export type FulfilmentMethod = z.infer<typeof fulfilmentMethodSchema>;
 
-/**
- * How it is paid. `card-later` is a card payment arranged with the manager
- * after confirmation — the platform takes no payment itself, which is why no
- * method here implies a transaction.
- */
-export const PAYMENT_METHODS = ['cash', 'bank-transfer', 'card-later'] as const;
 export const paymentMethodSchema = z.enum(PAYMENT_METHODS);
 export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
-
-export const ORDER_NOTE_MAX = 1000;
-/** A key from the deployment's `locations`, validated against it server-side. */
-export const PICKUP_LOCATION_KEY_MAX = 64;
 
 /**
  * Where an order goes, and where its invoice goes. The same shape as a saved
@@ -76,9 +49,6 @@ export const PICKUP_LOCATION_KEY_MAX = 64;
  */
 export const orderAddressInputSchema = addressInputSchema;
 export type OrderAddressInput = z.infer<typeof orderAddressInputSchema>;
-
-/** Registration numbers are compared in one form everywhere. */
-export const PARTY_NAME_MAX = 255;
 
 /**
  * The party an order is invoiced to (FR-CART-09): a name, and for a company a
@@ -308,10 +278,6 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   statusChangedAt: z.iso.datetime(),
 });
 export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
-
-export const ORDER_PAGE_SIZE = 20;
-/** As long as the longest thing anybody pastes in: an email address. */
-export const ORDER_QUERY_MAX_LENGTH = 200;
 
 /**
  * A cart the server priced differently from what the browser last saw. The
