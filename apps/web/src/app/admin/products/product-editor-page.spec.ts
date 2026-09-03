@@ -59,6 +59,9 @@ const storedProduct: AdminProduct = {
   boxCount: 1,
   lineNoteEnabled: false,
   lineNotePrompt: null,
+  stockPieces: null,
+  lowStockThresholdPieces: null,
+  availability: null,
 };
 
 const config = {

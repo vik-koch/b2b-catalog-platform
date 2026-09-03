@@ -7,6 +7,10 @@ import { AdminProductsService } from './admin-products.service';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import { SearchLogger } from './search.logger';
+import {
+  LOW_STOCK_THRESHOLD_PIECES,
+  loadLowStockThresholdPieces,
+} from '../config/deployment-config';
 
 /**
  * Catalog: the read-only storefront (FR-CAT, CatalogController/Service) and the
@@ -24,6 +28,10 @@ import { SearchLogger } from './search.logger';
     AdminCategoriesService,
     AuditLogger,
     SearchLogger,
+    {
+      provide: LOW_STOCK_THRESHOLD_PIECES,
+      useFactory: loadLowStockThresholdPieces,
+    },
   ],
 })
 export class CatalogModule {}

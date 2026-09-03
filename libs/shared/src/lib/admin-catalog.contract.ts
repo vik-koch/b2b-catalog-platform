@@ -14,6 +14,7 @@ import {
 } from './catalog-constants';
 import { commonAuthErrors } from './api-error';
 import {
+  availabilitySchema,
   catalogImageSchema,
   priceMinorSchema,
   productAttributeSchema,
@@ -135,6 +136,21 @@ export const productInputSchema = z
       .max(PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH)
       .nullable()
       .default(null),
+    /**
+     * Pieces on hand (FR-STOCK-01). Null means this product's stock is not
+     * tracked, which is the default and shows the customer nothing. Not
+     * bounded below: a stocktake correction may leave it negative, and that
+     * reads as out of stock rather than being refused.
+     */
+    stockPieces: z.number().int().nullable().default(null),
+    /** This product's own "few left" line, overriding the box/pack/config
+     * ladder (FR-STOCK-02). */
+    lowStockThresholdPieces: z
+      .number()
+      .int()
+      .positive()
+      .nullable()
+      .default(null),
   })
   .strict()
   .refine(
@@ -157,6 +173,14 @@ export const productInputSchema = z
     message: 'A note prompt needs the note enabled',
     path: ['lineNotePrompt'],
   })
+  .refine(
+    (input) =>
+      input.lowStockThresholdPieces === null || input.stockPieces !== null,
+    {
+      message: 'A low-stock threshold needs a stock figure',
+      path: ['lowStockThresholdPieces'],
+    },
+  )
   // What keeps totals exact: every purchasable quantity must be a whole number
   // of basis units. Checked here as well as in the database so the editor gets a
   // 400 naming the field rather than a constraint violation.
@@ -199,6 +223,12 @@ export const adminProductSchema = z
     boxCount: z.number().int().positive(),
     lineNoteEnabled: z.boolean(),
     lineNotePrompt: z.string().nullable(),
+    /** Staff-facing, and the reason the editor can be trusted to read back what
+     * it wrote: the state below is recomputed from these in the same save. */
+    stockPieces: z.number().int().nullable(),
+    lowStockThresholdPieces: z.number().int().positive().nullable(),
+    /** Read-only — derived from the two above and the packaging, never sent. */
+    availability: availabilitySchema,
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
     deletedAt: z.iso.datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
@@ -219,6 +249,9 @@ export const adminProductListItemSchema = z
     categoryId: z.uuid(),
     sourceId: z.string(),
     thumb: z.string().nullable(),
+    /** The same badge the storefront shows, so a grid row says what a visitor
+     * sees without opening it. */
+    availability: availabilitySchema,
     deletedAt: z.iso.datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
     publishedAt: z.iso.datetime().nullable(),

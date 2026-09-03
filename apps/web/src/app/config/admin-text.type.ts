@@ -287,6 +287,24 @@ export const adminTextSchema = z
             promptPlaceholder: z.string(),
           })
           .strict(),
+        /** Pieces on hand, and what a customer is told about them
+         * (FR-STOCK-01/02). */
+        stock: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            pieces: z.string(),
+            /** Under the field: blank means the stock is not tracked. */
+            piecesHint: z.string(),
+            threshold: z.string(),
+            /** Under the field; `{pieces}` is the figure actually in force. */
+            thresholdHint: z.string(),
+            /** Introduces the badge a customer would see right now. */
+            preview: z.string(),
+            /** Shown in place of the badge while nothing is tracked. */
+            untracked: z.string(),
+          })
+          .strict(),
         /** Units of sale, and how many pieces the price covers (FR-UNIT-*). */
         packaging: z
           .object({

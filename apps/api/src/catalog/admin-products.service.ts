@@ -20,6 +20,8 @@ import {
   HiddenProduct,
   parseAttributeNumber,
   ProductAttribute,
+  productAvailability,
+  ProductAvailability,
   ProductInput,
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared';
@@ -43,7 +45,13 @@ import {
   setSearchThreshold,
 } from './product-search';
 import { adminProductOrderBy } from './product-sort';
-import { noteColumns, toListItem, unitColumns } from './product-view';
+import {
+  availabilityColumns,
+  noteColumns,
+  toListItem,
+  unitColumns,
+} from './product-view';
+import { LOW_STOCK_THRESHOLD_PIECES } from '../config/deployment-config';
 import {
   resolveNewSlug,
   resolveNewSourceId,
@@ -88,6 +96,9 @@ const adminProductColumns = {
   boxCount: products.boxCount,
   lineNoteEnabled: products.lineNoteEnabled,
   lineNotePrompt: products.lineNotePrompt,
+  stockPieces: products.stockPieces,
+  lowStockThresholdPieces: products.lowStockThresholdPieces,
+  availability: products.availability,
 } as const;
 
 type ProductRow = {
@@ -111,6 +122,9 @@ type ProductRow = {
   boxCount: number;
   lineNoteEnabled: boolean;
   lineNotePrompt: string | null;
+  stockPieces: number | null;
+  lowStockThresholdPieces: number | null;
+  availability: ProductAvailability | null;
 };
 
 /**
@@ -122,7 +136,12 @@ type ProductRow = {
  */
 @Injectable()
 export class AdminProductsService {
-  constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
+  constructor(
+    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    // The last rung of the "few left" ladder, injected the way every other
+    // deployment rule is — a spec hands over a figure without a config file.
+    @Inject(LOW_STOCK_THRESHOLD_PIECES) private lowStockFallback: number,
+  ) {}
 
   /**
    * The admin grid (FR-ADM-05): filtered by publication state and category,
@@ -191,6 +210,7 @@ export class AdminProductsService {
           deletedAt: products.deletedAt,
           publishedAt: products.publishedAt,
           updatedAt: products.updatedAt,
+          availability: products.availability,
         })
         .from(products)
         .where(where)
@@ -206,6 +226,7 @@ export class AdminProductsService {
           categoryId: r.categoryId,
           sourceId: r.sourceId,
           thumb: r.images[0]?.thumb ?? null,
+          availability: r.availability,
           deletedAt: r.deletedAt?.toISOString() ?? null,
           publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),
@@ -269,6 +290,7 @@ export class AdminProductsService {
             lineNotePrompt: input.lineNotePrompt,
             updatedBy: actorId,
             ...packagingValues(input),
+            ...this.stockValues(input),
           })
           .returning(adminProductColumns),
       );
@@ -320,6 +342,7 @@ export class AdminProductsService {
             updatedAt: new Date(),
             updatedBy: actorId,
             ...packagingValues(input),
+            ...this.stockValues(input),
           })
           .where(eq(products.id, existing.id))
           .returning(adminProductColumns),
@@ -443,6 +466,7 @@ export class AdminProductsService {
         publishedAt: products.publishedAt,
         ...unitColumns,
         ...noteColumns,
+        ...availabilityColumns,
       })
       .from(products)
       .where(
@@ -457,6 +481,30 @@ export class AdminProductsService {
       deleted: row.deletedAt !== null,
       unpublished: row.publishedAt === null,
     }));
+  }
+
+  /**
+   * The stock columns as create and update both write them — the state
+   * alongside the figures it comes from, in one statement.
+   *
+   * Recomputed here rather than in the database because packaging is part of
+   * the answer and arrives in the same save: a threshold that follows the box
+   * moves whenever the box does. Writing the state with the figures is also
+   * what makes the response honest — `returning` hands back the row that was
+   * stored, so the editor reads back the badge it just caused rather than the
+   * one from before the save.
+   */
+  private stockValues(input: ProductInput) {
+    return {
+      stockPieces: input.stockPieces,
+      lowStockThresholdPieces: input.lowStockThresholdPieces,
+      availability: productAvailability(
+        input.stockPieces,
+        input,
+        input.lowStockThresholdPieces,
+        this.lowStockFallback,
+      ),
+    };
   }
 
   private async productBySlug(slug: string): Promise<ProductRow | undefined> {
@@ -630,6 +678,9 @@ function toAdminProduct(
     boxCount: row.boxCount,
     lineNoteEnabled: row.lineNoteEnabled,
     lineNotePrompt: row.lineNotePrompt,
+    stockPieces: row.stockPieces,
+    lowStockThresholdPieces: row.lowStockThresholdPieces,
+    availability: row.availability,
   };
 }
 

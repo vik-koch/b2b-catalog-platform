@@ -12,8 +12,13 @@ import {
   piecesPerUnit,
   PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
   ProductAttribute,
+  DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
+  ProductAvailability,
+  productAvailability,
   ProductDetail,
   ProductInput,
+  lowStockThreshold,
+  fillText,
   slugify,
   totalMinor,
 } from '@b2b-catalog-platform/shared';
@@ -22,6 +27,7 @@ import {
   formatPriceInput,
   parsePriceInput,
 } from '../../catalog/price';
+import { ProductAvailabilityBadge } from '../../catalog/product-availability-badge';
 import { ProductDetailView } from '../../catalog/product-detail-view';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
@@ -33,6 +39,7 @@ import { Checkbox } from '../../ui/checkbox';
 import { FieldLabel } from '../../ui/field-label';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
+import { NumericField } from '../../ui/numeric-field';
 import { PriceField } from '../../ui/price-field';
 import { Skeleton } from '../../ui/skeleton';
 import { AdminCatalogService } from '../admin-catalog.service';
@@ -67,6 +74,8 @@ import {
     Button,
     AdminIcon,
     RichTextEditor,
+    NumericField,
+    ProductAvailabilityBadge,
     CategoryPicker,
     ProductAttributesEditor,
     ProductPackagingEditor,
@@ -231,6 +240,55 @@ import {
           />
         </div>
 
+        <fieldset class="max-w-xl">
+          <legend appFieldLabel>{{ text.stock.heading }}</legend>
+          <p class="mb-2 text-xs text-subtle">{{ text.stock.hint }}</p>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="block">
+              <span appFieldLabel>{{ text.stock.pieces }}</span>
+              <input
+                type="text"
+                appInput
+                appNumericField="signed"
+                class="w-full"
+                [value]="stockPieces()"
+                (input)="stockPieces.set($any($event.target).value)"
+              />
+              <span class="mt-1 block text-xs text-subtle">
+                {{ text.stock.piecesHint }}
+              </span>
+            </label>
+            <label class="block">
+              <span appFieldLabel>{{ text.stock.threshold }}</span>
+              <input
+                type="text"
+                appInput
+                appNumericField="integer"
+                class="w-full"
+                [disabled]="parsedStockPieces() === null"
+                [value]="lowStockThresholdInput()"
+                (input)="lowStockThresholdInput.set($any($event.target).value)"
+              />
+              <span class="mt-1 block text-xs text-subtle">
+                {{ thresholdHint() }}
+              </span>
+            </label>
+          </div>
+          <!-- The badge itself rather than its name: what the admin is
+               choosing is what a customer will see, and the preview panel is
+               too far down the page to answer that while typing. As tall as
+               the pill either way, so entering a figure does not nudge the
+               line down as the pill appears. -->
+          <p class="mt-3 flex min-h-5 items-center gap-2 text-xs text-subtle">
+            <span>{{ text.stock.preview }}</span>
+            @if (previewAvailability(); as state) {
+              <app-product-availability-badge [availability]="state" />
+            } @else {
+              <span>{{ text.stock.untracked }}</span>
+            }
+          </p>
+        </fieldset>
+
         <fieldset>
           <legend appFieldLabel>{{ text.lineNote.heading }}</legend>
           <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
@@ -355,6 +413,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  /** The last rung of the "few left" ladder; the API applies the same figure
+   * from the same key. */
+  private readonly lowStockFallback =
+    inject(DEPLOYMENT_CONFIG).catalog.lowStockThresholdPieces ??
+    DEFAULT_LOW_STOCK_THRESHOLD_PIECES;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor;
 
@@ -388,6 +451,10 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
   protected readonly lineNoteEnabled = signal(false);
   protected readonly lineNotePrompt = signal('');
+  /** Kept as strings like the packaging drafts, so a half-typed or
+   * deliberately blank figure is not thrown away between keystrokes. */
+  protected readonly stockPieces = signal('');
+  protected readonly lowStockThresholdInput = signal('');
   protected readonly lineNotePromptMaxLength =
     PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH;
 
@@ -428,6 +495,48 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.attributeDefinitions().find((d) => d.name === name)?.unit ?? null
     );
   }
+
+  /**
+   * Pieces on hand, or null for a blank field — which means the stock is not
+   * tracked, not that it is zero. Negative is allowed: a stocktake correction
+   * reads as out of stock rather than being refused.
+   */
+  protected readonly parsedStockPieces = computed(() => {
+    const text = this.stockPieces().trim();
+    return /^-?\d+$/.test(text) ? Number(text) : null;
+  });
+
+  /** The product's own "few left" line, or null to use the ladder. */
+  protected readonly parsedThreshold = computed(() => {
+    const text = this.lowStockThresholdInput().trim();
+    if (!/^\d+$/.test(text)) return null;
+    const value = Number(text);
+    return value >= 1 ? value : null;
+  });
+
+  /** What the badge would say if the form were saved as it stands — the same
+   * function the API applies, so the preview cannot disagree with the save. */
+  protected readonly previewAvailability = computed<ProductAvailability | null>(
+    () =>
+      productAvailability(
+        this.parsedStockPieces(),
+        this.packagingInput() ?? { piecesPerPack: null, packsPerBox: null },
+        this.parsedThreshold(),
+        this.lowStockFallback,
+      ),
+  );
+
+  /** Names the figure actually in force, so an admin can see what the ladder
+   * resolved to without working the packaging out in their head. */
+  protected readonly thresholdHint = computed(() =>
+    fillText(this.text.stock.thresholdHint, {
+      pieces: lowStockThreshold(
+        this.packagingInput() ?? { piecesPerPack: null, packsPerBox: null },
+        this.parsedThreshold(),
+        this.lowStockFallback,
+      ),
+    }),
+  );
 
   protected readonly previewPriceMinor = computed(
     () => parsePriceInput(this.priceInput(), this.currency) ?? 0,
@@ -551,6 +660,10 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.published.set(product.publishedAt !== null);
       this.lineNoteEnabled.set(product.lineNoteEnabled);
       this.lineNotePrompt.set(product.lineNotePrompt ?? '');
+      this.stockPieces.set(product.stockPieces?.toString() ?? '');
+      this.lowStockThresholdInput.set(
+        product.lowStockThresholdPieces?.toString() ?? '',
+      );
       this.packaging.set({
         piecesPerPack: product.piecesPerPack?.toString() ?? '',
         packsPerBox: product.packsPerBox?.toString() ?? '',
@@ -611,6 +724,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
       packaging: this.packaging(),
       lineNoteEnabled: this.lineNoteEnabled(),
       lineNotePrompt: this.lineNotePrompt(),
+      stockPieces: this.stockPieces(),
+      lowStockThresholdPieces: this.lowStockThresholdInput(),
     });
   }
 
@@ -744,6 +859,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
       lineNotePrompt: this.lineNoteEnabled()
         ? this.lineNotePrompt().trim() || null
         : null,
+      stockPieces: this.parsedStockPieces(),
+      // A threshold with nothing to measure would be refused by the contract;
+      // clearing the stock clears it here rather than in a message.
+      lowStockThresholdPieces:
+        this.parsedStockPieces() === null ? null : this.parsedThreshold(),
       ...packaging,
       ...(slug ? { slug } : {}),
       ...(sourceId ? { sourceId } : {}),
