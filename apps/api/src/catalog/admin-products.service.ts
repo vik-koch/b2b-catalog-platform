@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   and,
@@ -17,20 +12,16 @@ import {
   or,
   sql,
 } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
 import {
   ADMIN_CATALOG_PAGE_SIZE,
-  AdminCategory,
-  AdminProductListQuery,
   AdminProduct,
   AdminProductListItem,
-  CategoryInput,
+  AdminProductListQuery,
+  HiddenProduct,
   parseAttributeNumber,
   ProductAttribute,
   ProductInput,
   ProductTierPrice,
-  ReorderCategoriesRequest,
-  slugify,
 } from '@b2b-catalog-platform/shared';
 import { sanitizeProductRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../db/database.module';
@@ -53,21 +44,27 @@ import {
 } from './product-search';
 import { adminProductOrderBy } from './product-sort';
 import { noteColumns, toListItem, unitColumns } from './product-view';
-import { HiddenProduct } from '@b2b-catalog-platform/shared';
+import {
+  resolveNewSlug,
+  resolveNewSourceId,
+  resolveSlugOverride,
+  resolveSourceIdOverride,
+  runUnique,
+} from './catalog-identity';
+import {
+  assertCategoryExists,
+  categoryNotFound,
+} from './admin-categories.service';
 
 /**
- * The two 404s this surface has. Functions rather than constants so each throw
- * gets its own stack; the message varies where naming the row helps a log
- * reader, while the code — the only part a screen reads — does not.
+ * A function rather than a constant so each throw gets its own stack; the code
+ * — the only part a screen reads — never varies.
  */
 const productNotFound = () =>
   new NotFoundException({
     code: 'product-not-found',
     message: 'Product not found',
   });
-
-const categoryNotFound = (message = 'Category not found') =>
-  new NotFoundException({ code: 'category-not-found', message });
 
 /** The editable product shape the admin contract returns. */
 const adminProductColumns = {
@@ -117,18 +114,15 @@ type ProductRow = {
 };
 
 /**
- * The admin write model for the catalog — the counterpart to the read-only
- * `CatalogService`. Slugs are transliterated and kept unique here; descriptions
- * are sanitized here (the single write path, so nothing reaches the column
- * unsanitized); soft delete/restore flip `deletedAt`; category deletion is a
- * guarded hard delete. Storage split (ADR 0022) is preserved — this service
- * simply lets the admin edit every field.
+ * The admin write model for products — the counterpart to the read-only
+ * `CatalogService`. Descriptions are sanitized here (the single write path, so
+ * nothing reaches the column unsanitized); soft delete/restore flip
+ * `deletedAt`. Storage split (ADR 0022) is preserved — this service simply lets
+ * the admin edit every field.
  */
 @Injectable()
-export class AdminCatalogService {
+export class AdminProductsService {
   constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
-
-  // --- Products -----------------------------------------------------------
 
   /**
    * The admin grid (FR-ADM-05): filtered by publication state and category,
@@ -241,21 +235,26 @@ export class AdminCatalogService {
     input: ProductInput,
     actorId: string,
   ): Promise<AdminProduct> {
-    await this.ensureCategoryExists(input.categoryId);
-    const slug = await this.resolveNewSlug(
+    await assertCategoryExists(this.db, input.categoryId);
+    const slug = await resolveNewSlug(
+      this.db,
       products,
       input.slug,
       input.name,
       'product',
     );
-    const sourceId = await this.resolveSourceId(input.sourceId);
+    const sourceId = await resolveNewSourceId(
+      this.db,
+      products,
+      input.sourceId,
+    );
 
     await this.ensureTiersExist(input.tierPrices);
 
     // One transaction, because a product and its tier prices are one edit: a
     // half-applied save would leave a price on the wrong product's row set.
     return this.db.transaction(async (tx) => {
-      const row = await this.runUnique(() =>
+      const row = await runUnique(() =>
         tx
           .insert(products)
           .values({
@@ -287,14 +286,17 @@ export class AdminCatalogService {
   ): Promise<AdminProduct> {
     const existing = await this.productBySlug(slug);
     if (!existing) throw productNotFound();
-    await this.ensureCategoryExists(input.categoryId);
+    await assertCategoryExists(this.db, input.categoryId);
 
-    const newSlug = await this.resolveSlugOverride(
+    const newSlug = await resolveSlugOverride(
+      this.db,
       products,
       input.slug,
       existing.slug,
     );
-    const newSourceId = await this.resolveSourceIdOverride(
+    const newSourceId = await resolveSourceIdOverride(
+      this.db,
+      products,
       input.sourceId,
       existing.sourceId,
     );
@@ -302,7 +304,7 @@ export class AdminCatalogService {
     await this.ensureTiersExist(input.tierPrices);
 
     return this.db.transaction(async (tx) => {
-      const row = await this.runUnique(() =>
+      const row = await runUnique(() =>
         tx
           .update(products)
           .set({
@@ -457,238 +459,6 @@ export class AdminCatalogService {
     }));
   }
 
-  // --- Categories ---------------------------------------------------------
-
-  async listCategories(): Promise<AdminCategory[]> {
-    const rows = await this.db
-      .select()
-      .from(categories)
-      .orderBy(asc(categories.sortOrder), asc(categories.name));
-
-    const productCounts = await this.db
-      .select({ categoryId: products.categoryId, value: count() })
-      .from(products)
-      .groupBy(products.categoryId);
-    const childCounts = await this.db
-      .select({ parentId: categories.parentId, value: count() })
-      .from(categories)
-      .groupBy(categories.parentId);
-
-    const products_ = new Map(
-      productCounts.map((r) => [r.categoryId, Number(r.value)]),
-    );
-    const children_ = new Map(
-      childCounts
-        .filter((r) => r.parentId)
-        .map((r) => [r.parentId as string, Number(r.value)]),
-    );
-
-    return rows.map((r) =>
-      toAdminCategory(r, products_.get(r.id) ?? 0, children_.get(r.id) ?? 0),
-    );
-  }
-
-  async createCategory(
-    input: CategoryInput,
-    actorId: string,
-  ): Promise<AdminCategory> {
-    if (input.parentId) await this.ensureCategoryExists(input.parentId);
-    const slug = await this.resolveNewSlug(
-      categories,
-      input.slug,
-      input.name,
-      'category',
-    );
-    // Place a new category after its current siblings.
-    const sortOrder = await this.nextSortOrder(input.parentId);
-
-    const row = await this.runUnique(() =>
-      this.db
-        .insert(categories)
-        .values({
-          sourceId: `manual:${randomUUID()}`,
-          slug,
-          name: input.name,
-          shortName: input.shortName,
-          parentId: input.parentId,
-          sortOrder,
-          image: input.image,
-          description: input.description,
-          updatedBy: actorId,
-        })
-        .returning(),
-    );
-    return toAdminCategory(row[0], 0, 0);
-  }
-
-  async updateCategory(
-    id: string,
-    input: CategoryInput,
-    actorId: string,
-  ): Promise<AdminCategory> {
-    const existing = await this.categoryById(id);
-    if (!existing) throw categoryNotFound();
-
-    // PUT is a full replace, so parentId is always authoritative. Guard the
-    // reparent against cycles before touching the row.
-    if (input.parentId !== existing.parentId) {
-      if (input.parentId) await this.ensureCategoryExists(input.parentId);
-      await this.assertNoReparentCycle(id, input.parentId);
-    }
-    const newSlug = await this.resolveSlugOverride(
-      categories,
-      input.slug,
-      existing.slug,
-    );
-
-    const newSourceId = await this.resolveSourceIdOverride(
-      input.sourceId,
-      existing.sourceId,
-    );
-
-    await this.runUnique(() =>
-      this.db
-        .update(categories)
-        .set({
-          name: input.name,
-          shortName: input.shortName,
-          slug: newSlug,
-          parentId: input.parentId,
-          image: input.image,
-          sourceId: newSourceId,
-          description: input.description,
-          updatedAt: new Date(),
-          updatedBy: actorId,
-        })
-        .where(eq(categories.id, id)),
-    );
-
-    const [row] = await this.db
-      .select()
-      .from(categories)
-      .where(eq(categories.id, id));
-    const [{ value: productCount }] = await this.db
-      .select({ value: count() })
-      .from(products)
-      .where(eq(products.categoryId, id));
-    const [{ value: childCount }] = await this.db
-      .select({ value: count() })
-      .from(categories)
-      .where(eq(categories.parentId, id));
-    return toAdminCategory(row, Number(productCount), Number(childCount));
-  }
-
-  /**
-   * Hard delete, guarded. Subcategories always block — the admin resolves the
-   * subtree first; reassignment never merges child categories. Products
-   * (including soft-deleted ones — the FK is `restrict` and does not
-   * distinguish) block too, unless `reassignToId` is given: then every product
-   * is moved to that category first, in one transaction with the delete, so a
-   * populated category can be removed without orphaning anything.
-   */
-  async deleteCategory(
-    id: string,
-    reassignToId?: string,
-  ): Promise<{ message: string }> {
-    const existing = await this.categoryById(id);
-    if (!existing) throw categoryNotFound();
-
-    const [{ value: childCount }] = await this.db
-      .select({ value: count() })
-      .from(categories)
-      .where(eq(categories.parentId, id));
-    if (Number(childCount) > 0) {
-      throw new ConflictException({
-        code: 'category-has-subcategories',
-        message: 'Category still has subcategories',
-      });
-    }
-
-    const [{ value: productCount }] = await this.db
-      .select({ value: count() })
-      .from(products)
-      .where(eq(products.categoryId, id));
-
-    if (Number(productCount) === 0) {
-      await this.db.delete(categories).where(eq(categories.id, id));
-      return { message: 'Category deleted' };
-    }
-
-    if (!reassignToId) {
-      throw new ConflictException({
-        code: 'category-has-products',
-        message: 'Category still has products',
-      });
-    }
-    if (reassignToId === id) {
-      throw new ConflictException({
-        code: 'category-reassign-to-self',
-        message: 'Cannot reassign a category to itself',
-      });
-    }
-    const target = await this.categoryById(reassignToId);
-    if (!target) {
-      throw new NotFoundException({
-        code: 'reassign-target-not-found',
-        message: 'Target category not found',
-      });
-    }
-
-    await this.db.transaction(async (tx) => {
-      // No deletedAt filter: soft-deleted products carry the FK too, so they
-      // must move as well or the delete would still fail.
-      await tx
-        .update(products)
-        .set({ categoryId: reassignToId, updatedAt: new Date() })
-        .where(eq(products.categoryId, id));
-      await tx.delete(categories).where(eq(categories.id, id));
-    });
-    return { message: 'Category deleted' };
-  }
-
-  /** Reparent/reorder in one transaction; the whole posted set is applied. */
-  async reorderCategories(
-    body: ReorderCategoriesRequest,
-  ): Promise<AdminCategory[]> {
-    const all = await this.db
-      .select({ id: categories.id, parentId: categories.parentId })
-      .from(categories);
-    const known = new Set(all.map((c) => c.id));
-
-    const parentById = new Map(all.map((c) => [c.id, c.parentId]));
-    for (const entry of body.order) {
-      if (!known.has(entry.id)) {
-        throw categoryNotFound(`Unknown category ${entry.id}`);
-      }
-      if (entry.parentId !== null && !known.has(entry.parentId)) {
-        throw categoryNotFound(`Unknown parent ${entry.parentId}`);
-      }
-      parentById.set(entry.id, entry.parentId);
-    }
-    if (hasCycle(parentById)) {
-      throw new ConflictException({
-        code: 'category-cycle',
-        message: 'Reorder would create a category cycle',
-      });
-    }
-
-    await this.db.transaction(async (tx) => {
-      for (const entry of body.order) {
-        await tx
-          .update(categories)
-          .set({
-            parentId: entry.parentId,
-            sortOrder: entry.sortOrder,
-            updatedAt: new Date(),
-          })
-          .where(eq(categories.id, entry.id));
-      }
-    });
-    return this.listCategories();
-  }
-
-  // --- Helpers ------------------------------------------------------------
-
   private async productBySlug(slug: string): Promise<ProductRow | undefined> {
     const [row] = await this.db
       .select(adminProductColumns)
@@ -819,170 +589,6 @@ export class AdminCatalogService {
       });
     }
   }
-
-  private async categoryById(id: string) {
-    const [row] = await this.db
-      .select()
-      .from(categories)
-      .where(eq(categories.id, id))
-      .limit(1);
-    return row;
-  }
-
-  private async ensureCategoryExists(id: string): Promise<void> {
-    const [row] = await this.db
-      .select({ id: categories.id })
-      .from(categories)
-      .where(eq(categories.id, id))
-      .limit(1);
-    if (!row) throw categoryNotFound();
-  }
-
-  private async nextSortOrder(parentId: string | null): Promise<number> {
-    const [row] = await this.db
-      .select({
-        value: sql<number>`coalesce(max(${categories.sortOrder}), -1)`,
-      })
-      .from(categories)
-      .where(
-        parentId === null
-          ? sql`${categories.parentId} is null`
-          : eq(categories.parentId, parentId),
-      );
-    return Number(row.value) + 1;
-  }
-
-  /**
-   * Resolve a slug on create: an admin-supplied slug is used as-is (409 if
-   * taken), otherwise the name is transliterated and a numeric suffix appended
-   * until unique. Falls back to `stem` when the name has no slug-able chars.
-   */
-  private async resolveNewSlug(
-    table: typeof products | typeof categories,
-    provided: string | undefined,
-    name: string,
-    stem: string,
-  ): Promise<string> {
-    if (provided) {
-      if (await this.slugExists(table, provided)) {
-        throw new ConflictException({
-          code: 'slug-taken',
-          message: `Slug '${provided}' is already in use`,
-        });
-      }
-      return provided;
-    }
-    const base = slugify(name) || stem;
-    let candidate = base;
-    for (let i = 2; await this.slugExists(table, candidate); i++) {
-      candidate = `${base}-${i}`;
-    }
-    return candidate;
-  }
-
-  /** Resolve a slug on update: keep the old one unless a new, free slug is given. */
-  private async resolveSlugOverride(
-    table: typeof products | typeof categories,
-    provided: string | undefined,
-    current: string,
-  ): Promise<string> {
-    if (!provided || provided === current) return current;
-    if (await this.slugExists(table, provided)) {
-      throw new ConflictException({
-        code: 'slug-taken',
-        message: `Slug '${provided}' is already in use`,
-      });
-    }
-    return provided;
-  }
-
-  private async slugExists(
-    table: typeof products | typeof categories,
-    slug: string,
-  ): Promise<boolean> {
-    const [row] = await this.db
-      .select({ slug: table.slug })
-      .from(table)
-      .where(eq(table.slug, slug))
-      .limit(1);
-    return !!row;
-  }
-
-  private async resolveSourceId(provided: string | undefined): Promise<string> {
-    if (!provided) return `manual:${randomUUID()}`;
-    if (await this.sourceIdExists(provided)) {
-      throw new ConflictException({
-        code: 'source-id-taken',
-        message: `Source id '${provided}' is already in use`,
-      });
-    }
-    return provided;
-  }
-
-  private async resolveSourceIdOverride(
-    provided: string | undefined,
-    current: string,
-  ): Promise<string> {
-    if (!provided || provided === current) return current;
-    if (await this.sourceIdExists(provided)) {
-      throw new ConflictException({
-        code: 'source-id-taken',
-        message: `Source id '${provided}' is already in use`,
-      });
-    }
-    return provided;
-  }
-
-  private async sourceIdExists(sourceId: string): Promise<boolean> {
-    const [row] = await this.db
-      .select({ id: products.id })
-      .from(products)
-      .where(eq(products.sourceId, sourceId))
-      .limit(1);
-    return !!row;
-  }
-
-  /** Guard a single reparent: walking up from the new parent must not reach the
-   * moved node. A null parent (moving to root) can never cycle. */
-  private async assertNoReparentCycle(
-    id: string,
-    newParentId: string | null,
-  ): Promise<void> {
-    if (newParentId === null) return;
-    const all = await this.db
-      .select({ id: categories.id, parentId: categories.parentId })
-      .from(categories);
-    const parentById = new Map(all.map((c) => [c.id, c.parentId]));
-    parentById.set(id, newParentId);
-    if (hasCycle(parentById)) {
-      throw new ConflictException({
-        code: 'category-cycle',
-        message: 'Move would create a category cycle',
-      });
-    }
-  }
-
-  /**
-   * Run a write and translate a unique-violation (race with a concurrent admin,
-   * past our pre-checks) into a 409 rather than a 500.
-   */
-  private async runUnique<T>(op: () => Promise<T>): Promise<T> {
-    try {
-      return await op();
-    } catch (e) {
-      if (
-        typeof e === 'object' &&
-        e !== null &&
-        (e as { code?: string }).code === '23505'
-      ) {
-        throw new ConflictException({
-          code: 'slug-or-source-id-taken',
-          message: 'A slug or source id conflict occurred',
-        });
-      }
-      throw e;
-    }
-  }
 }
 
 /**
@@ -1038,38 +644,4 @@ function packagingValues(input: ProductInput) {
     boxWeight: input.boxWeight,
     boxCount: input.boxCount,
   };
-}
-
-function toAdminCategory(
-  row: typeof categories.$inferSelect,
-  productCount: number,
-  childCount: number,
-): AdminCategory {
-  return {
-    id: row.id,
-    slug: row.slug,
-    name: row.name,
-    parentId: row.parentId,
-    sortOrder: row.sortOrder,
-    image: row.image,
-    sourceId: row.sourceId,
-    description: row.description,
-    shortName: row.shortName,
-    productCount,
-    childCount,
-  };
-}
-
-/** True if the parent map contains a cycle (walking up from any node loops). */
-function hasCycle(parentById: Map<string, string | null>): boolean {
-  for (const start of parentById.keys()) {
-    const seen = new Set<string>();
-    let current: string | null | undefined = start;
-    while (current) {
-      if (seen.has(current)) return true;
-      seen.add(current);
-      current = parentById.get(current) ?? null;
-    }
-  }
-  return false;
 }

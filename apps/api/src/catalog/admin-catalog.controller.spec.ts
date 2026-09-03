@@ -2,7 +2,8 @@ import { ConflictException, INestApplication } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { AdminCatalogController } from './admin-catalog.controller';
-import { AdminCatalogService } from './admin-catalog.service';
+import { AdminCategoriesService } from './admin-categories.service';
+import { AdminProductsService } from './admin-products.service';
 import { AuditLogger } from '../audit/audit.logger';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -18,11 +19,14 @@ describe('AdminCatalogController', () => {
   let app: INestApplication;
   let baseUrl: string;
 
-  const service = {
+  const products = {
     listProducts: vi.fn(),
     getProduct: vi.fn(),
     createProduct: vi.fn(),
     updateProduct: vi.fn(),
+  };
+
+  const categories = {
     deleteCategory: vi.fn(),
     createCategory: vi.fn(),
     listCategories: vi.fn(),
@@ -46,7 +50,8 @@ describe('AdminCatalogController', () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [AdminCatalogController],
       providers: [
-        { provide: AdminCatalogService, useValue: service },
+        { provide: AdminProductsService, useValue: products },
+        { provide: AdminCategoriesService, useValue: categories },
         { provide: AuditLogger, useValue: { record: vi.fn() } },
         { provide: APP_FILTER, useClass: ContractErrorFilter },
       ],
@@ -78,7 +83,12 @@ describe('AdminCatalogController', () => {
   });
 
   beforeEach(() => {
-    for (const fn of Object.values(service)) fn.mockReset();
+    for (const fn of [
+      ...Object.values(products),
+      ...Object.values(categories),
+    ]) {
+      fn.mockReset();
+    }
   });
 
   const send = (path: string, method = 'GET', body?: unknown) =>
@@ -89,7 +99,7 @@ describe('AdminCatalogController', () => {
     });
 
   it('sends a category exactly as the contract declares it', async () => {
-    service.listCategories.mockResolvedValue([category]);
+    categories.listCategories.mockResolvedValue([category]);
 
     const body = await (await send('/admin/catalog/categories')).json();
 
@@ -101,7 +111,7 @@ describe('AdminCatalogController', () => {
   // the alternative is a response the client cannot have asked for, and a
   // silent strip would let a leak be one `.strict()` away.
   it('refuses to answer with a column the contract does not declare', async () => {
-    service.listCategories.mockResolvedValue([
+    categories.listCategories.mockResolvedValue([
       { ...category, internalNote: 'do not ship this' },
     ]);
 
@@ -114,7 +124,7 @@ describe('AdminCatalogController', () => {
   });
 
   it('answers a create with 201, as the contract says', async () => {
-    service.createCategory.mockResolvedValue(category);
+    categories.createCategory.mockResolvedValue(category);
 
     const response = await send('/admin/catalog/categories', 'POST', {
       name: 'Coffee',
@@ -127,7 +137,7 @@ describe('AdminCatalogController', () => {
   // middleware this arrives as a 500 and the editor shows "something broke"
   // instead of naming the field.
   it('carries a save conflict through as its declared code', async () => {
-    service.updateProduct.mockRejectedValue(
+    products.updateProduct.mockRejectedValue(
       new ConflictException({
         code: 'slug-taken',
         message: 'Slug already in use',
@@ -152,7 +162,7 @@ describe('AdminCatalogController', () => {
   });
 
   it('answers a missing product with its own code', async () => {
-    service.getProduct.mockResolvedValue(null);
+    products.getProduct.mockResolvedValue(null);
 
     const response = await send('/admin/catalog/products/nope');
 
@@ -166,7 +176,9 @@ describe('AdminCatalogController', () => {
   // go, so it has to survive the round trip.
   it('passes the reassign target on a category delete', async () => {
     const target = '44444444-4444-4444-8444-444444444444';
-    service.deleteCategory.mockResolvedValue({ message: 'Category deleted' });
+    categories.deleteCategory.mockResolvedValue({
+      message: 'Category deleted',
+    });
 
     const response = await send(
       `/admin/catalog/categories/${category.id}?reassignTo=${target}`,
@@ -174,15 +186,20 @@ describe('AdminCatalogController', () => {
     );
 
     expect(response.status).toBe(200);
-    expect(service.deleteCategory).toHaveBeenCalledWith(category.id, target);
+    expect(categories.deleteCategory).toHaveBeenCalledWith(category.id, target);
   });
 
   it('omits the reassign target when none was given', async () => {
-    service.deleteCategory.mockResolvedValue({ message: 'Category deleted' });
+    categories.deleteCategory.mockResolvedValue({
+      message: 'Category deleted',
+    });
 
     await send(`/admin/catalog/categories/${category.id}`, 'DELETE');
 
-    expect(service.deleteCategory).toHaveBeenCalledWith(category.id, undefined);
+    expect(categories.deleteCategory).toHaveBeenCalledWith(
+      category.id,
+      undefined,
+    );
   });
 
   it('rejects a reassign target that is not a uuid', async () => {
@@ -192,7 +209,7 @@ describe('AdminCatalogController', () => {
     );
 
     expect(response.status).toBe(400);
-    expect(service.deleteCategory).not.toHaveBeenCalled();
+    expect(categories.deleteCategory).not.toHaveBeenCalled();
   });
 
   // `/categories/order` and `/categories/{id}` share a prefix; only the method
@@ -207,14 +224,14 @@ describe('AdminCatalogController', () => {
   // The grid's defaults live in the contract; the service is handed the
   // resolved values rather than a bag of maybes.
   it('applies the grid’s query defaults before the service sees them', async () => {
-    service.listProducts.mockResolvedValue({
+    products.listProducts.mockResolvedValue({
       items: [],
       pagination: { page: 1, pageSize: 50, total: 0, totalPages: 0 },
     });
 
     await send('/admin/catalog/products');
 
-    expect(service.listProducts).toHaveBeenCalledWith(
+    expect(products.listProducts).toHaveBeenCalledWith(
       expect.objectContaining({ page: 1, state: 'all', q: '' }),
     );
   });

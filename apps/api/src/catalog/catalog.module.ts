@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { CatalogController } from './catalog.controller';
 import { CatalogService } from './catalog.service';
 import { AdminCatalogController } from './admin-catalog.controller';
-import { AdminCatalogService } from './admin-catalog.service';
+import { AdminCategoriesService } from './admin-categories.service';
+import { AdminProductsService } from './admin-products.service';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import { SearchLogger } from './search.logger';
@@ -17,6 +18,12 @@ import { SearchLogger } from './search.logger';
 @Module({
   imports: [AuthModule],
   controllers: [CatalogController, AdminCatalogController],
-  providers: [CatalogService, AdminCatalogService, AuditLogger, SearchLogger],
+  providers: [
+    CatalogService,
+    AdminProductsService,
+    AdminCategoriesService,
+    AuditLogger,
+    SearchLogger,
+  ],
 })
 export class CatalogModule {}
