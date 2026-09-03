@@ -7,7 +7,7 @@ import { PasswordPolicy, PasswordRejectedError } from './password-policy';
 /**
  * The policy reads the shop's name from the mounted deployment config, so the
  * spec mounts one of its own rather than depending on the workspace's relative
- * path resolving from jest's working directory.
+ * path resolving from the runner's working directory.
  */
 function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
   const dir = mkdtempSync(join(tmpdir(), 'policy-'));

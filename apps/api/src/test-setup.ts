@@ -16,5 +16,10 @@ process.env['JWT_SECRET'] ??= 'test-only-jwt-secret-at-least-32-chars-long';
 // actually stops the eleventh request.
 process.env['PUBLIC_FORM_RATE_LIMIT'] = '10';
 process.env['AUTH_RATE_LIMIT'] = '10';
-// A throwaway dir for the LocalMediaStore; its spec writes and cleans up here.
-process.env['MEDIA_ROOT'] ??= join(tmpdir(), 'b2b-media-test');
+// A throwaway dir for the LocalMediaStore. Assigned, never `??=`: the spec
+// deletes this directory between cases, and the workspace .env points
+// MEDIA_ROOT at ./.media — the images the local dev stack serves. Inheriting it
+// here means `nx test api` wipes them, and any file already there fails the
+// spec that asserts the store wrote exactly one. Per-pid so parallel workers
+// and a crashed previous run cannot collide.
+process.env['MEDIA_ROOT'] = join(tmpdir(), `b2b-media-test-${process.pid}`);

@@ -16,6 +16,14 @@ const CUSTOMER = 'e2e-tier-customer@example.com';
 const PLAIN_CUSTOMER = 'e2e-tier-default@example.com';
 const PASSWORD = 'tier-e2e-password';
 const OVERRIDE_MINOR = 1;
+/** This suite's own category and products, so nothing another suite creates,
+ * re-prices or withdraws while it runs can land in the listings it asserts on.
+ * Fixed keys, cleaned up in `afterAll` and again on the next run's setup. */
+const CATEGORY_SLUG = 'e2e-tier-category';
+const PRICED_SLUG = 'e2e-tier-priced';
+const UNTOUCHED_SLUG = 'e2e-tier-untouched';
+const PRICED_BASE_MINOR = 2500;
+const UNTOUCHED_BASE_MINOR = 3700;
 
 const requireEnv = (name: string): string => {
   const value = process.env[name];
@@ -46,41 +54,39 @@ describe('Tier prices (FR-AUTH-05)', () => {
   let client: Client;
   let tierCookie = '';
   let defaultCookie = '';
-  // Two seeded products: one the tier re-prices, one it does not.
-  let pricedSlug = '';
-  let pricedBaseMinor = 0;
-  let untouchedSlug = '';
-  let untouchedBaseMinor = 0;
-  let categorySlug = '';
 
   beforeAll(async () => {
     client = new Client({ connectionString: requireEnv('DATABASE_URL') });
     await client.connect();
 
-    // Two products from one category, so the listing assertions below have a
-    // deterministic page to look at.
-    const { rows } = await client.query(
-      // Published, not merely undeleted: other suites seed unpublished and
-      // soft-deleted products of their own, and a category picked with one of
-      // those in it makes every read below a 404.
-      `SELECT p.slug, p."defaultPriceMinor", c.slug AS "categorySlug"
-         FROM products p
-         JOIN categories c ON c.id = p."categoryId"
-        WHERE p."deletedAt" IS NULL
-          AND p."publishedAt" IS NOT NULL
-          AND p."categoryId" = (
-            SELECT "categoryId" FROM products
-             WHERE "deletedAt" IS NULL AND "publishedAt" IS NOT NULL
-             GROUP BY "categoryId" HAVING count(*) >= 2 LIMIT 1)
-        ORDER BY p.name LIMIT 2`,
-    );
-    pricedSlug = rows[0].slug;
-    pricedBaseMinor = rows[0].defaultPriceMinor;
-    untouchedSlug = rows[1].slug;
-    untouchedBaseMinor = rows[1].defaultPriceMinor;
-    categorySlug = rows[0].categorySlug;
+    await removeFixture();
 
-    await client.query('DELETE FROM customer_tiers WHERE key = $1', [TIER_KEY]);
+    // Two products in a category of this suite's own making: one the tier
+    // re-prices, one it does not. Built here rather than picked out of the seed
+    // because the listing assertions below need a page nothing else can change
+    // — other suites create, re-price and withdraw published products of their
+    // own while this one runs.
+    const { rows: categoryRows } = await client.query(
+      `INSERT INTO categories ("sourceId", slug, name)
+       VALUES ($1, $1, 'E2E Tier Prices') RETURNING id`,
+      [CATEGORY_SLUG],
+    );
+    const categoryId = categoryRows[0].id;
+
+    await client.query(
+      `INSERT INTO products
+         ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "publishedAt")
+       VALUES ($1, $1, 'Priced by the tier', $2, $4, now()),
+              ($3, $3, 'Untouched by the tier', $5, $4, now())`,
+      [
+        PRICED_SLUG,
+        PRICED_BASE_MINOR,
+        UNTOUCHED_SLUG,
+        categoryId,
+        UNTOUCHED_BASE_MINOR,
+      ],
+    );
+
     const { rows: tierRows } = await client.query(
       `INSERT INTO customer_tiers (key, label) VALUES ($1, $2) RETURNING id`,
       [TIER_KEY, 'E2E Wholesale'],
@@ -90,13 +96,10 @@ describe('Tier prices (FR-AUTH-05)', () => {
     await client.query(
       `INSERT INTO product_prices ("productId", "tierId", "priceMinor")
        SELECT id, $1, $2 FROM products WHERE slug = $3`,
-      [tierId, OVERRIDE_MINOR, pricedSlug],
+      [tierId, OVERRIDE_MINOR, PRICED_SLUG],
     );
 
     const passwordHash = await hash(PASSWORD);
-    await client.query('DELETE FROM users WHERE email = ANY($1)', [
-      [CUSTOMER, PLAIN_CUSTOMER],
-    ]);
     await client.query(
       `INSERT INTO users (email, "passwordHash", role, "tierId", status)
        VALUES ($1, $2, 'user', $3, 'active')`,
@@ -112,80 +115,92 @@ describe('Tier prices (FR-AUTH-05)', () => {
     defaultCookie = await loginAs(PLAIN_CUSTOMER);
   });
 
-  afterAll(async () => {
+  /** Everything this suite creates, in dependency order. Also run in `beforeAll`,
+   * so a previous run killed before its teardown cannot fail the next one. */
+  async function removeFixture(): Promise<void> {
     await client.query('DELETE FROM users WHERE email = ANY($1)', [
       [CUSTOMER, PLAIN_CUSTOMER],
     ]);
     await client.query(
-      `DELETE FROM product_prices WHERE "tierId" IN
-         (SELECT id FROM customer_tiers WHERE key = $1)`,
-      [TIER_KEY],
+      `DELETE FROM product_prices WHERE "productId" IN
+         (SELECT id FROM products WHERE slug = ANY($1))`,
+      [[PRICED_SLUG, UNTOUCHED_SLUG]],
     );
+    await client.query('DELETE FROM products WHERE slug = ANY($1)', [
+      [PRICED_SLUG, UNTOUCHED_SLUG],
+    ]);
+    await client.query('DELETE FROM categories WHERE slug = $1', [
+      CATEGORY_SLUG,
+    ]);
     await client.query('DELETE FROM customer_tiers WHERE key = $1', [TIER_KEY]);
+  }
+
+  afterAll(async () => {
+    await removeFixture();
     await client.end();
   });
 
   it('shows a guest the base price', async () => {
-    const res = await get(`/catalog/products/${pricedSlug}`);
+    const res = await get(`/catalog/products/${PRICED_SLUG}`);
 
     expect(res.status).toBe(200);
-    expect(res.data.priceMinor).toBe(pricedBaseMinor);
+    expect(res.data.priceMinor).toBe(PRICED_BASE_MINOR);
   });
 
   it('shows the tiered customer their own price for the same product', async () => {
-    const res = await get(`/catalog/products/${pricedSlug}`, tierCookie);
+    const res = await get(`/catalog/products/${PRICED_SLUG}`, tierCookie);
 
     expect(res.status).toBe(200);
     expect(res.data.priceMinor).toBe(OVERRIDE_MINOR);
-    expect(res.data.priceMinor).not.toBe(pricedBaseMinor);
+    expect(res.data.priceMinor).not.toBe(PRICED_BASE_MINOR);
   });
 
   it('falls back to the base price for a product the tier does not price', async () => {
-    const res = await get(`/catalog/products/${untouchedSlug}`, tierCookie);
+    const res = await get(`/catalog/products/${UNTOUCHED_SLUG}`, tierCookie);
 
     expect(res.status).toBe(200);
-    expect(res.data.priceMinor).toBe(untouchedBaseMinor);
+    expect(res.data.priceMinor).toBe(UNTOUCHED_BASE_MINOR);
   });
 
   it('serves the base list to a signed-in customer with no tier', async () => {
-    const res = await get(`/catalog/products/${pricedSlug}`, defaultCookie);
+    const res = await get(`/catalog/products/${PRICED_SLUG}`, defaultCookie);
 
     expect(res.status).toBe(200);
-    expect(res.data.priceMinor).toBe(pricedBaseMinor);
+    expect(res.data.priceMinor).toBe(PRICED_BASE_MINOR);
   });
 
   it('treats a junk session cookie as a guest instead of rejecting it', async () => {
     const res = await get(
-      `/catalog/products/${pricedSlug}`,
+      `/catalog/products/${PRICED_SLUG}`,
       'session=not-a-real-token',
     );
 
     expect(res.status).toBe(200);
-    expect(res.data.priceMinor).toBe(pricedBaseMinor);
+    expect(res.data.priceMinor).toBe(PRICED_BASE_MINOR);
   });
 
   it('carries the tier price into a listing and sorts by the resolved value', async () => {
     const res = await get(
-      `/catalog/categories/${categorySlug}/products?sort=price`,
+      `/catalog/categories/${CATEGORY_SLUG}/products?sort=price`,
       tierCookie,
     );
     expect(res.status).toBe(200);
 
     const hit = res.data.items.find(
-      (i: { slug: string }) => i.slug === pricedSlug,
+      (i: { slug: string }) => i.slug === PRICED_SLUG,
     );
     expect(hit).toBeDefined();
     expect(hit.priceMinor).toBe(OVERRIDE_MINOR);
     // Re-priced to one minor unit, so an ascending price sort must put it
     // first — the proof that ordering follows resolution rather than the base
     // column, which would have placed it by its original price.
-    expect(res.data.items[0].slug).toBe(pricedSlug);
+    expect(res.data.items[0].slug).toBe(PRICED_SLUG);
   });
 
   it('tells caches that a price-bearing response depends on the session', async () => {
-    const guest = await get(`/catalog/products/${pricedSlug}`);
+    const guest = await get(`/catalog/products/${PRICED_SLUG}`);
     const customer = await get(
-      `/catalog/categories/${categorySlug}/products`,
+      `/catalog/categories/${CATEGORY_SLUG}/products`,
       tierCookie,
     );
 
@@ -203,15 +218,15 @@ describe('Tier prices (FR-AUTH-05)', () => {
 
   it('never leaks a tier price into a guest listing', async () => {
     const res = await get(
-      `/catalog/categories/${categorySlug}/products?sort=price`,
+      `/catalog/categories/${CATEGORY_SLUG}/products?sort=price`,
     );
     expect(res.status).toBe(200);
 
     const hit = res.data.items.find(
-      (i: { slug: string }) => i.slug === pricedSlug,
+      (i: { slug: string }) => i.slug === PRICED_SLUG,
     );
     expect(hit).toBeDefined();
-    expect(hit.priceMinor).toBe(pricedBaseMinor);
+    expect(hit.priceMinor).toBe(PRICED_BASE_MINOR);
     expect(
       res.data.items.map((i: { priceMinor: number }) => i.priceMinor),
     ).not.toContain(OVERRIDE_MINOR);

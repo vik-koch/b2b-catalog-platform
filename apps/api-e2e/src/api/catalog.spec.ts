@@ -116,7 +116,7 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
     const res = await get('/catalog/categories/nope/products');
 
     expect(res.status).toBe(404);
-    expect(res.data).toEqual({ message: 'Category not found' });
+    expect(res.data).toMatchObject({ code: 'not-found' });
   });
 
   /**
@@ -265,6 +265,6 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
     const res = await get('/catalog/products/nope');
 
     expect(res.status).toBe(404);
-    expect(res.data).toEqual({ message: 'Product not found' });
+    expect(res.data).toMatchObject({ code: 'not-found' });
   });
 });

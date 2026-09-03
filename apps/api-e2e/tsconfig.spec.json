@@ -2,11 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "module": "commonjs",
-    // ts-jest must transpile the ESM-only JS dependencies listed in
-    // transformIgnorePatterns, not just our TypeScript.
-    "allowJs": true,
-    "types": ["jest", "node"]
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": ["vitest/globals", "node"]
   },
-  "include": ["jest.config.ts", "src/**/*.ts"]
+  "include": ["vite.config.ts", "src/**/*.ts"]
 }
