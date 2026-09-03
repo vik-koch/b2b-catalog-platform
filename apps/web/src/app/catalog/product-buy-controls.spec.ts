@@ -764,4 +764,72 @@ describe('ProductBuyControls, a product that takes a note', () => {
     await view.click(text.add);
     expect(view.cart.count()).toBe(1);
   });
+
+  /**
+   * Out of stock (FR-STOCK-04). The product is still listed, still reachable
+   * and still priced — what goes is the ability to put it in the cart, in
+   * every view these controls are drawn in.
+   */
+  describe('out of stock', () => {
+    const empty = productDetail({
+      ...packaged,
+      availability: 'out',
+    }) as ProductDetail;
+
+    it('takes every control out of use', async () => {
+      const view = await render(empty);
+
+      // Not one segment is selectable: they are buttons rather than radios,
+      // and disabled rather than pressable — a whole line that cannot be
+      // bought has nothing to explain unit by unit.
+      expect(view.el.querySelectorAll('[role=radiogroup] input')).toHaveLength(
+        0,
+      );
+      const segments = [
+        ...view.el.querySelectorAll<HTMLButtonElement>(
+          '[role=radiogroup] button',
+        ),
+      ];
+      expect(segments).toHaveLength(3);
+      expect(segments.every((segment) => segment.disabled)).toBe(true);
+
+      expect(view.quantityInput().disabled).toBe(true);
+      expect(
+        view.el.querySelector<HTMLButtonElement>(
+          `[aria-label="${defaultAppText.cart.increase}"]`,
+        )?.disabled,
+      ).toBe(true);
+      expect(
+        view.el.querySelector<HTMLButtonElement>(
+          `[aria-label="${defaultAppText.cart.decrease}"]`,
+        )?.disabled,
+      ).toBe(true);
+    });
+
+    it('keeps the price and offers a button that refuses the press', async () => {
+      const view = await render(empty);
+
+      // Priced, as the requirement says: what is refused is the buying, not
+      // the telling.
+      expect(view.text()).not.toContain(defaultAppText.cart.noPrice);
+
+      const add = [...view.el.querySelectorAll('button')].find((button) =>
+        (button.textContent ?? '').includes(text.add),
+      );
+      expect(add?.disabled).toBe(true);
+
+      await view.click(text.add);
+      expect(view.cart.count()).toBe(0);
+    });
+
+    it('restricts nothing where only a few are left', async () => {
+      const view = await render(
+        productDetail({ ...packaged, availability: 'low' }) as ProductDetail,
+      );
+
+      expect(view.quantityInput().disabled).toBe(false);
+      await view.click(text.add);
+      expect(view.cart.count()).toBe(1);
+    });
+  });
 });
