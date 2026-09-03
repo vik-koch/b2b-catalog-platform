@@ -3,10 +3,13 @@ import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
+  ATTRIBUTE_TYPES,
   ATTRIBUTE_VALUE_MAX_LENGTH,
-  attributeTypeSchema,
 } from './attribute-value';
 import { slugSchema } from './slug';
+
+/** The kinds a registered attribute can take. */
+export const attributeTypeSchema = z.enum(ATTRIBUTE_TYPES);
 
 /**
  * The registry of filterable attributes (FR-ATTR-01), admin side.

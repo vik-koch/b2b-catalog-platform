@@ -1,8 +1,5 @@
-import {
-  CART_LINES_MAX,
-  CART_NOTE_MAX,
-  cartRequestSchema,
-} from './cart.contract';
+import { cartRequestSchema } from './cart.contract';
+import { CART_LINES_MAX, CART_NOTE_MAX } from './cart-constants';
 import { LINE_PIECES_MAX } from './product-units';
 
 const line = (overrides: Record<string, unknown> = {}) => ({

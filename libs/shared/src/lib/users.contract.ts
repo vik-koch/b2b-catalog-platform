@@ -4,7 +4,7 @@ import {
   companyNameSchema,
   companyRegistrationIdSchema,
   emailField,
-} from './contact-format';
+} from './contact-config';
 import { COMMON_AUTH_ERROR_CODES, commonAuthErrors } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
 

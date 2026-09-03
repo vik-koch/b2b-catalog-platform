@@ -6,8 +6,8 @@ import {
   priceMinorSchema,
   productAttributeSchema,
   productListItemSchema,
-  SEARCH_QUERY_MAX_LENGTH,
 } from './catalog.contract';
+import { SEARCH_QUERY_MAX_LENGTH } from './catalog-constants';
 import { basisDividesQuantities, minimumFitsPacks } from './product-units';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,

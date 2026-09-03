@@ -1,11 +1,16 @@
 import { oc } from '@orpc/contract';
+import {
+  PRODUCT_SORTS,
+  SEARCH_QUERY_MAX_LENGTH,
+  SEARCH_SORTS,
+} from './catalog-constants';
 import * as z from 'zod';
 import { ATTRIBUTE_FILTER_MAX_PARAMS } from './attribute-filter';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
-  attributeTypeSchema,
 } from './attribute-value';
+import { attributeTypeSchema } from './attributes.contract';
 
 /**
  * The internal read API the storefront consumes — deliberately independent of
@@ -192,15 +197,6 @@ export const PRODUCT_RICH_TEXT_TAGS = [
  */
 export const shortNameSchema = z.string().nullable();
 
-/** The name to display where the parent is visible: the nickname, or the full
- * name when there is none. */
-export function categoryDisplayName(category: {
-  name: string;
-  shortName?: string | null;
-}): string {
-  return category.shortName || category.name;
-}
-
 /** A breadcrumb ancestor of the selected category, root-first. Carries the
  * nickname too: a crumb always sits next to its parent. */
 export const categoryCrumbSchema = z
@@ -292,30 +288,11 @@ export const paginationSchema = z
   .strict();
 export type Pagination = z.infer<typeof paginationSchema>;
 
-/**
- * How a product listing is ordered (FR-SEARCH-04). Name and price, each in both
- * directions — the only two fields a tile shows that a visitor can meaningfully
- * order by. Every sort is total: the server appends name and id as tiebreakers,
- * so a row cannot swap pages between requests.
- */
-export const productSortSchema = z.enum([
-  'name',
-  'name_desc',
-  'price',
-  'price_desc',
-]);
-export type ProductSort = z.infer<typeof productSortSchema>;
+export const productSortSchema = z.enum(PRODUCT_SORTS);
+export type ProductSort = (typeof PRODUCT_SORTS)[number];
 
-/**
- * The same, plus relevance — only meaningful where there is a query to be
- * relevant to, so it exists on the search endpoint alone rather than as a
- * fourth option the category listing has to reject.
- */
-export const searchSortSchema = z.enum([
-  'relevance',
-  ...productSortSchema.options,
-]);
-export type SearchSort = z.infer<typeof searchSortSchema>;
+export const searchSortSchema = z.enum(SEARCH_SORTS);
+export type SearchSort = (typeof SEARCH_SORTS)[number];
 
 /** Longest `attr` entry: a slug, the separator, and a value. */
 const ATTRIBUTE_FILTER_PARAM_MAX_LENGTH =
@@ -395,15 +372,6 @@ export const productListQuerySchema = z.object({
   sort: productSortSchema.optional().default('name'),
   attr: attributeParamSchema,
 });
-
-/**
- * Upper bound on a search term. Longer than any real product query,
- * short enough that no caller can hand the matcher an expensive string.
- * Rejected at the contract rather than truncated, so an over-long query is an
- * explainable 400 instead of silently searching for something else — the search
- * bar caps its own input at the same number.
- */
-export const SEARCH_QUERY_MAX_LENGTH = 100;
 
 /**
  * Search query (FR-SEARCH-01…03). `q` is free text and may be anything a

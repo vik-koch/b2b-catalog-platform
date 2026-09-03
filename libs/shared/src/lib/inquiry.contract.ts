@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { emailField } from './contact-format';
+import { emailField } from './contact-config';
 
 // Empty form fields arrive as '' — treat them as absent so optional fields
 // (and the email-format check) behave correctly.

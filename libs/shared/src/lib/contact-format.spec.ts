@@ -7,11 +7,10 @@ import {
   formatPhone,
   normalizeCompanyId,
   PhoneConfig,
-  emailField,
-  lowercaseEmailField,
   stripDialPrefix,
   typedPhone,
 } from './contact-format';
+import { emailField, lowercaseEmailField } from './contact-config';
 
 const config: PhoneConfig = { countryCode: '+49', mask: '(###) ###-####' };
 /** A deployment that fixes a country code but does not group the digits. */

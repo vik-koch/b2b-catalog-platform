@@ -1,40 +1,9 @@
 import { oc } from '@orpc/contract';
+import { PAGE_SLUGS } from './page-constants';
 import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 
-/**
- * The static pages are a fixed set — content is edited, pages are never
- * created or deleted. The API answers 404 for any other slug. Which of them a
- * deployment publishes, and where they appear in the navigation, is deployment
- * config; the set itself is a compile-time contract shared with the database,
- * whose page rows are keyed by these slugs.
- */
-export const PAGE_SLUGS = [
-  'about',
-  'conditions',
-  'privacy',
-  'imprint',
-  'contact',
-] as const;
-export type PageSlug = (typeof PAGE_SLUGS)[number];
 export const pageSlugSchema = z.enum(PAGE_SLUGS);
-
-/**
- * The subset served by the generic `/:slug` route. `contact` is deliberately
- * absent: it has an editable body like the others, but a code route renders it
- * so the office list and map embeds — structured deployment config, not
- * content — keep their own markup around the prose.
- *
- * Which of these a given deployment actually publishes is a separate,
- * per-deployment decision (see the `pages` block in the deployment config).
- */
-export const STANDALONE_PAGE_SLUGS = [
-  'about',
-  'conditions',
-  'privacy',
-  'imprint',
-] as const satisfies readonly PageSlug[];
-export type StandalonePageSlug = (typeof STANDALONE_PAGE_SLUGS)[number];
 
 /**
  * The rich-text vocabulary, declared once and isomorphic on purpose:

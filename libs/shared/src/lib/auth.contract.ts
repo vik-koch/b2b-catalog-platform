@@ -1,4 +1,9 @@
 import { oc } from '@orpc/contract';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_TOKEN_INVALID,
+  USER_ROLES,
+} from './auth-constants';
 import * as z from 'zod';
 import { addressComponentsSchema } from './address.contract';
 import { partyEntityTypeSchema } from './party.contract';
@@ -6,39 +11,9 @@ import {
   companyNameSchema,
   companyRegistrationIdSchema,
   emailField,
-} from './contact-format';
+} from './contact-config';
 import { commonAuthErrors } from './api-error';
 
-/**
- * Name of the httpOnly cookie carrying the session JWT. Shared because it is
- * not only the API's business: the SSR tier looks for it by name to tell
- * whether the visitor it is rendering for has a session at all (it never reads
- * the value — it cannot, and does not need to).
- */
-export const AUTH_COOKIE = 'session';
-
-/**
- * Name of the readable companion to `AUTH_COOKIE`, carrying the signed-in
- * role and nothing else.
- *
- * It exists so the *browser* can answer "is anyone signed in, and as what?"
- * before `/auth/me` does — the session cookie is httpOnly and unreadable by
- * page script, which is what left the navbar's account control guessing on
- * every cold load. It is written and cleared in the same responses as the
- * session cookie, with the same attributes and lifetime, so the two can only
- * disagree when a live session is invalidated server-side.
- *
- * It is a **rendering hint, never an authorization**. Anyone can edit it; the
- * API verifies the JWT and the database role on every request, and the worst a
- * forged value buys is a navbar link to a page that answers 403.
- */
-export const SESSION_HINT_COOKIE = 'session_role';
-
-/**
- * Authorization roles.
- * Kept in sync with the `user_role` pg enum in the API schema.
- */
-export const USER_ROLES = ['admin', 'manager', 'user'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 export const userRoleSchema = z.enum(USER_ROLES);
 
@@ -75,19 +50,6 @@ export const loginSchema = z
   .strict();
 export type LoginRequest = z.infer<typeof loginSchema>;
 
-/**
- * Length is the only password rule this contract carries, so the browser can
- * check the same floor the server does. Twelve rather than eight because
- * length is what actually resists guessing; there are deliberately **no**
- * composition rules (a digit, a symbol, a capital), which NIST 800-63B
- * recommends against — they produce predictable passwords like `Passwort1!`
- * without making them harder to guess.
- *
- * What replaces them is server-side and cannot live here: a blocklist of
- * common passwords, and a refusal of anything containing the account's own
- * address or the shop's name (see PasswordPolicy).
- */
-export const PASSWORD_MIN_LENGTH = 12;
 export const newPasswordSchema = z.string().min(PASSWORD_MIN_LENGTH).max(200);
 
 /**
@@ -108,12 +70,6 @@ export const PASSWORD_REJECTION_CODES = [
   'password-unchanged',
 ] as const;
 export type PasswordRejectionCode = (typeof PASSWORD_REJECTION_CODES)[number];
-
-/**
- * A set-a-password link that is no good. Unknown, already used and expired are
- * deliberately one code, as they are one answer.
- */
-export const PASSWORD_TOKEN_INVALID = 'password-token-invalid' as const;
 
 /**
  * Redeeming a set-a-password link (FR-AUTH-01/02). The token is the whole

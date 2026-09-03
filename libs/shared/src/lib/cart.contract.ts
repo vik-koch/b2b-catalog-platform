@@ -1,4 +1,5 @@
 import { oc } from '@orpc/contract';
+import { CART_LINES_MAX, CART_NOTE_MAX } from './cart-constants';
 import * as z from 'zod';
 import {
   catalogImageSchema,
@@ -18,16 +19,6 @@ import { LINE_PIECES_MAX, PRODUCT_UNITS } from './product-units';
  * mutates the browser's cart — a dead line is flagged, and removing it is the
  * customer's action.
  */
-
-/** One note describes a whole line ("100 in colour A, 100 in colour B"), so it
- * has room to. */
-export const CART_NOTE_MAX = 500;
-/**
- * How many distinct lines may be priced in one call. A bound, not a business
- * rule: this is an unauthenticated N-product lookup, and a hand-written body
- * must not be able to ask for ten thousand.
- */
-export const CART_LINES_MAX = 100;
 
 /** The unit a line is read and stepped in. A lens on the line's piece count,
  * not a second quantity: the customer's choice of it is kept exactly as made,

@@ -4,14 +4,14 @@ import { addressInputSchema, countryCodeSchema } from './address.contract';
 import {
   companyRegistrationIdSchema,
   lowercaseEmailField,
-} from './contact-format';
+} from './contact-config';
 import { commonAuthErrors } from './api-error';
 import {
-  CART_LINES_MAX,
   cartLineSchema,
   cartPreviewSchema,
   productUnitSchema,
 } from './cart.contract';
+import { CART_LINES_MAX } from './cart-constants';
 import { catalogImageSchema, paginationSchema } from './catalog.contract';
 
 /**
