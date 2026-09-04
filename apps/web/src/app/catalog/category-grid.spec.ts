@@ -2,7 +2,7 @@ import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig } from '../config/deployment-config.type';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { CategoryGrid } from './category-grid';
@@ -56,10 +56,9 @@ async function render(
   result: Products | null,
   { sort, spy, attr, attrSpy }: SortOptions = {},
 ): Promise<ComponentFixture<CategoryGrid>> {
-  const config = {
-    branding: { title: 'Test Shop' },
-    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
-  } as unknown as DeploymentConfig;
+  // From the committed demo config, not a literal: a hand-built one silently
+  // drops whatever the schema grew since, and a missing flag reads as "off".
+  const config = defaultDeploymentConfig;
   TestBed.configureTestingModule({
     imports: [CategoryGrid],
     providers: [

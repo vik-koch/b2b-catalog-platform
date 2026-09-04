@@ -27,7 +27,8 @@
       "volume": "m³",
       "weight": "kg"
     },
-    "lowStockThresholdPieces": 10
+    "lowStockThresholdPieces": 10,
+    "sortControlsEnabled": true
   },
   "locations": [
     {

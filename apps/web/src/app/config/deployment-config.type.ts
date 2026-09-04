@@ -276,6 +276,17 @@ export const deploymentConfigSchema = z
          * actually resolve to.
          */
         lowStockThresholdPieces: z.number().int().positive().optional(),
+        /**
+         * Whether the storefront draws the sort controls (FR-SEARCH-04).
+         *
+         * Off, a listing keeps its default order — relevance for a search,
+         * name for a category — and the `sort` parameter keeps working, so a
+         * link somebody saved still opens the listing they saved. It hides a
+         * control, it does not remove an ordering: a shop whose customers know
+         * the catalogue by heart reads a listing faster without one, and the
+         * admin grid's own sorting is untouched.
+         */
+        sortControlsEnabled: z.boolean(),
         /** Units a box's volume and weight are measured in. Labels only — the
          * numbers are stored as entered. */
         boxUnits: z
