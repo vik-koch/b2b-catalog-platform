@@ -11,6 +11,8 @@ import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { AuthService } from '../auth/auth.service';
+import { WorkService } from '../work/work.service';
+import { workStub } from '../work/work.fixture';
 import { plainUser } from '../auth/auth-user.fixture';
 import { AccountPage } from './account-page';
 import { AddressesService } from '../addresses/addresses.service';
@@ -68,6 +70,7 @@ async function render(
   addresses: Address[] | 'reject' = [],
   confirmed = true,
   orders: OrderSummary[] | 'reject' = [],
+  waiting = 0,
 ) {
   const h: AddressHarness = {
     list: vi.fn(() =>
@@ -89,6 +92,7 @@ async function render(
         provide: AuthService,
         useValue: { user: signal(plainUser), logout: vi.fn() },
       },
+      { provide: WorkService, useValue: workStub({ myOrders: waiting }) },
       { provide: AddressesService, useValue: h },
       {
         provide: OrdersService,
@@ -309,6 +313,32 @@ describe('AccountPage', () => {
       expect(el.textContent).toContain(defaultAppText.orders.error);
       expect(el.textContent).toContain('Alex Fischer');
     });
+
+    /*
+     * What waits on the customer (FR-WORK-03), above the rows it is about —
+     * the other end of the marker on the account control. Silent until order
+     * processing gives an order a state that waits on them, which is why the
+     * count is stubbed rather than seeded.
+     */
+    it('says what is waiting on the account holder, and links to it', async () => {
+      const { el } = await render(
+        customer,
+        [],
+        true,
+        [order('CK-2026-0001')],
+        2,
+      );
+
+      const note = el.querySelector('app-work-note a');
+      expect(note?.textContent).toContain('2 waiting for you');
+      expect(note?.getAttribute('href')).toBe('/account/orders');
+    });
+
+    it('says nothing when nothing waits on them', async () => {
+      const { el } = await render(customer, [], true, [order('CK-2026-0001')]);
+
+      expect(el.querySelector('app-work-note')).toBeNull();
+    });
   });
 
   // Two answers to one question, on two round trips: drawn as each lands, the
@@ -329,6 +359,7 @@ describe('AccountPage', () => {
           provide: AuthService,
           useValue: { user: signal(plainUser), logout: vi.fn() },
         },
+        { provide: WorkService, useValue: workStub() },
         { provide: AddressesService, useValue: { list: () => pending } },
         { provide: ConfirmService, useValue: { ask: vi.fn() } },
         {
