@@ -39,7 +39,7 @@ import { SearchOverlay } from './layout/search-overlay';
            Those narrow columns are centered only on the signed-out screens
            (login, register, password reset), where the page is the whole task;
            inside the app they stay left, under a left-aligned heading. -->
-      <main class="mx-auto w-full max-w-[82rem] flex-1 p-4">
+      <main class="mx-auto w-full max-w-[82rem] flex-1 p-4 mb-4">
         <router-outlet />
       </main>
       <!-- Admin-only storefront edit-mode toggle; empty for everyone else, and

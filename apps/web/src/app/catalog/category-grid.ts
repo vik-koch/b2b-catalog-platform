@@ -87,7 +87,7 @@ const SUBS_ASSUMED_FIT = 4;
          own padding is the exception — no element can query its own
          container. -->
     <section
-      class="@container/listing relative pb-6"
+      class="@container/listing relative"
       [attr.aria-busy]="products.isLoading() ? 'true' : null"
     >
       @if (products.error()) {
@@ -317,7 +317,7 @@ const SUBS_ASSUMED_FIT = 4;
 
                 @if (data.pagination.totalPages > 1) {
                   <nav
-                    class="mt-10 flex items-center justify-center gap-4 text-sm"
+                    class="mt-8 flex items-center justify-center gap-4 text-sm"
                     [attr.aria-label]="text.pageStatus"
                   >
                     @if (data.pagination.page > 1) {
