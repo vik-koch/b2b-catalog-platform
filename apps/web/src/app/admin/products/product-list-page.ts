@@ -169,7 +169,13 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
             <!-- The figure inside the badge, not the word: what a manager
                  restocking needs is how many, and the colour is what the three
                  states are for. The word is read out with it, so the colour is
-                 never carrying the state on its own. -->
+                 never carrying the state on its own.
+
+                 The unit is spelled out because the figure is not the only
+                 count in the row: packaging is entered in pieces per pack and
+                 packs per box, and a bare number in a stock column had to be
+                 taken on trust as one of them. Non-breaking, so the two never
+                 land on separate lines in the card. -->
             @if (item.stockPieces === null) {
               <span class="text-muted">{{ text.stockUntracked }}</span>
             } @else {
@@ -179,7 +185,7 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
                 [tone]="stockTone(item)"
                 [attr.aria-label]="stockLabel(item)"
               >
-                {{ item.stockPieces }}
+                {{ item.stockPieces }}&nbsp;{{ pieceSuffix }}
               </span>
             }
           </td>
@@ -255,7 +261,7 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
                   [tone]="stockTone(item)"
                   [attr.aria-label]="stockLabel(item)"
                   [class.opacity-50]="isDeleted(item)"
-                  >{{ item.stockPieces }}</span
+                  >{{ item.stockPieces }}&nbsp;{{ pieceSuffix }}</span
                 >
               }
               <app-grid-timestamp
@@ -612,8 +618,13 @@ export class ProductListPage {
     return tones[item.availability ?? 'in'];
   }
 
+  /** The editor's own word for a piece, not a second spelling of it: a
+   * deployment that says "ea" or "St." says it once. */
+  protected readonly pieceSuffix = this.productText.packaging.pieceSuffix;
+
   /** What the badge says when it is read rather than seen: the figure and the
-   * state it resolves to. */
+   * state it resolves to. The unit is in the wording of `stockLabel`, so the
+   * suffix beside the figure is not read out twice. */
   protected stockLabel(item: {
     stockPieces: number | null;
     availability: ProductAvailability | null;

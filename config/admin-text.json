@@ -237,7 +237,7 @@
     "stock": "Stock",
     "stockAll": "Any stock",
     "filterStock": "Filter by stock",
-    "stockLabel": "{count} in stock — {state}",
+    "stockLabel": "{count} pieces in stock — {state}",
     "stockUntracked": "—",
     "filterAttribute": "Attribute",
     "clearAttribute": "Clear the attribute filter",

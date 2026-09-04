@@ -153,10 +153,13 @@ test.describe('the product grid stock column', () => {
     await page.getByLabel('Filter by stock').selectOption('out');
     await expect(page).toHaveURL(/availability=out/);
 
-    // The count, not the word: an empty shelf reads 0, in the grey badge.
+    // The count and its unit, not the state word: an empty shelf reads 0 pcs,
+    // in the grey badge, and the state is what a screen reader is told.
     const empty = row('Nordic Pull').first();
     await expect(empty).toBeVisible();
-    await expect(empty.getByLabel('0 in stock — Out of stock')).toHaveText('0');
+    await expect(
+      empty.getByLabel('0 pieces in stock — Out of stock'),
+    ).toHaveText('0 pcs');
 
     // And the other two states exclude it, so the filter is the stored state
     // rather than a text match.
@@ -206,9 +209,9 @@ test.describe('admin grids on a phone', () => {
       .filter({ hasText: 'Nordic Pull' })
       .first();
     await expect(record).toBeVisible();
-    await expect(record.getByLabel('0 in stock — Out of stock')).toHaveText(
-      '0',
-    );
+    await expect(
+      record.getByLabel('0 pieces in stock — Out of stock'),
+    ).toHaveText('0 pcs');
 
     // The column heading a desktop filters from is in the sheet here, and the
     // filter already in effect is counted on the disclosure.
