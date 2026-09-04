@@ -19,6 +19,7 @@ function addition(): CartAddition {
     image: null,
     lineNoteEnabled: false,
     lineNotePrompt: null,
+    pairedCount: 0,
     availability: null,
     prices: {
       pieceMilliMinor: 1_166_667,
@@ -47,6 +48,7 @@ function preview(lineTotalMinor: number | null = 6500): CartPreview {
         boxCount: 1,
         lineNoteEnabled: false,
         lineNotePrompt: null,
+        pairedCount: 0,
         availability: null,
         prices: {
           pieceMilliMinor: 1_083_333,

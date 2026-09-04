@@ -46,6 +46,7 @@ export type IconName =
   | 'layout-list'
   | 'message-circle-plus'
   | 'message-circle-check'
+  | 'package-plus'
   | 'folder-plus'
   | 'file-plus'
   | 'plus';
@@ -197,6 +198,16 @@ export type IconName =
           <path
             d="m21.879 10.449a10 10 0 0 1 0.12108 1.5514 10 10 0 0 1-10 10 10 10 0 0 1-10-10 10 10 0 0 1 10-10 10 10 0 0 1 1.5514 0.12108"
           />
+        }
+        @case ('package-plus') {
+          <path d="M12 22V12" />
+          <path d="M16 17h6" />
+          <path d="M19 14v6" />
+          <path
+            d="M21 10.535V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l1.675-.955"
+          />
+          <path d="M3.29 7 12 12l8.71-5" />
+          <path d="m7.5 4.27 8.997 5.148" />
         }
         @case ('message-circle-plus') {
           <path

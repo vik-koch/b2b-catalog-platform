@@ -24,6 +24,7 @@ function addition(overrides: Partial<CartAddition> = {}): CartAddition {
     image: null,
     lineNoteEnabled: false,
     lineNotePrompt: null,
+    pairedCount: 0,
     availability: null,
     prices: {
       pieceMilliMinor: 1_166_667,
@@ -53,6 +54,7 @@ function preview(
     boxCount: 1,
     lineNoteEnabled: false,
     lineNotePrompt: null,
+    pairedCount: 0,
     availability: null,
     prices: {
       pieceMilliMinor: 1_166_667,
@@ -455,6 +457,39 @@ describe('CartPage', () => {
     const view = await render({ lines: [addition()] });
 
     expect(view.el.querySelector('textarea')).toBeNull();
+  });
+
+  // FR-SET-05 on the cart: the word, not the glyph — this line has a column to
+  // spare for it, and the panel is worth naming before it is opened.
+  it('names the counterparts above the note, and only where there are any', async () => {
+    const paired = await render({
+      lines: [addition({ pairedCount: 2, lineNoteEnabled: true })],
+      answer: preview([{ pairedCount: 2, lineNoteEnabled: true }]),
+    });
+
+    const link = paired.el.querySelector('app-product-pairings');
+    const field = paired.el.querySelector('textarea');
+    if (!link || !field) throw new Error('expected both the link and the note');
+    expect(link.textContent).toContain(defaultAppText.catalog.pairings.label);
+    // Above the note, because it is something the shop says about the product
+    // and the note is something the customer writes about the line.
+    expect(
+      link.compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    const alone = await render({ lines: [addition()] });
+    expect(alone.el.querySelector('app-product-pairings')).toBeNull();
+  });
+
+  // The row's own controls do not also carry the glyph: two ways to open one
+  // panel, side by side, is one too many.
+  it("leaves the marker off the row's controls", async () => {
+    const view = await render({
+      lines: [addition({ pairedCount: 2 })],
+      answer: preview([{ pairedCount: 2 }]),
+    });
+
+    expect(view.el.querySelectorAll('app-product-pairings')).toHaveLength(1);
   });
 
   // In the field that edits it, not as a sentence beside the name: one note,

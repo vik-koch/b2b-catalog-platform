@@ -68,6 +68,13 @@
     "backToCatalog": "Back to the catalogue",
     "viewImage": "Show image {n}",
     "imagePlaceholder": "No image available",
+    "pairings": {
+      "label": "Sold together",
+      "marker": "Sold together with {count} products",
+      "intro": "These are sold with this product. Add what you need without leaving the page.",
+      "close": "Close",
+      "loadError": "Something went wrong loading these — please try again later."
+    },
     "units": {
       "piece": "pcs",
       "pack": "pk",

@@ -13,6 +13,7 @@ import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductBuyControls } from './product-buy-controls';
+import { ProductPairings } from './product-pairings';
 import { ProductUnitFacts } from './product-unit-facts';
 
 /**
@@ -39,6 +40,7 @@ import { ProductUnitFacts } from './product-unit-facts';
     Input,
     ProductAvailabilityBadge,
     ProductBuyControls,
+    ProductPairings,
     ProductUnitFacts,
   ],
   template: `
@@ -61,15 +63,30 @@ import { ProductUnitFacts } from './product-unit-facts';
         [image]="item().images[0]"
         [note]="note()"
         [externalNote]="true"
+        [offerPairings]="false"
         [canAdd]="canAdd()"
       >
         <app-product-unit-facts class="mt-2" [packagingInfo]="packaging()" />
+
+        <!-- After the packaging facts and before the note: it is one more
+             thing this product says about itself, and the note is the one
+             thing on this panel the customer writes. With the word rather than
+             the glyph alone — there is a line to spare here, and the panel it
+             opens is worth naming before it is pressed. -->
+        @if (item().pairedCount > 0) {
+          <app-product-pairings
+            class="mt-3 block"
+            variant="link"
+            [slug]="item().slug"
+            [count]="item().pairedCount"
+          />
+        }
 
         @if (item().lineNoteEnabled) {
           <!-- The product's question is the field's placeholder rather than a
                line under it: it says what to write, and it is read while the
                field is empty — the only time it has anything to say. -->
-          <label class="mt-4 block">
+          <label class="mt-3 block">
             <span appFieldLabel>{{ text.noteLabel }}</span>
             <textarea
               appInput

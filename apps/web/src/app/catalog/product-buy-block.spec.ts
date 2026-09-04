@@ -11,6 +11,7 @@ import { packagedPackaging, productDetail } from './product.fixture';
 
 const text = defaultAppText.cart;
 const unitText = defaultAppText.catalog.units;
+const pairingText = defaultAppText.catalog.pairings;
 
 /**
  * Ten to a pack, four packs to a box (so forty pieces), and a hundred-piece
@@ -195,5 +196,36 @@ describe('ProductBuyBlock', () => {
     const view = await render(packaged, false);
 
     expect(view.text()).not.toContain(text.add);
+  });
+
+  // FR-SET-05 on the product page: after the packaging facts and before the
+  // note — one more thing the product says about itself, and the note is the
+  // one thing on this panel the customer writes.
+  it('names the counterparts once, between the packaging and the note', async () => {
+    const view = await render(
+      productDetail({ pairedCount: 2, lineNoteEnabled: true }),
+    );
+
+    const el = view.el;
+    const link = el.querySelector('app-product-pairings');
+    const facts = el.querySelector('app-product-unit-facts');
+    const field = el.querySelector('textarea');
+    if (!link || !facts || !field) throw new Error('expected all three');
+
+    expect(link.textContent).toContain(pairingText.label);
+    expect(
+      facts.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      link.compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // Once: the controls do not also carry the glyph.
+    expect(el.querySelectorAll('app-product-pairings')).toHaveLength(1);
+  });
+
+  it('says nothing about counterparts for a product sold alone', async () => {
+    const view = await render(packaged);
+
+    expect(view.el.querySelector('app-product-pairings')).toBeNull();
   });
 });

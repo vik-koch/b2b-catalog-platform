@@ -58,6 +58,7 @@ import {
   toListItem,
   unitColumns,
 } from './product-view';
+import { counterpartOf, involves, pairedCountOf } from './product-pairings';
 import { LOW_STOCK_THRESHOLD_PIECES } from '../config/deployment-config';
 import {
   resolveNewSlug,
@@ -508,6 +509,7 @@ export class AdminProductsService {
         ...unitColumns,
         ...noteColumns,
         ...availabilityColumns,
+        pairedCount: pairedCountOf(),
       })
       .from(products)
       .where(
@@ -669,10 +671,7 @@ export class AdminProductsService {
    * table read the same from both products.
    */
   private async pairingsFor(productId: string): Promise<PairedProduct[]> {
-    const counterpartId = sql`case
-      when ${productPairings.productAId} = ${productId}
-      then ${productPairings.productBId}
-      else ${productPairings.productAId} end`;
+    const counterpartId = counterpartOf(productId);
     const rows = await this.db
       .select({
         slug: products.slug,
@@ -682,7 +681,7 @@ export class AdminProductsService {
       })
       .from(productPairings)
       .innerJoin(products, eq(products.id, counterpartId))
-      .where(this.involves(productId))
+      .where(involves(productId))
       .orderBy(asc(products.name));
     return rows.map((row) => ({
       slug: row.slug,
@@ -690,14 +689,6 @@ export class AdminProductsService {
       deleted: row.deletedAt !== null,
       unpublished: row.publishedAt === null,
     }));
-  }
-
-  /** Either end of an edge is this product. */
-  private involves(productId: string) {
-    return or(
-      eq(productPairings.productAId, productId),
-      eq(productPairings.productBId, productId),
-    );
   }
 
   /**
@@ -760,15 +751,12 @@ export class AdminProductsService {
     productId: string,
     counterpartIds: string[],
   ): Promise<void> {
-    const counterpartId = sql`case
-      when ${productPairings.productAId} = ${productId}
-      then ${productPairings.productBId}
-      else ${productPairings.productAId} end`;
+    const counterpartId = counterpartOf(productId);
     await tx
       .delete(productPairings)
       .where(
         and(
-          this.involves(productId),
+          involves(productId),
           counterpartIds.length > 0
             ? notInArray(counterpartId, counterpartIds)
             : undefined,

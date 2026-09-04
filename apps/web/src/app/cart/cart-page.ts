@@ -14,6 +14,7 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
+import { ProductPairings } from '../catalog/product-pairings';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -77,6 +78,9 @@ interface CartRow {
   /** The product's own wording for the note, or the app's. */
   notePrompt: string;
   takesNote: boolean;
+  /** How many products this line's product is sold together with (FR-SET-05);
+   * zero is no link. */
+  pairedCount: number;
   issues: string[];
   /** The advisories that are feedback rather than a state: they go in the
    * bubble under the stepper they are about, not in the list below the name. */
@@ -111,6 +115,7 @@ interface CartRow {
     IconButton,
     Input,
     OrderSummary,
+    ProductPairings,
     ProductRow,
     RouterLink,
   ],
@@ -235,6 +240,7 @@ interface CartRow {
                     [item]="row.item"
                     [available]="row.available"
                     [externalNote]="true"
+                    [offerPairings]="false"
                     [notice]="row.notice"
                   >
                     <!-- Level with the top of the photo, and as close to it as
@@ -254,43 +260,57 @@ interface CartRow {
                       <p class="mt-1 text-sm text-amber-700">{{ issue }}</p>
                     }
 
-                    @if (row.takesNote) {
-                      <!-- Under the name, in the name's own column: a note is
-                         about this product, and a field the width of the whole
-                         line read as being about the cart. The placeholder is
-                         the product's question, so it needs no label.
+                    @if (row.takesNote || row.pairedCount > 0) {
+                      <!-- Under the name, in the name's own column: both of
+                         these are about this product, and a field the width of
+                         the whole line read as being about the cart.
 
-                         It drops to the bottom of that column, which
-                         is the photo's own bottom edge — a short name leaves it
-                         there rather than hanging it under one line of text. A
-                         name long enough to need the room pushes it down
-                         instead.
+                         The pair drops to the bottom of that column, which is
+                         the photo's own bottom edge — a short name leaves them
+                         there rather than hanging them under one line of text.
+                         A name long enough to need the room pushes them down
+                         instead. Whichever of the two a line has ends up on
+                         the same edge as its neighbours'.
 
-                         A text area, as everywhere else a sentence is typed,
-                         one line deep until the customer drags it taller —
-                         the height of the pill of segments across from it,
-                         and dense to match: the row is a line of small
-                         controls, and a full-sized field among them reads as
-                         the thing to fill in. -->
-                      <!-- No wider than the controls it stands over while the
+                         No wider than the controls they stand over while the
                          line is stacked: a field that ran past their right
                          edge read as belonging to the row, not to the column
                          it is in. -->
                       <div
-                        class="mt-auto pt-2 @max-[47.5rem]/row:max-w-[28.5rem]"
+                        class="mt-auto flex flex-col items-start gap-2 pt-2 @max-[47.5rem]/row:max-w-[28.5rem]"
                       >
-                        <textarea
-                          appInput
-                          appAutoGrow
-                          size="sm"
-                          rows="1"
-                          class="w-full"
-                          [attr.maxlength]="noteMax"
-                          [attr.placeholder]="row.notePrompt"
-                          [attr.aria-label]="text.lineNote"
-                          [value]="row.note ?? ''"
-                          (change)="onNote(row, $event)"
-                        ></textarea>
+                        <!-- Above the note, because it is something the shop
+                           says about the product and the note is something the
+                           customer writes about the line. -->
+                        @if (row.pairedCount > 0) {
+                          <app-product-pairings
+                            variant="link"
+                            [slug]="row.slug"
+                            [count]="row.pairedCount"
+                          />
+                        }
+                        @if (row.takesNote) {
+                          <!-- The placeholder is the product's question, so it
+                             needs no label. A text area, as everywhere else a
+                             sentence is typed, one line deep until the
+                             customer drags it taller — the height of the pill
+                             of segments across from it, and dense to match:
+                             the row is a line of small controls, and a
+                             full-sized field among them reads as the thing to
+                             fill in. -->
+                          <textarea
+                            appInput
+                            appAutoGrow
+                            size="sm"
+                            rows="1"
+                            class="w-full"
+                            [attr.maxlength]="noteMax"
+                            [attr.placeholder]="row.notePrompt"
+                            [attr.aria-label]="text.lineNote"
+                            [value]="row.note ?? ''"
+                            (change)="onNote(row, $event)"
+                          ></textarea>
+                        }
                       </div>
                     }
 
@@ -509,12 +529,14 @@ export class CartPage {
           availability: line.availability,
           lineNoteEnabled: line.noteEnabled,
           lineNotePrompt: line.notePrompt,
+          pairedCount: line.pairedCount,
           images: line.image ? [line.image] : [],
         },
         name: line.name,
         note: line.note,
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
+        pairedCount: line.pairedCount,
         // Before an answer arrives, the one thing the browser wrote down about
         // the line's state — so a withdrawn line says why it is priceless
         // rather than showing "on request" with nothing to explain it.

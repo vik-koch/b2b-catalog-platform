@@ -149,6 +149,24 @@ export const appTextSchema = z
         /** Caption shown on the fallback tile when a product has no photo. */
         imagePlaceholder: z.string(),
         /**
+         * Sold-together pairings (FR-SET-05). `label` names the thing
+         * everywhere it appears — the marker's accessible name, the link on a
+         * product page and in the cart, and the panel's own heading — so a
+         * customer meets one word for it. `{count}` in `marker` is how many
+         * counterparts there are.
+         */
+        pairings: z
+          .object({
+            label: z.string(),
+            marker: z.string(),
+            /** Read under the heading, once the panel is open. */
+            intro: z.string(),
+            close: z.string(),
+            /** Where the counterparts could not be fetched. */
+            loadError: z.string(),
+          })
+          .strict(),
+        /**
          * Units of sale (FR-UNIT-*). The unit words are **abbreviations** —
          * they follow a number and are never inflected, so a full word here
          * would read wrongly after some quantities ("4 pack × 1 pieces").

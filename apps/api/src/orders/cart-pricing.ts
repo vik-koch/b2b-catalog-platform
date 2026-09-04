@@ -23,6 +23,7 @@ import {
   unitColumns,
   unitPricesOf,
 } from '../catalog/product-view';
+import { pairedCountOf } from '../catalog/product-pairings';
 
 /**
  * Pricing a cart, once, for both the preview and the submission — a submitted
@@ -78,6 +79,8 @@ type ProductRow = {
   lineNotePrompt: string | null;
   /** The stored state, never the count behind it (FR-STOCK-01). */
   availability: ProductAvailability | null;
+  /** How many sellable products this one is sold together with (FR-SET-05). */
+  pairedCount: number;
   priceBasisPieces: number;
   piecesPerPack: number | null;
   packsPerBox: number | null;
@@ -147,6 +150,7 @@ async function loadProducts(
       lineNotePrompt: products.lineNotePrompt,
       ...availabilityColumns,
       ...unitColumns,
+      pairedCount: pairedCountOf(),
     })
     .from(products)
     .where(and(inArray(products.slug, slugs), publiclyVisible));
@@ -177,6 +181,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
         boxVolume: null,
         boxWeight: null,
         boxCount: null,
+        pairedCount: 0,
         lineNoteEnabled: false,
         lineNotePrompt: null,
         lineTotalMinor: null,
@@ -247,6 +252,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
       packaging,
       prices,
       availability: product.availability,
+      pairedCount: product.pairedCount,
       boxVolume: product.boxVolume,
       boxWeight: product.boxWeight,
       boxCount: product.boxCount,

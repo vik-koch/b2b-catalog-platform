@@ -782,6 +782,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
         'lineNotePrompt',
         'name',
         'packaging',
+        'pairedCount',
         'priceMinor',
         'prices',
         'slug',
@@ -1104,6 +1105,83 @@ describe('Admin catalog (FR-ADM-01)', () => {
       });
       expect(self.status).toBe(409);
       expect(self.data.code).toBe('pairing-self');
+    });
+
+    it('shows the storefront only the counterparts it can sell (FR-SET-05)', async () => {
+      const cup = await createProduct({ name: `Sold cup ${R}` });
+      const onSale = await createProduct({ name: `Sold lid ${R}` });
+      const withheld = await createProduct({ name: `Withheld lid ${R}` });
+      await publishProduct(cup.data.slug);
+      await publishProduct(onSale.data.slug);
+
+      await put(`/admin/catalog/products/${cup.data.slug}`, {
+        name: `Sold cup ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        pairedSlugs: [onSale.data.slug, withheld.data.slug],
+      });
+
+      // The editor keeps saying what the admin said: both edges, one marked.
+      const edited = await adminGet(`/admin/catalog/products/${cup.data.slug}`);
+      expect(pairedSlugs(edited.data)).toHaveLength(2);
+
+      // Before the save there is nothing to list — an empty list, not a 404:
+      // the product exists, and it is sold with nothing.
+      const lone = await createProduct({ name: `Lone ${R}` });
+      await publishProduct(lone.data.slug);
+      const none = await axios.get(
+        `/catalog/products/${lone.data.slug}/pairings`,
+        { validateStatus: () => true },
+      );
+      expect(none.status).toBe(200);
+      expect(none.data.items).toEqual([]);
+
+      // The storefront counts and lists only the one on offer.
+      const anon = (url: string) =>
+        axios.get(url, { validateStatus: () => true });
+      const page = await anon(`/catalog/products/${cup.data.slug}`);
+      expect(page.data.pairedCount).toBe(1);
+
+      const pairings = await anon(
+        `/catalog/products/${cup.data.slug}/pairings`,
+      );
+      expect(pairings.status).toBe(200);
+      expect(
+        pairings.data.items.map((item: { slug: string }) => item.slug),
+      ).toEqual([onSale.data.slug]);
+      // A tile, in the listing's own shape: the panel behind the marker is a
+      // short listing, not a fourth rendering of a product.
+      expect(Object.keys(pairings.data.items[0]).sort()).toEqual([
+        'availability',
+        'images',
+        'lineNoteEnabled',
+        'lineNotePrompt',
+        'name',
+        'packaging',
+        'pairedCount',
+        'priceMinor',
+        'prices',
+        'slug',
+      ]);
+      // Read from the other side too: the lid is sold with the cup.
+      expect(
+        (await anon(`/catalog/products/${onSale.data.slug}/pairings`)).data
+          .items.length,
+      ).toBe(1);
+
+      // Withdrawing the counterpart takes the marker down without touching the
+      // edge — the admin's set is unchanged, the offer is not.
+      await del(`/admin/catalog/products/${onSale.data.slug}`);
+      const after = await anon(`/catalog/products/${cup.data.slug}`);
+      expect(after.data.pairedCount).toBe(0);
+      expect(
+        (await anon(`/catalog/products/${cup.data.slug}/pairings`)).data.items,
+      ).toEqual([]);
+      expect(
+        pairedSlugs(
+          (await adminGet(`/admin/catalog/products/${cup.data.slug}`)).data,
+        ),
+      ).toHaveLength(2);
     });
 
     it('refuses the same counterpart twice', async () => {

@@ -42,6 +42,7 @@ export function productListItem(
     lineNoteEnabled: false,
     lineNotePrompt: null,
     availability: null,
+    pairedCount: 0,
     ...overrides,
   };
 }
@@ -63,6 +64,7 @@ export function productDetail(
     lineNoteEnabled: false,
     lineNotePrompt: null,
     availability: null,
+    pairedCount: 0,
     category: {
       slug: 'coffee-beans',
       name: 'Coffee Beans',

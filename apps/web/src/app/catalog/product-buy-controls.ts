@@ -29,6 +29,7 @@ import { SEGMENTED_GROUP, SegmentState, segmentClass } from '../ui/segmented';
 import { createBuyQuantity } from './buy-quantity';
 import { formatPriceMinor } from './price';
 import { ProductNoteEditor } from './product-note-editor';
+import { ProductPairings } from './product-pairings';
 import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
 
@@ -70,6 +71,13 @@ export interface BuyableProduct {
    * own wording for the question. */
   lineNoteEnabled: boolean;
   lineNotePrompt: string | null;
+  /**
+   * How many products this one is sold together with (FR-SET-05); zero is no
+   * marker. Optional, because the cart's own stored line predates it — a cart
+   * saved before this shipped has no figure, and no marker is the right
+   * reading of that until the next pricing call answers.
+   */
+  pairedCount?: number;
 }
 
 /**
@@ -122,6 +130,7 @@ export interface BuyableProduct {
     NumericField,
     Popover,
     ProductNoteEditor,
+    ProductPairings,
     ProductUnitFacts,
   ],
   host: { class: 'block' },
@@ -142,6 +151,13 @@ export interface BuyableProduct {
              price row — the cart's bin — and it is the only place a control
              belongs that is neither a choice nor the action. -->
         <ng-content select="[priceAction]" />
+
+        <!-- Left of the note, which keeps its corner: a customer who learned
+             the bubble there should not find it moved because this product
+             happens to be sold with something. -->
+        @if (marker(); as paired) {
+          <app-product-pairings [slug]="item().slug" [count]="paired" />
+        }
 
         @if (asksForNote()) {
           <app-product-note-editor
@@ -421,6 +437,12 @@ export class ProductBuyControls {
   /** Card-sized rather than page-sized: smaller type and a denser stepper. */
   readonly compact = input(false);
   /**
+   * False where the caller shows the counterparts itself — the product page and
+   * the cart, which give them a line and a word — and false inside the panel
+   * they open, whose rows lead back to the product it was opened from.
+   */
+  readonly offerPairings = input(true);
+  /**
    * False for a cart line whose product the shop can no longer price — it has
    * been withdrawn, or repackaged out of its stored basis. The controls state
    * no figure and take no input: the last price the browser saw is not one the
@@ -501,6 +523,11 @@ export class ProductBuyControls {
   protected readonly asksForNote = computed(
     () => this.item().lineNoteEnabled && !this.externalNote(),
   );
+  /** How many counterparts the marker should say, or null for no marker. */
+  protected readonly marker = computed(() => {
+    const count = this.item().pairedCount ?? 0;
+    return this.offerPairings() && count > 0 ? count : null;
+  });
   protected readonly notePrompt = computed(
     () => this.item().lineNotePrompt ?? this.text.notePrompt,
   );
@@ -877,6 +904,10 @@ export class ProductBuyControls {
       availability: item.availability ?? null,
       lineNoteEnabled: item.lineNoteEnabled,
       lineNotePrompt: item.lineNotePrompt,
+      // Never undefined, for the reason the photo is not: an undefined field
+      // does not survive `JSON.stringify`, and a stored line missing one is
+      // discarded when it is read back.
+      pairedCount: item.pairedCount ?? 0,
     };
   }
 

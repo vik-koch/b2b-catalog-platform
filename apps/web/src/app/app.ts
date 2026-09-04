@@ -7,6 +7,8 @@ import { EditModeToggle } from './admin/edit-mode-toggle';
 import { ForcePasswordChange } from './auth/force-password-change';
 import { CartFigures } from './cart/cart-figures';
 import { LastListingService } from './catalog/last-listing.service';
+import { PairingsService } from './catalog/pairings.service';
+import { ProductPairingsDialog } from './catalog/product-pairings-dialog';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 import { CookieConsent } from './consent/cookie-consent';
 import { BottomNav } from './layout/bottom-nav';
@@ -24,6 +26,7 @@ import { SearchOverlay } from './layout/search-overlay';
     CookieConsent,
     ForcePasswordChange,
     EditModeToggle,
+    ProductPairingsDialog,
   ],
   selector: 'app-root',
   template: `
@@ -57,6 +60,17 @@ import { SearchOverlay } from './layout/search-overlay';
         class="h-[calc(3.5rem+1px+env(safe-area-inset-bottom))] sm:hidden"
       ></div>
     </div>
+    <!-- One panel for every sold-together marker on the page (FR-SET-05): it
+         is a modal, so there is only ever one open, and drawing it here keeps
+         it off the import path of the rows it is made of.
+
+         Deferred, because it is made of product rows and would otherwise pull
+         the whole buying block into the first load for a panel most visits
+         never open. It is opened by a click, so the chunk has a moment to
+         arrive while the request for its contents is in flight. -->
+    @defer (when pairings.open() !== null) {
+      <app-product-pairings-dialog />
+    }
     <app-bottom-nav />
     <!-- The phone's search field over the page, opened from the bottom bar
          once the header's own has scrolled away. -->
@@ -84,6 +98,8 @@ import { SearchOverlay } from './layout/search-overlay';
 })
 export class App {
   protected branding = inject(DEPLOYMENT_CONFIG).branding;
+  /** Which sold-together panel is open — what the deferred block waits on. */
+  protected readonly pairings = inject(PairingsService);
   private readonly router = inject(Router);
 
   /**

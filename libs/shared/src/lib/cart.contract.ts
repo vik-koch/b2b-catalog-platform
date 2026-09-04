@@ -134,6 +134,12 @@ export const cartPreviewLineSchema = z
     lineNotePrompt: z.string().nullable(),
     /** Exact, or null where the line cannot be priced. */
     lineTotalMinor: z.number().int().nonnegative().nullable(),
+    /**
+     * How many sellable products this line is sold together with (FR-SET-05),
+     * so a cart row wears the same marker as the card it was added from. Zero
+     * for a product that is gone.
+     */
+    pairedCount: z.number().int().nonnegative(),
     issues: z.array(z.enum(CART_LINE_ISSUES)),
   })
   .strict();

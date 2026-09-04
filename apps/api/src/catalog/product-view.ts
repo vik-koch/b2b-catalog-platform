@@ -113,6 +113,7 @@ export function toListItem<
     lineNoteEnabled: boolean;
     lineNotePrompt: string | null;
     availability: ProductAvailability | null;
+    pairedCount: number;
   },
 >(row: T): ProductListItem {
   return {
@@ -125,6 +126,7 @@ export function toListItem<
     lineNoteEnabled: row.lineNoteEnabled,
     lineNotePrompt: row.lineNotePrompt,
     availability: row.availability,
+    pairedCount: row.pairedCount,
   };
 }
 

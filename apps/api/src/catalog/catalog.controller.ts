@@ -86,6 +86,21 @@ export class CatalogController {
   }
 
   @TierPriced()
+  @Implement(catalogContract.getProductPairings)
+  getProductPairings(@PricingTier() tierId: string | null) {
+    return implement(catalogContract.getProductPairings).handler(
+      async ({ input: { params }, errors }) => {
+        const items = await this.catalog.getProductPairings(
+          params.slug,
+          tierId,
+        );
+        if (!items) throw errors['not-found']({ message: 'Product not found' });
+        return { items };
+      },
+    );
+  }
+
+  @TierPriced()
   @Implement(catalogContract.getProduct)
   getProduct(@PricingTier() tierId: string | null) {
     return implement(catalogContract.getProduct).handler(
