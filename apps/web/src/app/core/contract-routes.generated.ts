@@ -836,3 +836,12 @@ export const usersContract = {
     },
   },
 } as unknown as typeof shared.usersContract;
+export const workContract = {
+  getCounts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/work/counts' },
+    },
+  },
+} as unknown as typeof shared.workContract;

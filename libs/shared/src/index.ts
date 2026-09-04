@@ -44,3 +44,5 @@ export * from './lib/tier-constants';
 export * from './lib/tiers.contract';
 export * from './lib/user-constants';
 export * from './lib/users.contract';
+export * from './lib/work-constants';
+export * from './lib/work.contract';

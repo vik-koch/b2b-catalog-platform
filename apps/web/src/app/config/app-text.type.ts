@@ -776,6 +776,12 @@ export const appTextSchema = z
         logout: z.string(),
         /** Static navbar label — deliberately role-independent, see accountNav usage. */
         accountNav: z.string(),
+        /**
+         * What the marker on the account control announces (FR-WORK-01).
+         * `{count}` is substituted — the dot itself never shows a figure, so
+         * this is the only place the total is spelled out.
+         */
+        workMarker: z.string(),
         /** `{name}` — the account holder's first name, or their address when
          * the account carries no name (staff, the bootstrap admin). */
         greeting: z.string(),

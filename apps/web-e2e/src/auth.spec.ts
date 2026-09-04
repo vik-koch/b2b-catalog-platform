@@ -12,8 +12,15 @@ const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 // are in the DOM so the two can cross-fade, but only the current one is in the
 // accessible name — which is the visible text on desktop and
 // screen-reader-only on mobile.
+//
+// The label is matched at the *end* of the name rather than as the whole of
+// it: once something awaits the account, the marker's spoken label joins the
+// accessible name ahead of the label ("2 awaiting your attention Account").
+// Anchoring the end is also what keeps "Accounts" on the admin panel out, and
+// only one of the two navbars is ever in the accessibility tree, so this stays
+// a single element on either viewport.
 const accountLink = (page: Page, label: string) =>
-  page.getByRole('link', { name: label, exact: true });
+  page.getByRole('link', { name: new RegExp(`${label}$`) });
 
 // /login is client-rendered, so the form only exists once Angular has built it
 // — Playwright's auto-waiting covers that, and there is no server-rendered DOM

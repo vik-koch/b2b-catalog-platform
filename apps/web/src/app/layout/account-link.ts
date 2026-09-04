@@ -6,6 +6,8 @@ import { landingFor } from '../auth/auth.guard';
 import { currentUrl } from '../core/current-url';
 import { navActionClasses, NavVariant } from './nav-action';
 import { Icon } from '../ui/icons/icon';
+import { fillText } from '@b2b-catalog-platform/shared';
+import { WorkService } from '../work/work.service';
 
 /**
  * The account control in the main navbar — one control for every role, and a
@@ -44,7 +46,7 @@ import { Icon } from '../ui/icons/icon';
       <!-- Both glyphs in one cell, swapped the way the labels are: nothing
            moves, and the pre-paint stylesheet can pick one before Angular has
            rendered anything (see session-shell.server.ts). -->
-      <span class="grid">
+      <span class="relative grid">
         <app-icon
           data-session="known"
           name="circle-user-round"
@@ -57,7 +59,25 @@ import { Icon } from '../ui/icons/icon';
           class="col-start-1 row-start-1 h-6 w-6 transition-opacity delay-300 duration-200"
           [class.opacity-0]="!signedOut()"
         />
+        <!-- The marker (FR-WORK-01): a bare dot, never a figure. It is
+             deliberately unlike the cart's badge, which counts lines in a
+             filled chip — a number here would ask "five what?", and for an
+             admin it would add up queues that have nothing to do with each
+             other. The dot says only that something is waiting; the panel
+             this link leads to says what. Amber is the app's "somebody has to
+             act" signal, and the ring keeps it legible over the glyph. -->
+        @if (waiting()) {
+          <span
+            aria-hidden="true"
+            class="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-amber-500 ring-2 ring-white"
+          ></span>
+        }
       </span>
+      <!-- The dot is decoration; this is what a screen reader hears, and it
+           carries the figure the dot deliberately does not show. -->
+      @if (waiting()) {
+        <span class="sr-only">{{ markerLabel() }}</span>
+      }
       <span [class]="cls().labelRow">
         <span [class]="cls().label" [attr.data-label]="widestLabel">
           <!-- One grid cell holding both labels: the column is as wide as the
@@ -91,7 +111,12 @@ export class AccountLink {
   protected readonly cls = computed(() => navActionClasses(this.variant()));
 
   private readonly auth = inject(AuthService);
+  private readonly work = inject(WorkService);
   private readonly url = currentUrl();
+
+  /** Only ever true in the browser: the counts are session state and the
+   * server renders one document for everybody (see WorkService). */
+  protected readonly waiting = this.work.waiting;
 
   protected readonly text = inject(APP_TEXT).auth;
 
@@ -115,6 +140,11 @@ export class AccountLink {
     const role = this.auth.user()?.role ?? this.auth.hintedRole();
     return role && !this.signedOut() ? landingFor(role) : '/login';
   });
+
+  /** What the marker says out loud — the figure it does not draw. */
+  protected readonly markerLabel = computed(() =>
+    fillText(this.text.workMarker, { count: this.work.total() }),
+  );
 
   /**
    * Computed from the URL rather than left to `routerLinkActive`, which sets
