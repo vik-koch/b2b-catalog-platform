@@ -1,14 +1,14 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, computed, inject, input, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
-import { currentUrl } from '../core/current-url';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { currentUrl } from '../core/current-url';
 import { Icon } from '../ui/icons/icon';
 import { navActionClasses, NavVariant } from './nav-action';
-import { fillText } from '@b2b-catalog-platform/shared';
 
 /**
  * The cart control in the main navbar (FR-CART-01): a link to `/cart` carrying
@@ -58,7 +58,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
              claiming to be the same kind of thing. -->
         <span
           aria-hidden="true"
-          class="cart-count absolute -top-1 -right-2 min-w-3 items-center justify-center rounded-full bg-secondary px-0.5 py-0.5 text-[0.625rem] leading-3 text-white transition-colors group-hover:bg-accent group-active:bg-primary-deep"
+          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3 items-center justify-center rounded-full bg-amber-500 px-0.5 py-0.5 text-[0.625rem] leading-3 text-white transition-colors"
         ></span>
       </span>
       <span [class]="cls().labelRow">
@@ -73,7 +73,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
         @if (variant() === 'bar') {
           <span
             aria-hidden="true"
-            class="cart-total -mx-3 items-center justify-center rounded bg-secondary px-1 py-1 text-[0.6875rem] leading-4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-primary-deep"
+            class="cart-total -mx-3 items-center justify-center rounded bg-primary px-1 py-1 text-[0.6875rem] leading-4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-primary-deep"
           ></span>
         }
         <span [class]="labelClass()" [attr.data-label]="text.navLabel">
