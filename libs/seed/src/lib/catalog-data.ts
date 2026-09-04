@@ -472,6 +472,56 @@ const allProducts: ProductSeed[] = [
       { key: 'Pieces', value: '6 glasses' },
     ],
   ),
+
+  // The pairing case (FR-SET-01): a takeaway cup nobody orders without a lid,
+  // and two lids that fit it — which is why the model is edges rather than a
+  // set, since each lid is sold with the cup and not with the other lid.
+  p(
+    'CUP-003',
+    'takeaway-cup-300',
+    'Takeaway Cup 300 ml (50)',
+    'cups',
+    1350,
+    '<p>Fifty double-walled 300&nbsp;ml takeaway cups, unprinted.</p>',
+    [
+      { key: 'Volume', value: '300' },
+      { key: 'Pieces', value: '50 cups' },
+    ],
+  ),
+  p(
+    'CUP-004',
+    'takeaway-lid-flat',
+    'Takeaway Lid, Flat (50)',
+    'cups',
+    490,
+    '<p>Fifty flat sip lids for the 300&nbsp;ml takeaway cup.</p>',
+    [
+      { key: 'Volume', value: '300' },
+      { key: 'Pieces', value: '50 lids' },
+    ],
+  ),
+  p(
+    'CUP-005',
+    'takeaway-lid-domed',
+    'Takeaway Lid, Domed (50)',
+    'cups',
+    540,
+    '<p>Fifty domed lids for the 300&nbsp;ml takeaway cup, for topped drinks.</p>',
+    [
+      { key: 'Volume', value: '300' },
+      { key: 'Pieces', value: '50 lids' },
+    ],
+  ),
+];
+
+/**
+ * The demo's sold-together pairings (FR-SET-01), by product slug. Undirected:
+ * each line is one edge, and the seed writes it once whichever way round it is
+ * written here.
+ */
+export const pairingSeeds: [string, string][] = [
+  ['takeaway-cup-300', 'takeaway-lid-flat'],
+  ['takeaway-cup-300', 'takeaway-lid-domed'],
 ];
 
 /**

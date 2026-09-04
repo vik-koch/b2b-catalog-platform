@@ -9,6 +9,7 @@ import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import {
   attributeDefinitionSeeds,
   categorySeeds,
+  pairingSeeds,
   productSeeds,
 } from './catalog-data';
 import {
@@ -133,6 +134,27 @@ export async function seedCatalog(
   }
 
   await seedAttributeDefinitions(client);
+  await seedPairings(client);
+}
+
+/**
+ * The sold-together edges (FR-SET-01). Written by slug and ordered by id, the
+ * way the write path stores them, so a pairing is one row whichever product is
+ * named first. Only the demo's own edges are touched — a pairing an admin made
+ * in the demo survives a re-seed, since nothing here can tell it from one of
+ * these apart from the pair it names.
+ */
+async function seedPairings(client: Client): Promise<void> {
+  for (const [one, other] of pairingSeeds) {
+    await client.query(
+      `INSERT INTO product_pairings ("productAId", "productBId")
+       SELECT least(a.id, b.id), greatest(a.id, b.id)
+       FROM products a, products b
+       WHERE a.slug = $1 AND b.slug = $2
+       ON CONFLICT DO NOTHING`,
+      [one, other],
+    );
+  }
 }
 
 /**
