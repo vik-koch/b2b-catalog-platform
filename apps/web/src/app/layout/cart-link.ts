@@ -51,9 +51,14 @@ import { fillText } from '@b2b-catalog-platform/shared';
            row's centre. -->
       <span class="relative inline-flex">
         <app-icon name="shopping-basket" class="h-6 w-6" />
+        <!-- Secondary, like the total below it and like the "in your cart"
+             field on the buying controls: all three state a fact about the
+             cart. Amber is reserved for work that wants somebody to act (see
+             AccountLink), and a filled amber count sat next to that marker
+             claiming to be the same kind of thing. -->
         <span
           aria-hidden="true"
-          class="cart-count absolute -top-1 -right-2 min-w-3 items-center justify-center rounded-full bg-accent px-0.5 py-0.5 text-[0.625rem] leading-3 text-white"
+          class="cart-count absolute -top-1 -right-2 min-w-3 items-center justify-center rounded-full bg-secondary px-0.5 py-0.5 text-[0.625rem] leading-3 text-white transition-colors group-hover:bg-accent group-active:bg-primary-deep"
         ></span>
       </span>
       <span [class]="cls().labelRow">
@@ -68,7 +73,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
         @if (variant() === 'bar') {
           <span
             aria-hidden="true"
-            class="cart-total -mx-3 items-center justify-center rounded bg-primary px-1 py-1 text-[0.6875rem] leading-4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-primary-deep"
+            class="cart-total -mx-3 items-center justify-center rounded bg-secondary px-1 py-1 text-[0.6875rem] leading-4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-primary-deep"
           ></span>
         }
         <span [class]="labelClass()" [attr.data-label]="text.navLabel">
