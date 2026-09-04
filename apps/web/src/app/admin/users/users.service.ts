@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   CreateUserRequest,
   ListUsersQuery,
@@ -9,6 +9,7 @@ import {
 import { usersContract } from '../../core/contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../core/orpc-client';
+import { WorkService } from '../../work/work.service';
 
 /**
  * The refusals a screen renders. The account codes, plus the two a manager is
@@ -47,6 +48,7 @@ function renderable(code: string): code is UserActionError {
 @Injectable({ providedIn: 'root' })
 export class StaffUsersService {
   private client = createOrpcClient(usersContract);
+  private readonly work = inject(WorkService);
 
   /**
    * The one shape every row action shares: the account, or a code the screen
@@ -83,10 +85,15 @@ export class StaffUsersService {
 
   /** Approve a pending registration onto a tier (`null` = the base list) and
    * send its invitation. 409 when it is no longer pending (a double-click). */
-  approve(id: string, tierId: string | null): Promise<UserActionResult> {
-    return this.act(
+  async approve(id: string, tierId: string | null): Promise<UserActionResult> {
+    const result = await this.act(
       this.client.approveUser({ params: { id }, body: { tierId } }),
     );
+    // The list this was done from carries no count, but the marker in the
+    // navbar does — and approving the last pending registration is exactly the
+    // moment it has to go dark (FR-WORK-02).
+    void this.work.refresh();
+    return result;
   }
 
   /** One account, for the editor — which is a route, so a reload of it has no
@@ -132,9 +139,13 @@ export class StaffUsersService {
 
   /** Decline and purge a pending registration. 409 when it is no longer
    * pending (an approved account is anonymized, never deleted). */
-  remove(
+  async remove(
     id: string,
   ): Promise<{ ok: true } | { ok: false; code: UserActionError }> {
-    return this.confirm(this.client.deleteUser({ params: { id } }));
+    const result = await this.confirm(
+      this.client.deleteUser({ params: { id } }),
+    );
+    void this.work.refresh();
+    return result;
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   AdminProduct,
   CatalogErrorCode,
@@ -13,6 +13,7 @@ import {
 import { adminCatalogContract } from '../core/contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../core/orpc-client';
+import { WorkService } from '../work/work.service';
 
 /**
  * The refusals the editor can render. Every route also declares the two auth
@@ -32,6 +33,7 @@ function renderable(code: string): code is CatalogErrorCode {
 @Injectable({ providedIn: 'root' })
 export class AdminCatalogService {
   private client = createOrpcClient(adminCatalogContract);
+  private readonly work = inject(WorkService);
 
   /** The stored row, or the code the server refused with. */
   private async saved<TError extends Error>(
@@ -77,7 +79,7 @@ export class AdminCatalogService {
   }
 
   deleteProduct(slug: string): Promise<AdminProduct> {
-    return this.client.deleteProduct({ params: { slug } });
+    return this.afterWork(this.client.deleteProduct({ params: { slug } }));
   }
 
   /** The soft-deleted products in a category subtree — the edit-mode overlay. */
@@ -91,14 +93,28 @@ export class AdminCatalogService {
   }
 
   restoreProduct(slug: string): Promise<AdminProduct> {
-    return this.client.restoreProduct({ params: { slug } });
+    return this.afterWork(this.client.restoreProduct({ params: { slug } }));
   }
 
   setProductPublished(slug: string, published: boolean): Promise<AdminProduct> {
-    return this.client.setProductPublished({
-      params: { slug },
-      body: { published },
-    });
+    return this.afterWork(
+      this.client.setProductPublished({
+        params: { slug },
+        body: { published },
+      }),
+    );
+  }
+
+  /**
+   * Wraps a call that changes the review queue (FR-ADM-06) the work marker
+   * counts. Publishing, deleting and restoring all happen on screens that do
+   * not navigate afterwards, so without this the dot in the navbar would keep
+   * claiming work that has just been finished until the next click.
+   */
+  private async afterWork<T>(call: Promise<T>): Promise<T> {
+    const result = await call;
+    void this.work.refresh();
+    return result;
   }
 
   // --- Categories -------------------------------------------------------

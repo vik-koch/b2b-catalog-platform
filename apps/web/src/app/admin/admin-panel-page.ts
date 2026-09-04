@@ -1,4 +1,5 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
@@ -12,6 +13,8 @@ import { BuildInfoService } from './build-info.service';
 import { injectEditorReturnParams } from './editor-return';
 import { MaintenanceToggle } from './maintenance/maintenance-toggle';
 import { SyncService } from './sync/sync.service';
+import { WorkNote } from '../work/work-note';
+import { WorkService } from '../work/work.service';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and
@@ -22,7 +25,14 @@ import { SyncService } from './sync/sync.service';
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [SignedInAs, MaintenanceToggle, RouterLink, Button, AdminIcon],
+  imports: [
+    SignedInAs,
+    MaintenanceToggle,
+    RouterLink,
+    Button,
+    AdminIcon,
+    WorkNote,
+  ],
   template: `
     <h1 class="mb-4 text-3xl font-medium tracking-tight">
       {{ isAdmin() ? text.adminPanel : text.staffArea }}
@@ -47,12 +57,22 @@ import { SyncService } from './sync/sync.service';
         </h2>
         <!-- Grows to its neighbour's height: side by side, two cards that end
              at different points read as one being unfinished. -->
+        <!-- The count sits under the button that opens the list it counts
+             (FR-WORK-03), as the sync's own caption does: it is a remark about
+             that destination, not a second way in. -->
         <div
-          class="flex grow flex-wrap items-start gap-3 rounded-lg border border-border p-5"
+          class="flex grow flex-col items-start gap-3 rounded-lg border border-border p-5"
         >
           <a appButton variant="secondary" routerLink="/admin/orders">
             {{ orderText.title }}
           </a>
+          @if (waitingOrders(); as count) {
+            <app-work-note
+              [label]="fill(panelText.workOrders, count)"
+              link="/admin/orders"
+              [queryParams]="{ status: 'requested' }"
+            />
+          }
         </div>
       </section>
 
@@ -67,15 +87,26 @@ import { SyncService } from './sync/sync.service';
              permissions, and a manager is only ever offered the one they
              have. -->
         <div
-          class="flex grow flex-wrap items-start gap-3 rounded-lg border border-border p-5"
+          class="flex grow flex-col items-start gap-3 rounded-lg border border-border p-5"
         >
-          <a appButton variant="secondary" routerLink="/admin/users">
-            {{ userText.titleCustomers }}
-          </a>
-          @if (isAdmin()) {
-            <a appButton variant="secondary" routerLink="/admin/users/staff">
-              {{ userText.titleStaff }}
+          <div class="flex flex-wrap items-start gap-3">
+            <a appButton variant="secondary" routerLink="/admin/users">
+              {{ userText.titleCustomers }}
             </a>
+            @if (isAdmin()) {
+              <a appButton variant="secondary" routerLink="/admin/users/staff">
+                {{ userText.titleStaff }}
+              </a>
+            }
+          </div>
+          <!-- Customers only, whichever role is looking: staff accounts are
+               created already approved, so nothing waits on that list. -->
+          @if (waitingRegistrations(); as count) {
+            <app-work-note
+              [label]="fill(panelText.workRegistrations, count)"
+              link="/admin/users"
+              [queryParams]="{ status: 'pending' }"
+            />
           }
         </div>
       </section>
@@ -151,6 +182,16 @@ import { SyncService } from './sync/sync.service';
                   </a>
                 </li>
               </ul>
+              <!-- Under the products button rather than beside the import that
+                   fills the queue: publishing is what clears it. -->
+              @if (waitingProducts(); as count) {
+                <app-work-note
+                  class="mt-3"
+                  [label]="fill(panelText.workProducts, count)"
+                  link="/admin/products"
+                  [queryParams]="{ state: 'unpublished' }"
+                />
+              }
             </div>
 
             <!-- Attributes are their own group: one screen declares what the
@@ -292,6 +333,28 @@ export class AdminPanelPage {
   protected readonly pageSlugs = inject(DEPLOYMENT_CONFIG).pages.published;
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
   protected readonly editorFrom = injectEditorReturnParams();
+
+  private readonly work = inject(WorkService);
+
+  /**
+   * What is waiting, per queue (FR-WORK-03) — `undefined` where there is
+   * nothing, so `@if` draws the line only when there is work. Zero and "not
+   * your queue" are both nothing to show here; the difference matters to the
+   * API, not to the card.
+   */
+  protected readonly waitingOrders = computed(
+    () => this.work.counts().orders || undefined,
+  );
+  protected readonly waitingRegistrations = computed(
+    () => this.work.counts().registrations || undefined,
+  );
+  protected readonly waitingProducts = computed(
+    () => this.work.counts().unpublishedProducts || undefined,
+  );
+
+  protected fill(template: string, count: number): string {
+    return fillText(template, { count });
+  }
 
   // Managers reach this page too, but the sync is admin-only — a 403 here is
   // expected, not an error, so the line simply stays absent for them.
