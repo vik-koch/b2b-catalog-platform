@@ -4,12 +4,13 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.5.0` — a cart that survives between visits and a one-form checkout that
-> submits it as an order request for a manager to review, with saved addresses, the invoiced
-> party, delivery zones or pickup points, and both order mails. Iterations 1–7 are delivered
-> (static pages and infrastructure, catalog + admin panel, search, accounts and tiered
-> pricing, units of sale, attribute filtering, cart and checkout). Iteration 8 (order
-> processing and payment) is next.
+> **Status:** `v1.6.0` — a stock figure kept out of the storefront that reaches customers as
+> an availability badge, sorts what is gone to the end of every listing and keeps it out of
+> the cart, plus a marker on the account control that says work is waiting and a line beside
+> the section that finishes it. Iterations 1–8 are delivered (static pages and infrastructure,
+> catalog + admin panel, search, accounts and tiered pricing, units of sale, attribute
+> filtering, cart and checkout, stock availability and work-awaiting indicators). Iteration 9
+> (sold-together sets) is next.
 
 ## Environments
 
@@ -58,10 +59,18 @@ Shipped:
   it waited, a one-form checkout submitting an order request for manager review, guest or
   signed-in, with a saved address book, the invoiced party, delivery zones or pickup points,
   and confirmation mail to customer and staff
+- **Stock availability** — an optional piece count from the sync or the admin form, shown to
+  customers only as in stock / few left / out of stock, ordering what is gone to the end of
+  every listing and refused by the cart and by checkout
+- **Work awaiting attention** — a marker on the account control whenever a queue has something
+  in it, and a line beside the section that resolves it; counted from current state, never
+  acknowledged away
 - **Compliance** — configurable legal pages, cookie consent, third-party licence attribution
 
 Planned:
 
+- **Sold-together sets** — products offered as a set, priced and ordered as one
+- **Product documents** — datasheets and certificates on a product page, with expiry tracking
 - **Order processing** — status transitions, payment PDF, order PDF
 - **Payment** — bank transfer or card, with manual delivery/pickup coordination
 
