@@ -483,7 +483,7 @@ describe('CartPage', () => {
 
   // The row's own controls do not also carry the glyph: two ways to open one
   // panel, side by side, is one too many.
-  it('leaves the marker off the row\'s controls', async () => {
+  it("leaves the marker off the row's controls", async () => {
     const view = await render({
       lines: [addition({ pairedCount: 2 })],
       answer: preview([{ pairedCount: 2 }]),

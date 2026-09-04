@@ -159,6 +159,11 @@ export const appTextSchema = z
           .object({
             label: z.string(),
             marker: z.string(),
+            /** Read under the heading, once the panel is open. */
+            intro: z.string(),
+            close: z.string(),
+            /** Where the counterparts could not be fetched. */
+            loadError: z.string(),
           })
           .strict(),
         /**

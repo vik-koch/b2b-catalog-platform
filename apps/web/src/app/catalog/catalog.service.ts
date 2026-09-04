@@ -70,6 +70,23 @@ export class CatalogService {
     return error ? [] : data.items;
   }
 
+  /**
+   * The products a product is sold together with (FR-SET-05). Only ever asked
+   * from the browser, when the marker is pressed, so it does not defer: there
+   * is no server render of a panel nobody has opened yet.
+   *
+   * `null` where the product is gone — the marker was drawn from a page that
+   * has since gone stale, which is nothing to interrupt anyone about.
+   */
+  async getProductPairings(slug: string) {
+    const result = await safe(
+      this.client.getProductPairings({ params: { slug } }),
+    );
+    if (result.isDefined) return null;
+    if (!result.isSuccess) throw result.error;
+    return result.data.items;
+  }
+
   /** A single product (FR-CAT-05). `null` when it does not exist, `undefined`
    * when this render defers prices — see `deferPrices`. */
   async getProduct(slug: string) {

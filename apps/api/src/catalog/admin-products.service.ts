@@ -58,11 +58,7 @@ import {
   toListItem,
   unitColumns,
 } from './product-view';
-import {
-  counterpartOf,
-  involves,
-  pairedCountOf,
-} from './product-pairings';
+import { counterpartOf, involves, pairedCountOf } from './product-pairings';
 import { LOW_STOCK_THRESHOLD_PIECES } from '../config/deployment-config';
 import {
   resolveNewSlug,

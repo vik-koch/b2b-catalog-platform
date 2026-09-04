@@ -15,10 +15,8 @@ describe('pairedCountOf', () => {
    * binding to the wrong table. */
   const rendered = (): string => {
     const db = drizzle({ client: {} as never, schema });
-    return db
-      .select({ pairedCount: pairedCountOf() })
-      .from(products)
-      .toSQL().sql;
+    return db.select({ pairedCount: pairedCountOf() }).from(products).toSQL()
+      .sql;
   };
 
   it('correlates on the outer product from both ends of the edge', () => {
