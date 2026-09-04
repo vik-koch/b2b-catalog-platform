@@ -17,6 +17,7 @@ import { SettingsModule } from '../settings/settings.module';
 import { SyncModule } from '../sync/sync.module';
 import { TiersModule } from '../tiers/tiers.module';
 import { StaffUsersModule } from '../users/staff-users.module';
+import { WorkModule } from '../work/work.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { StaffUsersModule } from '../users/staff-users.module';
     OrdersModule,
     AddressesModule,
     PartiesModule,
+    WorkModule,
   ],
   // Global, because the refusals it restates come from the guards, which run
   // ahead of every route rather than inside any one module.
