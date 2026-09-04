@@ -133,6 +133,7 @@ export interface RowProduct extends BuyableProduct {
             [canAdd]="canAdd()"
             [available]="available()"
             [externalNote]="externalNote()"
+            [offerPairings]="offerPairings()"
             [notice]="notice()"
           >
             <!-- Handed on to the price row, where it sits at the end of the line
@@ -178,6 +179,9 @@ export class ProductRow {
   /** Something to say about this line, shown in the controls' own bubble under
    * the stepper it is about. */
   readonly notice = input<string | null>(null);
+  /** False where the caller shows the counterparts itself — the cart, which
+   * gives them a line above the note — and inside the panel they open. */
+  readonly offerPairings = input(true);
 
   protected readonly link = computed(() => ['/product', this.item().slug]);
 }

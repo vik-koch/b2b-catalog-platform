@@ -187,7 +187,7 @@ export interface CartAddition {
   availability: ProductAvailability | null;
   lineNoteEnabled: boolean;
   lineNotePrompt: string | null;
-/** How many products the view it was added from said this one is sold with
+  /** How many products the view it was added from said this one is sold with
    * (FR-SET-05) — the line wears the marker from the first frame. */
   pairedCount: number;
 }
@@ -384,7 +384,7 @@ export class CartService {
           available: true,
           availability: addition.availability,
           notePrompt: addition.lineNotePrompt,
-pairedCount: addition.pairedCount,
+          pairedCount: addition.pairedCount,
           ...priceLine(addition, pieces),
         },
       ]);
@@ -616,6 +616,7 @@ pairedCount: addition.pairedCount,
         lines: parsed.lines
           .map(withAvailability)
           .map(withStockState)
+          .map(withPairedCount)
           .filter(isStoredLine)
           .slice(0, CART_LINES_MAX),
         pricedFor: readPricedFor(parsed.pricedFor),
@@ -701,6 +702,16 @@ function withStockState(line: unknown): unknown {
   return 'availability' in candidate
     ? candidate
     : { ...candidate, availability: null };
+}
+
+/** Fills in a line stored before the pairings were written down. Zero is "no
+ * marker", which is also what a product sold with nothing answers. */
+function withPairedCount(line: unknown): unknown {
+  const candidate = line as { pairedCount?: unknown } | null;
+  if (!candidate || typeof candidate !== 'object') return line;
+  return typeof candidate.pairedCount === 'number'
+    ? candidate
+    : { ...candidate, pairedCount: 0 };
 }
 
 function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
