@@ -38,6 +38,7 @@ export type IconName =
   | 'minus'
   | 'shopping-basket'
   | 'circle-user-round'
+  | 'circle-user-round-dot'
   | 'circle-check'
   | 'book-check'
   | 'book-dashed'
@@ -188,6 +189,14 @@ export type IconName =
           <path d="M17.925 20.056a6 6 0 0 0-11.851.001" />
           <circle cx="12" cy="11" r="4" />
           <circle cx="12" cy="12" r="10" />
+        }
+        <!-- Custom icon with broken path for a notification dot -->
+        @case ('circle-user-round-dot') {
+          <path d="M17.925 20.056a6 6 0 0 0-11.851.001" />
+          <circle cx="12" cy="11" r="4" />
+          <path
+            d="m21.879 10.449a10 10 0 0 1 0.12108 1.5514 10 10 0 0 1-10 10 10 10 0 0 1-10-10 10 10 0 0 1 10-10 10 10 0 0 1 1.5514 0.12108"
+          />
         }
         @case ('message-circle-plus') {
           <path

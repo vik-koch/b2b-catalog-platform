@@ -49,7 +49,7 @@ import { WorkService } from '../work/work.service';
       <span class="relative grid">
         <app-icon
           data-session="known"
-          name="circle-user-round"
+          [name]="waiting() ? 'circle-user-round-dot' : 'circle-user-round'"
           class="col-start-1 row-start-1 h-6 w-6 transition-opacity delay-300 duration-200"
           [class.opacity-0]="signedOut()"
         />
@@ -65,11 +65,17 @@ import { WorkService } from '../work/work.service';
              admin it would add up queues that have nothing to do with each
              other. The dot says only that something is waiting; the panel
              this link leads to says what. Amber is the app's "somebody has to
-             act" signal, and the ring keeps it legible over the glyph. -->
+             act" signal.
+             It needs air around it, and a ring cannot give it any: both
+             navbars are a translucent surface over the page, so an opaque
+             ring painted a disc belonging to neither. The glyph opens a gap
+             for it instead — circle-user-round-dot is the same icon with its
+             top-right arc left out — so the space around the dot is whatever
+             is behind the bar. -->
         @if (waiting()) {
           <span
             aria-hidden="true"
-            class="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-amber-500 ring-2 ring-white"
+            class="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-amber-500"
           ></span>
         }
       </span>
