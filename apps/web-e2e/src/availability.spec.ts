@@ -54,7 +54,8 @@ test.describe('availability on the storefront', () => {
   }) => {
     await page.goto(LISTING);
 
-    await expect(page.getByText('In stock')).toHaveCount(1);
+    const tracked = page.locator('li').filter({ hasText: TRACKED });
+    await expect(tracked.getByText('In stock')).toHaveCount(1);
     // The untracked product shows nothing at all — an empty state is not a
     // state, and a deployment that enters no figures sees no badges anywhere.
     const untracked = page.locator('li').filter({ hasText: UNTRACKED });
