@@ -145,6 +145,11 @@ Notes:
   registers a count instead of retrofitting one into a finished screen. Nothing is
   acknowledged and no table records that it was: every count is a query over state that is
   already there, so it appears when the work does and clears when the work is done (ADR 0046).
+  The customer half of FR-WORK-04 ships with **no source yet**: an order is only ever written
+  in the one state that waits on the shop, and the states that wait on a customer arrive with
+  order processing in iteration 11. Their marker therefore stays dark until then — which is
+  the honest reading of "a count clears when the work is done", since nothing today records
+  that a customer has done anything for it to clear on.
 - Iteration 11 is what a manager does with an order once it exists — status transitions, the
   payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
   schema be reviewed before a processing workflow is built on top of it. Waiting three

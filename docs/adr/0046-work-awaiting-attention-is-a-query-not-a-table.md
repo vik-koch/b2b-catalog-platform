@@ -59,3 +59,12 @@ question anyway.
   counts is what the user gets instead.
 - (−) A customer's counts are per account, so they say nothing to a guest, whose
   orders are reached by link (FR-NOTIF-06) rather than by an account page.
+- (−) One endpoint for every role puts the customer/staff boundary in a table
+  in the service (`QUEUES_BY_ROLE`) rather than in a guard, so a mistake there
+  answers 200 instead of 403. It is data, not a branch, so a queue no role
+  names is never counted; and the payload is cardinalities only. A count that
+  ever carries names, or takes a request parameter, belongs on its own
+  `@Auth('admin', 'manager')` route instead.
+- (−) The customer queue is empty until order processing: no order state waits
+  on a customer yet, and inventing one — counting an approved order until
+  somebody pays — would be a count nothing could clear.
