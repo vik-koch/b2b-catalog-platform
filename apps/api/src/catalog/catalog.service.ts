@@ -25,6 +25,7 @@ import {
   categoryAttributes,
   pages,
   productAttributes,
+  productPairings,
   products,
 } from '../db/schema';
 import {
@@ -54,6 +55,7 @@ import {
   unitColumns,
   unitPricesOf,
 } from './product-view';
+import { counterpartOf, involves, pairedCountOf } from './product-pairings';
 import {
   buildFacets,
   resolveSelections,
@@ -163,6 +165,7 @@ export class CatalogService {
         ...unitColumns,
         ...noteColumns,
         ...availabilityColumns,
+        pairedCount: pairedCountOf(),
       })
       .from(products)
       .where(where)
@@ -248,6 +251,7 @@ export class CatalogService {
           ...unitColumns,
           ...noteColumns,
           ...availabilityColumns,
+          pairedCount: pairedCountOf(),
         })
         .from(products)
         .where(where)
@@ -444,6 +448,7 @@ export class CatalogService {
         lineNotePrompt: products.lineNotePrompt,
         ...unitColumns,
         ...availabilityColumns,
+        pairedCount: pairedCountOf(),
       })
       .from(products)
       .where(and(eq(products.slug, slug), publiclyVisible))
@@ -473,6 +478,7 @@ export class CatalogService {
       lineNoteEnabled: product.lineNoteEnabled,
       lineNotePrompt: product.lineNotePrompt,
       availability: product.availability,
+      pairedCount: product.pairedCount,
       category: {
         slug: category.slug,
         name: category.name,

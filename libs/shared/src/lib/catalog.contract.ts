@@ -135,6 +135,18 @@ export const productListItemSchema = z
     lineNotePrompt: z.string().nullable(),
     /** Whether it can be had at all (FR-STOCK-03); null where untracked. */
     availability: availabilitySchema,
+    /**
+     * How many products this one is sold together with (FR-SET-05), counting
+     * only the ones a customer could actually add — a counterpart that is
+     * unpublished or withdrawn is kept as an edge for the admin but is not a
+     * product on offer.
+     *
+     * A count rather than the counterparts themselves: every surface that
+     * draws a product has to know whether to put the marker there, on the
+     * first frame and without a second request, while the list behind it is
+     * worth fetching only for the one product whose marker is pressed.
+     */
+    pairedCount: z.number().int().nonnegative(),
   })
   .strict();
 export type ProductListItem = z.infer<typeof productListItemSchema>;
@@ -239,6 +251,18 @@ export const productDetailSchema = z
     lineNotePrompt: z.string().nullable(),
     /** Whether it can be had at all (FR-STOCK-03); null where untracked. */
     availability: availabilitySchema,
+    /**
+     * How many products this one is sold together with (FR-SET-05), counting
+     * only the ones a customer could actually add — a counterpart that is
+     * unpublished or withdrawn is kept as an edge for the admin but is not a
+     * product on offer.
+     *
+     * A count rather than the counterparts themselves: every surface that
+     * draws a product has to know whether to put the marker there, on the
+     * first frame and without a second request, while the list behind it is
+     * worth fetching only for the one product whose marker is pressed.
+     */
+    pairedCount: z.number().int().nonnegative(),
     /** The single category this product belongs to, with its own ancestors —
      * the breadcrumb shows the whole path, not just the leaf. */
     category: categoryCrumbSchema.extend({
@@ -562,4 +586,27 @@ export const catalogContract = {
     .errors(notFound)
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(productDetailSchema),
+
+  /**
+   * The products a product is sold together with (FR-SET-05), as tiles that can
+   * be bought from where they are listed.
+   *
+   * Its own request rather than a field on the product: the marker is drawn
+   * from `pairedCount` on every card in a listing, and fetching every card's
+   * counterparts to draw an icon would price a listing several times over. This
+   * is asked once, for the one product whose marker was pressed.
+   *
+   * A product with no counterparts answers with an empty list rather than a
+   * 404 — it exists, and it is sold with nothing.
+   */
+  getProductPairings: oc
+    .route({
+      method: 'GET',
+      path: '/catalog/products/{slug}/pairings',
+      inputStructure: 'detailed',
+      summary: 'List the products a product is sold together with',
+    })
+    .errors(notFound)
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(z.object({ items: z.array(productListItemSchema) }).strict()),
 };

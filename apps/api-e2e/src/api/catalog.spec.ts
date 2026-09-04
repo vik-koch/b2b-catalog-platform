@@ -1,6 +1,7 @@
 import {
   attributeDefinitionSeeds,
   categorySeeds,
+  pairingSeeds,
   productSeeds,
 } from '@b2b-catalog-platform/seed';
 import {
@@ -71,6 +72,7 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
       'lineNotePrompt',
       'name',
       'packaging',
+      'pairedCount',
       'priceMinor',
       'prices',
       'slug',
@@ -258,6 +260,7 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
       'lineNotePrompt',
       'name',
       'packaging',
+      'pairedCount',
       'priceMinor',
       'prices',
       'slug',

@@ -782,6 +782,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
         'lineNotePrompt',
         'name',
         'packaging',
+        'pairedCount',
         'priceMinor',
         'prices',
         'slug',

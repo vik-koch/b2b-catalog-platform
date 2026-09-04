@@ -56,6 +56,7 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
       'lineNotePrompt',
       'name',
       'packaging',
+      'pairedCount',
       'priceMinor',
       'prices',
       'slug',

@@ -601,6 +601,12 @@ export class ProductEditorPage implements UnsavedChangesAware {
       lineNoteEnabled: this.lineNoteEnabled(),
       lineNotePrompt: this.lineNotePrompt().trim() || null,
       availability: this.previewAvailability(),
+      // What the marker will say once this is saved, counted the way the
+      // storefront counts it: a counterpart that is withdrawn or unpublished
+      // keeps its row in the box above and is not a product on offer.
+      pairedCount: this.pairings().filter(
+        (paired) => !paired.deleted && !paired.unpublished,
+      ).length,
       // The unit is the registry's, not the row's — the preview joins it on
       // exactly as the storefront's read does, so a declared attribute reads
       // the same here as on the live page.

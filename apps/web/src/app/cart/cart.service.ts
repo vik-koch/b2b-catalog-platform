@@ -112,6 +112,16 @@ export interface CartStoredLine {
    * and reports nothing until the shop says otherwise.
    */
   availability: ProductAvailability | null;
+  /**
+   * How many products this one is sold together with (FR-SET-05) — what the
+   * marker on the cart's line is drawn from, before anything is priced.
+   *
+   * Zero for a cart written before this was recorded, which reads as no marker
+   * until the next pricing says otherwise. Only counterparts the shop can sell
+   * are counted, so a lid leaving the catalogue takes the marker off the cup's
+   * line by itself.
+   */
+  pairedCount: number;
 }
 
 /** The whole cart as it is written down: the lines, and whose prices they were
@@ -177,6 +187,9 @@ export interface CartAddition {
   availability: ProductAvailability | null;
   lineNoteEnabled: boolean;
   lineNotePrompt: string | null;
+/** How many products the view it was added from said this one is sold with
+   * (FR-SET-05) — the line wears the marker from the first frame. */
+  pairedCount: number;
 }
 
 /** `full` when the cart already holds as many lines as may be priced in one
@@ -371,6 +384,7 @@ export class CartService {
           available: true,
           availability: addition.availability,
           notePrompt: addition.lineNotePrompt,
+pairedCount: addition.pairedCount,
           ...priceLine(addition, pieces),
         },
       ]);
@@ -389,6 +403,7 @@ export class CartService {
           available: true,
           availability: addition.availability,
           notePrompt: addition.lineNotePrompt,
+          pairedCount: addition.pairedCount,
           ...priceLine(addition, pieces),
         }),
       );
@@ -421,6 +436,7 @@ export class CartService {
         available: true,
         availability: addition.availability,
         notePrompt: addition.lineNotePrompt,
+        pairedCount: addition.pairedCount,
         ...priceLine(addition, addition.pieces),
       }),
     );
@@ -513,6 +529,7 @@ export class CartService {
         boxCount: fresh.boxCount ?? line.boxCount,
         noteEnabled: fresh.lineNoteEnabled,
         notePrompt: fresh.lineNotePrompt,
+        pairedCount: fresh.pairedCount,
         // The same reading the page makes of a fresh line: prices the shop
         // will not state are a product it no longer offers.
         available: fresh.prices !== null,
@@ -698,6 +715,7 @@ function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
     a.notePrompt === b.notePrompt &&
     a.available === b.available &&
     a.availability === b.availability &&
+    a.pairedCount === b.pairedCount &&
     a.boxVolume === b.boxVolume &&
     a.boxWeight === b.boxWeight &&
     a.boxCount === b.boxCount &&

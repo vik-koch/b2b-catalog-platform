@@ -77,6 +77,9 @@ interface CartRow {
   /** The product's own wording for the note, or the app's. */
   notePrompt: string;
   takesNote: boolean;
+/** How many products this line's product is sold together with (FR-SET-05);
+   * zero is no link. */
+  pairedCount: number;
   issues: string[];
   /** The advisories that are feedback rather than a state: they go in the
    * bubble under the stepper they are about, not in the list below the name. */
@@ -509,12 +512,14 @@ export class CartPage {
           availability: line.availability,
           lineNoteEnabled: line.noteEnabled,
           lineNotePrompt: line.notePrompt,
+pairedCount: line.pairedCount,
           images: line.image ? [line.image] : [],
         },
         name: line.name,
         note: line.note,
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
+        pairedCount: line.pairedCount,
         // Before an answer arrives, the one thing the browser wrote down about
         // the line's state — so a withdrawn line says why it is priceless
         // rather than showing "on request" with nothing to explain it.
