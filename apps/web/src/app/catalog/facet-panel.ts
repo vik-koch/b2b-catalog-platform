@@ -6,6 +6,7 @@ import {
   SearchSort,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { NgTemplateOutlet } from '@angular/common';
 import { Checkbox } from '../ui/checkbox';
 import { disclosureState } from '../ui/disclosure-state';
@@ -133,7 +134,7 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
               <!-- The ordering, for as long as there is no room for the row
                    above the grid that normally carries it: one control to
                    arrange the listing rather than two places to look. -->
-              @if (sort(); as value) {
+              @if (shownSort(); as value) {
                 <div class="@min-[63.75rem]/listing:hidden">
                   <app-product-sort-select
                     fieldId="facet-panel-sort"
@@ -144,7 +145,7 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
                 </div>
               }
 
-              <ul class="mt-4 space-y-6">
+              <ul [class]="facetList()">
                 @for (facet of facets(); track facet.slug) {
                   <li>
                     <h3 class="text-sm font-medium text-stone-800">
@@ -273,6 +274,34 @@ export class FacetPanel {
   readonly sort = input<SearchSort | null>(null);
   readonly defaultSort = input<SearchSort>('name');
   readonly withRelevance = input(false);
+
+  /**
+   * The ordering this panel actually draws: what the listing passed, unless
+   * the deployment has switched the control off (FR-SEARCH-04).
+   *
+   * The flag is read here as well as inside the control. The control hiding
+   * itself is what makes a call site safe to forget; whether anything stands
+   * above the facets is layout, and this panel is the only thing that knows.
+   */
+  protected readonly shownSort = computed(() =>
+    this.sortControlsEnabled ? this.sort() : null,
+  );
+  private readonly sortControlsEnabled =
+    inject(DEPLOYMENT_CONFIG).catalog.sortControlsEnabled;
+
+  /**
+   * The facets, and the gap above them — which has two reasons and only one
+   * of them is in this class. Below the column width the sort control stands
+   * there; from the column width up the sort is hidden and the panel's own
+   * heading stands there instead, which is a container query and so lives in
+   * the class rather than in the signal.
+   */
+  protected readonly facetList = computed(
+    () =>
+      `space-y-6 @min-[63.75rem]/listing:mt-4${
+        this.shownSort() ? ' mt-4' : ''
+      }`,
+  );
 
   /** Open on narrow screens only; from the lg breakpoint up the panel is the
    * left column. */

@@ -3,6 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { Facet, FacetValue } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { defaultAppText } from '../config/app-text.fixture';
 import { FacetPanel } from './facet-panel';
 
@@ -36,6 +38,9 @@ async function render(facets: Facet[], startUrl = '/catalog/espresso') {
     providers: [
       provideRouter([{ path: '**', component: Host }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      // The panel reads the sort-control flag to decide whether anything
+      // stands above the facets, so the token has to be there.
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });
   const router = TestBed.inject(Router);
