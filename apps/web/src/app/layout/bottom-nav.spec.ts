@@ -3,6 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { UserRole } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
+import { WorkService } from '../work/work.service';
+import { workStub } from '../work/work.fixture';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -27,6 +29,7 @@ async function render(url = '/catalog', role: UserRole | null = null) {
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: authStub(role) },
+      { provide: WorkService, useValue: workStub() },
     ],
   });
   await TestBed.inject(Router).navigateByUrl(url);

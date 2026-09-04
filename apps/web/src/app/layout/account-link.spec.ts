@@ -1,12 +1,14 @@
 import { computed, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { AuthUser, UserRole } from '@b2b-catalog-platform/shared';
+import { AuthUser, UserRole, WorkCounts } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { AccountLink } from './account-link';
 import { adminUser as admin, plainUser } from '../auth/auth-user.fixture';
+import { WorkService } from '../work/work.service';
+import { workStub } from '../work/work.fixture';
 
 const text = defaultAppText.auth;
 
@@ -19,11 +21,13 @@ const text = defaultAppText.auth;
 async function render(
   initial: AuthUser | null | undefined,
   hint: UserRole | null = null,
+  counts: WorkCounts = {},
 ) {
   const session: WritableSignal<AuthUser | null | undefined> = signal(initial);
   const user = computed(() => session() ?? null);
   const resolved = computed(() => session() !== undefined);
   const hintedRole = signal(hint);
+  const work = workStub(counts);
 
   TestBed.configureTestingModule({
     imports: [AccountLink],
@@ -31,6 +35,7 @@ async function render(
       provideRouter([{ path: 'admin', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: AuthService, useValue: { user, resolved, hintedRole } },
+      { provide: WorkService, useValue: work },
     ],
   });
 
@@ -53,6 +58,10 @@ async function render(
           span.className.includes('opacity-0'),
       ),
     user: session,
+    work,
+    /** The marker itself — a dot, so it has nothing to match on but its shape. */
+    marker: () => el.querySelector('span.rounded-full.bg-amber-500'),
+    markerLabel: () => el.querySelector('.sr-only')?.textContent?.trim(),
     rerender: async () => {
       fixture.detectChanges();
       await fixture.whenStable();
@@ -134,5 +143,50 @@ describe('AccountLink', () => {
     await rerender();
 
     expect(link()?.getAttribute('aria-current')).toBe('page');
+  });
+
+  /*
+   * The marker (FR-WORK-01). It says only *that* something is waiting — the
+   * figure it leaves out is what the panel behind the link is for, and what a
+   * screen reader is given instead.
+   */
+  it('lights a dot on the control when something awaits the account', async () => {
+    const { marker, markerLabel } = await render(admin, null, {
+      registrations: 2,
+      orders: 3,
+    });
+
+    expect(marker()).not.toBeNull();
+    // Never a number on screen: for an admin it would be a sum of queues that
+    // have nothing to do with each other.
+    expect(marker()?.textContent?.trim()).toBe('');
+    expect(markerLabel()).toBe(text.workMarker.replace('{count}', '5'));
+  });
+
+  it('shows no marker when every queue is empty', async () => {
+    const { marker } = await render(admin, null, {
+      registrations: 0,
+      orders: 0,
+    });
+
+    expect(marker()).toBeNull();
+  });
+
+  it('takes the marker down as soon as the work is done', async () => {
+    const { marker, work, rerender } = await render(admin, null, {
+      registrations: 1,
+    });
+    expect(marker()).not.toBeNull();
+
+    work.set({ registrations: 0 });
+    await rerender();
+
+    expect(marker()).toBeNull();
+  });
+
+  it('never marks a signed-out visitor', async () => {
+    const { marker } = await render(null);
+
+    expect(marker()).toBeNull();
   });
 });
