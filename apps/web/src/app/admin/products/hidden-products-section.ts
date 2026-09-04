@@ -66,7 +66,9 @@ import { StatusBadge } from '../../ui/status-badge';
                          one action will not be enough to bring it back. -->
                     <p class="mb-1 flex flex-wrap gap-1">
                       @if (item.deleted) {
-                        <span appStatusBadge>{{ text.deletedBadge }}</span>
+                        <span appStatusBadge tone="danger">{{
+                          text.deletedBadge
+                        }}</span>
                       }
                       @if (item.unpublished) {
                         <span appStatusBadge tone="waiting">{{

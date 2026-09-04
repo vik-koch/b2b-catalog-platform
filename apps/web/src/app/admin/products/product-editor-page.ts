@@ -15,6 +15,7 @@ import {
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   ProductAvailability,
   productAvailability,
+  PairedProduct,
   ProductDetail,
   ProductInput,
   lowStockThreshold,
@@ -51,6 +52,7 @@ import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { ProductImageGallery } from './product-image-gallery';
+import { ProductPairingsEditor } from './product-pairings-editor';
 import {
   emptyPackaging,
   PackagingDraft,
@@ -79,6 +81,7 @@ import {
     CategoryPicker,
     ProductAttributesEditor,
     ProductPackagingEditor,
+    ProductPairingsEditor,
     ProductTierPricesEditor,
     ProductImageGallery,
     ProductDetailView,
@@ -321,6 +324,12 @@ import {
           }
         </fieldset>
 
+        <app-product-pairings-editor
+          [value]="pairings()"
+          [ownSlug]="isNew ? null : slug()"
+          (valueChange)="pairings.set($event)"
+        />
+
         <div>
           <app-product-image-gallery
             [value]="images()"
@@ -449,6 +458,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly tierPrices = signal<TierPriceDraft[]>([]);
   protected readonly images = signal<CatalogImage[]>([]);
   protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
+  protected readonly pairings = signal<PairedProduct[]>([]);
   protected readonly lineNoteEnabled = signal(false);
   protected readonly lineNotePrompt = signal('');
   /** Kept as strings like the packaging drafts, so a half-typed or
@@ -659,6 +669,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.ownAttributeKeys.set(product.attributes.map((a) => a.key));
       this.images.set(product.images);
       this.published.set(product.publishedAt !== null);
+      this.pairings.set(product.pairings);
       this.lineNoteEnabled.set(product.lineNoteEnabled);
       this.lineNotePrompt.set(product.lineNotePrompt ?? '');
       this.stockPieces.set(product.stockPieces?.toString() ?? '');
@@ -722,6 +733,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       attributes: this.attributes(),
       images: this.images(),
       tierPrices: this.tierPrices(),
+      pairings: this.pairings(),
       packaging: this.packaging(),
       lineNoteEnabled: this.lineNoteEnabled(),
       lineNotePrompt: this.lineNotePrompt(),
@@ -854,6 +866,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // The full set: a tier the admin cleared is absent here, and the server
       // takes that as "remove the override".
       tierPrices,
+      // The whole set, from this product's side: a counterpart removed here is
+      // removed from that product too, because one pairing is one row.
+      pairedSlugs: this.pairings().map((p) => p.slug),
       lineNoteEnabled: this.lineNoteEnabled(),
       // A prompt is only meaningful with the note on; the server refuses the
       // pair the other way round.
