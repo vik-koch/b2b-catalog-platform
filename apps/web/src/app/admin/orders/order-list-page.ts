@@ -310,7 +310,7 @@ export class AdminOrderListPage {
   }
 
   protected statusTone(status: OrderStatus): StatusTone {
-    return orderStatusTone(status);
+    return orderStatusTone(status, 'staff');
   }
 
   constructor() {
