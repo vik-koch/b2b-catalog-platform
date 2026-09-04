@@ -1,7 +1,8 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { disclosureState } from '../../ui/disclosure-state';
 import { DisclosureToggle } from '../../ui/disclosure-toggle';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
@@ -75,13 +76,10 @@ interface SortOption {
             [countLabel]="countLabel()"
             [open]="open()"
             [panelId]="panelId"
-            (toggled)="open.set(!open())"
+            (toggled)="disclosure.toggle()"
           />
 
-          <div
-            class="grid transition-[grid-template-rows] duration-200 ease-out"
-            [class]="open() ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'"
-          >
+          <div [class]="panelRow()">
             <div class="overflow-hidden">
               <div
                 [id]="panelId"
@@ -209,7 +207,17 @@ export class GridNarrowControls {
   /** Whether anything at all — including the search box — narrows the list. */
   readonly filtered = input(false);
 
-  protected readonly open = signal(false);
+  protected readonly disclosure = disclosureState(200);
+  protected readonly open = this.disclosure.open;
+
+  /** See FacetPanel: the transition is armed by the toggle, so the filters do
+   * not play their opening while a window edge is being dragged. */
+  protected readonly panelRow = computed(() => {
+    const move = this.disclosure.animated()
+      ? 'transition-[grid-template-rows] duration-200 ease-out '
+      : '';
+    return `grid ${move}${this.open() ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`;
+  });
 
   /** The count as the deployment words it — parentheses, as the storefront's
    * facet panel has always shown it. */

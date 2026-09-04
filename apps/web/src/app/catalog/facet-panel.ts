@@ -8,6 +8,7 @@ import {
 import { APP_TEXT } from '../config/app-text';
 import { NgTemplateOutlet } from '@angular/common';
 import { Checkbox } from '../ui/checkbox';
+import { disclosureState } from '../ui/disclosure-state';
 import { DisclosureToggle } from '../ui/disclosure-toggle';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
@@ -95,7 +96,7 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
           [countLabel]="selectedLabel(selectedCount())"
           [open]="open()"
           [panelId]="panelId"
-          (toggled)="open.set(!open())"
+          (toggled)="disclosure.toggle()"
         />
         <!-- Grown and shrunk rather than shown and hidden, which is what says
              the two are one thing: a grid row going from 0fr to 1fr, since a
@@ -105,14 +106,7 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
              Slower than the admin's short filter row, because this panel is
              usually several facets of a dozen values each: over that distance
              200ms reads as the page jumping rather than as the panel opening. -->
-        <div
-          class="grid transition-[grid-template-rows] duration-300 ease-out"
-          [class]="
-            open()
-              ? 'grid-rows-[1fr]'
-              : 'grid-rows-[0fr] @min-[63.75rem]/listing:grid-rows-[1fr]'
-          "
-        >
+        <div [class]="panelRow()">
           <div class="overflow-hidden">
             <div
               [id]="panelId"
@@ -180,7 +174,13 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
                             <span class="min-w-0 flex-1">
                               {{ label(facet, value) }}
                             </span>
-                            <span class="text-xs text-subtle tabular-nums">
+                            <!-- leading-5 so the smaller count shares the
+                                 label's line box: the row is top-aligned for
+                                 the sake of a value that wraps, and a 1rem
+                                 line box in a 1.25rem row sat visibly high. -->
+                            <span
+                              class="text-xs leading-5 text-subtle tabular-nums"
+                            >
                               {{ value.count }}
                             </span>
                           </label>
@@ -276,7 +276,25 @@ export class FacetPanel {
 
   /** Open on narrow screens only; from the lg breakpoint up the panel is the
    * left column. */
-  protected readonly open = signal(false);
+  protected readonly disclosure = disclosureState(300);
+  protected readonly open = this.disclosure.open;
+
+  /**
+   * The row that grows and shrinks. The transition is only on the element
+   * while a toggle's own movement runs (see disclosureState), so widening the
+   * window past the column breakpoint changes the rows with nothing to
+   * animate.
+   */
+  protected readonly panelRow = computed(() => {
+    const move = this.disclosure.animated()
+      ? 'transition-[grid-template-rows] duration-300 ease-out '
+      : '';
+    return `grid ${move}${
+      this.open()
+        ? 'grid-rows-[1fr]'
+        : 'grid-rows-[0fr] @min-[63.75rem]/listing:grid-rows-[1fr]'
+    }`;
+  });
   /** Facets the visitor expanded past the first few values. */
   private readonly manuallyExpanded = signal<ReadonlySet<string>>(new Set());
 
