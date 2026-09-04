@@ -155,6 +155,15 @@ export const deploymentConfigSchema = z
           .object({
             family: z.string().min(1),
             stylesheet: z.string().min(1).optional(),
+            /**
+             * The weight a price is set in (`--font-weight-emphasis`). How
+             * heavy "heavy" reads is a property of the face, which is why it
+             * lives with the face and not with the colours: 700 is a step up
+             * from the body text in the system stack and a shout in a family
+             * whose medium and semibold are barely apart. Omitted, the
+             * stylesheet's own figure stands.
+             */
+            emphasisWeight: z.number().int().min(100).max(900).optional(),
           })
           .strict()
           .optional(),

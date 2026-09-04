@@ -80,7 +80,7 @@ import { StatusBadge } from '../../ui/status-badge';
                     >
                       {{ item.name }}
                     </h3>
-                    <p class="mt-auto pt-2 font-bold text-stone-400">
+                    <p class="mt-auto pt-2 font-emphasis text-stone-400">
                       {{ item.priceMinor | price }}
                     </p>
                     <button

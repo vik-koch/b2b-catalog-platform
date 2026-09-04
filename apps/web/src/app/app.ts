@@ -77,6 +77,9 @@ import { SearchOverlay } from './layout/search-overlay';
     '[style.--color-subtle]': 'branding.theme.subtle || null',
     '[style.--color-border]': 'branding.theme.border || null',
     '[style.--color-border-strong]': 'branding.theme.borderStrong || null',
+    // Not a colour, but the same seam: one custom property a deployment may
+    // override without a rebuild (see styles.css).
+    '[style.--font-weight-emphasis]': 'branding.font?.emphasisWeight || null',
   },
 })
 export class App {

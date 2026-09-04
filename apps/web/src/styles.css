@@ -93,6 +93,19 @@
     }
   }
 
+  /*
+   * The weight a price is set in — the one figure on a listing that has to be
+   * found without being read.
+   *
+   * A token rather than `font-bold`, because how heavy "heavy" is belongs to
+   * the typeface: 700 in the stack below is a step up from the body text, and
+   * in a face whose medium and semibold are barely apart it is a shout. A
+   * deployment that ships its own font overrides this one number
+   * (`branding.font.emphasisWeight`) instead of hunting the four places a
+   * price is drawn.
+   */
+  --font-weight-emphasis: 700;
+
   /* "Coffee" — 7.5:1 on white */
   --color-primary: #6f4e37;
   /*
