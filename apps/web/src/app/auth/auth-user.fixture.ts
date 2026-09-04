@@ -22,3 +22,13 @@ export const plainUser: AuthUser = {
   firstName: 'Alex',
   mustChangePassword: false,
 };
+
+/** A manager: staff, but without the catalog — what half the admin screens
+ * and every role-shaped count have to be checked against. */
+export const managerUser: AuthUser = {
+  id: 'm',
+  email: 'manager@example.com',
+  role: 'manager',
+  firstName: null,
+  mustChangePassword: false,
+};

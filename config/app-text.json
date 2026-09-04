@@ -280,6 +280,7 @@
     "heading": "My orders",
     "intro": "Every order request you have sent us, with what was on it.",
     "action": "View all my orders",
+    "awaitingYou": "{count} waiting for you",
     "empty": "You have not sent us an order yet.",
     "emptyAction": "Browse the catalogue",
     "itemCount": "{count} lines",

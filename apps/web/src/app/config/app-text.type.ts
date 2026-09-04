@@ -675,6 +675,10 @@ export const appTextSchema = z
         /** The account-page card, which only links to the list. */
         intro: z.string(),
         action: z.string(),
+        /** `{count}` of the account's own orders that wait on the account
+         * holder (FR-WORK-03). Nothing waits on a customer until order
+         * processing ships, so this is unused until then. */
+        awaitingYou: z.string(),
         empty: z.string(),
         emptyAction: z.string(),
         /** `{count}` lines on an order, as the cart counts them. */

@@ -19,6 +19,8 @@ import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
 import { AccountService } from './account.service';
+import { WorkNote } from '../work/work-note';
+import { WorkService } from '../work/work.service';
 
 /**
  * How many of the newest orders the account page itself shows. Enough that a
@@ -65,6 +67,7 @@ interface DetailRow {
     OrderRows,
     RouterLink,
     Icon,
+    WorkNote,
   ],
   template: `
     <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ text.account }}</h1>
@@ -247,6 +250,18 @@ interface DetailRow {
       </h2>
       <!-- As above: the frame and its bars from the first frame. -->
       <div class="rounded-lg border border-border p-5">
+        <!-- What waits on the account holder, above the rows it is about
+             (FR-WORK-03): the same amber line the marker on the account
+             control leads here for, and the link narrows the history to it.
+             Nothing waits on a customer until order processing ships, so this
+             is silent for now. -->
+        @if (waitingOrders(); as count) {
+          <app-work-note
+            class="mb-4"
+            [label]="fill(orderText.awaitingYou, count)"
+            link="/account/orders"
+          />
+        }
         @if (!ordersReady()) {
           <app-skeleton [lines]="3" />
         } @else if (recentOrders(); as recent) {
@@ -347,6 +362,18 @@ export class AccountPage {
   protected readonly deleteText = inject(APP_TEXT).auth.myAccount.delete;
   protected readonly addressText = inject(APP_TEXT).auth.myAccount.addresses;
   protected readonly orderText = inject(APP_TEXT).orders;
+
+  private readonly work = inject(WorkService);
+
+  /** `undefined` where nothing is waiting, so the line is drawn only when
+   * there is something to say. */
+  protected readonly waitingOrders = computed(
+    () => this.work.counts().myOrders || undefined,
+  );
+
+  protected fill(template: string, count: number): string {
+    return fillText(template, { count });
+  }
 
   protected readonly profile = resource({
     loader: () => this.account.getProfile(),

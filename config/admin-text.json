@@ -51,7 +51,10 @@
     "deployedAt": "deployed {date}",
     "pricing": "Pricing",
     "accounts": "Accounts",
-    "orders": "Orders"
+    "orders": "Orders",
+    "workRegistrations": "{count} awaiting approval",
+    "workOrders": "{count} awaiting your answer",
+    "workProducts": "{count} awaiting publication"
   },
   "editMode": {
     "enable": "Edit mode",

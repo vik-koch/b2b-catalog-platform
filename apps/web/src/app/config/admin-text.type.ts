@@ -107,6 +107,15 @@ export const adminTextSchema = z
         version: z.string(),
         versionUnknown: z.string(),
         deployedAt: z.string(),
+        /**
+         * What is waiting, beside the section that resolves it (FR-WORK-03).
+         * `{count}` is substituted; each is a link into that list narrowed to
+         * exactly the rows counted, so the sentence names the work rather than
+         * the screen.
+         */
+        workRegistrations: z.string(),
+        workOrders: z.string(),
+        workProducts: z.string(),
       })
       .strict(),
     /** The storefront edit-mode toggle and its inline controls (FR-ADM-01). */
