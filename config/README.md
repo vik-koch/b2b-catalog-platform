@@ -93,8 +93,12 @@ for `/logo.svg` or `/favicon.svg` is answered from `config/assets/`.
 > the **server-only** `mail-text.json`) sit beside it and are never reachable
 > from a browser.
 
-`logo.svg` has one companion in `deployment.json`: `branding.logo`, its
-intrinsic `width` and `height` copied off the file. The header always draws the
+`logo.svg` is drawn as a **CSS mask**, not as an image: it takes the theme's
+colours, so it answers a pointer with the accent like every other control in the
+header. That means it renders in **one colour** whatever the file contains —
+draw it as a single-colour mark, and let the shapes rather than the fills carry
+it. Its companion in `deployment.json` is `branding.logo`, its intrinsic
+`width` and `height` copied off the file. The header always draws the
 logo 40px high, so these are not a display size — they are what lets the browser
 keep the logo's space before the file has arrived, instead of letting the search
 field beside it take the width and hand it straight back. Replace the logo with
@@ -109,6 +113,12 @@ A deployment that wants its own typeface adds `branding.font` to
   "stylesheet": "fonts/fonts.css"
 }
 ```
+
+`emphasisWeight` (100-900) belongs in the same block: it is the weight a price
+is set in, and how heavy that should be is a property of the face. The app ships
+700, which is a clear step up from the body text in the system stack and too
+much in a family whose medium and semibold are close together — set it there
+rather than looking for the places a price is drawn.
 
 `family` is applied to everything the app draws. `stylesheet` is a path under
 `assets/` holding the `@font-face` rules, linked into every document by the SSR

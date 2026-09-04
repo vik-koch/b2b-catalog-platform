@@ -49,7 +49,7 @@ import { Skeleton } from '../ui/skeleton';
           class="flex items-baseline justify-between gap-4 border-t border-border pt-3"
         >
           <dt class="text-subtle">{{ text.subtotal }}</dt>
-          <dd class="text-xl font-bold text-primary">{{ subtotal() }}</dd>
+          <dd class="text-xl font-emphasis text-primary">{{ subtotal() }}</dd>
         </div>
       </dl>
 

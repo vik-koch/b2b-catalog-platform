@@ -1,14 +1,14 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, computed, inject, input, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
-import { currentUrl } from '../core/current-url';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { currentUrl } from '../core/current-url';
 import { Icon } from '../ui/icons/icon';
 import { navActionClasses, NavVariant } from './nav-action';
-import { fillText } from '@b2b-catalog-platform/shared';
 
 /**
  * The cart control in the main navbar (FR-CART-01): a link to `/cart` carrying
@@ -51,9 +51,14 @@ import { fillText } from '@b2b-catalog-platform/shared';
            row's centre. -->
       <span class="relative inline-flex">
         <app-icon name="shopping-basket" class="h-6 w-6" />
+        <!-- Secondary, like the total below it and like the "in your cart"
+             field on the buying controls: all three state a fact about the
+             cart. Amber is reserved for work that wants somebody to act (see
+             AccountLink), and a filled amber count sat next to that marker
+             claiming to be the same kind of thing. -->
         <span
           aria-hidden="true"
-          class="cart-count absolute -top-1 -right-2 min-w-3 items-center justify-center rounded-full bg-accent px-0.5 py-0.5 text-[0.625rem] leading-3 text-white"
+          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3 items-center justify-center rounded-full bg-amber-500 px-0.5 py-0.5 text-[0.625rem] leading-3 text-white transition-colors"
         ></span>
       </span>
       <span [class]="cls().labelRow">

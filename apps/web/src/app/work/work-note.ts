@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { RouterLink, Params } from '@angular/router';
+import { Params, RouterLink } from '@angular/router';
 
 /**
  * One line of "this is waiting, and here is where you finish it" (FR-WORK-03)
@@ -22,13 +22,16 @@ import { RouterLink, Params } from '@angular/router';
     <a
       [routerLink]="link()"
       [queryParams]="queryParams()"
-      class="group inline-flex items-center gap-2 text-xs font-medium text-amber-700 hover:text-amber-800 hover:underline"
+      class="group inline-flex items-center text-xs font-medium text-amber-800 hover:text-accent"
     >
       <span
         aria-hidden="true"
-        class="size-1.5 shrink-0 rounded-full bg-amber-500"
+        class="size-1.5 shrink-0 rounded-full bg-amber-500 mr-2"
       ></span>
-      {{ label() }}
+      <!-- The rule belongs under the words. On the anchor it also ran under
+           the dot and the arrow, which made the arrow look struck through
+           rather than moving. -->
+      <span class="group-hover:underline pr-1">{{ label() }}</span>
       <!-- The arrow moves on hover, which is the whole of what says this is a
            way in rather than a note about the card. -->
       <span

@@ -155,6 +155,15 @@ export const deploymentConfigSchema = z
           .object({
             family: z.string().min(1),
             stylesheet: z.string().min(1).optional(),
+            /**
+             * The weight a price is set in (`--font-weight-emphasis`). How
+             * heavy "heavy" reads is a property of the face, which is why it
+             * lives with the face and not with the colours: 700 is a step up
+             * from the body text in the system stack and a shout in a family
+             * whose medium and semibold are barely apart. Omitted, the
+             * stylesheet's own figure stands.
+             */
+            emphasisWeight: z.number().int().min(100).max(900).optional(),
           })
           .strict()
           .optional(),
@@ -166,6 +175,7 @@ export const deploymentConfigSchema = z
         theme: z
           .object({
             primary: z.string(),
+            primaryDeep: z.string(),
             secondary: z.string(),
             accent: z.string(),
             surface: z.string().optional(),
@@ -266,6 +276,17 @@ export const deploymentConfigSchema = z
          * actually resolve to.
          */
         lowStockThresholdPieces: z.number().int().positive().optional(),
+        /**
+         * Whether the storefront draws the sort controls (FR-SEARCH-04).
+         *
+         * Off, a listing keeps its default order — relevance for a search,
+         * name for a category — and the `sort` parameter keeps working, so a
+         * link somebody saved still opens the listing they saved. It hides a
+         * control, it does not remove an ordering: a shop whose customers know
+         * the catalogue by heart reads a listing faster without one, and the
+         * admin grid's own sorting is untouched.
+         */
+        sortControlsEnabled: z.boolean(),
         /** Units a box's volume and weight are measured in. Labels only — the
          * numbers are stored as entered. */
         boxUnits: z

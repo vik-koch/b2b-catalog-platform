@@ -170,7 +170,7 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
 
               @if (data.pagination.totalPages > 1) {
                 <nav
-                  class="mt-10 flex items-center justify-center gap-4 text-sm"
+                  class="mt-8 flex items-center justify-center gap-4 text-sm"
                   [attr.aria-label]="catalogText.pageStatus"
                 >
                   @if (data.pagination.page > 1) {

@@ -77,9 +77,13 @@ export const PRODUCT_GRID =
           [availability]="item().availability"
           [reserve]="reserveAvailability()"
         />
+        <!-- The card is not the link — the photo and the name are, and the
+             buying controls in between are neither. So the name lights on its
+             own hover, not the card's: lighting it from anywhere on the card
+             promised a click that only lands on these two lines. -->
         <a [routerLink]="['/product', item().slug]" class="block">
           <h2
-            class="line-clamp-2 text-sm text-stone-700 group-hover:text-accent"
+            class="line-clamp-2 text-sm text-stone-700 transition-colors hover:text-accent"
             [title]="item().name"
           >
             {{ item().name }}

@@ -39,7 +39,7 @@ import { SearchOverlay } from './layout/search-overlay';
            Those narrow columns are centered only on the signed-out screens
            (login, register, password reset), where the page is the whole task;
            inside the app they stay left, under a left-aligned heading. -->
-      <main class="mx-auto w-full max-w-[82rem] flex-1 p-4">
+      <main class="mx-auto w-full max-w-[82rem] flex-1 p-4 mb-4">
         <router-outlet />
       </main>
       <!-- Admin-only storefront edit-mode toggle; empty for everyone else, and
@@ -68,6 +68,7 @@ import { SearchOverlay } from './layout/search-overlay';
   `,
   host: {
     '[style.--color-primary]': 'branding.theme.primary',
+    '[style.--color-primary-deep]': 'branding.theme.primaryDeep',
     '[style.--color-secondary]': 'branding.theme.secondary',
     '[style.--color-accent]': 'branding.theme.accent',
     '[style.--color-surface]': 'branding.theme.surface || null',
@@ -76,6 +77,9 @@ import { SearchOverlay } from './layout/search-overlay';
     '[style.--color-subtle]': 'branding.theme.subtle || null',
     '[style.--color-border]': 'branding.theme.border || null',
     '[style.--color-border-strong]': 'branding.theme.borderStrong || null',
+    // Not a colour, but the same seam: one custom property a deployment may
+    // override without a rebuild (see styles.css).
+    '[style.--font-weight-emphasis]': 'branding.font?.emphasisWeight || null',
   },
 })
 export class App {

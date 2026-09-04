@@ -8,9 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { ImagePlaceholder } from './image-placeholder';
-
-/** Below this horizontal travel a touch gesture counts as a tap, not a swipe. */
-const SWIPE_THRESHOLD_PX = 30;
+import { swipeStep, touchX } from './swipe';
 
 /**
  * The product-tile image slider (FR-CAT-04): no buttons.
@@ -176,16 +174,16 @@ export class TileGallery {
   }
 
   protected onTouchStart(event: TouchEvent): void {
-    this.touchStartX = event.changedTouches[0]?.clientX ?? 0;
+    this.touchStartX = touchX(event);
     this.swiped = false;
     this.revealNext();
   }
 
   protected onTouchEnd(event: TouchEvent): void {
-    const dx = (event.changedTouches[0]?.clientX ?? 0) - this.touchStartX;
-    if (!this.hasMultiple() || Math.abs(dx) < SWIPE_THRESHOLD_PX) return;
+    const step = swipeStep(this.touchStartX, touchX(event));
+    if (!this.hasMultiple() || step === 0) return;
     this.swiped = true;
-    this.select(this.clamp(this.selected() + (dx < 0 ? 1 : -1)));
+    this.select(this.clamp(this.selected() + step));
   }
 
   protected onClick(event: MouseEvent): void {

@@ -591,8 +591,8 @@ export class ProductBuyControls {
 
   protected readonly priceClass = computed(() =>
     this.compact()
-      ? 'text-lg font-bold text-primary'
-      : 'text-2xl font-bold text-primary',
+      ? 'text-lg font-emphasis text-primary'
+      : 'text-2xl font-emphasis text-primary',
   );
   protected readonly priceUnitClass = computed(() =>
     this.compact()

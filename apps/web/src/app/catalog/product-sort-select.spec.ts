@@ -6,6 +6,8 @@ import {
   searchSortSchema,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { defaultAppText } from '../config/app-text.fixture';
 import { ProductSortSelect, sortParam } from './product-sort-select';
 
@@ -22,12 +24,23 @@ class Host {
   withRelevance = false;
 }
 
-async function render(withRelevance: boolean, startUrl = '/catalog/espresso') {
+async function render(
+  withRelevance: boolean,
+  startUrl = '/catalog/espresso',
+  sortControlsEnabled = true,
+) {
   TestBed.configureTestingModule({
     imports: [Host],
     providers: [
       provideRouter([{ path: '**', component: Host }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: {
+          ...defaultDeploymentConfig,
+          catalog: { ...defaultDeploymentConfig.catalog, sortControlsEnabled },
+        },
+      },
     ],
   });
   const router = TestBed.inject(Router);
@@ -38,7 +51,8 @@ async function render(withRelevance: boolean, startUrl = '/catalog/espresso') {
   fixture.detectChanges();
   await fixture.whenStable();
 
-  const select = (fixture.nativeElement as HTMLElement).querySelector('select');
+  const host = fixture.nativeElement as HTMLElement;
+  const select = host.querySelector('select');
   if (!select) throw new Error('the control should render a select');
 
   /** Picks an option the way a visitor would, and waits for the navigation. */
@@ -52,6 +66,18 @@ async function render(withRelevance: boolean, startUrl = '/catalog/espresso') {
 }
 
 describe('ProductSortSelect', () => {
+  /**
+   * FR-SEARCH-04's second half: what a deployment switches off is the control.
+   * The ordering is the URL's, so a link somebody saved still opens the
+   * listing they saved — which is why this asserts the missing control and not
+   * a missing sort.
+   */
+  it('draws nothing where the deployment has turned the control off', async () => {
+    await expect(
+      render(false, '/catalog/espresso?sort=price', false),
+    ).rejects.toThrow(/should render a select/);
+  });
+
   it('offers relevance only where a query can rank it', async () => {
     const withoutQuery = await render(false);
     expect([...withoutQuery.select.options].map((o) => o.value)).toEqual([

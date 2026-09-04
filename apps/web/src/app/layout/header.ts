@@ -76,13 +76,11 @@ import { SearchField } from './search-field';
         class="flex mt-2 h-8 w-full items-center justify-between gap-4 px-4 sm:hidden"
       >
         <a [routerLink]="'/'" [attr.aria-label]="homeLabel" class="shrink-0">
-          <img
-            src="logo.svg"
-            alt=""
-            [width]="logo.width"
-            [height]="logo.height"
-            class="h-8 w-auto transition-opacity hover:opacity-75"
-          />
+          <span
+            aria-hidden="true"
+            class="logo-mark block h-8"
+            [style.aspect-ratio]="logoRatio"
+          ></span>
         </a>
         <app-contact-info class="-mr-2 min-w-0 flex-1 justify-end" />
       </div>
@@ -121,24 +119,23 @@ import { SearchField } from './search-field';
         #searchRow
         class="mx-auto flex h-15 w-full max-w-[82rem] items-center justify-between px-4"
       >
-        <!-- Plain <img>: NgOptimizedImage adds nothing for a local SVG.
-             Both dimensions come from the deployment's config rather than
-             being written here, because the asset they describe is the
-             deployment's too. They are never the drawn size — CSS sets the
-             height and the width follows — only the ratio the browser needs
-             to keep the space before the file arrives. -->
+        <!-- The mark is a mask, not an <img>, so it can take the accent on
+             hover like everything else in this row (see .logo-mark in
+             styles.css). Its
+             ratio comes from the deployment's config rather than being written
+             here, because the asset it describes is the deployment's too — and
+             it is never the drawn size, only what reserves the space while the
+             file is on its way. -->
         <a
           [routerLink]="'/'"
           [attr.aria-label]="homeLabel"
           class="hidden sm:block"
         >
-          <img
-            src="logo.svg"
-            alt=""
-            [width]="logo.width"
-            [height]="logo.height"
-            class="h-10 w-auto pr-3 transition-opacity hover:opacity-75"
-          />
+          <span
+            aria-hidden="true"
+            class="logo-mark mr-3 block h-10"
+            [style.aspect-ratio]="logoRatio"
+          ></span>
         </a>
 
         <app-search-field #field class="min-w-0 flex-1 sm:mx-3" />
@@ -179,6 +176,11 @@ export class Header {
   protected readonly text = inject(APP_TEXT);
   protected readonly branding = this.config.branding;
   protected readonly logo = this.branding.logo;
+  /** The mark is painted through a mask (see `.logo-mark`), so it has no
+   * intrinsic size: the height comes from the class and the width from the
+   * asset's own ratio, which is what keeps the space reserved before the file
+   * arrives. */
+  protected readonly logoRatio = `${this.logo.width} / ${this.logo.height}`;
   protected readonly contact = this.config.contact;
   protected readonly a11y = this.text.a11y;
   protected readonly homeLabel = this.text.a11y.homeLink.replace(

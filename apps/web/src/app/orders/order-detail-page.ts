@@ -233,7 +233,7 @@ export class OrderDetailPage {
   }
 
   protected statusTone(status: OrderStatus): StatusTone {
-    return orderStatusTone(status);
+    return orderStatusTone(status, 'customer');
   }
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {

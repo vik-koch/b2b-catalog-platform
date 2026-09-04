@@ -5,7 +5,7 @@ import { Facet, ProductListItem } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig } from '../config/deployment-config.type';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { CatalogService } from './catalog.service';
 import { productListItem } from './product.fixture';
 import { SearchResults } from './search-results';
@@ -51,13 +51,10 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
-      {
-        provide: DEPLOYMENT_CONFIG,
-        useValue: {
-          branding: { title: 'Test Shop', name: 'Test Shop' },
-          catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
-        } as unknown as DeploymentConfig,
-      },
+      // From the committed demo config, not a literal: a hand-built one
+      // silently drops whatever the schema grew since, and a missing flag
+      // reads as "off".
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: CatalogService,
         useValue: {

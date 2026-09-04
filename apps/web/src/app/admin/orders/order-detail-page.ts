@@ -181,7 +181,7 @@ export class AdminOrderDetailPage {
   }
 
   protected statusTone(status: OrderStatus): StatusTone {
-    return orderStatusTone(status);
+    return orderStatusTone(status, 'staff');
   }
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {

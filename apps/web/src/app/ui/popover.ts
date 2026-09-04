@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   Component,
   computed,
   DestroyRef,
@@ -8,8 +9,13 @@ import {
   input,
   output,
   PLATFORM_ID,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+
+/** How close to the window's edge the panel may come before it is nudged in. */
+const EDGE_MARGIN_PX = 8;
 
 /**
  * A small bubble anchored under the control it is about, with an arrow touching
@@ -47,7 +53,13 @@ import { isPlatformBrowser } from '@angular/common';
   host: { '[class]': 'hostClass()' },
   template: `
     <span [class]="arrowClass()"></span>
-    <div [class]="panelClass()"><ng-content /></div>
+    <div
+      #panel
+      [class]="panelClass()"
+      [style.transform]="'translateX(' + shift() + 'px)'"
+    >
+      <ng-content />
+    </div>
   `,
 })
 export class Popover {
@@ -110,9 +122,9 @@ export class Popover {
     // off the bubble's edge by as much below as it does at its sides, which a
     // tighter vertical padding did not. A sentence still gets the flatter box.
     const size = this.roomy()
-      ? 'w-56 max-w-[calc(100vw-2rem)] p-3 text-left'
+      ? 'w-56 p-3 text-left'
       : 'w-max max-w-52 px-3 py-2 text-center';
-    return `absolute rounded-md border border-border-strong bg-white text-sm text-ink shadow-xl ${size} ${place} ${vertical}`;
+    return `absolute max-w-[calc(100vw-2rem)] rounded-md border border-border-strong bg-white text-sm text-ink shadow-xl ${size} ${place} ${vertical}`;
   });
 
   private readonly onOutside = (event: Event) => {
@@ -122,8 +134,44 @@ export class Popover {
     if (event.key === 'Escape') this.close();
   };
 
+  private readonly panel = viewChild.required<ElementRef<HTMLElement>>('panel');
+
+  /**
+   * How far the panel is nudged sideways to stay on screen.
+   *
+   * The bubble is placed against its anchor, and an anchor near a window edge
+   * puts a panel wider than itself past that edge — which used to widen the
+   * document. Nothing above can solve it: the alignment is chosen by the call
+   * site, which knows where the control sits in its card and not where the
+   * card sits in the window.
+   *
+   * So the panel is measured once it is on screen and moved back in by
+   * whatever it overhangs. Only the panel moves: the arrow keeps pointing at
+   * the control, which is the one thing about the bubble that must stay true.
+   *
+   * `transform`, not `translate`: the alignment classes own the `translate`
+   * property, and the two compose — so centring stays centring and this only
+   * adds to it. Re-measured on a resize, since a window narrowing under an
+   * open bubble is exactly the case that overflows.
+   */
+  protected readonly shift = signal(0);
+
+  private readonly fit = () => {
+    const panel = this.panel().nativeElement;
+    const rect = panel.getBoundingClientRect();
+    // Measured with the current shift already applied, so each correction is
+    // relative and a second pass changes nothing once it fits.
+    const overhangRight = rect.right - (window.innerWidth - EDGE_MARGIN_PX);
+    const overhangLeft = EDGE_MARGIN_PX - rect.left;
+    const by =
+      overhangRight > 0 ? -overhangRight : overhangLeft > 0 ? overhangLeft : 0;
+    if (by !== 0) this.shift.update((current) => current + by);
+  };
+
   constructor() {
     if (this.isBrowser) {
+      afterNextRender(() => this.fit());
+      window.addEventListener('resize', this.fit);
       document.addEventListener('pointerdown', this.onOutside);
       document.addEventListener('keydown', this.onKey);
     }
@@ -138,6 +186,7 @@ export class Popover {
       if (!this.isBrowser) return;
       document.removeEventListener('pointerdown', this.onOutside);
       document.removeEventListener('keydown', this.onKey);
+      window.removeEventListener('resize', this.fit);
     });
   }
 

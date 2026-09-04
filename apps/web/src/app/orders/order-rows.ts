@@ -81,7 +81,7 @@ export class OrderRows {
   }
 
   protected statusTone(status: OrderStatus): StatusTone {
-    return orderStatusTone(status);
+    return orderStatusTone(status, 'customer');
   }
 
   protected formatDate(iso: string): string {

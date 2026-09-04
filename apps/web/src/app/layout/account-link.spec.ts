@@ -46,10 +46,13 @@ async function render(
     link: () => el.querySelector('a'),
     // What the control announces: the faded-out label is aria-hidden, so the
     // accessible name is the one label that is actually being shown.
+    // Empties dropped: the glyphs share the same one-cell grid as the labels,
+    // and their wrapper matches this selector while carrying no words.
     label: () =>
       Array.from(el.querySelectorAll('span[class*="row-start-1"]'))
         .filter((span) => !span.hasAttribute('aria-hidden'))
         .map((span) => span.textContent?.trim())
+        .filter((text) => text)
         .join(' '),
     faded: (label: string) =>
       Array.from(el.querySelectorAll('span[class*="row-start-1"]')).some(

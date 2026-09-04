@@ -9,22 +9,22 @@ const base =
  * only ever change together and a call site that set one without the other was
  * the bug this fixes.
  *
- * Both are roomier below `md`, where the pointer is a finger: a 16px glyph with
+ * Both are roomier below `sm`, where the pointer is a finger: a 16px glyph with
  * 4px around it is a 24px target, under half of what a thumb actually lands on,
  * and these sit in rows of two or three beside each other. Sizing the glyph
  * from here is what makes that true everywhere without eleven call sites
  * remembering to say so.
  */
 const sizes = {
-  sm: 'p-2 [&>*]:size-5 md:p-1 md:[&>*]:size-4',
-  md: 'p-2.5 [&>*]:size-6 md:p-1.5 md:[&>*]:size-5',
+  sm: 'p-2 [&>*]:size-5 sm:p-1 sm:[&>*]:size-4',
+  md: 'p-2.5 [&>*]:size-6 sm:p-1.5 sm:[&>*]:size-5',
   /**
    * The one that leads a record row. No padding on the sides, so the glyph's
    * own left edge is the row's left edge and everything under it — the meta
    * line, the second line of a wrapped name — starts on the same vertical. It
    * keeps the height, which is what a thumb aims at.
    */
-  lead: 'px-0 py-2 [&>*]:size-5 md:py-1 md:[&>*]:size-4',
+  lead: 'px-0 py-2 [&>*]:size-5 sm:py-1 sm:[&>*]:size-4',
   /**
    * The finger-sized end of `sm`, held at every width. For a control whose
    * neighbours are laid out by a *container* query rather than by the window:

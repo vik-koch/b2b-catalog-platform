@@ -7,6 +7,7 @@ import {
   SearchSort,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Input } from '../ui/input';
 import { SelectField } from '../ui/select-field';
 
@@ -34,17 +35,26 @@ const SORT_FIELD_ID = 'product-sort';
  * in the URL (FR-SEARCH-04), and merging one query parameter into the current
  * route is the same operation on both pages — so neither host has to know how
  * the other builds its links.
+ *
+ * A deployment can switch the control off (FR-SEARCH-04), and it does so here
+ * rather than at the three places that draw one: what a deployment turns off
+ * is the control, wherever it appears, and a listing added later would
+ * otherwise have to remember to ask. Only the control goes — the parameter
+ * still orders the listing, so saved and shared links keep working.
  */
 @Component({
   selector: 'app-product-sort-select',
   imports: [Input, SelectField],
   template: `
-    <div class="flex items-center gap-2">
-      <label [attr.for]="id()" class="text-sm whitespace-nowrap text-subtle">{{
-        text.sort.label
-      }}</label>
-      <app-select-field class="max-w-52">
-        <!-- Selection is marked on the option rather than bound on the <select>:
+    @if (enabled) {
+      <div class="flex items-center gap-2">
+        <label
+          [attr.for]="id()"
+          class="text-sm whitespace-nowrap text-subtle"
+          >{{ text.sort.label }}</label
+        >
+        <app-select-field class="max-w-52">
+          <!-- Selection is marked on the option rather than bound on the <select>:
              a value binding is applied before the options exist, and the element
              silently falls back to the first one.
 
@@ -55,28 +65,32 @@ const SORT_FIELD_ID = 'product-sort';
              is only the initial selectedness — once the visitor has picked
              something the element is dirty and ignores it, so a later
              navigation (back/forward) needs the property. -->
-        <select
-          appInput
-          size="sm"
-          [id]="id()"
-          (change)="onSelect($event)"
-          class="w-full"
-        >
-          @for (option of options(); track option) {
-            <option
-              [value]="option"
-              [selected]="option === value()"
-              [attr.selected]="option === value() ? '' : null"
-            >
-              {{ text.sort[option] }}
-            </option>
-          }
-        </select>
-      </app-select-field>
-    </div>
+          <select
+            appInput
+            size="sm"
+            [id]="id()"
+            (change)="onSelect($event)"
+            class="w-full"
+          >
+            @for (option of options(); track option) {
+              <option
+                [value]="option"
+                [selected]="option === value()"
+                [attr.selected]="option === value() ? '' : null"
+              >
+                {{ text.sort[option] }}
+              </option>
+            }
+          </select>
+        </app-select-field>
+      </div>
+    }
   `,
 })
 export class ProductSortSelect {
+  /** Whether this deployment offers the control at all (FR-SEARCH-04). */
+  protected readonly enabled =
+    inject(DEPLOYMENT_CONFIG).catalog.sortControlsEnabled;
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(APP_TEXT).catalog;

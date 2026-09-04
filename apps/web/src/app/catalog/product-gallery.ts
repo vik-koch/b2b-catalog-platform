@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
+import { swipeStep, touchX } from './swipe';
 import { APP_TEXT } from '../config/app-text';
 import { Button } from '../ui/button';
 import { FRAME, FRAME_SELECTED } from '../ui/frame';
@@ -53,7 +54,17 @@ const THUMBS_BESIDE = 6;
   imports: [ImagePlaceholder, Button],
   template: `
     <div [class]="frameClass()">
-      <div data-main-image [class]="mainImage">
+      <!-- A horizontal swipe steps between the photos, the gesture the card
+           in the listing already answers to (see swipe.ts). There is nothing
+           to suppress afterwards: unlike the tile, the photo here is not a
+           link, so a swipe cannot navigate. touch-pan-y keeps the page
+           scrolling under a vertical drag. -->
+      <div
+        data-main-image
+        [class]="mainImage"
+        (touchstart)="onTouchStart($event)"
+        (touchend)="onTouchEnd($event)"
+      >
         @if (current(); as img) {
           @if (failed().has(img.full)) {
             <app-image-placeholder [label]="productName()" />
@@ -128,7 +139,7 @@ export class ProductGallery {
    * image and a product with twelve show it at the same size. Uncapped below
    * that — on a phone the photo is the page, and a column narrower than the
    * cap is doing the capping anyway. */
-  protected readonly mainImage = `aspect-square w-full min-w-0 overflow-hidden rounded-xl bg-stone-100 md:w-100 md:shrink-0 ${FRAME}`;
+  protected readonly mainImage = `aspect-square w-full min-w-0 touch-pan-y overflow-hidden rounded-xl bg-stone-100 md:w-100 md:shrink-0 ${FRAME}`;
 
   protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;
 
@@ -220,5 +231,29 @@ export class ProductGallery {
 
   protected thumbLabel(index: number): string {
     return this.text.viewImage.replace('{n}', String(index + 1));
+  }
+
+  private touchStartX = 0;
+
+  protected onTouchStart(event: TouchEvent): void {
+    this.touchStartX = touchX(event);
+  }
+
+  /** Clamped rather than wrapped: the same step the thumbnails take, and the
+   * strip below says which photo of how many this is — a swipe that jumped
+   * from the last back to the first would contradict it. */
+  protected onTouchEnd(event: TouchEvent): void {
+    const step = swipeStep(this.touchStartX, touchX(event));
+    if (step === 0 || this.images().length < 2) return;
+    const next = Math.max(
+      0,
+      Math.min(this.selected() + step, this.images().length - 1),
+    );
+    this.selected.set(next);
+    // A swipe can reach a photo the collapsed strip is not showing, and a
+    // strip that does not mark the photo on screen is worse than a longer
+    // one. Reaching it opens the rest for good: the visitor is past the
+    // fifth picture, which is the answer the show-more was asking for.
+    if (next >= THUMBS_COLLAPSED) this.showAllThumbs.set(true);
   }
 }

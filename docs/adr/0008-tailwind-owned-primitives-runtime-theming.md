@@ -73,3 +73,23 @@ text.
   is built or vendored (spartan) when needed.
 - (−) Discipline required: raw palette colors in templates would silently
   break per-deployment theming.
+
+## Amendment — 2026-09-04 (v1.6.0): the logo and one type weight join the tokens
+
+Two things a deployment needs turned out to sit just outside the seam this ADR
+drew. Both are now on the same side of it as the colours.
+
+- **The logo is painted through a CSS mask**, not served as an `<img>`. An
+  external SVG cannot see the page's custom properties, so the one element in
+  the header that could not answer a pointer with the accent colour was the
+  wordmark. Masked, it is ordinary text colour and follows the theme with no
+  second asset to keep in step. The cost is that the mark comes out in one
+  colour; both current deployments draw theirs in the theme's own colours, so
+  it is not made switchable. It stays a per-deployment file, swapped at the
+  same mount as before.
+- **`--font-weight-emphasis`** joins the runtime tokens, overridable from
+  `branding.font.emphasisWeight` — with the face rather than with the colours,
+  since how heavy a price should be set is a property of the typeface. 700 is
+  a step up from the body text in the system stack and a shout in a face whose
+  medium and semibold are barely apart. It is one token, not a type scale: the
+  rest of the weights are the app's own design and stay in the templates.

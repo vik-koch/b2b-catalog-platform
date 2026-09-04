@@ -121,10 +121,15 @@ const NARROW = '(max-width: 39.999rem)';
             {{ displayName(item().category) }}
           </a>
         </li>
-        <li aria-hidden="true" class="flex items-center">
+        <!-- The product's own crumb is the one line the trail can lose on a
+             phone: the <h1> under it says the same thing, at a size that does
+             not wrap the trail onto three lines. Hidden from assistive
+             technology too, for the same reason — it would be the name read
+             twice, not a missing landmark. -->
+        <li aria-hidden="true" class="hidden items-center sm:flex">
           <app-icon name="chevron-right" class="h-4 w-4 text-stone-300" />
         </li>
-        <li>
+        <li class="hidden sm:block">
           <span aria-current="page" class="font-medium text-stone-700">
             {{ item().name }}
           </span>
