@@ -68,6 +68,10 @@
     "backToCatalog": "Back to the catalogue",
     "viewImage": "Show image {n}",
     "imagePlaceholder": "No image available",
+    "pairings": {
+      "label": "Sold together",
+      "marker": "Sold together with {count} products",
+    },
     "units": {
       "piece": "pcs",
       "pack": "pk",
