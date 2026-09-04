@@ -47,12 +47,28 @@ import { WorkService } from '../work/work.service';
            moves, and the pre-paint stylesheet can pick one before Angular has
            rendered anything (see session-shell.server.ts). -->
       <span class="relative grid">
-        <app-icon
+        <!-- The signed-in glyph is two glyphs, stacked and cross-faded: the
+             one with a gap for the marker cannot be tweened out of the one
+             without, and the counts arrive after the page has drawn, so
+             swapping the name outright opened the arc in a single frame. The
+             pair fades on the marker; the wrapper around them fades on the
+             session, so neither timing has to serve both. -->
+        <span
           data-session="known"
-          [name]="waiting() ? 'circle-user-round-dot' : 'circle-user-round'"
-          class="col-start-1 row-start-1 h-6 w-6 transition-opacity delay-300 duration-200"
+          class="col-start-1 row-start-1 grid transition-opacity delay-300 duration-200"
           [class.opacity-0]="signedOut()"
-        />
+        >
+          <app-icon
+            name="circle-user-round"
+            class="col-start-1 row-start-1 h-6 w-6 transition-opacity duration-200"
+            [class.opacity-0]="waiting()"
+          />
+          <app-icon
+            name="circle-user-round-dot"
+            class="col-start-1 row-start-1 h-6 w-6 transition-opacity duration-200"
+            [class.opacity-0]="!waiting()"
+          />
+        </span>
         <app-icon
           data-session="anonymous"
           name="user"
@@ -71,11 +87,18 @@ import { WorkService } from '../work/work.service';
              ring painted a disc belonging to neither. The glyph opens a gap
              for it instead — circle-user-round-dot is the same icon with its
              top-right arc left out — so the space around the dot is whatever
-             is behind the bar. -->
+             is behind the bar.
+
+             It grows into place rather than appearing (see marker-pop): the
+             counts are their own call, so on a reload the dot lands a moment
+             after everything else, and arriving at full size read as the icon
+             being redrawn. Going is not animated — an element the template has
+             removed has nothing left to run, and work finishing is the
+             direction nobody is watching. -->
         @if (waiting()) {
           <span
             aria-hidden="true"
-            class="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-amber-500"
+            class="absolute -top-0.5 -right-0.5 size-2.5 animate-marker-pop rounded-full bg-amber-500"
           ></span>
         }
       </span>

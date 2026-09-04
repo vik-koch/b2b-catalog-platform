@@ -51,6 +51,26 @@
   --animate-search-clear: search-clear 150ms ease-in forwards;
 
   /*
+   * The work marker arriving on the account control. The counts are a call of
+   * their own, so it lands a moment after the page has drawn — appearing at
+   * full size in one frame reads as the icon having been redrawn, which on a
+   * reload is exactly what it looks like. Growing into place says instead
+   * that something has just turned up.
+   *
+   * An animation on an element the template has just inserted, so nothing
+   * drives it frame by frame; the glyph underneath cross-fades over the same
+   * distance (see AccountLink).
+   */
+  --animate-marker-pop: marker-pop 200ms ease-out;
+
+  @keyframes marker-pop {
+    from {
+      opacity: 0;
+      scale: 0.4;
+    }
+  }
+
+  /*
    * The bottom bar's "More" panel, the same movement measured from the other
    * edge: it rises out of the bar it was opened from and sinks back into it.
    */
