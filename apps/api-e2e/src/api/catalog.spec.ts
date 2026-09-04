@@ -243,6 +243,58 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
   });
 });
 
+describe('GET /catalog/products/:slug/pairings (FR-SET-05)', () => {
+  /** The seeded cup and the two lids that fit it. Read from the data rather
+   * than named here, so a re-cut demo catalog moves this with it. */
+  const [cup] = pairingSeeds[0];
+  const lids = pairingSeeds
+    .filter(([one]) => one === cup)
+    .map(([, other]) => other);
+
+  it('lists the counterparts as tiles, in name order', async () => {
+    const res = await get(`/catalog/products/${cup}/pairings`);
+
+    expect(res.status).toBe(200);
+    const slugs = res.data.items.map((item: { slug: string }) => item.slug);
+    expect(slugs.sort()).toEqual([...lids].sort());
+    // In name order, which is what the editor lists them in: one set, one
+    // order, whichever side it is read from.
+    const names = res.data.items.map((item: { name: string }) => item.name);
+    expect(names).toEqual([...names].sort());
+  });
+
+  it('reads the same edge from the other end', async () => {
+    const res = await get(`/catalog/products/${lids[0]}/pairings`);
+
+    expect(res.status).toBe(200);
+    expect(res.data.items.map((item: { slug: string }) => item.slug)).toEqual([
+      cup,
+    ]);
+  });
+
+  it('agrees with the count every tile carries', async () => {
+    const detail = await get(`/catalog/products/${cup}`);
+    const pairings = await get(`/catalog/products/${cup}/pairings`);
+
+    expect(detail.data.pairedCount).toBe(lids.length);
+    expect(pairings.data.items).toHaveLength(detail.data.pairedCount);
+    // And each lid knows it is sold with the cup, from the tile alone.
+    for (const item of pairings.data.items) {
+      expect(item.pairedCount).toBe(1);
+    }
+  });
+
+  // A product that is sold with nothing answers with an empty list rather than
+  // a 404. Asserted in admin-catalog.spec, on a product that spec created:
+  // this database is shared, and any seeded product can have been paired by
+  // hand between runs.
+  it('is a 404 for a product that does not exist', async () => {
+    expect(
+      (await get('/catalog/products/no-such-product/pairings')).status,
+    ).toBe(404);
+  });
+});
+
 describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
   it('returns a product in exactly the contract shape', async () => {
     const seed = inEspresso[0];

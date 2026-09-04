@@ -513,6 +513,17 @@ export const catalogContract = {
       },
     },
   },
+  getProductPairings: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/catalog/products/{slug}/pairings',
+        inputStructure: 'detailed',
+      },
+    },
+  },
 } as unknown as typeof shared.catalogContract;
 export const inquiryContract = {
   submit: {

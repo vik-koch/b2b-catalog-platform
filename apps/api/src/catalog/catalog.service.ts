@@ -428,6 +428,50 @@ export class CatalogService {
     }));
   }
 
+  /**
+   * The products a product is sold together with (FR-SET-05), as tiles that can
+   * be bought where they are listed — the same shape a listing draws, so the
+   * panel behind the marker is a short listing rather than a fourth rendering
+   * of a product.
+   *
+   * Only what a customer could add: a withdrawn or unpublished counterpart
+   * keeps its edge for the admin and has no place here. Null distinguishes a
+   * product that does not exist from one that is sold with nothing — the
+   * caller answers 404 for the first and an empty list for the second.
+   *
+   * In name order, as the editor lists them: the admin and the customer see
+   * the same set in the same order.
+   */
+  async getProductPairings(
+    slug: string,
+    tierId: string | null = null,
+  ): Promise<ProductListItem[] | null> {
+    const [product] = await this.db
+      .select({ id: products.id })
+      .from(products)
+      .where(and(eq(products.slug, slug), publiclyVisible))
+      .limit(1);
+    if (!product) return null;
+
+    const counterpartId = counterpartOf(product.id);
+    const rows = await this.db
+      .select({
+        slug: products.slug,
+        name: products.name,
+        priceMinor: resolvedPriceMinor(tierId),
+        images: products.images,
+        ...unitColumns,
+        ...noteColumns,
+        ...availabilityColumns,
+        pairedCount: pairedCountOf(),
+      })
+      .from(productPairings)
+      .innerJoin(products, and(eq(products.id, counterpartId), publiclyVisible))
+      .where(involves(product.id))
+      .orderBy(asc(products.name));
+    return rows.map(toListItem);
+  }
+
   async getProduct(
     slug: string,
     tierId: string | null = null,
