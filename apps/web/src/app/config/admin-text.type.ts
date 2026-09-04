@@ -79,6 +79,8 @@ export const adminTextSchema = z
             'slug-taken': z.string(),
             'source-id-taken': z.string(),
             'tier-not-found': z.string(),
+            'paired-product-not-found': z.string(),
+            'pairing-self': z.string(),
             'slug-or-source-id-taken': z.string(),
           })
           .strict(),
@@ -294,6 +296,27 @@ export const adminTextSchema = z
             /** Shown under the prompt field: blank uses the shop-wide wording. */
             promptHint: z.string(),
             promptPlaceholder: z.string(),
+          })
+          .strict(),
+        /** The products this one is sold together with (FR-SET-01). */
+        pairings: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            /** The search field's label. */
+            add: z.string(),
+            addPlaceholder: z.string(),
+            /** `{name}` — the remove button's accessible name. */
+            remove: z.string(),
+            /** `{count}` — shown once no more can be added. */
+            limit: z.string(),
+            /** The two states a counterpart can be in and still be listed. */
+            deleted: z.string(),
+            unpublished: z.string(),
+            suggestionsLabel: z.string(),
+            noSuggestions: z.string(),
+            /** `{count}`, for the live region. */
+            suggestionCount: z.string(),
           })
           .strict(),
         /** Pieces on hand, and what a customer is told about them

@@ -483,6 +483,43 @@ export const productPrices = pgTable(
   ],
 );
 
+/**
+ * Products sold together (FR-SET-01): an undirected edge between two products,
+ * stored once. The check constraint is what makes "once" true — the smaller id
+ * is always the A side, so a pair has exactly one row whichever product was
+ * being edited, and a product cannot be paired with itself.
+ *
+ * Admin-owned like the packaging: a bulk sync neither creates nor clears these.
+ * Cascade on both sides, because an edge to a product that no longer exists is
+ * not a pairing. A *soft*-deleted product keeps its edges — the deletion is
+ * reversible, and clearing them would silently rewrite the counterpart's own
+ * set from a screen nobody opened.
+ */
+export const productPairings = pgTable(
+  'product_pairings',
+  {
+    productAId: uuid('productAId')
+      .notNull()
+      .references(() => products.id, { onDelete: 'cascade' }),
+    productBId: uuid('productBId')
+      .notNull()
+      .references(() => products.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.productAId, t.productBId] }),
+    // The PK answers the A side; a product's neighbours are looked up from
+    // both, and every read of this table is one product asking.
+    index('product_pairings_productBId_idx').on(t.productBId),
+    check(
+      'product_pairings_canonical_order',
+      sql`${t.productAId} < ${t.productBId}`,
+    ),
+  ],
+);
+
 // New signups default to `user`; `admin`/`manager` are assigned deliberately.
 export const userRole = pgEnum('user_role', ['admin', 'manager', 'user']);
 
