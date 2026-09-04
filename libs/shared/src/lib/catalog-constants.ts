@@ -86,6 +86,12 @@ export const PRODUCT_IMAGES_MAX = 20;
  */
 export const PRODUCT_TIER_PRICES_MAX = 50;
 
+/**
+ * A bound, not a business rule: a product is sold together with a handful of
+ * others, and the editor lists them all at once.
+ */
+export const PRODUCT_PAIRINGS_MAX = 20;
+
 /** Matches the `products.sourceId` / `categories.sourceId` varchar(255). */
 export const SOURCE_ID_MAX_LENGTH = 255;
 

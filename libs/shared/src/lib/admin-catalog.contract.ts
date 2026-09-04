@@ -9,6 +9,7 @@ import {
   PRODUCT_IMAGES_MAX,
   PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
   PRODUCT_NAME_MAX_LENGTH,
+  PRODUCT_PAIRINGS_MAX,
   PRODUCT_TIER_PRICES_MAX,
   SOURCE_ID_MAX_LENGTH,
 } from './catalog-constants';
@@ -65,6 +66,27 @@ const attributeInputSchema = productAttributeSchema.extend({
   key: z.string().trim().max(PRODUCT_ATTRIBUTE_KEY_MAX_LENGTH),
   value: z.string().trim().max(PRODUCT_ATTRIBUTE_VALUE_MAX_LENGTH),
 });
+
+/**
+ * A product this one is sold together with (FR-SET-01), as the editor lists it:
+ * the handle a save sends back plus the name that identifies it on screen.
+ *
+ * The two flags are why a pairing survives a counterpart being taken off the
+ * storefront. Neither is a reason to drop the row — a soft delete is reversible
+ * and an unpublished product is usually one still being prepared — so the
+ * editor marks the counterpart rather than losing the link the admin made.
+ */
+export const pairedProductSchema = z
+  .object({
+    slug: z.string(),
+    name: z.string(),
+    /** Soft-deleted; the storefront does not show it. */
+    deleted: z.boolean(),
+    /** Never published, or taken off the storefront again. */
+    unpublished: z.boolean(),
+  })
+  .strict();
+export type PairedProduct = z.infer<typeof pairedProductSchema>;
 
 /**
  * What create and update accept.
@@ -152,6 +174,22 @@ export const productInputSchema = z
       .positive()
       .nullable()
       .default(null),
+    /**
+     * The products this one is sold together with (FR-SET-01), by slug — the
+     * handle the admin API addresses a product by everywhere else.
+     *
+     * The whole set, like `tierPrices`: what is sent replaces what is stored,
+     * and a pairing dropped here is dropped from the counterpart too, because
+     * one edge is one row. An unknown slug is a 404.
+     */
+    pairedSlugs: z
+      .array(z.string())
+      .max(PRODUCT_PAIRINGS_MAX)
+      .refine(
+        (slugs) => new Set(slugs).size === slugs.length,
+        'A product can only be paired once',
+      )
+      .default([]),
   })
   .strict()
   .refine(
@@ -230,6 +268,8 @@ export const adminProductSchema = z
     lowStockThresholdPieces: z.number().int().positive().nullable(),
     /** Read-only — derived from the two above and the packaging, never sent. */
     availability: availabilitySchema,
+    /** The counterparts, named — a save sends `pairedSlugs` back (FR-SET-01). */
+    pairings: z.array(pairedProductSchema),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
     deletedAt: z.iso.datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
@@ -469,6 +509,10 @@ export const CATALOG_ERROR_CODES = [
   'source-id-taken',
   /** A tier price naming a price list that no longer exists. */
   'tier-not-found',
+  /** A pairing naming a product that no longer exists. */
+  'paired-product-not-found',
+  /** A product paired with itself, which is not a pairing. */
+  'pairing-self',
   /**
    * A unique violation that got past the pre-checks — two admins saving the
    * same slug at once. Which of the two columns collided is not worth a round
@@ -488,6 +532,8 @@ const e = {
   'category-not-found': { status: 404 },
   'reassign-target-not-found': { status: 404 },
   'tier-not-found': { status: 404 },
+  'paired-product-not-found': { status: 404 },
+  'pairing-self': { status: 409 },
   'category-has-subcategories': { status: 409 },
   'category-has-products': { status: 409 },
   'category-reassign-to-self': { status: 409 },
@@ -497,10 +543,13 @@ const e = {
   'slug-or-source-id-taken': { status: 409 },
 } as const satisfies Record<CatalogErrorCode, { status: number }>;
 
-/** Saving a product can collide on either unique column, or name a gone tier. */
+/** Saving a product can collide on either unique column, or name a gone tier
+ * or a gone counterpart. */
 const productWriteErrors = {
   'category-not-found': e['category-not-found'],
   'tier-not-found': e['tier-not-found'],
+  'paired-product-not-found': e['paired-product-not-found'],
+  'pairing-self': e['pairing-self'],
   'slug-taken': e['slug-taken'],
   'source-id-taken': e['source-id-taken'],
   'slug-or-source-id-taken': e['slug-or-source-id-taken'],

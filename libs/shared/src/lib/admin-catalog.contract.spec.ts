@@ -1,4 +1,5 @@
 import { productInputSchema } from './admin-catalog.contract';
+import { PRODUCT_PAIRINGS_MAX } from './catalog-constants';
 
 /** The minimum a product needs; packaging fields all have defaults. */
 const base = {
@@ -111,5 +112,29 @@ describe('productInputSchema packaging', () => {
   it('refuses zero or fractional counts', () => {
     expect(parse({ piecesPerPack: 0 }).success).toBe(false);
     expect(parse({ minPieceQty: 1.5 }).success).toBe(false);
+  });
+});
+
+describe('productInputSchema pairings', () => {
+  it('defaults to no pairings', () => {
+    const result = parse({});
+
+    expect(result.success && result.data.pairedSlugs).toEqual([]);
+  });
+
+  it('refuses the same counterpart twice, since one pairing is one row', () => {
+    const result = parse({ pairedSlugs: ['lid-small', 'lid-small'] });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('refuses more counterparts than a product is allowed', () => {
+    const slugs = Array.from(
+      { length: PRODUCT_PAIRINGS_MAX + 1 },
+      (_, i) => `lid-${i}`,
+    );
+
+    expect(parse({ pairedSlugs: slugs }).success).toBe(false);
+    expect(parse({ pairedSlugs: slugs.slice(1) }).success).toBe(true);
   });
 });

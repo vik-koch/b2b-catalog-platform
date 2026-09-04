@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   and,
@@ -18,6 +23,7 @@ import {
   AdminProductListItem,
   AdminProductListQuery,
   HiddenProduct,
+  PairedProduct,
   parseAttributeNumber,
   ProductAttribute,
   productAvailability,
@@ -32,6 +38,7 @@ import {
   categories,
   customerTiers,
   productAttributes,
+  productPairings,
   productPrices,
   products,
 } from '../db/schema';
@@ -257,6 +264,7 @@ export class AdminProductsService {
       row,
       await this.tierPricesFor(row.id),
       await this.attributesFor(row.id),
+      await this.pairingsFor(row.id),
     );
   }
 
@@ -279,6 +287,7 @@ export class AdminProductsService {
     );
 
     await this.ensureTiersExist(input.tierPrices);
+    const paired = await this.pairedProducts(input.pairedSlugs);
 
     // One transaction, because a product and its tier prices are one edit: a
     // half-applied save would leave a price on the wrong product's row set.
@@ -305,7 +314,17 @@ export class AdminProductsService {
       await this.replaceTierPrices(tx, row[0].id, input.tierPrices);
       const attributes = storedAttributes(input.attributes);
       await this.replaceAttributes(tx, row[0].id, attributes);
-      return toAdminProduct(row[0], input.tierPrices, attributes);
+      await this.replacePairings(
+        tx,
+        row[0].id,
+        paired.map((p) => p.id),
+      );
+      return toAdminProduct(
+        row[0],
+        input.tierPrices,
+        attributes,
+        namedPairings(paired),
+      );
     });
   }
 
@@ -332,6 +351,7 @@ export class AdminProductsService {
     );
 
     await this.ensureTiersExist(input.tierPrices);
+    const paired = await this.pairedProducts(input.pairedSlugs, existing.id);
 
     return this.db.transaction(async (tx) => {
       const row = await runUnique(() =>
@@ -358,7 +378,17 @@ export class AdminProductsService {
       await this.replaceTierPrices(tx, existing.id, input.tierPrices);
       const attributes = storedAttributes(input.attributes);
       await this.replaceAttributes(tx, existing.id, attributes);
-      return toAdminProduct(row[0], input.tierPrices, attributes);
+      await this.replacePairings(
+        tx,
+        existing.id,
+        paired.map((p) => p.id),
+      );
+      return toAdminProduct(
+        row[0],
+        input.tierPrices,
+        attributes,
+        namedPairings(paired),
+      );
     });
   }
 
@@ -388,6 +418,7 @@ export class AdminProductsService {
       rows[0],
       await this.tierPricesFor(rows[0].id),
       await this.attributesFor(rows[0].id),
+      await this.pairingsFor(rows[0].id),
     );
   }
 
@@ -407,6 +438,7 @@ export class AdminProductsService {
       rows[0],
       await this.tierPricesFor(rows[0].id),
       await this.attributesFor(rows[0].id),
+      await this.pairingsFor(rows[0].id),
     );
   }
 
@@ -438,6 +470,7 @@ export class AdminProductsService {
       rows[0],
       await this.tierPricesFor(rows[0].id),
       await this.attributesFor(rows[0].id),
+      await this.pairingsFor(rows[0].id),
     );
   }
 
@@ -628,6 +661,128 @@ export class AdminProductsService {
   }
 
   /**
+   * The products this one is sold together with (FR-SET-01), in name order —
+   * the order the editor lists them in, and the only one an admin can predict.
+   *
+   * An edge is stored once, so a product's neighbours sit on whichever side it
+   * is not: the `case` picks the other end, and the `or` is what makes the
+   * table read the same from both products.
+   */
+  private async pairingsFor(productId: string): Promise<PairedProduct[]> {
+    const counterpartId = sql`case
+      when ${productPairings.productAId} = ${productId}
+      then ${productPairings.productBId}
+      else ${productPairings.productAId} end`;
+    const rows = await this.db
+      .select({
+        slug: products.slug,
+        name: products.name,
+        deletedAt: products.deletedAt,
+        publishedAt: products.publishedAt,
+      })
+      .from(productPairings)
+      .innerJoin(products, eq(products.id, counterpartId))
+      .where(this.involves(productId))
+      .orderBy(asc(products.name));
+    return rows.map((row) => ({
+      slug: row.slug,
+      name: row.name,
+      deleted: row.deletedAt !== null,
+      unpublished: row.publishedAt === null,
+    }));
+  }
+
+  /** Either end of an edge is this product. */
+  private involves(productId: string) {
+    return or(
+      eq(productPairings.productAId, productId),
+      eq(productPairings.productBId, productId),
+    );
+  }
+
+  /**
+   * The counterparts a save named, resolved before the transaction opens so an
+   * unknown slug is a 404 naming the product rather than a foreign-key error.
+   *
+   * Soft-deleted counterparts resolve like any other: the editor lists them
+   * marked, and a save that keeps them must not be the thing that drops them.
+   * `ownId` is the product being saved — pairing it with itself is refused
+   * rather than silently dropped, so the editor says what it did not do.
+   */
+  private async pairedProducts(
+    slugs: string[],
+    ownId?: string,
+  ): Promise<(PairedProduct & { id: string })[]> {
+    if (slugs.length === 0) return [];
+    const rows = await this.db
+      .select({
+        id: products.id,
+        slug: products.slug,
+        name: products.name,
+        deletedAt: products.deletedAt,
+        publishedAt: products.publishedAt,
+      })
+      .from(products)
+      .where(inArray(products.slug, slugs))
+      .orderBy(asc(products.name));
+    if (rows.length !== new Set(slugs).size) {
+      throw new NotFoundException({
+        code: 'paired-product-not-found',
+        message: 'Paired product not found',
+      });
+    }
+    if (ownId !== undefined && rows.some((row) => row.id === ownId)) {
+      throw new ConflictException({
+        code: 'pairing-self',
+        message: 'A product cannot be paired with itself',
+      });
+    }
+    return rows.map((row) => ({
+      id: row.id,
+      slug: row.slug,
+      name: row.name,
+      deleted: row.deletedAt !== null,
+      unpublished: row.publishedAt === null,
+    }));
+  }
+
+  /**
+   * The single write path for pairings, and the same rule as tier prices: the
+   * posted list is the whole truth, from this product's side. Removing a
+   * counterpart here removes the pairing from that product too — there is one
+   * row, and it says the two are sold together.
+   *
+   * Untouched edges are left where they are (`onConflictDoNothing`), so saving
+   * a product does not re-date the pairings it kept.
+   */
+  private async replacePairings(
+    tx: NodePgDatabase<typeof schema>,
+    productId: string,
+    counterpartIds: string[],
+  ): Promise<void> {
+    const counterpartId = sql`case
+      when ${productPairings.productAId} = ${productId}
+      then ${productPairings.productBId}
+      else ${productPairings.productAId} end`;
+    await tx
+      .delete(productPairings)
+      .where(
+        and(
+          this.involves(productId),
+          counterpartIds.length > 0
+            ? notInArray(counterpartId, counterpartIds)
+            : undefined,
+        ),
+      );
+    if (counterpartIds.length === 0) return;
+
+    await tx
+      .insert(productPairings)
+      .values(counterpartIds.map((other) => canonicalPair(productId, other)))
+      .onConflictDoNothing();
+  }
+
+  /**
    * A 404 rather than a foreign-key error: an unknown tier is the same class of
    * mistake as an unknown category, and the editor renders that message.
    */
@@ -659,10 +814,41 @@ function storedAttributes(entries: ProductAttribute[]): ProductAttribute[] {
   return entries.filter((entry) => entry.key !== '' && entry.value !== '');
 }
 
+/**
+ * The counterparts as the contract serializes them. The resolved rows carry the
+ * id the write needs, and the output schema is strict — an extra field is a 500
+ * rather than a wrong answer, which is how this was caught.
+ */
+function namedPairings(
+  resolved: (PairedProduct & { id: string })[],
+): PairedProduct[] {
+  return resolved.map(({ slug, name, deleted, unpublished }) => ({
+    slug,
+    name,
+    deleted,
+    unpublished,
+  }));
+}
+
+/**
+ * An edge's two columns, ordered as the table stores them: the smaller id is
+ * always the A side, which is what makes one pairing one row whichever of the
+ * two products was being edited.
+ */
+function canonicalPair(
+  one: string,
+  other: string,
+): { productAId: string; productBId: string } {
+  return one < other
+    ? { productAId: one, productBId: other }
+    : { productAId: other, productBId: one };
+}
+
 function toAdminProduct(
   row: ProductRow,
   tierPrices: ProductTierPrice[],
   attributes: ProductAttribute[],
+  pairings: PairedProduct[],
 ): AdminProduct {
   return {
     slug: row.slug,
@@ -674,6 +860,7 @@ function toAdminProduct(
     attributes,
     images: row.images,
     tierPrices,
+    pairings,
     deletedAt: row.deletedAt?.toISOString() ?? null,
     publishedAt: row.publishedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),

@@ -42,6 +42,7 @@ const PRODUCT_KEYS = [
   'minPieceQty',
   'name',
   'packsPerBox',
+  'pairings',
   'piecesPerPack',
   'priceBasisPieces',
   'priceMinor',
@@ -988,6 +989,135 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(res.status).toBe(200);
       expect(res.data.lineNoteEnabled).toBe(false);
       expect(res.data.lineNotePrompt).toBeNull();
+    });
+  });
+
+  describe('sold-together pairings (FR-SET-01)', () => {
+    /** The counterpart list as the editor reads it back, in name order. */
+    const pairedSlugs = (data: { pairings: { slug: string }[] }) =>
+      data.pairings.map((p) => p.slug);
+
+    it('pairs both products from one save, and unpairs both from one save', async () => {
+      const cup = await createProduct({ name: `Cup ${R}` });
+      const lid = await createProduct({ name: `Lid ${R}` });
+
+      const paired = await put(`/admin/catalog/products/${cup.data.slug}`, {
+        name: `Cup ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        pairedSlugs: [lid.data.slug],
+      });
+      expect(paired.status).toBe(200);
+      expect(pairedSlugs(paired.data)).toEqual([lid.data.slug]);
+
+      // The other half of the edge, which nobody edited: one row, read from
+      // both sides.
+      const fromLid = await adminGet(
+        `/admin/catalog/products/${lid.data.slug}`,
+      );
+      expect(pairedSlugs(fromLid.data)).toEqual([cup.data.slug]);
+
+      const cleared = await put(`/admin/catalog/products/${cup.data.slug}`, {
+        name: `Cup ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+      });
+      expect(pairedSlugs(cleared.data)).toEqual([]);
+      const lidAfter = await adminGet(
+        `/admin/catalog/products/${lid.data.slug}`,
+      );
+      expect(pairedSlugs(lidAfter.data)).toEqual([]);
+    });
+
+    it('pairs one product with several, and each of those back with it', async () => {
+      const cup = await createProduct({ name: `Multi cup ${R}` });
+      const small = await createProduct({ name: `Alid ${R}` });
+      const large = await createProduct({ name: `Blid ${R}` });
+
+      const res = await put(`/admin/catalog/products/${cup.data.slug}`, {
+        name: `Multi cup ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        pairedSlugs: [large.data.slug, small.data.slug],
+      });
+
+      // Name order, whatever order they were sent in.
+      expect(pairedSlugs(res.data)).toEqual([small.data.slug, large.data.slug]);
+      for (const lid of [small, large]) {
+        const read = await adminGet(`/admin/catalog/products/${lid.data.slug}`);
+        expect(pairedSlugs(read.data)).toEqual([cup.data.slug]);
+      }
+    });
+
+    it('creates a product already paired', async () => {
+      const lid = await createProduct({ name: `Created-with lid ${R}` });
+      const cup = await createProduct({
+        name: `Created-with cup ${R}`,
+        pairedSlugs: [lid.data.slug],
+      });
+
+      expect(cup.status).toBe(201);
+      expect(pairedSlugs(cup.data)).toEqual([lid.data.slug]);
+    });
+
+    it('keeps the pairing when a counterpart is soft-deleted, and marks it', async () => {
+      const cup = await createProduct({ name: `Kept cup ${R}` });
+      const lid = await createProduct({ name: `Kept lid ${R}` });
+      await put(`/admin/catalog/products/${cup.data.slug}`, {
+        name: `Kept cup ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        pairedSlugs: [lid.data.slug],
+      });
+
+      await del(`/admin/catalog/products/${lid.data.slug}`);
+
+      const read = await adminGet(`/admin/catalog/products/${cup.data.slug}`);
+      expect(read.data.pairings).toEqual([
+        {
+          slug: lid.data.slug,
+          name: `Kept lid ${R}`,
+          deleted: true,
+          // Nothing published either of these; both facts are reported.
+          unpublished: true,
+        },
+      ]);
+    });
+
+    it('refuses an unknown counterpart, and a product paired with itself', async () => {
+      const cup = await createProduct({ name: `Refused cup ${R}` });
+
+      const unknown = await put(`/admin/catalog/products/${cup.data.slug}`, {
+        name: `Refused cup ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        pairedSlugs: ['no-such-product'],
+      });
+      expect(unknown.status).toBe(404);
+      expect(unknown.data.code).toBe('paired-product-not-found');
+
+      const self = await put(`/admin/catalog/products/${cup.data.slug}`, {
+        name: `Refused cup ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        pairedSlugs: [cup.data.slug],
+      });
+      expect(self.status).toBe(409);
+      expect(self.data.code).toBe('pairing-self');
+    });
+
+    it('refuses the same counterpart twice', async () => {
+      const cup = await createProduct({ name: `Twice cup ${R}` });
+      const lid = await createProduct({ name: `Twice lid ${R}` });
+
+      const res = await put(`/admin/catalog/products/${cup.data.slug}`, {
+        name: `Twice cup ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        pairedSlugs: [lid.data.slug, lid.data.slug],
+      });
+
+      expect(res.status).toBe(400);
     });
   });
 
