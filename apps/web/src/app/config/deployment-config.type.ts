@@ -166,6 +166,7 @@ export const deploymentConfigSchema = z
         theme: z
           .object({
             primary: z.string(),
+            primaryDeep: z.string(),
             secondary: z.string(),
             accent: z.string(),
             surface: z.string().optional(),

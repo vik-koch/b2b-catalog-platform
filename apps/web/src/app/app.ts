@@ -68,6 +68,7 @@ import { SearchOverlay } from './layout/search-overlay';
   `,
   host: {
     '[style.--color-primary]': 'branding.theme.primary',
+    '[style.--color-primary-deep]': 'branding.theme.primaryDeep',
     '[style.--color-secondary]': 'branding.theme.secondary',
     '[style.--color-accent]': 'branding.theme.accent',
     '[style.--color-surface]': 'branding.theme.surface || null',
