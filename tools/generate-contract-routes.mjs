@@ -45,6 +45,7 @@ const CONTRACTS = [
   'syncContract',
   'tiersContract',
   'usersContract',
+  'workContract',
 ];
 
 /** The fields the client link actually reads; everything else is server-side. */
