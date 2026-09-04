@@ -282,6 +282,40 @@ body {
 }
 
 /*
+ * The wordmark, drawn as a mask rather than as an <img>.
+ *
+ * Everything else in the header answers a pointer with the accent colour, and
+ * the one thing that could not was the logo: an external SVG cannot see the
+ * page's custom properties, so it was left fading its opacity instead. Painted
+ * through a mask it is ordinary text colour — it follows the deployment's own
+ * theme with no second asset to keep in step, and hover and press are the same
+ * two colours every other control uses.
+ *
+ * The cost is that it is one colour: a multi-coloured mark comes out flat in
+ * whichever colour this sets. Both current deployments' marks are drawn in the
+ * theme's own colours anyway, which is why this is not a per-deployment switch.
+ *
+ * The element has no intrinsic size, so a call site gives it a height and the
+ * logo's own ratio.
+ */
+.logo-mark {
+  background-color: var(--color-primary);
+  /* Root-relative: the file is a runtime mount served from the site root
+   * (see server.ts), not a build input the bundler could resolve. */
+  -webkit-mask: url('/logo.svg') no-repeat center / contain;
+  mask: url('/logo.svg') no-repeat center / contain;
+  transition: background-color 150ms;
+}
+
+a:hover .logo-mark {
+  background-color: var(--color-accent);
+}
+
+a:active .logo-mark {
+  background-color: var(--color-primary-deep);
+}
+
+/*
  * Keep whatever the browser scrolls to clear of the phone's bottom bar.
  *
  * The bar is fixed, so it covers the last few rem of the viewport, and
