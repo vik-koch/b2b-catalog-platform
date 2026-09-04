@@ -250,6 +250,25 @@ html {
 }
 
 /*
+ * Nothing may widen the document. A bubble, a chip or a badge that hangs past
+ * the right edge otherwise adds a horizontal scrollbar, and adding one takes
+ * the width away from everything laid out against the viewport: the sticky
+ * header and the bottom bar visibly re-scale while an overhanging popover is
+ * open. Overflowing sideways is always a bug here — the page has no content
+ * that is meant to be scrolled to horizontally, and what does not fit
+ * (a wide table, a code block) scrolls inside its own box.
+ *
+ * On `body`, not `html`: `html` has no overflow of its own precisely so the
+ * body's propagates to the viewport (see the dialog rule below), and clipping
+ * here keeps that arrangement. `clip` rather than `hidden` because hidden
+ * would make the viewport a scroll container programmatic scrolling could
+ * still move.
+ */
+body {
+  overflow-x: clip;
+}
+
+/*
  * Keep whatever the browser scrolls to clear of the phone's bottom bar.
  *
  * The bar is fixed, so it covers the last few rem of the viewport, and
