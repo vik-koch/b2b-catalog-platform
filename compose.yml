@@ -152,9 +152,10 @@ services:
       - traefik.http.routers.${STACK_NAME:?}-web.tls.certresolver=letsencrypt
       - traefik.http.services.${STACK_NAME:?}-web.loadbalancer.server.port=4000
 
-  # Static server for uploaded images (0021). Traefik cannot serve files, so a
-  # tiny nginx exposes the shared media volume read-only at /media, with an
-  # immutable cache policy (filenames are content hashes). On the internal
+  # Static server for uploaded images (0021) and product documents. Traefik
+  # cannot serve files, so a tiny nginx exposes the shared media volume
+  # read-only at /media and /documents, with an immutable cache policy
+  # (filenames are content hashes). On the internal
   # network too, so the local smoke-test proxy can reach it by name.
   media:
     image: nginx:alpine
@@ -175,8 +176,8 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik
-      # More specific than the web catch-all, so /media never lands on web.
-      - traefik.http.routers.${STACK_NAME:?}-media.rule=Host(`${APP_DOMAIN:?}`) && PathPrefix(`/media`)
+      # More specific than the web catch-all, so neither prefix lands on web.
+      - traefik.http.routers.${STACK_NAME:?}-media.rule=Host(`${APP_DOMAIN:?}`) && (PathPrefix(`/media`) || PathPrefix(`/documents`))
       - traefik.http.routers.${STACK_NAME:?}-media.entrypoints=websecure
       - traefik.http.routers.${STACK_NAME:?}-media.tls.certresolver=letsencrypt
       - traefik.http.services.${STACK_NAME:?}-media.loadbalancer.server.port=80
