@@ -35,6 +35,7 @@ const PRODUCT_KEYS = [
   'categoryId',
   'deletedAt',
   'descriptionHtml',
+  'documents',
   'images',
   'lineNoteEnabled',
   'lineNotePrompt',

@@ -22,6 +22,8 @@ import {
   productListItemSchema,
 } from './catalog.contract';
 import { SEARCH_QUERY_MAX_LENGTH } from './catalog-constants';
+import { PRODUCT_DOCUMENTS_MAX } from './document-constants';
+import { linkedDocumentSchema } from './documents.contract';
 import { basisDividesQuantities, minimumFitsPacks } from './product-units';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
@@ -190,6 +192,22 @@ export const productInputSchema = z
         'A product can only be paired once',
       )
       .default([]),
+    /**
+     * The documents shown on this product (FR-DOC-02), by id — a document has
+     * no slug, and its title is not unique.
+     *
+     * The whole set from this product's side, like `pairedSlugs`: what is sent
+     * replaces what is stored *for this product*, and the document keeps every
+     * other product it is on. An unknown id is a 404.
+     */
+    documentIds: z
+      .array(z.uuid())
+      .max(PRODUCT_DOCUMENTS_MAX)
+      .refine(
+        (ids) => new Set(ids).size === ids.length,
+        'A document can only be linked once',
+      )
+      .default([]),
   })
   .strict()
   .refine(
@@ -270,6 +288,9 @@ export const adminProductSchema = z
     availability: availabilitySchema,
     /** The counterparts, named — a save sends `pairedSlugs` back (FR-SET-01). */
     pairings: z.array(pairedProductSchema),
+    /** The documents shown on it — a save sends `documentIds` back
+     * (FR-DOC-02). */
+    documents: z.array(linkedDocumentSchema),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
     deletedAt: z.iso.datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
@@ -409,6 +430,13 @@ export const adminProductListQuerySchema = z.object({
    * every review of a tier.
    */
   tierId: z.uuid().optional(),
+  /**
+   * The products one document is shown on — where the document list's product
+   * count leads (FR-DOC-02). Like the tier and attribute narrowings it has no
+   * column of its own, because a document is not something a product row
+   * says anything about.
+   */
+  documentId: z.uuid().optional(),
 });
 export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 
@@ -511,6 +539,8 @@ export const CATALOG_ERROR_CODES = [
   'tier-not-found',
   /** A pairing naming a product that no longer exists. */
   'paired-product-not-found',
+  /** A save naming a document that no longer exists (FR-DOC-02). */
+  'document-not-found',
   /** A product paired with itself, which is not a pairing. */
   'pairing-self',
   /**
@@ -533,6 +563,7 @@ const e = {
   'reassign-target-not-found': { status: 404 },
   'tier-not-found': { status: 404 },
   'paired-product-not-found': { status: 404 },
+  'document-not-found': { status: 404 },
   'pairing-self': { status: 409 },
   'category-has-subcategories': { status: 409 },
   'category-has-products': { status: 409 },
@@ -543,12 +574,13 @@ const e = {
   'slug-or-source-id-taken': { status: 409 },
 } as const satisfies Record<CatalogErrorCode, { status: number }>;
 
-/** Saving a product can collide on either unique column, or name a gone tier
- * or a gone counterpart. */
+/** Saving a product can collide on either unique column, or name a gone tier,
+ * a gone counterpart or a gone document. */
 const productWriteErrors = {
   'category-not-found': e['category-not-found'],
   'tier-not-found': e['tier-not-found'],
   'paired-product-not-found': e['paired-product-not-found'],
+  'document-not-found': e['document-not-found'],
   'pairing-self': e['pairing-self'],
   'slug-taken': e['slug-taken'],
   'source-id-taken': e['source-id-taken'],
