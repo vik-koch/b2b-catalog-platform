@@ -1,7 +1,11 @@
 import { readdir, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Client } from 'pg';
-import { collectReferencedFilenames } from './media-references';
+import { DOCUMENT_SUBDIR } from '../media-store';
+import {
+  collectReferencedFilenames,
+  DOCUMENT_REFERENCE_SOURCES,
+} from './media-references';
 
 export interface PruneResult {
   scanned: number;
@@ -81,6 +85,12 @@ export async function pruneMediaFiles({
 
 /**
  * Connect, collect references from every registered source, sweep, disconnect.
+ *
+ * Two sweeps, not one: documents live in a subdirectory of the same volume,
+ * under their own URL prefix and their own reference sources. The image sweep
+ * cannot reach them (it skips anything that is not a file) and must not — a
+ * document referenced only by a `documents` row would look like an orphan to
+ * the sources that scan page bodies and product images.
  */
 export async function runMediaPrune(params: {
   connectionString: string;
@@ -92,15 +102,36 @@ export async function runMediaPrune(params: {
   const client = new Client({ connectionString: params.connectionString });
   try {
     await client.connect();
-    const referenced = await collectReferencedFilenames(client);
-    return await pruneMediaFiles({
-      mediaRoot: params.mediaRoot,
-      referenced,
-      graceMs: params.graceMs,
-      dryRun: params.dryRun,
-      log: params.log,
-    });
+    const sweep = (mediaRoot: string, referenced: Set<string>) =>
+      pruneMediaFiles({
+        mediaRoot,
+        referenced,
+        graceMs: params.graceMs,
+        dryRun: params.dryRun,
+        log: params.log,
+      });
+
+    const images = await sweep(
+      params.mediaRoot,
+      await collectReferencedFilenames(client),
+    );
+    const documents = await sweep(
+      join(params.mediaRoot, DOCUMENT_SUBDIR),
+      await collectReferencedFilenames(client, DOCUMENT_REFERENCE_SOURCES),
+    );
+    return addResults(images, documents);
   } finally {
     await client.end().catch(() => undefined);
   }
+}
+
+/** One line in the log for both sweeps: they are one maintenance pass over one
+ * volume, and splitting the numbers would only ask the reader to add them. */
+function addResults(a: PruneResult, b: PruneResult): PruneResult {
+  return {
+    scanned: a.scanned + b.scanned,
+    deleted: a.deleted + b.deleted,
+    kept: a.kept + b.kept,
+    skippedYoung: a.skippedYoung + b.skippedYoung,
+  };
 }

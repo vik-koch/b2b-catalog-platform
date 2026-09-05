@@ -121,6 +121,39 @@ export const appRoutes: Route[] = [
         (m) => m.AttributeInventoryPage,
       ),
   },
+  // Documents are a list and an editor route, like products and categories:
+  // a file, a title and two dates are more than a row can hold, and the file
+  // is uploaded from the form.
+  {
+    path: 'admin/documents',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/documents/document-list-page').then(
+        (m) => m.DocumentListPage,
+      ),
+  },
+  {
+    path: 'admin/documents/new',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    canDeactivate: [
+      unsavedChangesGuard((t) => t.documentEditor.discardConfirm),
+    ],
+    loadComponent: () =>
+      import('./admin/documents/document-editor-page').then(
+        (m) => m.DocumentEditorPage,
+      ),
+  },
+  {
+    path: 'admin/documents/:id/edit',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    canDeactivate: [
+      unsavedChangesGuard((t) => t.documentEditor.discardConfirm),
+    ],
+    loadComponent: () =>
+      import('./admin/documents/document-editor-page').then(
+        (m) => m.DocumentEditorPage,
+      ),
+  },
   // Tiers edit in place on one screen — two fields per tier, so no editor
   // route to pair with this one.
   {

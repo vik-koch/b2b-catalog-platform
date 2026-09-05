@@ -3,6 +3,7 @@ import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { pageSeeds } from './data';
 import { seedAccounts } from './account-seed';
 import { seedCatalog } from './catalog-seed';
+import { seedDocuments } from './document-seed';
 import { seedOrders } from './order-seed';
 
 /**
@@ -31,6 +32,9 @@ export async function seedDatabase(
 ): Promise<void> {
   await seedPages(client);
   await seedCatalog(client, mediaRoot);
+  // Independent of the catalog: a document is a record of its own, and nothing
+  // links the two yet.
+  await seedDocuments(client, mediaRoot);
   // Last: the wholesale price list needs the products it prices to exist.
   await seedAccounts(client);
   // …and an order needs both — the products it lines up and the account it

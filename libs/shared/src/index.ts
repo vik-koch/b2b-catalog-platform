@@ -16,6 +16,8 @@ export * from './lib/catalog.contract';
 export * from './lib/contact-config';
 export * from './lib/contact-format';
 export * from './lib/delivery-zone';
+export * from './lib/document-constants';
+export * from './lib/documents.contract';
 export * from './lib/email-format';
 export * from './lib/fill-text';
 export * from './lib/inquiry.contract';

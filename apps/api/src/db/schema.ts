@@ -977,3 +977,42 @@ export const syncRuns = pgTable('sync_runs', {
   parseErrors: jsonb('parseErrors').$type<SyncRowError[]>(),
   error: text('error'),
 });
+
+/**
+ * A product document (FR-DOC-01) — a certificate, declaration or data sheet
+ * staff upload once and show on many products.
+ *
+ * The file is a pointer, not the identity: replacing it rewrites `fileUrl` and
+ * leaves the row, its title, its dates and (from the next slice) its product
+ * links alone, which is how a re-issued document supersedes the one before it.
+ * `fileName` is the name it was uploaded under, kept only so a row is
+ * recognisable — the stored name is a content hash.
+ *
+ * Both dates are optional: a data sheet expires never, and an undated
+ * certificate is still a document. `expiresAt` is indexed because the storefront
+ * filters on it and the admin's expiry states are counted from it.
+ */
+export const documents = pgTable(
+  'documents',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    title: varchar('title', { length: 200 }).notNull(),
+    fileUrl: text('fileUrl').notNull(),
+    fileName: varchar('fileName', { length: 255 }).notNull(),
+    contentType: varchar('contentType', { length: 100 }).notNull(),
+    byteSize: integer('byteSize').notNull(),
+    issuedAt: date('issuedAt'),
+    expiresAt: date('expiresAt'),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updatedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    // Who last touched it, for audit. Null once that account is gone.
+    updatedBy: uuid('updatedBy').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+  },
+  (t) => [index('documents_expiresAt_idx').on(t.expiresAt)],
+);

@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import { ACCEPTED_IMAGE_MIME_TYPES } from './media-constants';
 import { catalogImageSchema } from './catalog.contract';
+import { storedDocumentFileSchema } from './documents.contract';
 
 export type AcceptedImageMime = (typeof ACCEPTED_IMAGE_MIME_TYPES)[number];
 
@@ -17,4 +18,15 @@ export type UploadMediaResponse = z.infer<typeof uploadMediaResponseSchema>;
 export const uploadCatalogImageResponseSchema = catalogImageSchema;
 export type UploadCatalogImageResponse = z.infer<
   typeof uploadCatalogImageResponseSchema
+>;
+
+/**
+ * The document upload endpoint hands back the whole stored file, not just a
+ * URL: the stored name is a content hash, so the name it arrived under, its
+ * sniffed type and its size are the only things that make it recognisable in
+ * the form it is about to be saved from.
+ */
+export const uploadDocumentResponseSchema = storedDocumentFileSchema;
+export type UploadDocumentResponse = z.infer<
+  typeof uploadDocumentResponseSchema
 >;

@@ -21,4 +21,10 @@ module.exports = {
     secure: false,
     changeOrigin: true,
   },
+  // Product documents, from the same nginx under their own prefix.
+  '/documents': {
+    target: `http://${API_HOST}:${MEDIA_PORT}`,
+    secure: false,
+    changeOrigin: true,
+  },
 };

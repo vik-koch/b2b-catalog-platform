@@ -824,6 +824,75 @@ export const adminTextSchema = z
       })
       .strict(),
     /**
+     * The document list (FR-DOC-01) — the shop's certificates, declarations
+     * and data sheets. The two size lines are the file's own size, formatted
+     * where it is shown rather than by the API, which has no reason to know
+     * how big a number reads well.
+     */
+    documentList: z
+      .object({
+        title: z.string(),
+        intro: z.string(),
+        add: z.string(),
+        searchLabel: z.string(),
+        searchPlaceholder: z.string(),
+        clearSearch: z.string(),
+        /** Column headings. */
+        titleColumn: z.string(),
+        fileColumn: z.string(),
+        issuedColumn: z.string(),
+        expiresColumn: z.string(),
+        updatedColumn: z.string(),
+        /** In the expiry cell of a document that never comes due. */
+        noExpiry: z.string(),
+        edit: z.string(),
+        open: z.string(),
+        delete: z.string(),
+        empty: z.string(),
+        /** Shown instead of `empty` when the search emptied the list. */
+        noResults: z.string(),
+        loadError: z.string(),
+        /** Delete confirmation. `{name}` substituted. */
+        deleteTitle: z.string(),
+        deleteConfirm: z.string(),
+        deleteError: z.string(),
+        /** File size, `{size}` substituted. */
+        sizeKb: z.string(),
+        sizeMb: z.string(),
+      })
+      .strict(),
+    /**
+     * The document editor. Replacing the file is the same screen as filling it
+     * in the first time, which is the whole of how a re-issued document
+     * supersedes its predecessor — there is no second flow to word.
+     */
+    documentEditor: z
+      .object({
+        newTitle: z.string(),
+        editTitle: z.string(),
+        title: z.string(),
+        titlePlaceholder: z.string(),
+        titleHint: z.string(),
+        file: z.string(),
+        /** The empty control, and the one on a row that already has a file. */
+        choose: z.string(),
+        replace: z.string(),
+        open: z.string(),
+        fileHint: z.string(),
+        uploadError: z.string(),
+        issuedAt: z.string(),
+        expiresAt: z.string(),
+        datesHint: z.string(),
+        titleRequired: z.string(),
+        fileRequired: z.string(),
+        expiryBeforeIssue: z.string(),
+        saveError: z.string(),
+        discardConfirm: z.string(),
+        notFound: z.string(),
+        errors: z.object({ 'document-not-found': z.string() }).strict(),
+      })
+      .strict(),
+    /**
      * The staff account list (FR-AUTH-03/04). Column headings double as the
      * sort/filter controls, so several of these are the accessible names of a
      * control whose visible text is the value in effect rather than a label.
