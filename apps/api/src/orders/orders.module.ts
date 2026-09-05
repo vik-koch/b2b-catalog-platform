@@ -9,6 +9,7 @@ import {
   MONEY_FORMAT,
   ORDER_CURRENCY,
   ORDER_REFERENCE_CONFIG,
+  PAIRINGS_ENFORCED,
   PICKUP_LOCATIONS,
   loadBillingAddressEnabled,
   loadCompanyIdRule,
@@ -16,6 +17,7 @@ import {
   loadMoneyFormat,
   loadOrderCurrency,
   loadOrderReferenceConfig,
+  loadPairingsEnforced,
   loadPickupLocations,
 } from '../config/deployment-config';
 import { MailModule } from '../mail/mail.module';
@@ -50,6 +52,8 @@ import { OrdersService } from './orders.service';
       provide: BILLING_ADDRESS_ENABLED,
       useFactory: loadBillingAddressEnabled,
     },
+    // Whether an unsatisfied pairing refuses the order (FR-SET-04).
+    { provide: PAIRINGS_ENFORCED, useFactory: loadPairingsEnforced },
     { provide: ORDER_REFERENCE_CONFIG, useFactory: loadOrderReferenceConfig },
     { provide: ORDER_CURRENCY, useFactory: loadOrderCurrency },
     // The same currency with its locale: what the order mails format against.
