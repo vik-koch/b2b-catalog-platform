@@ -36,3 +36,18 @@ export const DOCUMENT_TITLE_MAX_LENGTH = 200;
 
 /** The uploaded file's own name, kept for recognition only. */
 export const DOCUMENT_FILE_NAME_MAX_LENGTH = 255;
+
+/**
+ * How many products one save may link a document to. Not a rule about
+ * documents — FR-DOC-02 puts no number on it, and a certificate that covers a
+ * whole range legitimately names hundreds of products — but a bound on the
+ * body, so a malformed request cannot ask for an unbounded write.
+ */
+export const DOCUMENT_PRODUCTS_MAX = 2000;
+
+/**
+ * How many documents one product may be given in a single save. A product
+ * carries a handful — a certificate, a declaration, a data sheet — and this is
+ * a bound on the body rather than a rule about documents.
+ */
+export const PRODUCT_DOCUMENTS_MAX = 100;

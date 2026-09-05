@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { documentSeeds } from './document-data';
+import { DocumentSeed, documentSeeds } from './document-data';
 import {
   placeholderPdf,
   storePlaceholderDocument,
@@ -39,19 +39,53 @@ export async function seedDocuments(
       day(seed.expiresInDays),
     ];
 
-    const updated = await client.query(
+    const updated = await client.query<{ id: string }>(
       `UPDATE documents SET "fileUrl" = $2, "fileName" = $3, "contentType" = $4,
          "byteSize" = $5, "issuedAt" = $6, "expiresAt" = $7, "updatedAt" = now()
-       WHERE title = $1`,
+       WHERE title = $1
+       RETURNING id`,
       values,
     );
-    if (updated.rowCount === 0) {
-      await client.query(
-        `INSERT INTO documents (title, "fileUrl", "fileName", "contentType",
-           "byteSize", "issuedAt", "expiresAt")
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        values,
-      );
-    }
+    const inserted = updated.rowCount
+      ? updated
+      : await client.query<{ id: string }>(
+          `INSERT INTO documents (title, "fileUrl", "fileName", "contentType",
+             "byteSize", "issuedAt", "expiresAt")
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
+           RETURNING id`,
+          values,
+        );
+    await linkProducts(client, inserted.rows[0].id, seed);
+  }
+}
+
+/**
+ * The demo's own links (FR-DOC-02). Only inserted, never removed — the same
+ * rule the pairing seed follows: a link an admin made in the demo is
+ * indistinguishable from one of these apart from the pair it names, and a
+ * re-seed is not the place to decide it was a mistake.
+ */
+async function linkProducts(
+  client: Client,
+  documentId: string,
+  seed: DocumentSeed,
+): Promise<void> {
+  if (seed.categorySlugs?.length) {
+    await client.query(
+      `INSERT INTO document_products ("documentId", "productId")
+       SELECT $1, p.id FROM products p
+       JOIN categories c ON c.id = p."categoryId"
+       WHERE c.slug = ANY($2)
+       ON CONFLICT DO NOTHING`,
+      [documentId, seed.categorySlugs],
+    );
+  }
+  if (seed.productSlugs?.length) {
+    await client.query(
+      `INSERT INTO document_products ("documentId", "productId")
+       SELECT $1, p.id FROM products p WHERE p.slug = ANY($2)
+       ON CONFLICT DO NOTHING`,
+      [documentId, seed.productSlugs],
+    );
   }
 }
