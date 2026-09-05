@@ -4,13 +4,13 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.7.0` — products paired with what they are sold with, mutually and from
-> either side: a marker wherever the product can be bought that opens its counterparts to be
-> added on the spot, and a cart that says which lines are short and by how much — advisory,
-> or refused at checkout where a deployment says so. Iterations 1–9 are delivered (static
-> pages and infrastructure, catalog + admin panel, search, accounts and tiered pricing, units
-> of sale, attribute filtering, cart and checkout, stock availability and work-awaiting
-> indicators, sold-together sets). Iteration 10 (product documents and certificates) is next.
+> **Status:** `v1.8.0` — the papers a product is sold with: certificates, declarations and
+> data sheets uploaded once, shown on every product they belong to, and dropped from the
+> storefront the day they expire while the admin panel counts them as work. Iterations 1–10
+> are delivered (static pages and infrastructure, catalog + admin panel, search, accounts and
+> tiered pricing, units of sale, attribute filtering, cart and checkout, stock availability
+> and work-awaiting indicators, sold-together sets, product documents). Iteration 11 (order
+> processing and payment) is next.
 
 ## Environments
 
@@ -69,11 +69,14 @@ Shipped:
   from either side; the pairing is marked wherever the product can be bought and opens its
   counterparts to be added without leaving the page, and the cart says which lines are short
   and by how much — advisory, or refused at checkout where a deployment says so
+- **Product documents** — certificates, declarations and data sheets uploaded once and shown
+  on any number of products, linked from either side; a document is stored exactly as it was
+  uploaded, leaves the storefront the day its expiry passes, and is counted as work for the
+  admin from thirty days before that
 - **Compliance** — configurable legal pages, cookie consent, third-party licence attribution
 
 Planned:
 
-- **Product documents** — datasheets and certificates on a product page, with expiry tracking
 - **Order processing** — status transitions, payment PDF, order PDF
 - **Payment** — bank transfer or card, with manual delivery/pickup coordination
 
