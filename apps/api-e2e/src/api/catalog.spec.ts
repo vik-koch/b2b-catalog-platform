@@ -307,6 +307,7 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
       'boxDimensions',
       'category',
       'descriptionHtml',
+      'documents',
       'images',
       'lineNoteEnabled',
       'lineNotePrompt',
