@@ -346,7 +346,9 @@ export type AdminIconName =
           <path d="M12 16h.01" />
         }
         @case ('file-text') {
-          <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+          <path
+            d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+          />
           <path d="M14 2v4a2 2 0 0 0 2 2h4" />
           <path d="M10 9H8" />
           <path d="M16 13H8" />
@@ -355,9 +357,7 @@ export type AdminIconName =
         @case ('external-link') {
           <path d="M15 3h6v6" />
           <path d="M10 14 21 3" />
-          <path
-            d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
-          />
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
         }
       }
     </svg>
