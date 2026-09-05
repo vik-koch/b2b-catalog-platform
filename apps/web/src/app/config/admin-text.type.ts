@@ -824,6 +824,43 @@ export const adminTextSchema = z
       })
       .strict(),
     /**
+     * The document list (FR-DOC-01) — the shop's certificates, declarations
+     * and data sheets. The two size lines are the file's own size, formatted
+     * where it is shown rather than by the API, which has no reason to know
+     * how big a number reads well.
+     */
+    documentList: z
+      .object({
+        title: z.string(),
+        intro: z.string(),
+        add: z.string(),
+        searchLabel: z.string(),
+        searchPlaceholder: z.string(),
+        clearSearch: z.string(),
+        /** Column headings. */
+        titleColumn: z.string(),
+        fileColumn: z.string(),
+        issuedColumn: z.string(),
+        expiresColumn: z.string(),
+        updatedColumn: z.string(),
+        /** In the expiry cell of a document that never comes due. */
+        noExpiry: z.string(),
+        edit: z.string(),
+        open: z.string(),
+        delete: z.string(),
+        empty: z.string(),
+        /** Shown instead of `empty` when the search emptied the list. */
+        noResults: z.string(),
+        loadError: z.string(),
+        /** Delete confirmation. `{name}` substituted. */
+        deleteTitle: z.string(),
+        deleteConfirm: z.string(),
+        deleteError: z.string(),
+        /** File size, `{size}` substituted. */
+        sizeKb: z.string(),
+        sizeMb: z.string(),
+      })
+      .strict(),
      * The staff account list (FR-AUTH-03/04). Column headings double as the
      * sort/filter controls, so several of these are the accessible names of a
      * control whose visible text is the value in effect rather than a label.

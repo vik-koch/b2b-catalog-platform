@@ -121,6 +121,17 @@ export const appRoutes: Route[] = [
         (m) => m.AttributeInventoryPage,
       ),
   },
+  // Documents are a list and an editor route, like products and categories:
+  // a file, a title and two dates are more than a row can hold, and the file
+  // is uploaded from the form.
+  {
+    path: 'admin/documents',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/documents/document-list-page').then(
+        (m) => m.DocumentListPage,
+      ),
+  },
   // Tiers edit in place on one screen — two fields per tier, so no editor
   // route to pair with this one.
   {

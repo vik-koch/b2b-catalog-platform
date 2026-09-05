@@ -181,6 +181,15 @@ import { WorkService } from '../work/work.service';
                     {{ productText.title }}
                   </a>
                 </li>
+                <li>
+                  <a
+                    appButton
+                    variant="secondary"
+                    routerLink="/admin/documents"
+                  >
+                    {{ documentText.title }}
+                  </a>
+                </li>
               </ul>
               <!-- Under the products button rather than beside the import that
                    fills the queue: publishing is what clears it. -->
@@ -321,6 +330,7 @@ export class AdminPanelPage {
   protected readonly panelText = inject(ADMIN_TEXT).panel;
   protected readonly productText = inject(ADMIN_TEXT).productList;
   protected readonly categoryText = inject(ADMIN_TEXT).categoryList;
+  protected readonly documentText = inject(ADMIN_TEXT).documentList;
   protected readonly attributeText = inject(ADMIN_TEXT).attributeList;
   protected readonly inventoryText = inject(ADMIN_TEXT).attributeInventory;
   protected readonly tierText = inject(ADMIN_TEXT).tierList;
