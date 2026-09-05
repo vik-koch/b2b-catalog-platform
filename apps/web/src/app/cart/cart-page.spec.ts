@@ -519,6 +519,45 @@ describe('CartPage', () => {
       true,
     );
   });
+
+  // The figure is the shop's, but the browser writes down what it was told:
+  // a reload that states nothing until the pricing call lands is a warning
+  // that blinks off on every visit to the cart.
+  it('states a shortfall it was told about before this visit', async () => {
+    await render({
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: 20 }]),
+    });
+
+    const view = await render({
+      reload: true,
+      answer: new Error('offline'),
+    });
+
+    expect(view.el.textContent).toContain(
+      text.pairing.shortAction
+        .replace('{count}', '20')
+        .replace('{unit}', defaultAppText.catalog.units.piece),
+    );
+  });
+
+  it('refuses the checkout on a remembered shortfall where it is enforced', async () => {
+    await render({
+      pairingsEnforced: true,
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: 20 }]),
+    });
+
+    const view = await render({
+      pairingsEnforced: true,
+      reload: true,
+      answer: new Error('offline'),
+    });
+
+    const blocked = [...view.el.querySelectorAll('button')].find((button) =>
+      button.textContent?.includes(text.checkout),
+    );
+    expect(blocked?.disabled).toBe(true);
   });
 
   it('says nothing about a line that is covered', async () => {

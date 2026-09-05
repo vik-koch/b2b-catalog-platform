@@ -275,11 +275,7 @@ interface CartRow {
                       <p class="mt-1 text-sm text-amber-700">{{ issue }}</p>
                     }
 
-                    @if (
-                      row.takesNote ||
-                      row.pairedCount > 0 ||
-                      row.pairingShortPieces
-                    ) {
+                    @if (row.takesNote || row.pairedCount > 0) {
                       <!-- Under the name, in the name's own column: both of
                          these are about this product, and a field the width of
                          the whole line read as being about the cart.
@@ -606,7 +602,11 @@ export class CartPage {
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
         pairedCount: line.pairedCount,
-        pairingShortPieces: fresh?.pairingShortPieces ?? null,
+        // From the browser's own copy, like everything else on the row: the
+        // shop works the shortfall out, but preview writes what it answers
+        // back into the store, so a reload states it before the call that
+        // confirms it rather than a call later.
+        pairingShortPieces: line.pairingShortPieces,
         // Before an answer arrives, the one thing the browser wrote down about
         // the line's state — so a withdrawn line says why it is priceless
         // rather than showing "on request" with nothing to explain it.
