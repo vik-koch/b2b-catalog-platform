@@ -28,6 +28,7 @@ export * from './lib/order-dates';
 export * from './lib/orders.contract';
 export * from './lib/page-constants';
 export * from './lib/page.contract';
+export * from './lib/pairing-check';
 export * from './lib/party-constants';
 export * from './lib/party.contract';
 export * from './lib/postal-code';
