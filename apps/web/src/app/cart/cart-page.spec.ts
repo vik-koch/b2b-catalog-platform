@@ -55,6 +55,7 @@ function preview(
     lineNoteEnabled: false,
     lineNotePrompt: null,
     pairedCount: 0,
+    pairingShortPieces: null,
     availability: null,
     prices: {
       pieceMilliMinor: 1_166_667,
@@ -92,6 +93,8 @@ async function render(
     confirm?: boolean;
     /** Keeps what the last render wrote down — a reload, not a first visit. */
     reload?: boolean;
+    /** A deployment that refuses an unsatisfied cart (FR-SET-04). */
+    pairingsEnforced?: boolean;
   } = {},
 ) {
   if (!options.reload) localStorage.clear();
@@ -111,7 +114,16 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: {
+          ...defaultDeploymentConfig,
+          catalog: {
+            ...defaultDeploymentConfig.catalog,
+            pairingsEnforced: options.pairingsEnforced ?? false,
+          },
+        },
+      },
       { provide: CartPreviewService, useValue: { preview: priced } },
       { provide: ConfirmService, useValue: { ask: confirmed } },
     ],
@@ -479,6 +491,86 @@ describe('CartPage', () => {
 
     const alone = await render({ lines: [addition()] });
     expect(alone.el.querySelector('app-product-pairings')).toBeNull();
+  });
+
+  // FR-SET-03: the amount, then the way to answer it. The check is over the
+  // whole cart, so the figure comes from the priced answer rather than from
+  // anything the browser could work out for one line.
+  it('says how short a line is, beside the way to cover it', async () => {
+    const view = await render({
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: 20 }]),
+    });
+
+    expect(view.el.textContent).toContain(
+      text.pairing.short
+        .replace('{count}', '20')
+        .replace('{unit}', defaultAppText.catalog.units.piece),
+    );
+    expect(view.el.querySelector('app-product-pairings')).not.toBeNull();
+  });
+
+  it('says nothing about a line that is covered', async () => {
+    const view = await render({
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: null }]),
+    });
+
+    expect(view.el.textContent).not.toContain('what this is sold with');
+  });
+
+  // FR-SET-04: advisory by default. The card says it, over the button it bears
+  // on, and the button still works.
+  it('advises over the checkout button without blocking it', async () => {
+    const view = await render({
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: 20 }]),
+    });
+
+    expect(view.el.textContent).toContain(
+      text.pairing.summary.replace('{count}', '1'),
+    );
+    const checkout = [...view.el.querySelectorAll('a')].find((link) =>
+      link.textContent?.includes(text.checkout),
+    );
+    expect(checkout?.getAttribute('href')).toBe('/checkout');
+  });
+
+  it('refuses the checkout where the deployment enforces pairings', async () => {
+    const view = await render({
+      pairingsEnforced: true,
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: 20 }]),
+    });
+
+    expect(view.el.textContent).toContain(
+      text.pairing.summaryEnforced.replace('{count}', '1'),
+    );
+    // A disabled button, not a link that refuses on the next page: the reason
+    // is on screen right above it.
+    const blocked = [...view.el.querySelectorAll('button')].find((button) =>
+      button.textContent?.includes(text.checkout),
+    );
+    expect(blocked?.disabled).toBe(true);
+    expect(
+      [...view.el.querySelectorAll('a')].some((link) =>
+        link.textContent?.includes(text.checkout),
+      ),
+    ).toBe(false);
+  });
+
+  it('lets a satisfied cart through even where pairings are enforced', async () => {
+    const view = await render({
+      pairingsEnforced: true,
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: null }]),
+    });
+
+    expect(
+      [...view.el.querySelectorAll('a')].some((link) =>
+        link.textContent?.includes(text.checkout),
+      ),
+    ).toBe(true);
   });
 
   // The row's own controls do not also carry the glyph: two ways to open one

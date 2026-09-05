@@ -14,7 +14,11 @@ import {
 } from '../throttling/throttle-presets';
 import { AuditLogger } from '../audit/audit.logger';
 import { refusals } from '../orpc/refusals';
-import { CartChangedException, OrdersService } from './orders.service';
+import {
+  CartChangedException,
+  OrdersService,
+  PairingUnsatisfiedException,
+} from './orders.service';
 
 /**
  * Placing an order request and reading it back.
@@ -75,6 +79,14 @@ export class OrdersController {
           await this.orders.notifyPlaced(placed);
           return placed;
         } catch (error) {
+          if (error instanceof PairingUnsatisfiedException) {
+            // Which lines are short travels with it, so the page can name them
+            // rather than send the customer back to hunt for them.
+            throw errors['pairing-unsatisfied']({
+              message: 'The cart is missing what its products are sold with',
+              data: { shortfalls: error.shortfalls },
+            });
+          }
           if (error instanceof CartChangedException) {
             // The fresh pricing travels as the refusal's own data, so the page
             // can show what moved rather than asking again.

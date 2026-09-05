@@ -140,6 +140,17 @@ export const cartPreviewLineSchema = z
      * for a product that is gone.
      */
     pairedCount: z.number().int().nonnegative(),
+    /**
+     * How many pieces of cover this line is missing (FR-SET-02/03), or null
+     * where it is satisfied — which includes every product that is sold with
+     * nothing.
+     *
+     * Deliberately **not** one of the `issues`: submission treats any issue as
+     * "the cart changed, re-price it and try again", and an unsatisfied pairing
+     * is advisory by default. Whether it refuses an order is a deployment's
+     * choice, made where the order is placed, not here.
+     */
+    pairingShortPieces: z.number().int().positive().nullable(),
     issues: z.array(z.enum(CART_LINE_ISSUES)),
   })
   .strict();

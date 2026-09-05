@@ -5,6 +5,7 @@ import {
   CartLineIssue,
   CartPreview,
   CartPreviewLine,
+  pairingShortfalls,
   ProductAvailability,
   correctPieces,
   exactLineTotal,
@@ -23,7 +24,7 @@ import {
   unitColumns,
   unitPricesOf,
 } from '../catalog/product-view';
-import { pairedCountOf } from '../catalog/product-pairings';
+import { pairedCountOf, pairingsAmong } from '../catalog/product-pairings';
 
 /**
  * Pricing a cart, once, for both the preview and the submission — a submitted
@@ -109,6 +110,8 @@ export async function priceCart(
     });
   }
 
+  await applyPairingShortfalls(db, priced, rows);
+
   const totals = priced.reduce(
     (sum, { preview }) => sum + (preview.lineTotalMinor ?? 0),
     0,
@@ -125,6 +128,60 @@ export async function priceCart(
       shipment: shipmentEstimate(shipmentLines),
     },
   };
+}
+
+/**
+ * Fills in what each line is short of what it is sold with (FR-SET-02/03).
+ *
+ * Only lines the shop still offers take part: a withdrawn product is coming out
+ * of the cart, and asking the customer to buy a lid for it would be advice
+ * about a line they cannot order anyway.
+ *
+ * One query, for the edges *among* these products — a counterpart nobody added
+ * covers nothing, so the wider neighbourhood has the same answer.
+ */
+async function applyPairingShortfalls(
+  db: NodePgDatabase<typeof schema>,
+  priced: readonly PricedLine[],
+  rows: ReadonlyMap<string, ProductRow>,
+): Promise<void> {
+  const offered = priced.filter((line) => rows.has(line.preview.slug));
+  const byId = new Map(
+    offered.map((line) => [
+      (rows.get(line.preview.slug) as ProductRow).id,
+      line.preview.slug,
+    ]),
+  );
+
+  const counterparts = new Map<string, string[]>(
+    offered.map((line) => [line.preview.slug, []]),
+  );
+  for (const [a, b] of await pairingsAmong(db, [...byId.keys()])) {
+    const one = byId.get(a);
+    const other = byId.get(b);
+    // Undirected, so each end is the other's counterpart from the one row.
+    if (one === undefined || other === undefined) continue;
+    counterparts.get(one)?.push(other);
+    counterparts.get(other)?.push(one);
+  }
+
+  const short = new Map(
+    pairingShortfalls(
+      offered.map(({ preview }) => ({
+        slug: preview.slug,
+        pieces: preview.pieces,
+        // The count the line already carries, which is the number of
+        // counterparts the shop can *sell* — so a cup whose only lid is
+        // unpublished is not reported short for something nobody can add.
+        paired: preview.pairedCount > 0,
+        counterpartSlugs: counterparts.get(preview.slug) ?? [],
+      })),
+    ).map((one) => [one.slug, one.shortPieces]),
+  );
+
+  for (const { preview } of priced) {
+    preview.pairingShortPieces = short.get(preview.slug) ?? null;
+  }
 }
 
 async function loadProducts(
@@ -182,6 +239,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
         boxWeight: null,
         boxCount: null,
         pairedCount: 0,
+        pairingShortPieces: null,
         lineNoteEnabled: false,
         lineNotePrompt: null,
         lineTotalMinor: null,
@@ -253,6 +311,8 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
       prices,
       availability: product.availability,
       pairedCount: product.pairedCount,
+      // Filled in once the whole cart is known: one line cannot answer it.
+      pairingShortPieces: null,
       boxVolume: product.boxVolume,
       boxWeight: product.boxWeight,
       boxCount: product.boxCount,

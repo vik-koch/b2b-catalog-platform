@@ -376,6 +376,21 @@ export const appTextSchema = z
             outOfStock: z.string(),
           })
           .strict(),
+        /**
+         * What a cart is missing of what its products are sold with
+         * (FR-SET-02/03/04). `short` is per line — `{count}` pieces and
+         * `{unit}` the piece abbreviation — and the two summaries sit in the
+         * order card above the checkout button: `summary` where an unsatisfied
+         * pairing is advisory, `summaryEnforced` where the deployment refuses
+         * on it and the button is disabled.
+         */
+        pairing: z
+          .object({
+            short: z.string(),
+            summary: z.string(),
+            summaryEnforced: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**
@@ -633,6 +648,10 @@ export const appTextSchema = z
             /** The cart was re-priced under them; the corrected figures are
              * already on screen by the time this is read. */
             cartChanged: z.string(),
+            /** The deployment enforces pairings and the cart is short
+             * (FR-SET-04) — only reachable from a page out of step with the
+             * cart, which disables its own button on the same figures. */
+            pairingUnsatisfied: z.string(),
             /** Anything else at all. */
             generic: z.string(),
           })

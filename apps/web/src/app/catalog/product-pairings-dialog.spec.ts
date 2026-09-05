@@ -96,6 +96,24 @@ describe('the sold-together panel (FR-SET-05)', () => {
     expect(el.textContent).toContain(LID.name);
   });
 
+  it('holds a place for each counterpart the marker promised', async () => {
+    const { pairings, paint, el } = await render(
+      () => new Promise<ProductListItem[]>(() => undefined),
+    );
+
+    pairings.show('takeaway-cup-300', 2);
+    paint();
+    // Nothing yet — the panel opens on its content, and 150ms have not passed.
+    expect(el.querySelector('dialog')).toBeNull();
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    paint();
+
+    // Two placeholders for two counterparts, so the panel opens at the size it
+    // will settle at rather than growing under the pointer.
+    expect(el.querySelectorAll('app-skeleton')).toHaveLength(2);
+  });
+
   it('lists the counterparts with their own way to buy them', async () => {
     const { pairings, settle, el, asked } = await render(async () => [LID]);
 

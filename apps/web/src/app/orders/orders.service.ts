@@ -18,6 +18,10 @@ import { createOrpcClient } from '../core/orpc-client';
  * `cart-changed` carries the fresh pricing with it, so a cart that moved while
  * the form was being filled is shown corrected rather than answered with "try
  * again".
+ *
+ * `pairing-unsatisfied` only reaches a deployment that enforces pairings
+ * (FR-SET-04), and only a browser out of step with the cart page, which
+ * disables its own button on the same figures.
  */
 export type SubmitOrderResult =
   | { ok: true; reference: string; publicToken: string }
@@ -33,6 +37,7 @@ export type SubmitOrderResult =
         | 'billing-address-required'
         | 'party-required'
         | 'staff-cannot-order'
+        | 'pairing-unsatisfied'
         | 'rejected';
     }
   | { ok: false; code: 'cart-changed'; preview: CartPreview };

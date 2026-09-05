@@ -434,6 +434,7 @@ describe('CartService', () => {
           lineNoteEnabled: false,
           lineNotePrompt: null,
           pairedCount: 0,
+          pairingShortPieces: null,
           availability: null,
           prices: {
             pieceMilliMinor: 1_166_667,

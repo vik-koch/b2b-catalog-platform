@@ -150,6 +150,16 @@ Notes:
   order processing in iteration 11. Their marker therefore stays dark until then — which is
   the honest reading of "a count clears when the work is done", since nothing today records
   that a customer has done anything for it to clear on.
+- Iteration 9 stores a set as **undirected edges between two products** rather than as a named
+  group: the client's own case is a cup paired with two lids, where each lid is sold with the
+  cup and not with the other, which no partition of the catalog expresses (ADR 0047). Pairings
+  are entered on the product form and saved with it, from either side; a bulk sync neither
+  creates nor clears them, so the client can start pairing before the automated feed exists.
+  The cart's check **allocates** cover rather than summing it: two products sharing one
+  counterpart cannot both be covered by the same pieces, which is a bipartite matching and not
+  an addition. An unsatisfied cart is advisory, with `catalog.pairingsEnforced` for a
+  deployment that wants it refused — the API applies the flag too, so it is a rule and not a
+  disabled button.
 - Iteration 11 is what a manager does with an order once it exists — status transitions, the
   payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
   schema be reviewed before a processing workflow is built on top of it. Waiting three

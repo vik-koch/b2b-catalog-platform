@@ -6,10 +6,14 @@ import {
 import { AddressesService } from '../addresses/addresses.service';
 import { PickupLocation } from '../config/deployment-config';
 import * as schema from '../db/schema';
-import { orderItems, orders, users } from '../db/schema';
+import { orderItems, orders, productPairings, users } from '../db/schema';
 import { OrderNotifications } from './order-notifications';
 import * as reference from './order-reference';
-import { CartChangedException, OrdersService } from './orders.service';
+import {
+  CartChangedException,
+  OrdersService,
+  PairingUnsatisfiedException,
+} from './orders.service';
 
 /**
  * Submission, without a database. What is worth pinning here is everything that
@@ -34,6 +38,8 @@ const product = {
   piecesPerPack: 10,
   packsPerBox: 4,
   minPieceQty: 10,
+  /** Sold alone, unless a case says otherwise (FR-SET-05). */
+  pairedCount: 0,
 };
 
 /** The account columns the party resolver reads. */
@@ -51,18 +57,42 @@ interface Insert {
   values: Record<string, unknown> | Record<string, unknown>[];
 }
 
+/** A second product, so a cart can hold a pairing. Sold loose, and priced the
+ * same way, so nothing about the arithmetic changes with it. */
+const counterpart = {
+  ...product,
+  id: 'product-2',
+  slug: 'takeaway-lid',
+  name: 'Takeaway Lid',
+  sourceId: 'ERP-2',
+  piecesPerPack: 10,
+  minPieceQty: 10,
+};
+
 /**
- * A drizzle stand-in: one select for the pricer, and a transaction whose first
- * `collisions` order inserts raise Postgres' unique-violation code.
+ * A drizzle stand-in: one select for the pricer, one for the pairings among
+ * what it returned, and a transaction whose first `collisions` order inserts
+ * raise Postgres' unique-violation code.
  */
-function testDb(collisions = 0, accountRow: Partial<AccountRow> = {}) {
+function testDb(
+  collisions = 0,
+  accountRow: Partial<AccountRow> = {},
+  catalog: { products?: unknown[]; pairings?: { a: string; b: string }[] } = {},
+) {
   const inserts: Insert[] = [];
   /** Every reference the service tried, collisions included. */
   const attempted: string[] = [];
   let remaining = collisions;
+  const rows = catalog.products ?? [product];
+  const pairings = catalog.pairings ?? [];
+  let asked: unknown = null;
   const select = {
-    from: (table: unknown) => (table === users ? account : select),
-    where: () => Promise.resolve([product]),
+    from: (table: unknown) => {
+      if (table === users) return account;
+      asked = table;
+      return select;
+    },
+    where: () => Promise.resolve(asked === productPairings ? pairings : rows),
   };
   /** The party an account is registered as, for a submission that names none. */
   const account = {
@@ -144,6 +174,7 @@ const delivery = deliveryConfigSchema.parse({
 function service(
   db: NodePgDatabase<typeof schema>,
   billingAddressEnabled = true,
+  pairingsEnforced = false,
 ) {
   const addresses = { assertValid: vi.fn() } as unknown as AddressesService;
   // The mails are sent from a placed order and never allowed to fail it; what
@@ -160,6 +191,7 @@ function service(
     'EUR',
     (value: string) => /^DE[0-9]{9}$/.test(value),
     billingAddressEnabled,
+    pairingsEnforced,
     notifications,
   );
 }
@@ -203,6 +235,67 @@ const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
 
 describe('OrdersService.submit', () => {
   afterEach(() => vi.restoreAllMocks());
+
+  /** A cart of both products, paired with each other, in whatever quantities.
+   * 20 pieces of each is €39.98 + €19.98 — the pricer's own arithmetic. */
+  const pairedCart = (cupPieces: number, lidPieces: number) => ({
+    db: testDb(
+      0,
+      {},
+      {
+        // Each is sold with the other, which is what makes the check run.
+        products: [
+          { ...product, pairedCount: 1 },
+          { ...counterpart, pairedCount: 1 },
+        ],
+        pairings: [{ a: product.id, b: counterpart.id }],
+      },
+    ),
+    order: submission({
+      lines: [
+        { slug: product.slug, unit: 'piece', pieces: cupPieces },
+        { slug: counterpart.slug, unit: 'piece', pieces: lidPieces },
+      ],
+      expectedTotalMinor: ((cupPieces + lidPieces) / 10) * 1999,
+    }),
+  });
+
+  // FR-SET-04. Advisory by default: the cart said what was short and the
+  // customer decided, and a manager reads every order.
+  it('places an order with an unsatisfied pairing where they are advisory', async () => {
+    const { db, order } = pairedCart(20, 10);
+
+    const placed = await service(db.db).submit(order, 'user-1', null);
+
+    expect(placed.reference).toMatch(/^CK-/);
+  });
+
+  it('refuses one where the deployment enforces pairings', async () => {
+    const { db, order } = pairedCart(20, 10);
+
+    // Twenty pieces of the cup can draw on ten of the lid: ten short. The lid
+    // is covered by the cup and says nothing.
+    await expect(
+      service(db.db, true, true).submit(order, 'user-1', null),
+    ).rejects.toMatchObject({
+      shortfalls: [{ slug: product.slug, shortPieces: 10 }],
+    });
+    await expect(
+      service(db.db, true, true).submit(order, 'user-1', null),
+    ).rejects.toBeInstanceOf(PairingUnsatisfiedException);
+  });
+
+  it('places a satisfied cart even where pairings are enforced', async () => {
+    const { db, order } = pairedCart(20, 20);
+
+    const placed = await service(db.db, true, true).submit(
+      order,
+      'user-1',
+      null,
+    );
+
+    expect(placed.reference).toMatch(/^CK-/);
+  });
 
   it('writes the order and its lines, with the server’s own zone', async () => {
     const { db, orderRows, itemRows } = testDb();

@@ -447,6 +447,84 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       });
     });
 
+    /*
+     * FR-SET-02: counted in pieces, allocated rather than summed, and read
+     * from both ends of the edge at once. The seeded takeaway cup and its two
+     * lids are the demo's own pairing.
+     */
+    describe('what a cart is short of what it is sold with', () => {
+      const CUP = 'takeaway-cup-300';
+      const FLAT = 'takeaway-lid-flat';
+      const DOMED = 'takeaway-lid-domed';
+      const shortOf = (data: {
+        lines: { slug: string; pairingShortPieces: number | null }[];
+      }) =>
+        Object.fromEntries(
+          data.lines
+            .filter((line) => line.pairingShortPieces !== null)
+            .map((line) => [line.slug, line.pairingShortPieces]),
+        );
+
+      it('says nothing about a cart with no pairings in it', async () => {
+        const res = await post('/cart/preview', {
+          lines: [{ slug: slugs.boxed, unit: 'pack', pieces: 20 }],
+        });
+
+        expect(res.data.lines[0].pairingShortPieces).toBeNull();
+      });
+
+      it('is short by the whole line where no counterpart was added', async () => {
+        const res = await post('/cart/preview', {
+          lines: [{ slug: CUP, unit: 'piece', pieces: 50 }],
+        });
+
+        expect(shortOf(res.data)).toEqual({ [CUP]: 50 });
+      });
+
+      it('names only the side that is short, whichever that is', async () => {
+        const res = await post('/cart/preview', {
+          lines: [
+            { slug: CUP, unit: 'piece', pieces: 100 },
+            { slug: FLAT, unit: 'piece', pieces: 80 },
+          ],
+        });
+
+        // The lid's 80 are covered by the cup's 100 and say nothing; the cup
+        // can draw only 80 and is 20 short.
+        expect(shortOf(res.data)).toEqual({ [CUP]: 20 });
+      });
+
+      it('lets two counterparts answer one product between them', async () => {
+        const res = await post('/cart/preview', {
+          lines: [
+            { slug: CUP, unit: 'piece', pieces: 6 },
+            { slug: FLAT, unit: 'piece', pieces: 3 },
+            { slug: DOMED, unit: 'piece', pieces: 3 },
+          ],
+        });
+
+        // Six cups answered by three of each lid — the client's own case, and
+        // the reason the model is edges rather than a set.
+        expect(shortOf(res.data)).toEqual({});
+      });
+
+      it('ignores a line the shop no longer offers', async () => {
+        const res = await post('/cart/preview', {
+          lines: [
+            { slug: CUP, unit: 'piece', pieces: 10 },
+            { slug: FLAT, unit: 'piece', pieces: 10 },
+            { slug: slugs.deleted, unit: 'pack', pieces: 10 },
+          ],
+        });
+
+        const withdrawn = res.data.lines.find(
+          (line: { slug: string }) => line.slug === slugs.deleted,
+        );
+        expect(withdrawn.pairingShortPieces).toBeNull();
+        expect(shortOf(res.data)).toEqual({});
+      });
+    });
+
     it('adds up the shipment estimate across the lines', async () => {
       const res = await post('/cart/preview', {
         lines: [{ slug: slugs.boxed, unit: 'box', pieces: 80 }],

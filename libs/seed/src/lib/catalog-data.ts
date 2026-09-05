@@ -476,18 +476,24 @@ const allProducts: ProductSeed[] = [
   // The pairing case (FR-SET-01): a takeaway cup nobody orders without a lid,
   // and two lids that fit it — which is why the model is edges rather than a
   // set, since each lid is sold with the cup and not with the other lid.
-  p(
-    'CUP-003',
-    'takeaway-cup-300',
-    'Takeaway Cup 300 ml (50)',
-    'cups',
-    1350,
-    '<p>Fifty double-walled 300&nbsp;ml takeaway cups, unprinted.</p>',
-    [
-      { key: 'Volume', value: '300' },
-      { key: 'Pieces', value: '50 cups' },
-    ],
-  ),
+  // On the shelf whatever its position on the ladder below works out to: this
+  // is the product the pairing is demonstrated from, and one that cannot be
+  // put in a cart demonstrates nothing.
+  {
+    ...p(
+      'CUP-003',
+      'takeaway-cup-300',
+      'Takeaway Cup 300 ml (50)',
+      'cups',
+      1350,
+      '<p>Fifty double-walled 300&nbsp;ml takeaway cups, unprinted.</p>',
+      [
+        { key: 'Volume', value: '300' },
+        { key: 'Pieces', value: '50 cups' },
+      ],
+    ),
+    stockPieces: 240,
+  },
   p(
     'CUP-004',
     'takeaway-lid-flat',
@@ -547,7 +553,8 @@ const demoStock = (n: number): number | undefined => {
  */
 export const productSeeds: ProductSeed[] = allProducts.map((product, i) => {
   const n = i + 1;
-  const stockPieces = demoStock(n);
+  // A product that states its own figure keeps it; the ladder fills in the rest.
+  const stockPieces = product.stockPieces ?? demoStock(n);
   return {
     ...product,
     ...(stockPieces === undefined ? {} : { stockPieces }),

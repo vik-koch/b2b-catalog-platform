@@ -1,4 +1,6 @@
-import { eq, getTableName, or, SQL, sql } from 'drizzle-orm';
+import { and, eq, getTableName, inArray, or, SQL, sql } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as schema from '../db/schema';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { productPairings, products } from '../db/schema';
 
@@ -58,4 +60,33 @@ export function involves(productId: string) {
     eq(productPairings.productAId, productId),
     eq(productPairings.productBId, productId),
   );
+}
+
+/**
+ * The edges *among* a given set of products — every pairing where both ends are
+ * in the set, as `[a, b]` id pairs.
+ *
+ * All the cart's check needs: a counterpart nobody added covers nothing, so
+ * loading the whole neighbourhood of every line would be a bigger question with
+ * the same answer.
+ */
+export async function pairingsAmong(
+  db: NodePgDatabase<typeof schema>,
+  productIds: readonly string[],
+): Promise<[string, string][]> {
+  if (productIds.length < 2) return [];
+  const ids = [...productIds];
+  const rows = await db
+    .select({
+      a: productPairings.productAId,
+      b: productPairings.productBId,
+    })
+    .from(productPairings)
+    .where(
+      and(
+        inArray(productPairings.productAId, ids),
+        inArray(productPairings.productBId, ids),
+      ),
+    );
+  return rows.map((row) => [row.a, row.b]);
 }

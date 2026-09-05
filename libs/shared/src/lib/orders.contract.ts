@@ -291,6 +291,22 @@ export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
  */
 export const cartChangedDataSchema = z.object({ preview: cartPreviewSchema });
 
+/**
+ * The refusal a deployment that enforces pairings gives (FR-SET-04): which
+ * products are short, and by how many pieces. Named rather than folded into
+ * `cart-changed`, because nothing about the cart changed — it is exactly the
+ * cart the customer was shown, and a "what moved while you were away" banner
+ * about something that did not move explains the wrong thing.
+ */
+export const pairingUnsatisfiedDataSchema = z.object({
+  shortfalls: z.array(
+    z.object({
+      slug: z.string(),
+      shortPieces: z.number().int().positive(),
+    }),
+  ),
+});
+
 /** Every refusal the checkout can be given. All 400s but one. */
 const submissionErrors = {
   'invalid-company-id': { status: 400 },
@@ -323,6 +339,10 @@ const submissionErrors = {
    * bot never reads the answer, but a person tripped by an autofill would, and
    * being told a full cart is empty explains nothing. */
   rejected: { status: 400 },
+  /** The cart is missing what its products are sold with, and this deployment
+   * refuses on that (FR-SET-04). Advisory everywhere else, where the cart says
+   * it and the customer decides. */
+  'pairing-unsatisfied': { status: 400, data: pairingUnsatisfiedDataSchema },
   'cart-changed': { status: 409, data: cartChangedDataSchema },
 } as const;
 

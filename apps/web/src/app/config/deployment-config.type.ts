@@ -270,6 +270,15 @@ export const deploymentConfigSchema = z
           })
           .strict(),
         /**
+         * Whether a cart that is missing what its products are sold with may
+         * be checked out (FR-SET-04). Advisory by default: the cart says what
+         * is short and the customer decides, because a manager reads every
+         * order and a hard block costs a support call. A deployment that
+         * disagrees sets this, and the API refuses the order as well — a rule
+         * enforced only in the browser is not a rule.
+         */
+        pairingsEnforced: z.boolean(),
+        /**
          * Where "few left" sits for a product with neither a box nor a pack to
          * measure it in (FR-STOCK-02). The API applies the same figure; the
          * browser needs it only to tell an admin what threshold a product will

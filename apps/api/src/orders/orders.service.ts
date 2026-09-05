@@ -42,6 +42,7 @@ import { OrderNotifications } from './order-notifications';
 import { publiclyVisible } from '../catalog/product-view';
 import {
   BILLING_ADDRESS_ENABLED,
+  PAIRINGS_ENFORCED,
   COMPANY_ID_RULE,
   CompanyIdRule,
   DELIVERY_CONFIG,
@@ -144,6 +145,8 @@ export class OrdersService {
     @Inject(COMPANY_ID_RULE) private readonly companyIdRule: CompanyIdRule,
     @Inject(BILLING_ADDRESS_ENABLED)
     private readonly billingAddressEnabled: boolean,
+    @Inject(PAIRINGS_ENFORCED)
+    private readonly pairingsEnforced: boolean,
     private readonly notifications: OrderNotifications,
   ) {}
 
@@ -168,6 +171,7 @@ export class OrdersService {
     if (!unchanged) {
       throw new CartChangedException(priced);
     }
+    this.assertPairings(priced);
 
     this.assertAddresses(submission);
     const party = await this.resolveParty(submission, userId);
@@ -197,6 +201,30 @@ export class OrdersService {
       await this.getForStaff(placed.reference),
       placed.publicToken,
     );
+  }
+
+  /**
+   * Refuses a cart that is missing what its products are sold with, where this
+   * deployment says so (FR-SET-04).
+   *
+   * After the pricing check and before the form's own: it is a fact about the
+   * cart, and a customer whose cart also went stale should hear about the stale
+   * cart first — that refusal carries the corrections with it.
+   *
+   * Re-checked here rather than trusted from the browser. The cart page already
+   * disables its own button; this is what makes that a rule.
+   */
+  private assertPairings(priced: PricedCart): void {
+    if (!this.pairingsEnforced) return;
+    const shortfalls = priced.preview.lines
+      .filter((line) => line.pairingShortPieces !== null)
+      .map((line) => ({
+        slug: line.slug,
+        shortPieces: line.pairingShortPieces as number,
+      }));
+    if (shortfalls.length > 0) {
+      throw new PairingUnsatisfiedException(shortfalls);
+    }
   }
 
   /**
@@ -793,6 +821,17 @@ export class OrdersService {
 export class CartChangedException extends Error {
   constructor(readonly priced: PricedCart) {
     super('The cart changed while it was being submitted');
+  }
+}
+
+/**
+ * A cart missing what its products are sold with, where the deployment refuses
+ * on that (FR-SET-04). Carries the shortfalls, so the page can name the lines
+ * rather than send the customer back to hunt for them.
+ */
+export class PairingUnsatisfiedException extends Error {
+  constructor(readonly shortfalls: { slug: string; shortPieces: number }[]) {
+    super('The cart is missing what its products are sold with');
   }
 }
 
