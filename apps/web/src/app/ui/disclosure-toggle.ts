@@ -41,7 +41,7 @@ export function disclosureBorder(open: boolean): string {
   template: `
     <button
       type="button"
-      class="flex w-full cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-sm font-medium transition-colors hover:text-accent"
+      class="flex w-full cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-sm font-medium transition-colors select-none hover:text-accent"
       [attr.aria-expanded]="open()"
       [attr.aria-controls]="panelId()"
       (click)="toggled.emit()"
@@ -52,9 +52,14 @@ export function disclosureBorder(open: boolean): string {
           <span class="ml-1 text-accent">{{ countLabel() }}</span>
         }
       </span>
+      <!-- The chevron answers the pointer with the label it belongs to: the
+           button recolours itself on hover, and a glyph carrying a colour of
+           its own was the one part of the control that did not follow. Keyed
+           on the button rather than on a group class, so nothing has to be
+           said at the two call sites. -->
       <app-icon
         name="chevron-down"
-        class="h-4 w-4 shrink-0 text-subtle transition-transform"
+        class="h-4 w-4 shrink-0 text-subtle transition-[transform,color] [button:hover_&]:text-accent"
         [class.rotate-180]="open()"
       />
     </button>

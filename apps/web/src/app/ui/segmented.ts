@@ -19,7 +19,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * Both are the same pill and have to stay looking like it.
  */
 const SEGMENT_BASE =
-  'rounded text-center transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary';
+  'rounded text-center transition-colors select-none has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary';
 
 /**
  * The pill around the segments, sized to its content.
@@ -70,10 +70,22 @@ export function segmentClass(
   state: SegmentState,
   { size = 'sm', grow = false, locked = false }: SegmentOptions = {},
 ): string {
+  /*
+   * The app's one hover language, said on a segment: a fill lightens to accent
+   * (as a primary button does), a chromeless one gains the stone-100 wash and
+   * takes its label to accent (as a ghost button does). The chosen segment used
+   * to answer a pointer with nothing at all, which read as the one segment that
+   * could not be pressed — it is the one that already is.
+   *
+   * An unavailable segment takes the same wash and keeps its grey label: it is
+   * pressable (it carries the popover saying why the unit is not sold), so it
+   * has to answer, and the label is what says it is not a choice.
+   */
   const states: Record<SegmentState, string> = {
-    selected: 'bg-primary text-white active:bg-primary-deep',
-    available: 'text-ink hover:bg-stone-100 active:bg-stone-200',
-    unavailable: 'text-stone-400 hover:bg-stone-50 active:bg-stone-100',
+    selected: 'bg-primary text-white hover:bg-accent active:bg-primary-deep',
+    available:
+      'text-ink hover:bg-stone-100 hover:text-accent active:bg-stone-200 active:text-primary',
+    unavailable: 'text-stone-400 hover:bg-stone-100 active:bg-stone-200',
   };
   const lockedStates: Record<SegmentState, string> = {
     selected: 'bg-stone-400 text-white',

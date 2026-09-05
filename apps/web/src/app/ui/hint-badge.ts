@@ -47,6 +47,6 @@ export class HintBadge {
 
   protected readonly classes = computed(
     () =>
-      `inline-flex h-5 w-5 items-center justify-center rounded-full ${tones[this.tone()]}`,
+      `inline-flex h-5 w-5 items-center justify-center rounded-full select-none ${tones[this.tone()]}`,
   );
 }

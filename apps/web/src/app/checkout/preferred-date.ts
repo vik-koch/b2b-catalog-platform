@@ -21,9 +21,26 @@ import { Input } from '../ui/input';
 const segments =
   '[&::-webkit-datetime-edit-day-field:focus,&::-webkit-datetime-edit-month-field:focus,&::-webkit-datetime-edit-year-field:focus]:bg-secondary [&::-webkit-datetime-edit-day-field:focus,&::-webkit-datetime-edit-month-field:focus,&::-webkit-datetime-edit-year-field:focus]:text-white';
 
-/** An empty field reads `dd.mm.yyyy` at full strength otherwise, which looks
- * like a date somebody chose. Meta text, like every other placeholder. */
-const empty = '[&::-webkit-datetime-edit]:text-subtle';
+/**
+ * What an empty field wears, so that it can say something of its own.
+ *
+ * A native date input takes no `placeholder`, and what it draws instead is a
+ * different thing in every engine: "dd.mm.yyyy" on a desktop, and on iOS an
+ * empty box with nothing in it at all. So the field draws its own text over
+ * the control and takes the engine's away — by making the text transparent,
+ * which is the one way that reaches every engine (only WebKit exposes the
+ * segments as a pseudo-element, and it needs telling separately because its
+ * own colour does not inherit).
+ *
+ * Only while the field is *not* focused. Once the caret is in it the segments
+ * are what is being typed into and have to be visible — in the meta colour a
+ * half-entered date deserves, rather than at the full strength that reads as a
+ * date somebody chose.
+ */
+const empty =
+  'text-subtle [&::-webkit-datetime-edit]:text-subtle ' +
+  '[&:not(:focus)]:text-transparent ' +
+  '[&:not(:focus)::-webkit-datetime-edit]:text-transparent';
 
 /**
  * When the customer would like the order (FR-CART-07) — a wish, not a booking.
@@ -55,7 +72,14 @@ const empty = '[&::-webkit-datetime-edit]:text-subtle';
       {{ method() === 'pickup' ? text.pickupLabel : text.deliveryLabel }}
       <span class="font-normal text-subtle">({{ optional }})</span>
     </label>
-    <!-- Our glyph replaces the browser's, rather than sitting beside it: the
+    <!-- A click anywhere in the field opens the picker, so the field is not
+         really typed into even though it can be: select-none and the pointer
+         say so, in place of a caret dragging across segments that the picker
+         is about to cover anyway. It stays a real date input — the keyboard
+         still edits it, which is what a customer who cannot use a picker
+         needs.
+
+         Our glyph replaces the browser's, rather than sitting beside it: the
          native button is drawn differently in every engine and pinned to the
          right edge, where no other field in the app keeps its affordance.
          Hidden, not removed — the control is still a real date input, and
@@ -76,7 +100,7 @@ const empty = '[&::-webkit-datetime-edit]:text-subtle';
         [min]="floor"
         [value]="date() ?? ''"
         appInput
-        class="w-full appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
+        class="peer w-full cursor-pointer appearance-none pl-9 select-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
         [class]="fieldClass()"
         (click)="openPicker($event)"
         (change)="picked($event)"

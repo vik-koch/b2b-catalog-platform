@@ -99,7 +99,7 @@ function substitute(
           </summary>
           <div class="mt-3 space-y-2 border-l-2 border-stone-100 pl-4">
             @for (flag of flags; track flag.key) {
-              <label class="flex items-start gap-2 text-sm">
+              <label class="flex cursor-pointer items-start gap-2 text-sm">
                 <input
                   type="checkbox"
                   appCheckbox

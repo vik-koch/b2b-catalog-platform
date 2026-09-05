@@ -23,14 +23,22 @@ import { Component, input, output } from '@angular/core';
   // taller than any skeleton standing in for it.
   host: { class: 'inline-flex' },
   template: `
+    <!-- On, the track is a fill and lightens to accent under a pointer like
+         any other fill in the app. Off, it cannot: accent on an off switch
+         reads as an on one, so the grey deepens instead — the same statement
+         ("this is operable") in the only colour left that claims no state. -->
     <button
       type="button"
       role="switch"
       [attr.aria-checked]="checked()"
       [attr.aria-label]="label()"
       [disabled]="disabled()"
-      class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-      [class]="checked() ? 'bg-primary' : 'bg-border-strong'"
+      class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors select-none disabled:cursor-not-allowed disabled:opacity-60"
+      [class]="
+        checked()
+          ? 'bg-primary hover:bg-accent active:bg-primary-deep'
+          : 'bg-border-strong hover:bg-stone-400 active:bg-stone-500'
+      "
       (click)="toggled.emit(!checked())"
     >
       <!-- The knob. Transform only, so the travel never reflows anything. -->

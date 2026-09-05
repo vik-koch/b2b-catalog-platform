@@ -11,8 +11,21 @@ import { computed, Directive, ElementRef, inject, input } from '@angular/core';
  * presence of aria-invalid, which every field binds as `… || null`, so a valid
  * one carries no attribute and no red.
  */
+/*
+ * Hover takes the edge to accent, which is what the accent colour means
+ * everywhere else in the app: a secondary button, a disclosure's frame and an
+ * icon button all answer a pointer with it, and a field was the one operable
+ * thing on a form that answered with nothing.
+ *
+ * Spelled as one arbitrary variant rather than as `enabled:hover:` plus
+ * `not-aria-invalid:`, because it has to beat two other border utilities on
+ * the same element — the resting one and a refusal's red — and between plain
+ * utilities the winner is whatever order Tailwind emitted them in, which no
+ * call site can see. At three conditions it simply outranks both. Focus still
+ * wins over it: that rule lives outside the layers (styles.css).
+ */
 const base =
-  'block rounded-md border border-border-strong bg-white [&[aria-invalid]]:border-red-600 disabled:cursor-not-allowed disabled:bg-stone-100';
+  'block rounded-md border border-border-strong bg-white transition-colors [&:not([aria-invalid]):enabled:hover]:border-accent [&[aria-invalid]]:border-red-600 disabled:cursor-not-allowed disabled:bg-stone-100';
 
 const sizes = {
   md: 'px-3 py-2',

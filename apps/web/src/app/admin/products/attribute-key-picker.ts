@@ -66,7 +66,7 @@ import { AttributeHint } from './attribute-hints';
               @for (hint of hints(); track hint.key) {
                 <li>
                   <label
-                    class="flex items-center gap-2 py-1 text-sm"
+                    class="flex cursor-pointer items-center gap-2 py-1 text-sm has-[input:disabled]:cursor-not-allowed"
                     [class.text-subtle]="used().includes(hint.key)"
                   >
                     <input

@@ -261,7 +261,10 @@ interface CartRow {
                     <!-- Level with the top of the photo, and as close to it as
                        the tick above the list is to its own words, so the two
                        read as the same control. -->
-                    <label rowSelect class="-mr-2 flex shrink-0 items-start">
+                    <label
+                      rowSelect
+                      class="-mr-2 flex cursor-pointer shrink-0 items-start"
+                    >
                       <input
                         type="checkbox"
                         appCheckbox

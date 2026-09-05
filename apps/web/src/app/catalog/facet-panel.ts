@@ -223,7 +223,11 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
            put the same control: it undoes what the box holds, so it cannot be
            inside the part that is closed. Always rendered and inert while
            nothing is ticked, so nothing moves when the first box is ticked. -->
-      <div class="@min-[63.75rem]/listing:hidden">
+      <!-- Centred on the toggle row rather than on the box, which grows as the
+           panel opens: h-10 is the toggle's own height (py-2.5 around a
+           text-sm line), and the mt-px is the frame's border, which the toggle
+           sits below and this does not. -->
+      <div class="mt-px flex h-10 items-center @min-[63.75rem]/listing:hidden">
         <!-- Finger-sized for as long as the panel beside it is a disclosure,
              which a container query decides and the viewport-based default
              cannot see: on a thousand-pixel window this is still the phone's

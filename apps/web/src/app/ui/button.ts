@@ -13,8 +13,16 @@ import { computed, Directive, input } from '@angular/core';
  * the row, and the icon — being an ordinary flex item — is what gives way: an
  * "Add to cart" that wrapped to two lines squeezed its basket to an oval.
  */
+/*
+ * `select-none` because a label is part of the control, not text on the page:
+ * a drag that starts on a button and ends past it used to leave the label
+ * highlighted, and a double-press on a phone selected the word instead of
+ * pressing twice. The same applies to every other thing here you press or that
+ * merely names a state — see IconButton, DiscButton, Switch, the segments and
+ * the badges. Running content is untouched.
+ */
 const base =
-  'inline-flex cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-colors disabled:cursor-not-allowed [&>*]:shrink-0';
+  'inline-flex cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-colors select-none disabled:cursor-not-allowed [&>*]:shrink-0';
 
 /*
  * Height comes from a floor rather than from the padding, so a label that

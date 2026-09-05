@@ -137,7 +137,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           </div>
 
           <div>
-            <label class="flex items-start gap-2 text-sm">
+            <label class="flex cursor-pointer items-start gap-2 text-sm">
               <!-- Sized explicitly so the nudge is exact: a 16px box in the 20px
                    line box of text-sm sits 2px down. At the browser's default
                    size (~13px) the same nudge reads as too high. -->

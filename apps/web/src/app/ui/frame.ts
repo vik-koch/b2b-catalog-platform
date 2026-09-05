@@ -22,5 +22,14 @@ export const FRAME = 'ring-1 ring-border';
 
 /** The frame at the weight and colour that marks the chosen one of several —
  * the gallery's thumbnails. Growing outwards, so choosing one does not resize
- * the photo inside it. */
-export const FRAME_SELECTED = 'bg-accent ring-2 ring-accent';
+ * the photo inside it.
+ *
+ * Primary, not accent: accent is the app's hover colour, and a resting frame
+ * wearing it both said the wrong thing and left the chosen thumbnail with
+ * nothing to answer a pointer with. The weight is what makes it findable on a
+ * page of photos that may themselves be brown. */
+export const FRAME_SELECTED = 'bg-primary ring-2 ring-primary';
+
+/** What either frame does under a pointer — the one thing every frame around
+ * something pressable has in common, chosen or not. */
+export const FRAME_HOVER = 'hover:bg-accent hover:ring-accent';
