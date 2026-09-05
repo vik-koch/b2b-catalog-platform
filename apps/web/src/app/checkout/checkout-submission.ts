@@ -172,6 +172,8 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
           return errors.rejected;
         case 'staff-cannot-order':
           return errors.staffAccount;
+        case 'pairing-unsatisfied':
+          return errors.pairingUnsatisfied;
         default:
           // A 400 the contract does not name — a body the server rejected
           // before any rule ran. Nothing useful to say about it, but silence is

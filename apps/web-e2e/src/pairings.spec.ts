@@ -27,6 +27,9 @@ const LID_DOMED = 'Takeaway Lid, Domed (50)';
 const UNPAIRED = 'latte-glass-set';
 /** The panel's own name, `catalog.pairings.label` in the demo text. */
 const PANEL = 'Sold together';
+/** `cart.pairing.*` in the demo text, with the counts filled in. */
+const SHORT = 'of what this is sold with';
+const SUMMARY = 'products in your cart are missing what they are sold with';
 
 async function logIn(page: Page): Promise<void> {
   await page.goto('/login');
@@ -164,5 +167,78 @@ test.describe('the sold-together marker', () => {
     await page.goto(`/product/${UNPAIRED}`);
 
     await expect(page.getByRole('button', { name: PANEL })).toHaveCount(0);
+  });
+});
+
+/*
+ * What the cart says about a pairing it cannot satisfy (FR-SET-02/03).
+ *
+ * The check runs on the server over the whole cart, so a real round trip is
+ * what proves it: the line states how short it is, the card over the checkout
+ * button counts the lines, and the link beside the sentence opens the products
+ * that would answer it.
+ *
+ * Advisory here, which is the shipped default (FR-SET-04) — the enforced
+ * variant is a deployment flag, and the disabled button it produces is the
+ * cart page spec's.
+ */
+test.describe('a cart missing what it is sold with', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => localStorage.removeItem('cart'));
+  });
+
+  test('says how short each line is, and offers what would cover it', async ({
+    page,
+  }) => {
+    // Both lids, no cup: each is sold with a cup that is not in the cart, so
+    // each is short by its whole quantity.
+    for (const slug of ['takeaway-lid-flat', 'takeaway-lid-domed']) {
+      await page.goto(`/product/${slug}`);
+      await page.getByRole('button', { name: 'Add to cart' }).click();
+    }
+    await page.goto('/cart');
+
+    await expect(page.getByText(SHORT)).toHaveCount(2);
+    // Counted once over the button it bears on, not per line.
+    await expect(page.getByText(SUMMARY)).toBeVisible();
+    // Advisory: the way out is still a link to the checkout.
+    await expect(
+      page.getByRole('link', { name: 'Proceed to checkout' }),
+    ).toBeVisible();
+
+    // And the way to answer it is beside the sentence.
+    await page
+      .getByRole('button', { name: PANEL, exact: true })
+      .first()
+      .click();
+    await expect(
+      page.getByRole('dialog').getByText('Takeaway Cup 300'),
+    ).toBeVisible();
+  });
+
+  test('says nothing once the cart covers itself', async ({ page }) => {
+    // The cup and one lid: the counterpart is in the cart, and one piece
+    // covers one piece.
+    for (const slug of [CUP, 'takeaway-lid-flat']) {
+      await page.goto(`/product/${slug}`);
+      await page.getByRole('button', { name: 'Add to cart' }).click();
+    }
+    await page.goto('/cart');
+
+    await expect(page.getByText(SHORT)).toHaveCount(0);
+    await expect(page.getByText(SUMMARY)).toHaveCount(0);
+
+    // Take the lid out and the cup has nothing left to draw on — read from the
+    // other end of the same edge.
+    // The bin on a row removes it outright — what it took out is one line the
+    // customer is looking at, so there is nothing to confirm.
+    await page
+      .locator('li')
+      .filter({ hasText: LID_FLAT })
+      .getByRole('button', { name: `Remove ${LID_FLAT}` })
+      .click();
+
+    await expect(page.getByText(SHORT)).toHaveCount(1);
   });
 });

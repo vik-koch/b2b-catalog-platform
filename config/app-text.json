@@ -163,7 +163,8 @@
     },
     "pairing": {
       "short": "Add {count} {unit} of what this is sold with.",
-      "summary": "{count} products in your cart are missing what they are sold with."
+      "summary": "{count} products in your cart are missing what they are sold with.",
+      "summaryEnforced": "{count} products in your cart cannot be ordered without what they are sold with."
     }
   },
   "checkout": {
@@ -267,6 +268,7 @@
       "partyRequired": "Please tell us who we should invoice.",
       "rejected": "We could not accept this order. Please try again.",
       "cartChanged": "Prices or quantities in your cart changed while you were filling this in — please check your order and send it again.",
+      "pairingUnsatisfied": "Some of the products in your cart are missing what they are sold with.",
       "generic": "Something went wrong sending your order. Please try again.",
       "staffAccount": "Staff accounts cannot place order requests — an order needs a customer account, which is what carries the agreed prices and the delivery address. Sign in as a customer to try the checkout."
     },

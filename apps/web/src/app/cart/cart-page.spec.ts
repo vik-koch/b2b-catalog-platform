@@ -93,6 +93,8 @@ async function render(
     confirm?: boolean;
     /** Keeps what the last render wrote down — a reload, not a first visit. */
     reload?: boolean;
+    /** A deployment that refuses an unsatisfied cart (FR-SET-04). */
+    pairingsEnforced?: boolean;
   } = {},
 ) {
   if (!options.reload) localStorage.clear();
@@ -112,7 +114,16 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: {
+          ...defaultDeploymentConfig,
+          catalog: {
+            ...defaultDeploymentConfig.catalog,
+            pairingsEnforced: options.pairingsEnforced ?? false,
+          },
+        },
+      },
       { provide: CartPreviewService, useValue: { preview: priced } },
       { provide: ConfirmService, useValue: { ask: confirmed } },
     ],
@@ -525,6 +536,42 @@ describe('CartPage', () => {
     expect(checkout?.getAttribute('href')).toBe('/checkout');
   });
 
+  it('refuses the checkout where the deployment enforces pairings', async () => {
+    const view = await render({
+      pairingsEnforced: true,
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: 20 }]),
+    });
+
+    expect(view.el.textContent).toContain(
+      text.pairing.summaryEnforced.replace('{count}', '1'),
+    );
+    // A disabled button, not a link that refuses on the next page: the reason
+    // is on screen right above it.
+    const blocked = [...view.el.querySelectorAll('button')].find((button) =>
+      button.textContent?.includes(text.checkout),
+    );
+    expect(blocked?.disabled).toBe(true);
+    expect(
+      [...view.el.querySelectorAll('a')].some((link) =>
+        link.textContent?.includes(text.checkout),
+      ),
+    ).toBe(false);
+  });
+
+  it('lets a satisfied cart through even where pairings are enforced', async () => {
+    const view = await render({
+      pairingsEnforced: true,
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: null }]),
+    });
+
+    expect(
+      [...view.el.querySelectorAll('a')].some((link) =>
+        link.textContent?.includes(text.checkout),
+      ),
+    ).toBe(true);
+  });
 
   // The row's own controls do not also carry the glyph: two ways to open one
   // panel, side by side, is one too many.

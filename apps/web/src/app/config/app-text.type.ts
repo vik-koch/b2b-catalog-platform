@@ -388,6 +388,7 @@ export const appTextSchema = z
           .object({
             short: z.string(),
             summary: z.string(),
+            summaryEnforced: z.string(),
           })
           .strict(),
       })
@@ -647,6 +648,10 @@ export const appTextSchema = z
             /** The cart was re-priced under them; the corrected figures are
              * already on screen by the time this is read. */
             cartChanged: z.string(),
+            /** The deployment enforces pairings and the cart is short
+             * (FR-SET-04) — only reachable from a page out of step with the
+             * cart, which disables its own button on the same figures. */
+            pairingUnsatisfied: z.string(),
             /** Anything else at all. */
             generic: z.string(),
           })

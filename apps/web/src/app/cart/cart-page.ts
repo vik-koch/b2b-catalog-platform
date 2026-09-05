@@ -437,9 +437,20 @@ interface CartRow {
             <!-- Inside the summary card, under the figure they act on: the
                  total is what somebody decides to check out against. Full
                  width, because in the narrow shape this card is the page. -->
-            <a appButton routerLink="/checkout" class="mt-5 w-full">
-              {{ text.checkout }}
-            </a>
+            @if (pairingsBlock()) {
+              <!-- A disabled button rather than a link that refuses on the
+                   next page: the reason is on screen right above it, and
+                   sending somebody to a form to be turned away there is a
+                   worse way of saying the same thing. The API refuses it too
+                   — this is not what makes it a rule. -->
+              <button appButton type="button" disabled class="mt-5 w-full">
+                {{ text.checkout }}
+              </button>
+            } @else {
+              <a appButton routerLink="/checkout" class="mt-5 w-full">
+                {{ text.checkout }}
+              </a>
+            }
             <!-- Back to the shelf the visitor was standing at, with the
                  category, page and filters it was carrying. -->
             <a
@@ -478,6 +489,8 @@ export class CartPage {
   protected readonly pairingText = this.text.pairing;
   /** The piece abbreviation, for the sentence that names a shortfall. */
   private readonly pieceUnit = inject(APP_TEXT).catalog.units.piece;
+  /** Whether an unsatisfied pairing refuses checkout here (FR-SET-04). */
+  private readonly pairingsEnforced = this.catalogConfig.pairingsEnforced;
 
   /**
    * Where "continue shopping" goes. A parsed tree rather than the string:
@@ -598,6 +611,11 @@ export class CartPage {
     () => this.rows().filter((row) => row.pairingShortPieces !== null).length,
   );
 
+  /** True where this deployment refuses an unsatisfied cart (FR-SET-04) and
+   * this cart is one. */
+  protected readonly pairingsBlock = computed(
+    () => this.pairingsEnforced && this.shortLines() > 0,
+  );
 
   /** What the order card says about it, or null where there is nothing to
    * say. Advisory by default; the enforced wording is the one that goes with
@@ -605,7 +623,12 @@ export class CartPage {
   protected readonly pairingSummary = computed(() => {
     const count = this.shortLines();
     if (count === 0) return null;
-    return fillText(this.pairingText.summaryEnforced, { count });
+    return fillText(
+      this.pairingsEnforced
+        ? this.pairingText.summaryEnforced
+        : this.pairingText.summary,
+      { count },
+    );
   });
 
   /** What one line is short, in pieces — the unit every quantity here is a
