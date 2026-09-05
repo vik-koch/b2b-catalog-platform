@@ -65,6 +65,7 @@ export function productDetail(
     lineNotePrompt: null,
     availability: null,
     pairedCount: 0,
+    documents: [],
     category: {
       slug: 'coffee-beans',
       name: 'Coffee Beans',

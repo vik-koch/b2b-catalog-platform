@@ -27,7 +27,7 @@ import { AdminListHeader } from '../list-header';
 import { RecordRow } from '../records/record-row';
 import { injectEditorReturnParams } from '../editor-return';
 import { DocumentsService } from './documents.service';
-import { documentFileLabel, documentFileSize } from './document-file';
+import { documentFileLabel, documentFileSize } from '../../core/document-file';
 
 /**
  * The document list (FR-DOC-01) — every certificate, declaration and data

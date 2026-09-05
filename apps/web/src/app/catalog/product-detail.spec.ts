@@ -104,6 +104,38 @@ describe('ProductDetail', () => {
     expect(root.querySelector('a[href="/catalog/beans"]')).toBeTruthy();
   });
 
+  // FR-DOC-03. The section is drawn from what the API sent: an expired
+  // document is dropped there, so the page has no state of its own to get
+  // wrong — only the question of whether there is anything to list.
+  it('lists the documents on the product, each opening its file', async () => {
+    const root = el(
+      await render({
+        ...product,
+        documents: [
+          {
+            title: 'Certificate of analysis',
+            url: '/documents/aaaaaaaaaaaa.pdf',
+            contentType: 'application/pdf',
+            byteSize: 2048,
+          },
+        ],
+      }),
+    );
+
+    expect(root.textContent).toContain(defaultAppText.catalog.documents.label);
+    expect(
+      root.querySelector('a[href="/documents/aaaaaaaaaaaa.pdf"]')?.textContent,
+    ).toContain('Certificate of analysis');
+  });
+
+  it('heads no document section when there is nothing current to show', async () => {
+    const root = el(await render({ ...product, documents: [] }));
+
+    expect(root.textContent).not.toContain(
+      defaultAppText.catalog.documents.label,
+    );
+  });
+
   it('renders the attributes as a specifications table', async () => {
     const root = el(await render(product));
 

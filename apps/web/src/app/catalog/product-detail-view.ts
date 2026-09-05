@@ -24,6 +24,7 @@ import { Button } from '../ui/button';
 import { Icon } from '../ui/icons/icon';
 import { Link } from '../ui/link';
 import { ProductBuyBlock } from './product-buy-block';
+import { ProductDocuments } from './product-documents';
 import { ProductGallery } from './product-gallery';
 import { useProductUnits } from './product-units-view';
 
@@ -83,7 +84,15 @@ export const PRODUCT_PAGE_COLUMNS =
  * nothing between them.
  */
 export const PRODUCT_PAGE_SECTION_CELL = 'col-span-full scroll-mt-24';
-const READING_WIDTH = 'max-w-3xl';
+/**
+ * The description's measure, and the rule that closes it. Wider than a book's
+ * line because what stands here is rarely a page of prose — it is a few
+ * paragraphs, a list of what is in the bag, and at 3xl each of those broke
+ * into a narrow ribbon down the left of an empty page. The rule under it is
+ * drawn to the same width, so the column has a bottom edge and the
+ * specifications below read as the next thing rather than as more of it.
+ */
+const READING_WIDTH = 'max-w-5xl border-b border-border pb-8';
 const TABLE_WIDTH = 'max-w-xl';
 
 /**
@@ -125,6 +134,7 @@ const NARROW = '(max-width: 39.999rem)';
     Link,
     NgTemplateOutlet,
     Button,
+    ProductDocuments,
   ],
   template: `
     <nav [attr.aria-label]="text.catalogRoot">
@@ -287,6 +297,28 @@ const NARROW = '(max-width: 39.999rem)';
       }
 
       <ng-container [ngTemplateOutlet]="specs" />
+
+      <!-- Under the specifications, in a cell of its own: a document is a fact
+           about the product like the table above it, and it is looked for
+           after the specification it certifies rather than instead of it.
+           Absent when there is nothing current to show — an empty heading
+           would read as "this product has no papers", which is not what an
+           expired certificate means. -->
+      @if (item().documents.length) {
+        <div [id]="documentsId" [class]="specsCellClass">
+          <h2 [class]="sectionHeading">
+            <a
+              [routerLink]="[]"
+              [fragment]="documentsId"
+              queryParamsHandling="preserve"
+              [class]="sectionAnchor"
+            >
+              {{ documentText.label }}
+            </a>
+          </h2>
+          <app-product-documents [documents]="item().documents" />
+        </div>
+      }
     </div>
 
     <!-- Wrapped in an element of its own, so the heading and its table land
@@ -393,6 +425,8 @@ export class ProductDetailView {
   protected readonly sectionAnchor = 'transition-colors hover:text-accent';
   protected readonly descriptionId = 'description';
   protected readonly specsId = 'specifications';
+  protected readonly documentsId = 'documents';
+  protected readonly documentText = inject(APP_TEXT).catalog.documents;
   /** The description is trusted rich text (server-sanitized, same as pages). */
   protected readonly safeDescription = trustedRichText();
 
