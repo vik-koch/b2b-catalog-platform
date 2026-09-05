@@ -28,6 +28,7 @@
       "weight": "kg"
     },
     "lowStockThresholdPieces": 10,
+    "pairingsEnforced": false,
     "sortControlsEnabled": true
   },
   "locations": [

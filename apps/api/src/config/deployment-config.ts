@@ -105,6 +105,14 @@ export const apiDeploymentConfigSchema = z
          * only ever reached by a product sold loose.
          */
         lowStockThresholdPieces: z.number().int().positive().optional(),
+        /**
+         * Whether an order is refused where the cart is missing what its
+         * products are sold with (FR-SET-04). Optional and off by default: a
+         * deployment that says nothing gets the advisory rule, which is what
+         * the cart already showed. The API applies it as well as the browser —
+         * a rule enforced only client-side is not a rule.
+         */
+        pairingsEnforced: z.boolean().optional(),
       })
       .passthrough()
       .optional(),
@@ -259,6 +267,17 @@ export function loadLowStockThresholdPieces(): number {
     loadApiDeploymentConfig().catalog?.lowStockThresholdPieces ??
     DEFAULT_LOW_STOCK_THRESHOLD_PIECES
   );
+}
+
+/**
+ * Whether an unsatisfied pairing refuses the order (FR-SET-04). Injected rather
+ * than read where it is used, like the rules beside it, so a spec can hand over
+ * either answer without a config file.
+ */
+export const PAIRINGS_ENFORCED = 'PAIRINGS_ENFORCED';
+
+export function loadPairingsEnforced(): boolean {
+  return loadApiDeploymentConfig().catalog?.pairingsEnforced ?? false;
 }
 
 export function loadCompanyIdRule(): CompanyIdRule {
