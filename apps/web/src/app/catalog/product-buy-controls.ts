@@ -20,7 +20,7 @@ import {
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { Button } from '../ui/button';
+import { Button, BUTTON_SIZES } from '../ui/button';
 import { Icon } from '../ui/icons/icon';
 import { Input } from '../ui/input';
 import { NumericField } from '../ui/numeric-field';
@@ -740,10 +740,14 @@ export class ProductBuyControls {
       }`,
   );
   /** The button's own metrics, so the row does not move when one replaces the
-   * other. In a row the cell above it already carries the spacing. */
+   * other — the size shared from Button, including how it grows when the words
+   * do not fit on one line. Centred by flex rather than by `text-center`,
+   * because the height is now a floor the text sits inside rather than the sum
+   * of the padding and the line. In a row the cell above it already carries
+   * the spacing. */
   protected readonly addedField = computed(
     () =>
-      `${this.row() ? '' : 'mt-2'} w-full rounded-md bg-secondary p-2 text-center text-sm font-medium text-white`,
+      `${this.row() ? '' : 'mt-2'} flex w-full items-center justify-center rounded-md bg-secondary text-center text-sm font-medium text-white ${BUTTON_SIZES.md}`,
   );
   protected readonly addButton = computed(
     () => `${this.row() ? '' : 'mt-2'} w-full`,

@@ -7,14 +7,38 @@ import { computed, Directive, input } from '@angular/core';
  * Focus carries no classes at all: the app's one focus outline is a base rule
  * in styles.css, so a button looks focused exactly like a link or a field.
  */
+/*
+ * `[&>*]:shrink-0` is for the glyph a button sometimes leads with. A wrapping
+ * label makes the text an anonymous flex item that competes with the icon for
+ * the row, and the icon — being an ordinary flex item — is what gives way: an
+ * "Add to cart" that wrapped to two lines squeezed its basket to an oval.
+ */
 const base =
-  'inline-flex cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-colors disabled:cursor-not-allowed';
+  'inline-flex cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-colors disabled:cursor-not-allowed [&>*]:shrink-0';
 
-const sizes = {
-  md: 'px-4 py-2',
+/*
+ * Height comes from a floor rather than from the padding, so a label that
+ * wraps costs one line rather than a line plus the padding again. A button
+ * whose text fits is exactly as tall as it was; one whose text does not — a
+ * narrow phone, or a deployment whose word for "Add attribute" is two long
+ * ones — grows by the height of a line instead of half as much again.
+ *
+ * The floor is a border-box figure, which also settles a difference that was
+ * never meant: `secondary` carries a border and was two pixels taller than
+ * `primary` everywhere the two stood side by side.
+ *
+ * Exported, because a few things in the app are shaped like a button without
+ * being one — a label standing where the button was, in the place the button
+ * had. They have to grow the same way or the row moves when one replaces the
+ * other, which is the whole reason they were given the button's metrics.
+ */
+export const BUTTON_SIZES = {
+  md: 'min-h-9 px-4 py-1 leading-tight',
   /** Dense rows: pagination, table row actions. */
-  sm: 'px-3 py-1.5',
+  sm: 'min-h-8 px-3 py-1 leading-tight',
 } as const;
+
+const sizes = BUTTON_SIZES;
 
 /*
  * Press deepens rather than lightens: hover goes outward to accent, press goes
