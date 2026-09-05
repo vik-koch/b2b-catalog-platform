@@ -19,6 +19,8 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'admin/attributes/inventory', renderMode: RenderMode.Client },
   { path: 'admin/tiers', renderMode: RenderMode.Client },
   { path: 'admin/documents', renderMode: RenderMode.Client },
+  { path: 'admin/documents/new', renderMode: RenderMode.Client },
+  { path: 'admin/documents/:id/edit', renderMode: RenderMode.Client },
   { path: 'admin/users', renderMode: RenderMode.Client },
   { path: 'admin/users/staff', renderMode: RenderMode.Client },
   { path: 'admin/users/new', renderMode: RenderMode.Client },

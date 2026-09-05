@@ -861,6 +861,38 @@ export const adminTextSchema = z
         sizeMb: z.string(),
       })
       .strict(),
+    /**
+     * The document editor. Replacing the file is the same screen as filling it
+     * in the first time, which is the whole of how a re-issued document
+     * supersedes its predecessor — there is no second flow to word.
+     */
+    documentEditor: z
+      .object({
+        newTitle: z.string(),
+        editTitle: z.string(),
+        title: z.string(),
+        titlePlaceholder: z.string(),
+        titleHint: z.string(),
+        file: z.string(),
+        /** The empty control, and the one on a row that already has a file. */
+        choose: z.string(),
+        replace: z.string(),
+        open: z.string(),
+        fileHint: z.string(),
+        uploadError: z.string(),
+        issuedAt: z.string(),
+        expiresAt: z.string(),
+        datesHint: z.string(),
+        titleRequired: z.string(),
+        fileRequired: z.string(),
+        expiryBeforeIssue: z.string(),
+        saveError: z.string(),
+        discardConfirm: z.string(),
+        notFound: z.string(),
+        errors: z.object({ 'document-not-found': z.string() }).strict(),
+      })
+      .strict(),
+    /**
      * The staff account list (FR-AUTH-03/04). Column headings double as the
      * sort/filter controls, so several of these are the accessible names of a
      * control whose visible text is the value in effect rather than a label.

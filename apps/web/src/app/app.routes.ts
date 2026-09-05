@@ -132,6 +132,28 @@ export const appRoutes: Route[] = [
         (m) => m.DocumentListPage,
       ),
   },
+  {
+    path: 'admin/documents/new',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    canDeactivate: [
+      unsavedChangesGuard((t) => t.documentEditor.discardConfirm),
+    ],
+    loadComponent: () =>
+      import('./admin/documents/document-editor-page').then(
+        (m) => m.DocumentEditorPage,
+      ),
+  },
+  {
+    path: 'admin/documents/:id/edit',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    canDeactivate: [
+      unsavedChangesGuard((t) => t.documentEditor.discardConfirm),
+    ],
+    loadComponent: () =>
+      import('./admin/documents/document-editor-page').then(
+        (m) => m.DocumentEditorPage,
+      ),
+  },
   // Tiers edit in place on one screen — two fields per tier, so no editor
   // route to pair with this one.
   {

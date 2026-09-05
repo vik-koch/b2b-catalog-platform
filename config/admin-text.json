@@ -567,6 +567,31 @@
     "sizeKb": "{size} kB",
     "sizeMb": "{size} MB"
   },
+  "documentEditor": {
+    "newTitle": "New document",
+    "editTitle": "Edit document",
+    "title": "Title",
+    "titlePlaceholder": "Certificate of analysis",
+    "titleHint": "What this document is called wherever it is listed.",
+    "file": "File",
+    "choose": "Choose a file",
+    "replace": "Replace file",
+    "open": "Open",
+    "fileHint": "PDF or an image, up to 20 MB. The file is stored exactly as uploaded.",
+    "uploadError": "That file could not be uploaded. Use a PDF, PNG, JPEG, WebP or GIF under 20 MB.",
+    "issuedAt": "Issue date",
+    "expiresAt": "Expiry date",
+    "datesHint": "Both dates are optional. A document with no expiry date is always current.",
+    "titleRequired": "A title is required.",
+    "fileRequired": "A file is required.",
+    "expiryBeforeIssue": "The expiry date cannot be earlier than the issue date.",
+    "saveError": "This document could not be saved. Please try again.",
+    "discardConfirm": "Discard your unsaved changes to this document?",
+    "notFound": "This document no longer exists.",
+    "errors": {
+      "document-not-found": "This document no longer exists. Reload the list to see the current documents."
+    }
+  },
   "orderList": {
     "title": "Orders",
     "searchLabel": "Search orders",
