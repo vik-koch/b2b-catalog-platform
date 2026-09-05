@@ -46,6 +46,7 @@ import {
   products,
 } from '../db/schema';
 import { attributeFilterCondition } from './attribute-filter';
+import { documentCondition } from './document-filter';
 import { tierPriceCondition } from './tier-price-filter';
 import { categoryBySlug, descendantIds } from './catalog-tree';
 import {
@@ -202,6 +203,9 @@ export class AdminProductsService {
       // Where the tier list's price count leads: the products this tier has a
       // price of its own for.
       tierPriceCondition(this.db, query.tierId),
+      // Where the document list's product count leads: the products showing
+      // one certificate, declaration or data sheet.
+      documentCondition(this.db, query.documentId),
       adminSearchCondition(query.q) ?? undefined,
     );
     // Only rank when the box holds something the name matcher could score; a
