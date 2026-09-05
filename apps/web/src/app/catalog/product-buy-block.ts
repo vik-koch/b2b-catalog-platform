@@ -72,11 +72,16 @@ import { ProductUnitFacts } from './product-unit-facts';
              thing this product says about itself, and the note is the one
              thing on this panel the customer writes. With the word rather than
              the glyph alone — there is a line to spare here, and the panel it
-             opens is worth naming before it is pressed. -->
+             opens is worth naming before it is pressed.
+
+             Where the product takes no note it is the last thing above the
+             button and gives itself the room the note would have had: on its
+             own it stood closer to the button than to the facts above it. -->
         @if (item().pairedCount > 0) {
           <app-product-pairings
-            class="mt-3 block"
+            class="mt-3"
             variant="link"
+            [class.mb-3]="!item().lineNoteEnabled"
             [slug]="item().slug"
             [count]="item().pairedCount"
           />

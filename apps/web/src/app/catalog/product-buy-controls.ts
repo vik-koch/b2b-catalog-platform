@@ -147,31 +147,37 @@ export interface BuyableProduct {
           <span [class]="priceUnitClass()">{{ priceUnit() }}</span>
         </p>
 
-        <!-- Whatever the caller does *to the line* goes at this end of the
-             price row — the cart's bin — and it is the only place a control
-             belongs that is neither a choice nor the action. -->
-        <ng-content select="[priceAction]" />
+        <!-- The glyphs as one group at the far end, so the gap between them is
+             the gap between two of the same kind of thing and the only space
+             the row shares out is the one between the price and all of them.
+             Zero, one or two of them, and the row looks the same either way. -->
+        <div class="flex items-center gap-1">
+          <!-- Whatever the caller does *to the line* goes at this end of the
+               price row — the cart's bin — and it is the only place a control
+               belongs that is neither a choice nor the action. -->
+          <ng-content select="[priceAction]" />
 
-        <!-- Left of the note, which keeps its corner: a customer who learned
-             the bubble there should not find it moved because this product
-             happens to be sold with something. -->
-        @if (marker(); as paired) {
-          <app-product-pairings [slug]="item().slug" [count]="paired" />
-        }
+          <!-- Left of the note, which keeps its corner: a customer who learned
+               the bubble there should not find it moved because this product
+               happens to be sold with something. -->
+          @if (marker(); as paired) {
+            <app-product-pairings [slug]="item().slug" [count]="paired" />
+          }
 
-        @if (asksForNote()) {
-          <app-product-note-editor
-            [value]="ownNote()"
-            [prompt]="notePrompt()"
-            [open]="popup()?.at === 'note'"
-            (requestOpen)="openNote()"
-            (valueChange)="ownNote.set($event)"
-            (save)="saveNote()"
-            (done)="closeNote()"
-            (cancelled)="cancelNote()"
-            (dismissed)="dismiss()"
-          />
-        }
+          @if (asksForNote()) {
+            <app-product-note-editor
+              [value]="ownNote()"
+              [prompt]="notePrompt()"
+              [open]="popup()?.at === 'note'"
+              (requestOpen)="openNote()"
+              (valueChange)="ownNote.set($event)"
+              (save)="saveNote()"
+              (done)="closeNote()"
+              (cancelled)="cancelNote()"
+              (dismissed)="dismiss()"
+            />
+          }
+        </div>
       </div>
     </ng-template>
 
