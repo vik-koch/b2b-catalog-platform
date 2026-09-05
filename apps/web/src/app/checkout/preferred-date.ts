@@ -107,6 +107,18 @@ const empty =
         [attr.aria-invalid]="invalid() || null"
         [attr.aria-describedby]="id + '-hint'"
       />
+      <!-- Our own empty state, over the field the engine has been made to
+           draw nothing in. After the input so it can watch it: it goes away
+           the moment the caret arrives, which is when the segments underneath
+           become the thing to read. Decorative — the label names the field. -->
+      @if (date() === null) {
+        <span
+          aria-hidden="true"
+          class="pointer-events-none absolute left-9 text-subtle select-none peer-focus:hidden"
+        >
+          {{ text.placeholder }}
+        </span>
+      }
     </div>
     <p
       [id]="id + '-hint'"

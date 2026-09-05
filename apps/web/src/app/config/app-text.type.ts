@@ -534,6 +534,11 @@ export const appTextSchema = z
           .object({
             deliveryLabel: z.string(),
             pickupLabel: z.string(),
+            /** What an empty field says. A native date input cannot take a
+             * `placeholder`, and what it draws instead is a different thing in
+             * every engine — "dd.mm.yyyy" on a desktop, an empty box on iOS —
+             * so the field draws this itself. */
+            placeholder: z.string(),
             /** Which days are on offer, in words: a native picker can grey out
              * what falls before the floor but not every weekend after it. */
             deliveryHint: z.string(),
