@@ -124,13 +124,22 @@ describe('ProductDetail', () => {
 
   it('links a filterable value into its own category, filtered (FR-ATTR-08)', async () => {
     const root = el(await render(product));
-    const links = [...root.querySelectorAll('tbody td a')];
+    const href = `/catalog/${product.category.slug}?attr=net-weight:1`;
 
-    // The link is written from the *stored* value — "1", not the "1 kg" the
-    // row shows — because that is what the facet and the URL are keyed by.
-    expect(links.map((a) => a.getAttribute('href'))).toEqual([
-      `/catalog/${product.category.slug}?attr=net-weight:1`,
-    ]);
+    // Twice, and that is the point: the band beside the photo repeats the
+    // first few of these rows, and both tables draw the cell from one
+    // template — the band's used to be a copy that printed plain text, so the
+    // same value was a link a screen further down and not here.
+    const links = [...root.querySelectorAll('tbody td a')];
+    expect(links.map((a) => a.getAttribute('href'))).toEqual([href, href]);
+
+    // Scoped to the section, the link is the one row that has one: the link is
+    // written from the *stored* value — "1", not the "1 kg" the row shows —
+    // because that is what the facet and the URL are keyed by.
+    const inSection = [
+      ...(root.querySelectorAll('#specifications tbody td a') ?? []),
+    ];
+    expect(inSection.map((a) => a.getAttribute('href'))).toEqual([href]);
     // And an undeclared attribute stays plain text: the underline is the only
     // cue that the shop filters by an attribute at all.
     expect(links[0].textContent?.trim()).toBe('1 kg');

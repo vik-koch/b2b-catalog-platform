@@ -210,7 +210,10 @@ const NARROW = '(max-width: 39.999rem)';
                     {{ attr.key }}
                   </th>
                   <td class="py-2 text-right text-stone-700">
-                    {{ attr.value }}
+                    <ng-container
+                      [ngTemplateOutlet]="attributeValue"
+                      [ngTemplateOutletContext]="{ $implicit: attr }"
+                    />
                   </td>
                 </tr>
               }
@@ -315,21 +318,10 @@ const NARROW = '(max-width: 39.999rem)';
                     {{ attr.key }}
                   </th>
                   <td class="py-2 text-right text-stone-700">
-                    <!-- A filterable value is the way to "more like this": the
-                       product's own category, narrowed to this value
-                       (FR-ATTR-08). The link treatment is also the only cue
-                       that the shop filters by this attribute at all. -->
-                    @if (attr.filterParam) {
-                      <a
-                        appLink
-                        [routerLink]="['/catalog', item().category.slug]"
-                        [queryParams]="{ attr: attr.filterParam }"
-                      >
-                        {{ attr.value }}
-                      </a>
-                    } @else {
-                      {{ attr.value }}
-                    }
+                    <ng-container
+                      [ngTemplateOutlet]="attributeValue"
+                      [ngTemplateOutletContext]="{ $implicit: attr }"
+                    />
                   </td>
                 </tr>
               }
@@ -351,6 +343,26 @@ const NARROW = '(max-width: 39.999rem)';
             </tbody>
           </table>
         </div>
+      }
+    </ng-template>
+
+    <!-- One cell for both tables. A filterable value is the way to "more like
+         this": the product's own category, narrowed to this value
+         (FR-ATTR-08), and the link treatment is the only cue that the shop
+         filters by this attribute at all. Shared rather than written twice —
+         the band's table was a copy that never grew the link, so the same
+         value was a link a screen further down and plain text here. -->
+    <ng-template #attributeValue let-attr>
+      @if (attr.filterParam) {
+        <a
+          appLink
+          [routerLink]="['/catalog', item().category.slug]"
+          [queryParams]="{ attr: attr.filterParam }"
+        >
+          {{ attr.value }}
+        </a>
+      } @else {
+        {{ attr.value }}
       }
     </ng-template>
   `,
