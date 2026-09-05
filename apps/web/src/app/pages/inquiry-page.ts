@@ -19,6 +19,7 @@ import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
 import { Segmented, SegmentOption } from '../ui/segmented';
 import { InquiryService } from './inquiry.service';
+import { Link } from '../ui/link';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -40,6 +41,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     Input,
     PhoneField,
     Segmented,
+    Link,
   ],
   template: `
     <div class="max-w-xl">
@@ -149,9 +151,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
               />
               <span>
                 {{ text.privacyConsent }}
-                <a routerLink="/privacy" class="text-primary underline">{{
-                  text.privacyLink
-                }}</a
+                <a appLink routerLink="/privacy">{{ text.privacyLink }}</a
                 ><span class="text-accent" aria-hidden="true">*</span>
               </span>
             </label>

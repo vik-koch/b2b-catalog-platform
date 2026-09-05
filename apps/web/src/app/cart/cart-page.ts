@@ -221,7 +221,11 @@ interface CartRow {
                   [indeterminate]="someSelected() && !allSelected()"
                   (change)="toggleAll()"
                 />
-                <span class="hover:underline">
+                <!-- Not a link, though it reads like one: the whole label is
+                     the hit area and the box is the control, so an underline
+                     under the words would promise they go somewhere. It also
+                     sits beside a delete that deliberately has none. -->
+                <span>
                   {{ allSelected() ? text.clearSelection : text.selectAll }}
                 </span>
               </label>

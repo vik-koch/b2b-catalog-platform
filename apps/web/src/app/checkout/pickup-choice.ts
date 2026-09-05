@@ -2,6 +2,7 @@ import { Component, inject, input, output } from '@angular/core';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Radio } from '../ui/radio';
+import { Link } from '../ui/link';
 
 /**
  * Which point the order is collected from — pickup's answer to the delivery
@@ -19,7 +20,7 @@ import { Radio } from '../ui/radio';
  */
 @Component({
   selector: 'app-pickup-choice',
-  imports: [Radio],
+  imports: [Radio, Link],
   // Block, or the page's own spacing between sections cannot reach it: a
   // margin on an inline element does nothing.
   host: { class: 'block' },
@@ -68,7 +69,8 @@ import { Radio } from '../ui/radio';
             </label>
             @if (location.mapUrl) {
               <a
-                class="shrink-0 text-sm text-accent hover:underline"
+                appLink
+                class="shrink-0 text-sm"
                 target="_blank"
                 rel="noopener noreferrer"
                 [href]="location.mapUrl"

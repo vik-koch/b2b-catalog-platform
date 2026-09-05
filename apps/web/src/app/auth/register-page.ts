@@ -22,6 +22,7 @@ import { PhoneField } from '../ui/phone-field';
 import { Segmented, SegmentOption } from '../ui/segmented';
 import { AuthCard } from './auth-card';
 import { AuthService } from './auth.service';
+import { Link } from '../ui/link';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -53,6 +54,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     Input,
     PhoneField,
     Segmented,
+    Link,
   ],
   template: `
     <app-auth-card>
@@ -183,7 +185,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
               />
               <span>
                 {{ text.register.privacyConsent }}
-                <a routerLink="/privacy" class="text-primary underline">{{
+                <a appLink routerLink="/privacy">{{
                   text.register.privacyLink
                 }}</a
                 ><span class="text-accent" aria-hidden="true">*</span>
@@ -217,9 +219,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 
         <p class="mt-8 text-sm text-muted">
           {{ text.register.haveAccount }}
-          <a routerLink="/login" class="text-primary underline">{{
-            text.login
-          }}</a>
+          <a appLink routerLink="/login">{{ text.login }}</a>
         </p>
       }
     </app-auth-card>

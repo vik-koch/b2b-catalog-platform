@@ -22,6 +22,7 @@ import { APP_TEXT } from '../config/app-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { Button } from '../ui/button';
 import { Icon } from '../ui/icons/icon';
+import { Link } from '../ui/link';
 import { ProductBuyBlock } from './product-buy-block';
 import { ProductGallery } from './product-gallery';
 import { useProductUnits } from './product-units-view';
@@ -84,6 +85,7 @@ const NARROW = '(max-width: 39.999rem)';
     ProductGallery,
     ProductBuyBlock,
     Icon,
+    Link,
     NgTemplateOutlet,
     Button,
   ],
@@ -245,9 +247,9 @@ const NARROW = '(max-width: 39.999rem)';
                        that the shop filters by this attribute at all. -->
                     @if (attr.filterParam) {
                       <a
+                        appLink
                         [routerLink]="['/catalog', item().category.slug]"
                         [queryParams]="{ attr: attr.filterParam }"
-                        class="text-primary font-medium underline decoration-border underline-offset-2 hover:text-accent hover:decoration-accent"
                       >
                         {{ attr.value }}
                       </a>

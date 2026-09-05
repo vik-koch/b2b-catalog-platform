@@ -9,6 +9,7 @@ import { Button } from '../ui/button';
 import { EmailField } from '../ui/email-field';
 import { AuthCard } from './auth-card';
 import { AuthService } from './auth.service';
+import { Link } from '../ui/link';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -24,7 +25,14 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
  */
 @Component({
   selector: 'app-forgot-password-page',
-  imports: [AuthCard, ReactiveFormsModule, RouterLink, Button, EmailField],
+  imports: [
+    AuthCard,
+    ReactiveFormsModule,
+    RouterLink,
+    Button,
+    EmailField,
+    Link,
+  ],
   template: `
     <app-auth-card>
       @if (status() === 'success') {
@@ -63,10 +71,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             >
               {{ status() === 'submitting' ? text.submitting : text.submit }}
             </button>
-            <a
-              routerLink="/login"
-              class="text-sm font-medium text-primary underline underline-offset-2 hover:no-underline"
-            >
+            <a appLink routerLink="/login" class="text-sm">
               {{ text.backToLogin }}
             </a>
           </div>

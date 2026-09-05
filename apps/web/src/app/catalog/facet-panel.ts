@@ -15,6 +15,7 @@ import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection, selectedValues } from './facet-selection';
+import { Link } from '../ui/link';
 
 /** Values a facet shows before its own "show more" reveals the rest. */
 const VALUES_COLLAPSED = 8;
@@ -69,6 +70,7 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
     Icon,
     IconButton,
     ProductSortSelect,
+    Link,
   ],
   providers: [FacetSelection],
   template: `
@@ -191,7 +193,8 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
                     @if (facet.values.length > VALUES_COLLAPSED) {
                       <button
                         type="button"
-                        class="mt-2 cursor-pointer text-xs text-accent hover:underline"
+                        appLink
+                        class="mt-2 text-xs"
                         (click)="toggleExpanded(facet)"
                       >
                         {{

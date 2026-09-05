@@ -472,6 +472,27 @@ body:has(dialog[open]) {
 }
 
 /*
+ * A link an admin wrote is the app's own link. Typography gives it the colour
+ * and the underline; the rest is what `appLink` says in a template, written
+ * again here because nothing can reach inside a body that arrives as HTML.
+ */
+.prose a {
+  text-decoration-color: color-mix(
+    in oklab,
+    var(--color-primary) 30%,
+    transparent
+  );
+  text-underline-offset: 2px;
+  transition:
+    color 150ms,
+    text-decoration-color 150ms;
+}
+.prose a:hover {
+  color: var(--color-accent);
+  text-decoration-color: var(--color-accent);
+}
+
+/*
  * Headings inside rich text follow the app's own: size carries the hierarchy,
  * weight stays at 400. Typography ships 700/600 here, which next to a page
  * title at 500 reads as the body shouting over it. Covers the three levels the

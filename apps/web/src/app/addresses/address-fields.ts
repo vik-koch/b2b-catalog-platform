@@ -18,6 +18,7 @@ import { Input } from '../ui/input';
 import { SelectField } from '../ui/select-field';
 import { AddressForm } from './address-form';
 import { AddressSuggestField } from './address-suggest-field';
+import { Link } from '../ui/link';
 
 /** Ids have to be unique per instance: checkout draws two of these on one
  * page, and a label pointing at the wrong form's city is worse than none. */
@@ -52,6 +53,7 @@ let nextId = 0;
     FieldLabel,
     Input,
     SelectField,
+    Link,
   ],
   host: { class: 'block' },
   template: `
@@ -248,11 +250,7 @@ let nextId = 0;
       <!-- Always on screen, not revealed by a failure: there is then no state
            a customer can be stuck in, and nothing here has to detect one. -->
       @if (collapsed()) {
-        <button
-          type="button"
-          class="cursor-pointer text-sm text-accent hover:underline"
-          (click)="expand()"
-        >
+        <button type="button" appLink class="text-sm" (click)="expand()">
           {{ text.enterManually }}
         </button>
       }
