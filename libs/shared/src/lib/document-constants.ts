@@ -52,6 +52,45 @@ export const DOCUMENT_PRODUCTS_MAX = 2000;
  */
 export const PRODUCT_DOCUMENTS_MAX = 100;
 
+/**
+ * How long before its expiry date a document starts asking to be renewed
+ * (FR-DOC-04). Fixed rather than configurable: it is the notice period a new
+ * certificate takes to arrive, not a matter of taste, and a deployment that
+ * wanted a different one would still be told at 30 days.
+ */
+export const DOCUMENT_EXPIRY_WARNING_DAYS = 30;
+
+/**
+ * The three states FR-DOC-04 names. A document with no expiry is `valid`:
+ * nothing about it will ever come due, and every reader of this — the badge,
+ * the filter, the storefront — wants it in the same bucket as one that is
+ * still current.
+ */
+export const DOCUMENT_EXPIRY_STATES = ['valid', 'expiring', 'expired'] as const;
+export type DocumentExpiryState = (typeof DOCUMENT_EXPIRY_STATES)[number];
+
+/** One day, in milliseconds — the step this compares dates in. */
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Where a document stands, from its expiry date and today's, both as ISO days.
+ *
+ * Days rather than instants: an expiry is a date on a piece of paper, so a
+ * document expires when the day named on it has passed, in the shop's own
+ * reckoning, and never at a time of day. The comparison runs in UTC because
+ * both sides are already plain days — parsing them in the server's zone would
+ * make the answer depend on where the container runs.
+ */
+export function documentExpiryState(
+  expiresAt: string | null,
+  today: string,
+): DocumentExpiryState {
+  if (!expiresAt) return 'valid';
+  if (expiresAt < today) return 'expired';
+  const days = (Date.parse(expiresAt) - Date.parse(today)) / DAY_MS;
+  return days <= DOCUMENT_EXPIRY_WARNING_DAYS ? 'expiring' : 'valid';
+}
+
 /** Today as an ISO day, the format every document date is kept in. */
 export function isoToday(now: Date = new Date()): string {
   return now.toISOString().slice(0, 10);

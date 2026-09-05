@@ -20,6 +20,13 @@ export const workCountsSchema = z.object({
   orders: z.number().int().nonnegative().optional(),
   /** Products off the storefront awaiting review. Admin. */
   unpublishedProducts: z.number().int().nonnegative().optional(),
+  /**
+   * Documents that have expired or are about to (FR-DOC-04). Admin. One
+   * figure for both states because they are one job — getting the current
+   * file — and a document crosses from one to the other without anybody
+   * touching it.
+   */
+  expiringDocuments: z.number().int().nonnegative().optional(),
   /** The account holder's own orders that wait on them. */
   myOrders: z.number().int().nonnegative().optional(),
 });

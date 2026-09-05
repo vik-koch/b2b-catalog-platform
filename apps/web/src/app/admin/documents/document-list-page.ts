@@ -8,7 +8,13 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText, ProductDocument } from '@b2b-catalog-platform/shared';
+import {
+  documentExpiryState,
+  DocumentExpiryState,
+  fillText,
+  isoToday,
+  ProductDocument,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
@@ -19,8 +25,10 @@ import { IconButton } from '../../ui/icon-button';
 import { Link } from '../../ui/link';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
+import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridColumn } from '../grid/grid-column';
+import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
 import { GridTimestamp } from '../grid/grid-timestamp';
 import { AdminListHeader } from '../list-header';
@@ -28,6 +36,14 @@ import { RecordRow } from '../records/record-row';
 import { injectEditorReturnParams } from '../editor-return';
 import { DocumentsService } from './documents.service';
 import { documentFileLabel, documentFileSize } from '../../core/document-file';
+
+/**
+ * What the expiry column can be narrowed to. `due` is not a state a document
+ * is in — it is the pair of states that are work, which is what the panel's
+ * count links to.
+ */
+const EXPIRY_FILTERS = ['due', 'expiring', 'expired', 'valid'] as const;
+type DocumentExpiryFilter = (typeof EXPIRY_FILTERS)[number];
 
 /**
  * The document list (FR-DOC-01) — every certificate, declaration and data
@@ -55,6 +71,7 @@ import { documentFileLabel, documentFileSize } from '../../core/document-file';
     GridTimestamp,
     RecordRow,
     Skeleton,
+    StatusBadge,
   ],
   template: `
     <app-admin-list-header
@@ -88,7 +105,7 @@ import { documentFileLabel, documentFileSize } from '../../core/document-file';
     } @else if (rows(); as data) {
       <app-admin-grid
         gridId="documents"
-        [columns]="columns"
+        [columns]="columns()"
         [rows]="data"
         [trackBy]="byId"
         [busy]="documents.isLoading()"
@@ -119,8 +136,11 @@ import { documentFileLabel, documentFileSize } from '../../core/document-file';
             />
           </td>
           <td class="text-subtle">{{ day(document.issuedAt) }}</td>
-          <td class="text-subtle">
-            {{ day(document.expiresAt) || text.noExpiry }}
+          <td>
+            <ng-container
+              [ngTemplateOutlet]="expiry"
+              [ngTemplateOutletContext]="{ $implicit: document }"
+            />
           </td>
           <td class="text-subtle">
             <app-grid-timestamp [value]="document.updatedAt" />
@@ -154,9 +174,10 @@ import { documentFileLabel, documentFileSize } from '../../core/document-file';
               </p>
             </div>
             <span recordMeta class="truncate">
-              {{
-                day(document.expiresAt) ? expiresLabel(document) : text.noExpiry
-              }}
+              <ng-container
+                [ngTemplateOutlet]="expiry"
+                [ngTemplateOutletContext]="{ $implicit: document }"
+              />
             </span>
             <div
               recordActions
@@ -188,6 +209,31 @@ import { documentFileLabel, documentFileSize } from '../../core/document-file';
         </a>
       } @else {
         <span class="text-subtle">{{ text.noProducts }}</span>
+      }
+    </ng-template>
+
+    <!-- When it runs out and what that means, in one cell (FR-DOC-04). The
+         date alone was a number a reader had to do the arithmetic on; the word
+         beside it is the state the panel's count and this column's filter are
+         both over, so all three say one thing. A document with no expiry is
+         only ever the words: there is no state for it to be in. -->
+    <ng-template #expiry let-document>
+      @if (document.expiresAt) {
+        <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span class="text-subtle">{{ day(document.expiresAt) }}</span>
+          @if (stateOf(document) !== 'valid') {
+            <span
+              appStatusBadge
+              variant="dot"
+              [tone]="stateTone(document)"
+              class="shrink-0"
+            >
+              {{ stateLabel(document) }}
+            </span>
+          }
+        </span>
+      } @else {
+        <span class="text-subtle">{{ text.noExpiry }}</span>
       }
     </ng-template>
 
@@ -245,7 +291,23 @@ export class DocumentListPage {
    */
   readonly searchTerm = input('');
   protected readonly term = computed(() => this.searchTerm()?.trim() ?? '');
-  protected readonly filtered = computed(() => !!this.term());
+
+  /**
+   * The expiry filter (FR-DOC-04), bound from the URL like the search box.
+   * `due` is the panel's own destination — expiring *and* expired, the pair
+   * the work count is over — so the figure and the list it opens are one
+   * query; the other three are the states themselves.
+   */
+  readonly expiry = input('');
+  protected readonly expiryFilter = computed<DocumentExpiryFilter | ''>(() => {
+    const value = this.expiry();
+    return EXPIRY_FILTERS.includes(value as DocumentExpiryFilter)
+      ? (value as DocumentExpiryFilter)
+      : '';
+  });
+  protected readonly filtered = computed(
+    () => !!this.term() || !!this.expiryFilter(),
+  );
 
   protected readonly documents = resource({
     loader: () => this.service.list(),
@@ -258,23 +320,76 @@ export class DocumentListPage {
     const all = this.documents.value();
     if (!all) return undefined;
     const term = this.term().toLocaleLowerCase(this.locale);
-    if (!term) return all;
+    const expiry = this.expiryFilter();
+    if (!term && !expiry) return all;
     return all.filter(
       (document) =>
-        document.title.toLocaleLowerCase(this.locale).includes(term) ||
-        document.file.name.toLocaleLowerCase(this.locale).includes(term),
+        (!term ||
+          document.title.toLocaleLowerCase(this.locale).includes(term) ||
+          document.file.name.toLocaleLowerCase(this.locale).includes(term)) &&
+        (!expiry || this.matchesExpiry(document, expiry)),
     );
   });
 
-  protected readonly columns: GridColumn[] = [
+  private matchesExpiry(
+    document: ProductDocument,
+    filter: DocumentExpiryFilter,
+  ): boolean {
+    const state = this.stateOf(document);
+    return filter === 'due' ? state !== 'valid' : state === filter;
+  }
+
+  protected readonly columns = computed<GridColumn[]>(() => [
     { key: 'title', label: this.text.titleColumn, minWidth: 160 },
     { key: 'file', label: this.text.fileColumn, minWidth: 140 },
     { key: 'products', label: this.text.productsColumn, minWidth: 120 },
     { key: 'issued', label: this.text.issuedColumn, minWidth: 96 },
-    { key: 'expires', label: this.text.expiresColumn, minWidth: 96 },
+    {
+      key: 'expires',
+      label: this.text.expiryAll,
+      sortName: this.text.expiresColumn,
+      minWidth: 140,
+      filter: {
+        param: 'expiry',
+        options: this.expiryOptions,
+        value: this.expiryFilter(),
+        ariaLabel: this.text.filterExpiry,
+      },
+    },
     { key: 'updated', label: this.text.updatedColumn, minWidth: 96 },
     { key: 'actions', srLabel: this.common.edit, fixedWidth: 108 },
+  ]);
+
+  protected readonly expiryOptions: GridFilterOption[] = [
+    { value: '', label: this.text.expiryAll },
+    { value: 'due', label: this.text.expiryDue },
+    { value: 'expiring', label: this.text.expiryExpiring },
+    { value: 'expired', label: this.text.expiryExpired },
+    { value: 'valid', label: this.text.expiryValid },
   ];
+
+  /**
+   * Where a row stands today. Today is read once per render rather than per
+   * row: a list sorted and filtered by two different midnights would be a
+   * puzzle nobody could reproduce.
+   */
+  protected stateOf(document: ProductDocument): DocumentExpiryState {
+    return documentExpiryState(document.expiresAt, this.today);
+  }
+
+  private readonly today = isoToday();
+
+  protected stateLabel(document: ProductDocument): string {
+    return this.stateOf(document) === 'expired'
+      ? this.text.expiryExpired
+      : this.text.expiryExpiring;
+  }
+
+  /** Amber for what has to be renewed, red for what has already lapsed — the
+   * app's two words for "act" and "settled badly". */
+  protected stateTone(document: ProductDocument): StatusTone {
+    return this.stateOf(document) === 'expired' ? 'danger' : 'waiting';
+  }
 
   protected readonly byId = (document: ProductDocument): string => document.id;
 
@@ -295,10 +410,6 @@ export class DocumentListPage {
   /** An ISO day in the deployment's locale; empty for a date that is not set. */
   protected day(value: string | null): string {
     return value ? this.dayFormat.format(new Date(value)) : '';
-  }
-
-  protected expiresLabel(document: ProductDocument): string {
-    return `${this.text.expiresColumn}: ${this.day(document.expiresAt)}`;
   }
 
   protected async remove(document: ProductDocument): Promise<void> {

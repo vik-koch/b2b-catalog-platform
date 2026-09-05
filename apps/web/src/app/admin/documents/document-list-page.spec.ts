@@ -35,6 +35,7 @@ async function render(
   options: {
     documents?: ProductDocument[];
     searchTerm?: string;
+    expiry?: string;
     remove?: Awaited<ReturnType<DocumentsService['remove']>>;
     confirmed?: boolean;
   } = {},
@@ -59,12 +60,31 @@ async function render(
 
   const fixture = TestBed.createComponent(DocumentListPage);
   fixture.componentRef.setInput('searchTerm', options.searchTerm ?? '');
+  fixture.componentRef.setInput('expiry', options.expiry ?? '');
   await fixture.whenStable();
   fixture.detectChanges();
 
   const el = fixture.nativeElement as HTMLElement;
-  return { fixture, el, service, confirm };
+  /** What the table's rows say, without the headings that carry the filter. */
+  const rows = () => el.querySelector('tbody')?.textContent ?? '';
+  return { fixture, el, rows, service, confirm };
 }
+
+/** An ISO day `days` from now — the states are relative to today, so the
+ * fixtures have to be too. */
+function day(days: number): string {
+  const date = new Date();
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+/** One document in each expiry state, plus one that never comes due. */
+const everyState = [
+  document({ id: 'valid', title: 'Still valid', expiresAt: day(200) }),
+  document({ id: 'soon', title: 'Running out', expiresAt: day(10) }),
+  document({ id: 'gone', title: 'Lapsed', expiresAt: day(-1) }),
+  document({ id: 'never', title: 'No date', expiresAt: null }),
+];
 
 /** Two rows that differ in both searchable fields. */
 const twoDocuments = [
@@ -124,6 +144,61 @@ describe('DocumentListPage', () => {
   it('says the search matched nothing, which is a different answer', async () => {
     const { el } = await render({ searchTerm: 'nothing matches this' });
     expect(el.textContent).toContain(text.noResults);
+  });
+
+  // Read off the rows, never off the whole page: the filter's own options
+  // name every state, so a page-wide search finds the words whatever the rows
+  // say.
+  it('marks a document that is expiring, and one that has lapsed', async () => {
+    const { rows } = await render({ documents: everyState });
+
+    expect(rows()).toContain(text.expiryExpiring);
+    expect(rows()).toContain(text.expiryExpired);
+  });
+
+  it('says nothing about a document that is simply current', async () => {
+    const { rows } = await render({
+      documents: [document({ expiresAt: day(200) })],
+    });
+
+    expect(rows()).not.toContain(text.expiryExpiring);
+    expect(rows()).not.toContain(text.expiryExpired);
+  });
+
+  it('narrows the list to one expiry state', async () => {
+    const { el } = await render({ documents: everyState, expiry: 'expired' });
+
+    expect(el.textContent).toContain('Lapsed');
+    expect(el.textContent).not.toContain('Running out');
+    expect(el.textContent).not.toContain('Still valid');
+  });
+
+  // What the panel's count links to: both states that are work, and neither
+  // of the two that are not.
+  it('narrows the list to everything that needs attention', async () => {
+    const { el } = await render({ documents: everyState, expiry: 'due' });
+
+    expect(el.textContent).toContain('Lapsed');
+    expect(el.textContent).toContain('Running out');
+    expect(el.textContent).not.toContain('Still valid');
+    expect(el.textContent).not.toContain('No date');
+  });
+
+  // A document with no expiry is never work, so it belongs with the current
+  // ones rather than in a fourth bucket of its own.
+  it('counts a document with no expiry as valid', async () => {
+    const { el } = await render({ documents: everyState, expiry: 'valid' });
+
+    expect(el.textContent).toContain('No date');
+    expect(el.textContent).toContain('Still valid');
+    expect(el.textContent).not.toContain('Lapsed');
+  });
+
+  it('ignores an expiry filter the URL invented', async () => {
+    const { el } = await render({ documents: everyState, expiry: 'yesterday' });
+
+    expect(el.textContent).toContain('Lapsed');
+    expect(el.textContent).toContain('Still valid');
   });
 
   it('deletes a document once it is confirmed', async () => {

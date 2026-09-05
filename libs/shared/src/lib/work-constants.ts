@@ -20,6 +20,8 @@ export const WORK_QUEUES = [
   'orders',
   /** Products a sync left off the storefront (FR-ADM-06). Admin. */
   'unpublishedProducts',
+  /** Documents expired or about to expire (FR-DOC-04). Admin. */
+  'expiringDocuments',
   /** The account's own orders that wait on the account holder. */
   'myOrders',
 ] as const;
