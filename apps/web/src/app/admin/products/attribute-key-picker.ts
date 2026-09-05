@@ -10,7 +10,11 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
-import { DisclosureToggle } from '../../ui/disclosure-toggle';
+import {
+  DISCLOSURE_FRAME,
+  disclosureBorder,
+  DisclosureToggle,
+} from '../../ui/disclosure-toggle';
 import { HintBadge } from '../../ui/hint-badge';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AttributeHint } from './attribute-hints';
@@ -39,8 +43,8 @@ import { AttributeHint } from './attribute-hints';
          disclosure the admin grids and the storefront's facets wear. Its
          chevron is the affordance, so nothing here says "plus" twice. -->
     <div
-      class="mb-4 max-w-xl rounded-md border transition-colors"
-      [class]="open() ? 'border-accent' : 'border-border-strong'"
+      class="mb-4 max-w-xl rounded-md border"
+      [class]="frame + ' ' + disclosureBorder(open())"
     >
       <app-disclosure-toggle
         [label]="text.addKeys"
@@ -108,6 +112,8 @@ import { AttributeHint } from './attribute-hints';
   `,
 })
 export class AttributeKeyPicker {
+  protected readonly frame = DISCLOSURE_FRAME;
+  protected readonly disclosureBorder = disclosureBorder;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.attributes;
 

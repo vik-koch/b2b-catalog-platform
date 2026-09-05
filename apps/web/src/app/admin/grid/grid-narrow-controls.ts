@@ -3,7 +3,11 @@ import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { disclosureState } from '../../ui/disclosure-state';
-import { DisclosureToggle } from '../../ui/disclosure-toggle';
+import {
+  DISCLOSURE_FRAME,
+  disclosureBorder,
+  DisclosureToggle,
+} from '../../ui/disclosure-toggle';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
@@ -67,8 +71,8 @@ interface SortOption {
              single row goes from 0fr to 1fr, since a height cannot be
              transitioned to "as tall as the content". -->
         <div
-          class="min-w-0 flex-1 rounded-md border transition-colors"
-          [class]="open() ? 'border-accent' : 'border-border-strong'"
+          class="min-w-0 flex-1 rounded-md border"
+          [class]="frame + ' ' + disclosureBorder(open())"
         >
           <app-disclosure-toggle
             [label]="common.filters"
@@ -192,6 +196,8 @@ interface SortOption {
   `,
 })
 export class GridNarrowControls {
+  protected readonly frame = DISCLOSURE_FRAME;
+  protected readonly disclosureBorder = disclosureBorder;
   private readonly navigate = injectGridNav();
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly panelId = 'grid-filters-panel';

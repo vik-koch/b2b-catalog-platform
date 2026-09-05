@@ -16,7 +16,11 @@ import {
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { HighlightedLine } from '../../core/highlighted-line';
 import { SUGGEST_PANEL, SuggestList } from '../../core/suggest-list';
-import { DisclosureToggle } from '../../ui/disclosure-toggle';
+import {
+  DISCLOSURE_FRAME,
+  disclosureBorder,
+  DisclosureToggle,
+} from '../../ui/disclosure-toggle';
 import { FieldLabel } from '../../ui/field-label';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
@@ -63,8 +67,8 @@ const SUGGESTIONS_SHOWN = 8;
     <!-- The attribute picker's box: lid, count, and one border around
          everything it opens. -->
     <div
-      class="max-w-xl rounded-md border transition-colors"
-      [class]="open() ? 'border-accent' : 'border-border-strong'"
+      class="max-w-xl rounded-md border"
+      [class]="frame + ' ' + disclosureBorder(open())"
     >
       <app-disclosure-toggle
         [label]="text.heading"
@@ -181,6 +185,8 @@ const SUGGESTIONS_SHOWN = 8;
   `,
 })
 export class ProductPairingsEditor implements OnInit {
+  protected readonly frame = DISCLOSURE_FRAME;
+  protected readonly disclosureBorder = disclosureBorder;
   private readonly service = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.pairings;

@@ -2,6 +2,27 @@ import { Component, input, output } from '@angular/core';
 import { Icon } from './icons/icon';
 
 /**
+ * The edge of the box a disclosure lives in, as its four hosts draw it — the
+ * frame is theirs (each is rounded, bordered or not at a different width), the
+ * colour of it is this.
+ *
+ * The same three states the search field wears, and for the same reason: the
+ * border is the only thing either control has to say it is being used.
+ * Accent while the lid is under the pointer, secondary while it is open, and
+ * the ordinary strong edge otherwise. Hover wins over open — it answers a
+ * pointer that is on the control right now, and Tailwind orders the variant
+ * after the plain utility, so the two may be given together.
+ *
+ *   <div [class]="frame + ' ' + disclosureBorder(open())">
+ */
+export const DISCLOSURE_FRAME =
+  'transition-colors has-[app-disclosure-toggle:hover]:border-accent';
+
+export function disclosureBorder(open: boolean): string {
+  return open ? 'border-secondary' : 'border-border-strong';
+}
+
+/**
  * The button that opens a panel of controls in place — the storefront's filter
  * facets, and the admin grid's filters and sort on a narrow screen.
  *

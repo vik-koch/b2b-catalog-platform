@@ -10,7 +10,11 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { NgTemplateOutlet } from '@angular/common';
 import { Checkbox } from '../ui/checkbox';
 import { disclosureState } from '../ui/disclosure-state';
-import { DisclosureToggle } from '../ui/disclosure-toggle';
+import {
+  DISCLOSURE_FRAME,
+  disclosureBorder,
+  DisclosureToggle,
+} from '../ui/disclosure-toggle';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { ProductSortSelect } from './product-sort-select';
@@ -85,11 +89,14 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
          with it, are gone and this is simply the column. -->
     <div class="flex items-start gap-1">
       <div
-        class="min-w-0 flex-1 rounded-md border transition-colors @min-[63.75rem]/listing:rounded-none @min-[63.75rem]/listing:border-0"
+        class="min-w-0 flex-1 rounded-md border @min-[63.75rem]/listing:rounded-none @min-[63.75rem]/listing:border-0"
         [class]="
-          open()
-            ? 'border-accent'
-            : 'border-border-strong @min-[63.75rem]/listing:border-transparent'
+          frame +
+          ' ' +
+          (open()
+            ? disclosureBorder(true)
+            : disclosureBorder(false) +
+              ' @min-[63.75rem]/listing:border-transparent')
         "
       >
         <app-disclosure-toggle
@@ -182,7 +189,7 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
                                  the sake of a value that wraps, and a 1rem
                                  line box in a 1.25rem row sat visibly high. -->
                             <span
-                              class="text-xs leading-5 text-subtle tabular-nums"
+                              class="text-xs px-2 leading-5 text-subtle tabular-nums"
                             >
                               {{ value.count }}
                             </span>
@@ -258,6 +265,8 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
   `,
 })
 export class FacetPanel {
+  protected readonly frame = DISCLOSURE_FRAME;
+  protected readonly disclosureBorder = disclosureBorder;
   protected readonly selection = inject(FacetSelection);
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly text = this.catalogText.filters;
