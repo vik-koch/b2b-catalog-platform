@@ -193,11 +193,9 @@
     },
     "stock": {
       "heading": "Stock",
-      "hint": "Customers see whether a product can be had, never how much of it is left.",
+      "hint": "Leave empty to not track this product's stock — no badge is shown and nothing is restricted.",
       "pieces": "Pieces on hand",
-      "piecesHint": "Leave empty to not track this product's stock — no badge is shown and nothing is restricted.",
       "threshold": "\u201cFew left\u201d below",
-      "thresholdHint": "Leave empty to use one box, or one pack, or the shop default. Currently {pieces} pieces.",
       "preview": "Customers currently see:",
       "untracked": "Nothing — this product's stock is not tracked."
     },

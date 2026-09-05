@@ -10,6 +10,7 @@ import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { formatPiecePrice, formatPriceMinor } from '../../catalog/price';
 import { FieldLabel } from '../../ui/field-label';
 import { NumericField } from '../../ui/numeric-field';
+import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
 
 /**
  * How a product is packaged, and how many pieces its price covers.
@@ -65,7 +66,7 @@ export function parseCount(text: string): number | null {
 
 @Component({
   selector: 'app-product-packaging-editor',
-  imports: [FieldLabel, NumericField],
+  imports: [FieldLabel, NumericField, UnitField],
   template: `
     <!-- min-w-0 for the same reason as the attribute grid above: a <fieldset>
          will not shrink below its content's min-content width. -->
@@ -95,26 +96,20 @@ export function parseCount(text: string): number | null {
                   row.hint
                 }}</span>
               }
-              <span
-                class="flex items-center rounded-md border border-border-strong focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
-                [class]="row.disabled ? 'bg-stone-100' : 'bg-white'"
-              >
+              <app-unit-field [unit]="row.suffix">
                 <input
                   [id]="'packaging-narrow-' + row.key"
                   type="text"
                   [attr.inputmode]="row.inputMode"
                   [appNumericField]="row.inputMode"
-                  class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none disabled:cursor-not-allowed"
+                  [class]="unitFieldInput"
                   [value]="row.value"
                   [placeholder]="row.placeholder"
                   [disabled]="row.disabled"
                   (input)="edit(row.key, $any($event.target).value)"
                   (blur)="normalize(row.key)"
                 />
-                @if (row.suffix) {
-                  <span class="pr-2 text-xs text-subtle">{{ row.suffix }}</span>
-                }
-              </span>
+              </app-unit-field>
               @if (row.price) {
                 <span class="mt-1 block text-xs text-subtle">{{
                   row.price
@@ -190,6 +185,7 @@ export function parseCount(text: string): number | null {
   `,
 })
 export class ProductPackagingEditor {
+  protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly text = inject(ADMIN_TEXT).productEditor.packaging;
   /** Below `md` a three-column table of typed cells has no room; the glyph
    * sizes turn on the same line. */
