@@ -51,3 +51,8 @@ export const DOCUMENT_PRODUCTS_MAX = 2000;
  * a bound on the body rather than a rule about documents.
  */
 export const PRODUCT_DOCUMENTS_MAX = 100;
+
+/** Today as an ISO day, the format every document date is kept in. */
+export function isoToday(now: Date = new Date()): string {
+  return now.toISOString().slice(0, 10);
+}

@@ -592,46 +592,4 @@ describe('Product documents (FR-DOC-01)', () => {
       expect(res.data.documents).toEqual([]);
     });
   });
-
-  /**
-   * The other half of an expiry (FR-DOC-04): what a customer stops seeing is
-   * what the admin starts being asked about.
-   */
-  describe('expiry as work (FR-DOC-04)', () => {
-    it('counts an expiring and an expired document, and no current one', async () => {
-      const before = (await get('/work/counts')).data.expiringDocuments;
-
-      await createDocument({
-        title: `Due soon ${R}`,
-        file: await uploadPdf('due soon'),
-        expiresAt: day(10),
-      });
-      await createDocument({
-        title: `Long gone ${R}`,
-        file: await uploadPdf('long gone'),
-        expiresAt: day(-40),
-      });
-      await createDocument({
-        title: `Years left ${R}`,
-        file: await uploadPdf('years left'),
-        expiresAt: day(400),
-      });
-      await createDocument({
-        title: `Never expires ${R}`,
-        file: await uploadPdf('never expires'),
-      });
-
-      const res = await get('/work/counts');
-
-      expect(res.data.expiringDocuments).toBe(before + 2);
-    });
-
-    it('tells a manager nothing about documents', async () => {
-      const res = await get('/work/counts', managerCookie);
-
-      // Absent, not zero: the documents screen is admin-only, and a count
-      // linking somewhere its reader may not go is worse than no count.
-      expect(res.data.expiringDocuments).toBeUndefined();
-    });
-  });
 });

@@ -58,7 +58,10 @@ describe('ProductDocuments', () => {
 
   // Said once and pointed at, rather than repeated into every link's name.
   it('carries the new-tab hint every link is described by', async () => {
-    const el = await render([document(), document({ url: '/documents/b.pdf' })]);
+    const el = await render([
+      document(),
+      document({ url: '/documents/b.pdf' }),
+    ]);
     const hint = el.querySelector('a')?.getAttribute('aria-describedby');
 
     expect(el.querySelector(`#${hint}`)?.textContent).toContain(text.hint);
