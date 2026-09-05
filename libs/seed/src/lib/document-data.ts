@@ -12,6 +12,12 @@ export interface DocumentSeed {
   body: string[];
   issuedDaysAgo: number | null;
   expiresInDays: number | null;
+  /** Products this document is shown on, named by category rather than one by
+   * one: a certificate covers a range, which is also what makes the demo's
+   * product count worth looking at. */
+  categorySlugs?: string[];
+  /** Individual products, where the document is about exactly those. */
+  productSlugs?: string[];
 }
 
 export const documentSeeds: DocumentSeed[] = [
@@ -24,6 +30,7 @@ export const documentSeeds: DocumentSeed[] = [
     ],
     issuedDaysAgo: 60,
     expiresInDays: 300,
+    categorySlugs: ['espresso'],
   },
   {
     title: 'Organic certification',
@@ -34,6 +41,7 @@ export const documentSeeds: DocumentSeed[] = [
     ],
     issuedDaysAgo: 400,
     expiresInDays: 20,
+    categorySlugs: ['filter', 'single-origin'],
   },
   {
     title: 'Product data sheet',
@@ -44,5 +52,6 @@ export const documentSeeds: DocumentSeed[] = [
     ],
     issuedDaysAgo: null,
     expiresInDays: null,
+    productSlugs: ['takeaway-cup-300', 'takeaway-lid-flat'],
   },
 ];

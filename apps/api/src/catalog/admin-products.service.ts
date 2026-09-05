@@ -23,6 +23,7 @@ import {
   AdminProductListItem,
   AdminProductListQuery,
   HiddenProduct,
+  LinkedDocument,
   PairedProduct,
   parseAttributeNumber,
   ProductAttribute,
@@ -37,12 +38,15 @@ import * as schema from '../db/schema';
 import {
   categories,
   customerTiers,
+  documentProducts,
+  documents,
   productAttributes,
   productPairings,
   productPrices,
   products,
 } from '../db/schema';
 import { attributeFilterCondition } from './attribute-filter';
+import { documentCondition } from './document-filter';
 import { tierPriceCondition } from './tier-price-filter';
 import { categoryBySlug, descendantIds } from './catalog-tree';
 import {
@@ -199,6 +203,9 @@ export class AdminProductsService {
       // Where the tier list's price count leads: the products this tier has a
       // price of its own for.
       tierPriceCondition(this.db, query.tierId),
+      // Where the document list's product count leads: the products showing
+      // one certificate, declaration or data sheet.
+      documentCondition(this.db, query.documentId),
       adminSearchCondition(query.q) ?? undefined,
     );
     // Only rank when the box holds something the name matcher could score; a
@@ -266,6 +273,7 @@ export class AdminProductsService {
       await this.tierPricesFor(row.id),
       await this.attributesFor(row.id),
       await this.pairingsFor(row.id),
+      await this.documentsFor(row.id),
     );
   }
 
@@ -289,6 +297,7 @@ export class AdminProductsService {
 
     await this.ensureTiersExist(input.tierPrices);
     const paired = await this.pairedProducts(input.pairedSlugs);
+    const linked = await this.linkedDocuments(input.documentIds);
 
     // One transaction, because a product and its tier prices are one edit: a
     // half-applied save would leave a price on the wrong product's row set.
@@ -320,11 +329,13 @@ export class AdminProductsService {
         row[0].id,
         paired.map((p) => p.id),
       );
+      await this.replaceDocumentLinks(tx, row[0].id, linked);
       return toAdminProduct(
         row[0],
         input.tierPrices,
         attributes,
         namedPairings(paired),
+        linked,
       );
     });
   }
@@ -353,6 +364,7 @@ export class AdminProductsService {
 
     await this.ensureTiersExist(input.tierPrices);
     const paired = await this.pairedProducts(input.pairedSlugs, existing.id);
+    const linked = await this.linkedDocuments(input.documentIds);
 
     return this.db.transaction(async (tx) => {
       const row = await runUnique(() =>
@@ -384,11 +396,13 @@ export class AdminProductsService {
         existing.id,
         paired.map((p) => p.id),
       );
+      await this.replaceDocumentLinks(tx, existing.id, linked);
       return toAdminProduct(
         row[0],
         input.tierPrices,
         attributes,
         namedPairings(paired),
+        linked,
       );
     });
   }
@@ -420,6 +434,7 @@ export class AdminProductsService {
       await this.tierPricesFor(rows[0].id),
       await this.attributesFor(rows[0].id),
       await this.pairingsFor(rows[0].id),
+      await this.documentsFor(rows[0].id),
     );
   }
 
@@ -440,6 +455,7 @@ export class AdminProductsService {
       await this.tierPricesFor(rows[0].id),
       await this.attributesFor(rows[0].id),
       await this.pairingsFor(rows[0].id),
+      await this.documentsFor(rows[0].id),
     );
   }
 
@@ -472,6 +488,7 @@ export class AdminProductsService {
       await this.tierPricesFor(rows[0].id),
       await this.attributesFor(rows[0].id),
       await this.pairingsFor(rows[0].id),
+      await this.documentsFor(rows[0].id),
     );
   }
 
@@ -738,6 +755,80 @@ export class AdminProductsService {
   }
 
   /**
+   * The documents shown on one product (FR-DOC-02), soonest expiry first — the
+   * order the document list uses, so the two screens agree about which one is
+   * about to run out.
+   */
+  private async documentsFor(productId: string): Promise<LinkedDocument[]> {
+    const rows = await this.db
+      .select({
+        id: documents.id,
+        title: documents.title,
+        expiresAt: documents.expiresAt,
+      })
+      .from(documentProducts)
+      .innerJoin(documents, eq(documents.id, documentProducts.documentId))
+      .where(eq(documentProducts.productId, productId))
+      .orderBy(asc(documents.expiresAt), asc(documents.title));
+    return rows;
+  }
+
+  /**
+   * The documents a save named, resolved before the transaction opens so an
+   * unknown id is a 404 rather than a foreign-key error — and returned named,
+   * because the answer this save writes carries them back.
+   */
+  private async linkedDocuments(ids: string[]): Promise<LinkedDocument[]> {
+    if (ids.length === 0) return [];
+    const rows = await this.db
+      .select({
+        id: documents.id,
+        title: documents.title,
+        expiresAt: documents.expiresAt,
+      })
+      .from(documents)
+      .where(inArray(documents.id, ids))
+      .orderBy(asc(documents.expiresAt), asc(documents.title));
+    if (rows.length !== new Set(ids).size) {
+      throw new NotFoundException({
+        code: 'document-not-found',
+        message: 'Document not found',
+      });
+    }
+    return rows;
+  }
+
+  /**
+   * The single write path for this product's document links — the posted list
+   * is the whole truth *from this product's side*. Removing a document here
+   * removes it from this product only; every other product it is shown on
+   * keeps it, because a link names one pair.
+   */
+  private async replaceDocumentLinks(
+    tx: NodePgDatabase<typeof schema>,
+    productId: string,
+    linked: LinkedDocument[],
+  ): Promise<void> {
+    const documentIds = linked.map((d) => d.id);
+    await tx
+      .delete(documentProducts)
+      .where(
+        and(
+          eq(documentProducts.productId, productId),
+          documentIds.length > 0
+            ? notInArray(documentProducts.documentId, documentIds)
+            : undefined,
+        ),
+      );
+    if (documentIds.length === 0) return;
+
+    await tx
+      .insert(documentProducts)
+      .values(documentIds.map((documentId) => ({ documentId, productId })))
+      .onConflictDoNothing();
+  }
+
+  /**
    * The single write path for pairings, and the same rule as tier prices: the
    * posted list is the whole truth, from this product's side. Removing a
    * counterpart here removes the pairing from that product too — there is one
@@ -837,6 +928,7 @@ function toAdminProduct(
   tierPrices: ProductTierPrice[],
   attributes: ProductAttribute[],
   pairings: PairedProduct[],
+  documents: LinkedDocument[],
 ): AdminProduct {
   return {
     slug: row.slug,
@@ -849,6 +941,7 @@ function toAdminProduct(
     images: row.images,
     tierPrices,
     pairings,
+    documents,
     deletedAt: row.deletedAt?.toISOString() ?? null,
     publishedAt: row.publishedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),

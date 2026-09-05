@@ -80,6 +80,7 @@ export const adminTextSchema = z
             'source-id-taken': z.string(),
             'tier-not-found': z.string(),
             'paired-product-not-found': z.string(),
+            'document-not-found': z.string(),
             'pairing-self': z.string(),
             'slug-or-source-id-taken': z.string(),
           })
@@ -298,6 +299,28 @@ export const adminTextSchema = z
             promptPlaceholder: z.string(),
           })
           .strict(),
+        /**
+         * The documents shown on this product (FR-DOC-02) — the pairings
+         * editor's wording, because it is the same control: a short list
+         * attached to this record, added one at a time and taken off here.
+         */
+        documents: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            add: z.string(),
+            addPlaceholder: z.string(),
+            /** `{name}` substituted — the document being taken off. */
+            remove: z.string(),
+            /** Per row. `{date}` substituted; `noExpiry` where there is none. */
+            expires: z.string(),
+            noExpiry: z.string(),
+            suggestionsLabel: z.string(),
+            noSuggestions: z.string(),
+            /** Announced to a screen reader. `{count}` substituted. */
+            suggestionCount: z.string(),
+          })
+          .strict(),
         /** The products this one is sold together with (FR-SET-01). */
         pairings: z
           .object({
@@ -392,6 +415,9 @@ export const adminTextSchema = z
          * attribute one is: no column of the grid says it. */
         filterTier: z.string(),
         clearTier: z.string(),
+        /** The document list's drill-down, a chip for the same reason. */
+        filterDocument: z.string(),
+        clearDocument: z.string(),
         stateAll: z.string(),
         /** The column's own noun, for the phone's sort picker — where "All
          * states" would read as an ordering rather than a column. */
@@ -848,6 +874,13 @@ export const adminTextSchema = z
         edit: z.string(),
         open: z.string(),
         delete: z.string(),
+        /** The link into the product grid narrowed to this document's
+         * products, and the same control dead: nothing shows it yet.
+         * `{count}` substituted. */
+        productsColumn: z.string(),
+        products: z.string(),
+        seeProducts: z.string(),
+        noProducts: z.string(),
         empty: z.string(),
         /** Shown instead of `empty` when the search emptied the list. */
         noResults: z.string(),
@@ -883,13 +916,43 @@ export const adminTextSchema = z
         issuedAt: z.string(),
         expiresAt: z.string(),
         datesHint: z.string(),
+        /**
+         * The product picker (FR-DOC-02) — a catalog to tick through, so its
+         * wording is about narrowing and about the shift-click nobody
+         * discovers on their own.
+         */
+        products: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            search: z.string(),
+            searchPlaceholder: z.string(),
+            category: z.string(),
+            allCategories: z.string(),
+            /** The two views of one list. `{count}` substituted on `showLinked`. */
+            showAll: z.string(),
+            showLinked: z.string(),
+            /** What the capped page is not showing. `{count}`/`{total}`. */
+            more: z.string(),
+            empty: z.string(),
+            noneLinked: z.string(),
+            deleted: z.string(),
+            unpublished: z.string(),
+            loadError: z.string(),
+          })
+          .strict(),
         titleRequired: z.string(),
         fileRequired: z.string(),
         expiryBeforeIssue: z.string(),
         saveError: z.string(),
         discardConfirm: z.string(),
         notFound: z.string(),
-        errors: z.object({ 'document-not-found': z.string() }).strict(),
+        errors: z
+          .object({
+            'document-not-found': z.string(),
+            'document-product-not-found': z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**

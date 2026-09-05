@@ -7,7 +7,8 @@ import sharp from 'sharp';
 import { requireEnv } from '../support/env';
 
 /**
- * Product documents (FR-DOC-01) — the upload pipeline and the row's CRUD.
+ * Product documents (FR-DOC-01/02) — the upload pipeline, the row's CRUD and
+ * the links to the products a document is shown on.
  *
  * Against the real store and database on purpose: the one thing this feature
  * promises is that a certificate comes back byte-identical, which is only
@@ -18,6 +19,9 @@ import { requireEnv } from '../support/env';
 const DOCUMENT_DIR = join(__dirname, '../../../..', '.media', 'documents');
 const storedBytes = (url: string): Promise<Buffer> =>
   readFile(join(DOCUMENT_DIR, basename(url)));
+
+// Per-run suffix, so leftovers from a crashed run cannot collide.
+const R = Date.now().toString(36);
 
 const ADMIN_EMAIL = 'e2e-documents-admin@example.com';
 const MANAGER_EMAIL = 'e2e-documents-manager@example.com';
@@ -49,7 +53,9 @@ describe('Product documents (FR-DOC-01)', () => {
   let client: Client;
   let adminCookie = '';
   let managerCookie = '';
+  let categoryId = '';
   const createdIds: string[] = [];
+  const createdProductSlugs: string[] = [];
 
   const upload = (data: FormData | undefined, cookie = adminCookie) =>
     axios.post('/media/document', data, {
@@ -90,6 +96,46 @@ describe('Product documents (FR-DOC-01)', () => {
     return res;
   }
 
+  /**
+   * The fields a product update has to send back unchanged. The editor sends
+   * the whole record; a test that only wants to change the documents still has
+   * to, so this narrows a read to what the write shape accepts.
+   */
+  function productBody(product: Record<string, unknown>) {
+    return {
+      name: product.name,
+      priceMinor: product.priceMinor,
+      categoryId: product.categoryId,
+      descriptionHtml: product.descriptionHtml,
+      attributes: product.attributes,
+      images: product.images,
+      tierPrices: product.tierPrices,
+      priceBasisPieces: product.priceBasisPieces,
+      piecesPerPack: product.piecesPerPack,
+      packsPerBox: product.packsPerBox,
+      minPieceQty: product.minPieceQty,
+      boxVolume: product.boxVolume,
+      boxWeight: product.boxWeight,
+      boxCount: product.boxCount,
+      lineNoteEnabled: product.lineNoteEnabled,
+      lineNotePrompt: product.lineNotePrompt,
+      stockPieces: product.stockPieces,
+      lowStockThresholdPieces: product.lowStockThresholdPieces,
+    };
+  }
+
+  /** A product to hang a document on, tracked for cleanup. */
+  async function createProduct(name: string): Promise<string> {
+    const res = await post('/admin/catalog/products', {
+      name: `${name} ${R}`,
+      priceMinor: 1234,
+      categoryId,
+    });
+    expect(res.status).toBe(201);
+    createdProductSlugs.push(res.data.slug);
+    return res.data.slug;
+  }
+
   beforeAll(async () => {
     client = new Client({ connectionString: requireEnv('DATABASE_URL') });
     await client.connect();
@@ -107,9 +153,18 @@ describe('Product documents (FR-DOC-01)', () => {
     }
     adminCookie = await loginAs(ADMIN_EMAIL);
     managerCookie = await loginAs(MANAGER_EMAIL);
+
+    const { rows } = await client.query<{ id: string }>(
+      'SELECT id FROM categories WHERE slug = $1',
+      ['cleaning'],
+    );
+    categoryId = rows[0].id;
   });
 
   afterAll(async () => {
+    for (const slug of createdProductSlugs) {
+      await client.query('DELETE FROM products WHERE slug = $1', [slug]);
+    }
     if (createdIds.length) {
       await client.query('DELETE FROM documents WHERE id = ANY($1)', [
         createdIds,
@@ -278,6 +333,184 @@ describe('Product documents (FR-DOC-01)', () => {
     it('is admin-only throughout', async () => {
       expect((await get('/admin/documents', '')).status).toBe(401);
       expect((await get('/admin/documents', managerCookie)).status).toBe(403);
+    });
+  });
+
+  describe('product links (FR-DOC-02)', () => {
+    it('links products on create and counts them on the list row', async () => {
+      const one = await createProduct('Linked One');
+      const other = await createProduct('Linked Two');
+
+      const created = await createDocument({
+        title: `Linked certificate ${R}`,
+        file: await uploadPdf('linked'),
+        productSlugs: [one, other],
+      });
+
+      expect(created.status).toBe(201);
+      expect(created.data.productCount).toBe(2);
+      expect(
+        created.data.products.map((p: { slug: string }) => p.slug).sort(),
+      ).toEqual([one, other].sort());
+
+      const list = await get('/admin/documents');
+      const row = list.data.documents.find(
+        (d: { id: string }) => d.id === created.data.id,
+      );
+      expect(row.productCount).toBe(2);
+      // The list stays light: the products themselves are the detail's.
+      expect(row.products).toBeUndefined();
+    });
+
+    it('replaces the whole set on save, in both directions', async () => {
+      const one = await createProduct('Replaced One');
+      const other = await createProduct('Replaced Two');
+      const created = await createDocument({
+        title: `Replaced certificate ${R}`,
+        file: await uploadPdf('replaced'),
+        productSlugs: [one],
+      });
+
+      const updated = await put(`/admin/documents/${created.data.id}`, {
+        title: `Replaced certificate ${R}`,
+        file: created.data.file,
+        productSlugs: [other],
+      });
+
+      expect(updated.status).toBe(200);
+      expect(
+        updated.data.products.map((p: { slug: string }) => p.slug),
+      ).toEqual([other]);
+
+      const cleared = await put(`/admin/documents/${created.data.id}`, {
+        title: `Replaced certificate ${R}`,
+        file: created.data.file,
+        productSlugs: [],
+      });
+      expect(cleared.data.products).toEqual([]);
+      expect(cleared.data.productCount).toBe(0);
+    });
+
+    it('answers an unknown product slug with its own code', async () => {
+      const res = await createDocument({
+        title: `Unknown product ${R}`,
+        file: await uploadPdf('unknown product'),
+        productSlugs: ['no-such-product-at-all'],
+      });
+
+      expect(res.status).toBe(404);
+      expect(res.data.code).toBe('document-product-not-found');
+    });
+
+    it("carries a product's documents in the product's own payload", async () => {
+      const slug = await createProduct('Documented');
+      const mine = await createDocument({
+        title: `Product-scoped ${R}`,
+        file: await uploadPdf('product scoped'),
+        productSlugs: [slug],
+      });
+      await createDocument({
+        title: `Unrelated ${R}`,
+        file: await uploadPdf('unrelated'),
+      });
+
+      const res = await get(`/admin/catalog/products/${slug}`);
+
+      expect(res.status).toBe(200);
+      expect(res.data.documents).toEqual([
+        { id: mine.data.id, title: `Product-scoped ${R}`, expiresAt: null },
+      ]);
+    });
+
+    it('edits the links from the product side too, without touching the others', async () => {
+      const mine = await createProduct('Product side');
+      const other = await createProduct('Left alone');
+      const document = await createDocument({
+        title: `Two-sided ${R}`,
+        file: await uploadPdf('two sided'),
+        productSlugs: [mine, other],
+      });
+
+      // The product save sends the whole set *from its side* — here, none.
+      const product = await get(`/admin/catalog/products/${mine}`);
+      const saved = await put(`/admin/catalog/products/${mine}`, {
+        ...productBody(product.data),
+        documentIds: [],
+      });
+
+      expect(saved.status).toBe(200);
+      expect(saved.data.documents).toEqual([]);
+
+      // The document keeps the other product: a link names one pair.
+      const read = await get(`/admin/documents/${document.data.id}`);
+      expect(read.data.products.map((p: { slug: string }) => p.slug)).toEqual([
+        other,
+      ]);
+    });
+
+    it('answers an unknown document id on a product save with its own code', async () => {
+      const slug = await createProduct('Bad document');
+      const product = await get(`/admin/catalog/products/${slug}`);
+
+      const res = await put(`/admin/catalog/products/${slug}`, {
+        ...productBody(product.data),
+        documentIds: ['00000000-0000-4000-8000-000000000000'],
+      });
+
+      expect(res.status).toBe(404);
+      expect(res.data.code).toBe('document-not-found');
+    });
+
+    it("narrows the product grid to one document's products", async () => {
+      const one = await createProduct('Filtered One');
+      const other = await createProduct('Filtered Two');
+      const created = await createDocument({
+        title: `Filtering certificate ${R}`,
+        file: await uploadPdf('filtering'),
+        productSlugs: [one],
+      });
+
+      const res = await get(
+        `/admin/catalog/products?documentId=${created.data.id}`,
+      );
+
+      expect(res.status).toBe(200);
+      const slugs = res.data.items.map((i: { slug: string }) => i.slug);
+      expect(slugs).toContain(one);
+      expect(slugs).not.toContain(other);
+    });
+
+    it('keeps a link through a soft delete, marked rather than dropped', async () => {
+      const slug = await createProduct('Soft deleted');
+      const created = await createDocument({
+        title: `Survives deletion ${R}`,
+        file: await uploadPdf('survives'),
+        productSlugs: [slug],
+      });
+
+      expect((await del(`/admin/catalog/products/${slug}`)).status).toBe(200);
+
+      const read = await get(`/admin/documents/${created.data.id}`);
+      expect(read.data.products).toEqual([
+        expect.objectContaining({ slug, deleted: true }),
+      ]);
+    });
+
+    it('takes its links with it when the document is deleted', async () => {
+      const slug = await createProduct('Cascade');
+      const created = await createDocument({
+        title: `Cascading ${R}`,
+        file: await uploadPdf('cascading'),
+        productSlugs: [slug],
+      });
+
+      await del(`/admin/documents/${created.data.id}`);
+
+      const { rows } = await client.query(
+        'SELECT 1 FROM document_products WHERE "documentId" = $1',
+        [created.data.id],
+      );
+      expect(rows).toEqual([]);
     });
   });
 });

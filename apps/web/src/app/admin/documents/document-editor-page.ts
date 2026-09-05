@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
   DocumentInput,
+  DocumentProduct,
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -17,13 +18,14 @@ import { Skeleton } from '../../ui/skeleton';
 import { injectEditorReturn } from '../editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { documentFileLabel, documentFileSize } from './document-file';
+import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 
 /**
- * Add or edit a document (FR-DOC-01) at `/admin/documents/new` and
+ * Add or edit a document (FR-DOC-01/02) at `/admin/documents/new` and
  * `/admin/documents/:id/edit`. One screen for both, and one save: the file, the
- * title and the dates are one record, and a two-step upload would only leave
- * half a row behind when somebody walked away.
+ * title, the dates and the products it is shown on are one record, and a
+ * two-step upload would only leave half a row behind when somebody walked away.
  *
  * Replacing the file is this same form — which is the whole of how a re-issued
  * document supersedes the one before it. The row keeps its identity, so
@@ -34,7 +36,15 @@ import { DocumentsService } from './documents.service';
  */
 @Component({
   selector: 'app-document-editor-page',
-  imports: [Button, IconButton, AdminIcon, FieldLabel, Input, Skeleton],
+  imports: [
+    Button,
+    IconButton,
+    AdminIcon,
+    DocumentProductsPicker,
+    FieldLabel,
+    Input,
+    Skeleton,
+  ],
   template: `
     <h1 class="mb-6 text-3xl font-medium tracking-tight">
       {{ isNew ? text.newTitle : text.editTitle }}
@@ -162,6 +172,13 @@ import { DocumentsService } from './documents.service';
           </label>
         </div>
         <p class="text-xs text-subtle">{{ text.datesHint }}</p>
+
+        <!-- Where the links are made (FR-DOC-02). The product's own form only
+             lists them, so this is the one screen that writes them. -->
+        <app-document-products-picker
+          [value]="products()"
+          (valueChange)="products.set($event)"
+        />
       </div>
 
       @if (error()) {
@@ -213,6 +230,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
 
   protected readonly title = signal('');
   protected readonly file = signal<StoredDocumentFile | null>(null);
+  protected readonly products = signal<DocumentProduct[]>([]);
   protected readonly issuedAt = signal('');
   protected readonly expiresAt = signal('');
 
@@ -250,6 +268,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
     if (document) {
       this.title.set(document.title);
       this.file.set(document.file);
+      this.products.set(document.products);
       this.issuedAt.set(document.issuedAt ?? '');
       this.expiresAt.set(document.expiresAt ?? '');
       this.original = this.snapshot();
@@ -264,6 +283,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
       file: this.file(),
       issuedAt: this.issuedAt(),
       expiresAt: this.expiresAt(),
+      products: this.products().map((p) => p.slug),
     });
   }
 
@@ -313,6 +333,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
       file: stored,
       issuedAt,
       expiresAt,
+      productSlugs: this.products().map((p) => p.slug),
     };
 
     this.saving.set(true);

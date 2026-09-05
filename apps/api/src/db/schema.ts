@@ -1016,3 +1016,34 @@ export const documents = pgTable(
   },
   (t) => [index('documents_expiresAt_idx').on(t.expiresAt)],
 );
+
+/**
+ * Which products a document is shown on (FR-DOC-02). A plain join table: one
+ * document is carried by many products and a product carries many documents,
+ * and the link itself holds nothing — it is made from the document's side and
+ * read from both.
+ *
+ * Both sides cascade. A deleted document takes its links with it; a product
+ * row is only ever *soft*-deleted, so its links survive a delete and come back
+ * with it, which is what makes the delete reversible.
+ */
+export const documentProducts = pgTable(
+  'document_products',
+  {
+    documentId: uuid('documentId')
+      .notNull()
+      .references(() => documents.id, { onDelete: 'cascade' }),
+    productId: uuid('productId')
+      .notNull()
+      .references(() => products.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.documentId, t.productId] }),
+    // The PK answers "this document's products"; the product page and the grid
+    // filter ask the other way round.
+    index('document_products_productId_idx').on(t.productId),
+  ],
+);

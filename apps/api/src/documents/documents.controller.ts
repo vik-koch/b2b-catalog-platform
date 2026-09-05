@@ -49,9 +49,10 @@ export class DocumentsController {
   }
 
   /**
-   * One save covers the file as well as the fields, so a replaced file is
-   * `document.updated` like any other edit — what changed is answerable from
-   * the row's `fileUrl`, which is a content hash of the bytes now shown.
+   * One save covers the file and the product links as well as the fields, so a
+   * replaced file is `document.updated` like any other edit — what changed is
+   * answerable from the row's `fileUrl`, which is a content hash of the bytes
+   * now shown, and from the count of products the answer carries.
    */
   @Implement(documentsContract.updateDocument)
   updateDocument(@CurrentUser() user: AuthUser) {

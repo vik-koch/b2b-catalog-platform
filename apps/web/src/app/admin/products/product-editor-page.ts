@@ -15,6 +15,7 @@ import {
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   ProductAvailability,
   productAvailability,
+  LinkedDocument,
   PairedProduct,
   ProductDetail,
   ProductInput,
@@ -52,6 +53,7 @@ import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { ProductImageGallery } from './product-image-gallery';
+import { ProductDocumentsEditor } from '../documents/product-documents-editor';
 import { ProductPairingsEditor } from './product-pairings-editor';
 import {
   emptyPackaging,
@@ -82,6 +84,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
     CategoryPicker,
     ProductAttributesEditor,
     ProductPackagingEditor,
+    ProductDocumentsEditor,
     ProductPairingsEditor,
     ProductTierPricesEditor,
     ProductImageGallery,
@@ -341,6 +344,11 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
           (valueChange)="pairings.set($event)"
         />
 
+        <app-product-documents-editor
+          [value]="documents()"
+          (valueChange)="documents.set($event)"
+        />
+
         <div>
           <app-product-image-gallery
             [value]="images()"
@@ -474,6 +482,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly images = signal<CatalogImage[]>([]);
   protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
   protected readonly pairings = signal<PairedProduct[]>([]);
+  protected readonly documents = signal<LinkedDocument[]>([]);
   protected readonly lineNoteEnabled = signal(false);
   protected readonly lineNotePrompt = signal('');
   /** Kept as strings like the packaging drafts, so a half-typed or
@@ -699,6 +708,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.images.set(product.images);
       this.published.set(product.publishedAt !== null);
       this.pairings.set(product.pairings);
+      this.documents.set(product.documents);
       this.lineNoteEnabled.set(product.lineNoteEnabled);
       this.lineNotePrompt.set(product.lineNotePrompt ?? '');
       this.stockPieces.set(product.stockPieces?.toString() ?? '');
@@ -763,6 +773,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       images: this.images(),
       tierPrices: this.tierPrices(),
       pairings: this.pairings(),
+      documents: this.documents(),
       packaging: this.packaging(),
       lineNoteEnabled: this.lineNoteEnabled(),
       lineNotePrompt: this.lineNotePrompt(),
@@ -898,6 +909,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // The whole set, from this product's side: a counterpart removed here is
       // removed from that product too, because one pairing is one row.
       pairedSlugs: this.pairings().map((p) => p.slug),
+      // The whole set from this product's side too, and only this side: the
+      // document keeps every other product it is shown on (FR-DOC-02).
+      documentIds: this.documents().map((d) => d.id),
       lineNoteEnabled: this.lineNoteEnabled(),
       // A prompt is only meaningful with the note on; the server refuses the
       // pair the other way round.

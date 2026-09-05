@@ -4,6 +4,7 @@ import { commonAuthErrors } from './api-error';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
   DOCUMENT_FILE_NAME_MAX_LENGTH,
+  DOCUMENT_PRODUCTS_MAX,
   DOCUMENT_TITLE_MAX_LENGTH,
 } from './document-constants';
 
@@ -13,8 +14,10 @@ import {
  * A document is a file staff already have — a certificate, a declaration, a
  * data sheet — with a title to find it by and the dates that say whether it is
  * still current. It is its own record rather than a field on a product because
- * one file is shown by many products; the links themselves are not part of
- * this slice.
+ * one file is shown by many products. The links are edited from both sides —
+ * here in bulk, a certificate onto thirty products at once, and one at a time
+ * from a product's own form (FR-DOC-02) — because they are one table read from
+ * two directions, exactly like product pairings.
  */
 
 export type AcceptedDocumentMime =
@@ -54,6 +57,22 @@ export const documentInputSchema = z
     file: storedDocumentFileSchema,
     issuedAt: z.iso.date().nullable().default(null),
     expiresAt: z.iso.date().nullable().default(null),
+    /**
+     * The products this document is shown on, by slug — the handle the admin
+     * API addresses a product by everywhere else.
+     *
+     * The whole set, like a product's tier prices: what is sent replaces what
+     * is stored. An unknown slug is a 404 naming the product rather than a
+     * foreign-key error.
+     */
+    productSlugs: z
+      .array(z.string())
+      .max(DOCUMENT_PRODUCTS_MAX)
+      .refine(
+        (slugs) => new Set(slugs).size === slugs.length,
+        'A product can only be linked once',
+      )
+      .default([]),
   })
   .strict()
   .refine(
@@ -63,7 +82,37 @@ export const documentInputSchema = z
   );
 export type DocumentInput = z.infer<typeof documentInputSchema>;
 
-/** A document as the admin list and editor see it. */
+/**
+ * A product a document is shown on, as the editor lists it. The two markers
+ * are the pairings editor's, for the same reason: a link outlives a soft
+ * delete and an unpublished product is usually one still being prepared, so
+ * both are listed marked rather than quietly dropped.
+ */
+export const documentProductSchema = z
+  .object({
+    slug: z.string(),
+    name: z.string(),
+    deleted: z.boolean(),
+    unpublished: z.boolean(),
+  })
+  .strict();
+export type DocumentProduct = z.infer<typeof documentProductSchema>;
+
+/**
+ * A document as a product carries it: what to call it, when it runs out, and
+ * the id its own editor is reached by. Deliberately small — the product form
+ * lists documents, it does not show them.
+ */
+export const linkedDocumentSchema = z
+  .object({
+    id: z.uuid(),
+    title: z.string(),
+    expiresAt: z.iso.date().nullable(),
+  })
+  .strict();
+export type LinkedDocument = z.infer<typeof linkedDocumentSchema>;
+
+/** A document as the admin list sees it. */
 export const productDocumentSchema = z
   .object({
     id: z.uuid(),
@@ -71,21 +120,39 @@ export const productDocumentSchema = z
     file: storedDocumentFileSchema,
     issuedAt: z.iso.date().nullable(),
     expiresAt: z.iso.date().nullable(),
+    /** How many products show this document — the list's link into the
+     * product grid, narrowed to exactly those rows. */
+    productCount: z.number().int().nonnegative(),
     updatedAt: z.iso.datetime(),
   })
   .strict();
 export type ProductDocument = z.infer<typeof productDocumentSchema>;
 
 /**
+ * One document with the products it is linked to. The list deliberately does
+ * not carry them — a few dozen documents naming a few hundred products between
+ * them is a payload nobody on that screen reads.
+ */
+export const documentDetailSchema = productDocumentSchema
+  .extend({ products: z.array(documentProductSchema) })
+  .strict();
+export type DocumentDetail = z.infer<typeof documentDetailSchema>;
+
+/**
  * The one refusal this surface has. There is no delete guard: a document holds
  * no data anything else depends on, and deleting it is how an admin clears a
  * row that should never have been uploaded.
  */
-export const DOCUMENT_ERROR_CODES = ['document-not-found'] as const;
+export const DOCUMENT_ERROR_CODES = [
+  'document-not-found',
+  'document-product-not-found',
+] as const;
 export type DocumentErrorCode = (typeof DOCUMENT_ERROR_CODES)[number];
 
 const documentErrors = {
   'document-not-found': { status: 404 },
+  /** A slug in `productSlugs` names no product. */
+  'document-product-not-found': { status: 404 },
 } as const satisfies Record<DocumentErrorCode, { status: number }>;
 
 /** Every route here is admin-only, like the rest of the catalog write surface. */
@@ -107,9 +174,9 @@ export const documentsContract = {
       inputStructure: 'detailed',
       summary: 'Read one document (admin)',
     })
-    .errors(documentErrors)
+    .errors({ 'document-not-found': documentErrors['document-not-found'] })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
-    .output(productDocumentSchema),
+    .output(documentDetailSchema),
 
   createDocument: admin
     .route({
@@ -119,8 +186,12 @@ export const documentsContract = {
       inputStructure: 'detailed',
       summary: 'Create a document from an uploaded file (admin)',
     })
+    .errors({
+      'document-product-not-found':
+        documentErrors['document-product-not-found'],
+    })
     .input(z.object({ body: documentInputSchema }))
-    .output(productDocumentSchema),
+    .output(documentDetailSchema),
 
   updateDocument: admin
     .route({
@@ -136,7 +207,7 @@ export const documentsContract = {
         body: documentInputSchema,
       }),
     )
-    .output(productDocumentSchema),
+    .output(documentDetailSchema),
 
   deleteDocument: admin
     .route({
@@ -145,7 +216,7 @@ export const documentsContract = {
       inputStructure: 'detailed',
       summary: 'Delete a document (admin)',
     })
-    .errors(documentErrors)
+    .errors({ 'document-not-found': documentErrors['document-not-found'] })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(z.object({ message: z.string() })),
 };
