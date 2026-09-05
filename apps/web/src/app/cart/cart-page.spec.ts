@@ -55,6 +55,7 @@ function preview(
     lineNoteEnabled: false,
     lineNotePrompt: null,
     pairedCount: 0,
+    pairingShortPieces: null,
     availability: null,
     prices: {
       pieceMilliMinor: 1_166_667,
@@ -480,6 +481,50 @@ describe('CartPage', () => {
     const alone = await render({ lines: [addition()] });
     expect(alone.el.querySelector('app-product-pairings')).toBeNull();
   });
+
+  // FR-SET-03: the amount, then the way to answer it. The check is over the
+  // whole cart, so the figure comes from the priced answer rather than from
+  // anything the browser could work out for one line.
+  it('says how short a line is, beside the way to cover it', async () => {
+    const view = await render({
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: 20 }]),
+    });
+
+    expect(view.el.textContent).toContain(
+      text.pairing.short
+        .replace('{count}', '20')
+        .replace('{unit}', defaultAppText.catalog.units.piece),
+    );
+    expect(view.el.querySelector('app-product-pairings')).not.toBeNull();
+  });
+
+  it('says nothing about a line that is covered', async () => {
+    const view = await render({
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: null }]),
+    });
+
+    expect(view.el.textContent).not.toContain('what this is sold with');
+  });
+
+  // FR-SET-04: advisory by default. The card says it, over the button it bears
+  // on, and the button still works.
+  it('advises over the checkout button without blocking it', async () => {
+    const view = await render({
+      lines: [addition({ pairedCount: 1 })],
+      answer: preview([{ pairedCount: 1, pairingShortPieces: 20 }]),
+    });
+
+    expect(view.el.textContent).toContain(
+      text.pairing.summary.replace('{count}', '1'),
+    );
+    const checkout = [...view.el.querySelectorAll('a')].find((link) =>
+      link.textContent?.includes(text.checkout),
+    );
+    expect(checkout?.getAttribute('href')).toBe('/checkout');
+  });
+
 
   // The row's own controls do not also carry the glyph: two ways to open one
   // panel, side by side, is one too many.

@@ -81,6 +81,17 @@ interface CartRow {
   /** How many products this line's product is sold together with (FR-SET-05);
    * zero is no link. */
   pairedCount: number;
+  /**
+   * How many pieces of cover this line is missing (FR-SET-02/03), or null
+   * where it is satisfied.
+   *
+   * From the priced answer rather than the browser's own copy, unlike
+   * everything else the row draws: the check is over the whole cart at once and
+   * a line cannot answer it alone. So it says nothing until a preview has, and
+   * it follows an edit a beat behind — which is the right way round for an
+   * advisory, since a stale one is worse than a late one.
+   */
+  pairingShortPieces: number | null;
   issues: string[];
   /** The advisories that are feedback rather than a state: they go in the
    * bubble under the stepper they are about, not in the list below the name. */
@@ -260,7 +271,11 @@ interface CartRow {
                       <p class="mt-1 text-sm text-amber-700">{{ issue }}</p>
                     }
 
-                    @if (row.takesNote || row.pairedCount > 0) {
+                    @if (
+                      row.takesNote ||
+                      row.pairedCount > 0 ||
+                      row.pairingShortPieces
+                    ) {
                       <!-- Under the name, in the name's own column: both of
                          these are about this product, and a field the width of
                          the whole line read as being about the cart.
@@ -282,6 +297,15 @@ interface CartRow {
                         <!-- Above the note, because it is something the shop
                            says about the product and the note is something the
                            customer writes about the line. -->
+                        <!-- What this line is short of, and then the way to
+                           answer it: the sentence names the amount and the
+                           link opens the products that would cover it, which
+                           is the whole of FR-SET-03 in two lines. -->
+                        @if (row.pairingShortPieces; as short) {
+                          <p class="text-sm text-amber-700">
+                            {{ shortMessage(short) }}
+                          </p>
+                        }
                         @if (row.pairedCount > 0) {
                           <app-product-pairings
                             variant="link"
@@ -402,6 +426,14 @@ interface CartRow {
               [loading]="showSkeleton()"
             />
 
+            <!-- Directly over the button it bears on (FR-SET-03/04), where
+                 the incomplete-total line already stands: a customer scrolling
+                 a long cart to check out reads this card, and an advisory
+                 further up the page is one they scrolled past. -->
+            @if (pairingSummary(); as summary) {
+              <p class="mt-3 text-sm text-amber-700">{{ summary }}</p>
+            }
+
             <!-- Inside the summary card, under the figure they act on: the
                  total is what somebody decides to check out against. Full
                  width, because in the narrow shape this card is the page. -->
@@ -443,6 +475,9 @@ export class CartPage {
    * does, so it says it the way the listing does. */
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly rowList = PRODUCT_ROWS;
+  protected readonly pairingText = this.text.pairing;
+  /** The piece abbreviation, for the sentence that names a shortfall. */
+  private readonly pieceUnit = inject(APP_TEXT).catalog.units.piece;
 
   /**
    * Where "continue shopping" goes. A parsed tree rather than the string:
@@ -537,6 +572,7 @@ export class CartPage {
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
         pairedCount: line.pairedCount,
+        pairingShortPieces: fresh?.pairingShortPieces ?? null,
         // Before an answer arrives, the one thing the browser wrote down about
         // the line's state — so a withdrawn line says why it is priceless
         // rather than showing "on request" with nothing to explain it.
@@ -551,6 +587,35 @@ export class CartPage {
       };
     }),
   );
+
+  /**
+   * The lines that are short of what they are sold with (FR-SET-03). Counted
+   * from the rows rather than kept separately: they are the same figures the
+   * lines are already stating, and a card that could disagree with the list
+   * beside it would be worth nothing.
+   */
+  private readonly shortLines = computed(
+    () => this.rows().filter((row) => row.pairingShortPieces !== null).length,
+  );
+
+
+  /** What the order card says about it, or null where there is nothing to
+   * say. Advisory by default; the enforced wording is the one that goes with
+   * a button that cannot be pressed. */
+  protected readonly pairingSummary = computed(() => {
+    const count = this.shortLines();
+    if (count === 0) return null;
+    return fillText(this.pairingText.summaryEnforced, { count });
+  });
+
+  /** What one line is short, in pieces — the unit every quantity here is a
+   * count of, whichever lens the line is being read in. */
+  protected shortMessage(shortPieces: number): string {
+    return fillText(this.pairingText.short, {
+      count: shortPieces,
+      unit: this.pieceUnit,
+    });
+  }
 
   /**
    * Which page of the cart is on screen (FR-CART-02), clamped on every read:

@@ -376,6 +376,20 @@ export const appTextSchema = z
             outOfStock: z.string(),
           })
           .strict(),
+        /**
+         * What a cart is missing of what its products are sold with
+         * (FR-SET-02/03/04). `short` is per line — `{count}` pieces and
+         * `{unit}` the piece abbreviation — and the two summaries sit in the
+         * order card above the checkout button: `summary` where an unsatisfied
+         * pairing is advisory, `summaryEnforced` where the deployment refuses
+         * on it and the button is disabled.
+         */
+        pairing: z
+          .object({
+            short: z.string(),
+            summary: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**

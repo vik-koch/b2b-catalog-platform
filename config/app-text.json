@@ -160,6 +160,10 @@
       "noteNotAllowed": "This product no longer takes a note, so yours was dropped.",
       "priceUnavailable": "We cannot price this line right now — we will confirm it with you.",
       "outOfStock": "Out of stock — please remove this line to place your order."
+    },
+    "pairing": {
+      "short": "Add {count} {unit} of what this is sold with.",
+      "summary": "{count} products in your cart are missing what they are sold with."
     }
   },
   "checkout": {

@@ -49,6 +49,7 @@ function preview(lineTotalMinor: number | null = 6500): CartPreview {
         lineNoteEnabled: false,
         lineNotePrompt: null,
         pairedCount: 0,
+        pairingShortPieces: null,
         availability: null,
         prices: {
           pieceMilliMinor: 1_083_333,
