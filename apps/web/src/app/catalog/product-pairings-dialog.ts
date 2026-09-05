@@ -76,8 +76,11 @@ import { PRODUCT_ROWS, ProductRow } from './product-row';
         } @else if (items.error()) {
           <p class="mt-4 text-sm text-amber-700">{{ text.loadError }}</p>
         } @else if (showSkeleton()) {
+          <!-- As many placeholders as the marker promised, at a row's height:
+               the panel then opens at the size it will settle at instead of
+               growing under the pointer as the rows land. -->
           <ul [class]="rowList" class="mt-4">
-            @for (_ of enumeratePairings(); track $index) {
+            @for (row of skeletonRows(); track row) {
               <li>
                 <app-skeleton class="mt-3 mb-9.5" [lines]="5" />
               </li>
@@ -143,12 +146,20 @@ export class ProductPairingsDialog {
     });
   }
 
+  /**
+   * One placeholder per counterpart the marker promised. At least one, because
+   * a panel that is open is a panel with something coming; the count is only
+   * ever wrong if the catalog changed under the marker, and the rows replace
+   * these wholesale either way.
+   */
+  protected readonly skeletonRows = computed(() =>
+    Array.from(
+      { length: Math.max(1, this.pairings.open()?.count ?? 1) },
+      (_, i) => i,
+    ),
+  );
+
   protected close(): void {
     this.pairings.close();
-  }
-
-  protected enumeratePairings(): Array<number> {
-    const count = this.pairings.open()?.count;
-    return count ? [] : Array(count).fill(0);
   }
 }
