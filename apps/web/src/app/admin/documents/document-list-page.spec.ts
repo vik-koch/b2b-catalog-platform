@@ -25,6 +25,7 @@ function document(overrides: Partial<ProductDocument> = {}): ProductDocument {
     },
     issuedAt: '2026-01-15',
     expiresAt: '2027-01-15',
+    productCount: 0,
     updatedAt: '2026-08-01T00:00:00.000Z',
     ...overrides,
   };

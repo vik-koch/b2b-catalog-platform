@@ -16,6 +16,7 @@ import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
 import { ConfirmService } from '../../ui/confirm.service';
 import { IconButton } from '../../ui/icon-button';
+import { Link } from '../../ui/link';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
 import { AdminGrid } from '../grid/admin-grid';
@@ -46,6 +47,7 @@ import { documentFileLabel, documentFileSize } from './document-file';
     Button,
     IconButton,
     AdminIcon,
+    Link,
     AdminListHeader,
     AdminGrid,
     GridRowTemplate,
@@ -108,6 +110,14 @@ import { documentFileLabel, documentFileSize } from './document-file';
             <span class="block truncate">{{ fileLabel(document) }}</span>
             <span class="block truncate text-xs">{{ document.file.name }}</span>
           </td>
+          <!-- The count is the way into the product grid narrowed to exactly
+               these rows — the tier list's price count, said in words. -->
+          <td class="truncate">
+            <ng-container
+              [ngTemplateOutlet]="productLink"
+              [ngTemplateOutletContext]="{ $implicit: document }"
+            />
+          </td>
           <td class="text-subtle">{{ day(document.issuedAt) }}</td>
           <td class="text-subtle">
             {{ day(document.expiresAt) || text.noExpiry }}
@@ -136,6 +146,12 @@ import { documentFileLabel, documentFileSize } from './document-file';
               <p class="mt-1 truncate text-sm text-subtle">
                 {{ fileLabel(document) }} · {{ document.file.name }}
               </p>
+              <p class="mt-1 truncate text-sm">
+                <ng-container
+                  [ngTemplateOutlet]="productLink"
+                  [ngTemplateOutletContext]="{ $implicit: document }"
+                />
+              </p>
             </div>
             <span recordMeta class="truncate">
               {{
@@ -157,6 +173,23 @@ import { documentFileLabel, documentFileSize } from './document-file';
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }
+
+    <!-- How many products show this document, and the way to see which. Dead
+         text at zero: there is nothing for the grid to show. -->
+    <ng-template #productLink let-document>
+      @if (document.productCount) {
+        <a
+          appLink
+          routerLink="/admin/products"
+          [queryParams]="{ documentId: document.id }"
+          [title]="text.seeProducts"
+        >
+          {{ productCount(document) }}
+        </a>
+      } @else {
+        <span class="text-subtle">{{ text.noProducts }}</span>
+      }
+    </ng-template>
 
     <!-- One set of buttons for both shapes: opening the file, editing the row,
          deleting it. -->
@@ -236,6 +269,7 @@ export class DocumentListPage {
   protected readonly columns: GridColumn[] = [
     { key: 'title', label: this.text.titleColumn, minWidth: 160 },
     { key: 'file', label: this.text.fileColumn, minWidth: 140 },
+    { key: 'products', label: this.text.productsColumn, minWidth: 120 },
     { key: 'issued', label: this.text.issuedColumn, minWidth: 96 },
     { key: 'expires', label: this.text.expiresColumn, minWidth: 96 },
     { key: 'updated', label: this.text.updatedColumn, minWidth: 96 },
@@ -246,6 +280,10 @@ export class DocumentListPage {
 
   /** For the one action that is not a navigation. */
   protected readonly pageError = signal<string | null>(null);
+
+  protected productCount(document: ProductDocument): string {
+    return fillText(this.text.products, { count: document.productCount });
+  }
 
   protected fileLabel(document: ProductDocument): string {
     return `${documentFileLabel(document.file.contentType)} · ${documentFileSize(

@@ -256,7 +256,9 @@
     "filterAttribute": "Attribute",
     "clearAttribute": "Clear the attribute filter",
     "filterTier": "Tier price",
-    "clearTier": "Clear the tier filter"
+    "clearTier": "Clear the tier filter",
+    "filterDocument": "Document",
+    "clearDocument": "Clear the document filter"
   },
   "categoryList": {
     "title": "Categories",
@@ -559,6 +561,10 @@
     "edit": "Edit",
     "open": "Open the file",
     "delete": "Delete",
+    "productsColumn": "Products",
+    "products": "{count} product(s)",
+    "seeProducts": "Show the products this document is on",
+    "noProducts": "No product shows this document yet",
     "empty": "No documents yet.",
     "noResults": "No document matches this search.",
     "loadError": "The documents could not be loaded. Please try again.",

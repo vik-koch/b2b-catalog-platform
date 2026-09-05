@@ -393,6 +393,9 @@ export const adminTextSchema = z
          * attribute one is: no column of the grid says it. */
         filterTier: z.string(),
         clearTier: z.string(),
+        /** The document list's drill-down, a chip for the same reason. */
+        filterDocument: z.string(),
+        clearDocument: z.string(),
         stateAll: z.string(),
         /** The column's own noun, for the phone's sort picker — where "All
          * states" would read as an ordering rather than a column. */
@@ -849,6 +852,13 @@ export const adminTextSchema = z
         edit: z.string(),
         open: z.string(),
         delete: z.string(),
+        /** The link into the product grid narrowed to this document's
+         * products, and the same control dead: nothing shows it yet.
+         * `{count}` substituted. */
+        productsColumn: z.string(),
+        products: z.string(),
+        seeProducts: z.string(),
+        noProducts: z.string(),
         empty: z.string(),
         /** Shown instead of `empty` when the search emptied the list. */
         noResults: z.string(),
