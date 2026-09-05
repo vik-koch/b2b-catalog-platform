@@ -639,6 +639,10 @@ export class ProductEditorPage implements UnsavedChangesAware {
       pairedCount: this.pairings().filter(
         (paired) => !paired.deleted && !paired.unpublished,
       ).length,
+      // The preview lists no documents: what this form holds is a set of
+      // links, not the files behind them, and the section is drawn from the
+      // stored file's URL and size. It appears on the saved page.
+      documents: [],
       // The unit is the registry's, not the row's — the preview joins it on
       // exactly as the storefront's read does, so a declared attribute reads
       // the same here as on the live page.

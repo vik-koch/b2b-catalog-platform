@@ -17,7 +17,7 @@ import { Input } from '../../ui/input';
 import { Skeleton } from '../../ui/skeleton';
 import { injectEditorReturn } from '../editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
-import { documentFileLabel, documentFileSize } from './document-file';
+import { documentFileLabel, documentFileSize } from '../../core/document-file';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 

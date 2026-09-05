@@ -44,6 +44,20 @@ export const documentSeeds: DocumentSeed[] = [
     categorySlugs: ['filter', 'single-origin'],
   },
   {
+    // The expired state, and the one product pages are silent about: a lapsed
+    // document is work for the admin and is not listed to a customer
+    // (FR-DOC-03/04), so the demo needs one to show either half.
+    title: 'Import declaration',
+    fileName: 'import-declaration.pdf',
+    body: [
+      'Placeholder document for the demo shop.',
+      'This one has lapsed: the shop shows it to nobody until it is replaced.',
+    ],
+    issuedDaysAgo: 400,
+    expiresInDays: -15,
+    categorySlugs: ['espresso'],
+  },
+  {
     title: 'Product data sheet',
     fileName: 'product-data-sheet.pdf',
     body: [

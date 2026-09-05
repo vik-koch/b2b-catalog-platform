@@ -11,6 +11,7 @@ import {
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from './attribute-value';
 import { attributeTypeSchema } from './attributes.contract';
+import { publicDocumentSchema } from './documents.contract';
 import { PRODUCT_AVAILABILITIES } from './product-availability';
 
 /**
@@ -263,6 +264,16 @@ export const productDetailSchema = z
      * worth fetching only for the one product whose marker is pressed.
      */
     pairedCount: z.number().int().nonnegative(),
+    /**
+     * The documents shown on this product (FR-DOC-03), soonest expiry first.
+     * Expired ones are absent: a certificate that has run out is work for the
+     * admin, never a link for a customer.
+     *
+     * Inline rather than fetched on demand like the pairings, because these
+     * are a handful of rows already joined to the product and the page draws
+     * them without being asked.
+     */
+    documents: z.array(publicDocumentSchema),
     /** The single category this product belongs to, with its own ancestors —
      * the breadcrumb shows the whole path, not just the leaf. */
     category: categoryCrumbSchema.extend({

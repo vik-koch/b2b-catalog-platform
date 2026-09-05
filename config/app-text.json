@@ -77,6 +77,12 @@
       "close": "Close",
       "loadError": "Something went wrong loading these — please try again later."
     },
+    "documents": {
+      "label": "Documents",
+      "hint": "Opens the file in a new tab",
+      "sizeKb": "{size} kB",
+      "sizeMb": "{size} MB"
+    },
     "units": {
       "piece": "pcs",
       "pack": "pk",

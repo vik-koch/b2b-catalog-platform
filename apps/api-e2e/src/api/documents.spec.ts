@@ -77,6 +77,11 @@ describe('Product documents (FR-DOC-01)', () => {
       headers: cookie ? { Cookie: cookie } : {},
       validateStatus: () => true,
     });
+  const patch = (url: string, body: unknown, cookie = adminCookie) =>
+    axios.patch(url, body, {
+      headers: cookie ? { Cookie: cookie } : {},
+      validateStatus: () => true,
+    });
   const del = (url: string, cookie = adminCookie) =>
     axios.delete(url, {
       headers: cookie ? { Cookie: cookie } : {},
@@ -134,6 +139,21 @@ describe('Product documents (FR-DOC-01)', () => {
     expect(res.status).toBe(201);
     createdProductSlugs.push(res.data.slug);
     return res.data.slug;
+  }
+
+  /** Onto the storefront: a created product is unpublished until it is. */
+  async function publishProduct(slug: string): Promise<void> {
+    const res = await patch(`/admin/catalog/products/${slug}/published`, {
+      published: true,
+    });
+    expect(res.status).toBe(200);
+  }
+
+  /** An ISO day `days` from today — the expiry states are relative to now. */
+  function day(days: number): string {
+    const date = new Date();
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().slice(0, 10);
   }
 
   beforeAll(async () => {
@@ -511,6 +531,65 @@ describe('Product documents (FR-DOC-01)', () => {
         [created.data.id],
       );
       expect(rows).toEqual([]);
+    });
+  });
+
+  /**
+   * What a customer sees (FR-DOC-03). The storefront is the only reader that
+   * makes a decision about expiry, and it makes it in the query rather than in
+   * the page: a document that has run out is simply not there.
+   */
+  describe('the product page (FR-DOC-03)', () => {
+    it('lists the current documents on the product, soonest expiry first', async () => {
+      const slug = await createProduct('Storefront documents');
+      await publishProduct(slug);
+      await createDocument({
+        title: `Later ${R}`,
+        file: await uploadPdf('later'),
+        expiresAt: day(200),
+        productSlugs: [slug],
+      });
+      await createDocument({
+        title: `Sooner ${R}`,
+        file: await uploadPdf('sooner'),
+        expiresAt: day(10),
+        productSlugs: [slug],
+      });
+      const undated = await createDocument({
+        title: `Undated ${R}`,
+        file: await uploadPdf('undated'),
+        productSlugs: [slug],
+      });
+
+      const res = await axios.get(`/catalog/products/${slug}`);
+
+      expect(res.status).toBe(200);
+      expect(res.data.documents.map((d: { title: string }) => d.title)).toEqual(
+        [`Sooner ${R}`, `Later ${R}`, `Undated ${R}`],
+      );
+      // The file, and what pressing it costs — nothing about dates.
+      expect(res.data.documents[2]).toEqual({
+        title: `Undated ${R}`,
+        url: undated.data.file.url,
+        contentType: 'application/pdf',
+        byteSize: undated.data.file.byteSize,
+      });
+    });
+
+    it('shows no expired document, to anybody', async () => {
+      const slug = await createProduct('Expired documents');
+      await publishProduct(slug);
+      await createDocument({
+        title: `Lapsed ${R}`,
+        file: await uploadPdf('lapsed'),
+        expiresAt: day(-1),
+        productSlugs: [slug],
+      });
+
+      const res = await axios.get(`/catalog/products/${slug}`);
+
+      expect(res.status).toBe(200);
+      expect(res.data.documents).toEqual([]);
     });
   });
 });

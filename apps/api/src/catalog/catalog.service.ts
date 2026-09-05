@@ -1,16 +1,29 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  or,
+} from 'drizzle-orm';
 import {
   AttributeSelection,
   CATALOG_PAGE_SIZE,
   CategoryCrumb,
   Facet,
   CategoryNode,
+  isoToday,
   ProductDetailAttribute,
   ProductDetail,
+  PublicDocument,
   ProductListItem,
   ProductSort,
+  publicDocumentSchema,
   SearchSort,
   SearchSuggestion,
   SubcategoryLink,
@@ -23,6 +36,8 @@ import {
   attributeDefinitions,
   categories,
   categoryAttributes,
+  documentProducts,
+  documents,
   pages,
   productAttributes,
   productPairings,
@@ -509,6 +524,8 @@ export class CatalogService {
       new Set(definitions.map((definition) => definition.slug)),
     );
 
+    const documentRows = await this.documentsFor(product.id);
+
     return {
       slug: product.slug,
       name: product.name,
@@ -523,6 +540,7 @@ export class CatalogService {
       lineNotePrompt: product.lineNotePrompt,
       availability: product.availability,
       pairedCount: product.pairedCount,
+      documents: documentRows,
       category: {
         slug: category.slug,
         name: category.name,
@@ -530,5 +548,38 @@ export class CatalogService {
         ancestors: ancestorsOf(category.id, rows),
       },
     };
+  }
+
+  /**
+   * The documents a product page lists (FR-DOC-03). Expired ones are dropped
+   * here rather than hidden in the template, so nothing downstream — the
+   * count, the heading, the SSR markup — can disagree about what is current.
+   *
+   * A document with no expiry never runs out and is always listed. Soonest
+   * expiry first, undated ones last, which puts the certificate a customer is
+   * most likely asking about at the top.
+   */
+  private async documentsFor(productId: string): Promise<PublicDocument[]> {
+    const today = isoToday();
+    const rows = await this.db
+      .select({
+        title: documents.title,
+        url: documents.fileUrl,
+        contentType: documents.contentType,
+        byteSize: documents.byteSize,
+      })
+      .from(documentProducts)
+      .innerJoin(documents, eq(documents.id, documentProducts.documentId))
+      .where(
+        and(
+          eq(documentProducts.productId, productId),
+          or(isNull(documents.expiresAt), gte(documents.expiresAt, today)),
+        ),
+      )
+      .orderBy(asc(documents.expiresAt), asc(documents.title));
+
+    // The column is a varchar; the contract's own parse is what decides the
+    // type is one it accepts, exactly as the upload's sniff did on the way in.
+    return rows.map((row) => publicDocumentSchema.parse(row));
   }
 }

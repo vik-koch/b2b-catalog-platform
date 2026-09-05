@@ -171,6 +171,23 @@ export const appTextSchema = z
           })
           .strict(),
         /**
+         * The documents a product page lists (FR-DOC-03). `label` heads the
+         * section; `hint` is the accessible name every link carries, because
+         * each one leaves the page for a file. The two size words are the
+         * caption under a title — the same pair the admin list uses, said
+         * again here because storefront and admin text are separate audiences.
+         */
+        documents: z
+          .object({
+            label: z.string(),
+            hint: z.string(),
+            /** `{size}` is a whole number of kB. */
+            sizeKb: z.string(),
+            /** `{size}` is a megabyte figure with one decimal. */
+            sizeMb: z.string(),
+          })
+          .strict(),
+        /**
          * Units of sale (FR-UNIT-*). The unit words are **abbreviations** —
          * they follow a number and are never inflected, so a full word here
          * would read wrongly after some quantities ("4 pack × 1 pieces").

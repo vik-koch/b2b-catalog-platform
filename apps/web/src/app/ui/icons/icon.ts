@@ -49,6 +49,7 @@ export type IconName =
   | 'package-plus'
   | 'folder-plus'
   | 'file-plus'
+  | 'file-text'
   | 'plus';
 
 @Component({
@@ -198,6 +199,15 @@ export type IconName =
           <path
             d="m21.879 10.449a10 10 0 0 1 0.12108 1.5514 10 10 0 0 1-10 10 10 10 0 0 1-10-10 10 10 0 0 1 10-10 10 10 0 0 1 1.5514 0.12108"
           />
+        }
+        @case ('file-text') {
+          <path
+            d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+          />
+          <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+          <path d="M10 9H8" />
+          <path d="M16 13H8" />
+          <path d="M16 17H8" />
         }
         @case ('package-plus') {
           <path d="M12 22V12" />

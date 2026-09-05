@@ -112,6 +112,22 @@ export const linkedDocumentSchema = z
   .strict();
 export type LinkedDocument = z.infer<typeof linkedDocumentSchema>;
 
+/**
+ * A document as a *product page* shows it (FR-DOC-03): a title to click and
+ * the file behind it, with the two facts that say what pressing it costs — the
+ * format and the size. No dates: an expired document is not listed at all, and
+ * an issue date is filing, not shopping.
+ */
+export const publicDocumentSchema = z
+  .object({
+    title: z.string(),
+    url: z.string(),
+    contentType: z.enum(ACCEPTED_DOCUMENT_MIME_TYPES),
+    byteSize: z.number().int().positive(),
+  })
+  .strict();
+export type PublicDocument = z.infer<typeof publicDocumentSchema>;
+
 /** A document as the admin list sees it. */
 export const productDocumentSchema = z
   .object({
