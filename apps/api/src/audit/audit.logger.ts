@@ -24,6 +24,11 @@ export type AuditAction =
   // Renames rewrite product data across the whole catalog in one statement.
   | 'attribute.keyRenamed'
   | 'attribute.valueRenamed'
+  // Product documents (FR-DOC-01). A replaced file is an update like any
+  // other: which bytes a document now shows is in its content-hashed URL.
+  | 'document.created'
+  | 'document.updated'
+  | 'document.deleted'
   | 'tier.created'
   | 'tier.updated'
   | 'tier.reordered'

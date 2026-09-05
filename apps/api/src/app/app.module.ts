@@ -9,6 +9,7 @@ import { AuthModule } from '../auth/auth.module';
 import { InquiryModule } from '../inquiry/inquiry.module';
 import { DatabaseModule } from '../db/database.module';
 import { CatalogModule } from '../catalog/catalog.module';
+import { DocumentsModule } from '../documents/documents.module';
 import { OrdersModule } from '../orders/orders.module';
 import { PageModule } from '../pages/page.module';
 import { MediaModule } from '../media/media.module';
@@ -26,6 +27,7 @@ import { WorkModule } from '../work/work.module';
     AuthModule,
     CatalogModule,
     AttributesModule,
+    DocumentsModule,
     PageModule,
     MediaModule,
     InquiryModule,
