@@ -299,6 +299,28 @@ export const adminTextSchema = z
             promptPlaceholder: z.string(),
           })
           .strict(),
+        /**
+         * The documents shown on this product (FR-DOC-02) — the pairings
+         * editor's wording, because it is the same control: a short list
+         * attached to this record, added one at a time and taken off here.
+         */
+        documents: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            add: z.string(),
+            addPlaceholder: z.string(),
+            /** `{name}` substituted — the document being taken off. */
+            remove: z.string(),
+            /** Per row. `{date}` substituted; `noExpiry` where there is none. */
+            expires: z.string(),
+            noExpiry: z.string(),
+            suggestionsLabel: z.string(),
+            noSuggestions: z.string(),
+            /** Announced to a screen reader. `{count}` substituted. */
+            suggestionCount: z.string(),
+          })
+          .strict(),
         /** The products this one is sold together with (FR-SET-01). */
         pairings: z
           .object({

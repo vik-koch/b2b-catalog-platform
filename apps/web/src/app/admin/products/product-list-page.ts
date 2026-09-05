@@ -42,6 +42,7 @@ import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
 import { GridTimestamp } from '../grid/grid-timestamp';
 import { RecordRow } from '../records/record-row';
 import { AdminListHeader } from '../list-header';
+import { DocumentsService } from '../documents/documents.service';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductDeleteDialog } from './product-delete-dialog';
 import { ProductRowActions, ProductRowState } from './product-row-actions';
@@ -302,6 +303,7 @@ export class ProductListPage {
   private readonly admin = inject(AdminCatalogService);
   private readonly attributes = inject(AttributesService);
   private readonly tierService = inject(TiersService);
+  private readonly documentService = inject(DocumentsService);
   private readonly router = inject(Router);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productList;
@@ -383,6 +385,23 @@ export class ProductListPage {
    * the grid shows the base price, not a tier's — so it is a chip too.
    */
   readonly tierId = input('');
+  /**
+   * Where the document list's product count drills down to: the products one
+   * certificate, declaration or data sheet is shown on (FR-DOC-02). A chip
+   * like the two above — a product row says nothing about its documents.
+   */
+  readonly documentId = input('');
+  /** The document, for the chip's title alone — fetched only while the chip is
+   * on screen, and a failure leaves the chip absent rather than the list
+   * broken, exactly as the tier's does. */
+  private readonly documents = resource({
+    params: () => (this.documentId() ? { id: this.documentId() } : undefined),
+    loader: ({ params }) =>
+      this.documentService.get(params.id).catch(() => undefined),
+  });
+  protected readonly documentFilter = computed(
+    () => this.documents.value()?.title ?? null,
+  );
   /** The tiers, for the chip's name alone: fetched only while a chip is on
    * screen, and a failure leaves the chip absent rather than the list broken. */
   private readonly tiers = resource({
@@ -436,6 +455,7 @@ export class ProductListPage {
       !!this.availabilityKey() ||
       !!this.attributeFilter() ||
       !!this.tierId() ||
+      !!this.documentId() ||
       this.stateKey() !== DEFAULT_ADMIN_STATE,
   );
 
@@ -540,8 +560,9 @@ export class ProductListPage {
   ]);
 
   /**
-   * The two narrowings the table has no heading for, each arrived at from the
-   * screen that asks the question — the attribute inventory, the tier list.
+   * The narrowings the table has no heading for, each arrived at from the
+   * screen that asks the question — the attribute inventory, the tier list,
+   * the document list.
    * The grid shows them as chips and counts them with its own filters, so a
    * phone can see and undo them without a column to hang them on.
    */
@@ -554,6 +575,15 @@ export class ProductListPage {
         value: tier,
         clearParams: { tierId: null, page: null },
         clearLabel: this.text.clearTier,
+      });
+    }
+    const document = this.documentFilter();
+    if (document) {
+      chips.push({
+        label: this.text.filterDocument,
+        value: document,
+        clearParams: { documentId: null, page: null },
+        clearLabel: this.text.clearDocument,
       });
     }
     const attribute = this.attributeFilter();
@@ -678,6 +708,7 @@ export class ProductListPage {
       attributeKey: this.attributeKey() || undefined,
       attributeValue: this.attributeValue() || undefined,
       tierId: this.tierId() || undefined,
+      documentId: this.documentId() || undefined,
     }),
     loader: ({ params }) => this.admin.listProducts(params),
   });

@@ -179,6 +179,18 @@
       "promptHint": "Leave empty to use the shop-wide wording.",
       "promptPlaceholder": "Which colour?"
     },
+    "documents": {
+      "heading": "Documents",
+      "hint": "Certificates, declarations and data sheets shown on this product. The same documents can be put on many products at once from the document itself.",
+      "add": "Add a document",
+      "addPlaceholder": "Search documents by title…",
+      "remove": "Remove “{name}”",
+      "expires": "Expires {date}",
+      "noExpiry": "No expiry",
+      "suggestionsLabel": "Document suggestions",
+      "noSuggestions": "No documents match.",
+      "suggestionCount": "{count} document suggestions"
+    },
     "pairings": {
       "heading": "Sold together",
       "hint": "Products this one is sold with. It works both ways: the product you pick is paired with this one too, and removing it here removes it there.",

@@ -48,6 +48,7 @@ const storedProduct: AdminProduct = {
   images: [],
   tierPrices: [],
   pairings: [],
+  documents: [],
   deletedAt: null,
   publishedAt: '2026-07-30T10:00:00.000Z',
   updatedAt: '2026-07-30T10:00:00.000Z',
