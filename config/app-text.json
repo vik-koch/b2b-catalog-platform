@@ -162,7 +162,8 @@
       "outOfStock": "Out of stock — please remove this line to place your order."
     },
     "pairing": {
-      "short": "Add {count} {unit} of what this is sold with.",
+      "shortAction": "Add {count} {unit}",
+      "shortReason": "of what this is sold with.",
       "summary": "{count} products in your cart are missing what they are sold with.",
       "summaryEnforced": "{count} products in your cart cannot be ordered without what they are sold with."
     }

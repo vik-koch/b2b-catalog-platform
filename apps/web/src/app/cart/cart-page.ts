@@ -300,21 +300,38 @@ interface CartRow {
                       >
                         <!-- Above the note, because it is something the shop
                            says about the product and the note is something the
-                           customer writes about the line. -->
-                        <!-- What this line is short of, and then the way to
-                           answer it: the sentence names the amount and the
-                           link opens the products that would cover it, which
-                           is the whole of FR-SET-03 in two lines. -->
-                        @if (row.pairingShortPieces; as short) {
-                          <p class="text-sm text-amber-700">
-                            {{ shortMessage(short) }}
-                          </p>
-                        }
+                           customer writes about the line.
+
+                           One line either way: what the product is sold with,
+                           or — where the line is short of it — what it is
+                           short of, said in the same place in amber with the
+                           amount as the link. The shortfall replaces the offer
+                           rather than standing over it: two links to the same
+                           panel, one under the other, is the same sentence
+                           twice (FR-SET-03). -->
                         @if (row.pairedCount > 0) {
+                          <!-- Two pixels down where it is the last thing on
+                               the line: on its own, beside the controls, it
+                               sits on the row's bottom edge and its glyph
+                               reads high against them. Shifted rather than
+                               given a margin — the group is held to that
+                               bottom edge by an auto margin above it, so room
+                               added at the top is room the auto margin gives
+                               back and nothing moves.
+
+                               Not where something follows it: a note under it,
+                               or the stacked shape, where the controls
+                               themselves come next. -->
                           <app-product-pairings
                             variant="link"
+                            [class]="
+                              row.takesNote
+                                ? ''
+                                : '@min-[47.5rem]/row:translate-y-0.5'
+                            "
                             [slug]="row.slug"
                             [count]="row.pairedCount"
+                            [message]="shortMessage(row.pairingShortPieces)"
                           />
                         }
                         @if (row.takesNote) {
@@ -635,13 +652,23 @@ export class CartPage {
     );
   });
 
-  /** What one line is short, in pieces — the unit every quantity here is a
-   * count of, whichever lens the line is being read in. */
-  protected shortMessage(shortPieces: number): string {
-    return fillText(this.pairingText.short, {
-      count: shortPieces,
-      unit: this.pieceUnit,
-    });
+  /**
+   * What one line is short, in pieces — the unit every quantity here is a
+   * count of, whichever lens the line is being read in. Null where the line is
+   * short of nothing, which is the marker saying its ordinary word instead.
+   *
+   * Two halves because only the first is the link: the deployment's own text
+   * decides where the sentence breaks.
+   */
+  protected shortMessage(
+    shortPieces: number | null,
+  ): { link: string; rest: string } | null {
+    if (shortPieces === null) return null;
+    const filled = { count: shortPieces, unit: this.pieceUnit };
+    return {
+      link: fillText(this.pairingText.shortAction, filled),
+      rest: fillText(this.pairingText.shortReason, filled),
+    };
   }
 
   /**
