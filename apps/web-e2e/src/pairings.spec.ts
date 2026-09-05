@@ -27,7 +27,11 @@ const LID_DOMED = 'Takeaway Lid, Domed (50)';
 const UNPAIRED = 'latte-glass-set';
 /** The panel's own name, `catalog.pairings.label` in the demo text. */
 const PANEL = 'Sold together';
-/** `cart.pairing.*` in the demo text, with the counts filled in. */
+/** `cart.pairing.*` in the demo text, with the counts filled in. On a short
+ * line the offer and the shortfall are one sentence: `shortAction` is the link
+ * that opens the panel, `shortReason` the plain text that follows it — so the
+ * line's marker is named after what to add rather than after the panel. */
+const SHORT_ACTION = /^Add \d+ /;
 const SHORT = 'of what this is sold with';
 const SUMMARY = 'products in your cart are missing what they are sold with';
 
@@ -143,21 +147,31 @@ test.describe('the sold-together marker', () => {
     await expect(
       panel.getByRole('button', { name: /Sold together with/ }),
     ).toHaveCount(0);
-    // Added from the panel, where the marker was pressed. The cup itself is
-    // seeded out of stock, which is the point of adding the lid instead: the
-    // panel sells what it lists, whatever the product behind it can do.
+    // Added from the panel, where the marker was pressed.
     await panel
       .locator('li')
       .filter({ hasText: LID_FLAT })
       .getByRole('button', { name: 'Add to cart' })
       .click();
     await panel.getByRole('button', { name: 'Close' }).click();
+    // Gone before the next control is named, or the panel's own row still
+    // answers to it.
+    await expect(panel).toBeHidden();
+    // And the cup itself, so the cart covers what it holds: a lid alone is
+    // short of one, and a short line's marker is named after the shortfall
+    // instead (the describe below). Without it this reads whichever name the
+    // repricing round trip had not yet replaced.
+    await page.getByRole('button', { name: 'Add to cart' }).click();
 
     await page.goto('/cart');
 
     // The cart line says it too, and the same panel opens from there — the lid
     // is sold with the cup, which is the same edge read from the other end.
-    await page.getByRole('button', { name: PANEL, exact: true }).click();
+    await page
+      .locator('li')
+      .filter({ hasText: LID_FLAT })
+      .getByRole('button', { name: PANEL, exact: true })
+      .click();
     await expect(
       page.getByRole('dialog').getByText('Takeaway Cup 300'),
     ).toBeVisible();
@@ -207,11 +221,8 @@ test.describe('a cart missing what it is sold with', () => {
       page.getByRole('link', { name: 'Proceed to checkout' }),
     ).toBeVisible();
 
-    // And the way to answer it is beside the sentence.
-    await page
-      .getByRole('button', { name: PANEL, exact: true })
-      .first()
-      .click();
+    // And the way to answer it is the first half of that same sentence.
+    await page.getByRole('button', { name: SHORT_ACTION }).first().click();
     await expect(
       page.getByRole('dialog').getByText('Takeaway Cup 300'),
     ).toBeVisible();
