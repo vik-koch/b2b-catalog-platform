@@ -19,11 +19,11 @@ import {
   ProductDetail,
   ProductInput,
   lowStockThreshold,
-  fillText,
   slugify,
   totalMinor,
 } from '@b2b-catalog-platform/shared';
 import {
+  currencySymbol,
   decimalSeparator,
   formatPriceInput,
   parsePriceInput,
@@ -63,6 +63,7 @@ import {
   ProductTierPricesEditor,
   TierPriceDraft,
 } from './product-tier-prices-editor';
+import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
@@ -90,6 +91,7 @@ import {
     Input,
     PriceField,
     Skeleton,
+    UnitField,
   ],
   template: `
     <h1 class="mb-6 text-3xl font-medium tracking-tight">
@@ -140,16 +142,17 @@ import {
                  "18." as an empty value, so binding the signal back to it wiped
                  the field the moment a decimal separator was pressed. The
                  inputmode still gets the numeric keypad on touch. -->
-            <input
-              type="text"
-              inputmode="decimal"
-              appInput
-              appPriceField
-              class="w-full sm:w-40"
-              [value]="priceInput()"
-              [placeholder]="pricePlaceholder"
-              (input)="priceInput.set($any($event.target).value)"
-            />
+            <app-unit-field class="w-full sm:w-40" [unit]="currencySuffix">
+              <input
+                type="text"
+                inputmode="decimal"
+                appPriceField
+                [class]="unitFieldInput"
+                [value]="priceInput()"
+                [placeholder]="pricePlaceholder"
+                (input)="priceInput.set($any($event.target).value)"
+              />
+            </app-unit-field>
           </label>
 
           <div class="w-full sm:w-auto sm:flex-1">
@@ -246,35 +249,43 @@ import {
         <fieldset class="max-w-xl">
           <legend appFieldLabel>{{ text.stock.heading }}</legend>
           <p class="mb-2 text-xs text-subtle">{{ text.stock.hint }}</p>
+          <!-- Both counts in pieces, said in the fields rather than under
+               them: the two are one sentence about how much is left, and a
+               hint apiece made the block four lines deep for two numbers. -->
           <div class="grid gap-4 sm:grid-cols-2">
             <label class="block">
               <span appFieldLabel>{{ text.stock.pieces }}</span>
-              <input
-                type="text"
-                appInput
-                appNumericField="signed"
-                class="w-full"
-                [value]="stockPieces()"
-                (input)="stockPieces.set($any($event.target).value)"
-              />
-              <span class="mt-1 block text-xs text-subtle">
-                {{ text.stock.piecesHint }}
-              </span>
+              <app-unit-field class="w-full" [unit]="pieceSuffix">
+                <input
+                  type="text"
+                  appNumericField="signed"
+                  [class]="unitFieldInput"
+                  [value]="stockPieces()"
+                  (input)="stockPieces.set($any($event.target).value)"
+                />
+              </app-unit-field>
             </label>
             <label class="block">
               <span appFieldLabel>{{ text.stock.threshold }}</span>
-              <input
-                type="text"
-                appInput
-                appNumericField="integer"
-                class="w-full"
-                [disabled]="parsedStockPieces() === null"
-                [value]="lowStockThresholdInput()"
-                (input)="lowStockThresholdInput.set($any($event.target).value)"
-              />
-              <span class="mt-1 block text-xs text-subtle">
-                {{ thresholdHint() }}
-              </span>
+              <!-- The figure in force as the placeholder: empty means "work it
+                   out from the packaging", and the number that would be worked
+                   out is what an empty field then shows. It follows the
+                   packaging as it is edited, and there is nothing to show
+                   while the stock is untracked — the field is disabled then,
+                   and a greyed figure in a greyed field reads as a value. -->
+              <app-unit-field class="w-full" [unit]="pieceSuffix">
+                <input
+                  type="text"
+                  appNumericField="integer"
+                  [class]="unitFieldInput"
+                  [disabled]="parsedStockPieces() === null"
+                  [placeholder]="thresholdPlaceholder()"
+                  [value]="lowStockThresholdInput()"
+                  (input)="
+                    lowStockThresholdInput.set($any($event.target).value)
+                  "
+                />
+              </app-unit-field>
             </label>
           </div>
           <!-- The badge itself rather than its name: what the admin is
@@ -295,7 +306,7 @@ import {
         <fieldset>
           <legend appFieldLabel>{{ text.lineNote.heading }}</legend>
           <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
-          <label class="flex items-start gap-2 text-sm">
+          <label class="flex cursor-pointer items-start gap-2 text-sm">
             <input
               type="checkbox"
               appCheckbox
@@ -429,6 +440,10 @@ export class ProductEditorPage implements UnsavedChangesAware {
     DEFAULT_LOW_STOCK_THRESHOLD_PIECES;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor;
+  /** The piece abbreviation, printed inside both stock fields — the same one
+   * the packaging rows use, so the two blocks measure in one word. */
+  protected readonly pieceSuffix = this.text.packaging.pieceSuffix;
+  protected readonly unitFieldInput = UNIT_FIELD_INPUT;
 
   /** null slug param → the "new" route. */
   private readonly slugParam = this.route.snapshot.paramMap.get('slug');
@@ -486,6 +501,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
 
   /** Shows the shape a price takes here, e.g. "0,00" in a de-DE deployment. */
   protected readonly pricePlaceholder = `0${decimalSeparator(this.currency)}00`;
+  /** The mark the deployment's prices are written with, printed inside every
+   * price field on this page — the base one here and the tier fields below. */
+  protected readonly currencySuffix = currencySymbol(this.currency);
 
   /**
    * The base price as the tier fields advertise it — what an emptied tier
@@ -538,14 +556,19 @@ export class ProductEditorPage implements UnsavedChangesAware {
 
   /** Names the figure actually in force, so an admin can see what the ladder
    * resolved to without working the packaging out in their head. */
-  protected readonly thresholdHint = computed(() =>
-    fillText(this.text.stock.thresholdHint, {
-      pieces: lowStockThreshold(
-        this.packagingInput() ?? { piecesPerPack: null, packsPerBox: null },
-        this.parsedThreshold(),
-        this.lowStockFallback,
-      ),
-    }),
+  /** The threshold that is actually in force, shown where the field is empty.
+   * Nothing while the stock is untracked: the field is disabled then, and a
+   * figure in it would read as a value rather than as a default. */
+  protected readonly thresholdPlaceholder = computed(() =>
+    this.parsedStockPieces() === null
+      ? ''
+      : String(
+          lowStockThreshold(
+            this.packagingInput() ?? { piecesPerPack: null, packsPerBox: null },
+            this.parsedThreshold(),
+            this.lowStockFallback,
+          ),
+        ),
   );
 
   protected readonly previewPriceMinor = computed(

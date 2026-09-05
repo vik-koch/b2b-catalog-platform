@@ -326,11 +326,7 @@ export const adminTextSchema = z
             heading: z.string(),
             hint: z.string(),
             pieces: z.string(),
-            /** Under the field: blank means the stock is not tracked. */
-            piecesHint: z.string(),
             threshold: z.string(),
-            /** Under the field; `{pieces}` is the figure actually in force. */
-            thresholdHint: z.string(),
             /** Introduces the badge a customer would see right now. */
             preview: z.string(),
             /** Shown in place of the badge while nothing is tracked. */

@@ -167,6 +167,24 @@
 }
 
 /*
+ * The tick a checked checkbox carries.
+ *
+ * A checkbox and a radio are the two controls in the app whose *paint* is ours
+ * rather than the platform's — see `ui/checkbox.ts` for why — and a radio's dot
+ * can be drawn with an inset shadow while a checkmark needs a path. It lives
+ * here rather than in the class string so the class stays readable, and beside
+ * `.logo-mark` because it is the same kind of thing: an image referenced by a
+ * rule rather than a build input.
+ *
+ * White, because it is only ever drawn on the checked fill. Spaces are
+ * percent-encoded: a `url()` is the one arbitrary value Tailwind does not
+ * un-escape underscores in.
+ */
+:root {
+  --tick-mark: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%20fill='none'%20stroke='white'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m3.5%208.5%203%203%206-6'/%3E%3C/svg%3E");
+}
+
+/*
  * The navbar cart's figures — the line count and the running total — are drawn
  * from custom properties rather than from markup, because they have to be on
  * screen before Angular exists: the server cannot read the localStorage the
@@ -469,6 +487,27 @@ body:has(dialog[open]) {
      no break in it. On a phone that word is wider than the screen and takes
      the whole page sideways with it, so it breaks rather than overflows. */
   overflow-wrap: break-word;
+}
+
+/*
+ * A link an admin wrote is the app's own link. Typography gives it the colour
+ * and the underline; the rest is what `appLink` says in a template, written
+ * again here because nothing can reach inside a body that arrives as HTML.
+ */
+.prose a {
+  text-decoration-color: color-mix(
+    in oklab,
+    var(--color-primary) 30%,
+    transparent
+  );
+  text-underline-offset: 2px;
+  transition:
+    color 150ms,
+    text-decoration-color 150ms;
+}
+.prose a:hover {
+  color: var(--color-accent);
+  text-decoration-color: var(--color-accent);
 }
 
 /*

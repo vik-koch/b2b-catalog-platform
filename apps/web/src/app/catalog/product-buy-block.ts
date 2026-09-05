@@ -48,8 +48,17 @@ import { ProductUnitFacts } from './product-unit-facts';
          back, so the controls keep the 13.5rem they have inside a catalogue
          tile. 11px rather than 12 because the panel is a bordered box and the
          tile is not — the border is the pixel a side that would otherwise go
-         missing. -->
-    <div class="rounded-xl border border-border p-2.75 @min-[17rem]/buy:p-4">
+         missing.
+
+         The threshold is what the full padding actually costs, not a round
+         number above it: 13.5rem of controls plus 16px a side plus the border
+         is 15.625rem, so 15.75rem is the last width at which nothing has to be
+         given back. It was 17rem, which spent the padding a fifth of a column
+         early — on the product page the panel shed it while it still had 2rem
+         of slack over its floor. -->
+    <div
+      class="rounded-xl border border-border py-4 px-2.75 @min-[15.75rem]/buy:px-4"
+    >
       <!-- Over the price, as it is over the name on a card: whether the thing
            can be had is read before what it costs, and the panel's first line
            is where the eye enters it. -->
@@ -72,11 +81,16 @@ import { ProductUnitFacts } from './product-unit-facts';
              thing this product says about itself, and the note is the one
              thing on this panel the customer writes. With the word rather than
              the glyph alone — there is a line to spare here, and the panel it
-             opens is worth naming before it is pressed. -->
+             opens is worth naming before it is pressed.
+
+             Where the product takes no note it is the last thing above the
+             button and gives itself the room the note would have had: on its
+             own it stood closer to the button than to the facts above it. -->
         @if (item().pairedCount > 0) {
           <app-product-pairings
-            class="mt-3 block"
+            class="mt-3"
             variant="link"
+            [class.mb-3]="!item().lineNoteEnabled"
             [slug]="item().slug"
             [count]="item().pairedCount"
           />

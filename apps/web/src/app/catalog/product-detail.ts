@@ -86,7 +86,10 @@ import {
           }
         }
       } @else if (showSkeleton()) {
-        <div class="max-w-5xl animate-pulse" aria-hidden="true">
+        <div
+          class="@container/product max-w-7xl animate-pulse"
+          aria-hidden="true"
+        >
           <!-- The breadcrumb is part of the loaded page, so it is part of the
                placeholder too — otherwise everything below shifts up a row
                when the real content arrives. -->
@@ -98,13 +101,19 @@ import {
             <div
               class="aspect-square w-full rounded-xl bg-stone-200 md:max-w-120"
             ></div>
+            <!-- The facts column, which only the widest shape has. -->
+            <div
+              class="hidden h-48 rounded bg-stone-200 @min-[65rem]/product:block"
+            ></div>
             <div class="h-64 rounded-xl bg-stone-200"></div>
-            <div [class]="sectionCell + ' space-y-4'">
+            <div [class]="sectionCell + ' max-w-3xl space-y-4'">
               <div class="h-4 w-full rounded bg-stone-200"></div>
               <div class="h-4 w-5/6 rounded bg-stone-200"></div>
               <div class="h-4 w-4/6 rounded bg-stone-200"></div>
             </div>
-            <div [class]="sectionCell + ' h-24 rounded bg-stone-200'"></div>
+            <div
+              [class]="sectionCell + ' h-24 max-w-xl rounded bg-stone-200'"
+            ></div>
           </div>
         </div>
       }

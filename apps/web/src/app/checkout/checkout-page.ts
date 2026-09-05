@@ -53,6 +53,7 @@ import { PartyChoice } from './party-choice';
 import { PaymentChoice } from './payment-choice';
 import { PickupChoice } from './pickup-choice';
 import { PreferredDate } from './preferred-date';
+import { Link } from '../ui/link';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -88,6 +89,7 @@ import { PreferredDate } from './preferred-date';
     ReactiveFormsModule,
     RouterLink,
     Skeleton,
+    Link,
   ],
   template: `
     @if (placed(); as reference) {
@@ -113,7 +115,7 @@ import { PreferredDate } from './preferred-date';
       @if (guest()) {
         <p class="mt-8 max-w-xl text-sm text-muted">
           {{ text.successRegister }}
-          <a routerLink="/register" class="text-primary underline">
+          <a appLink routerLink="/register">
             {{ text.successRegisterAction }}
           </a>
         </p>
@@ -180,9 +182,9 @@ import { PreferredDate } from './preferred-date';
                 <span>
                   {{ text.signInPrompt }}
                   <a
+                    appLink
                     [routerLink]="['/login']"
                     [queryParams]="{ returnUrl: '/checkout' }"
-                    class="text-primary underline"
                   >
                     {{ text.signInAction }}
                   </a>
@@ -431,9 +433,7 @@ import { PreferredDate } from './preferred-date';
                 />
                 <span>
                   {{ text.privacyConsent }}
-                  <a routerLink="/privacy" class="text-primary underline">{{
-                    text.privacyLink
-                  }}</a
+                  <a appLink routerLink="/privacy">{{ text.privacyLink }}</a
                   ><span class="text-accent" aria-hidden="true">*</span>
                 </span>
               </label>
@@ -472,7 +472,7 @@ import { PreferredDate } from './preferred-date';
                 />
                 <span>
                   {{ text.phoneMissing }}
-                  <a routerLink="/account/edit" class="text-primary underline">
+                  <a appLink routerLink="/account/edit">
                     {{ text.phoneMissingAction }}
                   </a>
                 </span>

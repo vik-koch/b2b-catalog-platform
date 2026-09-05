@@ -20,7 +20,7 @@ import {
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { Button } from '../ui/button';
+import { Button, BUTTON_SIZES } from '../ui/button';
 import { Icon } from '../ui/icons/icon';
 import { Input } from '../ui/input';
 import { NumericField } from '../ui/numeric-field';
@@ -147,31 +147,37 @@ export interface BuyableProduct {
           <span [class]="priceUnitClass()">{{ priceUnit() }}</span>
         </p>
 
-        <!-- Whatever the caller does *to the line* goes at this end of the
-             price row — the cart's bin — and it is the only place a control
-             belongs that is neither a choice nor the action. -->
-        <ng-content select="[priceAction]" />
+        <!-- The glyphs as one group at the far end, so the gap between them is
+             the gap between two of the same kind of thing and the only space
+             the row shares out is the one between the price and all of them.
+             Zero, one or two of them, and the row looks the same either way. -->
+        <div class="flex items-center gap-1">
+          <!-- Whatever the caller does *to the line* goes at this end of the
+               price row — the cart's bin — and it is the only place a control
+               belongs that is neither a choice nor the action. -->
+          <ng-content select="[priceAction]" />
 
-        <!-- Left of the note, which keeps its corner: a customer who learned
-             the bubble there should not find it moved because this product
-             happens to be sold with something. -->
-        @if (marker(); as paired) {
-          <app-product-pairings [slug]="item().slug" [count]="paired" />
-        }
+          <!-- Left of the note, which keeps its corner: a customer who learned
+               the bubble there should not find it moved because this product
+               happens to be sold with something. -->
+          @if (marker(); as paired) {
+            <app-product-pairings [slug]="item().slug" [count]="paired" />
+          }
 
-        @if (asksForNote()) {
-          <app-product-note-editor
-            [value]="ownNote()"
-            [prompt]="notePrompt()"
-            [open]="popup()?.at === 'note'"
-            (requestOpen)="openNote()"
-            (valueChange)="ownNote.set($event)"
-            (save)="saveNote()"
-            (done)="closeNote()"
-            (cancelled)="cancelNote()"
-            (dismissed)="dismiss()"
-          />
-        }
+          @if (asksForNote()) {
+            <app-product-note-editor
+              [value]="ownNote()"
+              [prompt]="notePrompt()"
+              [open]="popup()?.at === 'note'"
+              (requestOpen)="openNote()"
+              (valueChange)="ownNote.set($event)"
+              (save)="saveNote()"
+              (done)="closeNote()"
+              (cancelled)="cancelNote()"
+              (dismissed)="dismiss()"
+            />
+          }
+        </div>
       </div>
     </ng-template>
 
@@ -239,7 +245,7 @@ export interface BuyableProduct {
         <div class="relative flex">
           <button
             type="button"
-            [class]="stepperButton() + ' rounded-l-md'"
+            [class]="stepperButton() + ' rounded-l-md border-r-0'"
             [attr.aria-label]="text.decrease"
             [disabled]="!sellable()"
             (click)="step(-1)"
@@ -299,6 +305,7 @@ export interface BuyableProduct {
             [disabled]="!sellable()"
             [value]="fieldText()"
             (input)="onQuantityInput($event)"
+            (keydown)="onQuantityKey($event)"
             (blur)="onQuantityBlur($event)"
           />
 
@@ -313,7 +320,7 @@ export interface BuyableProduct {
 
         <button
           type="button"
-          [class]="stepperButton() + ' rounded-r-md'"
+          [class]="stepperButton() + ' rounded-r-md border-l-0'"
           [attr.aria-label]="text.increase"
           [disabled]="!sellable()"
           (click)="step(1)"
@@ -698,10 +705,21 @@ export class ProductBuyControls {
    * be exactly as wide as they are tall. It does not clip: the keys round their
    * own outer corners instead, and a bubble hanging out of the row has to be
    * able to leave it.
+   *
+   * **No border of its own.** The three parts are boxes butted together, the
+   * way the navbar's search field and its submit button are (see
+   * `layout/search-field.ts`): each carries its own edge, the seam between two
+   * of them is a single line belonging to one side, and each part's highlight
+   * therefore closes around itself instead of stopping short of the seam. A
+   * border here as well was a second line outside all three, so lighting the
+   * field drew a box inside a box.
+   *
+   * The keys round their own outer corners, which is also why nothing clips: a
+   * bubble hanging out of the row has to be able to leave it.
    */
   protected readonly stepperGroup = computed(
     () =>
-      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch rounded-md border border-border-strong has-[input:focus-visible]:border-secondary ${
+      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch ${
         this.compact() ? 'h-9' : 'h-10'
       }`,
   );
@@ -715,29 +733,43 @@ export class ProductBuyControls {
    */
   protected readonly stepperButton = computed(
     () =>
-      `flex shrink-0 cursor-pointer items-center justify-center text-ink transition-colors hover:bg-stone-100 hover:text-accent active:bg-stone-200 active:text-primary focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-stone-400 disabled:hover:bg-transparent disabled:hover:text-stone-400 ${
+      `flex shrink-0 cursor-pointer items-center justify-center border border-border-strong text-ink transition-colors select-none hover:bg-stone-100 hover:text-accent active:bg-stone-200 active:text-primary focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-stone-400 disabled:hover:bg-transparent disabled:hover:text-stone-400 ${
         this.compact() ? 'w-9' : 'w-10'
       }`,
   );
   /**
-   * Everything the ends leave over. No ring of its own — it is welded into a
-   * row, and a ring around the middle of one draws lines through it. What it
-   * does instead is what every other field does: its two edges recolour, from
-   * the app-wide rule, and the group's border recolours with them (see
-   * stepperGroup), so the whole control says it has the caret rather than the
-   * slice between the keys.
+   * Everything the ends leave over, and **no border at all**.
+   *
+   * The two lines between the field and the keys are drawn by the *keys*
+   * (`border-r` / `border-l` at the call site) rather than by this field's
+   * `border-x`, which is what they were. They are structure — they say where
+   * one part of the control ends and the next begins — and as the field's own
+   * border they were recoloured by everything that recolours a field's border:
+   * the app-wide focus rule, and now hover as well. Lighting them made the
+   * keys look outlined, when the only edge that should answer is the group's.
+   *
+   * **It owns both seams**, so its own edge is the whole of what lights up: an
+   * ordinary `appInput` border on all four sides, squared off, with the keys
+   * dropping their border on the side that meets it. Nothing here says how it
+   * answers a pointer or a caret — accent on hover and secondary on focus are
+   * what the Input directive and the app-wide focus rule already give every
+   * field, and the point of composing it this way is that they reach it.
    */
   protected readonly quantityField = computed(
     () =>
-      `h-full w-full min-w-0 rounded-none border-x border-y-0 border-border-strong px-1 py-0 text-center focus-visible:outline-none ${
+      `h-full w-full min-w-0 rounded-none px-1 py-0 text-center ${
         this.compact() ? 'text-sm' : ''
       }`,
   );
   /** The button's own metrics, so the row does not move when one replaces the
-   * other. In a row the cell above it already carries the spacing. */
+   * other — the size shared from Button, including how it grows when the words
+   * do not fit on one line. Centred by flex rather than by `text-center`,
+   * because the height is now a floor the text sits inside rather than the sum
+   * of the padding and the line. In a row the cell above it already carries
+   * the spacing. */
   protected readonly addedField = computed(
     () =>
-      `${this.row() ? '' : 'mt-2'} w-full rounded-md bg-secondary p-2 text-center text-sm font-medium text-white`,
+      `${this.row() ? '' : 'mt-2'} flex w-full items-center justify-center rounded-md bg-secondary text-center text-sm font-medium text-white ${BUTTON_SIZES.md}`,
   );
   protected readonly addButton = computed(
     () => `${this.row() ? '' : 'mt-2'} w-full`,
@@ -793,6 +825,27 @@ export class ProductBuyControls {
   protected onQuantityInput(event: Event): void {
     this.chosen.type((event.target as HTMLInputElement).value);
     this.edited();
+  }
+
+  /**
+   * Up and down step the quantity, the way they would in a number field —
+   * which this is, minus the browser's spinner (see NumericField, which drops
+   * `type="number"` because it reports a half-typed "1." as empty).
+   *
+   * They go through the same `step` the keys do, so down at the minimum asks
+   * the same question the `−` key asks there: it is the same press, and a
+   * customer who learns it on one should not find the other silent.
+   */
+  protected onQuantityKey(event: KeyboardEvent): void {
+    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+    // Otherwise the caret runs to an end of the draft, and a page with room to
+    // scroll takes the arrow as a scroll.
+    event.preventDefault();
+    this.step(event.key === 'ArrowUp' ? 1 : -1);
+    // Written back for the reason the blur writes it back: the binding alone
+    // does not, the figure it holds not necessarily having moved. The field
+    // keeps the caret here, so there is no blur to do it.
+    (event.target as HTMLInputElement).value = this.chosen.quantityText();
   }
 
   /**

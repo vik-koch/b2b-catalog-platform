@@ -13,6 +13,7 @@ import { formatPriceMinor } from '../catalog/price';
 import { Button } from '../ui/button';
 import { DialogPanel } from '../ui/dialog-panel';
 import { fillText } from '@b2b-catalog-platform/shared';
+import { Link } from '../ui/link';
 
 /**
  * Where this deployment delivers, and what an order has to reach for delivery
@@ -26,7 +27,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
  */
 @Component({
   selector: 'app-delivery-conditions-dialog',
-  imports: [Button, DialogPanel, RouterLink],
+  imports: [Button, DialogPanel, RouterLink, Link],
   template: `
     <dialog
       #dialog
@@ -61,7 +62,8 @@ import { fillText } from '@b2b-catalog-platform/shared';
       <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
         @if (conditionsPath) {
           <a
-            class="text-sm text-accent hover:underline"
+            appLink
+            class="text-sm"
             [routerLink]="conditionsPath"
             (click)="closed.emit()"
           >

@@ -72,6 +72,7 @@ export class StatusBadge {
   protected readonly classes = computed(() => {
     const variant = this.variant();
     const colours = variant === 'dot' ? dots[this.tone()] : tones[this.tone()];
-    return `inline-flex items-center text-xs font-medium ${shapes[variant]} ${colours}`;
+    // select-none: a badge names a state, it is not text about one. See Button.
+    return `inline-flex items-center text-xs font-medium select-none ${shapes[variant]} ${colours}`;
   });
 }

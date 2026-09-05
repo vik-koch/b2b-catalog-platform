@@ -28,12 +28,23 @@ const chevrons = {
 @Component({
   selector: 'app-select-field',
   imports: [Icon],
-  host: { class: 'relative block' },
+  /*
+   * The chevron follows the field it belongs to rather than sitting there in
+   * one colour: accent under a pointer, secondary while the caret is in it —
+   * the same two states the select's own border wears. Stated here, on the
+   * wrapper, because the wrapper is the only element that can see both the
+   * select and the glyph; the hover excludes `:focus-within` for the reason
+   * UnitField gives.
+   */
+  host: {
+    class:
+      'relative block [&:has(select:enabled):not(:focus-within):hover_app-icon]:text-accent [&:focus-within_app-icon]:text-secondary',
+  },
   template: `
     <ng-content />
     <app-icon
       name="chevron-down"
-      class="pointer-events-none absolute top-1/2 -translate-y-1/2 text-stone-400"
+      class="pointer-events-none absolute top-1/2 -translate-y-1/2 text-stone-400 transition-colors"
       [class]="chevron()"
     />
   `,

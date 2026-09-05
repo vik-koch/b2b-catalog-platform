@@ -109,10 +109,13 @@ describe('ProductDetail', () => {
 
     // A real table (th/td) so a cell selection copies as TSV — see
     // product-detail-view.
-    const keys = [...root.querySelectorAll('tbody th')].map((n) =>
+    // Scoped to the section: the same facts also head the band beside the
+    // photo, where only the first few of them stand.
+    const table = root.querySelector('#specifications');
+    const keys = [...(table?.querySelectorAll('tbody th') ?? [])].map((n) =>
       n.textContent?.trim(),
     );
-    const values = [...root.querySelectorAll('tbody td')].map((n) =>
+    const values = [...(table?.querySelectorAll('tbody td') ?? [])].map((n) =>
       n.textContent?.trim(),
     );
     expect(keys).toEqual(['Net weight', 'Count per package']);
@@ -121,13 +124,22 @@ describe('ProductDetail', () => {
 
   it('links a filterable value into its own category, filtered (FR-ATTR-08)', async () => {
     const root = el(await render(product));
-    const links = [...root.querySelectorAll('tbody td a')];
+    const href = `/catalog/${product.category.slug}?attr=net-weight:1`;
 
-    // The link is written from the *stored* value — "1", not the "1 kg" the
-    // row shows — because that is what the facet and the URL are keyed by.
-    expect(links.map((a) => a.getAttribute('href'))).toEqual([
-      `/catalog/${product.category.slug}?attr=net-weight:1`,
-    ]);
+    // Twice, and that is the point: the band beside the photo repeats the
+    // first few of these rows, and both tables draw the cell from one
+    // template — the band's used to be a copy that printed plain text, so the
+    // same value was a link a screen further down and not here.
+    const links = [...root.querySelectorAll('tbody td a')];
+    expect(links.map((a) => a.getAttribute('href'))).toEqual([href, href]);
+
+    // Scoped to the section, the link is the one row that has one: the link is
+    // written from the *stored* value — "1", not the "1 kg" the row shows —
+    // because that is what the facet and the URL are keyed by.
+    const inSection = [
+      ...(root.querySelectorAll('#specifications tbody td a') ?? []),
+    ];
+    expect(inSection.map((a) => a.getAttribute('href'))).toEqual([href]);
     // And an undeclared attribute stays plain text: the underline is the only
     // cue that the shop filters by an attribute at all.
     expect(links[0].textContent?.trim()).toBe('1 kg');
@@ -146,10 +158,26 @@ describe('ProductDetail', () => {
       }),
     );
 
-    const keys = [...root.querySelectorAll('tbody th')].map((n) =>
-      n.textContent?.trim(),
+    const keys = [...root.querySelectorAll('#specifications tbody th')].map(
+      (n) => n.textContent?.trim(),
     );
     expect(keys).toEqual(['Net weight', 'Count per package']);
+  });
+
+  // The band beside the photo is the head of that table, not a second one: the
+  // first few facts, and a link to the rest of them.
+  it('heads the page with the first few facts and a way to the rest', async () => {
+    const root = el(await render(product));
+    const band = root.querySelector('table:not(#specifications table)');
+
+    expect(
+      [...(band?.querySelectorAll('tbody th') ?? [])].map((n) =>
+        n.textContent?.trim(),
+      ),
+    ).toEqual(['Net weight', 'Count per package']);
+    expect(root.textContent).toContain(
+      defaultAppText.catalog.allSpecifications,
+    );
   });
 
   it('shows a not-found message when the product does not exist', async () => {

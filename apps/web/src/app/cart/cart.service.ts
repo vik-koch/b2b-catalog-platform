@@ -122,6 +122,20 @@ export interface CartStoredLine {
    * line by itself.
    */
   pairedCount: number;
+  /**
+   * How many pieces of what this product is sold with the cart is short of
+   * (FR-SET-03), or null where it is short of nothing.
+   *
+   * Written down for the reason the prices are: the cart is drawn from the
+   * browser's own copy before anything is asked of the server, and a shortfall
+   * that only lived in the last answer vanished on every reload and came back
+   * a call later. The shop is still the one that decides it — this is the last
+   * thing it said, replaced by the next pricing and never worked out here.
+   *
+   * Null for a cart written before this was recorded, and for a line nobody
+   * has priced yet.
+   */
+  pairingShortPieces: number | null;
 }
 
 /** The whole cart as it is written down: the lines, and whose prices they were
@@ -385,6 +399,10 @@ export class CartService {
           availability: addition.availability,
           notePrompt: addition.lineNotePrompt,
           pairedCount: addition.pairedCount,
+          // Nobody has checked the cart against its pairings yet, and this
+          // line is the reason the answer would change: the first preview
+          // says it.
+          pairingShortPieces: null,
           ...priceLine(addition, pieces),
         },
       ]);
@@ -530,6 +548,10 @@ export class CartService {
         noteEnabled: fresh.lineNoteEnabled,
         notePrompt: fresh.lineNotePrompt,
         pairedCount: fresh.pairedCount,
+        // Taken as answered, not kept: an unavailable line is short of
+        // nothing, and there is nothing in the last figure worth showing over
+        // a newer one that says so.
+        pairingShortPieces: fresh.pairingShortPieces,
         // The same reading the page makes of a fresh line: prices the shop
         // will not state are a product it no longer offers.
         available: fresh.prices !== null,
@@ -617,6 +639,7 @@ export class CartService {
           .map(withAvailability)
           .map(withStockState)
           .map(withPairedCount)
+          .map(withPairingShortfall)
           .filter(isStoredLine)
           .slice(0, CART_LINES_MAX),
         pricedFor: readPricedFor(parsed.pricedFor),
@@ -714,6 +737,18 @@ function withPairedCount(line: unknown): unknown {
     : { ...candidate, pairedCount: 0 };
 }
 
+/** Fills in a line stored before the shortfall was written down. Null is
+ * "nobody has checked", which is also what a covered line answers — so a cart
+ * in a browser today warns about nothing until the first pricing of the visit
+ * says otherwise. */
+function withPairingShortfall(line: unknown): unknown {
+  const candidate = line as { pairingShortPieces?: unknown } | null;
+  if (!candidate || typeof candidate !== 'object') return line;
+  return 'pairingShortPieces' in candidate
+    ? candidate
+    : { ...candidate, pairingShortPieces: null };
+}
+
 function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
   return (
     a.unit === b.unit &&
@@ -727,6 +762,7 @@ function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
     a.available === b.available &&
     a.availability === b.availability &&
     a.pairedCount === b.pairedCount &&
+    a.pairingShortPieces === b.pairingShortPieces &&
     a.boxVolume === b.boxVolume &&
     a.boxWeight === b.boxWeight &&
     a.boxCount === b.boxCount &&
@@ -817,6 +853,10 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     (candidate.notePrompt === null ||
       typeof candidate.notePrompt === 'string') &&
     typeof candidate.available === 'boolean' &&
+    // Rendered as a figure in a sentence and counted into what the order card
+    // says, so a hand-edited payload must not put a string in either.
+    (candidate.pairingShortPieces === null ||
+      Number.isInteger(candidate.pairingShortPieces)) &&
     isAvailability(candidate.availability)
   );
 }

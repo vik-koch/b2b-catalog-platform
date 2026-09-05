@@ -221,7 +221,11 @@ interface CartRow {
                   [indeterminate]="someSelected() && !allSelected()"
                   (change)="toggleAll()"
                 />
-                <span class="hover:underline">
+                <!-- Not a link, though it reads like one: the whole label is
+                     the hit area and the box is the control, so an underline
+                     under the words would promise they go somewhere. It also
+                     sits beside a delete that deliberately has none. -->
+                <span>
                   {{ allSelected() ? text.clearSelection : text.selectAll }}
                 </span>
               </label>
@@ -257,7 +261,10 @@ interface CartRow {
                     <!-- Level with the top of the photo, and as close to it as
                        the tick above the list is to its own words, so the two
                        read as the same control. -->
-                    <label rowSelect class="-mr-2 flex shrink-0 items-start">
+                    <label
+                      rowSelect
+                      class="-mr-2 flex cursor-pointer shrink-0 items-start"
+                    >
                       <input
                         type="checkbox"
                         appCheckbox
@@ -271,11 +278,7 @@ interface CartRow {
                       <p class="mt-1 text-sm text-amber-700">{{ issue }}</p>
                     }
 
-                    @if (
-                      row.takesNote ||
-                      row.pairedCount > 0 ||
-                      row.pairingShortPieces
-                    ) {
+                    @if (row.takesNote || row.pairedCount > 0) {
                       <!-- Under the name, in the name's own column: both of
                          these are about this product, and a field the width of
                          the whole line read as being about the cart.
@@ -296,21 +299,38 @@ interface CartRow {
                       >
                         <!-- Above the note, because it is something the shop
                            says about the product and the note is something the
-                           customer writes about the line. -->
-                        <!-- What this line is short of, and then the way to
-                           answer it: the sentence names the amount and the
-                           link opens the products that would cover it, which
-                           is the whole of FR-SET-03 in two lines. -->
-                        @if (row.pairingShortPieces; as short) {
-                          <p class="text-sm text-amber-700">
-                            {{ shortMessage(short) }}
-                          </p>
-                        }
+                           customer writes about the line.
+
+                           One line either way: what the product is sold with,
+                           or — where the line is short of it — what it is
+                           short of, said in the same place in amber with the
+                           amount as the link. The shortfall replaces the offer
+                           rather than standing over it: two links to the same
+                           panel, one under the other, is the same sentence
+                           twice (FR-SET-03). -->
                         @if (row.pairedCount > 0) {
+                          <!-- Two pixels down where it is the last thing on
+                               the line: on its own, beside the controls, it
+                               sits on the row's bottom edge and its glyph
+                               reads high against them. Shifted rather than
+                               given a margin — the group is held to that
+                               bottom edge by an auto margin above it, so room
+                               added at the top is room the auto margin gives
+                               back and nothing moves.
+
+                               Not where something follows it: a note under it,
+                               or the stacked shape, where the controls
+                               themselves come next. -->
                           <app-product-pairings
                             variant="link"
+                            [class]="
+                              row.takesNote
+                                ? ''
+                                : '@min-[47.5rem]/row:translate-y-0.5'
+                            "
                             [slug]="row.slug"
                             [count]="row.pairedCount"
+                            [message]="shortMessage(row.pairingShortPieces)"
                           />
                         }
                         @if (row.takesNote) {
@@ -585,7 +605,11 @@ export class CartPage {
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
         pairedCount: line.pairedCount,
-        pairingShortPieces: fresh?.pairingShortPieces ?? null,
+        // From the browser's own copy, like everything else on the row: the
+        // shop works the shortfall out, but preview writes what it answers
+        // back into the store, so a reload states it before the call that
+        // confirms it rather than a call later.
+        pairingShortPieces: line.pairingShortPieces,
         // Before an answer arrives, the one thing the browser wrote down about
         // the line's state — so a withdrawn line says why it is priceless
         // rather than showing "on request" with nothing to explain it.
@@ -631,13 +655,23 @@ export class CartPage {
     );
   });
 
-  /** What one line is short, in pieces — the unit every quantity here is a
-   * count of, whichever lens the line is being read in. */
-  protected shortMessage(shortPieces: number): string {
-    return fillText(this.pairingText.short, {
-      count: shortPieces,
-      unit: this.pieceUnit,
-    });
+  /**
+   * What one line is short, in pieces — the unit every quantity here is a
+   * count of, whichever lens the line is being read in. Null where the line is
+   * short of nothing, which is the marker saying its ordinary word instead.
+   *
+   * Two halves because only the first is the link: the deployment's own text
+   * decides where the sentence breaks.
+   */
+  protected shortMessage(
+    shortPieces: number | null,
+  ): { link: string; rest: string } | null {
+    if (shortPieces === null) return null;
+    const filled = { count: shortPieces, unit: this.pieceUnit };
+    return {
+      link: fillText(this.pairingText.shortAction, filled),
+      rest: fillText(this.pairingText.shortReason, filled),
+    };
   }
 
   /**

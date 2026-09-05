@@ -11,7 +11,11 @@ import { productDetail } from './product.fixture';
 
 const text = defaultAppText.catalog.pairings;
 
-async function render(variant: 'marker' | 'link', count = 2) {
+async function render(
+  variant: 'marker' | 'link',
+  count = 2,
+  message: { link: string; rest: string } | null = null,
+) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [ProductPairings],
@@ -22,6 +26,7 @@ async function render(variant: 'marker' | 'link', count = 2) {
   fixture.componentRef.setInput('slug', 'takeaway-cup');
   fixture.componentRef.setInput('count', count);
   fixture.componentRef.setInput('variant', variant);
+  fixture.componentRef.setInput('message', message);
   await fixture.whenStable();
 
   return {
@@ -48,6 +53,19 @@ describe('the sold-together marker (FR-SET-05)', () => {
     const { el } = await render('link');
 
     expect(el.querySelector('button')?.textContent).toContain(text.label);
+  });
+
+  // FR-SET-03: on a cart line the same control says what the line is short of
+  // instead of its own name, and only the half that is the answer is pressable.
+  it('says what it was given instead of its own name', async () => {
+    const { el } = await render('link', 2, {
+      link: 'Add 20 pc',
+      rest: 'of what this is sold with.',
+    });
+
+    expect(el.querySelector('button')?.textContent?.trim()).toBe('Add 20 pc');
+    expect(el.textContent).toContain('of what this is sold with.');
+    expect(el.textContent).not.toContain(text.label);
   });
 
   it('opens the one panel, naming the product it was pressed on', async () => {

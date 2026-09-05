@@ -25,6 +25,7 @@ import { Input } from '../../ui/input';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
 import { SyncService } from './sync.service';
+import { Link } from '../../ui/link';
 
 /**
  * Fills `{placeholders}` in a line of admin text with the names the API sent
@@ -63,6 +64,7 @@ function substitute(
     FieldLabel,
     Input,
     StatusBadge,
+    Link,
   ],
   template: `
     <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ text.title }}</h1>
@@ -97,7 +99,7 @@ function substitute(
           </summary>
           <div class="mt-3 space-y-2 border-l-2 border-stone-100 pl-4">
             @for (flag of flags; track flag.key) {
-              <label class="flex items-start gap-2 text-sm">
+              <label class="flex cursor-pointer items-start gap-2 text-sm">
                 <input
                   type="checkbox"
                   appCheckbox
@@ -151,9 +153,7 @@ function substitute(
             <span class="text-sm text-subtle">{{ text.changeFile }}</span>
           } @else {
             <span class="font-medium">{{ text.dropHint }}</span>
-            <span class="text-sm text-primary underline">{{
-              text.browse
-            }}</span>
+            <span appLink class="text-sm">{{ text.browse }}</span>
           }
         </button>
         <p class="mt-1 text-sm text-subtle">{{ text.fileHint }}</p>
@@ -366,7 +366,7 @@ function substitute(
       @if (appliedRun(); as run) {
         <p class="mb-8 rounded-md bg-stone-100 p-3 text-sm" role="status">
           {{ text.applied }} {{ changeSummary(run) }}
-          <a routerLink="/catalog" class="ml-2 underline">{{
+          <a appLink routerLink="/catalog" class="ml-2">{{
             catalogText.navLabel
           }}</a>
         </p>

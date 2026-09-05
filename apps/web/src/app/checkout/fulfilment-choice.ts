@@ -4,6 +4,7 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { ChoiceCard } from '../ui/choice-card';
 import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
+import { Link } from '../ui/link';
 
 /**
  * How the goods arrive (FR-CART-07) — the row that leads the form, because it
@@ -21,7 +22,7 @@ import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
  */
 @Component({
   selector: 'app-fulfilment-choice',
-  imports: [ChoiceCard, DeliveryConditionsDialog],
+  imports: [ChoiceCard, DeliveryConditionsDialog, Link],
   // Block, or the page's own spacing between sections cannot reach it: a
   // margin on an inline element does nothing.
   host: { class: 'block' },
@@ -50,7 +51,8 @@ import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
                  prints in the same place. -->
             <button
               type="button"
-              class="block cursor-pointer text-sm text-accent hover:underline"
+              appLink
+              class="block text-sm"
               (click)="showConditions.set(true)"
             >
               {{ text.conditionsLink }}

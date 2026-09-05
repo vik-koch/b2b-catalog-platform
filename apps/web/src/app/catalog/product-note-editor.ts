@@ -65,10 +65,14 @@ import { Popover } from '../ui/popover';
       </label>
     </ng-template>
 
+    <!-- Marked whether or not anything is written, like the pairing marker it
+         stands beside: the two are one group of controls the line offers, and
+         one of them greyed read as unavailable rather than unused. Which of
+         them it is is the glyph's job, not the colour's. -->
     <button
       type="button"
       appIconButton
-      [variant]="written() ? 'marked' : 'default'"
+      variant="marked"
       [attr.aria-label]="written() ? text.noteEdit : text.noteAdd"
       [title]="written() ? text.noteEdit : text.noteAdd"
       (click)="requestOpen.emit()"

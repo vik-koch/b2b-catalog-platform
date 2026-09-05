@@ -44,7 +44,17 @@ import { Radio } from './radio';
           (change)="chosen.emit()"
         />
         <span class="min-w-0">
-          <span class="block font-medium">{{ title() }}</span>
+          <!-- The title follows the card, as a disclosure's label follows its
+               button: the card recolours its border and lights its radio, and
+               a title that stayed put was the one part of the control not
+               answering. The sentence under it does not — it is prose about
+               the option, not the name of it, and a paragraph changing colour
+               under the pointer is a lot of movement for one hover. -->
+          <span
+            class="block font-medium transition-colors group-hover/card:text-accent"
+          >
+            {{ title() }}
+          </span>
           @if (description()) {
             <span class="mt-1 block text-sm text-muted">
               {{ description() }}
@@ -89,11 +99,18 @@ export class ChoiceCard {
     // glance across a row of cards, where a border alone is a hairline.
     // Unavailable is shown, not hidden: the card still says what the option
     // is and what it would need, greyed rather than removed.
+    //
+    // The chosen card answers a pointer too. It used to be the one card in the
+    // row that did not, which read as the one that could no longer be pressed —
+    // it is the one that already is. Its press deepens rather than tinting,
+    // there being a tint on it already.
+    // `group/card` only where the card can be chosen, so a disabled one's
+    // title stays put along with everything else on it.
     const state = this.disabled()
       ? 'border-border opacity-60'
       : this.checked()
-        ? 'border-primary bg-stone-50'
-        : 'border-border-strong hover:border-accent active:border-primary active:bg-stone-100';
+        ? 'group/card border-primary bg-stone-50 hover:border-accent active:border-primary-deep'
+        : 'group/card border-border-strong hover:border-accent active:border-primary active:bg-stone-100';
     return `relative h-full rounded-lg border p-3 transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary ${state}`;
   });
 }

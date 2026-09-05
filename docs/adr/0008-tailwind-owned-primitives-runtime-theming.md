@@ -93,3 +93,35 @@ drew. Both are now on the same side of it as the colours.
   a step up from the body text in the system stack and a shout in a face whose
   medium and semibold are barely apart. It is one token, not a type scale: the
   rest of the weights are the app's own design and stay in the templates.
+
+## Amendment — 2026-09-05 (v1.7.0): one link treatment, one set of control states
+
+The primitives were extracted one at a time, each answering its own screen, and
+by the ninth iteration they disagreed with each other. Two rules were settled
+across all of them.
+
+- **`appLink` is the one link treatment.** Three idioms had grown up in
+  parallel — `text-primary underline`, `text-accent hover:underline`, and an
+  `underline hover:no-underline` inversion — so the same affordance meant three
+  things depending on which screen it was on. `ui/link.ts` replaces them at
+  every call site, with the underline drawn in a tint of the text colour so it
+  reads as a hairline rather than a second line of the same weight. A global
+  `a { … }` rule is the wrong shape here: most anchors in this app are nav
+  items, tiles, breadcrumbs and `appButton` links, and a global rule would be
+  undone at each one. But rich text arrives as sanitized HTML (0020) where no
+  directive can reach, so `styles.css` carries `.prose a` matching the
+  directive — **two copies of one rule, kept in step by hand**, which is the
+  price of the directive form.
+- **Hover and focus are the same everywhere.** Buttons, checkboxes, radios,
+  switches, segmented controls, select fields, choice cards, disclosures and
+  icon buttons now share one set of states rather than each carrying its own,
+  and their spacing came into line with them. Nothing about the token model
+  changes; what changes is that a control's states are read from the shared
+  set instead of being written again per primitive.
+
+The underline is rationed on purpose: it is what distinguishes a link inside a
+sentence, where nothing else does. Outside running text, position and spacing
+already say a thing is operable. A handful of standalone text controls (show
+password, generate, browse) carry it anyway because they have no other
+affordance at all — the cleaner answer is a second tone in the same file, and
+it is not built.

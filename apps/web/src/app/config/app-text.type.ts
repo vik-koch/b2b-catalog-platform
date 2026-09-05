@@ -140,6 +140,10 @@ export const appTextSchema = z
          * half is split into, each of which is also its own anchor. */
         description: z.string(),
         specifications: z.string(),
+        /** Heads the four facts beside the photo, and the link under them
+         * goes to the whole table. */
+        mainSpecifications: z.string(),
+        allSpecifications: z.string(),
         productNotFound: z.string(),
         categoryNotFound: z.string(),
         /** Back link on the catalogue's 404 screens. */
@@ -378,15 +382,22 @@ export const appTextSchema = z
           .strict(),
         /**
          * What a cart is missing of what its products are sold with
-         * (FR-SET-02/03/04). `short` is per line — `{count}` pieces and
-         * `{unit}` the piece abbreviation — and the two summaries sit in the
-         * order card above the checkout button: `summary` where an unsatisfied
-         * pairing is advisory, `summaryEnforced` where the deployment refuses
-         * on it and the button is disabled.
+         * (FR-SET-02/03/04). The shortfall is per line and is said in two
+         * halves, because only the first of them is the link that opens the
+         * counterparts: `shortAction` is the words to press — `{count}` pieces
+         * and `{unit}` the piece abbreviation — and `shortReason` is the rest
+         * of the sentence, in plain text. Where the split falls is a matter of
+         * grammar, which is why it is text rather than code.
+         *
+         * The two summaries sit in the order card above the checkout button:
+         * `summary` where an unsatisfied pairing is advisory,
+         * `summaryEnforced` where the deployment refuses on it and the button
+         * is disabled.
          */
         pairing: z
           .object({
-            short: z.string(),
+            shortAction: z.string(),
+            shortReason: z.string(),
             summary: z.string(),
             summaryEnforced: z.string(),
           })
@@ -523,6 +534,11 @@ export const appTextSchema = z
           .object({
             deliveryLabel: z.string(),
             pickupLabel: z.string(),
+            /** What an empty field says. A native date input cannot take a
+             * `placeholder`, and what it draws instead is a different thing in
+             * every engine — "dd.mm.yyyy" on a desktop, an empty box on iOS —
+             * so the field draws this itself. */
+            placeholder: z.string(),
             /** Which days are on offer, in words: a native picker can grey out
              * what falls before the floor but not every weekend after it. */
             deliveryHint: z.string(),

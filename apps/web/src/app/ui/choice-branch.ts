@@ -33,7 +33,12 @@ import { Radio } from './radio';
            breaks, so the option's words sit in the top line and the rule picks
            up again just past them. -->
       <legend class="ms-0 p-0" [class.pe-3]="framed()">
-        <label class="flex cursor-pointer items-baseline gap-2">
+        <!-- The option's words follow the pointer with its radio, the way a
+             disclosure's label follows its chevron — this is one short line
+             naming a choice, not a sentence about it. -->
+        <label
+          class="flex cursor-pointer items-baseline gap-2 transition-colors hover:text-accent"
+        >
           <input
             type="radio"
             appRadio

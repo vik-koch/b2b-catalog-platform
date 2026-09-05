@@ -63,6 +63,8 @@
     },
     "description": "Description",
     "specifications": "Specifications",
+    "mainSpecifications": "Main specifications",
+    "allSpecifications": "All specifications",
     "productNotFound": "This product could not be found. It may have been removed.",
     "categoryNotFound": "This category could not be found. It may have been removed.",
     "backToCatalog": "Back to the catalogue",
@@ -162,7 +164,8 @@
       "outOfStock": "Out of stock — please remove this line to place your order."
     },
     "pairing": {
-      "short": "Add {count} {unit} of what this is sold with.",
+      "shortAction": "Add {count} {unit}",
+      "shortReason": "of what this is sold with.",
       "summary": "{count} products in your cart are missing what they are sold with.",
       "summaryEnforced": "{count} products in your cart cannot be ordered without what they are sold with."
     }
@@ -212,6 +215,7 @@
     "timing": {
       "deliveryLabel": "Preferred delivery date",
       "pickupLabel": "Preferred collection date",
+      "placeholder": "Select a date…",
       "deliveryHint": "Your preference only: the actual delivery date will be confirmed by a manager.",
       "pickupHint": "Your preference only: the actual collection date will be confirmed by a manager.",
       "unavailable": "We cannot manage that day. Please choose a working day from the next one onwards."

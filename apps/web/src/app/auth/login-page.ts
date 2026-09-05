@@ -11,6 +11,7 @@ import { Input } from '../ui/input';
 import { AuthCard } from './auth-card';
 import { landingFor } from './auth.guard';
 import { AuthService, LoginResult } from './auth.service';
+import { Link } from '../ui/link';
 
 /**
  * The one login form, for every role (FR-AUTH-07). Where it lands afterwards
@@ -27,6 +28,7 @@ import { AuthService, LoginResult } from './auth.service';
     EmailField,
     FieldLabel,
     Input,
+    Link,
   ],
   template: `
     <app-auth-card>
@@ -87,10 +89,7 @@ import { AuthService, LoginResult } from './auth.service';
           <!-- Beside the button, not under the password field: it is what you
                reach for after the login fails, which is where the eye already
                is. -->
-          <a
-            routerLink="/forgot-password"
-            class="text-sm font-medium text-primary underline underline-offset-2 hover:no-underline"
-          >
+          <a appLink routerLink="/forgot-password" class="text-sm">
             {{ text.forgotPassword.link }}
           </a>
         </div>

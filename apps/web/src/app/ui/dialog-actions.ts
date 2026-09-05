@@ -12,12 +12,19 @@ import { Directive } from '@angular/core';
  * Their labels are deployment text, and a translation twice the length of the
  * one this was designed against used to run out of the panel; splitting the
  * line between them lets the label wrap instead.
+ *
+ * Two rules keep the wide shape from doing the same. The row wraps, so a pair
+ * of long labels takes two lines rather than one that does not fit. And the
+ * buttons on it may shrink (`flex-initial`, not `flex-none`), so one label
+ * longer than the whole panel wraps inside its button. Without the second, a
+ * button wider than the row overflowed a `justify-end` line to the *left* —
+ * the one direction nothing can scroll to, so the label was simply cut off.
  */
 @Directive({
   selector: '[appDialogActions]',
   host: {
     class:
-      'mt-6 flex gap-3 sm:justify-end [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none',
+      'mt-6 flex flex-wrap gap-3 sm:justify-end [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-initial',
   },
 })
 export class DialogActions {}

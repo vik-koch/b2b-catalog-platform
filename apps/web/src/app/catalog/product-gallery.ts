@@ -10,7 +10,7 @@ import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { swipeStep, touchX } from './swipe';
 import { APP_TEXT } from '../config/app-text';
 import { Button } from '../ui/button';
-import { FRAME, FRAME_SELECTED } from '../ui/frame';
+import { FRAME, FRAME_HOVER, FRAME_SELECTED } from '../ui/frame';
 import { ImagePlaceholder } from './image-placeholder';
 
 /** Thumbnails a phone keeps before the show-more toggle takes over — one row
@@ -139,7 +139,12 @@ export class ProductGallery {
    * image and a product with twelve show it at the same size. Uncapped below
    * that — on a phone the photo is the page, and a column narrower than the
    * cap is doing the capping anyway. */
-  protected readonly mainImage = `aspect-square w-full min-w-0 touch-pan-y overflow-hidden rounded-xl bg-stone-100 md:w-100 md:shrink-0 ${FRAME}`;
+  /* `md:w-100` is what the photo wants, not what it insists on: it may shrink
+   * where the column it stands in is narrower than the pair of them. Held to
+   * its 25rem by `shrink-0`, a tight column pushed the strip of thumbnails
+   * off the left edge instead — the strip is the flex item that gives way in a
+   * reversed row, and it went where nothing could scroll to it. */
+  protected readonly mainImage = `aspect-square w-full min-w-0 touch-pan-y overflow-hidden rounded-xl bg-stone-100 md:w-100 ${FRAME}`;
 
   protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;
 
@@ -219,12 +224,13 @@ export class ProductGallery {
   }
 
   /** Every thumbnail carries the hairline the photos elsewhere have; the
-   * chosen one wears it at accent, two pixels wide. Weight rather than colour
-   * alone, so which one is chosen survives a page of photos that are already
-   * the accent's colour — and outwards, so the photo inside is the same size
-   * whichever one is chosen. */
+   * chosen one wears it at primary, two pixels wide. Weight as well as colour,
+   * so which one is chosen survives a page of photos that are themselves brown
+   * — and outwards, so the photo inside is the same size whichever one is
+   * chosen. Both answer a pointer with accent, the chosen one included: it is
+   * still a thing you can press, and it was the one that said otherwise. */
   protected thumb(selected: boolean): string {
-    return `block aspect-square w-full overflow-hidden rounded-md transition-shadow ${
+    return `block aspect-square w-full overflow-hidden rounded-md transition-shadow ${FRAME_HOVER} ${
       selected ? FRAME_SELECTED : FRAME
     }`;
   }
