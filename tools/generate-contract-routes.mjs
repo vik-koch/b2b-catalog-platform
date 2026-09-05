@@ -37,6 +37,7 @@ const CONTRACTS = [
   'authContract',
   'cartContract',
   'catalogContract',
+  'documentsContract',
   'inquiryContract',
   'ordersContract',
   'pageContract',

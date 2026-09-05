@@ -525,6 +525,59 @@ export const catalogContract = {
     },
   },
 } as unknown as typeof shared.catalogContract;
+export const documentsContract = {
+  listDocuments: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/admin/documents' },
+    },
+  },
+  getDocument: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/documents/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  createDocument: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/documents',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  updateDocument: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/admin/documents/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  deleteDocument: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'DELETE',
+        path: '/admin/documents/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof shared.documentsContract;
 export const inquiryContract = {
   submit: {
     '~orpc': {
