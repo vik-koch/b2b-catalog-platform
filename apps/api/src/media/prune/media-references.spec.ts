@@ -1,6 +1,8 @@
 import { MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared';
 import {
   collectReferencedFilenames,
+  documentFilenames,
+  DOCUMENT_REFERENCE_SOURCES,
   mediaFilenamesInHtml,
   type MediaReferenceSource,
 } from './media-references';
@@ -49,5 +51,36 @@ describe('collectReferencedFilenames', () => {
       source('a', []),
     ]);
     expect(referenced.size).toBe(0);
+  });
+});
+
+describe('documentFilenames', () => {
+  it('extracts the filename from a stored document URL', () => {
+    expect(documentFilenames('/documents/a1b2c3d4e5f6.pdf')).toEqual([
+      'a1b2c3d4e5f6.pdf',
+    ]);
+  });
+
+  it('does not treat an image URL as a document', () => {
+    expect(documentFilenames('/media/a1b2.webp')).toEqual([]);
+  });
+});
+
+describe('DOCUMENT_REFERENCE_SOURCES', () => {
+  it('collects every stored file the documents table points at', async () => {
+    const client = {
+      query: async () => ({
+        rows: [
+          { fileUrl: '/documents/aaaa.pdf' },
+          { fileUrl: '/documents/bbbb.png' },
+        ],
+      }),
+    };
+
+    const referenced = await collectReferencedFilenames(
+      client as never,
+      DOCUMENT_REFERENCE_SOURCES,
+    );
+    expect([...referenced].sort()).toEqual(['aaaa.pdf', 'bbbb.png']);
   });
 });
