@@ -139,7 +139,12 @@ export class ProductGallery {
    * image and a product with twelve show it at the same size. Uncapped below
    * that — on a phone the photo is the page, and a column narrower than the
    * cap is doing the capping anyway. */
-  protected readonly mainImage = `aspect-square w-full min-w-0 touch-pan-y overflow-hidden rounded-xl bg-stone-100 md:w-100 md:shrink-0 ${FRAME}`;
+  /* `md:w-100` is what the photo wants, not what it insists on: it may shrink
+   * where the column it stands in is narrower than the pair of them. Held to
+   * its 25rem by `shrink-0`, a tight column pushed the strip of thumbnails
+   * off the left edge instead — the strip is the flex item that gives way in a
+   * reversed row, and it went where nothing could scroll to it. */
+  protected readonly mainImage = `aspect-square w-full min-w-0 touch-pan-y overflow-hidden rounded-xl bg-stone-100 md:w-100 ${FRAME}`;
 
   protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;
 

@@ -28,31 +28,63 @@ import { ProductGallery } from './product-gallery';
 import { useProductUnits } from './product-units-view';
 
 /**
- * The product page's grid: one 30rem column of prose beside one 20rem column
- * of controls, four cells in two rows — the photo over the description, the
- * way to buy over what the thing is. The buying panel and the specifications
- * share a column because they are the same kind of reading: short lines,
- * scanned rather than read, and both about the item rather than about the
- * shop.
+ * The product page's grid — one band of three columns at the top, and the two
+ * long readings under it.
  *
- * The widths are the catalogue's own 15rem rule again. The right column wants
- * 20rem and will give up 5 of them before the page breaks; the left will not
- * go under 30rem of prose. Together with the 2.5rem gutter that is 760px of
- * content — `md`, the same drag of the window edge that gives a listing its
- * third column. Under it the page keeps the photo and the panel side by side
- * but hands the description and the table a row each, and the photo shrinks to
- * the 15rem that leaves the panel its 20rem. Under `sm` there is one column and
- * everything is as wide as the page.
+ * The top band is what the page is *for*: the photo, the handful of facts that
+ * decide whether this is the right product, and the way to buy it. Everything
+ * that is read rather than scanned goes below it, one row each and set to a
+ * reading width — a description at 1200px is not one anybody finishes.
+ *
+ * The three widths, and where they come from:
+ *
+ * - The photo's column is `max-content`: sized to the photo, not to a figure
+ *   written here — the gallery is 30rem with a strip of thumbnails beside it
+ *   and 25rem without, and a track fixed at the larger leaves five rems of
+ *   nothing on every product with one picture. It is the one track that may
+ *   not be squeezed: grid hands free space to the tracks that can grow *in
+ *   equal shares*, so a photo asked to share with the panel arrived narrower
+ *   than the gallery inside it and pushed the thumbnails off the left edge.
+ * - The buying panel takes 20rem where there is room and gives up five of them
+ *   before anything else does. Past 20rem it would be a wide panel of narrow
+ *   controls, so the track caps rather than the panel.
+ * - The facts take everything else — including whatever the panel did not
+ *   want. They are the column that can use it: a table of short pairs reads
+ *   better wide than wrapped.
+ *
+ * Both of the right-hand columns floor at 15rem, the catalogue's own column,
+ * so three of them need 30 + 15 + 15 plus two 2.5rem gutters — 65rem, and that
+ * is where the third appears.
+ *
+ * Under 65rem there is no room for facts beside the photo and they are simply
+ * gone — they are a summary of a table that is still on the page. The band is
+ * then the photo and the panel, held apart rather than packed left: the panel
+ * stays on the page's right edge, where it was a pixel before the third column
+ * disappeared, and the space that column will occupy again is left standing
+ * where it belongs. Under 40rem it is one column and everything is as wide as
+ * the page.
+ *
+ * Container queries rather than the window, because the admin's live preview
+ * draws this same page inside an editor column: what decides the layout is the
+ * room the page actually has, which is the only thing a media query cannot
+ * see.
  */
 export const PRODUCT_PAGE_COLUMNS =
-  'grid gap-x-10 gap-y-8 sm:grid-cols-[minmax(0,15rem)_20rem] md:grid-cols-[minmax(30rem,1fr)_minmax(15rem,20rem)]';
+  'grid gap-x-10 gap-y-8 ' +
+  '@min-[40rem]/product:justify-between ' +
+  '@min-[40rem]/product:grid-cols-[minmax(0,30rem)_minmax(15rem,20rem)] ' +
+  '@min-[65rem]/product:justify-normal ' +
+  '@min-[65rem]/product:grid-cols-[max-content_minmax(15rem,1fr)_minmax(15rem,20rem)]';
 
 /**
- * The description and the specifications: a column each once there are two
- * rows to fill, a row each while the page is too narrow for that.
+ * The description and the specifications: a row each, the full width of the
+ * band. The measure is the section's own — prose reads to 3xl, and a table of
+ * short pairs set that wide is a key and a value with a hand's width of
+ * nothing between them.
  */
-export const PRODUCT_PAGE_SECTION_CELL =
-  'scroll-mt-24 sm:col-span-2 md:col-span-1';
+export const PRODUCT_PAGE_SECTION_CELL = 'col-span-full scroll-mt-24';
+const READING_WIDTH = 'max-w-3xl';
+const TABLE_WIDTH = 'max-w-xl';
 
 /**
  * The gallery takes the column it is in and caps itself: 25rem of photo, plus
@@ -60,6 +92,10 @@ export const PRODUCT_PAGE_SECTION_CELL =
  * photo is the same 25rem — see ProductGallery.
  */
 const IMAGE_CAP = 'w-full';
+
+/** How many facts stand beside the photo. Four is a glance; the rest are a
+ * table, and the link under them goes to it. */
+const MAIN_SPECS = 4;
 
 /** Where the description is collapsed behind a show-more: only where it has no
  * column of its own, which is a phone. */
@@ -74,12 +110,13 @@ const NARROW = '(max-width: 39.999rem)';
  */
 @Component({
   selector: 'app-product-detail-view',
-  // A fourth page width, beside the wide, form and reading columns: the page's
-  // two columns are 30rem of prose and 20rem of controls, and the width past
-  // those is width it has nothing to do with — a description set 1200px wide
-  // is not one anyone finishes reading. On the component rather than on the
-  // route's section, so the editor's live preview is the same page.
-  host: { class: 'block max-w-5xl' },
+  // A fourth page width, beside the wide, form and reading columns: the top
+  // band wants three columns and the readings under it are set to a measure of
+  // their own, so the page is as wide as the band and no wider. On the
+  // component rather than on the route's section, so the editor's live preview
+  // is the same page — and a container, so that preview lays itself out by the
+  // room it has rather than by the window around the editor.
+  host: { class: 'block @container/product max-w-7xl' },
   imports: [
     RouterLink,
     ProductGallery,
@@ -154,20 +191,57 @@ const NARROW = '(max-width: 39.999rem)';
         />
       </div>
 
-      <aside class="@container/buy">
+      <!-- The four facts that decide it, beside the photo — the head of the
+           table below, not a second one, which is what its heading and the
+           link under it say between them. Gone entirely where there is no
+           third column, since everything in it is still on the page a screen
+           further down. -->
+      @if (mainAttributes().length) {
+        <div class="hidden @min-[65rem]/product:block">
+          <h2 [class]="sectionHeading">{{ text.mainSpecifications }}</h2>
+          <table class="mt-3 w-full border-t border-border text-sm">
+            <tbody class="divide-y divide-border">
+              @for (attr of mainAttributes(); track $index) {
+                <tr>
+                  <th
+                    scope="row"
+                    class="py-2 pr-4 text-left font-normal text-subtle"
+                  >
+                    {{ attr.key }}
+                  </th>
+                  <td class="py-2 text-right text-stone-700">
+                    {{ attr.value }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <a
+            appLink
+            class="mt-3 inline-block text-sm"
+            [routerLink]="[]"
+            [fragment]="specsId"
+            queryParamsHandling="preserve"
+          >
+            {{ text.allSpecifications }}
+          </a>
+        </div>
+      }
+
+      <aside [class]="buyColumnClass">
         <app-product-buy-block [item]="item()" [canAdd]="canAdd()" />
       </aside>
 
-      <!-- The seam between the two rows, drawn only where they are rows: with
-           one column under md the gap already says it, and a rule across a
-           stack is one more line in a page of them. -->
+      <!-- The seam under the band, drawn only where the band is a band: with
+           one column the gap already says it, and a rule across a stack is one
+           more line in a page of them. -->
       <div
         aria-hidden="true"
-        class="col-span-2 hidden border-t border-border md:block"
+        class="col-span-full hidden border-t border-border @min-[40rem]/product:block"
       ></div>
 
       @if (item().descriptionHtml) {
-        <div [id]="descriptionId" [class]="sectionCellClass">
+        <div [id]="descriptionId" [class]="descriptionCellClass">
           <h2 [class]="sectionHeading">
             <a
               [routerLink]="[]"
@@ -216,7 +290,7 @@ const NARROW = '(max-width: 39.999rem)';
          in one grid cell rather than in two. -->
     <ng-template #specs>
       @if (attributes().length || packagingRows().length) {
-        <div [id]="specsId" [class]="sectionCellClass">
+        <div [id]="specsId" [class]="specsCellClass">
           <h2 [class]="sectionHeading">
             <a
               [routerLink]="[]"
@@ -285,7 +359,12 @@ export class ProductDetailView {
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-6`;
   protected readonly imageColumnClass = `min-w-0 ${IMAGE_CAP}`;
-  protected readonly sectionCellClass = PRODUCT_PAGE_SECTION_CELL;
+  /** Nothing but the container it opens: the track caps the panel at 20rem in
+   * both of the shapes that have a column for it, and the facts beside it take
+   * whatever it leaves. */
+  protected readonly buyColumnClass = '@container/buy';
+  protected readonly descriptionCellClass = `${PRODUCT_PAGE_SECTION_CELL} ${READING_WIDTH}`;
+  protected readonly specsCellClass = `${PRODUCT_PAGE_SECTION_CELL} ${TABLE_WIDTH}`;
   /**
    * Both halves of the lower row are headed the same way, and each heading is
    * the link to its own section — a specification worth quoting to a colleague
@@ -336,6 +415,12 @@ export class ProductDetailView {
             ])[0]
           : null,
       })),
+  );
+
+  /** The first few, in the order the product states them — the manager's own
+   * order, which is the one the editor's grid is dragged into. */
+  protected readonly mainAttributes = computed(() =>
+    this.attributes().slice(0, MAIN_SPECS),
   );
 
   protected readonly packagingRows = computed(() =>

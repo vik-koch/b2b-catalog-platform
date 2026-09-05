@@ -140,6 +140,10 @@ export const appTextSchema = z
          * half is split into, each of which is also its own anchor. */
         description: z.string(),
         specifications: z.string(),
+        /** Heads the four facts beside the photo, and the link under them
+         * goes to the whole table. */
+        mainSpecifications: z.string(),
+        allSpecifications: z.string(),
         productNotFound: z.string(),
         categoryNotFound: z.string(),
         /** Back link on the catalogue's 404 screens. */

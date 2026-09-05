@@ -63,6 +63,8 @@
     },
     "description": "Description",
     "specifications": "Specifications",
+    "mainSpecifications": "Main specifications",
+    "allSpecifications": "All specifications",
     "productNotFound": "This product could not be found. It may have been removed.",
     "categoryNotFound": "This category could not be found. It may have been removed.",
     "backToCatalog": "Back to the catalogue",
