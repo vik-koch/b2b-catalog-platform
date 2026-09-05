@@ -4,13 +4,13 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.6.0` — a stock figure kept out of the storefront that reaches customers as
-> an availability badge, sorts what is gone to the end of every listing and keeps it out of
-> the cart, plus a marker on the account control that says work is waiting and a line beside
-> the section that finishes it. Iterations 1–8 are delivered (static pages and infrastructure,
-> catalog + admin panel, search, accounts and tiered pricing, units of sale, attribute
-> filtering, cart and checkout, stock availability and work-awaiting indicators). Iteration 9
-> (sold-together sets) is next.
+> **Status:** `v1.7.0` — products paired with what they are sold with, mutually and from
+> either side: a marker wherever the product can be bought that opens its counterparts to be
+> added on the spot, and a cart that says which lines are short and by how much — advisory,
+> or refused at checkout where a deployment says so. Iterations 1–9 are delivered (static
+> pages and infrastructure, catalog + admin panel, search, accounts and tiered pricing, units
+> of sale, attribute filtering, cart and checkout, stock availability and work-awaiting
+> indicators, sold-together sets). Iteration 10 (product documents and certificates) is next.
 
 ## Environments
 
@@ -47,8 +47,8 @@ Shipped:
 - **Accounts & roles** — admin / manager / user; registration with staff approval, invitation
   and reset links, self-service profile, and account deletion that anonymizes rather than erases
 - **Admin panel** — product and category CRUD, static-page editing, customer and staff
-  administration, order views, maintenance mode, plus file-based bulk sync (upsert by SKU,
-  diff preview, audit-logged)
+  administration, order views, maintenance mode, plus file-based bulk sync (upsert by
+  catalogue ID, diff preview, audit-logged)
 - **Units of sale** — buy by piece, pack or box, with exact per-unit prices, minimum order
   quantities, and a publication gate so a newly synced product is reviewed before it goes public
 - **Attribute filtering** — an admin declares which product attributes are filterable and each
@@ -65,11 +65,14 @@ Shipped:
 - **Work awaiting attention** — a marker on the account control whenever a queue has something
   in it, and a line beside the section that resolves it; counted from current state, never
   acknowledged away
+- **Sold-together sets** — an admin pairs a product with what it is sold with, mutually and
+  from either side; the pairing is marked wherever the product can be bought and opens its
+  counterparts to be added without leaving the page, and the cart says which lines are short
+  and by how much — advisory, or refused at checkout where a deployment says so
 - **Compliance** — configurable legal pages, cookie consent, third-party licence attribution
 
 Planned:
 
-- **Sold-together sets** — products offered as a set, priced and ordered as one
 - **Product documents** — datasheets and certificates on a product page, with expiry tracking
 - **Order processing** — status transitions, payment PDF, order PDF
 - **Payment** — bank transfer or card, with manual delivery/pickup coordination
