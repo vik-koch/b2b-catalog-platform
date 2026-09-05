@@ -112,10 +112,11 @@ import { WorkService } from '../work/work.service';
       </section>
     </div>
 
-    <!-- Everything that changes shop content lives in one card: the four
-         catalog-side groups (ingest, catalog, attributes, pricing), the static
-         pages on a row of their own beneath — they are a different kind of
-         content and there are more of them than fit one of the groups.
+    <!-- Everything that changes shop content lives in one card, in three rows
+         of decreasing weight: what the shop sells and the papers that go with
+         it (import, catalog, documents), then the registries behind them
+         (attributes, pricing), then the static pages — a different kind of
+         content, and more of them than fit one group.
          Admin-only — a manager's panel holds only the cards above. -->
     @if (isAdmin()) {
       <section class="mt-10">
@@ -129,15 +130,18 @@ import { WorkService } from '../work/work.service';
           {{ panelText.manage }}
         </h2>
         <div class="rounded-lg border border-border">
-          <!-- Four groups, one track each, in the order the work happens:
-               import, then the catalog itself, then how its products are
-               described, then what they cost. Four abreast only at xl: below
-               that they pair up, and below lg they stack, each group needing
-               room for buttons whose labels are deployment text.
+          <!-- Three rows, and each is what it holds: the three big destinations
+               abreast — the import, the catalog itself, the documents shown on
+               it — then the two smaller registries under them, then the content
+               pages. Not one four-column grid: the groups are of two different
+               sizes, and squeezing them into equal tracks left a column
+               carrying a single button beside one carrying three.
+               Below lg the whole card is one column, six sections down the
+               page in the order the work happens.
                Borders per cell rather than divide utilities, which count in DOM
-               order and so draws a left edge down the middle of a wrapped
+               order and so draw a left edge down the middle of a wrapped
                row. -->
-          <div class="grid lg:grid-cols-2 xl:grid-cols-4">
+          <div class="grid lg:grid-cols-3">
             <div class="p-5">
               <h3 class="mb-3 text-sm font-medium">{{ panelText.sync }}</h3>
               <a appButton routerLink="/admin/sync" class="gap-2">
@@ -181,15 +185,6 @@ import { WorkService } from '../work/work.service';
                     {{ productText.title }}
                   </a>
                 </li>
-                <li>
-                  <a
-                    appButton
-                    variant="secondary"
-                    routerLink="/admin/documents"
-                  >
-                    {{ documentText.title }}
-                  </a>
-                </li>
               </ul>
               <!-- Under the products button rather than beside the import that
                    fills the queue: publishing is what clears it. -->
@@ -203,11 +198,35 @@ import { WorkService } from '../work/work.service';
               }
             </div>
 
-            <!-- Attributes are their own group: one screen declares what the
-                 shop filters by, the other shows what the products actually
-                 carry. Both are about how a product is described rather than
-                 about the catalog's structure. -->
-            <div class="border-t border-border p-5 xl:border-t-0 xl:border-l">
+            <!-- Documents are their own group rather than a third button in
+                 the catalog's: they are files the shop holds, not the shape of
+                 the catalog, and they are the only thing here that comes due —
+                 which is a line of its own under the button that clears it. -->
+            <div class="border-t border-border p-5 lg:border-t-0 lg:border-l">
+              <h3 class="mb-3 text-sm font-medium">
+                {{ panelText.documents }}
+              </h3>
+              <a appButton variant="secondary" routerLink="/admin/documents">
+                {{ documentText.title }}
+              </a>
+              <!-- Expiring and expired counted as one figure, and the link
+                   opens the list narrowed to exactly that pair. -->
+              @if (waitingDocuments(); as count) {
+                <app-work-note
+                  class="mt-3"
+                  [label]="fill(panelText.workDocuments, count)"
+                  link="/admin/documents"
+                  [queryParams]="{ expiry: 'due' }"
+                />
+              }
+            </div>
+          </div>
+
+          <!-- The two registries: what the shop filters by, and what it
+               charges. Both are settings behind the catalog rather than places
+               an admin goes daily, so they sit under it in half-rows. -->
+          <div class="grid border-t border-border lg:grid-cols-2">
+            <div class="p-5">
               <h3
                 id="admin-attributes-heading"
                 class="mb-3 text-sm font-medium"
@@ -239,7 +258,7 @@ import { WorkService } from '../work/work.service';
               </ul>
             </div>
 
-            <div class="border-t border-border p-5 lg:border-l xl:border-t-0">
+            <div class="border-t border-border p-5 lg:border-t-0 lg:border-l">
               <h3 class="mb-3 text-sm font-medium">
                 {{ panelText.pricing }}
               </h3>
@@ -360,6 +379,9 @@ export class AdminPanelPage {
   );
   protected readonly waitingProducts = computed(
     () => this.work.counts().unpublishedProducts || undefined,
+  );
+  protected readonly waitingDocuments = computed(
+    () => this.work.counts().expiringDocuments || undefined,
   );
 
   protected fill(template: string, count: number): string {

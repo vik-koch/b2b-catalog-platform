@@ -119,6 +119,7 @@ describe('AdminPanelPage work counts', () => {
       registrations: 2,
       orders: 7,
       unpublishedProducts: 3,
+      expiringDocuments: 5,
     });
 
     expect(note(el, '2 awaiting approval')?.getAttribute('href')).toBe(
@@ -129,6 +130,10 @@ describe('AdminPanelPage work counts', () => {
     );
     expect(note(el, '3 awaiting publication')?.getAttribute('href')).toBe(
       '/admin/products?state=unpublished',
+    );
+    // Both states that are work, in one figure and behind one filter.
+    expect(note(el, '5 expiring or expired')?.getAttribute('href')).toBe(
+      '/admin/documents?expiry=due',
     );
   });
 
