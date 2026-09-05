@@ -19,6 +19,7 @@ import { Checkbox } from '../../ui/checkbox';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { SelectField } from '../../ui/select-field';
+import { SegmentOption, Segmented } from '../../ui/segmented';
 import { StatusBadge } from '../../ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { flattenCategoryTree } from '../categories/category-tree';
@@ -53,37 +54,25 @@ type View = 'all' | 'linked';
  */
 @Component({
   selector: 'app-document-products-picker',
-  imports: [Checkbox, FieldLabel, Input, SelectField, StatusBadge],
+  imports: [Checkbox, FieldLabel, Input, SelectField, Segmented, StatusBadge],
   host: { class: 'block' },
   template: `
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <span appFieldLabel class="mb-0">{{ text.heading }}</span>
-      <!-- Two buttons rather than a checkbox: they are two views of one list,
-           and the count is what an admin looks at while ticking. -->
-      <div
-        class="flex overflow-hidden rounded-md border border-border-strong text-sm"
-        role="group"
-        [attr.aria-label]="text.heading"
-      >
-        @for (option of views; track option.view) {
-          <button
-            type="button"
-            class="cursor-pointer px-3 py-1.5 transition-colors"
-            [class]="
-              view() === option.view
-                ? 'bg-primary text-white'
-                : 'hover:text-accent'
-            "
-            [attr.aria-pressed]="view() === option.view"
-            (click)="view.set(option.view)"
-          >
-            {{ option.label() }}
-          </button>
-        }
+    <div class="flex flex-nowrap items-end justify-between gap-3">
+      <div>
+        <span appFieldLabel class="mb-0">{{ text.heading }}</span>
+        <p class="mt-1 text-xs wrap-break-word text-subtle">{{ text.hint }}</p>
       </div>
+      <!-- The app's segmented pill, as everywhere else one choice is made
+           between a few: they are two views of one list, and the count in the
+           second label is what an admin watches while ticking. -->
+      <app-segmented
+        class="shrink-0"
+        [options]="viewOptions()"
+        [value]="view()"
+        [ariaLabel]="text.heading"
+        (chosen)="view.set($event)"
+      />
     </div>
-
-    <p class="mt-1 text-xs text-subtle">{{ text.hint }}</p>
 
     <div class="mt-3 grid gap-3 sm:grid-cols-[2fr_1fr]">
       <input
@@ -174,14 +163,15 @@ export class DocumentProductsPicker {
   /** The last row a click landed on — where a shift-click's range starts. */
   private anchor: number | null = null;
 
-  protected readonly views = [
-    { view: 'all' as const, label: () => this.text.showAll },
+  /** Recomputed rather than fixed: the second label carries the running count
+   * of what is ticked. */
+  protected readonly viewOptions = computed<SegmentOption<View>[]>(() => [
+    { value: 'all', label: this.text.showAll },
     {
-      view: 'linked' as const,
-      label: () =>
-        fillText(this.text.showLinked, { count: this.value().length }),
+      value: 'linked',
+      label: fillText(this.text.showLinked, { count: this.value().length }),
     },
-  ];
+  ]);
 
   private readonly debouncedQuery = debounced(this.query, SEARCH_DEBOUNCE_MS);
 

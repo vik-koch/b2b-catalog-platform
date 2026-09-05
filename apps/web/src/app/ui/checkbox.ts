@@ -25,10 +25,9 @@ import { Directive } from '@angular/core';
  * class at any of the twelve call sites; where a control has no label around
  * it, the rule simply never matches and its own `:hover` still does.
  *
- * Focus is left to the app's one ring (`styles.css`), which is the documented
- * exception for these two: a recoloured 1px edge on a 16px box is too small to
- * find. It lands on the border rather than outside it, so the two never draw
- * two lines.
+ * Focus is left to the app's one ring (`styles.css`), which treats these like
+ * any other field now that the edge is ours: the ring is inset, so it lands on
+ * the 1px border instead of drawing a second line around a 16px square.
  *
  * The hover rules carry `:not(:disabled)` inside the variant rather than
  * relying on a `disabled:hover:` utility, so which one wins is a matter of

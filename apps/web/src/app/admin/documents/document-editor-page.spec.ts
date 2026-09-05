@@ -110,6 +110,20 @@ async function render(
     field.dispatchEvent(new Event('input'));
     await settle();
   };
+  /** The two date fields are `for`-linked rather than wrapping their input —
+   * the control is the app's date field, and it reports on `change`. */
+  const pickDate = async (label: string, value: string) => {
+    const field = [...el.querySelectorAll('label')].find((l) =>
+      l.textContent?.includes(label),
+    );
+    const input = field?.htmlFor
+      ? el.querySelector<HTMLInputElement>(`#${field.htmlFor}`)
+      : null;
+    if (!input) throw new Error(`no date field for ${label}`);
+    input.value = value;
+    input.dispatchEvent(new Event('change'));
+    await settle();
+  };
   const choose = async (file: File) => {
     const input = el.querySelector<HTMLInputElement>('input[type="file"]');
     if (!input) throw new Error('no file input');
@@ -126,7 +140,7 @@ async function render(
   };
   const error = () => el.querySelector('[role="alert"]')?.textContent?.trim();
 
-  return { fixture, el, service, type, choose, save, error, settle };
+  return { fixture, el, service, type, pickDate, choose, save, error, settle };
 }
 
 const pdf = () =>
@@ -147,12 +161,12 @@ describe('DocumentEditorPage', () => {
   });
 
   it('saves the title, the uploaded file and both dates as one record', async () => {
-    const { service, type, choose, save } = await render();
+    const { service, type, pickDate, choose, save } = await render();
 
     await type(text.title, 'Certificate of analysis');
     await choose(pdf());
-    await type(text.issuedAt, '2026-01-15');
-    await type(text.expiresAt, '2027-01-15');
+    await pickDate(text.issuedAt, '2026-01-15');
+    await pickDate(text.expiresAt, '2027-01-15');
     await save();
 
     expect(service.create).toHaveBeenCalledWith({
@@ -185,12 +199,12 @@ describe('DocumentEditorPage', () => {
   });
 
   it('answers a backwards pair of dates without asking the server', async () => {
-    const { service, type, choose, save, error } = await render();
+    const { service, type, pickDate, choose, save, error } = await render();
 
     await type(text.title, 'Backwards');
     await choose(pdf());
-    await type(text.issuedAt, '2026-05-01');
-    await type(text.expiresAt, '2026-04-01');
+    await pickDate(text.issuedAt, '2026-05-01');
+    await pickDate(text.expiresAt, '2026-04-01');
     await save();
 
     expect(error()).toBe(text.expiryBeforeIssue);

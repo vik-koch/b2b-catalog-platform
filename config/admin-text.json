@@ -14,6 +14,7 @@
     "restore": "Restore",
     "reorder": "Drag to reorder",
     "uploading": "Uploading…",
+    "datePlaceholder": "dd.mm.yyyy",
     "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB.",
     "clearFilters": "Clear filters",
     "resizeColumn": "Drag to resize. Double-click to fit the columns to their content.",

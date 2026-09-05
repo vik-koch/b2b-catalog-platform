@@ -1,46 +1,12 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import {
   firstOrderDate,
   FulfilmentMethod,
   localToday,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { DateField } from '../ui/date-field';
 import { FieldLabel } from '../ui/field-label';
-import { Icon } from '../ui/icons/icon';
-import { Input } from '../ui/input';
-
-/*
- * The day/month/year segments a date is typed into, which only the WebKit
- * engines expose. Held here rather than in the template because the selector
- * list is longer than the rule it carries.
- *
- * The segment being typed in is highlighted in our own focused colour, in
- * place of the OS blue that matches nothing else on the page. Inert elsewhere —
- * a segment that highlights the platform's way is still a working field.
- */
-const segments =
-  '[&::-webkit-datetime-edit-day-field:focus,&::-webkit-datetime-edit-month-field:focus,&::-webkit-datetime-edit-year-field:focus]:bg-secondary [&::-webkit-datetime-edit-day-field:focus,&::-webkit-datetime-edit-month-field:focus,&::-webkit-datetime-edit-year-field:focus]:text-white';
-
-/**
- * What an empty field wears, so that it can say something of its own.
- *
- * A native date input takes no `placeholder`, and what it draws instead is a
- * different thing in every engine: "dd.mm.yyyy" on a desktop, and on iOS an
- * empty box with nothing in it at all. So the field draws its own text over
- * the control and takes the engine's away — by making the text transparent,
- * which is the one way that reaches every engine (only WebKit exposes the
- * segments as a pseudo-element, and it needs telling separately because its
- * own colour does not inherit).
- *
- * Only while the field is *not* focused. Once the caret is in it the segments
- * are what is being typed into and have to be visible — in the meta colour a
- * half-entered date deserves, rather than at the full strength that reads as a
- * date somebody chose.
- */
-const empty =
-  'text-subtle [&::-webkit-datetime-edit]:text-subtle ' +
-  '[&:not(:focus)]:text-transparent ' +
-  '[&:not(:focus)::-webkit-datetime-edit]:text-transparent';
 
 /**
  * When the customer would like the order (FR-CART-07) — a wish, not a booking.
@@ -65,61 +31,23 @@ const empty =
  */
 @Component({
   selector: 'app-preferred-date',
-  imports: [FieldLabel, Icon, Input],
+  imports: [DateField, FieldLabel],
   host: { class: 'block' },
   template: `
     <label [for]="id" appFieldLabel>
       {{ method() === 'pickup' ? text.pickupLabel : text.deliveryLabel }}
       <span class="font-normal text-subtle">({{ optional }})</span>
     </label>
-    <!-- A click anywhere in the field opens the picker, so the field is not
-         really typed into even though it can be: select-none and the pointer
-         say so, in place of a caret dragging across segments that the picker
-         is about to cover anyway. It stays a real date input — the keyboard
-         still edits it, which is what a customer who cannot use a picker
-         needs.
-
-         Our glyph replaces the browser's, rather than sitting beside it: the
-         native button is drawn differently in every engine and pinned to the
-         right edge, where no other field in the app keeps its affordance.
-         Hidden, not removed — the control is still a real date input, and
-         clicking anywhere in it opens the same picker.
-
-         It takes all three: appearance-none for the engines that draw the
-         affordance as part of the control itself (Chrome on Android draws a
-         chevron there), and the two pseudo-elements for those that make it a
-         child. Each is inert where it does not apply. -->
-    <div class="relative flex max-w-46 items-center">
-      <app-icon
-        name="calendar"
-        class="pointer-events-none absolute left-3 h-4 w-4 text-subtle"
-      />
-      <input
-        [id]="id"
-        type="date"
-        [min]="floor"
-        [value]="date() ?? ''"
-        appInput
-        class="peer w-full cursor-pointer appearance-none pl-9 select-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
-        [class]="fieldClass()"
-        (click)="openPicker($event)"
-        (change)="picked($event)"
-        [attr.aria-invalid]="invalid() || null"
-        [attr.aria-describedby]="id + '-hint'"
-      />
-      <!-- Our own empty state, over the field the engine has been made to
-           draw nothing in. After the input so it can watch it: it goes away
-           the moment the caret arrives, which is when the segments underneath
-           become the thing to read. Decorative — the label names the field. -->
-      @if (date() === null) {
-        <span
-          aria-hidden="true"
-          class="pointer-events-none absolute left-9 text-subtle select-none peer-focus:hidden"
-        >
-          {{ text.placeholder }}
-        </span>
-      }
-    </div>
+    <app-date-field
+      class="max-w-46"
+      [fieldId]="id"
+      [value]="date()"
+      [min]="floor"
+      [placeholder]="text.placeholder"
+      [invalid]="invalid()"
+      [describedBy]="id + '-hint'"
+      (valueChange)="dateChange.emit($event)"
+    />
     <p
       [id]="id + '-hint'"
       class="mt-1 text-sm"
@@ -153,26 +81,4 @@ export class PreferredDate {
   /** The earliest day on offer, from the customer's own today. Read once: a
    * checkout open across midnight is not worth a ticking clock. */
   protected readonly floor = firstOrderDate(localToday());
-
-  protected readonly fieldClass = computed(() =>
-    this.date() === null ? `${segments} ${empty}` : segments,
-  );
-
-  /** Opens the native picker from a click anywhere in the field, since the
-   * button that would have done it is hidden. Guarded: `showPicker` is absent
-   * on older engines and refuses outside a user gesture, and a field that
-   * still takes typing is a working field either way. */
-  protected openPicker(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    try {
-      input.showPicker?.();
-    } catch {
-      // Nothing to do: the date can still be typed.
-    }
-  }
-
-  protected picked(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.dateChange.emit(value || null);
-  }
 }

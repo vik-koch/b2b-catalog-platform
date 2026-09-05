@@ -13,6 +13,7 @@ import { Button } from '../../ui/button';
 import { FieldLabel } from '../../ui/field-label';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { DateField } from '../../ui/date-field';
 import { Input } from '../../ui/input';
 import { Skeleton } from '../../ui/skeleton';
 import { injectEditorReturn } from '../editor-return';
@@ -40,6 +41,7 @@ import { DocumentsService } from './documents.service';
     Button,
     IconButton,
     AdminIcon,
+    DateField,
     DocumentProductsPicker,
     FieldLabel,
     Input,
@@ -148,28 +150,30 @@ import { DocumentsService } from './documents.service';
         </div>
 
         <!-- Two dates copied off the document, side by side because that is how
-             they are read off it; one per line below sm. -->
+             they are read off it; one per line below sm. The same field the
+             checkout picks a delivery day in — one date control in the app,
+             whoever is filling it in. -->
         <div class="grid gap-6 sm:grid-cols-2">
-          <label class="block">
-            <span appFieldLabel>{{ text.issuedAt }}</span>
-            <input
-              type="date"
-              appInput
-              class="w-full"
-              [value]="issuedAt()"
-              (input)="issuedAt.set($any($event.target).value)"
+          <div>
+            <label [for]="issuedId" appFieldLabel>{{ text.issuedAt }}</label>
+            <app-date-field
+              class="max-w-46"
+              [fieldId]="issuedId"
+              [value]="issuedAt() || null"
+              [placeholder]="common.datePlaceholder"
+              (valueChange)="issuedAt.set($event ?? '')"
             />
-          </label>
-          <label class="block">
-            <span appFieldLabel>{{ text.expiresAt }}</span>
-            <input
-              type="date"
-              appInput
-              class="w-full"
-              [value]="expiresAt()"
-              (input)="expiresAt.set($any($event.target).value)"
+          </div>
+          <div>
+            <label [for]="expiresId" appFieldLabel>{{ text.expiresAt }}</label>
+            <app-date-field
+              class="max-w-46"
+              [fieldId]="expiresId"
+              [value]="expiresAt() || null"
+              [placeholder]="common.datePlaceholder"
+              (valueChange)="expiresAt.set($event ?? '')"
             />
-          </label>
+          </div>
         </div>
         <p class="text-xs text-subtle">{{ text.datesHint }}</p>
 
@@ -217,6 +221,8 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   protected readonly listText = inject(ADMIN_TEXT).documentList;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_DOCUMENT_MIME_TYPES.join(',');
+  protected readonly issuedId = 'document-issued-at';
+  protected readonly expiresId = 'document-expires-at';
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.idParam === null;

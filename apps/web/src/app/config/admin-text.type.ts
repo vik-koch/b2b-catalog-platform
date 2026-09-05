@@ -37,6 +37,9 @@ export const adminTextSchema = z
         restore: z.string(),
         reorder: z.string(),
         uploading: z.string(),
+        /** What an empty date field says: a native one draws a different thing
+         * in every engine, so the app draws its own. */
+        datePlaceholder: z.string(),
         uploadError: z.string(),
         /** The way back to an unfiltered grid, on every admin list. */
         clearFilters: z.string(),
