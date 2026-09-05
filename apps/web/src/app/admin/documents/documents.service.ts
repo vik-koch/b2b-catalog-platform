@@ -3,6 +3,7 @@ import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import {
   DOCUMENT_ERROR_CODES,
+  DocumentDetail,
   DocumentErrorCode,
   DocumentInput,
   ProductDocument,
@@ -47,7 +48,7 @@ export class DocumentsService {
 
   /** One document, for the editor — a route, so a reload has no list to read
    * from. `undefined` is a 404: deleted while the tab sat open. */
-  async get(id: string): Promise<ProductDocument | undefined> {
+  async get(id: string): Promise<DocumentDetail | undefined> {
     const result = await safe(this.client.getDocument({ params: { id } }));
     if (result.isDefined && result.error.code === 'document-not-found') {
       return undefined;
@@ -89,7 +90,7 @@ export class DocumentsService {
 
   /** The one shape both writes share: the row, or a code the screen can phrase. */
   private async act<TError extends Error>(
-    call: ClientPromiseResult<ProductDocument, TError>,
+    call: ClientPromiseResult<DocumentDetail, TError>,
   ): Promise<DocumentResult> {
     const result = await safe(call);
     if (result.isDefined && isDocumentCode(result.error.code)) {

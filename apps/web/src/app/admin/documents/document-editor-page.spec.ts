@@ -1,13 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { ProductDocument } from '@b2b-catalog-platform/shared';
+import { DocumentDetail } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
+import { AdminCatalogService } from '../admin-catalog.service';
 import { DocumentEditorPage } from './document-editor-page';
 import { DocumentsService } from './documents.service';
 
@@ -20,13 +21,15 @@ const storedFile = {
   byteSize: 2048,
 };
 
-function document(overrides: Partial<ProductDocument> = {}): ProductDocument {
+function document(overrides: Partial<DocumentDetail> = {}): DocumentDetail {
   return {
     id: 'doc-1',
     title: 'Certificate of analysis',
     file: storedFile,
     issuedAt: '2026-01-15',
     expiresAt: '2027-01-15',
+    productCount: 0,
+    products: [],
     updatedAt: '2026-08-01T00:00:00.000Z',
     ...overrides,
   };
@@ -35,8 +38,8 @@ function document(overrides: Partial<ProductDocument> = {}): ProductDocument {
 async function render(
   options: {
     id?: string | null;
-    existing?: ProductDocument | undefined;
-    upload?: ProductDocument['file'] | Error;
+    existing?: DocumentDetail | undefined;
+    upload?: DocumentDetail['file'] | Error;
     create?: Awaited<ReturnType<DocumentsService['create']>>;
     update?: Awaited<ReturnType<DocumentsService['update']>>;
   } = {},
@@ -63,6 +66,18 @@ async function render(
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: DocumentsService, useValue: service },
+      // The picker inside the form asks for the catalog; nothing here is about
+      // what it lists.
+      {
+        provide: AdminCatalogService,
+        useValue: {
+          listProducts: async () => ({
+            items: [],
+            pagination: { page: 1, pageSize: 50, total: 0, totalPages: 0 },
+          }),
+          listCategories: async () => [],
+        },
+      },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -145,6 +160,7 @@ describe('DocumentEditorPage', () => {
       file: storedFile,
       issuedAt: '2026-01-15',
       expiresAt: '2027-01-15',
+      productSlugs: [],
     });
   });
 
@@ -192,6 +208,23 @@ describe('DocumentEditorPage', () => {
     await type(text.title, 'Anything');
     await save();
     expect(service.create).not.toHaveBeenCalled();
+  });
+
+  it('sends the products it was opened with back unchanged', async () => {
+    const products = [
+      { slug: 'cup', name: 'Cup', deleted: false, unpublished: false },
+    ];
+    const { service, save } = await render({
+      id: 'doc-1',
+      existing: document({ products, productCount: 1 }),
+    });
+
+    await save();
+
+    expect(service.update).toHaveBeenCalledWith(
+      'doc-1',
+      expect.objectContaining({ productSlugs: ['cup'] }),
+    );
   });
 
   it('replaces the file on an existing document, keeping its identity', async () => {

@@ -80,6 +80,7 @@ export const adminTextSchema = z
             'source-id-taken': z.string(),
             'tier-not-found': z.string(),
             'paired-product-not-found': z.string(),
+            'document-not-found': z.string(),
             'pairing-self': z.string(),
             'slug-or-source-id-taken': z.string(),
           })
@@ -883,13 +884,43 @@ export const adminTextSchema = z
         issuedAt: z.string(),
         expiresAt: z.string(),
         datesHint: z.string(),
+        /**
+         * The product picker (FR-DOC-02) — a catalog to tick through, so its
+         * wording is about narrowing and about the shift-click nobody
+         * discovers on their own.
+         */
+        products: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            search: z.string(),
+            searchPlaceholder: z.string(),
+            category: z.string(),
+            allCategories: z.string(),
+            /** The two views of one list. `{count}` substituted on `showLinked`. */
+            showAll: z.string(),
+            showLinked: z.string(),
+            /** What the capped page is not showing. `{count}`/`{total}`. */
+            more: z.string(),
+            empty: z.string(),
+            noneLinked: z.string(),
+            deleted: z.string(),
+            unpublished: z.string(),
+            loadError: z.string(),
+          })
+          .strict(),
         titleRequired: z.string(),
         fileRequired: z.string(),
         expiryBeforeIssue: z.string(),
         saveError: z.string(),
         discardConfirm: z.string(),
         notFound: z.string(),
-        errors: z.object({ 'document-not-found': z.string() }).strict(),
+        errors: z
+          .object({
+            'document-not-found': z.string(),
+            'document-product-not-found': z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /**
