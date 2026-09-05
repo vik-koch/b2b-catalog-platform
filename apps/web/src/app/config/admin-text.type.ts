@@ -872,21 +872,22 @@ export const adminTextSchema = z
         fileColumn: z.string(),
         issuedColumn: z.string(),
         expiresColumn: z.string(),
+        statusColumn: z.string(),
         updatedColumn: z.string(),
         /** In the expiry cell of a document that never comes due. */
         noExpiry: z.string(),
         /**
-         * The expiry states (FR-DOC-04) — the badge beside a date and the
-         * options of the filter that column's heading carries. `expiryAll`
-         * heads the column when nothing is filtered, and `expiryDue` is both
-         * states at once: what the panel's count links to.
+         * The expiry states (FR-DOC-04) — the badge in the status column and
+         * the options of the filter its heading carries. `statusAll` heads the
+         * column when nothing is filtered, and `statusDue` is two states at
+         * once: what the panel's count links to.
          */
-        expiryAll: z.string(),
-        expiryDue: z.string(),
-        expiryExpiring: z.string(),
-        expiryExpired: z.string(),
-        expiryValid: z.string(),
-        filterExpiry: z.string(),
+        statusAll: z.string(),
+        statusDue: z.string(),
+        statusExpiring: z.string(),
+        statusExpired: z.string(),
+        statusValid: z.string(),
+        filterStatus: z.string(),
         edit: z.string(),
         open: z.string(),
         delete: z.string(),

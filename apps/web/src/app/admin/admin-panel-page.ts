@@ -216,7 +216,7 @@ import { WorkService } from '../work/work.service';
                   class="mt-3"
                   [label]="fill(panelText.workDocuments, count)"
                   link="/admin/documents"
-                  [queryParams]="{ expiry: 'due' }"
+                  [queryParams]="{ status: 'due' }"
                 />
               }
             </div>
