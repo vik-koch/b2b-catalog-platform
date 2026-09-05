@@ -161,7 +161,7 @@ export function parseCount(text: string): number | null {
                       (blur)="normalize(row.key)"
                     />
                     @if (row.suffix) {
-                      <span class="pr-2 text-xs text-subtle">{{
+                      <span class="pr-3 text-xs text-subtle">{{
                         row.suffix
                       }}</span>
                     }

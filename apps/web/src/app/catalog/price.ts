@@ -1,5 +1,6 @@
 import {
   currencyFractionDigits,
+  currencySymbol,
   decimalSeparator,
   formatMoneyMinor,
   MoneyFormat,
@@ -10,7 +11,7 @@ import {
  * name the storefront reads it by. */
 export type CurrencyConfig = MoneyFormat;
 
-export { currencyFractionDigits, decimalSeparator };
+export { currencyFractionDigits, currencySymbol, decimalSeparator };
 
 /**
  * Format an integer minor-unit amount (e.g. 1890) as a localised currency

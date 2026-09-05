@@ -23,6 +23,7 @@ import {
   totalMinor,
 } from '@b2b-catalog-platform/shared';
 import {
+  currencySymbol,
   decimalSeparator,
   formatPriceInput,
   parsePriceInput,
@@ -141,16 +142,17 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
                  "18." as an empty value, so binding the signal back to it wiped
                  the field the moment a decimal separator was pressed. The
                  inputmode still gets the numeric keypad on touch. -->
-            <input
-              type="text"
-              inputmode="decimal"
-              appInput
-              appPriceField
-              class="w-full sm:w-40"
-              [value]="priceInput()"
-              [placeholder]="pricePlaceholder"
-              (input)="priceInput.set($any($event.target).value)"
-            />
+            <app-unit-field class="w-full sm:w-40" [unit]="currencySuffix">
+              <input
+                type="text"
+                inputmode="decimal"
+                appPriceField
+                [class]="unitFieldInput"
+                [value]="priceInput()"
+                [placeholder]="pricePlaceholder"
+                (input)="priceInput.set($any($event.target).value)"
+              />
+            </app-unit-field>
           </label>
 
           <div class="w-full sm:w-auto sm:flex-1">
@@ -304,7 +306,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
         <fieldset>
           <legend appFieldLabel>{{ text.lineNote.heading }}</legend>
           <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
-          <label class="flex items-start gap-2 text-sm">
+          <label class="flex cursor-pointer items-start gap-2 text-sm">
             <input
               type="checkbox"
               appCheckbox
@@ -499,6 +501,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
 
   /** Shows the shape a price takes here, e.g. "0,00" in a de-DE deployment. */
   protected readonly pricePlaceholder = `0${decimalSeparator(this.currency)}00`;
+  /** The mark the deployment's prices are written with, printed inside every
+   * price field on this page — the base one here and the tier fields below. */
+  protected readonly currencySuffix = currencySymbol(this.currency);
 
   /**
    * The base price as the tier fields advertise it — what an emptied tier

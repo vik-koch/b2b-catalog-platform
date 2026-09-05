@@ -172,7 +172,7 @@
     },
     "lineNote": {
       "heading": "Line note",
-      "hint": "For a product sold as one article in several variants: the customer can say which ones they want when adding it to the cart.",
+      "hint": "For a product sold as one article in several variants.",
       "enable": "Ask for a note on this product",
       "prompt": "What to ask for",
       "promptHint": "Leave empty to use the shop-wide wording.",

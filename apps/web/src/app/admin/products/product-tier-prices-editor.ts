@@ -1,9 +1,11 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { CustomerTier } from '@b2b-catalog-platform/shared';
+import { currencySymbol } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { FieldLabel } from '../../ui/field-label';
-import { Input } from '../../ui/input';
 import { PriceField } from '../../ui/price-field';
+import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
 
 /** A tier's field as the form holds it: raw text, empty meaning "no override". */
 export interface TierPriceDraft {
@@ -29,7 +31,7 @@ export interface TierPriceDraft {
  */
 @Component({
   selector: 'app-product-tier-prices-editor',
-  imports: [FieldLabel, Input, PriceField],
+  imports: [FieldLabel, PriceField, UnitField],
   template: `
     <span appFieldLabel>{{ text.heading }}</span>
     <!-- A line each below sm, as the base price above them takes: a row of
@@ -49,17 +51,18 @@ export interface TierPriceDraft {
           <span class="mb-1 block text-sm text-muted">{{ tier.label }}</span>
           <!-- Text with inputmode, for the same reason as the base price
                field: a number input drops a half-typed decimal. -->
-          <input
-            type="text"
-            inputmode="decimal"
-            appInput
-            appPriceField
-            class="w-full sm:w-40"
-            [attr.aria-label]="tier.label"
-            [value]="valueFor(tier.id)"
-            [placeholder]="placeholder()"
-            (input)="onInput(tier.id, $any($event.target).value)"
-          />
+          <app-unit-field class="w-full sm:w-40" [unit]="currencySuffix">
+            <input
+              type="text"
+              inputmode="decimal"
+              appPriceField
+              [class]="unitFieldInput"
+              [attr.aria-label]="tier.label"
+              [value]="valueFor(tier.id)"
+              [placeholder]="placeholder()"
+              (input)="onInput(tier.id, $any($event.target).value)"
+            />
+          </app-unit-field>
         </label>
       }
     </div>
@@ -68,6 +71,11 @@ export interface TierPriceDraft {
 })
 export class ProductTierPricesEditor {
   protected readonly text = inject(ADMIN_TEXT).productEditor.tierPrices;
+  protected readonly unitFieldInput = UNIT_FIELD_INPUT;
+  /** The same mark the base price field above carries. */
+  protected readonly currencySuffix = currencySymbol(
+    inject(DEPLOYMENT_CONFIG).catalog.currency,
+  );
 
   readonly tiers = input.required<CustomerTier[]>();
   /** The base price as text, e.g. "18,90" — empty while none is entered. */

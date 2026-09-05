@@ -55,3 +55,20 @@ export function formatMoneyMinor(minor: number, currency: MoneyFormat): string {
     minor / 10 ** currencyFractionDigits(currency),
   );
 }
+
+/**
+ * The symbol this currency is written with in this locale ("€", "$", "CHF") —
+ * for a price *field*, which shows the unit beside the figure rather than
+ * formatting one. Read off the same formatter as everything else here, so the
+ * mark in the editor is the mark on the storefront.
+ *
+ * Falls back to the code, which is what a locale with no symbol for it already
+ * renders.
+ */
+export function currencySymbol(currency: MoneyFormat): string {
+  return (
+    formatterFor(currency)
+      .formatToParts(0)
+      .find((part) => part.type === 'currency')?.value ?? currency.code
+  );
+}
