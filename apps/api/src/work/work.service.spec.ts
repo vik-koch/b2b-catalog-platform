@@ -3,7 +3,7 @@ import { PgDialect } from 'drizzle-orm/pg-core';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import * as schema from '../db/schema';
-import { orders, products, users } from '../db/schema';
+import { documents, orders, products, users } from '../db/schema';
 import { WorkService } from './work.service';
 
 /**
@@ -51,8 +51,8 @@ describe('WorkService', () => {
     expect(asks.map((ask) => ask.table)).toEqual([users, orders]);
   });
 
-  it('adds the catalog queue for an admin', async () => {
-    const { db, asks } = testDb([1, 2, 5]);
+  it('adds the catalog queues for an admin', async () => {
+    const { db, asks } = testDb([1, 2, 5, 4]);
 
     const counts = await new WorkService(db).countsFor(user('admin'));
 
@@ -60,12 +60,26 @@ describe('WorkService', () => {
       registrations: 1,
       orders: 2,
       unpublishedProducts: 5,
+      expiringDocuments: 4,
     });
     expect(asks[2].table).toBe(products);
     // Off the storefront and still in the catalog: a soft-deleted row is not
     // work, because nothing is waiting for it to be published.
     expect(asks[2].where).toContain('"publishedAt" is null');
     expect(asks[2].where).toContain('"deletedAt" is null');
+  });
+
+  // Expiring and expired in one figure: they are one job, and a document
+  // crosses from the first to the second on its own.
+  it('counts documents that have expired or are about to', async () => {
+    const { db, asks } = testDb([0, 0, 0, 2]);
+
+    await new WorkService(db).countsFor(user('admin'));
+
+    expect(asks[3].table).toBe(documents);
+    // A document with no expiry never comes due, so it is never counted.
+    expect(asks[3].where).toContain('"expiresAt" is not null');
+    expect(asks[3].where).toContain('"expiresAt" <= $1');
   });
 
   it('counts only pending customer registrations', async () => {
@@ -95,7 +109,7 @@ describe('WorkService', () => {
     const forCustomer = await new WorkService(testDb().db).countsFor(
       user('user'),
     );
-    const forAdmin = await new WorkService(testDb([1, 2, 3]).db).countsFor(
+    const forAdmin = await new WorkService(testDb([1, 2, 3, 4]).db).countsFor(
       user('admin'),
     );
 

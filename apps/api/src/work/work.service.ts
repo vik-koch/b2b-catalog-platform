@@ -1,17 +1,19 @@
 import {
   AuthUser,
+  DOCUMENT_EXPIRY_WARNING_DAYS,
+  isoToday,
   CUSTOMER_WAITING_ORDER_STATUSES,
   UserRole,
   WorkCounts,
   WorkQueue,
 } from '@b2b-catalog-platform/shared';
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, isNull, lte } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 
-const { orders, products, users } = schema;
+const { documents, orders, products, users } = schema;
 
 /**
  * Which queues a role is told about (FR-WORK-04), as a table rather than as a
@@ -30,7 +32,12 @@ const { orders, products, users } = schema;
  * their own rows, not the shop's.
  */
 const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
-  admin: ['registrations', 'orders', 'unpublishedProducts'],
+  admin: [
+    'registrations',
+    'orders',
+    'unpublishedProducts',
+    'expiringDocuments',
+  ],
   manager: ['registrations', 'orders'],
   user: ['myOrders'],
 };
@@ -62,6 +69,7 @@ export class WorkService {
     registrations: () => this.registrations(),
     orders: () => this.staffOrders(),
     unpublishedProducts: () => this.unpublishedProducts(),
+    expiringDocuments: () => this.expiringDocuments(),
     myOrders: (user) => this.myOrders(user.id),
   };
 
@@ -99,6 +107,27 @@ export class WorkService {
     return this.db.$count(
       products,
       and(isNull(products.publishedAt), isNull(products.deletedAt)),
+    );
+  }
+
+  /**
+   * Documents whose expiry has passed or is within the warning window
+   * (FR-DOC-04). A document with no expiry never comes due and is never
+   * counted.
+   *
+   * The bound is computed here rather than in SQL so it is the same day
+   * arithmetic the badge and the filter use — a count that disagreed with the
+   * list it links to by a day would be unexplainable.
+   */
+  private expiringDocuments(): Promise<number> {
+    const due = new Date();
+    due.setUTCDate(due.getUTCDate() + DOCUMENT_EXPIRY_WARNING_DAYS);
+    return this.db.$count(
+      documents,
+      and(
+        isNotNull(documents.expiresAt),
+        lte(documents.expiresAt, isoToday(due)),
+      ),
     );
   }
 

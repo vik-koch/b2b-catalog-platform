@@ -88,17 +88,18 @@ describe('work counts', () => {
     expect(res.status).toBe(401);
   });
 
-  it('tells an admin about all three staff queues', async () => {
+  it('tells an admin about every staff queue', async () => {
     expect(Object.keys(await counts(admin)).sort()).toEqual([
+      'expiringDocuments',
       'orders',
       'registrations',
       'unpublishedProducts',
     ]);
   });
 
-  // Absent, not zero: the products screen refuses a manager, so a count
-  // linking there would be a count they cannot act on (FR-WORK-04).
-  it('leaves the catalog queue out for a manager', async () => {
+  // Absent, not zero: the products and documents screens refuse a manager, so
+  // a count linking there would be one they cannot act on (FR-WORK-04).
+  it('leaves the catalog queues out for a manager', async () => {
     expect(Object.keys(await counts(manager)).sort()).toEqual([
       'orders',
       'registrations',
