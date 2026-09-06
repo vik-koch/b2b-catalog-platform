@@ -157,7 +157,7 @@ describe('AttributeListPage', () => {
       definitions: [definition({ name: 'Roast level', slug: 'roast-level' })],
     });
 
-    const link = el.querySelector(`[aria-label="${text.showUsage}"]`);
+    const link = el.querySelector(`[title="${text.showUsage}"]`);
     expect(link?.getAttribute('href')).toBe(
       '/admin/attributes/inventory?key=Roast%20level',
     );

@@ -71,8 +71,8 @@ import { Component, input } from '@angular/core';
              a second line, and an empty half-line down a long list is a lot of
              page to scroll past. -->
         <div
-          class="flex items-center justify-between gap-3"
-          [class]="compact() ? 'mt-1 sm:mt-0 sm:min-h-9' : 'mt-1'"
+          class="flex items-center justify-between gap-3 mt-0 sm:mt-1"
+          [class]="compact() ? 'sm:min-h-8' : null"
         >
           <div
             class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-subtle"

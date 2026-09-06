@@ -114,11 +114,18 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         [emptyMessage]="filtered() ? text.noResults : text.empty"
       >
         <ng-template appGridRow [of]="data" let-document>
-          <td
-            class="truncate font-medium text-stone-700"
-            [title]="document.title"
-          >
-            {{ document.title }}
+          <!-- The title is the way to the file: what the row is called and
+               what opening it gets you are the same thing. -->
+          <td class="truncate">
+            <a
+              class="block truncate break-words font-medium text-stone-700 hover:text-accent"
+              [href]="document.file.url"
+              target="_blank"
+              rel="noopener"
+              [title]="document.title"
+            >
+              {{ document.title }}
+            </a>
           </td>
           <!-- What the file is, not what it is called: the stored name is a
                content hash, and the name it was uploaded under is the second
@@ -139,11 +146,15 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
           <td class="text-subtle">
             {{ day(document.expiresAt) || text.noExpiry }}
           </td>
+          <!-- Where the document stands, as its own column (FR-DOC-04) — the
+               same badge every other admin list wears for a record's state, so
+               a document that has run out reads like a product that is off the
+               storefront. The date it runs out on is the column before it;
+               this one is what that date means today. -->
           <td data-keep>
-            <ng-container
-              [ngTemplateOutlet]="status"
-              [ngTemplateOutletContext]="{ $implicit: document }"
-            />
+            <span appStatusBadge [tone]="stateTone(document)">
+              {{ stateLabel(document) }}
+            </span>
           </td>
           <td class="text-subtle">
             <app-grid-timestamp [value]="document.updatedAt" />
@@ -162,9 +173,13 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
              the date it comes due — the pair the list is scanned for. -->
         <ng-template appGridCard [of]="data" let-document>
           <app-record-row>
-            <span class="truncate font-medium text-stone-700">{{
-              document.title
-            }}</span>
+            <a
+              class="break-words font-medium text-stone-700 hover:text-accent"
+              [href]="document.file.url"
+              target="_blank"
+              rel="noopener"
+              >{{ document.title }}</a
+            >
             <div recordBody>
               <p class="mt-1 truncate text-sm text-subtle">
                 {{ fileLabel(document) }} · {{ document.file.name }}
@@ -176,14 +191,27 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
                 />
               </p>
             </div>
-            <span recordMeta class="flex items-center gap-2 truncate">
-              <ng-container
-                [ngTemplateOutlet]="status"
-                [ngTemplateOutletContext]="{ $implicit: document }"
-              />
-              <span class="truncate text-subtle">{{
-                day(document.expiresAt) || text.noExpiry
-              }}</span>
+            <!-- Where the row stands goes in the badge slot, as every other
+                 grid's card puts it: top right, on the line with the title.
+                 The bottom line is what the table's last columns say — when it
+                 runs out, and when it was last touched. -->
+            <span
+              recordBadge
+              appStatusBadge
+              class="shrink-0"
+              [tone]="stateTone(document)"
+              >{{ stateLabel(document) }}</span
+            >
+            <span recordMeta class="flex min-w-0 items-baseline gap-1">
+              <span class="truncate">
+                @if (document.expiresAt) {
+                  {{ text.expiresColumn }} {{ day(document.expiresAt) }}
+                } @else {
+                  {{ text.noExpiry }}
+                }
+                ·
+              </span>
+              <app-grid-timestamp [value]="document.updatedAt" inline />
             </span>
             <div
               recordActions
@@ -218,30 +246,9 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
       }
     </ng-template>
 
-    <!-- Where the document stands, as its own column (FR-DOC-04) — the same
-         badge every other admin list wears for a record's state, so a document
-         that has run out reads like a product that is off the storefront. The
-         date it runs out on is the column before it; this one is what that
-         date means today. -->
-    <ng-template #status let-document>
-      <span appStatusBadge [tone]="stateTone(document)">
-        {{ stateLabel(document) }}
-      </span>
-    </ng-template>
-
-    <!-- One set of buttons for both shapes: opening the file, editing the row,
-         deleting it. -->
+    <!-- One set of buttons for both shapes: editing the row, deleting it.
+         Opening the file is the title itself. -->
     <ng-template #actions let-document>
-      <a
-        appIconButton
-        [href]="document.file.url"
-        target="_blank"
-        rel="noopener"
-        [attr.aria-label]="text.open"
-        [title]="text.open"
-      >
-        <app-admin-icon name="external-link" />
-      </a>
       <a
         appIconButton
         [routerLink]="['/admin/documents', document.id, 'edit']"
@@ -350,7 +357,13 @@ export class DocumentListPage {
       },
     },
     { key: 'updated', label: this.text.updatedColumn, minWidth: 96 },
-    { key: 'actions', srLabel: this.common.edit, fixedWidth: 108 },
+    // Two glyphs at 24px, with the gap and the cell's own padding.
+    {
+      key: 'actions',
+      srLabel: this.common.edit,
+      align: 'right',
+      fixedWidth: 64,
+    },
   ]);
 
   protected readonly statusOptions: GridFilterOption[] = [

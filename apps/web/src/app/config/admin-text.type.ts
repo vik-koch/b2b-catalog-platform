@@ -460,6 +460,10 @@ export const adminTextSchema = z
         addChild: z.string(),
         seeProducts: z.string(),
         editProducts: z.string(),
+        /** How many products stand under the category. `{count}` substituted;
+         * `noProducts` is the same fact where there are none. */
+        products: z.string(),
+        noProducts: z.string(),
         /** The row's way into the category's filter panel (FR-ATTR-11). */
         editFilters: z.string(),
         edit: z.string(),
@@ -691,10 +695,10 @@ export const adminTextSchema = z
         /** Reference counts per row. `{count}` substituted at render. */
         accounts: z.string(),
         prices: z.string(),
-        /** The link on that count, into the product grid filtered to it. */
+        /** The links those counts carry: into the customer list on this tier,
+         * and into the product grid priced by it. */
+        seeAccounts: z.string(),
         seePrices: z.string(),
-        /** The same control, dead: the tier prices nothing to show. */
-        noPrices: z.string(),
         defaultLabel: z.string(),
         defaultHint: z.string(),
         edit: z.string(),
@@ -753,7 +757,9 @@ export const adminTextSchema = z
         unparsed: z.string(),
         noMatch: z.string(),
         edit: z.string(),
-        /** The row's way into the inventory, expanded on this name. */
+        /** The two counts are the ways out of the row: the product grid
+         * narrowed to the attribute, and the inventory expanded on it. */
+        showProducts: z.string(),
         showUsage: z.string(),
         delete: z.string(),
         empty: z.string(),
@@ -892,7 +898,6 @@ export const adminTextSchema = z
         statusValid: z.string(),
         filterStatus: z.string(),
         edit: z.string(),
-        open: z.string(),
         delete: z.string(),
         /** The link into the product grid narrowed to this document's
          * products, and the same control dead: nothing shows it yet.

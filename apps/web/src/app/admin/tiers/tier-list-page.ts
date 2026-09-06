@@ -15,6 +15,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Link } from '../../ui/link';
 import { Input } from '../../ui/input';
 import { FieldLabel } from '../../ui/field-label';
 import { Skeleton } from '../../ui/skeleton';
@@ -51,6 +52,7 @@ type EditTarget = { id: string } | { id: null } | null;
     Button,
     IconButton,
     AdminIcon,
+    Link,
     RecordRow,
     RecordFields,
     RecordFormActions,
@@ -102,7 +104,15 @@ type EditTarget = { id: string } | { id: null } | null;
                 {{ text.defaultLabel }}
               </span>
               <ng-container recordMeta>
-                <span>{{ accountsLabel(tiers.value().defaultUserCount) }}</span>
+                <span>
+                  <ng-container
+                    [ngTemplateOutlet]="accounts"
+                    [ngTemplateOutletContext]="{
+                      $implicit: tiers.value().defaultUserCount,
+                      tier: 'default',
+                    }"
+                  />
+                </span>
               </ng-container>
             </app-record-row>
             <p class="mt-1 text-sm text-muted">{{ text.defaultHint }}</p>
@@ -144,41 +154,36 @@ type EditTarget = { id: string } | { id: null } | null;
                     <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
                       {{ tier.key }}
                     </code>
+                    <!-- Both counts are the ways out of the row: the accounts
+                         on this tier, and the products it prices — the second
+                         is what the glyph at the other end used to open, said
+                         as the figure itself. Dead where the tier prices
+                         nothing: that it is dead is the answer. -->
                     <ng-container recordMeta>
                       <span>
-                        {{ accountsLabel(tier.userCount) }} ·
-                        {{ pricesLabel(tier.priceCount) }}
+                        <ng-container
+                          [ngTemplateOutlet]="accounts"
+                          [ngTemplateOutletContext]="{
+                            $implicit: tier.userCount,
+                            tier: tier.id,
+                          }"
+                        />
+                        ·
+                        @if (tier.priceCount) {
+                          <a
+                            appLink
+                            routerLink="/admin/products"
+                            [queryParams]="{ tierId: tier.id }"
+                            [title]="text.seePrices"
+                          >
+                            {{ pricesLabel(tier.priceCount) }}
+                          </a>
+                        } @else {
+                          {{ pricesLabel(0) }}
+                        }
                       </span>
                     </ng-container>
                     <ng-container recordActions>
-                      <!-- "Which products did we agree a rate on?" is the
-                           question every review of a tier starts from, and the
-                           admin grid is where it is answered. Drawn dead rather
-                           than dropped where the tier prices nothing: its being
-                           dead is the answer, and the buttons beside it would
-                           otherwise sit in a different place on every other
-                           row. -->
-                      @if (tier.priceCount > 0) {
-                        <a
-                          appIconButton
-                          routerLink="/admin/products"
-                          [queryParams]="{ tierId: tier.id }"
-                          [attr.aria-label]="text.seePrices"
-                          [title]="text.seePrices"
-                        >
-                          <app-admin-icon name="square-menu" />
-                        </a>
-                      } @else {
-                        <span
-                          appIconButton
-                          aria-disabled="true"
-                          class="pointer-events-none opacity-30"
-                          [attr.aria-label]="text.noPrices"
-                          [title]="text.noPrices"
-                        >
-                          <app-admin-icon name="square-menu" />
-                        </span>
-                      }
                       <button
                         appIconButton
                         type="button"
@@ -224,6 +229,24 @@ type EditTarget = { id: string } | { id: null } | null;
 
       <!-- One form for both add and edit: a tier is a name and a key either way,
          and the only difference is which request the save makes. -->
+      <!-- How many accounts sit on a price list, and the way to them. The
+           base list says it too: it is a list like any other here, and the
+           only one nobody can edit. -->
+      <ng-template #accounts let-count let-tier="tier">
+        @if (count) {
+          <a
+            appLink
+            routerLink="/admin/users"
+            [queryParams]="{ tier }"
+            [title]="text.seeAccounts"
+          >
+            {{ accountsLabel(count) }}
+          </a>
+        } @else {
+          {{ accountsLabel(0) }}
+        }
+      </ng-template>
+
       <ng-template #form>
         <!-- The label and the sync key it is stored under, side by side from
              sm up and one per line below it — the same two-column form the

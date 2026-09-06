@@ -17,6 +17,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Link } from '../../ui/link';
 import { Input } from '../../ui/input';
 import { HintBadge } from '../../ui/hint-badge';
 import { Skeleton } from '../../ui/skeleton';
@@ -51,6 +52,7 @@ type RenameTarget =
     Button,
     IconButton,
     AdminIcon,
+    Link,
     RecordRow,
     HintBadge,
     Input,
@@ -116,10 +118,33 @@ type RenameTarget =
                           />
                           {{ entry.key }}
                         </button>
+                        <!-- The counts are the ways into the key: the product
+                             grid narrowed to it, and its own values — the
+                             second opens the same panel the chevron does,
+                             said as what is in it. -->
                         <ng-container recordMeta>
                           <span>
-                            {{ productsLabel(entry.productCount) }} ·
-                            {{ valuesLabel(entry.valueCount) }}
+                            @if (entry.productCount) {
+                              <a
+                                appLink
+                                routerLink="/admin/products"
+                                [queryParams]="{ attributeKey: entry.key }"
+                                [title]="text.showProducts"
+                              >
+                                {{ productsLabel(entry.productCount) }}
+                              </a>
+                            } @else {
+                              {{ productsLabel(0) }}
+                            }
+                            ·
+                            <button
+                              appLink
+                              type="button"
+                              [attr.aria-expanded]="expanded() === entry.key"
+                              (click)="toggle(entry.key)"
+                            >
+                              {{ valuesLabel(entry.valueCount) }}
+                            </button>
                           </span>
                         </ng-container>
                         <ng-container recordActions>
@@ -148,14 +173,6 @@ type RenameTarget =
                               <app-admin-icon name="funnel" />
                             </span>
                           }
-                          <a
-                            appIconButton
-                            routerLink="/admin/products"
-                            [queryParams]="{ attributeKey: entry.key }"
-                            [attr.aria-label]="text.showProducts"
-                          >
-                            <app-admin-icon name="square-menu" />
-                          </a>
                           <button
                             appIconButton
                             type="button"
@@ -235,21 +252,26 @@ type RenameTarget =
                                   }
                                   <ng-container recordMeta>
                                     <span>
-                                      {{ productsLabel(value.productCount) }}
+                                      @if (value.productCount) {
+                                        <a
+                                          appLink
+                                          routerLink="/admin/products"
+                                          [queryParams]="{
+                                            attributeKey: entry.key,
+                                            attributeValue: value.value,
+                                          }"
+                                          [title]="text.showProducts"
+                                        >
+                                          {{
+                                            productsLabel(value.productCount)
+                                          }}
+                                        </a>
+                                      } @else {
+                                        {{ productsLabel(0) }}
+                                      }
                                     </span>
                                   </ng-container>
                                   <ng-container recordActions>
-                                    <a
-                                      appIconButton
-                                      routerLink="/admin/products"
-                                      [queryParams]="{
-                                        attributeKey: entry.key,
-                                        attributeValue: value.value,
-                                      }"
-                                      [attr.aria-label]="text.showProducts"
-                                    >
-                                      <app-admin-icon name="square-menu" />
-                                    </a>
                                     <button
                                       appIconButton
                                       type="button"

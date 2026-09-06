@@ -86,9 +86,6 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
               {{ order.reference }}
             </a>
           </td>
-          <td class="text-subtle">
-            <app-grid-timestamp [value]="order.createdAt" />
-          </td>
           <!-- Who to call, and underneath the account it came from — or
                that it came from nobody, which is what a guest order is. -->
           <td class="truncate" [title]="order.customerEmail ?? ''">
@@ -99,15 +96,18 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
               {{ order.customerEmail ?? text.guest }}
             </span>
           </td>
+          <td class="truncate text-subtle">
+            {{ lineCount(order.itemCount) }}
+          </td>
+          <td class="tabular-nums">{{ total(order) }}</td>
           <td data-keep>
             <span appStatusBadge [tone]="statusTone(order.status)">
               {{ statusLabel(order.status) }}
             </span>
           </td>
-          <td class="truncate text-subtle">
-            {{ lineCount(order.itemCount) }}
+          <td class="text-subtle">
+            <app-grid-timestamp [value]="order.createdAt" />
           </td>
-          <td class="text-right tabular-nums">{{ total(order) }}</td>
         </ng-template>
 
         <!-- The same order on a phone: what it is and where it stands on the
@@ -250,13 +250,9 @@ export class AdminOrderListPage {
    */
   protected readonly columns = computed<GridColumn[]>(() => [
     { key: 'reference', label: this.text.reference, minWidth: 140 },
-    {
-      key: 'placed',
-      label: this.text.placed,
-      sort: { asc: 'placed', desc: 'placed_desc', descFirst: true },
-      minWidth: 110,
-    },
     { key: 'customer', label: this.text.customer, minWidth: 140 },
+    { key: 'items', label: this.text.items, minWidth: 80 },
+    { key: 'total', label: this.text.total, minWidth: 90 },
     {
       key: 'status',
       label: this.text.statusAll,
@@ -272,8 +268,12 @@ export class AdminOrderListPage {
       },
       minWidth: 110,
     },
-    { key: 'items', label: this.text.items, minWidth: 80 },
-    { key: 'total', label: this.text.total, align: 'right', minWidth: 90 },
+    {
+      key: 'placed',
+      label: this.text.placed,
+      sort: { asc: 'placed', desc: 'placed_desc', descFirst: true },
+      minWidth: 110,
+    },
   ]);
 
   protected readonly byReference = (order: StaffOrderSummary): string =>
