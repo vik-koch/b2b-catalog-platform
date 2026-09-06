@@ -91,7 +91,7 @@ type RenameTarget =
                     @if (isRenaming({ kind: 'key', key: entry.key })) {
                       <ng-container [ngTemplateOutlet]="form" />
                     } @else {
-                      <app-record-row>
+                      <app-record-row [compact]="true">
                         <!-- Opening the key is the one thing done to the row,
                              so it leads it — where the other lists put their
                              grip or their checkbox. Chevron and name are one
@@ -215,7 +215,7 @@ type RenameTarget =
                               ) {
                                 <ng-container [ngTemplateOutlet]="form" />
                               } @else {
-                                <app-record-row>
+                                <app-record-row [compact]="true">
                                   <!-- An empty value is a row stored before
                                        valueless attributes stopped being
                                        saved. Named, or it reads as a rendering
@@ -251,7 +251,7 @@ type RenameTarget =
                                     </app-hint-badge>
                                   }
                                   <ng-container recordMeta>
-                                    <span>
+                                    <span class="mr-7">
                                       @if (value.productCount) {
                                         <a
                                           appLink
@@ -310,7 +310,7 @@ type RenameTarget =
                             track $index
                           ) {
                             <li class="py-3">
-                              <app-record-row>
+                              <app-record-row [compact]="true">
                                 <!-- Each bar in a box the height of the line it
                                      stands in — 20px of text-sm, 20px of meta,
                                      a glyph's worth of button — rather than the
@@ -322,17 +322,15 @@ type RenameTarget =
                                     [style.width]="width"
                                   ></span>
                                 </span>
-                                <span recordMeta class="flex h-5 items-center">
+                                <span
+                                  recordMeta
+                                  class="flex h-5 items-center mr-7"
+                                >
                                   <span
                                     class="h-4 w-20 rounded bg-stone-200"
                                   ></span>
                                 </span>
                                 <ng-container recordActions>
-                                  <span appIconButton>
-                                    <span
-                                      class="block rounded bg-stone-200"
-                                    ></span>
-                                  </span>
                                   <span appIconButton>
                                     <span
                                       class="block rounded bg-stone-200"
@@ -364,7 +362,10 @@ type RenameTarget =
       <!-- One form for both renames: the text is all that differs, and both
          rewrite every product carrying it. -->
       <ng-template #form>
-        <form class="flex flex-wrap items-end gap-3" (submit)="save($event)">
+        <form
+          class="flex flex-wrap items-end gap-3 py-0.25"
+          (submit)="save($event)"
+        >
           <input
             appInput
             size="sm"

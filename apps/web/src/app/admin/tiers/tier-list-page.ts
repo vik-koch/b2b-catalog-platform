@@ -99,12 +99,12 @@ type EditTarget = { id: string } | { id: null } | null;
              so there is nothing here to change. It sits outside the drop list
              too — it is not a row anyone can move. -->
           <div class="py-3">
-            <app-record-row>
+            <app-record-row [compact]="true">
               <span class="font-medium text-stone-700">
                 {{ text.defaultLabel }}
               </span>
               <ng-container recordMeta>
-                <span>
+                <span class="mr-13">
                   <ng-container
                     [ngTemplateOutlet]="accounts"
                     [ngTemplateOutletContext]="{
@@ -115,7 +115,9 @@ type EditTarget = { id: string } | { id: null } | null;
                 </span>
               </ng-container>
             </app-record-row>
-            <p class="mt-1 text-sm text-muted">{{ text.defaultHint }}</p>
+            <p class="mt-2 sm:mt-0 text-sm text-muted">
+              {{ text.defaultHint }}
+            </p>
           </div>
 
           <ul
@@ -129,7 +131,7 @@ type EditTarget = { id: string } | { id: null } | null;
                 @if (isEditing(tier.id)) {
                   <ng-container [ngTemplateOutlet]="form" />
                 } @else {
-                  <app-record-row>
+                  <app-record-row [compact]="true">
                     <!-- A handle, not a pair of step buttons: everything else
                          in the panel that has an order is dragged, and a button
                          that disables itself at the ends of the list flickers
@@ -161,14 +163,6 @@ type EditTarget = { id: string } | { id: null } | null;
                          nothing: that it is dead is the answer. -->
                     <ng-container recordMeta>
                       <span>
-                        <ng-container
-                          [ngTemplateOutlet]="accounts"
-                          [ngTemplateOutletContext]="{
-                            $implicit: tier.userCount,
-                            tier: tier.id,
-                          }"
-                        />
-                        ·
                         @if (tier.priceCount) {
                           <a
                             appLink
@@ -181,6 +175,14 @@ type EditTarget = { id: string } | { id: null } | null;
                         } @else {
                           {{ pricesLabel(0) }}
                         }
+                        ·
+                        <ng-container
+                          [ngTemplateOutlet]="accounts"
+                          [ngTemplateOutletContext]="{
+                            $implicit: tier.userCount,
+                            tier: tier.id,
+                          }"
+                        />
                       </span>
                     </ng-container>
                     <ng-container recordActions>

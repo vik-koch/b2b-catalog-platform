@@ -125,7 +125,7 @@ type EditTarget = { id: string } | { id: null } | null;
                 @if (isEditing(definition.id)) {
                   <ng-container [ngTemplateOutlet]="form" class="bg-white" />
                 } @else {
-                  <app-record-row>
+                  <app-record-row [compact]="true">
                     <!-- Ordering is the filter panel's order and nothing else.
                          A handle, not a pair of step buttons: the category
                          list, the image gallery and the attribute grid itself
