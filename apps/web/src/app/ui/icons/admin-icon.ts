@@ -45,7 +45,6 @@ export type AdminIconName =
   | 'circle-slash'
   | 'rotate-ccw'
   | 'upload'
-  | 'square-menu'
   | 'send'
   | 'package'
   | 'clipboard-list'
@@ -279,12 +278,6 @@ export type AdminIconName =
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
           <path d="M17 8l-5-5-5 5" />
           <path d="M12 3v12" />
-        }
-        @case ('square-menu') {
-          <rect width="18" height="18" x="3" y="3" rx="2" />
-          <path d="M7 8h10" />
-          <path d="M7 12h10" />
-          <path d="M7 16h10" />
         }
         @case ('send') {
           <path

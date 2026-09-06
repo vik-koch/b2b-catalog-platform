@@ -18,7 +18,6 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import {
   AttributeDefinition,
   AttributeKeyUsage,
@@ -34,7 +33,6 @@ import { FieldLabel } from '../../ui/field-label';
 import {
   AttributeHint,
   attributeHints,
-  attributeIsKnown,
   AttributeRowStatus,
   attributeRowStatus,
 } from './attribute-hints';
@@ -80,7 +78,6 @@ import {
     CdkDragHandle,
     CdkDragPreview,
     FieldLabel,
-    RouterLink,
   ],
   template: `
     <!-- min-w-0 because a <fieldset> defaults to min-width:min-content, which
@@ -168,7 +165,7 @@ import {
                 ></td>
                 <td
                   contenteditable="false"
-                  class="w-32 border-0 pl-3 align-middle select-none"
+                  class="w-48 border-0 pl-3 align-middle select-none"
                 >
                   <!-- Everything here is outside the editable region, so it is
                      safe to render — which is also why the marks live here and
@@ -210,40 +207,7 @@ import {
                       >
                     }
                   }
-                  <!-- Tight: four affordances have to fit a 12rem column, and
-                     on a touch screen each of them is 36px wide. -->
                   <div class="flex items-center">
-                    <!-- Where else this attribute is used, in the inventory:
-                       every value in use under the key, with its counts, and
-                       the product drill-down from there. A new tab on purpose —
-                       leaving a half-edited product would trip the
-                       unsaved-changes guard for what is only a glance. -->
-                    @if (isKnown(row)) {
-                      <a
-                        appIconButton
-                        target="_blank"
-                        routerLink="/admin/attributes/inventory"
-                        [queryParams]="{ key: row.key.trim() }"
-                        [attr.aria-label]="text.showUsage"
-                        [title]="text.showUsage"
-                      >
-                        <app-admin-icon name="square-menu" />
-                      </a>
-                    } @else {
-                      <!-- Kept in place rather than dropped: the row actions
-                         would otherwise shift a column as a key is typed. Its
-                         being dead *is* the statement that nothing else in the
-                         catalog carries the name. -->
-                      <span
-                        appIconButton
-                        aria-disabled="true"
-                        class="pointer-events-none opacity-30"
-                        [title]="linkHint(row)"
-                        [attr.aria-label]="linkHint(row)"
-                      >
-                        <app-admin-icon name="square-menu" />
-                      </span>
-                    }
                     <button
                       appIconButton
                       type="button"
@@ -342,19 +306,6 @@ export class ProductAttributesEditor {
     if (this.rowStatus(row) === 'not-numeric') return 'not-numeric';
     const hint = this.hintsByKey().get(row.key.trim());
     return hint?.unit ?? null;
-  }
-
-  /** What the dead link says: why there is nothing behind it. */
-  protected linkHint(row: ProductAttribute): string {
-    return this.rowStatus(row) === 'unknown'
-      ? this.text.unknownKey
-      : this.text.showUsage;
-  }
-
-  /** Whether anything else in the catalog knows the name — no link if not. */
-  protected isKnown(row: ProductAttribute): boolean {
-    const hint = this.hintsByKey().get(row.key.trim());
-    return hint !== undefined && attributeIsKnown(hint);
   }
 
   /**

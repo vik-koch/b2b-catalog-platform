@@ -63,13 +63,6 @@ function render(
         .querySelectorAll('tbody tr')
         [row].querySelector('td:last-child > span')
         ?.textContent?.trim() ?? null,
-    /** The live "who else carries this" link of a row, if it has one. */
-    link: (row = 0) => el.querySelectorAll('tbody tr')[row].querySelector('a'),
-    /** Its dead counterpart, kept in place when there is nothing to show. */
-    deadLink: (row = 0) =>
-      el
-        .querySelectorAll('tbody tr')
-        [row].querySelector('[aria-disabled="true"]'),
   };
 }
 
@@ -396,21 +389,13 @@ describe('ProductAttributesEditor row badges', () => {
     expect(h.marks(0)).toEqual([]);
   });
 
-  it('says a key nothing else carries through the dead link, not a badge', () => {
+  it('leaves a key nothing else carries unmarked', () => {
     const h = render([{ key: 'Lenght', value: '30' }], {
       keys: [known('Length')],
     });
 
     // No badge: only what the shop does with a row earns one.
     expect(h.marks(0)).toEqual([]);
-    expect(h.link(0)).toBeNull();
-    expect(h.deadLink(0)?.getAttribute('title')).toBe(text.unknownKey);
-  });
-
-  it('keeps the link in place, dead, so the row actions never shift', () => {
-    const h = render([{ key: '', value: '' }], { keys: [known('Origin')] });
-
-    expect(h.deadLink(0)?.getAttribute('title')).toBe(text.showUsage);
   });
 
   it('keeps marking a key only this product carries, once saved', () => {
@@ -422,8 +407,6 @@ describe('ProductAttributesEditor row badges', () => {
     });
 
     expect(h.marks(0)).toEqual([]);
-    expect(h.link(0)).toBeNull();
-    expect(h.deadLink(0)?.getAttribute('title')).toBe(text.unknownKey);
   });
 
   it('marks a declared key as filterable', () => {
@@ -461,37 +444,6 @@ describe('ProductAttributesEditor row badges', () => {
     // The warning takes the unit's place; the key is still filterable.
     expect(h.unit(0)).toBeNull();
     expect(h.marks(0)).toEqual([text.filterable, text.notNumeric]);
-  });
-
-  it('links to the attribute in the inventory, in a new tab', () => {
-    const h = render(rows(), { keys: [known('Origin')] });
-    const link = h.link(0);
-
-    expect(link?.getAttribute('target')).toBe('_blank');
-    // The key, not the pair: what the link promises is what the enabled state
-    // knows — that the catalog carries this name.
-    expect(link?.getAttribute('href')).toBe(
-      '/admin/attributes/inventory?key=Origin',
-    );
-  });
-
-  it('links by the key alone while the row is half typed', () => {
-    const h = render([{ key: ' Origin ', value: '' }], {
-      keys: [known('Origin')],
-    });
-
-    expect(h.link(0)?.getAttribute('href')).toBe(
-      '/admin/attributes/inventory?key=Origin',
-    );
-  });
-
-  it('offers no live link where there is nothing to show', () => {
-    const h = render([{ key: 'Lenght', value: '30' }], {
-      keys: [known('Length')],
-    });
-
-    expect(h.link(0)).toBeNull();
-    expect(h.deadLink(0)).not.toBeNull();
   });
 });
 

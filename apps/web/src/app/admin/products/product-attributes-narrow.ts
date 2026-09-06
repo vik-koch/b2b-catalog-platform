@@ -17,7 +17,6 @@ import {
   PRODUCT_ATTRIBUTES_MAX,
   ProductAttribute,
 } from '@b2b-catalog-platform/shared';
-import { RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
 import { FieldLabel } from '../../ui/field-label';
@@ -27,11 +26,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
-import {
-  AttributeHint,
-  attributeIsKnown,
-  attributeRowStatus,
-} from './attribute-hints';
+import { AttributeHint, attributeRowStatus } from './attribute-hints';
 
 /**
  * The product's attributes on a phone (FR-CAT-05).
@@ -63,7 +58,6 @@ import {
     RecordFields,
     RecordFormActions,
     RecordRow,
-    RouterLink,
     CdkDropList,
     CdkDrag,
     CdkDragHandle,
@@ -126,6 +120,19 @@ import {
             </form>
           } @else {
             <app-record-row>
+              <!-- The grip leads the row, where every other record list in the
+                   panel puts it: the control that acts on the whole row, not
+                   one of the buttons at the other end. -->
+              <span
+                recordControl
+                cdkDragHandle
+                appIconButton
+                size="lead"
+                class="cursor-grab active:cursor-grabbing"
+                [attr.aria-label]="common.reorder"
+              >
+                <app-admin-icon name="grip-vertical" />
+              </span>
               <span
                 class="font-medium break-words text-stone-700"
                 [class.text-muted]="row.key.trim() === ''"
@@ -161,46 +168,10 @@ import {
                   }
                 }
               </ng-container>
+              <!-- Add, edit, delete — the order every other list in the panel
+                   ends on, so a row of glyphs means the same thing wherever it
+                   is read. -->
               <ng-container recordActions>
-                <!-- Where else this attribute is used, in the inventory: every
-                     value in use under the key, with its counts, and the
-                     product drill-down from there. A new tab on purpose —
-                     leaving a half-edited product would trip the
-                     unsaved-changes guard for what is only a glance. Kept in
-                     place when the name is one nothing else carries, rather
-                     than dropped: its being dead *is* that statement, and the
-                     buttons beside it would otherwise shift as a key is
-                     typed. -->
-                @if (isKnown(row)) {
-                  <a
-                    appIconButton
-                    target="_blank"
-                    routerLink="/admin/attributes/inventory"
-                    [queryParams]="{ key: row.key.trim() }"
-                    [attr.aria-label]="text.showUsage"
-                    [title]="text.showUsage"
-                  >
-                    <app-admin-icon name="square-menu" />
-                  </a>
-                } @else {
-                  <span
-                    appIconButton
-                    aria-disabled="true"
-                    class="pointer-events-none opacity-30"
-                    [title]="linkHint(row)"
-                    [attr.aria-label]="linkHint(row)"
-                  >
-                    <app-admin-icon name="square-menu" />
-                  </span>
-                }
-                <button
-                  appIconButton
-                  type="button"
-                  [attr.aria-label]="common.edit"
-                  (click)="open($index)"
-                >
-                  <app-admin-icon name="pencil" />
-                </button>
                 <button
                   appIconButton
                   type="button"
@@ -211,6 +182,14 @@ import {
                 </button>
                 <button
                   appIconButton
+                  type="button"
+                  [attr.aria-label]="common.edit"
+                  (click)="open($index)"
+                >
+                  <app-admin-icon name="pencil" />
+                </button>
+                <button
+                  appIconButton
                   variant="danger"
                   type="button"
                   [attr.aria-label]="common.remove"
@@ -218,14 +197,6 @@ import {
                 >
                   <app-admin-icon name="trash-2" />
                 </button>
-                <span
-                  cdkDragHandle
-                  appIconButton
-                  class="cursor-grab active:cursor-grabbing"
-                  [attr.aria-label]="common.reorder"
-                >
-                  <app-admin-icon name="grip-vertical" />
-                </span>
               </ng-container>
             </app-record-row>
           }
@@ -272,19 +243,6 @@ export class ProductAttributesNarrow {
       return 'not-numeric';
     }
     return this.unitOf(row);
-  }
-
-  /** Whether anything else in the catalog knows the name — no link if not. */
-  protected isKnown(row: ProductAttribute): boolean {
-    const hint = this.hintsByKey().get(row.key.trim());
-    return hint !== undefined && attributeIsKnown(hint);
-  }
-
-  /** What the dead link says: why there is nothing behind it. */
-  protected linkHint(row: ProductAttribute): string {
-    return attributeRowStatus(row, this.hintsByKey()) === 'unknown'
-      ? this.text.unknownKey
-      : this.text.showUsage;
   }
 
   protected unitOf(row: ProductAttribute): string | null {

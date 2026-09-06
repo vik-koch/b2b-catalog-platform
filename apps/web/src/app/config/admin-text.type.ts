@@ -264,9 +264,6 @@ export const adminTextSchema = z
             /** The row badges: what the shop does with this attribute. */
             filterable: z.string(),
             notNumeric: z.string(),
-            /** The link into the inventory, live and dead. */
-            showUsage: z.string(),
-            unknownKey: z.string(),
           })
           .strict(),
         /**
