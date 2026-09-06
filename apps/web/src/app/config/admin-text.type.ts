@@ -932,7 +932,9 @@ export const adminTextSchema = z
         titlePlaceholder: z.string(),
         titleHint: z.string(),
         file: z.string(),
-        /** The empty control, and the one on a row that already has a file. */
+        /** The empty drop target, and the control on a row that already has a
+         * file. */
+        dropHint: z.string(),
         choose: z.string(),
         replace: z.string(),
         open: z.string(),

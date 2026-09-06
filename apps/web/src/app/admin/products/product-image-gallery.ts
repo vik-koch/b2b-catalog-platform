@@ -13,6 +13,7 @@ import {
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { FieldLabel } from '../../ui/field-label';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
 import { MediaService } from '../media/media.service';
 
 /**
@@ -82,7 +83,7 @@ import { MediaService } from '../media/media.service';
           />
           <button
             type="button"
-            class="flex h-28 w-28 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent disabled:opacity-50"
+            [class]="tileClass"
             [disabled]="uploading()"
             (click)="fileInput.click()"
           >
@@ -105,6 +106,9 @@ export class ProductImageGallery {
   protected readonly text = inject(ADMIN_TEXT).productEditor.images;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
+  /** The shared dashed target at tile size — the same one the sync screen and
+   * the document editor wear at their own. */
+  protected readonly tileClass = `h-28 w-28 ${DROP_ZONE} ${dropZoneState(false)}`;
 
   readonly value = input.required<CatalogImage[]>();
   readonly valueChange = output<CatalogImage[]>();

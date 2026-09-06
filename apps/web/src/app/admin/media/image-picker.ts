@@ -5,6 +5,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
 import { MediaService } from './media.service';
 
 /**
@@ -46,7 +47,7 @@ import { MediaService } from './media.service';
       />
       <button
         type="button"
-        class="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border-strong text-subtle transition-colors hover:border-primary hover:text-accent disabled:opacity-50"
+        [class]="tileClass"
         [disabled]="uploading()"
         (click)="fileInput.click()"
       >
@@ -66,6 +67,9 @@ export class ImagePicker {
   private readonly media = inject(MediaService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
+  /** The shared dashed target at tile size — the same one the sync screen and
+   * the document editor wear at their own. */
+  protected readonly tileClass = `h-28 w-28 ${DROP_ZONE} ${dropZoneState(false)}`;
 
   readonly value = input.required<CatalogImage | null>();
   /** Caption on the empty tile, e.g. "Image". */

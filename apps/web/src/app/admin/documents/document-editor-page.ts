@@ -15,10 +15,12 @@ import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { DateField } from '../../ui/date-field';
 import { Input } from '../../ui/input';
+import { Link } from '../../ui/link';
 import { Skeleton } from '../../ui/skeleton';
 import { injectEditorReturn } from '../editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { documentFileLabel, documentFileSize } from '../../core/document-file';
+import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 
@@ -45,6 +47,7 @@ import { DocumentsService } from './documents.service';
     DocumentProductsPicker,
     FieldLabel,
     Input,
+    Link,
     Skeleton,
   ],
   template: `
@@ -132,16 +135,26 @@ import { DocumentsService } from './documents.service';
               </button>
             </div>
           } @else {
+            <!-- The same dashed target the sync screen and the image tiles
+                 wear: choosing a file is one gesture in this panel, so it has
+                 one shape. The picker is the drop target too — a dashed box
+                 that refused a dropped file would be promising something it
+                 does not do. -->
             <button
-              appButton
-              variant="secondary"
               type="button"
-              class="gap-2"
+              class="w-full gap-2 px-6 py-8"
+              [class]="dropZoneClass()"
               [disabled]="uploading()"
               (click)="fileInput.click()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="dragging.set(false)"
+              (drop)="onDrop($event)"
             >
-              <app-admin-icon name="upload" class="h-4 w-4" />
-              {{ uploading() ? common.uploading : text.choose }}
+              <app-admin-icon name="upload" class="h-6 w-6 text-stone-400" />
+              <span class="font-medium">{{
+                uploading() ? common.uploading : text.dropHint
+              }}</span>
+              <span appLink class="text-sm">{{ text.choose }}</span>
             </button>
           }
           <span class="mt-1 block text-xs text-subtle">{{
@@ -298,12 +311,34 @@ export class DocumentEditorPage implements UnsavedChangesAware {
    * while the admin is still looking at the file picker, and the save that
    * follows is then a plain JSON write like every other record's.
    */
+  /** Whether a file is over the empty picker. */
+  protected readonly dragging = signal(false);
+
+  protected dropZoneClass(): string {
+    return `${DROP_ZONE} ${dropZoneState(this.dragging())}`;
+  }
+
+  protected onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.dragging.set(true);
+  }
+
+  protected onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.dragging.set(false);
+    const dropped = event.dataTransfer?.files?.[0];
+    if (dropped) void this.upload(dropped);
+  }
+
   protected async onFile(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const chosen = input.files?.[0];
     input.value = ''; // allow re-selecting the same file
     if (!chosen) return;
+    await this.upload(chosen);
+  }
 
+  private async upload(chosen: File): Promise<void> {
     this.uploading.set(true);
     this.error.set(null);
     try {

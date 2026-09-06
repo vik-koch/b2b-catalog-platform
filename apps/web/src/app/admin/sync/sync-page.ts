@@ -26,6 +26,7 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
 import { SyncService } from './sync.service';
 import { Link } from '../../ui/link';
+import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
 
 /**
  * Fills `{placeholders}` in a line of admin text with the names the API sent
@@ -140,7 +141,7 @@ function substitute(
         />
         <button
           type="button"
-          class="flex w-full flex-col items-center gap-2 rounded-lg border-2 border-dashed px-6 py-8 text-center transition-colors"
+          class="w-full px-6 py-8"
           [class]="dropZoneClass()"
           (click)="openPicker(fileInput)"
           (dragover)="onDragOver($event)"
@@ -492,10 +493,7 @@ export class SyncPage {
   }
 
   protected dropZoneClass(): string {
-    if (this.dragging()) return 'border-primary bg-primary/5';
-    return this.file()
-      ? 'border-border-strong bg-stone-50'
-      : 'border-border-strong hover:border-primary hover:bg-stone-50';
+    return `${DROP_ZONE} gap-2 ${dropZoneState(this.dragging(), !!this.file())}`;
   }
 
   private setFile(file: File | null): void {
