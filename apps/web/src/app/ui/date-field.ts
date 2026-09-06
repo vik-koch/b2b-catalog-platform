@@ -1,4 +1,5 @@
 import { Component, computed, input, output } from '@angular/core';
+import { injectCoarsePointer } from '../core/coarse-pointer';
 import { Icon } from './icons/icon';
 import { Input } from './input';
 
@@ -55,11 +56,24 @@ const empty =
   imports: [Icon, Input],
   host: { class: 'block' },
   template: `
-    <!-- A click anywhere in the field opens the picker, so the field is not
-         really typed into even though it can be: select-none and the pointer
-         say so, in place of a caret dragging across segments that the picker
-         is about to cover anyway. It stays a real date input — the keyboard
-         still edits it, which is what somebody who cannot use a picker needs.
+    <!-- Under a mouse there are two ways in, and they are different gestures.
+         The field is typed into: a click lands a caret in the segment under
+         it, and the segments take digits, as they do in any date input. The
+         glyph is the other way — the picker, opened deliberately rather than
+         by every click on the control, which is what used to make the field
+         impossible to type in: the overlay came up before the caret ever
+         landed.
+
+         Under a finger there is one way in, and it is the picker. A day/month/
+         year segment is a 2mm target that needs a keyboard nobody has, and the
+         platform's own wheel is both the better control and the one already
+         known — so on a touch screen a tap anywhere in the field opens it and
+         the segments are not text to be dragged across.
+
+         The glyph is a pointer affordance and nothing else, so it is out of
+         the tab order and unnamed: a keyboard is already typing the date, and
+         a second stop that only opens a picker is a stop with nothing behind
+         it.
 
          Hiding the engine's own affordance takes all three rules:
          appearance-none for the engines that draw it as part of the control
@@ -67,20 +81,26 @@ const empty =
          for those that make it a child. Each is inert where it does not
          apply. -->
     <div class="relative flex items-center">
-      <app-icon
-        name="calendar"
-        class="pointer-events-none absolute left-3 h-4 w-4 text-subtle"
-      />
+      <button
+        type="button"
+        tabindex="-1"
+        aria-hidden="true"
+        class="absolute left-2 flex cursor-pointer items-center justify-center rounded p-1 text-subtle transition-colors hover:text-accent"
+        (click)="openPicker(input)"
+      >
+        <app-icon name="calendar" class="h-4 w-4" />
+      </button>
       <input
+        #input
         [id]="fieldId()"
         type="date"
         [attr.min]="min()"
         [attr.max]="max()"
         [value]="value() ?? ''"
         appInput
-        class="peer w-full cursor-pointer appearance-none pl-9 select-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
+        class="peer w-full appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
         [class]="fieldClass()"
-        (click)="openPicker($event)"
+        (click)="onFieldClick(input)"
         (change)="picked($event)"
         [attr.aria-label]="ariaLabel() || null"
         [attr.aria-invalid]="invalid() || null"
@@ -119,16 +139,26 @@ export class DateField {
 
   readonly valueChange = output<string | null>();
 
-  protected readonly fieldClass = computed(() =>
-    this.value() === null ? `${segments} ${empty}` : segments,
-  );
+  private readonly coarse = injectCoarsePointer();
 
-  /** Opens the native picker from a click anywhere in the field, since the
-   * button that would have done it is hidden. Guarded: `showPicker` is absent
-   * on older engines and refuses outside a user gesture, and a field that
-   * still takes typing is a working field either way. */
-  protected openPicker(event: Event): void {
-    const input = event.target as HTMLInputElement;
+  protected readonly fieldClass = computed(() => {
+    const state = this.value() === null ? `${segments} ${empty}` : segments;
+    // Under a finger the field is a button that opens the picker, and says so:
+    // a caret it will not keep, and a text selection it cannot act on, are
+    // both promises the tap is about to break.
+    return this.coarse() ? `${state} cursor-pointer select-none` : state;
+  });
+
+  /** A tap opens the picker; a click does not — see the template. */
+  protected onFieldClick(input: HTMLInputElement): void {
+    if (this.coarse()) this.openPicker(input);
+  }
+
+  /** Opens the native picker from the glyph, in place of the engine's own
+   * affordance, which is drawn differently in every browser. Guarded:
+   * `showPicker` is absent on older engines and refuses outside a user
+   * gesture, and the field still takes typing either way. */
+  protected openPicker(input: HTMLInputElement): void {
     try {
       input.showPicker?.();
     } catch {
