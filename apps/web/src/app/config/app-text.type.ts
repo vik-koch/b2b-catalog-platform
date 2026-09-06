@@ -879,9 +879,8 @@ export const appTextSchema = z
          */
         myAccount: z
           .object({
-            /** The card that holds the details and the address book side by
-             * side, which needs a name neither of them owns. */
-            profileHeading: z.string(),
+            /** Names the details section — the heading over the card, since
+             * the card no longer carries one of its own. */
             detailsHeading: z.string(),
             name: z.string(),
             email: z.string(),

@@ -19,10 +19,16 @@ import { Params, RouterLink } from '@angular/router';
   selector: 'app-work-note',
   imports: [RouterLink],
   template: `
+    <!-- A named group, and a flex box rather than an inline one. Unnamed, the
+         note answered any group it happened to be nested in — the panel row
+         it sits on lit its own link on hover and underlined this one with it.
+         Inline-flex sat the whole box on the parent's baseline, which left a
+         line's descender under it and stopped the note centring against the
+         row beside it; w-fit keeps the hit area to the words all the same. -->
     <a
       [routerLink]="link()"
       [queryParams]="queryParams()"
-      class="group inline-flex items-center text-xs font-medium text-amber-800 hover:text-accent"
+      class="group/note flex w-fit items-center text-xs font-medium text-amber-800 hover:text-accent"
     >
       <span
         aria-hidden="true"
@@ -31,12 +37,12 @@ import { Params, RouterLink } from '@angular/router';
       <!-- The rule belongs under the words. On the anchor it also ran under
            the dot and the arrow, which made the arrow look struck through
            rather than moving. -->
-      <span class="group-hover:underline pr-1">{{ label() }}</span>
+      <span class="group-hover/note:underline pr-1">{{ label() }}</span>
       <!-- The arrow moves on hover, which is the whole of what says this is a
            way in rather than a note about the card. -->
       <span
         aria-hidden="true"
-        class="transition-transform group-hover:translate-x-0.5"
+        class="transition-transform group-hover/note:translate-x-0.5"
         >&rarr;</span
       >
     </a>

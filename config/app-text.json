@@ -178,7 +178,7 @@
   },
   "checkout": {
     "title": "Checkout",
-    "intro": "Send us your order and we will confirm the details with you — nothing is charged here.",
+    "intro": "Send us your order and we will confirm the details with you.",
     "emptyCart": "There is nothing in your cart to order.",
     "signInPrompt": "Already a customer? Sign in and your agreed prices apply to this order.",
     "signInAction": "Sign in",
@@ -363,7 +363,6 @@
     "invalid": "Invalid email or password.",
     "error": "Something went wrong logging you in. Please try again.",
     "myAccount": {
-      "profileHeading": "Details and addresses",
       "detailsHeading": "My details",
       "name": "Name",
       "email": "Email",

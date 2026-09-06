@@ -97,15 +97,11 @@ export const adminTextSchema = z
      */
     panel: z
       .object({
-        manage: z.string(),
-        sync: z.string(),
+        /** Section headings. Each names a topic, never the one row under it:
+         * a heading that repeats its own row says nothing twice. */
         catalog: z.string(),
-        /** Heading of the documents group — the third of the first row. */
-        documents: z.string(),
-        /** Heading of the group holding the registry and the inventory. */
-        attributes: z.string(),
+        registries: z.string(),
         pages: z.string(),
-        pricing: z.string(),
         accounts: z.string(),
         /** Heading of the orders card — a manager's daily work, so it is shown
          * to managers as well as admins. */
