@@ -90,8 +90,8 @@ export class AdminListHeader {
   /** Whether anything is narrowing the list, so there is something to clear. */
   readonly filtered = input(false);
   /** Its grid's own breakpoint, so the two never both show the clear control
-   * or both hide it. */
-  readonly narrowBelow = input<NarrowBreakpoint>('md');
+   * or both hide it. Defaults with the grid. */
+  readonly narrowBelow = input<NarrowBreakpoint>('lg');
 
   protected readonly clearClass = computed(() => CLEAR_AT[this.narrowBelow()]);
 }

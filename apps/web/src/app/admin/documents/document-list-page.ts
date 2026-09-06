@@ -81,7 +81,6 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
-      [narrowBelow]="narrowBelow"
     >
       <a
         appButton
@@ -110,7 +109,6 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         [trackBy]="byId"
         [busy]="documents.isLoading()"
         [filtered]="filtered()"
-        [narrowBelow]="narrowBelow"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
       >
         <ng-template appGridRow [of]="data" let-document>
@@ -275,7 +273,6 @@ export class DocumentListPage {
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).documentList;
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly narrowBelow = 'md' as const;
   protected readonly editorFrom = injectEditorReturnParams();
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;

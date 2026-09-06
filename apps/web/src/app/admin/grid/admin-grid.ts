@@ -80,36 +80,44 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
   ],
   template: `
     @if (narrow()) {
-      <app-grid-narrow-controls
-        [columns]="columns()"
-        [chips]="chips()"
-        [sort]="sort()"
-        [defaultSort]="defaultSort()"
-        [defaultSortLabel]="defaultSortLabel() || common.sortDefault"
-        [filtered]="filtered()"
-      />
+      <!-- Held to the reading width every other record list in the panel is
+           held to. Records are lines to read down, not a table to scan across,
+           and a line that runs the full width of a laptop is a line nobody
+           follows — which is exactly what the width between md and lg would
+           otherwise hand them. The heading above stays full width, as it does
+           on the category and attribute lists. -->
+      <div class="max-w-3xl">
+        <app-grid-narrow-controls
+          [columns]="columns()"
+          [chips]="chips()"
+          [sort]="sort()"
+          [defaultSort]="defaultSort()"
+          [defaultSortLabel]="defaultSortLabel() || common.sortDefault"
+          [filtered]="filtered()"
+        />
 
-      <!-- A list, not a table with its cells stacked: on a phone these are
+        <!-- A list, not a table with its cells stacked: on a phone these are
            records read down, and the column headings that would be announced
            with each cell are not on the screen to be read. Divided the way the
            storefront divides its product lines, so the two read as one app. -->
-      <!-- Absent rather than empty when there is nothing to divide: two
+        <!-- Absent rather than empty when there is nothing to divide: two
            borders with no rows between them read as one thick rule. -->
-      @if (rows().length) {
-        <ul
-          class="divide-y divide-border border-y border-border"
-          [attr.aria-busy]="busy() ? 'true' : null"
-        >
-          @for (row of rows(); track trackBy()(row)) {
-            <li class="py-3" [class]="rowClass()(row)">
-              <ng-container
-                [ngTemplateOutlet]="card().template"
-                [ngTemplateOutletContext]="{ $implicit: row }"
-              />
-            </li>
-          }
-        </ul>
-      }
+        @if (rows().length) {
+          <ul
+            class="divide-y divide-border border-y border-border"
+            [attr.aria-busy]="busy() ? 'true' : null"
+          >
+            @for (row of rows(); track trackBy()(row)) {
+              <li class="py-3" [class]="rowClass()(row)">
+                <ng-container
+                  [ngTemplateOutlet]="card().template"
+                  [ngTemplateOutletContext]="{ $implicit: row }"
+                />
+              </li>
+            }
+          </ul>
+        }
+      </div>
     } @else {
       <!-- The narrowings with no column of their own. On a phone they are
            inside the filter panel, which is the one row that screen can spare;
@@ -305,11 +313,14 @@ export class AdminGrid<T> {
    * with the column filters. */
   readonly chips = input<readonly GridChip[]>([]);
   /**
-   * Where this grid gives up on columns. `md` for the usual six or seven; `lg`
-   * for the few that carry more — the customer list's nine run out of room a
-   * whole breakpoint before the others do.
+   * Where this grid gives up on columns. `lg` for all of them: six or seven
+   * columns squeezed into the width between `md` and `lg` are legible only in
+   * the sense that the characters can be made out, and every one of these
+   * lists reads better as records at that width. An escape hatch rather than a
+   * dial anybody turns — the lists agree, and it exists so a future one with
+   * two columns need not.
    */
-  readonly narrowBelow = input<NarrowBreakpoint>('md');
+  readonly narrowBelow = input<NarrowBreakpoint>('lg');
   /** Whether anything at all narrows the list, the search box included: what
    * decides whether there is a filter to clear. */
   readonly filtered = input(false);

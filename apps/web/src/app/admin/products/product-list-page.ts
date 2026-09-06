@@ -81,7 +81,6 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
-      [narrowBelow]="narrowBelow"
     >
       <a
         appButton
@@ -108,7 +107,6 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
         [chips]="chips()"
         [busy]="products.isLoading()"
         [filtered]="filtered()"
-        [narrowBelow]="narrowBelow"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
       >
         <ng-template appGridRow [of]="data.items" let-item>
@@ -606,7 +604,6 @@ export class ProductListPage {
    * timestamp — the same wall of truncation the customer list gives up on a
    * breakpoint early, so this one now does too.
    */
-  protected readonly narrowBelow = 'lg' as const;
 
   protected readonly bySlug = (item: { slug: string }): string => item.slug;
 

@@ -190,7 +190,15 @@ interface SortOption {
 
         <!-- Beside the box rather than inside it: it undoes what the box holds
              and the search box above, so it belongs to neither. -->
-        <app-grid-clear-filters class="mt-1" [filtered]="filtered()" />
+        <!-- Centred on the toggle row rather than on the box, which grows as
+             the panel opens — the storefront's facet panel carries the same
+             two lines for the same reason. h-10 is the toggle's own height
+             (py-2.5 around a text-sm line), and the mt-px is the frame's
+             border, which the toggle sits below and this does not. A nudge in
+             its place only landed at one of the two heights. -->
+        <div class="mt-px flex h-10 items-center">
+          <app-grid-clear-filters [filtered]="filtered()" />
+        </div>
       </div>
     }
   `,

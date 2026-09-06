@@ -119,7 +119,6 @@ const typeRank = (t: StaffUser['customerType']): number =>
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
-      [narrowBelow]="narrowBelow"
     >
       <a
         appButton
@@ -151,7 +150,6 @@ const typeRank = (t: StaffUser['customerType']): number =>
         [muted]="isClosed"
         [busy]="users.isLoading()"
         [filtered]="filtered()"
-        [narrowBelow]="narrowBelow"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
       >
         <ng-template appGridRow [of]="data" let-user>
@@ -475,7 +473,6 @@ export class UserListPage {
    * are readable on a laptop and a wall of truncation on a tablet. So it gives
    * up on columns a whole breakpoint before the others do.
    */
-  protected readonly narrowBelow = 'lg' as const;
 
   protected readonly byId = (user: StaffUser): string => user.id;
 
