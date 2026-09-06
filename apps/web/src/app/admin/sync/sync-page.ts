@@ -141,20 +141,20 @@ function substitute(
         />
         <button
           type="button"
-          class="w-full px-6 py-8"
+          class="w-full p-4"
           [class]="dropZoneClass()"
           (click)="openPicker(fileInput)"
           (dragover)="onDragOver($event)"
           (dragleave)="dragging.set(false)"
           (drop)="onDrop($event)"
         >
-          <app-admin-icon name="upload" class="h-6 w-6 text-stone-400" />
+          <app-admin-icon name="upload" class="h-6 w-6 mb-2" />
           @if (file(); as chosen) {
             <span class="font-medium">{{ chosen.name }}</span>
             <span class="text-sm text-subtle">{{ text.changeFile }}</span>
           } @else {
             <span class="font-medium">{{ text.dropHint }}</span>
-            <span appLink class="text-sm">{{ text.browse }}</span>
+            <span class="text-sm">{{ text.browse }}</span>
           }
         </button>
         <p class="mt-1 text-sm text-subtle">{{ text.fileHint }}</p>
@@ -493,7 +493,7 @@ export class SyncPage {
   }
 
   protected dropZoneClass(): string {
-    return `${DROP_ZONE} gap-2 ${dropZoneState(this.dragging(), !!this.file())}`;
+    return `${DROP_ZONE} ${dropZoneState(this.dragging(), !!this.file())}`;
   }
 
   private setFile(file: File | null): void {

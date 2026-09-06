@@ -26,11 +26,11 @@ import { MediaService } from '../media/media.service';
   selector: 'app-product-image-gallery',
   imports: [AdminIcon, CdkDropList, CdkDrag, CdkDragPlaceholder, FieldLabel],
   template: `
-    <fieldset>
+    <fieldset class="max-w-xl">
       <legend appFieldLabel>{{ text.heading }}</legend>
 
       <ul
-        class="flex flex-wrap items-stretch gap-3"
+        class="flex flex-wrap items-stretch gap-3.5"
         cdkDropList
         cdkDropListOrientation="mixed"
         (cdkDropListDropped)="onDrop($event)"
@@ -39,7 +39,7 @@ import { MediaService } from '../media/media.service';
           <li
             cdkDrag
             [cdkDragData]="image"
-            class="relative h-28 w-28 cursor-grab overflow-hidden rounded-md border border-border bg-white active:cursor-grabbing"
+            class="relative h-26 w-26 cursor-grab overflow-hidden rounded-md border border-border bg-white active:cursor-grabbing"
             [attr.aria-label]="common.reorder"
           >
             <img
@@ -52,7 +52,7 @@ import { MediaService } from '../media/media.service';
                  wraps on narrow screens it simply sits at the row it lands in. -->
             <div
               *cdkDragPlaceholder
-              class="h-28 w-1 self-center rounded-full bg-primary"
+              class="h-26 w-1 self-center rounded-full bg-primary"
             ></div>
             <div
               class="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 p-1"
@@ -108,7 +108,7 @@ export class ProductImageGallery {
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
   /** The shared dashed target at tile size — the same one the sync screen and
    * the document editor wear at their own. */
-  protected readonly tileClass = `h-28 w-28 ${DROP_ZONE} ${dropZoneState(false)}`;
+  protected readonly tileClass = `h-26 w-26 ${DROP_ZONE} ${dropZoneState(false)}`;
 
   readonly value = input.required<CatalogImage[]>();
   readonly valueChange = output<CatalogImage[]>();

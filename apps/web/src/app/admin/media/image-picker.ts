@@ -21,7 +21,7 @@ import { MediaService } from './media.service';
   template: `
     @if (value(); as image) {
       <div
-        class="relative h-28 w-28 overflow-hidden rounded-md border border-border bg-white"
+        class="relative h-26 w-26 overflow-hidden rounded-md border border-border bg-white"
       >
         <img [src]="image.thumb" alt="" class="h-full w-full object-cover" />
         <div
@@ -69,7 +69,7 @@ export class ImagePicker {
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
   /** The shared dashed target at tile size — the same one the sync screen and
    * the document editor wear at their own. */
-  protected readonly tileClass = `h-28 w-28 ${DROP_ZONE} ${dropZoneState(false)}`;
+  protected readonly tileClass = `h-26 w-26 ${DROP_ZONE} ${dropZoneState(false)}`;
 
   readonly value = input.required<CatalogImage | null>();
   /** Caption on the empty tile, e.g. "Image". */

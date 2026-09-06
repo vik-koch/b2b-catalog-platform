@@ -13,9 +13,9 @@
  * screen is the width of the form.
  */
 export const DROP_ZONE =
-  'flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md ' +
-  'border-2 border-dashed text-center text-subtle transition-colors ' +
-  'disabled:cursor-not-allowed disabled:opacity-50';
+  'flex cursor-pointer flex-col items-center justify-center rounded-md ' +
+  'border-1 border-border-strong bg-white border-dashed transition-colors ' +
+  'text-center text-subtle disabled:cursor-not-allowed disabled:opacity-50';
 
 /**
  * What it is doing. `dragging` is the only state that fills the box — a file
@@ -26,6 +26,6 @@ export const DROP_ZONE =
 export function dropZoneState(dragging: boolean, filled = false): string {
   if (dragging) return 'border-primary bg-primary/5 text-accent';
   return filled
-    ? 'border-border-strong bg-stone-50'
-    : 'border-border-strong hover:border-primary hover:bg-stone-50 hover:text-accent';
+    ? 'border-border-strong'
+    : 'border-border-strong hover:border-accent hover:text-accent';
 }

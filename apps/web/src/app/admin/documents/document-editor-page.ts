@@ -15,7 +15,6 @@ import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { DateField } from '../../ui/date-field';
 import { Input } from '../../ui/input';
-import { Link } from '../../ui/link';
 import { Skeleton } from '../../ui/skeleton';
 import { injectEditorReturn } from '../editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
@@ -47,7 +46,6 @@ import { DocumentsService } from './documents.service';
     DocumentProductsPicker,
     FieldLabel,
     Input,
-    Link,
     Skeleton,
   ],
   template: `
@@ -142,7 +140,7 @@ import { DocumentsService } from './documents.service';
                  does not do. -->
             <button
               type="button"
-              class="w-full gap-2 px-6 py-8"
+              class="w-full p-4"
               [class]="dropZoneClass()"
               [disabled]="uploading()"
               (click)="fileInput.click()"
@@ -150,11 +148,11 @@ import { DocumentsService } from './documents.service';
               (dragleave)="dragging.set(false)"
               (drop)="onDrop($event)"
             >
-              <app-admin-icon name="upload" class="h-6 w-6 text-stone-400" />
+              <app-admin-icon name="upload" class="h-6 w-6 mb-2" />
               <span class="font-medium">{{
                 uploading() ? common.uploading : text.dropHint
               }}</span>
-              <span appLink class="text-sm">{{ text.choose }}</span>
+              <span class="text-sm">{{ text.choose }}</span>
             </button>
           }
           <span class="mt-1 block text-xs text-subtle">{{
