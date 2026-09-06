@@ -37,10 +37,14 @@ const TICKABLE =
   'h-4 w-4 shrink-0 cursor-pointer appearance-none border border-border-strong ' +
   'bg-white bg-contain bg-center bg-no-repeat transition-colors ' +
   'checked:border-primary checked:bg-primary ' +
-  '[&:not(:disabled):hover]:border-accent ' +
-  '[&:checked:not(:disabled):hover]:bg-accent ' +
-  '[label:hover_&:not(:disabled)]:border-accent ' +
-  '[label:hover_&:checked:not(:disabled)]:bg-accent ' +
+  // Every hover rule behind `(hover: hover)`. A `:hover` written as a bare
+  // arbitrary variant is not: on a touch screen it latches the moment the
+  // control is tapped and stays lit until something else is touched, which
+  // reads as a second selected state beside the real one.
+  '[@media(hover:hover)]:[&:not(:disabled):hover]:border-accent ' +
+  '[@media(hover:hover)]:[&:checked:not(:disabled):hover]:bg-accent ' +
+  '[@media(hover:hover)]:[label:hover_&:not(:disabled)]:border-accent ' +
+  '[@media(hover:hover)]:[label:hover_&:checked:not(:disabled)]:bg-accent ' +
   'disabled:cursor-not-allowed disabled:opacity-60';
 
 export { TICKABLE };
