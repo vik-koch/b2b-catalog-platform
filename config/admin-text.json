@@ -435,7 +435,6 @@
     }
   },
   "maintenance": {
-    "heading": "Maintenance mode",
     "description": "While on, the public shop is hidden from visitors and search engines. You stay signed in and can browse it to preview.",
     "statusOn": "The shop is hidden from visitors.",
     "statusOff": "The shop is live and visible to everyone.",
@@ -563,7 +562,6 @@
   },
   "documentList": {
     "title": "Documents",
-    "intro": "A document is a file the shop shows on its products — a certificate, a declaration, a data sheet. Upload it once here; a re-issued document replaces the file on the row it is already on, which keeps everything that points at it.",
     "add": "Add document",
     "searchLabel": "Find a document",
     "searchPlaceholder": "Search by title or file name",

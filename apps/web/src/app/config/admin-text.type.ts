@@ -868,7 +868,6 @@ export const adminTextSchema = z
     documentList: z
       .object({
         title: z.string(),
-        intro: z.string(),
         add: z.string(),
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
@@ -1212,7 +1211,6 @@ export const adminTextSchema = z
     /** The admin-panel control that gates the storefront (FR-ADM-04). */
     maintenance: z
       .object({
-        heading: z.string(),
         description: z.string(),
         statusOn: z.string(),
         statusOff: z.string(),

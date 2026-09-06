@@ -93,8 +93,6 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
       </a>
     </app-admin-list-header>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
-
     @if (pageError()) {
       <p class="mb-4 text-sm text-red-700" role="alert">{{ pageError() }}</p>
     }
