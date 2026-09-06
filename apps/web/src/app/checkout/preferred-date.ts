@@ -39,7 +39,7 @@ import { FieldLabel } from '../ui/field-label';
       <span class="font-normal text-subtle">({{ optional }})</span>
     </label>
     <app-date-field
-      class="max-w-46"
+      class="max-w-70"
       [fieldId]="id"
       [value]="date()"
       [min]="floor"

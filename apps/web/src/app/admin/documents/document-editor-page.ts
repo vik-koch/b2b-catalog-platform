@@ -170,7 +170,6 @@ import { DocumentsService } from './documents.service';
           <div>
             <label [for]="issuedId" appFieldLabel>{{ text.issuedAt }}</label>
             <app-date-field
-              class="max-w-46"
               [fieldId]="issuedId"
               [value]="issuedAt() || null"
               [placeholder]="common.datePlaceholder"
@@ -180,7 +179,6 @@ import { DocumentsService } from './documents.service';
           <div>
             <label [for]="expiresId" appFieldLabel>{{ text.expiresAt }}</label>
             <app-date-field
-              class="max-w-46"
               [fieldId]="expiresId"
               [value]="expiresAt() || null"
               [placeholder]="common.datePlaceholder"
