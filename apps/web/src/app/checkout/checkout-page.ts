@@ -146,7 +146,7 @@ import { Link } from '../ui/link';
            summary sits under the form instead of beside it. -->
       <div class="@container/checkout">
         <div
-          class="grid gap-8 @min-[63.75rem]/checkout:grid-cols-[36rem_20rem] @min-[63.75rem]/checkout:justify-between"
+          class="grid gap-10 @min-[63.75rem]/checkout:grid-cols-[36rem_20rem] @min-[63.75rem]/checkout:justify-between"
         >
           <!-- Heading and intro in the column, not above the grid: the summary
                beside them then starts level with the heading, and the same card

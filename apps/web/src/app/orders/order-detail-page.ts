@@ -49,7 +49,7 @@ import { OrdersService } from './orders.service';
            one screen and under them on the next. -->
       <div class="@container/order">
         <div
-          class="grid gap-8 @min-[63.75rem]/order:grid-cols-[36rem_20rem] @min-[63.75rem]/order:justify-between"
+          class="grid gap-10 @min-[63.75rem]/order:grid-cols-[36rem_20rem] @min-[63.75rem]/order:justify-between"
         >
           <!-- The track is the measure: an order is read down its left edge,
                and a name-and-price line spanning a wide screen is one nobody

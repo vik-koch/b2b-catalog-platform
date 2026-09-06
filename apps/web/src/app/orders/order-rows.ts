@@ -33,7 +33,7 @@ import { orderStatusTone } from './order-status';
                it worth clicking, and a link around it is a bigger target than
                the text. -->
           <a
-            class="-mx-2 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 py-4 hover:bg-stone-50"
+            class="-mx-2 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 hover:bg-stone-50"
             [routerLink]="['/account/orders', order.reference]"
           >
             <div>

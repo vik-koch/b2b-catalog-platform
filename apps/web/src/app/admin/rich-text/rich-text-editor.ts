@@ -86,7 +86,7 @@ interface ToolbarAction {
              the saved page exactly. -->
         <div
           #host
-          class="prose prose-stone max-w-none p-4 [&_.ProseMirror]:min-h-64 [&_.ProseMirror]:outline-none"
+          class="prose prose-stone max-w-none p-4 [&_.ProseMirror]:min-h-48 [&_.ProseMirror]:outline-none"
         ></div>
       </div>
 
