@@ -25,10 +25,9 @@ import { Directive } from '@angular/core';
  * class at any of the twelve call sites; where a control has no label around
  * it, the rule simply never matches and its own `:hover` still does.
  *
- * Focus is left to the app's one ring (`styles.css`), which is the documented
- * exception for these two: a recoloured 1px edge on a 16px box is too small to
- * find. It lands on the border rather than outside it, so the two never draw
- * two lines.
+ * Focus is left to the app's one ring (`styles.css`), which treats these like
+ * any other field now that the edge is ours: the ring is inset, so it lands on
+ * the 1px border instead of drawing a second line around a 16px square.
  *
  * The hover rules carry `:not(:disabled)` inside the variant rather than
  * relying on a `disabled:hover:` utility, so which one wins is a matter of
@@ -38,10 +37,14 @@ const TICKABLE =
   'h-4 w-4 shrink-0 cursor-pointer appearance-none border border-border-strong ' +
   'bg-white bg-contain bg-center bg-no-repeat transition-colors ' +
   'checked:border-primary checked:bg-primary ' +
-  '[&:not(:disabled):hover]:border-accent ' +
-  '[&:checked:not(:disabled):hover]:bg-accent ' +
-  '[label:hover_&:not(:disabled)]:border-accent ' +
-  '[label:hover_&:checked:not(:disabled)]:bg-accent ' +
+  // Every hover rule behind `(hover: hover)`. A `:hover` written as a bare
+  // arbitrary variant is not: on a touch screen it latches the moment the
+  // control is tapped and stays lit until something else is touched, which
+  // reads as a second selected state beside the real one.
+  '[@media(hover:hover)]:[&:not(:disabled):hover]:border-accent ' +
+  '[@media(hover:hover)]:[&:checked:not(:disabled):hover]:bg-accent ' +
+  '[@media(hover:hover)]:[label:hover_&:not(:disabled)]:border-accent ' +
+  '[@media(hover:hover)]:[label:hover_&:checked:not(:disabled)]:bg-accent ' +
   'disabled:cursor-not-allowed disabled:opacity-60';
 
 export { TICKABLE };

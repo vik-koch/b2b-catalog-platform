@@ -73,7 +73,7 @@ import { AdminOrdersService } from './orders.service';
            card for staff and under it for the customer at one width. -->
       <div class="@container/order">
         <div
-          class="mt-8 grid gap-8 @min-[63.75rem]/order:grid-cols-[1fr_20rem]"
+          class="mt-8 grid gap-10 @min-[63.75rem]/order:grid-cols-[1fr_20rem]"
         >
           <app-order-read-back
             [itemsHeading]="text.items"

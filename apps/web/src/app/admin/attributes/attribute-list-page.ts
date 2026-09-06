@@ -29,6 +29,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Link } from '../../ui/link';
 import { Input } from '../../ui/input';
 import { FieldLabel } from '../../ui/field-label';
 import { SelectField } from '../../ui/select-field';
@@ -65,6 +66,7 @@ type EditTarget = { id: string } | { id: null } | null;
     Button,
     IconButton,
     AdminIcon,
+    Link,
     RecordRow,
     RecordFields,
     RecordFormActions,
@@ -123,7 +125,7 @@ type EditTarget = { id: string } | { id: null } | null;
                 @if (isEditing(definition.id)) {
                   <ng-container [ngTemplateOutlet]="form" class="bg-white" />
                 } @else {
-                  <app-record-row>
+                  <app-record-row [compact]="true">
                     <!-- Ordering is the filter panel's order and nothing else.
                          A handle, not a pair of step buttons: the category
                          list, the image gallery and the attribute grid itself
@@ -149,28 +151,43 @@ type EditTarget = { id: string } | { id: null } | null;
                     <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
                       {{ definition.slug }}
                     </code>
+                    <!-- The two counts are the two ways out of this row: the
+                         products carrying the attribute, and what they spell
+                         it as — the inventory, which is what the glyph at the
+                         other end of the row used to open. Said as the count
+                         rather than as a symbol, and dead where there is
+                         nothing on the other side. -->
                     <ng-container recordMeta>
                       <span>
                         {{ typeLabel(definition) }} ·
-                        {{ productsLabel(definition.productCount) }} ·
-                        {{ valuesLabel(definition.valueCount) }}
+                        @if (definition.productCount) {
+                          <a
+                            appLink
+                            routerLink="/admin/products"
+                            [queryParams]="{ attributeKey: definition.name }"
+                            [title]="text.showProducts"
+                          >
+                            {{ productsLabel(definition.productCount) }}
+                          </a>
+                        } @else {
+                          {{ productsLabel(0) }}
+                        }
+                        ·
+                        @if (definition.valueCount) {
+                          <a
+                            appLink
+                            routerLink="/admin/attributes/inventory"
+                            [queryParams]="{ key: definition.name }"
+                            [title]="text.showUsage"
+                          >
+                            {{ valuesLabel(definition.valueCount) }}
+                          </a>
+                        } @else {
+                          {{ valuesLabel(0) }}
+                        }
                       </span>
                     </ng-container>
                     <ng-container recordActions>
-                      <!-- The other half of the row: this is what the shop
-                           filters by, the inventory is what the products
-                           actually carry under that name — including the
-                           spellings this definition does not match. Same icon
-                           and same shape as the grid's own way in. -->
-                      <a
-                        appIconButton
-                        routerLink="/admin/attributes/inventory"
-                        [queryParams]="{ key: definition.name }"
-                        [attr.aria-label]="text.showUsage"
-                        [title]="text.showUsage"
-                      >
-                        <app-admin-icon name="square-menu" />
-                      </a>
                       <button
                         appIconButton
                         type="button"

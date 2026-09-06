@@ -440,17 +440,16 @@ body:has(dialog[open]) {
    * field is being answered rather than reported on, and the message beneath it
    * has not gone anywhere.
    *
-   * Not checkboxes and radios: they have no border to recolour, so they keep
-   * the ring above. Wrappers that hold a field (the rich-text frame, the
-   * packaging cell) do the same thing with `focus-within` and their own
-   * classes, since the border to cover is theirs rather than the input's.
+   * Checkboxes and radios are in it too. They are `appearance-none` here
+   * (see Checkbox) and so have a real 1px border of their own: the ring at
+   * offset 0 drew a *second* line around a 16px square, which is what a
+   * shift-click through a list of them made obvious — every box left behind
+   * wearing two edges. Inset, the ring lands on the border it already has.
+   * Wrappers that hold a field (the rich-text frame, the packaging cell) do
+   * the same thing with `focus-within` and their own classes, since the border
+   * to cover is theirs rather than the input's.
    */
-  :where(
-    input:not([type='checkbox'], [type='radio']),
-    select,
-    textarea,
-    [contenteditable]
-  ):focus-visible {
+  :where(input, select, textarea, [contenteditable]):focus-visible {
     outline: 1px solid var(--color-secondary);
     outline-offset: -1px;
   }
@@ -472,11 +471,7 @@ body:has(dialog[open]) {
  * The outline stays for fields that have no border to recolour, and stays in
  * the base layer so `focus-visible:outline-none` can still turn it off.
  */
-:where(
-  input:not([type='checkbox'], [type='radio']),
-  select,
-  textarea
-):focus-visible {
+:where(input, select, textarea):focus-visible {
   border-color: var(--color-secondary);
 }
 

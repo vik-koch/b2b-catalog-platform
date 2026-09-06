@@ -44,15 +44,11 @@ import { Radio } from './radio';
           (change)="chosen.emit()"
         />
         <span class="min-w-0">
-          <!-- The title follows the card, as a disclosure's label follows its
-               button: the card recolours its border and lights its radio, and
-               a title that stayed put was the one part of the control not
-               answering. The sentence under it does not — it is prose about
-               the option, not the name of it, and a paragraph changing colour
-               under the pointer is a lot of movement for one hover. -->
-          <span
-            class="block font-medium transition-colors group-hover/card:text-accent"
-          >
+          <!-- The title stays put under a pointer. The card already answers
+               with its border and its radio, and a heading that recolours with
+               them makes one hover read as three things moving — the title is
+               the name of the option, not a control of its own. -->
+          <span class="block font-medium">
             {{ title() }}
           </span>
           @if (description()) {
@@ -104,13 +100,11 @@ export class ChoiceCard {
     // row that did not, which read as the one that could no longer be pressed —
     // it is the one that already is. Its press deepens rather than tinting,
     // there being a tint on it already.
-    // `group/card` only where the card can be chosen, so a disabled one's
-    // title stays put along with everything else on it.
     const state = this.disabled()
       ? 'border-border opacity-60'
       : this.checked()
-        ? 'group/card border-primary bg-stone-50 hover:border-accent active:border-primary-deep'
-        : 'group/card border-border-strong hover:border-accent active:border-primary active:bg-stone-100';
+        ? 'border-primary bg-stone-50 hover:border-accent active:border-primary-deep'
+        : 'border-border-strong hover:border-accent active:border-primary active:bg-stone-100';
     return `relative h-full rounded-lg border p-3 transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary ${state}`;
   });
 }

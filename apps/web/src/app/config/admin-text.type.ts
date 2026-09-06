@@ -37,6 +37,9 @@ export const adminTextSchema = z
         restore: z.string(),
         reorder: z.string(),
         uploading: z.string(),
+        /** What an empty date field says: a native one draws a different thing
+         * in every engine, so the app draws its own. */
+        datePlaceholder: z.string(),
         uploadError: z.string(),
         /** The way back to an unfiltered grid, on every admin list. */
         clearFilters: z.string(),
@@ -94,15 +97,11 @@ export const adminTextSchema = z
      */
     panel: z
       .object({
-        manage: z.string(),
-        sync: z.string(),
+        /** Section headings. Each names a topic, never the one row under it:
+         * a heading that repeats its own row says nothing twice. */
         catalog: z.string(),
-        /** Heading of the documents group — the third of the first row. */
-        documents: z.string(),
-        /** Heading of the group holding the registry and the inventory. */
-        attributes: z.string(),
+        registries: z.string(),
         pages: z.string(),
-        pricing: z.string(),
         accounts: z.string(),
         /** Heading of the orders card — a manager's daily work, so it is shown
          * to managers as well as admins. */
@@ -261,9 +260,6 @@ export const adminTextSchema = z
             /** The row badges: what the shop does with this attribute. */
             filterable: z.string(),
             notNumeric: z.string(),
-            /** The link into the inventory, live and dead. */
-            showUsage: z.string(),
-            unknownKey: z.string(),
           })
           .strict(),
         /**
@@ -457,6 +453,10 @@ export const adminTextSchema = z
         addChild: z.string(),
         seeProducts: z.string(),
         editProducts: z.string(),
+        /** How many products stand under the category. `{count}` substituted;
+         * `noProducts` is the same fact where there are none. */
+        products: z.string(),
+        noProducts: z.string(),
         /** The row's way into the category's filter panel (FR-ATTR-11). */
         editFilters: z.string(),
         edit: z.string(),
@@ -688,10 +688,10 @@ export const adminTextSchema = z
         /** Reference counts per row. `{count}` substituted at render. */
         accounts: z.string(),
         prices: z.string(),
-        /** The link on that count, into the product grid filtered to it. */
+        /** The links those counts carry: into the customer list on this tier,
+         * and into the product grid priced by it. */
+        seeAccounts: z.string(),
         seePrices: z.string(),
-        /** The same control, dead: the tier prices nothing to show. */
-        noPrices: z.string(),
         defaultLabel: z.string(),
         defaultHint: z.string(),
         edit: z.string(),
@@ -750,7 +750,9 @@ export const adminTextSchema = z
         unparsed: z.string(),
         noMatch: z.string(),
         edit: z.string(),
-        /** The row's way into the inventory, expanded on this name. */
+        /** The two counts are the ways out of the row: the product grid
+         * narrowed to the attribute, and the inventory expanded on it. */
+        showProducts: z.string(),
         showUsage: z.string(),
         delete: z.string(),
         empty: z.string(),
@@ -862,7 +864,6 @@ export const adminTextSchema = z
     documentList: z
       .object({
         title: z.string(),
-        intro: z.string(),
         add: z.string(),
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
@@ -872,23 +873,23 @@ export const adminTextSchema = z
         fileColumn: z.string(),
         issuedColumn: z.string(),
         expiresColumn: z.string(),
+        statusColumn: z.string(),
         updatedColumn: z.string(),
         /** In the expiry cell of a document that never comes due. */
         noExpiry: z.string(),
         /**
-         * The expiry states (FR-DOC-04) — the badge beside a date and the
-         * options of the filter that column's heading carries. `expiryAll`
-         * heads the column when nothing is filtered, and `expiryDue` is both
-         * states at once: what the panel's count links to.
+         * The expiry states (FR-DOC-04) — the badge in the status column and
+         * the options of the filter its heading carries. `statusAll` heads the
+         * column when nothing is filtered, and `statusDue` is two states at
+         * once: what the panel's count links to.
          */
-        expiryAll: z.string(),
-        expiryDue: z.string(),
-        expiryExpiring: z.string(),
-        expiryExpired: z.string(),
-        expiryValid: z.string(),
-        filterExpiry: z.string(),
+        statusAll: z.string(),
+        statusDue: z.string(),
+        statusExpiring: z.string(),
+        statusExpired: z.string(),
+        statusValid: z.string(),
+        filterStatus: z.string(),
         edit: z.string(),
-        open: z.string(),
         delete: z.string(),
         /** The link into the product grid narrowed to this document's
          * products, and the same control dead: nothing shows it yet.
@@ -923,7 +924,9 @@ export const adminTextSchema = z
         titlePlaceholder: z.string(),
         titleHint: z.string(),
         file: z.string(),
-        /** The empty control, and the one on a row that already has a file. */
+        /** The empty drop target, and the control on a row that already has a
+         * file. */
+        dropHint: z.string(),
         choose: z.string(),
         replace: z.string(),
         open: z.string(),
@@ -1204,7 +1207,6 @@ export const adminTextSchema = z
     /** The admin-panel control that gates the storefront (FR-ADM-04). */
     maintenance: z
       .object({
-        heading: z.string(),
         description: z.string(),
         statusOn: z.string(),
         statusOff: z.string(),

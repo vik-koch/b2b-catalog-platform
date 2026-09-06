@@ -26,6 +26,7 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { SYNC_PRESETS, SyncPresetName, presetFor } from './sync-presets';
 import { SyncService } from './sync.service';
 import { Link } from '../../ui/link';
+import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
 
 /**
  * Fills `{placeholders}` in a line of admin text with the names the API sent
@@ -140,20 +141,20 @@ function substitute(
         />
         <button
           type="button"
-          class="flex w-full flex-col items-center gap-2 rounded-lg border-2 border-dashed px-6 py-8 text-center transition-colors"
+          class="w-full p-4"
           [class]="dropZoneClass()"
           (click)="openPicker(fileInput)"
           (dragover)="onDragOver($event)"
           (dragleave)="dragging.set(false)"
           (drop)="onDrop($event)"
         >
-          <app-admin-icon name="upload" class="h-6 w-6 text-stone-400" />
+          <app-admin-icon name="upload" class="h-6 w-6 mb-2" />
           @if (file(); as chosen) {
             <span class="font-medium">{{ chosen.name }}</span>
             <span class="text-sm text-subtle">{{ text.changeFile }}</span>
           } @else {
             <span class="font-medium">{{ text.dropHint }}</span>
-            <span appLink class="text-sm">{{ text.browse }}</span>
+            <span class="text-sm">{{ text.browse }}</span>
           }
         </button>
         <p class="mt-1 text-sm text-subtle">{{ text.fileHint }}</p>
@@ -492,10 +493,7 @@ export class SyncPage {
   }
 
   protected dropZoneClass(): string {
-    if (this.dragging()) return 'border-primary bg-primary/5';
-    return this.file()
-      ? 'border-border-strong bg-stone-50'
-      : 'border-border-strong hover:border-primary hover:bg-stone-50';
+    return `${DROP_ZONE} ${dropZoneState(this.dragging(), !!this.file())}`;
   }
 
   private setFile(file: File | null): void {

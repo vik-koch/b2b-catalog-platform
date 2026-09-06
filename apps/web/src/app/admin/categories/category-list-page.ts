@@ -19,6 +19,7 @@ import { RouterLink } from '@angular/router';
 import {
   AdminCategory,
   CategoryOrderEntry,
+  fillText,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -28,6 +29,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Link } from '../../ui/link';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../editor-return';
 import { RecordRow } from '../records/record-row';
@@ -83,6 +85,7 @@ const EDGE_SLACK = 24;
     Button,
     IconButton,
     AdminIcon,
+    Link,
     RecordRow,
     CategoryDeleteDialog,
     CdkDropList,
@@ -144,7 +147,7 @@ const EDGE_SLACK = 24;
         <button
           appIconButton
           type="button"
-          class="shrink-0"
+          class="shrink-0 mr-1"
           [class.opacity-40]="!canUndo()"
           [disabled]="!canUndo()"
           [attr.aria-label]="text.undo"
@@ -211,10 +214,37 @@ const EDGE_SLACK = 24;
                       <!-- The whole line, and it wraps: a category's name is
                            written for the shelf it heads, not for this list,
                            and truncating it here would hide the very words the
-                           tree is scanned for. -->
-                      <span class="font-medium break-words text-stone-700">
+                           tree is scanned for.
+
+                           The name is the way to the shelf it heads, the way
+                           every other admin list makes its title the link to
+                           the thing itself. -->
+                      <a
+                        class="break-words font-medium text-stone-700 hover:text-accent"
+                        [routerLink]="['/catalog', node.category.slug]"
+                        [title]="text.seeProducts"
+                      >
                         {{ node.category.name }}
-                      </span>
+                      </a>
+                      <!-- How many products stand under it, and the way into
+                           the grid narrowed to them: a count that says
+                           something, where the glyph beside it only said
+                           "products". Dead text at zero — there would be
+                           nothing for the grid to show. -->
+                      <ng-container recordMeta>
+                        @if (node.category.productCount) {
+                          <a
+                            appLink
+                            routerLink="/admin/products"
+                            [queryParams]="{ categoryId: node.category.id }"
+                            [title]="text.editProducts"
+                          >
+                            {{ productsLabel(node.category.productCount) }}
+                          </a>
+                        } @else {
+                          <span>{{ text.noProducts }}</span>
+                        }
+                      </ng-container>
                       <ng-container recordActions>
                         <a
                           appIconButton
@@ -227,23 +257,6 @@ const EDGE_SLACK = 24;
                           [title]="text.addChild"
                         >
                           <app-admin-icon name="plus" />
-                        </a>
-                        <a
-                          appIconButton
-                          [routerLink]="['/catalog', node.category.slug]"
-                          [attr.aria-label]="text.seeProducts"
-                          [title]="text.seeProducts"
-                        >
-                          <app-admin-icon name="eye" />
-                        </a>
-                        <a
-                          appIconButton
-                          routerLink="/admin/products"
-                          [queryParams]="{ categoryId: node.category.id }"
-                          [attr.aria-label]="text.editProducts"
-                          [title]="text.editProducts"
-                        >
-                          <app-admin-icon name="square-menu" />
                         </a>
                         <a
                           appIconButton
@@ -323,6 +336,10 @@ export class CategoryListPage {
   protected readonly text = inject(ADMIN_TEXT).categoryList;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
+
+  protected productsLabel(count: number): string {
+    return fillText(this.text.products, { count });
+  }
 
   private readonly list = viewChild<ElementRef<HTMLElement>>('list');
   protected readonly indent = INDENT;

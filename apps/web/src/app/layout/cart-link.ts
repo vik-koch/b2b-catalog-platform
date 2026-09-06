@@ -58,7 +58,7 @@ import { navActionClasses, NavVariant } from './nav-action';
              claiming to be the same kind of thing. -->
         <span
           aria-hidden="true"
-          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3 items-center justify-center rounded-full bg-amber-500 px-0.5 py-0.5 text-[0.625rem] leading-3 text-white transition-colors"
+          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3 items-center justify-center rounded-full bg-amber-500 px-0.5 py-0.5 text-[0.625rem] leading-3 text-white font-normal transition-colors"
         ></span>
       </span>
       <span [class]="cls().labelRow">

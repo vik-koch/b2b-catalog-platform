@@ -92,7 +92,7 @@ export const PRODUCT_PAGE_SECTION_CELL = 'col-span-full scroll-mt-24';
  * drawn to the same width, so the column has a bottom edge and the
  * specifications below read as the next thing rather than as more of it.
  */
-const READING_WIDTH = 'max-w-5xl border-b border-border pb-8';
+const READING_WIDTH = 'max-w-3xl border-b border-border pb-8';
 const TABLE_WIDTH = 'max-w-xl';
 
 /**

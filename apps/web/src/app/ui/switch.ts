@@ -24,26 +24,29 @@ import { Component, input, output } from '@angular/core';
   host: { class: 'inline-flex' },
   template: `
     <!-- On, the track is a fill and lightens to accent under a pointer like
-         any other fill in the app. Off, it cannot: accent on an off switch
-         reads as an on one, so the grey deepens instead — the same statement
-         ("this is operable") in the only colour left that claims no state. -->
+         any other fill in the app. Off, it cannot: an accent *fill* on an off
+         switch reads as an on one. So an off switch is drawn the way an
+         unticked checkbox is — a pale ground inside an edge — and it is that
+         edge which answers the pointer, in the accent every other edge in the
+         app uses. Deepening the grey instead said "operable" in a colour that
+         appears nowhere else, and at a contrast nobody noticed. -->
     <button
       type="button"
       role="switch"
       [attr.aria-checked]="checked()"
       [attr.aria-label]="label()"
       [disabled]="disabled()"
-      class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors select-none disabled:cursor-not-allowed disabled:opacity-60"
+      class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-[background-color,box-shadow] select-none disabled:cursor-not-allowed disabled:opacity-60"
       [class]="
         checked()
           ? 'bg-primary hover:bg-accent active:bg-primary-deep'
-          : 'bg-border-strong hover:bg-stone-400 active:bg-stone-500'
+          : 'bg-stone-200 ring-1 ring-border-strong hover:bg-accent hover:ring-accent active:ring-primary'
       "
       (click)="toggled.emit(!checked())"
     >
       <!-- The knob. Transform only, so the travel never reflows anything. -->
       <span
-        class="pointer-events-none absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform"
+        class="pointer-events-none absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform"
         [class]="checked() ? 'translate-x-5' : 'translate-x-0'"
         aria-hidden="true"
       ></span>

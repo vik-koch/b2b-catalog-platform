@@ -35,7 +35,7 @@ async function render(
   options: {
     documents?: ProductDocument[];
     searchTerm?: string;
-    expiry?: string;
+    status?: string;
     remove?: Awaited<ReturnType<DocumentsService['remove']>>;
     confirmed?: boolean;
   } = {},
@@ -60,7 +60,7 @@ async function render(
 
   const fixture = TestBed.createComponent(DocumentListPage);
   fixture.componentRef.setInput('searchTerm', options.searchTerm ?? '');
-  fixture.componentRef.setInput('expiry', options.expiry ?? '');
+  fixture.componentRef.setInput('status', options.status ?? '');
   await fixture.whenStable();
   fixture.detectChanges();
 
@@ -149,24 +149,17 @@ describe('DocumentListPage', () => {
   // Read off the rows, never off the whole page: the filter's own options
   // name every state, so a page-wide search finds the words whatever the rows
   // say.
-  it('marks a document that is expiring, and one that has lapsed', async () => {
+  it('states every status, current documents included', async () => {
     const { rows } = await render({ documents: everyState });
 
-    expect(rows()).toContain(text.expiryExpiring);
-    expect(rows()).toContain(text.expiryExpired);
-  });
-
-  it('says nothing about a document that is simply current', async () => {
-    const { rows } = await render({
-      documents: [document({ expiresAt: day(200) })],
-    });
-
-    expect(rows()).not.toContain(text.expiryExpiring);
-    expect(rows()).not.toContain(text.expiryExpired);
+    expect(rows()).toContain(text.statusExpiring);
+    expect(rows()).toContain(text.statusExpired);
+    // Twice: the one still current, and the one with no expiry at all.
+    expect(rows().split(text.statusValid).length - 1).toBe(2);
   });
 
   it('narrows the list to one expiry state', async () => {
-    const { el } = await render({ documents: everyState, expiry: 'expired' });
+    const { el } = await render({ documents: everyState, status: 'expired' });
 
     expect(el.textContent).toContain('Lapsed');
     expect(el.textContent).not.toContain('Running out');
@@ -176,7 +169,7 @@ describe('DocumentListPage', () => {
   // What the panel's count links to: both states that are work, and neither
   // of the two that are not.
   it('narrows the list to everything that needs attention', async () => {
-    const { el } = await render({ documents: everyState, expiry: 'due' });
+    const { el } = await render({ documents: everyState, status: 'due' });
 
     expect(el.textContent).toContain('Lapsed');
     expect(el.textContent).toContain('Running out');
@@ -187,7 +180,7 @@ describe('DocumentListPage', () => {
   // A document with no expiry is never work, so it belongs with the current
   // ones rather than in a fourth bucket of its own.
   it('counts a document with no expiry as valid', async () => {
-    const { el } = await render({ documents: everyState, expiry: 'valid' });
+    const { el } = await render({ documents: everyState, status: 'valid' });
 
     expect(el.textContent).toContain('No date');
     expect(el.textContent).toContain('Still valid');
@@ -195,7 +188,7 @@ describe('DocumentListPage', () => {
   });
 
   it('ignores an expiry filter the URL invented', async () => {
-    const { el } = await render({ documents: everyState, expiry: 'yesterday' });
+    const { el } = await render({ documents: everyState, status: 'yesterday' });
 
     expect(el.textContent).toContain('Lapsed');
     expect(el.textContent).toContain('Still valid');

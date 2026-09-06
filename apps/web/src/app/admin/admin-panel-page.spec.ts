@@ -133,7 +133,7 @@ describe('AdminPanelPage work counts', () => {
     );
     // Both states that are work, in one figure and behind one filter.
     expect(note(el, '5 expiring or expired')?.getAttribute('href')).toBe(
-      '/admin/documents?expiry=due',
+      '/admin/documents?status=due',
     );
   });
 

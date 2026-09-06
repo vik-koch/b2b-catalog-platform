@@ -52,3 +52,29 @@ test('the values placeholder is the exact size of the rows it stands in for', as
     Math.round(real?.height ?? -2),
   );
 });
+
+test('a key handed in the URL arrives open and in view', async ({ page }) => {
+  // How every screen that names an attribute gets here — the filterable
+  // attribute's own value count, the product grid's key. Opening the row is
+  // half the answer: the list is alphabetical, so the row is usually far below
+  // the fold, and a screen that scrolled to the top would look like the wrong
+  // one.
+  await logIn(page);
+
+  await page.goto('/admin/attributes/inventory');
+  const anchors = page.locator('li[id^="attribute-"]');
+  await expect(anchors.first()).toBeVisible();
+  const id = await anchors.last().getAttribute('id');
+  const key = (id as string).slice('attribute-'.length).replace(/_/g, ' ');
+
+  await page.goto(`/admin/attributes/inventory?key=${encodeURIComponent(key)}`);
+
+  // By name: the row now carries two controls that open the panel — the
+  // chevron on the key, and the value count beside it.
+  const row = page.locator(`li[id="${id}"]`);
+  await expect(
+    row.getByRole('button', { name: key, expanded: true }),
+  ).toBeVisible();
+  // In view, not merely rendered — the point of the anchor.
+  await expect(row).toBeInViewport();
+});

@@ -81,7 +81,6 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
-      [narrowBelow]="narrowBelow"
     >
       <a
         appButton
@@ -108,13 +107,12 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
         [chips]="chips()"
         [busy]="products.isLoading()"
         [filtered]="filtered()"
-        [narrowBelow]="narrowBelow"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
       >
         <ng-template appGridRow [of]="data.items" let-item>
           <td>
             <div
-              class="h-10 w-10 overflow-hidden rounded border border-border bg-stone-100"
+              class="h-10 w-10 overflow-hidden rounded border border-border bg-white"
             >
               @if (item.thumb) {
                 <img
@@ -161,10 +159,8 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
               </span>
             </div>
           </td>
-          <td data-keep>
-            <span appStatusBadge [tone]="stateTone(item)">
-              {{ stateLabel(item) }}
-            </span>
+          <td class="text-stone-700">
+            {{ item.priceMinor | price }}
           </td>
           <td>
             <!-- The figure inside the badge, not the word: what a manager
@@ -190,8 +186,10 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
               </span>
             }
           </td>
-          <td class="text-stone-700">
-            {{ item.priceMinor | price }}
+          <td data-keep>
+            <span appStatusBadge [tone]="stateTone(item)">
+              {{ stateLabel(item) }}
+            </span>
           </td>
           <td class="text-subtle">
             <app-grid-timestamp [value]="item.updatedAt" />
@@ -220,7 +218,7 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
           <app-record-row>
             <div
               recordLead
-              class="h-14 w-14 shrink-0 overflow-hidden rounded border border-border bg-stone-100"
+              class="h-14 w-14 shrink-0 overflow-hidden rounded border border-border bg-white"
               [class.opacity-50]="isDeleted(item)"
             >
               @if (item.thumb) {
@@ -507,20 +505,11 @@ export class ProductListPage {
         ariaLabel: this.text.filterCategory,
       },
     },
-    // Both a filter and a sort, like the order list's status: what the grid is
-    // narrowed by is also what an admin wants at the top when they open it.
     {
-      key: 'state',
-      label: this.text.stateAll,
-      sortName: this.text.state,
-      sort: { asc: 'state', desc: 'state_desc' },
-      filter: {
-        param: 'state',
-        options: this.stateOptions,
-        value: this.stateParam(),
-        ariaLabel: this.text.filterState,
-      },
-      minWidth: 120,
+      key: 'price',
+      label: this.productText.price,
+      sort: { asc: 'price', desc: 'price_desc' },
+      minWidth: 90,
     },
     // Filtered but not sorted: the storefront leads every listing with
     // availability (FR-STOCK-05), and the grid answers the same question the
@@ -538,11 +527,20 @@ export class ProductListPage {
       },
       minWidth: 110,
     },
+    // Both a filter and a sort, like the order list's status: what the grid is
+    // narrowed by is also what an admin wants at the top when they open it.
     {
-      key: 'price',
-      label: this.productText.price,
-      sort: { asc: 'price', desc: 'price_desc' },
-      minWidth: 90,
+      key: 'state',
+      label: this.text.stateAll,
+      sortName: this.text.state,
+      sort: { asc: 'state', desc: 'state_desc' },
+      filter: {
+        param: 'state',
+        options: this.stateOptions,
+        value: this.stateParam(),
+        ariaLabel: this.text.filterState,
+      },
+      minWidth: 120,
     },
     {
       key: 'updated',
@@ -606,7 +604,6 @@ export class ProductListPage {
    * timestamp — the same wall of truncation the customer list gives up on a
    * breakpoint early, so this one now does too.
    */
-  protected readonly narrowBelow = 'lg' as const;
 
   protected readonly bySlug = (item: { slug: string }): string => item.slug;
 

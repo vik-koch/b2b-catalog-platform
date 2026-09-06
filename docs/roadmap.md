@@ -160,6 +160,16 @@ Notes:
   an addition. An unsatisfied cart is advisory, with `catalog.pairingsEnforced` for a
   deployment that wants it refused — the API applies the flag too, so it is a rule and not a
   disabled button.
+- Iteration 10 keeps a document's **file, dates and product links on one row that is edited in
+  place**: replacing the file is how a re-issued certificate supersedes the one before it, so
+  there is no supersession chain and no version history to inherit the links that were entered
+  by hand (ADR 0049). Expiry only hides — an expired document leaves the storefront and stays
+  in the admin list, marked, until somebody replaces or deletes it, because an auto-deleted row
+  would clear the warning without the certificate being renewed. Expiring (within a fixed
+  thirty days) and expired are counted as **one figure of work**, since a document crosses from
+  one to the other with nobody touching it. The bytes are stored **unmodified** beside the
+  media store rather than through it: the image pipeline re-encodes, and a re-encoded
+  certificate is not one (ADR 0048).
 - Iteration 11 is what a manager does with an order once it exists — status transitions, the
   payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
   schema be reviewed before a processing workflow is built on top of it. Waiting three

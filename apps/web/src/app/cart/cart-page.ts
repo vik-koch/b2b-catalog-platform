@@ -154,35 +154,6 @@ interface CartRow {
         </p>
       }
 
-      <!-- What moved while the cart sat (FR-CART-10). Above the lines and
-           dismissible, because it is news rather than a state: every line it
-           names also says for itself what is wrong with it, and this is the
-           one place that says it happened *since last time*. -->
-      @if (changes().length) {
-        <section
-          class="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
-          [attr.aria-label]="changeText.heading"
-        >
-          <div class="flex items-start justify-between gap-4">
-            <h2 class="font-medium">{{ changeText.heading }}</h2>
-            <button
-              type="button"
-              appIconButton
-              class="-mt-1 -mr-1 shrink-0"
-              [attr.aria-label]="changeText.dismiss"
-              (click)="cart.dismissChanges()"
-            >
-              <app-icon name="close" />
-            </button>
-          </div>
-          <ul class="mt-1 space-y-1">
-            @for (change of changes(); track change.slug) {
-              <li>{{ changeMessage(change) }}</li>
-            }
-          </ul>
-        </section>
-      }
-
       <!-- The card moves out to the right exactly where the lines can keep
            the shape they have without it: LISTING_NARROW, plus the card's
            20rem and the gap between them. A card beside lines drawn as though
@@ -196,8 +167,36 @@ interface CartRow {
            and the scrollbar are most of a column of controls, and the media
            query cannot see either. -->
       <div class="@container/cart">
-        <div class="grid gap-8 @min-[63.75rem]/cart:grid-cols-[1fr_20rem]">
+        <div class="grid gap-10 @min-[63.75rem]/cart:grid-cols-[1fr_20rem]">
           <div>
+            <!-- What moved while the cart sat (FR-CART-10). Above the lines and
+           dismissible, because it is news rather than a state: every line it
+           names also says for itself what is wrong with it, and this is the
+           one place that says it happened *since last time*. -->
+            @if (changes().length) {
+              <section
+                class="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+                [attr.aria-label]="changeText.heading"
+              >
+                <div class="flex items-start justify-between gap-4">
+                  <h2 class="font-medium">{{ changeText.heading }}</h2>
+                  <button
+                    type="button"
+                    appIconButton
+                    class="-mt-1 -mr-1 shrink-0"
+                    [attr.aria-label]="changeText.dismiss"
+                    (click)="cart.dismissChanges()"
+                  >
+                    <app-icon name="close" />
+                  </button>
+                </div>
+                <ul class="mt-1 space-y-1">
+                  @for (change of changes(); track change.slug) {
+                    <li>{{ changeMessage(change) }}</li>
+                  }
+                </ul>
+              </section>
+            }
             <!-- In the column, not above the grid: the summary beside it then
                  starts level with the heading, and the same card sits at the
                  same height on the cart, the checkout and the read-back. -->

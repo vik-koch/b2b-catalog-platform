@@ -1,17 +1,16 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { usePageSeo } from '../core/page-seo';
-import { Button } from '../ui/button';
 import { AdminIcon } from '../ui/icons/admin-icon';
 import { BuildInfoService } from './build-info.service';
 import { injectEditorReturnParams } from './editor-return';
 import { MaintenanceToggle } from './maintenance/maintenance-toggle';
+import { PanelRow } from './panel-row';
 import { SyncService } from './sync/sync.service';
 import { WorkNote } from '../work/work-note';
 import { WorkService } from '../work/work.service';
@@ -25,316 +24,234 @@ import { WorkService } from '../work/work.service';
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [
-    SignedInAs,
-    MaintenanceToggle,
-    RouterLink,
-    Button,
-    AdminIcon,
-    WorkNote,
-  ],
+  imports: [SignedInAs, MaintenanceToggle, AdminIcon, PanelRow, WorkNote],
   template: `
-    <h1 class="mb-4 text-3xl font-medium tracking-tight">
-      {{ isAdmin() ? text.adminPanel : text.staffArea }}
-    </h1>
-    <app-signed-in-as />
+    <!-- Narrower than the shell allows. The panel is a column of short lists,
+         and at the full width of a desktop each card was a name on the left
+         and half a screen of nothing beside it. -->
+    <div class="max-w-3xl">
+      <h1 class="mb-4 text-3xl font-medium tracking-tight">
+        {{ isAdmin() ? text.adminPanel : text.staffArea }}
+      </h1>
+      <app-signed-in-as />
 
-    <!-- The two staff-facing halves side by side: neither holds enough buttons
-         to earn a row of its own, and both are shown to managers, whose panel
-         is these two cards and nothing else. Orders first — answering today's
-         requests is the work, approving an account is occasional. First on the
-         panel for the same reason: a manager has nothing else here, and an
-         admin arriving at this screen is far more often answering an order
-         than importing a catalog. Stacked below md, where two columns of
-         buttons would each be too narrow. -->
-    <div class="mt-10 grid gap-6 md:grid-cols-2">
-      <section class="flex flex-col">
-        <h2
-          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
-        >
-          <app-admin-icon name="clipboard-list" class="h-4 w-4" />
-          {{ panelText.orders }}
-        </h2>
-        <!-- Grows to its neighbour's height: side by side, two cards that end
-             at different points read as one being unfinished. -->
-        <!-- The count sits under the button that opens the list it counts
-             (FR-WORK-03), as the sync's own caption does: it is a remark about
-             that destination, not a second way in. -->
-        <div
-          class="flex grow flex-col items-start gap-3 rounded-lg border border-border p-5"
-        >
-          <a appButton variant="secondary" routerLink="/admin/orders">
-            {{ orderText.title }}
-          </a>
-          @if (waitingOrders(); as count) {
-            <app-work-note
-              [label]="fill(panelText.workOrders, count)"
-              link="/admin/orders"
-              [queryParams]="{ status: 'requested' }"
-            />
-          }
-        </div>
-      </section>
+      <!-- Every section is a heading with a glyph and a card of rows beneath
+           it, and every card puts what it has to say on its own right-hand
+           axis.
 
-      <section class="flex flex-col">
-        <h2
-          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
-        >
-          <app-admin-icon name="users" class="h-4 w-4" />
-          {{ panelText.accounts }}
-        </h2>
-        <!-- Two buttons rather than one screen with tabs: they are two
-             permissions, and a manager is only ever offered the one they
-             have. -->
-        <div
-          class="flex grow flex-col items-start gap-3 rounded-lg border border-border p-5"
-        >
-          <div class="flex flex-wrap items-start gap-3">
-            <a appButton variant="secondary" routerLink="/admin/users">
-              {{ userText.titleCustomers }}
-            </a>
-            @if (isAdmin()) {
-              <a appButton variant="secondary" routerLink="/admin/users/staff">
-                {{ userText.titleStaff }}
-              </a>
-            }
-          </div>
-          <!-- Customers only, whichever role is looking: staff accounts are
-               created already approved, so nothing waits on that list. -->
-          @if (waitingRegistrations(); as count) {
-            <app-work-note
-              [label]="fill(panelText.workRegistrations, count)"
-              link="/admin/users"
-              [queryParams]="{ status: 'pending' }"
-            />
-          }
-        </div>
-      </section>
-    </div>
+           Two columns that fill independently, not a grid of aligned rows:
+           aligned, every card started on the line the tallest card of its row
+           ended on, so the one-row orders card left a hole beneath it as deep
+           as the two-row accounts card beside it. Two columns rather than a
+           multi-column flow, because which card sits under which is the point
+           — the catalog belongs under the orders, not wherever a balancing
+           algorithm puts it.
 
-    <!-- Everything that changes shop content lives in one card, in three rows
-         of decreasing weight: what the shop sells and the papers that go with
-         it (import, catalog, documents), then the registries behind them
-         (attributes, pricing), then the static pages — a different kind of
-         content, and more of them than fit one group.
-         Admin-only — a manager's panel holds only the cards above. -->
-    @if (isAdmin()) {
-      <section class="mt-10">
-        <!-- Section headings carry a muted glyph for the topic: the panel is a
-             list of unrelated destinations, and the icon is what makes one
-             findable at a glance. Only at this level — one per card. -->
-        <h2
-          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
-        >
-          <app-admin-icon name="package" class="h-4 w-4" />
-          {{ panelText.manage }}
-        </h2>
-        <div class="rounded-lg border border-border">
-          <!-- Three rows, and each is what it holds: the three big destinations
-               abreast — the import, the catalog itself, the documents shown on
-               it — then the two smaller registries under them, then the content
-               pages. Not one four-column grid: the groups are of two different
-               sizes, and squeezing them into equal tracks left a column
-               carrying a single button beside one carrying three.
-               Below lg the whole card is one column, six sections down the
-               page in the order the work happens.
-               Borders per cell rather than divide utilities, which count in DOM
-               order and so draw a left edge down the middle of a wrapped
-               row. -->
-          <div class="grid lg:grid-cols-3">
-            <div class="p-5">
-              <h3 class="mb-3 text-sm font-medium">{{ panelText.sync }}</h3>
-              <a appButton routerLink="/admin/sync" class="gap-2">
-                <app-admin-icon name="upload" class="h-4 w-4" />
-                {{ syncText.title }}
-              </a>
-              <!-- Under the button, as a caption to it: the run it reports is
-                   the one that button starts again. The audit trail's newest
-                   applied run is the whole answer; there is no separate setting
-                   to keep in step. Until it arrives, hold the line's space
-                   rather than showing "never synced" and correcting it. -->
-              @if (runs.isLoading()) {
-                <div
-                  class="mt-3 h-4 w-32 animate-pulse rounded bg-stone-200"
-                  aria-hidden="true"
-                ></div>
-              } @else {
-                <p class="mt-3 text-xs text-muted">{{ lastSync() }}</p>
-              }
-            </div>
+           Below md the two stack, so the left column is read through before
+           the right. -->
+      <div class="mt-10 grid items-start gap-x-6 gap-y-8 md:grid-cols-2">
+        <div class="flex flex-col gap-8">
+          <!-- Orders first, and in the panel's only filled button: answering
+               today's requests is the work. A manager has nothing here but this
+               card and the accounts beside it, and an admin arriving at this
+               screen is far more often answering an order than importing a
+               catalog. -->
+          <section>
+            <h2 id="admin-orders-heading" [class]="headingClass">
+              <app-admin-icon name="clipboard-list" class="h-4 w-4" />
+              {{ panelText.orders }}
+            </h2>
+            <ul [class]="cardClass" aria-labelledby="admin-orders-heading">
+              <app-panel-row [label]="orderText.title" link="/admin/orders">
+                @if (waitingOrders(); as count) {
+                  <app-work-note
+                    [label]="fill(panelText.workOrders, count)"
+                    link="/admin/orders"
+                    [queryParams]="{ status: 'requested' }"
+                  />
+                }
+              </app-panel-row>
+            </ul>
+          </section>
 
-            <div class="border-t border-border p-5 lg:border-t-0 lg:border-l">
-              <h3 id="admin-catalog-heading" class="mb-3 text-sm font-medium">
+          @if (isAdmin()) {
+            <!-- What the shop sells and the papers that go with it, with the
+                 import that fills it at the foot: the four are one topic, and
+                 the sub-headings that used to separate them only repeated the
+                 button underneath. -->
+            <section>
+              <h2 id="admin-catalog-heading" [class]="headingClass">
+                <app-admin-icon name="package" class="h-4 w-4" />
                 {{ panelText.catalog }}
-              </h3>
-              <ul
-                class="flex flex-wrap gap-3"
-                aria-labelledby="admin-catalog-heading"
-              >
-                <li>
-                  <a
-                    appButton
-                    variant="secondary"
-                    routerLink="/admin/categories"
-                  >
-                    {{ categoryText.title }}
-                  </a>
-                </li>
-                <li>
-                  <a appButton variant="secondary" routerLink="/admin/products">
-                    {{ productText.title }}
-                  </a>
-                </li>
-              </ul>
-              <!-- Under the products button rather than beside the import that
-                   fills the queue: publishing is what clears it. -->
-              @if (waitingProducts(); as count) {
-                <app-work-note
-                  class="mt-3"
-                  [label]="fill(panelText.workProducts, count)"
+              </h2>
+              <ul [class]="cardClass" aria-labelledby="admin-catalog-heading">
+                <app-panel-row
+                  [label]="categoryText.title"
+                  link="/admin/categories"
+                />
+                <app-panel-row
+                  [label]="productText.title"
                   link="/admin/products"
-                  [queryParams]="{ state: 'unpublished' }"
-                />
-              }
-            </div>
-
-            <!-- Documents are their own group rather than a third button in
-                 the catalog's: they are files the shop holds, not the shape of
-                 the catalog, and they are the only thing here that comes due —
-                 which is a line of its own under the button that clears it. -->
-            <div class="border-t border-border p-5 lg:border-t-0 lg:border-l">
-              <h3 class="mb-3 text-sm font-medium">
-                {{ panelText.documents }}
-              </h3>
-              <a appButton variant="secondary" routerLink="/admin/documents">
-                {{ documentText.title }}
-              </a>
-              <!-- Expiring and expired counted as one figure, and the link
-                   opens the list narrowed to exactly that pair. -->
-              @if (waitingDocuments(); as count) {
-                <app-work-note
-                  class="mt-3"
-                  [label]="fill(panelText.workDocuments, count)"
+                >
+                  @if (waitingProducts(); as count) {
+                    <app-work-note
+                      [label]="fill(panelText.workProducts, count)"
+                      link="/admin/products"
+                      [queryParams]="{ state: 'unpublished' }"
+                    />
+                  }
+                </app-panel-row>
+                <!-- Expiring and expired counted as one figure, and the link
+                     opens the list narrowed to exactly that pair. -->
+                <app-panel-row
+                  [label]="documentText.title"
                   link="/admin/documents"
-                  [queryParams]="{ expiry: 'due' }"
-                />
-              }
-            </div>
-          </div>
-
-          <!-- The two registries: what the shop filters by, and what it
-               charges. Both are settings behind the catalog rather than places
-               an admin goes daily, so they sit under it in half-rows. -->
-          <div class="grid border-t border-border lg:grid-cols-2">
-            <div class="p-5">
-              <h3
-                id="admin-attributes-heading"
-                class="mb-3 text-sm font-medium"
-              >
-                {{ panelText.attributes }}
-              </h3>
-              <ul
-                class="flex flex-wrap gap-3"
-                aria-labelledby="admin-attributes-heading"
-              >
-                <li>
-                  <a
-                    appButton
-                    variant="secondary"
-                    routerLink="/admin/attributes"
-                  >
-                    {{ attributeText.title }}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    appButton
-                    variant="secondary"
-                    routerLink="/admin/attributes/inventory"
-                  >
-                    {{ inventoryText.title }}
-                  </a>
-                </li>
+                >
+                  @if (waitingDocuments(); as count) {
+                    <app-work-note
+                      [label]="fill(panelText.workDocuments, count)"
+                      link="/admin/documents"
+                      [queryParams]="{ status: 'due' }"
+                    />
+                  }
+                </app-panel-row>
+                <!-- The run it reports is the one this row starts again. The
+                     audit trail's newest applied run is the whole answer; until
+                     it arrives, hold the line's space rather than showing
+                     "never synced" and correcting it. -->
+                <app-panel-row [label]="syncText.title" link="/admin/sync">
+                  @if (runs.isLoading()) {
+                    <span
+                      class="block flex h-3 w-32 animate-pulse rounded bg-stone-200"
+                      aria-hidden="true"
+                    ></span>
+                  } @else {
+                    <span class="flex text-xs text-muted">{{
+                      lastSync()
+                    }}</span>
+                  }
+                </app-panel-row>
               </ul>
-            </div>
+            </section>
 
-            <div class="border-t border-border p-5 lg:border-t-0 lg:border-l">
-              <h3 class="mb-3 text-sm font-medium">
-                {{ panelText.pricing }}
-              </h3>
-              <a appButton variant="secondary" routerLink="/admin/tiers">
-                {{ tierText.title }}
-              </a>
-            </div>
-          </div>
-
-          <div class="border-t border-border p-5">
-            <h3 id="admin-pages-heading" class="mb-3 text-sm font-medium">
-              {{ panelText.pages }}
-            </h3>
-            <!-- Named after its heading: several of these labels ("About us")
-               also appear in the site header, so the group needs to be
-               distinguishable to a screen reader moving through the page. -->
-            <ul
-              class="flex flex-wrap gap-3"
-              aria-labelledby="admin-pages-heading"
-            >
-              @for (slug of pageSlugs; track slug) {
-                <li>
-                  <!-- Straight into the editor: linking to the public page would
-                     land an admin on a read-only view whose pencil only appears
-                     when storefront edit mode happens to be on. -->
-                  <a
-                    appButton
-                    variant="secondary"
-                    [routerLink]="['/admin/pages', slug, 'edit']"
+            <!-- The static pages, their own section with their own glyph: they
+                 are a different kind of content from the catalog, and there are
+                 more of them than belong at the foot of another card.
+                 Straight into the editor: linking to the public page would land
+                 an admin on a read-only view whose pencil only appears when
+                 storefront edit mode happens to be on. -->
+            <section>
+              <h2 id="admin-pages-heading" [class]="headingClass">
+                <app-admin-icon name="file-text" class="h-4 w-4" />
+                {{ panelText.pages }}
+              </h2>
+              <ul [class]="cardClass" aria-labelledby="admin-pages-heading">
+                @for (slug of pageSlugs; track slug) {
+                  <app-panel-row
+                    [label]="navText[slug]"
+                    [link]="['/admin/pages', slug, 'edit']"
                     [queryParams]="editorFrom()"
-                  >
-                    {{ navText[slug] }}
-                  </a>
-                </li>
+                  />
+                }
+              </ul>
+            </section>
+          }
+          <!-- The session's own password, in the same place a customer finds
+               it. -->
+          <section>
+            <h2 id="admin-security-heading" [class]="headingClass">
+              <app-admin-icon name="lock" class="h-4 w-4" />
+              {{ text.securityHeading }}
+            </h2>
+            <ul [class]="cardClass" aria-labelledby="admin-security-heading">
+              <app-panel-row
+                [label]="text.changePassword.heading"
+                link="/change-password"
+              />
+            </ul>
+          </section>
+        </div>
+
+        <div class="flex flex-col gap-8">
+          <!-- Two rows rather than one screen with tabs: they are two
+               permissions, and a manager is only ever offered the one they
+               have. Only customers can be waiting — staff accounts are created
+               already approved. -->
+          <section>
+            <h2 id="admin-accounts-heading" [class]="headingClass">
+              <app-admin-icon name="users" class="h-4 w-4" />
+              {{ panelText.accounts }}
+            </h2>
+            <ul [class]="cardClass" aria-labelledby="admin-accounts-heading">
+              <app-panel-row
+                [label]="userText.titleCustomers"
+                link="/admin/users"
+              >
+                @if (waitingRegistrations(); as count) {
+                  <app-work-note
+                    [label]="fill(panelText.workRegistrations, count)"
+                    link="/admin/users"
+                    [queryParams]="{ status: 'pending' }"
+                  />
+                }
+              </app-panel-row>
+              @if (isAdmin()) {
+                <app-panel-row
+                  [label]="userText.titleStaff"
+                  link="/admin/users/staff"
+                />
               }
             </ul>
-          </div>
+          </section>
+
+          @if (isAdmin()) {
+            <!-- The registries behind the catalog: what the shop filters by, and
+                 what it charges. Settings rather than places an admin goes
+                 daily, and one card because that is what they have in common —
+                 "Pricing" over a single row named "Customer tiers" said the
+                 same thing twice. -->
+            <section>
+              <h2 id="admin-registries-heading" [class]="headingClass">
+                <app-admin-icon name="funnel" class="h-4 w-4" />
+                {{ panelText.registries }}
+              </h2>
+              <ul
+                [class]="cardClass"
+                aria-labelledby="admin-registries-heading"
+              >
+                <app-panel-row
+                  [label]="attributeText.title"
+                  link="/admin/attributes"
+                />
+                <app-panel-row
+                  [label]="inventoryText.title"
+                  link="/admin/attributes/inventory"
+                />
+                <app-panel-row [label]="tierText.title" link="/admin/tiers" />
+              </ul>
+            </section>
+
+            <section>
+              <h2 [class]="headingClass">
+                <app-admin-icon name="wrench" class="h-4 w-4" />
+                {{ panelText.site }}
+              </h2>
+              <app-maintenance-toggle />
+            </section>
+          }
         </div>
-      </section>
-    }
-
-    @if (isAdmin()) {
-      <section class="mt-10">
-        <h2
-          class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
-        >
-          <app-admin-icon name="wrench" class="h-4 w-4" />
-          {{ panelText.site }}
-        </h2>
-        <app-maintenance-toggle />
-      </section>
-    }
-
-    <!-- The session's own password, in the same place a customer finds it. -->
-    <section class="mt-10">
-      <h2
-        class="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase"
-      >
-        <app-admin-icon name="lock" class="h-4 w-4" />
-        {{ text.securityHeading }}
-      </h2>
-      <div class="rounded-lg border border-border p-5">
-        <a appButton variant="secondary" routerLink="/change-password">
-          {{ text.changePassword.heading }}
-        </a>
       </div>
-    </section>
 
-    <!-- What is running, in the quietest possible place: nobody comes to the
-         panel for it, but it is the first thing asked when reporting a problem.
-         Absent until it arrives — an empty footer line needs no placeholder. -->
-    @if (buildInfo(); as info) {
-      <p class="mt-10 text-xs text-subtle" [title]="info.title">
-        {{ info.line }}
-      </p>
-    }
+      <!-- What is running, in the quietest possible place: nobody comes to the
+           panel for it, but it is the first thing asked when reporting a
+           problem. Absent until it arrives — an empty footer line needs no
+           placeholder. -->
+      @if (buildInfo(); as info) {
+        <p class="mt-10 text-xs text-subtle" [title]="info.title">
+          {{ info.line }}
+        </p>
+      }
+    </div>
   `,
 })
 export class AdminPanelPage {
@@ -362,6 +279,15 @@ export class AdminPanelPage {
   protected readonly pageSlugs = inject(DEPLOYMENT_CONFIG).pages.published;
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
   protected readonly editorFrom = injectEditorReturnParams();
+
+  /** One heading, one card frame, written once: seven sections spelling the
+   * same two class lists is seven chances for one of them to drift. */
+  protected readonly headingClass =
+    'mb-2 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase';
+  /** `overflow-hidden` because a row's hover ground is a square: without it
+   * the first and last row paint their corners over the card's rounding. */
+  protected readonly cardClass =
+    'divide-y divide-border overflow-hidden rounded-lg border border-border';
 
   private readonly work = inject(WorkService);
 

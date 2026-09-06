@@ -110,9 +110,11 @@ async function render(
     [...el.querySelectorAll('li label span:first-of-type')].map((s) =>
       s.textContent?.trim(),
     );
-  const clickButton = async (label: string) => {
-    [...el.querySelectorAll('button')]
-      .find((b) => b.textContent?.includes(label))
+  /** The two views are a segmented pill: real radios inside their labels. */
+  const chooseView = async (label: string) => {
+    [...el.querySelectorAll('app-segmented label')]
+      .find((l) => l.textContent?.includes(label))
+      ?.querySelector<HTMLInputElement>('input')
       ?.click();
     await settle();
   };
@@ -125,7 +127,7 @@ async function render(
     tick,
     apply,
     rowNames,
-    clickButton,
+    chooseView,
     settle,
   };
 }
@@ -174,21 +176,21 @@ describe('DocumentProductsPicker (FR-DOC-02)', () => {
   });
 
   it('shows only what is linked in the linked view, from the value itself', async () => {
-    const { clickButton, rowNames } = await render({
+    const { chooseView, rowNames } = await render({
       // A product the catalog query would never return: deleted.
       value: [
         { slug: 'gone', name: 'Zulu', deleted: true, unpublished: false },
       ],
     });
 
-    await clickButton('Linked');
+    await chooseView('Linked');
 
     expect(rowNames()).toEqual(['Zulu']);
   });
 
   it('says the linked view is empty rather than showing an empty catalog', async () => {
-    const { clickButton, el } = await render();
-    await clickButton('Linked');
+    const { chooseView, el } = await render();
+    await chooseView('Linked');
     expect(el.textContent).toContain(text.noneLinked);
   });
 

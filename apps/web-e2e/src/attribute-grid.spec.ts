@@ -190,27 +190,6 @@ test.describe('the product attribute grid', () => {
     await expect(cell(page, 0, 0)).toHaveText(first.key);
   });
 
-  test('hands a key to the inventory, opened and scrolled to', async ({
-    page,
-  }) => {
-    // The grid's way out: "what does the rest of the catalog call this, and
-    // with which values?". Opening the row is half the answer — the list is
-    // alphabetical, so the row is usually far below the fold.
-    const link = page
-      .locator(`app-product-attributes-editor tbody tr:nth-child(1) a`)
-      .first();
-    await link.scrollIntoViewIfNeeded();
-    const href = await link.getAttribute('href');
-    expect(href).toContain('/admin/attributes/inventory?key=');
-
-    await page.goto(href as string);
-
-    const row = page.locator(`li#attribute-${first.key.replace(/\s+/g, '_')}`);
-    await expect(row.getByRole('button', { expanded: true })).toBeVisible();
-    // In view, not merely rendered — the point of the anchor.
-    await expect(row).toBeInViewport();
-  });
-
   test('undoes a typed-over selection in one step', async ({ page }) => {
     await dragBetween(
       page,

@@ -13,11 +13,13 @@ import { Button } from '../../ui/button';
 import { FieldLabel } from '../../ui/field-label';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { DateField } from '../../ui/date-field';
 import { Input } from '../../ui/input';
 import { Skeleton } from '../../ui/skeleton';
 import { injectEditorReturn } from '../editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { documentFileLabel, documentFileSize } from '../../core/document-file';
+import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 
@@ -40,6 +42,7 @@ import { DocumentsService } from './documents.service';
     Button,
     IconButton,
     AdminIcon,
+    DateField,
     DocumentProductsPicker,
     FieldLabel,
     Input,
@@ -130,16 +133,26 @@ import { DocumentsService } from './documents.service';
               </button>
             </div>
           } @else {
+            <!-- The same dashed target the sync screen and the image tiles
+                 wear: choosing a file is one gesture in this panel, so it has
+                 one shape. The picker is the drop target too — a dashed box
+                 that refused a dropped file would be promising something it
+                 does not do. -->
             <button
-              appButton
-              variant="secondary"
               type="button"
-              class="gap-2"
+              class="w-full p-4"
+              [class]="dropZoneClass()"
               [disabled]="uploading()"
               (click)="fileInput.click()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="dragging.set(false)"
+              (drop)="onDrop($event)"
             >
-              <app-admin-icon name="upload" class="h-4 w-4" />
-              {{ uploading() ? common.uploading : text.choose }}
+              <app-admin-icon name="upload" class="h-6 w-6 mb-2" />
+              <span class="font-medium">{{
+                uploading() ? common.uploading : text.dropHint
+              }}</span>
+              <span class="text-sm">{{ text.choose }}</span>
             </button>
           }
           <span class="mt-1 block text-xs text-subtle">{{
@@ -148,28 +161,28 @@ import { DocumentsService } from './documents.service';
         </div>
 
         <!-- Two dates copied off the document, side by side because that is how
-             they are read off it; one per line below sm. -->
+             they are read off it; one per line below sm. The same field the
+             checkout picks a delivery day in — one date control in the app,
+             whoever is filling it in. -->
         <div class="grid gap-6 sm:grid-cols-2">
-          <label class="block">
-            <span appFieldLabel>{{ text.issuedAt }}</span>
-            <input
-              type="date"
-              appInput
-              class="w-full"
-              [value]="issuedAt()"
-              (input)="issuedAt.set($any($event.target).value)"
+          <div>
+            <label [for]="issuedId" appFieldLabel>{{ text.issuedAt }}</label>
+            <app-date-field
+              [fieldId]="issuedId"
+              [value]="issuedAt() || null"
+              [placeholder]="common.datePlaceholder"
+              (valueChange)="issuedAt.set($event ?? '')"
             />
-          </label>
-          <label class="block">
-            <span appFieldLabel>{{ text.expiresAt }}</span>
-            <input
-              type="date"
-              appInput
-              class="w-full"
-              [value]="expiresAt()"
-              (input)="expiresAt.set($any($event.target).value)"
+          </div>
+          <div>
+            <label [for]="expiresId" appFieldLabel>{{ text.expiresAt }}</label>
+            <app-date-field
+              [fieldId]="expiresId"
+              [value]="expiresAt() || null"
+              [placeholder]="common.datePlaceholder"
+              (valueChange)="expiresAt.set($event ?? '')"
             />
-          </label>
+          </div>
         </div>
         <p class="text-xs text-subtle">{{ text.datesHint }}</p>
 
@@ -217,6 +230,8 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   protected readonly listText = inject(ADMIN_TEXT).documentList;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_DOCUMENT_MIME_TYPES.join(',');
+  protected readonly issuedId = 'document-issued-at';
+  protected readonly expiresId = 'document-expires-at';
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.idParam === null;
@@ -292,12 +307,34 @@ export class DocumentEditorPage implements UnsavedChangesAware {
    * while the admin is still looking at the file picker, and the save that
    * follows is then a plain JSON write like every other record's.
    */
+  /** Whether a file is over the empty picker. */
+  protected readonly dragging = signal(false);
+
+  protected dropZoneClass(): string {
+    return `${DROP_ZONE} ${dropZoneState(this.dragging())}`;
+  }
+
+  protected onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.dragging.set(true);
+  }
+
+  protected onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.dragging.set(false);
+    const dropped = event.dataTransfer?.files?.[0];
+    if (dropped) void this.upload(dropped);
+  }
+
   protected async onFile(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const chosen = input.files?.[0];
     input.value = ''; // allow re-selecting the same file
     if (!chosen) return;
+    await this.upload(chosen);
+  }
 
+  private async upload(chosen: File): Promise<void> {
     this.uploading.set(true);
     this.error.set(null);
     try {

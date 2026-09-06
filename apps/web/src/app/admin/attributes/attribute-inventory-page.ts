@@ -17,6 +17,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Link } from '../../ui/link';
 import { Input } from '../../ui/input';
 import { HintBadge } from '../../ui/hint-badge';
 import { Skeleton } from '../../ui/skeleton';
@@ -51,6 +52,7 @@ type RenameTarget =
     Button,
     IconButton,
     AdminIcon,
+    Link,
     RecordRow,
     HintBadge,
     Input,
@@ -89,7 +91,7 @@ type RenameTarget =
                     @if (isRenaming({ kind: 'key', key: entry.key })) {
                       <ng-container [ngTemplateOutlet]="form" />
                     } @else {
-                      <app-record-row>
+                      <app-record-row [compact]="true">
                         <!-- Opening the key is the one thing done to the row,
                              so it leads it — where the other lists put their
                              grip or their checkbox. Chevron and name are one
@@ -116,10 +118,33 @@ type RenameTarget =
                           />
                           {{ entry.key }}
                         </button>
+                        <!-- The counts are the ways into the key: the product
+                             grid narrowed to it, and its own values — the
+                             second opens the same panel the chevron does,
+                             said as what is in it. -->
                         <ng-container recordMeta>
                           <span>
-                            {{ productsLabel(entry.productCount) }} ·
-                            {{ valuesLabel(entry.valueCount) }}
+                            @if (entry.productCount) {
+                              <a
+                                appLink
+                                routerLink="/admin/products"
+                                [queryParams]="{ attributeKey: entry.key }"
+                                [title]="text.showProducts"
+                              >
+                                {{ productsLabel(entry.productCount) }}
+                              </a>
+                            } @else {
+                              {{ productsLabel(0) }}
+                            }
+                            ·
+                            <button
+                              appLink
+                              type="button"
+                              [attr.aria-expanded]="expanded() === entry.key"
+                              (click)="toggle(entry.key)"
+                            >
+                              {{ valuesLabel(entry.valueCount) }}
+                            </button>
                           </span>
                         </ng-container>
                         <ng-container recordActions>
@@ -148,14 +173,6 @@ type RenameTarget =
                               <app-admin-icon name="funnel" />
                             </span>
                           }
-                          <a
-                            appIconButton
-                            routerLink="/admin/products"
-                            [queryParams]="{ attributeKey: entry.key }"
-                            [attr.aria-label]="text.showProducts"
-                          >
-                            <app-admin-icon name="square-menu" />
-                          </a>
                           <button
                             appIconButton
                             type="button"
@@ -198,7 +215,7 @@ type RenameTarget =
                               ) {
                                 <ng-container [ngTemplateOutlet]="form" />
                               } @else {
-                                <app-record-row>
+                                <app-record-row [compact]="true">
                                   <!-- An empty value is a row stored before
                                        valueless attributes stopped being
                                        saved. Named, or it reads as a rendering
@@ -234,22 +251,27 @@ type RenameTarget =
                                     </app-hint-badge>
                                   }
                                   <ng-container recordMeta>
-                                    <span>
-                                      {{ productsLabel(value.productCount) }}
+                                    <span class="mr-7">
+                                      @if (value.productCount) {
+                                        <a
+                                          appLink
+                                          routerLink="/admin/products"
+                                          [queryParams]="{
+                                            attributeKey: entry.key,
+                                            attributeValue: value.value,
+                                          }"
+                                          [title]="text.showProducts"
+                                        >
+                                          {{
+                                            productsLabel(value.productCount)
+                                          }}
+                                        </a>
+                                      } @else {
+                                        {{ productsLabel(0) }}
+                                      }
                                     </span>
                                   </ng-container>
                                   <ng-container recordActions>
-                                    <a
-                                      appIconButton
-                                      routerLink="/admin/products"
-                                      [queryParams]="{
-                                        attributeKey: entry.key,
-                                        attributeValue: value.value,
-                                      }"
-                                      [attr.aria-label]="text.showProducts"
-                                    >
-                                      <app-admin-icon name="square-menu" />
-                                    </a>
                                     <button
                                       appIconButton
                                       type="button"
@@ -288,7 +310,7 @@ type RenameTarget =
                             track $index
                           ) {
                             <li class="py-3">
-                              <app-record-row>
+                              <app-record-row [compact]="true">
                                 <!-- Each bar in a box the height of the line it
                                      stands in — 20px of text-sm, 20px of meta,
                                      a glyph's worth of button — rather than the
@@ -300,17 +322,15 @@ type RenameTarget =
                                     [style.width]="width"
                                   ></span>
                                 </span>
-                                <span recordMeta class="flex h-5 items-center">
+                                <span
+                                  recordMeta
+                                  class="flex h-5 items-center mr-7"
+                                >
                                   <span
                                     class="h-4 w-20 rounded bg-stone-200"
                                   ></span>
                                 </span>
                                 <ng-container recordActions>
-                                  <span appIconButton>
-                                    <span
-                                      class="block rounded bg-stone-200"
-                                    ></span>
-                                  </span>
                                   <span appIconButton>
                                     <span
                                       class="block rounded bg-stone-200"
@@ -342,7 +362,10 @@ type RenameTarget =
       <!-- One form for both renames: the text is all that differs, and both
          rewrite every product carrying it. -->
       <ng-template #form>
-        <form class="flex flex-wrap items-end gap-3" (submit)="save($event)">
+        <form
+          class="flex flex-wrap items-end gap-3 py-0.25"
+          (submit)="save($event)"
+        >
           <input
             appInput
             size="sm"

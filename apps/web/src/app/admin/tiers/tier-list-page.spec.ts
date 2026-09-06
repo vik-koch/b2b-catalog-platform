@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CustomerTier } from '@b2b-catalog-platform/shared';
+import { CustomerTier, fillText } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAppText } from '../../config/app-text.fixture';
@@ -124,7 +124,7 @@ describe('TierListPage', () => {
     // draggable list, since it is not a row anyone can move.
     const base = baseRow(el);
     expect(base.textContent).toContain(text.defaultLabel);
-    expect(base.textContent).toContain('7 account(s)');
+    expect(base.textContent).toContain(fillText(text.accounts, { count: 7 }));
     expect(el.querySelectorAll('li')[0].textContent).toContain('Wholesale');
   });
 
@@ -229,8 +229,8 @@ describe('TierListPage', () => {
     expect(confirm.ask).not.toHaveBeenCalled();
     expect(service.remove).not.toHaveBeenCalled();
     const alert = el.querySelector('[role="alert"]');
-    expect(alert?.textContent).toContain('3 account(s)');
-    expect(alert?.textContent).toContain('12 product price(s)');
+    expect(alert?.textContent).toContain(fillText(text.accounts, { count: 3 }));
+    expect(alert?.textContent).toContain(fillText(text.prices, { count: 12 }));
   });
 
   it('keeps the tier when the confirmation is declined', async () => {

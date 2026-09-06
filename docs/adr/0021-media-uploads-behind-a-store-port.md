@@ -2,6 +2,10 @@
 
 **Status:** accepted · **Date:** 2026-07-27
 
+⚠ **Extended by ADR 0048**, which admits documents — PDFs and scans, stored
+unmodified — to the same port and volume. Everything below still describes the
+image pipeline, which is the only thing that re-encodes.
+
 ## Context
 
 Rich-text bodies (0020) need images: a delivery provider's logo on a conditions
