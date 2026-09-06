@@ -32,7 +32,7 @@ import { ImagePlaceholder } from './image-placeholder';
                 [attr.aria-label]="viewLabel(cat.name)"
                 class="group block"
               >
-                <div class="aspect-video overflow-hidden bg-stone-100">
+                <div class="aspect-video overflow-hidden bg-white">
                   @if (cat.image && !failed().has(cat.image.thumb)) {
                     <img
                       [src]="cat.image.thumb"

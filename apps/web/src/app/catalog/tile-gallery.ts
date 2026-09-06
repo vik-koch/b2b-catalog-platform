@@ -29,7 +29,7 @@ import { swipeStep, touchX } from './swipe';
     <a
       [routerLink]="link()"
       [attr.aria-label]="productName()"
-      class="relative block h-full overflow-hidden bg-stone-100"
+      class="relative block h-full overflow-hidden bg-white"
       (pointerenter)="revealNext()"
       (pointermove)="onScrub($event)"
       (pointerleave)="onPointerLeave($event)"

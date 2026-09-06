@@ -66,7 +66,7 @@ const MAX_CHILD_LINKS = 3;
                   class="block"
                 >
                   <div
-                    class="aspect-square overflow-hidden rounded-lg bg-stone-100"
+                    class="aspect-square overflow-hidden rounded-lg bg-white"
                   >
                     @if (cat.image && !failed().has(cat.image.thumb)) {
                       <img

@@ -103,7 +103,7 @@ const THUMBS_BESIDE = 6;
                   <img
                     [src]="img.thumb"
                     alt=""
-                    class="h-full w-full object-cover"
+                    class="h-full w-full bg-white object-cover"
                     loading="lazy"
                     (error)="markFailed(img.thumb)"
                   />
@@ -144,7 +144,7 @@ export class ProductGallery {
    * its 25rem by `shrink-0`, a tight column pushed the strip of thumbnails
    * off the left edge instead — the strip is the flex item that gives way in a
    * reversed row, and it went where nothing could scroll to it. */
-  protected readonly mainImage = `aspect-square w-full min-w-0 touch-pan-y overflow-hidden rounded-xl bg-stone-100 md:w-100 ${FRAME}`;
+  protected readonly mainImage = `aspect-square w-full min-w-0 touch-pan-y overflow-hidden rounded-xl bg-white md:w-100 ${FRAME}`;
 
   protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;
 

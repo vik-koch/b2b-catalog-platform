@@ -147,7 +147,7 @@ export class HiddenProductsSection {
   /** Flush with the card's top edge, and its own framed square once the card
    * has no frame to lend it — the tile's rule, and a row's at every width. */
   protected readonly photo =
-    'block aspect-square w-full overflow-hidden rounded-t-lg bg-stone-100 @max-[38rem]/listing:rounded-md @max-[38rem]/listing:ring-1 @max-[38rem]/listing:ring-border';
+    'block aspect-square w-full overflow-hidden rounded-t-lg bg-white @max-[38rem]/listing:rounded-md @max-[38rem]/listing:ring-1 @max-[38rem]/listing:ring-border';
 
   protected readonly body =
     'flex flex-1 flex-col p-3 @max-[38rem]/listing:p-0 ' + NARROW_BODY_IN_GRID;

@@ -21,7 +21,7 @@ import { MediaService } from './media.service';
   template: `
     @if (value(); as image) {
       <div
-        class="relative h-28 w-28 overflow-hidden rounded-md border border-border"
+        class="relative h-28 w-28 overflow-hidden rounded-md border border-border bg-white"
       >
         <img [src]="image.thumb" alt="" class="h-full w-full object-cover" />
         <div

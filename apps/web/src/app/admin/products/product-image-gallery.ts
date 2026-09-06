@@ -39,7 +39,7 @@ import { MediaService } from '../media/media.service';
           <li
             cdkDrag
             [cdkDragData]="image"
-            class="relative h-28 w-28 cursor-grab overflow-hidden rounded-md border border-border active:cursor-grabbing"
+            class="relative h-28 w-28 cursor-grab overflow-hidden rounded-md border border-border bg-white active:cursor-grabbing"
             [attr.aria-label]="common.reorder"
           >
             <img
