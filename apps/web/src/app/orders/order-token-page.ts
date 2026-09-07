@@ -1,10 +1,6 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  fillText,
-  OrderDetail,
-  OrderStatus,
-} from '@b2b-catalog-platform/shared';
+import { fillText, OrderDetail } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { OrderSummary } from '../cart/order-summary';
 import { formatPriceMinor } from '../catalog/price';
@@ -19,7 +15,12 @@ import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
-import { orderStatusLabel, orderStatusTone } from './order-status';
+import {
+  orderPaymentLabel,
+  orderPaymentTone,
+  orderStatusLabel,
+  orderStatusTone,
+} from './order-status';
 import { OrdersService } from './orders.service';
 
 /**
@@ -266,13 +267,11 @@ export class OrderTokenPage {
   }
 
   protected paymentLabel(order: OrderDetail): string | null {
-    if (order.paymentState === 'awaiting')
-      return this.orderText.paymentAwaiting;
-    return order.paymentState === 'paid' ? this.orderText.paymentPaid : null;
+    return orderPaymentLabel(order.paymentState, this.orderText);
   }
 
   protected paymentTone(order: OrderDetail): StatusTone {
-    return order.paymentState === 'awaiting' ? 'waiting' : 'neutral';
+    return orderPaymentTone(order.paymentState);
   }
 
   constructor() {

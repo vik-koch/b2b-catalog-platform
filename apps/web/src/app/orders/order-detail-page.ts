@@ -27,7 +27,12 @@ import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
-import { orderStatusLabel, orderStatusTone } from './order-status';
+import {
+  orderPaymentLabel,
+  orderPaymentTone,
+  orderStatusLabel,
+  orderStatusTone,
+} from './order-status';
 import { ConfirmService } from '../ui/confirm.service';
 import { OrdersService } from './orders.service';
 
@@ -279,14 +284,11 @@ export class OrderDetailPage {
   }
 
   protected paymentLabel(detail: OrderDetail): string | null {
-    if (detail.paymentState === 'awaiting') {
-      return this.orderText.paymentAwaiting;
-    }
-    return detail.paymentState === 'paid' ? this.orderText.paymentPaid : null;
+    return orderPaymentLabel(detail.paymentState, this.orderText);
   }
 
   protected paymentTone(detail: OrderDetail): StatusTone {
-    return detail.paymentState === 'awaiting' ? 'waiting' : 'neutral';
+    return orderPaymentTone(detail.paymentState);
   }
 
   /** The shared transition table, asked in the browser for the same reason the

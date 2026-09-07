@@ -5,7 +5,12 @@ import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
-import { orderStatusLabel, orderStatusTone } from './order-status';
+import {
+  orderPaymentLabel,
+  orderPaymentTone,
+  orderStatusLabel,
+  orderStatusTone,
+} from './order-status';
 
 /**
  * The account's orders as rows — the whole history on its own page, and the
@@ -24,12 +29,12 @@ import { orderStatusLabel, orderStatusTone } from './order-status';
   template: `
     <ul class="divide-y divide-border">
       @for (order of orders(); track order.reference) {
-        <li>
+        <li class="-mx-2 py-3 first:pt-0 last:pb-0">
           <!-- The whole row opens the order: the reference is the only thing on
                it worth clicking, and a link around it is a bigger target than
                the text. -->
           <a
-            class="-mx-2 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 hover:bg-stone-50"
+            class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 hover:bg-stone-50"
             [routerLink]="['/account/orders', order.reference]"
           >
             <div>
@@ -85,12 +90,11 @@ export class OrderRows {
   }
 
   protected paymentLabel(order: OrderSummary): string | null {
-    if (order.paymentState === 'awaiting') return this.text.paymentAwaiting;
-    return order.paymentState === 'paid' ? this.text.paymentPaid : null;
+    return orderPaymentLabel(order.paymentState, this.text);
   }
 
   protected paymentTone(order: OrderSummary): StatusTone {
-    return order.paymentState === 'awaiting' ? 'waiting' : 'neutral';
+    return orderPaymentTone(order.paymentState);
   }
 
   protected formatDate(iso: string): string {

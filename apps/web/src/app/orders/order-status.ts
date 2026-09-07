@@ -1,4 +1,8 @@
-import { FulfilmentMethod, OrderStatus } from '@b2b-catalog-platform/shared';
+import {
+  FulfilmentMethod,
+  OrderStatus,
+  PaymentState,
+} from '@b2b-catalog-platform/shared';
 import { StatusTone } from '../ui/status-badge';
 
 /** Who is looking at the badge. */
@@ -80,4 +84,40 @@ export function orderStatusTone(
     cancelled: 'neutral',
   };
   return tones[status];
+}
+
+/**
+ * The two things worth saying about the money in a listing. Both catalogues
+ * carry these keys, as they do the status ones — staff scan the same column a
+ * customer reads on their own order.
+ */
+export interface OrderPaymentLabels {
+  readonly paymentAwaiting: string;
+  readonly paymentPaid: string;
+}
+
+/**
+ * What the payment badge says, or null where there is nothing to say: an
+ * order with nothing due yet — a cash one, or one still waiting for an answer
+ * — is not a fact about money, and a badge reading "nothing due" is a column
+ * of noise to scan past.
+ */
+export function orderPaymentLabel(
+  state: PaymentState,
+  labels: OrderPaymentLabels,
+): string | null {
+  if (state === 'awaiting') return labels.paymentAwaiting;
+  return state === 'paid' ? labels.paymentPaid : null;
+}
+
+/**
+ * Amber where somebody still owes something, plain where it is settled.
+ *
+ * Always drawn in the quiet `dot` variant, wherever it appears: the payment is
+ * the order's second fact, and two solid pills side by side read as two
+ * statuses that might disagree. The dot was written for exactly this — a
+ * colour to scan down a column rather than one to shout from a card.
+ */
+export function orderPaymentTone(state: PaymentState): StatusTone {
+  return state === 'awaiting' ? 'waiting' : 'neutral';
 }

@@ -35,7 +35,7 @@ import { OrdersService } from './orders.service';
           </a>
         </app-empty-state>
       } @else {
-        <app-order-rows [orders]="data.items" />
+        <app-order-rows class="max-w-3xl" [orders]="data.items" />
 
         @if (data.pagination.totalPages > 1) {
           <nav
