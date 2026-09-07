@@ -1,11 +1,20 @@
-import { Component, computed, inject, input, resource } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  resource,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   fillText,
+  ORDER_STATUS_REASON_MAX,
   OrderStatus,
   orderStatusSchema,
   StaffOrderSort,
   staffOrderSortSchema,
+  TransitionTarget,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -15,7 +24,7 @@ import { usePageSeo } from '../../core/page-seo';
 import { stableValue } from '../../core/stable-value';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
-import { orderStatusTone } from '../../orders/order-status';
+import { orderStatusLabel, orderStatusTone } from '../../orders/order-status';
 import { AdminListHeader } from '../list-header';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridColumn } from '../grid/grid-column';
@@ -24,12 +33,15 @@ import { GridPagination } from '../grid/grid-pagination';
 import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
 import { GridTimestamp } from '../grid/grid-timestamp';
 import { RecordRow } from '../records/record-row';
+import { injectEditorReturnParams } from '../editor-return';
+import { ConfirmService } from '../../ui/confirm.service';
+import { OrderRowActions } from './order-row-actions';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 
 /**
- * Every order request, for staff (FR-AUTH-03). Read-only: an order is answered
- * by phone or mail, and the status transitions that will move it are not here
- * yet.
+ * Every order request, for staff (FR-AUTH-03). An order is answered on its own
+ * page; what the list carries is the pair of moves worth making without opening
+ * one — the two the row's own state offers.
  *
  * Newest first, narrowed by the status and by the find-an-order box — the two
  * questions a manager opens this list with: "what have I not answered yet?"
@@ -51,6 +63,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
     Skeleton,
     StatusBadge,
     RecordRow,
+    OrderRowActions,
   ],
   template: `
     <app-admin-list-header
@@ -61,6 +74,10 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
     />
+
+    @if (pageError(); as message) {
+      <p class="mb-4 text-sm text-red-600" role="alert">{{ message }}</p>
+    }
 
     @if (orders.error()) {
       <p class="text-muted" role="alert">{{ text.loadError }}</p>
@@ -101,12 +118,19 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
           </td>
           <td class="tabular-nums">{{ total(order) }}</td>
           <td data-keep>
-            <span appStatusBadge [tone]="statusTone(order.status)">
-              {{ statusLabel(order.status) }}
+            <span appStatusBadge [tone]="statusTone(order)">
+              {{ statusLabel(order) }}
             </span>
           </td>
           <td class="text-subtle">
             <app-grid-timestamp [value]="order.createdAt" />
+          </td>
+          <td data-keep>
+            <app-order-row-actions
+              [order]="order"
+              [returnParams]="editorFrom()"
+              (endRequested)="end($event.order, $event.to)"
+            />
           </td>
         </ng-template>
 
@@ -116,53 +140,52 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
              the third. The account it came from is a detail for the order's own
              page; the name and the reference are what a phone call is about. -->
         <ng-template appGridCard [of]="data.items" let-order>
-          <a
-            class="block"
-            [routerLink]="['/admin/orders', order.reference]"
-            [attr.aria-label]="order.reference"
-          >
-            <!-- Only the order is greyed once it is over, never the badge that
-                 says so — the same rule the table follows cell by cell. -->
-            <app-record-row>
-              <span
-                class="truncate font-medium"
-                [class.opacity-50]="isEnded(order)"
-                >{{ order.reference }}</span
-              >
-              <span
-                recordBadge
-                appStatusBadge
-                class="shrink-0"
-                [tone]="statusTone(order.status)"
-              >
-                {{ statusLabel(order.status) }}
+          <!-- Only the order is greyed once it is over, never the badge that
+               says so — the same rule the table follows cell by cell. -->
+          <app-record-row>
+            <a
+              class="truncate font-medium"
+              [class.opacity-50]="isEnded(order)"
+              [routerLink]="['/admin/orders', order.reference]"
+              >{{ order.reference }}</a
+            >
+            <span
+              recordBadge
+              appStatusBadge
+              class="shrink-0"
+              [tone]="statusTone(order)"
+            >
+              {{ statusLabel(order) }}
+            </span>
+            <p
+              recordBody
+              class="mt-1 truncate text-subtle"
+              [class.opacity-50]="isEnded(order)"
+            >
+              {{ order.contactName }}
+            </p>
+            <!-- When it came in, what is on it and what it comes to: the three
+                 figures a manager scans a phone list for. The buttons take the
+                 slot the total used to, which is what every other card does
+                 with its bottom-right corner. -->
+            <span
+              recordMeta
+              class="flex min-w-0 items-baseline gap-1"
+              [class.opacity-50]="isEnded(order)"
+            >
+              <app-grid-timestamp [value]="order.createdAt" inline />
+              <span class="truncate">
+                · {{ lineCount(order.itemCount) }} ·
+                <span class="tabular-nums">{{ total(order) }}</span>
               </span>
-              <p
-                recordBody
-                class="mt-1 truncate text-subtle"
-                [class.opacity-50]="isEnded(order)"
-              >
-                {{ order.contactName }}
-              </p>
-              <span
-                recordMeta
-                class="flex min-w-0 items-baseline gap-1"
-                [class.opacity-50]="isEnded(order)"
-              >
-                <app-grid-timestamp [value]="order.createdAt" inline />
-                <span class="truncate">· {{ lineCount(order.itemCount) }}</span>
-              </span>
-              <!-- The total takes the place a row's buttons take: an order is
-                   opened by tapping it, so what belongs bottom-right here is
-                   the number the row is scanned for. -->
-              <span
-                recordActions
-                class="text-sm tabular-nums"
-                [class.opacity-50]="isEnded(order)"
-                >{{ total(order) }}</span
-              >
-            </app-record-row>
-          </a>
+            </span>
+            <app-order-row-actions
+              recordActions
+              [order]="order"
+              [returnParams]="editorFrom()"
+              (endRequested)="end($event.order, $event.to)"
+            />
+          </app-record-row>
         </ng-template>
       </app-admin-grid>
 
@@ -274,6 +297,13 @@ export class AdminOrderListPage {
       sort: { asc: 'placed', desc: 'placed_desc', descFirst: true },
       minWidth: 110,
     },
+    // Two glyphs at 24px, with the gap and the cell's own padding.
+    {
+      key: 'actions',
+      srLabel: this.text.actions,
+      align: 'right',
+      fixedWidth: 64,
+    },
   ]);
 
   protected readonly byReference = (order: StaffOrderSummary): string =>
@@ -282,12 +312,23 @@ export class AdminOrderListPage {
   /** An order nobody is going to act on again, greyed the way a deleted
    * product is: it is still listed, but it is not work. */
   protected readonly isEnded = (order: StaffOrderSummary): boolean =>
-    order.status === 'declined' || order.status === 'cancelled';
+    order.status === 'declined' ||
+    order.status === 'cancelled' ||
+    order.status === 'completed';
 
+  /**
+   * One option per status, `ready` included once: the filter picks a state,
+   * and the two readings of that state are one thing to filter by. The label
+   * is the delivery wording, which is the one that describes the shop's own
+   * work rather than where the goods are waiting.
+   */
   protected readonly statusOptions: GridFilterOption[] = [
     { value: '', label: this.text.statusAll },
     { value: 'requested', label: this.text.statusRequested },
     { value: 'approved', label: this.text.statusApproved },
+    { value: 'adjusted', label: this.text.statusAdjusted },
+    { value: 'ready', label: this.text.statusReadyDelivery },
+    { value: 'completed', label: this.text.statusCompleted },
     { value: 'declined', label: this.text.statusDeclined },
     { value: 'cancelled', label: this.text.statusCancelled },
   ];
@@ -300,17 +341,60 @@ export class AdminOrderListPage {
     return fillText(this.text.itemCount, { count });
   }
 
-  protected statusLabel(status: OrderStatus): string {
-    return {
-      requested: this.text.statusRequested,
-      approved: this.text.statusApproved,
-      declined: this.text.statusDeclined,
-      cancelled: this.text.statusCancelled,
-    }[status];
+  protected statusLabel(order: StaffOrderSummary): string {
+    return orderStatusLabel(order.status, order.fulfilmentMethod, this.text);
   }
 
-  protected statusTone(status: OrderStatus): StatusTone {
-    return orderStatusTone(status, 'staff');
+  protected statusTone(order: StaffOrderSummary): StatusTone {
+    return orderStatusTone(order.status, 'staff', order.fulfilmentMethod);
+  }
+
+  // --- Row actions -------------------------------------------------------
+
+  private readonly confirm = inject(ConfirmService);
+  private readonly detailText = inject(ADMIN_TEXT).orderDetail;
+  private readonly common = inject(ADMIN_TEXT).common;
+  /** So the order page opened from here returns to this list, filters and
+   * all. */
+  protected readonly editorFrom = injectEditorReturnParams();
+
+  /** For the one action that is not a navigation: a row somebody else answered
+   * first. */
+  protected readonly pageError = signal<string | null>(null);
+
+  /**
+   * End an order from the list — declining a request, or cancelling one the
+   * shop had taken on. Confirmed with a reason, because both are quoted at the
+   * customer in the mail the move sends.
+   *
+   * Whether the move is allowed is still the server's answer: the row may have
+   * been answered by somebody else while this list was open, and the reload
+   * corrects it while the banner says what happened.
+   */
+  protected async end(
+    order: StaffOrderSummary,
+    to: TransitionTarget,
+  ): Promise<void> {
+    this.pageError.set(null);
+    const actions = this.detailText.actions;
+    const label = to === 'declined' ? actions.decline : actions.cancel;
+    const reason = await this.confirm.askWithReason({
+      heading: fillText(actions.confirmHeading, { action: label }),
+      message: actions.confirmMessage,
+      confirmLabel: label,
+      cancelLabel: this.common.cancel,
+      reasonLabel: actions.reasonLabel,
+      reasonMaxLength: ORDER_STATUS_REASON_MAX,
+    });
+    if (reason === null) return;
+
+    try {
+      const moved = await this.api.transition(order.reference, to, reason);
+      if (!moved) this.pageError.set(actions.error);
+    } catch {
+      this.pageError.set(actions.error);
+    }
+    this.orders.reload();
   }
 
   constructor() {

@@ -650,10 +650,17 @@
     "statusAll": "All statuses",
     "status": "Status",
     "statusRequested": "Requested",
-    "statusApproved": "Approved",
+    "statusApproved": "Confirmed",
+    "statusAdjusted": "Confirmed with changes",
+    "statusReadyDelivery": "Handed over for delivery",
+    "statusReadyPickup": "Ready for pickup",
+    "statusCompleted": "Complete",
     "statusDeclined": "Declined",
     "statusCancelled": "Cancelled",
+    "paymentAwaiting": "Awaiting payment",
+    "paymentPaid": "Paid",
     "guest": "Guest",
+    "actions": "Actions",
     "itemCount": "{count} lines"
   },
   "orderDetail": {
@@ -679,7 +686,36 @@
     "transfer": "Bank transfer",
     "contact": "Contact",
     "note": "Customer note",
-    "basis": "{count} × {price}"
+    "basis": "{count} × {price}",
+    "statusReason": "Reason",
+    "actions": {
+      "open": "Open the order",
+      "answer": "Answer the order",
+      "approve": "Confirm the order",
+      "reopen": "Reopen the order",
+      "ready": "Hand over for delivery",
+      "readyPickup": "Ready for pickup",
+      "complete": "Mark as complete",
+      "decline": "Decline the order",
+      "cancel": "Cancel the order",
+      "confirmHeading": "{action}?",
+      "confirmMessage": "The customer is emailed about this straight away.",
+      "reasonLabel": "Why — the customer is told this",
+      "keep": "Leave it as it is",
+      "error": "That did not work. The order may already have been answered — reload the page."
+    },
+    "paymentState": {
+      "heading": "Payment",
+      "notDue": "Nothing due",
+      "awaiting": "Awaiting payment",
+      "paid": "Paid {date}",
+      "record": "Record as paid",
+      "confirmHeading": "Record this order as paid?",
+      "confirmMessage": "Only do this once the money has actually arrived. It cannot be undone here.",
+      "confirm": "Record as paid",
+      "keep": "Not yet",
+      "error": "That did not work. The payment may already have been recorded — reload the page."
+    }
   },
   "userList": {
     "titleCustomers": "Customers",

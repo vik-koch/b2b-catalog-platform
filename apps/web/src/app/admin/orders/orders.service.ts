@@ -5,6 +5,7 @@ import {
   OrderSummary,
   Pagination,
   StaffOrderSort,
+  TransitionTarget,
 } from '@b2b-catalog-platform/shared';
 import { ordersContract } from '../../core/contract-routes.generated';
 import { safe } from '@orpc/client';
@@ -43,5 +44,38 @@ export class AdminOrdersService {
     }
     if (!result.isSuccess) throw result.error;
     return result.data;
+  }
+
+  /**
+   * Move an order (FR-ORD-01/02), answering with it as the server now holds
+   * it. Null where the move was refused — the order was answered by somebody
+   * else while this page was open, which is not an error worth throwing over:
+   * the page reloads and shows what it actually is now.
+   */
+  async transition(
+    reference: string,
+    to: TransitionTarget,
+    reason: string | null,
+  ): Promise<AdminOrderDetail | null> {
+    const result = await safe(
+      this.client.transitionOrder({
+        params: { reference },
+        body: { to, reason },
+      }),
+    );
+    if (result.isSuccess) return result.data;
+    if (!result.isDefined) throw result.error;
+    return null;
+  }
+
+  /** Record that the money arrived (FR-ORD-04). Null where there was nothing
+   * to record — already paid, or an order that ended. */
+  async recordPayment(reference: string): Promise<AdminOrderDetail | null> {
+    const result = await safe(
+      this.client.recordOrderPayment({ params: { reference } }),
+    );
+    if (result.isSuccess) return result.data;
+    if (!result.isDefined) throw result.error;
+    return null;
   }
 }

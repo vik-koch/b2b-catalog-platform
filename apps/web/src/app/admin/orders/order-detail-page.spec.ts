@@ -7,6 +7,7 @@ import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
+import { ConfirmService } from '../../ui/confirm.service';
 import { AdminOrderDetailPage } from './order-detail-page';
 import { AdminOrdersService } from './orders.service';
 
@@ -74,7 +75,10 @@ const placed: AdminOrderDetail = {
   },
 };
 
-async function render(answer: AdminOrderDetail | null | 'reject') {
+async function render(
+  answer: AdminOrderDetail | null | 'reject',
+  api: Partial<Record<'transition' | 'recordPayment', unknown>> = {},
+) {
   const get = vi.fn(() =>
     answer === 'reject'
       ? Promise.reject(new Error('500'))
@@ -89,7 +93,7 @@ async function render(answer: AdminOrderDetail | null | 'reject') {
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
-      { provide: AdminOrdersService, useValue: { get } },
+      { provide: AdminOrdersService, useValue: { get, ...api } },
     ],
   });
 
@@ -154,6 +158,92 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
       text.loadError,
+    );
+  });
+});
+
+/**
+ * Answering an order (FR-ORD-01/02/04). What is worth pinning is that the page
+ * offers exactly the moves the shared table allows from where the order stands
+ * — a button drawn for a move the API refuses is the failure this table exists
+ * to prevent.
+ */
+describe('AdminOrderDetailPage answering an order', () => {
+  const buttons = (el: HTMLElement) =>
+    [...el.querySelectorAll('button')].map((button) =>
+      button.textContent?.trim(),
+    );
+
+  it('offers a request the two answers it has, and no cancel', async () => {
+    const { el } = await render(placed);
+
+    expect(buttons(el)).toContain(text.actions.approve);
+    expect(buttons(el)).toContain(text.actions.decline);
+    // Refusing an unanswered order is declining it; cancelling is what happens
+    // to one the shop had already taken on.
+    expect(buttons(el)).not.toContain(text.actions.cancel);
+  });
+
+  it('words handing over by how the order arrives', async () => {
+    const delivery = await render({ ...placed, status: 'approved' });
+    expect(buttons(delivery.el)).toContain(text.actions.ready);
+
+    const pickup = await render({
+      ...placed,
+      status: 'approved',
+      fulfilmentMethod: 'pickup',
+      deliveryAddress: null,
+      pickup: { key: 'hafen', name: 'Hafen', address: 'Hafenstraße 12' },
+    });
+    expect(buttons(pickup.el)).toContain(text.actions.readyPickup);
+  });
+
+  it('offers an ended order only the undo, and says why it ended', async () => {
+    const { el } = await render({
+      ...placed,
+      status: 'cancelled',
+      statusReason: 'Ordered twice',
+    });
+
+    // Reopening is the recovery from a wrong click, not a step in the order's
+    // life — so it is the only thing on offer, and the order is not carried on
+    // from where it ended.
+    expect(buttons(el)).toEqual([text.actions.reopen]);
+    expect(el.textContent).toContain('Ordered twice');
+  });
+
+  it('records a payment on an order that owes one, and never twice', async () => {
+    const owing = await render({ ...placed, paymentState: 'awaiting' });
+    expect(buttons(owing.el)).toContain(text.paymentState.record);
+    expect(owing.el.textContent).toContain(text.paymentState.awaiting);
+
+    const settled = await render({
+      ...placed,
+      paymentState: 'paid',
+      paidAt: '2026-08-27T09:15:00.000Z',
+    });
+    expect(buttons(settled.el)).not.toContain(text.paymentState.record);
+  });
+
+  it('says so when the move was refused, and shows the order as it now is', async () => {
+    // The order was answered by somebody else while this page was open: the
+    // service answers null, and the page reloads rather than argues.
+    const transition = vi.fn(() => Promise.resolve(null));
+    const { fixture, el, get } = await render(placed, { transition });
+    const confirm = TestBed.inject(ConfirmService);
+    vi.spyOn(confirm, 'ask').mockResolvedValue(true);
+
+    const approve = [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === text.actions.approve,
+    );
+    approve?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(transition).toHaveBeenCalledWith(placed.reference, 'approved', null);
+    expect(get).toHaveBeenCalledTimes(2);
+    expect(el.querySelector('[role="alert"]')?.textContent).toContain(
+      text.actions.error,
     );
   });
 });

@@ -7,6 +7,7 @@ import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
+import { ConfirmService } from '../../ui/confirm.service';
 import { AdminOrderListPage } from './order-list-page';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 
@@ -39,6 +40,7 @@ async function render(
   query:
     | { page?: string; status?: string; searchTerm?: string; sort?: string }
     | 'unbound' = {},
+  api: Partial<Record<'transition', unknown>> = {},
 ) {
   const list = vi.fn(() =>
     items === 'reject'
@@ -57,7 +59,7 @@ async function render(
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
-      { provide: AdminOrdersService, useValue: { list } },
+      { provide: AdminOrdersService, useValue: { list, ...api } },
     ],
   });
 
@@ -208,6 +210,67 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
       text.loadError,
+    );
+  });
+});
+
+/**
+ * The row's two glyphs (FR-ORD-02). Orders are never deleted, so the second
+ * one is not a bin: it is the way *this* row can be stopped, which the shared
+ * transition table decides.
+ */
+describe('AdminOrderListPage row actions', () => {
+  const labels = (el: HTMLElement) =>
+    [...el.querySelectorAll('tbody a, tbody button')].map((control) =>
+      control.getAttribute('aria-label'),
+    );
+  const actions = defaultAdminText.orderDetail.actions;
+
+  it('marks an unanswered row as a decision, and offers to decline it', async () => {
+    const { el } = await render([placed]);
+
+    expect(labels(el)).toContain(actions.answer);
+    expect(labels(el)).toContain(actions.decline);
+    expect(labels(el)).not.toContain(actions.cancel);
+  });
+
+  it('turns the same two into open-and-cancel once the shop has taken it on', async () => {
+    const { el } = await render([{ ...placed, status: 'approved' }]);
+
+    expect(labels(el)).toContain(actions.open);
+    expect(labels(el)).toContain(actions.cancel);
+    expect(labels(el)).not.toContain(actions.decline);
+  });
+
+  it('offers nothing to stop on an order that has ended', async () => {
+    const { el } = await render([{ ...placed, status: 'completed' }]);
+
+    expect(labels(el)).toContain(actions.open);
+    expect(labels(el)).not.toContain(actions.cancel);
+    expect(labels(el)).not.toContain(actions.decline);
+  });
+
+  it('declines with a reason, and says so when the row had already moved', async () => {
+    const transition = vi.fn(() => Promise.resolve(null));
+    const { fixture, el, list } = await render([placed], {}, { transition });
+    const confirm = TestBed.inject(ConfirmService);
+    vi.spyOn(confirm, 'askWithReason').mockResolvedValue('Out of stock');
+
+    const decline = [...el.querySelectorAll('tbody button')].find(
+      (button) => button.getAttribute('aria-label') === actions.decline,
+    ) as HTMLButtonElement;
+    decline.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(transition).toHaveBeenCalledWith(
+      placed.reference,
+      'declined',
+      'Out of stock',
+    );
+    expect(list).toHaveBeenCalledTimes(2);
+    expect(el.querySelector('[role="alert"]')?.textContent).toContain(
+      actions.error,
     );
   });
 });
