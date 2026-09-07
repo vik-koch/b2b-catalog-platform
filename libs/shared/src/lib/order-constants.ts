@@ -17,6 +17,23 @@ export const ORDER_STATUSES = [
 ] as const;
 
 /**
+ * Whether the order has been paid (FR-ORD-04), tracked apart from where it
+ * stands.
+ *
+ * `not-due` is where every order starts and where a cash order stays: cash
+ * exists only at the handover, so it goes straight to `paid` when a manager
+ * records that. Bank transfer and card enter `awaiting` when the order is
+ * accepted.
+ *
+ * A flag, not a ledger — partial payments, refunds and amounts received belong
+ * in whatever system the shop keeps its books in.
+ */
+export const PAYMENT_STATES = ['not-due', 'awaiting', 'paid'] as const;
+
+/** As long as a manager needs to say why, and no longer than a note. */
+export const ORDER_STATUS_REASON_MAX = 500;
+
+/**
  * How the staff list is ordered (FR-AUTH-03).
  *
  * `status` is the default and the reason this exists: it puts the orders
