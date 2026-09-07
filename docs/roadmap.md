@@ -16,8 +16,9 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 8   | Stock availability & work-awaiting indicators → **tag v1.6.0**                                 | FR-STOCK-01…05, FR-WORK-01…04, FR-ADM-02/05 + FR-SEARCH-04 + FR-CAT-04/05 + FR-CART-02 amended                                                                                      |
 | 9   | Sold-together sets → **tag v1.7.0**                                                            | FR-SET-01…05                                                                                                                                                                        |
 | 10  | Product documents & certificates → **tag v1.8.0**                                              | FR-DOC-01…04, FR-CAT-05 amended                                                                                                                                                     |
-| 11  | Order processing, payment & manual delivery/pickup coordination → **tag v1.9.0**               | FR-CART-05/06, FR-NOTIF-03, FR-ACC-02, NFR-LEGAL-04                                                                                                                                 |
-| 12  | Automated catalog sync → **tag v1.10.0**                                                       | FR-ADM-07, NFR-SEC-09, FR-ADM-02 amended                                                                                                                                            |
+| 11  | Order processing, payment state & order documents → **tag v1.9.0**                             | FR-ORD-01…06, FR-CART-05 + FR-CART-06 amended, FR-NOTIF-03, FR-ACC-02, FR-WORK-04 (customer half), NFR-LEGAL-04                                                                     |
+| 12  | Two-way sync with the source system → **tag v1.10.0**                                          | FR-ADM-07/08/09, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02 amended                                                                                                                       |
+| 13  | Online card payment → **tag v1.11.0**                                                          | FR-CART-04/06 amended                                                                                                                                                               |
 
 Notes:
 
@@ -170,20 +171,55 @@ Notes:
   one to the other with nobody touching it. The bytes are stored **unmodified** beside the
   media store rather than through it: the image pipeline re-encodes, and a re-encoded
   certificate is not one (ADR 0048).
-- Iteration 11 is what a manager does with an order once it exists — status transitions, the
-  payment PDF, card payment, the order PDF. Splitting it from iteration 7 lets the order
-  schema be reviewed before a processing workflow is built on top of it. Waiting three
-  releases is affordable only while the shop is not yet taking real orders: until then an
-  order is a request that a manager reads and answers by phone or mail. **If prod goes live
-  before iteration 11**, the status transitions and FR-NOTIF-03 are pulled forward as a
-  second slice of whichever iteration is current, and the payment and PDF work stays in 11.
-- Iteration 12 gives the automated sync a **generic machine-import port** (FR-ADM-07) and the
-  scoped tokens it needs (NFR-SEC-09); the concrete adapter for a particular source system's
-  exchange format is a private sidecar speaking that public contract, as the address
-  suggestion provider already is. The format is not named here, for the same reason the
-  suggestion provider is not. The manual upload is **not** retired behind a flag when the
-  automated feed exists: it is the operator's fallback when the feed breaks or a run needs
-  correcting by hand, and hiding it removes an escape hatch without saving anything.
+- Iteration 11 is what a manager does with an order once it exists. Its shape came out of a
+  planning round (2026-09-06) that asked what a semi-automated shop actually does, and settled
+  three things. **An order's lifecycle and its payment are two facts, not one chain** (ADR 0050):
+  cash on delivery is paid after the goods are handed over, so any single status running
+  "awaiting payment → paid → ready" is wrong for a third of orders, and encoding the exception
+  produces a state per payment method. "Ready for pickup" and "handed over for delivery" are one
+  state read two ways, the same lens trick as ADR 0042. **Acceptance has two shapes** — as
+  submitted, or adjusted after a phone call — and an adjustment writes a **new snapshot rather
+  than editing the old one** (ADR 0051), because the reference was quoted on that call and the
+  mailed link has to keep working; the customer's agreement happens on the phone, so the platform
+  records it rather than asking for it, and an adjusted order re-opens the customer's cancel
+  window. **Documents are generated but replaceable** (ADR 0052): a deployment whose back-office
+  already produces the real paperwork supplies that file, and the generated summary is what a
+  deployment without one gets. Transitions are written as service operations with the role table
+  stated once, which is the only thing iteration 11 owes iteration 12.
+- Iteration 12 is a **two-way** exchange, not the one-way import it was first written as. The
+  return direction is the point: a manager should be able to work an order entirely in the shop's
+  own system, with the platform keeping the customer's view, the notifications the source system
+  has no way to send, and the catalog layer that system does not hold at all — descriptions,
+  attributes, search, documents, pairings. That is where the platform earns its place in a
+  deployment that already has a back-office, and it is why the manual mode built since iteration 1
+  is not a demo affordance: it is the mode the shop falls back to when the exchange breaks
+  (FR-ORD-06, an operator switch in the admin panel rather than a config key, so recovery does not
+  need a deploy). Three rules were agreed in advance: **ownership, not conflict resolution** — the
+  platform records what the customer submitted, the source system owns processing once an order has
+  been exported, and nothing is merged; **the platform's status vocabulary stays coarse and the
+  adapter maps onto it**, collapsing however many intermediate steps the source system moves an
+  order through into the one transition a customer should read; and **updates are idempotent and
+  forward-only**, since a polling adapter will re-send and FR-NOTIF-03 mails every status change.
+  The adapter is a private sidecar speaking the public contract, the third such container after
+  the address suggester and the payment one; the format is not named here, for the same reason the
+  suggestion provider is not. The manual upload is **not** retired behind a flag when the automated
+  feed exists: it is the operator's fallback when the feed breaks or a run needs correcting by hand.
+  Two operability requirements ride along because this is the release that makes them urgent —
+  NFR-OPS-06 (what a deploy costs in downtime, how to see it failed, how to roll back) and
+  NFR-OPS-07 (what a half-finished sync leaves behind).
+- Iteration 13 is online card payment, deferred from 11 (2026-09-06). It is blocked on something
+  that cannot be built: a merchant account the shop does not yet have. It is also the least urgent
+  of the three — nothing about the current flow needs it, since a card payment arranged with the
+  manager is already a recorded method — and the most speculative, since the provider is unchosen.
+  Sequencing it after the source-system exchange means it is designed against a live order flow
+  with real orders in it. `card-later` is therefore **not** renamed in iteration 11: it accurately
+  names an offline arrangement, and an online provider adds a second method beside it rather than
+  redefining the first.
+- Still open, to be decided before their iteration rather than now: whether audit records and usage
+  metrics (page and product views, search-to-order funnels) are worth persisting beyond the log
+  aggregation NFR-OPS-03/05 already provide; and a security assessment pass across the whole
+  feature surface once the machine endpoints exist, which is a release activity rather than a
+  requirement.
 - Client reviews v1.0.0 on the **dev** environment only. Frame that feedback round as
   catalog/content/UX review — no accounts or cart exist yet, and prices are default-list only.
 - SSR and sitemap (NFR-SEO-01/02) are built in iteration 2, but the dev environment stays
