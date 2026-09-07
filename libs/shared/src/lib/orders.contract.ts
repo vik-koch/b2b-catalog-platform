@@ -579,4 +579,29 @@ export const ordersContract = {
     })
     .input(z.object({ params: z.object({ reference: z.string() }) }))
     .output(adminOrderDetailSchema),
+
+  /**
+   * The customer calling their own order off (FR-ORD-02). Its own route rather
+   * than the staff one with a wider guard: this caller may make exactly one
+   * move, on exactly their own orders, and a body that cannot name another
+   * target is the plainest way to say so.
+   *
+   * Deliberately absent from the token view. A mailed link is a read
+   * capability, and a forwarded mail must not be able to stop an order.
+   */
+  cancelMyOrder: authed
+    .route({
+      method: 'POST',
+      path: '/account/orders/{reference}/cancel',
+      inputStructure: 'detailed',
+      summary: 'Call off your own order while the shop has not started on it',
+    })
+    .errors(transitionErrors)
+    .input(
+      z.object({
+        params: z.object({ reference: z.string() }),
+        body: orderCancellationSchema,
+      }),
+    )
+    .output(orderDetailSchema),
 };

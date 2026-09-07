@@ -701,6 +701,25 @@ export class OrdersService {
     return this.getForStaff(reference);
   }
 
+  /**
+   * A customer calling their own order off. Scoped to their own rows in the
+   * `where`, so an order belonging to somebody else is a 404 before the
+   * transition table is even consulted.
+   */
+  async cancelForUser(
+    userId: string,
+    reference: string,
+    reason: string | null,
+  ): Promise<OrderDetail> {
+    const moved = await this.move(
+      and(eq(orders.reference, reference), eq(orders.userId, userId)),
+      'customer',
+      'cancelled',
+      reason,
+      userId,
+    );
+    return this.toDetail(moved);
+  }
 
   /**
    * Record that the money arrived (FR-ORD-04) — a manager's observation, not a

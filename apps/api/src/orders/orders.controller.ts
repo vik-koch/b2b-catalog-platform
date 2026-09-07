@@ -121,6 +121,36 @@ export class OrdersController {
   }
 
   /**
+   * The customer calling their own order off (FR-ORD-02).
+   *
+   * Whether they still may is the transition table's answer, asked in the
+   * service like every other caller's — the button the page draws is that same
+   * table read in the browser, and this is what makes it a rule.
+   */
+  @Auth()
+  @Implement(ordersContract.cancelMyOrder)
+  cancelMyOrder(@CurrentUser() actor: AuthUser) {
+    return implement(ordersContract.cancelMyOrder)
+      .use(refusals)
+      .handler(async ({ input: { params, body } }) => {
+        const order = await this.orders.cancelForUser(
+          actor.id,
+          params.reference,
+          body.reason,
+        );
+        this.audit.record('order.status', actor, {
+          reference: order.reference,
+          status: order.status,
+        });
+        // No mail either way. The customer is the one who just did it, and
+        // the shop reads it in the order list, where a cancelled order sorts
+        // out of the queue on its own. A cancellation the shop should have
+        // heard about sooner is a mail worth adding — say so when it happens.
+        return order;
+      });
+  }
+
+  /**
    * The token is the credential (FR-NOTIF-06), so no guard and no session:
    * whoever holds the mailed link holds the order summary. Which is exactly why
    * it is throttled (NFR-SEC-06) — an unguessable token stays unguessable, and

@@ -672,6 +672,17 @@ export const ordersContract = {
       },
     },
   },
+  cancelMyOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/account/orders/{reference}/cancel',
+        inputStructure: 'detailed',
+      },
+    },
+  },
 } as unknown as typeof shared.ordersContract;
 export const pageContract = {
   getPage: {

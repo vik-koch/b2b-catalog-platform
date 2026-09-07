@@ -1034,6 +1034,63 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       ).toBe(403);
     });
 
+    it('lets a customer call off their own order, and stops waiting for money', async () => {
+      const reference = await place({}, customerCookie);
+      await move(reference, { to: 'approved', reason: null }, managerCookie);
+      // Approving it made the transfer due; cancelling it un-dues what was
+      // never paid.
+      const cancel = await post(
+        `/account/orders/${reference}/cancel`,
+        { reason: 'Ordered twice by mistake' },
+        customerCookie,
+      );
+
+      // Not from `approved`, though: by then the shop is working on it.
+      expect(cancel.status).toBe(409);
+      expect(cancel.data.code).toBe('transition-not-allowed');
+
+      const fresh = await place({}, customerCookie);
+      const off = await post(
+        `/account/orders/${fresh}/cancel`,
+        { reason: 'Ordered twice by mistake' },
+        customerCookie,
+      );
+
+      expect(off.status).toBe(200);
+      expect(off.data).toMatchObject({
+        status: 'cancelled',
+        paymentState: 'not-due',
+        statusReason: 'Ordered twice by mistake',
+      });
+      expect(Object.keys(off.data).sort()).toEqual(ORDER_DETAIL_KEYS);
+    });
+
+    it('lets a customer call an order off without saying why', async () => {
+      const reference = await place({}, customerCookie);
+
+      const off = await post(
+        `/account/orders/${reference}/cancel`,
+        { reason: null },
+        customerCookie,
+      );
+
+      expect(off.status).toBe(200);
+      expect(off.data.status).toBe('cancelled');
+      expect(off.data.statusReason).toBeNull();
+    });
+
+    it('answers 404 — not 403 — when cancelling somebody else’s order', async () => {
+      const reference = await place({}, customerCookie);
+
+      const res = await post(
+        `/account/orders/${reference}/cancel`,
+        { reason: 'Not mine' },
+        otherCookie,
+      );
+
+      expect(res.status).toBe(404);
+      expect(res.data.code).toBe('order-not-found');
+    });
 
     it('records a payment once, and only once', async () => {
       const reference = await place();
@@ -1107,6 +1164,26 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(answered.data.status).toBe('approved');
     });
 
+    it('does not let a customer reopen their own cancelled order', async () => {
+      const reference = await place({}, customerCookie);
+      await post(
+        `/account/orders/${reference}/cancel`,
+        { reason: null },
+        customerCookie,
+      );
+
+      // The customer's own route offers one move and names no target, so the
+      // only way to ask is the staff one — which they cannot reach at all.
+      expect(
+        (
+          await move(
+            reference,
+            { to: 'requested', reason: null },
+            customerCookie,
+          )
+        ).status,
+      ).toBe(403);
+    });
 
     it('answers 404 for a reference that is nobody’s order', async () => {
       const res = await move(
