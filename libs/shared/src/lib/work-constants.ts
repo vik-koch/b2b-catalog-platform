@@ -4,8 +4,6 @@
  * into the first load (see `auth-constants.ts` for why).
  */
 
-import type { ORDER_STATUSES } from './order-constants';
-
 /**
  * Every queue the app can count, in the order a panel lists them.
  *
@@ -26,17 +24,3 @@ export const WORK_QUEUES = [
   'myOrders',
 ] as const;
 export type WorkQueue = (typeof WORK_QUEUES)[number];
-
-/**
- * Order statuses that wait on the *customer* rather than on the shop.
- *
- * Empty today, and deliberately so: the only status an order is ever written
- * in is `requested`, which waits on staff, and the states that would wait on a
- * customer — an approved order still to be paid — arrive with order processing.
- * A count over an empty set is zero, so a customer's marker simply never lights
- * until then. Listing `approved` here now would be the badge lying in the other
- * direction: nothing yet records that a payment happened, so the count could
- * never clear (FR-WORK-02).
- */
-export const CUSTOMER_WAITING_ORDER_STATUSES: readonly (typeof ORDER_STATUSES)[number][] =
-  [];

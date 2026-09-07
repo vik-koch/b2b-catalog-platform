@@ -92,14 +92,31 @@ describe('WorkService', () => {
   });
 
   it('tells a customer only about their own orders', async () => {
-    const { db, asks } = testDb();
+    const { db, asks } = testDb([2]);
 
     const counts = await new WorkService(db).countsFor(user('user'));
 
-    // Zero until order processing gives an order a state that waits on the
-    // customer — and zero without a query, since the status set is empty.
-    expect(counts).toEqual({ myOrders: 0 });
-    expect(asks).toEqual([]);
+    expect(counts).toEqual({ myOrders: 2 });
+    expect(asks.map((ask) => ask.table)).toEqual([orders]);
+    expect(asks[0].where).toContain('"userId" = $1');
+  });
+
+  /**
+   * The two things only a customer can finish (ADR 0050): money that is due
+   * from them, and an order packed for them to collect. An order out for
+   * delivery waits on the driver, and an order that ended waits on nobody —
+   * both would be a marker the customer cannot clear (FR-WORK-02).
+   */
+  it('counts a payment due and a pickup waiting, and nothing else', async () => {
+    const { db, asks } = testDb([0]);
+
+    await new WorkService(db).countsFor(user('user'));
+
+    const where = asks[0].where;
+    expect(where).toContain(`"paymentState" = $2`);
+    expect(where).toContain(`"status" = $3`);
+    expect(where).toContain(`"fulfilmentMethod" = $4`);
+    expect(where).toContain(`not in ('declined', 'cancelled')`);
   });
 
   // The table is what keeps the two apart: a staff queue is not "zero" for a

@@ -999,6 +999,7 @@ export const adminTextSchema = z
         customer: z.string(),
         items: z.string(),
         total: z.string(),
+        payment: z.string(),
         filterStatus: z.string(),
         statusAll: z.string(),
         /** The column's own noun, for the phone's sort picker — where "All

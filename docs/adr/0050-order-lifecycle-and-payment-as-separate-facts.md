@@ -63,6 +63,11 @@ pickup"; a status per payment method.
   has to explain itself — while a customer calling their own order off is asked
   and not required: they owe the shop no justification for changing their mind.
   The row stays, as an anonymized account's orders do.
+- **Only the current state is stored.** An order carries where it stands, when
+  it last moved and who moved it — not how it got there. The audit log records
+  every move (`order.status`, `order.paid`, `order.unpaid`, with actor and
+  reference), and that is the shop's history; it lives under the log
+  retention window rather than in the database, and no screen replays it.
 - **The vocabulary stays coarse on purpose.** Seven states is what the shop
   distinguishes for a customer, not what a back-office system distinguishes for
   itself.
@@ -105,6 +110,12 @@ the job of whatever integrates, not a reason to grow the enum here.
 - (−) `paymentState` is a flag, not a ledger: partial payments, refunds and
   amounts received are not modelled. A shop that needs them keeps them where it
   keeps its books.
+- (−) No screen can answer "when was this declined, before it was reopened?".
+  A state history would be a table of its own, and the question the shop
+  actually asks — who answered this order, and when — is answered by the
+  current state plus the audit log. A move older than the log's retention is
+  gone; building the table when nothing needs it yet would be storing a
+  history for its own sake (ADR 0046's argument, applied to orders).
 - (−) A guest cannot cancel without ringing. Making the read token a control
   would put a state change behind a link that has been forwarded by mail.
 - (−) A mail is sent per move, so a wrong click corrected a minute later costs
