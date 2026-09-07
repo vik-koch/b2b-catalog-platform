@@ -14,6 +14,8 @@ import {
   orderStatusSchema,
   StaffOrderSort,
   staffOrderSortSchema,
+  StaffPaymentFilter,
+  staffPaymentFilterSchema,
   TransitionTarget,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
@@ -24,7 +26,11 @@ import { usePageSeo } from '../../core/page-seo';
 import { stableValue } from '../../core/stable-value';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
-import { orderStatusLabel, orderStatusTone } from '../../orders/order-status';
+import {
+  orderStatusLabel,
+  orderStatusTone,
+  staffPaymentBadge,
+} from '../../orders/order-status';
 import { AdminListHeader } from '../list-header';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridColumn } from '../grid/grid-column';
@@ -117,6 +123,17 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
             {{ lineCount(order.itemCount) }}
           </td>
           <td class="tabular-nums">{{ total(order) }}</td>
+          <!-- The money, in the quiet badge: it is the order's second fact,
+               and two solid pills in one row read as two statuses that could
+               disagree. Empty where nothing is owed yet — a cash order says
+               nothing about money until it is handed over. -->
+          <td data-keep>
+            @if (paymentBadge(order); as badge) {
+              <span appStatusBadge variant="dot" [tone]="badge.tone">
+                {{ badge.label }}
+              </span>
+            }
+          </td>
           <td data-keep>
             <span appStatusBadge [tone]="statusTone(order)">
               {{ statusLabel(order) }}
@@ -149,6 +166,20 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
               [routerLink]="['/admin/orders', order.reference]"
               >{{ order.reference }}</a
             >
+
+            <!-- Beside the status, never instead of it, and in the quiet
+                 variant: what is owed is a second fact about the order. -->
+            @if (paymentBadge(order); as badge) {
+              <span
+                recordBadge
+                appStatusBadge
+                variant="dot"
+                class="shrink-0"
+                [tone]="badge.tone"
+              >
+                {{ badge.label }}
+              </span>
+            }
             <span
               recordBadge
               appStatusBadge
@@ -225,6 +256,27 @@ export class AdminOrderListPage {
    * agreement. */
   protected readonly statusParam = computed(() => this.statusKey() ?? '');
 
+  /** The payment column's own narrowing, parsed the same way. */
+  readonly payment = input('');
+  protected readonly paymentKey = computed<StaffPaymentFilter | undefined>(
+    () => {
+      const parsed = staffPaymentFilterSchema.safeParse(this.payment());
+      return parsed.success ? parsed.data : undefined;
+    },
+  );
+  protected readonly paymentParam = computed(() => this.paymentKey() ?? '');
+
+  /**
+   * The three things the column says, and nothing for the orders it says
+   * nothing about: an unanswered order owes nobody anything yet.
+   */
+  protected readonly paymentOptions: GridFilterOption[] = [
+    { value: '', label: this.text.paymentAll },
+    { value: 'awaiting', label: this.text.paymentAwaiting },
+    { value: 'cash', label: this.text.paymentCash },
+    { value: 'paid', label: this.text.paymentPaid },
+  ];
+
   /**
    * The ordering, server-side like the filter: the list is paged, and sorting
    * one page would be sorting one twentieth of the orders. The default is
@@ -248,13 +300,14 @@ export class AdminOrderListPage {
     this.searchTerm() ? this.searchTerm().trim() : '',
   );
   protected readonly filtered = computed(
-    () => !!this.statusKey() || !!this.query(),
+    () => !!this.statusKey() || !!this.paymentKey() || !!this.query(),
   );
 
   protected readonly orders = resource({
     params: () => ({
       page: this.currentPage(),
       status: this.statusKey(),
+      payment: this.paymentKey(),
       q: this.query() || undefined,
       sort: this.sortKey(),
     }),
@@ -276,6 +329,22 @@ export class AdminOrderListPage {
     { key: 'customer', label: this.text.customer, minWidth: 140 },
     { key: 'items', label: this.text.items, minWidth: 80 },
     { key: 'total', label: this.text.total, minWidth: 90 },
+    // Filtered, not sorted: an ordering of three unrelated readings is not a
+    // question anybody asks, but "what is still owed me" is — and a cash order
+    // waiting to be ticked is the one piece of work that would otherwise sit
+    // in the list looking exactly like an unanswered request.
+    {
+      key: 'payment',
+      label: this.text.paymentAll,
+      sortName: this.text.payment,
+      filter: {
+        param: 'payment',
+        options: this.paymentOptions,
+        value: this.paymentParam(),
+        ariaLabel: this.text.filterPayment,
+      },
+      minWidth: 130,
+    },
     {
       key: 'status',
       label: this.text.statusAll,
@@ -347,6 +416,12 @@ export class AdminOrderListPage {
 
   protected statusTone(order: StaffOrderSummary): StatusTone {
     return orderStatusTone(order.status, 'staff', order.fulfilmentMethod);
+  }
+
+  protected paymentBadge(
+    order: StaffOrderSummary,
+  ): { label: string; tone: StatusTone } | null {
+    return staffPaymentBadge(order, this.text);
   }
 
   // --- Row actions -------------------------------------------------------

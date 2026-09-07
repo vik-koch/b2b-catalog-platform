@@ -1017,7 +1017,12 @@ export const adminTextSchema = z
         statusCancelled: z.string(),
         /** Whether anything is owed (FR-ORD-04), read apart from the status.
          * An order with nothing due says nothing. */
+        filterPayment: z.string(),
+        paymentAll: z.string(),
         paymentAwaiting: z.string(),
+        /** Staff only: an accepted cash order whose handover nobody has
+         * recorded yet — the tick that is easy to forget. */
+        paymentCash: z.string(),
         paymentPaid: z.string(),
         /** A guest order: nobody signed in placed it. */
         guest: z.string(),

@@ -34,6 +34,7 @@ export class AdminOrdersController {
           query.status,
           query.q,
           query.sort ?? 'status',
+          query.payment,
         ),
       );
   }

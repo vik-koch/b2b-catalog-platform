@@ -12,6 +12,7 @@ import {
   PAYMENT_STATES,
   PICKUP_LOCATION_KEY_MAX,
   STAFF_ORDER_SORTS,
+  STAFF_PAYMENT_FILTERS,
 } from './order-constants';
 import { addressInputSchema, countryCodeSchema } from './address.contract';
 import {
@@ -48,6 +49,10 @@ export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
 /** Whether the money has arrived (FR-ORD-04), read apart from the status. */
 export const paymentStateSchema = z.enum(PAYMENT_STATES);
 export type PaymentState = z.infer<typeof paymentStateSchema>;
+
+/** How the payment column is narrowed, for staff only (FR-ORD-04). */
+export const staffPaymentFilterSchema = z.enum(STAFF_PAYMENT_FILTERS);
+export type StaffPaymentFilter = z.infer<typeof staffPaymentFilterSchema>;
 
 /** What a manager may move an order to without rewriting it (FR-ORD-02). */
 export const transitionTargetSchema = z.enum(DIRECT_TRANSITION_TARGETS);
@@ -518,6 +523,7 @@ export const ordersContract = {
            * of a reference as readily as all of it.
            */
           q: z.string().trim().max(ORDER_QUERY_MAX_LENGTH).optional(),
+          payment: staffPaymentFilterSchema.optional(),
           sort: staffOrderSortSchema.optional(),
         }),
       }),
@@ -529,6 +535,10 @@ export const ordersContract = {
             orderSummarySchema.extend({
               customerEmail: z.string().nullable(),
               contactName: z.string(),
+              /** Staff only: the money column reads the method as well as the
+               * state, because a cash order waiting to be handed over is not a
+               * state — it is `not-due` like an unanswered one. */
+              paymentMethod: paymentMethodSchema,
             }),
           ),
           pagination: paginationSchema,

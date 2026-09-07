@@ -1,6 +1,7 @@
 import {
   FulfilmentMethod,
   OrderStatus,
+  PaymentMethod,
   PaymentState,
 } from '@b2b-catalog-platform/shared';
 import { StatusTone } from '../ui/status-badge';
@@ -96,6 +97,11 @@ export interface OrderPaymentLabels {
   readonly paymentPaid: string;
 }
 
+/** What staff read on top of that: the cash order nobody has ticked yet. */
+export interface StaffPaymentLabels extends OrderPaymentLabels {
+  readonly paymentCash: string;
+}
+
 /**
  * What the payment badge says, or null where there is nothing to say: an
  * order with nothing due yet — a cash one, or one still waiting for an answer
@@ -120,4 +126,37 @@ export function orderPaymentLabel(
  */
 export function orderPaymentTone(state: PaymentState): StatusTone {
   return state === 'awaiting' ? 'waiting' : 'neutral';
+}
+
+/**
+ * The money badge as staff read it, or null where there is nothing to say.
+ *
+ * One reading more than a customer gets: a cash order the shop has taken on
+ * sits in `not-due` until somebody records the handover, which looks exactly
+ * like an unanswered order does. It is the one the manager has to come back
+ * to — the goods go out and the tick is the only thing left — so it is said
+ * out loud and in the same amber as money that has not arrived. A cash order
+ * still waiting for an answer says nothing: nothing is owed on an order the
+ * shop has not taken.
+ */
+export function staffPaymentBadge(
+  order: {
+    paymentState: PaymentState;
+    paymentMethod: PaymentMethod;
+    status: OrderStatus;
+  },
+  labels: StaffPaymentLabels,
+): { label: string; tone: StatusTone } | null {
+  if (order.paymentState === 'paid') {
+    return { label: labels.paymentPaid, tone: 'neutral' };
+  }
+  if (order.paymentState === 'awaiting') {
+    return { label: labels.paymentAwaiting, tone: 'waiting' };
+  }
+  const owedInCash =
+    order.paymentMethod === 'cash' &&
+    order.status !== 'requested' &&
+    order.status !== 'declined' &&
+    order.status !== 'cancelled';
+  return owedInCash ? { label: labels.paymentCash, tone: 'waiting' } : null;
 }

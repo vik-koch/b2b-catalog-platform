@@ -73,22 +73,26 @@ test.describe('admin grids on a desktop', () => {
     const box = await handle.boundingBox();
     if (!box) throw new Error('the first column has no boundary to drag');
 
+    // Leftwards: a boundary can only move as far as one of the two columns
+    // has above its own minimum, and the columns are measured from their
+    // content — so the room is in the first column, which carries a
+    // fixed-width reference, rather than in the one it borders.
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
-    await page.mouse.move(box.x + box.width / 2 + 60, box.y + box.height / 2, {
+    await page.mouse.move(box.x + box.width / 2 - 60, box.y + box.height / 2, {
       steps: 10,
     });
     await page.mouse.up();
 
     const after = await columnWidths(page);
-    // What the first column gains, the second gives up: the table is still as
+    // What the first column gives up, the second gains: the table is still as
     // wide as it was, so nothing else on the row moved.
     //
     // The table's own width, not the sum of the columns': each column width is
     // rounded before it is added up, so the total drifts by a pixel per column
     // for reasons that have nothing to do with the drag.
-    expect(after[0]).toBeGreaterThan(before[0] + 40);
-    expect(after[1]).toBeLessThan(before[1] - 40);
+    expect(after[0]).toBeLessThan(before[0] - 40);
+    expect(after[1]).toBeGreaterThan(before[1] + 40);
     expect(await tableWidth(page)).toBeCloseTo(widthBefore, 0);
 
     // Kept across a reload, per grid and per admin.

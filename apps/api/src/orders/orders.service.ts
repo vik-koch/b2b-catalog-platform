@@ -27,6 +27,7 @@ import {
   DeliveryConfig,
   transitionHasReason,
   nextPaymentState,
+  ACCEPTED_ORDER_STATUSES,
   OrderActor,
   OrderDetail,
   OrderingParty,
@@ -42,6 +43,7 @@ import {
   ProductUnit,
   resolveDeliveryZone,
   StaffOrderSort,
+  StaffPaymentFilter,
   TransitionTarget,
   paymentStateWithoutPayment,
   transitionNeedsReason,
@@ -555,15 +557,19 @@ export class OrdersService {
     status?: OrderStatus,
     q?: string,
     sort: StaffOrderSort = 'status',
+    payment?: StaffPaymentFilter,
   ): Promise<{
     items: (OrderSummary & {
       customerEmail: string | null;
       contactName: string;
+      paymentMethod: PaymentMethod;
     })[];
     pagination: Pagination;
   }> {
     const conditions: SQL[] = [];
     if (status) conditions.push(eq(orders.status, status));
+    const owed = this.paymentCondition(payment);
+    if (owed) conditions.push(owed);
     const search = this.searchCondition(q);
     if (search) conditions.push(search);
     const where = conditions.length ? and(...conditions) : undefined;
@@ -576,6 +582,7 @@ export class OrdersService {
         ...toSummary(row, counts.get(row.id) ?? 0),
         customerEmail: row.userId ? (emails.get(row.userId) ?? null) : null,
         contactName: row.contactName,
+        paymentMethod: row.paymentMethod as PaymentMethod,
       })),
       pagination,
     };
@@ -785,6 +792,29 @@ export class OrdersService {
    * an order placed under one address and contacted at another is found by
    * either.
    */
+
+  /**
+   * What the payment column is narrowed to — the same three readings the badge
+   * gives, so a manager filters by what they can see. `cash` is the reminder
+   * one: an order the shop took on, to be paid in cash, with the handover not
+   * recorded yet.
+   */
+  private paymentCondition(filter?: StaffPaymentFilter): SQL | undefined {
+    if (!filter) return undefined;
+    if (filter === 'cash') {
+      return and(
+        eq(orders.paymentMethod, 'cash'),
+        eq(orders.paymentState, 'not-due'),
+        inArray(orders.status, [
+          ...ACCEPTED_ORDER_STATUSES,
+          'ready',
+          'completed',
+        ]),
+      );
+    }
+    return eq(orders.paymentState, filter);
+  }
+
   private searchCondition(q: string | undefined): SQL | undefined {
     const term = q?.trim();
     if (!term) return undefined;

@@ -65,6 +65,14 @@ export const PAYMENT_METHODS_DUE_ON_ACCEPTANCE = [
   'card-later',
 ] as const;
 
+/**
+ * What a manager narrows the payment column to (FR-ORD-04) — the three things
+ * that column actually says, and nothing else. `cash` is not a payment state:
+ * it is an accepted cash order nobody has recorded the handover for, which is
+ * the one piece of money-work the state axis cannot express on its own.
+ */
+export const STAFF_PAYMENT_FILTERS = ['awaiting', 'cash', 'paid'] as const;
+
 /** As long as a manager needs to say why, and no longer than a note. */
 export const ORDER_STATUS_REASON_MAX = 500;
 

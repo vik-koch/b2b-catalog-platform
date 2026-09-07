@@ -4,7 +4,9 @@ import {
   OrderStatus,
   OrderSummary,
   Pagination,
+  PaymentMethod,
   StaffOrderSort,
+  StaffPaymentFilter,
   TransitionTarget,
 } from '@b2b-catalog-platform/shared';
 import { ordersContract } from '../../core/contract-routes.generated';
@@ -15,6 +17,7 @@ import { createOrpcClient } from '../../core/orpc-client';
 export type StaffOrderSummary = OrderSummary & {
   customerEmail: string | null;
   contactName: string;
+  paymentMethod: PaymentMethod;
 };
 
 /**
@@ -30,6 +33,7 @@ export class AdminOrdersService {
   async list(query: {
     page: number;
     status?: OrderStatus;
+    payment?: StaffPaymentFilter;
     q?: string;
     sort?: StaffOrderSort;
   }): Promise<{ items: StaffOrderSummary[]; pagination: Pagination }> {
