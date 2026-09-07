@@ -1,15 +1,11 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  fillText,
-  OrderStatus,
-  OrderSummary,
-} from '@b2b-catalog-platform/shared';
+import { fillText, OrderSummary } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
-import { orderStatusTone } from './order-status';
+import { orderStatusLabel, orderStatusTone } from './order-status';
 
 /**
  * The account's orders as rows — the whole history on its own page, and the
@@ -43,9 +39,18 @@ import { orderStatusTone } from './order-status';
                 {{ lineCount(order.itemCount) }}
               </p>
             </div>
-            <div class="flex items-center gap-4">
-              <span appStatusBadge [tone]="statusTone(order.status)">
-                {{ statusLabel(order.status) }}
+            <div
+              class="flex flex-wrap items-center justify-end gap-x-4 gap-y-1"
+            >
+              <!-- Payment only where something is owed or has been paid: an
+                   order with nothing due says nothing about money at all. -->
+              @if (paymentLabel(order); as payment) {
+                <span appStatusBadge variant="dot" [tone]="paymentTone(order)">
+                  {{ payment }}
+                </span>
+              }
+              <span appStatusBadge [tone]="statusTone(order)">
+                {{ statusLabel(order) }}
               </span>
               <p class="text-sm font-medium tabular-nums">
                 {{ total(order) }}
@@ -71,17 +76,21 @@ export class OrderRows {
     return fillText(this.text.itemCount, { count });
   }
 
-  protected statusLabel(status: OrderStatus): string {
-    return {
-      requested: this.text.statusRequested,
-      approved: this.text.statusApproved,
-      declined: this.text.statusDeclined,
-      cancelled: this.text.statusCancelled,
-    }[status];
+  protected statusLabel(order: OrderSummary): string {
+    return orderStatusLabel(order.status, order.fulfilmentMethod, this.text);
   }
 
-  protected statusTone(status: OrderStatus): StatusTone {
-    return orderStatusTone(status, 'customer');
+  protected statusTone(order: OrderSummary): StatusTone {
+    return orderStatusTone(order.status, 'customer', order.fulfilmentMethod);
+  }
+
+  protected paymentLabel(order: OrderSummary): string | null {
+    if (order.paymentState === 'awaiting') return this.text.paymentAwaiting;
+    return order.paymentState === 'paid' ? this.text.paymentPaid : null;
+  }
+
+  protected paymentTone(order: OrderSummary): StatusTone {
+    return order.paymentState === 'awaiting' ? 'waiting' : 'neutral';
   }
 
   protected formatDate(iso: string): string {

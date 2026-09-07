@@ -1,10 +1,18 @@
-import { Component, computed, inject, input, resource } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  resource,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  canTransition,
   fillText,
+  ORDER_STATUS_REASON_MAX,
   OrderDetail,
   OrderLine,
-  OrderStatus,
 } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../cart/order-summary';
 import { formatPriceMinor } from '../catalog/price';
@@ -19,7 +27,8 @@ import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
-import { orderStatusTone } from './order-status';
+import { orderStatusLabel, orderStatusTone } from './order-status';
+import { ConfirmService } from '../ui/confirm.service';
 import { OrdersService } from './orders.service';
 
 /**
@@ -27,8 +36,9 @@ import { OrdersService } from './orders.service';
  * sent — every field on it is a snapshot, so this is the order as it stood
  * rather than what the catalogue, the address book or the config say today.
  *
- * Read-only, and there is nothing to add: an order is a request a manager
- * answers, and changing one is a conversation rather than a form.
+ * Nearly read-only: the one thing a customer does to their own order is call
+ * it off, and only while the shop has not started on it (FR-ORD-02). Changing
+ * what is on an order is a conversation rather than a form.
  */
 @Component({
   selector: 'app-order-detail-page',
@@ -61,11 +71,24 @@ import { OrdersService } from './orders.service';
               <h1 class="text-3xl font-medium tracking-tight">
                 {{ detail.reference }}
               </h1>
-              <span appStatusBadge [tone]="statusTone(detail.status)">
-                {{ statusLabel(detail.status) }}
+              <span appStatusBadge [tone]="statusTone(detail)">
+                {{ statusLabel(detail) }}
               </span>
+              @if (paymentLabel(detail); as payment) {
+                <span appStatusBadge variant="dot" [tone]="paymentTone(detail)">
+                  {{ payment }}
+                </span>
+              }
             </div>
             <p class="mt-2 text-muted">{{ placed(detail) }}</p>
+            <!-- Why, on the line that says where the order stands: the reason
+                 is part of the status, not a fact beside it. -->
+            @if (detail.statusReason; as reason) {
+              <p class="mt-1 text-muted">
+                <span class="text-subtle">{{ text.statusReason }}:</span>
+                {{ reason }}
+              </p>
+            }
 
             <app-order-read-back
               class="mt-8"
@@ -85,6 +108,25 @@ import { OrdersService } from './orders.service';
               [subtotalMinor]="detail.totalMinor"
               [shipment]="detail.shipment"
             />
+            <!-- Offered from the same table the API refuses by, so the
+                 button is never drawn for a move the server would decline. -->
+            @if (cancellable()) {
+              <button
+                appButton
+                variant="dangerOutline"
+                type="button"
+                class="mt-5 w-full"
+                [disabled]="cancelling()"
+                (click)="cancel(detail)"
+              >
+                {{ text.cancel.action }}
+              </button>
+            }
+            @if (cancelFailed()) {
+              <p class="mt-3 text-sm text-red-600" role="alert">
+                {{ text.cancel.error }}
+              </p>
+            }
             <a
               appButton
               variant="secondary"
@@ -122,6 +164,7 @@ import { OrdersService } from './orders.service';
 })
 export class OrderDetailPage {
   private readonly api = inject(OrdersService);
+  private readonly confirm = inject(ConfirmService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = this.config.catalog.currency;
 
@@ -223,17 +266,74 @@ export class OrderDetailPage {
     });
   }
 
-  protected statusLabel(status: OrderStatus): string {
-    return {
-      requested: this.orderText.statusRequested,
-      approved: this.orderText.statusApproved,
-      declined: this.orderText.statusDeclined,
-      cancelled: this.orderText.statusCancelled,
-    }[status];
+  protected statusLabel(detail: OrderDetail): string {
+    return orderStatusLabel(
+      detail.status,
+      detail.fulfilmentMethod,
+      this.orderText,
+    );
   }
 
-  protected statusTone(status: OrderStatus): StatusTone {
-    return orderStatusTone(status, 'customer');
+  protected statusTone(detail: OrderDetail): StatusTone {
+    return orderStatusTone(detail.status, 'customer', detail.fulfilmentMethod);
+  }
+
+  protected paymentLabel(detail: OrderDetail): string | null {
+    if (detail.paymentState === 'awaiting') {
+      return this.orderText.paymentAwaiting;
+    }
+    return detail.paymentState === 'paid' ? this.orderText.paymentPaid : null;
+  }
+
+  protected paymentTone(detail: OrderDetail): StatusTone {
+    return detail.paymentState === 'awaiting' ? 'waiting' : 'neutral';
+  }
+
+  /** The shared transition table, asked in the browser for the same reason the
+   * API asks it: there is one rule, and this is a reader of it. */
+  protected readonly cancellable = computed(() => {
+    const detail = this.detail();
+    return (
+      detail !== null && canTransition('customer', detail.status, 'cancelled')
+    );
+  });
+
+  protected readonly cancelling = signal(false);
+  protected readonly cancelFailed = signal(false);
+
+  /**
+   * Asked for with a reason, because the shop reads it — somebody may already
+   * be packing the order. A refusal here means it moved on while the page was
+   * open, so the order is reloaded rather than argued with.
+   */
+  protected async cancel(detail: OrderDetail): Promise<void> {
+    const reason = await this.confirm.askWithReason({
+      heading: this.text.cancel.heading,
+      message: fillText(this.text.cancel.message, {
+        reference: detail.reference,
+      }),
+      confirmLabel: this.text.cancel.confirm,
+      cancelLabel: this.text.cancel.keep,
+      reasonLabel: this.text.cancel.reasonLabel,
+      reasonMaxLength: ORDER_STATUS_REASON_MAX,
+      // Asked, not insisted on: the shop's own refusals owe the customer an
+      // explanation, and a customer changing their mind owes nobody one.
+      reasonRequired: false,
+    });
+    if (reason === null) return;
+
+    this.cancelling.set(true);
+    this.cancelFailed.set(false);
+    try {
+      const cancelled = await this.api.cancelMine(
+        detail.reference,
+        reason || null,
+      );
+      this.cancelFailed.set(!cancelled);
+    } finally {
+      this.cancelling.set(false);
+      this.order.reload();
+    }
   }
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {

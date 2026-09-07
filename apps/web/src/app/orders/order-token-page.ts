@@ -19,7 +19,7 @@ import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
-import { orderStatusTone } from './order-status';
+import { orderStatusLabel, orderStatusTone } from './order-status';
 import { OrdersService } from './orders.service';
 
 /**
@@ -64,11 +64,28 @@ import { OrdersService } from './orders.service';
               <h1 class="text-3xl font-medium tracking-tight">
                 {{ order.reference }}
               </h1>
-              <span appStatusBadge [tone]="statusTone(order.status)">
-                {{ statusLabel(order.status) }}
+              <span appStatusBadge [tone]="statusTone(order)">
+                {{ statusLabel(order) }}
               </span>
+              @if (paymentLabel(order); as payment) {
+                <span appStatusBadge variant="dot" [tone]="paymentTone(order)">
+                  {{ payment }}
+                </span>
+              }
             </div>
             <p class="mt-2 text-muted">{{ placed(order) }}</p>
+            <!-- Why, on the line that says where the order stands. A mailed
+                 link is where a guest reads it and they have nowhere else to
+                 look; the link stays a read capability, and nothing here moves
+                 the order. -->
+            @if (order.statusReason; as reason) {
+              <p class="mt-1 text-muted">
+                <span class="text-subtle">
+                  {{ orderText.detail.statusReason }}:
+                </span>
+                {{ reason }}
+              </p>
+            }
             <p class="mt-4 max-w-xl text-muted">{{ text.intro }}</p>
 
             <app-order-read-back
@@ -236,17 +253,26 @@ export class OrderTokenPage {
     });
   }
 
-  protected statusLabel(status: OrderStatus): string {
-    return {
-      requested: this.orderText.statusRequested,
-      approved: this.orderText.statusApproved,
-      declined: this.orderText.statusDeclined,
-      cancelled: this.orderText.statusCancelled,
-    }[status];
+  protected statusLabel(order: OrderDetail): string {
+    return orderStatusLabel(
+      order.status,
+      order.fulfilmentMethod,
+      this.orderText,
+    );
   }
 
-  protected statusTone(status: OrderStatus): StatusTone {
-    return orderStatusTone(status, 'customer');
+  protected statusTone(order: OrderDetail): StatusTone {
+    return orderStatusTone(order.status, 'customer', order.fulfilmentMethod);
+  }
+
+  protected paymentLabel(order: OrderDetail): string | null {
+    if (order.paymentState === 'awaiting')
+      return this.orderText.paymentAwaiting;
+    return order.paymentState === 'paid' ? this.orderText.paymentPaid : null;
+  }
+
+  protected paymentTone(order: OrderDetail): StatusTone {
+    return order.paymentState === 'awaiting' ? 'waiting' : 'neutral';
   }
 
   constructor() {

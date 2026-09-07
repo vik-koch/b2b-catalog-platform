@@ -753,13 +753,24 @@ export const appTextSchema = z
         emptyAction: z.string(),
         /** `{count}` lines on an order, as the cart counts them. */
         itemCount: z.string(),
-        /** Where an order stands. Only `requested` is written today;
-         * the others arrive with order processing, and the list has to
-         * be able to say them from the start. */
+        /**
+         * Where an order stands (FR-ORD-01), in the customer's words. Ready
+         * is two keys and one state: an order waiting on the shelf and one
+         * out for delivery are the same moment in the shop's work, and the
+         * order's own fulfilment method decides which sentence is read.
+         */
         statusRequested: z.string(),
         statusApproved: z.string(),
+        statusAdjusted: z.string(),
+        statusReadyDelivery: z.string(),
+        statusReadyPickup: z.string(),
+        statusCompleted: z.string(),
         statusDeclined: z.string(),
         statusCancelled: z.string(),
+        /** Whether anything is owed (FR-ORD-04). An order with nothing due
+         * says nothing at all, so there is no key for it. */
+        paymentAwaiting: z.string(),
+        paymentPaid: z.string(),
         error: z.string(),
         back: z.string(),
         /**
@@ -777,6 +788,25 @@ export const appTextSchema = z
              * the API tells the two apart for nobody. */
             notFound: z.string(),
             backToList: z.string(),
+            /** Precedes the reason a declined or cancelled order carries. */
+            statusReason: z.string(),
+            /**
+             * Calling off your own order (FR-ORD-02), offered only while the
+             * shop has not started on it. `{reference}` in the message.
+             */
+            cancel: z
+              .object({
+                action: z.string(),
+                heading: z.string(),
+                message: z.string(),
+                /** Why — the shop reads it, so it is asked for rather than
+                 * optional. */
+                reasonLabel: z.string(),
+                confirm: z.string(),
+                keep: z.string(),
+                error: z.string(),
+              })
+              .strict(),
             error: z.string(),
           })
           .strict(),

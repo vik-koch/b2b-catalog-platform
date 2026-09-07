@@ -5,6 +5,7 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
+import { ConfirmService } from '../ui/confirm.service';
 import { OrderDetailPage } from './order-detail-page';
 import { OrdersService } from './orders.service';
 
@@ -23,7 +24,7 @@ const address = {
 const placed: OrderDetail = {
   reference: 'DEMO-260826-4831',
   status: 'requested',
-paymentState: 'not-due',
+  paymentState: 'not-due',
   statusReason: null,
   createdAt: '2026-08-26T09:15:00.000Z',
   totalMinor: 12990,
@@ -77,7 +78,10 @@ paymentState: 'not-due',
   },
 };
 
-async function render(answer: OrderDetail | null | 'reject') {
+async function render(
+  answer: OrderDetail | null | 'reject',
+  api: Partial<Record<'cancelMine', unknown>> = {},
+) {
   const getMine = vi.fn(() =>
     answer === 'reject'
       ? Promise.reject(new Error('500'))
@@ -91,7 +95,7 @@ async function render(answer: OrderDetail | null | 'reject') {
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
-      { provide: OrdersService, useValue: { getMine } },
+      { provide: OrdersService, useValue: { getMine, ...api } },
     ],
   });
 
@@ -182,5 +186,59 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
       text.detail.error,
     );
+  });
+});
+
+/**
+ * The one thing a customer does to their own order (FR-ORD-02). The button is
+ * drawn from the shared transition table, so what is pinned here is that the
+ * page reads the same rule the API refuses by.
+ */
+describe('OrderDetailPage cancelling an order', () => {
+  const cancelText = text.detail.cancel;
+  const cancelButton = (el: HTMLElement) =>
+    [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === cancelText.action,
+    );
+
+  it('offers it while the shop has not started on the order', async () => {
+    expect(cancelButton((await render(placed)).el)).toBeDefined();
+    expect(
+      cancelButton((await render({ ...placed, status: 'adjusted' })).el),
+    ).toBeDefined();
+  });
+
+  it('withdraws it once the shop is working on it', async () => {
+    for (const status of ['approved', 'ready', 'completed'] as const) {
+      expect(
+        cancelButton((await render({ ...placed, status })).el),
+      ).toBeUndefined();
+    }
+  });
+
+  it('sends the reason, and reloads the order after', async () => {
+    const cancelMine = vi.fn(() => Promise.resolve(true));
+    const { fixture, el, getMine } = await render(placed, { cancelMine });
+    const confirm = TestBed.inject(ConfirmService);
+    vi.spyOn(confirm, 'askWithReason').mockResolvedValue('Ordered twice');
+
+    cancelButton(el)?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(cancelMine).toHaveBeenCalledWith(placed.reference, 'Ordered twice');
+    expect(getMine).toHaveBeenCalledTimes(2);
+  });
+
+  it('shows the reason a declined order carries', async () => {
+    const { el } = await render({
+      ...placed,
+      status: 'declined',
+      statusReason: 'Out of stock until October',
+    });
+
+    expect(el.textContent).toContain(text.detail.statusReason);
+    expect(el.textContent).toContain('Out of stock until October');
+    expect(cancelButton(el)).toBeUndefined();
   });
 });
