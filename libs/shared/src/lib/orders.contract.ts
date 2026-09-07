@@ -1,12 +1,15 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
+  DIRECT_TRANSITION_TARGETS,
   FULFILMENT_METHODS,
   ORDER_NOTE_MAX,
   ORDER_QUERY_MAX_LENGTH,
+  ORDER_STATUS_REASON_MAX,
   ORDER_STATUSES,
   PARTY_NAME_MAX,
   PAYMENT_METHODS,
+  PAYMENT_STATES,
   PICKUP_LOCATION_KEY_MAX,
   STAFF_ORDER_SORTS,
 } from './order-constants';
@@ -41,6 +44,14 @@ export type FulfilmentMethod = z.infer<typeof fulfilmentMethodSchema>;
 
 export const paymentMethodSchema = z.enum(PAYMENT_METHODS);
 export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
+
+/** Whether the money has arrived (FR-ORD-04), read apart from the status. */
+export const paymentStateSchema = z.enum(PAYMENT_STATES);
+export type PaymentState = z.infer<typeof paymentStateSchema>;
+
+/** What a manager may move an order to without rewriting it (FR-ORD-02). */
+export const transitionTargetSchema = z.enum(DIRECT_TRANSITION_TARGETS);
+export type TransitionTarget = z.infer<typeof transitionTargetSchema>;
 
 /**
  * Where an order goes, and where its invoice goes. The same shape as a saved
@@ -196,6 +207,14 @@ export const orderSummarySchema = z
   .object({
     reference: z.string(),
     status: orderStatusSchema,
+    /** The second axis (FR-ORD-04). In the list because "accepted, still
+     * unpaid" is one row a manager scans for, and because a customer's own
+     * list is where they find out something is owed. */
+    paymentState: paymentStateSchema,
+    /** How it reaches the customer. In the summary because the status is read
+     * through it: a `ready` order is waiting on a shelf or on its way, and a
+     * row that cannot say which cannot word its own badge. */
+    fulfilmentMethod: fulfilmentMethodSchema,
     createdAt: z.iso.datetime(),
     totalMinor: z.number().int().nonnegative(),
     currency: z.string(),
@@ -250,7 +269,6 @@ export const orderDetailSchema = orderSummarySchema.extend({
   /** Who it was invoiced to, as it read when the order was placed — resolved
    * from the account where the customer named nobody else. */
   party: orderingPartySchema,
-  fulfilmentMethod: fulfilmentMethodSchema,
   deliveryAddress: orderAddressSchema.nullable(),
   pickup: orderPickupSchema.nullable(),
   deliveryZone: orderDeliveryZoneSchema.nullable(),
@@ -260,6 +278,10 @@ export const orderDetailSchema = orderSummarySchema.extend({
   paymentMethod: paymentMethodSchema,
   preferredDate: z.iso.date().nullable(),
   customerNote: z.string().nullable(),
+  /** Why it was declined or called off (FR-ORD-02), null on every other
+   * status. The customer is told it, so it is on their view and not only in
+   * the mail they were sent. */
+  statusReason: z.string().nullable(),
   lines: z.array(orderLineSchema),
   shipment: cartPreviewSchema.shape.shipment,
 });
@@ -276,6 +298,10 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   /** Which list it was priced from; null means the default one. */
   tierKey: z.string().nullable(),
   statusChangedAt: z.iso.datetime(),
+  /** When the money was recorded as received, null until it was. Who recorded
+   * it is kept on the row for the record but not served: nothing on this
+   * screen asks, and it would cost a join on every read. */
+  paidAt: z.iso.datetime().nullable(),
 });
 export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
 
@@ -350,6 +376,45 @@ const submissionErrors = {
  * existing: whether a reference exists is not something a stranger gets to
  * learn. */
 const orderNotFound = { 'order-not-found': { status: 404 } } as const;
+
+/**
+ * Everything a transition can be refused for (FR-ORD-02).
+ *
+ * `transition-not-allowed` covers both halves of the table at once — the move
+ * this actor may never make, and the move nobody can make from where the order
+ * now stands. They are one answer on purpose: an order that moved while the
+ * screen was open should be reloaded, and telling a caller *which* of the two
+ * it was tells a customer about states they cannot see.
+ */
+const transitionErrors = {
+  ...orderNotFound,
+  'transition-not-allowed': { status: 409 },
+  /** Declining or cancelling says why; the customer's mail quotes it. */
+  'reason-required': { status: 400 },
+} as const;
+
+/** What a manager records, and what they say about it. */
+export const orderTransitionSchema = z
+  .object({
+    to: transitionTargetSchema,
+    /** Required for the two ways an order ends, null for every other move. */
+    reason: z.string().trim().min(1).max(ORDER_STATUS_REASON_MAX).nullable(),
+  })
+  .strict();
+export type OrderTransition = z.infer<typeof orderTransitionSchema>;
+
+/**
+ * A customer calling their own order off: the same move, with only the one
+ * thing they get to say about it — and they need not say it. The shop's own
+ * refusals are quoted at a customer and must explain themselves; a customer
+ * owes the shop no justification for changing their mind.
+ */
+export const orderCancellationSchema = z
+  .object({
+    reason: z.string().trim().min(1).max(ORDER_STATUS_REASON_MAX).nullable(),
+  })
+  .strict();
+export type OrderCancellation = z.infer<typeof orderCancellationSchema>;
 
 /** The signed-in account's own orders, and staff's view of all of them. */
 const authed = oc.errors(commonAuthErrors);

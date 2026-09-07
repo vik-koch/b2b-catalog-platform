@@ -13,6 +13,8 @@ const text = defaultAppText.orders;
 const placed: OrderSummary = {
   reference: 'DEMO-260826-4831',
   status: 'requested',
+  paymentState: 'not-due',
+  fulfilmentMethod: 'delivery',
   createdAt: '2026-08-26T09:15:00.000Z',
   totalMinor: 12990,
   currency: 'EUR',

@@ -18,8 +18,10 @@ const address = {
 export const demoAdminOrder: AdminOrderDetail = {
   reference: 'CK-260826-4831',
   status: 'requested',
+  paymentState: 'not-due',
   createdAt: '2026-08-26T09:15:00.000Z',
   statusChangedAt: '2026-08-26T09:15:00.000Z',
+  paidAt: null,
   totalMinor: 12990,
   currency: 'EUR',
   itemCount: 2,
@@ -37,6 +39,7 @@ export const demoAdminOrder: AdminOrderDetail = {
   paymentMethod: 'bank-transfer',
   preferredDate: null,
   customerNote: null,
+  statusReason: null,
   customerEmail: 'alex@example.com',
   tierKey: 'wholesale',
   lines: [

@@ -82,7 +82,9 @@ const IN_PREFIX_ZONE = `${PREFIX_ZONE?.match.postalPrefixes?.[0] ?? ''}359`;
 const ORDER_SUMMARY_KEYS = [
   'createdAt',
   'currency',
+  'fulfilmentMethod',
   'itemCount',
+  'paymentState',
   'reference',
   'status',
   'totalMinor',
@@ -105,19 +107,20 @@ const ORDER_DETAIL_KEYS = [
   'customerNote',
   'deliveryAddress',
   'deliveryZone',
-  'fulfilmentMethod',
   'lines',
   'party',
   'paymentMethod',
   'pickup',
   'preferredDate',
   'shipment',
+  'statusReason',
 ].sort();
 /** What staff see on top: the list it was priced from, who placed it, and the
  * lines in basis units (FR-UNIT-04). */
 const ADMIN_DETAIL_KEYS = [
   ...ORDER_DETAIL_KEYS,
   'customerEmail',
+  'paidAt',
   'statusChangedAt',
   'tierKey',
 ].sort();

@@ -27,6 +27,7 @@ export * from './lib/money';
 export * from './lib/order-config';
 export * from './lib/order-constants';
 export * from './lib/order-dates';
+export * from './lib/order-transitions';
 export * from './lib/orders.contract';
 export * from './lib/page-constants';
 export * from './lib/page.contract';

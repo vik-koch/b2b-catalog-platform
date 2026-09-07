@@ -52,6 +52,8 @@ function order(reference: string): OrderSummary {
   return {
     reference,
     status: 'requested',
+    paymentState: 'not-due',
+    fulfilmentMethod: 'delivery',
     createdAt: '2026-03-02T10:00:00.000Z',
     itemCount: 3,
     totalMinor: 12500,

@@ -24,6 +24,9 @@ const address = {
 const placed: AdminOrderDetail = {
   reference: 'DEMO-260826-4831',
   status: 'requested',
+  paymentState: 'not-due',
+  statusReason: null,
+  paidAt: null,
   createdAt: '2026-08-26T09:15:00.000Z',
   statusChangedAt: '2026-08-26T09:15:00.000Z',
   totalMinor: 12990,

@@ -593,6 +593,7 @@ export class OrdersService {
       customerEmail: customer?.email ?? null,
       tierKey: row.tierKey,
       statusChangedAt: row.statusChangedAt.toISOString(),
+      paidAt: row.paidAt?.toISOString() ?? null,
     };
   }
 
@@ -737,6 +738,7 @@ export class OrdersService {
     return {
       reference: row.reference,
       status: row.status as OrderStatus,
+      paymentState: row.paymentState as PaymentState,
       createdAt: row.createdAt.toISOString(),
       totalMinor: row.totalMinor,
       currency: row.currency,
@@ -791,6 +793,7 @@ export class OrdersService {
       paymentMethod: row.paymentMethod as OrderDetail['paymentMethod'],
       preferredDate: row.preferredDate,
       customerNote: row.customerNote,
+      statusReason: row.statusReason,
       lines,
       shipment: {
         cartons: row.shipmentCartons,
@@ -839,6 +842,8 @@ function toSummary(row: OrderRow, itemCount: number): OrderSummary {
   return {
     reference: row.reference,
     status: row.status as OrderStatus,
+    paymentState: row.paymentState as PaymentState,
+    fulfilmentMethod: row.fulfilmentMethod as OrderSummary['fulfilmentMethod'],
     createdAt: row.createdAt.toISOString(),
     totalMinor: row.totalMinor,
     currency: row.currency,
