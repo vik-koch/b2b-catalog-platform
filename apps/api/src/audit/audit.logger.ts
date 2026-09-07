@@ -56,7 +56,13 @@ export type AuditAction =
   | 'address.deleted'
   // An order request, by its reference. The one audited event a guest can
   // cause, which is why the actor is optional below.
-  | 'order.placed';
+  | 'order.placed'
+  // Order processing (FR-ORD-01/02/04). One event for every move, with the
+  // status it landed on, rather than an event per transition: the question
+  // asked later is who answered this order and when, and a name per state
+  // would have to be extended every time the vocabulary grows.
+  | 'order.status'
+  | 'order.paid';
 
 /**
  * Domain events for admin mutations — who changed what.
@@ -83,10 +89,19 @@ export class AuditLogger {
     action: AuditAction,
     /** Null where the event has no account behind it — a guest's order. */
     actor: AuthUser | null,
-    entity: { id?: string; slug?: string; name?: string; reference?: string },
+    entity: {
+      id?: string;
+      slug?: string;
+      name?: string;
+      reference?: string;
+      /** Where an order landed. Its own key rather than folded into `name`,
+       * so a filter can ask for every order that was declined. */
+      status?: string;
+    },
   ): void {
     const parts = [action, `actor=${actor?.email ?? 'guest'}`];
     if (entity.reference) parts.push(`reference=${entity.reference}`);
+    if (entity.status) parts.push(`status=${entity.status}`);
     if (entity.id) parts.push(`id=${entity.id}`);
     if (entity.slug) parts.push(`slug=${entity.slug}`);
     // Quoted: names contain spaces, and an unquoted one would split the line's

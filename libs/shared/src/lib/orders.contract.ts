@@ -534,4 +534,49 @@ export const ordersContract = {
     .errors(orderNotFound)
     .input(z.object({ params: z.object({ reference: z.string() }) }))
     .output(adminOrderDetailSchema),
+
+  /**
+   * Move an order (FR-ORD-01/02). One endpoint rather than a verb apiece,
+   * because the rule that says which moves exist is one table and this is the
+   * caller that asks it.
+   *
+   * It answers with the order, so a screen that acted on it redraws from what
+   * the server now holds rather than from what it hoped would happen.
+   */
+  transitionOrder: authed
+    .route({
+      method: 'POST',
+      path: '/admin/orders/{reference}/status',
+      inputStructure: 'detailed',
+      summary: 'Accept, refuse, or move on an order (admin, manager)',
+    })
+    .errors(transitionErrors)
+    .input(
+      z.object({
+        params: z.object({ reference: z.string() }),
+        body: orderTransitionSchema,
+      }),
+    )
+    .output(adminOrderDetailSchema),
+
+  /**
+   * Record that the money arrived (FR-ORD-04). A manager's observation, not a
+   * transaction: nothing here takes a payment, and the order's status is
+   * untouched by it.
+   */
+  recordOrderPayment: authed
+    .route({
+      method: 'POST',
+      path: '/admin/orders/{reference}/payment',
+      inputStructure: 'detailed',
+      summary: 'Record an order as paid (admin, manager)',
+    })
+    .errors({
+      ...orderNotFound,
+      /** Already recorded, or the order ended without being filled. Nothing to
+       * record either way. */
+      'payment-not-recordable': { status: 409 },
+    })
+    .input(z.object({ params: z.object({ reference: z.string() }) }))
+    .output(adminOrderDetailSchema),
 };

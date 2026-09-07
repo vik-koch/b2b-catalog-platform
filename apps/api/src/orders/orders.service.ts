@@ -23,7 +23,11 @@ import {
   AddressInput,
   AdminOrderDetail,
   AdminOrderLine,
+  canTransition,
   DeliveryConfig,
+  transitionHasReason,
+  nextPaymentState,
+  OrderActor,
   OrderDetail,
   OrderingParty,
   OrderLine,
@@ -33,9 +37,13 @@ import {
   OrderSummary,
   ORDER_PAGE_SIZE,
   Pagination,
+  PaymentMethod,
+  PaymentState,
   ProductUnit,
   resolveDeliveryZone,
   StaffOrderSort,
+  TransitionTarget,
+  transitionNeedsReason,
 } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../addresses/addresses.service';
 import { OrderNotifications } from './order-notifications';
@@ -120,13 +128,17 @@ function orderListOrderBy(sort: StaffOrderSort): (SQL | PgColumn)[] {
 
 /**
  * What an order needs, as a number to sort by: a request is waiting on staff,
- * an approved order is in hand, and the two refusals are over. Columns are
+ * an accepted or ready one is in hand, and a finished or refused one is over.
+ * Three groups rather than one rank per status, because the question the sort
+ * answers is what to pick up next, not how far along each order is. Columns are
  * qualified by hand — a bare name in a template binds to whatever table the
  * surrounding query happens to make available.
  */
 const statusPriority = sql<number>`case ${orders.status}
   when 'requested' then 0
   when 'approved' then 1
+  when 'adjusted' then 1
+  when 'ready' then 1
   else 2
 end`;
 
@@ -193,6 +205,14 @@ export class OrdersService {
    * what the order *is* — snapshots, resolved zone and all — and cannot
    * describe it differently from the pages they link to.
    */
+  /**
+   * The customer's mail after a transition (FR-NOTIF-03). Read back rather
+   * than passed along: the mail says what the order now is, and the row is
+   * where that is true.
+   */
+  async notifyStatusChanged(reference: string): Promise<void> {
+  }
+
   async notifyPlaced(placed: {
     reference: string;
     publicToken: string;
@@ -595,6 +615,124 @@ export class OrdersService {
       statusChangedAt: row.statusChangedAt.toISOString(),
       paidAt: row.paidAt?.toISOString() ?? null,
     };
+  }
+
+  /**
+   * Move an order (FR-ORD-01/02).
+   *
+   * The rule lives in the shared transition table and is asked here, once, for
+   * every caller — staff, customer and whatever asks next. What the actor may
+   * do and what the order's current status permits are the same question and
+   * get the same answer: an order that has moved on is not this caller's
+   * business to be told about in detail.
+   *
+   * The write re-states the status it read, so two managers answering the same
+   * order at the same moment cannot both succeed — the second updates nothing
+   * and is refused like any other disallowed move.
+   */
+  private async move(
+    where: ReturnType<typeof and>,
+    actor: OrderActor,
+    to: TransitionTarget,
+    reason: string | null,
+    byUserId: string,
+  ): Promise<OrderRow> {
+    const current = await this.row(where);
+    const from = current.status as OrderStatus;
+    if (!canTransition(actor, from, to)) {
+      throw new ConflictException({
+        code: 'transition-not-allowed',
+        message: 'The order cannot be moved there',
+      });
+    }
+    if (transitionNeedsReason(to, actor) && !reason) {
+      throw new BadRequestException({
+        code: 'reason-required',
+        message: 'Say why, so the customer can be told',
+      });
+    }
+
+    const [moved] = await this.db
+      .update(orders)
+      .set({
+        status: to,
+        statusChangedAt: new Date(),
+        statusChangedBy: byUserId,
+        // Only the two refusals carry one, and a move that does not carry a
+        // reason clears the one an earlier move left behind.
+        statusReason: transitionHasReason(to) ? reason : null,
+        paymentState: nextPaymentState(
+          current.paymentState as PaymentState,
+          current.paymentMethod as PaymentMethod,
+          to,
+        ),
+      })
+      .where(and(eq(orders.id, current.id), eq(orders.status, from)))
+      .returning();
+
+    if (!moved) {
+      throw new ConflictException({
+        code: 'transition-not-allowed',
+        message: 'The order moved while it was being answered',
+      });
+    }
+    return moved;
+  }
+
+  /** Staff answering an order. Any status the table allows, from any order. */
+  async transitionForStaff(
+    reference: string,
+    to: TransitionTarget,
+    reason: string | null,
+    byUserId: string,
+  ): Promise<AdminOrderDetail> {
+    await this.move(
+      eq(orders.reference, reference),
+      'staff',
+      to,
+      reason,
+      byUserId,
+    );
+    return this.getForStaff(reference);
+  }
+
+
+  /**
+   * Record that the money arrived (FR-ORD-04) — a manager's observation, not a
+   * transaction. It moves nothing else: a cash order is recorded as paid at
+   * the handover and an invoiced one whenever the transfer lands, and neither
+   * says anything about where the order stands.
+   */
+  async recordPayment(
+    reference: string,
+    byUserId: string,
+  ): Promise<AdminOrderDetail> {
+    const [paid] = await this.db
+      .update(orders)
+      .set({ paymentState: 'paid', paidAt: new Date(), paidBy: byUserId })
+      .where(
+        and(
+          eq(orders.reference, reference),
+          // Not already recorded, and not an order nobody owes anything on.
+          // Restated in the write rather than checked first, so two managers
+          // cannot both record the same payment.
+          sql`${orders.paymentState} <> 'paid'`,
+          sql`${orders.status} not in ('declined', 'cancelled')`,
+        ),
+      )
+      .returning();
+
+    if (!paid) {
+      // Either there is no such order or there is nothing to record on it.
+      // A staff caller may be told apart: they are allowed to know the order
+      // exists.
+      await this.row(eq(orders.reference, reference));
+      throw new ConflictException({
+        code: 'payment-not-recordable',
+        message: 'Nothing to record on this order',
+      });
+    }
+    return this.getForStaff(reference);
   }
 
   /**

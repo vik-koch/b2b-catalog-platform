@@ -650,6 +650,28 @@ export const ordersContract = {
       },
     },
   },
+  transitionOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/status',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  recordOrderPayment: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/payment',
+        inputStructure: 'detailed',
+      },
+    },
+  },
 } as unknown as typeof shared.ordersContract;
 export const pageContract = {
   getPage: {
