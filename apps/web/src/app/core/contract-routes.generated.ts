@@ -661,7 +661,7 @@ export const ordersContract = {
       },
     },
   },
-  recordOrderPayment: {
+  setOrderPayment: {
     '~orpc': {
       errorMap: {},
       meta: {},

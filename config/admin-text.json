@@ -711,8 +711,12 @@
       "paid": "Paid {date}",
       "record": "Record as paid",
       "confirmHeading": "Record this order as paid?",
-      "confirmMessage": "Only do this once the money has actually arrived. It cannot be undone here.",
+      "confirmMessage": "Only do this once the money has actually arrived.",
       "confirm": "Record as paid",
+      "clear": "Clear the payment",
+      "clearConfirmHeading": "Clear the recorded payment?",
+      "clearConfirmMessage": "Use this only where the payment was recorded by mistake. A refund belongs in your own books.",
+      "clearConfirm": "Clear the payment",
       "keep": "Not yet",
       "error": "That did not work. The payment may already have been recorded — reload the page."
     }

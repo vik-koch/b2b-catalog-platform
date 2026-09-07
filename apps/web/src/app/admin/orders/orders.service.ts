@@ -68,11 +68,15 @@ export class AdminOrdersService {
     return null;
   }
 
-  /** Record that the money arrived (FR-ORD-04). Null where there was nothing
-   * to record — already paid, or an order that ended. */
-  async recordPayment(reference: string): Promise<AdminOrderDetail | null> {
+  /** Record that the money arrived, or take that record back (FR-ORD-04).
+   * Null where there was nothing to change — already in that state, or an
+   * order that ended. */
+  async setPayment(
+    reference: string,
+    paid: boolean,
+  ): Promise<AdminOrderDetail | null> {
     const result = await safe(
-      this.client.recordOrderPayment({ params: { reference } }),
+      this.client.setOrderPayment({ params: { reference }, body: { paid } }),
     );
     if (result.isSuccess) return result.data;
     if (!result.isDefined) throw result.error;

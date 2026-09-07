@@ -77,21 +77,23 @@ export class AdminOrdersController {
       });
   }
 
-  @Implement(ordersContract.recordOrderPayment)
-  recordOrderPayment(@CurrentUser() actor: AuthUser) {
-    return implement(ordersContract.recordOrderPayment)
+  @Implement(ordersContract.setOrderPayment)
+  setOrderPayment(@CurrentUser() actor: AuthUser) {
+    return implement(ordersContract.setOrderPayment)
       .use(refusals)
-      .handler(async ({ input: { params } }) => {
-        const order = await this.orders.recordPayment(
+      .handler(async ({ input: { params, body } }) => {
+        const order = await this.orders.setPayment(
           params.reference,
+          body.paid,
           actor.id,
         );
-        this.audit.record('order.paid', actor, {
+        this.audit.record(body.paid ? 'order.paid' : 'order.unpaid', actor, {
           reference: order.reference,
         });
-        // Deliberately no mail: nothing about the order changed for the
-        // customer, and being written to because the shop ticked a box off is
-        // noise. The order's own page says it.
+        // Deliberately no mail either way: nothing about the order changed for
+        // the customer, and being written to because the shop ticked a box off
+        // — or unticked one it should not have — is noise. The order's own
+        // page says what it owes.
         return order;
       });
   }

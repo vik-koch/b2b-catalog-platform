@@ -1102,6 +1102,11 @@ export const adminTextSchema = z
             confirmHeading: z.string(),
             confirmMessage: z.string(),
             confirm: z.string(),
+            /** Taking the record back — a mis-tick, never a refund. */
+            clear: z.string(),
+            clearConfirmHeading: z.string(),
+            clearConfirmMessage: z.string(),
+            clearConfirm: z.string(),
             keep: z.string(),
             error: z.string(),
           })

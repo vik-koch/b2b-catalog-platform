@@ -3,6 +3,7 @@ import {
   allowedTransitions,
   canTransition,
   nextPaymentState,
+  paymentStateWithoutPayment,
   transitionHasReason,
   transitionNeedsReason,
 } from './order-transitions';
@@ -113,5 +114,40 @@ describe('nextPaymentState', () => {
     // Whether money goes back is a question for the shop's books, and an order
     // that was paid was paid.
     expect(nextPaymentState('paid', 'bank-transfer', 'cancelled')).toBe('paid');
+  });
+});
+
+/**
+ * What clearing a recorded payment falls back to. Nothing stores what the
+ * state was before the box was ticked, and it does not need to: what an order
+ * owes is what its method and its status say it owes.
+ */
+describe('paymentStateWithoutPayment', () => {
+  it('owes again on an invoiced order the shop has accepted', () => {
+    for (const status of [
+      'approved',
+      'adjusted',
+      'ready',
+      'completed',
+    ] as const) {
+      expect(paymentStateWithoutPayment(status, 'bank-transfer')).toBe(
+        'awaiting',
+      );
+      expect(paymentStateWithoutPayment(status, 'card-later')).toBe('awaiting');
+    }
+  });
+
+  it('owes nothing on cash, whatever the order is doing', () => {
+    expect(paymentStateWithoutPayment('ready', 'cash')).toBe('not-due');
+    expect(paymentStateWithoutPayment('completed', 'cash')).toBe('not-due');
+  });
+
+  it('owes nothing before the shop has answered, or after it ended', () => {
+    expect(paymentStateWithoutPayment('requested', 'bank-transfer')).toBe(
+      'not-due',
+    );
+    expect(paymentStateWithoutPayment('cancelled', 'bank-transfer')).toBe(
+      'not-due',
+    );
   });
 });

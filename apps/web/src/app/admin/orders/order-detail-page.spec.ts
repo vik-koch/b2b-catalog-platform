@@ -77,7 +77,7 @@ const placed: AdminOrderDetail = {
 
 async function render(
   answer: AdminOrderDetail | null | 'reject',
-  api: Partial<Record<'transition' | 'recordPayment', unknown>> = {},
+  api: Partial<Record<'transition' | 'setPayment', unknown>> = {},
 ) {
   const get = vi.fn(() =>
     answer === 'reject'
@@ -223,6 +223,43 @@ describe('AdminOrderDetailPage answering an order', () => {
       paidAt: '2026-08-27T09:15:00.000Z',
     });
     expect(buttons(settled.el)).not.toContain(text.paymentState.record);
+  });
+
+  /** The undo half: a box ticked on the wrong order is corrected here, and it
+   * is the same observation set the other way rather than a second control. */
+  it('offers a recorded payment back, and asks the server to clear it', async () => {
+    const setPayment = vi.fn(() => Promise.resolve(null));
+    const { fixture, el, get } = await render(
+      { ...placed, paymentState: 'paid', paidAt: '2026-08-27T09:15:00.000Z' },
+      { setPayment },
+    );
+    const confirm = TestBed.inject(ConfirmService);
+    vi.spyOn(confirm, 'ask').mockResolvedValue(true);
+
+    expect(buttons(el)).toContain(text.paymentState.clear);
+    const clear = [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === text.paymentState.clear,
+    );
+    clear?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(setPayment).toHaveBeenCalledWith(placed.reference, false);
+    // Refused or not, the page redraws from the server rather than from hope.
+    expect(get).toHaveBeenCalledTimes(2);
+  });
+
+  /** Nothing is owed on an order that ended without being filled, and nothing
+   * arrives for it either. */
+  it('offers no payment control on an ended order', async () => {
+    const { el } = await render({
+      ...placed,
+      status: 'cancelled',
+      paymentState: 'not-due',
+    });
+
+    expect(buttons(el)).not.toContain(text.paymentState.record);
+    expect(buttons(el)).not.toContain(text.paymentState.clear);
   });
 
   it('says so when the move was refused, and shows the order as it now is', async () => {

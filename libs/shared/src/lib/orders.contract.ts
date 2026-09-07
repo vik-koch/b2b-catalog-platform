@@ -416,6 +416,18 @@ export const orderCancellationSchema = z
   .strict();
 export type OrderCancellation = z.infer<typeof orderCancellationSchema>;
 
+/**
+ * What a manager observed about the money (FR-ORD-04): it arrived, or the
+ * earlier observation was wrong. A boolean rather than two routes because
+ * there is one fact here and both moves set it.
+ */
+export const orderPaymentSchema = z
+  .object({
+    paid: z.boolean(),
+  })
+  .strict();
+export type OrderPaymentInput = z.infer<typeof orderPaymentSchema>;
+
 /** The signed-in account's own orders, and staff's view of all of them. */
 const authed = oc.errors(commonAuthErrors);
 
@@ -560,24 +572,34 @@ export const ordersContract = {
     .output(adminOrderDetailSchema),
 
   /**
-   * Record that the money arrived (FR-ORD-04). A manager's observation, not a
-   * transaction: nothing here takes a payment, and the order's status is
-   * untouched by it.
+   * Record that the money arrived, or take that record back (FR-ORD-04). A
+   * manager's observation, not a transaction: nothing here takes a payment,
+   * and the order's status is untouched either way.
+   *
+   * One endpoint with the answer in the body, like the transition one: the
+   * undo is the same observation corrected, not a refund. Clearing it puts the
+   * order back to what its method and status say it owes, so an invoiced order
+   * the shop is still waiting on reads `awaiting` again.
    */
-  recordOrderPayment: authed
+  setOrderPayment: authed
     .route({
       method: 'POST',
       path: '/admin/orders/{reference}/payment',
       inputStructure: 'detailed',
-      summary: 'Record an order as paid (admin, manager)',
+      summary: "Record or clear an order's payment (admin, manager)",
     })
     .errors({
       ...orderNotFound,
-      /** Already recorded, or the order ended without being filled. Nothing to
-       * record either way. */
+      /** Nothing to change: already recorded, already clear, or an order that
+       * ended without being filled. */
       'payment-not-recordable': { status: 409 },
     })
-    .input(z.object({ params: z.object({ reference: z.string() }) }))
+    .input(
+      z.object({
+        params: z.object({ reference: z.string() }),
+        body: orderPaymentSchema,
+      }),
+    )
     .output(adminOrderDetailSchema),
 
   /**

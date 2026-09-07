@@ -129,8 +129,10 @@ export function transitionNeedsReason(
  * Accepting an order makes the invoiced methods due. Ending one un-dues what
  * was never paid, so a cancelled order stops counting as money the shop is
  * waiting for. Cash appears in neither: it exists only at the handover, which
- * is a manager recording a payment and not a transition at all. And `paid` is
- * never walked back — a refund happens in the shop's books, not here.
+ * is a manager recording a payment and not a transition at all. And no
+ * transition walks `paid` back: a refund happens in the shop's books, and a
+ * mis-tick is corrected by clearing the record itself
+ * (`paymentStateWithoutPayment`), not by moving the order.
  */
 export function nextPaymentState(
   state: PaymentStateName,
@@ -150,4 +152,27 @@ export function nextPaymentState(
   if (state === 'not-due' && accepted && dueOnAcceptance) return 'awaiting';
   if (state === 'awaiting' && ended) return 'not-due';
   return state;
+}
+
+/**
+ * What an order owes when no payment is recorded on it — the state a cleared
+ * payment falls back to.
+ *
+ * It is derived, not remembered: nothing stores what the payment state was
+ * before a manager ticked the box, and it does not need to. An invoiced order
+ * the shop has accepted is owed money whether or not somebody once said it
+ * had arrived; anything else — a cash order, or one still waiting for an
+ * answer — is not due yet.
+ */
+export function paymentStateWithoutPayment(
+  status: OrderStatusName,
+  method: PaymentMethodName,
+): PaymentStateName {
+  const dueOnAcceptance = (
+    PAYMENT_METHODS_DUE_ON_ACCEPTANCE as readonly PaymentMethodName[]
+  ).includes(method);
+  const answered =
+    !(ENDED_ORDER_STATUSES as readonly OrderStatusName[]).includes(status) &&
+    status !== 'requested';
+  return dueOnAcceptance && answered ? 'awaiting' : 'not-due';
 }

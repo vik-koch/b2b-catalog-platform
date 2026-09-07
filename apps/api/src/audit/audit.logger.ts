@@ -62,7 +62,10 @@ export type AuditAction =
   // asked later is who answered this order and when, and a name per state
   // would have to be extended every time the vocabulary grows.
   | 'order.status'
-  | 'order.paid';
+  // The money arrived, or that observation was taken back — a mis-tick, not a
+  // refund. Both are audited: the record of what a manager said is the point.
+  | 'order.paid'
+  | 'order.unpaid';
 
 /**
  * Domain events for admin mutations — who changed what.

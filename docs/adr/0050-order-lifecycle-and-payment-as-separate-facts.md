@@ -32,6 +32,11 @@ pickup"; a status per payment method.
 - **Cash is never `awaiting`.** A cash order stays `not-due` and becomes `paid`
   when the manager records the handover, which is the only moment cash exists.
   Bank transfer and card enter `awaiting` on acceptance.
+- **Recording a payment is undoable too.** A box ticked on the wrong order is
+  the same mis-click a wrong answer is, and the same undo applies: clearing it
+  puts the order back to what its method and status say it owes — derived, not
+  remembered, since nothing stores what the state was before. It is not a
+  refund; money going back is the shop's books, not this column.
 - **Transitions are service operations with the rule stated once**, in a role
   table the UI calls like any other caller:
 

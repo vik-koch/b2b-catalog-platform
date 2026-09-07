@@ -1098,7 +1098,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const paid = await post(
         `/admin/orders/${reference}/payment`,
-        undefined,
+        { paid: true },
         managerCookie,
       );
       expect(paid.status).toBe(200);
@@ -1109,7 +1109,41 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const again = await post(
         `/admin/orders/${reference}/payment`,
-        undefined,
+        { paid: true },
+        managerCookie,
+      );
+      expect(again.status).toBe(409);
+      expect(again.data.code).toBe('payment-not-recordable');
+    });
+
+    /**
+     * The undo, for the box ticked on the wrong order. What it clears *to* is
+     * derived, never remembered: an accepted bank-transfer order owes money
+     * again, because that is what its method and status say.
+     */
+    it('takes a recorded payment back, to what the order owes', async () => {
+      const reference = await place();
+      await move(reference, { to: 'approved', reason: null }, managerCookie);
+      await post(
+        `/admin/orders/${reference}/payment`,
+        { paid: true },
+        managerCookie,
+      );
+
+      const cleared = await post(
+        `/admin/orders/${reference}/payment`,
+        { paid: false },
+        managerCookie,
+      );
+      expect(cleared.status).toBe(200);
+      expect(cleared.data.paymentState).toBe('awaiting');
+      expect(cleared.data.paidAt).toBeNull();
+      expect(cleared.data.status).toBe('approved');
+
+      // Nothing left to clear: the same refusal recording twice gets.
+      const again = await post(
+        `/admin/orders/${reference}/payment`,
+        { paid: false },
         managerCookie,
       );
       expect(again.status).toBe(409);
@@ -1126,7 +1160,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await post(
         `/admin/orders/${reference}/payment`,
-        undefined,
+        { paid: true },
         managerCookie,
       );
 

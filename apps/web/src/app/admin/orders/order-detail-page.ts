@@ -133,16 +133,16 @@ import { AdminOrdersService } from './orders.service';
                 class="flex flex-wrap items-start justify-between gap-x-4 gap-y-2"
               >
                 <span>{{ paymentLabel(order) }}</span>
-                @if (canRecordPayment()) {
+                @if (paymentMove(); as move) {
                   <button
                     appButton
                     size="sm"
                     variant="secondary"
                     type="button"
                     [disabled]="busy()"
-                    (click)="recordPayment(order)"
+                    (click)="move.run()"
                   >
-                    {{ text.paymentState.record }}
+                    {{ move.label }}
                   </button>
                 }
               </dd>
@@ -168,20 +168,30 @@ import { AdminOrdersService } from './orders.service';
               [subtotalMinor]="order.totalMinor"
               [shipment]="order.shipment"
             />
+            <a
+              appButton
+              variant="secondary"
+              routerLink="/admin/orders"
+              class="mt-5 w-full"
+            >
+              {{ text.back }}
+            </a>
           </aside>
         </div>
       </div>
     } @else if (missing()) {
       <p class="text-muted">{{ text.notFound }}</p>
+      <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
+        {{ text.back }}
+      </a>
     } @else if (order.error()) {
       <p class="text-muted" role="alert">{{ text.loadError }}</p>
+      <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
+        {{ text.back }}
+      </a>
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }
-
-    <a appButton variant="secondary" routerLink="/admin/orders" class="mt-10">
-      {{ text.back }}
-    </a>
   `,
 })
 export class AdminOrderDetailPage {
@@ -252,8 +262,15 @@ export class AdminOrderDetailPage {
     });
   }
 
+  /**
+   * When the order last moved, to the minute. Nothing records the moves before
+   * this one — an order carries where it stands, not how it got there (the
+   * audit log is that record) — so this timestamp is the whole history the
+   * page can show, and a date alone would leave a manager unable to tell two
+   * moves made the same afternoon apart.
+   */
   protected statusChanged(order: AdminOrderDetail): string {
-    return this.dateFormat.format(new Date(order.statusChangedAt));
+    return this.dateTimeFormat.format(new Date(order.statusChangedAt));
   }
 
   protected statusLabel(order: AdminOrderDetail): string {
@@ -273,7 +290,9 @@ export class AdminOrderDetailPage {
     if (order.paymentState === 'awaiting') return payment.awaiting;
     if (order.paymentState !== 'paid') return payment.notDue;
     return fillText(payment.paid, {
-      date: order.paidAt ? this.dateFormat.format(new Date(order.paidAt)) : '',
+      date: order.paidAt
+        ? this.dateTimeFormat.format(new Date(order.paidAt))
+        : '',
     });
   }
 
@@ -366,26 +385,46 @@ export class AdminOrderDetailPage {
     );
   }
 
-  protected readonly canRecordPayment = computed(() => {
+  /**
+   * The one move the payment row offers: record it, or take that record back.
+   *
+   * Both are the same observation — a manager saying whether the money is
+   * here — and the undo exists for the same reason reopening does: a box
+   * ticked on the wrong order must not stand for good. It is not a refund;
+   * that happens in the shop's books.
+   *
+   * Neither is offered on an order that ended without being filled: nothing
+   * is owed on it and nothing arrives for it.
+   */
+  protected readonly paymentMove = computed(() => {
     const order = this.detail();
-    if (!order) return false;
+    if (!order) return null;
     const ended = order.status === 'declined' || order.status === 'cancelled';
-    return !ended && order.paymentState !== 'paid';
+    if (ended) return null;
+    const payment = this.text.paymentState;
+    const paid = order.paymentState === 'paid';
+    return {
+      label: paid ? payment.clear : payment.record,
+      run: () => this.setPayment(order, !paid),
+    };
   });
 
-  protected async recordPayment(order: AdminOrderDetail): Promise<void> {
+  private async setPayment(
+    order: AdminOrderDetail,
+    paid: boolean,
+  ): Promise<void> {
     const payment = this.text.paymentState;
     const confirmed = await this.confirm.ask({
-      heading: payment.confirmHeading,
-      message: payment.confirmMessage,
-      confirmLabel: payment.confirm,
+      heading: paid ? payment.confirmHeading : payment.clearConfirmHeading,
+      message: paid ? payment.confirmMessage : payment.clearConfirmMessage,
+      confirmLabel: paid ? payment.confirm : payment.clearConfirm,
       cancelLabel: payment.keep,
       confirmVariant: 'primary',
     });
     if (!confirmed) return;
 
     await this.run(
-      () => this.api.recordPayment(order.reference),
+      () => this.api.setPayment(order.reference, paid),
       payment.error,
     );
   }
@@ -410,6 +449,13 @@ export class AdminOrderDetailPage {
   private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {
     dateStyle: 'long',
   });
+
+  /** For the two facts a manager reads as moments rather than as days: when
+   * the order last moved, and when the payment was recorded. */
+  private readonly dateTimeFormat = new Intl.DateTimeFormat(
+    this.currency.locale,
+    { dateStyle: 'long', timeStyle: 'short' },
+  );
 
   constructor() {
     usePageSeo({ name: () => this.reference() });

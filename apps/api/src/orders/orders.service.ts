@@ -43,6 +43,7 @@ import {
   resolveDeliveryZone,
   StaffOrderSort,
   TransitionTarget,
+  paymentStateWithoutPayment,
   transitionNeedsReason,
 } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../addresses/addresses.service';
@@ -722,38 +723,53 @@ export class OrdersService {
   }
 
   /**
-   * Record that the money arrived (FR-ORD-04) — a manager's observation, not a
-   * transaction. It moves nothing else: a cash order is recorded as paid at
-   * the handover and an invoiced one whenever the transfer lands, and neither
-   * says anything about where the order stands.
+   * Record that the money arrived, or take that record back (FR-ORD-04) — a
+   * manager's observation, not a transaction. It moves nothing else: a cash
+   * order is recorded as paid at the handover and an invoiced one whenever the
+   * transfer lands, and neither says anything about where the order stands.
+   *
+   * Clearing it is the same correction reopening is: a box ticked by mistake
+   * must not leave an order marked paid for good, and the shop's books are
+   * where a real refund lives. What it clears *to* is not the state the order
+   * was in before — that is not recorded — but what its method and status say
+   * it owes now.
    */
-  async recordPayment(
+  async setPayment(
     reference: string,
+    paid: boolean,
     byUserId: string,
   ): Promise<AdminOrderDetail> {
-    const [paid] = await this.db
+    const current = await this.row(eq(orders.reference, reference));
+    const cleared = paymentStateWithoutPayment(
+      current.status as OrderStatus,
+      current.paymentMethod as PaymentMethod,
+    );
+
+    const [changed] = await this.db
       .update(orders)
-      .set({ paymentState: 'paid', paidAt: new Date(), paidBy: byUserId })
+      .set(
+        paid
+          ? { paymentState: 'paid', paidAt: new Date(), paidBy: byUserId }
+          : { paymentState: cleared, paidAt: null, paidBy: null },
+      )
       .where(
         and(
-          eq(orders.reference, reference),
-          // Not already recorded, and not an order nobody owes anything on.
-          // Restated in the write rather than checked first, so two managers
-          // cannot both record the same payment.
-          sql`${orders.paymentState} <> 'paid'`,
+          eq(orders.id, current.id),
+          // Not already where it is being asked to go, and never on an order
+          // nobody owes anything on. Restated in the write rather than checked
+          // first, so two managers cannot both record the same payment.
+          paid
+            ? sql`${orders.paymentState} <> 'paid'`
+            : sql`${orders.paymentState} = 'paid'`,
           sql`${orders.status} not in ('declined', 'cancelled')`,
         ),
       )
       .returning();
 
-    if (!paid) {
-      // Either there is no such order or there is nothing to record on it.
-      // A staff caller may be told apart: they are allowed to know the order
-      // exists.
-      await this.row(eq(orders.reference, reference));
+    if (!changed) {
       throw new ConflictException({
         code: 'payment-not-recordable',
-        message: 'Nothing to record on this order',
+        message: 'Nothing to change on this order',
       });
     }
     return this.getForStaff(reference);
