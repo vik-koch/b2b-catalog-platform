@@ -133,6 +133,8 @@ const ADMIN_LIST_KEYS = [
   ...ORDER_SUMMARY_KEYS,
   'contactName',
   'customerEmail',
+  // Staff read the money column through the method as well as the state.
+  'paymentMethod',
 ].sort();
 
 const request = (method: 'get' | 'post') =>

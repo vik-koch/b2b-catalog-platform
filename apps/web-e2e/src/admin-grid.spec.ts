@@ -69,14 +69,21 @@ test.describe('admin grids on a desktop', () => {
 
     const before = await columnWidths(page);
     const widthBefore = await tableWidth(page);
-    const handle = page.locator('thead th [role="separator"]').first();
+    // The widest column, and the boundary on its right. A boundary only moves
+    // as far as the column giving way has above its own minimum, and the
+    // columns are measured from their content — so which one has room depends
+    // on what the list currently shows, and is asked rather than assumed.
+    const dragged = before
+      .slice(0, -1)
+      .reduce(
+        (widest, width, index) => (width > before[widest] ? index : widest),
+        0,
+      );
+    const handle = page.locator('thead th [role="separator"]').nth(dragged);
     const box = await handle.boundingBox();
-    if (!box) throw new Error('the first column has no boundary to drag');
+    if (!box) throw new Error('the widest column has no boundary to drag');
 
-    // Leftwards: a boundary can only move as far as one of the two columns
-    // has above its own minimum, and the columns are measured from their
-    // content — so the room is in the first column, which carries a
-    // fixed-width reference, rather than in the one it borders.
+    // Leftwards: the widest column is the one with slack to give.
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
     await page.mouse.move(box.x + box.width / 2 - 60, box.y + box.height / 2, {
@@ -85,26 +92,26 @@ test.describe('admin grids on a desktop', () => {
     await page.mouse.up();
 
     const after = await columnWidths(page);
-    // What the first column gives up, the second gains: the table is still as
+    // What that column gives up, its neighbour gains: the table is still as
     // wide as it was, so nothing else on the row moved.
     //
     // The table's own width, not the sum of the columns': each column width is
     // rounded before it is added up, so the total drifts by a pixel per column
     // for reasons that have nothing to do with the drag.
-    expect(after[0]).toBeLessThan(before[0] - 40);
-    expect(after[1]).toBeGreaterThan(before[1] + 40);
+    expect(after[dragged]).toBeLessThan(before[dragged] - 40);
+    expect(after[dragged + 1]).toBeGreaterThan(before[dragged + 1] + 40);
     expect(await tableWidth(page)).toBeCloseTo(widthBefore, 0);
 
     // Kept across a reload, per grid and per admin.
     await page.reload();
     await expect(page.locator('tbody tr').first()).toBeVisible();
-    expect((await columnWidths(page))[0]).toBeCloseTo(after[0], 0);
+    expect((await columnWidths(page))[dragged]).toBeCloseTo(after[dragged], 0);
 
     // And thrown away again on request, which measures the content afresh.
     await page.getByRole('button', { name: 'Reset column widths' }).click();
     await expect
-      .poll(async () => (await columnWidths(page))[0])
-      .toBeCloseTo(before[0], 0);
+      .poll(async () => (await columnWidths(page))[dragged])
+      .toBeCloseTo(before[dragged], 0);
   });
 
   // A photo and a row of buttons need what they need; a share of the table is
