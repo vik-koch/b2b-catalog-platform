@@ -854,6 +854,270 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(body.HTML).toContain(`/admin/orders/${reference}`);
       expect(body.Text).toContain(MAIL_CONTACT);
     });
+
+    // FR-NOTIF-03. The mail says what the order now is, so the reason a
+    // refusal carries has to be in it — being told no without being told why
+    // is the mail nobody can answer.
+    it('writes to the customer whenever their order moves', async () => {
+      await deleteMatching(customerMail);
+      const placed = await post(
+        '/orders',
+        submission({
+          contact: {
+            name: 'Ada Lovelace',
+            email: MAIL_CONTACT,
+            phone: '+49 40 7654321',
+          },
+        }),
+      );
+      await deleteMatching(customerMail);
+
+      const res = await post(
+        `/admin/orders/${placed.data.reference}/status`,
+        { to: 'declined', reason: 'Out of stock until October' },
+        managerCookie,
+      );
+      expect(res.status).toBe(200);
+
+      const [message] = await messagesMatching(
+        `${customerMail} ${about(placed.data.reference)}`,
+      );
+      expect(message).toBeDefined();
+      const body = await messageBody(message.ID);
+      expect(body.Text).toContain('Out of stock until October');
+      // A guest reads it through the link they were mailed.
+      expect(body.HTML).toContain(`/orders/${placed.data.publicToken}`);
+    });
+  });
+
+  /**
+   * Order processing (FR-ORD-01/02/04). What is worth pinning across the wire
+   * is the half a unit test cannot reach: that the transition table is
+   * actually consulted by both callers, that the second axis moves with the
+   * first where it should and stays put where it should not, and that a race
+   * between two managers has one winner.
+   */
+  describe('moving an order through its states', () => {
+    const place = async (
+      overrides: Record<string, unknown> = {},
+      cookie?: string,
+    ) => {
+      const res = await post(
+        '/orders',
+        submission({
+          expectedTotalMinor: cookie ? TIER_MINOR * 2 : BASE_MINOR * 2,
+          ...overrides,
+        }),
+        cookie,
+      );
+      expect(res.status).toBe(201);
+      return res.data.reference as string;
+    };
+    const move = (reference: string, body: unknown, cookie: string) =>
+      post(`/admin/orders/${reference}/status`, body, cookie);
+
+    it('accepts a request and starts waiting for the transfer', async () => {
+      const reference = await place();
+
+      const res = await move(
+        reference,
+        { to: 'approved', reason: null },
+        managerCookie,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data).toMatchObject({
+        status: 'approved',
+        paymentState: 'awaiting',
+        statusReason: null,
+        paidAt: null,
+      });
+      expect(Object.keys(res.data).sort()).toEqual(ADMIN_DETAIL_KEYS);
+    });
+
+    it('leaves a cash order not due: cash exists at the handover', async () => {
+      const reference = await place({
+        // A private customer, since a company is invoiced rather than paying
+        // cash (FR-CART-04).
+        party: party({ name: 'Ada Lovelace', registrationId: null }),
+        paymentMethod: 'cash',
+      });
+
+      const res = await move(
+        reference,
+        { to: 'approved', reason: null },
+        managerCookie,
+      );
+
+      expect(res.data.paymentState).toBe('not-due');
+    });
+
+    it('refuses to decline without saying why', async () => {
+      const reference = await place();
+
+      const res = await move(
+        reference,
+        { to: 'declined', reason: null },
+        managerCookie,
+      );
+
+      expect(res.status).toBe(400);
+      expect(res.data.code).toBe('reason-required');
+    });
+
+    it('declines with a reason, and keeps the order', async () => {
+      const reference = await place();
+
+      const res = await move(
+        reference,
+        { to: 'declined', reason: 'Out of stock until October' },
+        managerCookie,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.status).toBe('declined');
+      expect(res.data.statusReason).toBe('Out of stock until October');
+      // The customer reads the reason on their own order, not only in a mail.
+      const mine = await get(`/admin/orders/${reference}`, managerCookie);
+      expect(mine.data.statusReason).toBe('Out of stock until October');
+    });
+
+    it('refuses a move the order has already made', async () => {
+      const reference = await place();
+      expect(
+        (await move(reference, { to: 'approved', reason: null }, managerCookie))
+          .status,
+      ).toBe(200);
+
+      const again = await move(
+        reference,
+        { to: 'approved', reason: null },
+        managerCookie,
+      );
+
+      expect(again.status).toBe(409);
+      expect(again.data.code).toBe('transition-not-allowed');
+    });
+
+    it('walks an accepted order to ready and then to completed', async () => {
+      const reference = await place();
+      await move(reference, { to: 'approved', reason: null }, managerCookie);
+
+      const ready = await move(
+        reference,
+        { to: 'ready', reason: null },
+        managerCookie,
+      );
+      expect(ready.data.status).toBe('ready');
+      // Being ready says nothing about the money: the two axes are separate.
+      expect(ready.data.paymentState).toBe('awaiting');
+
+      const done = await move(
+        reference,
+        { to: 'completed', reason: null },
+        managerCookie,
+      );
+      expect(done.data.status).toBe('completed');
+    });
+
+    it('keeps a customer out of the staff transitions', async () => {
+      const reference = await place({}, customerCookie);
+
+      expect(
+        (
+          await move(
+            reference,
+            { to: 'approved', reason: null },
+            customerCookie,
+          )
+        ).status,
+      ).toBe(403);
+    });
+
+
+    it('records a payment once, and only once', async () => {
+      const reference = await place();
+      await move(reference, { to: 'approved', reason: null }, managerCookie);
+
+      const paid = await post(
+        `/admin/orders/${reference}/payment`,
+        undefined,
+        managerCookie,
+      );
+      expect(paid.status).toBe(200);
+      expect(paid.data.paymentState).toBe('paid');
+      expect(paid.data.paidAt).not.toBeNull();
+      // And it did not move the order along: the shop still has to hand it over.
+      expect(paid.data.status).toBe('approved');
+
+      const again = await post(
+        `/admin/orders/${reference}/payment`,
+        undefined,
+        managerCookie,
+      );
+      expect(again.status).toBe(409);
+      expect(again.data.code).toBe('payment-not-recordable');
+    });
+
+    it('has nothing to record on an order that ended', async () => {
+      const reference = await place();
+      await move(
+        reference,
+        { to: 'declined', reason: 'Nothing left' },
+        managerCookie,
+      );
+
+      const res = await post(
+        `/admin/orders/${reference}/payment`,
+        undefined,
+        managerCookie,
+      );
+
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('payment-not-recordable');
+    });
+
+    /** Staff's undo. The mis-click has to be recoverable: without this an
+     * order refused by accident is stuck at the wrong answer, and the only way
+     * back is asking the customer to order again under a new reference. */
+    it('reopens an order that ended, clearing the reason with it', async () => {
+      const reference = await place();
+      await move(
+        reference,
+        { to: 'declined', reason: 'Meant to click the other one' },
+        managerCookie,
+      );
+
+      const back = await move(
+        reference,
+        { to: 'requested', reason: null },
+        managerCookie,
+      );
+
+      expect(back.status).toBe(200);
+      expect(back.data.status).toBe('requested');
+      // The reason belonged to the ending that has just been undone.
+      expect(back.data.statusReason).toBeNull();
+      // And it can be answered again from there, like any other request.
+      const answered = await move(
+        reference,
+        { to: 'approved', reason: null },
+        managerCookie,
+      );
+      expect(answered.data.status).toBe('approved');
+    });
+
+
+    it('answers 404 for a reference that is nobody’s order', async () => {
+      const res = await move(
+        `NO-SUCH-${SUFFIX}`,
+        { to: 'approved', reason: null },
+        managerCookie,
+      );
+
+      expect(res.status).toBe(404);
+      expect(res.data.code).toBe('order-not-found');
+    });
   });
 
   describe('reading an order back', () => {

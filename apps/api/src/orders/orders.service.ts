@@ -211,6 +211,11 @@ export class OrdersService {
    * where that is true.
    */
   async notifyStatusChanged(reference: string): Promise<void> {
+    const row = await this.row(eq(orders.reference, reference));
+    await this.notifications.statusChanged(
+      await this.getForStaff(reference),
+      row.publicToken,
+    );
   }
 
   async notifyPlaced(placed: {

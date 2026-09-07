@@ -112,5 +112,48 @@
     "itemsHeading": "Ordered",
     "totalLabel": "Total",
     "action": "Open the order"
+  },
+  "orderStatusChanged": {
+    "subject": "Your order",
+    "preheader": "There is news about your order.",
+    "referenceLabel": "Order",
+    "totalLabel": "Total",
+    "reasonLabel": "Reason",
+    "itemsHeading": "Your items",
+    "action": "Open your order",
+    "statuses": {
+      "reopened": {
+        "heading": "Your order is back with us",
+        "body": "We have put your order back in our queue and will come back to you about it shortly. Anything we told you about it before no longer applies."
+      },
+      "approved": {
+        "heading": "Your order is confirmed",
+        "body": "We have confirmed your order as you sent it. We will let you know as soon as it is ready."
+      },
+      "adjusted": {
+        "heading": "Your order is confirmed, with the changes we agreed",
+        "body": "We have confirmed your order with the changes we discussed. Its contents and total are below — please tell us if anything reads differently from what we agreed."
+      },
+      "readyDelivery": {
+        "heading": "Your order is on its way",
+        "body": "Your order has left us for delivery to the address below."
+      },
+      "readyPickup": {
+        "heading": "Your order is ready to collect",
+        "body": "Your order is packed and waiting at the pickup location below. Please bring your order number."
+      },
+      "completed": {
+        "heading": "Your order is complete",
+        "body": "Your order is finished. Thank you — we look forward to the next one."
+      },
+      "declined": {
+        "heading": "We cannot fill this order",
+        "body": "We are sorry: we are unable to fill this order. The reason is below, and you are welcome to call us about it."
+      },
+      "cancelled": {
+        "heading": "Your order has been cancelled",
+        "body": "This order has been cancelled and nothing will be delivered or charged."
+      }
+    }
   }
 }
