@@ -228,6 +228,12 @@ export const mailTextSchema = z
         totalLabel: z.string(),
         /** Precedes the reason a declined or cancelled order carries. */
         reasonLabel: z.string(),
+        /** Where the order is going, or where it is waiting. Only on the two
+         * `ready` mails: those are the ones whose wording sends the reader
+         * somewhere, and every other status mail would be repeating the
+         * address back for no reason. */
+        deliveryLabel: z.string(),
+        pickupLabel: z.string(),
         itemsHeading: z.string(),
         action: z.string(),
         statuses: z

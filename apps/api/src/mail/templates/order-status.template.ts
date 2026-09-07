@@ -28,6 +28,40 @@ function wordingKey(
 }
 
 /**
+ * Where the order is now — the office it is waiting at, or the address it is
+ * on its way to. One line, because a mail row is one line: the address reads
+ * the way it is written on an envelope, comma-separated.
+ */
+function destination(
+  order: OrderDetail,
+  t: MailText['orderStatusChanged'],
+): { label: string; value: string }[] {
+  if (order.pickup) {
+    return [
+      {
+        label: t.pickupLabel,
+        value: `${order.pickup.name} · ${order.pickup.address}`,
+      },
+    ];
+  }
+  const address = order.deliveryAddress;
+  if (!address) return [];
+  return [
+    {
+      label: t.deliveryLabel,
+      value: [
+        address.street,
+        address.street2,
+        [address.postalCode, address.city].filter(Boolean).join(' '),
+        address.region,
+      ]
+        .filter(Boolean)
+        .join(', '),
+    },
+  ];
+}
+
+/**
  * Sent to the customer when their order moves (FR-NOTIF-03).
  *
  * It carries the order as it now stands, not a description of the change: a
@@ -61,6 +95,10 @@ export function orderStatusChangedMail(
       ...(order.statusReason
         ? [{ label: t.reasonLabel, value: order.statusReason }]
         : []),
+      // The two `ready` mails send the reader somewhere, so they say where.
+      // Only those two: every other status mail repeating the address back
+      // would be answering a question nobody asked.
+      ...(status === 'ready' ? destination(order, t) : []),
       {
         label: t.totalLabel,
         value: formatMoneyMinor(order.totalMinor, currency),

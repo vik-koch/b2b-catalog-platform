@@ -128,6 +128,8 @@ export const demoMailText: MailText = {
     referenceLabel: 'Order',
     totalLabel: 'Total',
     reasonLabel: 'Reason',
+    deliveryLabel: 'Delivery address',
+    pickupLabel: 'Collect from',
     itemsHeading: 'Your items',
     action: 'Open your order',
     statuses: {
@@ -161,7 +163,7 @@ export const demoMailText: MailText = {
       },
       cancelled: {
         heading: 'Your order has been cancelled',
-        body: 'This order has been cancelled and nothing will be delivered or charged.',
+        body: 'This order has been cancelled and will not be filled. The reason is below, and you are welcome to call us about it.',
       },
     },
   },
