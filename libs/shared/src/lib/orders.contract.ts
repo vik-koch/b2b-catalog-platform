@@ -1,14 +1,18 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
+  DIRECT_TRANSITION_TARGETS,
   FULFILMENT_METHODS,
   ORDER_NOTE_MAX,
   ORDER_QUERY_MAX_LENGTH,
+  ORDER_STATUS_REASON_MAX,
   ORDER_STATUSES,
   PARTY_NAME_MAX,
   PAYMENT_METHODS,
+  PAYMENT_STATES,
   PICKUP_LOCATION_KEY_MAX,
   STAFF_ORDER_SORTS,
+  STAFF_PAYMENT_FILTERS,
 } from './order-constants';
 import { addressInputSchema, countryCodeSchema } from './address.contract';
 import {
@@ -41,6 +45,18 @@ export type FulfilmentMethod = z.infer<typeof fulfilmentMethodSchema>;
 
 export const paymentMethodSchema = z.enum(PAYMENT_METHODS);
 export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
+
+/** Whether the money has arrived (FR-ORD-04), read apart from the status. */
+export const paymentStateSchema = z.enum(PAYMENT_STATES);
+export type PaymentState = z.infer<typeof paymentStateSchema>;
+
+/** How the payment column is narrowed, for staff only (FR-ORD-04). */
+export const staffPaymentFilterSchema = z.enum(STAFF_PAYMENT_FILTERS);
+export type StaffPaymentFilter = z.infer<typeof staffPaymentFilterSchema>;
+
+/** What a manager may move an order to without rewriting it (FR-ORD-02). */
+export const transitionTargetSchema = z.enum(DIRECT_TRANSITION_TARGETS);
+export type TransitionTarget = z.infer<typeof transitionTargetSchema>;
 
 /**
  * Where an order goes, and where its invoice goes. The same shape as a saved
@@ -196,6 +212,14 @@ export const orderSummarySchema = z
   .object({
     reference: z.string(),
     status: orderStatusSchema,
+    /** The second axis (FR-ORD-04). In the list because "accepted, still
+     * unpaid" is one row a manager scans for, and because a customer's own
+     * list is where they find out something is owed. */
+    paymentState: paymentStateSchema,
+    /** How it reaches the customer. In the summary because the status is read
+     * through it: a `ready` order is waiting on a shelf or on its way, and a
+     * row that cannot say which cannot word its own badge. */
+    fulfilmentMethod: fulfilmentMethodSchema,
     createdAt: z.iso.datetime(),
     totalMinor: z.number().int().nonnegative(),
     currency: z.string(),
@@ -250,7 +274,6 @@ export const orderDetailSchema = orderSummarySchema.extend({
   /** Who it was invoiced to, as it read when the order was placed — resolved
    * from the account where the customer named nobody else. */
   party: orderingPartySchema,
-  fulfilmentMethod: fulfilmentMethodSchema,
   deliveryAddress: orderAddressSchema.nullable(),
   pickup: orderPickupSchema.nullable(),
   deliveryZone: orderDeliveryZoneSchema.nullable(),
@@ -260,6 +283,10 @@ export const orderDetailSchema = orderSummarySchema.extend({
   paymentMethod: paymentMethodSchema,
   preferredDate: z.iso.date().nullable(),
   customerNote: z.string().nullable(),
+  /** Why it was declined or called off (FR-ORD-02), null on every other
+   * status. The customer is told it, so it is on their view and not only in
+   * the mail they were sent. */
+  statusReason: z.string().nullable(),
   lines: z.array(orderLineSchema),
   shipment: cartPreviewSchema.shape.shipment,
 });
@@ -276,6 +303,10 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   /** Which list it was priced from; null means the default one. */
   tierKey: z.string().nullable(),
   statusChangedAt: z.iso.datetime(),
+  /** When the money was recorded as received, null until it was. Who recorded
+   * it is kept on the row for the record but not served: nothing on this
+   * screen asks, and it would cost a join on every read. */
+  paidAt: z.iso.datetime().nullable(),
 });
 export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
 
@@ -350,6 +381,57 @@ const submissionErrors = {
  * existing: whether a reference exists is not something a stranger gets to
  * learn. */
 const orderNotFound = { 'order-not-found': { status: 404 } } as const;
+
+/**
+ * Everything a transition can be refused for (FR-ORD-02).
+ *
+ * `transition-not-allowed` covers both halves of the table at once — the move
+ * this actor may never make, and the move nobody can make from where the order
+ * now stands. They are one answer on purpose: an order that moved while the
+ * screen was open should be reloaded, and telling a caller *which* of the two
+ * it was tells a customer about states they cannot see.
+ */
+const transitionErrors = {
+  ...orderNotFound,
+  'transition-not-allowed': { status: 409 },
+  /** Declining or cancelling says why; the customer's mail quotes it. */
+  'reason-required': { status: 400 },
+} as const;
+
+/** What a manager records, and what they say about it. */
+export const orderTransitionSchema = z
+  .object({
+    to: transitionTargetSchema,
+    /** Required for the two ways an order ends, null for every other move. */
+    reason: z.string().trim().min(1).max(ORDER_STATUS_REASON_MAX).nullable(),
+  })
+  .strict();
+export type OrderTransition = z.infer<typeof orderTransitionSchema>;
+
+/**
+ * A customer calling their own order off: the same move, with only the one
+ * thing they get to say about it — and they need not say it. The shop's own
+ * refusals are quoted at a customer and must explain themselves; a customer
+ * owes the shop no justification for changing their mind.
+ */
+export const orderCancellationSchema = z
+  .object({
+    reason: z.string().trim().min(1).max(ORDER_STATUS_REASON_MAX).nullable(),
+  })
+  .strict();
+export type OrderCancellation = z.infer<typeof orderCancellationSchema>;
+
+/**
+ * What a manager observed about the money (FR-ORD-04): it arrived, or the
+ * earlier observation was wrong. A boolean rather than two routes because
+ * there is one fact here and both moves set it.
+ */
+export const orderPaymentSchema = z
+  .object({
+    paid: z.boolean(),
+  })
+  .strict();
+export type OrderPaymentInput = z.infer<typeof orderPaymentSchema>;
 
 /** The signed-in account's own orders, and staff's view of all of them. */
 const authed = oc.errors(commonAuthErrors);
@@ -441,6 +523,7 @@ export const ordersContract = {
            * of a reference as readily as all of it.
            */
           q: z.string().trim().max(ORDER_QUERY_MAX_LENGTH).optional(),
+          payment: staffPaymentFilterSchema.optional(),
           sort: staffOrderSortSchema.optional(),
         }),
       }),
@@ -452,6 +535,10 @@ export const ordersContract = {
             orderSummarySchema.extend({
               customerEmail: z.string().nullable(),
               contactName: z.string(),
+              /** Staff only: the money column reads the method as well as the
+               * state, because a cash order waiting to be handed over is not a
+               * state — it is `not-due` like an unanswered one. */
+              paymentMethod: paymentMethodSchema,
             }),
           ),
           pagination: paginationSchema,
@@ -469,4 +556,84 @@ export const ordersContract = {
     .errors(orderNotFound)
     .input(z.object({ params: z.object({ reference: z.string() }) }))
     .output(adminOrderDetailSchema),
+
+  /**
+   * Move an order (FR-ORD-01/02). One endpoint rather than a verb apiece,
+   * because the rule that says which moves exist is one table and this is the
+   * caller that asks it.
+   *
+   * It answers with the order, so a screen that acted on it redraws from what
+   * the server now holds rather than from what it hoped would happen.
+   */
+  transitionOrder: authed
+    .route({
+      method: 'POST',
+      path: '/admin/orders/{reference}/status',
+      inputStructure: 'detailed',
+      summary: 'Accept, refuse, or move on an order (admin, manager)',
+    })
+    .errors(transitionErrors)
+    .input(
+      z.object({
+        params: z.object({ reference: z.string() }),
+        body: orderTransitionSchema,
+      }),
+    )
+    .output(adminOrderDetailSchema),
+
+  /**
+   * Record that the money arrived, or take that record back (FR-ORD-04). A
+   * manager's observation, not a transaction: nothing here takes a payment,
+   * and the order's status is untouched either way.
+   *
+   * One endpoint with the answer in the body, like the transition one: the
+   * undo is the same observation corrected, not a refund. Clearing it puts the
+   * order back to what its method and status say it owes, so an invoiced order
+   * the shop is still waiting on reads `awaiting` again.
+   */
+  setOrderPayment: authed
+    .route({
+      method: 'POST',
+      path: '/admin/orders/{reference}/payment',
+      inputStructure: 'detailed',
+      summary: "Record or clear an order's payment (admin, manager)",
+    })
+    .errors({
+      ...orderNotFound,
+      /** Nothing to change: already recorded, already clear, or an order that
+       * ended without being filled. */
+      'payment-not-recordable': { status: 409 },
+    })
+    .input(
+      z.object({
+        params: z.object({ reference: z.string() }),
+        body: orderPaymentSchema,
+      }),
+    )
+    .output(adminOrderDetailSchema),
+
+  /**
+   * The customer calling their own order off (FR-ORD-02). Its own route rather
+   * than the staff one with a wider guard: this caller may make exactly one
+   * move, on exactly their own orders, and a body that cannot name another
+   * target is the plainest way to say so.
+   *
+   * Deliberately absent from the token view. A mailed link is a read
+   * capability, and a forwarded mail must not be able to stop an order.
+   */
+  cancelMyOrder: authed
+    .route({
+      method: 'POST',
+      path: '/account/orders/{reference}/cancel',
+      inputStructure: 'detailed',
+      summary: 'Call off your own order while the shop has not started on it',
+    })
+    .errors(transitionErrors)
+    .input(
+      z.object({
+        params: z.object({ reference: z.string() }),
+        body: orderCancellationSchema,
+      }),
+    )
+    .output(orderDetailSchema),
 };

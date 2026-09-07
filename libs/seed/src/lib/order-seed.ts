@@ -134,6 +134,7 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
   const { rows: inserted } = await client.query<{ id: string }>(
     `INSERT INTO orders (
        reference, "publicToken", "userId", status, "statusChangedAt", "statusChangedBy",
+       "statusReason", "paymentState", "paidAt",
        "contactName", "contactEmail", "contactPhone", "paymentMethod", "fulfilmentMethod",
        "partyName", "partyRegistrationId",
        "billingStreet", "billingStreet2", "billingPostalCode", "billingCity", "billingCountry",
@@ -145,7 +146,9 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
        "shipmentApproximate", "shipmentUncoveredLines",
        currency, "tierKey", "createdAt")
      VALUES (
-       $1, $2, $3, $4, $5::timestamptz, $6, $7, $8, $9, $10, $11,
+       $1, $2, $3, $4, $5::timestamptz, $6, $39, $40::varchar,
+       case when $40::varchar = 'paid' then $5::timestamptz end,
+       $7, $8, $9, $10, $11,
        $12, $13, $14, $15, $16, $17, $18,
        $19, $20, $21, $22, $23, $24, $25,
        $26, $27, $28, $29, $30, $31,
@@ -195,6 +198,11 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
       shipment.uncoveredLines,
       CURRENCY,
       tierKey,
+      order.statusReason ?? null,
+      // Whoever recorded the payment is left null for the same reason the
+      // status has no author: naming a manager who never touched the order
+      // would be a fixture pretending to be a record.
+      order.paymentState ?? 'not-due',
     ],
   );
 

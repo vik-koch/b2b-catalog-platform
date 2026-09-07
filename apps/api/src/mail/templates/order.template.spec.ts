@@ -3,6 +3,7 @@ import { demoAdminOrder as order } from '../../orders/order.fixture';
 import { demoMailText } from '../mail-text.fixture';
 import { newOrderMail } from './new-order.template';
 import { orderReceivedMail } from './order-received.template';
+import { orderStatusChangedMail } from './order-status.template';
 
 const currency: MoneyFormat = { code: 'EUR', locale: 'de-DE' };
 
@@ -115,6 +116,85 @@ describe('newOrderMail', () => {
     expect(pickup.rows).toContainEqual({
       label: t.fulfilmentLabel,
       value: `${t.pickup} · Harbour store`,
+    });
+  });
+});
+
+/**
+ * The mail a move sends (FR-NOTIF-03). What is worth pinning is that the two
+ * `ready` wordings point somewhere and the mail actually carries it: a body
+ * reading "the address below" over a mail with no address on it is the
+ * failure this row exists to prevent.
+ */
+describe('orderStatusChangedMail', () => {
+  const t = demoMailText.orderStatusChanged;
+
+  it('carries the delivery address on the mail that promises it', () => {
+    const mail = orderStatusChangedMail(
+      { ...order, status: 'ready' },
+      'ready',
+      null,
+      currency,
+      demoMailText,
+    );
+
+    expect(mail.heading).toBe(t.statuses.readyDelivery.heading);
+    expect(mail.rows).toContainEqual({
+      label: t.deliveryLabel,
+      value: 'Hafenstraße 12, 20359 Hamburg',
+    });
+  });
+
+  it('carries the collection point on the pickup wording', () => {
+    const mail = orderStatusChangedMail(
+      {
+        ...order,
+        status: 'ready',
+        fulfilmentMethod: 'pickup',
+        deliveryAddress: null,
+        pickup: { key: 'harbour', name: 'Harbour store', address: 'Quay 3' },
+      },
+      'ready',
+      null,
+      currency,
+      demoMailText,
+    );
+
+    expect(mail.heading).toBe(t.statuses.readyPickup.heading);
+    expect(mail.rows).toContainEqual({
+      label: t.pickupLabel,
+      value: 'Harbour store · Quay 3',
+    });
+  });
+
+  // Every other move's wording sends the reader nowhere, so repeating the
+  // address back at them would be answering a question nobody asked.
+  it('leaves the address off every other move', () => {
+    const mail = orderStatusChangedMail(
+      { ...order, status: 'approved' },
+      'approved',
+      null,
+      currency,
+      demoMailText,
+    );
+
+    expect(JSON.stringify(mail.rows)).not.toContain('Hafenstraße');
+  });
+
+  // Both refusals quote it: being told no without being told why is the mail
+  // nobody can answer.
+  it('quotes the reason an order ended', () => {
+    const mail = orderStatusChangedMail(
+      { ...order, status: 'declined', statusReason: 'Out of stock' },
+      'declined',
+      null,
+      currency,
+      demoMailText,
+    );
+
+    expect(mail.rows).toContainEqual({
+      label: t.reasonLabel,
+      value: 'Out of stock',
     });
   });
 });

@@ -93,9 +93,9 @@ interface DetailRow {
         <div class="rounded-lg border border-border p-5">
           <!-- What waits on the account holder, above the rows it is about
                (FR-WORK-03): the same amber line the marker on the account
-               control leads here for, and the link narrows the history to it.
-               Nothing waits on a customer until order processing ships, so this
-               is silent for now. -->
+               control leads here for, and the link opens the history it is
+               about. Money due from them, and an order packed for them to
+               collect — silent when neither is true. -->
           @if (waitingOrders(); as count) {
             <app-work-note
               class="mb-4"

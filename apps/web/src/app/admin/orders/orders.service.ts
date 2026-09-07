@@ -4,7 +4,10 @@ import {
   OrderStatus,
   OrderSummary,
   Pagination,
+  PaymentMethod,
   StaffOrderSort,
+  StaffPaymentFilter,
+  TransitionTarget,
 } from '@b2b-catalog-platform/shared';
 import { ordersContract } from '../../core/contract-routes.generated';
 import { safe } from '@orpc/client';
@@ -14,6 +17,7 @@ import { createOrpcClient } from '../../core/orpc-client';
 export type StaffOrderSummary = OrderSummary & {
   customerEmail: string | null;
   contactName: string;
+  paymentMethod: PaymentMethod;
 };
 
 /**
@@ -29,6 +33,7 @@ export class AdminOrdersService {
   async list(query: {
     page: number;
     status?: OrderStatus;
+    payment?: StaffPaymentFilter;
     q?: string;
     sort?: StaffOrderSort;
   }): Promise<{ items: StaffOrderSummary[]; pagination: Pagination }> {
@@ -43,5 +48,42 @@ export class AdminOrdersService {
     }
     if (!result.isSuccess) throw result.error;
     return result.data;
+  }
+
+  /**
+   * Move an order (FR-ORD-01/02), answering with it as the server now holds
+   * it. Null where the move was refused — the order was answered by somebody
+   * else while this page was open, which is not an error worth throwing over:
+   * the page reloads and shows what it actually is now.
+   */
+  async transition(
+    reference: string,
+    to: TransitionTarget,
+    reason: string | null,
+  ): Promise<AdminOrderDetail | null> {
+    const result = await safe(
+      this.client.transitionOrder({
+        params: { reference },
+        body: { to, reason },
+      }),
+    );
+    if (result.isSuccess) return result.data;
+    if (!result.isDefined) throw result.error;
+    return null;
+  }
+
+  /** Record that the money arrived, or take that record back (FR-ORD-04).
+   * Null where there was nothing to change — already in that state, or an
+   * order that ended. */
+  async setPayment(
+    reference: string,
+    paid: boolean,
+  ): Promise<AdminOrderDetail | null> {
+    const result = await safe(
+      this.client.setOrderPayment({ params: { reference }, body: { paid } }),
+    );
+    if (result.isSuccess) return result.data;
+    if (!result.isDefined) throw result.error;
+    return null;
   }
 }

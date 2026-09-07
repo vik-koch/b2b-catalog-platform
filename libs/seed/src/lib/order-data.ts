@@ -21,7 +21,20 @@ export interface OrderSeed {
   placedOn: string;
   /** The account that placed it, by email, or null for a guest order. */
   email: string | null;
-  status: 'requested' | 'approved' | 'declined' | 'cancelled';
+  status:
+    | 'requested'
+    | 'approved'
+    | 'adjusted'
+    | 'ready'
+    | 'completed'
+    | 'declined'
+    | 'cancelled';
+  /** Where the money stands (FR-ORD-04), which the status does not say.
+   * Omitted means nothing is due. */
+  paymentState?: 'not-due' | 'awaiting' | 'paid';
+  /** Why a declined or cancelled order ended that way. The customer is told
+   * it, so the demo's ended orders carry one. */
+  statusReason?: string;
   paymentMethod: 'cash' | 'bank-transfer' | 'card-later';
   contactName: string;
   contactEmail: string;
@@ -140,15 +153,20 @@ export const addressSeeds: Record<
  * The orders themselves. Written one per case rather than generated, so the
  * staff list shows the shapes a manager actually has to read: both fulfilments,
  * all three payment methods, a guest with no account behind it, a third-party
- * invoice, a line carrying a variant note, and a status that is not `requested`.
+ * invoice, a line carrying a variant note, and orders spread across the states
+ * an order actually reaches — including one waiting on money and one that ended
+ * with a reason.
  */
 export const orderSeeds: OrderSeed[] = [
   {
     reference: 'CK-260811-4207',
     placedOn: '2026-08-11',
     email: 'einkauf@cafe-nordlicht.example',
-    status: 'approved',
+    status: 'ready',
     paymentMethod: 'bank-transfer',
+    // Accepted, handed over, and the transfer has not landed yet: the two axes
+    // at their least alike.
+    paymentState: 'awaiting',
     contactName: 'Lena Brinkmann',
     contactEmail: 'einkauf@cafe-nordlicht.example',
     contactPhone: '+494012010001',
@@ -203,8 +221,9 @@ export const orderSeeds: OrderSeed[] = [
     reference: 'CK-260820-6640',
     placedOn: '2026-08-20',
     email: 'anna.behrens@mail.example',
-    status: 'requested',
+    status: 'completed',
     paymentMethod: 'card-later',
+    paymentState: 'paid',
     contactName: 'Anna Behrens',
     contactEmail: 'anna.behrens@mail.example',
     contactPhone: '+494012010013',
@@ -229,6 +248,7 @@ export const orderSeeds: OrderSeed[] = [
     email: null,
     status: 'cancelled',
     paymentMethod: 'cash',
+    statusReason: 'Called us the same afternoon — ordering again next month.',
     contactName: 'Timo Reinders',
     contactEmail: 't.reinders@mail.example',
     contactPhone: '+494012019001',

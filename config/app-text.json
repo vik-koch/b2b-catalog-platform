@@ -309,8 +309,14 @@
     "itemCount": "{count} lines",
     "statusRequested": "Awaiting confirmation",
     "statusApproved": "Confirmed",
+    "statusAdjusted": "Confirmed with changes",
+    "statusReadyDelivery": "On its way to you",
+    "statusReadyPickup": "Ready to collect",
+    "statusCompleted": "Complete",
     "statusDeclined": "Declined",
     "statusCancelled": "Cancelled",
+    "paymentAwaiting": "Payment due",
+    "paymentPaid": "Paid",
     "error": "We could not load your orders right now. Please try again later.",
     "back": "Back to my account",
     "detail": {
@@ -318,7 +324,17 @@
       "contact": "Who we ask for",
       "notFound": "We cannot find that order on your account.",
       "backToList": "Back to my orders",
-      "error": "We could not load that order right now. Please try again later."
+      "error": "We could not load that order right now. Please try again later.",
+      "statusReason": "Why",
+      "cancel": {
+        "action": "Cancel this order",
+        "heading": "Cancel this order?",
+        "message": "We will stop working on order {reference}. You can always send us a new one.",
+        "reasonLabel": "Please tell us why",
+        "confirm": "Cancel the order",
+        "keep": "Keep the order",
+        "error": "We could not cancel that order. It may already have moved on — please reload the page or call us."
+      }
     },
     "public": {
       "heading": "Your order",

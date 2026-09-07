@@ -2,13 +2,12 @@ import {
   AuthUser,
   DOCUMENT_EXPIRY_WARNING_DAYS,
   isoToday,
-  CUSTOMER_WAITING_ORDER_STATUSES,
   UserRole,
   WorkCounts,
   WorkQueue,
 } from '@b2b-catalog-platform/shared';
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, inArray, isNotNull, isNull, lte } from 'drizzle-orm';
+import { and, eq, isNotNull, isNull, lte, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
@@ -132,17 +131,30 @@ export class WorkService {
   }
 
   /**
-   * The account's own orders that wait on the account holder. The status set
-   * is empty until order processing ships, so this is a constant zero rather
-   * than a query nobody can satisfy — see CUSTOMER_WAITING_ORDER_STATUSES.
+   * The account's own orders that wait on the account holder (FR-WORK-04) —
+   * the two things only the customer can finish (ADR 0050).
+   *
+   * An invoiced order that has been accepted is money the shop is waiting for,
+   * and an order packed for collection is waiting to be collected. Everything
+   * else on an order is the shop's work, however long it takes.
+   *
+   * A delivered order is not here: it waits on the driver, not on the person
+   * who ordered it. Nor is an order that ended — nothing is owed on it, and
+   * `awaiting` is cleared when it ends anyway.
    */
   private myOrders(userId: string): Promise<number> {
-    if (CUSTOMER_WAITING_ORDER_STATUSES.length === 0) return Promise.resolve(0);
     return this.db.$count(
       orders,
       and(
         eq(orders.userId, userId),
-        inArray(orders.status, [...CUSTOMER_WAITING_ORDER_STATUSES]),
+        sql`${orders.status} not in ('declined', 'cancelled')`,
+        or(
+          eq(orders.paymentState, 'awaiting'),
+          and(
+            eq(orders.status, 'ready'),
+            eq(orders.fulfilmentMethod, 'pickup'),
+          ),
+        ),
       ),
     );
   }

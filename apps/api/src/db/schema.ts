@@ -1,8 +1,10 @@
 import { sql } from 'drizzle-orm';
 import {
   FULFILMENT_METHODS,
+  ORDER_STATUS_REASON_MAX,
   ORDER_STATUSES,
   PAYMENT_METHODS,
+  PAYMENT_STATES,
   PRODUCT_AVAILABILITIES,
   PRODUCT_UNITS,
   type SyncOptions,
@@ -737,14 +739,31 @@ export const orders = pgTable(
       onDelete: 'no action',
     }),
     status: varchar('status', { length: 20 }).notNull().default('requested'),
-    // A status with no date is a status with no story — and the transitions
-    // that arrive later then find a trail already there.
+    // When it last moved, and who moved it. The latest transition only: an
+    // order's full history is not kept here, and the audit log is where a
+    // question about an earlier move is answered.
     statusChangedAt: timestamp('statusChangedAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
     statusChangedBy: uuid('statusChangedBy').references(() => users.id, {
       onDelete: 'set null',
     }),
+    // Why an order was declined or called off (FR-ORD-02). Null on every other
+    // status: the accepted ones explain themselves, and a blank string would
+    // be a reason somebody's mail would quote as nothing at all.
+    statusReason: varchar('statusReason', { length: ORDER_STATUS_REASON_MAX }),
+    // Whether the money has arrived (FR-ORD-04) — a second fact, not a step in
+    // the status above, because cash is paid after the goods are handed over
+    // and any single chain would be wrong about it. Every order starts
+    // `not-due`; acceptance moves the invoiced methods to `awaiting`.
+    paymentState: varchar('paymentState', { length: 20 })
+      .notNull()
+      .default('not-due'),
+    // When a manager recorded the money as received, and which one. Both null
+    // until then, and both stay set afterwards — this is the record that it
+    // happened, not a mutable flag.
+    paidAt: timestamp('paidAt', { withTimezone: true }),
+    paidBy: uuid('paidBy').references(() => users.id, { onDelete: 'set null' }),
     // Who to talk to about this order — asked on the form rather than read off
     // the account, since a guest has none and a colleague may take the call.
     contactName: varchar('contactName', { length: 200 }).notNull(),
@@ -822,6 +841,14 @@ export const orders = pgTable(
     index('orders_createdAt_idx').on(t.createdAt),
     check('orders_status_known', oneOf('status', ORDER_STATUSES)),
     check('orders_payment_known', oneOf('paymentMethod', PAYMENT_METHODS)),
+    check('orders_payment_state_known', oneOf('paymentState', PAYMENT_STATES)),
+    // Paid is the one payment state with a story, and it is the whole story:
+    // a paid order says when and by whom, and an unpaid one cannot claim
+    // either.
+    check(
+      'orders_paid_recorded',
+      sql`(${t.paymentState} = 'paid') = (${t.paidAt} is not null)`,
+    ),
     check(
       'orders_fulfilment_known',
       oneOf('fulfilmentMethod', FULFILMENT_METHODS),

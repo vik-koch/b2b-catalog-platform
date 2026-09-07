@@ -999,6 +999,7 @@ export const adminTextSchema = z
         customer: z.string(),
         items: z.string(),
         total: z.string(),
+        payment: z.string(),
         filterStatus: z.string(),
         statusAll: z.string(),
         /** The column's own noun, for the phone's sort picker — where "All
@@ -1006,10 +1007,27 @@ export const adminTextSchema = z
         status: z.string(),
         statusRequested: z.string(),
         statusApproved: z.string(),
+        statusAdjusted: z.string(),
+        /** One state, two readings (FR-ORD-01): the order's own fulfilment
+         * method decides which of the two a row shows. */
+        statusReadyDelivery: z.string(),
+        statusReadyPickup: z.string(),
+        statusCompleted: z.string(),
         statusDeclined: z.string(),
         statusCancelled: z.string(),
+        /** Whether anything is owed (FR-ORD-04), read apart from the status.
+         * An order with nothing due says nothing. */
+        filterPayment: z.string(),
+        paymentAll: z.string(),
+        paymentAwaiting: z.string(),
+        /** Staff only: an accepted cash order whose handover nobody has
+         * recorded yet — the tick that is easy to forget. */
+        paymentCash: z.string(),
+        paymentPaid: z.string(),
         /** A guest order: nobody signed in placed it. */
         guest: z.string(),
+        /** Screen-reader heading for the column of row buttons. */
+        actions: z.string(),
         /** `{count}` lines on the order. */
         itemCount: z.string(),
       })
@@ -1047,6 +1065,58 @@ export const adminTextSchema = z
         /** A line in basis units — `{count} × {price}`, the way the source
          * system prices. */
         basis: z.string(),
+        /** Why a declined or cancelled order ended that way. */
+        statusReason: z.string(),
+        /**
+         * Answering an order (FR-ORD-01/02/04). One label per move a manager
+         * makes, plus the confirmation the two refusals need — declining and
+         * cancelling are quoted at the customer, so both ask why.
+         */
+        actions: z
+          .object({
+            /** The list's own two glyphs: opening an order, and opening one
+             * that has not been answered yet. */
+            open: z.string(),
+            answer: z.string(),
+            approve: z.string(),
+            /** Undo an ending: back to a request the shop has to answer. */
+            reopen: z.string(),
+            ready: z.string(),
+            readyPickup: z.string(),
+            complete: z.string(),
+            decline: z.string(),
+            cancel: z.string(),
+            /** `{action}` names the move being confirmed. */
+            confirmHeading: z.string(),
+            confirmMessage: z.string(),
+            reasonLabel: z.string(),
+            keep: z.string(),
+            /** The move was refused: the order had already been answered. */
+            error: z.string(),
+          })
+          .strict(),
+        /** Recording that the money arrived. Not a transaction — the platform
+         * takes no payment. */
+        paymentState: z
+          .object({
+            heading: z.string(),
+            notDue: z.string(),
+            awaiting: z.string(),
+            /** `{date}` it was recorded. */
+            paid: z.string(),
+            record: z.string(),
+            confirmHeading: z.string(),
+            confirmMessage: z.string(),
+            confirm: z.string(),
+            /** Taking the record back — a mis-tick, never a refund. */
+            clear: z.string(),
+            clearConfirmHeading: z.string(),
+            clearConfirmMessage: z.string(),
+            clearConfirm: z.string(),
+            keep: z.string(),
+            error: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     userList: z

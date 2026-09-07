@@ -23,7 +23,12 @@ import {
   AddressInput,
   AdminOrderDetail,
   AdminOrderLine,
+  canTransition,
   DeliveryConfig,
+  transitionHasReason,
+  nextPaymentState,
+  ACCEPTED_ORDER_STATUSES,
+  OrderActor,
   OrderDetail,
   OrderingParty,
   OrderLine,
@@ -33,9 +38,15 @@ import {
   OrderSummary,
   ORDER_PAGE_SIZE,
   Pagination,
+  PaymentMethod,
+  PaymentState,
   ProductUnit,
   resolveDeliveryZone,
   StaffOrderSort,
+  StaffPaymentFilter,
+  TransitionTarget,
+  paymentStateWithoutPayment,
+  transitionNeedsReason,
 } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../addresses/addresses.service';
 import { OrderNotifications } from './order-notifications';
@@ -120,13 +131,17 @@ function orderListOrderBy(sort: StaffOrderSort): (SQL | PgColumn)[] {
 
 /**
  * What an order needs, as a number to sort by: a request is waiting on staff,
- * an approved order is in hand, and the two refusals are over. Columns are
+ * an accepted or ready one is in hand, and a finished or refused one is over.
+ * Three groups rather than one rank per status, because the question the sort
+ * answers is what to pick up next, not how far along each order is. Columns are
  * qualified by hand — a bare name in a template binds to whatever table the
  * surrounding query happens to make available.
  */
 const statusPriority = sql<number>`case ${orders.status}
   when 'requested' then 0
   when 'approved' then 1
+  when 'adjusted' then 1
+  when 'ready' then 1
   else 2
 end`;
 
@@ -193,6 +208,19 @@ export class OrdersService {
    * what the order *is* — snapshots, resolved zone and all — and cannot
    * describe it differently from the pages they link to.
    */
+  /**
+   * The customer's mail after a transition (FR-NOTIF-03). Read back rather
+   * than passed along: the mail says what the order now is, and the row is
+   * where that is true.
+   */
+  async notifyStatusChanged(reference: string): Promise<void> {
+    const row = await this.row(eq(orders.reference, reference));
+    await this.notifications.statusChanged(
+      await this.getForStaff(reference),
+      row.publicToken,
+    );
+  }
+
   async notifyPlaced(placed: {
     reference: string;
     publicToken: string;
@@ -529,15 +557,19 @@ export class OrdersService {
     status?: OrderStatus,
     q?: string,
     sort: StaffOrderSort = 'status',
+    payment?: StaffPaymentFilter,
   ): Promise<{
     items: (OrderSummary & {
       customerEmail: string | null;
       contactName: string;
+      paymentMethod: PaymentMethod;
     })[];
     pagination: Pagination;
   }> {
     const conditions: SQL[] = [];
     if (status) conditions.push(eq(orders.status, status));
+    const owed = this.paymentCondition(payment);
+    if (owed) conditions.push(owed);
     const search = this.searchCondition(q);
     if (search) conditions.push(search);
     const where = conditions.length ? and(...conditions) : undefined;
@@ -550,6 +582,7 @@ export class OrdersService {
         ...toSummary(row, counts.get(row.id) ?? 0),
         customerEmail: row.userId ? (emails.get(row.userId) ?? null) : null,
         contactName: row.contactName,
+        paymentMethod: row.paymentMethod as PaymentMethod,
       })),
       pagination,
     };
@@ -593,7 +626,160 @@ export class OrdersService {
       customerEmail: customer?.email ?? null,
       tierKey: row.tierKey,
       statusChangedAt: row.statusChangedAt.toISOString(),
+      paidAt: row.paidAt?.toISOString() ?? null,
     };
+  }
+
+  /**
+   * Move an order (FR-ORD-01/02).
+   *
+   * The rule lives in the shared transition table and is asked here, once, for
+   * every caller — staff, customer and whatever asks next. What the actor may
+   * do and what the order's current status permits are the same question and
+   * get the same answer: an order that has moved on is not this caller's
+   * business to be told about in detail.
+   *
+   * The write re-states the status it read, so two managers answering the same
+   * order at the same moment cannot both succeed — the second updates nothing
+   * and is refused like any other disallowed move.
+   */
+  private async move(
+    where: ReturnType<typeof and>,
+    actor: OrderActor,
+    to: TransitionTarget,
+    reason: string | null,
+    byUserId: string,
+  ): Promise<OrderRow> {
+    const current = await this.row(where);
+    const from = current.status as OrderStatus;
+    if (!canTransition(actor, from, to)) {
+      throw new ConflictException({
+        code: 'transition-not-allowed',
+        message: 'The order cannot be moved there',
+      });
+    }
+    if (transitionNeedsReason(to, actor) && !reason) {
+      throw new BadRequestException({
+        code: 'reason-required',
+        message: 'Say why, so the customer can be told',
+      });
+    }
+
+    const [moved] = await this.db
+      .update(orders)
+      .set({
+        status: to,
+        statusChangedAt: new Date(),
+        statusChangedBy: byUserId,
+        // Only the two refusals carry one, and a move that does not carry a
+        // reason clears the one an earlier move left behind.
+        statusReason: transitionHasReason(to) ? reason : null,
+        paymentState: nextPaymentState(
+          current.paymentState as PaymentState,
+          current.paymentMethod as PaymentMethod,
+          to,
+        ),
+      })
+      .where(and(eq(orders.id, current.id), eq(orders.status, from)))
+      .returning();
+
+    if (!moved) {
+      throw new ConflictException({
+        code: 'transition-not-allowed',
+        message: 'The order moved while it was being answered',
+      });
+    }
+    return moved;
+  }
+
+  /** Staff answering an order. Any status the table allows, from any order. */
+  async transitionForStaff(
+    reference: string,
+    to: TransitionTarget,
+    reason: string | null,
+    byUserId: string,
+  ): Promise<AdminOrderDetail> {
+    await this.move(
+      eq(orders.reference, reference),
+      'staff',
+      to,
+      reason,
+      byUserId,
+    );
+    return this.getForStaff(reference);
+  }
+
+  /**
+   * A customer calling their own order off. Scoped to their own rows in the
+   * `where`, so an order belonging to somebody else is a 404 before the
+   * transition table is even consulted.
+   */
+  async cancelForUser(
+    userId: string,
+    reference: string,
+    reason: string | null,
+  ): Promise<OrderDetail> {
+    const moved = await this.move(
+      and(eq(orders.reference, reference), eq(orders.userId, userId)),
+      'customer',
+      'cancelled',
+      reason,
+      userId,
+    );
+    return this.toDetail(moved);
+  }
+
+  /**
+   * Record that the money arrived, or take that record back (FR-ORD-04) — a
+   * manager's observation, not a transaction. It moves nothing else: a cash
+   * order is recorded as paid at the handover and an invoiced one whenever the
+   * transfer lands, and neither says anything about where the order stands.
+   *
+   * Clearing it is the same correction reopening is: a box ticked by mistake
+   * must not leave an order marked paid for good, and the shop's books are
+   * where a real refund lives. What it clears *to* is not the state the order
+   * was in before — that is not recorded — but what its method and status say
+   * it owes now.
+   */
+  async setPayment(
+    reference: string,
+    paid: boolean,
+    byUserId: string,
+  ): Promise<AdminOrderDetail> {
+    const current = await this.row(eq(orders.reference, reference));
+    const cleared = paymentStateWithoutPayment(
+      current.status as OrderStatus,
+      current.paymentMethod as PaymentMethod,
+    );
+
+    const [changed] = await this.db
+      .update(orders)
+      .set(
+        paid
+          ? { paymentState: 'paid', paidAt: new Date(), paidBy: byUserId }
+          : { paymentState: cleared, paidAt: null, paidBy: null },
+      )
+      .where(
+        and(
+          eq(orders.id, current.id),
+          // Not already where it is being asked to go, and never on an order
+          // nobody owes anything on. Restated in the write rather than checked
+          // first, so two managers cannot both record the same payment.
+          paid
+            ? sql`${orders.paymentState} <> 'paid'`
+            : sql`${orders.paymentState} = 'paid'`,
+          sql`${orders.status} not in ('declined', 'cancelled')`,
+        ),
+      )
+      .returning();
+
+    if (!changed) {
+      throw new ConflictException({
+        code: 'payment-not-recordable',
+        message: 'Nothing to change on this order',
+      });
+    }
+    return this.getForStaff(reference);
   }
 
   /**
@@ -606,6 +792,29 @@ export class OrdersService {
    * an order placed under one address and contacted at another is found by
    * either.
    */
+
+  /**
+   * What the payment column is narrowed to — the same three readings the badge
+   * gives, so a manager filters by what they can see. `cash` is the reminder
+   * one: an order the shop took on, to be paid in cash, with the handover not
+   * recorded yet.
+   */
+  private paymentCondition(filter?: StaffPaymentFilter): SQL | undefined {
+    if (!filter) return undefined;
+    if (filter === 'cash') {
+      return and(
+        eq(orders.paymentMethod, 'cash'),
+        eq(orders.paymentState, 'not-due'),
+        inArray(orders.status, [
+          ...ACCEPTED_ORDER_STATUSES,
+          'ready',
+          'completed',
+        ]),
+      );
+    }
+    return eq(orders.paymentState, filter);
+  }
+
   private searchCondition(q: string | undefined): SQL | undefined {
     const term = q?.trim();
     if (!term) return undefined;
@@ -737,6 +946,7 @@ export class OrdersService {
     return {
       reference: row.reference,
       status: row.status as OrderStatus,
+      paymentState: row.paymentState as PaymentState,
       createdAt: row.createdAt.toISOString(),
       totalMinor: row.totalMinor,
       currency: row.currency,
@@ -791,6 +1001,7 @@ export class OrdersService {
       paymentMethod: row.paymentMethod as OrderDetail['paymentMethod'],
       preferredDate: row.preferredDate,
       customerNote: row.customerNote,
+      statusReason: row.statusReason,
       lines,
       shipment: {
         cartons: row.shipmentCartons,
@@ -839,6 +1050,8 @@ function toSummary(row: OrderRow, itemCount: number): OrderSummary {
   return {
     reference: row.reference,
     status: row.status as OrderStatus,
+    paymentState: row.paymentState as PaymentState,
+    fulfilmentMethod: row.fulfilmentMethod as OrderSummary['fulfilmentMethod'],
     createdAt: row.createdAt.toISOString(),
     totalMinor: row.totalMinor,
     currency: row.currency,

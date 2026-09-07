@@ -1,22 +1,33 @@
 import {
   afterNextRender,
   Component,
+  computed,
   ElementRef,
   input,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import { Button } from './button';
+import { AutoGrow } from './auto-grow';
+import { FieldLabel } from './field-label';
+import { Input } from './input';
 import { DialogActions } from './dialog-actions';
 import { DialogPanel } from './dialog-panel';
 
 /**
- * Generic yes/no confirmation modal.
+ * Generic yes/no confirmation modal, optionally asking why.
+ *
+ * The reason field is here rather than in a second dialog because the question
+ * is the same one: a destructive answer that somebody has to be told about —
+ * an order declined, an order called off — is a confirmation with a sentence
+ * attached, and a caller that needs one should not have to build a modal.
+ *
  * Rendered by `ConfirmService` rather than used in templates directly.
  */
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [Button, DialogActions, DialogPanel],
+  imports: [AutoGrow, Button, DialogActions, DialogPanel, FieldLabel, Input],
   template: `
     <dialog
       #dialog
@@ -32,6 +43,22 @@ import { DialogPanel } from './dialog-panel';
       </h2>
       <p class="mt-3 text-muted">{{ message() }}</p>
 
+      @if (reasonLabel(); as label) {
+        <div class="mt-5">
+          <label appFieldLabel for="confirm-dialog-reason">{{ label }}</label>
+          <textarea
+            appInput
+            appAutoGrow
+            id="confirm-dialog-reason"
+            class="w-full"
+            rows="2"
+            [attr.maxlength]="reasonMaxLength()"
+            [value]="reason()"
+            (input)="reason.set($any($event.target).value)"
+          ></textarea>
+        </div>
+      }
+
       <div appDialogActions>
         <button
           appButton
@@ -45,7 +72,8 @@ import { DialogPanel } from './dialog-panel';
           appButton
           [variant]="confirmVariant()"
           type="button"
-          (click)="confirmed.emit()"
+          [disabled]="incomplete()"
+          (click)="confirmed.emit(reason().trim())"
         >
           {{ confirmLabel() }}
         </button>
@@ -62,9 +90,24 @@ export class ConfirmDialog {
   readonly confirmLabel = input.required<string>();
   readonly cancelLabel = input.required<string>();
   readonly confirmVariant = input<'primary' | 'danger'>('danger');
+  /** Present where the answer may say why; absent for a plain yes/no. */
+  readonly reasonLabel = input<string | null>(null);
+  readonly reasonMaxLength = input<number>(500);
+  /** Whether the answer is refused without one. A reason quoted *at* somebody
+   * has to exist; one quoted at the shop is a courtesy. */
+  readonly reasonRequired = input(true);
 
-  readonly confirmed = output<void>();
+  /** The reason as typed, or an empty string where none was asked for. */
+  readonly confirmed = output<string>();
   readonly cancelled = output<void>();
+
+  protected readonly reason = signal('');
+  protected readonly incomplete = computed(
+    () =>
+      this.reasonLabel() !== null &&
+      this.reasonRequired() &&
+      this.reason().trim() === '',
+  );
 
   constructor() {
     // showModal() must be called imperatively for the focus trap and backdrop;

@@ -5,6 +5,7 @@ import { MailService } from '../mail/mail.service';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { newOrderMail } from '../mail/templates/new-order.template';
 import { orderReceivedMail } from '../mail/templates/order-received.template';
+import { orderStatusChangedMail } from '../mail/templates/order-status.template';
 import { env } from '../env';
 
 /**
@@ -60,6 +61,37 @@ export class OrderNotifications {
           replyTo: order.contact.email,
         }),
       'staff order notification',
+    );
+  }
+
+  /**
+   * The customer's mail when their order moves (FR-NOTIF-03).
+   *
+   * To the address on the order, like the receipt — a colleague named as the
+   * contact is the person the shop has been talking to about it.
+   *
+   * `requested` never gets here: an order arriving is the receipt's job, and a
+   * transition can never land back on it.
+   */
+  async statusChanged(
+    order: AdminOrderDetail,
+    publicToken: string,
+  ): Promise<void> {
+    if (order.status === 'requested') return;
+    const status = order.status;
+    await this.send(
+      () =>
+        this.mail.send(
+          orderStatusChangedMail(
+            order,
+            status,
+            order.customerEmail ? null : publicToken,
+            this.currency,
+            this.text,
+          ),
+          { to: order.contact.email },
+        ),
+      'order status mail',
     );
   }
 

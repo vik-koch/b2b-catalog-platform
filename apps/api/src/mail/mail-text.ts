@@ -16,6 +16,11 @@ import * as z from 'zod';
  * nothing another template shares, so wording can be reworded per message
  * without a release.
  */
+/** What one status says: the line at the top, and the line under it. */
+const statusMailText = z
+  .object({ heading: z.string(), body: z.string() })
+  .strict();
+
 export const mailTextSchema = z
   .object({
     /** Wording the shared layout puts on every message. */
@@ -200,6 +205,51 @@ export const mailTextSchema = z
         itemsHeading: z.string(),
         totalLabel: z.string(),
         action: z.string(),
+      })
+      .strict(),
+    /**
+     * Sent to the customer whenever their order moves (FR-NOTIF-03).
+     *
+     * One mail with a heading and a body per state, rather than a template per
+     * state: everything around the words — the reference, the total, the link
+     * back — is the same in all of them, and a shop rewording its acceptance
+     * should not have to be told which of seven files to open.
+     *
+     * `ready` appears twice because it reads two ways: a collected order is
+     * ready to be picked up, a delivered one is on its way. It is one state
+     * (ADR 0050) and two sentences.
+     */
+    orderStatusChanged: z
+      .object({
+        /** The reference is appended, as on every other order mail. */
+        subject: z.string(),
+        preheader: z.string(),
+        referenceLabel: z.string(),
+        totalLabel: z.string(),
+        /** Precedes the reason a declined or cancelled order carries. */
+        reasonLabel: z.string(),
+        /** Where the order is going, or where it is waiting. Only on the two
+         * `ready` mails: those are the ones whose wording sends the reader
+         * somewhere, and every other status mail would be repeating the
+         * address back for no reason. */
+        deliveryLabel: z.string(),
+        pickupLabel: z.string(),
+        itemsHeading: z.string(),
+        action: z.string(),
+        statuses: z
+          .object({
+            /** An order the shop had ended and has put back in its queue —
+             * the only way a move lands on `requested`. */
+            reopened: statusMailText,
+            approved: statusMailText,
+            adjusted: statusMailText,
+            readyDelivery: statusMailText,
+            readyPickup: statusMailText,
+            completed: statusMailText,
+            declined: statusMailText,
+            cancelled: statusMailText,
+          })
+          .strict(),
       })
       .strict(),
   })

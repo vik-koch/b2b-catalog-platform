@@ -94,6 +94,22 @@ export class OrdersService {
   }
 
   /**
+   * Calling off one of the account's own orders (FR-ORD-02).
+   *
+   * Whether it is still allowed is the server's answer — the button is drawn
+   * from the same shared table, but the order may have been answered while the
+   * page was open, and `false` here is that having happened.
+   */
+  async cancelMine(reference: string, reason: string | null): Promise<boolean> {
+    const result = await safe(
+      this.client.cancelMyOrder({ params: { reference }, body: { reason } }),
+    );
+    if (result.isSuccess) return true;
+    if (!result.isDefined) throw result.error;
+    return false;
+  }
+
+  /**
    * The summary a mailed link opens (FR-NOTIF-06). The token is the whole
    * credential — no session is consulted, here or on the API — so a wrong or
    * stale one is simply an order nobody can open.
