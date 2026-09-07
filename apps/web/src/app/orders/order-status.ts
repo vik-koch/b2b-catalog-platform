@@ -53,6 +53,12 @@ export function orderStatusLabel(
 /**
  * The badge tone per status, shared by every screen that lists orders.
  *
+ * Three levels, not a ramp from yellow to green: the colour answers "is this
+ * mine to move?" and nothing finer. Amber is the shop's own inbox, blue is an
+ * order that is agreed and in flight, and only a settled order is green. An
+ * accepted order and one waiting on a shelf share a colour — the difference
+ * between them is a word to read, not a thing to count across a room.
+ *
  * Amber means somebody has to act, and who that somebody is decides the
  * colour. For staff a requested order is their queue. For a customer it is a
  * fact about where the order stands — they cannot answer their own order — and
@@ -76,10 +82,11 @@ export function orderStatusTone(
   }
   const tones: Record<Exclude<OrderStatus, 'ready'>, StatusTone> = {
     requested: audience === 'staff' ? 'waiting' : 'info',
-    approved: 'ok',
-    adjusted: 'ok',
-    // Green is for settled well, and an order that is finished is the only one
-    // that is finished. The two acceptances are on the way there.
+    // Green for the customer, blue for staff: an order the shop has taken on
+    // is good news to the one who placed it and open work to the one who has
+    // to fill it.
+    approved: audience === 'staff' ? 'info' : 'ok',
+    adjusted: audience === 'staff' ? 'info' : 'ok',
     completed: 'ok',
     declined: 'danger',
     cancelled: 'neutral',
@@ -133,11 +140,16 @@ export function orderPaymentTone(state: PaymentState): StatusTone {
  *
  * One reading more than a customer gets: a cash order the shop has taken on
  * sits in `not-due` until somebody records the handover, which looks exactly
- * like an unanswered order does. It is the one the manager has to come back
- * to — the goods go out and the tick is the only thing left — so it is said
- * out loud and in the same amber as money that has not arrived. A cash order
- * still waiting for an answer says nothing: nothing is owed on an order the
- * shop has not taken.
+ * like an unanswered order does. It is the one the manager has to come back to
+ * — the goods go out and the tick is the only thing left — so it is said out
+ * loud rather than left as an empty cell. A cash order still waiting for an
+ * answer says nothing: nothing is owed on an order the shop has not taken.
+ *
+ * Nothing here is amber. For staff the money column is a reminder, not a
+ * queue: an accepted order is owed money the whole time it is being packed,
+ * and a colour that means "act now" spent on a fact that stays true for days
+ * stops meaning anything. Amber on this screen belongs to the unanswered
+ * request alone.
  */
 export function staffPaymentBadge(
   order: {
@@ -148,15 +160,15 @@ export function staffPaymentBadge(
   labels: StaffPaymentLabels,
 ): { label: string; tone: StatusTone } | null {
   if (order.paymentState === 'paid') {
-    return { label: labels.paymentPaid, tone: 'neutral' };
+    return { label: labels.paymentPaid, tone: 'ok' };
   }
   if (order.paymentState === 'awaiting') {
-    return { label: labels.paymentAwaiting, tone: 'waiting' };
+    return { label: labels.paymentAwaiting, tone: 'info' };
   }
   const owedInCash =
     order.paymentMethod === 'cash' &&
     order.status !== 'requested' &&
     order.status !== 'declined' &&
     order.status !== 'cancelled';
-  return owedInCash ? { label: labels.paymentCash, tone: 'waiting' } : null;
+  return owedInCash ? { label: labels.paymentCash, tone: 'info' } : null;
 }
