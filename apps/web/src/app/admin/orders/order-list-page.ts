@@ -102,10 +102,19 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
         [emptyMessage]="filtered() ? text.noResults : text.empty"
       >
         <ng-template appGridRow [of]="data.items" let-order>
+          <!-- The reference opens the order as it stands to be read; the
+               action at the end of the row opens the screen where it is
+               answered. Two jobs, two links: most of what a manager does with
+               a list is look something up. -->
           <td class="truncate font-medium">
             <a
               class="hover:text-accent"
-              [routerLink]="['/admin/orders', order.reference]"
+              [routerLink]="[
+                '/admin/orders',
+                order.reference,
+                'revisions',
+                order.revisionNumber,
+              ]"
             >
               {{ order.reference }}
             </a>
@@ -164,7 +173,12 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
             <a
               class="truncate font-medium"
               [class.opacity-50]="isEnded(order)"
-              [routerLink]="['/admin/orders', order.reference]"
+              [routerLink]="[
+                '/admin/orders',
+                order.reference,
+                'revisions',
+                order.revisionNumber,
+              ]"
               >{{ order.reference }}</a
             >
 

@@ -25,6 +25,7 @@ const placed: StaffOrderSummary = {
   itemCount: 3,
   customerEmail: 'alex@example.com',
   contactName: 'Alex Fischer',
+  revisionNumber: 1,
 };
 
 function page(overrides: Partial<Pagination> = {}): Pagination {
@@ -112,7 +113,11 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
     expect(el.textContent).toContain('alex@example.com');
     expect(el.textContent).toContain(text.statusRequested);
     expect(
-      el.querySelector(`a[href="/admin/orders/${placed.reference}"]`),
+      // The title opens the version the row describes, read-only; the row's
+      // action opens the screen where the order is answered.
+      el.querySelector(
+        `a[href="/admin/orders/${placed.reference}/revisions/${placed.revisionNumber}"]`,
+      ),
     ).not.toBeNull();
   });
 

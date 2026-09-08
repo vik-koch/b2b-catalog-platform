@@ -27,6 +27,11 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import {
+  DISCLOSURE_FRAME,
+  disclosureBorder,
+  DisclosureToggle,
+} from '../../ui/disclosure-toggle';
 import { Skeleton } from '../../ui/skeleton';
 import { orderBlocks } from '../../orders/order-blocks';
 import { orderDateTimeFormat } from '../../orders/order-view';
@@ -40,6 +45,9 @@ import { orderStatusLabel, orderStatusTone } from '../../orders/order-status';
 import { ConfirmCheck } from '../../ui/confirm-dialog';
 import { ConfirmService } from '../../ui/confirm.service';
 import { AdminOrdersService } from './orders.service';
+import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
+import { orderChanges } from './order-changes';
+import { revisionKindLabel } from './revision-labels';
 
 /**
  * One order as staff read it (FR-AUTH-03) — the customer's own page plus what
@@ -61,6 +69,12 @@ function backwards(from: OrderStatus, to: TransitionTarget): boolean {
   return moveDirection(from, to) === 'backward';
 }
 
+/** One piece of the sentence that says how far behind the customer is: a run
+ * of the deployment's own words, or a version it names. */
+interface BehindPart {
+  text: string;
+  version: number | null;
+}
 
 /** The two choices a move offers, keyed so the answer can be read back. */
 const NOTIFY = 'notify';
@@ -72,6 +86,8 @@ const MARK_PAID = 'markPaid';
     RouterLink,
     AdminIcon,
     Button,
+    DisclosureToggle,
+    OrderAdjustChanges,
     Skeleton,
     OrderReadBack,
     OrderSummary,
@@ -226,6 +242,197 @@ const MARK_PAID = 'markPaid';
                      offers to write to them and most are taken up on it, so
                      this row is what is left: a change nobody announced, and
                      the moves somebody deliberately kept quiet. -->
+                @if (order.customerBehind) {
+                  <dt [class]="termCentred">{{ text.tellCustomer.heading }}</dt>
+                  <dd [class]="row" class="md:items-center">
+                    <!-- Each version the sentence names links at that
+                         version, and carries the weight the rest of the line
+                         does not: which versions these are is the whole content
+                         of it. Written as one line, because a newline between
+                         the parts is a space Angular would put back — in front
+                         of the semicolon. -->
+                    <!-- prettier-ignore -->
+                    <p class="min-w-0 flex-1">@for (part of behind(); track $index) {@if (part.version) {<a
+                      class="font-medium hover:text-accent"
+                      [routerLink]="['/admin/orders', order.reference, 'revisions', part.version]"
+                      [title]="revisionText.openRevision"
+                    >{{ part.text }}</a>} @else {{{ part.text }}}}</p>
+                    <div [class]="actions">
+                      <button
+                        appButton
+                        size="sm"
+                        variant="secondary"
+                        type="button"
+                        class="w-full gap-2"
+                        [disabled]="busy()"
+                        (click)="tellCustomer(order)"
+                      >
+                        <app-admin-icon name="send" class="h-4 w-4" />
+                        {{ text.tellCustomer.action }}
+                      </button>
+                    </div>
+                  </dd>
+                }
+
+                <!-- Every version of the order, newest first (FR-ORD-03) — what
+                   the shop said it changed, and the difference from the version
+                   before it. Inside this block rather than beside it: the
+                   history is the rest of what only staff see, and the order
+                   itself reads at the width it always did. Only where there is
+                   more than one version: an order nobody has adjusted has no
+                   history to read. -->
+                @if (order.revisionNumber > 1) {
+                  <dt [class]="termHistory">{{ revisionText.heading }}</dt>
+                  <dd [class]="value">
+                    <div
+                      class="rounded-md border"
+                      [class]="frame + ' ' + disclosureBorder(historyOpen())"
+                    >
+                      <app-disclosure-toggle
+                        [label]="revisionText.subheading"
+                        [count]="order.revisionNumber"
+                        [countLabel]="revisionCount(order)"
+                        [open]="historyOpen()"
+                        [panelId]="historyPanelId"
+                        (toggled)="historyOpen.set(!historyOpen())"
+                      />
+                      @if (historyOpen()) {
+                        <!-- The rule that divides the panel from its lid belongs to
+                         what is under it, not to the panel: the versions are
+                         fetched when the fold opens, and a bordered box with
+                         nothing in it yet drew a stray line across the rounded
+                         bottom of the frame for as long as the request took.
+                         The bars stand in for them meanwhile, so the panel
+                         opens to its content rather than to a hairline. -->
+                        <div [id]="historyPanelId">
+                          @if (history().length) {
+                            <!-- Ruled rather than spaced: a thread of six versions
+                             each carrying a note, a state and a fold reads as
+                             one block of text without a line between them. -->
+                            <ol
+                              class="divide-y divide-border border-t border-border"
+                            >
+                              @for (entry of history(); track entry.number) {
+                                <li class="p-4">
+                                  <div
+                                    class="flex flex-wrap items-center gap-x-2 gap-y-1"
+                                  >
+                                    <!-- What the version was for and where the
+                                     order stood, first: it is the sentence the
+                                     note below explains, and the note read as
+                                     its caption when the two were the other way
+                                     round. -->
+                                    <a
+                                      class="font-medium hover:text-accent"
+                                      [routerLink]="[
+                                        '/admin/orders',
+                                        order.reference,
+                                        'revisions',
+                                        entry.number,
+                                      ]"
+                                      [title]="revisionText.openRevision"
+                                    >
+                                      {{ entry.label }}
+                                    </a>
+                                    <!-- The order's own states in the order's own
+                                     colours: a version says where the order
+                                     stood when it was written, and a manager
+                                     reading the thread should not have to learn
+                                     a second vocabulary for it. -->
+                                    <span appStatusBadge [tone]="entry.tone">
+                                      {{ entry.status }}
+                                    </span>
+                                    <span class="text-subtle">
+                                      {{ entry.kindLabel }}
+                                    </span>
+                                  </div>
+                                  <p class="mt-1 text-subtle">
+                                    {{ entry.writtenBy }}
+                                  </p>
+
+                                  <!-- The two facts about the customer, in the
+                                   quiet variant: neither is a state of the
+                                   order, and drawn as solid pills beside the
+                                   status they read as three states of one
+                                   thing. -->
+                                  @if (entry.customerView || entry.notified) {
+                                    <p
+                                      class="mt-1 flex flex-wrap items-center gap-2"
+                                    >
+                                      @if (entry.customerView) {
+                                        <span
+                                          appStatusBadge
+                                          variant="dot"
+                                          tone="info"
+                                        >
+                                          {{ revisionText.customerView }}
+                                        </span>
+                                      }
+                                      @if (entry.notified; as notified) {
+                                        <span
+                                          appStatusBadge
+                                          variant="dot"
+                                          tone="ok"
+                                        >
+                                          {{ notified }}
+                                        </span>
+                                      }
+                                    </p>
+                                  }
+
+                                  @if (entry.note) {
+                                    <p class="mt-1">
+                                      <span class="text-subtle">
+                                        {{ revisionText.note }}:
+                                      </span>
+                                      {{ entry.note }}
+                                    </p>
+                                  }
+
+                                  <!-- The differences fold. They are the long half
+                                   of an entry and the half nobody reads twice,
+                                   and the comparison behind them is only run
+                                   for the ones actually opened — a thread of
+                                   twenty versions is twenty diffs of a whole
+                                   order otherwise. -->
+                                  @if (entry.kind === 'adjustment') {
+                                    <div class="mt-2">
+                                      <app-disclosure-toggle
+                                        class="-mx-4 block"
+                                        [label]="revisionText.changes"
+                                        [open]="diffOpen().has(entry.number)"
+                                        [panelId]="diffPanelId(entry.number)"
+                                        (toggled)="toggleDiff(entry.number)"
+                                      />
+                                      @if (diffOpen().has(entry.number)) {
+                                        <app-order-adjust-changes
+                                          [id]="diffPanelId(entry.number)"
+                                          [empty]="revisionText.noChanges"
+                                          [changes]="diff(entry.number)"
+                                        />
+                                      }
+                                    </div>
+                                  }
+                                </li>
+                              }
+                            </ol>
+                          } @else if (revisions.error()) {
+                            <p
+                              class="border-t border-border p-4 text-muted"
+                              role="alert"
+                            >
+                              {{ revisionText.loadError }}
+                            </p>
+                          } @else {
+                            <div class="border-t border-border p-4">
+                              <app-skeleton [lines]="3" />
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </dd>
+                }
               </dl>
             </section>
 
@@ -289,6 +496,9 @@ export class AdminOrderDetailPage {
   protected readonly text = inject(ADMIN_TEXT).orderDetail;
   protected readonly listText = inject(ADMIN_TEXT).orderList;
   protected readonly revisionText = this.text.revisions;
+  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly frame = DISCLOSURE_FRAME;
+  protected readonly disclosureBorder = disclosureBorder;
   /**
    * The block's rows, spelled the way the account page spells its own: no row
    * gap, but a margin under each half, so on a narrow screen a label sits
@@ -320,6 +530,17 @@ export class AdminOrderDetailPage {
    */
   protected readonly termCentred =
     this.term + ' flex flex-wrap md:items-center';
+  /**
+   * The history label, which centres on the fold's lid and stays there when
+   * the fold opens. Given the row's whole height it drifted down the page the
+   * moment a panel of six versions appeared under it, and the label of a thing
+   * does not move because the thing was opened. The height is the lid's own —
+   * its padding and its line — plus the frame drawn around it.
+   */
+  protected readonly termHistory =
+    this.term + ' flex flex-wrap md:h-[calc(2.5rem+2px)] md:items-center';
+  protected readonly historyPanelId = 'order-versions';
+  protected readonly historyOpen = signal(false);
 
   readonly reference = input.required<string>();
 
@@ -418,6 +639,177 @@ export class AdminOrderDetailPage {
    * than about the order, so neither lives on the resource. */
   protected readonly busy = signal(false);
   protected readonly failed = signal<string | null>(null);
+
+  /**
+   * Every version of this order, fetched only once the panel is opened: an
+   * order nobody has adjusted has one version, and a manager reading the
+   * current one is not asking about the others.
+   */
+  protected readonly revisions = resource({
+    params: () => (this.historyOpen() ? this.reference() : undefined),
+    loader: ({ params }) => this.api.revisions(params),
+  });
+
+  /**
+   * The history as it reads: each version, what the shop said about it, and
+   * what it changed from the one before — the same comparison the adjustment
+   * screen shows before anything is written, so what a manager approved is
+   * what the order says afterwards.
+   */
+  protected readonly history = computed(() => {
+    if (!this.revisions.hasValue()) return [];
+    const versions = this.revisions.value() ?? [];
+    return versions.map((version) => ({
+      number: version.revisionNumber,
+      note: version.note,
+      // What the version was written for, where the order stood when it was,
+      // and whether it is the one the customer is looking at — the three
+      // things a thread of versions has to say that a diff cannot.
+      kind: version.kind,
+      kindLabel: revisionKindLabel(version.kind, this.revisionText),
+      status: orderStatusLabel(
+        version.status,
+        version.fulfilmentMethod,
+        this.listText,
+      ),
+      tone: orderStatusTone(version.status, 'staff', version.fulfilmentMethod),
+      customerView: version.customerView,
+      // Null on a version nobody was written to about, which is most of them:
+      // the shop tells the customer when there is news, not per version.
+      notified: version.notifiedAt
+        ? fillText(this.revisionText.notified, {
+            date: this.dateTimeFormat.format(new Date(version.notifiedAt)),
+          })
+        : null,
+      label: fillText(this.revisionText.versionLabel, {
+        number: version.revisionNumber,
+      }),
+      writtenBy: fillText(this.revisionText.writtenBy, {
+        date: this.dateTimeFormat.format(new Date(version.revisionCreatedAt)),
+        who:
+          version.author ??
+          (version.revisionNumber === 1
+            ? this.revisionText.authorCustomer
+            : this.revisionText.authorUnknown),
+      }),
+    }));
+  });
+
+  /** Which versions have their differences unfolded. */
+  protected readonly diffOpen = signal(new Set<number>());
+
+  protected diffPanelId(number: number): string {
+    return `${this.historyPanelId}-diff-${number}`;
+  }
+
+  protected toggleDiff(number: number): void {
+    this.diffOpen.update((open) => {
+      const next = new Set(open);
+      if (!next.delete(number)) next.add(number);
+      return next;
+    });
+  }
+
+  /**
+   * What one version changed from the one before it — worked out when it is
+   * asked for rather than for the whole thread at once.
+   *
+   * Every entry is a whole order compared against a whole order, and a thread
+   * grows for as long as an order is worked on: doing all of them to render a
+   * list nobody has opened is the difference between a panel that appears and
+   * a panel that arrives.
+   */
+  protected diff(number: number): OrderChange[] {
+    const versions = this.revisions.hasValue()
+      ? (this.revisions.value() ?? [])
+      : [];
+    const index = versions.findIndex(
+      (version) => version.revisionNumber === number,
+    );
+    // The list is newest first, so the version this one superseded is the next
+    // entry along. Nothing before the first: it changed nothing, it began.
+    const before = index >= 0 ? versions[index + 1] : undefined;
+    if (!before) return [];
+    return orderChanges(
+      before,
+      versions[index],
+      this.revisionText,
+      this.text,
+      {
+        address: this.config.address,
+        phoneInput: this.config.phoneInput,
+        locale: this.currency.locale,
+      },
+      this.currency,
+    );
+  }
+
+  /**
+   * Which version the customer was last written to about and which one the
+   * order is on, as the pieces of one sentence: the deployment's wording, cut
+   * at its placeholders so each version it names can be a link to that version.
+   *
+   * Cut rather than composed, because the punctuation between the halves is
+   * the deployment's — a language that ends the clause differently, or writes
+   * the versions the other way round, still gets its own sentence.
+   */
+  protected readonly behind = computed((): BehindPart[] => {
+    const order = this.detail();
+    if (!order) return [];
+    const numbers: Record<string, number> = {
+      '{seen}': order.notifiedRevisionNumber,
+      '{current}': order.revisionNumber,
+    };
+    // An order nobody has written about yet has no version to name as the last
+    // one: its sentence has the one placeholder, and the split below simply
+    // finds nothing to fill for the other.
+    const template = order.notifiedRevisionNumber
+      ? this.text.tellCustomer.behind
+      : this.text.tellCustomer.never;
+    return template
+      .split(/(\{seen\}|\{current\})/)
+      .filter((piece) => piece !== '')
+      .map((piece) =>
+        piece in numbers
+          ? {
+              text: fillText(this.revisionText.versionInline, {
+                number: numbers[piece],
+              }),
+              version: numbers[piece],
+            }
+          : { text: piece, version: null },
+      );
+  });
+
+  protected revisionCount(order: AdminOrderDetail): string {
+    return fillText(this.common.countSuffix, { count: order.revisionNumber });
+  }
+
+  /**
+   * Whether the customer has been left behind the order (FR-NOTIF-03) —
+   * the order has moved or changed since the last message they were sent. The
+   * mail on a move is a tick in its confirmation; this is the same decision
+   * taken afterwards, for the change no move will mention and for the message
+   * somebody skipped and then thought better of.
+   */
+  protected readonly customerBehind = computed(
+    () => this.detail()?.customerBehind ?? false,
+  );
+
+  /** Bring the customer's view up to the order as it now stands, and mail
+   * them. Confirmed like a move is: it puts something in somebody's inbox. */
+  protected async tellCustomer(order: AdminOrderDetail): Promise<void> {
+    const tell = this.text.tellCustomer;
+    const go = await this.confirm.ask({
+      heading: tell.confirmHeading,
+      message: tell.confirmMessage,
+      confirmLabel: tell.confirm,
+      cancelLabel: this.text.actions.keep,
+      confirmVariant: 'primary',
+    });
+    if (!go) return;
+    await this.run(() => this.api.notifyCustomer(order.reference), tell.error);
+  }
 
   /**
    * The moves this page offers: the transition table's answer for staff,

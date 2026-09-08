@@ -1070,7 +1070,51 @@ export const adminTextSchema = z
          * changed, and the difference from the version before it. */
         revisions: z
           .object({
+            heading: z.string(),
+            /** `{count}` versions, on the lid of the panel. */
+            subheading: z.string(),
+            /** `{number}` of the version, `{date}` it was written and `{who}`
+             * wrote it. */
+            written: z.string(),
+            /** Version 1 is the order as it was sent, so nobody on the
+             * shop's side wrote it. */
+            authorCustomer: z.string(),
+            /** A later version with no author — an outside system, or a
+             * record made before authors were kept. */
+            authorUnknown: z.string(),
+            /** What each version was written for: the customer sent it, the
+             * shop moved the order, or the shop changed what it says. */
+            submitted: z.string(),
+            moved: z.string(),
+            changed: z.string(),
+            /** Marks the version the customer is being shown. */
+            customerView: z.string(),
+            note: z.string(),
+            changes: z.string(),
             noChanges: z.string(),
+            loadError: z.string(),
+            /** The version's own name — `{number}` — used as the link to the
+             * page that reads it back, with who wrote it and when beside it. */
+            versionLabel: z.string(),
+            /** The same name inside a running sentence — `{number}`, and
+             * lower-cased where the deployment's language wants it. */
+            versionInline: z.string(),
+            writtenBy: z.string(),
+            /** Which version the customer is on, where this is not it. */
+            customerOn: z.string(),
+            /** When the customer was written to about this version
+             * (FR-NOTIF-03) — `{date}`. */
+            notified: z.string(),
+            /** The way from reading a version to answering the order, and
+             * back the other way. */
+            openControls: z.string(),
+            openRevision: z.string(),
+            /** Row labels for the change list, as on the adjustment screen. */
+            line: z.string(),
+            added: z.string(),
+            removed: z.string(),
+            total: z.string(),
+            shipment: z.string(),
           })
           .strict(),
         /**
