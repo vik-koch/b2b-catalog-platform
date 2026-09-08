@@ -141,6 +141,13 @@
       "when": 1788770514169,
       "tag": "0019_order_status_and_payment",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1788793798555,
+      "tag": "0020_order_revisions",
+      "breakpoints": true
     }
   ]
 }

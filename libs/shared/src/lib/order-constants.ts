@@ -33,9 +33,20 @@ export const ORDER_STATUSES = [
 ] as const;
 
 /**
- * The statuses that mean the shop has accepted the order. Two of them because
- * acceptance has two shapes, not because there are two workflows: everywhere
- * except the wording and the cancel window they behave alike.
+ * Why a version of an order exists (FR-ORD-03).
+ *
+ * The order's whole history is its thread of versions, so a version is written
+ * for one of three reasons: the customer placed it, the shop moved it, or the
+ * shop changed what it says. Recorded rather than worked out by comparing two
+ * rows — the staff timeline reads it, and so does the decision whether a
+ * customer's mail has to mention that the order itself changed.
+ */
+export const ORDER_REVISION_KINDS = [
+  'submitted',
+  'transition',
+  'adjustment',
+] as const;
+
  */
 export const ACCEPTED_ORDER_STATUSES = ['approved', 'adjusted'] as const;
 
@@ -75,6 +86,18 @@ export const STAFF_PAYMENT_FILTERS = ['awaiting', 'cash', 'paid'] as const;
 
 /** As long as a manager needs to say why, and no longer than a note. */
 export const ORDER_STATUS_REASON_MAX = 500;
+
+/**
+ * What a manager writes about an adjustment (FR-ORD-03): what changed, and
+ * what was agreed. The same length as a reason, because it is the same kind of
+ * sentence and lands in the same mail.
+ *
+ * Optional in the contract and asked for by the screen. A person adjusting an
+ * order has just been on the phone and can say what was agreed; a system
+ * writing an adjustment back has nobody to ask, and refusing it for that would
+ * be refusing the adjustment itself.
+ */
+export const ORDER_ADJUSTMENT_NOTE_MAX = 500;
 
 /**
  * How the staff list is ordered (FR-AUTH-03).

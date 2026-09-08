@@ -1,6 +1,8 @@
 import { sql } from 'drizzle-orm';
 import {
   FULFILMENT_METHODS,
+  ORDER_ADJUSTMENT_NOTE_MAX,
+  ORDER_REVISION_KINDS,
   ORDER_STATUS_REASON_MAX,
   ORDER_STATUSES,
   PAYMENT_METHODS,
@@ -27,6 +29,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -715,19 +718,19 @@ function oneOf(column: string, values: readonly string[]) {
  * An order request (FR-CART-03). A request, not a sale: it is priced, recorded
  * and mailed, and a manager confirms it.
  *
- * Almost everything here is a **snapshot**. The addresses, the contact details,
- * the pickup office and the currency are copied in as they read at the time,
- * because all of them are editable elsewhere and an order has to stay readable
- * exactly as it was placed. Which book row an address was picked from is not
- * recorded: the snapshot is the record, and the row itself is editable and
- * deletable, so an id back to it would be a reference to something else.
+ * This row is the order's **identity and workflow** only — the number it is
+ * quoted by, the link it is read through, whose it is, where it stands and
+ * what it owes. Everything the order *says* lives on `order_revisions`, since
+ * a manager who adjusts an order writes a new version of it rather than
+ * editing this one (FR-ORD-03).
  */
 export const orders = pgTable(
   'orders',
   {
     id: uuid('id').primaryKey().defaultRandom(),
     // Quoted on the phone: `{prefix}-YYMMDD-NNNN` with a random suffix, so the
-    // shop's daily volume is not on every mail it sends.
+    // shop's daily volume is not on every mail it sends. It survives every
+    // adjustment, which is the whole reason adjustments are versions.
     reference: varchar('reference', { length: 32 }).notNull().unique(),
     // The capability a mailed link carries (FR-NOTIF-06): a guest has no
     // account to read their order from. Unguessable, and the only credential
@@ -738,20 +741,37 @@ export const orders = pgTable(
     userId: uuid('userId').references(() => users.id, {
       onDelete: 'no action',
     }),
+    // Which version every view shows. A column rather than "the highest
+    // number", so one read answers it and nothing has to agree on how to find
+    // the newest row. Nullable only because the order row is written first and
+    // its first revision a statement later, inside the same transaction.
+    currentRevisionId: uuid('currentRevisionId').references(
+      (): AnyPgColumn => orderRevisions.id,
+      { onDelete: 'no action' },
+    ),
+    // Which version the **customer** is shown, and so the last one they were
+    // told about (FR-NOTIF-03). It follows the order while the order is still
+    // running and stops when the order ends, so staff correcting a finished
+    // record — reopening it, changing it, finishing it again — do not mail the
+    // customer a lap of the workflow they never needed to see. Moving it on
+    // afterwards is a deliberate act with its own button.
+    customerRevisionId: uuid('customerRevisionId').references(
+      (): AnyPgColumn => orderRevisions.id,
+      { onDelete: 'no action' },
+    ),
+    // Where the order stands *now* — the query column: what the staff list
+    // filters, sorts and counts by. What a reader is *shown* comes off the
+    // revision they are looking at, which for a customer may be an earlier one.
     status: varchar('status', { length: 20 }).notNull().default('requested'),
     // When it last moved, and who moved it. The latest transition only: an
-    // order's full history is not kept here, and the audit log is where a
-    // question about an earlier move is answered.
+    // order's full history is its revisions (FR-ORD-03), and this is the one
+    // question a list answers without reading them.
     statusChangedAt: timestamp('statusChangedAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
     statusChangedBy: uuid('statusChangedBy').references(() => users.id, {
       onDelete: 'set null',
     }),
-    // Why an order was declined or called off (FR-ORD-02). Null on every other
-    // status: the accepted ones explain themselves, and a blank string would
-    // be a reason somebody's mail would quote as nothing at all.
-    statusReason: varchar('statusReason', { length: ORDER_STATUS_REASON_MAX }),
     // Whether the money has arrived (FR-ORD-04) — a second fact, not a step in
     // the status above, because cash is paid after the goods are handed over
     // and any single chain would be wrong about it. Every order starts
@@ -764,6 +784,89 @@ export const orders = pgTable(
     // happened, not a mutable flag.
     paidAt: timestamp('paidAt', { withTimezone: true }),
     paidBy: uuid('paidBy').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index('orders_userId_idx').on(t.userId),
+    index('orders_createdAt_idx').on(t.createdAt),
+    check('orders_status_known', oneOf('status', ORDER_STATUSES)),
+    check('orders_payment_state_known', oneOf('paymentState', PAYMENT_STATES)),
+    // Paid is the one payment state with a story, and it is the whole story:
+    // a paid order says when and by whom, and an unpaid one cannot claim
+    // either.
+    check(
+      'orders_paid_recorded',
+      sql`(${t.paymentState} = 'paid') = (${t.paidAt} is not null)`,
+    ),
+  ],
+);
+
+/**
+ * What an order says, as of one version of it (FR-ORD-03, ADR 0051).
+ *
+ * Submission writes revision 1; every move through the workflow and every
+ * staff adjustment writes the next one, and the order points at it. Superseded
+ * revisions are kept and stay readable by staff — that is what makes the thread
+ * the order's history rather than a pile of edits, and it is where a document
+ * generated earlier says it came from.
+ *
+ * A revision is therefore a **complete** reading of the order at one moment,
+ * status included. That is what lets the customer be shown a version the order
+ * has since moved past (`orders.customerRevisionId`) without any screen having
+ * to assemble one from two places.
+ *
+ * Almost everything here is a **snapshot**. The addresses, the contact details,
+ * the pickup office and the currency are copied in as they read at the time,
+ * because all of them are editable elsewhere and an order has to stay readable
+ * exactly as it was placed. Which book row an address was picked from is not
+ * recorded: the snapshot is the record, and the row itself is editable and
+ * deletable, so an id back to it would be a reference to something else.
+ */
+export const orderRevisions = pgTable(
+  'order_revisions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orderId: uuid('orderId')
+      .notNull()
+      .references(() => orders.id, { onDelete: 'cascade' }),
+    // 1 is what the customer submitted. Counted per order and unique, so two
+    // managers adjusting the same order at the same moment cannot both write
+    // the same version.
+    revisionNumber: integer('revisionNumber').notNull(),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    // Null on the customer's own submission, and on anything an outside system
+    // writes back — this names a person, not an author in general.
+    createdBy: uuid('createdBy').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    // What this version was written for: the customer's submission, a move
+    // through the workflow, or a change to what the order says. Stored rather
+    // than derived — a reader should not have to diff two rows to find out why
+    // one of them exists, and the customer's mail needs to know whether
+    // anything about the order itself changed since they were last written to.
+    kind: varchar('kind', { length: 20 }).notNull().default('adjustment'),
+    // Where the order stood as of this version (FR-ORD-01). Every transition
+    // writes a revision, so the thread is the order's whole history and any
+    // version can be read back complete — which is what lets the customer be
+    // shown one the order has since moved on from.
+    status: varchar('status', { length: 20 }).notNull().default('requested'),
+    // Why an order was declined or called off (FR-ORD-02). Null on every other
+    // status: the accepted ones explain themselves, and a blank string would
+    // be a reason somebody's mail would quote as nothing at all.
+    statusReason: varchar('statusReason', { length: ORDER_STATUS_REASON_MAX }),
+    // What the manager says changed, in their words. It describes this version
+    // and not the order; the customer's mail quotes it.
+    note: varchar('note', { length: ORDER_ADJUSTMENT_NOTE_MAX }),
+    // When the customer was written to about this version (FR-NOTIF-03), null
+    // where they never were. Stamped rather than derived: the version the
+    // customer is shown says what they are looking at, not which versions ever
+    // put something in their inbox, and staff reading the thread need to know
+    // which of them the customer has actually been told about.
+    notifiedAt: timestamp('notifiedAt', { withTimezone: true }),
     // Who to talk to about this order — asked on the form rather than read off
     // the account, since a guest has none and a colleague may take the call.
     contactName: varchar('contactName', { length: 200 }).notNull(),
@@ -807,7 +910,9 @@ export const orders = pgTable(
     pickupLocationAddress: text('pickupLocationAddress'),
     // The day the customer asked for, if any. Scheduling itself is coordinated
     // by phone or mail (FR-CART-07) — this is the wish a manager works from,
-    // and a date so it can be read back, sorted and compared as one.
+    // and a date so it can be read back, sorted and compared as one. Carried
+    // forward unchanged by an adjustment: it is the customer's wish, and a
+    // manager overwriting it would be answering on their behalf.
     preferredDate: date('preferredDate'),
     customerNote: text('customerNote'),
     totalMinor: integer('totalMinor').notNull(),
@@ -830,33 +935,31 @@ export const orders = pgTable(
     currency: varchar('currency', { length: 8 }).notNull(),
     // Staff-facing: which price list this was taken from. Null is the default
     // list. Never serialized to the customer, and cleared by anonymization for
-    // the same reason `users.tierId` is.
+    // the same reason `users.tierId` is. A manager re-pricing an order from
+    // another list (FR-CART-09) writes a revision that says so.
     tierKey: varchar('tierKey', { length: 64 }),
-    createdAt: timestamp('createdAt', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
   },
   (t) => [
-    index('orders_userId_idx').on(t.userId),
-    index('orders_createdAt_idx').on(t.createdAt),
-    check('orders_status_known', oneOf('status', ORDER_STATUSES)),
-    check('orders_payment_known', oneOf('paymentMethod', PAYMENT_METHODS)),
-    check('orders_payment_state_known', oneOf('paymentState', PAYMENT_STATES)),
-    // Paid is the one payment state with a story, and it is the whole story:
-    // a paid order says when and by whom, and an unpaid one cannot claim
-    // either.
+    // Unique, and the index every read of an order's versions uses.
+    uniqueIndex('order_revisions_order_number_idx').on(
+      t.orderId,
+      t.revisionNumber,
+    ),
+    check('order_revisions_number_positive', sql`${t.revisionNumber} >= 1`),
+    check('order_revisions_status_known', oneOf('status', ORDER_STATUSES)),
+    check('order_revisions_kind_known', oneOf('kind', ORDER_REVISION_KINDS)),
     check(
-      'orders_paid_recorded',
-      sql`(${t.paymentState} = 'paid') = (${t.paidAt} is not null)`,
+      'order_revisions_payment_known',
+      oneOf('paymentMethod', PAYMENT_METHODS),
     ),
     check(
-      'orders_fulfilment_known',
+      'order_revisions_fulfilment_known',
       oneOf('fulfilmentMethod', FULFILMENT_METHODS),
     ),
     // Each fulfilment carries exactly its own destination: a delivery has an
     // address and no office, a pickup an office and no address.
     check(
-      'orders_fulfilment_destination',
+      'order_revisions_fulfilment_destination',
       sql`case when ${t.fulfilmentMethod} = 'delivery'
         then ${t.deliveryStreet} is not null
           and ${t.deliveryPostalCode} is not null
@@ -886,9 +989,11 @@ export const orders = pgTable(
 export const orderItems = pgTable(
   'order_items',
   {
-    orderId: uuid('orderId')
+    // The version it belongs to, not the order: an adjusted order keeps the
+    // lines it was submitted with, on the revision that carried them.
+    revisionId: uuid('revisionId')
       .notNull()
-      .references(() => orders.id, { onDelete: 'cascade' }),
+      .references(() => orderRevisions.id, { onDelete: 'cascade' }),
     sortOrder: integer('sortOrder').notNull(),
     // Restrict rather than cascade: products are soft-deleted, never removed,
     // and an order line must not be able to lose its product.
@@ -923,7 +1028,7 @@ export const orderItems = pgTable(
   },
   (t) => [
     // The PK is the read order as well as the identity, like product_attributes.
-    primaryKey({ columns: [t.orderId, t.sortOrder] }),
+    primaryKey({ columns: [t.revisionId, t.sortOrder] }),
     check('order_items_unit_known', oneOf('unit', PRODUCT_UNITS)),
     check(
       'order_items_quantities_positive',
