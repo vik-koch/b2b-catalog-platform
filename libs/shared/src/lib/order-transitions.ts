@@ -178,6 +178,24 @@ export function notifyByDefault(
   return moveDirection(from, to) === 'forward' && !notified.includes(to);
 }
 
+/**
+ * What the money says after an adjustment — which is whatever the order now
+ * owes, unless somebody has recorded that it arrived.
+ *
+ * A recorded payment survives every change: it is an observation about the
+ * world, not a derived figure, and a manager who repriced an order does not
+ * un-receive the money. Everything else is re-derived from the method the
+ * order now carries, so switching an accepted order from cash to bank transfer
+ * makes it owed and switching it back stops it being. The status is the one
+ * the order already had — an adjustment moves nothing.
+ */
+export function paymentStateAfterAdjustment(
+  state: PaymentStateName,
+  status: OrderStatusName,
+  method: PaymentMethodName,
+): PaymentStateName {
+  return state === 'paid' ? 'paid' : paymentStateWithoutPayment(status, method);
+}
 
 /**
  * What a transition does to the second axis (ADR 0050) — the whole rule, in

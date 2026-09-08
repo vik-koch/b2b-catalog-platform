@@ -62,6 +62,8 @@ export type AuditAction =
   // asked later is who answered this order and when, and a name per state
   // would have to be extended every time the vocabulary grows.
   | 'order.status'
+  // A new version of an order (FR-ORD-03), named by the version it wrote.
+  | 'order.adjusted'
   // A manager deliberately bringing the customer's view of a finished order up
   // to date (FR-NOTIF-03). Audited because it is a mail somebody chose to
   // send, on an order the platform had stopped writing about on its own.

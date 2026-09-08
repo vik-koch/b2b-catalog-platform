@@ -84,6 +84,64 @@ export class AdminOrdersController {
       });
   }
 
+  /** Every version of one order (FR-ORD-03) — staff only, since a customer
+   * reads the order as it now stands. */
+  @Implement(ordersContract.listOrderRevisions)
+  listOrderRevisions() {
+    return implement(ordersContract.listOrderRevisions)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => ({
+        revisions: await this.orders.getRevisions(params.reference),
+      }));
+  }
+
+  /** One version of it, for the screen that reads a version back. */
+  @Implement(ordersContract.getOrderRevision)
+  getOrderRevision() {
+    return implement(ordersContract.getOrderRevision)
+      .use(refusals)
+      .handler(({ input: { params } }) =>
+        this.orders.getRevision(params.reference, params.number),
+      );
+  }
+
+  @Implement(ordersContract.previewOrderAdjustment)
+  previewOrderAdjustment() {
+    return implement(ordersContract.previewOrderAdjustment)
+      .use(refusals)
+      .handler(({ input: { params, body } }) =>
+        this.orders.previewAdjustment(params.reference, body),
+      );
+  }
+
+  /**
+   * A new version of the order (FR-ORD-03). Audited by the version it wrote,
+   * since that is the thing that now exists — the reference alone would not
+   * say which of an order's versions a line refers to.
+   *
+   * Nothing is mailed here. Whether the customer hears about a change is the
+   * service's decision, taken with the move that follows it or with the
+   * `notify` flag this carries.
+   */
+  @Implement(ordersContract.adjustOrder)
+  adjustOrder(@CurrentUser() actor: AuthUser) {
+    return implement(ordersContract.adjustOrder)
+      .use(refusals)
+      .handler(async ({ input: { params, body } }) => {
+        const order = await this.orders.adjust(
+          params.reference,
+          body,
+          actor.id,
+        );
+        this.audit.record('order.adjusted', actor, {
+          reference: order.reference,
+          revision: order.revisionNumber,
+          status: order.status,
+        });
+        return order;
+      });
+  }
+
   /** Show the customer where the order got to, and tell them (FR-NOTIF-03) —
    * for the change that no move will ever mention. */
   @Implement(ordersContract.notifyOrderCustomer)

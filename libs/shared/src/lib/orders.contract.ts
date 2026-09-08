@@ -2,6 +2,7 @@ import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
   FULFILMENT_METHODS,
+  ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_NOTE_MAX,
   ORDER_QUERY_MAX_LENGTH,
   ORDER_NOTICES,
@@ -26,7 +27,8 @@ import {
   cartPreviewSchema,
   productUnitSchema,
 } from './cart.contract';
-import { CART_LINES_MAX } from './cart-constants';
+import { CART_LINES_MAX, CART_NOTE_MAX } from './cart-constants';
+import { LINE_PIECES_MAX } from './product-units';
 import { catalogImageSchema, paginationSchema } from './catalog.contract';
 
 /**
@@ -374,6 +376,37 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
 export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
 
 /**
+ * One version of an order as staff read it back (FR-ORD-03, ADR 0051) — the
+ * whole snapshot, so a superseded version is read exactly like a current one
+ * and the two can be compared without either being described specially.
+ *
+ * `status` is the version's own — every move writes one, so a version says
+ * where the order stood when it was written and the thread reads as the
+ * order's history. Payment is not versioned: what has been received is a fact
+ * about the order today, whichever version is being looked at.
+ */
+export const orderRevisionSchema = adminOrderDetailSchema.extend({
+  /** When this version was written, and by whom — null for the one the
+   * customer submitted, and for anything an outside system writes back. */
+  revisionCreatedAt: z.iso.datetime(),
+  author: z.string().nullable(),
+  /** Why it was written: placed, moved, or changed. */
+  kind: orderRevisionKindSchema,
+  /** What the shop said about *this* version, in their words — null on every
+   * version that is not a change. The order's `changes` is the running account
+   * the customer reads; this is the one entry the thread hangs on this row. */
+  note: z.string().nullable(),
+  /** Whether this is the version the customer is being shown. */
+  customerView: z.boolean(),
+  /** When the customer was written to about this version (FR-NOTIF-03), null
+   * where they never were. Not the same question as `customerView`: a version
+   * can become theirs without a mail, and a version they were mailed about is
+   * superseded the moment the next one is written. */
+  notifiedAt: z.iso.datetime().nullable(),
+});
+export type OrderRevision = z.infer<typeof orderRevisionSchema>;
+
+/**
  * A cart the server priced differently from what the browser last saw. The
  * fresh preview travels with the refusal so the customer sees the corrected
  * cart rather than being told to try again.
@@ -469,6 +502,177 @@ const transitionErrors = {
   'transition-not-allowed': { status: 409 },
   /** Declining or cancelling says why; the customer's mail quotes it. */
   'reason-required': { status: 400 },
+} as const;
+
+/**
+ * A line as a manager adjusts it (FR-ORD-03).
+ *
+ * Counted in **basis units** — "10 × 19.99" — because that is how staff read a
+ * line, how the source system prices one, and the one way of counting that
+ * cannot produce a quantity the price does not divide. The pieces follow from
+ * it.
+ *
+ * The price travels as the pair it means nothing without. Both null asks the
+ * server to price the line from the order's list at today's catalog price,
+ * which is what a newly added line needs; both set is the price this line is
+ * to keep, whether that is the one it was quoted at or the one agreed on the
+ * phone. One of the two alone is neither.
+ */
+export const orderAdjustmentLineSchema = z
+  .object({
+    slug: z.string().trim().min(1).max(255),
+    /** How many basis units of it. */
+    units: z.number().int().positive().max(LINE_PIECES_MAX),
+    /** The lens the customer reads it through, carried with the line. Null on
+     * a line staff added, which nobody has read in any other unit yet. */
+    unit: productUnitSchema.nullable(),
+    /** The customer's words about this line, carried unedited. */
+    note: z.string().trim().min(1).max(CART_NOTE_MAX).nullable(),
+    priceMinor: z.number().int().nonnegative().nullable(),
+    priceBasisPieces: z.number().int().positive().nullable(),
+  })
+  .strict()
+  .refine(
+    (line) => (line.priceMinor === null) === (line.priceBasisPieces === null),
+    { message: 'a price and the basis it is per travel together' },
+  );
+export type OrderAdjustmentLine = z.infer<typeof orderAdjustmentLineSchema>;
+
+/**
+ * The order as a manager is proposing it should now read (FR-ORD-03).
+ *
+ * A whole snapshot rather than a patch: what is written is a new version of
+ * the order, and a version assembled from "the old one plus these three
+ * fields" is a version nobody can point at. Everything the checkout asked is
+ * here — and nothing the customer wrote in their own words, which is carried
+ * forward by the server and cannot be sent at all.
+ *
+ * `basedOnRevision` is what the manager was looking at. Two people adjusting
+ * one order both mean well and would otherwise both win, with the second
+ * silently discarding the first.
+ */
+export const orderAdjustmentSchema = z
+  .object({
+    lines: z.array(orderAdjustmentLineSchema).min(1).max(CART_LINES_MAX),
+    contact: orderContactSchema,
+    /** Stated, never resolved: staff are not the account, and the party the
+     * order is invoiced to is one of the things being adjusted. */
+    party: orderingPartySchema,
+    fulfilmentMethod: fulfilmentMethodSchema,
+    deliveryAddress: orderAddressInputSchema.nullable(),
+    pickupLocationKey: z
+      .string()
+      .trim()
+      .min(1)
+      .max(PICKUP_LOCATION_KEY_MAX)
+      .nullable(),
+    billingAddress: orderAddressInputSchema.nullable(),
+    paymentMethod: paymentMethodSchema,
+    /**
+     * Which price list the lines with no price of their own are taken from
+     * (FR-CART-09). Null is the default list. Changing it is how a
+     * provisionally priced order is put right — it prices nothing on its own,
+     * and a line keeps whatever price it carries.
+     */
+    tierKey: z.string().trim().min(1).max(64).nullable(),
+    /** What the manager says changed. Optional here and asked for by the
+     * screen: a system writing an adjustment back has nobody to ask. */
+    note: z.string().trim().min(1).max(ORDER_ADJUSTMENT_NOTE_MAX).nullable(),
+    /**
+     * Whether to tell the customer now (FR-NOTIF-03).
+     *
+     * Off by default, and that is the point: the ordinary change is agreed on
+     * the phone and then confirmed, and the confirmation is the one mail worth
+     * sending. This is for the change with no move behind it — an address
+     * corrected on an order already packed — where nothing else would ever
+     * mention it.
+     */
+    notify: z.boolean().default(false),
+    /** The version this was written against. */
+    basedOnRevision: z.number().int().positive(),
+  })
+  .strict()
+  .refine(
+    (order) =>
+      order.fulfilmentMethod === 'delivery'
+        ? order.deliveryAddress !== null && order.pickupLocationKey === null
+        : order.deliveryAddress === null && order.pickupLocationKey !== null,
+    { message: 'fulfilment needs exactly its own destination' },
+  );
+export type OrderAdjustment = z.infer<typeof orderAdjustmentSchema>;
+
+/**
+ * What is worth saying about an adjusted line before it is written. Advisory
+ * throughout: staff are answering an order, and a screen that refuses what the
+ * shop has decided is a screen people work around.
+ *
+ * `unpublished` and `deleted` mark a product the storefront no longer offers,
+ * which staff may still perfectly well put on an order — a line already on one
+ * whose product has since been withdrawn, or one the shop is filling from
+ * something it no longer lists.
+ *
+ * The piece rules are not among them: a quantity is given in basis units and
+ * is a whole number of them by construction, and the minimum a *customer* may
+ * buy is not a rule about what a manager may write down.
+ */
+export const adjustmentLineFlagSchema = z.enum([
+  'out-of-stock',
+  'unpublished',
+  'deleted',
+]);
+export type AdjustmentLineFlag = z.infer<typeof adjustmentLineFlagSchema>;
+
+/**
+ * The proposed order, priced by the server — the same arithmetic the write
+ * does, run without writing anything. A screen showing a manager what an
+ * adjustment comes to must not work the total out for itself: two multipliers
+ * disagreeing is exactly the bug the line-total check exists to prevent.
+ */
+export const orderAdjustmentPreviewSchema = z
+  .object({
+    lines: z.array(
+      adminOrderLineSchema.extend({
+        units: z.number().int().positive(),
+        flags: z.array(adjustmentLineFlagSchema),
+        /**
+         * What the chosen price list charges for this product today, and what
+         * that price is per — beside what the line actually costs.
+         *
+         * It is what lets a screen say that a line is priced away from the
+         * list without pricing anything itself: the comparison is between two
+         * figures the server worked out, and a manager is told that the
+         * difference is deliberate rather than left to spot it.
+         */
+        listPriceMinor: z.number().int().nonnegative(),
+        listPriceBasisPieces: z.number().int().positive(),
+      }),
+    ),
+    totalMinor: z.number().int().nonnegative(),
+    currency: z.string(),
+    /** Re-resolved from the address as it now reads (FR-CART-07). */
+    deliveryZone: orderDeliveryZoneSchema.nullable(),
+    shipment: cartPreviewSchema.shape.shipment,
+  })
+  .strict();
+export type OrderAdjustmentPreview = z.infer<
+  typeof orderAdjustmentPreviewSchema
+>;
+
+/** Everything an adjustment can be refused for (FR-ORD-03). */
+const adjustmentErrors = {
+  ...orderNotFound,
+  ...orderDetailErrors,
+  /** Somebody else adjusted it while this one was being written. */
+  'order-changed': { status: 409 },
+  /** A slug no product answers to. Staff may add anything the catalog holds,
+   * published or not — this is a request built against a different catalog. */
+  'unknown-product': { status: 400 },
+  /** A price list this deployment does not have. */
+  'unknown-tier': { status: 400 },
+  /** A line with no price of its own that the chosen list cannot price
+   * exactly — a repackaged product whose basis no longer divides the
+   * quantity. It is named rather than silently zeroed. */
+  'line-not-priceable': { status: 400 },
 } as const;
 
 /** What a manager records, and what they say about it. */
@@ -676,6 +880,127 @@ export const ordersContract = {
         body: orderTransitionSchema,
       }),
     )
+    .output(adminOrderDetailSchema),
+
+  /**
+   * Every version of one order, newest first (FR-ORD-03).
+   *
+   * Staff only, and deliberately so: a customer reads the order as it now
+   * stands, with a note saying what changed. Handing them the version it
+   * superseded would be handing them two orders and asking which is real —
+   * the one they were sent by mail is the record of that.
+   */
+  listOrderRevisions: authed
+    .route({
+      method: 'GET',
+      path: '/admin/orders/{reference}/revisions',
+      inputStructure: 'detailed',
+      summary: 'Every version of an order, for staff',
+    })
+    .errors(orderNotFound)
+    .input(z.object({ params: z.object({ reference: z.string() }) }))
+    .output(z.object({ revisions: z.array(orderRevisionSchema) }).strict()),
+
+  /**
+   * One version of an order, read on its own (FR-ORD-03).
+   *
+   * The reading screen's route. A manager checking what the shop agreed on
+   * Tuesday wants that version and not the thread, and fetching every snapshot
+   * of a long-lived order to render one of them is a page that gets slower the
+   * more the order was worked on.
+   */
+  getOrderRevision: authed
+    .route({
+      method: 'GET',
+      path: '/admin/orders/{reference}/revisions/{number}',
+      inputStructure: 'detailed',
+      summary: 'One version of an order, for staff',
+    })
+    .errors(orderNotFound)
+    .input(
+      z.object({
+        params: z.object({
+          reference: z.string(),
+          number: z.coerce.number().int().positive(),
+        }),
+      }),
+    )
+    .output(orderRevisionSchema),
+
+  /**
+   * What an adjustment would come to, without writing it (FR-ORD-03).
+   *
+   * The same pricing the write runs, answered as a draft: the screen shows a
+   * manager the order they are proposing — corrected quantities, resolved
+   * prices, the re-resolved zone and the new total — before anything is
+   * recorded. A POST because it carries a whole order in its body, and a read
+   * because it changes nothing.
+   */
+  previewOrderAdjustment: authed
+    .route({
+      method: 'POST',
+      path: '/admin/orders/{reference}/adjustment/preview',
+      inputStructure: 'detailed',
+      summary: 'Price a proposed adjustment without writing it',
+    })
+    .errors(adjustmentErrors)
+    .input(
+      z.object({
+        params: z.object({ reference: z.string() }),
+        body: orderAdjustmentSchema,
+      }),
+    )
+    .output(orderAdjustmentPreviewSchema),
+
+  /**
+   * Change what an order says (FR-ORD-03/04) — a new version of it, not an
+   * edit of the old one (ADR 0051). The reference, the link and every
+   * superseded version stay exactly where they were, and so does the status:
+   * changing an order is not answering it.
+   *
+   * It sends nothing on its own. Whether the customer hears about a change is
+   * a separate decision, made by the transition that follows it or by
+   * `notifyOrderCustomer` — see `orderAdjustmentSchema.notify`.
+   */
+  adjustOrder: authed
+    .route({
+      method: 'POST',
+      path: '/admin/orders/{reference}/adjustment',
+      inputStructure: 'detailed',
+      summary: 'Write a new version of the order (admin, manager)',
+    })
+    .errors(adjustmentErrors)
+    .input(
+      z.object({
+        params: z.object({ reference: z.string() }),
+        body: orderAdjustmentSchema,
+      }),
+    )
+    .output(adminOrderDetailSchema),
+
+  /**
+   * Show the customer where the order has got to, and tell them (FR-NOTIF-03).
+   *
+   * The manual half of a rule that is otherwise automatic: while an order is
+   * running, every move moves the customer's view with it. Once it has ended,
+   * nothing does — a finished order that is reopened, corrected and finished
+   * again would otherwise mail the customer a lap of a workflow that was only
+   * ever staff putting their own record right. This is the button that says
+   * this particular change was worth writing about.
+   */
+  notifyOrderCustomer: authed
+    .route({
+      method: 'POST',
+      path: '/admin/orders/{reference}/notify',
+      inputStructure: 'detailed',
+      summary: "Bring the customer's view up to date and mail them",
+    })
+    .errors({
+      ...orderNotFound,
+      /** The customer is already looking at the current version. */
+      'nothing-to-tell': { status: 409 },
+    })
+    .input(z.object({ params: z.object({ reference: z.string() }) }))
     .output(adminOrderDetailSchema),
 
   /**
