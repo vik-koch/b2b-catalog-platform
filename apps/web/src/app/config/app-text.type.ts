@@ -1020,6 +1020,16 @@ export const appTextSchema = z
                 intro: z.string(),
                 /** What is kept and what goes, in the visitor's own terms. */
                 consequences: z.array(z.string()),
+                /**
+                 * Said only where the shop is still working on something for
+                 * this customer (FR-AUTH-06). `{count}` is how many.
+                 *
+                 * It refuses nothing. The order is one the shop agreed to
+                 * fill and is owed for, so it stays — but it stays without the
+                 * name, address and telephone number it was placed with, and
+                 * that is worth knowing before the button rather than after.
+                 */
+                openOrders: z.string(),
                 password: z.string(),
                 passwordHint: z.string(),
                 submit: z.string(),

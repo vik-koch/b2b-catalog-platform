@@ -449,6 +449,7 @@
           "Past orders are kept for our bookkeeping, with your details removed from them.",
           "You can register again later, but it will be a new account — your earlier orders will not appear in it."
         ],
+        "openOrders": "We are still working on {count} of your orders. Deleting your account does not cancel them — we will fill them as agreed — but we will no longer have your name or phone number on them. Please call us if you would rather wait until they are finished.",
         "password": "Your password",
         "passwordHint": "Confirm with your password to show this is you.",
         "submit": "Delete my account",

@@ -1,6 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { AuthService } from '../auth/auth.service';
 import { FieldErrors } from '../core/form-errors';
@@ -40,11 +41,20 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
         </h1>
         <p class="mb-6 text-muted">{{ text.intro }}</p>
 
-        <ul class="mb-8 list-disc space-y-2 pl-5 text-sm text-muted">
+        <ul class="mb-6 list-disc space-y-2 pl-5 text-sm text-muted">
           @for (line of text.consequences; track line) {
             <li>{{ line }}</li>
           }
         </ul>
+
+        <!-- Only where there is something running. It is a warning rather than
+             a refusal: the orders are the shop's to fill either way, and what
+             changes is that they stop carrying the customer's details. -->
+        @if (openOrders(); as open) {
+          <p class="mb-8 text-sm text-red-700" role="status">
+            {{ openOrdersWarning(open) }}
+          </p>
+        }
 
         <form
           class="space-y-6"
@@ -110,6 +120,24 @@ export class AccountDeletePage {
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;
   protected readonly status = signal<Status>('idle');
   protected readonly deleted = signal(false);
+
+  /**
+   * How many orders the shop is still working on for this account. Read from
+   * the profile rather than counted here: it is a fact about the account, and
+   * the page that says the consequences of deleting one should say the whole
+   * of them.
+   */
+  private readonly profile = resource({
+    params: () => true,
+    loader: () => this.account.getProfile(),
+  });
+  protected readonly openOrders = computed(() =>
+    this.profile.hasValue() ? (this.profile.value()?.openOrders ?? 0) : 0,
+  );
+
+  protected openOrdersWarning(count: number): string {
+    return fillText(this.text.openOrders, { count });
+  }
 
   protected readonly form = this.fb.nonNullable.group({
     password: ['', Validators.required],

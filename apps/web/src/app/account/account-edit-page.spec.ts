@@ -28,6 +28,7 @@ const stored: AccountProfile = {
   customerType: 'company',
   companyRegistrationId: '12345678',
   createdAt: '2026-02-01T10:00:00.000Z',
+  openOrders: 0,
 };
 
 async function render(save?: (r: UpdateAccountProfileRequest) => unknown) {

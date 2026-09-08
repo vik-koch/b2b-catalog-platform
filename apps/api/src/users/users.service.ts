@@ -3,6 +3,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, eq, inArray, ne, notInArray, sql } from 'drizzle-orm';
 import {
   CustomerType,
+  ENDED_ORDER_STATUSES,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
@@ -173,6 +174,29 @@ export class UsersService {
       await this.scrubOrders(tx, id);
       return this.anonymizeUser(tx, id, unusableHash);
     });
+  }
+
+  /**
+   * How many of this account's orders the shop is still working on
+   * (FR-AUTH-06) — everything it has neither finished nor refused.
+   *
+   * Read on the account's own profile so the deletion page can say it. It
+   * refuses nothing: an order in flight is one the shop has agreed to fill,
+   * and the customer is entitled to close their account either way. What they
+   * are not entitled to is being surprised, afterwards, that the order they
+   * are still waiting for no longer carries their phone number.
+   */
+  async countOpenOrders(userId: string): Promise<number> {
+    const [row] = await this.db
+      .select({ open: count() })
+      .from(orders)
+      .where(
+        and(
+          eq(orders.userId, userId),
+          notInArray(orders.status, [...ENDED_ORDER_STATUSES, 'completed']),
+        ),
+      );
+    return Number(row?.open ?? 0);
   }
 
   /**
