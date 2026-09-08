@@ -240,6 +240,17 @@ export const appRoutes: Route[] = [
       ),
   },
   {
+    // Its own screen rather than a mode of the one above: an adjustment is a
+    // whole new version of the order (FR-ORD-03), and a page that is sometimes
+    // a form is a page whose unsaved state has nowhere to live.
+    path: 'admin/orders/:reference/adjust',
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/orders/order-adjust-page').then(
+        (m) => m.AdminOrderAdjustPage,
+      ),
+  },
+  {
     path: 'admin/categories',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>

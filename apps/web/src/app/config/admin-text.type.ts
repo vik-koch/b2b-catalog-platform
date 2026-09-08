@@ -1216,6 +1216,174 @@ export const adminTextSchema = z
           .strict(),
       })
       .strict(),
+    /**
+     * Adjusting an order (FR-ORD-03) — a whole new version of it, written on
+     * one screen. Its own catalogue rather than more keys on the detail
+     * screen: this one asks questions, and the other only answers them.
+     */
+    orderAdjust: z
+      .object({
+        /** `{reference}` names the order being adjusted. */
+        title: z.string(),
+        lead: z.string(),
+        save: z.string(),
+        cancel: z.string(),
+        loadError: z.string(),
+        notFound: z.string(),
+        /** Warnings, not refusals: a change is allowed wherever the order
+         * stands, and the screen says what it will sit awkwardly with. */
+        warnPaid: z.string(),
+        warnReady: z.string(),
+        warnEnded: z.string(),
+        /** Whether to write to the customer about this change now
+         * (FR-NOTIF-03). Off by default: the move that follows carries the
+         * news, and this is for the change no move will ever mention. */
+        notify: z.string(),
+        notifyHint: z.string(),
+        lines: z
+          .object({
+            heading: z.string(),
+            /** The staff reading of a quantity: how many of what the price is
+             * per (FR-UNIT-04). */
+            units: z.string(),
+            price: z.string(),
+            remove: z.string(),
+            /** Reordering a line. Not a change to the order — a picking list
+             * is read top to bottom, and the alternative was removing a line
+             * and adding it back, which loses the price it was agreed at. */
+            moveUp: z.string(),
+            moveDown: z.string(),
+            addLabel: z.string(),
+            addPlaceholder: z.string(),
+            noMatches: z.string(),
+            empty: z.string(),
+            /** What the storefront thinks of the product — staff may use it
+             * anyway. */
+            unpublished: z.string(),
+            deleted: z.string(),
+            outOfStock: z.string(),
+            /** What the two fields on a line are counted in, printed inside
+             * them: pieces where the price is per one, `{count}` of them
+             * where it is per several, and `{symbol}` the currency's mark. */
+            pieces: z.string(),
+            unitsSuffix: z.string(),
+            priceSuffix: z.string(),
+            /** A line priced away from the list it would otherwise take
+             * (FR-CART-09) — allowed, and worth saying. */
+            offList: z.string(),
+          })
+          .strict(),
+        /**
+         * The identity fields, worded here rather than borrowed from the user
+         * editor: the same field asking about a different thing — the party an
+         * order is invoiced to, not the account that placed it.
+         */
+        partyKindPerson: z.string(),
+        partyKindCompany: z.string(),
+        personName: z.string(),
+        companyId: z.string(),
+        companyName: z.string(),
+        companySuggest: z
+          .object({
+            suggestionsLabel: z.string(),
+            noSuggestions: z.string(),
+            /** `{count}` suggestions offered. */
+            suggestionCount: z.string(),
+          })
+          .strict(),
+        validation: z
+          .object({
+            nameRequired: z.string(),
+            emailRequired: z.string(),
+            emailInvalid: z.string(),
+            phoneRequired: z.string(),
+            phoneIncomplete: z.string(),
+            companyNameRequired: z.string(),
+            companyIdRequired: z.string(),
+            /** `{examples}` lists the shapes the deployment accepts. */
+            companyIdFormat: z.string(),
+          })
+          .strict(),
+        /** Which list the lines with no price of their own come from. */
+        tier: z.string(),
+        reprice: z.string(),
+        contact: z.string(),
+        contactName: z.string(),
+        contactEmail: z.string(),
+        contactPhone: z.string(),
+        party: z.string(),
+        fulfilment: z.string(),
+        delivery: z.string(),
+        pickup: z.string(),
+        pickupLocation: z.string(),
+        /** The second half of the form, which folds away from the first: who
+         * the order goes to and how it is paid. */
+        detailsHeading: z.string(),
+        deliveryAddress: z.string(),
+        billingAddress: z.string(),
+        payment: z.string(),
+        paymentCash: z.string(),
+        paymentTransfer: z.string(),
+        paymentCard: z.string(),
+        /** The customer's own words, shown and not editable. */
+        customerHeading: z.string(),
+        /** The day they asked for — `{date}`, or the words for any day. */
+        wished: z.string(),
+        customerNone: z.string(),
+        note: z.string(),
+        noteHint: z.string(),
+        noteRequired: z.string(),
+        /** What is about to change, line by line (FR-ORD-03). */
+        changes: z
+          .object({
+            heading: z.string(),
+            none: z.string(),
+            added: z.string(),
+            removed: z.string(),
+            total: z.string(),
+            /** Row labels for the things that can change. */
+            line: z.string(),
+            /** The packing estimate, where the products carry one — a change
+             * to the lines usually moves it, and it is what the shop books a
+             * van by. */
+            shipment: z.string(),
+            /** Why the priced half of the comparison is missing. */
+            pricingPending: z.string(),
+          })
+          .strict(),
+        /** What the manager should not have to spot for themselves before
+         * signing an adjustment off: `{count}` prices moved from the version
+         * on file, and `{count}` priced away from `{tier}`. */
+        priceNotice: z
+          .object({
+            moved: z.string(),
+            offList: z.string(),
+          })
+          .strict(),
+        confirmHeading: z.string(),
+        confirmMessage: z.string(),
+        confirm: z.string(),
+        keep: z.string(),
+        errors: z
+          .object({
+            'order-changed': z.string(),
+            'unknown-product': z.string(),
+            'unknown-tier': z.string(),
+            'line-not-priceable': z.string(),
+            'invalid-company-id': z.string(),
+            'unsupported-country': z.string(),
+            'invalid-postal-code': z.string(),
+            'unknown-pickup-location': z.string(),
+            'billing-details-required': z.string(),
+            'cash-not-available': z.string(),
+            'billing-address-required': z.string(),
+            'order-not-found': z.string(),
+            /** Anything else: a network that dropped, a server that fell over. */
+            unknown: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
     userList: z
       .object({
         /** The two lists, each reached from its own button on the admin panel;
