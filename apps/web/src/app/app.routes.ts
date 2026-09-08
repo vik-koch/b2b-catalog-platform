@@ -228,6 +228,18 @@ export const appRoutes: Route[] = [
       ),
   },
   {
+    // One version, read back (FR-ORD-03). Its own route because it is its own
+    // address: a manager quoting what the shop agreed on Tuesday links at that
+    // version, and the page it opens is the customer's own view of it rather
+    // than the screen where the order is answered.
+    path: 'admin/orders/:reference/revisions/:number',
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/orders/order-revision-page').then(
+        (m) => m.AdminOrderRevisionPage,
+      ),
+  },
+  {
     path: 'admin/categories',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
