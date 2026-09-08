@@ -102,6 +102,9 @@ const ORDER_LINE_KEYS = [
 ];
 const ORDER_DETAIL_KEYS = [
   ...ORDER_SUMMARY_KEYS,
+  // What the shop says it has changed about the order (FR-ORD-03), up to the
+  // version being shown.
+  'changes',
   'billingAddress',
   'contact',
   'customerNote',
@@ -119,8 +122,15 @@ const ORDER_DETAIL_KEYS = [
  * lines in basis units (FR-UNIT-04). */
 const ADMIN_DETAIL_KEYS = [
   ...ORDER_DETAIL_KEYS,
+  // What the customer sees and what they have been told (FR-NOTIF-03) — two
+  // questions, and staff's alone either way.
+  'customerBehind',
+  'customerRevisionNumber',
+  'notifiedRevisionNumber',
+  'notifiedStatuses',
   'customerEmail',
   'paidAt',
+  'revisionNumber',
   'statusChangedAt',
   'tierKey',
 ].sort();
@@ -135,6 +145,8 @@ const ADMIN_LIST_KEYS = [
   'customerEmail',
   // Staff read the money column through the method as well as the state.
   'paymentMethod',
+  // Which version the row describes, so its title links straight at it.
+  'revisionNumber',
 ].sort();
 
 const request = (method: 'get' | 'post') =>
@@ -314,7 +326,9 @@ describe('Cart and orders (FR-CART-01…04)', () => {
   afterAll(async () => {
     await client.query(
       `DELETE FROM orders WHERE id IN (
-         SELECT "orderId" FROM order_items WHERE "productSourceId" LIKE $1)`,
+         SELECT r."orderId" FROM order_items i
+           JOIN order_revisions r ON r.id = i."revisionId"
+          WHERE i."productSourceId" LIKE $1)`,
       [`${SOURCE_PREFIX}%`],
     );
     await client.query('DELETE FROM products WHERE "sourceId" LIKE $1', [
@@ -859,8 +873,9 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
     // FR-NOTIF-03. The mail says what the order now is, so the reason a
     // refusal carries has to be in it — being told no without being told why
-    // is the mail nobody can answer.
-    it('writes to the customer whenever their order moves', async () => {
+    // is the mail nobody can answer. It goes out because the move asked for it:
+    // nothing here writes to a customer that nobody chose to write to.
+    it('writes to the customer when the move asks it to', async () => {
       await deleteMatching(customerMail);
       const placed = await post(
         '/orders',
@@ -876,7 +891,12 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await post(
         `/admin/orders/${placed.data.reference}/status`,
-        { to: 'declined', reason: 'Out of stock until October' },
+        {
+          to: 'declined',
+          reason: 'Out of stock until October',
+          notify: true,
+          markPaid: false,
+        },
         managerCookie,
       );
       expect(res.status).toBe(200);
@@ -923,7 +943,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await move(
         reference,
-        { to: 'approved', reason: null },
+        { to: 'approved', reason: null, notify: false, markPaid: false },
         managerCookie,
       );
 
@@ -947,7 +967,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await move(
         reference,
-        { to: 'approved', reason: null },
+        { to: 'approved', reason: null, notify: false, markPaid: false },
         managerCookie,
       );
 
@@ -959,7 +979,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await move(
         reference,
-        { to: 'declined', reason: null },
+        { to: 'declined', reason: null, notify: false, markPaid: false },
         managerCookie,
       );
 
@@ -972,7 +992,12 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await move(
         reference,
-        { to: 'declined', reason: 'Out of stock until October' },
+        {
+          to: 'declined',
+          reason: 'Out of stock until October',
+          notify: false,
+          markPaid: false,
+        },
         managerCookie,
       );
 
@@ -987,13 +1012,18 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     it('refuses a move the order has already made', async () => {
       const reference = await place();
       expect(
-        (await move(reference, { to: 'approved', reason: null }, managerCookie))
-          .status,
+        (
+          await move(
+            reference,
+            { to: 'approved', reason: null, notify: false, markPaid: false },
+            managerCookie,
+          )
+        ).status,
       ).toBe(200);
 
       const again = await move(
         reference,
-        { to: 'approved', reason: null },
+        { to: 'approved', reason: null, notify: false, markPaid: false },
         managerCookie,
       );
 
@@ -1003,11 +1033,15 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
     it('walks an accepted order to ready and then to completed', async () => {
       const reference = await place();
-      await move(reference, { to: 'approved', reason: null }, managerCookie);
+      await move(
+        reference,
+        { to: 'approved', reason: null, notify: false, markPaid: false },
+        managerCookie,
+      );
 
       const ready = await move(
         reference,
-        { to: 'ready', reason: null },
+        { to: 'ready', reason: null, notify: false, markPaid: false },
         managerCookie,
       );
       expect(ready.data.status).toBe('ready');
@@ -1016,7 +1050,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const done = await move(
         reference,
-        { to: 'completed', reason: null },
+        { to: 'completed', reason: null, notify: false, markPaid: false },
         managerCookie,
       );
       expect(done.data.status).toBe('completed');
@@ -1029,7 +1063,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         (
           await move(
             reference,
-            { to: 'approved', reason: null },
+            { to: 'approved', reason: null, notify: false, markPaid: false },
             customerCookie,
           )
         ).status,
@@ -1038,7 +1072,11 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
     it('lets a customer call off their own order, and stops waiting for money', async () => {
       const reference = await place({}, customerCookie);
-      await move(reference, { to: 'approved', reason: null }, managerCookie);
+      await move(
+        reference,
+        { to: 'approved', reason: null, notify: false, markPaid: false },
+        managerCookie,
+      );
       // Approving it made the transfer due; cancelling it un-dues what was
       // never paid.
       const cancel = await post(
@@ -1096,7 +1134,11 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
     it('records a payment once, and only once', async () => {
       const reference = await place();
-      await move(reference, { to: 'approved', reason: null }, managerCookie);
+      await move(
+        reference,
+        { to: 'approved', reason: null, notify: false, markPaid: false },
+        managerCookie,
+      );
 
       const paid = await post(
         `/admin/orders/${reference}/payment`,
@@ -1125,7 +1167,11 @@ describe('Cart and orders (FR-CART-01…04)', () => {
      */
     it('takes a recorded payment back, to what the order owes', async () => {
       const reference = await place();
-      await move(reference, { to: 'approved', reason: null }, managerCookie);
+      await move(
+        reference,
+        { to: 'approved', reason: null, notify: false, markPaid: false },
+        managerCookie,
+      );
       await post(
         `/admin/orders/${reference}/payment`,
         { paid: true },
@@ -1156,7 +1202,12 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const reference = await place();
       await move(
         reference,
-        { to: 'declined', reason: 'Nothing left' },
+        {
+          to: 'declined',
+          reason: 'Nothing left',
+          notify: false,
+          markPaid: false,
+        },
         managerCookie,
       );
 
@@ -1177,13 +1228,18 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const reference = await place();
       await move(
         reference,
-        { to: 'declined', reason: 'Meant to click the other one' },
+        {
+          to: 'declined',
+          reason: 'Meant to click the other one',
+          notify: false,
+          markPaid: false,
+        },
         managerCookie,
       );
 
       const back = await move(
         reference,
-        { to: 'requested', reason: null },
+        { to: 'requested', reason: null, notify: false, markPaid: false },
         managerCookie,
       );
 
@@ -1194,7 +1250,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // And it can be answered again from there, like any other request.
       const answered = await move(
         reference,
-        { to: 'approved', reason: null },
+        { to: 'approved', reason: null, notify: false, markPaid: false },
         managerCookie,
       );
       expect(answered.data.status).toBe('approved');
@@ -1214,7 +1270,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         (
           await move(
             reference,
-            { to: 'requested', reason: null },
+            { to: 'requested', reason: null, notify: false, markPaid: false },
             customerCookie,
           )
         ).status,
@@ -1224,12 +1280,626 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     it('answers 404 for a reference that is nobody’s order', async () => {
       const res = await move(
         `NO-SUCH-${SUFFIX}`,
-        { to: 'approved', reason: null },
+        { to: 'approved', reason: null, notify: false, markPaid: false },
         managerCookie,
       );
 
       expect(res.status).toBe(404);
       expect(res.data.code).toBe('order-not-found');
+    });
+  });
+
+  /**
+   * Adjustments (FR-ORD-03). A new version of the order, so what is worth
+   * pinning is that the old one survives it, that a line nobody touched keeps
+   * the price it was quoted at, that the rules the checkout applies still
+   * apply — and that two managers adjusting one order have one winner.
+   */
+  describe('adjusting an order', () => {
+    const place = async (
+      overrides: Record<string, unknown> = {},
+      cookie?: string,
+    ) => {
+      const res = await post(
+        '/orders',
+        submission({
+          expectedTotalMinor: cookie ? TIER_MINOR * 2 : BASE_MINOR * 2,
+          ...overrides,
+        }),
+        cookie,
+      );
+      expect(res.status).toBe(201);
+      return res.data as { reference: string; publicToken: string };
+    };
+
+    /** The order as it stands, ready to be sent back with one thing changed —
+     * which is what the admin screen holds. */
+    const adjustment = (overrides: Record<string, unknown> = {}) => ({
+      lines: [
+        {
+          slug: slugs.boxed,
+          units: 2,
+          unit: 'pack',
+          note: null,
+          priceMinor: BASE_MINOR,
+          priceBasisPieces: BASIS,
+        },
+      ],
+      contact: {
+        name: 'Ada Lovelace',
+        email: 'ada@example.com',
+        phone: '+49 40 7654321',
+      },
+      party: party(),
+      fulfilmentMethod: 'delivery',
+      deliveryAddress: address(),
+      pickupLocationKey: null,
+      billingAddress: address(),
+      paymentMethod: 'bank-transfer',
+      tierKey: null,
+      note: 'Agreed on the phone',
+      basedOnRevision: 1,
+      ...overrides,
+    });
+
+    const adjust = (reference: string, body: unknown, cookie = managerCookie) =>
+      post(`/admin/orders/${reference}/adjustment`, body, cookie);
+
+    /** The version the order is on. Every move writes one (ADR 0051), so an
+     * order that has been answered is past revision 1 before anything changes
+     * it — and a change written against the wrong one is refused, which is the
+     * concurrency guard doing its job. */
+    const onRevision = async (reference: string): Promise<number> =>
+      (await get(`/admin/orders/${reference}`, managerCookie)).data
+        .revisionNumber;
+    const preview = (reference: string, body: unknown) =>
+      post(
+        `/admin/orders/${reference}/adjustment/preview`,
+        body,
+        managerCookie,
+      );
+
+    it('writes a new version, keeping the reference and the link', async () => {
+      const placed = await place();
+
+      const res = await adjust(
+        placed.reference,
+        adjustment({ lines: [{ ...adjustment().lines[0], units: 3 }] }),
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data).toMatchObject({
+        reference: placed.reference,
+        // A change is not a move: the order stands where it stood.
+        status: 'requested',
+        revisionNumber: 2,
+        totalMinor: BASE_MINOR * 3,
+        // Nobody has told the customer, so they are still on what they sent —
+        // an unannounced change is not theirs to see.
+        customerRevisionNumber: 1,
+        notifiedRevisionNumber: 1,
+        customerBehind: true,
+      });
+      expect(Object.keys(res.data).sort()).toEqual(ADMIN_DETAIL_KEYS);
+      // The mailed link still opens it — and shows the version it described,
+      // which is the one the customer was last written to about.
+      const token = await get(`/orders/by-token/${placed.publicToken}`);
+      expect(token.status).toBe(200);
+      expect(token.data.totalMinor).toBe(BASE_MINOR * 2);
+      // And the version it superseded is still there.
+      const { rows } = await client.query(
+        `SELECT r."revisionNumber", r."totalMinor" FROM order_revisions r
+           JOIN orders o ON o.id = r."orderId"
+          WHERE o.reference = $1 ORDER BY r."revisionNumber"`,
+        [placed.reference],
+      );
+      expect(rows).toEqual([
+        { revisionNumber: 1, totalMinor: BASE_MINOR * 2 },
+        { revisionNumber: 2, totalMinor: BASE_MINOR * 3 },
+      ]);
+    });
+
+    it('keeps what the customer wrote, and what they were quoted', async () => {
+      const placed = await place({
+        preferredDate: '2099-12-31',
+        customerNote: 'Ring the bell twice',
+      });
+
+      // Nothing about the line is touched — and its price is a figure the
+      // catalog no longer offers this order, since the adjustment names no
+      // list at all.
+      await adjust(placed.reference, adjustment());
+
+      const res = await get(`/admin/orders/${placed.reference}`, managerCookie);
+      expect(res.data).toMatchObject({
+        preferredDate: '2099-12-31',
+        customerNote: 'Ring the bell twice',
+        totalMinor: BASE_MINOR * 2,
+      });
+    });
+
+    it('prices a line it is given no price for, from the named list', async () => {
+      const placed = await place();
+
+      const res = await preview(
+        placed.reference,
+        adjustment({
+          tierKey: TIER_KEY,
+          lines: [
+            {
+              slug: slugs.boxed,
+              units: 2,
+              unit: 'pack',
+              note: null,
+              priceMinor: null,
+              priceBasisPieces: null,
+            },
+          ],
+        }),
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.lines[0]).toMatchObject({
+        priceMinor: TIER_MINOR,
+        priceBasisPieces: BASIS,
+        lineTotalMinor: TIER_MINOR * 2,
+      });
+      expect(res.data.totalMinor).toBe(TIER_MINOR * 2);
+      // A preview writes nothing.
+      const order = await get(
+        `/admin/orders/${placed.reference}`,
+        managerCookie,
+      );
+      expect(order.data.revisionNumber).toBe(1);
+    });
+
+    it('takes the price a manager sets, whatever the catalog says', async () => {
+      const placed = await place();
+
+      const res = await adjust(
+        placed.reference,
+        adjustment({
+          lines: [{ ...adjustment().lines[0], priceMinor: 1 }],
+        }),
+      );
+
+      expect(res.data.totalMinor).toBe(2);
+      expect(res.data.lines[0]).toMatchObject({
+        priceMinor: 1,
+        priceBasisPieces: BASIS,
+        lineTotalMinor: 2,
+      });
+    });
+
+    it('lets staff add a product the storefront does not offer, marked', async () => {
+      const placed = await place();
+      const line = {
+        slug: slugs.hidden,
+        units: 1,
+        unit: null,
+        note: null,
+        priceMinor: null,
+        priceBasisPieces: null,
+      };
+
+      const res = await preview(
+        placed.reference,
+        adjustment({ lines: [adjustment().lines[0], line] }),
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.lines[1]).toMatchObject({
+        slug: slugs.hidden,
+        unit: 'piece',
+        flags: ['unpublished'],
+      });
+    });
+
+    it('refuses a slug no product answers to', async () => {
+      const placed = await place();
+
+      const res = await adjust(
+        placed.reference,
+        adjustment({
+          lines: [{ ...adjustment().lines[0], slug: `nothing-${SUFFIX}` }],
+        }),
+      );
+
+      expect(res.status).toBe(400);
+      expect(res.data.code).toBe('unknown-product');
+    });
+
+    it('holds a manager to the rules the checkout applies', async () => {
+      const placed = await place();
+
+      // A company is invoiced, never paid in cash or by card (FR-CART-04).
+      const res = await adjust(
+        placed.reference,
+        adjustment({ paymentMethod: 'cash' }),
+      );
+
+      expect(res.status).toBe(400);
+      expect(res.data.code).toBe('cash-not-available');
+    });
+
+    it('refuses a card arranged on the phone for a company too', async () => {
+      const placed = await place();
+
+      // The same rule read the other way: what a company is owed is an
+      // invoice, and neither of the two ways a private customer settles up
+      // leaves one.
+      const res = await adjust(
+        placed.reference,
+        adjustment({ paymentMethod: 'card-later' }),
+      );
+
+      expect(res.status).toBe(400);
+      expect(res.data.code).toBe('cash-not-available');
+    });
+
+    it('re-derives what the order owes when the method changes', async () => {
+      const placed = await place();
+      await post(
+        `/admin/orders/${placed.reference}/status`,
+        { to: 'approved', reason: null, notify: false, markPaid: false },
+        managerCookie,
+      );
+
+      // Cash is not owed until the handover, so an accepted order switched to
+      // it stops being money the shop is waiting for.
+      const res = await adjust(
+        placed.reference,
+        adjustment({
+          paymentMethod: 'cash',
+          party: party({ name: 'Ada Lovelace', registrationId: null }),
+          basedOnRevision: await onRevision(placed.reference),
+        }),
+      );
+
+      expect(res.data).toMatchObject({
+        status: 'approved',
+        paymentMethod: 'cash',
+        paymentState: 'not-due',
+      });
+    });
+
+    it('leaves a ready order ready', async () => {
+      const placed = await place();
+      for (const to of ['approved', 'ready']) {
+        await post(
+          `/admin/orders/${placed.reference}/status`,
+          { to, reason: null, notify: false, markPaid: false },
+          managerCookie,
+        );
+      }
+
+      const res = await adjust(
+        placed.reference,
+        adjustment({ basedOnRevision: await onRevision(placed.reference) }),
+      );
+
+      // Sending it backwards would say the goods are no longer packed.
+      expect(res.data.status).toBe('ready');
+      // Two moves and the change: the thread is the order's history.
+      expect(res.data.revisionNumber).toBe(4);
+    });
+
+    /** The platform records what the shop did rather than deciding what it may
+     * do — the same argument that made recording a payment undoable. */
+    it('changes an order that has ended, without reopening it', async () => {
+      const placed = await place();
+      await post(
+        `/admin/orders/${placed.reference}/status`,
+        {
+          to: 'declined',
+          reason: 'Nothing left',
+          notify: false,
+          markPaid: false,
+        },
+        managerCookie,
+      );
+
+      const res = await adjust(
+        placed.reference,
+        adjustment({ basedOnRevision: await onRevision(placed.reference) }),
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.status).toBe('declined');
+      expect(res.data.statusReason).toBe('Nothing left');
+    });
+
+    /**
+     * The two halves of what the customer knows (FR-NOTIF-03), which are not
+     * the same fact: their page follows every move the order makes, and their
+     * inbox only hears about the moves somebody chose to tell them about.
+     */
+    it('moves the customer’s view with the order and writes only when asked', async () => {
+      const placed = await place();
+      for (const to of ['approved', 'ready', 'completed']) {
+        await post(
+          `/admin/orders/${placed.reference}/status`,
+          { to, reason: null, notify: false, markPaid: false },
+          managerCookie,
+        );
+      }
+
+      // Three moves nobody was written about: the order's own page says where
+      // it actually is, because a customer waiting for goods that have been
+      // handed over must not read "confirmed".
+      const quiet = await get(
+        `/admin/orders/${placed.reference}`,
+        managerCookie,
+      );
+      expect(quiet.data.revisionNumber).toBe(4);
+      expect(quiet.data.customerRevisionNumber).toBe(4);
+      // Only the receipt has ever reached them, and that was version 1.
+      expect(quiet.data.notifiedRevisionNumber).toBe(1);
+      expect(quiet.data.customerBehind).toBe(true);
+      const token = await get(`/orders/by-token/${placed.publicToken}`);
+      expect(token.data.status).toBe('completed');
+
+      // Until a manager says it is worth telling them, which closes the gap
+      // without writing another version.
+      const told = await post(
+        `/admin/orders/${placed.reference}/notify`,
+        {},
+        managerCookie,
+      );
+      expect(told.status).toBe(200);
+      expect(told.data.notifiedRevisionNumber).toBe(4);
+      expect(told.data.customerBehind).toBe(false);
+      // And there is nothing left to tell them a second time.
+      expect(
+        (
+          await post(
+            `/admin/orders/${placed.reference}/notify`,
+            {},
+            managerCookie,
+          )
+        ).data.code,
+      ).toBe('nothing-to-tell');
+    });
+
+    /** The move that carries the news says so itself, so the ordinary case is
+     * one click and not two. */
+    it('records the version a move wrote to the customer about', async () => {
+      const placed = await place();
+
+      const res = await post(
+        `/admin/orders/${placed.reference}/status`,
+        { to: 'approved', reason: null, notify: true, markPaid: false },
+        managerCookie,
+      );
+
+      expect(res.data.revisionNumber).toBe(2);
+      expect(res.data.notifiedRevisionNumber).toBe(2);
+      expect(res.data.customerBehind).toBe(false);
+      // And the customer's own statuses are what the next confirmation offers
+      // its tick against.
+      expect(res.data.notifiedStatuses).toEqual(
+        expect.arrayContaining(['requested', 'approved']),
+      );
+    });
+
+    /**
+     * The handover of a cash order is one event (FR-ORD-04): completing it and
+     * recording the money are one click, and a move that ends an order is
+     * refused it — nothing is owed on an order nobody is filling.
+     */
+    it('records the money with the move that is the handover', async () => {
+      const placed = await place({
+        party: party({ name: 'Ada Lovelace', registrationId: null }),
+        paymentMethod: 'cash',
+      });
+      for (const to of ['approved', 'ready']) {
+        await post(
+          `/admin/orders/${placed.reference}/status`,
+          { to, reason: null, notify: false, markPaid: false },
+          managerCookie,
+        );
+      }
+
+      const done = await post(
+        `/admin/orders/${placed.reference}/status`,
+        { to: 'completed', reason: null, notify: false, markPaid: true },
+        managerCookie,
+      );
+
+      expect(done.data.status).toBe('completed');
+      expect(done.data.paymentState).toBe('paid');
+      expect(done.data.paidAt).not.toBeNull();
+    });
+
+    it('refuses to record money on an order that ends', async () => {
+      const placed = await place();
+
+      const res = await post(
+        `/admin/orders/${placed.reference}/status`,
+        {
+          to: 'declined',
+          reason: 'Nothing left',
+          notify: false,
+          markPaid: true,
+        },
+        managerCookie,
+      );
+
+      expect(res.status).toBe(400);
+      expect(res.data.code).toBe('payment-not-recordable');
+    });
+
+    it('lets one of two managers win, and tells the other', async () => {
+      const placed = await place();
+
+      const [first, second] = await Promise.all([
+        adjust(placed.reference, adjustment()),
+        adjust(placed.reference, adjustment()),
+      ]);
+
+      const codes = [first, second].map((res) => res.status).sort();
+      expect(codes).toEqual([200, 409]);
+      const loser = [first, second].find((res) => res.status === 409);
+      expect(loser?.data.code).toBe('order-changed');
+    });
+
+    it('keeps every version readable by staff, newest first', async () => {
+      const placed = await place();
+      await adjust(
+        placed.reference,
+        adjustment({ lines: [{ ...adjustment().lines[0], units: 5 }] }),
+      );
+
+      const res = await get(
+        `/admin/orders/${placed.reference}/revisions`,
+        managerCookie,
+      );
+
+      expect(res.status).toBe(200);
+      expect(
+        res.data.revisions.map(
+          (r: { revisionNumber: number }) => r.revisionNumber,
+        ),
+      ).toEqual([2, 1]);
+      const [current, submitted] = res.data.revisions;
+      expect(current).toMatchObject({
+        totalMinor: BASE_MINOR * 5,
+        note: 'Agreed on the phone',
+        changes: ['Agreed on the phone'],
+        kind: 'adjustment',
+        // Written by whoever was signed in; the submission by nobody.
+        author: MANAGER,
+        // Nobody has told the customer about it yet.
+        customerView: false,
+      });
+      expect(submitted).toMatchObject({
+        totalMinor: BASE_MINOR * 2,
+        // The version the customer sent, before the shop had changed anything.
+        note: null,
+        changes: [],
+        kind: 'submitted',
+        author: null,
+        customerView: true,
+      });
+      // A superseded version reads exactly like a current one.
+      expect(Object.keys(submitted).sort()).toEqual(
+        [
+          ...ADMIN_DETAIL_KEYS,
+          'author',
+          'customerView',
+          'kind',
+          // This version's own change note, beside the order's running account
+          // of them: the thread hangs one entry on each row.
+          'note',
+          'notifiedAt',
+          'revisionCreatedAt',
+        ].sort(),
+      );
+    });
+
+    it('serves one version on its own, and nothing for one nobody wrote', async () => {
+      const placed = await place();
+      await adjust(
+        placed.reference,
+        adjustment({ lines: [{ ...adjustment().lines[0], units: 5 }] }),
+      );
+
+      const res = await get(
+        `/admin/orders/${placed.reference}/revisions/1`,
+        managerCookie,
+      );
+
+      expect(res.status).toBe(200);
+      // The version as it was written, not the order as it now stands.
+      expect(res.data).toMatchObject({
+        revisionNumber: 1,
+        kind: 'submitted',
+        totalMinor: BASE_MINOR * 2,
+      });
+      // And the order's own facts, read against the order: the customer is
+      // still on the version they were sent.
+      expect(res.data.customerRevisionNumber).toBe(1);
+
+      expect(
+        (
+          await get(
+            `/admin/orders/${placed.reference}/revisions/9`,
+            managerCookie,
+          )
+        ).status,
+      ).toBe(404);
+    });
+
+    it('records which versions the customer was written to about', async () => {
+      const placed = await place();
+
+      // The receipt is a message about version 1, so the thread says so from
+      // the start: it is the one version nobody has to decide about.
+      const submitted = await get(
+        `/admin/orders/${placed.reference}/revisions/1`,
+        managerCookie,
+      );
+      expect(submitted.data.notifiedAt).not.toBeNull();
+
+      // A move made without the tick shows the customer where the order got
+      // to and tells them nothing.
+      await post(
+        `/admin/orders/${placed.reference}/status`,
+        { to: 'approved', reason: null, notify: false, markPaid: false },
+        managerCookie,
+      );
+      const quiet = await get(
+        `/admin/orders/${placed.reference}/revisions/2`,
+        managerCookie,
+      );
+      expect(quiet.data.notifiedAt).toBeNull();
+      expect(quiet.data.customerView).toBe(true);
+
+      // And one made with it puts something in their inbox, which the version
+      // records — a different question from which version they are on.
+      await post(
+        `/admin/orders/${placed.reference}/status`,
+        { to: 'ready', reason: null, notify: true, markPaid: false },
+        managerCookie,
+      );
+      const told = await get(
+        `/admin/orders/${placed.reference}/revisions/3`,
+        managerCookie,
+      );
+      expect(told.data.notifiedAt).not.toBeNull();
+      expect(told.data.customerView).toBe(true);
+    });
+
+    it('does not offer the versions to the customer', async () => {
+      const placed = await place({}, customerCookie);
+
+      expect(
+        (
+          await get(
+            `/admin/orders/${placed.reference}/revisions`,
+            customerCookie,
+          )
+        ).status,
+      ).toBe(403);
+    });
+
+    it('is not something a customer can do to their own order', async () => {
+      const placed = await place({}, customerCookie);
+
+      const res = await adjust(
+        placed.reference,
+        adjustment({
+          lines: [
+            {
+              ...adjustment().lines[0],
+              priceMinor: 1,
+            },
+          ],
+        }),
+        customerCookie,
+      );
+
+      expect(res.status).toBe(403);
     });
   });
 
@@ -1379,14 +2049,23 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       );
       expect(res.status).toBe(200);
 
+      // Read off every version of the order, not the current one alone: a
+      // superseded revision holds the same name and address.
       const { rows } = await client.query(
-        `SELECT "contactName", "contactEmail", "billingCity", "tierKey", "totalMinor"
-           FROM orders WHERE reference = $1`,
+        `SELECT r."contactName", r."contactEmail", r."billingCity", r."tierKey",
+                r."totalMinor"
+           FROM order_revisions r
+           JOIN orders o ON o.id = r."orderId"
+          WHERE o.reference = $1
+          ORDER BY r."revisionNumber"`,
         [reference],
       );
+      // Shaped like the thing it replaces, not merely labelled: the order
+      // contract validates the contact it reads back, so a placeholder that
+      // is not an address makes every anonymized order unchangeable.
       expect(rows[0]).toMatchObject({
         contactName: '[removed]',
-        contactEmail: '[removed]',
+        contactEmail: 'removed@deleted.invalid',
         billingCity: '[removed]',
         tierKey: null,
       });
