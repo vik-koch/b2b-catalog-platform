@@ -661,6 +661,17 @@ export const ordersContract = {
       },
     },
   },
+  notifyOrderCustomer: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/notify',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   setOrderPayment: {
     '~orpc': {
       errorMap: {},

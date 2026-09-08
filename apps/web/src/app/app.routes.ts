@@ -207,8 +207,8 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
   },
-  // Orders, for admin and manager both (FR-AUTH-03) — a manager's daily work.
-  // Read-only in this iteration.
+  // Orders, for admin and manager both (FR-AUTH-03) — a manager's daily work:
+  // reading them, answering them, and writing a new version of one.
   {
     path: 'admin/orders',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],

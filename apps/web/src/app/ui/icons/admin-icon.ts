@@ -9,6 +9,11 @@ import { Component, input } from '@angular/core';
  * these is lazy or deferred, which is what keeps the whole thing out of the
  * bundle a visitor downloads — naming one from an eagerly loaded storefront
  * component would drag all of them along, so add the glyph to Icon instead.
+ *
+ * Size via a height/width class on the element (`class="h-4 w-4"`); colour
+ * follows `currentColor`. It carries no size of its own, so one left off is
+ * drawn at the SVG's own default — inside `appIconButton`, which sizes the
+ * glyph itself, leave it off.
  */
 export type AdminIconName =
   | 'bold'
@@ -33,6 +38,8 @@ export type AdminIconName =
   | 'chevron-down'
   | 'chevron-left'
   | 'chevron-right'
+  | 'arrow-left'
+  | 'arrow-right'
   | 'plus'
   | 'copy'
   | 'clipboard-paste'
@@ -195,6 +202,14 @@ export type AdminIconName =
         }
         @case ('chevron-down') {
           <path d="m6 9 6 6 6-6" />
+        }
+        @case ('arrow-left') {
+          <path d="m12 19-7-7 7-7" />
+          <path d="M19 12H5" />
+        }
+        @case ('arrow-right') {
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
         }
         @case ('chevron-left') {
           <path d="m15 18-6-6 6-6" />

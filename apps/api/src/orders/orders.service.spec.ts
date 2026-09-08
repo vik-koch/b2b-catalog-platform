@@ -6,7 +6,13 @@ import {
 import { AddressesService } from '../addresses/addresses.service';
 import { PickupLocation } from '../config/deployment-config';
 import * as schema from '../db/schema';
-import { orderItems, orders, productPairings, users } from '../db/schema';
+import {
+  orderItems,
+  orderRevisions,
+  orders,
+  productPairings,
+  users,
+} from '../db/schema';
 import { OrderNotifications } from './order-notifications';
 import * as reference from './order-reference';
 import {
@@ -129,26 +135,34 @@ function testDb(
             }
             inserts.push({ table, values });
             // Awaited directly for the items, and via `.returning()` for the
-            // order itself.
+            // order and the revision — which answer with their own ids, since
+            // the writes that follow are joined up by them.
             const result = Promise.resolve() as Promise<void> & {
               returning: () => Promise<{ id: string }[]>;
             };
-            result.returning = async () => [{ id: 'order-1' }];
+            result.returning = async () => [
+              { id: table === orderRevisions ? 'revision-1' : 'order-1' },
+            ];
             return result;
           },
         }),
+        // The pointer from the order to the revision it now shows.
+        update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
       }) as Promise<unknown>,
   } as unknown as NodePgDatabase<typeof schema>;
 
-  const orderRows = () =>
+  const rowsOf = (table: unknown) =>
     inserts
-      .filter((entry) => entry.table === orders)
+      .filter((entry) => entry.table === table)
       .map((entry) => entry.values as Record<string, unknown>);
+  const orderRows = () => rowsOf(orders);
+  /** What the order *says* — the snapshot half, which lives on revision 1. */
+  const revisionRows = () => rowsOf(orderRevisions);
   const itemRows = () =>
     (inserts.find((entry) => entry.table === orderItems)?.values ??
       []) as Record<string, unknown>[];
 
-  return { db, orderRows, itemRows, attempted };
+  return { db, orderRows, revisionRows, itemRows, attempted };
 }
 
 const locations: PickupLocation[] = [
@@ -298,15 +312,18 @@ describe('OrdersService.submit', () => {
   });
 
   it('writes the order and its lines, with the server’s own zone', async () => {
-    const { db, orderRows, itemRows } = testDb();
+    const { db, orderRows, revisionRows, itemRows } = testDb();
 
     const placed = await service(db).submit(submission(), 'user-1', null);
 
     expect(placed.reference).toMatch(/^CK-\d{6}-\d{4}$/);
     expect(placed.publicToken).toMatch(/^[A-Za-z0-9_-]{32}$/);
-    expect(orderRows()[0]).toMatchObject({
-      userId: 'user-1',
-      status: 'requested',
+    // The order row is identity and workflow; what it says is its first
+    // revision (ADR 0051).
+    expect(orderRows()[0]).toMatchObject({ userId: 'user-1' });
+    expect(revisionRows()[0]).toMatchObject({
+      orderId: 'order-1',
+      revisionNumber: 1,
       totalMinor: 3998,
       currency: 'EUR',
       // Resolved from the postal code against the deployment's zones — nothing
@@ -316,6 +333,7 @@ describe('OrdersService.submit', () => {
       pickupLocationKey: null,
     });
     expect(itemRows()[0]).toMatchObject({
+      revisionId: 'revision-1',
       productId: 'product-1',
       productSourceId: 'ERP-1',
       unit: 'pack',
@@ -328,7 +346,7 @@ describe('OrdersService.submit', () => {
   });
 
   it('snapshots the collection point and resolves no zone for a pickup', async () => {
-    const { db, orderRows } = testDb();
+    const { db, revisionRows } = testDb();
 
     await service(db).submit(
       submission({
@@ -341,7 +359,7 @@ describe('OrdersService.submit', () => {
       null,
     );
 
-    expect(orderRows()[0]).toMatchObject({
+    expect(revisionRows()[0]).toMatchObject({
       pickupLocationKey: 'speicherstadt',
       // The name and address as they read today: the config behind them is
       // editable, and an old order must stay readable.
@@ -416,11 +434,11 @@ describe('OrdersService.submit', () => {
   // config would send one, and the order must not carry an address the shop
   // does not invoice to.
   it('stores no billing address where the deployment invoices none', async () => {
-    const { db, orderRows } = testDb();
+    const { db, revisionRows } = testDb();
 
     await service(db, false).submit(submission(), 'user-1', null);
 
-    expect(orderRows()[0]).toMatchObject({
+    expect(revisionRows()[0]).toMatchObject({
       billingStreet: null,
       billingPostalCode: null,
       billingCity: null,
@@ -437,11 +455,11 @@ describe('OrdersService.submit', () => {
   });
 
   it('reads the party off the account where the order names none', async () => {
-    const { db, orderRows } = testDb();
+    const { db, revisionRows } = testDb();
 
     await service(db).submit(submission(), 'user-1', null);
 
-    expect(orderRows()[0]).toMatchObject({
+    expect(revisionRows()[0]).toMatchObject({
       partyName: 'Kontor GmbH',
       partyRegistrationId: 'DE123456789',
     });
@@ -450,7 +468,7 @@ describe('OrdersService.submit', () => {
   it('invoices a private customer by name, whatever else their record carries', async () => {
     // A customer who registered as a person keeps their own name on the
     // invoice: the type is the answer, not whichever field is not empty.
-    const { db, orderRows } = testDb(0, {
+    const { db, revisionRows } = testDb(0, {
       customerType: 'person',
       companyRegistrationId: null,
     });
@@ -461,11 +479,11 @@ describe('OrdersService.submit', () => {
       null,
     );
 
-    expect(orderRows()[0]).toMatchObject({ partyName: 'Ada Byron' });
+    expect(revisionRows()[0]).toMatchObject({ partyName: 'Ada Byron' });
   });
 
   it('snapshots the party the order named instead', async () => {
-    const { db, orderRows } = testDb();
+    const { db, revisionRows } = testDb();
 
     await service(db).submit(
       submission({
@@ -475,7 +493,7 @@ describe('OrdersService.submit', () => {
       null,
     );
 
-    expect(orderRows()[0]).toMatchObject({
+    expect(revisionRows()[0]).toMatchObject({
       partyName: 'Nordwerk AG',
       partyRegistrationId: 'DE987654321',
     });

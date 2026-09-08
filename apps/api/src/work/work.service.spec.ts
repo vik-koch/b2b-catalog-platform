@@ -22,10 +22,27 @@ interface Ask {
 function testDb(counts: number[] = []) {
   const asks: Ask[] = [];
   let next = 0;
+  const record = (table: unknown, where: SQL) => {
+    asks.push({ table, where: new PgDialect().sqlToQuery(where).sql });
+    return counts[next++] ?? 0;
+  };
   const db = {
-    $count: (table: unknown, where: SQL) => {
-      asks.push({ table, where: new PgDialect().sqlToQuery(where).sql });
-      return Promise.resolve(counts[next++] ?? 0);
+    $count: (table: unknown, where: SQL) =>
+      Promise.resolve(record(table, where)),
+    // The customer's own count joins the revision each order shows, so it is a
+    // select rather than a `$count` — the same question, asked over two tables.
+    select: () => {
+      let from: unknown;
+      const chain = {
+        from: (table: unknown) => {
+          from = table;
+          return chain;
+        },
+        innerJoin: () => chain,
+        where: (where: SQL) =>
+          Promise.resolve([{ total: record(from, where) }]),
+      };
+      return chain;
     },
   };
   return { db: db as unknown as NodePgDatabase<typeof schema>, asks };

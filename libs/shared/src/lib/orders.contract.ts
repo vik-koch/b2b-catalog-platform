@@ -1,10 +1,11 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
-  DIRECT_TRANSITION_TARGETS,
   FULFILMENT_METHODS,
   ORDER_NOTE_MAX,
   ORDER_QUERY_MAX_LENGTH,
+  ORDER_NOTICES,
+  ORDER_REVISION_KINDS,
   ORDER_STATUS_REASON_MAX,
   ORDER_STATUSES,
   PARTY_NAME_MAX,
@@ -37,6 +38,16 @@ import { catalogImageSchema, paginationSchema } from './catalog.contract';
 export const orderStatusSchema = z.enum(ORDER_STATUSES);
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 
+/** Why a version of an order exists (FR-ORD-03). */
+export const orderRevisionKindSchema = z.enum(ORDER_REVISION_KINDS);
+export type OrderRevisionKind = z.infer<typeof orderRevisionKindSchema>;
+
+/** What a message to the customer is about (FR-NOTIF-03). Not on the wire:
+ * the API decides it from the move it just made, and the mail is written from
+ * it. Named here so the mail and the transition read one vocabulary. */
+export const orderNoticeSchema = z.enum(ORDER_NOTICES);
+export type OrderNotice = z.infer<typeof orderNoticeSchema>;
+
 export const staffOrderSortSchema = z.enum(STAFF_ORDER_SORTS);
 export type StaffOrderSort = z.infer<typeof staffOrderSortSchema>;
 
@@ -54,8 +65,13 @@ export type PaymentState = z.infer<typeof paymentStateSchema>;
 export const staffPaymentFilterSchema = z.enum(STAFF_PAYMENT_FILTERS);
 export type StaffPaymentFilter = z.infer<typeof staffPaymentFilterSchema>;
 
-/** What a manager may move an order to without rewriting it (FR-ORD-02). */
-export const transitionTargetSchema = z.enum(DIRECT_TRANSITION_TARGETS);
+/**
+ * What a manager may move an order to (FR-ORD-02) — every status there is,
+ * `requested` included, since reopening an ended order is a move like any
+ * other. Whether it is allowed from where the order stands is the transition
+ * table's answer, not this enum's.
+ */
+export const transitionTargetSchema = orderStatusSchema;
 export type TransitionTarget = z.infer<typeof transitionTargetSchema>;
 
 /**
@@ -287,6 +303,18 @@ export const orderDetailSchema = orderSummarySchema.extend({
    * status. The customer is told it, so it is on their view and not only in
    * the mail they were sent. */
   statusReason: z.string().nullable(),
+  /**
+   * What the shop said about every change it has made to this order
+   * (FR-ORD-03), oldest first, up to and including the version being shown.
+   * Empty on an order nobody has changed.
+   *
+   * The whole list rather than the last one: the mail quotes what changed
+   * since the customer was last written to, and a page that showed only the
+   * newest note would describe the same version differently from the message
+   * that announced it — including showing nothing at all, where the version
+   * being shown is a move rather than a change.
+   */
+  changes: z.array(z.string()),
   lines: z.array(orderLineSchema),
   shipment: cartPreviewSchema.shape.shipment,
 });
@@ -303,6 +331,41 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   /** Which list it was priced from; null means the default one. */
   tierKey: z.string().nullable(),
   statusChangedAt: z.iso.datetime(),
+  /** Which version is being shown (ADR 0051). 1 is the order as the customer
+   * submitted it; every move and every adjustment writes the next. What a
+   * screen sends back when it adjusts, so two managers cannot overwrite each
+   * other. */
+  revisionNumber: z.number().int().positive(),
+  /**
+   * Which version the customer is being shown, and so the last one they were
+   * written to about (FR-NOTIF-03).
+   *
+   * Equal to `revisionNumber` on an order whose customer is up to date, which
+   * is the ordinary case. Behind it after a change nobody has been told about
+   * yet, or after a finished order was reopened and worked on again — and that
+   * gap is what the screen offers to close.
+   */
+  customerRevisionNumber: z.number().int().positive(),
+  /**
+   * The last version the customer was actually written to about
+   * (FR-NOTIF-03), or 0 on an order no mail has ever gone out for.
+   *
+   * A different question from `customerRevisionNumber`, which is what they are
+   * *looking at*: their view follows every move, and whether a message went
+   * with it is a decision taken per move.
+   */
+  notifiedRevisionNumber: z.number().int().nonnegative(),
+  /** Whether the order has moved or changed since the last message they were
+   * sent — the one case where writing to them is a decision somebody has to
+   * take, and so the only case where the screen offers the button. */
+  customerBehind: z.boolean(),
+  /**
+   * The statuses the customer has already been written to about, in no
+   * particular order. What the screen offers the "write to them" tick for by
+   * default (`notifyByDefault`): a step forward into a state they have never
+   * heard about is news, and a second lap through one is not.
+   */
+  notifiedStatuses: z.array(orderStatusSchema),
   /** When the money was recorded as received, null until it was. Who recorded
    * it is kept on the row for the record but not served: nothing on this
    * screen asks, and it would cost a join on every read. */
@@ -338,8 +401,13 @@ export const pairingUnsatisfiedDataSchema = z.object({
   ),
 });
 
-/** Every refusal the checkout can be given. All 400s but one. */
-const submissionErrors = {
+/**
+ * The refusals about the *order itself* — its party, its addresses, where it
+ * goes and how it is paid. Shared by the checkout and by an adjustment, which
+ * has to hold a manager to the same rules: an order a customer could not have
+ * placed is not one staff may write on their behalf either.
+ */
+const orderDetailErrors = {
   'invalid-company-id': { status: 400 },
   'unsupported-country': { status: 400 },
   /** The postal code is not the shape its country's codes take. */
@@ -349,14 +417,19 @@ const submissionErrors = {
    * party has a registration number. Re-checked here because what the form
    * offered is not what the server trusts. */
   'billing-details-required': { status: 400 },
-  /** Cash is not offered for an order invoiced to a company: a company is
-   * invoiced or pays by card (FR-CART-04). The form does not offer it either;
-   * this is what makes it a rule. */
+  /** Neither cash nor a card arranged offline is offered for an order
+   * invoiced to a company: a company is invoiced (FR-CART-04). No form offers
+   * them either; this is what makes it a rule. */
   'cash-not-available': { status: 400 },
   /** The deployment invoices an address of its own and the submission carried
    * none. Only reachable by a browser out of step with the config the form was
    * drawn from. */
   'billing-address-required': { status: 400 },
+} as const;
+
+/** Every refusal the checkout can be given. All 400s but one. */
+const submissionErrors = {
+  ...orderDetailErrors,
   /** An order with no account named no party. Only reachable by a guest, whose
    * form has nobody to resolve one from. */
   'party-required': { status: 400 },
@@ -404,6 +477,26 @@ export const orderTransitionSchema = z
     to: transitionTargetSchema,
     /** Required for the two ways an order ends, null for every other move. */
     reason: z.string().trim().min(1).max(ORDER_STATUS_REASON_MAX).nullable(),
+    /**
+     * Whether to write to the customer about this move (FR-NOTIF-03).
+     *
+     * Stated on every move rather than worked out from the status, because the
+     * mail is the half of a move nobody can take back and the platform is in
+     * no position to guess: a step forward is usually news, an undo usually is
+     * not, and only the person clicking knows which this is. The screen offers
+     * an answer (`notifyByDefault`); a system writing a move back has to say
+     * one.
+     */
+    notify: z.boolean(),
+    /**
+     * Whether the money arrived with this move (FR-ORD-04) — the handover of a
+     * cash order, which is one event and should not be two clicks.
+     *
+     * Only ever sets the payment; clearing a mis-tick is the payment route's
+     * own job. Ignored where the order is already recorded as paid, and
+     * refused on a move that ends an order, which owes nothing.
+     */
+    markPaid: z.boolean(),
   })
   .strict();
 export type OrderTransition = z.infer<typeof orderTransitionSchema>;
@@ -539,6 +632,10 @@ export const ordersContract = {
                * state, because a cash order waiting to be handed over is not a
                * state — it is `not-due` like an unanswered one. */
               paymentMethod: paymentMethodSchema,
+              /** Which version the order stands on, so a row can link straight
+               * at the version it is describing rather than at "whatever is
+               * current by the time the page opens". */
+              revisionNumber: z.number().int().positive(),
             }),
           ),
           pagination: paginationSchema,

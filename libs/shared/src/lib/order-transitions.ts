@@ -16,9 +16,9 @@ import {
  * diverge — a button for a move the server refuses, or worse a move the server
  * allows and nobody thought to guard.
  *
- * The table is the rule; it is not the whole operation. An adjustment carries
- * a new snapshot of the order, so it is its own endpoint with its own payload,
- * and it appears here only to say who is allowed to make it.
+ * The table is the rule, and it is only about *moves*. Changing what an order
+ * says is a separate operation with its own payload and no target status at
+ * all (FR-ORD-03): an adjusted order stands exactly where it stood.
  */
 
 type OrderStatusName = (typeof ORDER_STATUSES)[number];
@@ -40,39 +40,40 @@ const NONE: readonly OrderStatusName[] = [];
  * cannot compile without someone deciding where it leads — including the
  * decision that it leads nowhere.
  *
- * A customer may call off an order the shop has not started on: one still
- * waiting for an answer, or one just adjusted, which is the same offer made
- * again about a different order. Once the shop is working on it, stopping it
- * is a phone call.
+ * A customer may call off an order the shop has not answered yet. Once it has
+ * been accepted the shop is working on it, and stopping it is a phone call —
+ * including when the shop changed it, because a change is agreed on that same
+ * call before it is ever written down.
  *
- * Reopening — every ended state back to `requested` — is staff's undo, and the
- * only move that runs backwards. It is not there so a shop can change its
- * mind; it is there because a click made by accident must not leave an order
- * at the wrong answer for good, with no recovery but asking the customer to
- * order again under a reference nobody quoted them.
+ * Every move runs backwards as well as forwards, one step at a time, and for
+ * one reason: staff's undo. A click made by accident must not leave an order
+ * at the wrong answer for good — and without a step back, the only recovery
+ * from "ready" clicked too early would be to cancel the order and reopen it,
+ * which tells the customer their order was called off when it never was.
+ *
+ * Backwards is a move like any other — it writes a version and the customer's
+ * view follows it. What it does not do on its own is write to them: the mail
+ * is a decision taken per move (`notifyByDefault`), and an undo is the shop
+ * correcting itself rather than news.
  */
 const TRANSITIONS: Record<
   OrderActor,
   Record<OrderStatusName, readonly OrderStatusName[]>
 > = {
   staff: {
-    requested: ['approved', 'adjusted', 'declined', 'cancelled'],
-    approved: ['ready', 'cancelled'],
-    adjusted: ['ready', 'cancelled'],
-    ready: ['completed', 'cancelled'],
-    // Every ending is undoable, back to the one state that asks the shop to
-    // answer again. Not for changing its mind — for the click that was wrong:
-    // an order refused by accident is otherwise stuck at the wrong answer
-    // forever, and the shop's only recovery is to ask the customer to place it
-    // again under a reference nobody quoted them.
-    completed: ['requested'],
+    requested: ['approved', 'declined', 'cancelled'],
+    approved: ['ready', 'requested', 'cancelled'],
+    ready: ['completed', 'approved', 'cancelled'],
+    // An ending goes back to the one state that asks the shop to answer again:
+    // there is no telling which of the earlier steps it was ended from, and
+    // the answer it needs is the whole of it.
+    completed: ['ready', 'requested'],
     declined: ['requested'],
     cancelled: ['requested'],
   },
   customer: {
     requested: ['cancelled'],
     approved: NONE,
-    adjusted: ['cancelled'],
     ready: NONE,
     completed: NONE,
     declined: NONE,
@@ -121,6 +122,62 @@ export function transitionNeedsReason(
 ): boolean {
   return actor === 'staff' && transitionHasReason(to);
 }
+
+/**
+ * The order's forward chain. The two refusals are off it, and moving off it is
+ * never "back": a declined order reopened is answered again from the start.
+ */
+const FORWARD: readonly OrderStatusName[] = [
+  'requested',
+  'approved',
+  'ready',
+  'completed',
+];
+
+/**
+ * Which way a move runs — the next step in the order's life, or staff undoing
+ * a click.
+ *
+ * Both ends have to be on the chain. Refusing an order is not a step back
+ * along it: it leaves the chain altogether, and reopening a refused order
+ * rejoins it at the start. Shared because three things read it and all three
+ * must agree: the button's wording and weight, the mail's framing, and whether
+ * writing to the customer is offered ticked.
+ */
+export function moveDirection(
+  from: OrderStatusName,
+  to: OrderStatusName,
+): 'forward' | 'backward' {
+  const was = FORWARD.indexOf(from);
+  const now = FORWARD.indexOf(to);
+  return was >= 0 && now >= 0 && now < was ? 'backward' : 'forward';
+}
+
+/**
+ * Whether a move offers to write to the customer with the box already ticked
+ * (FR-NOTIF-03).
+ *
+ * The mail is the one thing on this screen nobody can take back, so it is
+ * asked rather than inferred — but asked with the answer already filled in for
+ * the case that is almost always right: **news they have not had yet**. A step
+ * forward to a state the shop has never written to them about is news; every
+ * other move is the shop putting its own record straight.
+ *
+ * That is what makes a finished order quiet. Completed, then reopened,
+ * corrected and completed again offers the tick only on the first completion:
+ * the customer has already been told the order is done, and telling them twice
+ * describes a lap of the workflow they never saw. It is a default and not a
+ * rule — a manager who reopened an order for a real reason ticks the box.
+ */
+export function notifyByDefault(
+  from: OrderStatusName,
+  to: OrderStatusName,
+  /** The statuses the customer has already been written to about. */
+  notified: readonly OrderStatusName[],
+): boolean {
+  return moveDirection(from, to) === 'forward' && !notified.includes(to);
+}
+
 
 /**
  * What a transition does to the second axis (ADR 0050) — the whole rule, in

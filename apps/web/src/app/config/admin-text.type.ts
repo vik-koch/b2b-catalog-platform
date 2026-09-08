@@ -1007,7 +1007,6 @@ export const adminTextSchema = z
         status: z.string(),
         statusRequested: z.string(),
         statusApproved: z.string(),
-        statusAdjusted: z.string(),
         /** One state, two readings (FR-ORD-01): the order's own fulfilment
          * method decides which of the two a row shows. */
         statusReadyDelivery: z.string(),
@@ -1037,7 +1036,6 @@ export const adminTextSchema = z
       .object({
         /** `{date}` the request was sent, and `{date}` its status last moved. */
         placed: z.string(),
-        statusChanged: z.string(),
         notFound: z.string(),
         loadError: z.string(),
         back: z.string(),
@@ -1060,6 +1058,7 @@ export const adminTextSchema = z
         payment: z.string(),
         cash: z.string(),
         transfer: z.string(),
+        card: z.string(),
         contact: z.string(),
         note: z.string(),
         /** A line in basis units — `{count} × {price}`, the way the source
@@ -1067,6 +1066,13 @@ export const adminTextSchema = z
         basis: z.string(),
         /** Why a declined or cancelled order ended that way. */
         statusReason: z.string(),
+        /** Every version of the order (FR-ORD-03): what the shop said it
+         * changed, and the difference from the version before it. */
+        revisions: z
+          .object({
+            noChanges: z.string(),
+          })
+          .strict(),
         /**
          * Answering an order (FR-ORD-01/02/04). One label per move a manager
          * makes, plus the confirmation the two refusals need — declining and
@@ -1079,8 +1085,21 @@ export const adminTextSchema = z
             open: z.string(),
             answer: z.string(),
             approve: z.string(),
+            /** Opening the adjustment form (FR-ORD-03) — the other half of
+             * accepting an order, for the case where what the shop accepts is
+             * not what was submitted. */
+            adjust: z.string(),
             /** Undo an ending: back to a request the shop has to answer. */
             reopen: z.string(),
+            /**
+             * Staff's undo along the chain — the same three statuses read the
+             * other way round. Their own wording because they are their own
+             * act: "Confirm" on an order already out for delivery would read
+             * as a step forward it is not.
+             */
+            backToRequested: z.string(),
+            backToApproved: z.string(),
+            backToReady: z.string(),
             ready: z.string(),
             readyPickup: z.string(),
             complete: z.string(),
@@ -1089,9 +1108,43 @@ export const adminTextSchema = z
             /** `{action}` names the move being confirmed. */
             confirmHeading: z.string(),
             confirmMessage: z.string(),
+            /** The tick that decides whether the move puts a message in the
+             * customer's inbox (FR-NOTIF-03), and the line under it. Offered
+             * ticked for news they have not had yet. */
+            notify: z.string(),
+            notifyHint: z.string(),
+            /** The tick that records the money with the move that is the
+             * handover (FR-ORD-04), and the line under it. */
+            markPaid: z.string(),
+            markPaidHint: z.string(),
             reasonLabel: z.string(),
             keep: z.string(),
             /** The move was refused: the order had already been answered. */
+            error: z.string(),
+          })
+          .strict(),
+        /**
+         * Telling the customer where the order has got to (FR-NOTIF-03), on
+         * the one row that exists because it is a decision: their view of the
+         * order has moved on without a word about it, and nothing writes to
+         * them on its own.
+         */
+        tellCustomer: z
+          .object({
+            heading: z.string(),
+            /** `{seen}` the version they are on — a link to it — and
+             * `{current}` the one the order stands on. Both are filled with
+             * `revisions.versionInline`, so the sentence carries the word and
+             * this carries the punctuation around it. */
+            behind: z.string(),
+            /** The same line for an order no message has ever gone out about
+             * — `{current}` only. */
+            never: z.string(),
+            action: z.string(),
+            confirmHeading: z.string(),
+            confirmMessage: z.string(),
+            confirm: z.string(),
+            /** Somebody else told them while this page was open. */
             error: z.string(),
           })
           .strict(),

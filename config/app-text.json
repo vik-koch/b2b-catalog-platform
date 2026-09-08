@@ -233,6 +233,7 @@
       "cashPickupDescription": "Pay when you collect your order.",
       "transferTitle": "Bank transfer",
       "transferDescription": "We invoice you with our bank details once we confirm your order.",
+      "cardTitle": "Card, arranged with the shop",
       "transferCompanyOnly": "Only for an order invoiced to a company.",
       "cashPersonOnly": "Only for an order invoiced to a private person."
     },
@@ -309,7 +310,6 @@
     "itemCount": "{count} lines",
     "statusRequested": "Awaiting confirmation",
     "statusApproved": "Confirmed",
-    "statusAdjusted": "Confirmed with changes",
     "statusReadyDelivery": "On its way to you",
     "statusReadyPickup": "Ready to collect",
     "statusCompleted": "Complete",
@@ -326,6 +326,7 @@
       "backToList": "Back to my orders",
       "error": "We could not load that order right now. Please try again later.",
       "statusReason": "Why",
+      "changes": "What we changed",
       "cancel": {
         "action": "Cancel this order",
         "heading": "Cancel this order?",

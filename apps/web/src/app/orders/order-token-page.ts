@@ -4,7 +4,6 @@ import { fillText, OrderDetail } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { OrderSummary } from '../cart/order-summary';
 import { formatPriceMinor } from '../catalog/price';
-import { formatUnitQuantity } from '../catalog/quantity';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { delayedLoading } from '../core/delayed-loading';
@@ -13,6 +12,7 @@ import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
+import { customerBlockLabels, customerQuantity } from './order-view';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
 import {
@@ -87,6 +87,14 @@ import { OrdersService } from './orders.service';
                 {{ reason }}
               </p>
             }
+            @if (order.changes.length) {
+              <div class="mt-1 text-muted">
+                <span class="text-subtle">{{ orderText.detail.changes }}:</span>
+                @for (change of order.changes; track $index) {
+                  <span class="block">{{ change }}</span>
+                }
+              </div>
+            }
             <p class="mt-4 max-w-xl text-muted">{{ text.intro }}</p>
 
             <app-order-read-back
@@ -153,9 +161,8 @@ export class OrderTokenPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = this.config.catalog.currency;
 
-  protected readonly orderText = inject(APP_TEXT).orders;
-  private readonly checkoutText = inject(APP_TEXT).checkout;
-  private readonly units = inject(APP_TEXT).catalog.units;
+  private readonly appText = inject(APP_TEXT);
+  protected readonly orderText = this.appText.orders;
   protected readonly text = this.orderText.public;
 
   /**
@@ -196,7 +203,7 @@ export class OrderTokenPage {
       name: line.name,
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
-      quantity: this.quantity(line),
+      quantity: customerQuantity(line, this.appText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
     }));
   });
@@ -205,46 +212,12 @@ export class OrderTokenPage {
     const order = this.detail();
     if (!order) return [];
 
-    const review = this.checkoutText.review;
-    return orderBlocks(
-      order,
-      {
-        fulfilment: review.fulfilment,
-        delivery: this.checkoutText.fulfilment.deliveryTitle,
-        pickup: this.checkoutText.fulfilment.pickupTitle,
-        invoice: review.invoice,
-        billingSame: review.billingSame,
-        deliveryDate: this.checkoutText.timing.deliveryLabel,
-        pickupDate: this.checkoutText.timing.pickupLabel,
-        whenAny: review.whenAny,
-        payment: review.payment,
-        cash: this.checkoutText.payment.cashTitle,
-        transfer: this.checkoutText.payment.transferTitle,
-        contact: this.orderText.detail.contact,
-        note: review.note,
-      },
-      {
-        address: this.config.address,
-        phoneInput: this.config.phoneInput,
-        locale: this.currency.locale,
-      },
-    );
-  });
-
-  private quantity(line: OrderDetail['lines'][number]): string {
-    const review = this.checkoutText.review;
-    const qty = formatUnitQuantity(line.quantity, this.currency);
-    const unit = this.units[line.unit];
-    if (line.unit === 'piece') {
-      return fillText(review.quantity, { qty, unit });
-    }
-    return fillText(review.quantityPieces, {
-      qty,
-      unit,
-      pieces: formatUnitQuantity(line.pieces, this.currency),
-      pieceUnit: this.units.piece,
+    return orderBlocks(order, customerBlockLabels(this.appText), {
+      address: this.config.address,
+      phoneInput: this.config.phoneInput,
+      locale: this.currency.locale,
     });
-  }
+  });
 
   protected placed(order: OrderDetail): string {
     return fillText(this.orderText.detail.placed, {

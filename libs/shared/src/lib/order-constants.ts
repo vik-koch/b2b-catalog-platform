@@ -16,21 +16,21 @@
  * rendering rule on `fulfilmentMethod`, never a second value that an order
  * could be in the wrong one of.
  *
- * `adjusted` is an acceptance too — the order the manager changed after
- * agreeing it on the phone — and the only difference from `approved` is what
- * the customer is told and that their cancel window re-opens. Nothing writes
- * it until adjustments exist; it is listed now so the check constraint and the
- * read contract agree from the start.
+ * Whether an order was changed along the way is deliberately not here: that is
+ * a fact about its content, answered by the version it is on (FR-ORD-03), and
+ * a status saying it would be a second answer to move out of step.
  */
 export const ORDER_STATUSES = [
   'requested',
   'approved',
-  'adjusted',
   'ready',
   'completed',
   'declined',
   'cancelled',
 ] as const;
+
+/** The status that means the shop has accepted the order. */
+export const ACCEPTED_ORDER_STATUSES = ['approved'] as const;
 
 /**
  * Why a version of an order exists (FR-ORD-03).
@@ -47,8 +47,17 @@ export const ORDER_REVISION_KINDS = [
   'adjustment',
 ] as const;
 
+/**
+ * What a message to the customer is *about* (FR-NOTIF-03) — which the status
+ * it carries cannot say on its own.
+ *
+ * The same `approved` can be the shop accepting an order, walking a packed one
+ * back a step, or changing one it accepted last week, and those read as three
+ * different pieces of news. Named rather than worked out from two statuses,
+ * because the mail is written from it and a system writing a move back has to
+ * say which of the three it made.
  */
-export const ACCEPTED_ORDER_STATUSES = ['approved', 'adjusted'] as const;
+export const ORDER_NOTICES = ['moved', 'corrected', 'changed'] as const;
 
 /** The two ways an order ends without being filled. Both carry a reason. */
 export const ENDED_ORDER_STATUSES = ['declined', 'cancelled'] as const;
@@ -136,24 +145,3 @@ export const ORDER_PAGE_SIZE = 20;
 
 /** As long as the longest thing anybody pastes in: an email address. */
 export const ORDER_QUERY_MAX_LENGTH = 200;
-
-/**
- * What the plain transition endpoint may be asked for.
- *
- * Narrower than `ORDER_STATUSES` on purpose, and not a second copy of the
- * transition table: `adjusted` carries a new snapshot of the order, so it is
- * its own operation with its own payload rather than a target you can name
- * here.
- *
- * `requested` is in the list because reopening an ended order is a move like
- * any other — staff's undo for a click that was wrong. Whether it is allowed
- * from where the order stands is still the table's answer, not this list's.
- */
-export const DIRECT_TRANSITION_TARGETS = [
-  'requested',
-  'approved',
-  'ready',
-  'completed',
-  'declined',
-  'cancelled',
-] as const;

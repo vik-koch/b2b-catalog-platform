@@ -26,6 +26,7 @@ const placed: OrderDetail = {
   status: 'requested',
   paymentState: 'not-due',
   statusReason: null,
+  changes: [],
   createdAt: '2026-08-26T09:15:00.000Z',
   totalMinor: 12990,
   currency: 'EUR',
@@ -201,11 +202,8 @@ describe('OrderDetailPage cancelling an order', () => {
       (button) => button.textContent?.trim() === cancelText.action,
     );
 
-  it('offers it while the shop has not started on the order', async () => {
+  it('offers it while the shop has not answered the order', async () => {
     expect(cancelButton((await render(placed)).el)).toBeDefined();
-    expect(
-      cancelButton((await render({ ...placed, status: 'adjusted' })).el),
-    ).toBeDefined();
   });
 
   it('withdraws it once the shop is working on it', async () => {

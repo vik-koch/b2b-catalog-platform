@@ -1,5 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { AdminOrderDetail, MoneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  AdminOrderDetail,
+  MoneyFormat,
+  OrderNotice,
+} from '@b2b-catalog-platform/shared';
 import { MONEY_FORMAT } from '../config/deployment-config';
 import { MailService } from '../mail/mail.service';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
@@ -65,19 +69,26 @@ export class OrderNotifications {
   }
 
   /**
-   * The customer's mail when their order moves (FR-NOTIF-03).
+   * The customer's mail about their order (FR-NOTIF-03).
    *
    * To the address on the order, like the receipt — a colleague named as the
    * contact is the person the shop has been talking to about it.
    *
-   * `requested` never gets here: an order arriving is the receipt's job, and a
-   * transition can never land back on it.
+   * `requested` reaches this now: a finished order reopened and told about
+   * again is back where it started, and saying so is the honest mail. An order
+   * *arriving* is still the receipt's job and never comes through here.
+   *
+   * `notice` is why this message exists, which the status cannot say: a move
+   * on, a move walked back, or a change that moved nothing at all.
    */
   async statusChanged(
     order: AdminOrderDetail,
     publicToken: string,
+    notice: OrderNotice,
+    /** What the shop said about every change written since this customer was
+     * last told (FR-ORD-03), oldest first. Empty on a plain move. */
+    changes: readonly string[] = [],
   ): Promise<void> {
-    if (order.status === 'requested') return;
     const status = order.status;
     await this.send(
       () =>
@@ -85,9 +96,11 @@ export class OrderNotifications {
           orderStatusChangedMail(
             order,
             status,
+            notice,
             order.customerEmail ? null : publicToken,
             this.currency,
             this.text,
+            changes,
           ),
           { to: order.contact.email },
         ),

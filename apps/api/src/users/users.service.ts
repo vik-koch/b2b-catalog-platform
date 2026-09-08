@@ -1,10 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, eq, inArray, ne, sql } from 'drizzle-orm';
-import { CustomerType } from '@b2b-catalog-platform/shared';
+import { and, count, eq, inArray, ne, notInArray, sql } from 'drizzle-orm';
+import {
+  CustomerType,
+} from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { addresses, orderItems, orders, users } from '../db/schema';
+import {
+  addresses,
+  orderItems,
+  orderRevisions,
+  orders,
+  users,
+} from '../db/schema';
 
 export type UserRow = typeof users.$inferSelect;
 
@@ -173,6 +181,11 @@ export class UsersService {
    * what bookkeeping needs — and every free-text column that could name the
    * customer goes.
    *
+   * **Every version of every order** (ADR 0051), not only the one each order
+   * currently shows: a superseded revision holds the same address and the same
+   * name, and a deletion that left it standing would be a deletion in name
+   * only.
+   *
    * The address columns are overwritten rather than nulled: several are
    * `not null`, and the fulfilment check constraint requires a delivery order
    * to keep a destination. A scrubbed order still reads as an order.
@@ -181,25 +194,37 @@ export class UsersService {
     tx: Pick<NodePgDatabase<typeof schema>, 'update' | 'select'>,
     userId: string,
   ): Promise<void> {
+    // Shaped like the thing it replaces, not merely labelled. `[removed]` in
+    // the email column made every anonymized order unadjustable: the order
+    // contract validates the address it reads back, and refused its own stored
+    // data. `.invalid` is reserved and undeliverable (RFC 2606), and the phone
+    // placeholder is a number nobody answers rather than a word in a number
+    // column.
     const scrubbed = '[removed]';
+    const scrubbedEmail = 'removed@deleted.invalid';
+    const scrubbedPhone = '+00000000000';
     const mine = tx
       .select({ id: orders.id })
       .from(orders)
       .where(eq(orders.userId, userId));
+    const myRevisions = tx
+      .select({ id: orderRevisions.id })
+      .from(orderRevisions)
+      .where(inArray(orderRevisions.orderId, mine));
 
     // Customer-typed, and perfectly capable of naming someone: "deliver to
     // Anna, 0170…".
     await tx
       .update(orderItems)
       .set({ note: null })
-      .where(inArray(orderItems.orderId, mine));
+      .where(inArray(orderItems.revisionId, myRevisions));
 
     await tx
-      .update(orders)
+      .update(orderRevisions)
       .set({
         contactName: scrubbed,
-        contactEmail: scrubbed,
-        contactPhone: scrubbed,
+        contactEmail: scrubbedEmail,
+        contactPhone: scrubbedPhone,
         // The invoiced party is personal data too: it is the account holder or
         // somebody they named, and neither survives the account.
         partyName: scrubbed,
@@ -210,18 +235,21 @@ export class UsersService {
         billingCity: scrubbed,
         billingRegion: null,
         // Kept non-null where it was set, so the fulfilment constraint holds.
-        deliveryStreet: sql`case when ${orders.deliveryStreet} is null then null else ${scrubbed} end`,
+        deliveryStreet: sql`case when ${orderRevisions.deliveryStreet} is null then null else ${scrubbed} end`,
         deliveryStreet2: null,
-        deliveryPostalCode: sql`case when ${orders.deliveryPostalCode} is null then null else ${scrubbed} end`,
-        deliveryCity: sql`case when ${orders.deliveryCity} is null then null else ${scrubbed} end`,
+        deliveryPostalCode: sql`case when ${orderRevisions.deliveryPostalCode} is null then null else ${scrubbed} end`,
+        deliveryCity: sql`case when ${orderRevisions.deliveryCity} is null then null else ${scrubbed} end`,
         deliveryRegion: null,
         preferredDate: null,
         customerNote: null,
+        // What a manager wrote about an adjustment: their words, but about
+        // this customer's order, and quite capable of naming them.
+        note: null,
         // Which list this customer was charged from — the same argument that
         // nulls `users.tierId`.
         tierKey: null,
       })
-      .where(eq(orders.userId, userId));
+      .where(inArray(orderRevisions.orderId, mine));
   }
 
   private async anonymizeUser(

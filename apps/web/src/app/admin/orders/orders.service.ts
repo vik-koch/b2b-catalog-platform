@@ -60,17 +60,35 @@ export class AdminOrdersService {
     reference: string,
     to: TransitionTarget,
     reason: string | null,
+    /** What the manager said in the confirmation: whether the customer hears
+     * about this move, and whether the money arrived with it. */
+    told: { notify: boolean; markPaid: boolean },
   ): Promise<AdminOrderDetail | null> {
     const result = await safe(
       this.client.transitionOrder({
         params: { reference },
-        body: { to, reason },
+        body: { to, reason, ...told },
       }),
     );
     if (result.isSuccess) return result.data;
     if (!result.isDefined) throw result.error;
     return null;
   }
+
+  /**
+   * Bring the customer's view of the order up to date and mail them
+   * (FR-NOTIF-03). Null where there was nothing to tell — somebody else told
+   * them while this page was open.
+   */
+  async notifyCustomer(reference: string): Promise<AdminOrderDetail | null> {
+    const result = await safe(
+      this.client.notifyOrderCustomer({ params: { reference } }),
+    );
+    if (result.isSuccess) return result.data;
+    if (!result.isDefined) throw result.error;
+    return null;
+  }
+
 
   /** Record that the money arrived, or take that record back (FR-ORD-04).
    * Null where there was nothing to change — already in that state, or an

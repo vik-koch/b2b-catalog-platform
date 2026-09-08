@@ -22,13 +22,7 @@ export interface OrderSeed {
   /** The account that placed it, by email, or null for a guest order. */
   email: string | null;
   status:
-    | 'requested'
-    | 'approved'
-    | 'adjusted'
-    | 'ready'
-    | 'completed'
-    | 'declined'
-    | 'cancelled';
+    'requested' | 'approved' | 'ready' | 'completed' | 'declined' | 'cancelled';
   /** Where the money stands (FR-ORD-04), which the status does not say.
    * Omitted means nothing is due. */
   paymentState?: 'not-due' | 'awaiting' | 'paid';
@@ -49,6 +43,18 @@ export interface OrderSeed {
   preferredDate?: string;
   customerNote?: string;
   lines: OrderLineSeed[];
+  /**
+   * A second version of the order, written by the shop after agreeing it with
+   * the customer (FR-ORD-03). The order then reads as this one everywhere,
+   * with the version it superseded kept behind it.
+   */
+  adjustment?: {
+    /** What the shop says it changed. The customer's mail quotes it. */
+    note: string;
+    /** ISO date the manager wrote it. */
+    on: string;
+    lines: OrderLineSeed[];
+  };
 }
 
 export interface AddressSeed {
@@ -192,8 +198,9 @@ export const orderSeeds: OrderSeed[] = [
     placedOn: '2026-08-17',
     email: 'office@hafenkantine.example',
     status: 'requested',
-    // A company, so never cash (FR-CART-04).
-    paymentMethod: 'card-later',
+    // A company, so invoiced (FR-CART-04): neither cash nor a card arranged
+    // on the phone leaves the paper one is owed.
+    paymentMethod: 'bank-transfer',
     contactName: 'Marlene Suhr',
     contactEmail: 'office@hafenkantine.example',
     contactPhone: '+494012010003',
@@ -270,6 +277,41 @@ export const orderSeeds: OrderSeed[] = [
     },
     customerNote: 'Ordered by mistake, sorry — placed the same thing twice.',
     lines: [{ sourceId: 'ESP-005', unit: 'pack', pieces: 24 }],
+  },
+  {
+    // Accepted with changes (FR-ORD-03): one line the shop could not fill in
+    // full, a second version of the order to say so, and then the ordinary
+    // acceptance. Guest, so no account's own queue counts it.
+    reference: 'CK-260901-5528',
+    placedOn: '2026-09-01',
+    email: null,
+    status: 'approved',
+    paymentMethod: 'cash',
+    contactName: 'Birte Ahlers',
+    contactEmail: 'b.ahlers@mail.example',
+    contactPhone: '+494012019004',
+    partyName: 'Birte Ahlers',
+    partyRegistrationId: null,
+    billing: {
+      street: 'Eppendorfer Weg 210',
+      postalCode: '20251',
+      city: 'Hamburg',
+      country: 'DE',
+    },
+    pickupKey: 'altona',
+    customerNote: 'Collecting on the way to the market, some time after ten.',
+    lines: [
+      { sourceId: 'ESP-002', unit: 'pack', pieces: 24 },
+      { sourceId: 'CUP-002', unit: 'piece', pieces: 4 },
+    ],
+    adjustment: {
+      note: 'Only 12 of the espresso left in that roast — agreed on the phone to take those and the cups as ordered.',
+      on: '2026-09-02',
+      lines: [
+        { sourceId: 'ESP-002', unit: 'pack', pieces: 12 },
+        { sourceId: 'CUP-002', unit: 'piece', pieces: 4 },
+      ],
+    },
   },
   {
     // Bought by a private customer, invoiced to a company that is not hers:

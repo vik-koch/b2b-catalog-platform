@@ -255,7 +255,10 @@ describe('AdminOrderListPage row actions', () => {
     const transition = vi.fn(() => Promise.resolve(null));
     const { fixture, el, list } = await render([placed], {}, { transition });
     const confirm = TestBed.inject(ConfirmService);
-    vi.spyOn(confirm, 'askWithReason').mockResolvedValue('Out of stock');
+    vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
+      reason: 'Out of stock',
+      checks: { notify: true },
+    });
 
     const decline = [...el.querySelectorAll('tbody button')].find(
       (button) => button.getAttribute('aria-label') === actions.decline,
@@ -268,6 +271,7 @@ describe('AdminOrderListPage row actions', () => {
       placed.reference,
       'declined',
       'Out of stock',
+      { notify: true, markPaid: false },
     );
     expect(list).toHaveBeenCalledTimes(2);
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(

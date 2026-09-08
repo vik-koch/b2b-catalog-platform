@@ -109,6 +109,7 @@
     "paymentLabel": "Payment",
     "cash": "Cash",
     "transfer": "Bank transfer",
+    "card": "Card, arranged with the customer",
     "itemsHeading": "Ordered",
     "totalLabel": "Total",
     "action": "Open the order"
@@ -119,22 +120,25 @@
     "referenceLabel": "Order",
     "totalLabel": "Total",
     "reasonLabel": "Reason",
+    "changedLabel": "Change note",
+    "changedIntro": "We have changed this order since we last wrote to you — what we changed is noted below, and the contents and total are the ones that now apply.",
+    "correctedIntro": "We have corrected our record of this order: it had moved further along than it should have. Where it now stands is below.",
     "deliveryLabel": "Delivery address",
     "pickupLabel": "Collect from",
     "itemsHeading": "Your items",
     "action": "Open your order",
     "statuses": {
+      "changed": {
+        "heading": "We have changed your order",
+        "body": "Where your order stands has not changed — its contents and total have. The ones below are the ones that now apply."
+      },
       "reopened": {
         "heading": "Your order is back with us",
         "body": "We have put your order back in our queue and will come back to you about it shortly. Anything we told you about it before no longer applies."
       },
       "approved": {
         "heading": "Your order is confirmed",
-        "body": "We have confirmed your order as you sent it. We will let you know as soon as it is ready."
-      },
-      "adjusted": {
-        "heading": "Your order is confirmed, with the changes we agreed",
-        "body": "We have confirmed your order with the changes we discussed. Its contents and total are below — please tell us if anything reads differently from what we agreed."
+        "body": "We have confirmed your order. We will let you know as soon as it is ready."
       },
       "readyDelivery": {
         "heading": "Your order is on its way",

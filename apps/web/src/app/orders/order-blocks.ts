@@ -22,6 +22,10 @@ export interface OrderBlockLabels {
   readonly payment: string;
   readonly cash: string;
   readonly transfer: string;
+  /** A card payment arranged with the manager. Staff-set — the checkout does
+   * not offer it — and it is neither of the other two, so an order paid that
+   * way must not read as one paid in cash. */
+  readonly card: string;
   readonly contact: string;
   readonly note: string;
 }
@@ -78,9 +82,12 @@ export function orderBlocks(
     },
     {
       heading: labels.payment,
-      // Card payment is not offered yet; it gains its own label when it is.
       lines: [
-        order.paymentMethod === 'bank-transfer' ? labels.transfer : labels.cash,
+        {
+          'bank-transfer': labels.transfer,
+          'card-later': labels.card,
+          cash: labels.cash,
+        }[order.paymentMethod],
       ],
     },
     {

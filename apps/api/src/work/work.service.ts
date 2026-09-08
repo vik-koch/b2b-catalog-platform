@@ -7,12 +7,12 @@ import {
   WorkQueue,
 } from '@b2b-catalog-platform/shared';
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, isNotNull, isNull, lte, or, sql } from 'drizzle-orm';
+import { and, count, eq, isNotNull, isNull, lte, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 
-const { documents, orders, products, users } = schema;
+const { documents, orderRevisions, orders, products, users } = schema;
 
 /**
  * Which queues a role is told about (FR-WORK-04), as a table rather than as a
@@ -142,20 +142,29 @@ export class WorkService {
    * who ordered it. Nor is an order that ended — nothing is owed on it, and
    * `awaiting` is cleared when it ends anyway.
    */
-  private myOrders(userId: string): Promise<number> {
-    return this.db.$count(
-      orders,
-      and(
-        eq(orders.userId, userId),
-        sql`${orders.status} not in ('declined', 'cancelled')`,
-        or(
-          eq(orders.paymentState, 'awaiting'),
-          and(
-            eq(orders.status, 'ready'),
-            eq(orders.fulfilmentMethod, 'pickup'),
+  private async myOrders(userId: string): Promise<number> {
+    // Joined to the version each order currently shows: how it is fulfilled is
+    // part of what an order *says*, and an adjustment can change it (ADR 0051).
+    const [{ total }] = await this.db
+      .select({ total: count() })
+      .from(orders)
+      .innerJoin(
+        orderRevisions,
+        eq(orders.currentRevisionId, orderRevisions.id),
+      )
+      .where(
+        and(
+          eq(orders.userId, userId),
+          sql`${orders.status} not in ('declined', 'cancelled')`,
+          or(
+            eq(orders.paymentState, 'awaiting'),
+            and(
+              eq(orders.status, 'ready'),
+              eq(orderRevisions.fulfilmentMethod, 'pickup'),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    return total;
   }
 }

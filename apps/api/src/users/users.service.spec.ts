@@ -86,13 +86,15 @@ describe('UsersService.anonymize', () => {
     expect(captured.map((entry) => entry.table)).toEqual([
       'addresses',
       'order_items',
-      'orders',
+      // Every version of every order, not the current one alone: a superseded
+      // revision holds the same name and the same address (ADR 0051).
+      'order_revisions',
       'users',
     ]);
   });
 
   it('empties every free-text column an order can name someone in', () => {
-    const { sql } = statement('orders');
+    const { sql } = statement('order_revisions');
 
     for (const column of [
       'contactName',
@@ -112,6 +114,9 @@ describe('UsersService.anonymize', () => {
       'deliveryRegion',
       'preferredDate',
       'customerNote',
+      // A manager's account of an adjustment — their words, about this
+      // customer's order.
+      'note',
       // What this customer was charged — the same argument that nulls tierId.
       'tierKey',
     ]) {
@@ -120,27 +125,27 @@ describe('UsersService.anonymize', () => {
   });
 
   it('leaves the bookkeeping record intact', () => {
-    const { sql } = statement('orders');
+    const { sql } = statement('order_revisions');
 
     // The order, its number and its money are why it is kept at all.
     expect(sql).not.toContain('"totalMinor"');
     expect(sql).not.toContain('"reference"');
     expect(sql).not.toContain('"createdAt"');
     // And it touches this account's orders only.
-    expect(sql).toContain('where "orders"."userId" = $');
+    expect(sql).toContain('"orders"."userId" = $');
   });
 
   it('keeps a delivery order’s destination non-null, as its constraint demands', () => {
-    const { sql } = statement('orders');
+    const { sql } = statement('order_revisions');
 
     // `orders_fulfilment_destination` requires a delivery order to keep street,
     // postcode, city and country — so those are overwritten where they are set
     // and left null where they are not, rather than nulled outright.
     expect(sql).toContain(
-      'case when "orders"."deliveryStreet" is null then null else $',
+      'case when "order_revisions"."deliveryStreet" is null then null else $',
     );
     expect(sql).toContain(
-      'case when "orders"."deliveryCity" is null then null else $',
+      'case when "order_revisions"."deliveryCity" is null then null else $',
     );
   });
 
@@ -149,8 +154,11 @@ describe('UsersService.anonymize', () => {
 
     expect(sql).toContain('set "note" = $1');
     expect(params[0]).toBeNull();
-    // Scoped through the account's own orders, never all of them.
-    expect(sql).toContain('"orderId" in (select "id" from "orders"');
+    // Scoped through this account's own orders, never all of them — by way of
+    // their revisions, which is what a line hangs off.
+    expect(sql).toContain(
+      '"revisionId" in (select "id" from "order_revisions"',
+    );
     expect(sql).toContain('"orders"."userId" = $');
   });
 });

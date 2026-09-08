@@ -202,6 +202,9 @@ export const mailTextSchema = z
         paymentLabel: z.string(),
         cash: z.string(),
         transfer: z.string(),
+        /** A card payment arranged with the manager — never chosen at
+         * checkout, but an order can be adjusted onto it. */
+        card: z.string(),
         itemsHeading: z.string(),
         totalLabel: z.string(),
         action: z.string(),
@@ -228,6 +231,16 @@ export const mailTextSchema = z
         totalLabel: z.string(),
         /** Precedes the reason a declined or cancelled order carries. */
         reasonLabel: z.string(),
+        /** What the shop changed about the order, in their words
+         * (FR-ORD-03) — one row per change since the last mail. */
+        changedLabel: z.string(),
+        /** Said first wherever a mail carries changes: the reader has to know
+         * the order itself moved before being told where it stands. */
+        changedIntro: z.string(),
+        /** Said first where the message is the shop walking the order back a
+         * step (FR-ORD-02). Without it the mail would announce a state the
+         * customer was already past as though it were the next one. */
+        correctedIntro: z.string(),
         /** Where the order is going, or where it is waiting. Only on the two
          * `ready` mails: those are the ones whose wording sends the reader
          * somewhere, and every other status mail would be repeating the
@@ -241,8 +254,11 @@ export const mailTextSchema = z
             /** An order the shop had ended and has put back in its queue —
              * the only way a move lands on `requested`. */
             reopened: statusMailText,
+            /** A message about the order having *changed*, where nothing about
+             * it moved (FR-ORD-03). It needs a heading of its own: every other
+             * entry here announces a step, and there was no step. */
+            changed: statusMailText,
             approved: statusMailText,
-            adjusted: statusMailText,
             readyDelivery: statusMailText,
             readyPickup: statusMailText,
             completed: statusMailText,
