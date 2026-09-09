@@ -333,6 +333,7 @@
         "heading": "Cancel this order?",
         "message": "We will stop working on order {reference}. You can always send us a new one.",
         "reasonLabel": "Please tell us why",
+        "paidWarning": "We have already recorded a payment for this order. Cancelling it here does not send the money back — please arrange the refund with us directly.",
         "confirm": "Cancel the order",
         "keep": "Keep the order",
         "error": "We could not cancel that order. It may already have moved on — please reload the page or call us."

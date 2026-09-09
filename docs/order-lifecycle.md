@@ -216,6 +216,19 @@ Nothing else is mailed to staff about an order. Every move a manager makes is a
 manager's own click, and telling them about it would be the shop writing to
 itself.
 
+## What the platform never does to money
+
+An order can be paid for before the shop has answered it: an invoiced customer
+who pays on receipt of the request is ordinary, and a manager records the
+transfer whenever it arrives. So `paid` and `requested` sit together, and the
+customer's cancel button stays where it is — an order paid for by mistake is
+exactly the one somebody needs to call off.
+
+What both sides are told, at the moment of cancelling, is that the click moves
+nothing: the platform records that money arrived and never sends it back
+(FR-ORD-04). The customer's confirmation carries that sentence and so does the
+manager's, on any move that ends an order the shop has been paid for. The
+refund itself happens in the shop's books.
 
 ## Journeys
 

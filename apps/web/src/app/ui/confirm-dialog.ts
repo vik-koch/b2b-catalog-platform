@@ -16,6 +16,7 @@ import { FieldLabel } from './field-label';
 import { Input } from './input';
 import { DialogActions } from './dialog-actions';
 import { DialogPanel } from './dialog-panel';
+import { WarningNote } from './warning-note';
 
 /**
  * One thing that happens because the answer was yes, offered as a tick.
@@ -69,6 +70,7 @@ export interface ConfirmAnswer {
     DialogPanel,
     FieldLabel,
     Input,
+    WarningNote,
   ],
   template: `
     <dialog
@@ -84,6 +86,13 @@ export interface ConfirmAnswer {
         {{ heading() }}
       </h2>
       <p class="mt-3 text-muted">{{ message() }}</p>
+
+      <!-- Something to weigh before answering yes, where the question has one.
+           Amber and never red: it refuses nothing, and the button below it
+           still does what it says. -->
+      @if (warning(); as note) {
+        <app-warning-note class="mt-3">{{ note }}</app-warning-note>
+      }
 
       @if (reasonLabel(); as label) {
         <div class="mt-5">
@@ -164,6 +173,9 @@ export class ConfirmDialog {
 
   readonly heading = input.required<string>();
   readonly message = input.required<string>();
+  /** A consequence the reader should weigh, drawn under the question. Absent
+   * on a question that has none. */
+  readonly warning = input<string | null>(null);
   readonly confirmLabel = input.required<string>();
   readonly cancelLabel = input.required<string>();
   readonly confirmVariant = input<'primary' | 'danger'>('danger');

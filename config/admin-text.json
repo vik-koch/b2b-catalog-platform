@@ -743,6 +743,7 @@
       "markPaid": "Also record the payment as received",
       "markPaidHint": "For money handed over with the goods. You can take this back afterwards.",
       "reasonLabel": "Why — this is quoted to the customer",
+      "paidWarning": "A payment is recorded against this order. Ending it here does not refund anything — arrange that with the customer directly.",
       "keep": "Leave it as it is",
       "error": "That did not work. The order may already have been answered — reload the page.",
       "notifyAttachment": "The payment instructions on this order are sent with it.",

@@ -1069,6 +1069,14 @@ export class AdminOrderDetailPage {
       confirmLabel: label,
       cancelLabel: actions.keep,
       checks: this.moveChecks(order, to),
+      // Ending an order the shop has been paid for. The move is allowed — the
+      // platform records what the shop did — but nothing here sends the money
+      // back (FR-ORD-04), and this is the moment somebody would assume it
+      // does. The customer's own cancel button carries the same sentence.
+      warning:
+        order.paymentState === 'paid' && transitionHasReason(to)
+          ? actions.paidWarning
+          : undefined,
     };
     const answer = await this.confirm.askDetailed(
       transitionHasReason(to)

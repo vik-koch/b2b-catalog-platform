@@ -823,6 +823,13 @@ export const appTextSchema = z
                 /** Why — the shop reads it, so it is asked for rather than
                  * optional. */
                 reasonLabel: z.string(),
+                /**
+                 * Said only where a payment has already been recorded against
+                 * the order (FR-ORD-04). The platform records money arriving
+                 * and never moves it, so cancelling here settles nothing — and
+                 * this sentence is the only place anybody is told that.
+                 */
+                paidWarning: z.string(),
                 confirm: z.string(),
                 keep: z.string(),
                 error: z.string(),

@@ -1174,6 +1174,13 @@ export const adminTextSchema = z
             markPaid: z.string(),
             markPaidHint: z.string(),
             reasonLabel: z.string(),
+            /**
+             * Weighed before ending an order the shop has already been paid
+             * for (FR-ORD-04). The move goes ahead — the platform records what
+             * the shop did — but nothing here sends money back, and this is
+             * where somebody would assume it does.
+             */
+            paidWarning: z.string(),
             /** Added to the dialog where the shop's payment instructions will
              * travel with the message this move sends (FR-ORD-05). */
             notifyAttachment: z.string(),
