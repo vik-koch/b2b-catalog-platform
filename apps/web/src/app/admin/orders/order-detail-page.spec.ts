@@ -31,7 +31,6 @@ const placed: AdminOrderDetail = {
   revisionNumber: 1,
   customerRevisionNumber: 1,
   notifiedRevisionNumber: 1,
-  customerBehind: false,
   notifiedStatuses: ['requested'],
   paidAt: null,
   createdAt: '2026-08-26T09:15:00.000Z',
@@ -246,9 +245,20 @@ describe('AdminOrderDetailPage answering an order', () => {
     });
 
     // Reopening is the recovery from a wrong click, not a step in the order's
-    // life — so it is the only thing on offer, and the order is not carried on
-    // from where it ended.
-    expect(buttons(el)).toEqual([text.actions.reopen]);
+    // life — so it is the only move on offer, and the order is not carried on
+    // from where it ended. Named one by one rather than as the whole list of
+    // buttons: the customer block always offers something, and this asks which
+    // *moves* an ended order has.
+    expect(buttons(el)).toContain(text.actions.reopen);
+    for (const move of [
+      text.actions.approve,
+      text.actions.decline,
+      text.actions.cancel,
+      text.actions.ready,
+      text.actions.complete,
+    ]) {
+      expect(buttons(el)).not.toContain(move);
+    }
     expect(el.textContent).toContain('Ordered twice');
   });
 

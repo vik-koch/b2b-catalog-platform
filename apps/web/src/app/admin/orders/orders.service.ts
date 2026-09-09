@@ -106,13 +106,19 @@ export class AdminOrdersService {
   }
 
   /**
-   * Bring the customer's view of the order up to date and mail them
-   * (FR-NOTIF-03). Null where there was nothing to tell — somebody else told
-   * them while this page was open.
+   * Bring the customer's view of the order up to date, and mail them if asked
+   * (FR-NOTIF-03). Null where there was nothing left to do — somebody else
+   * brought them up to date while this page was open.
    */
-  async notifyCustomer(reference: string): Promise<AdminOrderDetail | null> {
+  async notifyCustomer(
+    reference: string,
+    notify: boolean,
+  ): Promise<AdminOrderDetail | null> {
     const result = await safe(
-      this.client.notifyOrderCustomer({ params: { reference } }),
+      this.client.notifyOrderCustomer({
+        params: { reference },
+        body: { notify },
+      }),
     );
     if (result.isSuccess) return result.data;
     if (!result.isDefined) throw result.error;

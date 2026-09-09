@@ -24,7 +24,6 @@ export const demoAdminOrder: AdminOrderDetail = {
   revisionNumber: 1,
   customerRevisionNumber: 1,
   notifiedRevisionNumber: 1,
-  customerBehind: false,
   notifiedStatuses: ['requested'],
   changes: [],
   paidAt: null,

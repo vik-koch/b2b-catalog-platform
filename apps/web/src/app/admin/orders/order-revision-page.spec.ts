@@ -32,7 +32,6 @@ const version: OrderRevision = {
   notifiedRevisionNumber: 3,
   notifiedStatuses: ['approved'],
   note: 'One more box, as agreed.',
-  customerBehind: true,
   paidAt: null,
   createdAt: '2026-08-26T09:15:00.000Z',
   statusChangedAt: '2026-08-27T10:00:00.000Z',

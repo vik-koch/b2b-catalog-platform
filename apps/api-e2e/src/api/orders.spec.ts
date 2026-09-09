@@ -124,7 +124,6 @@ const ADMIN_DETAIL_KEYS = [
   ...ORDER_DETAIL_KEYS,
   // What the customer sees and what they have been told (FR-NOTIF-03) — two
   // questions, and staff's alone either way.
-  'customerBehind',
   'customerRevisionNumber',
   'notifiedRevisionNumber',
   'notifiedStatuses',
@@ -1487,7 +1486,6 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         // an unannounced change is not theirs to see.
         customerRevisionNumber: 1,
         notifiedRevisionNumber: 1,
-        customerBehind: true,
       });
       expect(Object.keys(res.data).sort()).toEqual(ADMIN_DETAIL_KEYS);
       // The mailed link still opens it — and shows the version it described,
@@ -1799,7 +1797,6 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(quiet.data.customerRevisionNumber).toBe(4);
       // Only the receipt has ever reached them, and that was version 1.
       expect(quiet.data.notifiedRevisionNumber).toBe(1);
-      expect(quiet.data.customerBehind).toBe(true);
       const token = await get(`/orders/by-token/${placed.publicToken}`);
       expect(token.data.status).toBe('completed');
 
@@ -1812,13 +1809,24 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       );
       expect(told.status).toBe(200);
       expect(told.data.notifiedRevisionNumber).toBe(4);
-      expect(told.data.customerBehind).toBe(false);
-      // And there is nothing left to tell them a second time.
+      // Saying it again is allowed — a message that went to a spam folder is
+      // one somebody has to be able to send again, and it says exactly what
+      // their page says. What is refused is the press that would do nothing:
+      // no move to show them, and no message asked for.
       expect(
         (
           await post(
             `/admin/orders/${placed.reference}/notify`,
-            {},
+            { notify: true },
+            managerCookie,
+          )
+        ).status,
+      ).toBe(200);
+      expect(
+        (
+          await post(
+            `/admin/orders/${placed.reference}/notify`,
+            { notify: false },
             managerCookie,
           )
         ).data.code,
@@ -1864,9 +1872,6 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(mistake.data.revisionNumber).toBe(3);
       expect(mistake.data.customerRevisionNumber).toBe(2);
       expect(mistake.data.notifiedRevisionNumber).toBe(2);
-      // Nothing to explain: they are looking at a version they were told
-      // about, so the screen does not ask anybody to write to them.
-      expect(mistake.data.customerBehind).toBe(false);
       const token = await get(`/orders/by-token/${placed.publicToken}`);
       expect(token.data.status).toBe('approved');
 
@@ -1926,7 +1931,6 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       expect(res.data.revisionNumber).toBe(2);
       expect(res.data.notifiedRevisionNumber).toBe(2);
-      expect(res.data.customerBehind).toBe(false);
       // And the customer's own statuses are what the next confirmation offers
       // its tick against.
       expect(res.data.notifiedStatuses).toEqual(

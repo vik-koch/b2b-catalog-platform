@@ -87,7 +87,16 @@ export interface ConfirmAnswer {
 
       @if (reasonLabel(); as label) {
         <div class="mt-5">
-          <label appFieldLabel for="confirm-dialog-reason">{{ label }}</label>
+          <!-- Marked required wherever it is, with the same asterisk every
+               other required field in the app wears: the confirm button waits
+               on this one, and a dead button beside an unmarked field is a
+               dialog that looks broken. -->
+          <label appFieldLabel for="confirm-dialog-reason">
+            {{ label }}
+            @if (reasonRequired()) {
+              <span class="text-accent" aria-hidden="true">*</span>
+            }
+          </label>
           <textarea
             appInput
             appAutoGrow
@@ -95,6 +104,7 @@ export interface ConfirmAnswer {
             class="w-full"
             rows="2"
             [attr.maxlength]="reasonMaxLength()"
+            [attr.required]="reasonRequired() ? '' : null"
             [value]="reason()"
             (input)="reason.set($any($event.target).value)"
           ></textarea>

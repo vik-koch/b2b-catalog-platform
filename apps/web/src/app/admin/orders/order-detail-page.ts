@@ -13,6 +13,7 @@ import {
   allowedTransitions,
   fillText,
   moveDirection,
+  nextPaymentState,
   notifyByDefault,
   ORDER_STATUS_REASON_MAX,
   OrderStatus,
@@ -244,26 +245,30 @@ const MARK_PAID = 'markPaid';
                   </div>
                 </dd>
 
-                <!-- What the customer has been told, which is only worth a
-                     line when it is not where the order stands. Every move
-                     offers to write to them and most are taken up on it, so
-                     this row is what is left: a change nobody announced, and
-                     the moves somebody deliberately kept quiet. -->
-                @if (order.customerBehind) {
-                  <dt [class]="term">{{ text.tellCustomer.heading }}</dt>
-                  <dd [class]="row">
-                    <!-- Each version the sentence names links at that
-                         version, and carries the weight the rest of the line
-                         does not: which versions these are is the whole content
-                         of it. Written as one line, because a newline between
-                         the parts is a space Angular would put back — in front
-                         of the semicolon. -->
+                <!-- What the customer can see, and what they have been told.
+                     Always shown, and two questions rather than one: a version
+                     reaches their page whether or not a message goes with it,
+                     and either half can be left undone by a manager clearing a
+                     tick. A screen that only drew itself when something was
+                     wrong was one with no way back from that. -->
+                <dt [class]="term">{{ tellText.heading }}</dt>
+                <dd [class]="row">
+                  <div class="min-w-0">
+                    <!-- Each version the sentence names links at that version,
+                         and carries the weight the rest of the line does not:
+                         which versions these are is the whole content of it.
+                         Written as one line, because a newline between the
+                         parts is a space Angular would put back — in front of
+                         the semicolon. -->
                     <!-- prettier-ignore -->
-                    <p class="min-w-0">@for (part of behind(); track $index) {@if (part.version) {<a
+                    <p>@for (part of behind(); track $index) {@if (part.version) {<a
                       class="font-medium hover:text-accent"
                       [routerLink]="['/admin/orders', order.reference, 'revisions', part.version]"
                       [title]="revisionText.openRevision"
                     >{{ part.text }}</a>} @else {{{ part.text }}}}</p>
+                    <p class="text-subtle">{{ emailed() }}</p>
+                  </div>
+                  @if (customerAction(); as action) {
                     <div [class]="actions">
                       <button
                         appButton
@@ -272,14 +277,14 @@ const MARK_PAID = 'markPaid';
                         type="button"
                         class="w-full gap-2 sm:w-auto"
                         [disabled]="busy()"
-                        (click)="tellCustomer(order)"
+                        (click)="tellCustomer(order, action.kind)"
                       >
-                        <app-admin-icon name="send" class="h-4 w-4" />
-                        {{ text.tellCustomer.action }}
+                        <app-admin-icon [name]="action.icon" class="h-4 w-4" />
+                        {{ action.label }}
                       </button>
                     </div>
-                  </dd>
-                }
+                  }
+                </dd>
 
                 <!-- Every version of the order, newest first (FR-ORD-03) — what
                    the shop said it changed, and the difference from the version
@@ -503,6 +508,7 @@ export class AdminOrderDetailPage {
   protected readonly text = inject(ADMIN_TEXT).orderDetail;
   protected readonly listText = inject(ADMIN_TEXT).orderList;
   protected readonly revisionText = this.text.revisions;
+  protected readonly tellText = this.text.tellCustomer;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
@@ -749,15 +755,15 @@ export class AdminOrderDetailPage {
     const order = this.detail();
     if (!order) return [];
     const numbers: Record<string, number> = {
-      '{seen}': order.notifiedRevisionNumber,
+      '{seen}': order.customerRevisionNumber,
       '{current}': order.revisionNumber,
     };
-    // An order nobody has written about yet has no version to name as the last
-    // one: its sentence has the one placeholder, and the split below simply
-    // finds nothing to fill for the other.
-    const template = order.notifiedRevisionNumber
-      ? this.text.tellCustomer.behind
-      : this.text.tellCustomer.never;
+    // Level with the order, or behind it: the same sentence either way, so a
+    // manager reads one line and not two shapes of it.
+    const template =
+      order.customerRevisionNumber < order.revisionNumber
+        ? this.tellText.behind
+        : this.tellText.on;
     return template
       .split(/(\{seen\}|\{current\})/)
       .filter((piece) => piece !== '')
@@ -773,34 +779,104 @@ export class AdminOrderDetailPage {
       );
   });
 
+  /** The second line: whether anything has ever been said, and about what. */
+  protected readonly emailed = computed(() => {
+    const order = this.detail();
+    if (!order) return '';
+    return order.notifiedRevisionNumber
+      ? fillText(this.tellText.emailedOn, {
+          notified: fillText(this.revisionText.versionInline, {
+            number: order.notifiedRevisionNumber,
+          }),
+        })
+      : this.tellText.emailedNever;
+  });
+
+  /**
+   * What is left to do about the customer, in the order it has to be done.
+   *
+   * Moving their page on comes first, because a message about a version they
+   * are not being shown would link them to something else. Once they are
+   * level, the only thing left is the message — offered whether or not one has
+   * gone already, since a mail that landed in a spam folder is one somebody
+   * has to be able to send again, and re-sending the version they hold says
+   * exactly what their page says.
+   */
+  protected readonly customerAction = computed(() => {
+    const order = this.detail();
+    if (!order) return null;
+    if (order.customerRevisionNumber < order.revisionNumber) {
+      return {
+        kind: 'update' as const,
+        label: this.tellText.update,
+        icon: 'arrow-right' as const,
+      };
+    }
+    return {
+      kind: 'email' as const,
+      label:
+        order.notifiedRevisionNumber < order.customerRevisionNumber
+          ? this.tellText.email
+          : this.tellText.emailAgain,
+      icon: 'send' as const,
+    };
+  });
+
   protected revisionCount(order: AdminOrderDetail): string {
     return fillText(this.common.countSuffix, { count: order.revisionNumber });
   }
 
   /**
-   * Whether the customer has been left behind the order (FR-NOTIF-03) —
-   * the order has moved or changed since the last message they were sent. The
-   * mail on a move is a tick in its confirmation; this is the same decision
-   * taken afterwards, for the change no move will mention and for the message
-   * somebody skipped and then thought better of.
+   * Move the customer's page on, or write to them about the version they
+   * already hold. One endpoint, because they are one decision made in two
+   * halves: the update offers the message as a tick, and the message on its
+   * own is that tick with nothing to move.
    */
-  protected readonly customerBehind = computed(
-    () => this.detail()?.customerBehind ?? false,
-  );
+  protected async tellCustomer(
+    order: AdminOrderDetail,
+    kind: 'update' | 'email',
+  ): Promise<void> {
+    const tell = this.tellText;
+    const asked =
+      kind === 'update'
+        ? {
+            heading: tell.updateConfirmHeading,
+            message: tell.updateConfirmMessage,
+            confirmLabel: tell.updateConfirm,
+            checks: [
+              {
+                key: NOTIFY,
+                label: tell.updateNotify,
+                hint: tell.updateNotifyHint,
+                // Ticked: a version they have not been shown is news, and the
+                // manager who did not want to send one can clear it and come
+                // back to the button that stays behind.
+                checked: true,
+              },
+            ],
+          }
+        : {
+            heading: tell.emailConfirmHeading,
+            message: tell.emailConfirmMessage,
+            confirmLabel: tell.emailConfirm,
+            checks: [],
+          };
 
-  /** Bring the customer's view up to the order as it now stands, and mail
-   * them. Confirmed like a move is: it puts something in somebody's inbox. */
-  protected async tellCustomer(order: AdminOrderDetail): Promise<void> {
-    const tell = this.text.tellCustomer;
-    const go = await this.confirm.ask({
-      heading: tell.confirmHeading,
-      message: tell.confirmMessage,
-      confirmLabel: tell.confirm,
-      cancelLabel: this.text.actions.keep,
+    const answer = await this.confirm.askDetailed({
+      ...asked,
+      cancelLabel: tell.keep,
       confirmVariant: 'primary',
     });
-    if (!go) return;
-    await this.run(() => this.api.notifyCustomer(order.reference), tell.error);
+    if (!answer) return;
+
+    await this.run(
+      () =>
+        this.api.notifyCustomer(
+          order.reference,
+          kind === 'email' || (answer.checks[NOTIFY] ?? false),
+        ),
+      tell.error,
+    );
   }
 
   /**
