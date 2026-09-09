@@ -1,6 +1,10 @@
 import { Component, computed, inject, resource, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Address, fillText } from '@b2b-catalog-platform/shared';
+import {
+  Address,
+  fillText,
+  formatPersonName,
+} from '@b2b-catalog-platform/shared';
 import {
   addressDetailLines,
   addressDisplayName,
@@ -477,9 +481,7 @@ export class AccountPage {
     if (!profile) return [];
 
     const t = this.accountText;
-    const name = [profile.firstName, profile.lastName]
-      .filter(Boolean)
-      .join(' ');
+    const name = formatPersonName(profile.firstName, profile.lastName);
     const type =
       profile.customerType === 'company'
         ? t.company

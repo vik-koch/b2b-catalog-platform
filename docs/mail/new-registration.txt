@@ -2,7 +2,7 @@ New registration
 
 Someone has requested a customer account. Review the request and, if it is genuine, approve it and assign the customer a price tier.
 
-Name: Jane Doe
+Name: Doe Jane
 Email: jane@example.com
 Phone: +49 40 1234567
 Registering as: Company

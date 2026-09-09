@@ -14,6 +14,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AddressInput,
   fillText,
+  formatPersonName,
   FulfilmentMethod,
   isOrderDateAllowed,
   localToday,
@@ -772,9 +773,7 @@ export class CheckoutPage {
   protected readonly accountName = computed(() => {
     const profile = this.profile.value();
     if (!profile) return null;
-    const person = [profile.firstName, profile.lastName]
-      .filter(Boolean)
-      .join(' ');
+    const person = formatPersonName(profile.firstName, profile.lastName);
     const name =
       (profile.customerType !== 'person' && profile.companyName) ||
       person ||

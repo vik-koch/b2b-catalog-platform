@@ -479,7 +479,8 @@ describe('OrdersService.submit', () => {
       null,
     );
 
-    expect(revisionRows()[0]).toMatchObject({ partyName: 'Ada Byron' });
+    // Family name first, as the app writes every person's name.
+    expect(revisionRows()[0]).toMatchObject({ partyName: 'Byron Ada' });
   });
 
   it('snapshots the party the order named instead', async () => {

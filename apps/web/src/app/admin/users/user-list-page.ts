@@ -9,6 +9,7 @@ import {
 import { RouterLink } from '@angular/router';
 import {
   COMPANY_ID_NONE,
+  formatPersonName,
   StaffUser,
   UserKind,
   userRoleSchema,
@@ -588,12 +589,10 @@ export class UserListPage {
     return (this.name(user).trim() || user.email).toLowerCase();
   }
 
-  /** Family name first, because the column is sorted by it — and with a space,
-   * the way every other name in the app is written. The comma that used to sit
-   * here was this one screen's own convention. */
+  /** The app's one rule for writing a person's name — family name first, no
+   * comma — with a dash where the account carries none at all. */
   protected name(user: StaffUser): string {
-    const parts = [user.lastName, user.firstName].filter(Boolean);
-    return parts.length ? parts.join(' ') : this.dash;
+    return formatPersonName(user.firstName, user.lastName) || this.dash;
   }
 
   /** Stored as bare digits; the column reads it with this deployment's grouping. */

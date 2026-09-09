@@ -24,6 +24,7 @@ import {
   OrderSummary,
   OrderTransition,
   Pagination,
+  formatPersonName,
   PaymentMethod,
   PaymentState,
   paymentStateAfterAdjustment,
@@ -679,9 +680,7 @@ export class OrdersService {
 
     if (!account) throw notFound();
 
-    const person = [account.firstName, account.lastName]
-      .filter(Boolean)
-      .join(' ');
+    const person = formatPersonName(account.firstName, account.lastName);
     return {
       // The address is the last resort rather than an error: a staff-created
       // account may carry no name at all, and an order must still say who it

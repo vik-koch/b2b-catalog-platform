@@ -153,7 +153,7 @@ describe('AccountPage', () => {
     expect(el.textContent).toContain(
       text.greeting.replace('{name}', plainUser.firstName ?? ''),
     );
-    expect(el.textContent).toContain('Alex Fischer');
+    expect(el.textContent).toContain('Fischer Alex');
     expect(el.textContent).toContain(customer.email);
     expect(el.textContent).toContain(customer.phone);
     expect(el.textContent).toContain(text.myAccount.company);
@@ -263,7 +263,7 @@ describe('AccountPage', () => {
       const { el } = await render(customer, 'reject');
 
       expect(el.textContent).toContain(text.myAccount.addresses.error);
-      expect(el.textContent).toContain('Alex Fischer');
+      expect(el.textContent).toContain('Fischer Alex');
     });
   });
 
@@ -314,7 +314,7 @@ describe('AccountPage', () => {
       const { el } = await render(customer, [], true, 'reject');
 
       expect(el.textContent).toContain(defaultAppText.orders.error);
-      expect(el.textContent).toContain('Alex Fischer');
+      expect(el.textContent).toContain('Fischer Alex');
     });
 
     /*
@@ -392,13 +392,13 @@ describe('AccountPage', () => {
 
     // The details are in hand and still off screen: the address book beside
     // them has not answered.
-    expect(el.textContent).not.toContain('Alex Fischer');
+    expect(el.textContent).not.toContain('Fischer Alex');
 
     releaseAddresses([savedAddress]);
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(el.textContent).toContain('Alex Fischer');
+    expect(el.textContent).toContain('Fischer Alex');
     expect(el.textContent).toContain('Shop');
   });
 
