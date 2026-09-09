@@ -28,6 +28,9 @@ function page(overrides: Partial<Pagination> = {}): Pagination {
 async function render(
   answer: { items: OrderSummary[]; pagination: Pagination } | 'reject',
   queryPage = '1',
+  /** The `state` query param, as the router delivers it — absent arrives as
+   * undefined, never as a default. */
+  state: string | undefined = undefined,
 ) {
   const listMine = vi.fn(() =>
     answer === 'reject'
@@ -50,6 +53,7 @@ async function render(
 
   const fixture = TestBed.createComponent(OrderListPage);
   fixture.componentRef.setInput('page', queryPage);
+  fixture.componentRef.setInput('state', state);
   await fixture.whenStable();
   fixture.detectChanges();
   return { fixture, el: fixture.nativeElement as HTMLElement, listMine };
@@ -90,10 +94,41 @@ describe('OrderListPage (FR-ACC-01)', () => {
       { items: [placed], pagination: page({ page: 2, totalPages: 2 }) },
       '2',
     );
-    expect(listMine).toHaveBeenCalledWith(2);
+    expect(listMine).toHaveBeenCalledWith(2, undefined);
 
     const bad = await render({ items: [], pagination: page() }, 'nonsense');
-    expect(bad.listMine).toHaveBeenCalledWith(1);
+    expect(bad.listMine).toHaveBeenCalledWith(1, undefined);
+  });
+
+  /**
+   * What the marker on the account page links to (FR-WORK-03). The chip is
+   * the only thing on this page that says the list is narrowed — there is no
+   * dropdown, because nothing here offers to filter — and dismissing it is a
+   * link back to the whole history rather than a control with state.
+   */
+  it('narrows to what waits on the account holder, and says so as a chip', async () => {
+    const { el, listMine } = await render(
+      { items: [placed], pagination: page() },
+      '1',
+      'to-pay',
+    );
+
+    expect(listMine).toHaveBeenCalledWith(1, 'to-pay');
+    expect(el.textContent).toContain(text.filterToPay);
+    expect(el.querySelector('a[href="/account/orders"]')).not.toBeNull();
+  });
+
+  // A value nothing on this page can produce is a stale or hand-typed link,
+  // and the honest answer to one is the whole history.
+  it('ignores a filter the URL invented', async () => {
+    const { el, listMine } = await render(
+      { items: [placed], pagination: page() },
+      '1',
+      'to-be-admired',
+    );
+
+    expect(listMine).toHaveBeenCalledWith(1, undefined);
+    expect(el.textContent).not.toContain(text.filterToPay);
   });
 
   it('pages only when there is more than one page', async () => {

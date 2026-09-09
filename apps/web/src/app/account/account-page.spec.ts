@@ -73,7 +73,7 @@ async function render(
   addresses: Address[] | 'reject' = [],
   confirmed = true,
   orders: OrderSummary[] | 'reject' = [],
-  waiting = 0,
+  waiting: { myPayments?: number; myPickups?: number } = {},
 ) {
   const h: AddressHarness = {
     list: vi.fn(() =>
@@ -95,7 +95,7 @@ async function render(
         provide: AuthService,
         useValue: { user: signal(plainUser), logout: vi.fn() },
       },
-      { provide: WorkService, useValue: workStub({ myOrders: waiting }) },
+      { provide: WorkService, useValue: workStub(waiting) },
       { provide: AddressesService, useValue: h },
       {
         provide: OrdersService,
@@ -319,22 +319,38 @@ describe('AccountPage', () => {
 
     /*
      * What waits on the customer (FR-WORK-03), above the rows it is about —
-     * the other end of the marker on the account control. Silent until order
-     * processing gives an order a state that waits on them, which is why the
-     * count is stubbed rather than seeded.
+     * the other end of the marker on the account control. Two queues rather
+     * than one figure: each note links to the history narrowed to exactly the
+     * orders it counted, so a customer who came to pay lands on what is owed
+     * and not on their whole history.
      */
     it('says what is waiting on the account holder, and links to it', async () => {
-      const { el } = await render(
-        customer,
-        [],
-        true,
-        [order('CK-2026-0001')],
-        2,
-      );
+      const { el } = await render(customer, [], true, [order('CK-2026-0001')], {
+        myPayments: 2,
+        myPickups: 1,
+      });
 
-      const note = el.querySelector('app-work-note a');
-      expect(note?.textContent).toContain('2 waiting for you');
-      expect(note?.getAttribute('href')).toBe('/account/orders');
+      const notes = [...el.querySelectorAll('app-work-note a')];
+      expect(notes[0].textContent).toContain('2 waiting to be paid');
+      expect(notes[0].getAttribute('href')).toBe(
+        '/account/orders?state=to-pay',
+      );
+      expect(notes[1].textContent).toContain('1 ready to collect');
+      expect(notes[1].getAttribute('href')).toBe(
+        '/account/orders?state=to-collect',
+      );
+    });
+
+    /** Each stands on its own: a customer with money owed and nothing to
+     * collect is told about the money and nothing else. */
+    it('draws only the queue that has something in it', async () => {
+      const { el } = await render(customer, [], true, [order('CK-2026-0001')], {
+        myPickups: 1,
+      });
+
+      const notes = [...el.querySelectorAll('app-work-note a')];
+      expect(notes).toHaveLength(1);
+      expect(notes[0].textContent).toContain('1 ready to collect');
     });
 
     it('says nothing when nothing waits on them', async () => {

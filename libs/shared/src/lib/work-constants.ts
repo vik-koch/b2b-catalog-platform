@@ -24,7 +24,9 @@ export const WORK_QUEUES = [
   'expiringDocuments',
   /** Orders handed over and not recorded as paid (FR-ORD-04). Staff. */
   'unpaidOrders',
-  /** The account's own orders that wait on the account holder. */
-  'myOrders',
+  /** The account's own orders whose money the shop is waiting for. */
+  'myPayments',
+  /** The account's own orders packed and waiting to be collected. */
+  'myPickups',
 ] as const;
 export type WorkQueue = (typeof WORK_QUEUES)[number];

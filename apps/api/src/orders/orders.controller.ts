@@ -106,7 +106,7 @@ export class OrdersController {
     return implement(ordersContract.listMyOrders)
       .use(refusals)
       .handler(({ input: { query } }) =>
-        this.orders.listForUser(actor.id, query.page ?? 1),
+        this.orders.listForUser(actor.id, query.page ?? 1, query.state),
       );
   }
 

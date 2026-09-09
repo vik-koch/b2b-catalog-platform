@@ -35,8 +35,15 @@ export const workCountsSchema = z.object({
    * lists, and one figure over both could not link to either.
    */
   unpaidOrders: z.number().int().nonnegative().optional(),
-  /** The account holder's own orders that wait on them. */
-  myOrders: z.number().int().nonnegative().optional(),
+  /**
+   * The account holder's own orders the shop is waiting to be paid for.
+   * Its own queue rather than half of one figure: paying an invoice and
+   * collecting a parcel are two jobs with two lists, and one count over both
+   * could link to neither. An order that is both is counted in both.
+   */
+  myPayments: z.number().int().nonnegative().optional(),
+  /** The account holder's own orders packed and waiting to be collected. */
+  myPickups: z.number().int().nonnegative().optional(),
 });
 export type WorkCounts = z.infer<typeof workCountsSchema>;
 

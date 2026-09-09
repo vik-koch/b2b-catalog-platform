@@ -7,6 +7,7 @@ import {
   DeliveryConfig,
   moveDirection,
   nextPaymentState,
+  MyOrderFilter,
   ORDER_PAGE_SIZE,
   OrderActor,
   OrderAdjustment,
@@ -877,8 +878,29 @@ export class OrdersService {
   async listForUser(
     userId: string,
     page = 1,
+    state?: MyOrderFilter,
   ): Promise<{ items: OrderSummary[]; pagination: Pagination }> {
-    return this.list(eq(orders.userId, userId), page);
+    const conditions: SQL[] = [eq(orders.userId, userId)];
+    const waiting = this.myOrderCondition(state);
+    if (waiting) conditions.push(waiting);
+    return this.list(and(...conditions) as SQL, page);
+  }
+
+  /**
+   * What waits on the account holder (FR-WORK-03), as the two filters their
+   * own panel links to. Each is the same question the work queue counts, so a
+   * marker and the list it opens can never disagree — and the fulfilment
+   * method is read off the version the customer is on, which is the version
+   * this list joins anyway.
+   */
+  private myOrderCondition(filter?: MyOrderFilter): SQL | undefined {
+    if (!filter) return undefined;
+    return filter === 'to-pay'
+      ? eq(orders.paymentState, 'awaiting')
+      : (and(
+          eq(orders.status, 'ready'),
+          eq(orderRevisions.fulfilmentMethod, 'pickup'),
+        ) as SQL);
   }
 
   async listAll(
@@ -1859,7 +1881,7 @@ export class OrdersService {
   }
 
   private async list(
-    where: ReturnType<typeof eq>,
+    where: SQL,
     page: number,
   ): Promise<{ items: OrderSummary[]; pagination: Pagination }> {
     const { rows, pagination } = await this.page(where, page, 'placed_desc', {

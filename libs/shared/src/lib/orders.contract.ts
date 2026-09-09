@@ -2,6 +2,7 @@ import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
   FULFILMENT_METHODS,
+  MY_ORDER_FILTERS,
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_NOTE_MAX,
   ORDER_QUERY_MAX_LENGTH,
@@ -67,6 +68,11 @@ export type PaymentState = z.infer<typeof paymentStateSchema>;
 /** How the payment column is narrowed, for staff only (FR-ORD-04). */
 export const staffPaymentFilterSchema = z.enum(STAFF_PAYMENT_FILTERS);
 export type StaffPaymentFilter = z.infer<typeof staffPaymentFilterSchema>;
+
+/** How a customer narrows their own history — the two queues their panel
+ * counts (FR-WORK-03). */
+export const myOrderFilterSchema = z.enum(MY_ORDER_FILTERS);
+export type MyOrderFilter = z.infer<typeof myOrderFilterSchema>;
 
 /**
  * What a manager may move an order to (FR-ORD-02) — every status there is,
@@ -862,6 +868,13 @@ export const ordersContract = {
       z.object({
         query: z.object({
           page: z.coerce.number().int().positive().optional(),
+          /**
+           * Narrowed to one of the things waiting on them, which is what the
+           * marker on their account control links to. Absent is the whole
+           * history; a value the URL invented is refused here rather than
+           * quietly ignored, since nothing but the two links produces one.
+           */
+          state: myOrderFilterSchema.optional(),
         }),
       }),
     )
