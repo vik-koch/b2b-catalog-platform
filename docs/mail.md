@@ -129,6 +129,17 @@ The staff notification, linking into the admin order view.
 
 [View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/new-order.html) · [HTML source](mail/new-order.html) · [Plain text](mail/new-order.txt)
 
+<a id="order-cancelled-staff"></a>
+
+### Order called off (to the shop)
+
+The one move a customer has, said to the shop — with the reason where they gave one.
+
+**Subject:** Order called off · CK-260826-4831  
+**Preheader:** A customer has called off their order.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-cancelled-staff.html) · [HTML source](mail/order-cancelled-staff.html) · [Plain text](mail/order-cancelled-staff.txt)
+
 <a id="order-approved"></a>
 
 ### Order approved

@@ -199,6 +199,38 @@ export const mailTextSchema = z
       })
       .strict(),
     /**
+     * Sent to the shop when a customer calls their own order off
+     * (FR-NOTIF-07). The one move a customer has, and the shop's cue to stop
+     * packing — so it is a mail and not a queue: by the time somebody opens
+     * the panel the box may already be on the van.
+     */
+    orderCancelled: z
+      .object({
+        /** The reference is appended, as on every other order mail. */
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        body: z.string(),
+        referenceLabel: z.string(),
+        customerLabel: z.string(),
+        /** An order placed by nobody with an account. */
+        guest: z.string(),
+        contactLabel: z.string(),
+        /** Precedes the reason the customer gave, where they gave one. */
+        reasonLabel: z.string(),
+        /** Where they gave none: asking for one is a courtesy, not a
+         * condition, so its absence is normal and says so. */
+        reasonNone: z.string(),
+        totalLabel: z.string(),
+        /** What the shop may still be holding: the money, where a payment was
+         * recorded before the order was called off. A refund is arranged
+         * outside the platform (FR-ORD-04), so this line is the only prompt
+         * anybody gets. */
+        paidNote: z.string(),
+        itemsHeading: z.string(),
+        action: z.string(),
+      })
+      .strict(),
      * Sent to the customer whenever their order moves (FR-NOTIF-03).
      *
      * One mail with a heading and a body per state, rather than a template per

@@ -9,6 +9,7 @@ import { MONEY_FORMAT } from '../config/deployment-config';
 import { MailService } from '../mail/mail.service';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { newOrderMail } from '../mail/templates/new-order.template';
+import { orderCancelledMail } from '../mail/templates/order-cancelled.template';
 import { orderReceivedMail } from '../mail/templates/order-received.template';
 import { orderDocumentMail } from '../mail/templates/order-document.template';
 import { orderStatusChangedMail } from '../mail/templates/order-status.template';
@@ -68,6 +69,35 @@ export class OrderNotifications {
           replyTo: order.contact.email,
         }),
       'staff order notification',
+    );
+  }
+
+  /**
+   * The shop's mail when a customer calls their own order off (FR-NOTIF-07).
+   *
+   * Only theirs. A manager cancelling an order does not need telling that they
+   * did, and the customer's own move is the one nothing else on the shop's
+   * screens announces: the order simply leaves the queue.
+   *
+   * Nothing goes to the customer here — they just did this themselves, and a
+   * confirmation of one's own click is the mail that teaches people to ignore
+   * the shop's mail.
+   */
+  async cancelledByCustomer(order: AdminOrderDetail): Promise<void> {
+    const staffInbox = env.MAIL_STAFF_TO;
+    if (!staffInbox) {
+      // env.ts requires this in server mode; this narrows the type.
+      throw new Error('MAIL_STAFF_TO is not configured');
+    }
+    await this.send(
+      () =>
+        this.mail.send(orderCancelledMail(order, this.currency, this.text), {
+          to: staffInbox,
+          // As on the arrival notification: a manager reading it on a phone
+          // rings the customer back, not the shop's own inbox.
+          replyTo: order.contact.email,
+        }),
+      'staff cancellation notification',
     );
   }
 

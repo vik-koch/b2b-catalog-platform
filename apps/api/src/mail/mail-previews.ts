@@ -12,6 +12,7 @@ import { accountDeletedMail } from './templates/account-deleted.template';
 import { inquiryMail } from './templates/inquiry.template';
 import { invitationMail } from './templates/invitation.template';
 import { newOrderMail } from './templates/new-order.template';
+import { orderCancelledMail } from './templates/order-cancelled.template';
 import { newRegistrationMail } from './templates/new-registration.template';
 import { orderDocumentMail } from './templates/order-document.template';
 import { orderReceivedMail } from './templates/order-received.template';
@@ -83,6 +84,10 @@ const at = (status: OrderDetail['status']): OrderDetail => ({
 
 /** The token a guest's link carries. Fixed, so the previews stay diffable. */
 const TOKEN = 'demo-token';
+
+/** Why a customer called their own order off. Optional on their side, so the
+ * template has a second reading — this preview shows the one with a reason. */
+const CUSTOMER_REASON = 'Ordered twice by mistake.';
 
 /** What the shop said it changed, as an adjustment records it. */
 const CHANGES = [
@@ -222,6 +227,17 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
       title: 'New order (to the shop)',
       note: 'The staff notification, linking into the admin order view.',
       content: newOrderMail(order, currency, text),
+    },
+    {
+      slug: 'order-cancelled-staff',
+      group: 'Orders',
+      title: 'Order called off (to the shop)',
+      note: 'The one move a customer has, said to the shop — with the reason where they gave one.',
+      content: orderCancelledMail(
+        { ...order, status: 'cancelled', statusReason: CUSTOMER_REASON },
+        currency,
+        text,
+      ),
     },
     {
       slug: 'order-approved',

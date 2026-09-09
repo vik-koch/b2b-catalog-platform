@@ -198,6 +198,25 @@ notice (_moved_, _corrected_, _changed_), and whether the reader has an account.
 An account holder is linked to their own order page; a guest gets the capability
 token, which is their only record of the order.
 
+## What the shop receives
+
+Two messages, and both are about something a person outside the shop did — the
+only events on an order that nothing on a staff screen announces by itself.
+
+- **An order arrives** (FR-NOTIF-05). It goes to the deployment's staff inbox
+  and links into the admin order view.
+- **A customer calls their own order off** (FR-NOTIF-07). The one move a
+  customer has, and the one the shop cannot afford to learn late: an order
+  somebody is already packing has left the queue. It carries the reason where
+  they gave one — asking is a courtesy and not a condition — and, where a
+  payment is recorded against the order, says so, because a cancellation moves
+  no money.
+
+Nothing else is mailed to staff about an order. Every move a manager makes is a
+manager's own click, and telling them about it would be the shop writing to
+itself.
+
+
 ## Journeys
 
 An order's life is not one move but several, and the facts that matter most

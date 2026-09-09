@@ -116,6 +116,23 @@ export const demoMailText: MailText = {
     totalLabel: 'Total',
     action: 'Open the order',
   },
+  orderCancelled: {
+    subject: 'Order called off',
+    preheader: 'A customer has called off their order.',
+    heading: 'Order called off',
+    body: 'A customer has called off an order that was waiting for an answer.',
+    referenceLabel: 'Order',
+    customerLabel: 'Account',
+    guest: 'Guest — no account',
+    contactLabel: 'Contact',
+    reasonLabel: 'Reason given',
+    reasonNone: 'None given',
+    totalLabel: 'Total',
+    paidNote:
+      'A payment is recorded against this order. Any refund is arranged with the customer directly.',
+    itemsHeading: 'Was ordered',
+    action: 'Open the order',
+  },
   orderStatusChanged: {
     subject: 'Your order',
     preheader: 'There is news about your order.',
