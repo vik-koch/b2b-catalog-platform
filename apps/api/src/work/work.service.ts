@@ -11,8 +11,10 @@ import {
   and,
   count,
   eq,
+  gte,
   isNotNull,
   isNull,
+  lt,
   lte,
   ne,
   or,
@@ -46,6 +48,7 @@ const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
     'orders',
     'unpaidOrders',
     'unpublishedProducts',
+    'expiredDocuments',
     'expiringDocuments',
   ],
   manager: ['registrations', 'orders', 'unpaidOrders'],
@@ -80,6 +83,7 @@ export class WorkService {
     orders: () => this.staffOrders(),
     unpaidOrders: () => this.unpaidOrders(),
     unpublishedProducts: () => this.unpublishedProducts(),
+    expiredDocuments: () => this.expiredDocuments(),
     expiringDocuments: () => this.expiringDocuments(),
     myOrders: (user) => this.myOrders(user.id),
   };
@@ -142,11 +146,25 @@ export class WorkService {
   }
 
   /**
-   * Documents whose expiry has passed or is within the warning window
-   * (FR-DOC-04). A document with no expiry never comes due and is never
-   * counted.
+   * Documents whose expiry has already passed (FR-DOC-04) — the shop out of
+   * compliance now, and the more urgent half of the pair.
+   */
+  private expiredDocuments(): Promise<number> {
+    return this.db.$count(
+      documents,
+      and(
+        isNotNull(documents.expiresAt),
+        lt(documents.expiresAt, isoToday(new Date())),
+      ),
+    );
+  }
+
+  /**
+   * Documents due to expire inside the warning window (FR-DOC-04). A document
+   * with no expiry never comes due and is never counted, and one that has
+   * already expired is counted by the queue above rather than twice here.
    *
-   * The bound is computed here rather than in SQL so it is the same day
+   * The bounds are computed here rather than in SQL so they are the same day
    * arithmetic the badge and the filter use — a count that disagreed with the
    * list it links to by a day would be unexplainable.
    */
@@ -157,6 +175,7 @@ export class WorkService {
       documents,
       and(
         isNotNull(documents.expiresAt),
+        gte(documents.expiresAt, isoToday(new Date())),
         lte(documents.expiresAt, isoToday(due)),
       ),
     );

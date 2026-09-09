@@ -115,19 +115,30 @@ import { WorkService } from '../work/work.service';
                     />
                   }
                 </app-panel-row>
-                <!-- Expiring and expired counted as one figure, and the link
-                     opens the list narrowed to exactly that pair. -->
+                <!-- Two notes, as the orders row has: a certificate that has
+                     already lapsed is the shop out of compliance today, one
+                     about to lapse is notice — and each opens the list on its
+                     own filter. -->
                 <app-panel-row
                   [label]="documentText.title"
                   link="/admin/documents"
                 >
-                  @if (waitingDocuments(); as count) {
-                    <app-work-note
-                      [label]="fill(panelText.workDocuments, count)"
-                      link="/admin/documents"
-                      [queryParams]="{ status: 'due' }"
-                    />
-                  }
+                  <div class="flex flex-col items-end gap-1">
+                    @if (expiredDocuments(); as count) {
+                      <app-work-note
+                        [label]="fill(panelText.workDocumentsExpired, count)"
+                        link="/admin/documents"
+                        [queryParams]="{ status: 'expired' }"
+                      />
+                    }
+                    @if (waitingDocuments(); as count) {
+                      <app-work-note
+                        [label]="fill(panelText.workDocuments, count)"
+                        link="/admin/documents"
+                        [queryParams]="{ status: 'expiring' }"
+                      />
+                    }
+                  </div>
                 </app-panel-row>
                 <!-- The run it reports is the one this row starts again. The
                      audit trail's newest applied run is the whole answer; until
@@ -326,6 +337,9 @@ export class AdminPanelPage {
   );
   protected readonly waitingDocuments = computed(
     () => this.work.counts().expiringDocuments || undefined,
+  );
+  protected readonly expiredDocuments = computed(
+    () => this.work.counts().expiredDocuments || undefined,
   );
 
   protected fill(template: string, count: number): string {

@@ -598,8 +598,8 @@ describe('Product documents (FR-DOC-01)', () => {
    * what the admin starts being asked about.
    */
   describe('expiry as work (FR-DOC-04)', () => {
-    it('counts an expiring and an expired document, and no current one', async () => {
-      const before = (await get('/work/counts')).data.expiringDocuments;
+    it('counts an expiring and an expired document apart, and no current one', async () => {
+      const start = (await get('/work/counts')).data;
 
       await createDocument({
         title: `Due soon ${R}`,
@@ -623,7 +623,10 @@ describe('Product documents (FR-DOC-01)', () => {
 
       const res = await get('/work/counts');
 
-      expect(res.data.expiringDocuments).toBe(before + 2);
+      // One each, counted apart: each figure links to its own filter on the
+      // document list, and a document in both would be one job reported twice.
+      expect(res.data.expiringDocuments).toBe(start.expiringDocuments + 1);
+      expect(res.data.expiredDocuments).toBe(start.expiredDocuments + 1);
     });
 
     it('tells a manager nothing about documents', async () => {
@@ -632,6 +635,7 @@ describe('Product documents (FR-DOC-01)', () => {
       // Absent, not zero: the documents screen is admin-only, and a count
       // linking somewhere its reader may not go is worse than no count.
       expect(res.data.expiringDocuments).toBeUndefined();
+      expect(res.data.expiredDocuments).toBeUndefined();
     });
   });
 });

@@ -123,8 +123,12 @@ export const adminTextSchema = z
          * substituted. */
         workUnpaid: z.string(),
         workProducts: z.string(),
-        /** Documents expiring or expired; `{count}` substituted. */
+        /** Documents inside the expiry warning window; `{count}`
+         * substituted. */
         workDocuments: z.string(),
+        /** Documents whose expiry has already passed; `{count}`
+         * substituted. */
+        workDocumentsExpired: z.string(),
       })
       .strict(),
     /** The storefront edit-mode toggle and its inline controls (FR-ADM-01). */

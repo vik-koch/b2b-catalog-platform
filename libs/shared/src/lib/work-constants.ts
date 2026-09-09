@@ -18,7 +18,9 @@ export const WORK_QUEUES = [
   'orders',
   /** Products a sync left off the storefront (FR-ADM-06). Admin. */
   'unpublishedProducts',
-  /** Documents expired or about to expire (FR-DOC-04). Admin. */
+  /** Documents whose expiry has passed (FR-DOC-04). Admin. */
+  'expiredDocuments',
+  /** Documents whose expiry is within the warning window (FR-DOC-04). Admin. */
   'expiringDocuments',
   /** Orders handed over and not recorded as paid (FR-ORD-04). Staff. */
   'unpaidOrders',

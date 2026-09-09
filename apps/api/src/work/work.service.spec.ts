@@ -69,7 +69,7 @@ describe('WorkService', () => {
   });
 
   it('adds the catalog queues for an admin', async () => {
-    const { db, asks } = testDb([1, 2, 3, 5, 4]);
+    const { db, asks } = testDb([1, 2, 3, 5, 4, 6]);
 
     const counts = await new WorkService(db).countsFor(user('admin'));
 
@@ -78,7 +78,8 @@ describe('WorkService', () => {
       orders: 2,
       unpaidOrders: 3,
       unpublishedProducts: 5,
-      expiringDocuments: 4,
+      expiredDocuments: 4,
+      expiringDocuments: 6,
     });
     expect(asks[3].table).toBe(products);
     // Off the storefront and still in the catalog: a soft-deleted row is not
@@ -101,17 +102,25 @@ describe('WorkService', () => {
     expect(asks[2].where).toContain('"paymentState" <> $2');
   });
 
-  // Expiring and expired in one figure: they are one job, and a document
-  // crosses from the first to the second on its own.
-  it('counts documents that have expired or are about to', async () => {
-    const { db, asks } = testDb([0, 0, 0, 0, 2]);
+  /**
+   * Expired and expiring are counted apart, because each links to its own
+   * filter on the document list — and a document counted in both would be one
+   * job reported twice. The bounds meet without overlapping: today is expiring,
+   * yesterday is expired.
+   */
+  it('counts expired documents and expiring ones separately', async () => {
+    const { db, asks } = testDb([0, 0, 0, 0, 2, 3]);
 
     await new WorkService(db).countsFor(user('admin'));
 
     expect(asks[4].table).toBe(documents);
     // A document with no expiry never comes due, so it is never counted.
     expect(asks[4].where).toContain('"expiresAt" is not null');
-    expect(asks[4].where).toContain('"expiresAt" <= $1');
+    expect(asks[4].where).toContain('"expiresAt" < $1');
+
+    expect(asks[5].table).toBe(documents);
+    expect(asks[5].where).toContain('"expiresAt" >= $1');
+    expect(asks[5].where).toContain('"expiresAt" <= $2');
   });
 
   it('counts only pending customer registrations', async () => {

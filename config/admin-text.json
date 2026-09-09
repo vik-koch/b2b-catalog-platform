@@ -57,7 +57,8 @@
     "workOrders": "{count} awaiting your answer",
     "workUnpaid": "{count} finished, not paid",
     "workProducts": "{count} awaiting publication",
-    "workDocuments": "{count} expiring or expired"
+    "workDocuments": "{count} expiring soon",
+    "workDocumentsExpired": "{count} expired"
   },
   "editMode": {
     "enable": "Edit mode",

@@ -21,11 +21,13 @@ export const workCountsSchema = z.object({
   /** Products off the storefront awaiting review. Admin. */
   unpublishedProducts: z.number().int().nonnegative().optional(),
   /**
-   * Documents that have expired or are about to (FR-DOC-04). Admin. One
-   * figure for both states because they are one job — getting the current
-   * file — and a document crosses from one to the other without anybody
-   * touching it.
+   * Documents whose expiry has already passed (FR-DOC-04). Admin. Apart from
+   * the ones about to expire because the two are read differently — an
+   * expired certificate is the shop out of compliance now, an expiring one is
+   * notice — and because each links to its own filter on the document list.
    */
+  expiredDocuments: z.number().int().nonnegative().optional(),
+  /** Documents inside the warning window (FR-DOC-04). Admin. */
   expiringDocuments: z.number().int().nonnegative().optional(),
   /**
    * Orders finished with the money not recorded (FR-ORD-04). Staff. Its own

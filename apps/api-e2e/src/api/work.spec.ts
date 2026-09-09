@@ -90,6 +90,7 @@ describe('work counts', () => {
 
   it('tells an admin about every staff queue', async () => {
     expect(Object.keys(await counts(admin)).sort()).toEqual([
+      'expiredDocuments',
       'expiringDocuments',
       'orders',
       'registrations',
