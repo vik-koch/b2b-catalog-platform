@@ -14,8 +14,9 @@ import { UserRow, UsersService } from '../users/users.service';
 import { AccountDeletion } from './account-deletion';
 
 /** The account holder's own view of their row — never the tier (ADR 0031). */
-function toAccountProfile(user: UserRow): AccountProfile {
+function toAccountProfile(user: UserRow, openOrders: number): AccountProfile {
   return {
+    openOrders,
     email: user.email,
     role: user.role,
     firstName: user.firstName,
@@ -54,7 +55,7 @@ export class AccountController {
       // gone, and 401 is what the client already knows how to handle.
       if (!user) throw errors['not-authenticated']();
 
-      return toAccountProfile(user);
+      return toAccountProfile(user, await this.users.countOpenOrders(user.id));
     });
   }
 
@@ -72,7 +73,10 @@ export class AccountController {
         // did, and the two stay greppable apart only if they are named apart.
         this.audit.record('account.updated', actor, { id: updated.id });
 
-        return toAccountProfile(updated);
+        return toAccountProfile(
+          updated,
+          await this.users.countOpenOrders(updated.id),
+        );
       },
     );
   }

@@ -28,6 +28,14 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'admin/users/:id/edit', renderMode: RenderMode.Client },
   { path: 'admin/orders', renderMode: RenderMode.Client },
   { path: 'admin/orders/:reference', renderMode: RenderMode.Client },
+  {
+    path: 'admin/orders/:reference/revisions/:number',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'admin/orders/:reference/adjust',
+    renderMode: RenderMode.Client,
+  },
   { path: 'admin/categories/new', renderMode: RenderMode.Client },
   { path: 'admin/categories/:slug/edit', renderMode: RenderMode.Client },
   { path: 'admin/categories/:slug/filters', renderMode: RenderMode.Client },

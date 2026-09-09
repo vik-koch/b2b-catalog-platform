@@ -9,6 +9,11 @@ import { Component, input } from '@angular/core';
  * these is lazy or deferred, which is what keeps the whole thing out of the
  * bundle a visitor downloads — naming one from an eagerly loaded storefront
  * component would drag all of them along, so add the glyph to Icon instead.
+ *
+ * Size via a height/width class on the element (`class="h-4 w-4"`); colour
+ * follows `currentColor`. It carries no size of its own, so one left off is
+ * drawn at the SVG's own default — inside `appIconButton`, which sizes the
+ * glyph itself, leave it off.
  */
 export type AdminIconName =
   | 'bold'
@@ -33,6 +38,8 @@ export type AdminIconName =
   | 'chevron-down'
   | 'chevron-left'
   | 'chevron-right'
+  | 'arrow-left'
+  | 'arrow-right'
   | 'plus'
   | 'copy'
   | 'clipboard-paste'
@@ -53,7 +60,6 @@ export type AdminIconName =
   | 'lock'
   | 'funnel'
   | 'funnel-x'
-  | 'triangle-alert'
   | 'circle-alert'
   | 'file-text'
   | 'external-link';
@@ -196,6 +202,14 @@ export type AdminIconName =
         @case ('chevron-down') {
           <path d="m6 9 6 6 6-6" />
         }
+        @case ('arrow-left') {
+          <path d="m12 19-7-7 7-7" />
+          <path d="M19 12H5" />
+        }
+        @case ('arrow-right') {
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        }
         @case ('chevron-left') {
           <path d="m15 18-6-6 6-6" />
         }
@@ -325,13 +339,6 @@ export type AdminIconName =
           <path d="M13.013 3H2l8 9.46V19l4 2v-8.54l.9-1.055" />
           <path d="m22 3-5 5" />
           <path d="m17 3 5 5" />
-        }
-        @case ('triangle-alert') {
-          <path
-            d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"
-          />
-          <path d="M12 9v4" />
-          <path d="M12 17h.01" />
         }
         @case ('circle-alert') {
           <circle cx="12" cy="12" r="10" />

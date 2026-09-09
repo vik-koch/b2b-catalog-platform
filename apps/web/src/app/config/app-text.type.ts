@@ -581,12 +581,16 @@ export const appTextSchema = z
             cashPickupDescription: z.string(),
             transferTitle: z.string(),
             transferDescription: z.string(),
+            /** A card payment arranged with the shop. Never offered at
+             * checkout — a manager sets it while answering the order — but the
+             * order still has to read it back. */
+            cardTitle: z.string(),
             /** Why the option is there but cannot be taken: a bank transfer
              * invoices a legal entity, so it needs a company party. Said at
              * the row rather than refused after the form is filled. */
             transferCompanyOnly: z.string(),
             /** The same rule read the other way: cash is not taken from a
-             * company, which is invoiced or pays by card. */
+             * company, which is invoiced. */
             cashPersonOnly: z.string(),
           })
           .strict(),
@@ -761,7 +765,6 @@ export const appTextSchema = z
          */
         statusRequested: z.string(),
         statusApproved: z.string(),
-        statusAdjusted: z.string(),
         statusReadyDelivery: z.string(),
         statusReadyPickup: z.string(),
         statusCompleted: z.string(),
@@ -790,6 +793,11 @@ export const appTextSchema = z
             backToList: z.string(),
             /** Precedes the reason a declined or cancelled order carries. */
             statusReason: z.string(),
+            /** What the shop changed about the order, in their words
+             * (FR-ORD-03) — shown beside where the order stands, because an
+             * order that changed without a word about why is the one thing an
+             * adjustment must never be. */
+            changes: z.string(),
             /**
              * Calling off your own order (FR-ORD-02), offered only while the
              * shop has not started on it. `{reference}` in the message.
@@ -1012,6 +1020,16 @@ export const appTextSchema = z
                 intro: z.string(),
                 /** What is kept and what goes, in the visitor's own terms. */
                 consequences: z.array(z.string()),
+                /**
+                 * Said only where the shop is still working on something for
+                 * this customer (FR-AUTH-06). `{count}` is how many.
+                 *
+                 * It refuses nothing. The order is one the shop agreed to
+                 * fill and is owed for, so it stays — but it stays without the
+                 * name, address and telephone number it was placed with, and
+                 * that is worth knowing before the button rather than after.
+                 */
+                openOrders: z.string(),
                 password: z.string(),
                 passwordHint: z.string(),
                 submit: z.string(),

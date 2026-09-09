@@ -24,6 +24,16 @@ export const accountProfileSchema = z.object({
   companyRegistrationId: z.string().nullable(),
   /** When the account was registered — the "member since" line. */
   createdAt: z.iso.datetime(),
+  /**
+   * How many of this account's orders the shop is still working on
+   * (FR-AUTH-06).
+   *
+   * Deleting the account does not stop them: the shop has agreed to fill them
+   * and is owed for them. What it does do is remove the name, address and
+   * phone number they were placed with, which is worth knowing *before*
+   * pressing the button rather than after.
+   */
+  openOrders: z.number().int().nonnegative(),
 });
 export type AccountProfile = z.infer<typeof accountProfileSchema>;
 

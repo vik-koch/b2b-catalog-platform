@@ -1,10 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, eq, inArray, ne, sql } from 'drizzle-orm';
-import { CustomerType } from '@b2b-catalog-platform/shared';
+import { and, count, eq, inArray, ne, notInArray, sql } from 'drizzle-orm';
+import {
+  CustomerType,
+  ENDED_ORDER_STATUSES,
+} from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { addresses, orderItems, orders, users } from '../db/schema';
+import {
+  addresses,
+  orderItems,
+  orderRevisions,
+  orders,
+  users,
+} from '../db/schema';
 
 export type UserRow = typeof users.$inferSelect;
 
@@ -168,10 +177,38 @@ export class UsersService {
   }
 
   /**
+   * How many of this account's orders the shop is still working on
+   * (FR-AUTH-06) — everything it has neither finished nor refused.
+   *
+   * Read on the account's own profile so the deletion page can say it. It
+   * refuses nothing: an order in flight is one the shop has agreed to fill,
+   * and the customer is entitled to close their account either way. What they
+   * are not entitled to is being surprised, afterwards, that the order they
+   * are still waiting for no longer carries their phone number.
+   */
+  async countOpenOrders(userId: string): Promise<number> {
+    const [row] = await this.db
+      .select({ open: count() })
+      .from(orders)
+      .where(
+        and(
+          eq(orders.userId, userId),
+          notInArray(orders.status, [...ENDED_ORDER_STATUSES, 'completed']),
+        ),
+      );
+    return Number(row?.open ?? 0);
+  }
+
+  /**
    * What the copy already promises: "past orders are kept for our bookkeeping,
    * with your details removed from them". The orders stay — the line prices are
    * what bookkeeping needs — and every free-text column that could name the
    * customer goes.
+   *
+   * **Every version of every order** (ADR 0051), not only the one each order
+   * currently shows: a superseded revision holds the same address and the same
+   * name, and a deletion that left it standing would be a deletion in name
+   * only.
    *
    * The address columns are overwritten rather than nulled: several are
    * `not null`, and the fulfilment check constraint requires a delivery order
@@ -181,25 +218,37 @@ export class UsersService {
     tx: Pick<NodePgDatabase<typeof schema>, 'update' | 'select'>,
     userId: string,
   ): Promise<void> {
+    // Shaped like the thing it replaces, not merely labelled. `[removed]` in
+    // the email column made every anonymized order unadjustable: the order
+    // contract validates the address it reads back, and refused its own stored
+    // data. `.invalid` is reserved and undeliverable (RFC 2606), and the phone
+    // placeholder is a number nobody answers rather than a word in a number
+    // column.
     const scrubbed = '[removed]';
+    const scrubbedEmail = 'removed@deleted.invalid';
+    const scrubbedPhone = '+00000000000';
     const mine = tx
       .select({ id: orders.id })
       .from(orders)
       .where(eq(orders.userId, userId));
+    const myRevisions = tx
+      .select({ id: orderRevisions.id })
+      .from(orderRevisions)
+      .where(inArray(orderRevisions.orderId, mine));
 
     // Customer-typed, and perfectly capable of naming someone: "deliver to
     // Anna, 0170…".
     await tx
       .update(orderItems)
       .set({ note: null })
-      .where(inArray(orderItems.orderId, mine));
+      .where(inArray(orderItems.revisionId, myRevisions));
 
     await tx
-      .update(orders)
+      .update(orderRevisions)
       .set({
         contactName: scrubbed,
-        contactEmail: scrubbed,
-        contactPhone: scrubbed,
+        contactEmail: scrubbedEmail,
+        contactPhone: scrubbedPhone,
         // The invoiced party is personal data too: it is the account holder or
         // somebody they named, and neither survives the account.
         partyName: scrubbed,
@@ -210,18 +259,21 @@ export class UsersService {
         billingCity: scrubbed,
         billingRegion: null,
         // Kept non-null where it was set, so the fulfilment constraint holds.
-        deliveryStreet: sql`case when ${orders.deliveryStreet} is null then null else ${scrubbed} end`,
+        deliveryStreet: sql`case when ${orderRevisions.deliveryStreet} is null then null else ${scrubbed} end`,
         deliveryStreet2: null,
-        deliveryPostalCode: sql`case when ${orders.deliveryPostalCode} is null then null else ${scrubbed} end`,
-        deliveryCity: sql`case when ${orders.deliveryCity} is null then null else ${scrubbed} end`,
+        deliveryPostalCode: sql`case when ${orderRevisions.deliveryPostalCode} is null then null else ${scrubbed} end`,
+        deliveryCity: sql`case when ${orderRevisions.deliveryCity} is null then null else ${scrubbed} end`,
         deliveryRegion: null,
         preferredDate: null,
         customerNote: null,
+        // What a manager wrote about an adjustment: their words, but about
+        // this customer's order, and quite capable of naming them.
+        note: null,
         // Which list this customer was charged from — the same argument that
         // nulls `users.tierId`.
         tierKey: null,
       })
-      .where(eq(orders.userId, userId));
+      .where(inArray(orderRevisions.orderId, mine));
   }
 
   private async anonymizeUser(

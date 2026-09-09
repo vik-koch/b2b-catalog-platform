@@ -1,4 +1,41 @@
 import {
+  ACCEPTED_ORDER_STATUSES,
+  AddressInput,
+  AdminOrderDetail,
+  AdminOrderLine,
+  canTransition,
+  DeliveryConfig,
+  moveDirection,
+  nextPaymentState,
+  ORDER_PAGE_SIZE,
+  OrderActor,
+  OrderAdjustment,
+  OrderAdjustmentPreview,
+  OrderDetail,
+  OrderingParty,
+  OrderLine,
+  OrderNotice,
+  OrderReferenceConfig,
+  OrderRevision,
+  OrderRevisionKind,
+  OrderStatus,
+  OrderSubmission,
+  OrderSummary,
+  OrderTransition,
+  Pagination,
+  PaymentMethod,
+  PaymentState,
+  paymentStateAfterAdjustment,
+  paymentStateWithoutPayment,
+  ProductUnit,
+  resolveDeliveryZone,
+  StaffOrderSort,
+  StaffPaymentFilter,
+  transitionHasReason,
+  transitionNeedsReason,
+  TransitionTarget,
+} from '@b2b-catalog-platform/shared';
+import {
   BadRequestException,
   ConflictException,
   Inject,
@@ -11,6 +48,7 @@ import {
   count,
   desc,
   eq,
+  getTableColumns,
   ilike,
   inArray,
   or,
@@ -18,47 +56,17 @@ import {
   SQL,
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { PgColumn } from 'drizzle-orm/pg-core';
-import {
-  AddressInput,
-  AdminOrderDetail,
-  AdminOrderLine,
-  canTransition,
-  DeliveryConfig,
-  transitionHasReason,
-  nextPaymentState,
-  ACCEPTED_ORDER_STATUSES,
-  OrderActor,
-  OrderDetail,
-  OrderingParty,
-  OrderLine,
-  OrderReferenceConfig,
-  OrderStatus,
-  OrderSubmission,
-  OrderSummary,
-  ORDER_PAGE_SIZE,
-  Pagination,
-  PaymentMethod,
-  PaymentState,
-  ProductUnit,
-  resolveDeliveryZone,
-  StaffOrderSort,
-  StaffPaymentFilter,
-  TransitionTarget,
-  paymentStateWithoutPayment,
-  transitionNeedsReason,
-} from '@b2b-catalog-platform/shared';
+import { alias, PgColumn } from 'drizzle-orm/pg-core';
 import { AddressesService } from '../addresses/addresses.service';
-import { OrderNotifications } from './order-notifications';
 import { publiclyVisible } from '../catalog/product-view';
 import {
   BILLING_ADDRESS_ENABLED,
-  PAIRINGS_ENFORCED,
   COMPANY_ID_RULE,
   CompanyIdRule,
   DELIVERY_CONFIG,
   ORDER_CURRENCY,
   ORDER_REFERENCE_CONFIG,
+  PAIRINGS_ENFORCED,
   PICKUP_LOCATIONS,
   PickupLocation,
 } from '../config/deployment-config';
@@ -67,20 +75,116 @@ import * as schema from '../db/schema';
 import {
   customerTiers,
   orderItems,
+  orderRevisions,
   orders,
   products,
   users,
 } from '../db/schema';
-import { PricedCart, priceCart } from './cart-pricing';
+import { priceCart, PricedCart } from './cart-pricing';
+import { priceAdjustment, PricedAdjustment } from './order-adjustment';
+import { OrderNotifications } from './order-notifications';
 import {
-  ORDER_REFERENCE_ATTEMPTS,
   isUniqueViolation,
+  ORDER_REFERENCE_ATTEMPTS,
   orderPublicToken,
   orderReference,
 } from './order-reference';
 
-type OrderRow = typeof orders.$inferSelect;
+/**
+ * The snapshot half of an order, ready to be spread into a projection — the
+ * revision's own bookkeeping (which order, which number, who wrote it) taken
+ * out, since a row that says what the order *is* has no use for it.
+ */
+const {
+  id: _revisionId,
+  orderId: _revisionOrderId,
+  createdAt: _revisionCreatedAt,
+  createdBy: _revisionCreatedBy,
+  note: _revisionNote,
+  kind: _revisionKind,
+  notifiedAt: _revisionNotifiedAt,
+  revisionNumber: _revisionNumber,
+  ...snapshotColumns
+} = getTableColumns(orderRevisions);
+
+/** The version the customer is being shown, joined beside the one staff are:
+ * how far behind their view is, and where they last heard the order stood. */
+const customerRevision = alias(orderRevisions, 'customerRevision');
+
+/**
+ * An order and one version of it, read as **one flat row** (ADR 0051).
+ *
+ * Flattened on purpose: the snapshot columns land exactly where they used to
+ * live, so everything that reads an order is untouched by the split and only
+ * the write side has to know there are two tables now.
+ *
+ * The version's `status` and `statusReason` come last and win. That is the
+ * whole of how a customer can be shown a version the order has moved past: a
+ * revision is a complete reading of the order, and nothing that renders one
+ * has to be told which. `orders.status` stays the column a *query* filters and
+ * sorts on, and is named through `orders` where that is what is meant.
+ */
+const orderColumns = {
+  ...getTableColumns(orders),
+  ...snapshotColumns,
+  revisionId: orderRevisions.id,
+  revisionNumber: orderRevisions.revisionNumber,
+  revisionNote: orderRevisions.note,
+  revisionKind: orderRevisions.kind,
+  revisionCreatedAt: orderRevisions.createdAt,
+  revisionCreatedBy: orderRevisions.createdBy,
+  revisionNotifiedAt: orderRevisions.notifiedAt,
+  customerRevisionNumber: customerRevision.revisionNumber,
+};
+
+type OrderRow = typeof orders.$inferSelect &
+  Omit<
+    typeof orderRevisions.$inferSelect,
+    | 'id'
+    | 'orderId'
+    | 'createdAt'
+    | 'createdBy'
+    | 'note'
+    | 'kind'
+    | 'notifiedAt'
+    | 'revisionNumber'
+  > & {
+    revisionId: string;
+    revisionNumber: number;
+    revisionNote: string | null;
+    revisionKind: string;
+    revisionCreatedAt: Date;
+    revisionCreatedBy: string | null;
+    revisionNotifiedAt: Date | null;
+    customerRevisionNumber: number | null;
+  };
 type OrderItemRow = typeof orderItems.$inferSelect;
+
+/** What the thread says about the customer, read once per order. */
+interface CustomerThread {
+  /** The newest version a message went out about, 0 if none ever did. */
+  number: number;
+  /** Which states those messages announced, in no particular order. */
+  statuses: OrderStatus[];
+  /** The newest version that changed what the order says, 0 if none did. */
+  newestChange: number;
+}
+
+/** The columns a version carries forward unchanged when the order moves but
+ * says nothing new — everything except the version's own bookkeeping. */
+type OrderSnapshot = Omit<
+  typeof orderRevisions.$inferInsert,
+  | 'id'
+  | 'orderId'
+  | 'revisionNumber'
+  | 'createdAt'
+  | 'createdBy'
+  | 'kind'
+  | 'note'
+  | 'notifiedAt'
+  | 'status'
+  | 'statusReason'
+>;
 
 /** The one 404 the order routes answer with. Another customer's order is a 404
  * as well: whether a reference exists is not a stranger's business. */
@@ -89,6 +193,28 @@ const notFound = () =>
     code: 'order-not-found',
     message: 'Order not found',
   });
+
+/** Two people writing one order at once. Whichever of the two guards catches
+ * it — the version number or the pointer — the loser is told the same thing. */
+const orderMovedOn = () =>
+  new ConflictException({
+    code: 'order-changed',
+    message: 'The order was adjusted while this one was being written',
+  });
+
+/**
+ * The half of an order that is about the order rather than its lines — where
+ * it goes, who it is invoiced to and how it is paid. The checkout's submission
+ * and a manager's adjustment both carry it, and both are held to it.
+ */
+type OrderDetails = Pick<
+  OrderSubmission,
+  | 'fulfilmentMethod'
+  | 'deliveryAddress'
+  | 'pickupLocationKey'
+  | 'billingAddress'
+  | 'paymentMethod'
+>;
 
 /** Where an order goes: an address with the zone it fell into, or an office. */
 interface Fulfilment {
@@ -105,6 +231,28 @@ interface Fulfilment {
  * customer's `expectedTotalMinor` is a comparand and never an input; nothing a
  * browser sends decides what an order costs.
  */
+/**
+ * Whether anything about this order is still owed the customer a word
+ * (FR-NOTIF-03) — the one case where writing to them is a decision somebody
+ * has to take, and so the only case the screen offers the button for.
+ *
+ * Two ways it can be true, and they are the same question asked of the two
+ * halves of the thread. Their own page may be showing them a version no
+ * message ever announced: a move reaches it whether or not a mail goes with
+ * it, and one that goes unannounced is exactly what the button is for. Or a
+ * change may be sitting above the version they hold, waiting for the move that
+ * mentions it — or for nobody, if the manager who made it moves on.
+ *
+ * What is deliberately *not* behind: a move held off their page. That is a
+ * step the shop took back or never meant them to see, and a screen that asked
+ * somebody to explain it would be asking them to announce a mistake. It is
+ * read off the kind rather than stored, because a transition can only sit
+ * above the pointer by somebody having said so.
+ */
+function customerBehind(thread: CustomerThread, shown: number): boolean {
+  return thread.number < shown || thread.newestChange > shown;
+}
+
 /**
  * How the staff list is ordered (FR-AUTH-03).
  *
@@ -140,7 +288,6 @@ function orderListOrderBy(sort: StaffOrderSort): (SQL | PgColumn)[] {
 const statusPriority = sql<number>`case ${orders.status}
   when 'requested' then 0
   when 'approved' then 1
-  when 'adjusted' then 1
   when 'ready' then 1
   else 2
 end`;
@@ -201,6 +348,149 @@ export class OrdersService {
   }
 
   /**
+   * The customer's mail about where their order has got to (FR-NOTIF-03).
+   *
+   * Read back from the row rather than passed along: the mail says what the
+   * order is, and the row is where that is true.
+   *
+   * `since` is the version they were last written to about, which is what
+   * decides the mail's second half. Every change written between then and now
+   * is quoted — one mail for a change agreed on the phone and the confirmation
+   * that followed it, rather than one per version — and a move with no change
+   * behind it says only that the order moved.
+   *
+   * `notice` is what this message is *for*, which the status alone cannot say:
+   * the same `approved` can be the shop accepting an order, the shop walking a
+   * packed one back a step, or the shop changing one that was already accepted,
+   * and a mail that read them all the same way would tell two of the three a
+   * small lie.
+   */
+  private async mailCustomer(
+    reference: string,
+    since: number,
+    notice: OrderNotice,
+  ): Promise<void> {
+    // Read through the customer's own projection: the mail describes the
+    // version they are shown, and reading it any other way is how a message
+    // ends up describing something the page it links to does not.
+    const row = await this.row(eq(orders.reference, reference), 'customer');
+    const changes = await this.changesSince(row.id, since);
+    await this.notifications.statusChanged(
+      await this.staffDetail(row),
+      row.publicToken,
+      notice,
+      changes,
+    );
+  }
+
+  /**
+   * What the shop said about every change written since the customer was last
+   * told — their words, newest last, so the mail reads as the account of one
+   * conversation.
+   *
+   * Only adjustments: a move says what it is by being a move, and quoting a
+   * reason twice is the same sentence in two places.
+   */
+  private async changesSince(
+    orderId: string,
+    since: number,
+  ): Promise<string[]> {
+    return this.adjustmentNotes(
+      orderId,
+      sql`${orderRevisions.revisionNumber} > ${since}`,
+    );
+  }
+
+  /** The shop's account of the changes to one order, oldest first, over
+   * whichever stretch of the thread the caller is asking about. */
+  private async adjustmentNotes(
+    orderId: string,
+    range: SQL,
+  ): Promise<string[]> {
+    const rows = await this.db
+      .select({ note: orderRevisions.note })
+      .from(orderRevisions)
+      .where(
+        and(
+          eq(orderRevisions.orderId, orderId),
+          eq(orderRevisions.kind, 'adjustment'),
+          range,
+        ),
+      )
+      .orderBy(asc(orderRevisions.revisionNumber));
+    return rows.flatMap((row) => (row.note ? [row.note] : []));
+  }
+
+  /**
+   * Which versions of an order have actually put something in the customer's
+   * inbox (FR-NOTIF-03) — the newest of them, which states they announced —
+   * and whether a change of the shop's is sitting above the version they are
+   * shown, waiting for somebody to mention it.
+   *
+   * Derived from the thread rather than kept as pointers of its own. There is
+   * already one pointer on the order — what the customer is looking at — and
+   * another saying what they were told would be a fact stored twice, free to
+   * disagree with the stamps that produced it.
+   */
+  private async customerThread(orderId: string): Promise<CustomerThread> {
+    const rows = await this.db
+      .select({
+        number: orderRevisions.revisionNumber,
+        status: orderRevisions.status,
+        kind: orderRevisions.kind,
+        notifiedAt: orderRevisions.notifiedAt,
+      })
+      .from(orderRevisions)
+      .where(eq(orderRevisions.orderId, orderId));
+    const told = rows.filter((row) => row.notifiedAt !== null);
+    const highest = (of: typeof rows) =>
+      of.reduce((found, row) => Math.max(found, row.number), 0);
+    return {
+      number: highest(told),
+      statuses: [...new Set(told.map((row) => row.status as OrderStatus))],
+      newestChange: highest(rows.filter((row) => row.kind === 'adjustment')),
+    };
+  }
+
+  /**
+   * Bring the customer's view up to the current version and write to them
+   * (FR-NOTIF-03) — the deliberate half of the rule that is otherwise a tick
+   * on the move that caused it, for the change no move will ever mention and
+   * for the mail somebody decided against and then thought better of.
+   */
+  async showCustomerCurrent(reference: string): Promise<AdminOrderDetail> {
+    const current = await this.row(eq(orders.reference, reference));
+    const notified = await this.customerThread(current.id);
+    if (notified.number === current.revisionNumber) {
+      throw new ConflictException({
+        code: 'nothing-to-tell',
+        message: 'The customer has already been told about this version',
+      });
+    }
+    // Stamped before the send rather than after it, and stamped whether or not
+    // SMTP answers: the mail cannot fail the move that produced it, so "we
+    // wrote to them about this version" is what the shop knows, and a silent
+    // failure is the log's business rather than the thread's.
+    await this.db
+      .update(orderRevisions)
+      .set({ notifiedAt: new Date() })
+      .where(eq(orderRevisions.id, current.revisionId));
+    await this.db
+      .update(orders)
+      .set({ customerRevisionId: current.revisionId })
+      .where(eq(orders.id, current.id));
+    await this.mailCustomer(
+      reference,
+      notified.number,
+      // Whatever the newest version was written for. A manager pressing this
+      // is telling the customer where the order now stands, and the version
+      // says whether getting there involved changing it.
+      current.revisionKind === 'adjustment' ? 'changed' : 'moved',
+    );
+    return this.getForStaff(reference);
+  }
+
+  /**
    * The mails a placed order produces (FR-NOTIF-05/06), sent after it exists.
    *
    * A step of its own rather than the tail of `submit`, and read back from the
@@ -208,19 +498,6 @@ export class OrdersService {
    * what the order *is* — snapshots, resolved zone and all — and cannot
    * describe it differently from the pages they link to.
    */
-  /**
-   * The customer's mail after a transition (FR-NOTIF-03). Read back rather
-   * than passed along: the mail says what the order now is, and the row is
-   * where that is true.
-   */
-  async notifyStatusChanged(reference: string): Promise<void> {
-    const row = await this.row(eq(orders.reference, reference));
-    await this.notifications.statusChanged(
-      await this.getForStaff(reference),
-      row.publicToken,
-    );
-  }
-
   async notifyPlaced(placed: {
     reference: string;
     publicToken: string;
@@ -260,11 +537,11 @@ export class OrdersService {
    * same ones a saved address is held to. A guest's address never passed
    * through the book, so this is the only place it is checked.
    */
-  private assertAddresses(submission: OrderSubmission): void {
-    const billing = this.billingAddress(submission);
+  private assertAddresses(order: OrderDetails): void {
+    const billing = this.billingAddress(order);
     if (billing) this.checkAddress(billing);
-    if (submission.deliveryAddress) {
-      this.checkAddress(submission.deliveryAddress);
+    if (order.deliveryAddress) {
+      this.checkAddress(order.deliveryAddress);
     }
   }
 
@@ -274,15 +551,15 @@ export class OrdersService {
    * anyway is out of step with the config its form was drawn from, and the
    * order carries nothing rather than an address the shop does not use.
    */
-  private billingAddress(submission: OrderSubmission): AddressInput | null {
+  private billingAddress(order: OrderDetails): AddressInput | null {
     if (!this.billingAddressEnabled) return null;
-    if (!submission.billingAddress) {
+    if (!order.billingAddress) {
       throw new BadRequestException({
         code: 'billing-address-required',
         message: 'This deployment invoices an address of its own',
       });
     }
-    return submission.billingAddress;
+    return order.billingAddress;
   }
 
   /**
@@ -319,7 +596,17 @@ export class OrdersService {
     userId: string | null,
   ): Promise<OrderingParty> {
     const party = submission.party ?? (await this.accountParty(userId));
+    this.assertParty(party, submission.paymentMethod);
+    return party;
+  }
 
+  /**
+   * The two rules that tie the party to how the order is paid, asked wherever
+   * an order is written — the checkout, and a manager adjusting one. A rule
+   * only staff were held to on the way in would be a rule the shop could
+   * break on the way past.
+   */
+  private assertParty(party: OrderingParty, method: PaymentMethod): void {
     if (
       party.registrationId !== null &&
       !this.companyIdRule(party.registrationId)
@@ -330,21 +617,23 @@ export class OrdersService {
       });
     }
 
-    if (submission.paymentMethod === 'bank-transfer' && !party.registrationId) {
+    if (method === 'bank-transfer' && !party.registrationId) {
       throw new BadRequestException({
         code: 'billing-details-required',
         message: 'Bank transfer invoices a company, which needs its number',
       });
     }
 
-    if (submission.paymentMethod === 'cash' && party.registrationId) {
+    // A company is invoiced. Neither of the two ways a private customer
+    // settles up — cash at the door, a card arranged on the phone — leaves the
+    // paper a company is owed, and an order written either way would have to
+    // be put right before it could be invoiced at all.
+    if (method !== 'bank-transfer' && party.registrationId) {
       throw new BadRequestException({
         code: 'cash-not-available',
-        message: 'A company is invoiced or pays by card, never in cash',
+        message: 'A company is invoiced, never paid in cash or by card',
       });
     }
-
-    return party;
   }
 
   /** The party an account is registered as: its company, unless it registered
@@ -400,9 +689,9 @@ export class OrdersService {
    * know which it is, and the zone is resolved from the server's own config
    * rather than from anything the browser sent.
    */
-  private resolveFulfilment(submission: OrderSubmission): Fulfilment {
-    if (submission.fulfilmentMethod === 'delivery') {
-      const address = submission.deliveryAddress;
+  private resolveFulfilment(order: OrderDetails): Fulfilment {
+    if (order.fulfilmentMethod === 'delivery') {
+      const address = order.deliveryAddress;
       // Narrowed rather than asserted: the refine is what guarantees it, and if
       // that guarantee is ever loosened this must fail loudly, not book an
       // order to nowhere.
@@ -419,7 +708,7 @@ export class OrdersService {
       };
     }
 
-    const key = submission.pickupLocationKey;
+    const key = order.pickupLocationKey;
     const location = this.locations.find((entry) => entry.key === key);
     if (!location) {
       throw new BadRequestException({
@@ -465,12 +754,24 @@ export class OrdersService {
       const publicToken = orderPublicToken();
       try {
         await this.db.transaction(async (tx) => {
+          // The order first, then what it says: the row that carries the
+          // reference has to exist before a revision can hang off it, and the
+          // pointer back is set once the revision has an id. All three in one
+          // transaction, so an order without a current revision is a state
+          // nothing outside this block can observe.
           const [order] = await tx
             .insert(orders)
+            .values({ reference, publicToken, userId: context.userId })
+            .returning({ id: orders.id });
+
+          const [revision] = await tx
+            .insert(orderRevisions)
             .values({
-              reference,
-              publicToken,
-              userId: context.userId,
+              orderId: order.id,
+              // What the customer submitted. Every move and every adjustment
+              // counts on from here (FR-ORD-03).
+              revisionNumber: 1,
+              kind: 'submitted',
               status: 'requested',
               contactName: submission.contact.name,
               contactEmail: submission.contact.email,
@@ -506,8 +807,24 @@ export class OrdersService {
               shipmentWeight: shipment.weight,
               shipmentApproximate: shipment.approximate,
               shipmentUncoveredLines: shipment.uncoveredLines,
+              // The receipt goes out for every order there is (FR-NOTIF-06),
+              // so version 1 is a version the customer was written to about
+              // and the thread says so. Stamped with the write for the same
+              // reason every other version is: the record is what the shop
+              // sent, not what SMTP acknowledged.
+              notifiedAt: new Date(),
             })
-            .returning({ id: orders.id });
+            .returning({ id: orderRevisions.id });
+
+          await tx
+            .update(orders)
+            .set({
+              currentRevisionId: revision.id,
+              // The version the customer holds, from the first: the receipt
+              // they are sent describes exactly this one.
+              customerRevisionId: revision.id,
+            })
+            .where(eq(orders.id, order.id));
 
           await tx.insert(orderItems).values(
             priced.lines.map(({ preview, row }, index) => {
@@ -517,7 +834,7 @@ export class OrdersService {
                 throw new Error('an unpriced line reached the insert');
               }
               return {
-                orderId: order.id,
+                revisionId: revision.id,
                 sortOrder: index,
                 productId: row.productId,
                 productSourceId: row.sourceId,
@@ -563,6 +880,7 @@ export class OrdersService {
       customerEmail: string | null;
       contactName: string;
       paymentMethod: PaymentMethod;
+      revisionNumber: number;
     })[];
     pagination: Pagination;
   }> {
@@ -574,36 +892,59 @@ export class OrdersService {
     if (search) conditions.push(search);
     const where = conditions.length ? and(...conditions) : undefined;
     const { rows, pagination } = await this.page(where, page, sort);
-    const counts = await this.itemCounts(rows.map((row) => row.id));
+    const counts = await this.itemCounts(rows.map((row) => row.revisionId));
     const emails = await this.customerEmails(rows);
 
     return {
       items: rows.map((row) => ({
-        ...toSummary(row, counts.get(row.id) ?? 0),
+        ...toSummary(row, counts.get(row.revisionId) ?? 0),
         customerEmail: row.userId ? (emails.get(row.userId) ?? null) : null,
         contactName: row.contactName,
         paymentMethod: row.paymentMethod as PaymentMethod,
+        revisionNumber: row.revisionNumber,
       })),
       pagination,
     };
   }
 
+  /** The customer's own view: the version they were last told about, which is
+   * the current one on every order nobody has quietly changed. */
   async getForUser(userId: string, reference: string): Promise<OrderDetail> {
     const row = await this.row(
       and(eq(orders.reference, reference), eq(orders.userId, userId)),
+      'customer',
     );
     return this.toDetail(row);
   }
 
   /** The mailed link's view (FR-NOTIF-06). The token is the only credential,
-   * so it is matched on its own — no session is consulted. */
+   * so it is matched on its own — no session is consulted. It shows what the
+   * mail that carried it described. */
   async getByToken(token: string): Promise<OrderDetail> {
-    return this.toDetail(await this.row(eq(orders.publicToken, token)));
+    return this.toDetail(
+      await this.row(eq(orders.publicToken, token), 'customer'),
+    );
   }
 
   async getForStaff(reference: string): Promise<AdminOrderDetail> {
-    const row = await this.row(eq(orders.reference, reference));
-    const items = await this.items(row.id);
+    return this.staffDetail(await this.row(eq(orders.reference, reference)));
+  }
+
+  /**
+   * One order-and-version row as staff read it — used for the version an
+   * order currently shows and for every version it has had.
+   *
+   * `notified` is the thread's answer to "what have we actually told them",
+   * asked once by a caller rendering a whole thread and asked here for
+   * everyone else: it is a fact about the order, and reading it per version
+   * would be the same query as many times as the order has been touched.
+   */
+  private async staffDetail(
+    row: OrderRow,
+    notified?: CustomerThread,
+  ): Promise<AdminOrderDetail> {
+    const told = notified ?? (await this.customerThread(row.id));
+    const items = await this.items(row.revisionId);
     const detail = await this.toDetail(row, items);
     const [customer] = row.userId
       ? await this.db
@@ -626,7 +967,120 @@ export class OrdersService {
       customerEmail: customer?.email ?? null,
       tierKey: row.tierKey,
       statusChangedAt: row.statusChangedAt.toISOString(),
+      revisionNumber: row.revisionNumber,
+      // Null only on an order mid-write, which nothing outside a transaction
+      // can read: an order the customer has never been shown does not exist.
+      customerRevisionNumber: row.customerRevisionNumber ?? row.revisionNumber,
+      notifiedRevisionNumber: told.number,
+      customerBehind: customerBehind(
+        told,
+        row.customerRevisionNumber ?? row.revisionNumber,
+      ),
+      notifiedStatuses: told.statuses,
       paidAt: row.paidAt?.toISOString() ?? null,
+    };
+  }
+
+  /**
+   * Every version of one order, newest first (FR-ORD-03).
+   *
+   * Read through the same projection and the same mapping a current order is,
+   * with the join moved from "the version it points at" to "every version it
+   * has": a superseded snapshot is not a different kind of thing, and reading
+   * it any other way is how two screens end up describing one order
+   * differently.
+   */
+  async getRevisions(reference: string): Promise<OrderRevision[]> {
+    // The order first, so a reference nobody has is a 404 rather than an empty
+    // list — an order with no versions does not exist.
+    const current = await this.row(eq(orders.reference, reference));
+    const rows = await this.revisionRows(current.id);
+    const notified = await this.customerThread(current.id);
+    const authors = await this.emailsOf(
+      rows.flatMap((row) =>
+        row.revisionCreatedBy ? [row.revisionCreatedBy] : [],
+      ),
+    );
+    return Promise.all(
+      rows.map((row) => this.toRevision(row, current, authors, notified)),
+    );
+  }
+
+  /**
+   * One version of an order, read on its own (FR-ORD-03).
+   *
+   * The reading screen asks for the version it is showing rather than for the
+   * thread it belongs to: an order worked on for a fortnight has a great many
+   * snapshots, and rendering one of them should not cost all of them.
+   */
+  async getRevision(reference: string, number: number): Promise<OrderRevision> {
+    const current = await this.row(eq(orders.reference, reference));
+    const [row] = await this.revisionRows(current.id, number);
+    // A version this order never had is the same answer as an order nobody
+    // has: there is nothing at that address.
+    if (!row) throw notFound();
+    const authors = await this.emailsOf(
+      row.revisionCreatedBy ? [row.revisionCreatedBy] : [],
+    );
+    return this.toRevision(
+      row,
+      current,
+      authors,
+      await this.customerThread(current.id),
+    );
+  }
+
+  /** The order joined to its versions rather than to the one it stands on —
+   * every version, or the one asked for. */
+  private revisionRows(orderId: string, number?: number): Promise<OrderRow[]> {
+    return this.db
+      .select(orderColumns)
+      .from(orders)
+      .innerJoin(orderRevisions, eq(orderRevisions.orderId, orders.id))
+      .leftJoin(
+        customerRevision,
+        eq(orders.customerRevisionId, customerRevision.id),
+      )
+      .where(
+        number === undefined
+          ? eq(orders.id, orderId)
+          : and(
+              eq(orders.id, orderId),
+              eq(orderRevisions.revisionNumber, number),
+            ),
+      )
+      .orderBy(desc(orderRevisions.revisionNumber));
+  }
+
+  /** One version as staff read it: the whole snapshot, plus the four facts
+   * that are about the version rather than about the order. */
+  private async toRevision(
+    row: OrderRow,
+    current: OrderRow,
+    authors: Map<string, string>,
+    notified: CustomerThread,
+  ): Promise<OrderRevision> {
+    return {
+      ...(await this.staffDetail(row, notified)),
+      revisionCreatedAt: row.revisionCreatedAt.toISOString(),
+      author: row.revisionCreatedBy
+        ? (authors.get(row.revisionCreatedBy) ?? null)
+        : null,
+      kind: row.revisionKind as OrderRevisionKind,
+      note: row.revisionNote,
+      customerView: row.customerRevisionNumber === row.revisionNumber,
+      notifiedAt: row.revisionNotifiedAt?.toISOString() ?? null,
+      // Both are facts about the *order*, and every entry in the list repeats
+      // them: read against the version the order stands on rather than against
+      // the one being listed, which would make each row answer a question
+      // nobody asked about it.
+      revisionNumber: row.revisionNumber,
+      customerRevisionNumber:
+        current.customerRevisionNumber ?? current.revisionNumber,
+      customerBehind: customerBehind(
+        notified,
+        current.customerRevisionNumber ?? current.revisionNumber,
+      ),
     };
   }
 
@@ -639,9 +1093,15 @@ export class OrdersService {
    * get the same answer: an order that has moved on is not this caller's
    * business to be told about in detail.
    *
-   * The write re-states the status it read, so two managers answering the same
-   * order at the same moment cannot both succeed — the second updates nothing
-   * and is refused like any other disallowed move.
+   * A move **writes a version** (ADR 0051). The snapshot is carried across
+   * word for word — a move changes where the order stands and nothing it says
+   * — so the thread of versions is the order's whole history and any point in
+   * it can be read back complete. That is what lets a customer be shown the
+   * order as they were last told it stood while staff work on a later one.
+   *
+   * The write re-states the version it read, so two managers answering the
+   * same order at the same moment cannot both succeed — the second updates
+   * nothing and is refused like any other disallowed move.
    */
   private async move(
     where: ReturnType<typeof and>,
@@ -649,6 +1109,13 @@ export class OrdersService {
     to: TransitionTarget,
     reason: string | null,
     byUserId: string,
+    told: { notify: boolean; markPaid: boolean; showCustomer: boolean } = {
+      notify: false,
+      markPaid: false,
+      // A customer calling their own order off is looking at the screen that
+      // did it: there is nothing to keep from them.
+      showCustomer: true,
+    },
   ): Promise<OrderRow> {
     const current = await this.row(where);
     const from = current.status as OrderStatus;
@@ -664,48 +1131,93 @@ export class OrdersService {
         message: 'Say why, so the customer can be told',
       });
     }
-
-    const [moved] = await this.db
-      .update(orders)
-      .set({
-        status: to,
-        statusChangedAt: new Date(),
-        statusChangedBy: byUserId,
-        // Only the two refusals carry one, and a move that does not carry a
-        // reason clears the one an earlier move left behind.
-        statusReason: transitionHasReason(to) ? reason : null,
-        paymentState: nextPaymentState(
-          current.paymentState as PaymentState,
-          current.paymentMethod as PaymentMethod,
-          to,
-        ),
-      })
-      .where(and(eq(orders.id, current.id), eq(orders.status, from)))
-      .returning();
-
-    if (!moved) {
-      throw new ConflictException({
-        code: 'transition-not-allowed',
-        message: 'The order moved while it was being answered',
+    // The handover of a cash order is one event, so completing it and
+    // recording the money is one click. Refused rather than ignored where the
+    // order is ending: nothing is owed on an order nobody is filling, and a
+    // tick that quietly did nothing would be a manager believing they had
+    // recorded a payment.
+    if (told.markPaid && transitionHasReason(to)) {
+      throw new BadRequestException({
+        code: 'payment-not-recordable',
+        message: 'Nothing is owed on an order that ends here',
       });
     }
-    return moved;
+    const paid = told.markPaid && current.paymentState !== 'paid';
+
+    await this.appendRevision(current, {
+      kind: 'transition',
+      status: to,
+      // Only the two refusals carry one, and a move that does not carry a
+      // reason clears the one an earlier move left behind.
+      statusReason: transitionHasReason(to) ? reason : null,
+      byUserId,
+      paymentState: paid
+        ? 'paid'
+        : nextPaymentState(
+            current.paymentState as PaymentState,
+            current.paymentMethod as PaymentMethod,
+            to,
+          ),
+      movedAt: new Date(),
+      // A move is where the order *is*, so the customer's page follows it by
+      // default whether or not a message goes with it — otherwise an order out
+      // for delivery would still read "confirmed" to the person waiting for
+      // it, because a manager decided one mail would do for both steps. Held
+      // back only where the caller says so: a step taken by mistake, or one of
+      // the intermediate steps an exchange collapses into a single move the
+      // customer should read.
+      showCustomer: told.showCustomer,
+      notified: told.notify,
+      paid: paid ? { at: new Date(), by: byUserId } : null,
+    });
+
+    // Read back rather than returned from the write: what a caller renders is
+    // the order *with* the version it now shows.
+    return this.row(eq(orders.id, current.id));
   }
 
-  /** Staff answering an order. Any status the table allows, from any order. */
+  /**
+   * Staff answering an order. Any status the table allows, from any order.
+   *
+   * The mail goes out here rather than from the caller, because whether there
+   * is one to send is something only the write knows: a move the customer's
+   * view followed is news, and a move on an order they have already been told
+   * was finished is staff putting their own record straight.
+   */
   async transitionForStaff(
     reference: string,
-    to: TransitionTarget,
-    reason: string | null,
+    move: OrderTransition,
     byUserId: string,
   ): Promise<AdminOrderDetail> {
+    const before = await this.row(eq(orders.reference, reference));
+    // Read before the write, because the write is what changes the answer:
+    // this is the version the customer was last told about, and so where the
+    // mail's account of the changes has to start.
+    const notified = await this.customerThread(before.id);
     await this.move(
       eq(orders.reference, reference),
       'staff',
-      to,
-      reason,
+      move.to,
+      move.reason,
       byUserId,
+      {
+        notify: move.notify,
+        markPaid: move.markPaid,
+        showCustomer: move.showCustomer,
+      },
     );
+    if (move.notify) {
+      await this.mailCustomer(
+        reference,
+        notified.number,
+        // An undo is not news the customer is waiting for, and a mail that
+        // announced it as the next step would be describing the order moving
+        // forwards when it went back.
+        moveDirection(before.status as OrderStatus, move.to) === 'backward'
+          ? 'corrected'
+          : 'moved',
+      );
+    }
     return this.getForStaff(reference);
   }
 
@@ -727,6 +1239,452 @@ export class OrdersService {
       userId,
     );
     return this.toDetail(moved);
+  }
+
+  /**
+   * What an adjustment would come to (FR-ORD-03), priced and not written.
+   *
+   * The same arithmetic the write runs, on the same inputs, so the figures a
+   * manager approves are the figures that get recorded. It answers with the
+   * *proposed* order, not with a diff: what changed is a question about two
+   * versions, and the screen holds both.
+   */
+  async previewAdjustment(
+    reference: string,
+    input: OrderAdjustment,
+  ): Promise<OrderAdjustmentPreview> {
+    const current = await this.row(eq(orders.reference, reference));
+    const { priced, fulfilment } = await this.priceAdjusted(input);
+
+    return {
+      lines: priced.lines.map((line) => ({
+        name: line.name,
+        slug: line.slug,
+        // A staff screen opens every line it can, whatever the storefront
+        // thinks of the product — the flags say what state it is in.
+        linked: true,
+        image: line.thumbnail
+          ? { full: line.thumbnail, thumb: line.thumbnail }
+          : null,
+        unit: line.unit,
+        units: line.units,
+        quantity: line.quantity,
+        pieces: line.pieces,
+        priceMinor: line.priceMinor,
+        priceBasisPieces: line.priceBasisPieces,
+        lineTotalMinor: line.lineTotalMinor,
+        note: line.note,
+        flags: line.flags,
+        listPriceMinor: line.listPriceMinor,
+        listPriceBasisPieces: line.listPriceBasisPieces,
+      })),
+      totalMinor: priced.totalMinor,
+      // The order's own currency, not today's config: an old order is priced
+      // in what it was priced in, and an adjustment does not re-denominate it.
+      currency: current.currency,
+      deliveryZone: fulfilment.zone,
+      shipment: {
+        cartons: priced.shipment.cartons,
+        volume: priced.shipment.volume,
+        weight: priced.shipment.weight,
+        coveredLines: priced.lines.length - priced.shipment.uncoveredLines,
+        uncoveredLines: priced.shipment.uncoveredLines,
+        approximate: priced.shipment.approximate,
+      },
+    };
+  }
+
+  /**
+   * Change what an order says — a new version of it (FR-ORD-03, ADR 0051).
+   *
+   * It moves nothing. An order being changed is not an order being answered:
+   * a request that a manager corrects is still a request, and a packed order
+   * whose address changed is still packed. Whether the customer hears about it
+   * is a separate decision — the move that follows carries the news, or the
+   * manager asks for it outright.
+   *
+   * The write is one transaction and the pointer move is guarded by the
+   * version it was written against, so two managers adjusting one order have
+   * one winner and the loser is told the order moved rather than quietly
+   * overwriting a colleague.
+   *
+   * What the customer wrote is not in the payload at all: their note, their
+   * line notes and their preferred date are carried across from the version
+   * being superseded.
+   */
+  async adjust(
+    reference: string,
+    input: OrderAdjustment,
+    byUserId: string,
+  ): Promise<AdminOrderDetail> {
+    const current = await this.row(eq(orders.reference, reference));
+    if (current.revisionNumber !== input.basedOnRevision) {
+      throw new ConflictException({
+        code: 'order-changed',
+        message: 'The order was adjusted while this one was being written',
+      });
+    }
+
+    const notified = await this.customerThread(current.id);
+    const { priced, fulfilment, billing } = await this.priceAdjusted(input);
+    const status = current.status as OrderStatus;
+    const snapshot = this.adjustedSnapshot(current, input, priced, {
+      billing,
+      fulfilment,
+    });
+    const lines = priced.lines.map((line, index) => ({
+      sortOrder: index,
+      productId: line.productId,
+      productSourceId: line.sourceId,
+      slug: line.slug,
+      name: line.name,
+      thumbnail: line.thumbnail,
+      unit: line.unit,
+      quantity: line.quantity,
+      pieces: line.pieces,
+      priceMinor: line.priceMinor,
+      priceBasisPieces: line.priceBasisPieces,
+      lineTotalMinor: line.lineTotalMinor,
+      note: line.note,
+    }));
+    if (await this.saysTheSame(current, snapshot, lines)) {
+      throw new ConflictException({
+        code: 'no-change',
+        message: 'This changes nothing the order says',
+      });
+    }
+
+    await this.appendRevision(current, {
+      kind: 'adjustment',
+      status,
+      statusReason: current.statusReason,
+      note: input.note,
+      byUserId,
+      snapshot,
+      lines,
+      paymentState: paymentStateAfterAdjustment(
+        current.paymentState as PaymentState,
+        status,
+        input.paymentMethod,
+      ),
+      movedAt: null,
+      // A change the customer has not been told about is not theirs to see:
+      // the version they hold is the one the shop last stood behind, and
+      // swapping it under them for one nobody has explained is how a page and
+      // the message that announced it stop agreeing.
+      showCustomer: input.notify,
+      notified: input.notify,
+      paid: null,
+    });
+
+    if (input.notify) {
+      await this.mailCustomer(reference, notified.number, 'changed');
+    }
+    return this.getForStaff(reference);
+  }
+
+  /**
+   * Whether an adjustment would write a version that says exactly what the one
+   * before it says.
+   *
+   * Compared against the two things a version is made of — the snapshot a move
+   * would carry across word for word, and the lines it holds — so nothing can
+   * change without this seeing it. The manager's note is deliberately not
+   * among them: it is an account of a change rather than a change, and a
+   * version whose only content is a sentence about nothing is noise in a
+   * history rather than part of one.
+   *
+   * The refusal lives here and not in the screen because the screen is not the
+   * only writer: an exchange that re-sends an order it has already sent must
+   * not lengthen the thread by doing so.
+   */
+  private async saysTheSame(
+    current: OrderRow,
+    snapshot: OrderSnapshot,
+    lines: Omit<typeof orderItems.$inferInsert, 'revisionId'>[],
+  ): Promise<boolean> {
+    const carried = this.carriedSnapshot(current);
+    const sameSnapshot = Object.entries(snapshot).every(
+      ([field, value]) => value === carried[field as keyof OrderSnapshot],
+    );
+    if (!sameSnapshot) return false;
+
+    const items = await this.items(current.revisionId);
+    if (items.length !== lines.length) return false;
+    return lines.every((line, index) => {
+      const item = items[index];
+      return (
+        line.sortOrder === item.sortOrder &&
+        line.productId === item.productId &&
+        line.slug === item.slug &&
+        line.name === item.name &&
+        line.thumbnail === item.thumbnail &&
+        line.unit === item.unit &&
+        line.quantity === item.quantity &&
+        line.pieces === item.pieces &&
+        line.priceMinor === item.priceMinor &&
+        line.priceBasisPieces === item.priceBasisPieces &&
+        line.lineTotalMinor === item.lineTotalMinor &&
+        line.note === item.note
+      );
+    });
+  }
+
+  /** The order as an adjustment proposes it should now read. The customer's
+   * own — their note, their line notes, the day they asked for — is taken from
+   * the version being superseded and cannot be sent at all. */
+  private adjustedSnapshot(
+    current: OrderRow,
+    input: OrderAdjustment,
+    priced: PricedAdjustment,
+    resolved: { billing: AddressInput | null; fulfilment: Fulfilment },
+  ): OrderSnapshot {
+    const { address: delivery, pickup, zone } = resolved.fulfilment;
+    const { billing } = resolved;
+    return {
+      contactName: input.contact.name,
+      contactEmail: input.contact.email,
+      contactPhone: input.contact.phone,
+      paymentMethod: input.paymentMethod,
+      fulfilmentMethod: input.fulfilmentMethod,
+      partyName: input.party.name,
+      partyRegistrationId: input.party.registrationId,
+      billingStreet: billing?.street ?? null,
+      billingStreet2: billing?.street2 ?? null,
+      billingPostalCode: billing?.postalCode ?? null,
+      billingCity: billing?.city ?? null,
+      billingRegion: billing?.region ?? null,
+      billingCountry: billing?.country ?? null,
+      deliveryStreet: delivery?.street ?? null,
+      deliveryStreet2: delivery?.street2 ?? null,
+      deliveryPostalCode: delivery?.postalCode ?? null,
+      deliveryCity: delivery?.city ?? null,
+      deliveryRegion: delivery?.region ?? null,
+      deliveryCountry: delivery?.country ?? null,
+      deliveryZoneKey: zone?.key ?? null,
+      deliveryFreeFromMinor: zone?.freeFromMinor ?? null,
+      pickupLocationKey: pickup?.key ?? null,
+      pickupLocationName: pickup?.name ?? null,
+      pickupLocationAddress: pickup?.address ?? null,
+      // The customer's own, carried across: an adjustment is the shop's half
+      // of the record and never rewrites theirs.
+      preferredDate: current.preferredDate,
+      customerNote: current.customerNote,
+      totalMinor: priced.totalMinor,
+      // The order's own currency, not today's config: an old order is priced
+      // in what it was priced in, and an adjustment does not re-denominate it.
+      currency: current.currency,
+      tierKey: input.tierKey,
+      shipmentCartons: priced.shipment.cartons,
+      shipmentVolume: priced.shipment.volume,
+      shipmentWeight: priced.shipment.weight,
+      shipmentApproximate: priced.shipment.approximate,
+      shipmentUncoveredLines: priced.shipment.uncoveredLines,
+    };
+  }
+
+  /** What a version carries when nothing about the order itself changed —
+   * every snapshot column of the version being superseded, word for word. */
+  private carriedSnapshot(row: OrderRow): OrderSnapshot {
+    return {
+      contactName: row.contactName,
+      contactEmail: row.contactEmail,
+      contactPhone: row.contactPhone,
+      paymentMethod: row.paymentMethod,
+      fulfilmentMethod: row.fulfilmentMethod,
+      partyName: row.partyName,
+      partyRegistrationId: row.partyRegistrationId,
+      billingStreet: row.billingStreet,
+      billingStreet2: row.billingStreet2,
+      billingPostalCode: row.billingPostalCode,
+      billingCity: row.billingCity,
+      billingRegion: row.billingRegion,
+      billingCountry: row.billingCountry,
+      deliveryStreet: row.deliveryStreet,
+      deliveryStreet2: row.deliveryStreet2,
+      deliveryPostalCode: row.deliveryPostalCode,
+      deliveryCity: row.deliveryCity,
+      deliveryRegion: row.deliveryRegion,
+      deliveryCountry: row.deliveryCountry,
+      deliveryZoneKey: row.deliveryZoneKey,
+      deliveryFreeFromMinor: row.deliveryFreeFromMinor,
+      pickupLocationKey: row.pickupLocationKey,
+      pickupLocationName: row.pickupLocationName,
+      pickupLocationAddress: row.pickupLocationAddress,
+      preferredDate: row.preferredDate,
+      customerNote: row.customerNote,
+      totalMinor: row.totalMinor,
+      currency: row.currency,
+      tierKey: row.tierKey,
+      shipmentCartons: row.shipmentCartons,
+      shipmentVolume: row.shipmentVolume,
+      shipmentWeight: row.shipmentWeight,
+      shipmentApproximate: row.shipmentApproximate,
+      shipmentUncoveredLines: row.shipmentUncoveredLines,
+    };
+  }
+
+  /**
+   * The one write every version of an order goes through: the version, the
+   * order's pointers, and the lines — one transaction, so an order can never
+   * point at a version whose lines are half there.
+   *
+   * A move carries the snapshot and the lines across untouched; an adjustment
+   * supplies both. Nothing else distinguishes them, which is the point: two
+   * ways of writing a version would be two ways for the thread to develop a
+   * hole in it.
+   */
+  private async appendRevision(
+    current: OrderRow,
+    change: {
+      kind: OrderRevisionKind;
+      status: OrderStatus;
+      statusReason: string | null;
+      note?: string | null;
+      byUserId: string | null;
+      snapshot?: OrderSnapshot;
+      lines?: Omit<typeof orderItems.$inferInsert, 'revisionId'>[];
+      paymentState: PaymentState;
+      /** When the order moved, or null where it did not move at all. */
+      movedAt: Date | null;
+      /** Whether this is the version the customer is now shown. */
+      showCustomer: boolean;
+      /**
+       * Whether a message about this version goes out.
+       *
+       * Stamped here rather than after the send, and in the same transaction
+       * as the version it describes: the mail cannot fail the write that
+       * produced it, so "we wrote to them about this version" is what the shop
+       * knows, and a silent SMTP failure is the log's business rather than the
+       * thread's.
+       */
+      notified: boolean;
+      /** The money, where it arrived with this version — the handover of a
+       * cash order, recorded with the move that is the handover. */
+      paid: { at: Date; by: string } | null;
+    },
+  ): Promise<void> {
+    try {
+      await this.db.transaction(async (tx) => {
+        const [revision] = await tx
+          .insert(orderRevisions)
+          .values({
+            orderId: current.id,
+            revisionNumber: current.revisionNumber + 1,
+            kind: change.kind,
+            status: change.status,
+            statusReason: change.statusReason,
+            createdBy: change.byUserId,
+            note: change.note ?? null,
+            notifiedAt: change.notified ? new Date() : null,
+            ...(change.snapshot ?? this.carriedSnapshot(current)),
+          })
+          .returning({ id: orderRevisions.id });
+
+        const [pointed] = await tx
+          .update(orders)
+          .set({
+            currentRevisionId: revision.id,
+            ...(change.showCustomer ? { customerRevisionId: revision.id } : {}),
+            status: change.status,
+            paymentState: change.paymentState,
+            // Two facts, written together because they are one observation:
+            // a payment state of `paid` and the record of who saw the money
+            // arrive and when.
+            ...(change.paid
+              ? { paidAt: change.paid.at, paidBy: change.paid.by }
+              : {}),
+            // Only a real move is a move: the line that says when the order
+            // last moved must not be restated by a change that left it where
+            // it was.
+            ...(change.movedAt
+              ? {
+                  statusChangedAt: change.movedAt,
+                  statusChangedBy: change.byUserId,
+                }
+              : {}),
+          })
+          // The version it was written against, restated in the write: the
+          // second of two writers updates nothing and is told so.
+          .where(
+            and(
+              eq(orders.id, current.id),
+              eq(orders.currentRevisionId, current.revisionId),
+            ),
+          )
+          .returning({ id: orders.id });
+
+        if (!pointed) throw orderMovedOn();
+
+        if (change.lines) {
+          await tx.insert(orderItems).values(
+            change.lines.map((line) => ({
+              ...line,
+              revisionId: revision.id,
+            })),
+          );
+        } else {
+          // Copied in the database rather than read out and written back: the
+          // lines are unchanged, and a round trip through this process is a
+          // chance for them to stop being.
+          await tx.execute(sql`
+            insert into ${orderItems} ("revisionId", "sortOrder", "productId",
+              "productSourceId", "slug", "name", "thumbnail", "unit",
+              "quantity", "pieces", "priceMinor", "priceBasisPieces",
+              "lineTotalMinor", "note")
+            select ${revision.id}::uuid, "sortOrder", "productId",
+              "productSourceId", "slug", "name", "thumbnail", "unit",
+              "quantity", "pieces", "priceMinor", "priceBasisPieces",
+              "lineTotalMinor", "note"
+              from ${orderItems}
+              where ${orderItems.revisionId} = ${current.revisionId}::uuid`);
+        }
+      });
+    } catch (error) {
+      // Two writers reaching the insert together: the version number is unique
+      // per order, so the second collides on it rather than on the pointer the
+      // write also restates. Same answer either way.
+      if (!isUniqueViolation(error)) throw error;
+      throw orderMovedOn();
+    }
+  }
+
+  /** Everything both the preview and the write need worked out, in the order
+   * the checkout works it out in. */
+  private async priceAdjusted(input: OrderAdjustment): Promise<{
+    priced: PricedAdjustment;
+    fulfilment: Fulfilment;
+    billing: AddressInput | null;
+  }> {
+    const priced = await priceAdjustment(
+      this.db,
+      input.lines,
+      await this.tierId(input.tierKey),
+    );
+    this.assertAddresses(input);
+    this.assertParty(input.party, input.paymentMethod);
+    return {
+      priced,
+      fulfilment: this.resolveFulfilment(input),
+      billing: this.billingAddress(input),
+    };
+  }
+
+  /** The price list an adjustment names, as an id. Null is the default one. */
+  private async tierId(key: string | null): Promise<string | null> {
+    if (!key) return null;
+    const [tier] = await this.db
+      .select({ id: customerTiers.id })
+      .from(customerTiers)
+      .where(eq(customerTiers.key, key))
+      .limit(1);
+    if (!tier) {
+      throw new BadRequestException({
+        code: 'unknown-tier',
+        message: 'That price list does not exist',
+      });
+    }
+    return tier.id;
   }
 
   /**
@@ -803,7 +1761,7 @@ export class OrdersService {
     if (!filter) return undefined;
     if (filter === 'cash') {
       return and(
-        eq(orders.paymentMethod, 'cash'),
+        eq(orderRevisions.paymentMethod, 'cash'),
         eq(orders.paymentState, 'not-due'),
         inArray(orders.status, [
           ...ACCEPTED_ORDER_STATUSES,
@@ -821,9 +1779,9 @@ export class OrdersService {
     const like = `%${term}%`;
     return or(
       ilike(orders.reference, like),
-      ilike(orders.contactName, like),
-      ilike(orders.contactEmail, like),
-      ilike(orders.partyName, like),
+      ilike(orderRevisions.contactName, like),
+      ilike(orderRevisions.contactEmail, like),
+      ilike(orderRevisions.partyName, like),
       inArray(
         orders.userId,
         this.db
@@ -838,10 +1796,12 @@ export class OrdersService {
     where: ReturnType<typeof eq>,
     page: number,
   ): Promise<{ items: OrderSummary[]; pagination: Pagination }> {
-    const { rows, pagination } = await this.page(where, page);
-    const counts = await this.itemCounts(rows.map((row) => row.id));
+    const { rows, pagination } = await this.page(where, page, 'placed_desc', {
+      as: 'customer',
+    });
+    const counts = await this.itemCounts(rows.map((row) => row.revisionId));
     return {
-      items: rows.map((row) => toSummary(row, counts.get(row.id) ?? 0)),
+      items: rows.map((row) => toSummary(row, counts.get(row.revisionId) ?? 0)),
       pagination,
     };
   }
@@ -850,13 +1810,28 @@ export class OrdersService {
     where: SQL | undefined,
     page: number,
     sort: StaffOrderSort = 'placed_desc',
+    read: { as: 'staff' | 'customer' } = { as: 'staff' },
   ): Promise<{ rows: OrderRow[]; pagination: Pagination }> {
-    const total = await this.db.$count(orders, where);
+    // Counted through the same join the rows are read through — the same
+    // version, too: a filter may name a snapshot column, and a count that
+    // cannot see the revision would page a different set from the one it is
+    // counting.
+    const [{ total }] = await this.db
+      .select({ total: count() })
+      .from(orders)
+      .innerJoin(
+        orderRevisions,
+        eq(
+          read.as === 'staff'
+            ? orders.currentRevisionId
+            : orders.customerRevisionId,
+          orderRevisions.id,
+        ),
+      )
+      .where(where);
     const totalPages = Math.ceil(total / ORDER_PAGE_SIZE);
     const current = Math.max(1, page);
-    const rows = await this.db
-      .select()
-      .from(orders)
+    const rows = await this.ordersAsSeen(read.as)
       .where(where)
       .orderBy(...orderListOrderBy(sort))
       .limit(ORDER_PAGE_SIZE)
@@ -873,34 +1848,71 @@ export class OrdersService {
     };
   }
 
-  private async row(where: ReturnType<typeof and>): Promise<OrderRow> {
-    const [row] = await this.db.select().from(orders).where(where).limit(1);
+  /**
+   * Every read of an order goes through here: the order joined to one of its
+   * versions. An inner join rather than a left one — an order with no current
+   * revision is not an order that reads oddly, it is a broken write, and hiding
+   * it behind nulls would spread the breakage into every screen.
+   *
+   * Which version depends on who is reading. Staff read the order as it now
+   * stands; a customer reads the one they were last written to about
+   * (FR-NOTIF-03), which is the same one until the shop changes something
+   * without telling them, or reopens an order they have already been told was
+   * finished.
+   */
+  private ordersAsSeen(by: 'staff' | 'customer' = 'staff') {
+    const shown =
+      by === 'staff' ? orders.currentRevisionId : orders.customerRevisionId;
+    return this.db
+      .select(orderColumns)
+      .from(orders)
+      .innerJoin(orderRevisions, eq(shown, orderRevisions.id))
+      .leftJoin(
+        customerRevision,
+        eq(orders.customerRevisionId, customerRevision.id),
+      );
+  }
+
+  private async row(
+    where: ReturnType<typeof and>,
+    by: 'staff' | 'customer' = 'staff',
+  ): Promise<OrderRow> {
+    const [row] = await this.ordersAsSeen(by).where(where).limit(1);
     if (!row) throw notFound();
     return row;
   }
 
-  private async items(orderId: string): Promise<OrderItemRow[]> {
+  private async items(revisionId: string): Promise<OrderItemRow[]> {
     return this.db
       .select()
       .from(orderItems)
-      .where(eq(orderItems.orderId, orderId))
+      .where(eq(orderItems.revisionId, revisionId))
       .orderBy(orderItems.sortOrder);
   }
 
+  /** Keyed by revision, since that is what the lines hang off: two versions of
+   * one order have their own line counts, and only the current one is asked
+   * about here. */
   private async itemCounts(ids: string[]): Promise<Map<string, number>> {
     if (ids.length === 0) return new Map();
     const rows = await this.db
-      .select({ orderId: orderItems.orderId, items: count() })
+      .select({ revisionId: orderItems.revisionId, items: count() })
       .from(orderItems)
-      .where(inArray(orderItems.orderId, ids))
-      .groupBy(orderItems.orderId);
-    return new Map(rows.map((row) => [row.orderId, Number(row.items)]));
+      .where(inArray(orderItems.revisionId, ids))
+      .groupBy(orderItems.revisionId);
+    return new Map(rows.map((row) => [row.revisionId, Number(row.items)]));
   }
 
-  private async customerEmails(rows: OrderRow[]): Promise<Map<string, string>> {
-    const ids = [
-      ...new Set(rows.flatMap((row) => (row.userId ? [row.userId] : []))),
-    ];
+  private customerEmails(rows: OrderRow[]): Promise<Map<string, string>> {
+    return this.emailsOf(
+      rows.flatMap((row) => (row.userId ? [row.userId] : [])),
+    );
+  }
+
+  /** Accounts by id, in one query — who placed each order in a list, and who
+   * wrote each version of one. */
+  private async emailsOf(userIds: string[]): Promise<Map<string, string>> {
+    const ids = [...new Set(userIds)];
     if (ids.length === 0) return new Map();
     const found = await this.db
       .select({ id: users.id, email: users.email })
@@ -916,7 +1928,7 @@ export class OrdersService {
     row: OrderRow,
     known?: OrderItemRow[],
   ): Promise<OrderDetail> {
-    const items = known ?? (await this.items(row.id));
+    const items = known ?? (await this.items(row.revisionId));
     // Resolved by product id, never by the slug snapshot — and only where the
     // product is still something a customer may open, so an order never sends
     // anyone into a 404. The *current* slug is what a linked line carries: a
@@ -1002,6 +2014,13 @@ export class OrdersService {
       preferredDate: row.preferredDate,
       customerNote: row.customerNote,
       statusReason: row.statusReason,
+      // Every change the shop has made up to the version being read, and not
+      // one word more: a version is a reading of the order at one moment, and
+      // changes made after it were not part of what this version said.
+      changes: await this.adjustmentNotes(
+        row.id,
+        sql`${orderRevisions.revisionNumber} <= ${row.revisionNumber}`,
+      ),
       lines,
       shipment: {
         cartons: row.shipmentCartons,

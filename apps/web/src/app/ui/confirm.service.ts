@@ -8,7 +8,7 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { ConfirmDialog } from './confirm-dialog';
+import { ConfirmAnswer, ConfirmCheck, ConfirmDialog } from './confirm-dialog';
 
 export interface ConfirmRequest {
   heading: string;
@@ -16,6 +16,9 @@ export interface ConfirmRequest {
   confirmLabel: string;
   cancelLabel: string;
   confirmVariant?: 'primary' | 'danger';
+  /** What happens *because* the answer is yes, each offered as a tick with the
+   * usual answer already filled in. */
+  checks?: readonly ConfirmCheck[];
 }
 
 /** A confirmation that may say why. Required by default, because the usual
@@ -49,18 +52,36 @@ export class ConfirmService {
    * The same question, with a sentence attached: resolves with the reason, or
    * with null where the answer was no.
    */
-  askWithReason(request: ReasonRequest): Promise<string | null> {
+  async askWithReason(request: ReasonRequest): Promise<string | null> {
+    return (await this.open(request))?.reason ?? null;
+  }
+
+  /**
+   * The whole answer — the reason, and how the ticks were left — for a caller
+   * that offered choices. `ask` and `askWithReason` are this with the parts
+   * they do not use dropped.
+   */
+  askDetailed(
+    request: ConfirmRequest | ReasonRequest,
+  ): Promise<ConfirmAnswer | null> {
     return this.open(request);
   }
 
   private open(
     request: ConfirmRequest | ReasonRequest,
-  ): Promise<string | null> {
+  ): Promise<ConfirmAnswer | null> {
     // Nothing to ask on the server, and nothing to answer with: a guard there
-    // proceeds, which is what an empty reason means to every caller here.
-    if (!this.isBrowser) return Promise.resolve('');
+    // proceeds, and every choice stands as it was offered.
+    if (!this.isBrowser) {
+      return Promise.resolve({
+        reason: '',
+        checks: Object.fromEntries(
+          (request.checks ?? []).map((check) => [check.key, check.checked]),
+        ),
+      });
+    }
 
-    return new Promise<string | null>((resolve) => {
+    return new Promise<ConfirmAnswer | null>((resolve) => {
       const host = document.createElement('div');
       document.body.appendChild(host);
 
@@ -73,18 +94,19 @@ export class ConfirmService {
       ref.setInput('confirmLabel', request.confirmLabel);
       ref.setInput('cancelLabel', request.cancelLabel);
       ref.setInput('confirmVariant', request.confirmVariant ?? 'danger');
+      ref.setInput('checks', request.checks ?? []);
       if ('reasonLabel' in request) {
         ref.setInput('reasonLabel', request.reasonLabel);
         ref.setInput('reasonMaxLength', request.reasonMaxLength);
         ref.setInput('reasonRequired', request.reasonRequired ?? true);
       }
 
-      const close = (answer: string | null) => {
+      const close = (answer: ConfirmAnswer | null) => {
         ref.destroy();
         host.remove();
         resolve(answer);
       };
-      ref.instance.confirmed.subscribe((reason) => close(reason));
+      ref.instance.confirmed.subscribe((answer) => close(answer));
       ref.instance.cancelled.subscribe(() => close(null));
 
       this.appRef.attachView(ref.hostView);

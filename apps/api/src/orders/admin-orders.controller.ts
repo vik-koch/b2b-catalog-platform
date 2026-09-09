@@ -51,8 +51,7 @@ export class AdminOrdersController {
   /**
    * Whether the move is allowed is the service's answer, not this controller's
    * — the transition table is asked in one place for every caller. What lives
-   * here is what follows a move that happened: the audit line, and the mail
-   * the customer is owed (FR-NOTIF-03).
+   * here is the record of what a person did: the audit lines.
    *
    * The mail cannot fail the transition, exactly as the receipt cannot fail an
    * order: the row is the record, and a manager who accepted an order accepted
@@ -65,15 +64,96 @@ export class AdminOrdersController {
       .handler(async ({ input: { params, body } }) => {
         const order = await this.orders.transitionForStaff(
           params.reference,
-          body.to,
-          body.reason,
+          body,
           actor.id,
         );
         this.audit.record('order.status', actor, {
           reference: order.reference,
           status: order.status,
+          revision: order.revisionNumber,
         });
-        await this.orders.notifyStatusChanged(order.reference);
+        // A move that also recorded the money is two things a manager did, so
+        // it is two lines: a filter asking which orders were paid, and when,
+        // must not have to know that some payments arrived through a move.
+        if (body.markPaid) {
+          this.audit.record('order.paid', actor, {
+            reference: order.reference,
+          });
+        }
+        return order;
+      });
+  }
+
+  /** Every version of one order (FR-ORD-03) — staff only, since a customer
+   * reads the order as it now stands. */
+  @Implement(ordersContract.listOrderRevisions)
+  listOrderRevisions() {
+    return implement(ordersContract.listOrderRevisions)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => ({
+        revisions: await this.orders.getRevisions(params.reference),
+      }));
+  }
+
+  /** One version of it, for the screen that reads a version back. */
+  @Implement(ordersContract.getOrderRevision)
+  getOrderRevision() {
+    return implement(ordersContract.getOrderRevision)
+      .use(refusals)
+      .handler(({ input: { params } }) =>
+        this.orders.getRevision(params.reference, params.number),
+      );
+  }
+
+  @Implement(ordersContract.previewOrderAdjustment)
+  previewOrderAdjustment() {
+    return implement(ordersContract.previewOrderAdjustment)
+      .use(refusals)
+      .handler(({ input: { params, body } }) =>
+        this.orders.previewAdjustment(params.reference, body),
+      );
+  }
+
+  /**
+   * A new version of the order (FR-ORD-03). Audited by the version it wrote,
+   * since that is the thing that now exists — the reference alone would not
+   * say which of an order's versions a line refers to.
+   *
+   * Nothing is mailed here. Whether the customer hears about a change is the
+   * service's decision, taken with the move that follows it or with the
+   * `notify` flag this carries.
+   */
+  @Implement(ordersContract.adjustOrder)
+  adjustOrder(@CurrentUser() actor: AuthUser) {
+    return implement(ordersContract.adjustOrder)
+      .use(refusals)
+      .handler(async ({ input: { params, body } }) => {
+        const order = await this.orders.adjust(
+          params.reference,
+          body,
+          actor.id,
+        );
+        this.audit.record('order.adjusted', actor, {
+          reference: order.reference,
+          revision: order.revisionNumber,
+          status: order.status,
+        });
+        return order;
+      });
+  }
+
+  /** Show the customer where the order got to, and tell them (FR-NOTIF-03) —
+   * for the change that no move will ever mention. */
+  @Implement(ordersContract.notifyOrderCustomer)
+  notifyOrderCustomer(@CurrentUser() actor: AuthUser) {
+    return implement(ordersContract.notifyOrderCustomer)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => {
+        const order = await this.orders.showCustomerCurrent(params.reference);
+        this.audit.record('order.customer_notified', actor, {
+          reference: order.reference,
+          revision: order.revisionNumber,
+        });
         return order;
       });
   }

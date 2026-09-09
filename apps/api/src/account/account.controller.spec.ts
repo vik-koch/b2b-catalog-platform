@@ -21,6 +21,7 @@ describe('AccountController', () => {
 
   const findById = vi.fn();
   const updateOwnProfile = vi.fn();
+  const countOpenOrders = vi.fn();
   const deleteAccount = vi.fn();
   const record = vi.fn();
 
@@ -47,13 +48,17 @@ describe('AccountController', () => {
     companyName: row.companyName,
     companyRegistrationId: row.companyRegistrationId,
     createdAt: '2026-01-05T09:00:00.000Z',
+    openOrders: 0,
   };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [AccountController],
       providers: [
-        { provide: UsersService, useValue: { findById, updateOwnProfile } },
+        {
+          provide: UsersService,
+          useValue: { findById, updateOwnProfile, countOpenOrders },
+        },
         { provide: AccountDeletion, useValue: { delete: deleteAccount } },
         { provide: AuditLogger, useValue: { record } },
       ],
@@ -86,6 +91,8 @@ describe('AccountController', () => {
     signedInAs = { id: 'user-1', role: 'user' };
     findById.mockReset();
     updateOwnProfile.mockReset();
+    countOpenOrders.mockReset();
+    countOpenOrders.mockResolvedValue(0);
     deleteAccount.mockReset();
     record.mockReset();
   });

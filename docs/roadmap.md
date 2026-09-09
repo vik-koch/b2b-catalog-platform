@@ -177,12 +177,33 @@ Notes:
   cash on delivery is paid after the goods are handed over, so any single status running
   "awaiting payment → paid → ready" is wrong for a third of orders, and encoding the exception
   produces a state per payment method. "Ready for pickup" and "handed over for delivery" are one
-  state read two ways, the same lens trick as ADR 0042. **Acceptance has two shapes** — as
-  submitted, or adjusted after a phone call — and an adjustment writes a **new snapshot rather
-  than editing the old one** (ADR 0051), because the reference was quoted on that call and the
-  mailed link has to keep working; the customer's agreement happens on the phone, so the platform
-  records it rather than asking for it, and an adjusted order re-opens the customer's cancel
-  window. **Documents are generated but replaceable** (ADR 0052): a deployment whose back-office
+  state read two ways, the same lens trick as ADR 0042. **An order is a thread of versions**
+  (ADR 0051): every change and every move writes one, so the thread is the order's history and any
+  point in it reads back whole, and the reference quoted on the phone and the mailed link both
+  survive. A change is **not** a state — a first cut had an `adjusted` acceptance beside
+  `approved`, which made changing a request silently accept it and needed a special case for an
+  order already packed. An adjustment may change everything the checkout asked — lines, prices, the
+  price list the order is read from, fulfilment, addresses, party, payment method, contact — and
+  nothing the customer wrote in their own words (FR-ORD-03 amended 2026-09-08); it is offered
+  wherever the order stands, since a shortage found while packing is exactly the case it exists
+  for. **The customer's view of the order is a pointer; the mail is a
+  decision** (FR-NOTIF-03 amended 2026-09-08): the pointer follows every move, so their page
+  says where the order actually is, and every move and change carries a "write to them" tick —
+  offered ticked for news they have not had, clear for a step back or a second pass through a
+  state they already know. A finished order reopened, corrected and finished again therefore
+  mails nothing without somebody saying so, and a first cut that inferred the same thing from a
+  frozen pointer was dropped: it mailed a step back with wording that announced a step forward,
+  and silenced an order reopened for a real reason. What the customer was told is the newest
+  version stamped as mailed, which is not the same question as which version they are on;
+  telling them afterwards is still a button. Recording the money rides on the same
+  confirmation, since a cash handover and the completion that records it are one event.
+  Two screens follow from the thread: the one where an order is **answered**, and
+  a read-only address for **one version**, which shows exactly what the customer sees with the
+  facts only the shop has beside it. The cost of the thread is a copied snapshot per move — 8–10 kB
+  for an ordinary five-line order walked to completion, against 2–3 kB unversioned — and the way
+  out, if an integration or a hundred-line order ever makes that matter, is to stop copying items
+  for a move that changed no line (ADR 0051). **Documents are generated
+  but replaceable** (ADR 0052): a deployment whose back-office
   already produces the real paperwork supplies that file, and the generated summary is what a
   deployment without one gets. Transitions are written as service operations with the role table
   stated once, which is the only thing iteration 11 owes iteration 12.
@@ -199,7 +220,8 @@ Notes:
   been exported, and nothing is merged; **the platform's status vocabulary stays coarse and the
   adapter maps onto it**, collapsing however many intermediate steps the source system moves an
   order through into the one transition a customer should read; and **updates are idempotent and
-  forward-only**, since a polling adapter will re-send and FR-NOTIF-03 mails every status change.
+  forward-only**, since a polling adapter will re-send and every move it writes back has to
+  state whether the customer hears about it (FR-NOTIF-03).
   The adapter is a private sidecar speaking the public contract, the third such container after
   the address suggester and the payment one; the format is not named here, for the same reason the
   suggestion provider is not. The manual upload is **not** retired behind a flag when the automated
@@ -214,7 +236,9 @@ Notes:
   Sequencing it after the source-system exchange means it is designed against a live order flow
   with real orders in it. `card-later` is therefore **not** renamed in iteration 11: it accurately
   names an offline arrangement, and an online provider adds a second method beside it rather than
-  redefining the first.
+  redefining the first. It is offered to a private customer only, though: a company is invoiced,
+  and an offline card arrangement leaves no more paper than cash does (FR-CART-04 amended
+  2026-09-08, ADR 0039).
 - Still open, to be decided before their iteration rather than now: whether audit records and usage
   metrics (page and product views, search-to-order funnels) are worth persisting beyond the log
   aggregation NFR-OPS-03/05 already provide; and a security assessment pass across the whole

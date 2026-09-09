@@ -16,6 +16,7 @@ import { Skeleton } from '../ui/skeleton';
 import { CatalogService } from './catalog.service';
 import { PairingsService } from './pairings.service';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
+import { WarningNote } from '../ui/warning-note';
 
 /**
  * What a sold-together marker opens (FR-SET-05): the counterparts as product
@@ -48,7 +49,14 @@ import { PRODUCT_ROWS, ProductRow } from './product-row';
  */
 @Component({
   selector: 'app-product-pairings-dialog',
-  imports: [Button, DialogActions, DialogPanel, ProductRow, Skeleton],
+  imports: [
+    WarningNote,
+    Button,
+    DialogActions,
+    DialogPanel,
+    ProductRow,
+    Skeleton,
+  ],
   template: `
     @if (visible()) {
       <dialog
@@ -74,7 +82,9 @@ import { PRODUCT_ROWS, ProductRow } from './product-row';
             }
           </ul>
         } @else if (items.error()) {
-          <p class="mt-4 text-sm text-amber-700">{{ text.loadError }}</p>
+          <app-warning-note class="mt-4">
+            {{ text.loadError }}
+          </app-warning-note>
         } @else if (showSkeleton()) {
           <!-- As many placeholders as the marker promised, at a row's height:
                the panel then opens at the size it will settle at instead of

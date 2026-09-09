@@ -32,6 +32,7 @@ import { ProductNoteEditor } from './product-note-editor';
 import { ProductPairings } from './product-pairings';
 import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
+import { WarningNote } from '../ui/warning-note';
 
 /** How long a statement stays on screen before it fades away. */
 const NOTICE_MS = 5000;
@@ -123,6 +124,7 @@ export interface BuyableProduct {
 @Component({
   selector: 'app-product-buy-controls',
   imports: [
+    WarningNote,
     Button,
     Icon,
     Input,
@@ -355,9 +357,9 @@ export interface BuyableProduct {
         }
 
         @if (feedback() === 'full') {
-          <p class="mt-2 text-sm text-amber-700" role="status">
+          <app-warning-note class="mt-2" role="status">
             {{ text.full }}
-          </p>
+          </app-warning-note>
         }
       }
     </ng-template>

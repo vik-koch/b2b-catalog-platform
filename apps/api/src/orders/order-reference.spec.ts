@@ -52,5 +52,17 @@ describe('isUniqueViolation', () => {
     expect(isUniqueViolation({ code: '23503' })).toBe(false);
     expect(isUniqueViolation(new Error('nope'))).toBe(false);
     expect(isUniqueViolation(null)).toBe(false);
+    // Drizzle hands the driver's error on as the `cause` of one of its own,
+    // so the chain is what carries the code.
+    expect(
+      isUniqueViolation(
+        new Error('Failed query', { cause: { code: '23505' } }),
+      ),
+    ).toBe(true);
+    expect(
+      isUniqueViolation(
+        new Error('Failed query', { cause: { code: '23503' } }),
+      ),
+    ).toBe(false);
   });
 });

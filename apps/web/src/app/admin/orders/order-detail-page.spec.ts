@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AdminOrderDetail } from '@b2b-catalog-platform/shared';
+import { AdminOrderDetail, OrderRevision } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
@@ -27,6 +27,12 @@ const placed: AdminOrderDetail = {
   status: 'requested',
   paymentState: 'not-due',
   statusReason: null,
+  changes: [],
+  revisionNumber: 1,
+  customerRevisionNumber: 1,
+  notifiedRevisionNumber: 1,
+  customerBehind: false,
+  notifiedStatuses: ['requested'],
   paidAt: null,
   createdAt: '2026-08-26T09:15:00.000Z',
   statusChangedAt: '2026-08-26T09:15:00.000Z',
@@ -75,9 +81,36 @@ const placed: AdminOrderDetail = {
   },
 };
 
+/** Two versions of it: the one on file, and the one it superseded. */
+const versions: OrderRevision[] = [
+  {
+    ...placed,
+    revisionNumber: 2,
+    totalMinor: 25980,
+    changes: ['One more box, as agreed.'],
+    note: 'One more box, as agreed.',
+    kind: 'adjustment',
+    author: 'manager@example.com',
+    revisionCreatedAt: '2026-08-27T10:00:00.000Z',
+    customerView: false,
+    notifiedAt: null,
+    lines: [{ ...placed.lines[0], quantity: 2, lineTotalMinor: 39980 }],
+  },
+  {
+    ...placed,
+    revisionNumber: 1,
+    note: null,
+    kind: 'submitted',
+    author: null,
+    revisionCreatedAt: '2026-08-26T09:15:00.000Z',
+    customerView: true,
+    notifiedAt: '2026-08-26T09:16:00.000Z',
+  },
+];
+
 async function render(
   answer: AdminOrderDetail | null | 'reject',
-  api: Partial<Record<'transition' | 'setPayment', unknown>> = {},
+  api: Partial<Record<'transition' | 'setPayment' | 'revisions', unknown>> = {},
 ) {
   const get = vi.fn(() =>
     answer === 'reject'
@@ -93,7 +126,14 @@ async function render(
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
-      { provide: AdminOrdersService, useValue: { get, ...api } },
+      {
+        provide: AdminOrdersService,
+        useValue: {
+          get,
+          revisions: vi.fn(async () => versions),
+          ...api,
+        },
+      },
     ],
   });
 
@@ -268,7 +308,10 @@ describe('AdminOrderDetailPage answering an order', () => {
     const transition = vi.fn(() => Promise.resolve(null));
     const { fixture, el, get } = await render(placed, { transition });
     const confirm = TestBed.inject(ConfirmService);
-    vi.spyOn(confirm, 'ask').mockResolvedValue(true);
+    const asked = vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
+      reason: '',
+      checks: { showCustomer: true, notify: true },
+    });
 
     const approve = [...el.querySelectorAll('button')].find(
       (button) => button.textContent?.trim() === text.actions.approve,
@@ -277,10 +320,211 @@ describe('AdminOrderDetailPage answering an order', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(transition).toHaveBeenCalledWith(placed.reference, 'approved', null);
+    // The first confirmation of an unanswered order offers to write to the
+    // customer with the box already ticked: confirming an order is the news
+    // they placed it for.
+    expect(asked.mock.calls[0][0].checks).toContainEqual(
+      expect.objectContaining({ key: 'notify', checked: true }),
+    );
+    // And the move reaches their page whether or not the mail does, so that
+    // tick is offered ticked and hangs the mail off itself.
+    expect(asked.mock.calls[0][0].checks).toContainEqual(
+      expect.objectContaining({ key: 'showCustomer', checked: true }),
+    );
+    expect(asked.mock.calls[0][0].checks?.[1].requires).toBe('showCustomer');
+    expect(transition).toHaveBeenCalledWith(
+      placed.reference,
+      'approved',
+      null,
+      {
+        showCustomer: true,
+        notify: true,
+        markPaid: false,
+      },
+    );
     expect(get).toHaveBeenCalledTimes(2);
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
       text.actions.error,
     );
+  });
+
+  /**
+   * The two ticks a confirmation carries (FR-NOTIF-03, FR-ORD-04). Both are
+   * offered with the answer that is right almost always, and neither happens
+   * behind the manager's back: the mail cannot be taken back, and a payment
+   * recorded as a side effect is one nobody remembers making.
+   */
+  it('offers the handover of a cash order as its payment, ticked', async () => {
+    const transition = vi.fn(async () => placed);
+    const { fixture, el } = await render(
+      {
+        ...placed,
+        status: 'ready',
+        paymentMethod: 'cash',
+        paymentState: 'not-due',
+        notifiedStatuses: ['requested', 'approved', 'ready'],
+      },
+      { transition },
+    );
+    const confirm = TestBed.inject(ConfirmService);
+    const asked = vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
+      reason: '',
+      checks: { showCustomer: true, notify: true, markPaid: true },
+    });
+
+    const complete = [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === text.actions.complete,
+    );
+    complete?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(asked.mock.calls[0][0].checks).toContainEqual(
+      expect.objectContaining({ key: 'markPaid', checked: true }),
+    );
+    expect(transition).toHaveBeenCalledWith(
+      placed.reference,
+      'completed',
+      null,
+      {
+        showCustomer: true,
+        notify: true,
+        markPaid: true,
+      },
+    );
+  });
+
+  it('keeps quiet on a second walk through a state the customer knows', async () => {
+    // Completed, reopened to put the record straight, and completed again:
+    // the customer has already been told the order is done, so the mail is
+    // offered unticked and the money is not offered at all — it is recorded.
+    const { fixture, el } = await render(
+      {
+        ...placed,
+        status: 'ready',
+        paymentState: 'paid',
+        paidAt: '2026-08-27T09:15:00.000Z',
+        notifiedStatuses: ['requested', 'approved', 'ready', 'completed'],
+      },
+      { transition: vi.fn(async () => placed) },
+    );
+    const confirm = TestBed.inject(ConfirmService);
+    const asked = vi
+      .spyOn(confirm, 'askDetailed')
+      .mockResolvedValue({ reason: '', checks: {} });
+
+    const complete = [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === text.actions.complete,
+    );
+    complete?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(asked.mock.calls[0][0].checks).toEqual([
+      expect.objectContaining({ key: 'showCustomer', checked: true }),
+      expect.objectContaining({ key: 'notify', checked: false }),
+    ]);
+  });
+
+  /**
+   * The thread (FR-ORD-03, ADR 0051). It is fetched when the panel is opened
+   * and each version's differences only when that version is unfolded — an
+   * order worked on for a fortnight is a great many whole-order comparisons.
+   */
+  it('reads the versions, and works out a difference only when asked', async () => {
+    const revisions = vi.fn(async () => versions);
+    const { fixture, el } = await render(
+      { ...placed, revisionNumber: 2 },
+      { revisions },
+    );
+
+    expect(revisions).not.toHaveBeenCalled();
+
+    const open = [...el.querySelectorAll('button')].find((button) =>
+      button.textContent?.includes(text.revisions.subheading),
+    );
+    open?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(revisions).toHaveBeenCalledWith(placed.reference);
+    // Each version links at the page that reads it back.
+    expect(
+      el.querySelector(
+        `a[href="/admin/orders/${placed.reference}/revisions/2"]`,
+      ),
+    ).not.toBeNull();
+    expect(el.textContent).toContain('One more box, as agreed.');
+    // What the customer sees, and that they were written to about it.
+    expect(el.textContent).toContain(text.revisions.customerView);
+    expect(el.textContent).toContain('Emailed');
+
+    // The comparison is behind its own fold, and is not run until it opens.
+    expect(el.textContent).not.toContain(text.revisions.total);
+    const differences = [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === text.revisions.changes,
+    );
+    differences?.click();
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain(text.revisions.total);
+  });
+
+  /** The escape hatch, forwarded as answered: a step taken by mistake is the
+   * shop's own business, and their page never says it happened. */
+  it('keeps a move off the customer’s page when the tick is cleared', async () => {
+    const transition = vi.fn(async () => placed);
+    const { fixture, el } = await render(placed, { transition });
+    const confirm = TestBed.inject(ConfirmService);
+    vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
+      reason: '',
+      checks: { showCustomer: false, notify: false },
+    });
+
+    const approve = [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === text.actions.approve,
+    );
+    approve?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(transition).toHaveBeenCalledWith(
+      placed.reference,
+      'approved',
+      null,
+      { showCustomer: false, notify: false, markPaid: false },
+    );
+  });
+
+  /** A move writes a version, so an open thread is stale the moment one lands.
+   * Both resources are asked again, not just the one the buttons act on. */
+  it('re-reads the thread when the order is moved under it', async () => {
+    const revisions = vi.fn(async () => versions);
+    const { fixture, el } = await render(
+      { ...placed, revisionNumber: 2 },
+      { revisions, transition: vi.fn(async () => placed) },
+    );
+    const confirm = TestBed.inject(ConfirmService);
+    vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
+      reason: '',
+      checks: { showCustomer: true, notify: false },
+    });
+
+    const open = [...el.querySelectorAll('button')].find((button) =>
+      button.textContent?.includes(text.revisions.subheading),
+    );
+    open?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(revisions).toHaveBeenCalledTimes(1);
+
+    const approve = [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === text.actions.approve,
+    );
+    approve?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(revisions).toHaveBeenCalledTimes(2);
   });
 });

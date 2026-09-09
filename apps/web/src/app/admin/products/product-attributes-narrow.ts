@@ -23,6 +23,7 @@ import { FieldLabel } from '../../ui/field-label';
 import { HintBadge } from '../../ui/hint-badge';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Icon } from '../../ui/icons/icon';
 import { Input } from '../../ui/input';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
@@ -50,6 +51,7 @@ import { AttributeHint, attributeRowStatus } from './attribute-hints';
   selector: 'app-product-attributes-narrow',
   imports: [
     AdminIcon,
+    Icon,
     Button,
     HintBadge,
     IconButton,
@@ -158,10 +160,7 @@ import { AttributeHint, attributeRowStatus } from './attribute-hints';
                 @if (valueMark(row); as mark) {
                   @if (mark === 'not-numeric') {
                     <app-hint-badge tone="warning" [label]="text.notNumeric">
-                      <app-admin-icon
-                        name="triangle-alert"
-                        class="h-3.5 w-3.5"
-                      />
+                      <app-icon name="triangle-alert" class="h-3.5 w-3.5" />
                     </app-hint-badge>
                   } @else {
                     <span class="text-xs">{{ mark }}</span>

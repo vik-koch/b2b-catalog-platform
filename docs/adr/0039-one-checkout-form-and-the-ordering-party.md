@@ -258,3 +258,16 @@ weekend (`order-dates`). No holiday calendar — it differs by deployment and by
 year, a manager confirms every date anyway, and a half-right calendar is worse
 than two rules a customer can predict. A draft restored from an earlier visit
 drops a date that has since gone stale rather than being refused over it.
+
+## Amendment — 2026-09-08: a company is invoiced, and only invoiced
+
+The rule above was "cash is not taken from a company, which is invoiced or pays
+by card". The card half is withdrawn: a card arranged with the manager leaves
+the same paper trail as cash — none — and a company that pays that way still
+has to be invoiced afterwards, so the shop would be putting the order right
+before it could bill it. A company is offered bank transfer and nothing else.
+
+Nothing changes at checkout, which never offered the card: what changes is the
+staff screen that adjusts an order, which did, and the server rule behind both.
+The refusal keeps its code (`cash-not-available`) and gains the other half in
+its wording. FR-CART-04 is amended to match.

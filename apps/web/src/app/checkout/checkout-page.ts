@@ -54,6 +54,7 @@ import { PaymentChoice } from './payment-choice';
 import { PickupChoice } from './pickup-choice';
 import { PreferredDate } from './preferred-date';
 import { Link } from '../ui/link';
+import { WarningNote } from '../ui/warning-note';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -71,6 +72,7 @@ import { Link } from '../ui/link';
 @Component({
   selector: 'app-checkout-page',
   imports: [
+    WarningNote,
     AddressPicker,
     Button,
     Checkbox,
@@ -226,9 +228,9 @@ import { Link } from '../ui/link';
                 }
 
                 @if (addressError()) {
-                  <p class="text-sm text-amber-700">
+                  <app-warning-note>
                     {{ addressText.loadError }}
-                  </p>
+                  </app-warning-note>
                 }
 
                 <!-- Whose name the invoice carries, asked before where anything

@@ -9,6 +9,7 @@ import { Input } from '../ui/input';
 import { FieldLabel } from '../ui/field-label';
 import { Segmented, SegmentOption } from '../ui/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
+import { WarningNote } from '../ui/warning-note';
 
 /**
  * Who the order is invoiced to (FR-CART-09) — a field of the order, not a
@@ -34,6 +35,7 @@ import { PartyChoice as Party } from './checkout-draft.service';
 @Component({
   selector: 'app-party-choice',
   imports: [
+    WarningNote,
     ChoiceBranch,
     CompanyFields,
     NgTemplateOutlet,
@@ -128,7 +130,7 @@ import { PartyChoice as Party } from './checkout-draft.service';
           <!-- Only where there is an account whose prices this order is not
                getting. A guest has none, so there is nothing to warn them off. -->
           @if (!guest()) {
-            <p class="text-sm text-amber-700">{{ text.otherNotice }}</p>
+            <app-warning-note>{{ text.otherNotice }}</app-warning-note>
           }
         </div>
       </ng-template>

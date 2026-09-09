@@ -62,6 +62,12 @@ export type AuditAction =
   // asked later is who answered this order and when, and a name per state
   // would have to be extended every time the vocabulary grows.
   | 'order.status'
+  // A new version of an order (FR-ORD-03), named by the version it wrote.
+  | 'order.adjusted'
+  // A manager deliberately bringing the customer's view of a finished order up
+  // to date (FR-NOTIF-03). Audited because it is a mail somebody chose to
+  // send, on an order the platform had stopped writing about on its own.
+  | 'order.customer_notified'
   // The money arrived, or that observation was taken back — a mis-tick, not a
   // refund. Both are audited: the record of what a manager said is the point.
   | 'order.paid'
@@ -100,11 +106,16 @@ export class AuditLogger {
       /** Where an order landed. Its own key rather than folded into `name`,
        * so a filter can ask for every order that was declined. */
       status?: string;
+      /** Which version of an order was written (FR-ORD-03): a reference names
+       * the order, and an adjustment is a thing that happened to one of its
+       * versions. */
+      revision?: number;
     },
   ): void {
     const parts = [action, `actor=${actor?.email ?? 'guest'}`];
     if (entity.reference) parts.push(`reference=${entity.reference}`);
     if (entity.status) parts.push(`status=${entity.status}`);
+    if (entity.revision) parts.push(`revision=${entity.revision}`);
     if (entity.id) parts.push(`id=${entity.id}`);
     if (entity.slug) parts.push(`slug=${entity.slug}`);
     // Quoted: names contain spaces, and an unquoted one would split the line's

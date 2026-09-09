@@ -661,6 +661,61 @@ export const ordersContract = {
       },
     },
   },
+  listOrderRevisions: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/orders/{reference}/revisions',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  getOrderRevision: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/orders/{reference}/revisions/{number}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  previewOrderAdjustment: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/adjustment/preview',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  adjustOrder: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/adjustment',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  notifyOrderCustomer: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/orders/{reference}/notify',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   setOrderPayment: {
     '~orpc': {
       errorMap: {},

@@ -207,8 +207,8 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
   },
-  // Orders, for admin and manager both (FR-AUTH-03) — a manager's daily work.
-  // Read-only in this iteration.
+  // Orders, for admin and manager both (FR-AUTH-03) — a manager's daily work:
+  // reading them, answering them, and writing a new version of one.
   {
     path: 'admin/orders',
     canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
@@ -225,6 +225,29 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/orders/order-detail-page').then(
         (m) => m.AdminOrderDetailPage,
+      ),
+  },
+  {
+    // One version, read back (FR-ORD-03). Its own route because it is its own
+    // address: a manager quoting what the shop agreed on Tuesday links at that
+    // version, and the page it opens is the customer's own view of it rather
+    // than the screen where the order is answered.
+    path: 'admin/orders/:reference/revisions/:number',
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/orders/order-revision-page').then(
+        (m) => m.AdminOrderRevisionPage,
+      ),
+  },
+  {
+    // Its own screen rather than a mode of the one above: an adjustment is a
+    // whole new version of the order (FR-ORD-03), and a page that is sometimes
+    // a form is a page whose unsaved state has nowhere to live.
+    path: 'admin/orders/:reference/adjust',
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/orders/order-adjust-page').then(
+        (m) => m.AdminOrderAdjustPage,
       ),
   },
   {

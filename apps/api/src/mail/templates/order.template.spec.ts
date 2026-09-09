@@ -133,6 +133,7 @@ describe('orderStatusChangedMail', () => {
     const mail = orderStatusChangedMail(
       { ...order, status: 'ready' },
       'ready',
+      'moved',
       null,
       currency,
       demoMailText,
@@ -155,6 +156,7 @@ describe('orderStatusChangedMail', () => {
         pickup: { key: 'harbour', name: 'Harbour store', address: 'Quay 3' },
       },
       'ready',
+      'moved',
       null,
       currency,
       demoMailText,
@@ -173,6 +175,7 @@ describe('orderStatusChangedMail', () => {
     const mail = orderStatusChangedMail(
       { ...order, status: 'approved' },
       'approved',
+      'moved',
       null,
       currency,
       demoMailText,
@@ -187,6 +190,7 @@ describe('orderStatusChangedMail', () => {
     const mail = orderStatusChangedMail(
       { ...order, status: 'declined', statusReason: 'Out of stock' },
       'declined',
+      'moved',
       null,
       currency,
       demoMailText,
@@ -196,5 +200,46 @@ describe('orderStatusChangedMail', () => {
       label: t.reasonLabel,
       value: 'Out of stock',
     });
+  });
+
+  // A change moves nothing, so the mail about one must not announce a step.
+  // The order stood at `approved` before and stands there after; a heading
+  // saying "your order is confirmed" would be news the customer already had.
+  it('announces a change as a change and not as the step it did not take', () => {
+    const mail = orderStatusChangedMail(
+      { ...order, status: 'approved' },
+      'approved',
+      'changed',
+      null,
+      currency,
+      demoMailText,
+      ['One box instead of two, as agreed.'],
+    );
+
+    expect(mail.heading).toBe(t.statuses.changed.heading);
+    expect(mail.paragraphs).toContain(t.changedIntro);
+    expect(mail.paragraphs).not.toContain(t.statuses.approved.body);
+    expect(mail.rows).toContainEqual({
+      label: t.changedLabel,
+      value: 'One box instead of two, as agreed.',
+    });
+  });
+
+  // Walking an order back lands on a status the customer has already been
+  // told about, and the wording for it reads as a step forward. The mail says
+  // what it is first, and only then where the order now stands.
+  it('says a step back is a correction before it says where the order is', () => {
+    const mail = orderStatusChangedMail(
+      { ...order, status: 'approved' },
+      'approved',
+      'corrected',
+      null,
+      currency,
+      demoMailText,
+    );
+
+    expect(mail.heading).toBe(t.statuses.approved.heading);
+    expect(mail.paragraphs?.[0]).toBe(t.correctedIntro);
+    expect(mail.paragraphs).toContain(t.statuses.approved.body);
   });
 });

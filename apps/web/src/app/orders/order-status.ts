@@ -22,7 +22,6 @@ export type OrderAudience = 'customer' | 'staff';
 export interface OrderStatusLabels {
   readonly statusRequested: string;
   readonly statusApproved: string;
-  readonly statusAdjusted: string;
   readonly statusReadyDelivery: string;
   readonly statusReadyPickup: string;
   readonly statusCompleted: string;
@@ -42,7 +41,6 @@ export function orderStatusLabel(
   return {
     requested: labels.statusRequested,
     approved: labels.statusApproved,
-    adjusted: labels.statusAdjusted,
     ready,
     completed: labels.statusCompleted,
     declined: labels.statusDeclined,
@@ -86,7 +84,6 @@ export function orderStatusTone(
     // is good news to the one who placed it and open work to the one who has
     // to fill it.
     approved: audience === 'staff' ? 'info' : 'ok',
-    adjusted: audience === 'staff' ? 'info' : 'ok',
     completed: 'ok',
     declined: 'danger',
     cancelled: 'neutral',

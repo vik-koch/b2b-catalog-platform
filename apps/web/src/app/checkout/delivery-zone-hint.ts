@@ -4,6 +4,7 @@ import { CartService } from '../cart/cart.service';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { WarningNote } from '../ui/warning-note';
 
 /**
  * Which delivery area the entered address falls into, and whether this order
@@ -25,6 +26,7 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
  */
 @Component({
   selector: 'app-delivery-zone-hint',
+  imports: [WarningNote],
   // Hidden while it has nothing to say, so whatever the page put on this
   // element — a rule above it — goes with it.
   host: { class: 'block empty:hidden' },
@@ -36,7 +38,7 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
           <p class="text-sm text-muted">{{ resolved.threshold }}</p>
         }
       } @else {
-        <p class="text-sm text-amber-700">{{ text.noDelivery }}</p>
+        <app-warning-note>{{ text.noDelivery }}</app-warning-note>
       }
     } @else if (hasAddress()) {
       <p class="text-sm text-muted">{{ text.unknown }}</p>

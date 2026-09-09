@@ -28,6 +28,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { injectNarrowScreen } from '../../core/narrow-screen';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Icon } from '../../ui/icons/icon';
 import { HintBadge } from '../../ui/hint-badge';
 import { FieldLabel } from '../../ui/field-label';
 import {
@@ -69,6 +70,7 @@ import {
   selector: 'app-product-attributes-editor',
   imports: [
     AdminIcon,
+    Icon,
     IconButton,
     AttributeKeyPicker,
     ProductAttributesNarrow,
@@ -191,10 +193,7 @@ import {
                         tone="warning"
                         [label]="text.notNumeric"
                       >
-                        <app-admin-icon
-                          name="triangle-alert"
-                          class="h-3.5 w-3.5"
-                        />
+                        <app-icon name="triangle-alert" class="h-3.5 w-3.5" />
                       </app-hint-badge>
                     } @else {
                       <!-- The declared unit, where the packaging grid below puts

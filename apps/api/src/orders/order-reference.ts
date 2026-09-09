@@ -47,11 +47,19 @@ export function orderPublicToken(): string {
   return randomBytes(24).toString('base64url');
 }
 
-/** Postgres' unique-violation code — a collided reference, retried. */
+/**
+ * Postgres' unique-violation code — a collided reference, retried; two
+ * managers writing the same version of one order, refused.
+ *
+ * The chain is walked rather than the error itself inspected: drizzle wraps
+ * what the driver threw in an error of its own and hangs the original off
+ * `cause`, so a check on the top-level code alone sees nothing and every
+ * collision escapes as a 500.
+ */
 export function isUniqueViolation(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    (error as { code?: string }).code === '23505'
-  );
+  for (let cause = error; cause; cause = (cause as { cause?: unknown }).cause) {
+    if (typeof cause !== 'object') return false;
+    if ((cause as { code?: string }).code === '23505') return true;
+  }
+  return false;
 }

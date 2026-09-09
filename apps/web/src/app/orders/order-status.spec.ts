@@ -8,7 +8,6 @@ import {
 const labels: OrderStatusLabels = {
   statusRequested: 'Awaiting confirmation',
   statusApproved: 'Confirmed',
-  statusAdjusted: 'Confirmed with changes',
   statusReadyDelivery: 'On its way',
   statusReadyPickup: 'Ready to collect',
   statusCompleted: 'Complete',
@@ -56,7 +55,7 @@ describe('orderStatusTone', () => {
   /** An accepted order is open work to the shop and good news to the one who
    * placed it — the shop's blue is the customer's green. */
   it('makes an acceptance blue for staff and green for a customer', () => {
-    for (const status of ['approved', 'adjusted'] as const) {
+    for (const status of ['approved'] as const) {
       expect(orderStatusTone(status, 'staff', 'delivery')).toBe('info');
       expect(orderStatusTone(status, 'customer', 'delivery')).toBe('ok');
     }
@@ -66,7 +65,7 @@ describe('orderStatusTone', () => {
    * same fact on both screens, and a fifth divergence should be a decision,
    * not a slip. */
   it('reads every other status the same way for both', () => {
-    const split = ['requested', 'ready', 'approved', 'adjusted'];
+    const split = ['requested', 'ready', 'approved'];
     const shared = ORDER_STATUSES.filter((status) => !split.includes(status));
     for (const status of shared) {
       expect(orderStatusTone(status, 'customer', 'delivery')).toBe(

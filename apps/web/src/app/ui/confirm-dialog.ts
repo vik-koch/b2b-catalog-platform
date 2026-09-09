@@ -4,16 +4,50 @@ import {
   computed,
   ElementRef,
   input,
+  linkedSignal,
   output,
   signal,
   viewChild,
 } from '@angular/core';
 import { Button } from './button';
+import { Checkbox } from './checkbox';
 import { AutoGrow } from './auto-grow';
 import { FieldLabel } from './field-label';
 import { Input } from './input';
 import { DialogActions } from './dialog-actions';
 import { DialogPanel } from './dialog-panel';
+
+/**
+ * One thing that happens because the answer was yes, offered as a tick.
+ *
+ * A choice and not a second question: the dialog's own question has already
+ * been asked, and this is what rides along with it.
+ */
+export interface ConfirmCheck {
+  key: string;
+  label: string;
+  /** The line under it, where the tick needs a word of explanation. */
+  hint?: string;
+  /** How it is offered. The caller works out the answer that is right almost
+   * always, and the person confirming overrides it. */
+  checked: boolean;
+  /**
+   * The key of a tick this one hangs off, where one only makes sense with the
+   * other: writing to the customer about a version they are not being shown
+   * would send them a link to something they cannot open.
+   *
+   * Offered under it, disabled while it is clear, and cleared with it — a tick
+   * that is on but cannot take effect is a promise the dialog does not keep.
+   */
+  requires?: string;
+}
+
+/** What a confirmed dialog answers with: the reason as typed, and how every
+ * choice was left. */
+export interface ConfirmAnswer {
+  reason: string;
+  checks: Record<string, boolean>;
+}
 
 /**
  * Generic yes/no confirmation modal, optionally asking why.
@@ -27,7 +61,15 @@ import { DialogPanel } from './dialog-panel';
  */
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [AutoGrow, Button, DialogActions, DialogPanel, FieldLabel, Input],
+  imports: [
+    AutoGrow,
+    Button,
+    Checkbox,
+    DialogActions,
+    DialogPanel,
+    FieldLabel,
+    Input,
+  ],
   template: `
     <dialog
       #dialog
@@ -59,6 +101,29 @@ import { DialogPanel } from './dialog-panel';
         </div>
       }
 
+      @for (check of checks(); track check.key) {
+        <label
+          class="mt-4 flex items-start gap-2 text-sm"
+          [class.ml-6]="check.requires"
+          [class.opacity-50]="blocked(check)"
+        >
+          <input
+            appCheckbox
+            type="checkbox"
+            class="mt-0.5"
+            [checked]="ticked()[check.key]"
+            [disabled]="blocked(check)"
+            (change)="tick(check.key, $any($event.target).checked)"
+          />
+          <span>
+            {{ check.label }}
+            @if (check.hint) {
+              <span class="block text-xs text-subtle">{{ check.hint }}</span>
+            }
+          </span>
+        </label>
+      }
+
       <div appDialogActions>
         <button
           appButton
@@ -73,7 +138,9 @@ import { DialogPanel } from './dialog-panel';
           [variant]="confirmVariant()"
           type="button"
           [disabled]="incomplete()"
-          (click)="confirmed.emit(reason().trim())"
+          (click)="
+            confirmed.emit({ reason: reason().trim(), checks: ticked() })
+          "
         >
           {{ confirmLabel() }}
         </button>
@@ -92,22 +159,66 @@ export class ConfirmDialog {
   readonly confirmVariant = input<'primary' | 'danger'>('danger');
   /** Present where the answer may say why; absent for a plain yes/no. */
   readonly reasonLabel = input<string | null>(null);
+  /**
+   * Choices that ride along with the answer — the things that happen *because*
+   * of it rather than parts of it: writing to the customer about a move,
+   * recording the money that came with the goods.
+   *
+   * Here rather than in a screen of its own because they are answered in the
+   * same breath as the question: a manager pressing "Complete" is deciding all
+   * of it at once, and a second dialog for the consequences of the first is a
+   * click nobody wants.
+   */
+  readonly checks = input<readonly ConfirmCheck[]>([]);
   readonly reasonMaxLength = input<number>(500);
   /** Whether the answer is refused without one. A reason quoted *at* somebody
    * has to exist; one quoted at the shop is a courtesy. */
   readonly reasonRequired = input(true);
 
-  /** The reason as typed, or an empty string where none was asked for. */
-  readonly confirmed = output<string>();
+  /** The reason as typed — an empty string where none was asked for — and how
+   * every choice was left. */
+  readonly confirmed = output<ConfirmAnswer>();
   readonly cancelled = output<void>();
 
   protected readonly reason = signal('');
+  /**
+   * Each choice as it now stands, seeded from how it was offered. A
+   * `linkedSignal` and not a constructor assignment: inputs are set after the
+   * component is created, so a value read in the constructor is the default
+   * and never the caller's.
+   */
+  protected readonly ticked = linkedSignal<Record<string, boolean>>(() =>
+    Object.fromEntries(
+      this.checks().map((check) => [check.key, check.checked]),
+    ),
+  );
   protected readonly incomplete = computed(
     () =>
       this.reasonLabel() !== null &&
       this.reasonRequired() &&
       this.reason().trim() === '',
   );
+
+  /** Whether a tick is unavailable because the one it hangs off is clear. */
+  protected blocked(check: ConfirmCheck): boolean {
+    return check.requires !== undefined && !this.ticked()[check.requires];
+  }
+
+  /** Clearing a tick clears whatever hangs off it, so what the dialog answers
+   * with is what it was showing. */
+  protected tick(key: string, on: boolean): void {
+    this.ticked.update((state) => ({
+      ...state,
+      [key]: on,
+      ...(on
+        ? {}
+        : Object.fromEntries(
+            this.checks()
+              .filter((check) => check.requires === key)
+              .map((check) => [check.key, false]),
+          )),
+    }));
+  }
 
   constructor() {
     // showModal() must be called imperatively for the focus trap and backdrop;

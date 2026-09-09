@@ -59,7 +59,7 @@ export interface PhoneFieldText {
           [autocomplete]="autocomplete()"
           inputmode="tel"
           appInput
-          class="w-full rounded-l-none"
+          [class]="inputWidth() + ' rounded-l-none'"
           [attr.aria-required]="required() || null"
           [attr.aria-invalid]="invalid() || null"
         />
@@ -71,7 +71,7 @@ export interface PhoneFieldText {
         [formControl]="control()"
         [autocomplete]="autocomplete()"
         appInput
-        class="w-full"
+        [class]="inputWidth()"
         [attr.aria-required]="required() || null"
         [attr.aria-invalid]="invalid() || null"
       />
@@ -96,6 +96,13 @@ export class PhoneField {
    */
   readonly marker = input(true);
   readonly inputId = input('phone');
+  /**
+   * How wide the box is, where the column it sits in is wider than any number
+   * the deployment's mask can hold — a phone shares a row with a name often
+   * enough that the two would otherwise be sized alike. The country code
+   * stands beside it and is not counted in this.
+   */
+  readonly inputWidth = input('w-full');
   /**
    * `tel` where the visitor is filling in their own number, `off` in the staff
    * editor — a manager typing a customer's number does not want their own.

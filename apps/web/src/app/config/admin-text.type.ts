@@ -1007,7 +1007,6 @@ export const adminTextSchema = z
         status: z.string(),
         statusRequested: z.string(),
         statusApproved: z.string(),
-        statusAdjusted: z.string(),
         /** One state, two readings (FR-ORD-01): the order's own fulfilment
          * method decides which of the two a row shows. */
         statusReadyDelivery: z.string(),
@@ -1037,7 +1036,6 @@ export const adminTextSchema = z
       .object({
         /** `{date}` the request was sent, and `{date}` its status last moved. */
         placed: z.string(),
-        statusChanged: z.string(),
         notFound: z.string(),
         loadError: z.string(),
         back: z.string(),
@@ -1060,6 +1058,7 @@ export const adminTextSchema = z
         payment: z.string(),
         cash: z.string(),
         transfer: z.string(),
+        card: z.string(),
         contact: z.string(),
         note: z.string(),
         /** A line in basis units — `{count} × {price}`, the way the source
@@ -1067,6 +1066,57 @@ export const adminTextSchema = z
         basis: z.string(),
         /** Why a declined or cancelled order ended that way. */
         statusReason: z.string(),
+        /** Every version of the order (FR-ORD-03): what the shop said it
+         * changed, and the difference from the version before it. */
+        revisions: z
+          .object({
+            heading: z.string(),
+            /** `{count}` versions, on the lid of the panel. */
+            subheading: z.string(),
+            /** `{number}` of the version, `{date}` it was written and `{who}`
+             * wrote it. */
+            written: z.string(),
+            /** Version 1 is the order as it was sent, so nobody on the
+             * shop's side wrote it. */
+            authorCustomer: z.string(),
+            /** A later version with no author — an outside system, or a
+             * record made before authors were kept. */
+            authorUnknown: z.string(),
+            /** What each version was written for: the customer sent it, the
+             * shop moved the order, or the shop changed what it says. */
+            submitted: z.string(),
+            moved: z.string(),
+            changed: z.string(),
+            /** Marks the version the customer is being shown. */
+            customerView: z.string(),
+            note: z.string(),
+            changes: z.string(),
+            noChanges: z.string(),
+            loadError: z.string(),
+            /** The version's own name — `{number}` — used as the link to the
+             * page that reads it back, with who wrote it and when beside it. */
+            versionLabel: z.string(),
+            /** The same name inside a running sentence — `{number}`, and
+             * lower-cased where the deployment's language wants it. */
+            versionInline: z.string(),
+            writtenBy: z.string(),
+            /** Which version the customer is on, where this is not it. */
+            customerOn: z.string(),
+            /** When the customer was written to about this version
+             * (FR-NOTIF-03) — `{date}`. */
+            notified: z.string(),
+            /** The way from reading a version to answering the order, and
+             * back the other way. */
+            openControls: z.string(),
+            openRevision: z.string(),
+            /** Row labels for the change list, as on the adjustment screen. */
+            line: z.string(),
+            added: z.string(),
+            removed: z.string(),
+            total: z.string(),
+            shipment: z.string(),
+          })
+          .strict(),
         /**
          * Answering an order (FR-ORD-01/02/04). One label per move a manager
          * makes, plus the confirmation the two refusals need — declining and
@@ -1079,8 +1129,21 @@ export const adminTextSchema = z
             open: z.string(),
             answer: z.string(),
             approve: z.string(),
+            /** Opening the adjustment form (FR-ORD-03) — the other half of
+             * accepting an order, for the case where what the shop accepts is
+             * not what was submitted. */
+            adjust: z.string(),
             /** Undo an ending: back to a request the shop has to answer. */
             reopen: z.string(),
+            /**
+             * Staff's undo along the chain — the same three statuses read the
+             * other way round. Their own wording because they are their own
+             * act: "Confirm" on an order already out for delivery would read
+             * as a step forward it is not.
+             */
+            backToRequested: z.string(),
+            backToApproved: z.string(),
+            backToReady: z.string(),
             ready: z.string(),
             readyPickup: z.string(),
             complete: z.string(),
@@ -1089,9 +1152,49 @@ export const adminTextSchema = z
             /** `{action}` names the move being confirmed. */
             confirmHeading: z.string(),
             confirmMessage: z.string(),
+            /** The tick that decides whether the move reaches the customer's
+             * own page (FR-NOTIF-03), and the line under it. Offered ticked:
+             * clearing it is for a step taken by mistake. */
+            showCustomer: z.string(),
+            showCustomerHint: z.string(),
+            /** The tick that decides whether the move puts a message in the
+             * customer's inbox (FR-NOTIF-03), and the line under it. Offered
+             * ticked for news they have not had yet, and only where the move
+             * reaches their page at all. */
+            notify: z.string(),
+            notifyHint: z.string(),
+            /** The tick that records the money with the move that is the
+             * handover (FR-ORD-04), and the line under it. */
+            markPaid: z.string(),
+            markPaidHint: z.string(),
             reasonLabel: z.string(),
             keep: z.string(),
             /** The move was refused: the order had already been answered. */
+            error: z.string(),
+          })
+          .strict(),
+        /**
+         * Telling the customer where the order has got to (FR-NOTIF-03), on
+         * the one row that exists because it is a decision: their view of the
+         * order has moved on without a word about it, and nothing writes to
+         * them on its own.
+         */
+        tellCustomer: z
+          .object({
+            heading: z.string(),
+            /** `{seen}` the version they are on — a link to it — and
+             * `{current}` the one the order stands on. Both are filled with
+             * `revisions.versionInline`, so the sentence carries the word and
+             * this carries the punctuation around it. */
+            behind: z.string(),
+            /** The same line for an order no message has ever gone out about
+             * — `{current}` only. */
+            never: z.string(),
+            action: z.string(),
+            confirmHeading: z.string(),
+            confirmMessage: z.string(),
+            confirm: z.string(),
+            /** Somebody else told them while this page was open. */
             error: z.string(),
           })
           .strict(),
@@ -1115,6 +1218,175 @@ export const adminTextSchema = z
             clearConfirm: z.string(),
             keep: z.string(),
             error: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
+     * Adjusting an order (FR-ORD-03) — a whole new version of it, written on
+     * one screen. Its own catalogue rather than more keys on the detail
+     * screen: this one asks questions, and the other only answers them.
+     */
+    orderAdjust: z
+      .object({
+        /** `{reference}` names the order being adjusted. */
+        title: z.string(),
+        lead: z.string(),
+        save: z.string(),
+        cancel: z.string(),
+        loadError: z.string(),
+        notFound: z.string(),
+        /** Warnings, not refusals: a change is allowed wherever the order
+         * stands, and the screen says what it will sit awkwardly with. */
+        warnPaid: z.string(),
+        warnReady: z.string(),
+        warnEnded: z.string(),
+        /** Whether to write to the customer about this change now
+         * (FR-NOTIF-03). Off by default: the move that follows carries the
+         * news, and this is for the change no move will ever mention. */
+        notify: z.string(),
+        notifyHint: z.string(),
+        lines: z
+          .object({
+            heading: z.string(),
+            /** The staff reading of a quantity: how many of what the price is
+             * per (FR-UNIT-04). */
+            units: z.string(),
+            price: z.string(),
+            remove: z.string(),
+            /** Reordering a line. Not a change to the order — a picking list
+             * is read top to bottom, and the alternative was removing a line
+             * and adding it back, which loses the price it was agreed at. */
+            moveUp: z.string(),
+            moveDown: z.string(),
+            addLabel: z.string(),
+            addPlaceholder: z.string(),
+            noMatches: z.string(),
+            empty: z.string(),
+            /** What the storefront thinks of the product — staff may use it
+             * anyway. */
+            unpublished: z.string(),
+            deleted: z.string(),
+            outOfStock: z.string(),
+            /** What the two fields on a line are counted in, printed inside
+             * them: pieces where the price is per one, `{count}` of them
+             * where it is per several, and `{symbol}` the currency's mark. */
+            pieces: z.string(),
+            unitsSuffix: z.string(),
+            priceSuffix: z.string(),
+            /** A line priced away from the list it would otherwise take
+             * (FR-CART-09) — allowed, and worth saying. */
+            offList: z.string(),
+          })
+          .strict(),
+        /**
+         * The identity fields, worded here rather than borrowed from the user
+         * editor: the same field asking about a different thing — the party an
+         * order is invoiced to, not the account that placed it.
+         */
+        partyKindPerson: z.string(),
+        partyKindCompany: z.string(),
+        personName: z.string(),
+        companyId: z.string(),
+        companyName: z.string(),
+        companySuggest: z
+          .object({
+            suggestionsLabel: z.string(),
+            noSuggestions: z.string(),
+            /** `{count}` suggestions offered. */
+            suggestionCount: z.string(),
+          })
+          .strict(),
+        validation: z
+          .object({
+            nameRequired: z.string(),
+            emailRequired: z.string(),
+            emailInvalid: z.string(),
+            phoneRequired: z.string(),
+            phoneIncomplete: z.string(),
+            companyNameRequired: z.string(),
+            companyIdRequired: z.string(),
+            /** `{examples}` lists the shapes the deployment accepts. */
+            companyIdFormat: z.string(),
+          })
+          .strict(),
+        /** Which list the lines with no price of their own come from. */
+        tier: z.string(),
+        reprice: z.string(),
+        contact: z.string(),
+        contactName: z.string(),
+        contactEmail: z.string(),
+        contactPhone: z.string(),
+        party: z.string(),
+        fulfilment: z.string(),
+        delivery: z.string(),
+        pickup: z.string(),
+        pickupLocation: z.string(),
+        /** The second half of the form, which folds away from the first: who
+         * the order goes to and how it is paid. */
+        detailsHeading: z.string(),
+        deliveryAddress: z.string(),
+        billingAddress: z.string(),
+        payment: z.string(),
+        paymentCash: z.string(),
+        paymentTransfer: z.string(),
+        paymentCard: z.string(),
+        /** The customer's own words, shown and not editable. */
+        customerHeading: z.string(),
+        /** The day they asked for — `{date}`, or the words for any day. */
+        wished: z.string(),
+        customerNone: z.string(),
+        note: z.string(),
+        noteHint: z.string(),
+        noteRequired: z.string(),
+        /** What is about to change, line by line (FR-ORD-03). */
+        changes: z
+          .object({
+            heading: z.string(),
+            none: z.string(),
+            added: z.string(),
+            removed: z.string(),
+            total: z.string(),
+            /** Row labels for the things that can change. */
+            line: z.string(),
+            /** The packing estimate, where the products carry one — a change
+             * to the lines usually moves it, and it is what the shop books a
+             * van by. */
+            shipment: z.string(),
+            /** Why the priced half of the comparison is missing. */
+            pricingPending: z.string(),
+          })
+          .strict(),
+        /** What the manager should not have to spot for themselves before
+         * signing an adjustment off: `{count}` prices moved from the version
+         * on file, and `{count}` priced away from `{tier}`. */
+        priceNotice: z
+          .object({
+            moved: z.string(),
+            offList: z.string(),
+          })
+          .strict(),
+        confirmHeading: z.string(),
+        confirmMessage: z.string(),
+        confirm: z.string(),
+        keep: z.string(),
+        errors: z
+          .object({
+            'order-changed': z.string(),
+            'no-change': z.string(),
+            'unknown-product': z.string(),
+            'unknown-tier': z.string(),
+            'line-not-priceable': z.string(),
+            'invalid-company-id': z.string(),
+            'unsupported-country': z.string(),
+            'invalid-postal-code': z.string(),
+            'unknown-pickup-location': z.string(),
+            'billing-details-required': z.string(),
+            'cash-not-available': z.string(),
+            'billing-address-required': z.string(),
+            'order-not-found': z.string(),
+            /** Anything else: a network that dropped, a server that fell over. */
+            unknown: z.string(),
           })
           .strict(),
       })

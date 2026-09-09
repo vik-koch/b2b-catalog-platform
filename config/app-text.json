@@ -233,6 +233,7 @@
       "cashPickupDescription": "Pay when you collect your order.",
       "transferTitle": "Bank transfer",
       "transferDescription": "We invoice you with our bank details once we confirm your order.",
+      "cardTitle": "Card, arranged with the shop",
       "transferCompanyOnly": "Only for an order invoiced to a company.",
       "cashPersonOnly": "Only for an order invoiced to a private person."
     },
@@ -309,7 +310,6 @@
     "itemCount": "{count} lines",
     "statusRequested": "Awaiting confirmation",
     "statusApproved": "Confirmed",
-    "statusAdjusted": "Confirmed with changes",
     "statusReadyDelivery": "On its way to you",
     "statusReadyPickup": "Ready to collect",
     "statusCompleted": "Complete",
@@ -326,6 +326,7 @@
       "backToList": "Back to my orders",
       "error": "We could not load that order right now. Please try again later.",
       "statusReason": "Why",
+      "changes": "What we changed",
       "cancel": {
         "action": "Cancel this order",
         "heading": "Cancel this order?",
@@ -448,6 +449,7 @@
           "Past orders are kept for our bookkeeping, with your details removed from them.",
           "You can register again later, but it will be a new account — your earlier orders will not appear in it."
         ],
+        "openOrders": "We are still working on {count} of your orders. Deleting your account does not cancel them — we will fill them as agreed — but we will no longer have your name or phone number on them. Please call us if you would rather wait until they are finished.",
         "password": "Your password",
         "passwordHint": "Confirm with your password to show this is you.",
         "submit": "Delete my account",

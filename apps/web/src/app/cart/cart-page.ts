@@ -34,6 +34,7 @@ import { LastListingService } from '../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
 import { OrderSummary } from './order-summary';
 import { CartChange, CartService } from './cart.service';
+import { WarningNote } from '../ui/warning-note';
 
 /**
  * How many lines a page of the cart holds (FR-CART-02). A cart row is a
@@ -118,6 +119,7 @@ interface CartRow {
 @Component({
   selector: 'app-cart-page',
   imports: [
+    WarningNote,
     AutoGrow,
     Button,
     Checkbox,
@@ -274,7 +276,9 @@ interface CartRow {
                     </label>
 
                     @for (issue of row.issues; track issue) {
-                      <p class="mt-1 text-sm text-amber-700">{{ issue }}</p>
+                      <app-warning-note class="mt-1">
+                        {{ issue }}
+                      </app-warning-note>
                     }
 
                     @if (row.takesNote || row.pairedCount > 0) {
@@ -450,7 +454,7 @@ interface CartRow {
                  a long cart to check out reads this card, and an advisory
                  further up the page is one they scrolled past. -->
             @if (pairingSummary(); as summary) {
-              <p class="mt-3 text-sm text-amber-700">{{ summary }}</p>
+              <app-warning-note class="mt-3">{{ summary }}</app-warning-note>
             }
 
             <!-- Inside the summary card, under the figure they act on: the

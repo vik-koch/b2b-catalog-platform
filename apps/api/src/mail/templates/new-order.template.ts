@@ -54,7 +54,11 @@ export function newOrderMail(
       },
       {
         label: t.paymentLabel,
-        value: order.paymentMethod === 'bank-transfer' ? t.transfer : t.cash,
+        value: {
+          'bank-transfer': t.transfer,
+          'card-later': t.card,
+          cash: t.cash,
+        }[order.paymentMethod],
       },
       {
         label: t.totalLabel,

@@ -25,6 +25,7 @@ const placed: StaffOrderSummary = {
   itemCount: 3,
   customerEmail: 'alex@example.com',
   contactName: 'Alex Fischer',
+  revisionNumber: 1,
 };
 
 function page(overrides: Partial<Pagination> = {}): Pagination {
@@ -112,7 +113,11 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
     expect(el.textContent).toContain('alex@example.com');
     expect(el.textContent).toContain(text.statusRequested);
     expect(
-      el.querySelector(`a[href="/admin/orders/${placed.reference}"]`),
+      // The title opens the version the row describes, read-only; the row's
+      // action opens the screen where the order is answered.
+      el.querySelector(
+        `a[href="/admin/orders/${placed.reference}/revisions/${placed.revisionNumber}"]`,
+      ),
     ).not.toBeNull();
   });
 
@@ -255,7 +260,10 @@ describe('AdminOrderListPage row actions', () => {
     const transition = vi.fn(() => Promise.resolve(null));
     const { fixture, el, list } = await render([placed], {}, { transition });
     const confirm = TestBed.inject(ConfirmService);
-    vi.spyOn(confirm, 'askWithReason').mockResolvedValue('Out of stock');
+    vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
+      reason: 'Out of stock',
+      checks: { showCustomer: true, notify: true },
+    });
 
     const decline = [...el.querySelectorAll('tbody button')].find(
       (button) => button.getAttribute('aria-label') === actions.decline,
@@ -268,6 +276,7 @@ describe('AdminOrderListPage row actions', () => {
       placed.reference,
       'declined',
       'Out of stock',
+      { showCustomer: true, notify: true, markPaid: false },
     );
     expect(list).toHaveBeenCalledTimes(2);
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(

@@ -9,6 +9,7 @@ import {
 import { RouterLink } from '@angular/router';
 import {
   fillText,
+  notifyByDefault,
   ORDER_STATUS_REASON_MAX,
   OrderStatus,
   orderStatusSchema,
@@ -101,10 +102,19 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
         [emptyMessage]="filtered() ? text.noResults : text.empty"
       >
         <ng-template appGridRow [of]="data.items" let-order>
+          <!-- The reference opens the order as it stands to be read; the
+               action at the end of the row opens the screen where it is
+               answered. Two jobs, two links: most of what a manager does with
+               a list is look something up. -->
           <td class="truncate font-medium">
             <a
               class="hover:text-accent"
-              [routerLink]="['/admin/orders', order.reference]"
+              [routerLink]="[
+                '/admin/orders',
+                order.reference,
+                'revisions',
+                order.revisionNumber,
+              ]"
             >
               {{ order.reference }}
             </a>
@@ -163,7 +173,12 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
             <a
               class="truncate font-medium"
               [class.opacity-50]="isEnded(order)"
-              [routerLink]="['/admin/orders', order.reference]"
+              [routerLink]="[
+                '/admin/orders',
+                order.reference,
+                'revisions',
+                order.revisionNumber,
+              ]"
               >{{ order.reference }}</a
             >
 
@@ -395,7 +410,6 @@ export class AdminOrderListPage {
     { value: '', label: this.text.statusAll },
     { value: 'requested', label: this.text.statusRequested },
     { value: 'approved', label: this.text.statusApproved },
-    { value: 'adjusted', label: this.text.statusAdjusted },
     { value: 'ready', label: this.text.statusReadyDelivery },
     { value: 'completed', label: this.text.statusCompleted },
     { value: 'declined', label: this.text.statusDeclined },
@@ -453,18 +467,41 @@ export class AdminOrderListPage {
     this.pageError.set(null);
     const actions = this.detailText.actions;
     const label = to === 'declined' ? actions.decline : actions.cancel;
-    const reason = await this.confirm.askWithReason({
+    const answer = await this.confirm.askDetailed({
       heading: fillText(actions.confirmHeading, { action: label }),
       message: actions.confirmMessage,
       confirmLabel: label,
       cancelLabel: this.common.cancel,
       reasonLabel: actions.reasonLabel,
       reasonMaxLength: ORDER_STATUS_REASON_MAX,
+      // Ticked, and worked out without asking what the customer has already
+      // been told: an order is refused or called off once, and being told no
+      // is the one piece of news nobody may quietly skip. No tick for whether
+      // their page follows it either — the two moves offered here end the
+      // order, and an ended order is not one to leave somebody reading
+      // "confirmed".
+      checks: [
+        {
+          key: 'notify',
+          label: actions.notify,
+          hint: actions.notifyHint,
+          checked: notifyByDefault(order.status, to, []),
+        },
+      ],
     });
-    if (reason === null) return;
+    if (!answer) return;
 
     try {
-      const moved = await this.api.transition(order.reference, to, reason);
+      const moved = await this.api.transition(
+        order.reference,
+        to,
+        answer.reason,
+        {
+          showCustomer: true,
+          notify: answer.checks['notify'] ?? false,
+          markPaid: false,
+        },
+      );
       if (!moved) this.pageError.set(actions.error);
     } catch {
       this.pageError.set(actions.error);

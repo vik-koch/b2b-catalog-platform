@@ -17,8 +17,8 @@ import { ChoiceCard } from '../ui/choice-card';
  *
  * Which of the two is on offer follows from the party being invoiced, and the
  * two rules are opposites: a bank transfer invoices a legal entity, so it needs
- * a company; cash is not taken from one, which is invoiced or pays by card
- * (FR-CART-04). So a company sees one option and a private person the other —
+ * a company; cash is not taken from one, which is invoiced (FR-CART-04).
+ * So a company sees one option and a private person the other —
  * each shown greyed with its reason rather than hidden, or a customer who came
  * for it would think the shop dropped it. The server re-checks both rules at
  * submission; this row only saves them the trip.
