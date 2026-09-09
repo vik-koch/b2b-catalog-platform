@@ -262,7 +262,7 @@ describe('AdminOrderListPage row actions', () => {
     const confirm = TestBed.inject(ConfirmService);
     vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
       reason: 'Out of stock',
-      checks: { notify: true },
+      checks: { showCustomer: true, notify: true },
     });
 
     const decline = [...el.querySelectorAll('tbody button')].find(
@@ -276,7 +276,7 @@ describe('AdminOrderListPage row actions', () => {
       placed.reference,
       'declined',
       'Out of stock',
-      { notify: true, markPaid: false },
+      { showCustomer: true, notify: true, markPaid: false },
     );
     expect(list).toHaveBeenCalledTimes(2);
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(

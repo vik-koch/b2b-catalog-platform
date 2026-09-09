@@ -31,6 +31,15 @@ export interface ConfirmCheck {
   /** How it is offered. The caller works out the answer that is right almost
    * always, and the person confirming overrides it. */
   checked: boolean;
+  /**
+   * The key of a tick this one hangs off, where one only makes sense with the
+   * other: writing to the customer about a version they are not being shown
+   * would send them a link to something they cannot open.
+   *
+   * Offered under it, disabled while it is clear, and cleared with it — a tick
+   * that is on but cannot take effect is a promise the dialog does not keep.
+   */
+  requires?: string;
 }
 
 /** What a confirmed dialog answers with: the reason as typed, and how every
@@ -93,12 +102,17 @@ export interface ConfirmAnswer {
       }
 
       @for (check of checks(); track check.key) {
-        <label class="mt-4 flex items-start gap-2 text-sm">
+        <label
+          class="mt-4 flex items-start gap-2 text-sm"
+          [class.ml-6]="check.requires"
+          [class.opacity-50]="blocked(check)"
+        >
           <input
             appCheckbox
             type="checkbox"
             class="mt-0.5"
             [checked]="ticked()[check.key]"
+            [disabled]="blocked(check)"
             (change)="tick(check.key, $any($event.target).checked)"
           />
           <span>
@@ -185,8 +199,25 @@ export class ConfirmDialog {
       this.reason().trim() === '',
   );
 
+  /** Whether a tick is unavailable because the one it hangs off is clear. */
+  protected blocked(check: ConfirmCheck): boolean {
+    return check.requires !== undefined && !this.ticked()[check.requires];
+  }
+
+  /** Clearing a tick clears whatever hangs off it, so what the dialog answers
+   * with is what it was showing. */
   protected tick(key: string, on: boolean): void {
-    this.ticked.update((state) => ({ ...state, [key]: on }));
+    this.ticked.update((state) => ({
+      ...state,
+      [key]: on,
+      ...(on
+        ? {}
+        : Object.fromEntries(
+            this.checks()
+              .filter((check) => check.requires === key)
+              .map((check) => [check.key, false]),
+          )),
+    }));
   }
 
   constructor() {

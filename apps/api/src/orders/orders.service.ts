@@ -51,7 +51,6 @@ import {
   getTableColumns,
   ilike,
   inArray,
-  isNotNull,
   or,
   sql,
   SQL,
@@ -161,6 +160,16 @@ type OrderRow = typeof orders.$inferSelect &
   };
 type OrderItemRow = typeof orderItems.$inferSelect;
 
+/** What the thread says about the customer, read once per order. */
+interface CustomerThread {
+  /** The newest version a message went out about, 0 if none ever did. */
+  number: number;
+  /** Which states those messages announced, in no particular order. */
+  statuses: OrderStatus[];
+  /** The newest version that changed what the order says, 0 if none did. */
+  newestChange: number;
+}
+
 /** The columns a version carries forward unchanged when the order moves but
  * says nothing new — everything except the version's own bookkeeping. */
 type OrderSnapshot = Omit<
@@ -222,6 +231,28 @@ interface Fulfilment {
  * customer's `expectedTotalMinor` is a comparand and never an input; nothing a
  * browser sends decides what an order costs.
  */
+/**
+ * Whether anything about this order is still owed the customer a word
+ * (FR-NOTIF-03) — the one case where writing to them is a decision somebody
+ * has to take, and so the only case the screen offers the button for.
+ *
+ * Two ways it can be true, and they are the same question asked of the two
+ * halves of the thread. Their own page may be showing them a version no
+ * message ever announced: a move reaches it whether or not a mail goes with
+ * it, and one that goes unannounced is exactly what the button is for. Or a
+ * change may be sitting above the version they hold, waiting for the move that
+ * mentions it — or for nobody, if the manager who made it moves on.
+ *
+ * What is deliberately *not* behind: a move held off their page. That is a
+ * step the shop took back or never meant them to see, and a screen that asked
+ * somebody to explain it would be asking them to announce a mistake. It is
+ * read off the kind rather than stored, because a transition can only sit
+ * above the pointer by somebody having said so.
+ */
+function customerBehind(thread: CustomerThread, shown: number): boolean {
+  return thread.number < shown || thread.newestChange > shown;
+}
+
 /**
  * How the staff list is ordered (FR-AUTH-03).
  *
@@ -392,32 +423,32 @@ export class OrdersService {
 
   /**
    * Which versions of an order have actually put something in the customer's
-   * inbox (FR-NOTIF-03), as the two questions anything asks about them: the
-   * newest of them, and which states they announced.
+   * inbox (FR-NOTIF-03) — the newest of them, which states they announced —
+   * and whether a change of the shop's is sitting above the version they are
+   * shown, waiting for somebody to mention it.
    *
-   * Derived from the stamps on the thread rather than kept as a pointer of its
-   * own. There is already one pointer on the order — what the customer is
-   * looking at — and a second one saying what they were told would be a fact
-   * stored twice, free to disagree with the stamps that produced it.
+   * Derived from the thread rather than kept as pointers of its own. There is
+   * already one pointer on the order — what the customer is looking at — and
+   * another saying what they were told would be a fact stored twice, free to
+   * disagree with the stamps that produced it.
    */
-  private async notifiedVersions(
-    orderId: string,
-  ): Promise<{ number: number; statuses: OrderStatus[] }> {
+  private async customerThread(orderId: string): Promise<CustomerThread> {
     const rows = await this.db
       .select({
         number: orderRevisions.revisionNumber,
         status: orderRevisions.status,
+        kind: orderRevisions.kind,
+        notifiedAt: orderRevisions.notifiedAt,
       })
       .from(orderRevisions)
-      .where(
-        and(
-          eq(orderRevisions.orderId, orderId),
-          isNotNull(orderRevisions.notifiedAt),
-        ),
-      );
+      .where(eq(orderRevisions.orderId, orderId));
+    const told = rows.filter((row) => row.notifiedAt !== null);
+    const highest = (of: typeof rows) =>
+      of.reduce((found, row) => Math.max(found, row.number), 0);
     return {
-      number: rows.reduce((highest, row) => Math.max(highest, row.number), 0),
-      statuses: [...new Set(rows.map((row) => row.status as OrderStatus))],
+      number: highest(told),
+      statuses: [...new Set(told.map((row) => row.status as OrderStatus))],
+      newestChange: highest(rows.filter((row) => row.kind === 'adjustment')),
     };
   }
 
@@ -429,7 +460,7 @@ export class OrdersService {
    */
   async showCustomerCurrent(reference: string): Promise<AdminOrderDetail> {
     const current = await this.row(eq(orders.reference, reference));
-    const notified = await this.notifiedVersions(current.id);
+    const notified = await this.customerThread(current.id);
     if (notified.number === current.revisionNumber) {
       throw new ConflictException({
         code: 'nothing-to-tell',
@@ -910,9 +941,9 @@ export class OrdersService {
    */
   private async staffDetail(
     row: OrderRow,
-    notified?: { number: number; statuses: OrderStatus[] },
+    notified?: CustomerThread,
   ): Promise<AdminOrderDetail> {
-    const told = notified ?? (await this.notifiedVersions(row.id));
+    const told = notified ?? (await this.customerThread(row.id));
     const items = await this.items(row.revisionId);
     const detail = await this.toDetail(row, items);
     const [customer] = row.userId
@@ -941,10 +972,10 @@ export class OrdersService {
       // can read: an order the customer has never been shown does not exist.
       customerRevisionNumber: row.customerRevisionNumber ?? row.revisionNumber,
       notifiedRevisionNumber: told.number,
-      // Read against the version the order *stands on*, not the one being
-      // rendered: whether the customer is up to date is a fact about the
-      // order, and an old version of it would answer a question nobody asked.
-      customerBehind: told.number < row.revisionNumber,
+      customerBehind: customerBehind(
+        told,
+        row.customerRevisionNumber ?? row.revisionNumber,
+      ),
       notifiedStatuses: told.statuses,
       paidAt: row.paidAt?.toISOString() ?? null,
     };
@@ -964,7 +995,7 @@ export class OrdersService {
     // list — an order with no versions does not exist.
     const current = await this.row(eq(orders.reference, reference));
     const rows = await this.revisionRows(current.id);
-    const notified = await this.notifiedVersions(current.id);
+    const notified = await this.customerThread(current.id);
     const authors = await this.emailsOf(
       rows.flatMap((row) =>
         row.revisionCreatedBy ? [row.revisionCreatedBy] : [],
@@ -995,7 +1026,7 @@ export class OrdersService {
       row,
       current,
       authors,
-      await this.notifiedVersions(current.id),
+      await this.customerThread(current.id),
     );
   }
 
@@ -1027,7 +1058,7 @@ export class OrdersService {
     row: OrderRow,
     current: OrderRow,
     authors: Map<string, string>,
-    notified: { number: number; statuses: OrderStatus[] },
+    notified: CustomerThread,
   ): Promise<OrderRevision> {
     return {
       ...(await this.staffDetail(row, notified)),
@@ -1046,7 +1077,10 @@ export class OrdersService {
       revisionNumber: row.revisionNumber,
       customerRevisionNumber:
         current.customerRevisionNumber ?? current.revisionNumber,
-      customerBehind: notified.number < current.revisionNumber,
+      customerBehind: customerBehind(
+        notified,
+        current.customerRevisionNumber ?? current.revisionNumber,
+      ),
     };
   }
 
@@ -1075,9 +1109,12 @@ export class OrdersService {
     to: TransitionTarget,
     reason: string | null,
     byUserId: string,
-    told: { notify: boolean; markPaid: boolean } = {
+    told: { notify: boolean; markPaid: boolean; showCustomer: boolean } = {
       notify: false,
       markPaid: false,
+      // A customer calling their own order off is looking at the screen that
+      // did it: there is nothing to keep from them.
+      showCustomer: true,
     },
   ): Promise<OrderRow> {
     const current = await this.row(where);
@@ -1122,11 +1159,14 @@ export class OrdersService {
             to,
           ),
       movedAt: new Date(),
-      // A move is where the order *is*, so the customer's own page follows it
-      // whether or not a message goes with it. Otherwise an order out for
-      // delivery would still read "confirmed" to the person waiting for it,
-      // because a manager decided one mail would do for both steps.
-      showCustomer: true,
+      // A move is where the order *is*, so the customer's page follows it by
+      // default whether or not a message goes with it — otherwise an order out
+      // for delivery would still read "confirmed" to the person waiting for
+      // it, because a manager decided one mail would do for both steps. Held
+      // back only where the caller says so: a step taken by mistake, or one of
+      // the intermediate steps an exchange collapses into a single move the
+      // customer should read.
+      showCustomer: told.showCustomer,
       notified: told.notify,
       paid: paid ? { at: new Date(), by: byUserId } : null,
     });
@@ -1153,14 +1193,18 @@ export class OrdersService {
     // Read before the write, because the write is what changes the answer:
     // this is the version the customer was last told about, and so where the
     // mail's account of the changes has to start.
-    const notified = await this.notifiedVersions(before.id);
+    const notified = await this.customerThread(before.id);
     await this.move(
       eq(orders.reference, reference),
       'staff',
       move.to,
       move.reason,
       byUserId,
-      { notify: move.notify, markPaid: move.markPaid },
+      {
+        notify: move.notify,
+        markPaid: move.markPaid,
+        showCustomer: move.showCustomer,
+      },
     );
     if (move.notify) {
       await this.mailCustomer(
@@ -1281,7 +1325,7 @@ export class OrdersService {
       });
     }
 
-    const notified = await this.notifiedVersions(current.id);
+    const notified = await this.customerThread(current.id);
     const { priced, fulfilment, billing } = await this.priceAdjusted(input);
     const status = current.status as OrderStatus;
 

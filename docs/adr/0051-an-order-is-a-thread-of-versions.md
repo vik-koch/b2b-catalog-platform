@@ -52,12 +52,26 @@ platform; a second acceptance status for an order that was changed.
   which is what a provisionally priced third-party order needs (FR-CART-09).
 - **A pointer on the order says which version the customer's page reads**
   (`customerRevisionId`) — every customer read goes through it, and the thread
-  itself stays a staff view. It follows every move, so their page says where
-  the order actually is. A change on its own does not advance it: a version
+  itself stays a staff view. A change on its own does not advance it: a version
   nobody has explained to them is not theirs to see.
+- **A move advances it unless the mover says otherwise.** Where the order
+  stands is not a secret, and a page that lags it tells the person waiting the
+  wrong thing — so the move carries a tick, offered ticked, and clearing it is
+  for the step that should never have been taken: `ready` on the wrong order,
+  put straight back. The mail hangs off that tick rather than beside it, since
+  a message about a version the customer cannot open is a dead link.
+- **A version that says what the one before it says is not written.** A note is
+  an account of a change, not a change, and the refusal is the service's rather
+  than the screen's: a system re-sending an order it has already sent must not
+  lengthen the thread by doing so.
 - **What they were _told_ is a different question, answered by the thread**:
   the newest version stamped `notifiedAt`. One fact, one place — a second
   pointer for it would be free to disagree with the stamps that produced it.
+- **What still owes them a word** is read off the same thread: their page is
+  showing them a version no message announced, or a change is sitting above the
+  version they hold with nothing having mentioned it yet. A move held off their
+  page is neither — it is a step the shop took back, and asking somebody to
+  explain it would be asking them to announce a mistake.
 - **The mail is asked for, never inferred.** Every move and every adjustment
   carries a "write to them" flag, offered ticked wherever the move is news they
   have not had — a step forward into a state no message has announced — and
@@ -121,6 +135,23 @@ thing on that screen nobody can take back, so it is asked; and because the
 default is computed from what the customer has actually been told, the quiet
 case stays quiet without a rule that has to be right about everything.
 
+**One control per thing that reaches the customer.** A move decides two
+separate things about them — what their page says, and what lands in their
+inbox — and a single tick for both forces a choice nobody should have to make:
+either every quiet correction of a mis-click is announced, or an order out for
+delivery keeps reading "confirmed" because one mail was thought to be enough.
+They are nested rather than independent because only one order of the two makes
+sense: a page can move without a message, a message cannot be sent about a page
+that has not.
+
+**Read what is owed against what they are shown, not against the newest
+version.** Measuring against the newest asks the shop to explain versions it
+deliberately kept from them, which is a flag that can never be cleared and,
+once an exchange is writing intermediate steps back, is every order in the
+list. A change is the exception, because a change sits above the pointer until
+something mentions it: that one is genuinely pending, and it is the case the
+"tell them" button exists for.
+
 **A pointer that means two things eventually has to choose.** Once the mail is
 a decision per move, "what they see" and "what they were told" come apart: a
 manager who confirms an order without writing to them has not made the order
@@ -182,6 +213,10 @@ the goods are already being packed.
 - (−) The mail is now a per-move decision, so it can be forgotten. The screen
   answers it in advance and the "they have not been told" row is what catches
   the case where somebody unticked it and meant not to; nothing else does.
+- (−) A move kept off the customer's page is not flagged anywhere, by
+  construction — that is what makes the flag mean something. A manager who
+  clears the tick out of habit leaves a page saying less than the order does,
+  and only reading the thread would show it.
 - (−) Staff see the whole thread; customers see one version, with a note that
   it changed. The version they were sent stays in their inbox rather than in
   the UI, which is a deliberate limit and not a hidden one.

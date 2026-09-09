@@ -896,6 +896,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           reason: 'Out of stock until October',
           notify: true,
           markPaid: false,
+          showCustomer: true,
         },
         managerCookie,
       );
@@ -943,7 +944,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await move(
         reference,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
@@ -967,7 +974,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await move(
         reference,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
@@ -979,7 +992,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await move(
         reference,
-        { to: 'declined', reason: null, notify: false, markPaid: false },
+        {
+          to: 'declined',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
@@ -997,6 +1016,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           reason: 'Out of stock until October',
           notify: false,
           markPaid: false,
+          showCustomer: true,
         },
         managerCookie,
       );
@@ -1015,7 +1035,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         (
           await move(
             reference,
-            { to: 'approved', reason: null, notify: false, markPaid: false },
+            {
+              to: 'approved',
+              reason: null,
+              notify: false,
+              markPaid: false,
+              showCustomer: true,
+            },
             managerCookie,
           )
         ).status,
@@ -1023,7 +1049,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const again = await move(
         reference,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
@@ -1035,13 +1067,25 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const reference = await place();
       await move(
         reference,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
       const ready = await move(
         reference,
-        { to: 'ready', reason: null, notify: false, markPaid: false },
+        {
+          to: 'ready',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
       expect(ready.data.status).toBe('ready');
@@ -1050,7 +1094,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const done = await move(
         reference,
-        { to: 'completed', reason: null, notify: false, markPaid: false },
+        {
+          to: 'completed',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
       expect(done.data.status).toBe('completed');
@@ -1063,7 +1113,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         (
           await move(
             reference,
-            { to: 'approved', reason: null, notify: false, markPaid: false },
+            {
+              to: 'approved',
+              reason: null,
+              notify: false,
+              markPaid: false,
+              showCustomer: true,
+            },
             customerCookie,
           )
         ).status,
@@ -1074,7 +1130,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const reference = await place({}, customerCookie);
       await move(
         reference,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
       // Approving it made the transfer due; cancelling it un-dues what was
@@ -1136,7 +1198,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const reference = await place();
       await move(
         reference,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
@@ -1169,7 +1237,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const reference = await place();
       await move(
         reference,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
       await post(
@@ -1207,6 +1281,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           reason: 'Nothing left',
           notify: false,
           markPaid: false,
+          showCustomer: true,
         },
         managerCookie,
       );
@@ -1233,13 +1308,20 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           reason: 'Meant to click the other one',
           notify: false,
           markPaid: false,
+          showCustomer: true,
         },
         managerCookie,
       );
 
       const back = await move(
         reference,
-        { to: 'requested', reason: null, notify: false, markPaid: false },
+        {
+          to: 'requested',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
@@ -1250,7 +1332,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // And it can be answered again from there, like any other request.
       const answered = await move(
         reference,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
       expect(answered.data.status).toBe('approved');
@@ -1270,7 +1358,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         (
           await move(
             reference,
-            { to: 'requested', reason: null, notify: false, markPaid: false },
+            {
+              to: 'requested',
+              reason: null,
+              notify: false,
+              markPaid: false,
+              showCustomer: true,
+            },
             customerCookie,
           )
         ).status,
@@ -1280,7 +1374,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     it('answers 404 for a reference that is nobody’s order', async () => {
       const res = await move(
         `NO-SUCH-${SUFFIX}`,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
@@ -1345,6 +1445,15 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     const adjust = (reference: string, body: unknown, cookie = managerCookie) =>
       post(`/admin/orders/${reference}/adjustment`, body, cookie);
 
+    /** Something changed, where *what* changed is beside the point. An
+     * adjustment that says exactly what the order already says is refused, so
+     * a test about anything else still has to change something. */
+    const renamedContact = {
+      name: 'Ada King',
+      email: 'ada@example.com',
+      phone: '+49 40 7654321',
+    };
+
     /** The version the order is on. Every move writes one (ADR 0051), so an
      * order that has been answered is past revision 1 before anything changes
      * it — and a change written against the wrong one is refused, which is the
@@ -1408,7 +1517,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // Nothing about the line is touched — and its price is a figure the
       // catalog no longer offers this order, since the adjustment names no
       // list at all.
-      await adjust(placed.reference, adjustment());
+      await adjust(placed.reference, adjustment({ contact: renamedContact }));
 
       const res = await get(`/admin/orders/${placed.reference}`, managerCookie);
       expect(res.data).toMatchObject({
@@ -1541,7 +1650,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const placed = await place();
       await post(
         `/admin/orders/${placed.reference}/status`,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
@@ -1568,14 +1683,23 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       for (const to of ['approved', 'ready']) {
         await post(
           `/admin/orders/${placed.reference}/status`,
-          { to, reason: null, notify: false, markPaid: false },
+          {
+            to,
+            reason: null,
+            notify: false,
+            markPaid: false,
+            showCustomer: true,
+          },
           managerCookie,
         );
       }
 
       const res = await adjust(
         placed.reference,
-        adjustment({ basedOnRevision: await onRevision(placed.reference) }),
+        adjustment({
+          contact: renamedContact,
+          basedOnRevision: await onRevision(placed.reference),
+        }),
       );
 
       // Sending it backwards would say the goods are no longer packed.
@@ -1595,13 +1719,17 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           reason: 'Nothing left',
           notify: false,
           markPaid: false,
+          showCustomer: true,
         },
         managerCookie,
       );
 
       const res = await adjust(
         placed.reference,
-        adjustment({ basedOnRevision: await onRevision(placed.reference) }),
+        adjustment({
+          contact: renamedContact,
+          basedOnRevision: await onRevision(placed.reference),
+        }),
       );
 
       expect(res.status).toBe(200);
@@ -1619,7 +1747,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       for (const to of ['approved', 'ready', 'completed']) {
         await post(
           `/admin/orders/${placed.reference}/status`,
-          { to, reason: null, notify: false, markPaid: false },
+          {
+            to,
+            reason: null,
+            notify: false,
+            markPaid: false,
+            showCustomer: true,
+          },
           managerCookie,
         );
       }
@@ -1661,6 +1795,88 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       ).toBe('nothing-to-tell');
     });
 
+    /**
+     * The step that should never have been taken (FR-NOTIF-03). `ready`
+     * clicked on the wrong order and taken straight back is the shop's own
+     * business: the customer's page never says it, and nothing on the staff
+     * screen asks anybody to explain a version that was deliberately kept
+     * from them.
+     */
+    it('keeps a move off the customer’s page where the manager says so', async () => {
+      const placed = await place();
+      await post(
+        `/admin/orders/${placed.reference}/status`,
+        {
+          to: 'approved',
+          reason: null,
+          notify: true,
+          markPaid: false,
+          showCustomer: true,
+        },
+        managerCookie,
+      );
+
+      const mistake = await post(
+        `/admin/orders/${placed.reference}/status`,
+        {
+          to: 'ready',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: false,
+        },
+        managerCookie,
+      );
+
+      // The order really is ready — the shop's record is the truth — and the
+      // customer's page is still on the version they were confirmed with.
+      expect(mistake.data.status).toBe('ready');
+      expect(mistake.data.revisionNumber).toBe(3);
+      expect(mistake.data.customerRevisionNumber).toBe(2);
+      expect(mistake.data.notifiedRevisionNumber).toBe(2);
+      // Nothing to explain: they are looking at a version they were told
+      // about, so the screen does not ask anybody to write to them.
+      expect(mistake.data.customerBehind).toBe(false);
+      const token = await get(`/orders/by-token/${placed.publicToken}`);
+      expect(token.data.status).toBe('approved');
+
+      // Taken back, this time onto their page, and it reads as it always did.
+      const undone = await post(
+        `/admin/orders/${placed.reference}/status`,
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
+        managerCookie,
+      );
+      expect(undone.data.customerRevisionNumber).toBe(4);
+      expect(
+        (await get(`/orders/by-token/${placed.publicToken}`)).data.status,
+      ).toBe('approved');
+    });
+
+    /** A mail about a version the customer cannot open is a dead link. */
+    it('refuses to write about a move it is not showing them', async () => {
+      const placed = await place();
+
+      const res = await post(
+        `/admin/orders/${placed.reference}/status`,
+        {
+          to: 'approved',
+          reason: null,
+          notify: true,
+          markPaid: false,
+          showCustomer: false,
+        },
+        managerCookie,
+      );
+
+      expect(res.status).toBe(400);
+    });
+
     /** The move that carries the news says so itself, so the ordinary case is
      * one click and not two. */
     it('records the version a move wrote to the customer about', async () => {
@@ -1668,7 +1884,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await post(
         `/admin/orders/${placed.reference}/status`,
-        { to: 'approved', reason: null, notify: true, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: true,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
@@ -1695,14 +1917,26 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       for (const to of ['approved', 'ready']) {
         await post(
           `/admin/orders/${placed.reference}/status`,
-          { to, reason: null, notify: false, markPaid: false },
+          {
+            to,
+            reason: null,
+            notify: false,
+            markPaid: false,
+            showCustomer: true,
+          },
           managerCookie,
         );
       }
 
       const done = await post(
         `/admin/orders/${placed.reference}/status`,
-        { to: 'completed', reason: null, notify: false, markPaid: true },
+        {
+          to: 'completed',
+          reason: null,
+          notify: false,
+          markPaid: true,
+          showCustomer: true,
+        },
         managerCookie,
       );
 
@@ -1721,6 +1955,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           reason: 'Nothing left',
           notify: false,
           markPaid: true,
+          showCustomer: true,
         },
         managerCookie,
       );
@@ -1733,8 +1968,8 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const placed = await place();
 
       const [first, second] = await Promise.all([
-        adjust(placed.reference, adjustment()),
-        adjust(placed.reference, adjustment()),
+        adjust(placed.reference, adjustment({ contact: renamedContact })),
+        adjust(placed.reference, adjustment({ contact: renamedContact })),
       ]);
 
       const codes = [first, second].map((res) => res.status).sort();
@@ -1845,7 +2080,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // to and tells them nothing.
       await post(
         `/admin/orders/${placed.reference}/status`,
-        { to: 'approved', reason: null, notify: false, markPaid: false },
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
       const quiet = await get(
@@ -1859,7 +2100,13 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // records — a different question from which version they are on.
       await post(
         `/admin/orders/${placed.reference}/status`,
-        { to: 'ready', reason: null, notify: true, markPaid: false },
+        {
+          to: 'ready',
+          reason: null,
+          notify: true,
+          markPaid: false,
+          showCustomer: true,
+        },
         managerCookie,
       );
       const told = await get(

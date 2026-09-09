@@ -734,6 +734,8 @@
       "cancel": "Cancel the order",
       "confirmHeading": "{action}?",
       "confirmMessage": "This records where the order now stands.",
+      "showCustomer": "Show this on the customer's page",
+      "showCustomerHint": "Leave this on unless the step was a mistake you are about to take back — their page should say where the order really is.",
       "notify": "Email the customer about this",
       "notifyHint": "They are sent the order as it now stands, together with anything the shop has noted since the last message.",
       "markPaid": "Also record the payment as received",

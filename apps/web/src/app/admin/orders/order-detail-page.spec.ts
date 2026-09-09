@@ -308,9 +308,10 @@ describe('AdminOrderDetailPage answering an order', () => {
     const transition = vi.fn(() => Promise.resolve(null));
     const { fixture, el, get } = await render(placed, { transition });
     const confirm = TestBed.inject(ConfirmService);
-    const asked = vi
-      .spyOn(confirm, 'askDetailed')
-      .mockResolvedValue({ reason: '', checks: { notify: true } });
+    const asked = vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
+      reason: '',
+      checks: { showCustomer: true, notify: true },
+    });
 
     const approve = [...el.querySelectorAll('button')].find(
       (button) => button.textContent?.trim() === text.actions.approve,
@@ -325,11 +326,18 @@ describe('AdminOrderDetailPage answering an order', () => {
     expect(asked.mock.calls[0][0].checks).toContainEqual(
       expect.objectContaining({ key: 'notify', checked: true }),
     );
+    // And the move reaches their page whether or not the mail does, so that
+    // tick is offered ticked and hangs the mail off itself.
+    expect(asked.mock.calls[0][0].checks).toContainEqual(
+      expect.objectContaining({ key: 'showCustomer', checked: true }),
+    );
+    expect(asked.mock.calls[0][0].checks?.[1].requires).toBe('showCustomer');
     expect(transition).toHaveBeenCalledWith(
       placed.reference,
       'approved',
       null,
       {
+        showCustomer: true,
         notify: true,
         markPaid: false,
       },
@@ -361,7 +369,7 @@ describe('AdminOrderDetailPage answering an order', () => {
     const confirm = TestBed.inject(ConfirmService);
     const asked = vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
       reason: '',
-      checks: { notify: true, markPaid: true },
+      checks: { showCustomer: true, notify: true, markPaid: true },
     });
 
     const complete = [...el.querySelectorAll('button')].find(
@@ -379,6 +387,7 @@ describe('AdminOrderDetailPage answering an order', () => {
       'completed',
       null,
       {
+        showCustomer: true,
         notify: true,
         markPaid: true,
       },
@@ -412,6 +421,7 @@ describe('AdminOrderDetailPage answering an order', () => {
     fixture.detectChanges();
 
     expect(asked.mock.calls[0][0].checks).toEqual([
+      expect.objectContaining({ key: 'showCustomer', checked: true }),
       expect.objectContaining({ key: 'notify', checked: false }),
     ]);
   });
@@ -458,5 +468,63 @@ describe('AdminOrderDetailPage answering an order', () => {
     fixture.detectChanges();
 
     expect(el.textContent).toContain(text.revisions.total);
+  });
+
+  /** The escape hatch, forwarded as answered: a step taken by mistake is the
+   * shop's own business, and their page never says it happened. */
+  it('keeps a move off the customer’s page when the tick is cleared', async () => {
+    const transition = vi.fn(async () => placed);
+    const { fixture, el } = await render(placed, { transition });
+    const confirm = TestBed.inject(ConfirmService);
+    vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
+      reason: '',
+      checks: { showCustomer: false, notify: false },
+    });
+
+    const approve = [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === text.actions.approve,
+    );
+    approve?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(transition).toHaveBeenCalledWith(
+      placed.reference,
+      'approved',
+      null,
+      { showCustomer: false, notify: false, markPaid: false },
+    );
+  });
+
+  /** A move writes a version, so an open thread is stale the moment one lands.
+   * Both resources are asked again, not just the one the buttons act on. */
+  it('re-reads the thread when the order is moved under it', async () => {
+    const revisions = vi.fn(async () => versions);
+    const { fixture, el } = await render(
+      { ...placed, revisionNumber: 2 },
+      { revisions, transition: vi.fn(async () => placed) },
+    );
+    const confirm = TestBed.inject(ConfirmService);
+    vi.spyOn(confirm, 'askDetailed').mockResolvedValue({
+      reason: '',
+      checks: { showCustomer: true, notify: false },
+    });
+
+    const open = [...el.querySelectorAll('button')].find((button) =>
+      button.textContent?.includes(text.revisions.subheading),
+    );
+    open?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(revisions).toHaveBeenCalledTimes(1);
+
+    const approve = [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === text.actions.approve,
+    );
+    approve?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(revisions).toHaveBeenCalledTimes(2);
   });
 });

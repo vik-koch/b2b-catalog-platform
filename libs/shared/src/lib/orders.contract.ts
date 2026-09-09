@@ -339,13 +339,11 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
    * other. */
   revisionNumber: z.number().int().positive(),
   /**
-   * Which version the customer is being shown, and so the last one they were
-   * written to about (FR-NOTIF-03).
+   * Which version the customer's own page reads (FR-NOTIF-03).
    *
-   * Equal to `revisionNumber` on an order whose customer is up to date, which
-   * is the ordinary case. Behind it after a change nobody has been told about
-   * yet, or after a finished order was reopened and worked on again — and that
-   * gap is what the screen offers to close.
+   * Equal to `revisionNumber` on the ordinary order, whose every move the
+   * customer's page followed. Behind it after a change nobody has been told
+   * about yet, and after a move somebody deliberately kept off their page.
    */
   customerRevisionNumber: z.number().int().positive(),
   /**
@@ -353,13 +351,22 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
    * (FR-NOTIF-03), or 0 on an order no mail has ever gone out for.
    *
    * A different question from `customerRevisionNumber`, which is what they are
-   * *looking at*: their view follows every move, and whether a message went
-   * with it is a decision taken per move.
+   * *looking at*: a move can put a version on their page without a word going
+   * with it.
    */
   notifiedRevisionNumber: z.number().int().nonnegative(),
-  /** Whether the order has moved or changed since the last message they were
-   * sent — the one case where writing to them is a decision somebody has to
-   * take, and so the only case where the screen offers the button. */
+  /**
+   * Whether the customer's page is showing them something no message ever
+   * announced — the one case where writing to them is a decision somebody
+   * still has to take, and so the only case where the screen offers the
+   * button.
+   *
+   * True two ways: their page is showing them a version no message announced,
+   * or a change is sitting above the version they hold with nothing having
+   * mentioned it yet. Not true of a move deliberately kept off their page —
+   * that is a step the shop took back or never meant them to see, and an order
+   * worked on behind the scenes would otherwise sit flagged for ever.
+   */
   customerBehind: z.boolean(),
   /**
    * The statuses the customer has already been written to about, in no
@@ -693,6 +700,20 @@ export const orderTransitionSchema = z
      */
     notify: z.boolean(),
     /**
+     * Whether the customer's own page moves to this version (FR-NOTIF-03).
+     *
+     * Almost always yes: a move is where the order *is*, and a page that lags
+     * it tells the person waiting the wrong thing. The exception is a step
+     * nobody outside the shop should ever have seen — `ready` clicked on the
+     * wrong order and taken straight back, or the intermediate steps a source
+     * system moves an order through that the adapter collapses — where showing
+     * it would be announcing a mistake and then correcting it.
+     *
+     * A mail about a version the customer cannot open is a dead link, so
+     * `notify` requires this.
+     */
+    showCustomer: z.boolean(),
+    /**
      * Whether the money arrived with this move (FR-ORD-04) — the handover of a
      * cash order, which is one event and should not be two clicks.
      *
@@ -702,7 +723,11 @@ export const orderTransitionSchema = z
      */
     markPaid: z.boolean(),
   })
-  .strict();
+  .strict()
+  .refine((move) => move.showCustomer || !move.notify, {
+    message: 'a mail can only be about a version the customer is shown',
+    path: ['notify'],
+  });
 export type OrderTransition = z.infer<typeof orderTransitionSchema>;
 
 /**

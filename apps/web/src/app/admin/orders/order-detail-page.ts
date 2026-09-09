@@ -76,7 +76,8 @@ interface BehindPart {
   version: number | null;
 }
 
-/** The two choices a move offers, keyed so the answer can be read back. */
+/** The three choices a move offers, keyed so the answer can be read back. */
+const SHOW_CUSTOMER = 'showCustomer';
 const NOTIFY = 'notify';
 const MARK_PAID = 'markPaid';
 
@@ -878,15 +879,20 @@ export class AdminOrderDetailPage {
   }
 
   /**
-   * What the confirmation offers besides yes and no: whether the customer is
-   * written to, and — on the move that is a handover — whether the money came
-   * with the goods.
+   * What the confirmation offers besides yes and no: whether the move reaches
+   * the customer's own page, whether they are written to about it, and — on
+   * the move that is a handover — whether the money came with the goods.
    *
-   * Both are offered with an answer already in them, because both are almost
-   * always the same answer and neither is one a manager should have to think
-   * about twice a day. Neither is inferred and then done silently: the mail
+   * All three are offered with an answer already in them, because all three
+   * are almost always the same answer and none is one a manager should have to
+   * think about twice a day. None is inferred and then done silently: the mail
    * cannot be taken back, and a payment recorded by a side effect is one
    * nobody remembers making.
+   *
+   * The first is ticked as a matter of course — a move is where the order is,
+   * and the person waiting for it should read the truth. Clearing it is for
+   * the step that should never have been taken: `ready` on the wrong order,
+   * put straight back.
    */
   private moveChecks(
     order: AdminOrderDetail,
@@ -895,10 +901,17 @@ export class AdminOrderDetailPage {
     const actions = this.text.actions;
     const checks: ConfirmCheck[] = [
       {
+        key: SHOW_CUSTOMER,
+        label: actions.showCustomer,
+        hint: actions.showCustomerHint,
+        checked: true,
+      },
+      {
         key: NOTIFY,
         label: actions.notify,
         hint: actions.notifyHint,
         checked: notifyByDefault(order.status, to, order.notifiedStatuses),
+        requires: SHOW_CUSTOMER,
       },
     ];
     // Only where there is money to record and a handover to record it with:
@@ -950,6 +963,7 @@ export class AdminOrderDetailPage {
     await this.run(
       () =>
         this.api.transition(order.reference, to, answer.reason || null, {
+          showCustomer: answer.checks[SHOW_CUSTOMER] ?? true,
           notify: answer.checks[NOTIFY] ?? false,
           markPaid: answer.checks[MARK_PAID] ?? false,
         }),
@@ -1018,6 +1032,11 @@ export class AdminOrderDetailPage {
     } finally {
       this.busy.set(false);
       this.order.reload();
+      // The thread is a second resource, and a move writes a version: an open
+      // history panel that kept its old list would be describing the order as
+      // it was a click ago. Idle while the panel is shut, and reloading an
+      // idle resource fetches nothing.
+      this.revisions.reload();
     }
   }
 

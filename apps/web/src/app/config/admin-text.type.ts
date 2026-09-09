@@ -1152,9 +1152,15 @@ export const adminTextSchema = z
             /** `{action}` names the move being confirmed. */
             confirmHeading: z.string(),
             confirmMessage: z.string(),
+            /** The tick that decides whether the move reaches the customer's
+             * own page (FR-NOTIF-03), and the line under it. Offered ticked:
+             * clearing it is for a step taken by mistake. */
+            showCustomer: z.string(),
+            showCustomerHint: z.string(),
             /** The tick that decides whether the move puts a message in the
              * customer's inbox (FR-NOTIF-03), and the line under it. Offered
-             * ticked for news they have not had yet. */
+             * ticked for news they have not had yet, and only where the move
+             * reaches their page at all. */
             notify: z.string(),
             notifyHint: z.string(),
             /** The tick that records the money with the move that is the

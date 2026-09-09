@@ -88,9 +88,10 @@ export class AdminOrdersService {
     reference: string,
     to: TransitionTarget,
     reason: string | null,
-    /** What the manager said in the confirmation: whether the customer hears
-     * about this move, and whether the money arrived with it. */
-    told: { notify: boolean; markPaid: boolean },
+    /** What the manager said in the confirmation: whether the move reaches the
+     * customer's page, whether they hear about it, and whether the money
+     * arrived with it. */
+    told: { showCustomer: boolean; notify: boolean; markPaid: boolean },
   ): Promise<AdminOrderDetail | null> {
     const result = await safe(
       this.client.transitionOrder({

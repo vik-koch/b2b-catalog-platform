@@ -476,7 +476,10 @@ export class AdminOrderListPage {
       reasonMaxLength: ORDER_STATUS_REASON_MAX,
       // Ticked, and worked out without asking what the customer has already
       // been told: an order is refused or called off once, and being told no
-      // is the one piece of news nobody may quietly skip.
+      // is the one piece of news nobody may quietly skip. No tick for whether
+      // their page follows it either — the two moves offered here end the
+      // order, and an ended order is not one to leave somebody reading
+      // "confirmed".
       checks: [
         {
           key: 'notify',
@@ -494,6 +497,7 @@ export class AdminOrderListPage {
         to,
         answer.reason,
         {
+          showCustomer: true,
           notify: answer.checks['notify'] ?? false,
           markPaid: false,
         },
