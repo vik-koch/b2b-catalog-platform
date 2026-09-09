@@ -17,6 +17,11 @@
       "command": "node tools/generate-order-lifecycle.mjs",
       "// description": "Rebuilds the generated tables, diagram and journeys in docs/order-lifecycle.md.",
       "cache": false
+    },
+    "account-lifecycle": {
+      "command": "node tools/generate-account-lifecycle.mjs",
+      "// description": "Rebuilds the generated statuses and journeys in docs/account-lifecycle.md.",
+      "cache": false
     }
   }
 }

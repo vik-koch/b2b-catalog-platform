@@ -23,6 +23,7 @@ import {
   loadTypeScript,
   writeOrCheck,
 } from './lib/generated-docs.mjs';
+import { journeyLegend, journeyTables } from './lib/journey-docs.mjs';
 
 const DOC = 'docs/order-lifecycle.md';
 const COMMAND = 'tools/generate-order-lifecycle.mjs';
@@ -128,99 +129,22 @@ function diagram() {
   return lines.join('\n');
 }
 
-/**
- * How one reading prints. Kept dumb on purpose: a value that needs explaining
- * in the documentation needs a better name in the journey.
- *
- * The exception is mail, where the name of a message is also the way to go and
- * read it — the gallery holds every one of them.
- */
-function value(probe, reading) {
-  const one = (entry) => {
-    // A message's name may carry what travelled with it (`approved+attached`).
-    // The gallery holds that variant where it is worth showing on its own, and
-    // otherwise the plain message is the right thing to link at.
-    const preview =
-      probe === 'mail'
-        ? (mailPreviewByKind[entry] ?? mailPreviewByKind[entry.split('+')[0]])
-        : undefined;
-    if (preview) return `[\`${entry}\`](mail.md#${preview})`;
-    // A marker is drawn, not named: backticks around a dot read as code for
-    // something, and there is nothing behind it to look up.
-    return /^\w/.test(entry) ? `\`${entry}\`` : entry;
-  };
-  if (Array.isArray(reading)) {
-    return reading.length === 0 ? 'nothing' : reading.map(one).join(' · ');
-  }
-  // A reading nobody has: a guest has no panel, not an empty one.
-  if (reading === null) return 'n/a';
-  return typeof reading === 'string' ? one(reading) : String(reading);
-}
-
-const changes = (expectations) =>
-  Object.entries(expectations ?? {})
-    .map(
-      ([probe, reading]) =>
-        `${ORDER_PROBES[probe].label}: ${value(probe, reading)}`,
-    )
-    .join('<br>') || '—';
-
-/** What each column of every journey table is answering. */
-function legend() {
-  return Object.values(ORDER_PROBES)
-    .map((probe) => `- **${probe.label}** — ${probe.meaning}`)
-    .join('\n');
-}
-
-/**
- * The journeys, from the same literals `order-journeys.spec.ts` walks against
- * the running API.
- *
- * A cell that says nothing is not a gap: every step asserts the whole state,
- * so an unmentioned reading is being asserted *unchanged*, and an unmentioned
- * mail is being asserted not to have been sent. That is the point of the two
- * quiet steps in the second journey.
- *
- * Each journey's steps are folded away. There are more of them than anybody
- * reads at once, and the summary line — what the journey is and what it covers
- * — is the part somebody scanning the document is looking for.
- */
-function journeys() {
-  return orderJourneys
-    .map((journey) => {
-      const rows = journey.steps.map(
-        (step, index) =>
-          `| ${index + 1} | ${step.what} | ${step.actor} | ${changes(step.expect)} |`,
-      );
-      const from = journey.from?.length
-        ? journey.from.map((step) => step.what).join(' ')
-        : 'It has just been placed.';
-      return [
-        '<details>',
-        `<summary><b>${journey.title}</b> — ${journey.note}</summary>`,
-        '',
-        `**The order.** ${journey.given}`,
-        '',
-        `**Starting from.** ${from}`,
-        '',
-        ...(journey.start
-          ? [`**Which leaves it.** ${changes(journey.start)}`, '']
-          : []),
-        '| # | What happens | Who | What changes |',
-        '| --- | --- | --- | --- |',
-        ...rows,
-        '',
-        '</details>',
-      ].join('\n');
-    })
-    .join('\n\n');
-}
-
 let document = readFileSync(DOC, 'utf8');
 document = injectSection(document, 'order-states', whereItStands());
 document = injectSection(document, 'order-moves', moves());
 document = injectSection(document, 'order-diagram', diagram());
-document = injectSection(document, 'order-journeys', journeys());
-document = injectSection(document, 'journey-legend', legend());
+document = injectSection(
+  document,
+  'order-journeys',
+  journeyTables(orderJourneys, ORDER_PROBES, mailPreviewByKind, {
+    given: 'The order.',
+    fresh: 'It has just been placed.',
+  }),
+);
+document = injectSection(
+  document,
+  'journey-legend',
+  journeyLegend(ORDER_PROBES),
+);
 
 writeOrCheck({ [DOC]: formatted(document, 'markdown') }, COMMAND);
