@@ -799,6 +799,19 @@ export const appTextSchema = z
              * adjustment must never be. */
             changes: z.string(),
             /**
+             * What the customer can open on the order (FR-ORD-05): the
+             * summary the shop draws, and the payment details where it has
+             * supplied them. Not a heading per kind of file — a document is
+             * named by what it is for, not by its format.
+             */
+            documents: z
+              .object({
+                heading: z.string(),
+                summary: z.string(),
+                paymentInstructions: z.string(),
+              })
+              .strict(),
+            /**
              * Calling off your own order (FR-ORD-02), offered only while the
              * shop has not started on it. `{reference}` in the message.
              */

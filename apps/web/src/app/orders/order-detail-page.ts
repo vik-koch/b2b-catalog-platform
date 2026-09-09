@@ -25,6 +25,7 @@ import { ConfirmService } from '../ui/confirm.service';
 import { Skeleton } from '../ui/skeleton';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
 import { orderBlocks } from './order-blocks';
+import { OrderDocumentsList } from './order-documents-list';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import {
   orderPaymentLabel,
@@ -51,6 +52,7 @@ import { OrdersService } from './orders.service';
     Button,
     NotFoundView,
     Skeleton,
+    OrderDocumentsList,
     OrderReadBack,
     OrderSummary,
     StatusBadge,
@@ -123,6 +125,17 @@ import { OrdersService } from './orders.service';
               [subtotalMinor]="detail.totalMinor"
               [shipment]="detail.shipment"
             />
+            <!-- What the order carries (FR-ORD-05). Under the summary and
+                 above the way out: a document is a copy of what has just been
+                 read, and the controls stay last. -->
+            @if (detail.documents.length) {
+              <app-order-documents-list
+                class="mt-5"
+                [documents]="detail.documents"
+                [by]="{ reference: detail.reference }"
+              />
+            }
+
             <!-- Offered from the same table the API refuses by, so the
                  button is never drawn for a move the server would decline. -->
             @if (cancellable()) {

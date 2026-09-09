@@ -335,6 +335,11 @@
         "confirm": "Cancel the order",
         "keep": "Keep the order",
         "error": "We could not cancel that order. It may already have moved on — please reload the page or call us."
+      },
+      "documents": {
+        "heading": "Documents",
+        "summary": "Your order as a PDF",
+        "paymentInstructions": "How to pay"
       }
     },
     "public": {

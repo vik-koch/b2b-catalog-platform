@@ -13,6 +13,7 @@ import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { orderBlocks } from './order-blocks';
 import { customerBlockLabels, customerQuantity } from './order-view';
+import { OrderDocumentsList } from './order-documents-list';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
 import {
@@ -41,6 +42,7 @@ import { OrdersService } from './orders.service';
     Button,
     NotFoundView,
     Skeleton,
+    OrderDocumentsList,
     OrderReadBack,
     OrderSummary,
     StatusBadge,
@@ -112,6 +114,17 @@ import { OrdersService } from './orders.service';
               [subtotalMinor]="order.totalMinor"
               [shipment]="order.shipment"
             />
+
+            <!-- The same documents the account's own page offers, in the same
+                 place, reached the only way this reader can be entitled to
+                 them: the token the link carries (FR-NOTIF-06). -->
+            @if (order.documents.length) {
+              <app-order-documents-list
+                class="mt-5"
+                [documents]="order.documents"
+                [by]="{ token: token() }"
+              />
+            }
 
             <!-- The account offer the checkout deliberately postponed:
                  approval takes days, and an order already sent costs nothing
