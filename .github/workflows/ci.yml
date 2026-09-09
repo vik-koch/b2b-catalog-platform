@@ -49,6 +49,12 @@ jobs:
       # changed without regenerating would ship a client calling the old path.
       - run: node tools/generate-contract-routes.mjs --check
 
+      # Documentation generated from the rules it documents: the email gallery
+      # from the templates, the order lifecycle tables from the transition
+      # table. A rule changed without regenerating would leave the docs
+      # describing behaviour the app no longer has.
+      - run: node tools/generate-mail-previews.mjs --check
+
       - run: cp .env.example .env
 
       - run: npx nx run-many -t lint test build format-check

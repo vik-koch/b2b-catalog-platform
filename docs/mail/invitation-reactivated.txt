@@ -1,0 +1,12 @@
+Your account is active again
+
+Your account has been switched back on. The old password no longer works — choose a new one.
+
+This link works once and expires after seven days.
+
+Choose your password: https://shop.example.com/set-password?token=invite-token
+
+--
+Demo Shop
+This message was sent automatically. Please do not reply.
+https://shop.example.com

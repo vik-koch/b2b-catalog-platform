@@ -1,0 +1,21 @@
+Thank you — we have your order
+
+Your order request CK-260826-4831 has reached us.
+
+We will confirm the details, the delivery and the price with you shortly.
+
+Order: CK-260826-4831
+How it arrives: Delivery
+Total: 129,90 €
+
+Your items
+Espresso cups — 2 pk (12 pcs): 99,90 €
+  100 in <red>
+Saucers — 3 pcs: 30,00 €
+
+Open your order: https://shop.example.com/orders/demo-token
+
+--
+Demo Shop
+This message was sent automatically. Please do not reply.
+https://shop.example.com

@@ -1,0 +1,17 @@
+New registration
+
+Someone has requested a customer account.
+
+Name: Jane Doe
+Email: jane@example.com
+Phone: +49 40 1234567
+Registering as: Company
+Company name: Kontor GmbH
+Company ID: DE123456789
+
+Open the account list: https://shop.example.com/admin/users
+
+--
+Demo Shop
+This message was sent automatically. Please do not reply.
+https://shop.example.com

@@ -1,4 +1,4 @@
-import { MailBranding } from './mail-branding';
+import type { MailBranding } from './mail-branding';
 
 const HTML_ESCAPES: Record<string, string> = {
   '&': '&amp;',

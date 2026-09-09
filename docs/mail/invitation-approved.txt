@@ -1,0 +1,12 @@
+Your account is ready
+
+Your registration has been approved. Choose a password to finish setting up your account.
+
+This link works once and expires after seven days.
+
+Choose your password: https://shop.example.com/set-password?token=invite-token
+
+--
+Demo Shop
+This message was sent automatically. Please do not reply.
+https://shop.example.com

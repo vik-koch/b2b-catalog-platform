@@ -1,0 +1,12 @@
+New inquiry
+
+Name: Jane Doe
+Email: jane@example.com
+Phone: —
+Preferred contact: email
+Message: Do you deliver to Altona?
+
+--
+Demo Shop
+This message was sent automatically. Please do not reply.
+https://shop.example.com

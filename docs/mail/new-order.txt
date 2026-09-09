@@ -1,0 +1,23 @@
+New order request
+
+A customer has sent an order request.
+
+Order: CK-260826-4831
+Account: alex@example.com
+Contact: Alex Fischer · +49 40 1234567 · alex@example.com
+Invoice to: Kontor GmbH · DE123456789
+How it arrives: Delivery
+Payment: Bank transfer
+Total: 129,90 €
+
+Ordered
+Espresso cups — 2 pk (12 pcs): 99,90 €
+  100 in <red>
+Saucers — 3 pcs: 30,00 €
+
+Open the order: https://shop.example.com/admin/orders/CK-260826-4831
+
+--
+Demo Shop
+This message was sent automatically. Please do not reply.
+https://shop.example.com
