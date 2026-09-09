@@ -46,7 +46,10 @@ export interface OrderBlockConfig {
  * deployment's config say today.
  */
 export function orderBlocks(
-  order: OrderDetail,
+  // Everything but the documents, so one *version* of an order reads back
+  // through the same function: what an order carries is a fact about the
+  // order, not about the version being read.
+  order: Omit<OrderDetail, 'documents'>,
   labels: OrderBlockLabels,
   config: OrderBlockConfig,
 ): ReviewBlock[] {

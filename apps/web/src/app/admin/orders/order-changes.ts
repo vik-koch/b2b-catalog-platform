@@ -36,9 +36,14 @@ export interface OrderChangeLabels {
  * what was bought, so reporting it as a change would fill the list with rows
  * the customer must not be mailed about.
  */
+/** Two readings of an order, as this compares them. Without the documents:
+ * they belong to the order rather than to either version, so a difference
+ * between two versions can never be one. */
+type ComparedOrder = Omit<OrderDetail, 'documents'>;
+
 export function orderChanges(
-  before: OrderDetail,
-  after: OrderDetail,
+  before: ComparedOrder,
+  after: ComparedOrder,
   labels: OrderChangeLabels,
   blockLabels: OrderBlockLabels,
   config: OrderBlockConfig,
@@ -61,8 +66,8 @@ export function orderChanges(
  * refuses to say so reports a form full of edits as an empty one.
  */
 export function orderLineChanges(
-  before: OrderDetail,
-  after: OrderDetail,
+  before: ComparedOrder,
+  after: ComparedOrder,
   labels: OrderChangeLabels,
   currency: Parameters<typeof formatPriceMinor>[1],
 ): OrderChange[] {
@@ -130,8 +135,8 @@ export function orderLineChanges(
  * there on one side is a block the other side dropped.
  */
 export function orderBlockChanges(
-  before: OrderDetail,
-  after: OrderDetail,
+  before: ComparedOrder,
+  after: ComparedOrder,
   blockLabels: OrderBlockLabels,
   config: OrderBlockConfig,
 ): OrderChange[] {
@@ -153,7 +158,7 @@ export function orderBlockChanges(
  * little to estimate from. An approximate figure says so: a change from an
  * exact estimate to a guess is itself worth seeing.
  */
-function shipmentText(order: OrderDetail): string | null {
+function shipmentText(order: ComparedOrder): string | null {
   const { weight, volume, approximate } = order.shipment;
   const parts = [
     weight === null ? null : `${weight} kg`,

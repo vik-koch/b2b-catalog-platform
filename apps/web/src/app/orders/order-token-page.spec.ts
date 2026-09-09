@@ -27,6 +27,17 @@ const placed: OrderDetail = {
   paymentState: 'not-due',
   statusReason: null,
   changes: [],
+  // The generated summary: every order has one, and no order stores it.
+  documents: [
+    {
+      kind: 'order-summary' as const,
+      source: 'generated' as const,
+      fileName: 'summary.pdf',
+      contentType: 'application/pdf',
+      byteSize: null,
+      suppliedAt: null,
+    },
+  ],
   createdAt: '2026-08-26T09:15:00.000Z',
   totalMinor: 12990,
   currency: 'EUR',

@@ -16,6 +16,7 @@ import {
   STAFF_ORDER_SORTS,
   STAFF_PAYMENT_FILTERS,
 } from './order-constants';
+import { ORDER_DOCUMENT_KINDS } from './order-document-constants';
 import { addressInputSchema, countryCodeSchema } from './address.contract';
 import {
   companyRegistrationIdSchema,
@@ -287,6 +288,54 @@ export const orderDeliveryZoneSchema = z
   .strict();
 export type OrderDeliveryZone = z.infer<typeof orderDeliveryZoneSchema>;
 
+export const orderDocumentKindSchema = z.enum(ORDER_DOCUMENT_KINDS);
+
+/**
+ * A document the reader can open on this order (FR-ORD-05, ADR 0052).
+ *
+ * The list is what *exists*, not what could: a generated summary is always
+ * there, and a payment instruction is there once somebody has supplied one.
+ * The bytes are fetched separately, from the order-documents path — nothing
+ * here is a URL, because the address is the order plus the kind and the reader
+ * is who they are.
+ */
+export const orderDocumentSchema = z
+  .object({
+    kind: orderDocumentKindSchema,
+    /** Whether the platform draws this one or somebody handed it over. A
+     * supplied file replaces the generated one entirely. */
+    source: z.enum(['generated', 'supplied']),
+    /** What it downloads as — the uploaded name for a supplied file, and the
+     * order's reference for a generated one. */
+    fileName: z.string(),
+    contentType: z.string(),
+    /** Null for a generated document: nothing is stored, so nothing has a
+     * size until it is drawn. */
+    byteSize: z.number().int().positive().nullable(),
+    suppliedAt: z.iso.datetime().nullable(),
+  })
+  .strict();
+export type OrderDocument = z.infer<typeof orderDocumentSchema>;
+
+/**
+ * The staff view of the same list. It adds the one thing only staff can act
+ * on: a supplied file is filed as given and nothing checks it against the
+ * order, so a version written after it arrived may have moved the total it
+ * quotes.
+ */
+export const adminOrderDocumentSchema = orderDocumentSchema.extend({
+  /** The version the order stood on when the file was supplied; null on a
+   * generated one, which always states the version it was drawn from. */
+  suppliedForRevision: z.number().int().positive().nullable(),
+  /** Whether the order has been changed since — a warning, never a refusal. */
+  outdated: z.boolean(),
+  /** When the customer was last written to about this document, null where
+   * they never were. What a screen reads to say whether the shop still owes
+   * them the message. */
+  notifiedAt: z.iso.datetime().nullable(),
+});
+export type AdminOrderDocument = z.infer<typeof adminOrderDocumentSchema>;
+
 export const orderDetailSchema = orderSummarySchema.extend({
   contact: orderContactSchema,
   /** Who it was invoiced to, as it read when the order was placed — resolved
@@ -319,6 +368,10 @@ export const orderDetailSchema = orderSummarySchema.extend({
   changes: z.array(z.string()),
   lines: z.array(orderLineSchema),
   shipment: cartPreviewSchema.shape.shipment,
+  /** What can be opened on this order (FR-ORD-05). A customer's list carries
+   * the summary as they are entitled to read it, and a payment instruction
+   * only once the shop has supplied one. */
+  documents: z.array(orderDocumentSchema),
 });
 export type OrderDetail = z.infer<typeof orderDetailSchema>;
 
@@ -328,6 +381,7 @@ export type OrderDetail = z.infer<typeof orderDetailSchema>;
  */
 export const adminOrderDetailSchema = orderDetailSchema.extend({
   lines: z.array(adminOrderLineSchema),
+  documents: z.array(adminOrderDocumentSchema),
   /** Null for a guest order — nothing to open, which is the point. */
   customerEmail: z.string().nullable(),
   /** Which list it was priced from; null means the default one. */
@@ -379,25 +433,27 @@ export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
  * order's history. Payment is not versioned: what has been received is a fact
  * about the order today, whichever version is being looked at.
  */
-export const orderRevisionSchema = adminOrderDetailSchema.extend({
-  /** When this version was written, and by whom — null for the one the
-   * customer submitted, and for anything an outside system writes back. */
-  revisionCreatedAt: z.iso.datetime(),
-  author: z.string().nullable(),
-  /** Why it was written: placed, moved, or changed. */
-  kind: orderRevisionKindSchema,
-  /** What the shop said about *this* version, in their words — null on every
-   * version that is not a change. The order's `changes` is the running account
-   * the customer reads; this is the one entry the thread hangs on this row. */
-  note: z.string().nullable(),
-  /** Whether this is the version the customer is being shown. */
-  customerView: z.boolean(),
-  /** When the customer was written to about this version (FR-NOTIF-03), null
-   * where they never were. Not the same question as `customerView`: a version
-   * can become theirs without a mail, and a version they were mailed about is
-   * superseded the moment the next one is written. */
-  notifiedAt: z.iso.datetime().nullable(),
-});
+export const orderRevisionSchema = adminOrderDetailSchema
+  .omit({ documents: true })
+  .extend({
+    /** When this version was written, and by whom — null for the one the
+     * customer submitted, and for anything an outside system writes back. */
+    revisionCreatedAt: z.iso.datetime(),
+    author: z.string().nullable(),
+    /** Why it was written: placed, moved, or changed. */
+    kind: orderRevisionKindSchema,
+    /** What the shop said about *this* version, in their words — null on every
+     * version that is not a change. The order's `changes` is the running account
+     * the customer reads; this is the one entry the thread hangs on this row. */
+    note: z.string().nullable(),
+    /** Whether this is the version the customer is being shown. */
+    customerView: z.boolean(),
+    /** When the customer was written to about this version (FR-NOTIF-03), null
+     * where they never were. Not the same question as `customerView`: a version
+     * can become theirs without a mail, and a version they were mailed about is
+     * superseded the moment the next one is written. */
+    notifiedAt: z.iso.datetime().nullable(),
+  });
 export type OrderRevision = z.infer<typeof orderRevisionSchema>;
 
 /**

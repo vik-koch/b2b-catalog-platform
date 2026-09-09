@@ -117,6 +117,9 @@ const ORDER_DETAIL_KEYS = [
   'preferredDate',
   'shipment',
   'statusReason',
+  // What the reader can open on it (FR-ORD-05). On the customer's list too:
+  // the summary is theirs to keep.
+  'documents',
 ].sort();
 /** What staff see on top: the list it was priced from, who placed it, and the
  * lines in basis units (FR-UNIT-04). */
@@ -2053,7 +2056,10 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // A superseded version reads exactly like a current one.
       expect(Object.keys(submitted).sort()).toEqual(
         [
-          ...ADMIN_DETAIL_KEYS,
+          // Everything a current order says, minus what belongs to the order
+          // rather than to one of its versions: its documents (FR-ORD-05) are
+          // the same whichever version is being read.
+          ...ADMIN_DETAIL_KEYS.filter((key) => key !== 'documents'),
           'author',
           'customerView',
           'kind',
