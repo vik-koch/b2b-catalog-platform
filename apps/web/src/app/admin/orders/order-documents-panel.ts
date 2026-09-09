@@ -87,24 +87,33 @@ interface DocumentRow {
               <span class="block text-xs text-subtle">{{ row.detail }}</span>
             </span>
 
+            <!-- Opening the file is a sibling of the name, not a member of
+                 the button group: it is the one control that is about the
+                 document itself rather than about changing it, it costs a
+                 glyph's width, and inside the group it was dragged onto the
+                 second line by buttons it has nothing to do with. Out here it
+                 stays on the name's line for as long as a glyph fits, and the
+                 group below it wraps on its own. -->
+            @if (row.href; as href) {
+              <a
+                appIconButton
+                class="shrink-0"
+                [href]="href"
+                target="_blank"
+                rel="noopener"
+                [attr.aria-label]="text.open"
+                [title]="text.open"
+              >
+                <app-admin-icon name="external-link" />
+              </a>
+            }
+
             <!-- Wrapping inside the group as well as around it: three
                  controls do not fit a phone on one line, and a group that
                  could only break as a whole pushed the last one off the
                  card. -->
-            <div class="flex flex-wrap items-center gap-2">
-              @if (row.href; as href) {
-                <a
-                  appIconButton
-                  [href]="href"
-                  target="_blank"
-                  rel="noopener"
-                  [attr.aria-label]="text.open"
-                  [title]="text.open"
-                >
-                  <app-admin-icon name="external-link" />
-                </a>
-              }
-              @if (!readOnly()) {
+            @if (!readOnly()) {
+              <div class="flex flex-wrap items-center gap-2">
                 <button
                   appButton
                   size="sm"
@@ -155,8 +164,8 @@ interface DocumentRow {
                     {{ text.remove }}
                   </button>
                 }
-              }
-            </div>
+              </div>
+            }
           </div>
 
           <!-- Indented to the name's own edge, so the block reads as one
