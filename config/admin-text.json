@@ -55,6 +55,7 @@
     "orders": "Orders",
     "workRegistrations": "{count} awaiting approval",
     "workOrders": "{count} awaiting your answer",
+    "workUnpaid": "{count} finished, not paid",
     "workProducts": "{count} awaiting publication",
     "workDocuments": "{count} expiring or expired"
   },

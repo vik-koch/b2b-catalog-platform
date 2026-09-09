@@ -251,3 +251,27 @@ export function paymentStateWithoutPayment(
     status !== 'requested';
   return dueOnAcceptance && answered ? 'awaiting' : 'not-due';
 }
+
+/**
+ * Whether an order is finished but its money is not — the one piece of work
+ * the two axes only name together (ADR 0050).
+ *
+ * A handed-over order nobody has recorded a payment for is the shop's move and
+ * nobody else's: the goods are gone and the tick is all that is left. It is
+ * deliberately about *any* unpaid ending, not about cash — an invoiced order
+ * completed and never settled is the same open item, and a method special case
+ * here would be a third reading of the payment axis.
+ *
+ * `completed` alone, since an order that ended in a refusal owes nothing: the
+ * shop is not chasing money on an order it never filled.
+ *
+ * Three readers, and they must agree or a count links to a list that
+ * contradicts it: the work queue's `COUNT`, the staff list's `unpaid` filter,
+ * and the tone of the payment badge on the row.
+ */
+export function awaitsPaymentRecord(
+  status: OrderStatusName,
+  state: PaymentStateName,
+): boolean {
+  return status === 'completed' && state !== 'paid';
+}

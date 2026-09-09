@@ -3,6 +3,8 @@ import {
   OrderStatusLabels,
   orderStatusLabel,
   orderStatusTone,
+  StaffPaymentLabels,
+  staffPaymentBadge,
 } from './order-status';
 
 const labels: OrderStatusLabels = {
@@ -81,5 +83,59 @@ describe('orderStatusTone', () => {
         expect(orderStatusTone(status, 'staff', fulfilment)).toBeTruthy();
       }
     }
+  });
+});
+
+const paymentLabels: StaffPaymentLabels = {
+  paymentAwaiting: 'Awaiting payment',
+  paymentCash: 'Cash on handover',
+  paymentPaid: 'Paid',
+};
+
+const money = (
+  status: (typeof ORDER_STATUSES)[number],
+  paymentState: 'not-due' | 'awaiting' | 'paid',
+  paymentMethod: 'cash' | 'bank-transfer' = 'bank-transfer',
+) => staffPaymentBadge({ status, paymentState, paymentMethod }, paymentLabels);
+
+/**
+ * The staff money column. What is pinned is where the amber goes: on this
+ * screen it means "your move", and the money is only the shop's move once the
+ * order is finished and still unpaid.
+ */
+describe('staffPaymentBadge', () => {
+  it('calls out a finished order that is not paid, whichever way it was to be', () => {
+    expect(money('completed', 'not-due', 'cash')).toEqual({
+      label: 'Cash on handover',
+      tone: 'waiting',
+    });
+    expect(money('completed', 'awaiting')).toEqual({
+      label: 'Awaiting payment',
+      tone: 'waiting',
+    });
+  });
+
+  it('keeps an order still being worked on quiet', () => {
+    expect(money('approved', 'awaiting')).toEqual({
+      label: 'Awaiting payment',
+      tone: 'neutral',
+    });
+    expect(money('ready', 'not-due', 'cash')).toEqual({
+      label: 'Cash on handover',
+      tone: 'neutral',
+    });
+  });
+
+  it('says nothing where nothing is owed', () => {
+    // An unanswered order owes nothing yet, and a refused one never will.
+    expect(money('requested', 'not-due', 'cash')).toBeNull();
+    expect(money('cancelled', 'not-due', 'cash')).toBeNull();
+  });
+
+  it('is settled once the money is recorded', () => {
+    expect(money('completed', 'paid', 'cash')).toEqual({
+      label: 'Paid',
+      tone: 'ok',
+    });
   });
 });

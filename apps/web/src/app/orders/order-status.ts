@@ -1,4 +1,5 @@
 import {
+  awaitsPaymentRecord,
   FulfilmentMethod,
   OrderStatus,
   PaymentMethod,
@@ -142,11 +143,15 @@ export function orderPaymentTone(state: PaymentState): StatusTone {
  * loud rather than left as an empty cell. A cash order still waiting for an
  * answer says nothing: nothing is owed on an order the shop has not taken.
  *
- * Nothing here is amber. For staff the money column is a reminder, not a
- * queue: an accepted order is owed money the whole time it is being packed,
- * and a colour that means "act now" spent on a fact that stays true for days
- * stops meaning anything. Amber on this screen belongs to the unanswered
- * request alone.
+ * Amber is spent on one reading only: an order **finished** and not paid for
+ * (`awaitsPaymentRecord`), which is the shop's own last move and the one thing
+ * in this column nobody else can finish. Everything still in flight is quiet —
+ * an accepted order is owed money the whole time it is being packed, and a
+ * colour that means "act now" spent on a fact that stays true for days stops
+ * meaning anything. That is also why the in-flight readings are `neutral`
+ * rather than `info`: now that the panel counts the finished-and-unpaid ones
+ * and the badge marks them, the rest of this column is a fact to read, not a
+ * state to point at.
  */
 export function staffPaymentBadge(
   order: {
@@ -159,13 +164,25 @@ export function staffPaymentBadge(
   if (order.paymentState === 'paid') {
     return { label: labels.paymentPaid, tone: 'ok' };
   }
+  // The one call to act. Which word it wears follows the method — a finished
+  // cash order is a handover nobody ticked, an invoiced one is money that
+  // never arrived — but both are the same job and the same colour.
+  if (awaitsPaymentRecord(order.status, order.paymentState)) {
+    return {
+      label:
+        order.paymentMethod === 'cash'
+          ? labels.paymentCash
+          : labels.paymentAwaiting,
+      tone: 'waiting',
+    };
+  }
   if (order.paymentState === 'awaiting') {
-    return { label: labels.paymentAwaiting, tone: 'info' };
+    return { label: labels.paymentAwaiting, tone: 'neutral' };
   }
   const owedInCash =
     order.paymentMethod === 'cash' &&
     order.status !== 'requested' &&
     order.status !== 'declined' &&
     order.status !== 'cancelled';
-  return owedInCash ? { label: labels.paymentCash, tone: 'info' } : null;
+  return owedInCash ? { label: labels.paymentCash, tone: 'neutral' } : null;
 }
