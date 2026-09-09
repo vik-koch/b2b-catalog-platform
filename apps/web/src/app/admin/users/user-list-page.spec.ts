@@ -163,7 +163,7 @@ describe('UserListPage', () => {
     });
 
     const row = el.querySelector('tbody tr');
-    expect(row?.textContent).toContain('Doe, Jane');
+    expect(row?.textContent).toContain('Doe Jane');
     expect(row?.textContent).toContain('jane@example.com');
     expect(row?.textContent).toContain(text.statusActive);
     expect(row?.textContent).toContain('Wholesale');
@@ -228,10 +228,10 @@ describe('UserListPage', () => {
     });
 
     await setInput('sort', 'name');
-    expect(names()).toEqual(['Alpha, A', 'Zeta, Z']);
+    expect(names()).toEqual(['Alpha A', 'Zeta Z']);
 
     await setInput('sort', 'name_desc');
-    expect(names()).toEqual(['Zeta, Z', 'Alpha, A']);
+    expect(names()).toEqual(['Zeta Z', 'Alpha A']);
 
     // Sorting is client-side: the list was fetched once and never again.
     expect(service.list).toHaveBeenCalledTimes(1);
@@ -252,7 +252,7 @@ describe('UserListPage', () => {
       ],
     });
 
-    expect(names()).toEqual(['Waiting, Jane', 'Active, Jane', 'Closed, Jane']);
+    expect(names()).toEqual(['Waiting Jane', 'Active Jane', 'Closed Jane']);
   });
 
   it('breaks that tie by newest registration first', async () => {
@@ -271,7 +271,7 @@ describe('UserListPage', () => {
       ],
     });
 
-    expect(names()).toEqual(['Newer, Jane', 'Older, Jane']);
+    expect(names()).toEqual(['Newer Jane', 'Older Jane']);
   });
 
   it('sorts by customer type, persons before companies', async () => {
@@ -283,7 +283,7 @@ describe('UserListPage', () => {
     });
 
     await setInput('sort', 'type');
-    expect(names()).toEqual(['Person, Jane', 'Corp, Jane']);
+    expect(names()).toEqual(['Person Jane', 'Corp Jane']);
   });
 
   it('asks the server for the view this route is (customer vs staff)', async () => {

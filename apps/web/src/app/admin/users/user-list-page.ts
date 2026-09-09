@@ -585,13 +585,15 @@ export class UserListPage {
   // --- Rendering helpers -------------------------------------------------
 
   private nameKey(user: StaffUser): string {
-    const full = `${user.lastName ?? ''} ${user.firstName ?? ''}`.trim();
-    return (full || user.email).toLowerCase();
+    return (this.name(user).trim() || user.email).toLowerCase();
   }
 
+  /** Family name first, because the column is sorted by it — and with a space,
+   * the way every other name in the app is written. The comma that used to sit
+   * here was this one screen's own convention. */
   protected name(user: StaffUser): string {
     const parts = [user.lastName, user.firstName].filter(Boolean);
-    return parts.length ? parts.join(', ') : this.dash;
+    return parts.length ? parts.join(' ') : this.dash;
   }
 
   /** Stored as bare digits; the column reads it with this deployment's grouping. */
