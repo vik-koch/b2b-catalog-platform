@@ -6,16 +6,19 @@ import { deleteMatching, messagesMatching } from '../support/mailpit';
 const NEW_EMAIL = 'e2e-registrant@example.com';
 const KNOWN_EMAIL = 'e2e-known-registrant@example.com';
 
-// Scoped to this suite's own mail — the staff inbox also receives inquiries
-// from another suite running at the same time.
+// Scoped to this suite's own mail — the staff inbox receives inquiries and
+// other suites' registrations at the same time. The staff query therefore names
+// the applicant as well as the subject: the notification lists everything they
+// submitted, so their address is in the body, and without it a registration
+// from another suite is one of "our" messages.
 const REGISTRANT_MAIL = `to:"${NEW_EMAIL}"`;
-const STAFF_MAIL = `to:"${requireEnv(
-  'MAIL_STAFF_TO',
-)}" subject:"New registration"`;
-// Two queries, not one combined: Mailpit's search has no OR and no grouping,
-// and a parenthesised query silently matches nothing — which would make every
-// "no mail was sent" assertion below pass for the wrong reason.
-const OUR_MAIL = [REGISTRANT_MAIL, STAFF_MAIL];
+const staffMailAbout = (email: string) =>
+  `to:"${requireEnv('MAIL_STAFF_TO')}" subject:"New registration" "${email}"`;
+const STAFF_MAIL = staffMailAbout(NEW_EMAIL);
+// Separate queries, never one combined: Mailpit's search has no OR and no
+// grouping, and a parenthesised query silently matches nothing — which would
+// make every "no mail was sent" assertion below pass for the wrong reason.
+const OUR_MAIL = [REGISTRANT_MAIL, STAFF_MAIL, staffMailAbout(KNOWN_EMAIL)];
 
 const clearOurMail = () => Promise.all(OUR_MAIL.map(deleteMatching));
 
