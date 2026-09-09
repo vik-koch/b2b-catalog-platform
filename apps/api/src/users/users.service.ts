@@ -203,6 +203,16 @@ export class UsersService {
     return Number(row?.open ?? 0);
   }
 
+  /** How many orders this account has at all — what a closure leaves behind
+   * (FR-NOTIF-08), counted before the scrub makes them untraceable. */
+  async countOrders(userId: string): Promise<number> {
+    const [row] = await this.db
+      .select({ total: count() })
+      .from(orders)
+      .where(eq(orders.userId, userId));
+    return Number(row?.total ?? 0);
+  }
+
   /**
    * What the copy already promises: "past orders are kept for our bookkeeping,
    * with your details removed from them". The orders stay — the line prices are

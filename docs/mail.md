@@ -94,6 +94,17 @@ Confirms the deletion the customer asked for. Past orders are anonymised, not re
 
 [View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/account-deleted.html) · [HTML source](mail/account-deleted.html) · [Plain text](mail/account-deleted.txt)
 
+<a id="account-closed"></a>
+
+### Account closed (to the shop)
+
+The other half of a deletion. The account is already gone, so the mail carries it — and says what it left behind.
+
+**Subject:** A customer closed their account  
+**Preheader:** A customer has closed their account.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/account-closed.html) · [HTML source](mail/account-closed.html) · [Plain text](mail/account-closed.txt)
+
 ## Orders
 
 <a id="order-received-guest"></a>

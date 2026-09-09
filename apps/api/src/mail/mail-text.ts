@@ -231,6 +231,29 @@ export const mailTextSchema = z
         action: z.string(),
       })
       .strict(),
+    /**
+     * Sent to the shop when an account closes itself (FR-NOTIF-08,
+     * FR-AUTH-06). The account is gone before this is read, so the mail
+     * carries what it was rather than a link to it — and names what the
+     * closure left behind, which is the half a manager has to act on.
+     */
+    accountClosed: z
+      .object({
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        body: z.string(),
+        nameLabel: z.string(),
+        emailLabel: z.string(),
+        /** How many of their orders were kept and anonymized; `{count}` is
+         * substituted. */
+        ordersLabel: z.string(),
+        /** What is left to do about them, where any are still open. */
+        openOrdersNote: z.string(),
+        action: z.string(),
+      })
+      .strict(),
+    /**
      * Sent to the customer whenever their order moves (FR-NOTIF-03).
      *
      * One mail with a heading and a body per state, rather than a template per

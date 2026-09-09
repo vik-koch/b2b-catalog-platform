@@ -133,6 +133,18 @@ export const demoMailText: MailText = {
     itemsHeading: 'Was ordered',
     action: 'Open the order',
   },
+  accountClosed: {
+    subject: 'An account was closed',
+    preheader: 'A customer has closed their account.',
+    heading: 'Account closed',
+    body: 'A customer has closed their account. Their details are gone; their orders were kept and anonymized.',
+    nameLabel: 'Was',
+    emailLabel: 'Email',
+    ordersLabel: 'Orders kept',
+    openOrdersNote:
+      '{count} of them have not ended yet, and can no longer be traced back to a customer.',
+    action: 'Open the order list',
+  },
   orderStatusChanged: {
     subject: 'Your order',
     preheader: 'There is news about your order.',

@@ -19,8 +19,8 @@ legend are generated (`npx nx account-lifecycle`), as is the email gallery
 them is written by hand, and keeping it true is part of making the change.
 
 Requirements: FR-AUTH-01…06 (registering, approval, roles, price groups,
-switching accounts off, deleting them), FR-NOTIF-01/02 (what is written to
-whom), FR-WORK-01 (what the staff panel flags). Decisions:
+switching accounts off, deleting them), FR-NOTIF-01/02/04/08 (what is written
+to whom), FR-WORK-01 (what the staff panel flags). Decisions:
 [ADR 0019](adr/0019-session-auth-argon2-jwt-cookie.md),
 [ADR 0031](adr/0031-customer-tiers-and-price-lists.md),
 [ADR 0032](adr/0032-account-lifecycle-and-staff-approval.md).
@@ -87,6 +87,22 @@ link, and the confirmation that an account was deleted.
 Everything else staff do to an account is silent. Approving is not, because it
 carries the way in; switching off, switching back on, re-tiering, editing a
 phone number and changing a role all are.
+
+## What gets written to the shop
+
+Two, and both are about something the person outside the shop did: a
+registration arriving (FR-NOTIF-04), and an account closing itself
+(FR-NOTIF-08).
+
+The closure notice is the odd one out in the whole mail layer, because it
+cannot link to what it is about — by the time anybody reads it the row no
+longer says who it was. So it carries the account instead, and it counts what
+the closure left behind: the orders stay (FR-AUTH-06), and any of them still in
+flight is now the shop's to settle with a customer it can no longer look up.
+That count is why the message exists at all; a closure with nothing open is a
+line to note and move on from.
+
+A declined registration is still silent, deliberately — see the journey below.
 
 ## Journeys
 

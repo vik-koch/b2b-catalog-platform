@@ -1,3 +1,4 @@
+import { env } from '../env';
 import { MailText } from '../mail/mail-text';
 import { demoMailText } from '../mail/mail-text.fixture';
 import { UserRow } from '../users/users.service';
@@ -25,6 +26,10 @@ function build(options: {
   const users = {
     findById: vi.fn(async () => options.user ?? row()),
     hasAnotherAdmin: vi.fn(async () => options.anotherAdmin ?? true),
+    // What the shop's own notification reports (FR-NOTIF-08): read before the
+    // scrub, since afterwards the orders name nobody.
+    countOrders: vi.fn(async () => 3),
+    countOpenOrders: vi.fn(async () => 1),
     anonymize: vi.fn(async () => {
       calls.push('anonymize');
       return row({ status: 'anonymized', email: 'deleted-u1@deleted.invalid' });
@@ -122,13 +127,28 @@ describe('AccountDeletion', () => {
     await deletion.delete('u1', 'correct');
 
     // The documents go after the scrub and before the confirmation: they are
-    // part of the deletion, and the mail only reports it.
+    // part of the deletion, and the mail only reports it. The shop's own
+    // notification (FR-NOTIF-08) goes last of all — the customer is waiting on
+    // a page for theirs, and nobody is waiting for the shop's.
     expect(calls).toEqual([
       'anonymize',
       'documents',
       'revoke',
       'mail:alex@example.com',
+      `mail:${env.MAIL_STAFF_TO}`,
     ]);
+  });
+
+  /**
+   * Both messages are attempted, and neither can take the other down: one
+   * failing inbox must not swallow a message meant for a different one.
+   */
+  it('still tells the shop when the customer’s confirmation fails', async () => {
+    const { deletion, mail } = build({ mailFails: true });
+
+    await deletion.delete('u1', 'correct');
+
+    expect(mail.send).toHaveBeenCalledTimes(2);
   });
 
   // The deletion is the request; the mail only reports it.

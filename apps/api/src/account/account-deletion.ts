@@ -3,9 +3,11 @@ import { PasswordTokenService } from '../auth/password-token.service';
 import { PasswordService } from '../auth/password.service';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { MailService } from '../mail/mail.service';
+import { accountClosedMail } from '../mail/templates/account-closed.template';
 import { accountDeletedMail } from '../mail/templates/account-deleted.template';
 import { OrderDocumentFiles } from '../orders/order-document-files';
 import { UsersService } from '../users/users.service';
+import { env } from '../env';
 
 /** Why a deletion was refused, when it was. */
 export type DeleteAccountResult =
@@ -45,11 +47,18 @@ export class AccountDeletion {
       return { ok: false, reason: 'last-admin' };
     }
 
-    // Read the address *before* the write, which is what overwrites it. Sending
-    // before the write would be the other way to have one, but then a failed
-    // write leaves somebody holding a confirmation of a deletion that did not
-    // happen.
+    // Read everything the two mails quote *before* the write, which is what
+    // overwrites it. Sending before the write would be the other way to have
+    // it, but then a failed write leaves somebody holding a confirmation of a
+    // deletion that did not happen.
     const address = user.email;
+    const closed = {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      orders: await this.users.countOrders(userId),
+      openOrders: await this.users.countOpenOrders(userId),
+    };
 
     await this.users.anonymize(userId, await this.passwords.unusableHash());
     // Outside the scrub's transaction on purpose: it deletes files as well as
@@ -73,6 +82,24 @@ export class AccountDeletion {
     } catch (error) {
       this.logger.error(
         `Could not send the deletion confirmation: ${String(error)}`,
+      );
+    }
+
+    // And the shop is told (FR-NOTIF-08). Separately, so one failing inbox does
+    // not swallow the other message — and after the customer's, because theirs
+    // is the one they are waiting on the page for.
+    try {
+      const staffInbox = env.MAIL_STAFF_TO;
+      if (!staffInbox) {
+        // env.ts requires this in server mode; this narrows the type.
+        throw new Error('MAIL_STAFF_TO is not configured');
+      }
+      await this.mail.send(accountClosedMail(closed, this.text), {
+        to: staffInbox,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Could not send the staff closure notification: ${String(error)}`,
       );
     }
 

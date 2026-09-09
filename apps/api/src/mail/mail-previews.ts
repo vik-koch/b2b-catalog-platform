@@ -11,6 +11,7 @@ import { demoAdminOrder } from '../orders/order.fixture';
 import { accountDeletedMail } from './templates/account-deleted.template';
 import { inquiryMail } from './templates/inquiry.template';
 import { invitationMail } from './templates/invitation.template';
+import { accountClosedMail } from './templates/account-closed.template';
 import { newOrderMail } from './templates/new-order.template';
 import { orderCancelledMail } from './templates/order-cancelled.template';
 import { newRegistrationMail } from './templates/new-registration.template';
@@ -205,6 +206,22 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
       title: 'Account deleted',
       note: 'Confirms the deletion the customer asked for. Past orders are anonymised, not removed.',
       content: accountDeletedMail(text),
+    },
+    {
+      slug: 'account-closed',
+      group: 'The account itself',
+      title: 'Account closed (to the shop)',
+      note: 'The other half of a deletion. The account is already gone, so the mail carries it — and says what it left behind.',
+      content: accountClosedMail(
+        {
+          email: 'jane@example.com',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          orders: 7,
+          openOrders: 1,
+        },
+        text,
+      ),
     },
     {
       slug: 'order-received-guest',
