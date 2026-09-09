@@ -54,6 +54,7 @@ jobs:
       # table. A rule changed without regenerating would leave the docs
       # describing behaviour the app no longer has.
       - run: node tools/generate-mail-previews.mjs --check
+      - run: node tools/generate-order-lifecycle.mjs --check
 
       - run: cp .env.example .env
 
