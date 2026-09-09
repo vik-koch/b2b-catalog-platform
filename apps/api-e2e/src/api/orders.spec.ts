@@ -151,7 +151,7 @@ const ADMIN_LIST_KEYS = [
   'revisionNumber',
 ].sort();
 
-const request = (method: 'get' | 'post') =>
+const request = (method: 'get' | 'post' | 'delete') =>
   async function (url: string, body?: unknown, cookie?: string) {
     return axios.request({
       method,
@@ -165,6 +165,8 @@ const get = (url: string, cookie?: string) =>
   request('get')(url, undefined, cookie);
 const post = (url: string, body: unknown, cookie?: string) =>
   request('post')(url, body, cookie);
+const del = (url: string, cookie?: string) =>
+  request('delete')(url, undefined, cookie);
 
 /**
  * What a refusal carries with it. A coded error travels as
