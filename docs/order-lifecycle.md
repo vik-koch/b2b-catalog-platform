@@ -1,21 +1,28 @@
 # The life of an order
 
-An order is the one thing in this platform that two parties work on together
-over days: the customer places it, the shop answers it, either side can end it,
-and every step of that is something the other side has to be told about. The
-rules for it are small and correct in isolation — a transition table, a payment
-axis, a notification default — but no single file says what an order's life
-looks like, and by the time three of them are involved nobody can hold it in
-their head.
+This document exists to be maintained alongside the code. Order handling is the
+largest piece of behaviour in the platform, and it lives in pieces — a
+transition table, a payment axis, a notification rule, a document store, a mail
+layer — each small and readable on its own, none of them saying what an order's
+life actually looks like. Somebody changing one of those pieces needs to see
+what else moves when they do.
 
-This document is that missing view. The tables and the diagram are generated
-from `libs/shared/src/lib/order-transitions.ts` — the same functions the API
-refuses a transition with and the admin panel draws its buttons from — so
-nothing here can quietly stop being true. Run
-`node tools/generate-order-lifecycle.mjs` after changing the rules; CI checks it.
+So what follows is a detailed account of the logic **as it currently stands**,
+not of the thinking behind it: the states an order has, who may move it between
+them, and what each move does to the money, to the customer's own view of the
+order, to what they can open and to what arrives in their inbox. The reasoning
+lives in the ADRs; the requirements live in `requirements.md`.
+
+**It has to be kept current.** Change a transition, a notification rule or a
+mail template, and this document changes with it. The tables, the diagram and
+the journey steps are generated (`npx nx order-lifecycle`), as is the email
+gallery (`npx nx mail-previews`), and CI fails if either is stale — but the
+prose around them is written by hand, and keeping it true is part of making the
+change.
 
 Requirements: FR-ORD-01…06 (the states, the moves, adjustments, payment,
-documents), FR-NOTIF-03/05/06 (what gets written to whom). Decisions:
+documents), FR-NOTIF-03/05/06 (what gets written to whom), FR-WORK-01 (what a
+customer's own panel flags). Decisions:
 [ADR 0050](adr/0050-order-status-and-payment-state.md),
 [ADR 0051](adr/0051-order-revisions.md),
 [ADR 0052](adr/0052-order-documents-generated-or-supplied.md).
@@ -133,6 +140,44 @@ An **adjustment** is not on this table at all. Changing what an order says has
 its own payload and no target status: an adjusted order stands exactly where it
 stood, including after it has ended.
 
+## What an order deliberately cannot do
+
+The states above are fewer than a B2B or retail platform usually has, and the
+absences are decisions rather than gaps. A fuller account of what this platform
+does not set out to support belongs in its own document; what follows is the
+part that would otherwise be read as missing from this one.
+
+- **No picking, packing or shipped states.** A small shop's fulfilment is a
+  person walking to a shelf. States exist here so staff can say where an order
+  is and so a customer can be told; splitting `ready` into a chain of handling
+  steps would be recording a workflow nobody follows and nobody would keep up
+  to date.
+- **Nothing waits for money.** An accepted order is worked on whether or not it
+  has been paid for. These are negotiated relationships with repeat customers
+  on agreed terms, and gating fulfilment on payment would describe a shop that
+  does not exist. Payment is tracked because it has to be known, not because
+  anything branches on it.
+- **No refund, and no `refunded` state.** A refund happens in the shop's books.
+  The platform records that money arrived and lets a manager take that record
+  back where it was recorded in error; money going the other way for a real
+  reason is an event it does not model.
+- **No stock is reserved.** Availability is a figure staff maintain — written
+  by the sync or edited in the admin panel — and an order neither decrements it
+  nor holds anything. An out-of-stock product cannot be ordered at all
+  (FR-STOCK-04); everything short of that is a manager and a phone call.
+- **No partial fulfilment, split shipment or backorder.** An order that cannot
+  be filled as it stands is _changed_ — agreed with the customer, then written
+  down as a new version — or refused. That is the same conversation those
+  features exist to avoid, and this shop is having it anyway.
+- **No carrier tracking, and no automatic transitions.** Every move is a person
+  clicking, which is what makes the mail worth asking about rather than
+  inferring. Online card payment (FR-CART-06) is the one automated transition
+  the requirements anticipate, and it is not built yet.
+
+The common thread is that a manager is in the loop for every order. States that
+exist to coordinate machines with each other are cost without benefit here; the
+ones that exist are the ones a person needs in order to say where an order is.
+
 ## What the customer receives
 
 Every message the app can send is rendered in [the email gallery](mail.md) — both parts,
@@ -166,7 +211,9 @@ checked, and nothing checked goes undescribed.
 - **Already written to about** — The statuses the customer has had a mail about, listed alphabetically rather than in the order they were sent. This is what decides whether the next move offers its tick box already ticked — a state on this list is not news twice.
 - **The reason on it** — What the shop said when it refused the order, or the customer when they called it off. Cleared when an ended order is reopened.
 - **The total the customer reads** — The money on the version they are on — not necessarily what the order now says.
-- **What the customer can open** — The documents readable from their own page, which depends on the version they are on and on what the order owes. A file the order has moved on from is marked `outdated`.
+- **What the customer can open** — The documents readable from their own page, which depends on the version they are on and on what the order owes. A file the shop put there in place of the generated one is marked `supplied`, and one the order has since moved on from `outdated`.
+- **What the shop can open** — The same list from the admin side, which is not the same list: staff read whatever is filed, whenever it was filed, and see a supplied file marked `outdated` as soon as the order moves past the version it states.
+- **Waiting for the customer** — How many of their orders their own panel is flagging — money owed, or a collection ready to be picked up. It is the marker they see on signing in. Blank for a guest, who has no panel and hears from the shop only by mail.
 - **Mail to the customer** — What arrived in their inbox at this step, named by the message it is. An empty cell means nothing was sent, and is asserted.
 
 <!-- /generated:journey-legend -->
@@ -174,7 +221,17 @@ checked, and nothing checked goes undescribed.
 **A blank cell is an assertion.** Every step asserts the whole observable state,
 not only what it names: a reading nobody mentions is asserted unchanged, and a
 mail nobody declares is asserted not to have been sent. That is what makes the
-two quiet steps below say something.
+quiet steps below say something.
+
+**These are examples, not a census.** Ten journeys cannot cover the
+combinations an order allows — six states, moves in both directions,
+adjustments at any point, two kinds of document, a reader who may or may not
+have an account. What is chosen here is the accumulated state no other journey
+reaches; the exhaustive per-move rules are in
+`apps/api-e2e/src/api/orders.spec.ts`, and the table above is the complete
+answer to what is allowed. A constellation nobody has written down is not
+thereby forbidden — it is simply undocumented, and worth adding here if it ever
+matters.
 
 <!-- generated:order-journeys -->
 <details>
@@ -186,11 +243,11 @@ two quiet steps below say something.
 
 **Which leaves it.** Where it stands: `requested`<br>What it owes: `not-due`<br>Version: 1<br>The version the customer is on: 1<br>Already written to about: `requested`
 
-| #   | What happens                                                                   | Who     | What changes                                                                                                                                                                                                                                          |
-| --- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | The manager checks the stock and accepts the order.                            | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)                        |
-| 2   | The order is packed, and the manager marks it ready.                           | manager | Where it stands: `ready`<br>Version: 3<br>The version the customer is on: 3<br>Already written to about: `approved` · `ready` · `requested`<br>Mail to the customer: [`readyDelivery`](mail.md#order-ready-delivery)                                  |
-| 3   | It is handed over and paid for, which the manager records with the same click. | manager | Where it stands: `completed`<br>What it owes: `paid`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: [`completed`](mail.md#order-completed) |
+| #   | What happens                                                                   | Who     | What changes                                                                                                                                                                                                                                                                         |
+| --- | ------------------------------------------------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | The manager checks the stock and accepts the order.                            | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)<br>Waiting for the customer: 1                        |
+| 2   | The order is packed, and the manager marks it ready.                           | manager | Where it stands: `ready`<br>Version: 3<br>The version the customer is on: 3<br>Already written to about: `approved` · `ready` · `requested`<br>Mail to the customer: [`readyDelivery`](mail.md#order-ready-delivery)                                                                 |
+| 3   | It is handed over and paid for, which the manager records with the same click. | manager | Where it stands: `completed`<br>What it owes: `paid`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: [`completed`](mail.md#order-completed)<br>Waiting for the customer: 0 |
 
 </details>
 
@@ -254,11 +311,11 @@ two quiet steps below say something.
 
 **Which leaves it.** Where it stands: `requested`<br>The reason on it: null<br>Version: 1
 
-| #   | What happens                                                       | Who     | What changes                                                                                                                                                                                                                                          |
-| --- | ------------------------------------------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | The manager declines it, saying why.                               | manager | Where it stands: `declined`<br>The reason on it: `Out of stock until October.`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `declined` · `requested`<br>Mail to the customer: [`declined`](mail.md#order-declined) |
-| 2   | The stock arrives sooner than expected, so the manager reopens it. | manager | Where it stands: `requested`<br>The reason on it: null<br>Version: 3<br>The version the customer is on: 3                                                                                                                                             |
-| 3   | The manager accepts it, and this time says so deliberately.        | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `declined` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)           |
+| #   | What happens                                                       | Who     | What changes                                                                                                                                                                                                                                                               |
+| --- | ------------------------------------------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The manager declines it, saying why.                               | manager | Where it stands: `declined`<br>The reason on it: `Out of stock until October.`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `declined` · `requested`<br>Mail to the customer: [`declined`](mail.md#order-declined)                      |
+| 2   | The stock arrives sooner than expected, so the manager reopens it. | manager | Where it stands: `requested`<br>The reason on it: null<br>Version: 3<br>The version the customer is on: 3                                                                                                                                                                  |
+| 3   | The manager accepts it, and this time says so deliberately.        | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `declined` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)<br>Waiting for the customer: 1 |
 
 </details>
 
@@ -286,11 +343,11 @@ two quiet steps below say something.
 
 **Which leaves it.** Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>What the customer can open: `order-summary`
 
-| #   | What happens                                                            | Who     | What changes                                                                                                                                                                                                |
-| --- | ----------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | A line is repriced, and the customer is not told yet.                   | manager | Version: 3                                                                                                                                                                                                  |
-| 2   | The shop files the payment instructions for the order as it now stands. | manager | —                                                                                                                                                                                                           |
-| 3   | The manager confirms the change, which brings the slip with it.         | manager | The version the customer is on: 3<br>The total the customer reads: 1999<br>What the customer can open: `order-summary` · `payment-instructions`<br>Mail to the customer: [`changed`](mail.md#order-changed) |
+| #   | What happens                                                            | Who     | What changes                                                                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | A line is repriced, and the customer is not told yet.                   | manager | Version: 3                                                                                                                                                                                                           |
+| 2   | The shop files the payment instructions for the order as it now stands. | manager | What the shop can open: `order-summary` · `payment-instructions`                                                                                                                                                     |
+| 3   | The manager confirms the change, which brings the slip with it.         | manager | The version the customer is on: 3<br>The total the customer reads: 1999<br>What the customer can open: `order-summary` · `payment-instructions`<br>Mail to the customer: [`changed+attached`](mail.md#order-changed) |
 
 </details>
 
@@ -307,6 +364,40 @@ two quiet steps below say something.
 | --- | --------------------------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------- |
 | 1   | A wrong contact name is noticed on the finished order, and put right. | manager | Version: 5                                                                                    |
 | 2   | The manager decides this one is worth telling them about.             | manager | The version the customer is on: 5<br>Mail to the customer: [`changed`](mail.md#order-changed) |
+
+</details>
+
+<details>
+<summary><b>Invoiced, with the instructions in the acceptance</b> — What a company order is for: the shop files its payment instructions first, so accepting the order and telling the customer how to pay are one message and not two.</summary>
+
+**The order.** A signed-in customer’s order, invoiced to their company and paid by transfer.
+
+**Starting from.** It has just been placed.
+
+**Which leaves it.** Where it stands: `requested`<br>What it owes: `not-due`<br>What the customer can open: `order-summary`<br>What the shop can open: `order-summary`<br>Waiting for the customer: 0
+
+| #   | What happens                                            | Who     | What changes                                                                                                                                                                                                                                                                                                                                                     |
+| --- | ------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The shop files the payment instructions for this order. | manager | What the shop can open: `order-summary` · `payment-instructions`                                                                                                                                                                                                                                                                                                 |
+| 2   | The manager accepts the order.                          | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>What the customer can open: `order-summary` · `payment-instructions`<br>Waiting for the customer: 1<br>Mail to the customer: [`approved+attached`](mail.md#order-approved-with-instructions) |
+| 3   | The transfer arrives, and the manager records it.       | manager | What it owes: `paid`<br>Waiting for the customer: 0                                                                                                                                                                                                                                                                                                              |
+
+</details>
+
+<details>
+<summary><b>The shop’s own summary, and the order moving past it</b> — Every order has a summary; the platform draws it unless the shop files one instead. A supplied file is a snapshot, so the order can move on from it — and taking it back off restores the drawn one.</summary>
+
+**The order.** A signed-in customer’s order, still waiting for an answer.
+
+**Starting from.** It has just been placed.
+
+**Which leaves it.** Where it stands: `requested`<br>What the customer can open: `order-summary`<br>What the shop can open: `order-summary`
+
+| #   | What happens                                                  | Who     | What changes                                                                                                 |
+| --- | ------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| 1   | The shop files its own summary in place of the drawn one.     | manager | What the customer can open: `order-summary (supplied)`<br>What the shop can open: `order-summary (supplied)` |
+| 2   | A line is repriced, which the filed summary no longer states. | manager | Version: 2<br>What the shop can open: `order-summary (supplied, outdated)`                                   |
+| 3   | The manager takes the filed summary back off.                 | manager | What the customer can open: `order-summary`<br>What the shop can open: `order-summary`                       |
 
 </details>
 <!-- /generated:order-journeys -->

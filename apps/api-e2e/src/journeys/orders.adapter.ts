@@ -119,13 +119,52 @@ const mailText = JSON.parse(
  * mail about the wrong step is exactly what a subject check would miss.
  */
 async function classify(id: string, subject: string): Promise<string> {
-  if (subject.startsWith(mailText.orderReceived.subject)) return 'receipt';
-  const body = (await messageBody(id)).Text;
+  const message = await messageBody(id);
+  // What travelled with it, said in the name: an attachment is the whole point
+  // of some of these messages, and a mail that lost one still reads correctly.
+  const carried = message.Attachments.length > 0 ? '+attached' : '';
+  if (subject.startsWith(mailText.orderReceived.subject)) {
+    return `receipt${carried}`;
+  }
   const headings = subject.startsWith(mailText.orderDocument.subject)
     ? Object.entries(mailText.orderDocument.kinds)
     : Object.entries(mailText.orderStatusChanged.statuses);
-  const match = headings.find(([, wording]) => body.includes(wording.heading));
-  return match ? match[0] : `unrecognised: ${subject}`;
+  const match = headings.find(([, wording]) =>
+    message.Text.includes(wording.heading),
+  );
+  return match ? `${match[0]}${carried}` : `unrecognised: ${subject}`;
+}
+
+/**
+ * A reader's documents, named by what is worth saying about them.
+ *
+ * The two sides read the same order and get different lists, which is the
+ * point of having both: a file is filed against a version, and the customer is
+ * offered it only once their own view has reached that version.
+ */
+function documentList(order: {
+  documents: readonly {
+    kind: string;
+    source: string;
+    outdated: boolean;
+  }[];
+}): string[] {
+  return order.documents
+    .map((document) => {
+      const marks = [
+        // Only where it is news. The summary is drawn by the platform unless
+        // the shop replaces it, so a supplied one is worth saying; payment
+        // instructions are only ever supplied, and saying so would be noise.
+        ...(document.source === 'supplied' && document.kind === 'order-summary'
+          ? ['supplied']
+          : []),
+        ...(document.outdated ? ['outdated'] : []),
+      ];
+      return marks.length
+        ? `${document.kind} (${marks.join(', ')})`
+        : document.kind;
+    })
+    .sort();
 }
 
 const probes: Record<string, Probe<OrderJourneyContext>> = {
@@ -161,12 +200,31 @@ const probes: Record<string, Probe<OrderJourneyContext>> = {
   },
   customerDocuments: {
     label: reading.customerDocuments.label,
+    read: async (ctx, cache) => documentList(await customerOrder(ctx, cache)),
+  },
+  staffDocuments: {
+    label: reading.staffDocuments.label,
+    read: async (ctx, cache) => documentList(await adminOrder(ctx, cache)),
+  },
+  /**
+   * What the customer's own panel is flagging (FR-WORK-01): their orders that
+   * are waiting on *them* — money owed, or a collection ready to be picked up.
+   *
+   * The one reading here that is about a screen rather than about the order,
+   * and it is the customer's alone: the staff queues count every order in the
+   * database, which is nothing a journey can assert against.
+   */
+  waitingOnCustomer: {
+    label: reading.waitingOnCustomer.label,
     read: async (ctx, cache) =>
-      (await customerOrder(ctx, cache)).documents
-        .map((document: { kind: string; outdated: boolean }) =>
-          document.outdated ? `${document.kind} (outdated)` : document.kind,
-        )
-        .sort(),
+      ctx.customerCookie
+        ? await cached(cache, 'work', async () => {
+            const res = await ok(
+              call('get', '/work/counts', undefined, ctx.customerCookie),
+            );
+            return res.data.myOrders;
+          })
+        : null,
   },
   /**
    * What landed in the customer's inbox since the last step, and nothing else:
@@ -345,6 +403,19 @@ const actions: JourneyAdapter<OrderJourneyContext>['actions'] = {
       form.append('notify', String(args['notify'] ?? false));
       await ok(
         axios.post(`/order-documents/${ctx.reference}/${kind}`, form, {
+          headers: { Cookie: ctx.managerCookie },
+          validateStatus: () => true,
+        }),
+      );
+    },
+  },
+  /** Taking a supplied file back off. The summary falls back to the one the
+   * platform draws; payment instructions stop existing. */
+  removeDocument: {
+    label: 'takes a supplied document back off',
+    run: async (ctx, args) => {
+      await ok(
+        axios.delete(`/order-documents/${ctx.reference}/${args['kind']}`, {
           headers: { Cookie: ctx.managerCookie },
           validateStatus: () => true,
         }),

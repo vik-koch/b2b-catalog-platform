@@ -52,13 +52,15 @@ const INDEX = 'docs/mail.md';
  * links behind every merged branch. The cost is that a preview added on a
  * feature branch has nothing to render until it lands.
  */
-const repository = JSON.parse(readFileSync('package.json', 'utf8')).repository
-  .url.replace(/^https:\/\/github\.com\//, '')
+const repository = JSON.parse(readFileSync('package.json', 'utf8'))
+  .repository.url.replace(/^https:\/\/github\.com\//, '')
   .replace(/\.git$/, '');
 const rendered = (slug) =>
   `https://htmlpreview.github.io/?https://raw.githubusercontent.com/${repository}/HEAD/docs/mail/${slug}.html`;
 
-const { mailTextSchema } = await loadTypeScript('apps/api/src/mail/mail-text.ts');
+const { mailTextSchema } = await loadTypeScript(
+  'apps/api/src/mail/mail-text.ts',
+);
 const { renderMailPreviews, MAIL_PREVIEW_GROUPS } = await loadTypeScript(
   'apps/api/src/mail/mail-previews.ts',
 );

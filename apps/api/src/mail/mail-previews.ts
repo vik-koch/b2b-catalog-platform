@@ -243,6 +243,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
     {
       slug: 'order-approved-with-instructions',
       group: 'Orders',
+      shows: 'approved+attached',
       title: 'Order approved, with payment instructions attached',
       note: 'The same move carrying the shop’s payment file, which the body says so the reader looks for it.',
       content: orderStatusChangedMail(

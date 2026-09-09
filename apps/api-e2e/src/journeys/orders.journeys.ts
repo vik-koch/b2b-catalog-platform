@@ -55,6 +55,9 @@ export const orderJourneys: readonly OrderJourney[] = [
           customerSees: 2,
           toldAbout: ['approved', 'requested'],
           mail: ['approved'],
+          // Their own panel starts flagging the order: the shop is waiting for
+          // the transfer, and that is the customer's move to make.
+          waitingOnCustomer: 1,
         },
       },
       {
@@ -85,6 +88,7 @@ export const orderJourneys: readonly OrderJourney[] = [
           customerSees: 4,
           toldAbout: ['approved', 'completed', 'ready', 'requested'],
           mail: ['completed'],
+          waitingOnCustomer: 0,
         },
       },
     ],
@@ -324,6 +328,7 @@ export const orderJourneys: readonly OrderJourney[] = [
           customerSees: 4,
           toldAbout: ['approved', 'declined', 'requested'],
           mail: ['approved'],
+          waitingOnCustomer: 1,
         },
       },
     ],
@@ -388,7 +393,9 @@ export const orderJourneys: readonly OrderJourney[] = [
         args: { kind: 'payment-instructions' },
         // Filed against version 3, and the customer is on 2 — so it is the
         // shop's to read and not yet theirs.
-        expect: {},
+        expect: {
+          staffDocuments: ['order-summary', 'payment-instructions'],
+        },
       },
       {
         what: 'The manager confirms the change, which brings the slip with it.',
@@ -399,7 +406,9 @@ export const orderJourneys: readonly OrderJourney[] = [
           customerSees: 3,
           customerTotal: 1999,
           customerDocuments: ['order-summary', 'payment-instructions'],
-          mail: ['changed'],
+          // The slip travels with the message, because the order owes money
+          // and the shop has instructions for it: one mail, not two.
+          mail: ['changed+attached'],
         },
       },
     ],
@@ -452,6 +461,114 @@ export const orderJourneys: readonly OrderJourney[] = [
         action: 'tellCustomer',
         args: { notify: true },
         expect: { customerSees: 5, mail: ['changed'] },
+      },
+    ],
+  },
+  {
+    slug: 'invoiced-before-it-was-accepted',
+    title: 'Invoiced, with the instructions in the acceptance',
+    note: 'What a company order is for: the shop files its payment instructions first, so accepting the order and telling the customer how to pay are one message and not two.',
+    given:
+      'A signed-in customer’s order, invoiced to their company and paid by transfer.',
+    order: { paymentMethod: 'bank-transfer', fulfilment: 'delivery' },
+    start: {
+      status: 'requested',
+      payment: 'not-due',
+      customerDocuments: ['order-summary'],
+      staffDocuments: ['order-summary'],
+      waitingOnCustomer: 0,
+    },
+    steps: [
+      {
+        what: 'The shop files the payment instructions for this order.',
+        actor: 'manager',
+        action: 'supplyDocument',
+        args: { kind: 'payment-instructions' },
+        // Nothing changes for the customer. The order owes nothing yet, and a
+        // file about money that is not due is not theirs to read — nor is the
+        // link, guessed or otherwise. Staff read it the moment it is filed.
+        expect: { staffDocuments: ['order-summary', 'payment-instructions'] },
+      },
+      {
+        what: 'The manager accepts the order.',
+        actor: 'manager',
+        action: 'move',
+        args: { to: 'approved' },
+        // One message: the answer they were waiting for, carrying the slip
+        // that tells them what to do about it.
+        expect: {
+          status: 'approved',
+          payment: 'awaiting',
+          version: 2,
+          customerSees: 2,
+          toldAbout: ['approved', 'requested'],
+          customerDocuments: ['order-summary', 'payment-instructions'],
+          waitingOnCustomer: 1,
+          mail: ['approved+attached'],
+        },
+      },
+      {
+        what: 'The transfer arrives, and the manager records it.',
+        actor: 'manager',
+        action: 'recordPayment',
+        args: { paid: true },
+        // Deliberately silent: nothing about the order changed for them, and
+        // being written to because the shop ticked a box is noise. Their panel
+        // stops flagging it; the instructions stay where they are, because the
+        // slip somebody paid against is worth keeping — they are withheld only
+        // while an order owes nothing at all.
+        expect: { payment: 'paid', waitingOnCustomer: 0 },
+      },
+    ],
+  },
+  {
+    slug: 'the-shop-writes-its-own-summary',
+    title: 'The shop’s own summary, and the order moving past it',
+    note: 'Every order has a summary; the platform draws it unless the shop files one instead. A supplied file is a snapshot, so the order can move on from it — and taking it back off restores the drawn one.',
+    given: 'A signed-in customer’s order, still waiting for an answer.',
+    order: { paymentMethod: 'bank-transfer', fulfilment: 'delivery' },
+    start: {
+      status: 'requested',
+      customerDocuments: ['order-summary'],
+      staffDocuments: ['order-summary'],
+    },
+    steps: [
+      {
+        what: 'The shop files its own summary in place of the drawn one.',
+        actor: 'manager',
+        action: 'supplyDocument',
+        args: { kind: 'order-summary' },
+        // Same kind, different provenance: the customer opens one document
+        // either way and never has to choose between two.
+        expect: {
+          customerDocuments: ['order-summary (supplied)'],
+          staffDocuments: ['order-summary (supplied)'],
+        },
+      },
+      {
+        what: 'A line is repriced, which the filed summary no longer states.',
+        actor: 'manager',
+        action: 'adjust',
+        args: { units: 1, note: 'Halved, agreed on the phone.' },
+        // The file is not rewritten and not withdrawn — it is marked, and only
+        // on the side that can see past it. The customer is still on the
+        // version the file states, so for them nothing is out of date yet.
+        expect: {
+          version: 2,
+          staffDocuments: ['order-summary (supplied, outdated)'],
+        },
+      },
+      {
+        what: 'The manager takes the filed summary back off.',
+        actor: 'manager',
+        action: 'removeDocument',
+        args: { kind: 'order-summary' },
+        // The drawn one returns, stating the order as it now is: there is no
+        // state in which an order has no summary at all.
+        expect: {
+          customerDocuments: ['order-summary'],
+          staffDocuments: ['order-summary'],
+        },
       },
     ],
   },

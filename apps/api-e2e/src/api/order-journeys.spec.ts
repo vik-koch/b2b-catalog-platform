@@ -27,7 +27,11 @@ import { orderJourneys } from '../journeys/orders.journeys';
  */
 
 const SUFFIX = Math.random().toString(36).slice(2, 10);
-const CUSTOMER = `e2e-journey-customer-${SUFFIX}@example.com`;
+/** One account per journey, not one for the suite: the customer's own panel
+ * counts their orders, so two journeys sharing an account would each see the
+ * other's. */
+const customerEmail = (slug: string) =>
+  `e2e-journey-${slug}-${SUFFIX}@example.com`;
 const MANAGER = `e2e-journey-manager-${SUFFIX}@example.com`;
 const PASSWORD = 'e2e-journey-password';
 const SOURCE_PREFIX = `E2E-JOURNEY-${SUFFIX}`;
@@ -74,7 +78,7 @@ async function loginAs(email: string): Promise<string> {
 
 describe('the life of an order', () => {
   let client: Client;
-  let customerCookie = '';
+  let passwordHash = '';
   let managerCookie = '';
 
   beforeAll(async () => {
@@ -106,14 +110,15 @@ describe('the life of an order', () => {
       ],
     );
 
-    const passwordHash = await hash(PASSWORD);
+    // Hashed once and reused: argon2 is deliberately slow, and ten accounts
+    // hashed separately would be most of this suite's runtime.
+    passwordHash = await hash(PASSWORD);
     await client.query(
       `INSERT INTO users (email, "passwordHash", role, status)
-       VALUES ($1, $2, 'user', 'active'), ($3, $2, 'manager', 'active')`,
-      [CUSTOMER, passwordHash, MANAGER],
+       VALUES ($1, $2, 'manager', 'active')`,
+      [MANAGER, passwordHash],
     );
 
-    customerCookie = await loginAs(CUSTOMER);
     managerCookie = await loginAs(MANAGER);
   });
 
@@ -131,8 +136,8 @@ describe('the life of an order', () => {
     await client.query('DELETE FROM categories WHERE "sourceId" = $1', [
       SOURCE_PREFIX.toLowerCase(),
     ]);
-    await client.query('DELETE FROM users WHERE email = ANY($1)', [
-      [CUSTOMER, MANAGER],
+    await client.query('DELETE FROM users WHERE email LIKE $1', [
+      `e2e-journey-%-${SUFFIX}@example.com`,
     ]);
     await client.end();
   });
@@ -146,7 +151,16 @@ describe('the life of an order', () => {
   async function place(
     journey: (typeof orderJourneys)[number],
   ): Promise<OrderJourneyContext> {
-    const contactEmail = `e2e-journey-${journey.slug}-${SUFFIX}@example.com`;
+    const contactEmail = customerEmail(journey.slug);
+    let customerCookie: string | undefined;
+    if (!journey.order.asGuest) {
+      await client.query(
+        `INSERT INTO users (email, "passwordHash", role, status)
+         VALUES ($1, $2, 'user', 'active')`,
+        [contactEmail, passwordHash],
+      );
+      customerCookie = await loginAs(contactEmail);
+    }
     const company = journey.order.paymentMethod !== 'cash';
     const pickup = journey.order.fulfilment === 'pickup';
     const res = await axios.post(
@@ -172,7 +186,7 @@ describe('the life of an order', () => {
         acceptPrivacy: true,
       },
       {
-        headers: journey.order.asGuest ? {} : { Cookie: customerCookie },
+        headers: customerCookie ? { Cookie: customerCookie } : {},
         validateStatus: () => true,
       },
     );
@@ -184,7 +198,7 @@ describe('the life of an order', () => {
       publicToken: res.data.publicToken,
       contactEmail,
       managerCookie,
-      customerCookie: journey.order.asGuest ? undefined : customerCookie,
+      customerCookie,
     };
   }
 

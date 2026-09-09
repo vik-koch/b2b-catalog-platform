@@ -136,10 +136,16 @@ function diagram() {
  * read it — the gallery holds every one of them.
  */
 function value(probe, reading) {
-  const one = (entry) =>
-    probe === 'mail' && mailPreviewByKind[entry]
-      ? `[\`${entry}\`](mail.md#${mailPreviewByKind[entry]})`
-      : `\`${entry}\``;
+  const one = (entry) => {
+    // A message's name may carry what travelled with it (`approved+attached`).
+    // The gallery holds that variant where it is worth showing on its own, and
+    // otherwise the plain message is the right thing to link at.
+    const preview =
+      probe === 'mail'
+        ? (mailPreviewByKind[entry] ?? mailPreviewByKind[entry.split('+')[0]])
+        : undefined;
+    return preview ? `[\`${entry}\`](mail.md#${preview})` : `\`${entry}\``;
+  };
   if (Array.isArray(reading)) {
     return reading.length === 0 ? 'nothing' : reading.map(one).join(' · ');
   }
