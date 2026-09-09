@@ -209,9 +209,9 @@ export class StaffUsersController {
       });
   }
 
-  @Implement(usersContract.resendInvitation)
-  resendInvitation(@CurrentUser() actor: AuthUser) {
-    return implement(usersContract.resendInvitation)
+  @Implement(usersContract.sendPasswordLink)
+  sendPasswordLink(@CurrentUser() actor: AuthUser) {
+    return implement(usersContract.sendPasswordLink)
       .use(refusals)
       .handler(async ({ input: { params }, errors }) => {
         const user = await this.service.findById(params.id);
@@ -220,12 +220,12 @@ export class StaffUsersController {
         }
         // Unlike an approval, the mail *is* the request: a failure here is
         // reported rather than swallowed, because nothing else happened.
-        await this.invitations.resend(user);
+        await this.invitations.sendPasswordLink(user);
         this.audit.record('user.invited', actor, {
           id: user.id,
           name: user.email,
         });
-        return { message: 'Invitation sent' };
+        return { message: 'Password link sent' };
       });
   }
 

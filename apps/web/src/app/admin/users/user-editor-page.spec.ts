@@ -76,7 +76,7 @@ async function render(
       ok: true,
       user: user({ status: 'invited' }),
     })),
-    resendInvitation: vi.fn<StaffUsersService['resendInvitation']>(
+    sendPasswordLink: vi.fn<StaffUsersService['sendPasswordLink']>(
       async () => ({
         ok: true,
       }),
@@ -327,17 +327,21 @@ describe('UserEditorPage', () => {
     expect(button(defaultAdminText.common.save)).toBeUndefined();
   });
 
-  it('re-sends the invitation only while there is one to re-send', async () => {
+  it('sends a password link to any account that may sign in', async () => {
     const invited = await render({ account: user({ status: 'invited' }) });
     await invited.press(text.resend);
 
-    expect(invited.service.resendInvitation).toHaveBeenCalledWith('u1');
+    expect(invited.service.sendPasswordLink).toHaveBeenCalledWith('u1');
     expect(invited.el.textContent).toContain(text.resendSent);
 
-    // Once a password has been chosen the way back in is a reset, and the
-    // invitation wording ("choose a password") would no longer be true.
+    // An account that has chosen a password gets the reset link instead —
+    // which one it is is the API's decision, so the button is the same button.
     const active = await render({ account: user({ status: 'active' }) });
-    expect(active.button(text.resend)).toBeUndefined();
+    expect(active.button(text.resend)).toBeDefined();
+
+    // Nothing to send to an account that cannot sign in at all.
+    const disabled = await render({ account: user({ status: 'disabled' }) });
+    expect(disabled.button(text.resend)).toBeUndefined();
   });
 
   it('shows where the account stands, in the list\u2019s own words', async () => {

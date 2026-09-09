@@ -41,33 +41,55 @@ export class PasswordResetService {
     if (user.status !== 'active' && user.status !== 'invited') return;
 
     try {
-      // An `invited` account has no password to reset — what it is missing is
-      // the invitation, so that is what it gets, at the invitation's own
-      // deadline. Without this, somebody whose invitation expired has no
-      // self-service way back at all: the resend is staff-only (ADR 0034).
-      if (user.status === 'invited') {
-        const token = await this.tokens.issue(user.id, INVITE_TTL_MS);
-        await this.mail.send(
-          // `approved` or `created`, told by how the account came about — the
-          // same choice a staff resend makes.
-          invitationMail(
-            token,
-            this.text,
-            user.approvedAt ? 'approved' : 'created',
-          ),
-          { to: user.email },
-        );
-        return;
-      }
-
-      const token = await this.tokens.issue(user.id, RESET_TTL_MS);
-      await this.mail.send(passwordResetMail(token, this.text), {
-        to: user.email,
-      });
+      await this.sendLink(user);
     } catch (error) {
       // Never surfaced: the response is uniform by design, so a failure here
       // reaches the operator through the log rather than the visitor.
       this.logger.error(`Could not send a password link: ${String(error)}`);
     }
+  }
+
+  /**
+   * Mint a link and mail it, whichever kind the account needs — the shared
+   * half of "let this person in", asked for by the account holder from the
+   * login form and by staff from the account screen (FR-AUTH-04).
+   *
+   * An `invited` account has no password to reset: what it is missing is the
+   * invitation, so that is what it gets, at the invitation's own deadline. An
+   * `active` one gets the reset mail, whose wording — somebody asked for this,
+   * ignore it and nothing changes — is true either way round, since a manager
+   * pressing the button on somebody's behalf *is* somebody asking.
+   *
+   * Callers decide what a failure means. Here it is swallowed, because the
+   * visitor is told nothing either way; from the staff screen the mail **is**
+   * the request, so it is reported. Whether the account may be sent one at all
+   * is the caller's check too — this one is only asked about accounts that
+   * passed it.
+   */
+  async sendLink(user: {
+    id: string;
+    email: string;
+    status: string;
+    /** A row's timestamp or a serialized one — only its presence is read. */
+    approvedAt: Date | string | null;
+  }): Promise<void> {
+    if (user.status === 'invited') {
+      const token = await this.tokens.issue(user.id, INVITE_TTL_MS);
+      await this.mail.send(
+        // `approved` or `created`, told by how the account came about.
+        invitationMail(
+          token,
+          this.text,
+          user.approvedAt ? 'approved' : 'created',
+        ),
+        { to: user.email },
+      );
+      return;
+    }
+
+    const token = await this.tokens.issue(user.id, RESET_TTL_MS);
+    await this.mail.send(passwordResetMail(token, this.text), {
+      to: user.email,
+    });
   }
 }

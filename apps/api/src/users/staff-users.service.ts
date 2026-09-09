@@ -81,11 +81,11 @@ export interface ListUsersFilters {
 
 /**
  * The staff view of accounts (FR-AUTH-03/04). Reads and writes the columns an
- * approving manager works with. It never sets a *password* — that is only ever
- * done by the account's own owner, through a token (see PasswordTokenService),
- * and there is nothing here that could hash one. The single write to
- * `passwordHash` is `deactivate`, which takes the unusable hash it stores as an
- * argument: taking a password away is a staff decision, choosing one is not.
+ * approving manager works with. It never touches a *password* — that is only
+ * ever done by the account's own owner, through a token (see
+ * PasswordTokenService), and there is nothing here that could hash one. The one
+ * write near it is the placeholder a staff-made account is created with, passed
+ * in rather than made here.
  */
 @Injectable()
 export class StaffUsersService {
@@ -364,15 +364,21 @@ export class StaffUsersService {
   }
 
   /**
-   * Switch it back on — to `invited`, not `active`. Deactivation retired the
-   * password, so there is nothing to sign in with; the account holder chooses
-   * a new one from a fresh link, exactly as they did the first time. Approval
-   * is not revisited: role, tier, `approvedAt` and `approvedBy` are untouched,
-   * because none of them stopped being true.
+   * Switch it back on, to the status the account can actually use.
    *
-   * That also keeps `active` meaning one thing everywhere — an account holding
-   * a password its owner chose — and keeps a real customer out of `pending`,
-   * where the staff action on offer is a purge.
+   * Almost always `active`: the password survived being switched off, so the
+   * account holder signs in exactly as before and hears nothing about any of
+   * it. An account that never chose a password — one switched off before its
+   * invitation was opened, or switched off back when deactivation retired the
+   * credential — has nothing to sign in with, so it goes to `invited` and
+   * staff send it a link. Which of the two is read off `passwordSetAt`, the
+   * only thing that can tell them apart: the stand-in hash is a real argon2
+   * hash by design, so the credential column cannot answer it.
+   *
+   * Approval is not revisited: role, tier, `approvedAt` and `approvedBy` are
+   * untouched, because none of them stopped being true. And `active` keeps
+   * meaning one thing everywhere — an account holding a password its owner
+   * chose.
    */
   async reactivate(id: string): Promise<StaffUser> {
     const current = await this.findById(id);
@@ -384,9 +390,17 @@ export class StaffUsersService {
       });
     }
 
+    const [row] = await this.db
+      .select({ passwordSetAt: users.passwordSetAt })
+      .from(users)
+      .where(eq(users.id, id));
+
     const [updated] = await this.db
       .update(users)
-      .set({ status: 'invited', updatedAt: new Date() })
+      .set({
+        status: row?.passwordSetAt ? 'active' : 'invited',
+        updatedAt: new Date(),
+      })
       .where(eq(users.id, id))
       .returning(staffUserColumns);
     return toStaffUser(updated);

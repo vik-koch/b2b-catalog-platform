@@ -586,11 +586,16 @@ describe('/admin/users', () => {
       expect(login.status).toBe(401);
     });
 
-    it('retires the password, and any link that was still out', async () => {
+    it('keeps the password and retires any link that was still out', async () => {
       const { id } = await seed('off-link', 'user', 'invited');
       // A live invitation would otherwise be a working key to an account
       // nobody is supposed to be able to sign into any more.
-      await request('post', `/admin/users/${id}/invite`, adminCookie, {});
+      await request(
+        'post',
+        `/admin/users/${id}/password-link`,
+        adminCookie,
+        {},
+      );
       const { rows: before } = await client.query(
         'SELECT "passwordHash" FROM users WHERE id = $1',
         [id],
@@ -598,11 +603,14 @@ describe('/admin/users', () => {
 
       expect((await off(id)).status).toBe(200);
 
+      // Switching an account off takes its access away, not its credential:
+      // the status is what refuses the sign-in, and the account comes back the
+      // same account it was.
       const { rows: after } = await client.query(
         'SELECT "passwordHash" FROM users WHERE id = $1',
         [id],
       );
-      expect(after[0].passwordHash).not.toBe(before[0].passwordHash);
+      expect(after[0].passwordHash).toBe(before[0].passwordHash);
       const { rows: live } = await client.query(
         `SELECT id FROM password_tokens
          WHERE "userId" = $1 AND "usedAt" IS NULL AND "expiresAt" > now()`,
@@ -674,7 +682,7 @@ describe('/admin/users', () => {
     });
   });
 
-  describe('re-sending an invitation', () => {
+  describe('sending a password link', () => {
     it('sends a fresh link, and retires the one before it', async () => {
       const email = `e2e-users-resend-${SUFFIX}@example.com`;
       seeded.push(email);
@@ -683,7 +691,7 @@ describe('/admin/users', () => {
 
       const res = await request(
         'post',
-        `/admin/users/${id}/invite`,
+        `/admin/users/${id}/password-link`,
         adminCookie,
         {},
       );
@@ -701,18 +709,41 @@ describe('/admin/users', () => {
       expect(rows).toHaveLength(1);
     });
 
-    it('refuses once a password has been chosen', async () => {
+    it('sends the reset link once a password has been chosen', async () => {
       const { id } = await statusOf(CUSTOMER_EMAIL);
+      await deleteMatching(`to:"${CUSTOMER_EMAIL}"`);
 
       const res = await request(
         'post',
-        `/admin/users/${id}/invite`,
+        `/admin/users/${id}/password-link`,
         adminCookie,
         {},
       );
 
-      // From here it is a password reset, not an invitation — the mail would
-      // tell an active customer to "choose a password" they already have.
+      // Somebody locked out rings the shop as readily as they use the form,
+      // and the reset mail's wording — somebody asked for this — is true
+      // either way round.
+      expect(res.status).toBe(200);
+      expect(await messagesMatching(`to:"${CUSTOMER_EMAIL}"`)).toHaveLength(1);
+    });
+
+    it('refuses an account that cannot sign in at all', async () => {
+      const email = `e2e-users-no-link-${SUFFIX}@example.com`;
+      seeded.push(email);
+      const id = await seedUser(email, 'user', 'active');
+      await request('patch', `/admin/users/${id}/active`, adminCookie, {
+        active: false,
+      });
+
+      const res = await request(
+        'post',
+        `/admin/users/${id}/password-link`,
+        adminCookie,
+        {},
+      );
+
+      // Switch it back on first: a link into an account somebody deliberately
+      // shut is a way round the decision.
       expect(res.status).toBe(409);
     });
   });

@@ -131,13 +131,13 @@ export type CreateUserRequest = z.infer<typeof createUserSchema>;
 /**
  * Switching an account off, and back on again (FR-AUTH-04). A lifecycle
  * transition rather than a field, which is why it is not part of `updateUser`:
- * it ends sessions, retires the password, and the two directions are separate
+ * it ends every session in flight, and the two directions are separate
  * decisions with separate audit lines.
  *
  * The request names the *direction*, not a target status, because switching
- * back on does not land where the account came from: it lands on `invited`,
- * with a fresh set-your-password link out. The response says where it actually
- * ended up.
+ * back on lands where the account can actually be used: `active` where it has a
+ * password of its own — the one it had, which switching off leaves alone — and
+ * `invited` where it never chose one. The response says where it ended up.
  */
 export const setUserActiveSchema = z.object({ active: z.boolean() }).strict();
 export type SetUserActiveRequest = z.infer<typeof setUserActiveSchema>;
@@ -180,8 +180,8 @@ export const USER_ERROR_CODES = [
   /** Only an `active` or `invited` account can be switched off. */
   'account-not-approved',
   'account-not-disabled',
-  /** Nothing to invite: a password has already been chosen. */
-  'account-not-invited',
+  /** Nothing to send a link to: the account cannot sign in at all. */
+  'account-cannot-sign-in',
   'self-deactivate',
   'self-demote',
   'last-admin',
@@ -202,7 +202,7 @@ const conflicts = {
   'email-taken': { status: 409 },
   'account-not-approved': { status: 409 },
   'account-not-disabled': { status: 409 },
-  'account-not-invited': { status: 409 },
+  'account-cannot-sign-in': { status: 409 },
   'self-deactivate': { status: 409 },
   'self-demote': { status: 409 },
   'last-admin': { status: 409 },
@@ -332,19 +332,21 @@ export const usersContract = {
     )
     .output(staffUserSchema),
 
-  resendInvitation: staff
+  sendPasswordLink: staff
     .route({
       method: 'POST',
-      path: '/admin/users/{id}/invite',
+      path: '/admin/users/{id}/password-link',
       inputStructure: 'detailed',
-      // The first link expires, and mail gets lost; this is the way back
-      // without touching the account itself.
-      summary: 'Send a fresh set-your-password link (admin, manager)',
+      // Links expire and mail gets lost, and somebody locked out rings the
+      // shop as readily as they use the form; this is the way back without
+      // touching the account itself. Which link goes — the invitation or the
+      // reset — is the account's own status, not a choice made here.
+      summary: 'Send the account a way back in (admin, manager)',
     })
     .errors({
       ...notFound,
       // Nothing to send to: a pending, disabled or anonymized account.
-      'account-not-invited': conflicts['account-not-invited'],
+      'account-cannot-sign-in': conflicts['account-cannot-sign-in'],
     })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(z.object({ message: z.string() })),

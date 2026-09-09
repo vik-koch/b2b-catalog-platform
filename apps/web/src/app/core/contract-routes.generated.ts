@@ -965,13 +965,13 @@ export const usersContract = {
       },
     },
   },
-  resendInvitation: {
+  sendPasswordLink: {
     '~orpc': {
       errorMap: {},
       meta: {},
       route: {
         method: 'POST',
-        path: '/admin/users/{id}/invite',
+        path: '/admin/users/{id}/password-link',
         inputStructure: 'detailed',
       },
     },

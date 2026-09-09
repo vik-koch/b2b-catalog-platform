@@ -11,16 +11,8 @@ import {
   InvitationKind,
   invitationMail,
 } from '../mail/templates/invitation.template';
+import { PasswordResetService } from '../auth/password-reset.service';
 import { StaffUsersService } from './staff-users.service';
-
-/**
- * Which wording an account's own history calls for: one that was approved
- * asked for itself, one without an approval was handed over. A reactivation
- * names itself instead, so a re-send afterwards falls back to this — the same
- * link, told in the terms of how the account first came about.
- */
-const kindFor = (user: StaffUser): InvitationKind =>
-  user.approvedAt ? 'approved' : 'created';
 
 /**
  * Turning a decision into a usable account: mint a single-use link and mail it.
@@ -33,6 +25,7 @@ export class AccountInvitations {
     private readonly users: StaffUsersService,
     private readonly tokens: PasswordTokenService,
     private readonly passwords: PasswordService,
+    private readonly reset: PasswordResetService,
     private readonly mail: MailService,
     @Inject(MAIL_TEXT) private readonly text: MailText,
   ) {}
@@ -49,28 +42,25 @@ export class AccountInvitations {
   }
 
   /**
-   * Send the invitation again — mail is lost, filed as spam, or the seven days
-   * ran out. Issuing a new token revokes the outstanding one, so the old link
-   * stops working and there is never more than one live way in.
+   * Send the way in again — the mail was lost, filed as spam, or its deadline
+   * ran out; or somebody is locked out and rang the shop instead of using the
+   * form. Issuing a new token revokes the outstanding one, so there is never
+   * more than one live link.
    *
-   * Only for an account that is still `invited`: the wording says an account
-   * has been set up and a password must be chosen, which stops being true the
-   * moment one has been. Somebody who has forgotten a password they did choose
-   * goes through password reset (FR-AUTH-02), not through this. A reactivated
-   * account is `invited`, so this is its way back too.
+   * Which mail goes is the account's own status, decided in one place for
+   * staff and for the login form alike (`PasswordResetService.sendLink`). What
+   * is refused here is an account with no sign-in to restore: a registration
+   * nobody has decided on, one switched off on purpose — switch it back on
+   * first — and a tombstone.
    */
-  async resend(user: StaffUser): Promise<void> {
-    if (user.status !== 'invited') {
+  async sendPasswordLink(user: StaffUser): Promise<void> {
+    if (user.status !== 'invited' && user.status !== 'active') {
       throw new ConflictException({
-        code: 'account-not-invited',
-        message:
-          'Only an account that has not yet chosen a password can be invited again',
+        code: 'account-cannot-sign-in',
+        message: 'Only an account that may sign in can be sent a link',
       });
     }
-    const token = await this.tokens.issue(user.id, INVITE_TTL_MS);
-    await this.mail.send(invitationMail(token, this.text, kindFor(user)), {
-      to: user.email,
-    });
+    await this.reset.sendLink(user);
   }
 
   /**
@@ -85,18 +75,6 @@ export class AccountInvitations {
   async deactivate(id: string, actorId: string): Promise<StaffUser> {
     const updated = await this.users.deactivate(id, actorId);
     await this.tokens.revokeOutstanding(id);
-    return updated;
-  }
-
-  /**
-   * Switch it back on. The account lands on `invited` with no password, so the
-   * link is not a courtesy — it is the only way in, and sending it here is what
-   * makes one staff click enough. Mail failure is swallowed the same way an
-   * approval's is: the status change is recorded, and staff can re-send.
-   */
-  async reactivate(id: string): Promise<StaffUser> {
-    const updated = await this.users.reactivate(id);
-    await this.send(updated, 'reactivated');
     return updated;
   }
 
