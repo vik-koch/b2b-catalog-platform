@@ -1168,6 +1168,13 @@ export const adminTextSchema = z
             markPaid: z.string(),
             markPaidHint: z.string(),
             reasonLabel: z.string(),
+            /** Added to the dialog where the shop's payment instructions will
+             * travel with the message this move sends (FR-ORD-05). */
+            notifyAttachment: z.string(),
+            /** And where they would have, had anybody filed them: the move
+             * that makes the money due is the last comfortable moment to
+             * notice the slip is missing. */
+            notifyNoDocument: z.string(),
             keep: z.string(),
             /** The move was refused: the order had already been answered. */
             error: z.string(),
@@ -1236,6 +1243,46 @@ export const adminTextSchema = z
             clearConfirmMessage: z.string(),
             clearConfirm: z.string(),
             keep: z.string(),
+            error: z.string(),
+          })
+          .strict(),
+        /** The two documents an order carries (FR-ORD-05). */
+        documents: z
+          .object({
+            heading: z.string(),
+            summary: z.string(),
+            paymentInstructions: z.string(),
+            /** Said of the summary nobody has replaced. */
+            generated: z.string(),
+            /** `{date}` a file was supplied. */
+            supplied: z.string(),
+            /** A supplied file quoting an order that has changed since:
+             * `{number}` it was filed against, `{current}` where the order is
+             * now. A warning, never a refusal. */
+            outdated: z.string(),
+            open: z.string(),
+            upload: z.string(),
+            replace: z.string(),
+            remove: z.string(),
+            notify: z.string(),
+            notifyHint: z.string(),
+            /** Why the send button is not offered: the customer's own page has
+             * not reached the version the file was filed against. */
+            notifyBehind: z.string(),
+            /** The button afterwards. It stays pressable — a customer who lost
+             * the message is asking for the same document again. */
+            notifySent: z.string(),
+            notifyConfirmHeading: z.string(),
+            notifyConfirmMessage: z.string(),
+            notifyConfirm: z.string(),
+            /** Why staff cannot draw payment instructions themselves. */
+            paymentHint: z.string(),
+            summaryHint: z.string(),
+            removeConfirmHeading: z.string(),
+            removeConfirmMessage: z.string(),
+            removeConfirm: z.string(),
+            keep: z.string(),
+            uploading: z.string(),
             error: z.string(),
           })
           .strict(),

@@ -1,8 +1,12 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT, Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
 import {
   AdminOrderDetail,
   OrderAdjustment,
   OrderAdjustmentPreview,
+  AdminOrderDocument,
+  OrderDocumentKind,
   OrderRevision,
   OrderStatus,
   OrderSummary,
@@ -11,6 +15,7 @@ import {
   StaffOrderSort,
   StaffPaymentFilter,
   TransitionTarget,
+  orderDocumentPath,
 } from '@b2b-catalog-platform/shared';
 import { ordersContract } from '../../core/contract-routes.generated';
 import { safe } from '@orpc/client';
@@ -58,6 +63,8 @@ export type StaffOrderSummary = OrderSummary & {
 @Injectable({ providedIn: 'root' })
 export class AdminOrdersService {
   private readonly client = createOrpcClient(ordersContract);
+  private readonly http = inject(HttpClient);
+  private readonly document = inject(DOCUMENT);
 
   async list(query: {
     page: number;
@@ -200,5 +207,54 @@ export class AdminOrdersService {
     if (result.isSuccess) return result.data;
     if (!result.isDefined) throw result.error;
     return null;
+  }
+
+  /**
+   * File a document against an order (FR-ORD-05). Multipart and outside the
+   * contract, like every other upload in the app: what travels is bytes.
+   *
+   * Nothing about the order changes: the file is filed, and whether the
+   * customer hears about it is the separate call below.
+   */
+  supplyDocument(
+    reference: string,
+    kind: OrderDocumentKind,
+    file: File,
+  ): Promise<AdminOrderDocument> {
+    const form = new FormData();
+    form.append('file', file);
+    return lastValueFrom(
+      this.http.post<AdminOrderDocument>(
+        this.documentUrl(reference, kind),
+        form,
+      ),
+    );
+  }
+
+  /**
+   * Tell the customer about a document already on the order (FR-ORD-05). Its
+   * own call rather than a flag on the upload: a file is filed when it exists
+   * and sent when the order is ready to be written about, and it can be sent
+   * again to somebody who lost the message.
+   */
+  notifyAboutDocument(
+    reference: string,
+    kind: OrderDocumentKind,
+  ): Promise<void> {
+    return lastValueFrom(
+      this.http.post<void>(`${this.documentUrl(reference, kind)}/notify`, {}),
+    );
+  }
+
+  /** Take a supplied file back off. The summary falls back to the generated
+   * one; payment instructions stop existing. */
+  removeDocument(reference: string, kind: OrderDocumentKind): Promise<void> {
+    return lastValueFrom(
+      this.http.delete<void>(this.documentUrl(reference, kind)),
+    );
+  }
+
+  private documentUrl(reference: string, kind: OrderDocumentKind): string {
+    return `${this.document.location.origin}${orderDocumentPath(kind, { reference })}`;
   }
 }
