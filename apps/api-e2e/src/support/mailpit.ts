@@ -31,12 +31,15 @@ export async function messagesMatching(
   return res.data.messages as CaughtMessage[];
 }
 
-/** The delivered body, as the recipient's client would receive both parts. */
-export async function messageBody(
-  id: string,
-): Promise<{ HTML: string; Text: string }> {
+/** The delivered body, as the recipient's client would receive both parts —
+ * with whatever travelled alongside it (FR-ORD-05). */
+export async function messageBody(id: string): Promise<{
+  HTML: string;
+  Text: string;
+  Attachments: readonly { readonly FileName: string }[];
+}> {
   const res = await mailpit.get(`/message/${id}`);
-  return res.data as { HTML: string; Text: string };
+  return res.data;
 }
 
 /** Clears only what the query matches, leaving other suites' mail alone. */

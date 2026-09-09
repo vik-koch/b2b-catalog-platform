@@ -1,0 +1,19 @@
+We cannot fill this order
+
+We are sorry: we are unable to fill this order. The reason is below, and you are welcome to call us about it.
+
+Order: CK-260826-4831
+Reason: The espresso cups are out of stock until the end of October.
+Total: 129,90 €
+
+Your items
+Espresso cups — 2 pk (12 pcs): 99,90 €
+  100 in <red>
+Saucers — 3 pcs: 30,00 €
+
+Open your order: https://shop.example.com/account/orders/CK-260826-4831
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

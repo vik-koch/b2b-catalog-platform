@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="und">
+<head>
+<meta charset="utf-8">
+<title>Coffee Kontor — email gallery</title>
+<style>
+body{font:15px/1.6 system-ui,sans-serif;margin:0 auto;padding:24px;max-width:820px;color:#1f2937;}
+h1{margin:0 0 4px;} h2{margin:40px 0 8px;border-bottom:1px solid #e5e7eb;padding-bottom:4px;}
+section{margin:24px 0;} h3{margin:0 0 4px;font-size:16px;}
+.note,.subject{margin:0 0 8px;font-size:13px;color:#6b7280;}
+iframe{width:100%;height:640px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;}
+</style>
+</head>
+<body>
+<h1>Coffee Kontor — email gallery</h1>
+<p class="note">Every message the app can send, rendered from this deployment's own wording.</p>
+<h2>Signing up and getting in</h2>
+<section><h3>Registration received (to the applicant)</h3><p class="note">Sent on sign-up. Deliberately actionless: the account cannot sign in until staff approve it.</p><p class="subject"><b>Subject:</b> We received your registration</p><iframe src="./registration-received.html" title="Registration received (to the applicant)"></iframe></section>
+<section><h3>New registration (to the shop)</h3><p class="note">Everything the applicant submitted, for a manager deciding whether they are a customer the shop knows.</p><p class="subject"><b>Subject:</b> New registration</p><iframe src="./new-registration.html" title="New registration (to the shop)"></iframe></section>
+<section><h3>Invitation — registration approved</h3><p class="note">The link that sets the first password, for an account staff approved.</p><p class="subject"><b>Subject:</b> Your account is ready</p><iframe src="./invitation-approved.html" title="Invitation — registration approved"></iframe></section>
+<section><h3>Invitation — account created by staff</h3><p class="note">The same link for an account nobody applied for, so it says where the account came from.</p><p class="subject"><b>Subject:</b> An account has been created for you</p><iframe src="./invitation-created.html" title="Invitation — account created by staff"></iframe></section>
+<section><h3>Invitation — account switched back on</h3><p class="note">The same link again for an account that was deactivated and is now not.</p><p class="subject"><b>Subject:</b> Your account is active again</p><iframe src="./invitation-reactivated.html" title="Invitation — account switched back on"></iframe></section>
+<h2>The account itself</h2>
+<section><h3>Password reset</h3><p class="note">Requested by the account holder. The link lives an hour.</p><p class="subject"><b>Subject:</b> Reset your password</p><iframe src="./password-reset.html" title="Password reset"></iframe></section>
+<section><h3>Account deleted</h3><p class="note">Confirms the deletion the customer asked for. Past orders are anonymised, not removed.</p><p class="subject"><b>Subject:</b> Your account has been deleted</p><iframe src="./account-deleted.html" title="Account deleted"></iframe></section>
+<h2>Orders</h2>
+<section><h3>Order received — guest</h3><p class="note">The receipt. For a guest the token link is the only record of what they sent.</p><p class="subject"><b>Subject:</b> We have your order request · CK-260826-4831</p><iframe src="./order-received-guest.html" title="Order received — guest"></iframe></section>
+<section><h3>Order received — account holder</h3><p class="note">The same receipt without a capability link: they can open the order signed in.</p><p class="subject"><b>Subject:</b> We have your order request · CK-260826-4831</p><iframe src="./order-received-account.html" title="Order received — account holder"></iframe></section>
+<section><h3>New order (to the shop)</h3><p class="note">The staff notification, linking into the admin order view.</p><p class="subject"><b>Subject:</b> New order request · CK-260826-4831</p><iframe src="./new-order.html" title="New order (to the shop)"></iframe></section>
+<section><h3>Order approved</h3><p class="note">The shop accepting the order — and, where it is invoiced, the point money starts being owed.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-approved.html" title="Order approved"></iframe></section>
+<section><h3>Order approved, with payment instructions attached</h3><p class="note">The same move carrying the shop’s payment file, which the body says so the reader looks for it.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-approved-with-instructions.html" title="Order approved, with payment instructions attached"></iframe></section>
+<section><h3>Order ready — delivery</h3><p class="note">One status read two ways. This half says where the order is going.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-ready-delivery.html" title="Order ready — delivery"></iframe></section>
+<section><h3>Order ready — pickup</h3><p class="note">The other half of `ready`: the office it is waiting at, not an address.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-ready-pickup.html" title="Order ready — pickup"></iframe></section>
+<section><h3>Order completed</h3><p class="note">The end of the forward chain. Sent once — a reopened order completed again is quiet by default.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-completed.html" title="Order completed"></iframe></section>
+<section><h3>Order declined</h3><p class="note">A refusal quotes its reason: being told no without being told why is the mail nobody can answer.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-declined.html" title="Order declined"></iframe></section>
+<section><h3>Order cancelled</h3><p class="note">The other ending, carrying the note staff wrote when they called it off.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-cancelled.html" title="Order cancelled"></iframe></section>
+<section><h3>Order reopened</h3><p class="note">An order that had ended is being answered again, so the mail says it is back at the start.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-reopened.html" title="Order reopened"></iframe></section>
+<section><h3>Order walked back</h3><p class="note">Staff undoing a step. It says so first: the status sentence alone would read as progress.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-corrected.html" title="Order walked back"></iframe></section>
+<section><h3>Order changed</h3><p class="note">An adjustment that moved nothing. Every change since the customer was last written to, in the shop’s words.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-changed.html" title="Order changed"></iframe></section>
+<section><h3>Order changed — guest</h3><p class="note">The same message for a reader with no account: the link is the token, not their order page.</p><p class="subject"><b>Subject:</b> Your order · CK-260826-4831</p><iframe src="./order-changed-guest.html" title="Order changed — guest"></iframe></section>
+<section><h3>Payment instructions</h3><p class="note">A file arriving on its own. It announces no step and repeats no lines.</p><p class="subject"><b>Subject:</b> A document for your order · CK-260826-4831</p><iframe src="./order-document.html" title="Payment instructions"></iframe></section>
+<h2>Getting in touch</h2>
+<section><h3>Inquiry (to the shop)</h3><p class="note">The contact form, delivered to the staff inbox with the visitor as Reply-To.</p><p class="subject"><b>Subject:</b> Inquiry: Jane Doe</p><iframe src="./inquiry.html" title="Inquiry (to the shop)"></iframe></section>
+</body>
+</html>

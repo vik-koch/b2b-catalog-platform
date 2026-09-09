@@ -1,0 +1,12 @@
+An account has been created for you
+
+We have set up a customer account for you at our online shop. Choose a password and you can start ordering right away.
+
+This link can be used once, and expires seven days after it was sent.
+
+Choose your password: https://shop.example.com/set-password?token=invite-token
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

@@ -1,0 +1,18 @@
+Your order is complete
+
+Your order is finished. Thank you — we look forward to the next one.
+
+Order: CK-260826-4831
+Total: 129,90 €
+
+Your items
+Espresso cups — 2 pk (12 pcs): 99,90 €
+  100 in <red>
+Saucers — 3 pcs: 30,00 €
+
+Open your order: https://shop.example.com/account/orders/CK-260826-4831
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

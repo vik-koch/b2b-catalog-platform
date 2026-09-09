@@ -1,0 +1,12 @@
+New inquiry
+
+Name: Jane Doe
+Email: jane@example.com
+Phone: —
+Preferred contact: email
+Message: Do you deliver to Altona?
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

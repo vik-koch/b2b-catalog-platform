@@ -1,0 +1,23 @@
+We have changed your order
+
+We have changed this order since we last wrote to you — what we changed is noted below, and the contents and total are the ones that now apply.
+
+Where your order stands has not changed — its contents and total have. The ones below are the ones that now apply.
+
+Order: CK-260826-4831
+Change note: Only 12 of the espresso cups left — the rest follows next week.
+Change note: Delivery moved to Friday.
+Delivery address: Hafenstraße 12, 20359 Hamburg
+Total: 129,90 €
+
+Your items
+Espresso cups — 2 pk (12 pcs): 99,90 €
+  100 in <red>
+Saucers — 3 pcs: 30,00 €
+
+Open your order: https://shop.example.com/account/orders/CK-260826-4831
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com
