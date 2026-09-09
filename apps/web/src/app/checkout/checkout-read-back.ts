@@ -107,10 +107,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
 
   const lines = (address: AddressInput | null): string[] => {
     if (!address) return [];
-    return addressLines(
-      { ...address, id: '', createdAt: '', updatedAt: '' },
-      config.address,
-    );
+    return addressLines(address, config.address);
   };
 
   const formatDate = (iso: string): string =>
