@@ -93,6 +93,9 @@ export class UsersService {
       .set({
         passwordHash,
         status: 'active',
+        // The account now holds a password of its own — the fact a
+        // reactivation later reads to know where to put it back.
+        passwordSetAt: new Date(),
         tokenVersion: sql`${users.tokenVersion} + 1`,
         mustChangePassword: false,
         updatedAt: new Date(),
@@ -116,6 +119,7 @@ export class UsersService {
       .update(users)
       .set({
         passwordHash,
+        passwordSetAt: new Date(),
         tokenVersion: sql`${users.tokenVersion} + 1`,
         mustChangePassword: false,
         updatedAt: new Date(),
@@ -299,6 +303,9 @@ export class UsersService {
         // customer was charged.
         tierId: null,
         passwordHash: unusableHash,
+        // The credential is gone with everything else, so the row no longer
+        // holds a password anybody chose.
+        passwordSetAt: null,
         tokenVersion: sql`${users.tokenVersion} + 1`,
         mustChangePassword: false,
         updatedAt: new Date(),

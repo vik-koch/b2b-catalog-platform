@@ -597,6 +597,12 @@ export const users = pgTable('users', {
   approvedBy: uuid('approvedBy').references((): AnyPgColumn => users.id, {
     onDelete: 'set null',
   }),
+  // When the account holder last chose a password of their own — null while
+  // the stored hash is the unusable stand-in nobody holds. It is the only way
+  // to tell those two apart, since the stand-in is a real argon2 hash by
+  // design, and it is what decides where a reactivated account lands: back to
+  // `active` if it has a password, to `invited` if it never chose one.
+  passwordSetAt: timestamp('passwordSetAt', { withTimezone: true }),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
     .defaultNow(),

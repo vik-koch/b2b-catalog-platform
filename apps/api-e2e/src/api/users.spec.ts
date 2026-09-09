@@ -81,8 +81,12 @@ describe('/admin/users', () => {
   ): Promise<string> => {
     const passwordHash = await hash(PASSWORD);
     const { rows } = await client.query(
-      `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType")
-       VALUES ($1, $2, $3, $4, 'Jane', 'Doe', '+49 40 1234567', 'person')
+      // `passwordSetAt` on the ones that can sign in, exactly as choosing a
+      // password would leave it: it is what a reactivation reads to know
+      // whether the account has a password to come back to.
+      `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", phone, "customerType", "passwordSetAt")
+       VALUES ($1, $2, $3, $4, 'Jane', 'Doe', '+49 40 1234567', 'person',
+               case when $5::boolean then now() end)
        RETURNING id`,
       [email, passwordHash, role, status],
     );
