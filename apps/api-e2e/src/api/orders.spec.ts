@@ -1,4 +1,6 @@
 import { readFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { hash } from '@node-rs/argon2';
 import axios, { AxiosResponse } from 'axios';
 import { Client } from 'pg';
@@ -2366,6 +2368,484 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         [customerId],
       );
       expect(linked[0].n).toBeGreaterThan(0);
+    });
+  });
+  /**
+   * An order's documents (FR-ORD-05, FR-CART-05, FR-ACC-02, ADR 0052).
+   *
+   * The reason this is an end-to-end suite rather than a unit one is the
+   * access rule: these files name a customer, and the only proof that nobody
+   * else can fetch them is fetching them as somebody else. The second reason
+   * is that the summary is *drawn* — a PDF that comes back as JSON, or as
+   * nothing, is a promise this feature would be breaking silently.
+   */
+  describe('the documents an order carries', () => {
+    const place = async (
+      overrides: Record<string, unknown> = {},
+      cookie?: string,
+    ) => {
+      const res = await post(
+        '/orders',
+        submission({
+          expectedTotalMinor: cookie ? TIER_MINOR * 2 : BASE_MINOR * 2,
+          ...overrides,
+        }),
+        cookie,
+      );
+      expect(res.status).toBe(201);
+      return res.data as { reference: string; publicToken: string };
+    };
+
+    /** A file the shop might hand over: not a real payment slip, but real
+     * enough that the content sniff accepts it. */
+    const slip = (note: string) =>
+      Buffer.from(
+        `%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n% ${note}\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n`,
+      );
+
+    const supply = (
+      reference: string,
+      kind: string,
+      bytes: Buffer,
+      cookie = managerCookie,
+      notify = false,
+    ) => {
+      const data = new FormData();
+      data.append(
+        'file',
+        new Blob([new Uint8Array(bytes)], { type: 'application/pdf' }),
+        'payment.pdf',
+      );
+      data.append('notify', String(notify));
+      return axios.post(`/order-documents/${reference}/${kind}`, data, {
+        headers: { Cookie: cookie },
+        validateStatus: () => true,
+      });
+    };
+
+    const fetchDocument = (url: string, cookie?: string) =>
+      axios.get(url, {
+        headers: cookie ? { Cookie: cookie } : {},
+        responseType: 'arraybuffer',
+        validateStatus: () => true,
+      });
+
+    it('draws the summary on demand, for a reader entitled to the order', async () => {
+      const { reference, publicToken } = await place();
+
+      // The guest's only way in is the token the mail carried.
+      const byToken = await fetchDocument(
+        `/order-documents/by-token/${publicToken}/order-summary`,
+      );
+      expect(byToken.status).toBe(200);
+      expect(byToken.headers['content-type']).toContain('application/pdf');
+      expect(Buffer.from(byToken.data).subarray(0, 5).toString()).toBe('%PDF-');
+      // Never cached: it is one person's order, and it is cheap to draw again.
+      expect(byToken.headers['cache-control']).toContain('no-store');
+
+      const forStaff = await fetchDocument(
+        `/order-documents/${reference}/order-summary`,
+        managerCookie,
+      );
+      expect(forStaff.status).toBe(200);
+    });
+
+    it('lists the summary on the order, with nothing stored for it', async () => {
+      const { publicToken } = await place();
+
+      const read = await get(`/orders/by-token/${publicToken}`);
+      expect(read.data.documents).toEqual([
+        {
+          kind: 'order-summary',
+          source: 'generated',
+          fileName: expect.stringContaining('.pdf'),
+          contentType: 'application/pdf',
+          // Nothing is stored, so nothing has a size until it is drawn.
+          byteSize: null,
+          suppliedAt: null,
+        },
+      ]);
+    });
+
+    it('refuses a reader who is not entitled to the order', async () => {
+      const { reference } = await place();
+
+      // A signed-in customer the order does not belong to: a 404 rather than
+      // a 403, which is the same answer the order itself gives — an order
+      // that is not yours is one that does not exist.
+      const other = await fetchDocument(
+        `/order-documents/${reference}/order-summary`,
+        otherCookie,
+      );
+      expect(other.status).toBe(404);
+
+      // And nobody at all gets nothing at all.
+      const anonymous = await fetchDocument(
+        `/order-documents/${reference}/order-summary`,
+      );
+      expect(anonymous.status).toBe(401);
+    });
+
+    it('has no payment instructions until the shop supplies them', async () => {
+      const { reference, publicToken } = await place();
+
+      const before = await fetchDocument(
+        `/order-documents/by-token/${publicToken}/payment-instructions`,
+      );
+      // Only the shop knows what they say, so there is nothing to draw.
+      expect(before.status).toBe(404);
+
+      const bytes = slip('transfer to DE00');
+      expect(
+        (await supply(reference, 'payment-instructions', bytes)).status,
+      ).toBe(201);
+
+      // Filed, but nothing is due yet — so the customer is offered nothing,
+      // and a guessed link opens nothing either: the fetch honours the same
+      // list the page was given.
+      expect(
+        (await get(`/orders/by-token/${publicToken}`)).data.documents.map(
+          (document: { kind: string }) => document.kind,
+        ),
+      ).toEqual(['order-summary']);
+      expect(
+        (
+          await fetchDocument(
+            `/order-documents/by-token/${publicToken}/payment-instructions`,
+          )
+        ).status,
+      ).toBe(404);
+      // Staff read whatever is filed, whenever it was filed.
+      expect(
+        (
+          await fetchDocument(
+            `/order-documents/${reference}/payment-instructions`,
+            managerCookie,
+          )
+        ).status,
+      ).toBe(200);
+
+      await post(
+        `/admin/orders/${reference}/status`,
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
+        managerCookie,
+      );
+
+      const after = await fetchDocument(
+        `/order-documents/by-token/${publicToken}/payment-instructions`,
+      );
+      expect(after.status).toBe(200);
+      // Byte-identical: a re-encoded payment slip is not the payment slip.
+      expect(Buffer.from(after.data)).toEqual(bytes);
+
+      const read = await get(`/orders/by-token/${publicToken}`);
+      expect(
+        read.data.documents.map((document: { kind: string }) => document.kind),
+      ).toEqual(['payment-instructions', 'order-summary']);
+    });
+
+    it('lets a supplied file replace the generated summary, and be taken back', async () => {
+      const { reference, publicToken } = await place();
+      const bytes = slip('the shop own summary');
+
+      expect((await supply(reference, 'order-summary', bytes)).status).toBe(
+        201,
+      );
+      const supplied = await fetchDocument(
+        `/order-documents/by-token/${publicToken}/order-summary`,
+      );
+      expect(Buffer.from(supplied.data)).toEqual(bytes);
+
+      // One document per kind: the generated one is hidden entirely rather
+      // than offered beside it.
+      const listed = await get(`/orders/by-token/${publicToken}`);
+      expect(listed.data.documents).toHaveLength(1);
+      expect(listed.data.documents[0].source).toBe('supplied');
+
+      expect(
+        (
+          await del(
+            `/order-documents/${reference}/order-summary`,
+            managerCookie,
+          )
+        ).status,
+      ).toBe(200);
+
+      // And the generated one is back, drawn from the order as it stands.
+      const drawn = await fetchDocument(
+        `/order-documents/by-token/${publicToken}/order-summary`,
+      );
+      expect(Buffer.from(drawn.data).subarray(0, 5).toString()).toBe('%PDF-');
+      expect(Buffer.from(drawn.data)).not.toEqual(bytes);
+    });
+
+    /**
+     * A slip is stale only where what it *states* has moved. Every move writes
+     * a version (ADR 0051), so warning on the version number alone would flag
+     * every confirmed order — a warning nobody would act on, and one that
+     * teaches staff to ignore the next.
+     */
+    it('leaves a supplied file alone when a move changes nothing it states', async () => {
+      const { reference } = await place();
+      await supply(reference, 'payment-instructions', slip('before'));
+
+      const moved = await post(
+        `/admin/orders/${reference}/status`,
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
+        managerCookie,
+      );
+      expect(moved.status).toBe(200);
+
+      const staff = await get(`/admin/orders/${reference}`, managerCookie);
+      const payment = staff.data.documents.find(
+        (document: { kind: string }) =>
+          document.kind === 'payment-instructions',
+      );
+      // Filed against version 1, and the order is on 2 — the same money to the
+      // same party, so nothing to reprint.
+      expect(payment).toMatchObject({
+        suppliedForRevision: 1,
+        outdated: false,
+      });
+    });
+
+    it('marks a supplied file the order now contradicts', async () => {
+      const { reference } = await place();
+      await supply(reference, 'payment-instructions', slip('before'));
+
+      // A different total is a different invoice.
+      const changed = await post(
+        `/admin/orders/${reference}/adjustment`,
+        {
+          lines: [
+            {
+              slug: slugs.boxed,
+              units: 4,
+              unit: 'pack',
+              note: null,
+              priceMinor: BASE_MINOR,
+              priceBasisPieces: BASIS,
+            },
+          ],
+          contact: {
+            name: 'Ada Lovelace',
+            email: 'ada@example.com',
+            phone: '+49 40 7654321',
+          },
+          party: party(),
+          fulfilmentMethod: 'delivery',
+          deliveryAddress: address(),
+          pickupLocationKey: null,
+          billingAddress: address(),
+          paymentMethod: 'bank-transfer',
+          tierKey: null,
+          note: 'Two more packs, agreed on the phone',
+          basedOnRevision: 1,
+        },
+        managerCookie,
+      );
+      expect(changed.status).toBe(200);
+
+      const staff = await get(`/admin/orders/${reference}`, managerCookie);
+      const payment = staff.data.documents.find(
+        (document: { kind: string }) =>
+          document.kind === 'payment-instructions',
+      );
+      expect(payment).toMatchObject({ outdated: true });
+    });
+
+    /**
+     * Two things are withheld from a customer, and both are about not showing
+     * somebody a document answering a question they have not been asked.
+     */
+    it('withholds a slip filed against a version the customer has not seen', async () => {
+      const { reference, publicToken } = await place();
+
+      // Moved without showing them: their page stays on version 1.
+      await post(
+        `/admin/orders/${reference}/status`,
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: false,
+        },
+        managerCookie,
+      );
+      await supply(reference, 'payment-instructions', slip('for version 2'));
+
+      const read = await get(`/orders/by-token/${publicToken}`);
+      expect(
+        read.data.documents.map((document: { kind: string }) => document.kind),
+      ).toEqual(['order-summary']);
+
+      // Sending it is refused for the same reason, rather than announcing a
+      // document they cannot open.
+      const sent = await post(
+        `/order-documents/${reference}/payment-instructions/notify`,
+        {},
+        managerCookie,
+      );
+      expect(sent.status).toBe(409);
+      expect(sent.data.code).toBe('customer-behind');
+    });
+
+    /**
+     * A payment slip answers "how do I pay what I owe", so it appears when the
+     * money becomes due and goes when nothing is: before the shop has accepted
+     * the order, and after an unpaid one ends. That is the payment state's own
+     * answer (FR-ORD-04) rather than a second rule about methods.
+     */
+    it('shows a slip while the money is owed, and not before', async () => {
+      const { reference, publicToken } = await place();
+      await supply(reference, 'payment-instructions', slip('transfer'));
+
+      const kinds = async () =>
+        (await get(`/orders/by-token/${publicToken}`)).data.documents.map(
+          (document: { kind: string }) => document.kind,
+        );
+
+      // Still only a request: nothing is due, so there is nothing to pay.
+      expect(await kinds()).toEqual(['order-summary']);
+
+      const move = (to: string) =>
+        post(
+          `/admin/orders/${reference}/status`,
+          {
+            to,
+            reason: to === 'cancelled' ? 'Ordered twice' : null,
+            notify: false,
+            markPaid: false,
+            showCustomer: true,
+          },
+          managerCookie,
+        );
+
+      expect((await move('approved')).status).toBe(200);
+      expect(await kinds()).toEqual(['payment-instructions', 'order-summary']);
+
+      // Called off unpaid: nothing is owed on an order nobody is filling.
+      expect((await move('cancelled')).status).toBe(200);
+      expect(await kinds()).toEqual(['order-summary']);
+
+      // Kept for the shop, which filed it: only the customer stops seeing it.
+      const staff = await get(`/admin/orders/${reference}`, managerCookie);
+      expect(staff.data.documents).toHaveLength(2);
+    });
+
+    /** A cash order never becomes due, so it never shows one — the same rule,
+     * with nothing said about methods. */
+    it('never shows a slip on an order that pays cash', async () => {
+      const { reference, publicToken } = await place({
+        party: { name: 'Ada Lovelace', registrationId: null },
+        paymentMethod: 'cash',
+      });
+      await supply(reference, 'payment-instructions', slip('irrelevant'));
+      await post(
+        `/admin/orders/${reference}/status`,
+        {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          markPaid: false,
+          showCustomer: true,
+        },
+        managerCookie,
+      );
+
+      const read = await get(`/orders/by-token/${publicToken}`);
+      expect(
+        read.data.documents.map((document: { kind: string }) => document.kind),
+      ).toEqual(['order-summary']);
+    });
+
+    /** A message of its own, repeatable: a customer who lost it is asking for
+     * the same document again, not for a new one. */
+    it('sends a document on its own, more than once', async () => {
+      const { reference } = await place();
+      await supply(reference, 'payment-instructions', slip('pay here'));
+
+      const url = `/order-documents/${reference}/payment-instructions/notify`;
+      expect((await post(url, {}, managerCookie)).status).toBe(201);
+      expect((await post(url, {}, managerCookie)).status).toBe(201);
+
+      // And the order remembers it was sent, so a manager coming back
+      // tomorrow is not asked to guess.
+      const staff = await get(`/admin/orders/${reference}`, managerCookie);
+      const payment = staff.data.documents.find(
+        (document: { kind: string }) =>
+          document.kind === 'payment-instructions',
+      );
+      expect(payment.notifiedAt).not.toBeNull();
+
+      // Replacing the file clears that: a different document has never been
+      // sent, whatever was said about the one it replaces.
+      await supply(reference, 'payment-instructions', slip('new details'));
+      const replaced = await get(`/admin/orders/${reference}`, managerCookie);
+      expect(
+        replaced.data.documents.find(
+          (document: { kind: string }) =>
+            document.kind === 'payment-instructions',
+        ).notifiedAt,
+      ).toBeNull();
+
+      // And there is nothing to send where nothing was supplied.
+      const summary = await post(
+        `/order-documents/${reference}/order-summary/notify`,
+        {},
+        managerCookie,
+      );
+      expect(summary.status).toBe(409);
+      expect(summary.data.code).toBe('document-not-supplied');
+    });
+
+    it('keeps supplied bytes off the public prefix', async () => {
+      const { reference } = await place();
+      await supply(reference, 'payment-instructions', slip('private'));
+
+      const { rows } = await client.query(
+        `SELECT d."fileKey"
+           FROM order_documents d
+           JOIN orders o ON o.id = d."orderId"
+          WHERE o.reference = $1`,
+        [reference],
+      );
+      expect(rows).toHaveLength(1);
+      // Under the private subdirectory, which no web server routes: the API
+      // is the only way to these bytes (ADR 0052).
+      const stored = join(
+        __dirname,
+        '../../../..',
+        '.media',
+        'private',
+        rows[0].fileKey,
+      );
+      expect((await readFile(stored)).subarray(0, 5).toString()).toBe('%PDF-');
+    });
+
+    it('is admin- and manager-only to supply', async () => {
+      const { reference } = await place();
+
+      const asCustomer = await supply(
+        reference,
+        'payment-instructions',
+        slip('nope'),
+        otherCookie,
+      );
+      expect(asCustomer.status).toBe(403);
     });
   });
 });
