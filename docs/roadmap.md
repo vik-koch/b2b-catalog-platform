@@ -16,8 +16,8 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 8   | Stock availability & work-awaiting indicators → **tag v1.6.0**                                 | FR-STOCK-01…05, FR-WORK-01…04, FR-ADM-02/05 + FR-SEARCH-04 + FR-CAT-04/05 + FR-CART-02 amended                                                                                      |
 | 9   | Sold-together sets → **tag v1.7.0**                                                            | FR-SET-01…05                                                                                                                                                                        |
 | 10  | Product documents & certificates → **tag v1.8.0**                                              | FR-DOC-01…04, FR-CAT-05 amended                                                                                                                                                     |
-| 11  | Order processing, payment state & order documents → **tag v1.9.0**                             | FR-ORD-01…06, FR-CART-05 + FR-CART-06 amended, FR-NOTIF-03, FR-ACC-02, FR-WORK-04 (customer half), NFR-LEGAL-04                                                                     |
-| 12  | Two-way sync with the source system → **tag v1.10.0**                                          | FR-ADM-07/08/09, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02 amended                                                                                                                       |
+| 11  | Order processing, payment state & order documents → **tag v1.9.0**                             | FR-ORD-01…05, FR-CART-05 + FR-CART-06 amended, FR-NOTIF-03, FR-ACC-02, FR-WORK-02/04 + FR-AUTH-04 amended, NFR-LEGAL-04                                                             |
+| 12  | Two-way sync with the source system → **tag v1.10.0**                                          | FR-ADM-07/08/09, FR-ORD-06, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02 amended                                                                                                            |
 | 13  | Online card payment → **tag v1.11.0**                                                          | FR-CART-04/06 amended                                                                                                                                                               |
 
 Notes:
@@ -219,6 +219,17 @@ Notes:
   no way to pay; where it _can_, the adapter's rule is to supply the document before the version
   that announces it, and one mail carries both. Transitions are written as service operations with
   the role table stated once, which is the only thing iteration 11 owes iteration 12.
+  Three smaller things closed the iteration (2026-09-09). **The money that waits on the shop is its
+  own queue**: an order handed over and not recorded as paid is the one piece of work neither axis
+  names alone, so it is counted, filtered and marked amber on the row — and the rest of the payment
+  column dropped to a quiet tone, because a colour spent on a fact that stays true for days stops
+  meaning "act now". **Switching an account off stopped taking its password**, which deletes the
+  wart ADR 0032 documented rather than describing it again: deactivation is access removed, the
+  account comes back the one its owner had, and neither direction writes to them; an account that
+  never chose a password comes back awaiting one, and staff send it a link — the same link the
+  login form sends, from one place. And **accounts got journeys of their own**
+  (`docs/account-lifecycle.md`), reusing the facility the order ones were built on, because "no mail
+  was sent" is exactly the kind of claim no single-endpoint test makes.
 - Iteration 12 is a **two-way** exchange, not the one-way import it was first written as. The
   return direction is the point: a manager should be able to work an order entirely in the shop's
   own system, with the platform keeping the customer's view, the notifications the source system
@@ -227,7 +238,18 @@ Notes:
   deployment that already has a back-office, and it is why the manual mode built since iteration 1
   is not a demo affordance: it is the mode the shop falls back to when the exchange breaks
   (FR-ORD-06, an operator switch in the admin panel rather than a config key, so recovery does not
-  need a deploy). Three rules were agreed in advance: **ownership, not conflict resolution** — the
+  need a deploy). **FR-ORD-06 moved here from iteration 11** (2026-09-09): what the switch has to
+  gate is defined entirely by what the exchange owns, a global lock answers the rarer of the two
+  failures — one order the exchange chokes on is likelier than the whole source system being down,
+  and a manager should not need an admin to unlock the whole shop to correct it — and a switch
+  guarding a writer that does not exist yet cannot be tested end to end. Whether it is global,
+  per-order, or a hard refusal rather than a disclosure a manager can work past is decided with the
+  exchange itself. Two rules were settled in advance all the same: an exchange writes as **the
+  integration's token**, never as a person — a revision an outside system wrote carries no author
+  today, and gets a `source` of its own when there is something to write it (an ERP operator's name
+  travels as an opaque label and is never resolved to a platform account); and a customer
+  cancellation on an exported order is an export-shape question, since forward-only write-back
+  would otherwise overwrite it silently. Three rules were agreed in advance: **ownership, not conflict resolution** — the
   platform records what the customer submitted, the source system owns processing once an order has
   been exported, and nothing is merged; **the platform's status vocabulary stays coarse and the
   adapter maps onto it**, collapsing however many intermediate steps the source system moves an

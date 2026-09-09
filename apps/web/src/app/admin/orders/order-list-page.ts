@@ -289,6 +289,7 @@ export class AdminOrderListPage {
     { value: '', label: this.text.paymentAll },
     { value: 'awaiting', label: this.text.paymentAwaiting },
     { value: 'cash', label: this.text.paymentCash },
+    { value: 'unpaid', label: this.text.paymentUnpaid },
     { value: 'paid', label: this.text.paymentPaid },
   ];
 
