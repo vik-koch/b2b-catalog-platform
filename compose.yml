@@ -271,13 +271,16 @@ services:
   # opts into both at once and the ephemeral demo starts neither.
   #
   # Runs *after* the database dump, and that order is the whole point: uploads
-  # are append-only, so an archive taken later than the dump always contains
+  # are only ever added, so an archive taken later than the dump always contains
   # every image the dump references. The reverse order can restore a catalog
-  # pointing at files that were never archived.
+  # pointing at files that were never archived. An order document deleted in
+  # between (a replaced file, a closed account) leaves the archive holding a
+  # file nothing points at, which is the harmless direction.
   #
-  # No docker socket: nothing has to be stopped for a consistent copy of an
-  # append-only directory, so the container gets the volume read-only and
-  # nothing else.
+  # No docker socket: nothing has to be stopped for a consistent copy of a
+  # directory nothing rewrites in place, so the container gets the volume
+  # read-only and nothing else. The private subdirectory travels with it: an
+  # order's documents are the shop's paperwork and are backed up like the rest.
   media-backup:
     image: offen/docker-volume-backup:v2
     profiles: ['backup']

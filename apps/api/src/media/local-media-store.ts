@@ -1,6 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
-import { access, mkdir, rename, writeFile } from 'node:fs/promises';
+import {
+  access,
+  mkdir,
+  readFile,
+  rename,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { join } from 'node:path';
 import {
   DOCUMENT_URL_PREFIX,
@@ -10,6 +17,7 @@ import { env } from '../env';
 import {
   DOCUMENT_SUBDIR,
   MediaStore,
+  PRIVATE_SUBDIR,
   StoredDocument,
   StoredImage,
 } from './media-store';
@@ -47,7 +55,51 @@ export class LocalMediaStore implements MediaStore {
     return { url: `${DOCUMENT_URL_PREFIX}/${filename}` };
   }
 
-  /** Content-addressed write, shared by both kinds. Returns the filename. */
+  async putPrivate({
+    bytes,
+    ext,
+  }: {
+    bytes: Buffer;
+    ext: string;
+  }): Promise<{ key: string }> {
+    const root = this.privateRoot();
+    // Random, not content-addressed: these are deleted, and two orders must
+    // never end up sharing one file.
+    const key = `${randomBytes(16).toString('hex')}.${ext}`;
+    await mkdir(root, { recursive: true });
+    const tmp = join(root, `.${key}.${randomBytes(6).toString('hex')}`);
+    await writeFile(tmp, bytes);
+    await rename(tmp, join(root, key));
+    this.logger.log(`Stored private ${key} (${bytes.length} bytes)`);
+    return { key };
+  }
+
+  async readPrivate(key: string): Promise<Buffer> {
+    return readFile(join(this.privateRoot(), this.safeKey(key)));
+  }
+
+  async deletePrivate(key: string): Promise<void> {
+    await rm(join(this.privateRoot(), this.safeKey(key)), { force: true });
+  }
+
+  private privateRoot(): string {
+    return join(env.MEDIA_ROOT as string, PRIVATE_SUBDIR);
+  }
+
+  /**
+   * The key names a file in one directory and nothing else. Keys are written
+   * by `putPrivate` and never by a client, so this is the belt to that
+   * braces: a stored value that ever acquired a separator must not be able to
+   * read its way out of the directory.
+   */
+  private safeKey(key: string): string {
+    if (!/^[0-9a-f]{32}\.[a-z0-9]{1,8}$/.test(key)) {
+      throw new Error('Not a private file key');
+    }
+    return key;
+  }
+
+  /** Content-addressed write, shared by both public kinds. Returns the filename. */
   private async write(
     root: string,
     bytes: Buffer,

@@ -10,6 +10,9 @@ process.env['MAIL_HOST'] ??= 'localhost';
 process.env['MAIL_PORT'] ??= '1025';
 process.env['MAIL_FROM'] ??= 'Test Shop <no-reply@example.test>';
 process.env['MAIL_STAFF_TO'] ??= 'shop@example.test';
+// Needed by anything that reaches mail branding — the order PDF names the shop
+// and the mails link back to it.
+process.env['APP_ORIGIN'] ??= 'https://shop.example';
 process.env['JWT_SECRET'] ??= 'test-only-jwt-secret-at-least-32-chars-long';
 // The rate limits are pinned rather than inherited: the workspace .env lifts
 // them for the e2e suite, and the throttling spec asserts that the ceiling

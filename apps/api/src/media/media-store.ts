@@ -33,6 +33,26 @@ export interface MediaStore {
    * is to touch the bytes never sees them.
    */
   putDocument(input: { bytes: Buffer; ext: string }): Promise<StoredDocument>;
+
+  /**
+   * Persists bytes nobody may fetch by URL and returns the key they were
+   * filed under (ADR 0052). Order documents name a customer, so they go to a
+   * subdirectory no web server routes and come back only through the API.
+   *
+   * The key is random rather than a content hash — the other two methods
+   * de-duplicate deliberately, and a private file is deleted when it is
+   * replaced or its account is closed, which de-duplication would make one
+   * order's business to do to another's.
+   */
+  putPrivate(input: { bytes: Buffer; ext: string }): Promise<{ key: string }>;
+
+  /** Reads a private file back. Rejects if the key names nothing. */
+  readPrivate(key: string): Promise<Buffer>;
+
+  /** Removes a private file. Succeeds where it is already gone: the row is
+   * the record that it existed, and a delete that fails halfway must not
+   * leave the row behind. */
+  deletePrivate(key: string): Promise<void>;
 }
 
 export const MEDIA_STORE = 'MEDIA_STORE';
@@ -45,3 +65,10 @@ export const MEDIA_STORE = 'MEDIA_STORE';
  * rather than inside the local adapter.
  */
 export const DOCUMENT_SUBDIR = 'documents';
+
+/**
+ * The subdirectory private files are written to. Deliberately **not** routed
+ * by the media server: the image sweep skips directories, so the only way to
+ * one of these files is the API asking for it by key.
+ */
+export const PRIVATE_SUBDIR = 'private';
