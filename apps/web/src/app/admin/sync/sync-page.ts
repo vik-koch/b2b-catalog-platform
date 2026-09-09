@@ -15,6 +15,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { AdminText } from '../../config/admin-text.type';
 import { APP_TEXT } from '../../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { adminDayFormat } from '../grid/admin-date';
 import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
@@ -666,13 +667,18 @@ export class SyncPage {
       .join(' ');
   }
 
-  /** Dates follow the deployment's locale, like prices do. */
+  /** Dates follow the deployment's locale, like prices do — the same numeric
+   * day the lists use, with the time of day a run is told apart by. */
+  private readonly runFormat = adminDayFormat(this.currency.locale);
+
   protected formatDate(iso: string): string {
-    return new Intl.DateTimeFormat(this.currency.locale, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(iso));
+    const at = new Date(iso);
+    return `${this.runFormat.format(at)} ${this.timeFormat.format(at)}`;
   }
+
+  private readonly timeFormat = new Intl.DateTimeFormat(this.currency.locale, {
+    timeStyle: 'short',
+  });
 }
 
 /** Keys of the option group, so a flag's label cannot name missing text. */

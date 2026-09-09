@@ -17,6 +17,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { adminDayFormat } from '../grid/admin-date';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
@@ -274,9 +275,7 @@ export class DocumentListPage {
   protected readonly editorFrom = injectEditorReturnParams();
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
-  private readonly dayFormat = new Intl.DateTimeFormat(this.locale, {
-    dateStyle: 'medium',
-  });
+  private readonly dayFormat = adminDayFormat(this.locale);
 
   /**
    * The search box's parameter, bound from the URL like every other grid. An

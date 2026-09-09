@@ -12,6 +12,7 @@ import { RouterLink } from '@angular/router';
 import { fillText, LinkedDocument } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { adminDayFormat } from '../grid/admin-date';
 import { HighlightedLine } from '../../core/highlighted-line';
 import { SUGGEST_PANEL, SuggestList } from '../../core/suggest-list';
 import {
@@ -189,9 +190,7 @@ export class ProductDocumentsEditor implements OnInit {
   protected readonly inputId = `document-search-${nextId}`;
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
-  private readonly dayFormat = new Intl.DateTimeFormat(this.locale, {
-    dateStyle: 'medium',
-  });
+  private readonly dayFormat = adminDayFormat(this.locale);
 
   /**
    * The whole document list, fetched once and searched here: there are a few
