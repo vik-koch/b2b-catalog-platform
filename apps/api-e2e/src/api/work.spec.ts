@@ -93,6 +93,7 @@ describe('work counts', () => {
       'expiringDocuments',
       'orders',
       'registrations',
+      'unpaidOrders',
       'unpublishedProducts',
     ]);
   });
@@ -103,6 +104,7 @@ describe('work counts', () => {
     expect(Object.keys(await counts(manager)).sort()).toEqual([
       'orders',
       'registrations',
+      'unpaidOrders',
     ]);
   });
 

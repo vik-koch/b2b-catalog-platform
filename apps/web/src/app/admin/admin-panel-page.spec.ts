@@ -118,6 +118,7 @@ describe('AdminPanelPage work counts', () => {
     const el = await render({ version: null, deployedAt: null }, adminUser, {
       registrations: 2,
       orders: 7,
+      unpaidOrders: 4,
       unpublishedProducts: 3,
       expiringDocuments: 5,
     });
@@ -127,6 +128,11 @@ describe('AdminPanelPage work counts', () => {
     );
     expect(note(el, '7 awaiting your answer')?.getAttribute('href')).toBe(
       '/admin/orders?status=requested',
+    );
+    // The money queue is the orders screen too, narrowed by both axes at once:
+    // an order finished and not paid for is what neither of them names alone.
+    expect(note(el, '4 finished, not paid')?.getAttribute('href')).toBe(
+      '/admin/orders?status=completed&payment=unpaid',
     );
     expect(note(el, '3 awaiting publication')?.getAttribute('href')).toBe(
       '/admin/products?state=unpublished',

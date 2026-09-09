@@ -119,6 +119,9 @@ export const adminTextSchema = z
          */
         workRegistrations: z.string(),
         workOrders: z.string(),
+        /** Orders handed over with the money not recorded; `{count}`
+         * substituted. */
+        workUnpaid: z.string(),
         workProducts: z.string(),
         /** Documents expiring or expired; `{count}` substituted. */
         workDocuments: z.string(),
@@ -1022,6 +1025,9 @@ export const adminTextSchema = z
         /** Staff only: an accepted cash order whose handover nobody has
          * recorded yet — the tick that is easy to forget. */
         paymentCash: z.string(),
+        /** Everything the shop has not been paid for, cash and invoiced
+         * alike — what the panel's finished-and-unpaid count links to. */
+        paymentUnpaid: z.string(),
         paymentPaid: z.string(),
         /** A guest order: nobody signed in placed it. */
         guest: z.string(),

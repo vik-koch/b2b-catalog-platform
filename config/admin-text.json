@@ -55,6 +55,7 @@
     "orders": "Orders",
     "workRegistrations": "{count} awaiting approval",
     "workOrders": "{count} awaiting your answer",
+    "workUnpaid": "{count} finished, not paid",
     "workProducts": "{count} awaiting publication",
     "workDocuments": "{count} expiring or expired"
   },
@@ -661,6 +662,7 @@
     "paymentAll": "All payments",
     "paymentAwaiting": "Awaiting payment",
     "paymentCash": "Cash on handover",
+    "paymentUnpaid": "Not paid",
     "paymentPaid": "Paid",
     "guest": "Guest",
     "actions": "Actions",

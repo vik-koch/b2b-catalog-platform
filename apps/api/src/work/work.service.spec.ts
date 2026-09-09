@@ -57,46 +57,61 @@ const user = (role: AuthUser['role']): AuthUser => ({
 });
 
 describe('WorkService', () => {
-  it('counts the two staff queues for a manager, and no catalog', async () => {
-    const { db, asks } = testDb([3, 7]);
+  it('counts the staff queues for a manager, and no catalog', async () => {
+    const { db, asks } = testDb([3, 7, 1]);
 
     const counts = await new WorkService(db).countsFor(user('manager'));
 
     // `unpublishedProducts` is absent rather than zero: a manager cannot reach
     // the products screen, so the queue is not theirs to be told about.
-    expect(counts).toEqual({ registrations: 3, orders: 7 });
-    expect(asks.map((ask) => ask.table)).toEqual([users, orders]);
+    expect(counts).toEqual({ registrations: 3, orders: 7, unpaidOrders: 1 });
+    expect(asks.map((ask) => ask.table)).toEqual([users, orders, orders]);
   });
 
   it('adds the catalog queues for an admin', async () => {
-    const { db, asks } = testDb([1, 2, 5, 4]);
+    const { db, asks } = testDb([1, 2, 3, 5, 4]);
 
     const counts = await new WorkService(db).countsFor(user('admin'));
 
     expect(counts).toEqual({
       registrations: 1,
       orders: 2,
+      unpaidOrders: 3,
       unpublishedProducts: 5,
       expiringDocuments: 4,
     });
-    expect(asks[2].table).toBe(products);
+    expect(asks[3].table).toBe(products);
     // Off the storefront and still in the catalog: a soft-deleted row is not
     // work, because nothing is waiting for it to be published.
-    expect(asks[2].where).toContain('"publishedAt" is null');
-    expect(asks[2].where).toContain('"deletedAt" is null');
+    expect(asks[3].where).toContain('"publishedAt" is null');
+    expect(asks[3].where).toContain('"deletedAt" is null');
+  });
+
+  // The money queue is the payment axis and the status axis together, which is
+  // the one piece of work neither says on its own (ADR 0050). The staff list's
+  // `unpaid` filter narrows to these very rows.
+  it('counts orders finished with the money not recorded', async () => {
+    const { db, asks } = testDb([0, 0, 6]);
+
+    const counts = await new WorkService(db).countsFor(user('manager'));
+
+    expect(counts.unpaidOrders).toBe(6);
+    expect(asks[2].table).toBe(orders);
+    expect(asks[2].where).toContain('"status" = $1');
+    expect(asks[2].where).toContain('"paymentState" <> $2');
   });
 
   // Expiring and expired in one figure: they are one job, and a document
   // crosses from the first to the second on its own.
   it('counts documents that have expired or are about to', async () => {
-    const { db, asks } = testDb([0, 0, 0, 2]);
+    const { db, asks } = testDb([0, 0, 0, 0, 2]);
 
     await new WorkService(db).countsFor(user('admin'));
 
-    expect(asks[3].table).toBe(documents);
+    expect(asks[4].table).toBe(documents);
     // A document with no expiry never comes due, so it is never counted.
-    expect(asks[3].where).toContain('"expiresAt" is not null');
-    expect(asks[3].where).toContain('"expiresAt" <= $1');
+    expect(asks[4].where).toContain('"expiresAt" is not null');
+    expect(asks[4].where).toContain('"expiresAt" <= $1');
   });
 
   it('counts only pending customer registrations', async () => {

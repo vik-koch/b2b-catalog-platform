@@ -68,6 +68,18 @@ pickup"; a status per payment method.
   every move (`order.status`, `order.paid`, `order.unpaid`, with actor and
   reference), and that is the shop's history; it lives under the log
   retention window rather than in the database, and no screen replays it.
+- **The one place the two axes are read together is a queue.** An order that
+  has been handed over and not recorded as paid is work awaiting the shop
+  (FR-WORK-02): it is the shop's own last move, nothing else prompts for it,
+  and neither axis names it alone. `awaitsPaymentRecord(status, paymentState)`
+  in the shared table says so, and three readers agree by reading it — the
+  panel's count, the staff list's `unpaid` filter, and the amber on the row's
+  payment badge. Deliberately about any unpaid ending rather than about cash: an
+  invoiced order completed and never settled is the same open item, and a method
+  special case here would be a third reading of the payment axis. It is also the
+  only amber in that column, because a colour spent on a fact that stays true
+  for days — an accepted order owes money the whole time it is being packed —
+  stops meaning "act now".
 - **The vocabulary stays coarse on purpose.** Seven states is what the shop
   distinguishes for a customer, not what a back-office system distinguishes for
   itself.
@@ -104,6 +116,11 @@ the job of whatever integrates, not a reason to grow the enum here.
   when the customer acts.
 - (+) The status sort's grouping stays meaningful — unanswered first, then
   in-flight, then the ways an order ends.
+- (−) The unpaid-handover queue does not empty by itself the way an unanswered
+  order does. An order handed over and never paid for stays counted until
+  somebody records the money, and there is no writing off — which is the honest
+  reading, since it is a real open item, but it means one figure on the panel
+  can grow stale in a way the others cannot.
 - (−) A deployment that picks and packs over days cannot say so; `approved`
   covers everything between confirming and handing over. Splitting it later is
   one more value, not a redesign.

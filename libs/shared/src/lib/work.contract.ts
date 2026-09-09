@@ -27,6 +27,12 @@ export const workCountsSchema = z.object({
    * touching it.
    */
   expiringDocuments: z.number().int().nonnegative().optional(),
+  /**
+   * Orders finished with the money not recorded (FR-ORD-04). Staff. Its own
+   * queue rather than a second reading of `orders`: they are two jobs with two
+   * lists, and one figure over both could not link to either.
+   */
+  unpaidOrders: z.number().int().nonnegative().optional(),
   /** The account holder's own orders that wait on them. */
   myOrders: z.number().int().nonnegative().optional(),
 });

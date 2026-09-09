@@ -86,12 +86,22 @@ export const PAYMENT_METHODS_DUE_ON_ACCEPTANCE = [
 ] as const;
 
 /**
- * What a manager narrows the payment column to (FR-ORD-04) — the three things
- * that column actually says, and nothing else. `cash` is not a payment state:
- * it is an accepted cash order nobody has recorded the handover for, which is
- * the one piece of money-work the state axis cannot express on its own.
+ * What a manager narrows the payment column to (FR-ORD-04) — what that column
+ * actually says, and nothing else. `cash` is not a payment state: it is an
+ * accepted cash order nobody has recorded the handover for, which is the one
+ * piece of money-work the state axis cannot express on its own.
+ *
+ * `unpaid` is the whole of "not recorded as paid", cash and invoiced alike. It
+ * exists because a queue links to the rows it counted: the count of orders
+ * finished and unsettled narrows the list with this and the status together,
+ * so neither has to be an `or` of the other's readings.
  */
-export const STAFF_PAYMENT_FILTERS = ['awaiting', 'cash', 'paid'] as const;
+export const STAFF_PAYMENT_FILTERS = [
+  'awaiting',
+  'cash',
+  'unpaid',
+  'paid',
+] as const;
 
 /** As long as a manager needs to say why, and no longer than a note. */
 export const ORDER_STATUS_REASON_MAX = 500;

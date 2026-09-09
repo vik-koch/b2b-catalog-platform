@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   allowedTransitions,
+  awaitsPaymentRecord,
   canTransition,
   moveDirection,
   nextPaymentState,
@@ -173,5 +174,31 @@ describe('paymentStateWithoutPayment', () => {
     expect(paymentStateWithoutPayment('cancelled', 'bank-transfer')).toBe(
       'not-due',
     );
+  });
+});
+
+/**
+ * The one piece of work the two axes only name together (ADR 0050). Three
+ * readers agree by reading this: the work queue's count, the staff list's
+ * `unpaid` filter, and the amber on the payment badge.
+ */
+describe('awaitsPaymentRecord', () => {
+  it('is the finished order nobody has recorded the money for', () => {
+    expect(awaitsPaymentRecord('completed', 'not-due')).toBe(true);
+    expect(awaitsPaymentRecord('completed', 'awaiting')).toBe(true);
+  });
+
+  it('is nothing once the payment is recorded', () => {
+    expect(awaitsPaymentRecord('completed', 'paid')).toBe(false);
+  });
+
+  // An order still being worked on is owed money for as long as it takes, and
+  // a refused one is owed nothing at all.
+  it('is nothing while the order is still going, or once it was refused', () => {
+    for (const status of ['requested', 'approved', 'ready'] as const) {
+      expect(awaitsPaymentRecord(status, 'awaiting')).toBe(false);
+    }
+    expect(awaitsPaymentRecord('declined', 'awaiting')).toBe(false);
+    expect(awaitsPaymentRecord('cancelled', 'not-due')).toBe(false);
   });
 });

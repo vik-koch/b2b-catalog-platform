@@ -20,6 +20,8 @@ export const WORK_QUEUES = [
   'unpublishedProducts',
   /** Documents expired or about to expire (FR-DOC-04). Admin. */
   'expiringDocuments',
+  /** Orders handed over and not recorded as paid (FR-ORD-04). Staff. */
+  'unpaidOrders',
   /** The account's own orders that wait on the account holder. */
   'myOrders',
 ] as const;
