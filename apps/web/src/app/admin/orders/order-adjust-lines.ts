@@ -159,7 +159,22 @@ export interface AdjustLineRow {
                   </span>
                   <span class="block">{{ line.totalLabel }}</span>
                 } @else {
-                  <app-skeleton class="w-20" [lines]="2" />
+                  <!-- Two bars the shape of the two lines they stand in for:
+                       the reading above at its size, the figure below at its
+                       own, both hung off the right edge the figures are set
+                       against. -->
+                  <span class="block w-20">
+                    <app-skeleton
+                      size="sm"
+                      align="right"
+                      [widths]="['4.5rem']"
+                    />
+                    <app-skeleton
+                      size="base"
+                      align="right"
+                      [widths]="['3.25rem']"
+                    />
+                  </span>
                 }
               </span>
               <!-- Moving a line is not a change to the order, and the change

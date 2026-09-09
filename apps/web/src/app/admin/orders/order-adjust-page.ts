@@ -106,9 +106,8 @@ const REFUSAL_PART: Record<AdjustmentRefusal, 'lines' | 'details'> = {
   'invalid-postal-code': 'details',
   'unknown-pickup-location': 'details',
   'order-changed': 'details',
-  // Beside the fields rather than the lines: it is a statement about the whole
-  // form, and the manager has to find what they meant to change somewhere in
-  // it.
+  // Only ever raised by the save, never by the pricing, so this half is never
+  // read for it: it is said under the note instead.
   'no-change': 'details',
   'order-not-found': 'details',
 };
@@ -528,7 +527,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
               </section>
             </div>
 
-            @if (failed(); as message) {
+            @if (formFailure(); as message) {
               <p class="mt-6 text-sm text-red-600" role="alert">
                 {{ message }}
               </p>
@@ -588,6 +587,14 @@ const PREVIEW_DEBOUNCE_MS = 250;
               @if (noteMissing()) {
                 <p class="mt-1 text-sm text-red-600" role="alert">
                   {{ text.noteRequired }}
+                </p>
+              } @else if (noteFailure(); as message) {
+                <!-- "Nothing changed" names no field, so there is nowhere in
+                     either fold to say it. It reads here, on the last thing
+                     written before saving and beside the button that was
+                     pressed. -->
+                <p class="mt-1 text-sm text-red-600" role="alert">
+                  {{ message }}
                 </p>
               }
             </div>
@@ -878,6 +885,18 @@ export class AdminOrderAdjustPage {
   protected readonly notify = signal(false);
   protected readonly saving = signal(false);
   protected readonly failed = signal<string | null>(null);
+  /**
+   * Whether that refusal is one about the save rather than about a field.
+   * Every other one names something on the form and is said beside it; this
+   * one is said under the note, where the save button is.
+   */
+  private readonly failedAtNote = signal(false);
+  protected readonly formFailure = computed(() =>
+    this.failedAtNote() ? null : this.failed(),
+  );
+  protected readonly noteFailure = computed(() =>
+    this.failedAtNote() ? this.failed() : null,
+  );
   protected readonly noteMissing = signal(false);
   /**
    * The forms are `FormGroup`s, which no signal reads. Bumped on every change
@@ -1363,6 +1382,7 @@ export class AdminOrderAdjustPage {
     // to come back as "that did not work". An order the shop will not fill at
     // all is declined, not emptied.
     if (body.lines.length === 0) {
+      this.failedAtNote.set(false);
       this.failed.set(this.text.lines.empty);
       return;
     }
@@ -1398,11 +1418,13 @@ export class AdminOrderAdjustPage {
     try {
       const result = await this.api.adjust(this.reference(), body);
       if (!result.ok) {
+        this.failedAtNote.set(result.code === 'no-change');
         this.failed.set(this.text.errors[result.code]);
         return;
       }
       await this.router.navigate(['/admin/orders', this.reference()]);
     } catch {
+      this.failedAtNote.set(false);
       this.failed.set(this.text.errors.unknown);
     } finally {
       this.saving.set(false);
