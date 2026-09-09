@@ -151,6 +151,10 @@ const probes: Record<string, Probe<OrderJourneyContext>> = {
     read: async (ctx, cache) =>
       [...(await adminOrder(ctx, cache)).notifiedStatuses].sort(),
   },
+  reason: {
+    label: reading.reason.label,
+    read: async (ctx, cache) => (await adminOrder(ctx, cache)).statusReason,
+  },
   customerTotal: {
     label: reading.customerTotal.label,
     read: async (ctx, cache) => (await customerOrder(ctx, cache)).totalMinor,
@@ -159,7 +163,9 @@ const probes: Record<string, Probe<OrderJourneyContext>> = {
     label: reading.customerDocuments.label,
     read: async (ctx, cache) =>
       (await customerOrder(ctx, cache)).documents
-        .map((document: { kind: string }) => document.kind)
+        .map((document: { kind: string; outdated: boolean }) =>
+          document.outdated ? `${document.kind} (outdated)` : document.kind,
+        )
         .sort(),
   },
   /**
@@ -225,6 +231,123 @@ const actions: JourneyAdapter<OrderJourneyContext>['actions'] = {
           },
           ctx.managerCookie,
         ),
+      );
+    },
+  },
+  /**
+   * A manager changing what the order says (FR-ORD-03).
+   *
+   * The payload is the order as it stands, sent back with one thing different
+   * — which is what the admin screen holds — so a journey names only the
+   * change: `units`, `paymentMethod`, `contactName`. Building it from the
+   * order rather than from a literal is what lets a journey adjust an order it
+   * did not place, and keeps a change from silently reverting a field the
+   * checkout set.
+   */
+  adjust: {
+    label: 'changes what the order says',
+    run: async (ctx, args) => {
+      const order = (
+        await ok(
+          call(
+            'get',
+            `/admin/orders/${ctx.reference}`,
+            undefined,
+            ctx.managerCookie,
+          ),
+        )
+      ).data;
+      const withLabel = (address: Record<string, unknown> | null) =>
+        address ? { ...address, label: null } : null;
+      await ok(
+        call(
+          'post',
+          `/admin/orders/${ctx.reference}/adjustment`,
+          {
+            lines: order.lines.map(
+              (line: Record<string, unknown>, index: number) => ({
+                slug: line['slug'],
+                // Counted in basis units, which is neither the piece count
+                // nor the quantity the line is read in: a line of 20 pieces
+                // priced per 10 is two of them.
+                units:
+                  index === 0 && 'units' in args
+                    ? args['units']
+                    : (line['pieces'] as number) /
+                      (line['priceBasisPieces'] as number),
+                unit: line['unit'],
+                note: line['note'],
+                priceMinor: line['priceMinor'],
+                priceBasisPieces: line['priceBasisPieces'],
+              }),
+            ),
+            contact:
+              'contactName' in args
+                ? { ...order.contact, name: args['contactName'] }
+                : order.contact,
+            party: order.party,
+            fulfilmentMethod: order.fulfilmentMethod,
+            deliveryAddress: withLabel(order.deliveryAddress),
+            pickupLocationKey: order.pickup ? order.pickup.key : null,
+            billingAddress: withLabel(order.billingAddress),
+            paymentMethod: args['paymentMethod'] ?? order.paymentMethod,
+            tierKey: order.tierKey,
+            note: args['note'] ?? null,
+            notify: args['notify'] ?? false,
+            basedOnRevision: order.revisionNumber,
+          },
+          ctx.managerCookie,
+        ),
+      );
+    },
+  },
+  /**
+   * The button that moves the customer's view on, and writes to them if asked.
+   *
+   * The manual half of a rule that is otherwise automatic: a change moves
+   * nothing on its own, and an ended order's moves stop moving their page, so
+   * this is how anything reaches them in either case.
+   */
+  tellCustomer: {
+    label: 'shows the customer where the order got to',
+    run: async (ctx, args) => {
+      await ok(
+        call(
+          'post',
+          `/admin/orders/${ctx.reference}/notify`,
+          { notify: args['notify'] ?? true },
+          ctx.managerCookie,
+        ),
+      );
+    },
+  },
+  /**
+   * A file the shop files against the order (FR-ORD-05) — in practice the
+   * payment instructions, which only the shop knows the contents of.
+   *
+   * Not a real slip, but real enough that the content sniff accepts it: what
+   * the journeys are about is when the customer may open it, never what it
+   * says.
+   */
+  supplyDocument: {
+    label: 'files a document against the order',
+    run: async (ctx, args) => {
+      const kind = args['kind'] as string;
+      const bytes = Buffer.from(
+        `%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n`,
+      );
+      const form = new FormData();
+      form.append(
+        'file',
+        new Blob([new Uint8Array(bytes)], { type: 'application/pdf' }),
+        'payment.pdf',
+      );
+      form.append('notify', String(args['notify'] ?? false));
+      await ok(
+        axios.post(`/order-documents/${ctx.reference}/${kind}`, form, {
+          headers: { Cookie: ctx.managerCookie },
+          validateStatus: () => true,
+        }),
       );
     },
   },

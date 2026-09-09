@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
@@ -37,6 +38,16 @@ const BASE_MINOR = 1999;
 const BASIS = 10;
 const PIECES = 20;
 const TOTAL_MINOR = (BASE_MINOR * PIECES) / BASIS;
+
+/**
+ * The office a collected order is picked up from, read from the deployment's
+ * own config rather than named here: a renamed or re-cut office should move
+ * this suite, not break it.
+ */
+const deployment = JSON.parse(
+  readFileSync(requireEnv('DEPLOYMENT_CONFIG_FILE'), 'utf8'),
+) as { pickup?: { locations: { key: string }[] } };
+const PICKUP_KEY = deployment.pickup?.locations[0]?.key ?? null;
 
 const address = {
   label: null,
@@ -152,7 +163,7 @@ describe('the life of an order', () => {
           ? { name: 'Kontor GmbH', registrationId: 'DE123456789' }
           : { name: 'Ada Lovelace', registrationId: null },
         deliveryAddress: pickup ? null : address,
-        pickupLocationKey: null,
+        pickupLocationKey: pickup ? PICKUP_KEY : null,
         billingAddress: address,
         paymentMethod: journey.order.paymentMethod ?? 'bank-transfer',
         preferredDate: null,

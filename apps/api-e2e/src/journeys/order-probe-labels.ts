@@ -37,6 +37,11 @@ export const ORDER_PROBES = {
     meaning:
       'The statuses the customer has had a mail about, listed alphabetically rather than in the order they were sent. This is what decides whether the next move offers its tick box already ticked — a state on this list is not news twice.',
   },
+  reason: {
+    label: 'The reason on it',
+    meaning:
+      'What the shop said when it refused the order, or the customer when they called it off. Cleared when an ended order is reopened.',
+  },
   customerTotal: {
     label: 'The total the customer reads',
     meaning:
@@ -45,7 +50,7 @@ export const ORDER_PROBES = {
   customerDocuments: {
     label: 'What the customer can open',
     meaning:
-      'The documents readable from their own page, which depends on the version they are on and on what the order owes.',
+      'The documents readable from their own page, which depends on the version they are on and on what the order owes. A file the order has moved on from is marked `outdated`.',
   },
   mail: {
     label: 'Mail to the customer',

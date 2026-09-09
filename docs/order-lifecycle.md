@@ -164,8 +164,9 @@ checked, and nothing checked goes undescribed.
 - **Version** — How many versions the order has. Every move and every change writes one, so this counts what has happened to it.
 - **The version the customer is on** — Which of those versions their own page shows. It can lag the newest one: a change nobody has told them about is not theirs to see.
 - **Already written to about** — The statuses the customer has had a mail about, listed alphabetically rather than in the order they were sent. This is what decides whether the next move offers its tick box already ticked — a state on this list is not news twice.
+- **The reason on it** — What the shop said when it refused the order, or the customer when they called it off. Cleared when an ended order is reopened.
 - **The total the customer reads** — The money on the version they are on — not necessarily what the order now says.
-- **What the customer can open** — The documents readable from their own page, which depends on the version they are on and on what the order owes.
+- **What the customer can open** — The documents readable from their own page, which depends on the version they are on and on what the order owes. A file the order has moved on from is marked `outdated`.
 - **Mail to the customer** — What arrived in their inbox at this step, named by the message it is. An empty cell means nothing was sent, and is asserted.
 
 <!-- /generated:journey-legend -->
@@ -207,6 +208,105 @@ two quiet steps below say something.
 | 1   | `ready` was clicked too early, so the manager walks it back a step. | manager | Where it stands: `approved`<br>Version: 4<br>The version the customer is on: 4                                                                                                                                                |
 | 2   | The order is genuinely ready, and the manager says so again.        | manager | Where it stands: `ready`<br>Version: 5<br>The version the customer is on: 5                                                                                                                                                   |
 | 3   | It is handed over and completed.                                    | manager | Where it stands: `completed`<br>Version: 6<br>The version the customer is on: 6<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: [`completed`](mail.md#order-completed) |
+
+</details>
+
+<details>
+<summary><b>Collected from the counter, paid in cash</b> — The other shape of an order: a guest with no account, collecting rather than receiving, paying at the handover. Cash is the case a single status chain could not describe.</summary>
+
+**The order.** A guest’s order, to be collected from an office and paid for in cash.
+
+**Starting from.** It has just been placed.
+
+**Which leaves it.** Where it stands: `requested`<br>What it owes: `not-due`<br>Version: 1<br>The version the customer is on: 1<br>Already written to about: `requested`
+
+| #   | What happens                                                                    | Who     | What changes                                                                                                                                                                                                                                          |
+| --- | ------------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The manager accepts it.                                                         | manager | Where it stands: `approved`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)                                                    |
+| 2   | It is packed, and waiting at the counter.                                       | manager | Where it stands: `ready`<br>Version: 3<br>The version the customer is on: 3<br>Already written to about: `approved` · `ready` · `requested`<br>Mail to the customer: [`readyPickup`](mail.md#order-ready-pickup)                                      |
+| 3   | The customer collects it and pays, which the manager records with the handover. | manager | Where it stands: `completed`<br>What it owes: `paid`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: [`completed`](mail.md#order-completed) |
+
+</details>
+
+<details>
+<summary><b>Changed after it was accepted</b> — An order and the customer’s copy of it are two positions, and a change moves only one of them. Nothing reaches the customer until somebody says it should.</summary>
+
+**The order.** A signed-in customer’s order, already accepted.
+
+**Starting from.** The manager accepts it.
+
+**Which leaves it.** Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2
+
+| #   | What happens                                                                        | Who     | What changes                                                                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Short of stock, the shop agrees a smaller quantity on the phone and writes it down. | manager | Version: 3                                                                                                                                                                                                           |
+| 2   | The manager confirms the change in writing.                                         | manager | The version the customer is on: 3<br>The total the customer reads: 1999<br>Mail to the customer: [`changed`](mail.md#order-changed)                                                                                  |
+| 3   | The smaller order is packed and marked ready.                                       | manager | Where it stands: `ready`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `ready` · `requested`<br>Mail to the customer: [`readyDelivery`](mail.md#order-ready-delivery) |
+
+</details>
+
+<details>
+<summary><b>Refused, then answered again</b> — A refusal is quoted at the customer and keeps the order. Reopening it is staff putting their own record right, which is why it is quiet unless somebody says otherwise.</summary>
+
+**The order.** A signed-in customer’s order the shop cannot fill.
+
+**Starting from.** It has just been placed.
+
+**Which leaves it.** Where it stands: `requested`<br>The reason on it: null<br>Version: 1
+
+| #   | What happens                                                       | Who     | What changes                                                                                                                                                                                                                                          |
+| --- | ------------------------------------------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The manager declines it, saying why.                               | manager | Where it stands: `declined`<br>The reason on it: `Out of stock until October.`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `declined` · `requested`<br>Mail to the customer: [`declined`](mail.md#order-declined) |
+| 2   | The stock arrives sooner than expected, so the manager reopens it. | manager | Where it stands: `requested`<br>The reason on it: null<br>Version: 3<br>The version the customer is on: 3                                                                                                                                             |
+| 3   | The manager accepts it, and this time says so deliberately.        | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `declined` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)           |
+
+</details>
+
+<details>
+<summary><b>Called off by the customer</b> — The one move a customer has, and the one thing the shop must not do about it: write to them about something they just did themselves.</summary>
+
+**The order.** A signed-in customer’s order, still waiting for an answer.
+
+**Starting from.** It has just been placed.
+
+**Which leaves it.** Where it stands: `requested`<br>What it owes: `not-due`<br>Version: 1
+
+| #   | What happens                                  | Who      | What changes                                                                                                                     |
+| --- | --------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The customer calls the order off, saying why. | customer | Where it stands: `cancelled`<br>The reason on it: `Ordered twice by mistake.`<br>Version: 2<br>The version the customer is on: 2 |
+
+</details>
+
+<details>
+<summary><b>The payment slip, and who may open it</b> — A document is filed against a version. Until the customer’s own page reaches that version they are not offered it — which is the rule that stops a file describing a change nobody has told them about.</summary>
+
+**The order.** A signed-in customer’s order, invoiced and already accepted.
+
+**Starting from.** The manager accepts it.
+
+**Which leaves it.** Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>What the customer can open: `order-summary`
+
+| #   | What happens                                                            | Who     | What changes                                                                                                                                                                                                |
+| --- | ----------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | A line is repriced, and the customer is not told yet.                   | manager | Version: 3                                                                                                                                                                                                  |
+| 2   | The shop files the payment instructions for the order as it now stands. | manager | —                                                                                                                                                                                                           |
+| 3   | The manager confirms the change, which brings the slip with it.         | manager | The version the customer is on: 3<br>The total the customer reads: 1999<br>What the customer can open: `order-summary` · `payment-instructions`<br>Mail to the customer: [`changed`](mail.md#order-changed) |
+
+</details>
+
+<details>
+<summary><b>Corrected after it was finished</b> — What the platform records is what the shop did — including a correction to an order that ended weeks ago. Correcting one must not reopen it, and must not announce a lap of the workflow nobody took.</summary>
+
+**The order.** A signed-in customer’s order, delivered and completed.
+
+**Starting from.** The manager accepts it. The manager marks it ready. The manager completes it.
+
+**Which leaves it.** Where it stands: `completed`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `completed` · `ready` · `requested`
+
+| #   | What happens                                                          | Who     | What changes                                                                                  |
+| --- | --------------------------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------- |
+| 1   | A wrong contact name is noticed on the finished order, and put right. | manager | Version: 5                                                                                    |
+| 2   | The manager decides this one is worth telling them about.             | manager | The version the customer is on: 5<br>Mail to the customer: [`changed`](mail.md#order-changed) |
 
 </details>
 <!-- /generated:order-journeys -->
