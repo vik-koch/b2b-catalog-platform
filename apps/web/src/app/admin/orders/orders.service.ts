@@ -8,6 +8,7 @@ import {
   AdminOrderDocument,
   OrderDocumentKind,
   OrderRevision,
+  OrderRevisionEntry,
   OrderStatus,
   OrderSummary,
   Pagination,
@@ -133,7 +134,9 @@ export class AdminOrdersService {
   }
 
   /** Every version of one order, newest first (FR-ORD-03). */
-  async revisions(reference: string | undefined): Promise<OrderRevision[]> {
+  async revisions(
+    reference: string | undefined,
+  ): Promise<OrderRevisionEntry[]> {
     if (!reference) return [];
     const { revisions } = await this.client.listOrderRevisions({
       params: { reference },

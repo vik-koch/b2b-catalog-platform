@@ -23,6 +23,19 @@ const address = {
 
 const version: OrderRevision = {
   reference: 'DEMO-260826-4831',
+  documents: [
+    {
+      kind: 'order-summary',
+      source: 'generated',
+      fileName: 'DEMO-260826-4831.pdf',
+      contentType: 'application/pdf',
+      byteSize: null,
+      suppliedAt: null,
+      suppliedForRevision: null,
+      outdated: false,
+      notifiedAt: null,
+    },
+  ],
   status: 'approved',
   paymentState: 'awaiting',
   statusReason: null,
@@ -133,6 +146,19 @@ describe('AdminOrderRevisionPage (FR-ORD-03)', () => {
     expect(el.textContent).toContain('Version 2');
     expect(el.textContent).toContain('version 3');
     expect(el.textContent).toContain(text.paymentState.awaiting);
+  });
+
+  /**
+   * The order's files, read from where this page stands (FR-ORD-05): what can
+   * be opened is listed, and supplying or sending one is not offered — those
+   * are acts on the order, and this screen answers nothing.
+   */
+  it('lists what can be opened on the order, with nothing to press', async () => {
+    const { el } = await render(version);
+
+    expect(el.textContent).toContain(text.documents.summary);
+    expect(el.querySelector('a[href*="/api/order-documents/"]')).not.toBeNull();
+    expect(el.textContent).not.toContain(text.documents.upload);
   });
 
   /** Reading is not answering: every control lives one route up. */

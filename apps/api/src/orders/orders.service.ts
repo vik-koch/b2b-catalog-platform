@@ -17,6 +17,7 @@ import {
   OrderNotice,
   OrderReferenceConfig,
   OrderRevision,
+  OrderRevisionEntry,
   OrderRevisionKind,
   OrderStatus,
   OrderSubmission,
@@ -51,6 +52,7 @@ import {
   getTableColumns,
   ilike,
   inArray,
+  ne,
   or,
   sql,
   SQL,
@@ -1024,7 +1026,7 @@ export class OrdersService {
    * it any other way is how two screens end up describing one order
    * differently.
    */
-  async getRevisions(reference: string): Promise<OrderRevision[]> {
+  async getRevisions(reference: string): Promise<OrderRevisionEntry[]> {
     // The order first, so a reference nobody has is a 404 rather than an empty
     // list — an order with no versions does not exist.
     const current = await this.row(eq(orders.reference, reference));
@@ -1036,7 +1038,18 @@ export class OrdersService {
       ),
     );
     return Promise.all(
-      rows.map((row) => this.toRevision(row, current, authors, notified)),
+      rows.map(async (row) => {
+        // The thread lists what happened to the order; what can be opened on
+        // it belongs to the screens that read one version, so the timeline
+        // pays for no document read at all.
+        const { documents: _documents, ...entry } = await this.toRevision(
+          row,
+          current,
+          authors,
+          notified,
+        );
+        return entry;
+      }),
     );
   }
 
@@ -1061,6 +1074,11 @@ export class OrdersService {
       current,
       authors,
       await this.customerThread(current.id),
+      await this.documents.listForStaff(
+        row.id,
+        row.reference,
+        row.revisionNumber,
+      ),
     );
   }
 
@@ -1093,11 +1111,14 @@ export class OrdersService {
     current: OrderRow,
     authors: Map<string, string>,
     notified: CustomerThread,
+    // The documents belong to the order, not to one of its versions — what is
+    // read per version is whether each still states what this one says, which
+    // is `outdated` against `row.revisionNumber`. Passed in, because the
+    // screen reading one version wants them and the thread listing every
+    // version does not.
+    documents: AdminOrderDetail['documents'] = [],
   ): Promise<OrderRevision> {
-    // The documents belong to the order, not to one of its versions, so a
-    // version carries none: the spread drops the key rather than repeating
-    // the order's answer on every row of a thread.
-    const { documents, ...detail } = await this.staffDetail(row, notified);
+    const detail = await this.staffDetail(row, notified, documents);
     return {
       ...detail,
       revisionCreatedAt: row.revisionCreatedAt.toISOString(),
@@ -1786,13 +1807,15 @@ export class OrdersService {
    */
 
   /**
-   * What the payment column is narrowed to — the same three readings the badge
-   * gives, so a manager filters by what they can see. `cash` is the reminder
-   * one: an order the shop took on, to be paid in cash, with the handover not
-   * recorded yet.
+   * What the payment column is narrowed to — the readings the badge gives, so
+   * a manager filters by what they can see. `cash` is the reminder one: an
+   * order the shop took on, to be paid in cash, with the handover not recorded
+   * yet. `unpaid` is broader and is what the work queue links to: everything
+   * the shop has not been paid for, whichever way it was to be paid.
    */
   private paymentCondition(filter?: StaffPaymentFilter): SQL | undefined {
     if (!filter) return undefined;
+    if (filter === 'unpaid') return ne(orders.paymentState, 'paid');
     if (filter === 'cash') {
       return and(
         eq(orderRevisions.paymentMethod, 'cash'),

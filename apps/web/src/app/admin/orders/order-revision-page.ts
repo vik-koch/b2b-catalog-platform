@@ -24,6 +24,7 @@ import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { AdminOrdersService } from './orders.service';
+import { OrderDocumentsPanel } from './order-documents-panel';
 import { revisionKindLabel } from './revision-labels';
 
 /**
@@ -48,6 +49,7 @@ import { revisionKindLabel } from './revision-labels';
     Skeleton,
     OrderReadBack,
     OrderSummary,
+    OrderDocumentsPanel,
     StatusBadge,
   ],
   template: `
@@ -136,6 +138,24 @@ import { revisionKindLabel } from './revision-labels';
               [lines]="lines()"
               [blocks]="blocks()"
             />
+
+            <!-- What can be opened on this order (FR-ORD-05), marked from
+                 where this page stands: a supplied file filed before this
+                 version is stale *here* even where the order has since caught
+                 up with it. Read-only, like everything else on this screen. -->
+            @if (order.documents.length) {
+              <section
+                class="mt-8 max-w-xl rounded-lg border border-border p-5"
+              >
+                <h2 class="font-medium">{{ documentsText.heading }}</h2>
+                <div class="mt-1 text-sm">
+                  <app-order-documents-panel
+                    [order]="order"
+                    [readOnly]="true"
+                  />
+                </div>
+              </section>
+            }
           </div>
 
           <aside
@@ -186,6 +206,7 @@ export class AdminOrderRevisionPage {
   protected readonly detailText = inject(ADMIN_TEXT).orderDetail;
   protected readonly listText = inject(ADMIN_TEXT).orderList;
   protected readonly text = this.detailText.revisions;
+  protected readonly documentsText = this.detailText.documents;
 
   readonly reference = input.required<string>();
   /** Bound from the route, and so a string: an unparsed segment. */

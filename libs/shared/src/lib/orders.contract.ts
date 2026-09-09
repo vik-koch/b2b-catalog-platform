@@ -431,30 +431,42 @@ export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
  * `status` is the version's own — every move writes one, so a version says
  * where the order stood when it was written and the thread reads as the
  * order's history. Payment is not versioned: what has been received is a fact
- * about the order today, whichever version is being looked at.
+ * about the order today, whichever version is being looked at. Nor are the
+ * documents: an order's files are the order's, and each is marked `outdated`
+ * against the version it is being read beside — so staff reading an old
+ * version see it stated from where they are standing.
  */
-export const orderRevisionSchema = adminOrderDetailSchema
-  .omit({ documents: true })
-  .extend({
-    /** When this version was written, and by whom — null for the one the
-     * customer submitted, and for anything an outside system writes back. */
-    revisionCreatedAt: z.iso.datetime(),
-    author: z.string().nullable(),
-    /** Why it was written: placed, moved, or changed. */
-    kind: orderRevisionKindSchema,
-    /** What the shop said about *this* version, in their words — null on every
-     * version that is not a change. The order's `changes` is the running account
-     * the customer reads; this is the one entry the thread hangs on this row. */
-    note: z.string().nullable(),
-    /** Whether this is the version the customer is being shown. */
-    customerView: z.boolean(),
-    /** When the customer was written to about this version (FR-NOTIF-03), null
-     * where they never were. Not the same question as `customerView`: a version
-     * can become theirs without a mail, and a version they were mailed about is
-     * superseded the moment the next one is written. */
-    notifiedAt: z.iso.datetime().nullable(),
-  });
+export const orderRevisionSchema = adminOrderDetailSchema.extend({
+  /** When this version was written, and by whom — null for the one the
+   * customer submitted, and for anything an outside system writes back. */
+  revisionCreatedAt: z.iso.datetime(),
+  author: z.string().nullable(),
+  /** Why it was written: placed, moved, or changed. */
+  kind: orderRevisionKindSchema,
+  /** What the shop said about *this* version, in their words — null on every
+   * version that is not a change. The order's `changes` is the running account
+   * the customer reads; this is the one entry the thread hangs on this row. */
+  note: z.string().nullable(),
+  /** Whether this is the version the customer is being shown. */
+  customerView: z.boolean(),
+  /** When the customer was written to about this version (FR-NOTIF-03), null
+   * where they never were. Not the same question as `customerView`: a version
+   * can become theirs without a mail, and a version they were mailed about is
+   * superseded the moment the next one is written. */
+  notifiedAt: z.iso.datetime().nullable(),
+});
 export type OrderRevision = z.infer<typeof orderRevisionSchema>;
+
+/**
+ * A version in the thread, where the documents are deliberately absent: the
+ * timeline lists what happened to the order, not what can be opened on it, and
+ * marking every file against every version an order has ever had is a query
+ * per row for something no screen reads.
+ */
+export const orderRevisionEntrySchema = orderRevisionSchema.omit({
+  documents: true,
+});
+export type OrderRevisionEntry = z.infer<typeof orderRevisionEntrySchema>;
 
 /**
  * A cart the server priced differently from what the browser last saw. The
@@ -973,7 +985,9 @@ export const ordersContract = {
     })
     .errors(orderNotFound)
     .input(z.object({ params: z.object({ reference: z.string() }) }))
-    .output(z.object({ revisions: z.array(orderRevisionSchema) }).strict()),
+    .output(
+      z.object({ revisions: z.array(orderRevisionEntrySchema) }).strict(),
+    ),
 
   /**
    * One version of an order, read on its own (FR-ORD-03).
