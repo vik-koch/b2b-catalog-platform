@@ -962,7 +962,7 @@
     "declineConfirm": "Decline {name}? Their registration and details are removed for good.",
     "deactivate": "Deactivate account",
     "deactivateTitle": "Deactivate account",
-    "deactivateConfirm": "Deactivate {name}? They are signed out immediately, their password stops working, and any link they were sent is cancelled. Nothing is deleted — the account can be switched back on later.",
+    "deactivateConfirm": "Deactivate {name}? They are signed out immediately and cannot sign in again, and any password link they were sent is cancelled. Their password itself is kept, so switching the account back on returns it as it was. Nothing is deleted, and they are not emailed.",
     "reactivate": "Reactivate account",
     "reactivateTitle": "Reactivate account",
     "reactivateConfirm": "Switch {name} back on? Their details and price tier are unchanged, and they are emailed a link to choose a new password.",

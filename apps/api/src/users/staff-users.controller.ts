@@ -180,10 +180,12 @@ export class StaffUsersController {
   }
 
   /**
-   * Switching an account off, and back on. Both directions go through
-   * AccountInvitations rather than the service alone: off has to retire the
-   * links that are out, and on has to send a new one, because the account
-   * comes back with no password of its own.
+   * Switching an account off, and back on.
+   *
+   * Off goes through AccountInvitations, which has the links to retire beside
+   * the status write. On is the service alone and sends nothing: the account
+   * keeps the password it had, so switching it back on is silent — its owner
+   * signs in as though nothing happened, and is never told it stopped.
    */
   @Implement(usersContract.setUserActive)
   setUserActive(@CurrentUser() actor: AuthUser) {
@@ -196,7 +198,7 @@ export class StaffUsersController {
           throw errors['account-not-found'](NOT_FOUND);
         }
         const user = body.active
-          ? await this.invitations.reactivate(id)
+          ? await this.service.reactivate(id)
           : await this.invitations.deactivate(id, actor.id);
         this.audit.record(
           body.active ? 'user.reactivated' : 'user.deactivated',

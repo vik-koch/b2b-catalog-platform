@@ -88,7 +88,10 @@ describe('/admin/users', () => {
        VALUES ($1, $2, $3, $4, 'Jane', 'Doe', '+49 40 1234567', 'person',
                case when $5::boolean then now() end)
        RETURNING id`,
-      [email, passwordHash, role, status],
+      // Decided here rather than in SQL: `$4` is the status column's own type
+      // in the VALUES list, and comparing it as text in the same statement is
+      // two types for one parameter, which pg refuses to deduce.
+      [email, passwordHash, role, status, status === 'active'],
     );
     return rows[0].id;
   };
@@ -608,7 +611,7 @@ describe('/admin/users', () => {
       expect(live).toHaveLength(0);
     });
 
-    it('switches back on to `invited`, with a fresh link and the account intact', async () => {
+    it('switches back on silently, with the password that was there', async () => {
       const { email, id } = await seed('back', 'user', 'active');
       await off(id);
       await deleteMatching(`to:"${email}"`);
@@ -616,25 +619,29 @@ describe('/admin/users', () => {
       const res = await on(id);
 
       expect(res.status).toBe(200);
-      // Not `active`: deactivation took the password with it, so there is
-      // nothing to sign in with until a new one is chosen. Everything the
-      // approval decided is untouched.
-      expect(res.data).toMatchObject({ status: 'invited', firstName: 'Jane' });
+      // `active`, and the password the account holder chose still works: as
+      // far as they are concerned nothing happened, which is the point.
+      expect(res.data).toMatchObject({ status: 'active', firstName: 'Jane' });
       const login = await axios.post(
         '/auth/login',
         { email, password: PASSWORD },
         { validateStatus: () => true },
       );
-      expect(login.status).toBe(401);
+      expect(login.status).toBe(200);
 
-      // The link is the only way back in, so the reactivation sends it.
-      expect(await messagesMatching(`to:"${email}"`)).toHaveLength(1);
-      const { rows } = await client.query(
-        `SELECT id FROM password_tokens
-         WHERE "userId" = $1 AND "usedAt" IS NULL AND "expiresAt" > now()`,
-        [id],
-      );
-      expect(rows).toHaveLength(1);
+      // Nothing is written to them, either way round.
+      expect(await messagesMatching(`to:"${email}"`)).toHaveLength(0);
+    });
+
+    it('brings an account that never chose a password back as invited', async () => {
+      const { id } = await seed('back-invited', 'user', 'invited');
+      await off(id);
+
+      const res = await on(id);
+
+      // There is nothing to sign in with, so the account lands where a link
+      // can still be sent to it — and staff send one deliberately.
+      expect(res.data.status).toBe('invited');
     });
 
     it('refuses your own account and the last admin', async () => {

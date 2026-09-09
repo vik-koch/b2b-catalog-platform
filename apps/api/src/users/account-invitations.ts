@@ -74,14 +74,16 @@ export class AccountInvitations {
   }
 
   /**
-   * Switch an account off. The status write retires the password and ends every
-   * session in flight; this adds the third way in — a set-your-password link
-   * sitting unused in a mailbox, which would otherwise be a working key to an
-   * account nobody can sign into any more.
+   * Switch an account off. The status write ends every session in flight; this
+   * adds the other way in — a set-your-password link sitting unused in a
+   * mailbox, which would otherwise be a working key to an account nobody may
+   * sign into any more.
+   *
+   * The password itself stays (see StaffUsersService.deactivate), so switching
+   * an account back on needs no mail and tells its owner nothing.
    */
   async deactivate(id: string, actorId: string): Promise<StaffUser> {
-    const placeholder = await this.passwords.unusableHash();
-    const updated = await this.users.deactivate(id, actorId, placeholder);
+    const updated = await this.users.deactivate(id, actorId);
     await this.tokens.revokeOutstanding(id);
     return updated;
   }

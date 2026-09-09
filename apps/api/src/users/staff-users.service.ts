@@ -307,13 +307,18 @@ export class StaffUsersService {
    * every `approvedBy` reference still point at somebody — this is not
    * anonymization (FR-AUTH-06), which is final.
    *
-   * Three writes, and each is load-bearing. The status is what login and the
+   * Two writes, and each is load-bearing. The status is what login and the
    * guards read. The `tokenVersion` bump is the part that matters on the day
    * it is used: somebody who has just left holds a session cookie good for
-   * another seven days, and a status change alone would not touch it. And the
-   * password is replaced with an unusable hash, so "switched off" means the
-   * credential is gone rather than dormant — which is why coming back is
-   * `reactivate`'s job and lands on `invited`.
+   * another seven days, and a status change alone would not touch it.
+   *
+   * The **password is left alone**. Deactivation is access taken away, not a
+   * credential destroyed: nothing can sign in while the status says so, and an
+   * account switched back on is the same account it was, with the password its
+   * owner already chose. Retiring the credential made every reactivation an
+   * invitation — a mail to somebody who never asked for one, worded as though
+   * their account had just been created. A password that should not survive is
+   * a password *reset*, which is its own action and available at any time.
    *
    * Both `active` and `invited` accounts can be switched off: a colleague who
    * never opened their invitation still needs the account stopped. A `pending`
@@ -323,11 +328,7 @@ export class StaffUsersService {
    * The guards mirror the role change's: you cannot switch yourself off, and
    * the last admin cannot be switched off by anyone.
    */
-  async deactivate(
-    id: string,
-    actorId: string,
-    unusableHash: string,
-  ): Promise<StaffUser> {
+  async deactivate(id: string, actorId: string): Promise<StaffUser> {
     const current = await this.findById(id);
     if (!current) throw notFound();
     if (current.status !== 'active' && current.status !== 'invited') {
@@ -353,9 +354,6 @@ export class StaffUsersService {
       .update(users)
       .set({
         status: 'disabled',
-        // Not a sentinel — see PasswordService.unusableHash. Passed in rather
-        // than made here so this class still has no way to *set* a password.
-        passwordHash: unusableHash,
         // Ends every session already in flight, not just the next sign-in.
         tokenVersion: sql`${users.tokenVersion} + 1`,
         updatedAt: new Date(),
