@@ -121,20 +121,22 @@ export class StaffUsersService {
 
   /** Switch an account off, or back on. 409 is the guard: your own account,
    * the last admin, or one that was never approved to begin with. Switching on
-   * returns an `invited` account, not an `active` one — the password went with
-   * the deactivation, and the API mails a fresh link. */
+   * usually returns an `active` account — the password survived being switched
+   * off, and nothing is mailed either way; one that never chose a password
+   * comes back `invited` and needs a link. */
   setActive(id: string, active: boolean): Promise<UserActionResult> {
     return this.act(
       this.client.setUserActive({ params: { id }, body: { active } }),
     );
   }
 
-  /** Send the set-your-password link again. 409 once a password has been
-   * chosen — from there it is a password reset, not an invitation. */
-  resendInvitation(
+  /** Send the account a way back in — the invitation while it has no password,
+   * the reset link once it has. 409 for an account that cannot sign in at all:
+   * a registration nobody has decided on, one switched off, a closed one. */
+  sendPasswordLink(
     id: string,
   ): Promise<{ ok: true } | { ok: false; code: UserActionError }> {
-    return this.confirm(this.client.resendInvitation({ params: { id } }));
+    return this.confirm(this.client.sendPasswordLink({ params: { id } }));
   }
 
   /** Decline and purge a pending registration. 409 when it is no longer

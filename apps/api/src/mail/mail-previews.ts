@@ -145,6 +145,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
     },
     {
       slug: 'registration-received',
+      shows: 'registrationReceived',
       group: 'Signing up and getting in',
       title: 'Registration received (to the applicant)',
       note: 'Sent on sign-up. Deliberately actionless: the account cannot sign in until staff approve it.',
@@ -170,6 +171,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
     },
     {
       slug: 'invitation-approved',
+      shows: 'invitationApproved',
       group: 'Signing up and getting in',
       title: 'Invitation — registration approved',
       note: 'The link that sets the first password, for an account staff approved.',
@@ -177,27 +179,23 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
     },
     {
       slug: 'invitation-created',
+      shows: 'invitationCreated',
       group: 'Signing up and getting in',
       title: 'Invitation — account created by staff',
       note: 'The same link for an account nobody applied for, so it says where the account came from.',
       content: invitationMail('invite-token', text, 'created'),
     },
     {
-      slug: 'invitation-reactivated',
-      group: 'Signing up and getting in',
-      title: 'Invitation — account switched back on',
-      note: 'The same link again for an account that was deactivated and is now not.',
-      content: invitationMail('invite-token', text, 'reactivated'),
-    },
-    {
       slug: 'password-reset',
+      shows: 'passwordReset',
       group: 'The account itself',
       title: 'Password reset',
-      note: 'Requested by the account holder. The link lives an hour.',
+      note: 'Requested from the login form, or sent by staff on the account holder’s behalf. The link lives an hour.',
       content: passwordResetMail('reset-token', text),
     },
     {
       slug: 'account-deleted',
+      shows: 'accountDeleted',
       group: 'The account itself',
       title: 'Account deleted',
       note: 'Confirms the deletion the customer asked for. Past orders are anonymised, not removed.',

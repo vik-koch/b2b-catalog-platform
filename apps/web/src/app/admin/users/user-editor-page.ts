@@ -308,16 +308,17 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                 </button>
               }
             }
-            <!-- Only while the account has not chosen a password: after that
-                 the way back in is a password reset, not this mail. -->
-            @if (canResend()) {
+            <!-- For any account that may sign in: the invitation while it has
+                 no password, the reset link once it has. Which one is the
+                 API's decision, off the account's own status. -->
+            @if (canSendLink()) {
               <button
                 appButton
                 variant="secondary"
                 type="button"
                 class="gap-2"
                 [disabled]="saving()"
-                (click)="resendInvitation()"
+                (click)="sendPasswordLink()"
               >
                 <app-admin-icon name="send" class="h-4 w-4" />
                 {{ text.resend }}
@@ -411,9 +412,10 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly closed = computed(
     () => this.account()?.status === 'anonymized',
   );
-  protected readonly canResend = computed(
-    () => this.account()?.status === 'invited',
-  );
+  protected readonly canSendLink = computed(() => {
+    const status = this.account()?.status;
+    return status === 'invited' || status === 'active';
+  });
   /** Cleared on the next action, so it never outlives what it reports. */
   protected readonly resent = signal(false);
 
@@ -535,18 +537,19 @@ export class UserEditorPage implements UnsavedChangesAware {
   }
 
   /**
-   * Send the set-your-password link again — the mail was lost, filed as spam,
-   * or its seven days ran out. Issuing a new link retires the old one, so
-   * there is never more than one live way into the account.
+   * Send the account a way back in — the mail was lost, filed as spam, its
+   * deadline ran out, or somebody locked out rang the shop rather than using
+   * the form. Issuing a new link retires the old one, so there is never more
+   * than one live way into the account.
    */
-  protected async resendInvitation(): Promise<void> {
+  protected async sendPasswordLink(): Promise<void> {
     const account = this.account();
     if (!account) return;
     this.error.set(null);
     this.resent.set(false);
     this.saving.set(true);
     try {
-      const result = await this.service.resendInvitation(account.id);
+      const result = await this.service.sendPasswordLink(account.id);
       if (result.ok) this.resent.set(true);
       else this.error.set(this.listText.errors[result.code]);
     } catch {

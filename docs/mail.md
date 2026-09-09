@@ -70,24 +70,13 @@ The same link for an account nobody applied for, so it says where the account ca
 
 [View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/invitation-created.html) · [HTML source](mail/invitation-created.html) · [Plain text](mail/invitation-created.txt)
 
-<a id="invitation-reactivated"></a>
-
-### Invitation — account switched back on
-
-The same link again for an account that was deactivated and is now not.
-
-**Subject:** Your account is active again  
-**Preheader:** Choose a new password to start ordering again.
-
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/invitation-reactivated.html) · [HTML source](mail/invitation-reactivated.html) · [Plain text](mail/invitation-reactivated.txt)
-
 ## The account itself
 
 <a id="password-reset"></a>
 
 ### Password reset
 
-Requested by the account holder. The link lives an hour.
+Requested from the login form, or sent by staff on the account holder’s behalf. The link lives an hour.
 
 **Subject:** Reset your password  
 **Preheader:** Choose a new password for your account.

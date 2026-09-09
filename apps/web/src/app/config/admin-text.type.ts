@@ -1537,7 +1537,7 @@ export const adminTextSchema = z
             'email-taken': z.string(),
             'account-not-approved': z.string(),
             'account-not-disabled': z.string(),
-            'account-not-invited': z.string(),
+            'account-cannot-sign-in': z.string(),
             'self-deactivate': z.string(),
             'self-demote': z.string(),
             'last-admin': z.string(),

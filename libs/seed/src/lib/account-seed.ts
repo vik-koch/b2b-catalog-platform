@@ -135,12 +135,15 @@ async function insertAccount(
     `INSERT INTO users (
        id, email, "passwordHash", role, status,
        "firstName", "lastName", phone, "customerType", "companyRegistrationId",
-       "tierId", "approvedAt", "approvedBy", "createdAt", "updatedAt")
+       "tierId", "approvedAt", "approvedBy", "createdAt", "updatedAt",
+       "passwordSetAt")
      VALUES (
        coalesce($1::uuid, gen_random_uuid()), $2, $3, $4, $5,
        $6, $7, $8, $9, $10,
        $11, $12, $13, now() - make_interval(days => $14::int),
-       now() - make_interval(days => $14::int))
+       now() - make_interval(days => $14::int),
+       -- Only the accounts that hold the demo password have chosen one.
+       case when $15::boolean then now() - make_interval(days => $14::int) end)
      -- Untargeted, because an account is identified by two unique columns and
      -- create-if-missing means "leave whatever is already there" for either.
      -- The tombstone carries a fixed id, so a stack seeded before its address
@@ -162,6 +165,7 @@ async function insertAccount(
       approved ? new Date(Date.now() - ageInDays * 86_400_000) : null,
       approved ? approverId : null,
       ageInDays,
+      canSignIn(account),
     ],
   );
 }

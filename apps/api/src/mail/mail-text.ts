@@ -90,18 +90,6 @@ export const mailTextSchema = z
         action: z.string(),
       })
       .strict(),
-    /** The same invitation again, for an account staff switched back on:
-     * deactivation retires the password, so returning means choosing a new
-     * one rather than remembering the old. */
-    accountReactivated: z
-      .object({
-        subject: z.string(),
-        preheader: z.string(),
-        heading: z.string(),
-        body: z.string(),
-        action: z.string(),
-      })
-      .strict(),
     /**
      * The reset link somebody asked for from the login page (FR-AUTH-02).
      * Carries its own `expiry` rather than `common.linkExpiry`: a reset link

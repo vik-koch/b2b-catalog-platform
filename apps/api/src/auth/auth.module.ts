@@ -81,6 +81,8 @@ function jwtSecret(): string {
     PasswordTokenService,
     PasswordPolicy,
     PasswordSetupService,
+    // Staff send the same link from the account screen (FR-AUTH-04).
+    PasswordResetService,
     JwtAuthGuard,
     OptionalAuthGuard,
     RolesGuard,
