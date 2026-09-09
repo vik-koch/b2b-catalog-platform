@@ -203,10 +203,22 @@ Notes:
   for an ordinary five-line order walked to completion, against 2–3 kB unversioned — and the way
   out, if an integration or a hundred-line order ever makes that matter, is to stop copying items
   for a move that changed no line (ADR 0051). **Documents are generated
-  but replaceable** (ADR 0052): a deployment whose back-office
-  already produces the real paperwork supplies that file, and the generated summary is what a
-  deployment without one gets. Transitions are written as service operations with the role table
-  stated once, which is the only thing iteration 11 owes iteration 12.
+  but replaceable** (ADR 0052): a deployment whose back-office already produces the real paperwork
+  supplies that file, and the generated summary is what a deployment without one gets. Two things
+  were settled when it was built (2026-09-09). Order documents are **private** — read through the
+  API under the order's own three ways in, never off the public prefix product certificates are
+  served from, because the file names a customer. And supplying one **writes no version**: a file
+  arriving changes nothing the order says, so telling the customer about it is its own repeatable
+  act, which is also the only move available to a manager who accepted an order and then remembered
+  the slip. Which version the customer sees and which they were last written to about were pulled
+  apart at the same time: they are two facts, both always on the screen, and either can be put right
+  afterwards — the earlier design only offered the button when it judged something unannounced, so a
+  manager who cleared the tick on a move had no way back.
+  That message is what the exchange will lean on, since a back-office that cannot produce its
+  invoice until after it has accepted an order otherwise leaves the customer with an acceptance and
+  no way to pay; where it _can_, the adapter's rule is to supply the document before the version
+  that announces it, and one mail carries both. Transitions are written as service operations with
+  the role table stated once, which is the only thing iteration 11 owes iteration 12.
 - Iteration 12 is a **two-way** exchange, not the one-way import it was first written as. The
   return direction is the point: a manager should be able to work an order entirely in the shop's
   own system, with the platform keeping the customer's view, the notifications the source system
