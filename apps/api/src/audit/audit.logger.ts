@@ -71,7 +71,15 @@ export type AuditAction =
   // The money arrived, or that observation was taken back — a mis-tick, not a
   // refund. Both are audited: the record of what a manager said is the point.
   | 'order.paid'
-  | 'order.unpaid';
+  | 'order.unpaid'
+  // A document filed against an order, or taken back off it (FR-ORD-05). The
+  // bytes are opaque to the platform, so who put them there is the only thing
+  // it can say about them.
+  | 'order.document.supplied'
+  | 'order.document.removed'
+  // The customer was told about one. Its own event because it can happen more
+  // than once and later than the upload.
+  | 'order.document.sent';
 
 /**
  * Domain events for admin mutations — who changed what.

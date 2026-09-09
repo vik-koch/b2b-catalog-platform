@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import { MailModule } from '../mail/mail.module';
+import { MediaModule } from '../media/media.module';
+import { OrderDocumentFiles } from '../orders/order-document-files';
 import { UsersModule } from '../users/users.module';
 import { AccountController } from './account.controller';
 import { AccountDeletion } from './account-deletion';
@@ -12,8 +14,10 @@ import { AccountDeletion } from './account-deletion';
  * the other only ever serves the session's own row.
  */
 @Module({
-  imports: [AuthModule, UsersModule, MailModule],
+  // MediaModule for the document store: closing an account deletes the files
+  // supplied for its orders, which no column-level scrub can reach.
+  imports: [AuthModule, UsersModule, MailModule, MediaModule],
   controllers: [AccountController],
-  providers: [AccountDeletion, AuditLogger],
+  providers: [AccountDeletion, OrderDocumentFiles, AuditLogger],
 })
 export class AccountModule {}

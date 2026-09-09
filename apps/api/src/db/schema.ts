@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
+  ORDER_DOCUMENT_KINDS,
   ORDER_REVISION_KINDS,
   ORDER_STATUS_REASON_MAX,
   ORDER_STATUSES,
@@ -1043,6 +1044,64 @@ export const orderItems = pgTable(
       sql`${t.pieces} % ${t.priceBasisPieces} = 0
         and ${t.lineTotalMinor} = ${t.priceMinor} * (${t.pieces} / ${t.priceBasisPieces})`,
     ),
+  ],
+);
+
+/**
+ * A document supplied for an order (FR-ORD-05, ADR 0052).
+ *
+ * Only *supplied* files are rows. The generated summary is drawn on demand
+ * from the version the reader is entitled to, so it has no bytes to store, no
+ * row to keep current and nothing to invalidate when the order is changed.
+ *
+ * One row per kind — a supplied file replaces the generated one entirely, and
+ * two documents of one kind would be two answers to the same question.
+ *
+ * The bytes are private (ADR 0052): `fileKey` names a file in a subdirectory
+ * nothing serves, read back through the API under the order's own access
+ * rule. It is a random name rather than a content hash, unlike everything else
+ * in the store — these are deleted when the file is replaced or the account is
+ * closed, and content-addressing would have two orders sharing one file that
+ * either of them could delete.
+ */
+export const orderDocuments = pgTable(
+  'order_documents',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orderId: uuid('orderId')
+      .notNull()
+      .references(() => orders.id, { onDelete: 'cascade' }),
+    kind: varchar('kind', { length: 30 }).notNull(),
+    fileKey: varchar('fileKey', { length: 128 }).notNull(),
+    // The name it arrived under. Display only — nothing resolves by it — and
+    // what the customer's browser saves it as.
+    fileName: varchar('fileName', { length: 255 }).notNull(),
+    // The *sniffed* type, never the one the uploader claimed.
+    contentType: varchar('contentType', { length: 100 }).notNull(),
+    byteSize: integer('byteSize').notNull(),
+    suppliedAt: timestamp('suppliedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    // When the customer was last written to about this file, null where they
+    // never were. Its own record rather than a screen's memory: whether the
+    // shop has sent somebody their payment details is a fact about the order
+    // that has to survive a reload, and a manager coming back to it tomorrow
+    // is the person who most needs the answer.
+    notifiedAt: timestamp('notifiedAt', { withTimezone: true }),
+    // Null where a machine supplied it, exactly as a revision's author is:
+    // this names a person, not an author in general.
+    suppliedBy: uuid('suppliedBy').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    // Which version the order stood on when this arrived. Nothing checks a
+    // supplied file against the order, so this is how staff are told the
+    // total it quotes may have moved since.
+    suppliedForRevision: integer('suppliedForRevision').notNull(),
+  },
+  (t) => [
+    uniqueIndex('order_documents_order_kind_idx').on(t.orderId, t.kind),
+    check('order_documents_kind_known', oneOf('kind', ORDER_DOCUMENT_KINDS)),
+    check('order_documents_size_positive', sql`${t.byteSize} > 0`),
   ],
 );
 

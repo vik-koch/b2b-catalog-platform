@@ -28,6 +28,19 @@ const placed: AdminOrderDetail = {
   paymentState: 'not-due',
   statusReason: null,
   changes: [],
+  documents: [
+    {
+      kind: 'order-summary' as const,
+      source: 'generated' as const,
+      fileName: 'summary.pdf',
+      contentType: 'application/pdf',
+      byteSize: null,
+      suppliedAt: null,
+      suppliedForRevision: null,
+      outdated: false,
+      notifiedAt: null,
+    },
+  ],
   revisionNumber: 1,
   customerRevisionNumber: 1,
   notifiedRevisionNumber: 1,
@@ -208,10 +221,13 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
  * to prevent.
  */
 describe('AdminOrderDetailPage answering an order', () => {
+  /** The moves the screen offers. Not the documents panel's own controls: it
+   * carries an upload per kind whatever the order's state, and this asks
+   * which *answers* an order is being given. */
   const buttons = (el: HTMLElement) =>
-    [...el.querySelectorAll('button')].map((button) =>
-      button.textContent?.trim(),
-    );
+    [...el.querySelectorAll('button')]
+      .filter((button) => !button.closest('app-order-documents-panel'))
+      .map((button) => button.textContent?.trim());
 
   it('offers a request the two answers it has, and no cancel', async () => {
     const { el } = await render(placed);
@@ -536,5 +552,53 @@ describe('AdminOrderDetailPage answering an order', () => {
     fixture.detectChanges();
 
     expect(revisions).toHaveBeenCalledTimes(2);
+  });
+  /**
+   * The customer block is always drawn, and always says two things: which
+   * version their page is on, and what has been said about it. A screen that
+   * only appeared when something was wrong was one with no way back from a
+   * move somebody deliberately kept quiet.
+   */
+  describe('what the customer sees', () => {
+    it('says where they are and offers the message when they are level', async () => {
+      const { el } = await render({
+        ...placed,
+        revisionNumber: 3,
+        customerRevisionNumber: 3,
+        notifiedRevisionNumber: 3,
+      });
+
+      expect(el.textContent).toContain(text.tellCustomer.heading);
+      // Already told, and still offered: a message that went to a spam folder
+      // is one somebody has to be able to send again, and re-sending the
+      // version they hold says exactly what their page says.
+      expect(buttons(el)).toContain(text.tellCustomer.emailAgain);
+    });
+
+    it('offers to move their page on where it is behind', async () => {
+      const { el } = await render({
+        ...placed,
+        revisionNumber: 4,
+        customerRevisionNumber: 2,
+        notifiedRevisionNumber: 2,
+      });
+
+      // Moving them on comes first: a message about a version they are not
+      // being shown would link them to something else.
+      expect(buttons(el)).toContain(text.tellCustomer.update);
+      expect(buttons(el)).not.toContain(text.tellCustomer.email);
+    });
+
+    it('offers the message alone where they hold a version nobody announced', async () => {
+      const { el } = await render({
+        ...placed,
+        revisionNumber: 3,
+        customerRevisionNumber: 3,
+        notifiedRevisionNumber: 1,
+      });
+
+      expect(buttons(el)).toContain(text.tellCustomer.email);
+      expect(buttons(el)).not.toContain(text.tellCustomer.update);
+    });
   });
 });

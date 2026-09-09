@@ -46,6 +46,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
+import { OrderDocumentsPanel } from './order-documents-panel';
 import { orderChanges } from './order-changes';
 import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
@@ -90,6 +91,7 @@ const MARK_PAID = 'markPaid';
     Button,
     DisclosureToggle,
     OrderAdjustChanges,
+    OrderDocumentsPanel,
     Skeleton,
     OrderReadBack,
     OrderSummary,
@@ -284,6 +286,18 @@ const MARK_PAID = 'markPaid';
                       </button>
                     </div>
                   }
+                </dd>
+
+                <!-- What the order carries (FR-ORD-05): the summary the shop
+                     system draws, and the payment details only the shop can
+                     give. Here rather than beside the order, because supplying
+                     one is something a manager does while answering it. -->
+                <dt [class]="term">{{ documentsText.heading }}</dt>
+                <dd [class]="value">
+                  <app-order-documents-panel
+                    [order]="order"
+                    (changed)="reload()"
+                  />
                 </dd>
 
                 <!-- Every version of the order, newest first (FR-ORD-03) — what
@@ -508,6 +522,7 @@ export class AdminOrderDetailPage {
   protected readonly text = inject(ADMIN_TEXT).orderDetail;
   protected readonly listText = inject(ADMIN_TEXT).orderList;
   protected readonly revisionText = this.text.revisions;
+  protected readonly documentsText = this.text.documents;
   protected readonly tellText = this.text.tellCustomer;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly frame = DISCLOSURE_FRAME;
@@ -976,7 +991,13 @@ export class AdminOrderDetailPage {
       {
         key: NOTIFY,
         label: actions.notify,
-        hint: actions.notifyHint,
+        // Said here rather than left to be discovered: the shop's payment
+        // instructions travel with a message sent while the money is owed
+        // (FR-ORD-05), and a manager choosing to write should know the
+        // customer gets the slip with it.
+        hint: this.paymentNote(order, to)
+          ? `${actions.notifyHint} ${this.paymentNote(order, to)}`
+          : actions.notifyHint,
         checked: notifyByDefault(order.status, to, order.notifiedStatuses),
         requires: SHOW_CUSTOMER,
       },
@@ -996,6 +1017,39 @@ export class AdminOrderDetailPage {
       });
     }
     return checks;
+  }
+
+  /**
+   * Whether the payment instructions on this order will ride along with the
+   * message this move sends.
+   *
+   * What to say about payment in the dialog that offers to write to them.
+   *
+   * Asked of the shared table rather than restated: the server attaches the
+   * slip to a message sent while the money is owed, and where the order will
+   * *stand* after a move is exactly what `nextPaymentState` answers.
+   * `approved` on an invoiced order is the case this exists for — the one
+   * message that both accepts the order and says how to pay for it.
+   */
+  private paymentNote(
+    order: AdminOrderDetail,
+    to: TransitionTarget,
+  ): string | null {
+    const owing =
+      nextPaymentState(order.paymentState, order.paymentMethod, to) ===
+      'awaiting';
+    if (!owing) return null;
+    const supplied = order.documents.some(
+      (document) =>
+        document.kind === 'payment-instructions' &&
+        document.source === 'supplied',
+    );
+    // Either the slip goes with the message, or there is no slip and this is
+    // the last comfortable moment to notice: the customer is about to be told
+    // they owe money.
+    return supplied
+      ? this.text.actions.notifyAttachment
+      : this.text.actions.notifyNoDocument;
   }
 
   /**
@@ -1105,6 +1159,15 @@ export class AdminOrderDetailPage {
       // idle resource fetches nothing.
       this.revisions.reload();
     }
+  }
+
+  /**
+   * Re-read the order after a document was supplied or taken back. Only the
+   * order: a document writes no version (ADR 0052), so the thread is unchanged
+   * and reloading it would fetch the same list again.
+   */
+  protected reload(): void {
+    this.order.reload();
   }
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {

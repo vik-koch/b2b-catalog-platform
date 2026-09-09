@@ -164,6 +164,21 @@ export const deploymentConfigSchema = z
              * stylesheet's own figure stands.
              */
             emphasisWeight: z.number().int().min(100).max(900).optional(),
+            /**
+             * The same face for the PDFs the API draws (FR-ORD-05). Named
+             * separately, and as `ttf`/`otf` files beside the `woff2` ones,
+             * because a PDF embeds TrueType or CFF: a `woff2` embedded through
+             * fontkit is tagged as TrueType and then refused by some readers
+             * while rendering fine in others. Omitted, the API prints in the
+             * face it ships with.
+             */
+            pdf: z
+              .object({
+                regular: z.string().min(1),
+                bold: z.string().min(1),
+              })
+              .strict()
+              .optional(),
           })
           .strict()
           .optional(),

@@ -26,6 +26,20 @@ export const demoAdminOrder: AdminOrderDetail = {
   notifiedRevisionNumber: 1,
   notifiedStatuses: ['requested'],
   changes: [],
+  // The generated summary, which every order has and no order stores.
+  documents: [
+    {
+      kind: 'order-summary',
+      source: 'generated',
+      fileName: 'CK-260826-4831.pdf',
+      contentType: 'application/pdf',
+      byteSize: null,
+      suppliedAt: null,
+      suppliedForRevision: null,
+      outdated: false,
+      notifiedAt: null,
+    },
+  ],
   paidAt: null,
   totalMinor: 12990,
   currency: 'EUR',

@@ -4,6 +4,7 @@ import { PasswordService } from '../auth/password.service';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { MailService } from '../mail/mail.service';
 import { accountDeletedMail } from '../mail/templates/account-deleted.template';
+import { OrderDocumentFiles } from '../orders/order-document-files';
 import { UsersService } from '../users/users.service';
 
 /** Why a deletion was refused, when it was. */
@@ -24,6 +25,7 @@ export class AccountDeletion {
     private readonly passwords: PasswordService,
     private readonly tokens: PasswordTokenService,
     private readonly mail: MailService,
+    private readonly orderDocuments: OrderDocumentFiles,
     @Inject(MAIL_TEXT) private readonly text: MailText,
   ) {}
 
@@ -50,6 +52,15 @@ export class AccountDeletion {
     const address = user.email;
 
     await this.users.anonymize(userId, await this.passwords.unusableHash());
+    // Outside the scrub's transaction on purpose: it deletes files as well as
+    // rows, and a filesystem cannot be rolled back with a database. Run after,
+    // so a failure here leaves documents belonging to an account that is
+    // already gone rather than an account still readable with its documents
+    // deleted.
+    const removed = await this.orderDocuments.removeForUser(userId);
+    if (removed > 0) {
+      this.logger.log(`Removed ${removed} supplied order document(s)`);
+    }
     // Any set-a-password link still out would otherwise be a way back into a
     // tombstone.
     await this.tokens.revokeOutstanding(userId);

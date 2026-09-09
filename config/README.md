@@ -27,10 +27,11 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   **Browser-delivered on demand**: fetched from `/admin-text.json` once an admin
   needs it, rather than injected into every visitor's document (ADR 0009,
   amendment 2). Non-secret, like everything else on this side of the line.
-- `mail-text.json` → `MailText`, the wording of every email the app sends, one
-  section per message. **Server-only** — rendered in the API, never sent to a
-  browser. The mails' branding (shop name, header colour) and their money
-  formatting come from `deployment.json`.
+- `mail-text.json` → `MailText`, the wording the **API** renders: every email
+  the app sends, one section per message, plus the order summary it draws as a
+  PDF (`orderSummaryPdf`). **Server-only** — rendered in the API, never sent to
+  a browser. The branding (shop name, header colour), the typeface and the
+  money formatting come from `deployment.json`.
 
 Each container is pointed at its file by the stack `.env` (compose defaults them
 to the paths below, so this is only needed to rename a file):
@@ -119,6 +120,29 @@ is set in, and how heavy that should be is a property of the face. The app ships
 700, which is a clear step up from the body text in the system stack and too
 much in a family whose medium and semibold are close together — set it there
 rather than looking for the places a price is drawn.
+
+A deployment whose paperwork should be set in the same face adds `pdf` beside
+those two:
+
+```json
+"font": {
+  "family": "'Some Sans', system-ui, sans-serif",
+  "stylesheet": "fonts/fonts.css",
+  "pdf": { "regular": "fonts/some-sans.ttf", "bold": "fonts/some-sans-bold.ttf" }
+}
+```
+
+These are **`ttf` or `otf` files**, not the `woff2` the browser is served: a PDF
+embeds TrueType or CFF, and a `woff2` put through the same machinery is tagged
+as TrueType and then refused by some readers while rendering fine in others.
+Both weights are needed — the layout sets its headings and its total in the
+bold one.
+
+Omit `pdf` and the API prints in a standard face every reader already has,
+which covers the Latin alphabets with their accents and umlauts (WinAnsi) and
+nothing beyond them. **A deployment whose catalogue or addresses are written in
+any other script must name its own face here** — characters the standard one
+cannot write are drawn as question marks rather than failing the document.
 
 `family` is applied to everything the app draws. `stylesheet` is a path under
 `assets/` holding the `@font-face` rules, linked into every document by the SSR

@@ -82,6 +82,7 @@ import {
 } from '../db/schema';
 import { priceCart, PricedCart } from './cart-pricing';
 import { priceAdjustment, PricedAdjustment } from './order-adjustment';
+import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
 import {
   isUniqueViolation,
@@ -262,6 +263,14 @@ const statusPriority = sql<number>`case ${orders.status}
   else 2
 end`;
 
+/**
+ * Order requests (FR-CART-03/04, FR-ACC-01): priced, recorded and read back.
+ *
+ * Submission re-prices from scratch through the same `priceCart` the preview
+ * uses and refuses — with a fresh preview — the moment anything has moved. The
+ * customer's `expectedTotalMinor` is a comparand and never an input; nothing a
+ * browser sends decides what an order costs.
+ */
 @Injectable()
 export class OrdersService {
   constructor(
@@ -280,6 +289,7 @@ export class OrdersService {
     @Inject(PAIRINGS_ENFORCED)
     private readonly pairingsEnforced: boolean,
     private readonly notifications: OrderNotifications,
+    private readonly documents: OrderDocumentsService,
   ) {}
 
   /**
@@ -345,11 +355,21 @@ export class OrdersService {
     // ends up describing something the page it links to does not.
     const row = await this.row(eq(orders.reference, reference), 'customer');
     const changes = await this.changesSince(row.id, since);
+    // The shop's payment instructions travel with any message sent while the
+    // money is owed (FR-ORD-05) — an accepted invoiced order whose mail said
+    // nothing about how to pay is the gap this closes. Never on an order that
+    // owes nothing: attaching a payment slip to "your order is cancelled"
+    // would read as a demand.
+    const attachment =
+      row.paymentState === 'awaiting'
+        ? await this.documents.paymentAttachment(reference)
+        : null;
     await this.notifications.statusChanged(
       await this.staffDetail(row),
       row.publicToken,
       notice,
       changes,
+      attachment ? [attachment] : [],
     );
   }
 
@@ -905,20 +925,45 @@ export class OrdersService {
       and(eq(orders.reference, reference), eq(orders.userId, userId)),
       'customer',
     );
-    return this.toDetail(row);
+    return this.toDetail(row, undefined, await this.customerDocuments(row));
   }
 
   /** The mailed link's view (FR-NOTIF-06). The token is the only credential,
    * so it is matched on its own — no session is consulted. It shows what the
    * mail that carried it described. */
   async getByToken(token: string): Promise<OrderDetail> {
-    return this.toDetail(
-      await this.row(eq(orders.publicToken, token), 'customer'),
-    );
+    const row = await this.row(eq(orders.publicToken, token), 'customer');
+    return this.toDetail(row, undefined, await this.customerDocuments(row));
   }
 
   async getForStaff(reference: string): Promise<AdminOrderDetail> {
-    return this.staffDetail(await this.row(eq(orders.reference, reference)));
+    const row = await this.row(eq(orders.reference, reference));
+    return this.staffDetail(
+      row,
+      undefined,
+      await this.documents.listForStaff(
+        row.id,
+        row.reference,
+        row.revisionNumber,
+      ),
+    );
+  }
+
+  /**
+   * What a customer may open on their own order (FR-ORD-05).
+   *
+   * Read against the row as *they* see it — the projection has already
+   * resolved which version that is — so a document filed against a version
+   * they have not been shown, or a payment slip on an order that owes
+   * nothing, is not on the list.
+   */
+  private customerDocuments(row: OrderRow) {
+    return this.documents.listForCustomer(row.id, row.reference, {
+      revisionNumber: row.revisionNumber,
+      // The order's own, not the version's: what is owed is a fact about the
+      // order today, whichever version is being looked at.
+      paymentState: row.paymentState,
+    });
   }
 
   /**
@@ -933,6 +978,7 @@ export class OrdersService {
   private async staffDetail(
     row: OrderRow,
     notified?: CustomerThread,
+    documents: AdminOrderDetail['documents'] = [],
   ): Promise<AdminOrderDetail> {
     const told = notified ?? (await this.customerThread(row.id));
     const items = await this.items(row.revisionId);
@@ -955,6 +1001,7 @@ export class OrdersService {
         priceMinor: items[index].priceMinor,
         priceBasisPieces: items[index].priceBasisPieces,
       })),
+      documents,
       customerEmail: customer?.email ?? null,
       tierKey: row.tierKey,
       statusChangedAt: row.statusChangedAt.toISOString(),
@@ -1047,8 +1094,12 @@ export class OrdersService {
     authors: Map<string, string>,
     notified: CustomerThread,
   ): Promise<OrderRevision> {
+    // The documents belong to the order, not to one of its versions, so a
+    // version carries none: the spread drops the key rather than repeating
+    // the order's answer on every row of a thread.
+    const { documents, ...detail } = await this.staffDetail(row, notified);
     return {
-      ...(await this.staffDetail(row, notified)),
+      ...detail,
       revisionCreatedAt: row.revisionCreatedAt.toISOString(),
       author: row.revisionCreatedBy
         ? (authors.get(row.revisionCreatedBy) ?? null)
@@ -1221,7 +1272,7 @@ export class OrdersService {
       reason,
       userId,
     );
-    return this.toDetail(moved);
+    return this.toDetail(moved, undefined, await this.customerDocuments(moved));
   }
 
   /**
@@ -1910,6 +1961,10 @@ export class OrdersService {
   private async toDetail(
     row: OrderRow,
     known?: OrderItemRow[],
+    /** What the reader may open (FR-ORD-05). Passed in rather than read here:
+     * a customer and staff are shown different things about the same files,
+     * and a version of an order carries none at all. */
+    documents: OrderDetail['documents'] = [],
   ): Promise<OrderDetail> {
     const items = known ?? (await this.items(row.revisionId));
     // Resolved by product id, never by the slug snapshot — and only where the
@@ -2005,6 +2060,7 @@ export class OrdersService {
         sql`${orderRevisions.revisionNumber} <= ${row.revisionNumber}`,
       ),
       lines,
+      documents,
       shipment: {
         cartons: row.shipmentCartons,
         volume: row.shipmentVolume,

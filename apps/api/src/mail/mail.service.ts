@@ -2,12 +2,16 @@ import { Inject, Injectable } from '@nestjs/common';
 import { MailBranding, MAIL_BRANDING } from './mail-branding';
 import { MailContent, renderMail } from './mail-layout';
 import { MailText, MAIL_TEXT } from './mail-text';
-import { MAILER, Mailer } from './mailer';
+import { MAILER, Mailer, MailAttachment } from './mailer';
 
 /** Who the message goes to, and who a reply should reach. */
 export interface MailEnvelope {
   readonly to: string;
   readonly replyTo?: string;
+  /** Files to send with it. The envelope's business rather than the
+   * template's: what a message *says* is wording, and what travels with it is
+   * bytes the feature had to fetch. */
+  readonly attachments?: readonly MailAttachment[];
 }
 
 /**
@@ -36,6 +40,7 @@ export class MailService {
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      attachments: envelope.attachments,
     });
   }
 }

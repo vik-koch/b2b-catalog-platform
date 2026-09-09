@@ -46,15 +46,25 @@ function build(options: {
     }),
   };
 
+  // The files supplied for this account's orders (ADR 0052): bytes no
+  // column-level scrub can reach, so the deletion removes them itself.
+  const orderDocuments = {
+    removeForUser: vi.fn(async () => {
+      calls.push('documents');
+      return 0;
+    }),
+  };
+
   const deletion = new AccountDeletion(
     users as never,
     passwords as never,
     tokens as never,
     mail as never,
+    orderDocuments as never,
     demoMailText as MailText,
   );
 
-  return { deletion, users, passwords, tokens, mail, calls };
+  return { deletion, users, passwords, tokens, mail, orderDocuments, calls };
 }
 
 describe('AccountDeletion', () => {
@@ -111,7 +121,14 @@ describe('AccountDeletion', () => {
 
     await deletion.delete('u1', 'correct');
 
-    expect(calls).toEqual(['anonymize', 'revoke', 'mail:alex@example.com']);
+    // The documents go after the scrub and before the confirmation: they are
+    // part of the deletion, and the mail only reports it.
+    expect(calls).toEqual([
+      'anonymize',
+      'documents',
+      'revoke',
+      'mail:alex@example.com',
+    ]);
   });
 
   // The deletion is the request; the mail only reports it.

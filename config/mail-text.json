@@ -123,6 +123,7 @@
     "changedLabel": "Change note",
     "changedIntro": "We have changed this order since we last wrote to you — what we changed is noted below, and the contents and total are the ones that now apply.",
     "correctedIntro": "We have corrected our record of this order: it had moved further along than it should have. Where it now stands is below.",
+    "attachedNote": "Our payment details for this order are attached to this message.",
     "deliveryLabel": "Delivery address",
     "pickupLabel": "Collect from",
     "itemsHeading": "Your items",
@@ -160,6 +161,60 @@
         "heading": "Your order has been cancelled",
         "body": "This order has been cancelled and will not be filled. The reason is below, and you are welcome to call us about it."
       }
+    }
+  },
+  "orderDocument": {
+    "subject": "A document for your order",
+    "preheader": "There is a document with your order.",
+    "referenceLabel": "Order",
+    "totalLabel": "Total",
+    "action": "Open your order",
+    "kinds": {
+      "paymentInstructions": {
+        "heading": "How to pay for your order",
+        "body": "Our payment details for this order are attached. Nothing about the order itself has changed."
+      },
+      "orderSummary": {
+        "heading": "A copy of your order",
+        "body": "We have put a copy of your order with it, which you can open from the link below. Nothing about the order itself has changed."
+      }
+    }
+  },
+  "orderSummaryPdf": {
+    "title": "Order {reference}",
+    "placedLabel": "Placed",
+    "statusLabel": "Status",
+    "paymentLabel": "Payment",
+    "invoiceLabel": "Invoiced to",
+    "deliveryLabel": "Delivery address",
+    "pickupLabel": "Collect from",
+    "whenLabel": "Preferred date",
+    "whenAny": "No date given",
+    "contactLabel": "Contact",
+    "noteLabel": "Your note",
+    "changesLabel": "What we changed",
+    "itemsLabel": "Item",
+    "quantityLabel": "Quantity",
+    "lineTotalLabel": "Total",
+    "totalLabel": "Order total",
+    "footer": "This document states the order as it stands. It is not an invoice.",
+    "statuses": {
+      "requested": "Requested",
+      "approved": "Confirmed",
+      "ready": "Ready",
+      "completed": "Completed",
+      "declined": "Declined",
+      "cancelled": "Cancelled"
+    },
+    "payments": {
+      "cash": "Cash",
+      "bankTransfer": "Bank transfer",
+      "cardLater": "Card, arranged with us"
+    },
+    "paymentStates": {
+      "notDue": "Nothing due yet",
+      "awaiting": "Awaiting payment",
+      "paid": "Paid"
     }
   }
 }

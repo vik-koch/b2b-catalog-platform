@@ -742,7 +742,9 @@
       "markPaidHint": "For money handed over with the goods. You can take this back afterwards.",
       "reasonLabel": "Why — this is quoted to the customer",
       "keep": "Leave it as it is",
-      "error": "That did not work. The order may already have been answered — reload the page."
+      "error": "That did not work. The order may already have been answered — reload the page.",
+      "notifyAttachment": "The payment instructions on this order are sent with it.",
+      "notifyNoDocument": "This order is paid by transfer and has no payment instructions on it yet — upload them first if the customer should get them with this message."
     },
     "tellCustomer": {
       "heading": "Customer",
@@ -779,6 +781,33 @@
       "clearConfirm": "Clear the payment",
       "keep": "Not yet",
       "error": "That did not work. The payment may already have been recorded — reload the page."
+    },
+    "documents": {
+      "heading": "Documents",
+      "summary": "Order summary",
+      "paymentInstructions": "Payment instructions",
+      "generated": "Drawn by the shop system",
+      "supplied": "Uploaded {date}",
+      "outdated": "Uploaded against version {number}; this order is on {current}.",
+      "open": "Open",
+      "upload": "Upload",
+      "replace": "Replace",
+      "remove": "Remove",
+      "notify": "Email it to the customer",
+      "notifyHint": "Sent as a message of its own. Payment instructions travel with it; a summary is linked.",
+      "notifyBehind": "The customer has not been shown the version this belongs to yet.",
+      "notifySent": "Sent",
+      "notifyConfirmHeading": "Email this document to the customer?",
+      "notifyConfirmMessage": "They are sent a short message about it. Nothing about the order changes, and you can send it again later.",
+      "notifyConfirm": "Send it",
+      "paymentHint": "Only you can supply these — the shop's own payment details for this order.",
+      "summaryHint": "The shop system draws one from the order. Upload a file to use that instead.",
+      "removeConfirmHeading": "Remove this document?",
+      "removeConfirmMessage": "The customer stops seeing the uploaded file. The order summary goes back to the one the shop system draws.",
+      "removeConfirm": "Remove it",
+      "keep": "Keep it",
+      "uploading": "Uploading…",
+      "error": "That did not work. The file may be too large or of an unsupported type."
     }
   },
   "orderAdjust": {
