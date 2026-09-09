@@ -1,6 +1,6 @@
 New registration
 
-Someone has requested a customer account.
+Someone has requested a customer account. Review the request and, if it is genuine, approve it and assign the customer a price tier.
 
 Name: Jane Doe
 Email: jane@example.com
@@ -12,6 +12,6 @@ Company ID: DE123456789
 Open the account list: https://shop.example.com/admin/users
 
 --
-Demo Shop
-This message was sent automatically. Please do not reply.
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
 https://shop.example.com

@@ -1,10 +1,10 @@
 Your account has been deleted
 
-Your account is closed and your personal details have been removed.
+Your customer account is closed and your personal details have been removed from our records. This email address is no longer connected to an account with us.
 
-Past orders are kept for bookkeeping, with your details removed. Registering again starts a new account.
+Past orders are kept for our bookkeeping, with your details removed from them. If you register again later, it will be a new account — your earlier orders will not appear in it.
 
 --
-Demo Shop
-This message was sent automatically. Please do not reply.
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
 https://shop.example.com

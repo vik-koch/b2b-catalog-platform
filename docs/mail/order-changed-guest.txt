@@ -5,8 +5,8 @@ We have changed this order since we last wrote to you — what we changed is not
 Where your order stands has not changed — its contents and total have. The ones below are the ones that now apply.
 
 Order: CK-260826-4831
-What changed: Only 12 of the espresso cups left — the rest follows next week.
-What changed: Delivery moved to Friday.
+Change note: Only 12 of the espresso cups left — the rest follows next week.
+Change note: Delivery moved to Friday.
 Delivery address: Hafenstraße 12, 20359 Hamburg
 Total: 129,90 €
 
@@ -18,6 +18,6 @@ Saucers — 3 pcs: 30,00 €
 Open your order: https://shop.example.com/orders/demo-token
 
 --
-Demo Shop
-This message was sent automatically. Please do not reply.
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
 https://shop.example.com

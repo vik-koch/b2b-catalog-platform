@@ -8,7 +8,7 @@ import {
   messagesMatching,
 } from '../support/mailpit';
 import { cached, JourneyAdapter, Probe } from '../support/journey/journey';
-import { ORDER_PROBE_LABELS as label } from './order-probe-labels';
+import { ORDER_PROBES as reading } from './order-probe-labels';
 
 /**
  * What an order journey acts on and reads — the orders half of the journey
@@ -130,33 +130,33 @@ async function classify(id: string, subject: string): Promise<string> {
 
 const probes: Record<string, Probe<OrderJourneyContext>> = {
   status: {
-    label: label.status,
+    label: reading.status.label,
     read: async (ctx, cache) => (await adminOrder(ctx, cache)).status,
   },
   payment: {
-    label: label.payment,
+    label: reading.payment.label,
     read: async (ctx, cache) => (await adminOrder(ctx, cache)).paymentState,
   },
   version: {
-    label: label.version,
+    label: reading.version.label,
     read: async (ctx, cache) => (await adminOrder(ctx, cache)).revisionNumber,
   },
   customerSees: {
-    label: label.customerSees,
+    label: reading.customerSees.label,
     read: async (ctx, cache) =>
       (await adminOrder(ctx, cache)).customerRevisionNumber,
   },
   toldAbout: {
-    label: label.toldAbout,
+    label: reading.toldAbout.label,
     read: async (ctx, cache) =>
       [...(await adminOrder(ctx, cache)).notifiedStatuses].sort(),
   },
   customerTotal: {
-    label: label.customerTotal,
+    label: reading.customerTotal.label,
     read: async (ctx, cache) => (await customerOrder(ctx, cache)).totalMinor,
   },
   customerDocuments: {
-    label: label.customerDocuments,
+    label: reading.customerDocuments.label,
     read: async (ctx, cache) =>
       (await customerOrder(ctx, cache)).documents
         .map((document: { kind: string }) => document.kind)
@@ -168,7 +168,7 @@ const probes: Record<string, Probe<OrderJourneyContext>> = {
    * the step that sent it rather than the one after.
    */
   mail: {
-    label: label.mail,
+    label: reading.mail.label,
     kind: 'event',
     quiet: [],
     read: async (ctx) => {

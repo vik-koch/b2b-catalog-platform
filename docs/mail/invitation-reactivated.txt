@@ -1,12 +1,12 @@
 Your account is active again
 
-Your account has been switched back on. The old password no longer works — choose a new one.
+Your customer account has been switched back on. For security, the old password no longer works — choose a new one and you can start ordering again.
 
-This link works once and expires after seven days.
+This link can be used once, and expires seven days after it was sent.
 
 Choose your password: https://shop.example.com/set-password?token=invite-token
 
 --
-Demo Shop
-This message was sent automatically. Please do not reply.
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
 https://shop.example.com

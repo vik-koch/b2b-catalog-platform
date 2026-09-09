@@ -135,7 +135,7 @@ stood, including after it has ended.
 
 ## What the customer receives
 
-Every message the app can send is rendered in [docs/mail/](mail/) — both parts,
+Every message the app can send is rendered in [the email gallery](mail.md) — both parts,
 as the mailer sends them, from the demo wording. That gallery is the answer to
 "what exactly does the customer get", and the subjects listed there are the
 subjects the order-journey specs match on.
@@ -155,16 +155,29 @@ API by `apps/api-e2e/src/api/order-journeys.spec.ts`, and this section is
 rendered from the same literals — so nothing here is described that is not
 checked, and nothing checked goes undescribed.
 
+**What the columns say.**
+
+<!-- generated:journey-legend -->
+
+- **Where it stands** — The order’s fulfilment state, as staff see it.
+- **What it owes** — The second axis: `not-due`, `awaiting` or `paid`. Independent of where the order stands.
+- **Version** — How many versions the order has. Every move and every change writes one, so this counts what has happened to it.
+- **The version the customer is on** — Which of those versions their own page shows. It can lag the newest one: a change nobody has told them about is not theirs to see.
+- **Already written to about** — The statuses the customer has had a mail about, listed alphabetically rather than in the order they were sent. This is what decides whether the next move offers its tick box already ticked — a state on this list is not news twice.
+- **The total the customer reads** — The money on the version they are on — not necessarily what the order now says.
+- **What the customer can open** — The documents readable from their own page, which depends on the version they are on and on what the order owes.
+- **Mail to the customer** — What arrived in their inbox at this step, named by the message it is. An empty cell means nothing was sent, and is asserted.
+
+<!-- /generated:journey-legend -->
+
 **A blank cell is an assertion.** Every step asserts the whole observable state,
 not only what it names: a reading nobody mentions is asserted unchanged, and a
 mail nobody declares is asserted not to have been sent. That is what makes the
 two quiet steps below say something.
 
 <!-- generated:order-journeys -->
-
-### Delivered, invoiced, and paid on the doorstep
-
-The whole forward chain for a signed-in customer, and the one journey that walks it end to end. Everything else starts partway along.
+<details>
+<summary><b>Delivered, invoiced, and paid on the doorstep</b> — The whole forward chain for a signed-in customer, and the one journey that walks it end to end. Everything else starts partway along.</summary>
 
 **The order.** A signed-in customer’s order, for delivery and invoiced to their company.
 
@@ -172,15 +185,16 @@ The whole forward chain for a signed-in customer, and the one journey that walks
 
 **Which leaves it.** Where it stands: `requested`<br>What it owes: `not-due`<br>Version: 1<br>The version the customer is on: 1<br>Already written to about: `requested`
 
-| #   | What happens                                                                   | Who     | What changes                                                                                                                                                                                                               |
-| --- | ------------------------------------------------------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | The manager checks the stock and accepts the order.                            | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>Mail to the customer: `approved`                       |
-| 2   | The order is packed, and the manager marks it ready.                           | manager | Where it stands: `ready`<br>Version: 3<br>The version the customer is on: 3<br>Already written to about: `approved` · `ready` · `requested`<br>Mail to the customer: `readyDelivery`                                       |
-| 3   | It is handed over and paid for, which the manager records with the same click. | manager | Where it stands: `completed`<br>What it owes: `paid`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: `completed` |
+| #   | What happens                                                                   | Who     | What changes                                                                                                                                                                                                                                          |
+| --- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The manager checks the stock and accepts the order.                            | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)                        |
+| 2   | The order is packed, and the manager marks it ready.                           | manager | Where it stands: `ready`<br>Version: 3<br>The version the customer is on: 3<br>Already written to about: `approved` · `ready` · `requested`<br>Mail to the customer: [`readyDelivery`](mail.md#order-ready-delivery)                                  |
+| 3   | It is handed over and paid for, which the manager records with the same click. | manager | Where it stands: `completed`<br>What it owes: `paid`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: [`completed`](mail.md#order-completed) |
 
-### A step taken back, and taken again
+</details>
 
-What the customer is _not_ told. Walking a move back and repeating it must not write to them twice about a step they have already had — and must not make the genuinely new one quiet.
+<details>
+<summary><b>A step taken back, and taken again</b> — What the customer is *not* told. Walking a move back and repeating it must not write to them twice about a step they have already had — and must not make the genuinely new one quiet.</summary>
 
 **The order.** The same order, already packed: accepted and marked ready, both announced.
 
@@ -188,10 +202,11 @@ What the customer is _not_ told. Walking a move back and repeating it must not w
 
 **Which leaves it.** Where it stands: `ready`<br>Version: 3<br>The version the customer is on: 3<br>Already written to about: `approved` · `ready` · `requested`
 
-| #   | What happens                                                        | Who     | What changes                                                                                                                                                                                       |
-| --- | ------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `ready` was clicked too early, so the manager walks it back a step. | manager | Where it stands: `approved`<br>Version: 4<br>The version the customer is on: 4                                                                                                                     |
-| 2   | The order is genuinely ready, and the manager says so again.        | manager | Where it stands: `ready`<br>Version: 5<br>The version the customer is on: 5                                                                                                                        |
-| 3   | It is handed over and completed.                                    | manager | Where it stands: `completed`<br>Version: 6<br>The version the customer is on: 6<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: `completed` |
+| #   | What happens                                                        | Who     | What changes                                                                                                                                                                                                                  |
+| --- | ------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `ready` was clicked too early, so the manager walks it back a step. | manager | Where it stands: `approved`<br>Version: 4<br>The version the customer is on: 4                                                                                                                                                |
+| 2   | The order is genuinely ready, and the manager says so again.        | manager | Where it stands: `ready`<br>Version: 5<br>The version the customer is on: 5                                                                                                                                                   |
+| 3   | It is handed over and completed.                                    | manager | Where it stands: `completed`<br>Version: 6<br>The version the customer is on: 6<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: [`completed`](mail.md#order-completed) |
 
+</details>
 <!-- /generated:order-journeys -->

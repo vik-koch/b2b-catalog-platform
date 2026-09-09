@@ -6,6 +6,7 @@ import {
 import type { MailBranding } from './mail-branding';
 import { MailContent, RenderedMail, renderMail } from './mail-layout';
 import { demoMailText } from './mail-text.fixture';
+import type { MailText } from './mail-text';
 import { demoAdminOrder } from '../orders/order.fixture';
 import { accountDeletedMail } from './templates/account-deleted.template';
 import { inquiryMail } from './templates/inquiry.template';
@@ -89,274 +90,350 @@ const CHANGES = [
   'Delivery moved to Friday.',
 ];
 
+/** Which part of the app a message belongs to, in reading order. */
+export const MAIL_PREVIEW_GROUPS = [
+  'Signing up and getting in',
+  'The account itself',
+  'Orders',
+  'Getting in touch',
+] as const;
+export type MailPreviewGroup = (typeof MAIL_PREVIEW_GROUPS)[number];
+
 export interface MailPreview {
   /** File name under `docs/mail/`, and the anchor the index links to. */
   readonly slug: string;
   readonly title: string;
+  /** Which section of the index this message is listed under. */
+  readonly group: MailPreviewGroup;
   /** When this message is sent, and what makes this variant different. */
   readonly note: string;
+  /**
+   * The reading an order journey produces when this message arrives
+   * (`docs/order-lifecycle.md`), so the journey tables can link at the message
+   * they are talking about. Only the canonical preview of a message carries
+   * one — a second variant of the same mail is documentation, not a different
+   * message.
+   */
+  readonly shows?: string;
   readonly content: MailContent;
 }
 
-export const mailPreviews: readonly MailPreview[] = [
-  {
-    slug: 'inquiry',
-    title: 'Inquiry (to the shop)',
-    note: 'The contact form, delivered to the staff inbox with the visitor as Reply-To.',
-    content: inquiryMail(
-      {
-        name: 'Jane Doe',
-        email: 'jane@example.com',
-        preferredContact: 'email',
-        message: 'Do you deliver to Altona?',
-      },
-      demoMailText,
-    ),
-  },
-  {
-    slug: 'registration-received',
-    title: 'Registration received (to the applicant)',
-    note: 'Sent on sign-up. Deliberately actionless: the account cannot sign in until staff approve it.',
-    content: registrationReceivedMail(demoMailText),
-  },
-  {
-    slug: 'new-registration',
-    title: 'New registration (to the shop)',
-    note: 'Everything the applicant submitted, for a manager deciding whether they are a customer the shop knows.',
-    content: newRegistrationMail(
-      {
-        email: 'jane@example.com',
-        firstName: 'Jane',
-        lastName: 'Doe',
-        phone: '+49 40 1234567',
-        customerType: 'company',
-        companyName: 'Kontor GmbH',
-        companyRegistrationId: 'DE123456789',
-      },
-      demoMailText,
-    ),
-  },
-  {
-    slug: 'invitation-approved',
-    title: 'Invitation — registration approved',
-    note: 'The link that sets the first password, for an account staff approved.',
-    content: invitationMail('invite-token', demoMailText, 'approved'),
-  },
-  {
-    slug: 'invitation-created',
-    title: 'Invitation — account created by staff',
-    note: 'The same link for an account nobody applied for, so it says where the account came from.',
-    content: invitationMail('invite-token', demoMailText, 'created'),
-  },
-  {
-    slug: 'invitation-reactivated',
-    title: 'Invitation — account switched back on',
-    note: 'The same link again for an account that was deactivated and is now not.',
-    content: invitationMail('invite-token', demoMailText, 'reactivated'),
-  },
-  {
-    slug: 'password-reset',
-    title: 'Password reset',
-    note: 'Requested by the account holder. The link lives an hour.',
-    content: passwordResetMail('reset-token', demoMailText),
-  },
-  {
-    slug: 'account-deleted',
-    title: 'Account deleted',
-    note: 'Confirms the deletion the customer asked for. Past orders are anonymised, not removed.',
-    content: accountDeletedMail(demoMailText),
-  },
-  {
-    slug: 'order-received-guest',
-    title: 'Order received — guest',
-    note: 'The receipt. For a guest the token link is the only record of what they sent.',
-    content: orderReceivedMail(order, TOKEN, currency, demoMailText),
-  },
-  {
-    slug: 'order-received-account',
-    title: 'Order received — account holder',
-    note: 'The same receipt without a capability link: they can open the order signed in.',
-    content: orderReceivedMail(order, null, currency, demoMailText),
-  },
-  {
-    slug: 'new-order',
-    title: 'New order (to the shop)',
-    note: 'The staff notification, linking into the admin order view.',
-    content: newOrderMail(order, currency, demoMailText),
-  },
-  {
-    slug: 'order-approved',
-    title: 'Order approved',
-    note: 'The shop accepting the order — and, where it is invoiced, the point money starts being owed.',
-    content: orderStatusChangedMail(
-      at('approved'),
-      'approved',
-      'moved',
-      null,
-      currency,
-      demoMailText,
-    ),
-  },
-  {
-    slug: 'order-approved-with-instructions',
-    title: 'Order approved, with payment instructions attached',
-    note: 'The same move carrying the shop’s payment file, which the body says so the reader looks for it.',
-    content: orderStatusChangedMail(
-      at('approved'),
-      'approved',
-      'moved',
-      null,
-      currency,
-      demoMailText,
-      [],
-      true,
-    ),
-  },
-  {
-    slug: 'order-ready-delivery',
-    title: 'Order ready — delivery',
-    note: 'One status read two ways. This half says where the order is going.',
-    content: orderStatusChangedMail(
-      at('ready'),
-      'ready',
-      'moved',
-      null,
-      currency,
-      demoMailText,
-    ),
-  },
-  {
-    slug: 'order-ready-pickup',
-    title: 'Order ready — pickup',
-    note: 'The other half of `ready`: the office it is waiting at, not an address.',
-    content: orderStatusChangedMail(
-      { ...pickupOrder, status: 'ready' },
-      'ready',
-      'moved',
-      null,
-      currency,
-      demoMailText,
-    ),
-  },
-  {
-    slug: 'order-completed',
-    title: 'Order completed',
-    note: 'The end of the forward chain. Sent once — a reopened order completed again is quiet by default.',
-    content: orderStatusChangedMail(
-      at('completed'),
-      'completed',
-      'moved',
-      null,
-      currency,
-      demoMailText,
-    ),
-  },
-  {
-    slug: 'order-declined',
-    title: 'Order declined',
-    note: 'A refusal quotes its reason: being told no without being told why is the mail nobody can answer.',
-    content: orderStatusChangedMail(
-      declinedOrder,
-      'declined',
-      'moved',
-      null,
-      currency,
-      demoMailText,
-    ),
-  },
-  {
-    slug: 'order-cancelled',
-    title: 'Order cancelled',
-    note: 'The other ending, carrying the note staff wrote when they called it off.',
-    content: orderStatusChangedMail(
-      cancelledOrder,
-      'cancelled',
-      'moved',
-      null,
-      currency,
-      demoMailText,
-    ),
-  },
-  {
-    slug: 'order-reopened',
-    title: 'Order reopened',
-    note: 'An order that had ended is being answered again, so the mail says it is back at the start.',
-    content: orderStatusChangedMail(
-      at('requested'),
-      'requested',
-      'moved',
-      null,
-      currency,
-      demoMailText,
-    ),
-  },
-  {
-    slug: 'order-corrected',
-    title: 'Order walked back',
-    note: 'Staff undoing a step. It says so first: the status sentence alone would read as progress.',
-    content: orderStatusChangedMail(
-      at('approved'),
-      'approved',
-      'corrected',
-      null,
-      currency,
-      demoMailText,
-    ),
-  },
-  {
-    slug: 'order-changed',
-    title: 'Order changed',
-    note: 'An adjustment that moved nothing. Every change since the customer was last written to, in the shop’s words.',
-    content: orderStatusChangedMail(
-      at('approved'),
-      'approved',
-      'changed',
-      null,
-      currency,
-      demoMailText,
-      CHANGES,
-    ),
-  },
-  {
-    slug: 'order-changed-guest',
-    title: 'Order changed — guest',
-    note: 'The same message for a reader with no account: the link is the token, not their order page.',
-    content: orderStatusChangedMail(
-      at('approved'),
-      'approved',
-      'changed',
-      TOKEN,
-      currency,
-      demoMailText,
-      CHANGES,
-    ),
-  },
-  {
-    slug: 'order-document',
-    title: 'Payment instructions',
-    note: 'A file arriving on its own. It announces no step and repeats no lines.',
-    content: orderDocumentMail(
-      at('approved'),
-      'payment-instructions',
-      null,
-      currency,
-      demoMailText,
-    ),
-  },
-];
+/**
+ * Every message, in whatever wording it is handed.
+ *
+ * A function rather than a constant so the same set can be rendered from the
+ * demo fixture (the specs) or from a deployment's own mounted `mail-text.json`
+ * (the generator) — which is what makes this gallery a way to proof-read a
+ * translation without sending a single message.
+ */
+export function buildMailPreviews(text: MailText): readonly MailPreview[] {
+  return [
+    {
+      slug: 'inquiry',
+      group: 'Getting in touch',
+      title: 'Inquiry (to the shop)',
+      note: 'The contact form, delivered to the staff inbox with the visitor as Reply-To.',
+      content: inquiryMail(
+        {
+          name: 'Jane Doe',
+          email: 'jane@example.com',
+          preferredContact: 'email',
+          message: 'Do you deliver to Altona?',
+        },
+        text,
+      ),
+    },
+    {
+      slug: 'registration-received',
+      group: 'Signing up and getting in',
+      title: 'Registration received (to the applicant)',
+      note: 'Sent on sign-up. Deliberately actionless: the account cannot sign in until staff approve it.',
+      content: registrationReceivedMail(text),
+    },
+    {
+      slug: 'new-registration',
+      group: 'Signing up and getting in',
+      title: 'New registration (to the shop)',
+      note: 'Everything the applicant submitted, for a manager deciding whether they are a customer the shop knows.',
+      content: newRegistrationMail(
+        {
+          email: 'jane@example.com',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          phone: '+49 40 1234567',
+          customerType: 'company',
+          companyName: 'Kontor GmbH',
+          companyRegistrationId: 'DE123456789',
+        },
+        text,
+      ),
+    },
+    {
+      slug: 'invitation-approved',
+      group: 'Signing up and getting in',
+      title: 'Invitation — registration approved',
+      note: 'The link that sets the first password, for an account staff approved.',
+      content: invitationMail('invite-token', text, 'approved'),
+    },
+    {
+      slug: 'invitation-created',
+      group: 'Signing up and getting in',
+      title: 'Invitation — account created by staff',
+      note: 'The same link for an account nobody applied for, so it says where the account came from.',
+      content: invitationMail('invite-token', text, 'created'),
+    },
+    {
+      slug: 'invitation-reactivated',
+      group: 'Signing up and getting in',
+      title: 'Invitation — account switched back on',
+      note: 'The same link again for an account that was deactivated and is now not.',
+      content: invitationMail('invite-token', text, 'reactivated'),
+    },
+    {
+      slug: 'password-reset',
+      group: 'The account itself',
+      title: 'Password reset',
+      note: 'Requested by the account holder. The link lives an hour.',
+      content: passwordResetMail('reset-token', text),
+    },
+    {
+      slug: 'account-deleted',
+      group: 'The account itself',
+      title: 'Account deleted',
+      note: 'Confirms the deletion the customer asked for. Past orders are anonymised, not removed.',
+      content: accountDeletedMail(text),
+    },
+    {
+      slug: 'order-received-guest',
+      group: 'Orders',
+      shows: 'receipt',
+      title: 'Order received — guest',
+      note: 'The receipt. For a guest the token link is the only record of what they sent.',
+      content: orderReceivedMail(order, TOKEN, currency, text),
+    },
+    {
+      slug: 'order-received-account',
+      group: 'Orders',
+      title: 'Order received — account holder',
+      note: 'The same receipt without a capability link: they can open the order signed in.',
+      content: orderReceivedMail(order, null, currency, text),
+    },
+    {
+      slug: 'new-order',
+      group: 'Orders',
+      title: 'New order (to the shop)',
+      note: 'The staff notification, linking into the admin order view.',
+      content: newOrderMail(order, currency, text),
+    },
+    {
+      slug: 'order-approved',
+      group: 'Orders',
+      shows: 'approved',
+      title: 'Order approved',
+      note: 'The shop accepting the order — and, where it is invoiced, the point money starts being owed.',
+      content: orderStatusChangedMail(
+        at('approved'),
+        'approved',
+        'moved',
+        null,
+        currency,
+        text,
+      ),
+    },
+    {
+      slug: 'order-approved-with-instructions',
+      group: 'Orders',
+      title: 'Order approved, with payment instructions attached',
+      note: 'The same move carrying the shop’s payment file, which the body says so the reader looks for it.',
+      content: orderStatusChangedMail(
+        at('approved'),
+        'approved',
+        'moved',
+        null,
+        currency,
+        text,
+        [],
+        true,
+      ),
+    },
+    {
+      slug: 'order-ready-delivery',
+      group: 'Orders',
+      shows: 'readyDelivery',
+      title: 'Order ready — delivery',
+      note: 'One status read two ways. This half says where the order is going.',
+      content: orderStatusChangedMail(
+        at('ready'),
+        'ready',
+        'moved',
+        null,
+        currency,
+        text,
+      ),
+    },
+    {
+      slug: 'order-ready-pickup',
+      group: 'Orders',
+      shows: 'readyPickup',
+      title: 'Order ready — pickup',
+      note: 'The other half of `ready`: the office it is waiting at, not an address.',
+      content: orderStatusChangedMail(
+        { ...pickupOrder, status: 'ready' },
+        'ready',
+        'moved',
+        null,
+        currency,
+        text,
+      ),
+    },
+    {
+      slug: 'order-completed',
+      group: 'Orders',
+      shows: 'completed',
+      title: 'Order completed',
+      note: 'The end of the forward chain. Sent once — a reopened order completed again is quiet by default.',
+      content: orderStatusChangedMail(
+        at('completed'),
+        'completed',
+        'moved',
+        null,
+        currency,
+        text,
+      ),
+    },
+    {
+      slug: 'order-declined',
+      group: 'Orders',
+      shows: 'declined',
+      title: 'Order declined',
+      note: 'A refusal quotes its reason: being told no without being told why is the mail nobody can answer.',
+      content: orderStatusChangedMail(
+        declinedOrder,
+        'declined',
+        'moved',
+        null,
+        currency,
+        text,
+      ),
+    },
+    {
+      slug: 'order-cancelled',
+      group: 'Orders',
+      shows: 'cancelled',
+      title: 'Order cancelled',
+      note: 'The other ending, carrying the note staff wrote when they called it off.',
+      content: orderStatusChangedMail(
+        cancelledOrder,
+        'cancelled',
+        'moved',
+        null,
+        currency,
+        text,
+      ),
+    },
+    {
+      slug: 'order-reopened',
+      group: 'Orders',
+      shows: 'reopened',
+      title: 'Order reopened',
+      note: 'An order that had ended is being answered again, so the mail says it is back at the start.',
+      content: orderStatusChangedMail(
+        at('requested'),
+        'requested',
+        'moved',
+        null,
+        currency,
+        text,
+      ),
+    },
+    {
+      slug: 'order-corrected',
+      group: 'Orders',
+      title: 'Order walked back',
+      note: 'Staff undoing a step. It says so first: the status sentence alone would read as progress.',
+      content: orderStatusChangedMail(
+        at('approved'),
+        'approved',
+        'corrected',
+        null,
+        currency,
+        text,
+      ),
+    },
+    {
+      slug: 'order-changed',
+      group: 'Orders',
+      shows: 'changed',
+      title: 'Order changed',
+      note: 'An adjustment that moved nothing. Every change since the customer was last written to, in the shop’s words.',
+      content: orderStatusChangedMail(
+        at('approved'),
+        'approved',
+        'changed',
+        null,
+        currency,
+        text,
+        CHANGES,
+      ),
+    },
+    {
+      slug: 'order-changed-guest',
+      group: 'Orders',
+      title: 'Order changed — guest',
+      note: 'The same message for a reader with no account: the link is the token, not their order page.',
+      content: orderStatusChangedMail(
+        at('approved'),
+        'approved',
+        'changed',
+        TOKEN,
+        currency,
+        text,
+        CHANGES,
+      ),
+    },
+    {
+      slug: 'order-document',
+      group: 'Orders',
+      shows: 'paymentInstructions',
+      title: 'Payment instructions',
+      note: 'A file arriving on its own. It announces no step and repeats no lines.',
+      content: orderDocumentMail(
+        at('approved'),
+        'payment-instructions',
+        null,
+        currency,
+        text,
+      ),
+    },
+  ];
+}
+
+/** The demo set, which is what the specs assert against. */
+export const mailPreviews = buildMailPreviews(demoMailText);
+
+/**
+ * Which preview shows the message an order journey names. Derived rather than
+ * written out, so a preview that stops existing cannot leave a dangling link
+ * behind it.
+ */
+export const mailPreviewByKind: Readonly<Record<string, string>> =
+  Object.fromEntries(
+    mailPreviews
+      .filter((preview) => preview.shows)
+      .map((preview) => [preview.shows as string, preview.slug]),
+  );
 
 export interface RenderedMailPreview extends MailPreview {
   readonly rendered: RenderedMail;
 }
 
 /** The previews as a recipient would receive them, both parts. */
-export function renderMailPreviews(): readonly RenderedMailPreview[] {
-  return mailPreviews.map((preview) => ({
+export function renderMailPreviews(
+  text: MailText = demoMailText,
+  branding: MailBranding = demoMailBranding,
+): readonly RenderedMailPreview[] {
+  return buildMailPreviews(text).map((preview) => ({
     ...preview,
-    rendered: renderMail(
-      preview.content,
-      demoMailBranding,
-      demoMailText.common.footerNote,
-    ),
+    rendered: renderMail(preview.content, branding, text.common.footerNote),
   }));
 }

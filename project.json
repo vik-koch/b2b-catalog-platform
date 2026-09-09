@@ -7,6 +7,16 @@
       "command": "prettier --check .",
       "// cache": "Disabled: in Nx's file map the root project only owns files outside apps/libs, so a cached whole-repo check would go stale when project files change.",
       "cache": false
+    },
+    "mail-previews": {
+      "command": "node tools/generate-mail-previews.mjs",
+      "// description": "Renders docs/mail/ from config/. Pass --config-dir/--out to proof-read another deployment's wording without touching docs/.",
+      "cache": false
+    },
+    "order-lifecycle": {
+      "command": "node tools/generate-order-lifecycle.mjs",
+      "// description": "Rebuilds the generated tables, diagram and journeys in docs/order-lifecycle.md.",
+      "cache": false
     }
   }
 }

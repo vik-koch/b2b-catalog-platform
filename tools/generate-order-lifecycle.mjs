@@ -31,8 +31,11 @@ const shared = await loadTypeScript('libs/shared/src/index.ts');
 const { orderJourneys } = await loadTypeScript(
   'apps/api-e2e/src/journeys/orders.journeys.ts',
 );
-const { ORDER_PROBE_LABELS } = await loadTypeScript(
+const { ORDER_PROBES } = await loadTypeScript(
   'apps/api-e2e/src/journeys/order-probe-labels.ts',
+);
+const { mailPreviewByKind } = await loadTypeScript(
+  'apps/api/src/mail/mail-previews.ts',
 );
 const {
   ORDER_STATUSES,
@@ -128,20 +131,35 @@ function diagram() {
 /**
  * How one reading prints. Kept dumb on purpose: a value that needs explaining
  * in the documentation needs a better name in the journey.
+ *
+ * The exception is mail, where the name of a message is also the way to go and
+ * read it — the gallery holds every one of them.
  */
-function value(reading) {
+function value(probe, reading) {
+  const one = (entry) =>
+    probe === 'mail' && mailPreviewByKind[entry]
+      ? `[\`${entry}\`](mail.md#${mailPreviewByKind[entry]})`
+      : `\`${entry}\``;
   if (Array.isArray(reading)) {
-    return reading.length === 0
-      ? 'nothing'
-      : reading.map((entry) => `\`${entry}\``).join(' · ');
+    return reading.length === 0 ? 'nothing' : reading.map(one).join(' · ');
   }
-  return typeof reading === 'string' ? `\`${reading}\`` : String(reading);
+  return typeof reading === 'string' ? one(reading) : String(reading);
 }
 
 const changes = (expectations) =>
   Object.entries(expectations ?? {})
-    .map(([probe, reading]) => `${ORDER_PROBE_LABELS[probe]}: ${value(reading)}`)
+    .map(
+      ([probe, reading]) =>
+        `${ORDER_PROBES[probe].label}: ${value(probe, reading)}`,
+    )
     .join('<br>') || '—';
+
+/** What each column of every journey table is answering. */
+function legend() {
+  return Object.values(ORDER_PROBES)
+    .map((probe) => `- **${probe.label}** — ${probe.meaning}`)
+    .join('\n');
+}
 
 /**
  * The journeys, from the same literals `order-journeys.spec.ts` walks against
@@ -151,6 +169,10 @@ const changes = (expectations) =>
  * so an unmentioned reading is being asserted *unchanged*, and an unmentioned
  * mail is being asserted not to have been sent. That is the point of the two
  * quiet steps in the second journey.
+ *
+ * Each journey's steps are folded away. There are more of them than anybody
+ * reads at once, and the summary line — what the journey is and what it covers
+ * — is the part somebody scanning the document is looking for.
  */
 function journeys() {
   return orderJourneys
@@ -163,18 +185,21 @@ function journeys() {
         ? journey.from.map((step) => step.what).join(' ')
         : 'It has just been placed.';
       return [
-        `### ${journey.title}`,
-        '',
-        journey.note,
+        '<details>',
+        `<summary><b>${journey.title}</b> — ${journey.note}</summary>`,
         '',
         `**The order.** ${journey.given}`,
         '',
         `**Starting from.** ${from}`,
         '',
-        ...(journey.start ? [`**Which leaves it.** ${changes(journey.start)}`, ''] : []),
+        ...(journey.start
+          ? [`**Which leaves it.** ${changes(journey.start)}`, '']
+          : []),
         '| # | What happens | Who | What changes |',
         '| --- | --- | --- | --- |',
         ...rows,
+        '',
+        '</details>',
       ].join('\n');
     })
     .join('\n\n');
@@ -185,5 +210,6 @@ document = injectSection(document, 'order-states', whereItStands());
 document = injectSection(document, 'order-moves', moves());
 document = injectSection(document, 'order-diagram', diagram());
 document = injectSection(document, 'order-journeys', journeys());
+document = injectSection(document, 'journey-legend', legend());
 
 writeOrCheck({ [DOC]: formatted(document, 'markdown') }, COMMAND);

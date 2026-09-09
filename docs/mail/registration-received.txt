@@ -2,9 +2,9 @@ Thank you for registering
 
 We have received your registration and passed it to our team.
 
-A colleague will review it and set up your account. You will receive a second email with your password as soon as it is ready.
+A colleague will review it and set up your account. You will receive a second email with your password as soon as it is ready. Until then you cannot sign in yet.
 
 --
-Demo Shop
-This message was sent automatically. Please do not reply.
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
 https://shop.example.com

@@ -1,6 +1,6 @@
 New order request
 
-A customer has sent an order request.
+A customer has sent an order request. Open it to check the lines and the price, then confirm it with them.
 
 Order: CK-260826-4831
 Account: alex@example.com
@@ -18,6 +18,6 @@ Saucers — 3 pcs: 30,00 €
 Open the order: https://shop.example.com/admin/orders/CK-260826-4831
 
 --
-Demo Shop
-This message was sent automatically. Please do not reply.
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
 https://shop.example.com

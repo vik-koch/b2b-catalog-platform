@@ -1,12 +1,12 @@
 Your account is ready
 
-Your registration has been approved. Choose a password to finish setting up your account.
+Your registration has been approved and your customer account is set up. Choose a password and you can start ordering right away.
 
-This link works once and expires after seven days.
+This link can be used once, and expires seven days after it was sent.
 
 Choose your password: https://shop.example.com/set-password?token=invite-token
 
 --
-Demo Shop
-This message was sent automatically. Please do not reply.
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
 https://shop.example.com

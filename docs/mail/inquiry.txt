@@ -7,6 +7,6 @@ Preferred contact: email
 Message: Do you deliver to Altona?
 
 --
-Demo Shop
-This message was sent automatically. Please do not reply.
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
 https://shop.example.com
