@@ -1179,22 +1179,41 @@ export const adminTextSchema = z
          * order has moved on without a word about it, and nothing writes to
          * them on its own.
          */
+        /**
+         * What the customer can see and what they have been told — two
+         * questions, always answered, because "nothing to do here" is an
+         * answer a manager needs as much as the other one (FR-NOTIF-03).
+         */
         tellCustomer: z
           .object({
             heading: z.string(),
-            /** `{seen}` the version they are on — a link to it — and
-             * `{current}` the one the order stands on. Both are filled with
-             * `revisions.versionInline`, so the sentence carries the word and
-             * this carries the punctuation around it. */
+            /** `{current}` where their page is level with the order. */
+            on: z.string(),
+            /** `{seen}` the version they are on and `{current}` the one the
+             * order stands on. Both are filled with `revisions.versionInline`,
+             * so the sentence carries the word and this the punctuation. */
             behind: z.string(),
-            /** The same line for an order no message has ever gone out about
-             * — `{current}` only. */
-            never: z.string(),
-            action: z.string(),
-            confirmHeading: z.string(),
-            confirmMessage: z.string(),
-            confirm: z.string(),
-            /** Somebody else told them while this page was open. */
+            /** The second line: whether a message has ever gone out, and about
+             * which version (`{notified}`). */
+            emailedNever: z.string(),
+            emailedOn: z.string(),
+            /** Moving their page on to the version the order stands on. The
+             * message is a tick on it, not a second button. */
+            update: z.string(),
+            updateConfirmHeading: z.string(),
+            updateConfirmMessage: z.string(),
+            updateConfirm: z.string(),
+            updateNotify: z.string(),
+            updateNotifyHint: z.string(),
+            /** Writing to them about the version they already hold — the
+             * message somebody decided against, or one that never arrived. */
+            email: z.string(),
+            emailAgain: z.string(),
+            emailConfirmHeading: z.string(),
+            emailConfirmMessage: z.string(),
+            emailConfirm: z.string(),
+            keep: z.string(),
+            /** Somebody else moved the order while this page was open. */
             error: z.string(),
           })
           .strict(),

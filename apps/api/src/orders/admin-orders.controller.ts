@@ -142,14 +142,18 @@ export class AdminOrdersController {
       });
   }
 
-  /** Show the customer where the order got to, and tell them (FR-NOTIF-03) —
-   * for the change that no move will ever mention. */
+  /** Show the customer where the order got to, and tell them if asked
+   * (FR-NOTIF-03) — for the change no move will ever mention, and for the
+   * message somebody decided against and then thought better of. */
   @Implement(ordersContract.notifyOrderCustomer)
   notifyOrderCustomer(@CurrentUser() actor: AuthUser) {
     return implement(ordersContract.notifyOrderCustomer)
       .use(refusals)
-      .handler(async ({ input: { params } }) => {
-        const order = await this.orders.showCustomerCurrent(params.reference);
+      .handler(async ({ input: { params, body } }) => {
+        const order = await this.orders.showCustomerCurrent(
+          params.reference,
+          body.notify,
+        );
         this.audit.record('order.customer_notified', actor, {
           reference: order.reference,
           revision: order.revisionNumber,

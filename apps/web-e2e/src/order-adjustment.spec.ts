@@ -15,7 +15,7 @@ const adminText = JSON.parse(
   orderDetail: {
     actions: { adjust: string };
     revisions: { heading: string; changes: string; openControls: string };
-    tellCustomer: { action: string };
+    tellCustomer: { update: string };
   };
   orderAdjust: {
     save: string;
@@ -83,7 +83,11 @@ test.describe('adjusting an order', () => {
     page,
   }) => {
     await logIn(page);
-    await page.goto(`/admin/orders?q=${REFERENCE}`);
+    // `searchTerm`, not `q`: the find-a-row box on this screen writes its own
+    // param, and `q` is the navbar's. With `q` the list came back unfiltered
+    // and this passed only while the seeded order was still on the first page
+    // — which every run that places an order pushes it further from.
+    await page.goto(`/admin/orders?searchTerm=${REFERENCE}`);
 
     await page.getByRole('link', { name: REFERENCE }).first().click();
     await expect(page).toHaveURL(
@@ -157,10 +161,12 @@ test.describe('adjusting an order', () => {
     await expect(
       page.getByText('One more pack, as agreed.').first(),
     ).toBeVisible();
-    // Nobody was written to, so the order says the customer is behind — which
-    // is the row that offers to put that right.
+    // The change was not shown to them, so their page is a version behind —
+    // and the customer row offers the way to put that right. Moving them on
+    // comes before writing to them: a message about a version they are not
+    // being shown would link them to something else.
     await expect(
-      page.getByRole('button', { name: detail.tellCustomer.action }),
+      page.getByRole('button', { name: detail.tellCustomer.update }),
     ).toBeVisible();
   });
 });

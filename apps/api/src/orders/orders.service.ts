@@ -224,36 +224,6 @@ interface Fulfilment {
 }
 
 /**
- * Order requests (FR-CART-03/04, FR-ACC-01): priced, recorded and read back.
- *
- * Submission re-prices from scratch through the same `priceCart` the preview
- * uses and refuses — with a fresh preview — the moment anything has moved. The
- * customer's `expectedTotalMinor` is a comparand and never an input; nothing a
- * browser sends decides what an order costs.
- */
-/**
- * Whether anything about this order is still owed the customer a word
- * (FR-NOTIF-03) — the one case where writing to them is a decision somebody
- * has to take, and so the only case the screen offers the button for.
- *
- * Two ways it can be true, and they are the same question asked of the two
- * halves of the thread. Their own page may be showing them a version no
- * message ever announced: a move reaches it whether or not a mail goes with
- * it, and one that goes unannounced is exactly what the button is for. Or a
- * change may be sitting above the version they hold, waiting for the move that
- * mentions it — or for nobody, if the manager who made it moves on.
- *
- * What is deliberately *not* behind: a move held off their page. That is a
- * step the shop took back or never meant them to see, and a screen that asked
- * somebody to explain it would be asking them to announce a mistake. It is
- * read off the kind rather than stored, because a transition can only sit
- * above the pointer by somebody having said so.
- */
-function customerBehind(thread: CustomerThread, shown: number): boolean {
-  return thread.number < shown || thread.newestChange > shown;
-}
-
-/**
  * How the staff list is ordered (FR-AUTH-03).
  *
  * By default the orders nobody has answered yet come first, then those that
@@ -453,40 +423,61 @@ export class OrdersService {
   }
 
   /**
-   * Bring the customer's view up to the current version and write to them
-   * (FR-NOTIF-03) — the deliberate half of the rule that is otherwise a tick
-   * on the move that caused it, for the change no move will ever mention and
-   * for the mail somebody decided against and then thought better of.
+   * Bring the customer's view up to the current version, and write to them if
+   * asked (FR-NOTIF-03).
+   *
+   * Two things a manager can be owed here, and they are asked separately
+   * because they come apart in practice: the version their page shows, and
+   * whether a message went with it. A move taken with the tick cleared leaves
+   * the first undone; a move shown to them but not announced leaves the
+   * second. Either can be put right afterwards, and neither is the other.
+   *
+   * Refused only when there is nothing left to do — the customer is on the
+   * current version and has been told about it.
    */
-  async showCustomerCurrent(reference: string): Promise<AdminOrderDetail> {
+  async showCustomerCurrent(
+    reference: string,
+    notify: boolean,
+  ): Promise<AdminOrderDetail> {
     const current = await this.row(eq(orders.reference, reference));
     const notified = await this.customerThread(current.id);
-    if (notified.number === current.revisionNumber) {
+    const shown = current.customerRevisionNumber ?? current.revisionNumber;
+    const behind = shown < current.revisionNumber;
+    // Re-sending what they are already looking at is allowed — a message that
+    // went to a spam folder is one somebody has to be able to send again, and
+    // it says exactly what their page says. What is refused is the press that
+    // would do nothing at all.
+    if (!behind && !notify) {
       throw new ConflictException({
         code: 'nothing-to-tell',
-        message: 'The customer has already been told about this version',
+        message: 'The customer is already on this version',
       });
     }
-    // Stamped before the send rather than after it, and stamped whether or not
-    // SMTP answers: the mail cannot fail the move that produced it, so "we
-    // wrote to them about this version" is what the shop knows, and a silent
-    // failure is the log's business rather than the thread's.
-    await this.db
-      .update(orderRevisions)
-      .set({ notifiedAt: new Date() })
-      .where(eq(orderRevisions.id, current.revisionId));
-    await this.db
-      .update(orders)
-      .set({ customerRevisionId: current.revisionId })
-      .where(eq(orders.id, current.id));
-    await this.mailCustomer(
-      reference,
-      notified.number,
-      // Whatever the newest version was written for. A manager pressing this
-      // is telling the customer where the order now stands, and the version
-      // says whether getting there involved changing it.
-      current.revisionKind === 'adjustment' ? 'changed' : 'moved',
-    );
+
+    if (behind) {
+      await this.db
+        .update(orders)
+        .set({ customerRevisionId: current.revisionId })
+        .where(eq(orders.id, current.id));
+    }
+    if (notify) {
+      // Stamped before the send rather than after it, and stamped whether or
+      // not SMTP answers: the mail cannot fail the move that produced it, so
+      // "we wrote to them about this version" is what the shop knows, and a
+      // silent failure is the log's business rather than the thread's.
+      await this.db
+        .update(orderRevisions)
+        .set({ notifiedAt: new Date() })
+        .where(eq(orderRevisions.id, current.revisionId));
+      await this.mailCustomer(
+        reference,
+        notified.number,
+        // Whatever the newest version was written for. A manager pressing this
+        // is telling the customer where the order now stands, and the version
+        // says whether getting there involved changing it.
+        current.revisionKind === 'adjustment' ? 'changed' : 'moved',
+      );
+    }
     return this.getForStaff(reference);
   }
 
@@ -972,10 +963,6 @@ export class OrdersService {
       // can read: an order the customer has never been shown does not exist.
       customerRevisionNumber: row.customerRevisionNumber ?? row.revisionNumber,
       notifiedRevisionNumber: told.number,
-      customerBehind: customerBehind(
-        told,
-        row.customerRevisionNumber ?? row.revisionNumber,
-      ),
       notifiedStatuses: told.statuses,
       paidAt: row.paidAt?.toISOString() ?? null,
     };
@@ -1077,10 +1064,6 @@ export class OrdersService {
       revisionNumber: row.revisionNumber,
       customerRevisionNumber:
         current.customerRevisionNumber ?? current.revisionNumber,
-      customerBehind: customerBehind(
-        notified,
-        current.customerRevisionNumber ?? current.revisionNumber,
-      ),
     };
   }
 

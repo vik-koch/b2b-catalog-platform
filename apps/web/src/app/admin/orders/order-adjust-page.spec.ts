@@ -38,7 +38,6 @@ const order: AdminOrderDetail = {
   customerRevisionNumber: 1,
   notifiedRevisionNumber: 1,
   notifiedStatuses: ['requested'],
-  customerBehind: false,
   paidAt: null,
   createdAt: '2026-08-26T09:15:00.000Z',
   statusChangedAt: '2026-08-26T09:15:00.000Z',

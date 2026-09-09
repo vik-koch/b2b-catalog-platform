@@ -356,19 +356,6 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
    */
   notifiedRevisionNumber: z.number().int().nonnegative(),
   /**
-   * Whether the customer's page is showing them something no message ever
-   * announced — the one case where writing to them is a decision somebody
-   * still has to take, and so the only case where the screen offers the
-   * button.
-   *
-   * True two ways: their page is showing them a version no message announced,
-   * or a change is sitting above the version they hold with nothing having
-   * mentioned it yet. Not true of a move deliberately kept off their page —
-   * that is a step the shop took back or never meant them to see, and an order
-   * worked on behind the scenes would otherwise sit flagged for ever.
-   */
-  customerBehind: z.boolean(),
-  /**
    * The statuses the customer has already been written to about, in no
    * particular order. What the screen offers the "write to them" tick for by
    * default (`notifyByDefault`): a step forward into a state they have never
@@ -1024,14 +1011,30 @@ export const ordersContract = {
       method: 'POST',
       path: '/admin/orders/{reference}/notify',
       inputStructure: 'detailed',
-      summary: "Bring the customer's view up to date and mail them",
+      summary: "Bring the customer's view up to date, and mail them if asked",
     })
     .errors({
       ...orderNotFound,
-      /** The customer is already looking at the current version. */
+      /** There was nothing left to do: they are on the current version and
+       * nobody asked for a message. */
       'nothing-to-tell': { status: 409 },
     })
-    .input(z.object({ params: z.object({ reference: z.string() }) }))
+    .input(
+      z.object({
+        params: z.object({ reference: z.string() }),
+        body: z.object({
+          /**
+           * Whether to write to them as well as move their page on.
+           *
+           * Two questions, because they come apart: a version can reach their
+           * page without a word (a step nobody needed to announce), and a
+           * message can be owed for a version they already hold (one somebody
+           * decided against, or one that went to a spam folder).
+           */
+          notify: z.boolean().default(true),
+        }),
+      }),
+    )
     .output(adminOrderDetailSchema),
 
   /**
