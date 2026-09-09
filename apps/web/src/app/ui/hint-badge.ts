@@ -20,10 +20,10 @@ const tones: Record<HintBadgeTone, string> = {
  * Deliberately not a button: it is filled and round where the app's icon
  * controls are square and chromeless, so it does not read as one more thing to
  * click. The icon is projected, so this stays in `ui/` without naming a glyph
- * from the admin-only icon set.
+ * of its own.
  *
  *   <app-hint-badge tone="warning" [label]="text.notNumeric">
- *     <app-admin-icon name="triangle-alert" class="h-3.5 w-3.5" />
+ *     <app-icon name="triangle-alert" class="h-3.5 w-3.5" />
  *   </app-hint-badge>
  */
 @Component({

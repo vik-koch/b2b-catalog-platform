@@ -4,6 +4,7 @@ import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Skeleton } from '../ui/skeleton';
+import { WarningNote } from '../ui/warning-note';
 
 /**
  * What the order comes to — the same card on the cart, on checkout and on the
@@ -23,7 +24,7 @@ import { Skeleton } from '../ui/skeleton';
  */
 @Component({
   selector: 'app-order-summary',
-  imports: [Skeleton],
+  imports: [WarningNote, Skeleton],
   host: { class: 'block' },
   template: `
     <div class="rounded-lg border border-border p-5">
@@ -54,7 +55,9 @@ import { Skeleton } from '../ui/skeleton';
       </dl>
 
       @if (!complete()) {
-        <p class="mt-2 text-sm text-amber-700">{{ text.totalIncomplete }}</p>
+        <app-warning-note class="mt-2">
+          {{ text.totalIncomplete }}
+        </app-warning-note>
       }
       @if (hasEstimate()) {
         <p class="mt-3 text-xs text-subtle">{{ text.shipmentApproximate }}</p>

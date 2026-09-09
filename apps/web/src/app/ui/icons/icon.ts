@@ -51,6 +51,7 @@ export type IconName =
   | 'folder-plus'
   | 'file-plus'
   | 'file-text'
+  | 'triangle-alert'
   | 'plus';
 
 @Component({
@@ -88,6 +89,13 @@ export type IconName =
         }
         @case ('close') {
           <path d="M18 6 6 18M6 6l12 12" />
+        }
+        @case ('triangle-alert') {
+          <path
+            d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"
+          />
+          <path d="M12 9v4" />
+          <path d="M12 17h.01" />
         }
         @case ('mail') {
           <rect width="20" height="16" x="2" y="4" rx="2" />

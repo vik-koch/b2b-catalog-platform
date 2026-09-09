@@ -38,6 +38,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
+import { WarningNote } from '../../ui/warning-note';
 
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -58,6 +59,7 @@ type EditTarget = { id: string } | { id: null } | null;
 @Component({
   selector: 'app-attribute-list-page',
   imports: [
+    WarningNote,
     NgTemplateOutlet,
     RouterLink,
     CdkDropList,
@@ -212,15 +214,15 @@ type EditTarget = { id: string } | { id: null } | null;
                   <!-- Both notes are about the exact match, which is the one
                      thing about this screen that surprises people. -->
                   @if (definition.productCount === 0) {
-                    <p class="mt-2 text-sm text-amber-700">
+                    <app-warning-note class="mt-2">
                       {{ text.noMatch }}
-                    </p>
+                    </app-warning-note>
                   } @else if (
                     definition.type === 'number' && definition.unparsedCount > 0
                   ) {
-                    <p class="mt-2 text-sm text-amber-700">
+                    <app-warning-note class="mt-2">
                       {{ unparsedLabel(definition.unparsedCount) }}
-                    </p>
+                    </app-warning-note>
                   }
                   @if (rowError()?.id === definition.id) {
                     <p class="mt-2 text-sm text-red-700" role="alert">

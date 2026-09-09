@@ -58,6 +58,7 @@ import { PhoneField } from '../../ui/phone-field';
 import { SegmentOption, Segmented } from '../../ui/segmented';
 import { SelectField } from '../../ui/select-field';
 import { Skeleton } from '../../ui/skeleton';
+import { WarningNote } from '../../ui/warning-note';
 import { TiersService } from '../tiers/tiers.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
@@ -152,6 +153,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     Segmented,
     SelectField,
     Skeleton,
+    WarningNote,
   ],
   template: `
     @if (order(); as loaded) {
@@ -163,14 +165,22 @@ const PREVIEW_DEBOUNCE_MS = 250;
             <h1 class="text-3xl font-medium tracking-tight">{{ title() }}</h1>
             <p class="mt-2 text-muted">{{ text.lead }}</p>
 
+            <!-- Amber, not red: none of these refuses the adjustment. They
+                 are what a manager should have weighed before making it. -->
             @if (loaded.paymentState === 'paid') {
-              <p class="mt-4 text-sm text-red-700">{{ text.warnPaid }}</p>
+              <app-warning-note class="mt-4">
+                {{ text.warnPaid }}
+              </app-warning-note>
             }
             @if (loaded.status === 'ready') {
-              <p class="mt-4 text-sm text-red-700">{{ text.warnReady }}</p>
+              <app-warning-note class="mt-4">
+                {{ text.warnReady }}
+              </app-warning-note>
             }
             @if (ended(loaded)) {
-              <p class="mt-4 text-sm text-red-700">{{ text.warnEnded }}</p>
+              <app-warning-note class="mt-4">
+                {{ text.warnEnded }}
+              </app-warning-note>
             }
 
             <!-- Two boxes, because an adjustment is two jobs. What was bought
@@ -563,7 +573,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  neither is visible in a total, so they are said once, here,
                  where the order is signed off. -->
             @for (notice of priceNotices(); track notice) {
-              <p class="mt-4 text-sm text-amber-800">{{ notice }}</p>
+              <app-warning-note class="mt-4">{{ notice }}</app-warning-note>
             }
 
             <!-- What the shop says it changed, beside what it changed and

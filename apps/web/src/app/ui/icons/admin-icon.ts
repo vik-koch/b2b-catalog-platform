@@ -60,7 +60,6 @@ export type AdminIconName =
   | 'lock'
   | 'funnel'
   | 'funnel-x'
-  | 'triangle-alert'
   | 'circle-alert'
   | 'file-text'
   | 'external-link';
@@ -340,13 +339,6 @@ export type AdminIconName =
           <path d="M13.013 3H2l8 9.46V19l4 2v-8.54l.9-1.055" />
           <path d="m22 3-5 5" />
           <path d="m17 3 5 5" />
-        }
-        @case ('triangle-alert') {
-          <path
-            d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"
-          />
-          <path d="M12 9v4" />
-          <path d="M12 17h.01" />
         }
         @case ('circle-alert') {
           <circle cx="12" cy="12" r="10" />

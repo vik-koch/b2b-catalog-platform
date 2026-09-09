@@ -17,6 +17,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { Button } from '../../ui/button';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Icon } from '../../ui/icons/icon';
 import { Link } from '../../ui/link';
 import { Input } from '../../ui/input';
 import { HintBadge } from '../../ui/hint-badge';
@@ -52,6 +53,7 @@ type RenameTarget =
     Button,
     IconButton,
     AdminIcon,
+    Icon,
     Link,
     RecordRow,
     HintBadge,
@@ -244,7 +246,7 @@ type RenameTarget =
                                       tone="warning"
                                       [label]="text.notNumeric"
                                     >
-                                      <app-admin-icon
+                                      <app-icon
                                         name="triangle-alert"
                                         class="h-3.5 w-3.5"
                                       />
