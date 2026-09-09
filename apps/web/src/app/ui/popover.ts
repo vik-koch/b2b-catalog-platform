@@ -9,7 +9,6 @@ import {
   input,
   output,
   PLATFORM_ID,
-  signal,
   viewChild,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
@@ -53,11 +52,9 @@ const EDGE_MARGIN_PX = 8;
   host: { '[class]': 'hostClass()' },
   template: `
     <span [class]="arrowClass()"></span>
-    <div
-      #panel
-      [class]="panelClass()"
-      [style.transform]="'translateX(' + shift() + 'px)'"
-    >
+    <!-- The panel's own transform is written straight to the element by fit()
+         rather than bound here: see the note on it. -->
+    <div #panel [class]="panelClass()">
       <ng-content />
     </div>
   `,
@@ -121,10 +118,15 @@ export class Popover {
     // A bubble holding a control is padded evenly: the field inside it stands
     // off the bubble's edge by as much below as it does at its sides, which a
     // tighter vertical padding did not. A sentence still gets the flatter box.
+    // One max-width, not two. Written as two utilities — a fixed cap and a
+    // viewport one — the cascade picked whichever Tailwind emitted last rather
+    // than the smaller of them, and the arbitrary value won: every sentence
+    // bubble was drawn a third wider than the cap it was given. `min()` says
+    // what was meant, and says it in one declaration nothing can outrank.
     const size = this.roomy()
-      ? 'w-56 p-3 text-left'
-      : 'w-max max-w-52 px-3 py-2 text-center';
-    return `absolute max-w-[calc(100vw-2rem)] rounded-md border border-border-strong bg-white text-sm text-ink shadow-xl ${size} ${place} ${vertical}`;
+      ? 'w-56 max-w-[calc(100vw-2rem)] p-3 text-left'
+      : 'w-max max-w-[min(13rem,calc(100vw-2rem))] px-3 py-2 text-center';
+    return `absolute rounded-md border border-border-strong bg-white text-sm text-ink shadow-xl ${size} ${place} ${vertical}`;
   });
 
   private readonly onOutside = (event: Event) => {
@@ -137,35 +139,54 @@ export class Popover {
   private readonly panel = viewChild.required<ElementRef<HTMLElement>>('panel');
 
   /**
-   * How far the panel is nudged sideways to stay on screen.
+   * How far the panel has been nudged sideways to stay on screen.
    *
    * The bubble is placed against its anchor, and an anchor near a window edge
-   * puts a panel wider than itself past that edge — which used to widen the
-   * document. Nothing above can solve it: the alignment is chosen by the call
-   * site, which knows where the control sits in its card and not where the
-   * card sits in the window.
+   * puts a panel wider than itself past that edge. Nothing above can solve it:
+   * the alignment is chosen by the call site, which knows where the control
+   * sits in its card and not where the card sits in the window.
    *
    * So the panel is measured once it is on screen and moved back in by
    * whatever it overhangs. Only the panel moves: the arrow keeps pointing at
    * the control, which is the one thing about the bubble that must stay true.
+   */
+  private shift = 0;
+
+  /**
+   * Measure the panel and pull it back inside the page, **in the frame it was
+   * drawn in**.
+   *
+   * The correction is written to the element rather than through a signal, and
+   * that is the whole point of it. A signal write here schedules another round
+   * of change detection, so the browser paints one frame with the panel still
+   * hanging off the edge — and on a phone that single frame is not cosmetic: a
+   * mobile browser widens its layout viewport to fit content that overflows,
+   * every `position: fixed` bar stretches to the new width, and it does not
+   * shrink back when the panel is moved a frame later. The bottom tab bar slid
+   * off screen and the page scrolled sideways, both of them long after the
+   * bubble had been put right.
    *
    * `transform`, not `translate`: the alignment classes own the `translate`
    * property, and the two compose — so centring stays centring and this only
    * adds to it. Re-measured on a resize, since a window narrowing under an
    * open bubble is exactly the case that overflows.
    */
-  protected readonly shift = signal(0);
-
   private readonly fit = () => {
     const panel = this.panel().nativeElement;
     const rect = panel.getBoundingClientRect();
+    // The page's own width, not the window's: `innerWidth` counts the
+    // scrollbar, and a panel allowed to overhang by that much still sets a
+    // desktop page scrolling sideways.
+    const width = document.documentElement.clientWidth;
     // Measured with the current shift already applied, so each correction is
     // relative and a second pass changes nothing once it fits.
-    const overhangRight = rect.right - (window.innerWidth - EDGE_MARGIN_PX);
+    const overhangRight = rect.right - (width - EDGE_MARGIN_PX);
     const overhangLeft = EDGE_MARGIN_PX - rect.left;
     const by =
       overhangRight > 0 ? -overhangRight : overhangLeft > 0 ? overhangLeft : 0;
-    if (by !== 0) this.shift.update((current) => current + by);
+    if (by === 0) return;
+    this.shift += by;
+    panel.style.transform = `translateX(${this.shift}px)`;
   };
 
   constructor() {
