@@ -250,3 +250,51 @@ in the batch that ships guest checkout, not before the feature exists.
   customer text — iteration 8's status notes among them — has to be added to it
   by hand, and nothing in the schema forces that.
 - (−) A guest's data can only be erased by the operator, directly.
+
+## Amendment — 2026-09-09: switching an account off does not take its password
+
+Deactivation replaced the password with an unusable hash. That was defensible
+on its own terms — "switched off" meaning the credential is gone rather than
+parked — but it decided a second question by accident, and the second answer
+was the wrong one: it made every reactivation an invitation. Somebody switched
+off while the shop tidied its customer list came back to a mail announcing that
+their account had been switched back on, worded as though it had just been
+created, and could not sign in until they had chosen a new password. Two of the
+minuses above are that decision showing through: the mis-click that costs its
+owner a trip through a link, and the re-sent invitation wearing the wording of
+the account's origin because nothing records that it has been round the loop.
+
+So the writes are now two rather than three. The status is what login and the
+guards read; the `tokenVersion` bump ends the sessions already in flight; the
+stored password is left exactly as it was. Reactivation reads `passwordSetAt`
+— a new nullable column, the only thing that can tell a real password from the
+stand-in, since the stand-in is a real argon2 hash by design — and lands on
+`active` where there is one and `invited` where there is not. Neither direction
+sends anything.
+
+What this gives up is the offboarding argument: a colleague who has left keeps
+a valid credential against an account that refuses it. The status check is what
+holds them out, at the same single place it always was, and the sessions they
+held are ended as before. A password that genuinely must not survive is a
+password _reset_, which is a separate act and now available at any time — from
+the login form by its owner, or from the account screen by staff for somebody
+who rang the shop instead of using the form. That staff action replaced the
+invitation re-send: one button, and which link goes is decided from the
+account's status in the one place the login form decides it too.
+
+- (+) Switching an account off and back on is invisible to its owner, which is
+  what it should be: the shop's bookkeeping is not their news.
+- (+) The re-sent-invitation wart above is gone rather than documented again —
+  there is no reactivation mail to word.
+- (+) One way in, whoever asks for it, so the invitation and the reset can no
+  longer drift apart.
+- (−) A deactivated account holds a live password. Nothing can use it while the
+  status says so, but "switched off" no longer implies "credential retired",
+  and an operator who wants that has to reset the password as well.
+- (−) `passwordSetAt` is a fact the schema now has to keep true: a future code
+  path that writes a password without stamping it would send its account back
+  round the invitation loop. It fails in the safe direction — the account looks
+  password-less, and staff send a link — but it fails silently.
+- (−) Accounts deactivated before this release have no password to come back
+  to, so they reactivate to `invited` as they always did. That is correct
+  rather than a migration gap, and the release notes say so.
