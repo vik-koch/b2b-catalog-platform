@@ -675,6 +675,7 @@
     "back": "Back to orders",
     "items": "Ordered",
     "customer": "Account",
+    "guestView": "Open what they see",
     "tier": "Price list",
     "tierDefault": "Default",
     "fulfilment": "How it arrives",

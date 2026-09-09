@@ -70,6 +70,7 @@ const version: OrderRevision = {
   paymentMethod: 'bank-transfer',
   preferredDate: null,
   customerNote: null,
+  publicToken: null,
   customerEmail: 'alex@example.com',
   tierKey: 'wholesale',
   lines: [

@@ -384,6 +384,16 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   documents: z.array(adminOrderDocumentSchema),
   /** Null for a guest order — nothing to open, which is the point. */
   customerEmail: z.string().nullable(),
+  /**
+   * The link a guest was mailed (FR-NOTIF-06), so staff can open exactly what
+   * that customer is looking at when they ring about it. Null on an order
+   * placed from an account: that customer reads it signed in, and the version
+   * they are shown is already a link on this screen.
+   *
+   * Staff-only, and it goes no further: nothing renders it to a customer, and
+   * the token remains the guest's own credential rather than a second way in.
+   */
+  publicToken: z.string().nullable(),
   /** Which list it was priced from; null means the default one. */
   tierKey: z.string().nullable(),
   statusChangedAt: z.iso.datetime(),

@@ -1004,6 +1004,10 @@ export class OrdersService {
       })),
       documents,
       customerEmail: customer?.email ?? null,
+      // Only where it is the customer's only way in. An account holder reads
+      // their order signed in, and handing staff a capability URL for a page
+      // they can already reach another way would be minting a second one.
+      publicToken: customer ? null : row.publicToken,
       tierKey: row.tierKey,
       statusChangedAt: row.statusChangedAt.toISOString(),
       revisionNumber: row.revisionNumber,
@@ -1291,6 +1295,12 @@ export class OrdersService {
       'cancelled',
       reason,
       userId,
+    );
+    // The shop is told (FR-NOTIF-07). Read as staff, because the mail is the
+    // shop's: it states the money recorded against the order, which is not on
+    // the customer's projection at all.
+    await this.notifications.cancelledByCustomer(
+      await this.staffDetail(await this.row(eq(orders.id, moved.id))),
     );
     return this.toDetail(moved, undefined, await this.customerDocuments(moved));
   }

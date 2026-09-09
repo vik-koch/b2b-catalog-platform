@@ -1048,6 +1048,10 @@ export const adminTextSchema = z
         items: z.string(),
         /** The account it was placed from, or that it was a guest's. */
         customer: z.string(),
+        /** Opens the summary a guest was mailed (FR-NOTIF-06) — what that
+         * customer is looking at when they ring about the order. Only on a
+         * guest's order; an account holder's own view is the version link. */
+        guestView: z.string(),
         /** Which price list it was taken from; the default list has no name of
          * its own here. */
         tier: z.string(),
