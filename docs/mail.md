@@ -9,7 +9,8 @@ review a change without wading through table markup, and open the rendered
 view to see it as a recipient would.
 
 GitHub serves a committed `.html` as source, so “View rendered” goes
-through htmlpreview.github.io, pointed at this file on the default branch.
+through htmlpreview.github.io, pointed at this file on the default branch
+— so a message added on a branch has nothing to render until it lands.
 Locally, open [mail/gallery.html](mail/gallery.html) instead — every
 message on one page, which is the file to use when proof-reading wording.
 
@@ -34,7 +35,7 @@ Sent on sign-up. Deliberately actionless: the account cannot sign in until staff
 **Subject:** We received your registration  
 **Preheader:** Your registration is with our team.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/registration-received.html) · [HTML source](mail/registration-received.html) · [Plain text](mail/registration-received.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/registration-received.html) · [HTML source](mail/registration-received.html) · [Plain text](mail/registration-received.txt)
 
 <a id="new-registration"></a>
 
@@ -45,7 +46,7 @@ Everything the applicant submitted, for a manager deciding whether they are a cu
 **Subject:** New registration  
 **Preheader:** Someone requested a customer account.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/new-registration.html) · [HTML source](mail/new-registration.html) · [Plain text](mail/new-registration.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/new-registration.html) · [HTML source](mail/new-registration.html) · [Plain text](mail/new-registration.txt)
 
 <a id="invitation-approved"></a>
 
@@ -56,7 +57,7 @@ The link that sets the first password, for an account staff approved.
 **Subject:** Your account is ready  
 **Preheader:** Choose a password to start ordering.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/invitation-approved.html) · [HTML source](mail/invitation-approved.html) · [Plain text](mail/invitation-approved.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/invitation-approved.html) · [HTML source](mail/invitation-approved.html) · [Plain text](mail/invitation-approved.txt)
 
 <a id="invitation-created"></a>
 
@@ -67,7 +68,7 @@ The same link for an account nobody applied for, so it says where the account ca
 **Subject:** An account has been created for you  
 **Preheader:** Choose a password to start ordering.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/invitation-created.html) · [HTML source](mail/invitation-created.html) · [Plain text](mail/invitation-created.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/invitation-created.html) · [HTML source](mail/invitation-created.html) · [Plain text](mail/invitation-created.txt)
 
 <a id="invitation-reactivated"></a>
 
@@ -78,7 +79,7 @@ The same link again for an account that was deactivated and is now not.
 **Subject:** Your account is active again  
 **Preheader:** Choose a new password to start ordering again.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/invitation-reactivated.html) · [HTML source](mail/invitation-reactivated.html) · [Plain text](mail/invitation-reactivated.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/invitation-reactivated.html) · [HTML source](mail/invitation-reactivated.html) · [Plain text](mail/invitation-reactivated.txt)
 
 ## The account itself
 
@@ -91,7 +92,7 @@ Requested by the account holder. The link lives an hour.
 **Subject:** Reset your password  
 **Preheader:** Choose a new password for your account.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/password-reset.html) · [HTML source](mail/password-reset.html) · [Plain text](mail/password-reset.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/password-reset.html) · [HTML source](mail/password-reset.html) · [Plain text](mail/password-reset.txt)
 
 <a id="account-deleted"></a>
 
@@ -102,7 +103,7 @@ Confirms the deletion the customer asked for. Past orders are anonymised, not re
 **Subject:** Your account has been deleted  
 **Preheader:** Your customer account and personal details have been removed.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/account-deleted.html) · [HTML source](mail/account-deleted.html) · [Plain text](mail/account-deleted.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/account-deleted.html) · [HTML source](mail/account-deleted.html) · [Plain text](mail/account-deleted.txt)
 
 ## Orders
 
@@ -115,7 +116,7 @@ The receipt. For a guest the token link is the only record of what they sent.
 **Subject:** We have your order request · CK-260826-4831  
 **Preheader:** Your order request has reached us.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-received-guest.html) · [HTML source](mail/order-received-guest.html) · [Plain text](mail/order-received-guest.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-received-guest.html) · [HTML source](mail/order-received-guest.html) · [Plain text](mail/order-received-guest.txt)
 
 <a id="order-received-account"></a>
 
@@ -126,7 +127,7 @@ The same receipt without a capability link: they can open the order signed in.
 **Subject:** We have your order request · CK-260826-4831  
 **Preheader:** Your order request has reached us.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-received-account.html) · [HTML source](mail/order-received-account.html) · [Plain text](mail/order-received-account.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-received-account.html) · [HTML source](mail/order-received-account.html) · [Plain text](mail/order-received-account.txt)
 
 <a id="new-order"></a>
 
@@ -137,7 +138,7 @@ The staff notification, linking into the admin order view.
 **Subject:** New order request · CK-260826-4831  
 **Preheader:** A customer has sent an order request.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/new-order.html) · [HTML source](mail/new-order.html) · [Plain text](mail/new-order.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/new-order.html) · [HTML source](mail/new-order.html) · [Plain text](mail/new-order.txt)
 
 <a id="order-approved"></a>
 
@@ -148,7 +149,7 @@ The shop accepting the order — and, where it is invoiced, the point money star
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** Your order is confirmed
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-approved.html) · [HTML source](mail/order-approved.html) · [Plain text](mail/order-approved.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-approved.html) · [HTML source](mail/order-approved.html) · [Plain text](mail/order-approved.txt)
 
 <a id="order-approved-with-instructions"></a>
 
@@ -159,7 +160,7 @@ The same move carrying the shop’s payment file, which the body says so the rea
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** Your order is confirmed
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-approved-with-instructions.html) · [HTML source](mail/order-approved-with-instructions.html) · [Plain text](mail/order-approved-with-instructions.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-approved-with-instructions.html) · [HTML source](mail/order-approved-with-instructions.html) · [Plain text](mail/order-approved-with-instructions.txt)
 
 <a id="order-ready-delivery"></a>
 
@@ -170,7 +171,7 @@ One status read two ways. This half says where the order is going.
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** Your order is on its way
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-ready-delivery.html) · [HTML source](mail/order-ready-delivery.html) · [Plain text](mail/order-ready-delivery.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-ready-delivery.html) · [HTML source](mail/order-ready-delivery.html) · [Plain text](mail/order-ready-delivery.txt)
 
 <a id="order-ready-pickup"></a>
 
@@ -181,7 +182,7 @@ The other half of `ready`: the office it is waiting at, not an address.
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** Your order is ready to collect
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-ready-pickup.html) · [HTML source](mail/order-ready-pickup.html) · [Plain text](mail/order-ready-pickup.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-ready-pickup.html) · [HTML source](mail/order-ready-pickup.html) · [Plain text](mail/order-ready-pickup.txt)
 
 <a id="order-completed"></a>
 
@@ -192,7 +193,7 @@ The end of the forward chain. Sent once — a reopened order completed again is 
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** Your order is complete
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-completed.html) · [HTML source](mail/order-completed.html) · [Plain text](mail/order-completed.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-completed.html) · [HTML source](mail/order-completed.html) · [Plain text](mail/order-completed.txt)
 
 <a id="order-declined"></a>
 
@@ -203,7 +204,7 @@ A refusal quotes its reason: being told no without being told why is the mail no
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** We cannot fill this order
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-declined.html) · [HTML source](mail/order-declined.html) · [Plain text](mail/order-declined.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-declined.html) · [HTML source](mail/order-declined.html) · [Plain text](mail/order-declined.txt)
 
 <a id="order-cancelled"></a>
 
@@ -214,7 +215,7 @@ The other ending, carrying the note staff wrote when they called it off.
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** Your order has been cancelled
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-cancelled.html) · [HTML source](mail/order-cancelled.html) · [Plain text](mail/order-cancelled.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-cancelled.html) · [HTML source](mail/order-cancelled.html) · [Plain text](mail/order-cancelled.txt)
 
 <a id="order-reopened"></a>
 
@@ -225,7 +226,7 @@ An order that had ended is being answered again, so the mail says it is back at 
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** Your order is back with us
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-reopened.html) · [HTML source](mail/order-reopened.html) · [Plain text](mail/order-reopened.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-reopened.html) · [HTML source](mail/order-reopened.html) · [Plain text](mail/order-reopened.txt)
 
 <a id="order-corrected"></a>
 
@@ -236,7 +237,7 @@ Staff undoing a step. It says so first: the status sentence alone would read as 
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** Your order is confirmed
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-corrected.html) · [HTML source](mail/order-corrected.html) · [Plain text](mail/order-corrected.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-corrected.html) · [HTML source](mail/order-corrected.html) · [Plain text](mail/order-corrected.txt)
 
 <a id="order-changed"></a>
 
@@ -247,7 +248,7 @@ An adjustment that moved nothing. Every change since the customer was last writt
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** We have changed your order
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-changed.html) · [HTML source](mail/order-changed.html) · [Plain text](mail/order-changed.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-changed.html) · [HTML source](mail/order-changed.html) · [Plain text](mail/order-changed.txt)
 
 <a id="order-changed-guest"></a>
 
@@ -258,7 +259,7 @@ The same message for a reader with no account: the link is the token, not their 
 **Subject:** Your order · CK-260826-4831  
 **Preheader:** We have changed your order
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-changed-guest.html) · [HTML source](mail/order-changed-guest.html) · [Plain text](mail/order-changed-guest.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-changed-guest.html) · [HTML source](mail/order-changed-guest.html) · [Plain text](mail/order-changed-guest.txt)
 
 <a id="order-document"></a>
 
@@ -269,7 +270,7 @@ A file arriving on its own. It announces no step and repeats no lines.
 **Subject:** A document for your order · CK-260826-4831  
 **Preheader:** How to pay for your order
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/order-document.html) · [HTML source](mail/order-document.html) · [Plain text](mail/order-document.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-document.html) · [HTML source](mail/order-document.html) · [Plain text](mail/order-document.txt)
 
 ## Getting in touch
 
@@ -282,4 +283,4 @@ The contact form, delivered to the staff inbox with the visitor as Reply-To.
 **Subject:** Inquiry: Jane Doe  
 **Preheader:** A visitor sent an inquiry through the contact form.
 
-[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/main/docs/mail/inquiry.html) · [HTML source](mail/inquiry.html) · [Plain text](mail/inquiry.txt)
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/inquiry.html) · [HTML source](mail/inquiry.html) · [Plain text](mail/inquiry.txt)

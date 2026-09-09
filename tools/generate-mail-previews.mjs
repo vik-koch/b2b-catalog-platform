@@ -43,14 +43,20 @@ const INDEX = 'docs/mail.md';
 /**
  * The links the index offers. GitHub serves a committed `.html` as source, so
  * the only way to *see* a message from the documentation is a third-party
- * renderer pointed at the raw file. Pinned to the default branch, because that
- * is the copy a reader of the documentation means.
+ * renderer pointed at the raw file.
+ *
+ * `HEAD` rather than a branch name: the default branch is the copy a reader of
+ * the documentation means, and naming it would go stale if it were ever
+ * renamed. Deliberately not the branch being generated on — that would make
+ * the committed files depend on where they were generated, and leave dead
+ * links behind every merged branch. The cost is that a preview added on a
+ * feature branch has nothing to render until it lands.
  */
 const repository = JSON.parse(readFileSync('package.json', 'utf8')).repository
   .url.replace(/^https:\/\/github\.com\//, '')
   .replace(/\.git$/, '');
 const rendered = (slug) =>
-  `https://htmlpreview.github.io/?https://raw.githubusercontent.com/${repository}/main/docs/mail/${slug}.html`;
+  `https://htmlpreview.github.io/?https://raw.githubusercontent.com/${repository}/HEAD/docs/mail/${slug}.html`;
 
 const { mailTextSchema } = await loadTypeScript('apps/api/src/mail/mail-text.ts');
 const { renderMailPreviews, MAIL_PREVIEW_GROUPS } = await loadTypeScript(
@@ -183,7 +189,8 @@ function renderIndex(previews) {
     'view to see it as a recipient would.',
     '',
     'GitHub serves a committed `.html` as source, so “View rendered” goes',
-    'through htmlpreview.github.io, pointed at this file on the default branch.',
+    'through htmlpreview.github.io, pointed at this file on the default branch',
+    '— so a message added on a branch has nothing to render until it lands.',
     'Locally, open [mail/gallery.html](mail/gallery.html) instead — every',
     'message on one page, which is the file to use when proof-reading wording.',
     '',
