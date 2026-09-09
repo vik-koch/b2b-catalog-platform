@@ -12,6 +12,7 @@ import {
   PhoneConfig,
   phoneInputSchema,
 } from '@b2b-catalog-platform/shared';
+import { dirname, join } from 'node:path';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import * as z from 'zod';
 
@@ -28,6 +29,19 @@ export const apiDeploymentConfigSchema = z
       .object({
         name: z.string(),
         theme: z.object({ primary: z.string() }),
+        /**
+         * The face the API prints its PDFs in (FR-ORD-05). Only the `pdf`
+         * half of the web app's `font` block reaches here — a `woff2` is what
+         * a browser wants and not what a PDF can embed — and the two files are
+         * paths under the assets directory beside this config file. Absent,
+         * the API prints in the face it ships with.
+         */
+        font: z
+          .object({
+            pdf: z.object({ regular: z.string(), bold: z.string() }).optional(),
+          })
+          .passthrough()
+          .optional(),
       })
       // Non-strict for the same reason: `title`, `startYear` and the rest
       // belong to the web app, and a key added there must not fail the API.
@@ -137,6 +151,40 @@ export function loadApiDeploymentConfig(): ApiDeploymentConfig {
 /** Test seam: drops the memoized config so a spec can load a different file. */
 export function resetApiDeploymentConfig(): void {
   cached = undefined;
+}
+
+/**
+ * Where a deployment's own assets live: the `assets/` directory beside the
+ * config file, which is the layout config/README.md documents and the one the
+ * web server already serves from. Derived rather than given its own variable —
+ * one mount, one place, and nothing to keep in step.
+ */
+export const PDF_FONT = 'PDF_FONT';
+
+export interface PdfFontFiles {
+  readonly regular: string;
+  readonly bold: string;
+}
+
+export function loadPdfFont(): PdfFontFiles | undefined {
+  const pdf = loadApiDeploymentConfig().branding.font?.pdf;
+  if (!pdf) return undefined;
+  const configFile = process.env['DEPLOYMENT_CONFIG_FILE'];
+  if (!configFile) return undefined;
+  const assets = join(dirname(configFile), 'assets');
+  // A path out of the assets directory is a configuration mistake, not an
+  // attack — the file is the operator's own — but the boot is where a mistake
+  // should be noticed rather than the first time somebody asks for a PDF.
+  const resolve = (name: string): string => {
+    const path = join(assets, name);
+    if (!path.startsWith(`${assets}/`)) {
+      throw new Error(
+        `branding.font.pdf: ${name} is outside the assets directory`,
+      );
+    }
+    return path;
+  };
+  return { regular: resolve(pdf.regular), bold: resolve(pdf.bold) };
 }
 
 /**

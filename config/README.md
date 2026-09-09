@@ -121,6 +121,29 @@ is set in, and how heavy that should be is a property of the face. The app ships
 much in a family whose medium and semibold are close together — set it there
 rather than looking for the places a price is drawn.
 
+A deployment whose paperwork should be set in the same face adds `pdf` beside
+those two:
+
+```json
+"font": {
+  "family": "'Some Sans', system-ui, sans-serif",
+  "stylesheet": "fonts/fonts.css",
+  "pdf": { "regular": "fonts/some-sans.ttf", "bold": "fonts/some-sans-bold.ttf" }
+}
+```
+
+These are **`ttf` or `otf` files**, not the `woff2` the browser is served: a PDF
+embeds TrueType or CFF, and a `woff2` put through the same machinery is tagged
+as TrueType and then refused by some readers while rendering fine in others.
+Both weights are needed — the layout sets its headings and its total in the
+bold one.
+
+Omit `pdf` and the API prints in a standard face every reader already has,
+which covers the Latin alphabets with their accents and umlauts (WinAnsi) and
+nothing beyond them. **A deployment whose catalogue or addresses are written in
+any other script must name its own face here** — characters the standard one
+cannot write are drawn as question marks rather than failing the document.
+
 `family` is applied to everything the app draws. `stylesheet` is a path under
 `assets/` holding the `@font-face` rules, linked into every document by the SSR
 server; put the `woff2` files beside it and reference them relatively. Serving
