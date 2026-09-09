@@ -1373,6 +1373,7 @@ export const adminTextSchema = z
         errors: z
           .object({
             'order-changed': z.string(),
+            'no-change': z.string(),
             'unknown-product': z.string(),
             'unknown-tier': z.string(),
             'line-not-priceable': z.string(),

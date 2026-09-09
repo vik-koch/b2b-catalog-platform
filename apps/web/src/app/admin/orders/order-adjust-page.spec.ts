@@ -276,5 +276,29 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
     fixture.detectChanges();
 
     expect(el.textContent).not.toContain('Error');
+    expect(el.textContent).toContain(text.errors['order-changed']);
+  });
+
+  /** A note is an account of a change and not a change of its own, so the
+   * server refuses a version that would say what the order already says — and
+   * the screen has to explain that rather than blame the note. */
+  it('says so when nothing under the note actually changed', async () => {
+    const { fixture, el } = await settled({
+      adjust: vi.fn(async () => ({
+        ok: false as const,
+        code: 'no-change' as const,
+      })),
+    });
+
+    const page = fixture.componentInstance as unknown as {
+      note: { set: (value: string) => void };
+      save: () => Promise<void>;
+    };
+    page.note.set('Spoke to Ada, nothing to do');
+    fixture.detectChanges();
+    await page.save();
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain(text.errors['no-change']);
   });
 });

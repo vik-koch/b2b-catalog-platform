@@ -106,6 +106,10 @@ const REFUSAL_PART: Record<AdjustmentRefusal, 'lines' | 'details'> = {
   'invalid-postal-code': 'details',
   'unknown-pickup-location': 'details',
   'order-changed': 'details',
+  // Beside the fields rather than the lines: it is a statement about the whole
+  // form, and the manager has to find what they meant to change somewhere in
+  // it.
+  'no-change': 'details',
   'order-not-found': 'details',
 };
 

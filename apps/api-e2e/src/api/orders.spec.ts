@@ -1527,6 +1527,36 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       });
     });
 
+    /**
+     * A version identical to the one before it is noise in a history rather
+     * than part of one — and the refusal is the service's, not the screen's,
+     * because an exchange re-sending an order it has already sent must not
+     * lengthen the thread by doing so.
+     */
+    it('refuses a change that changes nothing the order says', async () => {
+      const placed = await place();
+
+      const res = await adjust(placed.reference, adjustment());
+
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('no-change');
+      // And the thread is where it was: nothing was written.
+      expect(await onRevision(placed.reference)).toBe(1);
+    });
+
+    /** A note is an account of a change, not a change. */
+    it('refuses a note with no change under it', async () => {
+      const placed = await place();
+
+      const res = await adjust(
+        placed.reference,
+        adjustment({ note: 'Spoke to Ada, nothing to do' }),
+      );
+
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('no-change');
+    });
+
     it('prices a line it is given no price for, from the named list', async () => {
       const placed = await place();
 

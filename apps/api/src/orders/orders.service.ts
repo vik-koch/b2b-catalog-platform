@@ -1328,6 +1328,31 @@ export class OrdersService {
     const notified = await this.customerThread(current.id);
     const { priced, fulfilment, billing } = await this.priceAdjusted(input);
     const status = current.status as OrderStatus;
+    const snapshot = this.adjustedSnapshot(current, input, priced, {
+      billing,
+      fulfilment,
+    });
+    const lines = priced.lines.map((line, index) => ({
+      sortOrder: index,
+      productId: line.productId,
+      productSourceId: line.sourceId,
+      slug: line.slug,
+      name: line.name,
+      thumbnail: line.thumbnail,
+      unit: line.unit,
+      quantity: line.quantity,
+      pieces: line.pieces,
+      priceMinor: line.priceMinor,
+      priceBasisPieces: line.priceBasisPieces,
+      lineTotalMinor: line.lineTotalMinor,
+      note: line.note,
+    }));
+    if (await this.saysTheSame(current, snapshot, lines)) {
+      throw new ConflictException({
+        code: 'no-change',
+        message: 'This changes nothing the order says',
+      });
+    }
 
     await this.appendRevision(current, {
       kind: 'adjustment',
@@ -1335,25 +1360,8 @@ export class OrdersService {
       statusReason: current.statusReason,
       note: input.note,
       byUserId,
-      snapshot: this.adjustedSnapshot(current, input, priced, {
-        billing,
-        fulfilment,
-      }),
-      lines: priced.lines.map((line, index) => ({
-        sortOrder: index,
-        productId: line.productId,
-        productSourceId: line.sourceId,
-        slug: line.slug,
-        name: line.name,
-        thumbnail: line.thumbnail,
-        unit: line.unit,
-        quantity: line.quantity,
-        pieces: line.pieces,
-        priceMinor: line.priceMinor,
-        priceBasisPieces: line.priceBasisPieces,
-        lineTotalMinor: line.lineTotalMinor,
-        note: line.note,
-      })),
+      snapshot,
+      lines,
       paymentState: paymentStateAfterAdjustment(
         current.paymentState as PaymentState,
         status,
@@ -1373,6 +1381,53 @@ export class OrdersService {
       await this.mailCustomer(reference, notified.number, 'changed');
     }
     return this.getForStaff(reference);
+  }
+
+  /**
+   * Whether an adjustment would write a version that says exactly what the one
+   * before it says.
+   *
+   * Compared against the two things a version is made of — the snapshot a move
+   * would carry across word for word, and the lines it holds — so nothing can
+   * change without this seeing it. The manager's note is deliberately not
+   * among them: it is an account of a change rather than a change, and a
+   * version whose only content is a sentence about nothing is noise in a
+   * history rather than part of one.
+   *
+   * The refusal lives here and not in the screen because the screen is not the
+   * only writer: an exchange that re-sends an order it has already sent must
+   * not lengthen the thread by doing so.
+   */
+  private async saysTheSame(
+    current: OrderRow,
+    snapshot: OrderSnapshot,
+    lines: Omit<typeof orderItems.$inferInsert, 'revisionId'>[],
+  ): Promise<boolean> {
+    const carried = this.carriedSnapshot(current);
+    const sameSnapshot = Object.entries(snapshot).every(
+      ([field, value]) => value === carried[field as keyof OrderSnapshot],
+    );
+    if (!sameSnapshot) return false;
+
+    const items = await this.items(current.revisionId);
+    if (items.length !== lines.length) return false;
+    return lines.every((line, index) => {
+      const item = items[index];
+      return (
+        line.sortOrder === item.sortOrder &&
+        line.productId === item.productId &&
+        line.slug === item.slug &&
+        line.name === item.name &&
+        line.thumbnail === item.thumbnail &&
+        line.unit === item.unit &&
+        line.quantity === item.quantity &&
+        line.pieces === item.pieces &&
+        line.priceMinor === item.priceMinor &&
+        line.priceBasisPieces === item.priceBasisPieces &&
+        line.lineTotalMinor === item.lineTotalMinor &&
+        line.note === item.note
+      );
+    });
   }
 
   /** The order as an adjustment proposes it should now read. The customer's

@@ -255,7 +255,7 @@ export class AdminOrderRevisionPage {
     const order = this.revision();
     if (!order) return '';
     return fillText(this.detailText.placed, {
-      date: this.dateTimeFormat.format(new Date(order.createdAt)),
+      date: this.dateFormat.format(new Date(order.createdAt)),
     });
   }
 
@@ -318,6 +318,9 @@ export class AdminOrderRevisionPage {
   }
 
   private readonly dateTimeFormat = orderDateTimeFormat(this.currency.locale);
+  private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {
+    dateStyle: 'long',
+  });
 
   constructor() {
     usePageSeo({

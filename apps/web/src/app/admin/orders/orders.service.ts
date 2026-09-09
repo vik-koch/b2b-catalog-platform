@@ -22,6 +22,7 @@ import { createOrpcClient } from '../../core/orpc-client';
  */
 export type AdjustmentRefusal =
   | 'order-changed'
+  | 'no-change'
   | 'unknown-product'
   | 'unknown-tier'
   | 'line-not-priceable'

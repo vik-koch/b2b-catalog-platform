@@ -861,6 +861,7 @@
     "keep": "Keep editing",
     "errors": {
       "order-changed": "Somebody else adjusted this order while you were working on it. Reload the page and start again.",
+      "no-change": "Nothing here differs from the order as it stands. A note on its own is not a change — put what you agreed into the lines or the details first.",
       "unknown-product": "One of the lines names a product that no longer exists.",
       "unknown-tier": "That price list no longer exists.",
       "line-not-priceable": "One of the lines cannot be priced exactly. Check its quantity and price.",

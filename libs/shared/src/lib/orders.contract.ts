@@ -680,6 +680,12 @@ const adjustmentErrors = {
    * exactly — a repackaged product whose basis no longer divides the
    * quantity. It is named rather than silently zeroed. */
   'line-not-priceable': { status: 400 },
+  /** An adjustment that changes nothing the order says. A version identical to
+   * the one before it is not history, it is noise in it — and a note is an
+   * account of a change rather than a change of its own. Refused here rather
+   * than in the screen, so a system writing adjustments back cannot fill the
+   * thread with re-sends of a state the order already holds. */
+  'no-change': { status: 409 },
 } as const;
 
 /** What a manager records, and what they say about it. */
