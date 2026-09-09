@@ -12,9 +12,16 @@
     }
   },
   "pages": {
-    "published": ["about", "conditions", "privacy", "imprint", "contact"],
+    "published": [
+      "about",
+      "conditions",
+      "privacy",
+      "imprint",
+      "withdrawal",
+      "contact"
+    ],
     "headerNav": ["about", "contact", "conditions"],
-    "footerNav": ["privacy", "imprint", "licenses"]
+    "footerNav": ["privacy", "imprint", "withdrawal", "licenses"]
   },
   "cookieConsentEnabled": false,
   "billingAddressEnabled": true,

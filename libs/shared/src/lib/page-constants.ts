@@ -7,7 +7,10 @@
 
 /**
  * The static pages are a fixed set — content is edited, pages are never
- * created or deleted. The API answers 404 for any other slug. Which of them a
+ * created or deleted. `withdrawal` is the cancellation notice some
+ * jurisdictions require of a shop selling to consumers (NFR-LEGAL-04); like
+ * `imprint` it exists in the set for every deployment and is published only by
+ * the ones that owe it. The API answers 404 for any other slug. Which of them a
  * deployment publishes, and where they appear in the navigation, is deployment
  * config; the set itself is a compile-time contract shared with the database,
  * whose page rows are keyed by these slugs.
@@ -17,6 +20,7 @@ export const PAGE_SLUGS = [
   'conditions',
   'privacy',
   'imprint',
+  'withdrawal',
   'contact',
 ] as const;
 export type PageSlug = (typeof PAGE_SLUGS)[number];
@@ -35,6 +39,7 @@ export const STANDALONE_PAGE_SLUGS = [
   'conditions',
   'privacy',
   'imprint',
+  'withdrawal',
 ] as const satisfies readonly PageSlug[];
 export type StandalonePageSlug = (typeof STANDALONE_PAGE_SLUGS)[number];
 
