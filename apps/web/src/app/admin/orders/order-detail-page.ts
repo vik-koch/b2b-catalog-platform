@@ -14,8 +14,8 @@ import {
   fillText,
   moveDirection,
   notifyByDefault,
-  OrderStatus,
   ORDER_STATUS_REASON_MAX,
+  OrderStatus,
   transitionHasReason,
   TransitionTarget,
 } from '@b2b-catalog-platform/shared';
@@ -25,28 +25,28 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../ui/disclosure-toggle';
-import { Skeleton } from '../../ui/skeleton';
 import { orderBlocks } from '../../orders/order-blocks';
-import { orderDateTimeFormat } from '../../orders/order-view';
 import {
   OrderReadBack,
   ReadBackLine,
   ReviewBlock,
 } from '../../orders/order-read-back';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { orderStatusLabel, orderStatusTone } from '../../orders/order-status';
+import { orderDateTimeFormat } from '../../orders/order-view';
+import { Button } from '../../ui/button';
 import { ConfirmCheck } from '../../ui/confirm-dialog';
 import { ConfirmService } from '../../ui/confirm.service';
-import { AdminOrdersService } from './orders.service';
+import {
+  DISCLOSURE_FRAME,
+  disclosureBorder,
+  DisclosureToggle,
+} from '../../ui/disclosure-toggle';
+import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Skeleton } from '../../ui/skeleton';
+import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { orderChanges } from './order-changes';
+import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
 
 /**
@@ -116,15 +116,14 @@ const MARK_PAID = 'markPaid';
               the order is, what it was priced from, what it owes, where it
               stands, and every version it has had.
 
-              Each control stands on the row of the fact it changes — the
-              payment beside what is owed, the moves and the adjustment beside
-              the status, telling the customer beside what they are looking at.
-              They share one width and one right-hand edge, so the block still
-              reads as a column of answers to the order rather than as buttons
-              scattered through it.
+              Each control stands on the row of the fact it changes, directly
+              under it — the payment under what is owed, the moves and the
+              adjustment under the status, telling the customer under what they
+              are looking at. Nothing has to line up across the block for that
+              to read: a button is next to its own sentence.
             -->
             <section class="mt-6 rounded-lg border border-border p-5 text-sm">
-              <dl class="grid gap-x-8 break-words sm:grid-cols-[7rem_1fr]">
+              <dl class="grid gap-x-6 break-words sm:grid-cols-[7rem_1fr]">
                 <dt [class]="term">{{ text.customer }}</dt>
                 <dd [class]="value">
                   {{ order.customerEmail ?? listText.guest }}
@@ -136,9 +135,9 @@ const MARK_PAID = 'markPaid';
                      payment moves nothing along, and the customer sees it the
                      moment it is recorded. Read under the status it used to
                      sit below, it looked like the next step of one thing. -->
-                <dt [class]="termCentred">{{ text.paymentState.heading }}</dt>
-                <dd [class]="row" class="md:items-center">
-                  <p class="min-w-0 flex-1">
+                <dt [class]="term">{{ text.paymentState.heading }}</dt>
+                <dd [class]="row">
+                  <p class="min-w-0">
                     {{ paymentLabel(order) }}
                   </p>
                   @if (paymentMove(); as move) {
@@ -148,7 +147,7 @@ const MARK_PAID = 'markPaid';
                         size="sm"
                         variant="secondary"
                         type="button"
-                        class="w-full gap-2"
+                        class="w-full gap-2 sm:w-auto"
                         [disabled]="busy()"
                         (click)="move.run()"
                       >
@@ -161,11 +160,18 @@ const MARK_PAID = 'markPaid';
 
                 <dt [class]="term">{{ listText.status }}</dt>
                 <dd [class]="row">
-                  <div class="min-w-0 flex-1">
-                    <span appStatusBadge [tone]="statusTone(order)">
-                      {{ statusLabel(order) }}
-                    </span>
-                    <p class="mt-1 text-subtle">{{ statusChanged(order) }}</p>
+                  <div class="min-w-0">
+                    <!-- When it last moved reads as part of where it
+                         stands, so it sits beside the badge and wraps under
+                         it only when there is no room. -->
+                    <div class="flex flex-wrap items-center gap-x-2">
+                      <span appStatusBadge [tone]="statusTone(order)">
+                        {{ statusLabel(order) }}
+                      </span>
+                      <span class="text-subtle">{{
+                        statusChanged(order)
+                      }}</span>
+                    </div>
                     <!-- Why it ended, on the line that says it ended: the
                          reason is part of the status and not a fact of its
                          own. -->
@@ -205,7 +211,7 @@ const MARK_PAID = 'markPaid';
                       appButton
                       size="sm"
                       variant="secondary"
-                      class="w-full gap-2"
+                      class="w-full gap-2 sm:w-auto"
                       [routerLink]="[
                         '/admin/orders',
                         order.reference,
@@ -226,7 +232,7 @@ const MARK_PAID = 'markPaid';
                         appButton
                         size="sm"
                         type="button"
-                        class="w-full gap-2"
+                        class="w-full gap-2 sm:w-auto"
                         [variant]="move.variant"
                         [disabled]="busy()"
                         (click)="move.run()"
@@ -244,8 +250,8 @@ const MARK_PAID = 'markPaid';
                      this row is what is left: a change nobody announced, and
                      the moves somebody deliberately kept quiet. -->
                 @if (order.customerBehind) {
-                  <dt [class]="termCentred">{{ text.tellCustomer.heading }}</dt>
-                  <dd [class]="row" class="md:items-center">
+                  <dt [class]="term">{{ text.tellCustomer.heading }}</dt>
+                  <dd [class]="row">
                     <!-- Each version the sentence names links at that
                          version, and carries the weight the rest of the line
                          does not: which versions these are is the whole content
@@ -253,7 +259,7 @@ const MARK_PAID = 'markPaid';
                          the parts is a space Angular would put back — in front
                          of the semicolon. -->
                     <!-- prettier-ignore -->
-                    <p class="min-w-0 flex-1">@for (part of behind(); track $index) {@if (part.version) {<a
+                    <p class="min-w-0">@for (part of behind(); track $index) {@if (part.version) {<a
                       class="font-medium hover:text-accent"
                       [routerLink]="['/admin/orders', order.reference, 'revisions', part.version]"
                       [title]="revisionText.openRevision"
@@ -264,7 +270,7 @@ const MARK_PAID = 'markPaid';
                         size="sm"
                         variant="secondary"
                         type="button"
-                        class="w-full gap-2"
+                        class="w-full gap-2 sm:w-auto"
                         [disabled]="busy()"
                         (click)="tellCustomer(order)"
                       >
@@ -283,7 +289,7 @@ const MARK_PAID = 'markPaid';
                    more than one version: an order nobody has adjusted has no
                    history to read. -->
                 @if (order.revisionNumber > 1) {
-                  <dt [class]="termHistory">{{ revisionText.heading }}</dt>
+                  <dt [class]="term">{{ revisionText.heading }}</dt>
                   <dd [class]="value">
                     <div
                       class="rounded-md border"
@@ -510,36 +516,21 @@ export class AdminOrderDetailPage {
     'text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0';
   protected readonly value = 'min-w-0 even:mb-3 last:mb-0';
   /**
-   * A fact and the control that changes it, on one row: the fact reads at
-   * whatever width is left, the control keeps its own.
-   *
-   * They stack at `md` rather than at `sm`. Two of these controls are a whole
-   * sentence wide, and at tablet width they left the fact beside them a third
-   * of a row to say itself in.
+   * A fact and the control that changes it: the control under the fact it
+   * changes, rather than off to one side of it. Read down, each row is a
+   * thing the order says followed by what can be done about it.
    */
-  protected readonly row =
-    this.value + ' flex flex-col gap-2 md:flex-row md:justify-between md:gap-4';
-  /** One width for every control in the block, so they share a right edge
-   * however long the facts beside them run. */
-  protected readonly actions = 'flex w-full shrink-0 flex-col gap-3 md:w-3xs';
+  protected readonly row = this.value + ' flex flex-col gap-3';
   /**
-   * A label on a row whose control is a single button: it centres on that
-   * button rather than sitting above it, which is what makes the three
-   * one-control rows read as a column of controls.
-   *
-   * Not on the status row, whose left half is four lines of its own.
+   * The controls of one row. They are as wide as their words from `sm` up,
+   * and wrap onto a second line when there are more of them than fit; below
+   * that they are a stack of full-width buttons, which is the only shape a
+   * button reads well in on a phone. The space under them is their own: a
+   * button group needs more air before the next fact than one line of text
+   * does.
    */
-  protected readonly termCentred =
-    this.term + ' flex flex-wrap md:items-center';
-  /**
-   * The history label, which centres on the fold's lid and stays there when
-   * the fold opens. Given the row's whole height it drifted down the page the
-   * moment a panel of six versions appeared under it, and the label of a thing
-   * does not move because the thing was opened. The height is the lid's own —
-   * its padding and its line — plus the frame drawn around it.
-   */
-  protected readonly termHistory =
-    this.term + ' flex flex-wrap md:h-[calc(2.5rem+2px)] md:items-center';
+  protected readonly actions =
+    'mb-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap';
   protected readonly historyPanelId = 'order-versions';
   protected readonly historyOpen = signal(false);
 
