@@ -667,7 +667,8 @@ export const adminTextSchema = z
             failed: z.string(),
           })
           .strict(),
-        lastSync: z.string(),
+        /** Where nothing has ever been synced. The run's own timestamp needs
+         * no wording — the row it sits on says what the date is about. */
         lastSyncNever: z.string(),
       })
       .strict(),

@@ -378,7 +378,6 @@
     "discard": "Discard",
     "historyTitle": "Previous runs",
     "historyEmpty": "No sync has run yet.",
-    "lastSync": "Last sync: {date}",
     "lastSyncNever": "Never synced",
     "mode": {
       "full": "Complete catalog export",

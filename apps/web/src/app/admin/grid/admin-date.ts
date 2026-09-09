@@ -18,3 +18,15 @@ export function adminDayFormat(locale: string): Intl.DateTimeFormat {
     day: '2-digit',
   });
 }
+
+/** The same day with the time on it, for the places that report a single
+ * moment rather than a column of days. Named fields for the same reason. */
+export function adminMomentFormat(locale: string): Intl.DateTimeFormat {
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}

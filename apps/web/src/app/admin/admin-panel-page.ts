@@ -6,6 +6,7 @@ import { ADMIN_TEXT } from '../config/admin-text';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { usePageSeo } from '../core/page-seo';
+import { adminMomentFormat } from './grid/admin-date';
 import { AdminIcon } from '../ui/icons/admin-icon';
 import { BuildInfoService } from './build-info.service';
 import { injectEditorReturnParams } from './editor-return';
@@ -131,11 +132,12 @@ import { WorkService } from '../work/work.service';
                 <!-- The run it reports is the one this row starts again. The
                      audit trail's newest applied run is the whole answer; until
                      it arrives, hold the line's space rather than showing
-                     "never synced" and correcting it. -->
+                     "never synced" and correcting it — and hold exactly the
+                     width the answer takes, which is one timestamp. -->
                 <app-panel-row [label]="syncText.title" link="/admin/sync">
                   @if (runs.isLoading()) {
                     <span
-                      class="block flex h-3 w-32 animate-pulse rounded bg-stone-200"
+                      class="block h-3 w-24 animate-pulse rounded bg-stone-200"
                       aria-hidden="true"
                     ></span>
                   } @else {
@@ -336,16 +338,20 @@ export class AdminPanelPage {
     loader: () => this.sync.listRuns().catch(() => null),
   });
 
+  /**
+   * When the catalog was last synced — the timestamp and nothing else.
+   *
+   * No "Last sync:" in front of it: the row it sits on is already the sync
+   * row, and the label would be the row's own name said twice. The one reading
+   * that is not a date says so in words, because an empty-looking line there
+   * would read as a figure that failed to load.
+   */
   protected readonly lastSync = computed(() => {
     const applied = this.runs.value()?.lastApplied;
     if (!applied?.finishedAt) return this.syncText.lastSyncNever;
-    // Numeric and short: it sits in a chip, where a spelled-out month would
-    // wrap. The sync screen itself carries the full timestamps.
-    const date = new Intl.DateTimeFormat(this.currency.locale, {
-      dateStyle: 'short',
-      timeStyle: 'short',
-    }).format(new Date(applied.finishedAt));
-    return this.syncText.lastSync.replace('{date}', date);
+    return adminMomentFormat(this.currency.locale).format(
+      new Date(applied.finishedAt),
+    );
   });
 
   // A dev deployment's version is the full `sha-<40 hex>` image tag — unreadable
