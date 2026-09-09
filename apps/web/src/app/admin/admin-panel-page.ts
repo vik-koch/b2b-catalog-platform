@@ -63,13 +63,26 @@ import { WorkService } from '../work/work.service';
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-orders-heading">
               <app-panel-row [label]="orderText.title" link="/admin/orders">
-                @if (waitingOrders(); as count) {
-                  <app-work-note
-                    [label]="fill(panelText.workOrders, count)"
-                    link="/admin/orders"
-                    [queryParams]="{ status: 'requested' }"
-                  />
-                }
+                <!-- Two queues, one screen: an order nobody has answered and
+                     one handed over that nobody has been paid for are two
+                     jobs with two lists, so they are two notes stacked on the
+                     row's right-hand axis rather than one figure over both. -->
+                <div class="flex flex-col items-end gap-1">
+                  @if (waitingOrders(); as count) {
+                    <app-work-note
+                      [label]="fill(panelText.workOrders, count)"
+                      link="/admin/orders"
+                      [queryParams]="{ status: 'requested' }"
+                    />
+                  }
+                  @if (unpaidOrders(); as count) {
+                    <app-work-note
+                      [label]="fill(panelText.workUnpaid, count)"
+                      link="/admin/orders"
+                      [queryParams]="{ status: 'completed', payment: 'unpaid' }"
+                    />
+                  }
+                </div>
               </app-panel-row>
             </ul>
           </section>
@@ -299,6 +312,9 @@ export class AdminPanelPage {
    */
   protected readonly waitingOrders = computed(
     () => this.work.counts().orders || undefined,
+  );
+  protected readonly unpaidOrders = computed(
+    () => this.work.counts().unpaidOrders || undefined,
   );
   protected readonly waitingRegistrations = computed(
     () => this.work.counts().registrations || undefined,

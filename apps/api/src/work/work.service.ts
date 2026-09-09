@@ -7,7 +7,17 @@ import {
   WorkQueue,
 } from '@b2b-catalog-platform/shared';
 import { Inject, Injectable } from '@nestjs/common';
-import { and, count, eq, isNotNull, isNull, lte, or, sql } from 'drizzle-orm';
+import {
+  and,
+  count,
+  eq,
+  isNotNull,
+  isNull,
+  lte,
+  ne,
+  or,
+  sql,
+} from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
@@ -34,10 +44,11 @@ const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
   admin: [
     'registrations',
     'orders',
+    'unpaidOrders',
     'unpublishedProducts',
     'expiringDocuments',
   ],
-  manager: ['registrations', 'orders'],
+  manager: ['registrations', 'orders', 'unpaidOrders'],
   user: ['myOrders'],
 };
 
@@ -67,6 +78,7 @@ export class WorkService {
   > = {
     registrations: () => this.registrations(),
     orders: () => this.staffOrders(),
+    unpaidOrders: () => this.unpaidOrders(),
     unpublishedProducts: () => this.unpublishedProducts(),
     expiringDocuments: () => this.expiringDocuments(),
     myOrders: (user) => this.myOrders(user.id),
@@ -95,6 +107,26 @@ export class WorkService {
   /** Order requests nobody has answered — the staff list's default filter. */
   private staffOrders(): Promise<number> {
     return this.db.$count(orders, eq(orders.status, 'requested'));
+  }
+
+  /**
+   * Orders handed over with the money not recorded (FR-ORD-04) — the shop's
+   * last move on an order, and the one nothing else prompts for.
+   *
+   * The predicate is `awaitsPaymentRecord`, written in SQL here and in
+   * TypeScript in the shared table; the staff list's `unpaid` filter narrows
+   * to the same rows, so the figure and the list it opens are the same
+   * question asked twice.
+   *
+   * It does not empty by itself the way `requested` does: an order handed over
+   * and never paid for stays counted until somebody records it. That is the
+   * honest reading — it is a real open item — and there is no writing off.
+   */
+  private unpaidOrders(): Promise<number> {
+    return this.db.$count(
+      orders,
+      and(eq(orders.status, 'completed'), ne(orders.paymentState, 'paid')),
+    );
   }
 
   /**

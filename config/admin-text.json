@@ -661,6 +661,7 @@
     "paymentAll": "All payments",
     "paymentAwaiting": "Awaiting payment",
     "paymentCash": "Cash on handover",
+    "paymentUnpaid": "Not paid",
     "paymentPaid": "Paid",
     "guest": "Guest",
     "actions": "Actions",
