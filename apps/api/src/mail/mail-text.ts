@@ -241,6 +241,10 @@ export const mailTextSchema = z
          * step (FR-ORD-02). Without it the mail would announce a state the
          * customer was already past as though it were the next one. */
         correctedIntro: z.string(),
+        /** Said where the shop's payment instructions travel with the
+         * message (FR-ORD-05). Only then: a mail that promised an attachment
+         * it does not carry is worse than one that says nothing. */
+        attachedNote: z.string(),
         /** Where the order is going, or where it is waiting. Only on the two
          * `ready` mails: those are the ones whose wording sends the reader
          * somewhere, and every other status mail would be repeating the
@@ -264,6 +268,91 @@ export const mailTextSchema = z
             completed: statusMailText,
             declined: statusMailText,
             cancelled: statusMailText,
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
+     * The message a supplied document sends on its own (FR-ORD-05).
+     *
+     * Its own section because it is its own kind of message: nothing about the
+     * order changed, and a mail that borrowed the status wording would
+     * announce a step that never happened.
+     */
+    orderDocument: z
+      .object({
+        /** The reference is appended, as on every other order mail. */
+        subject: z.string(),
+        preheader: z.string(),
+        referenceLabel: z.string(),
+        totalLabel: z.string(),
+        action: z.string(),
+        /** One entry per kind: what arrived, said in the way that kind of
+         * document is talked about. */
+        kinds: z
+          .object({
+            paymentInstructions: statusMailText,
+            orderSummary: statusMailText,
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
+     * The wording of the order summary the API draws (FR-ORD-05, FR-ACC-02).
+     *
+     * Server-side like the mails and for the same reason: this text is
+     * rendered by the API into a file, never delivered to a browser. It is not
+     * the admin's or the storefront's wording, and a document is read long
+     * after both.
+     */
+    orderSummaryPdf: z
+      .object({
+        /** Carries `{reference}`. */
+        title: z.string(),
+        placedLabel: z.string(),
+        statusLabel: z.string(),
+        paymentLabel: z.string(),
+        invoiceLabel: z.string(),
+        deliveryLabel: z.string(),
+        pickupLabel: z.string(),
+        whenLabel: z.string(),
+        /** Where the customer named no date. */
+        whenAny: z.string(),
+        contactLabel: z.string(),
+        noteLabel: z.string(),
+        /** The shop's account of what it changed (FR-ORD-03), where there is
+         * one. A document that left them out would state a total the customer
+         * could not account for. */
+        changesLabel: z.string(),
+        itemsLabel: z.string(),
+        quantityLabel: z.string(),
+        lineTotalLabel: z.string(),
+        totalLabel: z.string(),
+        /** Printed at the foot of every page: what this document is, and what
+         * it is not (ADR 0052). */
+        footer: z.string(),
+        statuses: z
+          .object({
+            requested: z.string(),
+            approved: z.string(),
+            ready: z.string(),
+            completed: z.string(),
+            declined: z.string(),
+            cancelled: z.string(),
+          })
+          .strict(),
+        payments: z
+          .object({
+            cash: z.string(),
+            bankTransfer: z.string(),
+            cardLater: z.string(),
+          })
+          .strict(),
+        paymentStates: z
+          .object({
+            notDue: z.string(),
+            awaiting: z.string(),
+            paid: z.string(),
           })
           .strict(),
       })

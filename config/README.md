@@ -27,10 +27,11 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   **Browser-delivered on demand**: fetched from `/admin-text.json` once an admin
   needs it, rather than injected into every visitor's document (ADR 0009,
   amendment 2). Non-secret, like everything else on this side of the line.
-- `mail-text.json` → `MailText`, the wording of every email the app sends, one
-  section per message. **Server-only** — rendered in the API, never sent to a
-  browser. The mails' branding (shop name, header colour) and their money
-  formatting come from `deployment.json`.
+- `mail-text.json` → `MailText`, the wording the **API** renders: every email
+  the app sends, one section per message, plus the order summary it draws as a
+  PDF (`orderSummaryPdf`). **Server-only** — rendered in the API, never sent to
+  a browser. The branding (shop name, header colour), the typeface and the
+  money formatting come from `deployment.json`.
 
 Each container is pointed at its file by the stack `.env` (compose defaults them
 to the paths below, so this is only needed to rename a file):

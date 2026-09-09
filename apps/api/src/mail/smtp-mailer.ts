@@ -31,6 +31,11 @@ export class SmtpMailer implements Mailer {
         html: message.html,
         text: message.text,
         replyTo: message.replyTo,
+        attachments: message.attachments?.map((file) => ({
+          filename: file.fileName,
+          contentType: file.contentType,
+          content: file.bytes,
+        })),
       });
       // Metadata only — never the body (name/phone/message are PII).
       this.logger.log(`Sent "${message.subject}" to ${message.to}`);

@@ -100,6 +100,10 @@ export function orderStatusChangedMail(
   /** What the shop said about every change made since this customer was last
    * written to, oldest first. Empty where nothing about the order changed. */
   changes: readonly string[] = [],
+  /** Whether the shop's payment instructions travel with this message
+   * (FR-ORD-05) — said in the body, because an attachment nobody is told
+   * about is one nobody scrolls down to. */
+  attached = false,
 ): MailContent {
   const t = text.orderStatusChanged;
   const wording = t.statuses[wordingKey(order, status, notice)];
@@ -118,6 +122,7 @@ export function orderStatusChangedMail(
       ...(notice === 'corrected' ? [t.correctedIntro] : []),
       ...(changes.length ? [t.changedIntro] : []),
       wording.body,
+      ...(attached ? [t.attachedNote] : []),
     ],
     rows: [
       { label: t.referenceLabel, value: order.reference },

@@ -26,6 +26,9 @@ import { SmtpMailer } from './smtp-mailer';
     { provide: MAIL_BRANDING, useFactory: loadMailBranding },
     MailService,
   ],
-  exports: [MAILER, MAIL_TEXT, MailService],
+  // MAIL_BRANDING travels with the wording: the order summary the API draws is
+  // rendered here as well, and it carries the shop's name for the same reason
+  // a message does.
+  exports: [MAILER, MAIL_TEXT, MAIL_BRANDING, MailService],
 })
 export class MailModule {}
