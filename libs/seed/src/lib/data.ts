@@ -132,6 +132,39 @@ export const imprintPageSeed: PageSeed = {
 };
 
 /**
+ * The cancellation notice (NFR-LEGAL-04). Demo content: which shops owe one,
+ * to whom, and in what words is a matter for the deployment's jurisdiction and
+ * its lawyer — the platform only provides the page, and a deployment that owes
+ * nothing simply does not publish it.
+ */
+export const withdrawalPageSeed: PageSeed = {
+  slug: 'withdrawal',
+  title: 'Right of withdrawal',
+  bodyHtml: [
+    '<p>This page is demonstration text for a fictional shop. A real',
+    'deployment replaces it with the cancellation notice its own',
+    'jurisdiction requires, in the wording that jurisdiction prescribes.</p>',
+    '<h2>Who this applies to</h2>',
+    '<p>We sell to businesses. Where an order is placed by a consumer rather',
+    'than in the course of a trade, that consumer may have a statutory right',
+    'to withdraw from the contract; the paragraphs below would set out how',
+    'long that right lasts and how to exercise it.</p>',
+    '<h2>How to withdraw</h2>',
+    '<p>Tell us in writing — an email naming the order reference is enough.',
+    'Quote the reference printed on the order confirmation so we can find',
+    'it.</p>',
+    '<h2>Goods that cannot be returned</h2>',
+    '<p>Roasted coffee is a foodstuff. Once a sealed bag has been opened it',
+    'cannot be taken back, for hygiene reasons; unopened goods in a',
+    'resaleable condition can be.</p>',
+    '<h2>Refunds</h2>',
+    '<p>Where a withdrawal applies, the money is returned the way it was',
+    'paid. This platform records payment as a fact rather than moving money,',
+    'so a refund is arranged by the shop directly.</p>',
+  ].join('\n'),
+};
+
+/**
  * The contact page's prose. The office list and maps around it are deployment
  * config rendered by the code route; only this part is editable content.
  */
@@ -150,5 +183,6 @@ export const pageSeeds: PageSeed[] = [
   conditionsPageSeed,
   privacyPageSeed,
   imprintPageSeed,
+  withdrawalPageSeed,
   contactPageSeed,
 ];
