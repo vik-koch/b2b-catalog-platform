@@ -99,11 +99,11 @@ architecture where it is the least well behaved. A library draws the same page
 deterministically and starts instantly.
 
 **The drawing library is a leaf, chosen for the host and not for its
-liveliness.** `pdf-lib` is pure JavaScript with two dependencies, so the
-multi-arch image gains nothing to compile and nothing to install per
-architecture, and it embeds a subsetted `ttf`/`otf` face. It has not had a
-release in years, which is worth stating plainly: the usual risk in a PDF
-library lives in its parser, and this one is never asked to read a PDF — a
+liveliness.** `pdf-lib` is pure JavaScript, six packages including its
+fontkit, so the multi-arch image gains nothing to compile and nothing to
+install per architecture, and it embeds a subsetted `ttf`/`otf` face. It has
+not had a release in years, which is worth stating plainly: the usual risk in
+a PDF library lives in its parser, and this one is never asked to read a PDF — a
 document is written from an `OrderDetail` and a supplied file is stored and
 served as opaque bytes. The exposure is therefore a missing feature rather than
 a vulnerability, and the whole use sits behind one injectable, so replacing it

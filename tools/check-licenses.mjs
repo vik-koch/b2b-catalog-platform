@@ -31,6 +31,7 @@ const ALLOWED = new Set([
   'BSD-2-Clause',
   'BSD-3-Clause',
   '0BSD',
+  'Zlib',
   'BlueOak-1.0.0',
   'Unlicense',
   'CC0-1.0',
