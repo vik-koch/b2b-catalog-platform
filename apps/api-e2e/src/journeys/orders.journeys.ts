@@ -27,9 +27,9 @@ export interface OrderJourney extends Journey {
 
 export const orderJourneys: readonly OrderJourney[] = [
   {
-    slug: 'delivered-and-paid',
-    title: 'Delivered, invoiced, and paid on the doorstep',
-    note: 'The whole forward chain for a signed-in customer, and the one journey that walks it end to end. Everything else starts partway along.',
+    slug: 'invoiced-paid-then-delivered',
+    title: 'Invoiced, paid, then delivered',
+    note: 'The ordinary company order, and the one journey that walks the chain end to end. An invoiced order is paid before it is handed over, so the money arrives while it sits accepted — and recording it moves nothing.',
     given:
       'A signed-in customer’s order, for delivery and invoiced to their company.',
     order: { paymentMethod: 'bank-transfer', fulfilment: 'delivery' },
@@ -39,6 +39,8 @@ export const orderJourneys: readonly OrderJourney[] = [
       version: 1,
       customerSees: 1,
       toldAbout: ['requested'],
+      waitingOnShop: '🟡',
+      waitingOnCustomer: '—',
     },
     steps: [
       {
@@ -47,7 +49,8 @@ export const orderJourneys: readonly OrderJourney[] = [
         action: 'move',
         args: { to: 'approved' },
         // Accepting an invoiced order is the moment the money becomes owed —
-        // the second axis moving without anybody touching it.
+        // the second axis moving without anybody touching it — and the moment
+        // the next move stops being the shop's.
         expect: {
           status: 'approved',
           payment: 'awaiting',
@@ -55,10 +58,19 @@ export const orderJourneys: readonly OrderJourney[] = [
           customerSees: 2,
           toldAbout: ['approved', 'requested'],
           mail: ['approved'],
-          // Their own panel starts flagging the order: the shop is waiting for
-          // the transfer, and that is the customer's move to make.
-          waitingOnCustomer: 1,
+          waitingOnShop: '—',
+          waitingOnCustomer: '🟡',
         },
+      },
+      {
+        what: 'The transfer arrives, and the manager records it.',
+        actor: 'manager',
+        action: 'recordPayment',
+        args: { paid: true },
+        // The order does not move: it is accepted and paid for, and still has
+        // to be packed. Nothing is written to the customer either — they know
+        // what they sent, and the order's own page says what it owes.
+        expect: { payment: 'paid', waitingOnCustomer: '—' },
       },
       {
         what: 'The order is packed, and the manager marks it ready.',
@@ -76,19 +88,16 @@ export const orderJourneys: readonly OrderJourney[] = [
         },
       },
       {
-        what: 'It is handed over and paid for, which the manager records with the same click.',
+        what: 'It is delivered, and the manager completes it.',
         actor: 'manager',
         action: 'move',
-        args: { to: 'completed', markPaid: true },
-        // Money handed over with the goods is one event, not two.
+        args: { to: 'completed' },
         expect: {
           status: 'completed',
-          payment: 'paid',
           version: 4,
           customerSees: 4,
           toldAbout: ['approved', 'completed', 'ready', 'requested'],
           mail: ['completed'],
-          waitingOnCustomer: 0,
         },
       },
     ],
@@ -160,7 +169,7 @@ export const orderJourneys: readonly OrderJourney[] = [
   {
     slug: 'collected-and-paid-in-cash',
     title: 'Collected from the counter, paid in cash',
-    note: 'The other shape of an order: a guest with no account, collecting rather than receiving, paying at the handover. Cash is the case a single status chain could not describe.',
+    note: 'The other shape of an order: a guest with no account, collecting rather than receiving, paying at the handover. Cash is the one case where the money and the last move really are one event — and the case a single status chain could not describe.',
     given:
       'A guest’s order, to be collected from an office and paid for in cash.',
     order: { asGuest: true, paymentMethod: 'cash', fulfilment: 'pickup' },
@@ -178,10 +187,12 @@ export const orderJourneys: readonly OrderJourney[] = [
         action: 'move',
         args: { to: 'approved' },
         // Nothing becomes owed. Cash exists at the handover, so an accepted
-        // cash order is not money the shop is waiting for.
+        // cash order is not money the shop is waiting for — and a guest has no
+        // panel to be told anything on either way.
         expect: {
           status: 'approved',
           version: 2,
+          waitingOnShop: '—',
           customerSees: 2,
           toldAbout: ['approved', 'requested'],
           mail: ['approved'],
@@ -292,6 +303,8 @@ export const orderJourneys: readonly OrderJourney[] = [
           status: 'declined',
           reason: 'Out of stock until October.',
           version: 2,
+          // Answered, so out of the shop's queue — a refusal is an answer.
+          waitingOnShop: '—',
           customerSees: 2,
           toldAbout: ['declined', 'requested'],
           mail: ['declined'],
@@ -311,6 +324,8 @@ export const orderJourneys: readonly OrderJourney[] = [
           reason: null,
           version: 3,
           customerSees: 3,
+          // Back in the queue, which is what reopening it is for.
+          waitingOnShop: '🟡',
         },
       },
       {
@@ -328,7 +343,8 @@ export const orderJourneys: readonly OrderJourney[] = [
           customerSees: 4,
           toldAbout: ['approved', 'declined', 'requested'],
           mail: ['approved'],
-          waitingOnCustomer: 1,
+          waitingOnShop: '—',
+          waitingOnCustomer: '🟡',
         },
       },
     ],
@@ -353,6 +369,8 @@ export const orderJourneys: readonly OrderJourney[] = [
           reason: 'Ordered twice by mistake.',
           version: 2,
           customerSees: 2,
+          // Out of the shop's queue without anybody there answering it.
+          waitingOnShop: '—',
         },
       },
     ],
@@ -476,7 +494,8 @@ export const orderJourneys: readonly OrderJourney[] = [
       payment: 'not-due',
       customerDocuments: ['order-summary'],
       staffDocuments: ['order-summary'],
-      waitingOnCustomer: 0,
+      waitingOnShop: '🟡',
+      waitingOnCustomer: '—',
     },
     steps: [
       {
@@ -503,7 +522,8 @@ export const orderJourneys: readonly OrderJourney[] = [
           customerSees: 2,
           toldAbout: ['approved', 'requested'],
           customerDocuments: ['order-summary', 'payment-instructions'],
-          waitingOnCustomer: 1,
+          waitingOnShop: '—',
+          waitingOnCustomer: '🟡',
           mail: ['approved+attached'],
         },
       },
@@ -517,7 +537,7 @@ export const orderJourneys: readonly OrderJourney[] = [
         // stops flagging it; the instructions stay where they are, because the
         // slip somebody paid against is worth keeping — they are withheld only
         // while an order owes nothing at all.
-        expect: { payment: 'paid', waitingOnCustomer: 0 },
+        expect: { payment: 'paid', waitingOnCustomer: '—' },
       },
     ],
   },

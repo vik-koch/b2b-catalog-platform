@@ -144,11 +144,16 @@ function value(probe, reading) {
       probe === 'mail'
         ? (mailPreviewByKind[entry] ?? mailPreviewByKind[entry.split('+')[0]])
         : undefined;
-    return preview ? `[\`${entry}\`](mail.md#${preview})` : `\`${entry}\``;
+    if (preview) return `[\`${entry}\`](mail.md#${preview})`;
+    // A marker is drawn, not named: backticks around a dot read as code for
+    // something, and there is nothing behind it to look up.
+    return /^\w/.test(entry) ? `\`${entry}\`` : entry;
   };
   if (Array.isArray(reading)) {
     return reading.length === 0 ? 'nothing' : reading.map(one).join(' · ');
   }
+  // A reading nobody has: a guest has no panel, not an empty one.
+  if (reading === null) return 'n/a';
   return typeof reading === 'string' ? one(reading) : String(reading);
 }
 

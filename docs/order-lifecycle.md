@@ -95,6 +95,14 @@ The last column is what an invoiced order owes before anyone records a payment.
 A cash order is never `awaiting`: cash exists at the handover, which is a
 manager recording a payment and not a transition at all.
 
+The two axes move independently in practice as well as in principle. An
+invoiced order is normally paid _before_ it is handed over — the money arrives
+while the order sits accepted, and recording it moves nothing — so the state an
+order waits in is `approved`, not a state of its own. Recording the payment
+together with the last move is the cash case, where the money and the handover
+really are one event. Nothing enforces either: a manager can record a payment
+whenever it arrives, and an unpaid order can be completed.
+
 ## Every move
 
 <!-- generated:order-moves -->
@@ -213,7 +221,8 @@ checked, and nothing checked goes undescribed.
 - **The total the customer reads** — The money on the version they are on — not necessarily what the order now says.
 - **What the customer can open** — The documents readable from their own page, which depends on the version they are on and on what the order owes. A file the shop put there in place of the generated one is marked `supplied`, and one the order has since moved on from `outdated`.
 - **What the shop can open** — The same list from the admin side, which is not the same list: staff read whatever is filed, whenever it was filed, and see a supplied file marked `outdated` as soon as the order moves past the version it states.
-- **Waiting for the customer** — How many of their orders their own panel is flagging — money owed, or a collection ready to be picked up. It is the marker they see on signing in. Blank for a guest, who has no panel and hears from the shop only by mail.
+- **Waiting for the shop** — Whether the order is in the queue the staff panel counts and its marker links to — orders nobody has answered. 🟡 means the next move is the shop’s.
+- **Waiting for the customer** — Whether the customer’s own panel is flagging this order — money owed, or a collection ready to be picked up. 🟡 is the marker they see on signing in. `n/a` for a guest, who has no panel and hears from the shop only by mail.
 - **Mail to the customer** — What arrived in their inbox at this step, named by the message it is. An empty cell means nothing was sent, and is asserted.
 
 <!-- /generated:journey-legend -->
@@ -235,19 +244,20 @@ matters.
 
 <!-- generated:order-journeys -->
 <details>
-<summary><b>Delivered, invoiced, and paid on the doorstep</b> — The whole forward chain for a signed-in customer, and the one journey that walks it end to end. Everything else starts partway along.</summary>
+<summary><b>Invoiced, paid, then delivered</b> — The ordinary company order, and the one journey that walks the chain end to end. An invoiced order is paid before it is handed over, so the money arrives while it sits accepted — and recording it moves nothing.</summary>
 
 **The order.** A signed-in customer’s order, for delivery and invoiced to their company.
 
 **Starting from.** It has just been placed.
 
-**Which leaves it.** Where it stands: `requested`<br>What it owes: `not-due`<br>Version: 1<br>The version the customer is on: 1<br>Already written to about: `requested`
+**Which leaves it.** Where it stands: `requested`<br>What it owes: `not-due`<br>Version: 1<br>The version the customer is on: 1<br>Already written to about: `requested`<br>Waiting for the shop: 🟡<br>Waiting for the customer: —
 
-| #   | What happens                                                                   | Who     | What changes                                                                                                                                                                                                                                                                         |
-| --- | ------------------------------------------------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | The manager checks the stock and accepts the order.                            | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)<br>Waiting for the customer: 1                        |
-| 2   | The order is packed, and the manager marks it ready.                           | manager | Where it stands: `ready`<br>Version: 3<br>The version the customer is on: 3<br>Already written to about: `approved` · `ready` · `requested`<br>Mail to the customer: [`readyDelivery`](mail.md#order-ready-delivery)                                                                 |
-| 3   | It is handed over and paid for, which the manager records with the same click. | manager | Where it stands: `completed`<br>What it owes: `paid`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: [`completed`](mail.md#order-completed)<br>Waiting for the customer: 0 |
+| #   | What happens                                         | Who     | What changes                                                                                                                                                                                                                                                                              |
+| --- | ---------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The manager checks the stock and accepts the order.  | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)<br>Waiting for the shop: —<br>Waiting for the customer: 🟡 |
+| 2   | The transfer arrives, and the manager records it.    | manager | What it owes: `paid`<br>Waiting for the customer: —                                                                                                                                                                                                                                       |
+| 3   | The order is packed, and the manager marks it ready. | manager | Where it stands: `ready`<br>Version: 3<br>The version the customer is on: 3<br>Already written to about: `approved` · `ready` · `requested`<br>Mail to the customer: [`readyDelivery`](mail.md#order-ready-delivery)                                                                      |
+| 4   | It is delivered, and the manager completes it.       | manager | Where it stands: `completed`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: [`completed`](mail.md#order-completed)                                                             |
 
 </details>
 
@@ -269,7 +279,7 @@ matters.
 </details>
 
 <details>
-<summary><b>Collected from the counter, paid in cash</b> — The other shape of an order: a guest with no account, collecting rather than receiving, paying at the handover. Cash is the case a single status chain could not describe.</summary>
+<summary><b>Collected from the counter, paid in cash</b> — The other shape of an order: a guest with no account, collecting rather than receiving, paying at the handover. Cash is the one case where the money and the last move really are one event — and the case a single status chain could not describe.</summary>
 
 **The order.** A guest’s order, to be collected from an office and paid for in cash.
 
@@ -279,7 +289,7 @@ matters.
 
 | #   | What happens                                                                    | Who     | What changes                                                                                                                                                                                                                                          |
 | --- | ------------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | The manager accepts it.                                                         | manager | Where it stands: `approved`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)                                                    |
+| 1   | The manager accepts it.                                                         | manager | Where it stands: `approved`<br>Version: 2<br>Waiting for the shop: —<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)                         |
 | 2   | It is packed, and waiting at the counter.                                       | manager | Where it stands: `ready`<br>Version: 3<br>The version the customer is on: 3<br>Already written to about: `approved` · `ready` · `requested`<br>Mail to the customer: [`readyPickup`](mail.md#order-ready-pickup)                                      |
 | 3   | The customer collects it and pays, which the manager records with the handover. | manager | Where it stands: `completed`<br>What it owes: `paid`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `completed` · `ready` · `requested`<br>Mail to the customer: [`completed`](mail.md#order-completed) |
 
@@ -309,13 +319,13 @@ matters.
 
 **Starting from.** It has just been placed.
 
-**Which leaves it.** Where it stands: `requested`<br>The reason on it: null<br>Version: 1
+**Which leaves it.** Where it stands: `requested`<br>The reason on it: n/a<br>Version: 1
 
-| #   | What happens                                                       | Who     | What changes                                                                                                                                                                                                                                                               |
-| --- | ------------------------------------------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | The manager declines it, saying why.                               | manager | Where it stands: `declined`<br>The reason on it: `Out of stock until October.`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `declined` · `requested`<br>Mail to the customer: [`declined`](mail.md#order-declined)                      |
-| 2   | The stock arrives sooner than expected, so the manager reopens it. | manager | Where it stands: `requested`<br>The reason on it: null<br>Version: 3<br>The version the customer is on: 3                                                                                                                                                                  |
-| 3   | The manager accepts it, and this time says so deliberately.        | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `declined` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)<br>Waiting for the customer: 1 |
+| #   | What happens                                                       | Who     | What changes                                                                                                                                                                                                                                                                                           |
+| --- | ------------------------------------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | The manager declines it, saying why.                               | manager | Where it stands: `declined`<br>The reason on it: `Out of stock until October.`<br>Version: 2<br>Waiting for the shop: —<br>The version the customer is on: 2<br>Already written to about: `declined` · `requested`<br>Mail to the customer: [`declined`](mail.md#order-declined)                       |
+| 2   | The stock arrives sooner than expected, so the manager reopens it. | manager | Where it stands: `requested`<br>The reason on it: n/a<br>Version: 3<br>The version the customer is on: 3<br>Waiting for the shop: 🟡                                                                                                                                                                   |
+| 3   | The manager accepts it, and this time says so deliberately.        | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `declined` · `requested`<br>Mail to the customer: [`approved`](mail.md#order-approved)<br>Waiting for the shop: —<br>Waiting for the customer: 🟡 |
 
 </details>
 
@@ -328,9 +338,9 @@ matters.
 
 **Which leaves it.** Where it stands: `requested`<br>What it owes: `not-due`<br>Version: 1
 
-| #   | What happens                                  | Who      | What changes                                                                                                                     |
-| --- | --------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | The customer calls the order off, saying why. | customer | Where it stands: `cancelled`<br>The reason on it: `Ordered twice by mistake.`<br>Version: 2<br>The version the customer is on: 2 |
+| #   | What happens                                  | Who      | What changes                                                                                                                                                |
+| --- | --------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The customer calls the order off, saying why. | customer | Where it stands: `cancelled`<br>The reason on it: `Ordered twice by mistake.`<br>Version: 2<br>The version the customer is on: 2<br>Waiting for the shop: — |
 
 </details>
 
@@ -374,13 +384,13 @@ matters.
 
 **Starting from.** It has just been placed.
 
-**Which leaves it.** Where it stands: `requested`<br>What it owes: `not-due`<br>What the customer can open: `order-summary`<br>What the shop can open: `order-summary`<br>Waiting for the customer: 0
+**Which leaves it.** Where it stands: `requested`<br>What it owes: `not-due`<br>What the customer can open: `order-summary`<br>What the shop can open: `order-summary`<br>Waiting for the shop: 🟡<br>Waiting for the customer: —
 
-| #   | What happens                                            | Who     | What changes                                                                                                                                                                                                                                                                                                                                                     |
-| --- | ------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | The shop files the payment instructions for this order. | manager | What the shop can open: `order-summary` · `payment-instructions`                                                                                                                                                                                                                                                                                                 |
-| 2   | The manager accepts the order.                          | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>What the customer can open: `order-summary` · `payment-instructions`<br>Waiting for the customer: 1<br>Mail to the customer: [`approved+attached`](mail.md#order-approved-with-instructions) |
-| 3   | The transfer arrives, and the manager records it.       | manager | What it owes: `paid`<br>Waiting for the customer: 0                                                                                                                                                                                                                                                                                                              |
+| #   | What happens                                            | Who     | What changes                                                                                                                                                                                                                                                                                                                                                                                 |
+| --- | ------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The shop files the payment instructions for this order. | manager | What the shop can open: `order-summary` · `payment-instructions`                                                                                                                                                                                                                                                                                                                             |
+| 2   | The manager accepts the order.                          | manager | Where it stands: `approved`<br>What it owes: `awaiting`<br>Version: 2<br>The version the customer is on: 2<br>Already written to about: `approved` · `requested`<br>What the customer can open: `order-summary` · `payment-instructions`<br>Waiting for the shop: —<br>Waiting for the customer: 🟡<br>Mail to the customer: [`approved+attached`](mail.md#order-approved-with-instructions) |
+| 3   | The transfer arrives, and the manager records it.       | manager | What it owes: `paid`<br>Waiting for the customer: —                                                                                                                                                                                                                                                                                                                                          |
 
 </details>
 

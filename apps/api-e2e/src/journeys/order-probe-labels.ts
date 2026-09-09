@@ -57,10 +57,15 @@ export const ORDER_PROBES = {
     meaning:
       'The same list from the admin side, which is not the same list: staff read whatever is filed, whenever it was filed, and see a supplied file marked `outdated` as soon as the order moves past the version it states.',
   },
+  waitingOnShop: {
+    label: 'Waiting for the shop',
+    meaning:
+      'Whether the order is in the queue the staff panel counts and its marker links to — orders nobody has answered. 🟡 means the next move is the shop’s.',
+  },
   waitingOnCustomer: {
     label: 'Waiting for the customer',
     meaning:
-      'How many of their orders their own panel is flagging — money owed, or a collection ready to be picked up. It is the marker they see on signing in. Blank for a guest, who has no panel and hears from the shop only by mail.',
+      'Whether the customer’s own panel is flagging this order — money owed, or a collection ready to be picked up. 🟡 is the marker they see on signing in. `n/a` for a guest, who has no panel and hears from the shop only by mail.',
   },
   mail: {
     label: 'Mail to the customer',

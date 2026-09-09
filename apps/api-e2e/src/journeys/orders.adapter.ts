@@ -136,6 +136,13 @@ async function classify(id: string, subject: string): Promise<string> {
 }
 
 /**
+ * A marker, the way the panels draw one: a dot or nothing (FR-WORK-02). The
+ * figure behind it is deliberately not read — neither panel shows a number,
+ * and asserting one would be asserting something nobody can see.
+ */
+const marker = (waiting: boolean) => (waiting ? '🟡' : '—');
+
+/**
  * A reader's documents, named by what is worth saying about them.
  *
  * The two sides read the same order and get different lists, which is the
@@ -207,12 +214,38 @@ const probes: Record<string, Probe<OrderJourneyContext>> = {
     read: async (ctx, cache) => documentList(await adminOrder(ctx, cache)),
   },
   /**
-   * What the customer's own panel is flagging (FR-WORK-01): their orders that
-   * are waiting on *them* — money owed, or a collection ready to be picked up.
+   * Whether the shop's own panel is counting this order (FR-WORK-01).
    *
-   * The one reading here that is about a screen rather than about the order,
-   * and it is the customer's alone: the staff queues count every order in the
-   * database, which is nothing a journey can assert against.
+   * Read as the queue rather than as the status: the staff count is a `COUNT`
+   * over the very filter its link opens, so asking that filter for this one
+   * reference answers the same question the marker does — and keeps answering
+   * it if the queue is ever cut differently. The count itself is over every
+   * order in the database, which is nothing a journey could assert against.
+   */
+  waitingOnShop: {
+    label: reading.waitingOnShop.label,
+    read: async (ctx) => {
+      const res = await ok(
+        call(
+          'get',
+          `/admin/orders?status=requested&q=${ctx.reference}`,
+          undefined,
+          ctx.managerCookie,
+        ),
+      );
+      return marker(
+        res.data.items.some(
+          (order: { reference: string }) => order.reference === ctx.reference,
+        ),
+      );
+    },
+  },
+  /**
+   * Whether the customer's own panel is flagging it (FR-WORK-01): money owed,
+   * or a collection ready to be picked up.
+   *
+   * Their queue is their own rows, so unlike the shop's it can be read
+   * directly. A guest has no panel at all.
    */
   waitingOnCustomer: {
     label: reading.waitingOnCustomer.label,
@@ -222,7 +255,7 @@ const probes: Record<string, Probe<OrderJourneyContext>> = {
             const res = await ok(
               call('get', '/work/counts', undefined, ctx.customerCookie),
             );
-            return res.data.myOrders;
+            return marker(res.data.myOrders > 0);
           })
         : null,
   },
