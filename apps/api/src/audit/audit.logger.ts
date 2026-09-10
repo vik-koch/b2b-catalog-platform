@@ -79,7 +79,11 @@ export type AuditAction =
   | 'order.document.removed'
   // The customer was told about one. Its own event because it can happen more
   // than once and later than the upload.
-  | 'order.document.sent';
+  | 'order.document.sent'
+  // Machine credentials (NFR-SEC-09). Issuing one hands an automated client
+  // the ability to rewrite the catalog, so both ends of its life are named.
+  | 'apiToken.created'
+  | 'apiToken.revoked';
 
 /**
  * Domain events for admin mutations — who changed what.
@@ -118,11 +122,16 @@ export class AuditLogger {
        * the order, and an adjustment is a thing that happened to one of its
        * versions. */
       revision?: number;
+      /** What a machine token may do, comma-separated. Its own key so the log
+       * can be asked for every credential ever issued against one
+       * capability. */
+      scope?: string;
     },
   ): void {
     const parts = [action, `actor=${actor?.email ?? 'guest'}`];
     if (entity.reference) parts.push(`reference=${entity.reference}`);
     if (entity.status) parts.push(`status=${entity.status}`);
+    if (entity.scope) parts.push(`scope=${entity.scope}`);
     if (entity.revision) parts.push(`revision=${entity.revision}`);
     if (entity.id) parts.push(`id=${entity.id}`);
     if (entity.slug) parts.push(`slug=${entity.slug}`);

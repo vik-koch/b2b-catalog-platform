@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { AccountModule } from '../account/account.module';
+import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { AddressesModule } from '../addresses/addresses.module';
 import { PartiesModule } from '../parties/parties.module';
 import { AttributesModule } from '../attributes/attributes.module';
@@ -25,6 +26,7 @@ import { WorkModule } from '../work/work.module';
     ThrottlingModule,
     DatabaseModule,
     AuthModule,
+    ApiTokensModule,
     CatalogModule,
     AttributesModule,
     DocumentsModule,
