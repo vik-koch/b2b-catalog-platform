@@ -53,6 +53,16 @@ to something.
 authorization. The price group is a separate field, assigned on approval, only
 ever set on a customer account, and never shown to its owner.
 
+**Somebody has to be left who can let people back in.** Three actions can take
+an admin away — self-deletion, deactivation, and a demotion out of `admin` —
+and all three refuse the one that would leave the shop with no admin who can
+sign in. What counts is the _usable_ admins, not the rows saying `admin`: an
+anonymized one is a tombstone, and a disabled one cannot switch itself back on,
+so neither of them is the somebody this rule is protecting. An `invited` admin
+does count — the link in their inbox is a way in. The three actions share one
+rule and one transaction, so two admins removing each other at the same moment
+cannot both be allowed through.
+
 ## Switching an account off is not taking its password away
 
 The rule worth stating on its own, because it is the one thing here that is

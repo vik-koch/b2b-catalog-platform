@@ -281,24 +281,32 @@ export class StaffUsersService {
     }
 
     const role = input.role ?? current.role;
-    if (input.role) await this.assertRoleChangeAllowed(current, role, actorId);
+    if (input.role) this.assertRoleChangeAllowed(current, role, actorId);
 
-    const [updated] = await this.db
-      .update(users)
-      .set({
-        firstName: input.firstName,
-        lastName: input.lastName,
-        phone: input.phone,
-        customerType: input.customerType,
-        companyName: input.companyName?.trim() ?? null,
-        companyRegistrationId: input.companyRegistrationId,
-        tierId: role === 'user' ? input.tierId : null,
-        role,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, id))
-      .returning(staffUserColumns);
-    return toStaffUser(updated);
+    const apply = async (tx: Pick<typeof this.db, 'update'>) => {
+      const [updated] = await tx
+        .update(users)
+        .set({
+          firstName: input.firstName,
+          lastName: input.lastName,
+          phone: input.phone,
+          customerType: input.customerType,
+          companyName: input.companyName?.trim() ?? null,
+          companyRegistrationId: input.companyRegistrationId,
+          tierId: role === 'user' ? input.tierId : null,
+          role,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, id))
+        .returning(staffUserColumns);
+      return toStaffUser(updated);
+    };
+
+    // A demotion out of `admin` is an admin removal like any other, so it goes
+    // through the guard that holds the invariant against a concurrent one.
+    return current.role === 'admin' && role !== 'admin'
+      ? this.users.removingAdmin(id, apply)
+      : apply(this.db);
   }
 
   /**
@@ -343,23 +351,22 @@ export class StaffUsersService {
         message: 'An account cannot deactivate itself',
       });
     }
-    if (current.role === 'admin' && !(await this.hasAnotherAdmin(id))) {
-      throw new ConflictException({
-        code: 'last-admin',
-        message: 'This is the last admin account',
-      });
-    }
-
-    const [updated] = await this.db
-      .update(users)
-      .set({
-        status: 'disabled',
-        // Ends every session already in flight, not just the next sign-in.
-        tokenVersion: sql`${users.tokenVersion} + 1`,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, id))
-      .returning(staffUserColumns);
+    // The last-admin refusal is the guard's, and it is raised in the same
+    // transaction as the write — two admins switching each other off at once
+    // would otherwise both be allowed through.
+    const updated = await this.users.removingAdmin(id, async (tx) => {
+      const [row] = await tx
+        .update(users)
+        .set({
+          status: 'disabled',
+          // Ends every session already in flight, not just the next sign-in.
+          tokenVersion: sql`${users.tokenVersion} + 1`,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, id))
+        .returning(staffUserColumns);
+      return row;
+    });
     return toStaffUser(updated);
   }
 
@@ -412,23 +419,17 @@ export class StaffUsersService {
    * slip that would take their own access with it), and the last admin cannot
    * be demoted by anyone.
    */
-  private async assertRoleChangeAllowed(
+  private assertRoleChangeAllowed(
     current: StaffUser,
     role: UserRole,
     actorId: string,
-  ): Promise<void> {
+  ): void {
     if (current.role !== 'admin' || role === 'admin') return;
 
     if (current.id === actorId) {
       throw new ConflictException({
         code: 'self-demote',
         message: 'An admin cannot take the admin role from their own account',
-      });
-    }
-    if (!(await this.hasAnotherAdmin(current.id))) {
-      throw new ConflictException({
-        code: 'last-admin',
-        message: 'This is the last admin account',
       });
     }
   }
@@ -481,12 +482,6 @@ export class StaffUsersService {
       .from(users)
       .where(eq(users.id, id));
     return Boolean(row);
-  }
-
-  // One definition of "not the last admin", shared with self-deletion — a
-  // security rule with two copies is a security rule with two behaviours.
-  private hasAnotherAdmin(id: string): Promise<boolean> {
-    return this.users.hasAnotherAdmin(id);
   }
 }
 

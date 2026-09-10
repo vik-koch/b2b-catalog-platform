@@ -6,7 +6,7 @@ import { MailService } from '../mail/mail.service';
 import { accountClosedMail } from '../mail/templates/account-closed.template';
 import { accountDeletedMail } from '../mail/templates/account-deleted.template';
 import { OrderDocumentFiles } from '../orders/order-document-files';
-import { UsersService } from '../users/users.service';
+import { LastAdminError, UsersService } from '../users/users.service';
 import { env } from '../env';
 
 /** Why a deletion was refused, when it was. */
@@ -41,12 +41,6 @@ export class AccountDeletion {
       return { ok: false, reason: 'wrong-password' };
     }
 
-    // Staff may leave like anyone else, but not the last one who can let people
-    // back in — the same rule that guards a role change and a deactivation.
-    if (user.role === 'admin' && !(await this.users.hasAnotherAdmin(userId))) {
-      return { ok: false, reason: 'last-admin' };
-    }
-
     // Read everything the two mails quote *before* the write, which is what
     // overwrites it. Sending before the write would be the other way to have
     // it, but then a failed write leaves somebody holding a confirmation of a
@@ -60,7 +54,18 @@ export class AccountDeletion {
       openOrders: await this.users.countOpenOrders(userId),
     };
 
-    await this.users.anonymize(userId, await this.passwords.unusableHash());
+    // Staff may leave like anyone else, but not the last one who can let people
+    // back in — the same rule that guards a role change and a deactivation,
+    // and raised from inside the scrub's own transaction so that two admins
+    // leaving at once cannot both be the one who was allowed to.
+    try {
+      await this.users.anonymize(userId, await this.passwords.unusableHash());
+    } catch (error) {
+      if (error instanceof LastAdminError) {
+        return { ok: false, reason: 'last-admin' };
+      }
+      throw error;
+    }
     // Outside the scrub's transaction on purpose: it deletes files as well as
     // rows, and a filesystem cannot be rolled back with a database. Run after,
     // so a failure here leaves documents belonging to an account that is

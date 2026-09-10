@@ -1,7 +1,7 @@
 import { getTableName } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../db/schema';
-import { UsersService } from './users.service';
+import { LastAdminError, UsersService } from './users.service';
 
 /**
  * Account deletion (FR-AUTH-06), rendered rather than executed.
@@ -24,7 +24,11 @@ interface Captured {
  * terminal call renders to SQL and resolves. `select` is the genuine builder,
  * because the order scrub scopes its subquery with one.
  */
-function renderingDb(captured: Captured[]) {
+function renderingDb(
+  captured: Captured[],
+  admins: { id: string }[] = [{ id: 'user-1' }, { id: 'other-admin' }],
+  locks: Captured[] = [],
+) {
   const real = drizzle({ client: {} as never, schema });
 
   const settle = (
@@ -42,8 +46,31 @@ function renderingDb(captured: Captured[]) {
 
   const name = (table: unknown) => getTableName(table as never);
 
+  // The genuine builder, because the order scrub scopes its subquery with one
+  // — except for the locking read the admin guard ends with `.for('update')`,
+  // which is answered with the admin rows this test wants it to see.
+  const select = (...args: never[]) => {
+    const builder = real.select(...(args as [never]));
+    const from = builder.from.bind(builder);
+    builder.from = ((table: never) => {
+      const query = from(table);
+      const where = query.where.bind(query);
+      query.where = ((condition: never) => {
+        const filtered = where(condition);
+        filtered.for = ((mode: string) => {
+          const { sql, params } = filtered.toSQL();
+          locks.push({ table: `${name(table)} for ${mode}`, sql, params });
+          return Promise.resolve(admins);
+        }) as never;
+        return filtered;
+      }) as never;
+      return query;
+    }) as never;
+    return builder;
+  };
+
   const tx = {
-    select: real.select.bind(real),
+    select,
     delete: (table: unknown) => ({
       where: (condition: unknown) =>
         settle(
@@ -66,6 +93,7 @@ function renderingDb(captured: Captured[]) {
   };
 
   return {
+    select,
     transaction: (run: (tx: unknown) => Promise<unknown>) => run(tx),
   } as unknown as NodePgDatabase<typeof schema>;
 }
@@ -160,5 +188,77 @@ describe('UsersService.anonymize', () => {
       '"revisionId" in (select "id" from "order_revisions"',
     );
     expect(sql).toContain('"orders"."userId" = $');
+  });
+});
+
+/**
+ * The rule every admin-removal path shares: self-deletion, deactivation and a
+ * demotion all run their write through this, so the shop cannot be left with
+ * nobody who can let people back in.
+ *
+ * What is asserted here is the decision and the fact that it wraps the write.
+ * The lock that makes two simultaneous removals serialize is Postgres doing
+ * the work — `for update` on every admin row is rendered here, but only a real
+ * database can show the second caller waiting for the first.
+ */
+describe('UsersService.removingAdmin', () => {
+  const service = (admins: { id: string }[]) =>
+    new UsersService(renderingDb([], admins));
+
+  it('refuses to remove the only admin who can still sign in', async () => {
+    const users = service([{ id: 'admin-1' }]);
+    const write = vi.fn();
+
+    await expect(users.removingAdmin('admin-1', write)).rejects.toThrow(
+      LastAdminError,
+    );
+    // Refused before the write, not rolled back after it.
+    expect(write).not.toHaveBeenCalled();
+  });
+
+  it('allows it while another admin remains', async () => {
+    const users = service([{ id: 'admin-1' }, { id: 'admin-2' }]);
+
+    await expect(
+      users.removingAdmin('admin-1', async () => 'written'),
+    ).resolves.toBe('written');
+  });
+
+  /**
+   * A disabled admin is not a way back in — nobody can sign in as it to switch
+   * it back on — and an anonymized one is a tombstone. Neither is counted, so
+   * what is protected is the last admin who can *use* the account, not the
+   * last row that happens to say `admin`. An invited one does count: the link
+   * in their inbox is a way in.
+   */
+  it('counts only the admins who could still sign in', async () => {
+    const locks: Captured[] = [];
+    const users = new UsersService(renderingDb([], [{ id: 'a' }], locks));
+
+    await users.removingAdmin('a', async () => null).catch(() => undefined);
+
+    expect(locks[0].params).toEqual(['admin', 'active', 'invited']);
+  });
+
+  it('writes a non-admin straight through', async () => {
+    const users = service([{ id: 'admin-1' }]);
+
+    await expect(
+      users.removingAdmin('customer-9', async () => 'written'),
+    ).resolves.toBe('written');
+  });
+
+  it('locks every admin row, the removed one included', async () => {
+    const locks: Captured[] = [];
+    const users = new UsersService(renderingDb([], [{ id: 'a' }], locks));
+
+    await users.removingAdmin('a', async () => null).catch(() => undefined);
+
+    // Not `id <> removed`: two admins removing each other read disjoint sets,
+    // each sees the other, and each proceeds. They have to contend for the
+    // same rows, so the removed account's own row is locked with the rest.
+    expect(locks[0].table).toBe('users for update');
+    expect(locks[0].sql).not.toContain('<>');
+    expect(locks[0].params).not.toContain('a');
   });
 });

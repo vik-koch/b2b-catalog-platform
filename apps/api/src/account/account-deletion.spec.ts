@@ -1,7 +1,7 @@
 import { env } from '../env';
 import { MailText } from '../mail/mail-text';
 import { demoMailText } from '../mail/mail-text.fixture';
-import { UserRow } from '../users/users.service';
+import { LastAdminError, UserRow } from '../users/users.service';
 import { AccountDeletion } from './account-deletion';
 
 const row = (overrides: Partial<UserRow> = {}): UserRow =>
@@ -25,12 +25,14 @@ function build(options: {
 
   const users = {
     findById: vi.fn(async () => options.user ?? row()),
-    hasAnotherAdmin: vi.fn(async () => options.anotherAdmin ?? true),
     // What the shop's own notification reports (FR-NOTIF-08): read before the
     // scrub, since afterwards the orders name nobody.
     countOrders: vi.fn(async () => 3),
     countOpenOrders: vi.fn(async () => 1),
+    // The last-admin rule lives inside the scrub's own transaction now, so
+    // this is where the refusal comes from.
     anonymize: vi.fn(async () => {
+      if (options.anotherAdmin === false) throw new LastAdminError();
       calls.push('anonymize');
       return row({ status: 'anonymized', email: 'deleted-u1@deleted.invalid' });
     }),
@@ -83,9 +85,10 @@ describe('AccountDeletion', () => {
     expect(mail.send).not.toHaveBeenCalled();
   });
 
-  // Somebody has to be able to let people back in.
+  // Somebody has to be able to let people back in. The scrub raises it from
+  // inside its own transaction, and the page hears a refusal, not a 500.
   it('refuses the last admin', async () => {
-    const { deletion, users } = build({
+    const { deletion, calls } = build({
       user: row({ role: 'admin' }),
       anotherAdmin: false,
     });
@@ -93,7 +96,8 @@ describe('AccountDeletion', () => {
     const result = await deletion.delete('u1', 'correct');
 
     expect(result).toEqual({ ok: false, reason: 'last-admin' });
-    expect(users.anonymize).not.toHaveBeenCalled();
+    // Nothing else ran: no documents removed, no confirmation sent.
+    expect(calls).toEqual([]);
   });
 
   it('lets an admin go while another one remains', async () => {
@@ -104,15 +108,6 @@ describe('AccountDeletion', () => {
 
     expect(await deletion.delete('u1', 'correct')).toEqual({ ok: true });
     expect(users.anonymize).toHaveBeenCalled();
-  });
-
-  // A customer is never asked the admin question at all.
-  it('does not consult the admin rule for a customer', async () => {
-    const { deletion, users } = build({});
-
-    await deletion.delete('u1', 'correct');
-
-    expect(users.hasAnotherAdmin).not.toHaveBeenCalled();
   });
 
   /**
