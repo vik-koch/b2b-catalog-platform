@@ -109,4 +109,39 @@ describe('OrderNotifications', () => {
       expect(tokenIn(1)).not.toContain('tok-123');
     });
   });
+
+  /**
+   * A customer calling their own order off (FR-NOTIF-07). It is the only move
+   * they have, and the only one of theirs the shop's own screens do not
+   * announce: the order simply leaves the queue.
+   */
+  describe('an order the customer calls off', () => {
+    it('tells the shop, and replies to the customer', async () => {
+      await notifications.cancelledByCustomer(demoAdminOrder);
+
+      expect(send).toHaveBeenCalledTimes(1);
+      const [, envelope] = send.mock.calls[0];
+      expect(envelope.to).toBe(staffInbox);
+      // As on the arrival notification: a manager rings the customer back.
+      expect(envelope.replyTo).toBe(demoAdminOrder.contact.email);
+    });
+
+    // They just did this themselves. A confirmation of one's own click is the
+    // mail that teaches people to ignore the shop's mail.
+    it('writes nothing to the customer', async () => {
+      await notifications.cancelledByCustomer(demoAdminOrder);
+
+      const recipients = send.mock.calls.map(([, envelope]) => envelope.to);
+      expect(recipients).not.toContain(demoAdminOrder.contact.email);
+    });
+
+    it('does not take the cancellation down with it', async () => {
+      send.mockRejectedValue(new Error('smtp down'));
+
+      await expect(
+        notifications.cancelledByCustomer(demoAdminOrder),
+      ).resolves.toBeUndefined();
+      expect(error).toHaveBeenCalled();
+    });
+  });
 });

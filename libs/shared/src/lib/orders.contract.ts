@@ -2,6 +2,7 @@ import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
   FULFILMENT_METHODS,
+  MY_ORDER_FILTERS,
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_NOTE_MAX,
   ORDER_QUERY_MAX_LENGTH,
@@ -67,6 +68,11 @@ export type PaymentState = z.infer<typeof paymentStateSchema>;
 /** How the payment column is narrowed, for staff only (FR-ORD-04). */
 export const staffPaymentFilterSchema = z.enum(STAFF_PAYMENT_FILTERS);
 export type StaffPaymentFilter = z.infer<typeof staffPaymentFilterSchema>;
+
+/** How a customer narrows their own history — the two queues their panel
+ * counts (FR-WORK-03). */
+export const myOrderFilterSchema = z.enum(MY_ORDER_FILTERS);
+export type MyOrderFilter = z.infer<typeof myOrderFilterSchema>;
 
 /**
  * What a manager may move an order to (FR-ORD-02) — every status there is,
@@ -384,6 +390,16 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   documents: z.array(adminOrderDocumentSchema),
   /** Null for a guest order — nothing to open, which is the point. */
   customerEmail: z.string().nullable(),
+  /**
+   * The link a guest was mailed (FR-NOTIF-06), so staff can open exactly what
+   * that customer is looking at when they ring about it. Null on an order
+   * placed from an account: that customer reads it signed in, and the version
+   * they are shown is already a link on this screen.
+   *
+   * Staff-only, and it goes no further: nothing renders it to a customer, and
+   * the token remains the guest's own credential rather than a second way in.
+   */
+  publicToken: z.string().nullable(),
   /** Which list it was priced from; null means the default one. */
   tierKey: z.string().nullable(),
   statusChangedAt: z.iso.datetime(),
@@ -431,30 +447,42 @@ export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
  * `status` is the version's own — every move writes one, so a version says
  * where the order stood when it was written and the thread reads as the
  * order's history. Payment is not versioned: what has been received is a fact
- * about the order today, whichever version is being looked at.
+ * about the order today, whichever version is being looked at. Nor are the
+ * documents: an order's files are the order's, and each is marked `outdated`
+ * against the version it is being read beside — so staff reading an old
+ * version see it stated from where they are standing.
  */
-export const orderRevisionSchema = adminOrderDetailSchema
-  .omit({ documents: true })
-  .extend({
-    /** When this version was written, and by whom — null for the one the
-     * customer submitted, and for anything an outside system writes back. */
-    revisionCreatedAt: z.iso.datetime(),
-    author: z.string().nullable(),
-    /** Why it was written: placed, moved, or changed. */
-    kind: orderRevisionKindSchema,
-    /** What the shop said about *this* version, in their words — null on every
-     * version that is not a change. The order's `changes` is the running account
-     * the customer reads; this is the one entry the thread hangs on this row. */
-    note: z.string().nullable(),
-    /** Whether this is the version the customer is being shown. */
-    customerView: z.boolean(),
-    /** When the customer was written to about this version (FR-NOTIF-03), null
-     * where they never were. Not the same question as `customerView`: a version
-     * can become theirs without a mail, and a version they were mailed about is
-     * superseded the moment the next one is written. */
-    notifiedAt: z.iso.datetime().nullable(),
-  });
+export const orderRevisionSchema = adminOrderDetailSchema.extend({
+  /** When this version was written, and by whom — null for the one the
+   * customer submitted, and for anything an outside system writes back. */
+  revisionCreatedAt: z.iso.datetime(),
+  author: z.string().nullable(),
+  /** Why it was written: placed, moved, or changed. */
+  kind: orderRevisionKindSchema,
+  /** What the shop said about *this* version, in their words — null on every
+   * version that is not a change. The order's `changes` is the running account
+   * the customer reads; this is the one entry the thread hangs on this row. */
+  note: z.string().nullable(),
+  /** Whether this is the version the customer is being shown. */
+  customerView: z.boolean(),
+  /** When the customer was written to about this version (FR-NOTIF-03), null
+   * where they never were. Not the same question as `customerView`: a version
+   * can become theirs without a mail, and a version they were mailed about is
+   * superseded the moment the next one is written. */
+  notifiedAt: z.iso.datetime().nullable(),
+});
 export type OrderRevision = z.infer<typeof orderRevisionSchema>;
+
+/**
+ * A version in the thread, where the documents are deliberately absent: the
+ * timeline lists what happened to the order, not what can be opened on it, and
+ * marking every file against every version an order has ever had is a query
+ * per row for something no screen reads.
+ */
+export const orderRevisionEntrySchema = orderRevisionSchema.omit({
+  documents: true,
+});
+export type OrderRevisionEntry = z.infer<typeof orderRevisionEntrySchema>;
 
 /**
  * A cart the server priced differently from what the browser last saw. The
@@ -840,6 +868,13 @@ export const ordersContract = {
       z.object({
         query: z.object({
           page: z.coerce.number().int().positive().optional(),
+          /**
+           * Narrowed to one of the things waiting on them, which is what the
+           * marker on their account control links to. Absent is the whole
+           * history; a value the URL invented is refused here rather than
+           * quietly ignored, since nothing but the two links produces one.
+           */
+          state: myOrderFilterSchema.optional(),
         }),
       }),
     )
@@ -973,7 +1008,9 @@ export const ordersContract = {
     })
     .errors(orderNotFound)
     .input(z.object({ params: z.object({ reference: z.string() }) }))
-    .output(z.object({ revisions: z.array(orderRevisionSchema) }).strict()),
+    .output(
+      z.object({ revisions: z.array(orderRevisionEntrySchema) }).strict(),
+    ),
 
   /**
    * One version of an order, read on its own (FR-ORD-03).

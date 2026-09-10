@@ -50,14 +50,14 @@ test('adds a chosen unit to the cart, counts it in the header, and keeps it', as
   );
   await expect(cartLink(page)).toHaveAttribute(
     'aria-label',
-    /Cart: 1 lines, .+/,
+    /Cart: 1 line, .+/,
   );
 
   // The whole point of storing it: it is still there on the next visit.
   await page.reload();
   await expect(cartLink(page)).toHaveAttribute(
     'aria-label',
-    /Cart: 1 lines, .+/,
+    /Cart: 1 line, .+/,
   );
 
   await cartLink(page).click();
@@ -135,14 +135,14 @@ test('sells from a grid card, and then edits that line from it', async ({
   await expect(card.getByText(/Added for/)).toBeVisible();
   await expect(cartLink(page)).toHaveAttribute(
     'aria-label',
-    /Cart: 1 lines, .+/,
+    /Cart: 1 line, .+/,
   );
 
   // The stepper now edits the line rather than describing a second one.
   await card.getByRole('button', { name: 'Increase the quantity' }).click();
   await expect(cartLink(page)).toHaveAttribute(
     'aria-label',
-    /Cart: 1 lines, .+/,
+    /Cart: 1 line, .+/,
   );
   await cartLink(page).click();
   await expect(lines(page)).toHaveCount(1);
@@ -205,7 +205,7 @@ test('writes a note from a listing card, beside the price', async ({
   }
   await card.getByRole('button', { name: 'Add to cart' }).click();
 
-  await expect(cartLink(page)).toHaveAttribute('aria-label', /Cart: 1 lines/);
+  await expect(cartLink(page)).toHaveAttribute('aria-label', /Cart: 1 line,/);
   await cartLink(page).click();
   await expect(page.getByRole('textbox', { name: /Note/ })).toHaveValue(
     'Sand only',

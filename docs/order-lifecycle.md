@@ -198,6 +198,38 @@ notice (_moved_, _corrected_, _changed_), and whether the reader has an account.
 An account holder is linked to their own order page; a guest gets the capability
 token, which is their only record of the order.
 
+## What the shop receives
+
+Two messages, and both are about something a person outside the shop did — the
+only events on an order that nothing on a staff screen announces by itself.
+
+- **An order arrives** (FR-NOTIF-05). It goes to the deployment's staff inbox
+  and links into the admin order view.
+- **A customer calls their own order off** (FR-NOTIF-07). The one move a
+  customer has, and the one the shop cannot afford to learn late: an order
+  somebody is already packing has left the queue. It carries the reason where
+  they gave one — asking is a courtesy and not a condition — and, where a
+  payment is recorded against the order, says so, because a cancellation moves
+  no money.
+
+Nothing else is mailed to staff about an order. Every move a manager makes is a
+manager's own click, and telling them about it would be the shop writing to
+itself.
+
+## What the platform never does to money
+
+An order can be paid for before the shop has answered it: an invoiced customer
+who pays on receipt of the request is ordinary, and a manager records the
+transfer whenever it arrives. So `paid` and `requested` sit together, and the
+customer's cancel button stays where it is — an order paid for by mistake is
+exactly the one somebody needs to call off.
+
+What both sides are told, at the moment of cancelling, is that the click moves
+nothing: the platform records that money arrived and never sends it back
+(FR-ORD-04). The customer's confirmation carries that sentence and so does the
+manager's, on any move that ends an order the shop has been paid for. The
+refund itself happens in the shop's books.
+
 ## Journeys
 
 An order's life is not one move but several, and the facts that matter most

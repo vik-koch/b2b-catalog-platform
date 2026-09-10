@@ -366,9 +366,25 @@ describe('/account/profile', () => {
     it('confirms it to the address that asked, before it is overwritten', async () => {
       await remove(leaverCookie, PASSWORD);
 
-      const messages = await messagesMatching(DELETE_EMAIL);
+      // Addressed, not merely mentioning the address: the shop's own notice
+      // about the same closure quotes it too (FR-NOTIF-08), and a free-text
+      // search would count both as the customer's.
+      const messages = await messagesMatching(`to:"${DELETE_EMAIL}"`);
       expect(messages).toHaveLength(1);
       expect(messages[0].Subject).toContain('deleted');
+    });
+
+    /** The other half (FR-NOTIF-08): the shop is told, and told what the
+     * closure left behind — the orders stay, and any still open is now theirs
+     * to settle with somebody they can no longer look up. */
+    it('tells the shop, naming the account that is now gone', async () => {
+      await remove(leaverCookie, PASSWORD);
+
+      const messages = await messagesMatching(
+        `to:"${requireEnv('MAIL_STAFF_TO')}" "${DELETE_EMAIL}"`,
+      );
+      expect(messages).toHaveLength(1);
+      expect(messages[0].Subject).toContain('closed');
     });
 
     // The last-admin refusal is *not* tested here: making an account the last

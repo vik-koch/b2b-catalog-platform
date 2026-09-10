@@ -290,6 +290,12 @@ export class OrderDetailPage {
    * Asked for with a reason, because the shop reads it — somebody may already
    * be packing the order. A refusal here means it moved on while the page was
    * open, so the order is reloaded rather than argued with.
+   *
+   * Where the shop has already recorded the money, the question carries a
+   * second sentence. Not a refusal: an order paid for by mistake is exactly
+   * the one somebody needs to call off, and taking the button away would leave
+   * them with nothing to do but ring. What they are owed is knowing that this
+   * click moves no money (FR-ORD-04) — a refund is arranged with the shop.
    */
   protected async cancel(detail: OrderDetail): Promise<void> {
     const reason = await this.confirm.askWithReason({
@@ -297,6 +303,10 @@ export class OrderDetailPage {
       message: fillText(this.text.cancel.message, {
         reference: detail.reference,
       }),
+      warning:
+        detail.paymentState === 'paid'
+          ? this.text.cancel.paidWarning
+          : undefined,
       confirmLabel: this.text.cancel.confirm,
       cancelLabel: this.text.cancel.keep,
       reasonLabel: this.text.cancel.reasonLabel,

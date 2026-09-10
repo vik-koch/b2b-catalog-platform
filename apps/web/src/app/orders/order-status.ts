@@ -122,7 +122,14 @@ export function orderPaymentLabel(
 }
 
 /**
- * Amber where somebody still owes something, plain where it is settled.
+ * The customer's reading: amber where they still owe something, green where
+ * it is settled.
+ *
+ * Green here and grey in the staff column, which is the one place the two
+ * audiences deliberately differ. For a manager scanning a hundred rows, a paid
+ * order is simply a row with nothing left on it — colouring it would spend the
+ * column's only strong tone on the state most rows are in. A customer looks at
+ * one order, and "we have your money" is the whole of what they came to check.
  *
  * Always drawn in the quiet `dot` variant, wherever it appears: the payment is
  * the order's second fact, and two solid pills side by side read as two
@@ -130,7 +137,8 @@ export function orderPaymentLabel(
  * colour to scan down a column rather than one to shout from a card.
  */
 export function orderPaymentTone(state: PaymentState): StatusTone {
-  return state === 'awaiting' ? 'waiting' : 'neutral';
+  if (state === 'awaiting') return 'waiting';
+  return state === 'paid' ? 'ok' : 'neutral';
 }
 
 /**

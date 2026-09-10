@@ -29,6 +29,13 @@ services:
       # Per-request access logs (method/path/status/latency) to stdout, where
       # Alloy picks them up for Loki. JSON for easy querying; headers
       # dropped so cookies/auth never land in the logs.
+      #
+      # RequestPath is kept, and three routes carry their whole credential in
+      # it — the order link mailed to a guest and the set-a-password link.
+      # Traefik cannot rewrite a single path segment, so the credential is
+      # stripped one step later, in Alloy (see ../observability/compose.yml).
+      # What that does not reach is this container's own json-file log on the
+      # host, which is why it is rotated tightly below.
       - --accesslog=true
       - --accesslog.format=json
       - --accesslog.fields.headers.defaultmode=drop
@@ -57,6 +64,15 @@ services:
       - --certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json
       - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+    # Docker's default json-file log grows without limit, and every access log
+    # line lands in it — including the credential-bearing paths Alloy redacts
+    # on the way to Loki. Two 10 MB files bounds both the disk and how long a
+    # raw token stays readable on the host.
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '2'
     volumes:
       # Read-only socket: Traefik only watches container metadata for labels.
       - /var/run/docker.sock:/var/run/docker.sock:ro

@@ -7,13 +7,14 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { usePageSeo } from '../core/page-seo';
 import { AdminIcon } from '../ui/icons/admin-icon';
+import { WorkNote } from '../work/work-note';
+import { WorkService } from '../work/work.service';
 import { BuildInfoService } from './build-info.service';
 import { injectEditorReturnParams } from './editor-return';
+import { adminMomentFormat } from './grid/admin-date';
 import { MaintenanceToggle } from './maintenance/maintenance-toggle';
 import { PanelRow } from './panel-row';
 import { SyncService } from './sync/sync.service';
-import { WorkNote } from '../work/work-note';
-import { WorkService } from '../work/work.service';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and
@@ -67,7 +68,7 @@ import { WorkService } from '../work/work.service';
                      one handed over that nobody has been paid for are two
                      jobs with two lists, so they are two notes stacked on the
                      row's right-hand axis rather than one figure over both. -->
-                <div class="flex flex-col items-end gap-1">
+                <div class="flex flex-col items-end gap-0.5">
                   @if (waitingOrders(); as count) {
                     <app-work-note
                       [label]="fill(panelText.workOrders, count)"
@@ -114,28 +115,40 @@ import { WorkService } from '../work/work.service';
                     />
                   }
                 </app-panel-row>
-                <!-- Expiring and expired counted as one figure, and the link
-                     opens the list narrowed to exactly that pair. -->
+                <!-- Two notes, as the orders row has: a certificate that has
+                     already lapsed is the shop out of compliance today, one
+                     about to lapse is notice — and each opens the list on its
+                     own filter. -->
                 <app-panel-row
                   [label]="documentText.title"
                   link="/admin/documents"
                 >
-                  @if (waitingDocuments(); as count) {
-                    <app-work-note
-                      [label]="fill(panelText.workDocuments, count)"
-                      link="/admin/documents"
-                      [queryParams]="{ status: 'due' }"
-                    />
-                  }
+                  <div class="flex flex-col items-end gap-0.5">
+                    @if (expiredDocuments(); as count) {
+                      <app-work-note
+                        [label]="fill(panelText.workDocumentsExpired, count)"
+                        link="/admin/documents"
+                        [queryParams]="{ status: 'expired' }"
+                      />
+                    }
+                    @if (waitingDocuments(); as count) {
+                      <app-work-note
+                        [label]="fill(panelText.workDocuments, count)"
+                        link="/admin/documents"
+                        [queryParams]="{ status: 'expiring' }"
+                      />
+                    }
+                  </div>
                 </app-panel-row>
                 <!-- The run it reports is the one this row starts again. The
                      audit trail's newest applied run is the whole answer; until
                      it arrives, hold the line's space rather than showing
-                     "never synced" and correcting it. -->
+                     "never synced" and correcting it — and hold exactly the
+                     width the answer takes, which is one timestamp. -->
                 <app-panel-row [label]="syncText.title" link="/admin/sync">
                   @if (runs.isLoading()) {
                     <span
-                      class="block flex h-3 w-32 animate-pulse rounded bg-stone-200"
+                      class="block h-3 w-24 animate-pulse rounded bg-stone-200"
                       aria-hidden="true"
                     ></span>
                   } @else {
@@ -325,6 +338,9 @@ export class AdminPanelPage {
   protected readonly waitingDocuments = computed(
     () => this.work.counts().expiringDocuments || undefined,
   );
+  protected readonly expiredDocuments = computed(
+    () => this.work.counts().expiredDocuments || undefined,
+  );
 
   protected fill(template: string, count: number): string {
     return fillText(template, { count });
@@ -336,16 +352,20 @@ export class AdminPanelPage {
     loader: () => this.sync.listRuns().catch(() => null),
   });
 
+  /**
+   * When the catalog was last synced — the timestamp and nothing else.
+   *
+   * No "Last sync:" in front of it: the row it sits on is already the sync
+   * row, and the label would be the row's own name said twice. The one reading
+   * that is not a date says so in words, because an empty-looking line there
+   * would read as a figure that failed to load.
+   */
   protected readonly lastSync = computed(() => {
     const applied = this.runs.value()?.lastApplied;
     if (!applied?.finishedAt) return this.syncText.lastSyncNever;
-    // Numeric and short: it sits in a chip, where a spelled-out month would
-    // wrap. The sync screen itself carries the full timestamps.
-    const date = new Intl.DateTimeFormat(this.currency.locale, {
-      dateStyle: 'short',
-      timeStyle: 'short',
-    }).format(new Date(applied.finishedAt));
-    return this.syncText.lastSync.replace('{date}', date);
+    return adminMomentFormat(this.currency.locale).format(
+      new Date(applied.finishedAt),
+    );
   });
 
   // A dev deployment's version is the full `sha-<40 hex>` image tag — unreadable

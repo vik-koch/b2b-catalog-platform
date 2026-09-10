@@ -120,7 +120,8 @@ describe('AdminPanelPage work counts', () => {
       orders: 7,
       unpaidOrders: 4,
       unpublishedProducts: 3,
-      expiringDocuments: 5,
+      expiredDocuments: 5,
+      expiringDocuments: 6,
     });
 
     expect(note(el, '2 awaiting approval')?.getAttribute('href')).toBe(
@@ -137,9 +138,14 @@ describe('AdminPanelPage work counts', () => {
     expect(note(el, '3 awaiting publication')?.getAttribute('href')).toBe(
       '/admin/products?state=unpublished',
     );
-    // Both states that are work, in one figure and behind one filter.
-    expect(note(el, '5 expiring or expired')?.getAttribute('href')).toBe(
-      '/admin/documents?status=due',
+    // Two figures, not one: an expired certificate is the shop out of
+    // compliance today and an expiring one is notice, and each opens the
+    // document list on its own filter.
+    expect(note(el, '5 expired')?.getAttribute('href')).toBe(
+      '/admin/documents?status=expired',
+    );
+    expect(note(el, '6 expiring soon')?.getAttribute('href')).toBe(
+      '/admin/documents?status=expiring',
     );
   });
 

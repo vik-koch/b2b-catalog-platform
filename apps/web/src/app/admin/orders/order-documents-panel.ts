@@ -87,74 +87,85 @@ interface DocumentRow {
               <span class="block text-xs text-subtle">{{ row.detail }}</span>
             </span>
 
+            <!-- Opening the file is a sibling of the name, not a member of
+                 the button group: it is the one control that is about the
+                 document itself rather than about changing it, it costs a
+                 glyph's width, and inside the group it was dragged onto the
+                 second line by buttons it has nothing to do with. Out here it
+                 stays on the name's line for as long as a glyph fits, and the
+                 group below it wraps on its own. -->
+            @if (row.href; as href) {
+              <a
+                appIconButton
+                class="shrink-0"
+                [href]="href"
+                target="_blank"
+                rel="noopener"
+                [attr.aria-label]="text.open"
+                [title]="text.open"
+              >
+                <app-admin-icon name="external-link" />
+              </a>
+            }
+
             <!-- Wrapping inside the group as well as around it: three
                  controls do not fit a phone on one line, and a group that
                  could only break as a whole pushed the last one off the
                  card. -->
-            <div class="flex flex-wrap items-center gap-2">
-              @if (row.href; as href) {
-                <a
-                  appIconButton
-                  [href]="href"
-                  target="_blank"
-                  rel="noopener"
-                  [attr.aria-label]="text.open"
-                  [title]="text.open"
+            @if (!readOnly()) {
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  appButton
+                  size="sm"
+                  variant="secondary"
+                  type="button"
+                  class="gap-2"
+                  [disabled]="busy() !== null"
+                  (click)="choose(row.kind, fileInput)"
                 >
-                  <app-admin-icon name="external-link" />
-                </a>
-              }
-              <button
-                appButton
-                size="sm"
-                variant="secondary"
-                type="button"
-                class="gap-2"
-                [disabled]="busy() !== null"
-                (click)="choose(row.kind, fileInput)"
-              >
-                <app-admin-icon name="upload" class="h-4 w-4" />
-                {{
-                  busy() === row.kind
-                    ? text.uploading
-                    : row.supplied
-                      ? text.replace
-                      : text.upload
-                }}
-              </button>
-              @if (row.supplied) {
-                <!-- Telling the customer is its own act (ADR 0052): a file is
+                  <app-admin-icon name="upload" class="h-4 w-4" />
+                  {{
+                    busy() === row.kind
+                      ? text.uploading
+                      : row.supplied
+                        ? text.replace
+                        : text.upload
+                  }}
+                </button>
+                @if (row.supplied) {
+                  <!-- Telling the customer is its own act (ADR 0052): a file is
                      filed when it exists and sent when the order is ready to
                      be written about, and it can be sent again to somebody who
                      lost the message. Absent while their page is behind the
                      version it belongs to — the message would announce a
                      document they cannot open. -->
-                @if (!row.behind) {
+                  @if (!row.behind) {
+                    <button
+                      appButton
+                      size="sm"
+                      variant="secondary"
+                      type="button"
+                      class="gap-2"
+                      [disabled]="busy() !== null"
+                      (click)="notify(row.kind)"
+                    >
+                      <app-admin-icon name="send" class="h-4 w-4" />
+                      {{ row.sent ? text.notifySent : text.notify }}
+                    </button>
+                  }
                   <button
                     appButton
                     size="sm"
-                    variant="secondary"
+                    variant="dangerOutline"
                     type="button"
-                    class="gap-2"
                     [disabled]="busy() !== null"
-                    (click)="notify(row.kind)"
+                    (click)="remove(row.kind)"
                   >
-                    <app-admin-icon name="send" class="h-4 w-4" />
-                    {{ row.sent ? text.notifySent : text.notify }}
+                    {{ text.remove }}
                   </button>
                 }
-                <button
-                  appButton
-                  size="sm"
-                  variant="dangerOutline"
-                  type="button"
-                  [disabled]="busy() !== null"
-                  (click)="remove(row.kind)"
-                >
-                  {{ text.remove }}
-                </button>
-              }
-            </div>
+              </div>
+            }
           </div>
 
           <!-- Indented to the name's own edge, so the block reads as one
@@ -189,6 +200,17 @@ export class OrderDocumentsPanel {
   private readonly sizes = inject(ADMIN_TEXT).documentList;
 
   readonly order = input.required<AdminOrderDetail>();
+  /**
+   * Reading rather than answering: the same rows, with nothing to press.
+   *
+   * Set on the screen that reads back one version of an order. Supplying a
+   * file, sending it or taking it away are acts on the *order*, and offering
+   * them from a superseded version would be answering the order from a page
+   * that deliberately does not — the same rule that leaves every transition
+   * control off that screen. What stays is what the row says, including the
+   * staleness marker, which reads against the version being looked at.
+   */
+  readonly readOnly = input(false);
   /** Asks the page to re-read the order: what a document is, and whether it is
    * behind, is the order's answer and not this component's. */
   readonly changed = output<void>();
@@ -208,7 +230,10 @@ export class OrderDocumentsPanel {
       rows.push(this.row('payment-instructions', of('payment-instructions')));
     }
     rows.push(this.row('order-summary', of('order-summary')));
-    return rows;
+    // A kind with nothing behind it is an invitation to supply one, so it is
+    // drawn where a manager can — and dropped where they cannot, since a row
+    // with no file, no controls and only its hint is a line about nothing.
+    return this.readOnly() ? rows.filter((row) => row.href) : rows;
   });
 
   private row(

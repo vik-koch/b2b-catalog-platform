@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Link } from '../../ui/link';
 import {
   AdminOrderDetail,
   AdminOrderLine,
@@ -89,6 +90,7 @@ const MARK_PAID = 'markPaid';
     RouterLink,
     AdminIcon,
     Button,
+    Link,
     DisclosureToggle,
     OrderAdjustChanges,
     OrderDocumentsPanel,
@@ -130,6 +132,20 @@ const MARK_PAID = 'markPaid';
                 <dt [class]="term">{{ text.customer }}</dt>
                 <dd [class]="value">
                   {{ order.customerEmail ?? listText.guest }}
+                  <!-- A guest reads this order through the link they were
+                       mailed and through nothing else, so when they ring to
+                       say the page shows something different, this is the
+                       page they mean. An account holder needs no such link:
+                       the version they are on is already one, further down. -->
+                  @if (order.publicToken; as token) {
+                    <a
+                      appLink
+                      class="ml-2"
+                      [routerLink]="['/orders', token]"
+                      target="_blank"
+                      >{{ text.guestView }}</a
+                    >
+                  }
                 </dd>
                 <dt [class]="term">{{ text.tier }}</dt>
                 <dd [class]="value">{{ order.tierKey ?? text.tierDefault }}</dd>
@@ -1069,6 +1085,14 @@ export class AdminOrderDetailPage {
       confirmLabel: label,
       cancelLabel: actions.keep,
       checks: this.moveChecks(order, to),
+      // Ending an order the shop has been paid for. The move is allowed — the
+      // platform records what the shop did — but nothing here sends the money
+      // back (FR-ORD-04), and this is the moment somebody would assume it
+      // does. The customer's own cancel button carries the same sentence.
+      warning:
+        order.paymentState === 'paid' && transitionHasReason(to)
+          ? actions.paidWarning
+          : undefined,
     };
     const answer = await this.confirm.askDetailed(
       transitionHasReason(to)

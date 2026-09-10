@@ -229,7 +229,16 @@ export interface BuyableProduct {
 
             @if (popup(); as open) {
               @if (open.at === option.unit) {
-                <app-popover [duration]="noticeMs" (dismissed)="dismiss()">
+                <!-- Hung inwards from the segment it points at, which on a
+                     phone is the difference between a bubble inside the card
+                     and one hanging off the side of the page. The end segment
+                     is the box, and its bubble is the one anybody sees: a
+                     product with no box is exactly the case that greys it. -->
+                <app-popover
+                  [align]="$last ? 'end' : $first ? 'start' : 'center'"
+                  [duration]="noticeMs"
+                  (dismissed)="dismiss()"
+                >
                   <p role="status">{{ open.message }}</p>
                 </app-popover>
               }

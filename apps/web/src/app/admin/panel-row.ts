@@ -28,8 +28,12 @@ import { Params, RouterLink } from '@angular/router';
   // the other.
   host: { class: 'block', role: 'listitem' },
   template: `
+    <!-- A floor rather than a fixed height: a row is 48px whatever it holds,
+         so a label on its own and a label with two work notes beside it read
+         as the same list. The padding is what a two-note stack needs to reach
+         that height; anything shorter is centred against the floor. -->
     <div
-      class="group/row relative flex items-center justify-between gap-4 px-5 py-3 transition-colors hover:bg-stone-100"
+      class="group/row relative flex min-h-12 items-center justify-between gap-4 px-5 py-1.75 transition-colors hover:bg-stone-100"
     >
       <a
         [routerLink]="link()"

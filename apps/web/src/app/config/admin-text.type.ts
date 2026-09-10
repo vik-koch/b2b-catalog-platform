@@ -123,8 +123,12 @@ export const adminTextSchema = z
          * substituted. */
         workUnpaid: z.string(),
         workProducts: z.string(),
-        /** Documents expiring or expired; `{count}` substituted. */
+        /** Documents inside the expiry warning window; `{count}`
+         * substituted. */
         workDocuments: z.string(),
+        /** Documents whose expiry has already passed; `{count}`
+         * substituted. */
+        workDocumentsExpired: z.string(),
       })
       .strict(),
     /** The storefront edit-mode toggle and its inline controls (FR-ADM-01). */
@@ -667,7 +671,8 @@ export const adminTextSchema = z
             failed: z.string(),
           })
           .strict(),
-        lastSync: z.string(),
+        /** Where nothing has ever been synced. The run's own timestamp needs
+         * no wording — the row it sits on says what the date is about. */
         lastSyncNever: z.string(),
       })
       .strict(),
@@ -1048,6 +1053,10 @@ export const adminTextSchema = z
         items: z.string(),
         /** The account it was placed from, or that it was a guest's. */
         customer: z.string(),
+        /** Opens the summary a guest was mailed (FR-NOTIF-06) — what that
+         * customer is looking at when they ring about the order. Only on a
+         * guest's order; an account holder's own view is the version link. */
+        guestView: z.string(),
         /** Which price list it was taken from; the default list has no name of
          * its own here. */
         tier: z.string(),
@@ -1174,6 +1183,13 @@ export const adminTextSchema = z
             markPaid: z.string(),
             markPaidHint: z.string(),
             reasonLabel: z.string(),
+            /**
+             * Weighed before ending an order the shop has already been paid
+             * for (FR-ORD-04). The move goes ahead — the platform records what
+             * the shop did — but nothing here sends money back, and this is
+             * where somebody would assume it does.
+             */
+            paidWarning: z.string(),
             /** Added to the dialog where the shop's payment instructions will
              * travel with the message this move sends (FR-ORD-05). */
             notifyAttachment: z.string(),

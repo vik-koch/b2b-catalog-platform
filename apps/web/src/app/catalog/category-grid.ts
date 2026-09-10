@@ -136,22 +136,26 @@ const SUBS_ASSUMED_FIT = 4;
                the sort control that sits at the right of the row below. -->
           <div class="flex items-start justify-between gap-4">
             <nav [attr.aria-label]="text.catalogRoot">
-              <ol
-                class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-subtle"
-              >
-                <li>
+              <!-- Inline flow, not a flex row. Flexed, a crumb is one
+                   unbreakable box: a category whose name does not fit the line
+                   drops whole onto the next one and leaves the gap it came
+                   from, which on a wide screen is half a line of nothing. As
+                   text, a long name wraps where it runs out of room and the
+                   trail stays a trail. -->
+              <ol role="list" class="text-sm text-subtle">
+                <li class="inline">
                   <a routerLink="/catalog" class="hover:text-accent">
                     {{ text.catalogRoot }}
                   </a>
                 </li>
                 @for (crumb of data.category.ancestors; track crumb.slug) {
-                  <li aria-hidden="true" class="flex items-center">
+                  <li aria-hidden="true" class="inline">
                     <app-icon
                       name="chevron-right"
-                      class="h-4 w-4 text-stone-300"
+                      class="mx-1 h-4 w-4 align-middle text-stone-300"
                     />
                   </li>
-                  <li>
+                  <li class="inline">
                     <!-- Upward too: a wider scope still offers every value the
                          narrower one did. -->
                     <a
@@ -163,13 +167,13 @@ const SUBS_ASSUMED_FIT = 4;
                     </a>
                   </li>
                 }
-                <li aria-hidden="true" class="flex items-center">
+                <li aria-hidden="true" class="inline">
                   <app-icon
                     name="chevron-right"
-                    class="h-4 w-4 text-stone-300"
+                    class="mx-1 h-4 w-4 align-middle text-stone-300"
                   />
                 </li>
-                <li>
+                <li class="inline">
                   <span aria-current="page" class="font-medium text-stone-700">
                     {{ displayName(data.category) }}
                   </span>

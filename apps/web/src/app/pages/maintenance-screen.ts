@@ -1,5 +1,6 @@
 import { Component, inject, RESPONSE_INIT } from '@angular/core';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 
 /**
  * The public notice shown while maintenance mode is on (FR-ADM-04). Reached by
@@ -21,6 +22,8 @@ export class MaintenanceScreen {
   protected readonly text = inject(APP_TEXT).maintenance;
 
   constructor() {
+    usePageSeo({ name: () => this.text.title });
+
     // Crawlers must receive a real 503 (temporary), never a styled 200 that
     // would invite indexing of the placeholder. The token only exists during
     // SSR; it is null in the browser and on client-side navigations.

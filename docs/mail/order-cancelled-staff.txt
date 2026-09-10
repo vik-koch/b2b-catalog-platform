@@ -1,0 +1,21 @@
+Order called off
+
+A customer has called off an order that was still waiting for an answer. Nothing more is expected of you — but if anything was already set aside for it, it can go back on the shelf.
+
+Order: CK-260826-4831
+Account: alex@example.com
+Contact: Alex Fischer · +49 40 1234567
+Reason given: Ordered twice by mistake.
+Total: 129,90 €
+
+Was ordered
+Espresso cups — 2 pk (12 pcs): 99,90 €
+  100 in <red>
+Saucers — 3 pcs: 30,00 €
+
+Open the order: https://shop.example.com/admin/orders/CK-260826-4831
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

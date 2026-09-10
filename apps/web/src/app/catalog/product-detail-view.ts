@@ -138,19 +138,25 @@ const NARROW = '(max-width: 39.999rem)';
   ],
   template: `
     <nav [attr.aria-label]="text.catalogRoot">
-      <ol
-        class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-subtle"
-      >
-        <li>
+      <!-- Inline flow, not a flex row. Flexed, a crumb is one unbreakable box:
+           a category whose name does not fit the line drops whole onto the next
+           one and leaves the gap it came from, which on a wide screen is half a
+           line of nothing. As text, a long name wraps where it runs out of room
+           and the trail stays a trail. -->
+      <ol role="list" class="text-sm text-subtle">
+        <li class="inline">
           <a routerLink="/catalog" class="hover:text-accent">
             {{ text.catalogRoot }}
           </a>
         </li>
         @for (crumb of item().category.ancestors; track crumb.slug) {
-          <li aria-hidden="true" class="flex items-center">
-            <app-icon name="chevron-right" class="h-4 w-4 text-stone-300" />
+          <li aria-hidden="true" class="inline">
+            <app-icon
+              name="chevron-right"
+              class="mx-1 h-4 w-4 align-middle text-stone-300"
+            />
           </li>
-          <li>
+          <li class="inline">
             <a
               [routerLink]="['/catalog', crumb.slug]"
               class="hover:text-accent"
@@ -159,10 +165,13 @@ const NARROW = '(max-width: 39.999rem)';
             </a>
           </li>
         }
-        <li aria-hidden="true" class="flex items-center">
-          <app-icon name="chevron-right" class="h-4 w-4 text-stone-300" />
+        <li aria-hidden="true" class="inline">
+          <app-icon
+            name="chevron-right"
+            class="mx-1 h-4 w-4 align-middle text-stone-300"
+          />
         </li>
-        <li>
+        <li class="inline">
           <a
             [routerLink]="['/catalog', item().category.slug]"
             class="hover:text-accent"
@@ -175,10 +184,13 @@ const NARROW = '(max-width: 39.999rem)';
              not wrap the trail onto three lines. Hidden from assistive
              technology too, for the same reason — it would be the name read
              twice, not a missing landmark. -->
-        <li aria-hidden="true" class="hidden items-center sm:flex">
-          <app-icon name="chevron-right" class="h-4 w-4 text-stone-300" />
+        <li aria-hidden="true" class="hidden sm:inline">
+          <app-icon
+            name="chevron-right"
+            class="mx-1 h-4 w-4 align-middle text-stone-300"
+          />
         </li>
-        <li class="hidden sm:block">
+        <li class="hidden sm:inline">
           <span aria-current="page" class="font-medium text-stone-700">
             {{ item().name }}
           </span>

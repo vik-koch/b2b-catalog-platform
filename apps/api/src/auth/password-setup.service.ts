@@ -60,11 +60,16 @@ export class PasswordSetupService {
     // visitor can simply try a different password.
     this.policy.assertAcceptable(password, user.email);
 
+    // Hashing before the link is spent, not after: it is the slowest and
+    // hungriest step here, and a failure in it would otherwise burn the link
+    // without setting a password — leaving the visitor unable to re-request
+    // one themselves.
+    const passwordHash = await this.passwords.hash(password);
+
     // Only now is the link spent, and only if it is still unspent — the update
     // is conditional, so two simultaneous submissions cannot both win.
     if (!(await this.tokens.redeem(token))) return null;
 
-    const passwordHash = await this.passwords.hash(password);
     const updated = await this.users.setPasswordFromToken(userId, passwordHash);
     return updated ?? null;
   }

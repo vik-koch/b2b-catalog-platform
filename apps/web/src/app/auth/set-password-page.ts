@@ -7,6 +7,7 @@ import {
   PasswordTokenPurpose,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 import { FieldErrors } from '../core/form-errors';
 import { generatePassword, passwordsMatch } from '../core/password';
 import { zodValidator } from '../core/zod-validator';
@@ -217,6 +218,15 @@ export class SetPasswordPage implements OnInit {
   );
 
   protected readonly fieldErrors = new FieldErrors(this.form);
+
+  constructor() {
+    usePageSeo({
+      name: () =>
+        this.purpose() === 'set'
+          ? this.text.setHeading
+          : this.text.resetHeading,
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     const account = await this.service.checkPasswordToken(this.token());

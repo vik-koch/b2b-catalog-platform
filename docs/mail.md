@@ -94,6 +94,17 @@ Confirms the deletion the customer asked for. Past orders are anonymised, not re
 
 [View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/account-deleted.html) · [HTML source](mail/account-deleted.html) · [Plain text](mail/account-deleted.txt)
 
+<a id="account-closed"></a>
+
+### Account closed (to the shop)
+
+The other half of a deletion. The account is already gone, so the mail carries it — and says what it left behind.
+
+**Subject:** A customer closed their account  
+**Preheader:** A customer has closed their account.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/account-closed.html) · [HTML source](mail/account-closed.html) · [Plain text](mail/account-closed.txt)
+
 ## Orders
 
 <a id="order-received-guest"></a>
@@ -128,6 +139,17 @@ The staff notification, linking into the admin order view.
 **Preheader:** A customer has sent an order request.
 
 [View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/new-order.html) · [HTML source](mail/new-order.html) · [Plain text](mail/new-order.txt)
+
+<a id="order-cancelled-staff"></a>
+
+### Order called off (to the shop)
+
+The one move a customer has, said to the shop — with the reason where they gave one.
+
+**Subject:** Order called off · CK-260826-4831  
+**Preheader:** A customer has called off their order.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-cancelled-staff.html) · [HTML source](mail/order-cancelled-staff.html) · [Plain text](mail/order-cancelled-staff.txt)
 
 <a id="order-approved"></a>
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
   CartPreview,
+  MyOrderFilter,
   OrderSubmission,
   OrderDetail,
   OrderSummary,
@@ -73,8 +74,11 @@ export class OrdersService {
   /** The account's own order requests, newest first (FR-ACC-01). */
   async listMine(
     page: number,
+    /** One of the things waiting on the account holder (FR-WORK-03), or the
+     * whole history. */
+    state?: MyOrderFilter,
   ): Promise<{ items: OrderSummary[]; pagination: Pagination }> {
-    return this.client.listMyOrders({ query: { page } });
+    return this.client.listMyOrders({ query: { page, state } });
   }
 
   /**

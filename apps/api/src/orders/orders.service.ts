@@ -7,6 +7,7 @@ import {
   DeliveryConfig,
   moveDirection,
   nextPaymentState,
+  MyOrderFilter,
   ORDER_PAGE_SIZE,
   OrderActor,
   OrderAdjustment,
@@ -17,12 +18,14 @@ import {
   OrderNotice,
   OrderReferenceConfig,
   OrderRevision,
+  OrderRevisionEntry,
   OrderRevisionKind,
   OrderStatus,
   OrderSubmission,
   OrderSummary,
   OrderTransition,
   Pagination,
+  formatPersonName,
   PaymentMethod,
   PaymentState,
   paymentStateAfterAdjustment,
@@ -40,6 +43,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -51,6 +55,7 @@ import {
   getTableColumns,
   ilike,
   inArray,
+  ne,
   or,
   sql,
   SQL,
@@ -273,6 +278,8 @@ end`;
  */
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger('Orders');
+
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     private readonly addresses: AddressesService,
@@ -346,6 +353,26 @@ export class OrdersService {
    * small lie.
    */
   private async mailCustomer(
+    reference: string,
+    since: number,
+    notice: OrderNotice,
+  ): Promise<void> {
+    // None of this may fail the move that produced it — the move is committed,
+    // the version is already stamped as written about, and the manager is
+    // owed an answer about the order, not about SMTP. The mailer swallows its
+    // own failures; this covers the rest of the step, which is real work: two
+    // reads and, for an order that owes money, a PDF built on the spot.
+    try {
+      await this.sendCustomerMail(reference, since, notice);
+    } catch (error) {
+      this.logger.error(
+        `Could not write to the customer about ${reference}`,
+        error,
+      );
+    }
+  }
+
+  private async sendCustomerMail(
     reference: string,
     since: number,
     notice: OrderNotice,
@@ -513,10 +540,23 @@ export class OrdersService {
     reference: string;
     publicToken: string;
   }): Promise<void> {
-    await this.notifications.placed(
-      await this.getForStaff(placed.reference),
-      placed.publicToken,
-    );
+    // Nothing in here may fail the request. The order is already committed and
+    // the customer is about to be shown its reference — so a read that fails
+    // after the commit, or a deployment missing its staff inbox, is logged and
+    // swallowed exactly as an unreachable SMTP already is. Failing instead
+    // would answer an error for an order that exists, and a customer who
+    // retries would place a second one.
+    try {
+      await this.notifications.placed(
+        await this.getForStaff(placed.reference),
+        placed.publicToken,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Could not notify about order ${placed.reference}`,
+        error,
+      );
+    }
   }
 
   /**
@@ -677,9 +717,7 @@ export class OrdersService {
 
     if (!account) throw notFound();
 
-    const person = [account.firstName, account.lastName]
-      .filter(Boolean)
-      .join(' ');
+    const person = formatPersonName(account.firstName, account.lastName);
     return {
       // The address is the last resort rather than an error: a staff-created
       // account may carry no name at all, and an order must still say who it
@@ -876,8 +914,29 @@ export class OrdersService {
   async listForUser(
     userId: string,
     page = 1,
+    state?: MyOrderFilter,
   ): Promise<{ items: OrderSummary[]; pagination: Pagination }> {
-    return this.list(eq(orders.userId, userId), page);
+    const conditions: SQL[] = [eq(orders.userId, userId)];
+    const waiting = this.myOrderCondition(state);
+    if (waiting) conditions.push(waiting);
+    return this.list(and(...conditions) as SQL, page);
+  }
+
+  /**
+   * What waits on the account holder (FR-WORK-03), as the two filters their
+   * own panel links to. Each is the same question the work queue counts, so a
+   * marker and the list it opens can never disagree — and the fulfilment
+   * method is read off the version the customer is on, which is the version
+   * this list joins anyway.
+   */
+  private myOrderCondition(filter?: MyOrderFilter): SQL | undefined {
+    if (!filter) return undefined;
+    return filter === 'to-pay'
+      ? eq(orders.paymentState, 'awaiting')
+      : (and(
+          eq(orders.status, 'ready'),
+          eq(orderRevisions.fulfilmentMethod, 'pickup'),
+        ) as SQL);
   }
 
   async listAll(
@@ -1003,6 +1062,10 @@ export class OrdersService {
       })),
       documents,
       customerEmail: customer?.email ?? null,
+      // Only where it is the customer's only way in. An account holder reads
+      // their order signed in, and handing staff a capability URL for a page
+      // they can already reach another way would be minting a second one.
+      publicToken: customer ? null : row.publicToken,
       tierKey: row.tierKey,
       statusChangedAt: row.statusChangedAt.toISOString(),
       revisionNumber: row.revisionNumber,
@@ -1024,7 +1087,7 @@ export class OrdersService {
    * it any other way is how two screens end up describing one order
    * differently.
    */
-  async getRevisions(reference: string): Promise<OrderRevision[]> {
+  async getRevisions(reference: string): Promise<OrderRevisionEntry[]> {
     // The order first, so a reference nobody has is a 404 rather than an empty
     // list — an order with no versions does not exist.
     const current = await this.row(eq(orders.reference, reference));
@@ -1036,7 +1099,18 @@ export class OrdersService {
       ),
     );
     return Promise.all(
-      rows.map((row) => this.toRevision(row, current, authors, notified)),
+      rows.map(async (row) => {
+        // The thread lists what happened to the order; what can be opened on
+        // it belongs to the screens that read one version, so the timeline
+        // pays for no document read at all.
+        const { documents: _documents, ...entry } = await this.toRevision(
+          row,
+          current,
+          authors,
+          notified,
+        );
+        return entry;
+      }),
     );
   }
 
@@ -1061,6 +1135,11 @@ export class OrdersService {
       current,
       authors,
       await this.customerThread(current.id),
+      await this.documents.listForStaff(
+        row.id,
+        row.reference,
+        row.revisionNumber,
+      ),
     );
   }
 
@@ -1093,11 +1172,14 @@ export class OrdersService {
     current: OrderRow,
     authors: Map<string, string>,
     notified: CustomerThread,
+    // The documents belong to the order, not to one of its versions — what is
+    // read per version is whether each still states what this one says, which
+    // is `outdated` against `row.revisionNumber`. Passed in, because the
+    // screen reading one version wants them and the thread listing every
+    // version does not.
+    documents: AdminOrderDetail['documents'] = [],
   ): Promise<OrderRevision> {
-    // The documents belong to the order, not to one of its versions, so a
-    // version carries none: the spread drops the key rather than repeating
-    // the order's answer on every row of a thread.
-    const { documents, ...detail } = await this.staffDetail(row, notified);
+    const detail = await this.staffDetail(row, notified, documents);
     return {
       ...detail,
       revisionCreatedAt: row.revisionCreatedAt.toISOString(),
@@ -1272,6 +1354,21 @@ export class OrdersService {
       reason,
       userId,
     );
+    // The shop is told (FR-NOTIF-07). Read as staff, because the mail is the
+    // shop's: it states the money recorded against the order, which is not on
+    // the customer's projection at all. Swallowed like every other order mail:
+    // the customer has called their order off either way, and answering them
+    // an error for a cancellation that happened would invite them to try again.
+    try {
+      await this.notifications.cancelledByCustomer(
+        await this.staffDetail(await this.row(eq(orders.id, moved.id))),
+      );
+    } catch (error) {
+      this.logger.error(
+        `Could not tell the shop about the cancelled order ${reference}`,
+        error,
+      );
+    }
     return this.toDetail(moved, undefined, await this.customerDocuments(moved));
   }
 
@@ -1786,13 +1883,15 @@ export class OrdersService {
    */
 
   /**
-   * What the payment column is narrowed to — the same three readings the badge
-   * gives, so a manager filters by what they can see. `cash` is the reminder
-   * one: an order the shop took on, to be paid in cash, with the handover not
-   * recorded yet.
+   * What the payment column is narrowed to — the readings the badge gives, so
+   * a manager filters by what they can see. `cash` is the reminder one: an
+   * order the shop took on, to be paid in cash, with the handover not recorded
+   * yet. `unpaid` is broader and is what the work queue links to: everything
+   * the shop has not been paid for, whichever way it was to be paid.
    */
   private paymentCondition(filter?: StaffPaymentFilter): SQL | undefined {
     if (!filter) return undefined;
+    if (filter === 'unpaid') return ne(orders.paymentState, 'paid');
     if (filter === 'cash') {
       return and(
         eq(orderRevisions.paymentMethod, 'cash'),
@@ -1827,7 +1926,7 @@ export class OrdersService {
   }
 
   private async list(
-    where: ReturnType<typeof eq>,
+    where: SQL,
     page: number,
   ): Promise<{ items: OrderSummary[]; pagination: Pagination }> {
     const { rows, pagination } = await this.page(where, page, 'placed_desc', {

@@ -749,10 +749,20 @@ export const appTextSchema = z
         /** The account-page card, which only links to the list. */
         intro: z.string(),
         action: z.string(),
-        /** `{count}` of the account's own orders that wait on the account
-         * holder (FR-WORK-03). Nothing waits on a customer until order
-         * processing ships, so this is unused until then. */
-        awaitingYou: z.string(),
+        /** `{count}` of the account's own orders waiting to be paid for, and
+         * `{count}` packed and waiting to be collected (FR-WORK-03) — the two
+         * things that wait on the account holder, counted and linked apart. */
+        awaitingPayment: z.string(),
+        awaitingPickup: z.string(),
+        /** How the history says it is narrowed to one of those two, as a chip
+         * that dismisses back to the whole of it. */
+        filterToPay: z.string(),
+        filterToCollect: z.string(),
+        /** The chip's dismiss control; `{label}` is the chip's own words. */
+        filterRemove: z.string(),
+        /** Where the narrowed history has nothing in it — the queue emptied
+         * between the marker being drawn and the link being followed. */
+        filterEmpty: z.string(),
         empty: z.string(),
         emptyAction: z.string(),
         /** `{count}` lines on an order, as the cart counts them. */
@@ -823,6 +833,13 @@ export const appTextSchema = z
                 /** Why — the shop reads it, so it is asked for rather than
                  * optional. */
                 reasonLabel: z.string(),
+                /**
+                 * Said only where a payment has already been recorded against
+                 * the order (FR-ORD-04). The platform records money arriving
+                 * and never moves it, so cancelling here settles nothing — and
+                 * this sentence is the only place anybody is told that.
+                 */
+                paidWarning: z.string(),
                 confirm: z.string(),
                 keep: z.string(),
                 error: z.string(),

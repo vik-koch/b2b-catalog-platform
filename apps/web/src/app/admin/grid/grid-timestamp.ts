@@ -6,6 +6,7 @@ import {
   input,
 } from '@angular/core';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { adminDayFormat } from './admin-date';
 
 /**
  * When something happened, in an admin grid's column: the day, and under it the
@@ -52,9 +53,7 @@ export class GridTimestamp {
 
   /** Built once per component: a formatter is expensive to construct, and a
    * grid renders one of these per row. */
-  private readonly dayFormat = new Intl.DateTimeFormat(this.locale, {
-    dateStyle: 'medium',
-  });
+  private readonly dayFormat = adminDayFormat(this.locale);
   private readonly timeFormat = new Intl.DateTimeFormat(this.locale, {
     timeStyle: 'medium',
   });

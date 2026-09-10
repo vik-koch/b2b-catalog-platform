@@ -1,4 +1,4 @@
-import { CustomerType } from '@b2b-catalog-platform/shared';
+import { CustomerType, formatPersonName } from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 
@@ -37,8 +37,9 @@ export function newRegistrationMail(
     paragraphs: [t.body],
     rows: [
       {
+        // Family name first, as every staff-facing list of people reads.
         label: t.nameLabel,
-        value: `${registration.firstName} ${registration.lastName}`,
+        value: formatPersonName(registration.firstName, registration.lastName),
       },
       { label: t.emailLabel, value: registration.email },
       { label: t.phoneLabel, value: registration.phone },

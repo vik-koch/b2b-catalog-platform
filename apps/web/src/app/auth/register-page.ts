@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CustomerType, PartySuggestion } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   canonicalPhone,
@@ -284,6 +285,8 @@ export class RegisterPage {
   });
 
   constructor() {
+    usePageSeo({ name: () => this.text.register.heading });
+
     this.applyValidators('person');
     this.form.controls.customerType.valueChanges
       .pipe(takeUntilDestroyed())

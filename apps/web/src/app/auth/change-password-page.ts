@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 import { ChangePasswordForm } from './change-password-form';
 
 /**
@@ -19,4 +20,8 @@ import { ChangePasswordForm } from './change-password-form';
 })
 export class ChangePasswordPage {
   protected readonly text = inject(APP_TEXT).auth.changePassword;
+
+  constructor() {
+    usePageSeo({ name: () => this.text.heading });
+  }
 }

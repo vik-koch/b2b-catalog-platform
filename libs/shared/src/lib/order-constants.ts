@@ -103,6 +103,17 @@ export const STAFF_PAYMENT_FILTERS = [
   'paid',
 ] as const;
 
+/**
+ * What a customer narrows their own history to (FR-WORK-03) — the two things
+ * that wait on them, and nothing else.
+ *
+ * One value per queue the account panel counts, so the marker links to a list
+ * holding exactly the orders it counted. There is no filter here for "how the
+ * order is going": a customer looking for one order looks for that order, and
+ * a status dropdown on a list of a dozen rows is a control nobody would touch.
+ */
+export const MY_ORDER_FILTERS = ['to-pay', 'to-collect'] as const;
+
 /** As long as a manager needs to say why, and no longer than a note. */
 export const ORDER_STATUS_REASON_MAX = 500;
 

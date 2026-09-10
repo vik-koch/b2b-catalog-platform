@@ -18,11 +18,15 @@ export const WORK_QUEUES = [
   'orders',
   /** Products a sync left off the storefront (FR-ADM-06). Admin. */
   'unpublishedProducts',
-  /** Documents expired or about to expire (FR-DOC-04). Admin. */
+  /** Documents whose expiry has passed (FR-DOC-04). Admin. */
+  'expiredDocuments',
+  /** Documents whose expiry is within the warning window (FR-DOC-04). Admin. */
   'expiringDocuments',
   /** Orders handed over and not recorded as paid (FR-ORD-04). Staff. */
   'unpaidOrders',
-  /** The account's own orders that wait on the account holder. */
-  'myOrders',
+  /** The account's own orders whose money the shop is waiting for. */
+  'myPayments',
+  /** The account's own orders packed and waiting to be collected. */
+  'myPickups',
 ] as const;
 export type WorkQueue = (typeof WORK_QUEUES)[number];

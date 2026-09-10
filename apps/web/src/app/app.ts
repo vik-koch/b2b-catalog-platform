@@ -42,7 +42,23 @@ import { SearchOverlay } from './layout/search-overlay';
            Those narrow columns are centered only on the signed-out screens
            (login, register, password reset), where the page is the whole task;
            inside the app they stay left, under a left-aligned heading. -->
-      <main class="mx-auto w-full max-w-[82rem] flex-1 p-4 mb-4">
+      <!-- Clipped sideways, and the one place in the app it has to be done.
+           A phone browser sizes its layout viewport to whatever the content
+           lays out to, so anything overhanging the right edge — a popover
+           against a card at the edge, for a single frame before it is measured
+           and pulled back — widens the viewport itself, stretches every fixed
+           bar to the new width and leaves the page scrolling sideways. The
+           same rule on body cannot do this: body's overflow propagates to the
+           viewport, so the body element itself still lays out as visible.
+           Clipping here, one level in, actually clips.
+
+           Nothing is meant to be reached by scrolling sideways — what does not
+           fit (a wide table, a code block) scrolls inside its own box — and
+           clip rather than hidden so this never becomes a scroll container
+           the header's own stickiness would have to answer to. -->
+      <main
+        class="mx-auto mb-4 w-full max-w-[82rem] flex-1 overflow-x-clip p-4"
+      >
         <router-outlet />
       </main>
       <!-- Admin-only storefront edit-mode toggle; empty for everyone else, and

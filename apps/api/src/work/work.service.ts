@@ -11,12 +11,12 @@ import {
   and,
   count,
   eq,
+  gte,
   isNotNull,
   isNull,
+  lt,
   lte,
   ne,
-  or,
-  sql,
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../db/database.module';
@@ -46,10 +46,11 @@ const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
     'orders',
     'unpaidOrders',
     'unpublishedProducts',
+    'expiredDocuments',
     'expiringDocuments',
   ],
   manager: ['registrations', 'orders', 'unpaidOrders'],
-  user: ['myOrders'],
+  user: ['myPayments', 'myPickups'],
 };
 
 /**
@@ -80,8 +81,10 @@ export class WorkService {
     orders: () => this.staffOrders(),
     unpaidOrders: () => this.unpaidOrders(),
     unpublishedProducts: () => this.unpublishedProducts(),
+    expiredDocuments: () => this.expiredDocuments(),
     expiringDocuments: () => this.expiringDocuments(),
-    myOrders: (user) => this.myOrders(user.id),
+    myPayments: (user) => this.myPayments(user.id),
+    myPickups: (user) => this.myPickups(user.id),
   };
 
   async countsFor(user: AuthUser): Promise<WorkCounts> {
@@ -142,11 +145,25 @@ export class WorkService {
   }
 
   /**
-   * Documents whose expiry has passed or is within the warning window
-   * (FR-DOC-04). A document with no expiry never comes due and is never
-   * counted.
+   * Documents whose expiry has already passed (FR-DOC-04) — the shop out of
+   * compliance now, and the more urgent half of the pair.
+   */
+  private expiredDocuments(): Promise<number> {
+    return this.db.$count(
+      documents,
+      and(
+        isNotNull(documents.expiresAt),
+        lt(documents.expiresAt, isoToday(new Date())),
+      ),
+    );
+  }
+
+  /**
+   * Documents due to expire inside the warning window (FR-DOC-04). A document
+   * with no expiry never comes due and is never counted, and one that has
+   * already expired is counted by the queue above rather than twice here.
    *
-   * The bound is computed here rather than in SQL so it is the same day
+   * The bounds are computed here rather than in SQL so they are the same day
    * arithmetic the badge and the filter use — a count that disagreed with the
    * list it links to by a day would be unexplainable.
    */
@@ -157,44 +174,54 @@ export class WorkService {
       documents,
       and(
         isNotNull(documents.expiresAt),
+        gte(documents.expiresAt, isoToday(new Date())),
         lte(documents.expiresAt, isoToday(due)),
       ),
     );
   }
 
   /**
-   * The account's own orders that wait on the account holder (FR-WORK-04) —
-   * the two things only the customer can finish (ADR 0050).
+   * The account's own orders the shop is waiting to be paid for (FR-WORK-04) —
+   * one of the two things only the customer can finish (ADR 0050).
    *
-   * An invoiced order that has been accepted is money the shop is waiting for,
-   * and an order packed for collection is waiting to be collected. Everything
-   * else on an order is the shop's work, however long it takes.
+   * `awaiting` is the whole rule: it is set when an invoiced order is accepted
+   * and cleared when the order ends, so nothing here has to say which statuses
+   * count.
+   */
+  private myPayments(userId: string): Promise<number> {
+    return this.db.$count(
+      orders,
+      and(eq(orders.userId, userId), eq(orders.paymentState, 'awaiting')),
+    );
+  }
+
+  /**
+   * The account's own orders packed and waiting to be collected — the other
+   * one, and the other half of what used to be a single figure. Counted apart
+   * because paying an invoice and driving to the counter are two jobs, and one
+   * count over both could link to neither list.
    *
    * A delivered order is not here: it waits on the driver, not on the person
-   * who ordered it. Nor is an order that ended — nothing is owed on it, and
-   * `awaiting` is cleared when it ends anyway.
+   * who ordered it.
    */
-  private async myOrders(userId: string): Promise<number> {
-    // Joined to the version each order currently shows: how it is fulfilled is
-    // part of what an order *says*, and an adjustment can change it (ADR 0051).
+  private async myPickups(userId: string): Promise<number> {
+    // Joined to the version the *customer* is on, not the one the order now
+    // stands at: how an order is fulfilled is part of what it says and an
+    // adjustment can change it (ADR 0051), so a switch to delivery nobody has
+    // told them about must not empty a marker that links to a list still
+    // showing the collection they were promised.
     const [{ total }] = await this.db
       .select({ total: count() })
       .from(orders)
       .innerJoin(
         orderRevisions,
-        eq(orders.currentRevisionId, orderRevisions.id),
+        eq(orders.customerRevisionId, orderRevisions.id),
       )
       .where(
         and(
           eq(orders.userId, userId),
-          sql`${orders.status} not in ('declined', 'cancelled')`,
-          or(
-            eq(orders.paymentState, 'awaiting'),
-            and(
-              eq(orders.status, 'ready'),
-              eq(orderRevisions.fulfilmentMethod, 'pickup'),
-            ),
-          ),
+          eq(orders.status, 'ready'),
+          eq(orderRevisions.fulfilmentMethod, 'pickup'),
         ),
       );
     return total;

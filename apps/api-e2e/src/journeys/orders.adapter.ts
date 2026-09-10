@@ -255,7 +255,7 @@ const probes: Record<string, Probe<OrderJourneyContext>> = {
             const res = await ok(
               call('get', '/work/counts', undefined, ctx.customerCookie),
             );
-            return marker(res.data.myOrders > 0);
+            return marker(res.data.myPayments + res.data.myPickups > 0);
           })
         : null,
   },

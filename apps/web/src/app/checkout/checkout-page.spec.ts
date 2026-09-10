@@ -377,7 +377,7 @@ describe('CheckoutPage', () => {
     it('names a private customer by their own name', async () => {
       const page = await render({ person: true });
 
-      expect(page.text()).toContain('Alex Fischer');
+      expect(page.text()).toContain('Fischer Alex');
     });
 
     it('names them by the type they registered as, not by what is filled in', async () => {
@@ -385,7 +385,7 @@ describe('CheckoutPage', () => {
       // name: the type is the answer, not whichever field is not empty.
       const page = await render({ person: true, companyName: 'Kontor GmbH' });
 
-      expect(page.text()).toContain('Alex Fischer');
+      expect(page.text()).toContain('Fischer Alex');
       expect(page.text()).not.toContain('Kontor GmbH');
     });
 
@@ -436,8 +436,8 @@ describe('CheckoutPage', () => {
 
       page.drafts.patch({ party: 'person' });
       await page.settle();
-      page.type('#party-personName', 'Alex Fischer');
-      expect(page.drafts.draft().otherPartyName).toBe('Alex Fischer');
+      page.type('#party-personName', 'Fischer Alex');
+      expect(page.drafts.draft().otherPartyName).toBe('Fischer Alex');
 
       page.pick('party-kind', 'company');
       await page.settle();

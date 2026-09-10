@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  fillText,
   SEARCH_QUERY_MAX_LENGTH,
   SearchSuggestion,
 } from '@b2b-catalog-platform/shared';
@@ -299,10 +300,9 @@ export class SearchField {
     if (!this.panelOpen()) return '';
     return this.noMatches()
       ? this.text.noSuggestions
-      : this.text.suggestionCount.replace(
-          '{count}',
-          String(this.suggestions().length),
-        );
+      : fillText(this.text.suggestionCount, {
+          count: this.suggestions().length,
+        });
   });
 
   constructor() {

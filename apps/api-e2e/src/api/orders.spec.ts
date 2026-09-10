@@ -133,6 +133,9 @@ const ADMIN_DETAIL_KEYS = [
   'notifiedRevisionNumber',
   'notifiedStatuses',
   'customerEmail',
+  // A guest's own link, for staff who need to see exactly what that customer
+  // is looking at (FR-NOTIF-06). Null on an order placed from an account.
+  'publicToken',
   'paidAt',
   'revisionNumber',
   'statusChangedAt',

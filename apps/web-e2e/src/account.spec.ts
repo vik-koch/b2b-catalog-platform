@@ -105,8 +105,10 @@ test.describe('my account', () => {
     // this assertion is about the record.
     const details = page.getByRole('definition');
     await expect(details.getByText(email)).toBeVisible();
+    // Family name first, no comma — the one rule every screen composes a name
+    // by, so the record reads the same way the order it placed does.
     await expect(
-      details.getByText(`${DETAILS.firstName} ${DETAILS.lastName}`),
+      details.getByText(`${DETAILS.lastName} ${DETAILS.firstName}`),
     ).toBeVisible();
     await expect(details.getByText(DETAILS.phoneDisplayed)).toBeVisible();
     await expect(details.getByText('Private person')).toBeVisible();
@@ -142,7 +144,7 @@ test.describe('my account', () => {
     // there is no notice to dismiss.
     await expect(page).toHaveURL(/\/account$/);
     await expect(
-      page.getByRole('definition').getByText('Alexa Fischer'),
+      page.getByRole('definition').getByText('Fischer Alexa'),
     ).toBeVisible();
     // The greeting is built from the session, not from the save's response, so
     // it only follows the new name if /auth/me was re-asked.

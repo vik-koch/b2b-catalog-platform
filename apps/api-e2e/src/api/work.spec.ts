@@ -90,6 +90,7 @@ describe('work counts', () => {
 
   it('tells an admin about every staff queue', async () => {
     expect(Object.keys(await counts(admin)).sort()).toEqual([
+      'expiredDocuments',
       'expiringDocuments',
       'orders',
       'registrations',
@@ -108,8 +109,10 @@ describe('work counts', () => {
     ]);
   });
 
+  // Two queues, not one figure: money owed and a parcel on the counter are
+  // separate jobs, and each links to its own filter on their own history.
   it('tells a customer only about their own orders', async () => {
-    expect(await counts(customer)).toEqual({ myOrders: 0 });
+    expect(await counts(customer)).toEqual({ myPayments: 0, myPickups: 0 });
   });
 
   /**
@@ -132,7 +135,7 @@ describe('work counts', () => {
 
     expect((await counts(manager)).registrations).toBeGreaterThanOrEqual(1);
     // The same queue, the same rows: a customer is never told about it.
-    expect(await counts(customer)).toEqual({ myOrders: 0 });
+    expect(await counts(customer)).toEqual({ myPayments: 0, myPickups: 0 });
   });
 
   /** The same, for the review queue a sync run fills (FR-ADM-06): a created

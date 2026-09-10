@@ -37,7 +37,8 @@ describe('newRegistrationMail', () => {
   // a customer they already know, so it repeats everything submitted.
   it('carries every detail staff have to act on', () => {
     expect(mail.rows).toEqual([
-      { label: t.nameLabel, value: 'Jane Doe' },
+      // Family name first, as every staff-facing list of people reads.
+      { label: t.nameLabel, value: 'Doe Jane' },
       { label: t.emailLabel, value: 'jane@example.com' },
       { label: t.phoneLabel, value: '+49 40 1234567' },
       { label: t.customerTypeLabel, value: t.customerTypePerson },

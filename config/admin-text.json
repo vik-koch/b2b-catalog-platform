@@ -57,7 +57,8 @@
     "workOrders": "{count} awaiting your answer",
     "workUnpaid": "{count} finished, not paid",
     "workProducts": "{count} awaiting publication",
-    "workDocuments": "{count} expiring or expired"
+    "workDocuments": "{count} expiring soon",
+    "workDocumentsExpired": "{count} expired"
   },
   "editMode": {
     "enable": "Edit mode",
@@ -378,7 +379,6 @@
     "discard": "Discard",
     "historyTitle": "Previous runs",
     "historyEmpty": "No sync has run yet.",
-    "lastSync": "Last sync: {date}",
     "lastSyncNever": "Never synced",
     "mode": {
       "full": "Complete catalog export",
@@ -675,6 +675,7 @@
     "back": "Back to orders",
     "items": "Ordered",
     "customer": "Account",
+    "guestView": "Open what they see",
     "tier": "Price list",
     "tierDefault": "Default",
     "fulfilment": "How it arrives",
@@ -743,6 +744,7 @@
       "markPaid": "Also record the payment as received",
       "markPaidHint": "For money handed over with the goods. You can take this back afterwards.",
       "reasonLabel": "Why — this is quoted to the customer",
+      "paidWarning": "A payment is recorded against this order. Ending it here does not refund anything — arrange that with the customer directly.",
       "keep": "Leave it as it is",
       "error": "That did not work. The order may already have been answered — reload the page.",
       "notifyAttachment": "The payment instructions on this order are sent with it.",

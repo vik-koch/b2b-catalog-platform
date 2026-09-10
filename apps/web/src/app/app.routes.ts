@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { CanMatchFn, Route, UrlSegment } from '@angular/router';
 import { PageSlug, STANDALONE_PAGE_SLUGS } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
-import { guestOnly, requireAuth } from './auth/auth.guard';
+import { guestOnly, requireAuth, staffToAdminOrder } from './auth/auth.guard';
 import { adminTextGuard } from './config/admin-text';
 import { maintenanceGate } from './admin/maintenance/maintenance.guard';
 import { unsavedChangesGuard } from './admin/unsaved-changes.guard';
@@ -339,7 +339,7 @@ export const appRoutes: Route[] = [
   // and nothing about one is editable once it is sent.
   {
     path: 'account/orders',
-    canActivate: [requireAuth()],
+    canActivate: [requireAuth(), staffToAdminOrder()],
     loadComponent: () =>
       import('./orders/order-list-page').then((m) => m.OrderListPage),
   },
@@ -347,7 +347,7 @@ export const appRoutes: Route[] = [
     // The reference is the identity a customer was quoted and a mail links to,
     // so it is what the URL carries — never the row's id.
     path: 'account/orders/:reference',
-    canActivate: [requireAuth()],
+    canActivate: [requireAuth(), staffToAdminOrder()],
     loadComponent: () =>
       import('./orders/order-detail-page').then((m) => m.OrderDetailPage),
   },

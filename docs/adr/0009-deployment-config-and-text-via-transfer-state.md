@@ -2,7 +2,8 @@
 
 **Status:** accepted · **Date:** 2026-07-20 · **Amended:** 2026-07-25 (delivery
 mechanism: TransferState → an injected `<script>`), 2026-07-30 (the text is split
-by audience; the admin half is fetched) — see the _Amendments_ below
+by audience; the admin half is fetched), 2026-09-10 (a counting text may carry a
+singular and a plural form) — see the _Amendments_ below
 
 ## Context
 
@@ -155,3 +156,38 @@ manager's subset) is another file on the same mechanism, not a new mechanism.
   a route that renders admin text without the guard, and a storefront affordance
   that does not gate on `EditModeService.enabled()`. Both fail loudly (the token
   throws) rather than rendering blank labels.
+
+## Amendment 3 — 2026-09-10: two forms for a text that counts something
+
+The catalog said "1 products found". Around twenty texts interpolate a
+`{count}`, and roughly half of them name what they are counting, so each of
+those was wrong exactly when the count was one — a state the shop reaches
+constantly, since a search that finds one product is a good search.
+
+A text that counts may therefore carry **two forms separated by a `|`, the
+singular first**: `"{count} product found|{count} products found"`. `fillText`
+picks the form from the `count` value it was already given and fills the
+placeholders of the one it picked; a text without a `|` is used exactly as
+before, so only the strings that need the distinction carry it and no key
+changes shape. The whole sentence is written out on both sides rather than a
+suffix being appended, because the difference is rarely one letter — "products
+… are missing what **they** are sold with" against "product … **is** missing
+what **it** is sold with".
+
+Two forms, not a plural-rule engine, and no locale is consulted. That follows
+from the context above: each deployment ships one language's text and no i18n
+framework goes with it, so nothing in the running app could know that a third
+form was needed or which count selects it. A language with more forms writes
+around the gap — the same trade the whole text catalog already makes.
+
+The admin catalog is left on its existing `product(s)` shorthand. It is
+staff-facing, consistent with itself, and denser to read at a glance in a
+table; the mechanism is there for it if that ever stops being true.
+
+- (+) The storefront stops saying "1 products found", in a way a deployment
+  controls with its own wording rather than one the code hard-codes.
+- (+) Nothing changed shape: same keys, same schema, same call sites, and a
+  deployment that ignores the convention is unaffected.
+- (−) A `|` in a counting text is now syntax. A deployment that wants a literal
+  one in such a string cannot have it — no text does today, and the ones that
+  count are the only ones affected.

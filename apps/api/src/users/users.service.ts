@@ -1,6 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, count, eq, inArray, ne, notInArray, sql } from 'drizzle-orm';
+import { and, count, eq, inArray, notInArray, sql } from 'drizzle-orm';
 import {
   CustomerType,
   ENDED_ORDER_STATUSES,
@@ -16,6 +16,22 @@ import {
 } from '../db/schema';
 
 export type UserRow = typeof users.$inferSelect;
+
+/** The transaction handle Drizzle hands a `db.transaction` callback. */
+type Tx = Parameters<
+  Parameters<NodePgDatabase<typeof schema>['transaction']>[0]
+>[0];
+
+/**
+ * The refusal every admin-removal path shares. One class rather than three
+ * literals: a security rule with three copies is a security rule with three
+ * behaviours.
+ */
+export class LastAdminError extends ConflictException {
+  constructor() {
+    super({ code: 'last-admin', message: 'This is the last admin account' });
+  }
+}
 
 /**
  * What a self-registration writes: the identity staff need to decide on it, and
@@ -130,25 +146,47 @@ export class UsersService {
   }
 
   /**
-   * Whether any *other* admin account exists that could still sign in. The rule
-   * behind every "not the last admin" refusal — role changes, deactivation and
-   * self-deletion alike — so it lives here rather than with any one of them.
+   * Perform a write that takes an admin away — self-deletion, deactivation, a
+   * demotion — refusing when it would leave nobody able to let people back in.
+   * The rule behind every "not the last admin" refusal, so it lives here
+   * rather than with any one of them.
    *
-   * An anonymized admin does not count: the row is a tombstone, and nobody can
-   * sign in as it to let anyone back in.
+   * The check and the write share one transaction, and the check locks *every*
+   * admin row rather than only the ones it counts. Two admins removing each
+   * other at the same moment read disjoint sets — each sees the other and each
+   * proceeds — so there has to be a row they both contend for. Locked this way
+   * the second one waits, re-reads what the first committed, and is refused.
+   *
+   * Only an account that can still sign in counts. An anonymized row is a
+   * tombstone, and a disabled admin cannot switch itself back on: leaving one
+   * of those as the only admin locks the shop out just as completely as
+   * leaving none. An invited admin does count — the link in their inbox is a
+   * way in.
+   *
+   * An account that is not an admin is written straight through: there is no
+   * invariant to hold, and the role is read here rather than trusted from an
+   * earlier read, so a demotion that lands in between cannot slip past.
    */
-  async hasAnotherAdmin(excludingId: string): Promise<boolean> {
-    const [row] = await this.db
-      .select({ id: users.id })
-      .from(users)
-      .where(
-        and(
-          eq(users.role, 'admin'),
-          ne(users.id, excludingId),
-          ne(users.status, 'anonymized'),
-        ),
-      );
-    return Boolean(row);
+  async removingAdmin<T>(
+    removedId: string,
+    write: (tx: Tx) => Promise<T>,
+  ): Promise<T> {
+    return this.db.transaction(async (tx) => {
+      const admins = await tx
+        .select({ id: users.id })
+        .from(users)
+        .where(
+          and(
+            eq(users.role, 'admin'),
+            inArray(users.status, ['active', 'invited']),
+          ),
+        )
+        .for('update');
+      const isAdmin = admins.some((admin) => admin.id === removedId);
+      const another = admins.some((admin) => admin.id !== removedId);
+      if (isAdmin && !another) throw new LastAdminError();
+      return write(tx);
+    });
   }
 
   /**
@@ -169,7 +207,7 @@ export class UsersService {
    * account that is half-anonymized is worse than one that is not.
    */
   async anonymize(id: string, unusableHash: string): Promise<UserRow> {
-    return this.db.transaction(async (tx) => {
+    return this.removingAdmin(id, async (tx) => {
       // The address book is personal data with no second purpose: orders keep
       // their own snapshot of where they went, so nothing readable is lost by
       // removing the saved rows. The account row is never deleted, so the
@@ -201,6 +239,16 @@ export class UsersService {
         ),
       );
     return Number(row?.open ?? 0);
+  }
+
+  /** How many orders this account has at all — what a closure leaves behind
+   * (FR-NOTIF-08), counted before the scrub makes them untraceable. */
+  async countOrders(userId: string): Promise<number> {
+    const [row] = await this.db
+      .select({ total: count() })
+      .from(orders)
+      .where(eq(orders.userId, userId));
+    return Number(row?.total ?? 0);
   }
 
   /**

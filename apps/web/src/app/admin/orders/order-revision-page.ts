@@ -24,6 +24,7 @@ import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { AdminOrdersService } from './orders.service';
+import { OrderDocumentsPanel } from './order-documents-panel';
 import { revisionKindLabel } from './revision-labels';
 
 /**
@@ -48,6 +49,7 @@ import { revisionKindLabel } from './revision-labels';
     Skeleton,
     OrderReadBack,
     OrderSummary,
+    OrderDocumentsPanel,
     StatusBadge,
   ],
   template: `
@@ -109,16 +111,10 @@ import { revisionKindLabel } from './revision-labels';
                   }
                 </dd>
 
-                <!-- Which version this is, and what it was written for — the
-                     two questions only this page is asked. -->
-                <dt class="text-subtle">{{ text.heading }}</dt>
-                <dd>
-                  {{ written() }}
-                  <p class="mt-1 text-subtle">{{ kindLabel() }}</p>
-                </dd>
-
-                <!-- And what the customer knows about it: whether this is the
-                     version they are on, and whether they were written to. -->
+                <!-- What the customer knows about this version: whether it
+                     is the one they are on, and whether they were written to.
+                     Above the version row, as it is on the order itself — the
+                     two blocks list the same facts in the same order. -->
                 <dt class="text-subtle">
                   {{ detailText.tellCustomer.heading }}
                 </dt>
@@ -127,6 +123,14 @@ import { revisionKindLabel } from './revision-labels';
                   @if (notified(); as notified) {
                     <p class="mt-1 text-subtle">{{ notified }}</p>
                   }
+                </dd>
+
+                <!-- Which version this is, and what it was written for — the
+                     two questions only this page is asked. -->
+                <dt class="text-subtle">{{ text.heading }}</dt>
+                <dd>
+                  {{ written() }}
+                  <p class="mt-1 text-subtle">{{ kindLabel() }}</p>
                 </dd>
               </dl>
             </section>
@@ -146,6 +150,26 @@ import { revisionKindLabel } from './revision-labels';
               [subtotalMinor]="order.totalMinor"
               [shipment]="order.shipment"
             />
+            <!-- What can be opened on this version (FR-ORD-05), marked from
+                 where this page stands: a supplied file filed before this
+                 version is stale *here* even where the order has since caught
+                 up with it. Read-only, like everything else on this screen.
+
+                 Under the total and above the way out, which is where every
+                 other order screen puts it — a document is a copy of what has
+                 just been read, and the controls stay last. -->
+            @if (order.documents.length) {
+              <section class="mt-5 rounded-lg border border-border p-5">
+                <h2 class="font-medium">{{ documentsText.heading }}</h2>
+                <div class="mt-1 text-sm">
+                  <app-order-documents-panel
+                    [order]="order"
+                    [readOnly]="true"
+                  />
+                </div>
+              </section>
+            }
+
             <!-- The way from reading to doing, under the card it was read
                  against: everything a manager does to an order is on that
                  page, and this one deliberately offers none of it. -->
@@ -186,6 +210,7 @@ export class AdminOrderRevisionPage {
   protected readonly detailText = inject(ADMIN_TEXT).orderDetail;
   protected readonly listText = inject(ADMIN_TEXT).orderList;
   protected readonly text = this.detailText.revisions;
+  protected readonly documentsText = this.detailText.documents;
 
   readonly reference = input.required<string>();
   /** Bound from the route, and so a string: an unparsed segment. */

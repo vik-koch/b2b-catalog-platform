@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  HttpException,
   Inject,
   Injectable,
   NotFoundException,
@@ -27,6 +28,14 @@ import {
 } from '../db/schema';
 import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
 import { LOW_STOCK_THRESHOLD_PIECES } from '../config/deployment-config';
+
+/** The transaction handle Drizzle hands a `db.transaction` callback. */
+type Tx = Parameters<
+  Parameters<NodePgDatabase<typeof schema>['transaction']>[0]
+>[0];
+
+/** Anything that can read the catalog: the pool, or a transaction on it. */
+type Reader = Pick<NodePgDatabase<typeof schema>, 'select'>;
 
 /** Staged rows and finished runs are audit data, not archive data. */
 const RUN_RETENTION_DAYS = 90;
@@ -89,39 +98,79 @@ export class SyncService {
     return { run: toSyncRun(row), plan };
   }
 
+  /**
+   * Apply a previewed run: one transaction from claiming the run to marking it
+   * applied, so the catalog and the run's own record cannot disagree.
+   *
+   * The run row is read `for update`, which is what claims it. Two admins
+   * pressing apply on the same run would otherwise both read `previewed` and
+   * both commit the plan; the second now waits, re-reads the status the first
+   * wrote, and is refused. And because the run is marked in the same
+   * transaction as the catalog write, a crash between them cannot leave a run
+   * still saying `previewed` over a catalog that has already moved.
+   */
   async commit(id: string, actor: Actor): Promise<SyncCommitResponse> {
-    const [run] = await this.db
-      .select()
-      .from(syncRuns)
-      .where(eq(syncRuns.id, id));
-    if (!run) throw runNotFound();
-    if (run.status !== 'previewed') {
-      throw new ConflictException({
-        code: run.status === 'applied' ? 'run-already-applied' : 'run-failed',
-        message: `This run is already ${run.status} and cannot be applied again`,
-      });
-    }
-    if (!run.rows) {
-      throw new ConflictException({
-        code: 'run-rows-pruned',
-        message: 'This run’s staged rows have been pruned',
-      });
-    }
-
-    // Re-diff against current state: the catalog may have moved since the
-    // preview (another admin edited a product), so the preview is advisory and
-    // this computation is the authoritative one.
-    const state = await this.readState();
-    const { plan, actions } = planSync(
-      run.rows,
-      run.options,
-      state,
-      run.parseErrors ?? [],
-    );
-
     try {
-      await this.apply(actions, state);
+      return await this.db.transaction(async (tx) => {
+        const [run] = await tx
+          .select()
+          .from(syncRuns)
+          .where(eq(syncRuns.id, id))
+          .for('update');
+        if (!run) throw runNotFound();
+        if (run.status !== 'previewed') {
+          throw new ConflictException({
+            code:
+              run.status === 'applied' ? 'run-already-applied' : 'run-failed',
+            message: `This run is already ${run.status} and cannot be applied again`,
+          });
+        }
+        if (!run.rows) {
+          throw new ConflictException({
+            code: 'run-rows-pruned',
+            message: 'This run’s staged rows have been pruned',
+          });
+        }
+
+        // Re-diff against current state: the catalog may have moved since the
+        // preview (another admin edited a product), so the preview is advisory
+        // and this computation is the authoritative one. Read through the
+        // transaction, so what is planned is what is written.
+        const state = await this.readState(tx);
+        const { plan, actions } = planSync(
+          run.rows,
+          run.options,
+          state,
+          run.parseErrors ?? [],
+        );
+
+        await this.apply(tx, actions, state);
+
+        const [updated] = await tx
+          .update(syncRuns)
+          .set({
+            status: 'applied',
+            finishedAt: new Date(),
+            summary: plan.summary,
+            actorId: actor.id,
+            actorEmail: actor.email,
+            // The staged input has served its purpose; the summary is the
+            // record.
+            rows: null,
+            parseErrors: null,
+          })
+          .where(eq(syncRuns.id, id))
+          .returning();
+
+        return { run: toSyncRun(updated), applied: plan.summary };
+      });
     } catch (error) {
+      // A refusal is not a failed run: the run is untouched and still
+      // previewed, and saying otherwise would retire a run nobody applied.
+      if (error instanceof HttpException) throw error;
+      // Anything else rolled the catalog back with it, so the run is recorded
+      // as failed in a write of its own — inside the transaction it would have
+      // been rolled back too.
       const message = error instanceof Error ? error.message : String(error);
       await this.db
         .update(syncRuns)
@@ -129,23 +178,6 @@ export class SyncService {
         .where(eq(syncRuns.id, id));
       throw error;
     }
-
-    const [updated] = await this.db
-      .update(syncRuns)
-      .set({
-        status: 'applied',
-        finishedAt: new Date(),
-        summary: plan.summary,
-        actorId: actor.id,
-        actorEmail: actor.email,
-        // The staged input has served its purpose; the summary is the record.
-        rows: null,
-        parseErrors: null,
-      })
-      .where(eq(syncRuns.id, id))
-      .returning();
-
-    return { run: toSyncRun(updated), applied: plan.summary };
   }
 
   async getRun(id: string): Promise<{ run: SyncRun; plan: SyncPlan | null }> {
@@ -204,9 +236,9 @@ export class SyncService {
    * category tree in the app rather than in recursive SQL, ADR 0022), and it
    * lets the differ stay pure.
    */
-  private async readState(): Promise<SyncCatalogState> {
+  private async readState(db: Reader = this.db): Promise<SyncCatalogState> {
     const [productRows, categoryRows, tierRows, priceRows] = await Promise.all([
-      this.db
+      db
         .select({
           id: products.id,
           sourceId: products.sourceId,
@@ -224,7 +256,7 @@ export class SyncService {
           lowStockThresholdPieces: products.lowStockThresholdPieces,
         })
         .from(products),
-      this.db
+      db
         .select({
           id: categories.id,
           sourceId: categories.sourceId,
@@ -232,12 +264,12 @@ export class SyncService {
           name: categories.name,
         })
         .from(categories),
-      this.db
+      db
         .select({ id: customerTiers.id, key: customerTiers.key })
         .from(customerTiers),
       // Every override in the catalog. A tier carries only its exceptions, so
       // this table is far smaller than the product list it belongs to.
-      this.db
+      db
         .select({
           productId: productPrices.productId,
           tierId: productPrices.tierId,
@@ -268,10 +300,11 @@ export class SyncService {
   }
 
   /**
-   * Applies a plan in one transaction. Categories first, because products
-   * created in the same run may reference them.
+   * Applies a plan, in the caller's transaction. Categories first, because
+   * products created in the same run may reference them.
    */
   private async apply(
+    tx: Tx,
     actions: SyncActions,
     state: SyncCatalogState,
   ): Promise<void> {
@@ -280,152 +313,150 @@ export class SyncService {
     const takenProductSlugs = new Set(state.products.map((p) => p.slug));
     const takenCategorySlugs = new Set(state.categories.map((c) => c.slug));
 
-    await this.db.transaction(async (tx) => {
-      // New categories are created unparented — the export carries no
-      // hierarchy, so an admin places them in the tree afterwards.
-      const createdCategoryIds = new Map<string, string>();
-      if (actions.createCategories.length > 0) {
-        const [{ value: maxRootOrder }] = await tx
-          .select({
-            value: sql<number>`coalesce(max(${categories.sortOrder}), -1)`,
-          })
-          .from(categories)
-          .where(isNull(categories.parentId));
-        let sortOrder = Number(maxRootOrder) + 1;
+    // New categories are created unparented — the export carries no
+    // hierarchy, so an admin places them in the tree afterwards.
+    const createdCategoryIds = new Map<string, string>();
+    if (actions.createCategories.length > 0) {
+      const [{ value: maxRootOrder }] = await tx
+        .select({
+          value: sql<number>`coalesce(max(${categories.sortOrder}), -1)`,
+        })
+        .from(categories)
+        .where(isNull(categories.parentId));
+      let sortOrder = Number(maxRootOrder) + 1;
 
-        for (const category of actions.createCategories) {
-          const [row] = await tx
-            .insert(categories)
-            .values({
-              sourceId: category.sourceId,
-              slug: allocateSlug(category.name, 'category', takenCategorySlugs),
-              name: category.name,
-              parentId: null,
-              sortOrder: sortOrder++,
-            })
-            .returning({ id: categories.id });
-          createdCategoryIds.set(category.sourceId, row.id);
-        }
-      }
-
-      // A rename keeps the slug (a changed URL breaks links) and the tree
-      // position — only the display name moves.
-      for (const category of actions.updateCategories) {
-        await tx
-          .update(categories)
-          .set({ name: category.name, updatedAt: new Date() })
-          .where(eq(categories.id, category.id));
-      }
-
-      const resolveCategory = (
-        categoryId: string | null | undefined,
-        categorySourceId: string | null | undefined,
-      ): string | undefined => {
-        if (categoryId) return categoryId;
-        if (categorySourceId) {
-          const created = createdCategoryIds.get(categorySourceId);
-          if (!created) {
-            throw new Error(
-              `Category "${categorySourceId}" was planned but not created`,
-            );
-          }
-          return created;
-        }
-        return undefined;
-      };
-
-      /**
-       * Upsert, never delete: a run writes the price lists its file carries and
-       * leaves every other list where it was. Clearing an override is an admin
-       * action in the product editor, not something a partial export does by
-       * omission.
-       */
-      const writeTierPrices = async (
-        productId: string,
-        entries: { tierId: string; priceMinor: number }[],
-      ) => {
-        if (entries.length === 0) return;
-        await tx
-          .insert(productPrices)
-          .values(entries.map((e) => ({ productId, ...e })))
-          .onConflictDoUpdate({
-            target: [productPrices.productId, productPrices.tierId],
-            set: {
-              priceMinor: sql`excluded."priceMinor"`,
-              updatedAt: new Date(),
-            },
-          });
-      };
-
-      for (const product of actions.createProducts) {
-        const categoryId = resolveCategory(
-          product.categoryId,
-          product.categorySourceId,
-        );
-        const [created] = await tx
-          .insert(products)
-          // No `publishedAt`: an imported product carries a price whose basis
-          // nobody has set yet, so it waits for an admin (FR-ADM-06). An update
-          // leaves it alone, so a re-sync never hides a live product.
+      for (const category of actions.createCategories) {
+        const [row] = await tx
+          .insert(categories)
           .values({
-            sourceId: product.sourceId,
-            slug: allocateSlug(product.name, 'product', takenProductSlugs),
-            name: product.name,
-            defaultPriceMinor: product.priceMinor,
-            categoryId: categoryId as string,
-            // Both or neither: the state is the figure's shadow, and the check
-            // constraint on the table says so.
-            ...(product.stockPieces === undefined
-              ? {}
-              : {
-                  stockPieces: product.stockPieces,
-                  availability: product.availability,
-                }),
+            sourceId: category.sourceId,
+            slug: allocateSlug(category.name, 'category', takenCategorySlugs),
+            name: category.name,
+            parentId: null,
+            sortOrder: sortOrder++,
           })
-          .returning({ id: products.id });
-        await writeTierPrices(created.id, product.tierPrices);
+          .returning({ id: categories.id });
+        createdCategoryIds.set(category.sourceId, row.id);
       }
+    }
 
-      for (const update of actions.updateProducts) {
-        const categoryId = resolveCategory(
-          update.categoryId,
-          update.categorySourceId,
-        );
-        await tx
-          .update(products)
-          .set({
-            ...(update.name !== undefined ? { name: update.name } : {}),
-            ...(update.priceMinor !== undefined
-              ? { defaultPriceMinor: update.priceMinor }
-              : {}),
-            ...(categoryId !== undefined ? { categoryId } : {}),
-            ...(update.stockPieces === undefined
-              ? {}
-              : {
-                  stockPieces: update.stockPieces,
-                  availability: update.availability,
-                }),
+    // A rename keeps the slug (a changed URL breaks links) and the tree
+    // position — only the display name moves.
+    for (const category of actions.updateCategories) {
+      await tx
+        .update(categories)
+        .set({ name: category.name, updatedAt: new Date() })
+        .where(eq(categories.id, category.id));
+    }
+
+    const resolveCategory = (
+      categoryId: string | null | undefined,
+      categorySourceId: string | null | undefined,
+    ): string | undefined => {
+      if (categoryId) return categoryId;
+      if (categorySourceId) {
+        const created = createdCategoryIds.get(categorySourceId);
+        if (!created) {
+          throw new Error(
+            `Category "${categorySourceId}" was planned but not created`,
+          );
+        }
+        return created;
+      }
+      return undefined;
+    };
+
+    /**
+     * Upsert, never delete: a run writes the price lists its file carries and
+     * leaves every other list where it was. Clearing an override is an admin
+     * action in the product editor, not something a partial export does by
+     * omission.
+     */
+    const writeTierPrices = async (
+      productId: string,
+      entries: { tierId: string; priceMinor: number }[],
+    ) => {
+      if (entries.length === 0) return;
+      await tx
+        .insert(productPrices)
+        .values(entries.map((e) => ({ productId, ...e })))
+        .onConflictDoUpdate({
+          target: [productPrices.productId, productPrices.tierId],
+          set: {
+            priceMinor: sql`excluded."priceMinor"`,
             updatedAt: new Date(),
-          })
-          .where(eq(products.id, update.id));
-        await writeTierPrices(update.id, update.tierPrices ?? []);
-      }
+          },
+        });
+    };
 
-      // Slug stays fixed across a rename (a changed URL breaks links), so
-      // nothing here touches it — see ADR 0022.
-      if (actions.softDeleteProductIds.length > 0) {
-        await tx
-          .update(products)
-          .set({ deletedAt: new Date(), updatedAt: new Date() })
-          .where(inArray(products.id, actions.softDeleteProductIds));
-      }
-      if (actions.restoreProductIds.length > 0) {
-        await tx
-          .update(products)
-          .set({ deletedAt: null, updatedAt: new Date() })
-          .where(inArray(products.id, actions.restoreProductIds));
-      }
-    });
+    for (const product of actions.createProducts) {
+      const categoryId = resolveCategory(
+        product.categoryId,
+        product.categorySourceId,
+      );
+      const [created] = await tx
+        .insert(products)
+        // No `publishedAt`: an imported product carries a price whose basis
+        // nobody has set yet, so it waits for an admin (FR-ADM-06). An update
+        // leaves it alone, so a re-sync never hides a live product.
+        .values({
+          sourceId: product.sourceId,
+          slug: allocateSlug(product.name, 'product', takenProductSlugs),
+          name: product.name,
+          defaultPriceMinor: product.priceMinor,
+          categoryId: categoryId as string,
+          // Both or neither: the state is the figure's shadow, and the check
+          // constraint on the table says so.
+          ...(product.stockPieces === undefined
+            ? {}
+            : {
+                stockPieces: product.stockPieces,
+                availability: product.availability,
+              }),
+        })
+        .returning({ id: products.id });
+      await writeTierPrices(created.id, product.tierPrices);
+    }
+
+    for (const update of actions.updateProducts) {
+      const categoryId = resolveCategory(
+        update.categoryId,
+        update.categorySourceId,
+      );
+      await tx
+        .update(products)
+        .set({
+          ...(update.name !== undefined ? { name: update.name } : {}),
+          ...(update.priceMinor !== undefined
+            ? { defaultPriceMinor: update.priceMinor }
+            : {}),
+          ...(categoryId !== undefined ? { categoryId } : {}),
+          ...(update.stockPieces === undefined
+            ? {}
+            : {
+                stockPieces: update.stockPieces,
+                availability: update.availability,
+              }),
+          updatedAt: new Date(),
+        })
+        .where(eq(products.id, update.id));
+      await writeTierPrices(update.id, update.tierPrices ?? []);
+    }
+
+    // Slug stays fixed across a rename (a changed URL breaks links), so
+    // nothing here touches it — see ADR 0022.
+    if (actions.softDeleteProductIds.length > 0) {
+      await tx
+        .update(products)
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .where(inArray(products.id, actions.softDeleteProductIds));
+    }
+    if (actions.restoreProductIds.length > 0) {
+      await tx
+        .update(products)
+        .set({ deletedAt: null, updatedAt: new Date() })
+        .where(inArray(products.id, actions.restoreProductIds));
+    }
   }
 
   /** Drops staged rows and whole runs past the retention window. */

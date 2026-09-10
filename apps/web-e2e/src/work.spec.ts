@@ -84,14 +84,18 @@ test.describe('work awaiting attention', () => {
   });
 
   /** And the other half: money due from the customer is work only they can
-   * finish, so it marks their control and says so above their own orders. */
+   * finish, so it marks their control and says so above their own orders.
+   * Counted apart from an order packed for them to collect — the two are
+   * separate jobs, and a customer with both needs telling about both. */
   test('marks a customer who owes for an order', async ({ page }) => {
     await logIn(page, OWING_CUSTOMER_EMAIL, DEMO_PASSWORD);
     await expect(page).toHaveURL(/\/account$/);
 
     await expect(marked(page).first()).toBeAttached();
+    // Straight to the orders that owe money, not to the whole history: the
+    // note names a job, so the link has to land on the list doing it.
     await expect(
-      page.getByRole('link', { name: /waiting for you/ }),
-    ).toHaveAttribute('href', '/account/orders');
+      page.getByRole('link', { name: /waiting to be paid/ }),
+    ).toHaveAttribute('href', '/account/orders?state=to-pay');
   });
 });

@@ -1,6 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
   ApplicationConfig,
+  ErrorHandler,
   provideBrowserGlobalErrorListeners,
   provideEnvironmentInitializer,
   inject,
@@ -14,6 +15,7 @@ import {
   withViewTransitions,
 } from '@angular/router';
 import { appRoutes } from './app.routes';
+import { BenignErrorFilter } from './core/benign-errors';
 import { StaticPageReuseStrategy } from './core/route-reuse';
 import {
   provideClientHydration,
@@ -28,6 +30,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideClientHydration(withEventReplay()),
     provideBrowserGlobalErrorListeners(),
+    // The listeners above forward every window error to the ErrorHandler,
+    // including one the browser raises by design; see BenignErrorFilter.
+    { provide: ErrorHandler, useClass: BenignErrorFilter },
     // View transitions let the browser cross-fade the outgoing and incoming
     // pages natively, which is most of what makes a client-side navigation feel
     // less abrupt. Browsers without the API simply swap as before, so this is

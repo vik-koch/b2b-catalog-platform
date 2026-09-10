@@ -1,6 +1,10 @@
 import { Component, computed, inject, resource, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Address, fillText } from '@b2b-catalog-platform/shared';
+import {
+  Address,
+  fillText,
+  formatPersonName,
+} from '@b2b-catalog-platform/shared';
 import {
   addressDetailLines,
   addressDisplayName,
@@ -96,12 +100,25 @@ interface DetailRow {
                control leads here for, and the link opens the history it is
                about. Money due from them, and an order packed for them to
                collect — silent when neither is true. -->
-          @if (waitingOrders(); as count) {
-            <app-work-note
-              class="mb-4"
-              [label]="fill(orderText.awaitingYou, count)"
-              link="/account/orders"
-            />
+          @if (waitingPayments() || waitingPickups()) {
+            <!-- Stacked, as the admin panel's two order notes are: money owed
+                 and a parcel on the counter are two jobs with two lists. -->
+            <div class="mb-4 flex flex-col gap-1">
+              @if (waitingPayments(); as count) {
+                <app-work-note
+                  [label]="fill(orderText.awaitingPayment, count)"
+                  link="/account/orders"
+                  [queryParams]="{ state: 'to-pay' }"
+                />
+              }
+              @if (waitingPickups(); as count) {
+                <app-work-note
+                  [label]="fill(orderText.awaitingPickup, count)"
+                  link="/account/orders"
+                  [queryParams]="{ state: 'to-collect' }"
+                />
+              }
+            </div>
           }
           @if (!ordersReady()) {
             <app-skeleton [lines]="3" />
@@ -369,10 +386,15 @@ export class AccountPage {
 
   private readonly work = inject(WorkService);
 
-  /** `undefined` where nothing is waiting, so the line is drawn only when
-   * there is something to say. */
-  protected readonly waitingOrders = computed(
-    () => this.work.counts().myOrders || undefined,
+  /** `undefined` where nothing is waiting, so a line is drawn only when there
+   * is something to say. Two queues rather than one figure: paying an invoice
+   * and collecting a parcel are separate jobs, and each note links to the
+   * history narrowed to exactly the orders it counted. */
+  protected readonly waitingPayments = computed(
+    () => this.work.counts().myPayments || undefined,
+  );
+  protected readonly waitingPickups = computed(
+    () => this.work.counts().myPickups || undefined,
   );
 
   protected fill(template: string, count: number): string {
@@ -477,9 +499,7 @@ export class AccountPage {
     if (!profile) return [];
 
     const t = this.accountText;
-    const name = [profile.firstName, profile.lastName]
-      .filter(Boolean)
-      .join(' ');
+    const name = formatPersonName(profile.firstName, profile.lastName);
     const type =
       profile.customerType === 'company'
         ? t.company

@@ -21,11 +21,13 @@ export const workCountsSchema = z.object({
   /** Products off the storefront awaiting review. Admin. */
   unpublishedProducts: z.number().int().nonnegative().optional(),
   /**
-   * Documents that have expired or are about to (FR-DOC-04). Admin. One
-   * figure for both states because they are one job — getting the current
-   * file — and a document crosses from one to the other without anybody
-   * touching it.
+   * Documents whose expiry has already passed (FR-DOC-04). Admin. Apart from
+   * the ones about to expire because the two are read differently — an
+   * expired certificate is the shop out of compliance now, an expiring one is
+   * notice — and because each links to its own filter on the document list.
    */
+  expiredDocuments: z.number().int().nonnegative().optional(),
+  /** Documents inside the warning window (FR-DOC-04). Admin. */
   expiringDocuments: z.number().int().nonnegative().optional(),
   /**
    * Orders finished with the money not recorded (FR-ORD-04). Staff. Its own
@@ -33,8 +35,15 @@ export const workCountsSchema = z.object({
    * lists, and one figure over both could not link to either.
    */
   unpaidOrders: z.number().int().nonnegative().optional(),
-  /** The account holder's own orders that wait on them. */
-  myOrders: z.number().int().nonnegative().optional(),
+  /**
+   * The account holder's own orders the shop is waiting to be paid for.
+   * Its own queue rather than half of one figure: paying an invoice and
+   * collecting a parcel are two jobs with two lists, and one count over both
+   * could link to neither. An order that is both is counted in both.
+   */
+  myPayments: z.number().int().nonnegative().optional(),
+  /** The account holder's own orders packed and waiting to be collected. */
+  myPickups: z.number().int().nonnegative().optional(),
 });
 export type WorkCounts = z.infer<typeof workCountsSchema>;
 

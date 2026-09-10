@@ -9,6 +9,7 @@ import {
 import { RouterLink } from '@angular/router';
 import {
   COMPANY_ID_NONE,
+  formatPersonName,
   StaffUser,
   UserKind,
   userRoleSchema,
@@ -585,13 +586,13 @@ export class UserListPage {
   // --- Rendering helpers -------------------------------------------------
 
   private nameKey(user: StaffUser): string {
-    const full = `${user.lastName ?? ''} ${user.firstName ?? ''}`.trim();
-    return (full || user.email).toLowerCase();
+    return (this.name(user).trim() || user.email).toLowerCase();
   }
 
+  /** The app's one rule for writing a person's name — family name first, no
+   * comma — with a dash where the account carries none at all. */
   protected name(user: StaffUser): string {
-    const parts = [user.lastName, user.firstName].filter(Boolean);
-    return parts.length ? parts.join(', ') : this.dash;
+    return formatPersonName(user.firstName, user.lastName) || this.dash;
   }
 
   /** Stored as bare digits; the column reads it with this deployment's grouping. */

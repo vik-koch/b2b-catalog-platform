@@ -48,6 +48,35 @@ export function requireAuth(...roles: UserRole[]): CanActivateFn {
   };
 }
 
+/**
+ * Sends staff who open a customer's order link to the same order in the admin
+ * panel.
+ *
+ * The two screens are not the same screen and never will be — one answers an
+ * order, the other reads one — so they keep their own routes. What they share
+ * is the reference, which is the identity a customer quotes down the phone: a
+ * manager handed `/account/orders/AB-1234` should land on that order, not on a
+ * page that would 404 at them because staff own no orders.
+ *
+ * Only for a session that has one. A guest is left to `requireAuth`, which
+ * sends them to sign in and back here afterwards.
+ */
+export function staffToAdminOrder(): CanActivateFn {
+  return async (route) => {
+    const auth = inject(AuthService);
+    const router = inject(Router);
+
+    await auth.whenResolved();
+    const user = auth.user();
+    if (!user || user.role === 'user') return true;
+
+    const reference = route.paramMap.get('reference');
+    return router.createUrlTree(
+      reference ? ['/admin/orders', reference] : ['/admin/orders'],
+    );
+  };
+}
+
 /** Keeps the login page from showing to someone already signed in. */
 export const guestOnly: CanActivateFn = async () => {
   const auth = inject(AuthService);

@@ -60,6 +60,7 @@ export const demoAdminOrder: AdminOrderDetail = {
   customerNote: null,
   statusReason: null,
   customerEmail: 'alex@example.com',
+  publicToken: null,
   tierKey: 'wholesale',
   lines: [
     {

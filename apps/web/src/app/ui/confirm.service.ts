@@ -13,6 +13,9 @@ import { ConfirmAnswer, ConfirmCheck, ConfirmDialog } from './confirm-dialog';
 export interface ConfirmRequest {
   heading: string;
   message: string;
+  /** A consequence worth weighing before answering yes — drawn amber under the
+   * question, and never a refusal. */
+  warning?: string;
   confirmLabel: string;
   cancelLabel: string;
   confirmVariant?: 'primary' | 'danger';
@@ -91,6 +94,7 @@ export class ConfirmService {
       });
       ref.setInput('heading', request.heading);
       ref.setInput('message', request.message);
+      ref.setInput('warning', request.warning ?? null);
       ref.setInput('confirmLabel', request.confirmLabel);
       ref.setInput('cancelLabel', request.cancelLabel);
       ref.setInput('confirmVariant', request.confirmVariant ?? 'danger');

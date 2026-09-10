@@ -1,0 +1,16 @@
+Account closed
+
+A customer has closed their account. Their details are gone; their past orders were kept for the books, with everything identifying removed from them.
+
+1 of those orders have not ended yet. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.
+
+Was: Doe Jane
+Email: jane@example.com
+Orders kept: 7
+
+Open the order list: https://shop.example.com/admin/orders
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

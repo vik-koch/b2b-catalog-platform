@@ -71,6 +71,7 @@ const order: AdminOrderDetail = {
   paymentMethod: 'bank-transfer',
   preferredDate: null,
   customerNote: 'Ring the bell twice',
+  publicToken: null,
   customerEmail: 'alex@example.com',
   tierKey: null,
   lines: [
