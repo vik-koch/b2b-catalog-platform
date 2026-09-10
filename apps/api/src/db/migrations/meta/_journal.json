@@ -169,6 +169,13 @@
       "when": 1789042667371,
       "tag": "0023_api_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1789047291628,
+      "tag": "0024_headless_sync_runs",
+      "breakpoints": true
     }
   ]
 }
