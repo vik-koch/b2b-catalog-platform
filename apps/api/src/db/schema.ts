@@ -1,5 +1,8 @@
 import { sql } from 'drizzle-orm';
 import {
+  API_TOKEN_NAME_MAX_LENGTH,
+  API_TOKEN_PREFIX_LENGTH,
+  API_TOKEN_SCOPES,
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_DOCUMENT_KINDS,
@@ -1130,6 +1133,59 @@ export const appSettings = pgTable(
     }),
   },
   (t) => [check('app_settings_singleton', sql`${t.id} = 1`)],
+);
+
+export const apiTokenScope = pgEnum('api_token_scope', API_TOKEN_SCOPES);
+
+/**
+ * A credential an automated client presents instead of a session (NFR-SEC-09).
+ *
+ * A row, not an account: no password, no email, no tier, no role, and no way
+ * to sign in. Keeping it out of `users` is what lets the account rules stay
+ * free of exceptions for a caller with no inbox, and keeps a permanent
+ * credential out of the mechanism built to expire credentials.
+ *
+ * Only the SHA-256 of the value is stored, and the value is returned once by
+ * the call that creates it. SHA-256 rather than argon2 for the same reason
+ * `password_tokens` uses it: the secret is 256 bits of randomness, so it needs
+ * no slow KDF, and a deterministic hash is what lets the presented credential
+ * find its own row. `prefix` is the clear head of the same value, display only
+ * — nothing resolves by it.
+ */
+export const apiTokens = pgTable(
+  'api_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: API_TOKEN_NAME_MAX_LENGTH }).notNull(),
+    // A set, because one automated client usually does several things and
+    // splitting those across two credentials is the operator's problem, not
+    // the platform's. Constrained non-empty: a token allowed nothing is a row
+    // that can only confuse, and the guard would refuse it anyway.
+    scopes: apiTokenScope('scopes').array().notNull(),
+    prefix: varchar('prefix', { length: API_TOKEN_PREFIX_LENGTH }).notNull(),
+    tokenHash: varchar('tokenHash', { length: 64 }).notNull().unique(),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    // Kept both ways, like a sync run's actor: the FK for joins, the email so
+    // the trail still names who issued it once the account is gone.
+    createdBy: uuid('createdBy').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    createdByEmail: varchar('createdByEmail', { length: 255 }),
+    // Written on every authenticated request. The only thing that makes a
+    // token nobody has retired but nobody uses either visible.
+    lastUsedAt: timestamp('lastUsedAt', { withTimezone: true }),
+    // Set means refused from the next request on — no version counter to
+    // propagate. The row stays: the runs it made point at it.
+    revokedAt: timestamp('revokedAt', { withTimezone: true }),
+  },
+  (t) => [
+    check(
+      'api_tokens_scopes_not_empty',
+      sql`array_length(${t.scopes}, 1) >= 1`,
+    ),
+  ],
 );
 
 export const syncRunStatus = pgEnum('sync_run_status', [
