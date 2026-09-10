@@ -6,15 +6,15 @@ import { ADMIN_TEXT } from '../config/admin-text';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { usePageSeo } from '../core/page-seo';
-import { adminMomentFormat } from './grid/admin-date';
 import { AdminIcon } from '../ui/icons/admin-icon';
+import { WorkNote } from '../work/work-note';
+import { WorkService } from '../work/work.service';
 import { BuildInfoService } from './build-info.service';
 import { injectEditorReturnParams } from './editor-return';
+import { adminMomentFormat } from './grid/admin-date';
 import { MaintenanceToggle } from './maintenance/maintenance-toggle';
 import { PanelRow } from './panel-row';
 import { SyncService } from './sync/sync.service';
-import { WorkNote } from '../work/work-note';
-import { WorkService } from '../work/work.service';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and
@@ -68,7 +68,7 @@ import { WorkService } from '../work/work.service';
                      one handed over that nobody has been paid for are two
                      jobs with two lists, so they are two notes stacked on the
                      row's right-hand axis rather than one figure over both. -->
-                <div class="flex flex-col items-end gap-1">
+                <div class="flex flex-col items-end gap-0.5">
                   @if (waitingOrders(); as count) {
                     <app-work-note
                       [label]="fill(panelText.workOrders, count)"
@@ -123,7 +123,7 @@ import { WorkService } from '../work/work.service';
                   [label]="documentText.title"
                   link="/admin/documents"
                 >
-                  <div class="flex flex-col items-end gap-1">
+                  <div class="flex flex-col items-end gap-0.5">
                     @if (expiredDocuments(); as count) {
                       <app-work-note
                         [label]="fill(panelText.workDocumentsExpired, count)"
