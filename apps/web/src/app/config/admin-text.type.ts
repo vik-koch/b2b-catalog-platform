@@ -583,6 +583,8 @@ export const adminTextSchema = z
           .strict(),
         /** The diff. `{count}` substituted at render. */
         summaryTitle: z.string(),
+        /** The same panel, once the run is a record rather than a decision. */
+        summaryTitleApplied: z.string(),
         count: z
           .object({
             create: z.string(),
@@ -629,6 +631,8 @@ export const adminTextSchema = z
           .strict(),
         truncated: z.string(),
         nothingToApply: z.string(),
+        /** The same, said about a run that has already happened. */
+        nothingChanged: z.string(),
         /** Change kinds, used as row badges. */
         kind: z
           .object({
@@ -650,13 +654,15 @@ export const adminTextSchema = z
             'run-not-found': z.string(),
             'run-already-applied': z.string(),
             'run-failed': z.string(),
+            'run-no-change': z.string(),
+            'run-superseded': z.string(),
+            'run-discarded': z.string(),
             'run-rows-pruned': z.string(),
           })
           .strict(),
         applied: z.string(),
         discard: z.string(),
-        /** Run history + the dashboard's last-sync line. */
-        historyTitle: z.string(),
+        /** The run log's empty state + the dashboard's last-sync line. */
         historyEmpty: z.string(),
         col: z
           .object({
@@ -667,12 +673,59 @@ export const adminTextSchema = z
             changes: z.string(),
           })
           .strict(),
+        /** The manual upload, which is now a screen of its own reached from
+         * the log. */
+        uploadTitle: z.string(),
+        newRun: z.string(),
+        backToRuns: z.string(),
+        runsDescription: z.string(),
+        /** What ran it, where there is no person: an upload says so, and a
+         * machine run is named by its token. */
+        sourceUpload: z.string(),
+        /** One run's own page. */
+        runTitle: z.string(),
+        runLoadError: z.string(),
+        planUnavailable: z.string(),
+        failureTitle: z.string(),
+        startedLabel: z.string(),
+        finishedLabel: z.string(),
+        /** Giving up on a staged run, and the question asked first. */
+        discardRun: z.string(),
+        discardTitle: z.string(),
+        discardMessage: z.string(),
         status: z
           .object({
             previewed: z.string(),
             applied: z.string(),
             failed: z.string(),
+            'no-change': z.string(),
+            superseded: z.string(),
+            discarded: z.string(),
           })
+          .strict(),
+        /** The status filter's own wording: the unfiltered option names the
+         * column on a desktop, so it is the heading as well. */
+        statusAll: z.string(),
+        filterStatus: z.string(),
+        /**
+         * What a run rewrote, listed in the log under its counts. `price` is
+         * the base list; `priceList` names a tier's, since which lists a feed
+         * writes is the thing an admin is actually checking. `more` stands for
+         * the ones a narrow column has no room for.
+         */
+        field: z
+          .object({
+            name: z.string(),
+            category: z.string(),
+            stock: z.string(),
+            price: z.string(),
+            priceList: z.string(),
+            more: z.string(),
+          })
+          .strict(),
+        /** Why a run is waiting, said in the log and on the run's own page. */
+        stagedReason: z
+          .object({ policy: z.string(), requested: z.string() })
           .strict(),
         /** Where nothing has ever been synced. The run's own timestamp needs
          * no wording — the row it sits on says what the date is about. */

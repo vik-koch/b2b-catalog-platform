@@ -180,3 +180,31 @@ rationale 5 above reserved. Taken:
 
 Unchanged: new categories are still created unparented, the export still carries
 no hierarchy, and parent assignment stays admin-owned.
+
+## Amendment — 2026-09-10: the headless entry point, and who commits
+
+The ⚠ above deferred the machine entry point for want of a non-cookie
+credential. Iteration 12 builds it. Taken:
+
+- The credential is a scoped machine token, not a session: **ADR 0053**.
+- The endpoint is the same engine with the same staged run. What is new is that
+  an unattended caller may have no human to press commit, so whether a run
+  applies itself is decided by its **effect** against a declared policy:
+  **ADR 0055**. The deletion gate above is unchanged and is checked first.
+- A run now records the **token** that submitted it alongside the actor, keeps
+  the diff it applied rather than only its counts, and a failure that never
+  became a run at all is recorded as a failed one — so the sync log
+  (FR-ADM-09) shows a broken exchange rather than nothing. A staged run gains
+  the two endings it was missing: superseded by the next run from the same
+  source, or discarded by an admin who decided against it.
+- **The catalog log stays the catalog's.** An order exchange (FR-ADM-08) is a
+  different record with different columns, so it will be a table and a screen of
+  its own rather than a direction column here.
+- The converter this ADR assumed in front of the backend is now specified:
+  **ADR 0054** puts it in a private adapter container, called by the source
+  system. `sourceId` is unchanged, and stays the one identity the platform
+  models.
+
+Consequence 5's "cheap exit" still stands unused in one respect: new leaf
+categories are still created unparented, and parent assignment stays
+admin-owned.

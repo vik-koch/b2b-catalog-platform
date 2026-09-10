@@ -8,14 +8,22 @@ import {
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, desc, eq, inArray, isNull, lt, sql } from 'drizzle-orm';
 import {
+  decideAutoApply,
+  Pagination,
   SYNC_RUNS_PAGE_SIZE,
   SyncCommitResponse,
+  SyncFailureReport,
   SyncOptions,
   SyncPlan,
+  SyncPolicy,
   SyncPreviewResponse,
   SyncRow,
   SyncRun,
+  SyncRunStatus,
+  SyncSubmission,
+  SyncSubmitResponse,
   slugify,
+  syncOptionsSchema,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
@@ -27,7 +35,10 @@ import {
   syncRuns,
 } from '../db/schema';
 import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
-import { LOW_STOCK_THRESHOLD_PIECES } from '../config/deployment-config';
+import {
+  LOW_STOCK_THRESHOLD_PIECES,
+  SYNC_POLICY,
+} from '../config/deployment-config';
 
 /** The transaction handle Drizzle hands a `db.transaction` callback. */
 type Tx = Parameters<
@@ -52,12 +63,58 @@ interface Actor {
   email: string;
 }
 
+/** The automated client behind a headless run. Never an `Actor`: there is no
+ * person here, and nothing that reads one should be able to read this. */
+interface Submitter {
+  id: string;
+  name: string;
+}
+
+/**
+ * Why a run that is not `previewed` cannot be acted on. One sentence each,
+ * rather than one code carrying the status: "already done", "it went wrong",
+ * "a newer one replaced it" and "you said no to it" are four different things
+ * for an admin to read.
+ */
+const CONFLICT_CODE: Record<Exclude<SyncRunStatus, 'previewed'>, string> = {
+  applied: 'run-already-applied',
+  failed: 'run-failed',
+  'no-change': 'run-no-change',
+  superseded: 'run-superseded',
+  discarded: 'run-discarded',
+};
+
+/**
+ * Whether a run has anything in it at all.
+ *
+ * Skipped rows count as something. A run whose diff is empty because the file
+ * could not be read is the opposite of a quiet night, and burying it as "no
+ * change" would hide the one thing the log exists to show.
+ */
+function isNoChange(plan: SyncPlan): boolean {
+  const s = plan.summary;
+  return (
+    s.create +
+      s.update +
+      s.softDelete +
+      s.restore +
+      s.categoriesCreated +
+      s.categoriesRenamed +
+      s.errors ===
+    0
+  );
+}
+
 /**
  * The sync engine. Preview and commit share one differ (`planSync`);
  * the difference is that a preview stages its rows and writes
  * nothing, while a commit re-diffs those rows against freshly read state and
  * applies the result in a single transaction — so a partially imported catalog
  * is not a state this can reach.
+ *
+ * A headless run (FR-ADM-07) is the same two halves in one request rather than
+ * a second importer: it stages exactly as an upload does, and then either
+ * applies itself or waits, depending on what the diff turned out to say.
  */
 @Injectable()
 export class SyncService {
@@ -66,6 +123,9 @@ export class SyncService {
     // Handed to the differ, which resolves the stored availability itself.
     @Inject(LOW_STOCK_THRESHOLD_PIECES)
     private readonly lowStockFallback: number,
+    // What this deployment lets an unattended run do to itself.
+    @Inject(SYNC_POLICY)
+    private readonly policy: SyncPolicy,
   ) {}
 
   /** Parse-free entry point: rows are already validated (CSV or JSON). */
@@ -79,19 +139,26 @@ export class SyncService {
     const state = await this.readState();
     const { plan } = planSync(rows, options, state, parseErrors);
 
+    // Nothing to decide: the run is recorded as it stands and stages no rows,
+    // rather than waiting in a queue for somebody to press a button that is
+    // not even on the screen.
+    const nothingToDo = isNoChange(plan);
+
     await this.prune();
     const [row] = await this.db
       .insert(syncRuns)
       .values({
-        status: 'previewed',
+        status: nothingToDo ? 'no-change' : 'previewed',
+        finishedAt: nothingToDo ? new Date() : null,
         source: 'upload',
         filename,
         actorId: actor.id,
         actorEmail: actor.email,
         options,
         summary: plan.summary,
-        rows,
-        parseErrors,
+        rows: nothingToDo ? null : rows,
+        parseErrors: nothingToDo ? null : parseErrors,
+        plan: nothingToDo ? plan : null,
       })
       .returning();
 
@@ -110,6 +177,20 @@ export class SyncService {
    * still saying `previewed` over a catalog that has already moved.
    */
   async commit(id: string, actor: Actor): Promise<SyncCommitResponse> {
+    const { run, applied } = await this.applyRun(id, actor);
+    return { run, applied };
+  }
+
+  /**
+   * The commit itself, with or without a person behind it. `actor` is null for
+   * a run that applied itself: the run already records the token that
+   * submitted it, and naming an admin who was not there would be a worse lie
+   * than an empty column.
+   */
+  private async applyRun(
+    id: string,
+    actor: Actor | null,
+  ): Promise<SyncCommitResponse & { plan: SyncPlan }> {
     try {
       return await this.db.transaction(async (tx) => {
         const [run] = await tx
@@ -120,12 +201,11 @@ export class SyncService {
         if (!run) throw runNotFound();
         if (run.status !== 'previewed') {
           throw new ConflictException({
-            code:
-              run.status === 'applied' ? 'run-already-applied' : 'run-failed',
-            message: `This run is already ${run.status} and cannot be applied again`,
+            code: CONFLICT_CODE[run.status],
+            message: `This run is ${run.status} and cannot be applied`,
           });
         }
-        if (!run.rows) {
+        if (!run.rows || !run.options) {
           throw new ConflictException({
             code: 'run-rows-pruned',
             message: 'This run’s staged rows have been pruned',
@@ -152,17 +232,19 @@ export class SyncService {
             status: 'applied',
             finishedAt: new Date(),
             summary: plan.summary,
-            actorId: actor.id,
-            actorEmail: actor.email,
-            // The staged input has served its purpose; the summary is the
-            // record.
+            ...(actor ? { actorId: actor.id, actorEmail: actor.email } : {}),
+            // The staged input has served its purpose. What replaces it is the
+            // diff rather than the counts: "which products moved last night" is
+            // the question this log exists to answer, and a run nobody watched
+            // is exactly the one nobody saw the preview of.
             rows: null,
             parseErrors: null,
+            plan,
           })
           .where(eq(syncRuns.id, id))
           .returning();
 
-        return { run: toSyncRun(updated), applied: plan.summary };
+        return { run: toSyncRun(updated), applied: plan.summary, plan };
       });
     } catch (error) {
       // A refusal is not a failed run: the run is untouched and still
@@ -180,6 +262,135 @@ export class SyncService {
     }
   }
 
+  /**
+   * The headless run (FR-ADM-07): stage it, then let the policy decide whether
+   * it applies itself.
+   *
+   * It is staged first and unconditionally, so a run exists in the log before
+   * anything is written and whatever happens next has a row to happen to. The
+   * decision is made on the diff — what the run would *do* — rather than on
+   * what it declared it might touch: a field whitelist states an intent, a diff
+   * states an effect, and only the second is worth a person's attention.
+   */
+  async submit(
+    submission: SyncSubmission,
+    submitter: Submitter,
+  ): Promise<SyncSubmitResponse> {
+    // Absent options mean the schema's defaults, exactly as they do for an
+    // upload — parsed rather than assumed, so the delete gate is applied to a
+    // headless run's intent as well.
+    const options = syncOptionsSchema.parse(submission.options ?? {});
+    const state = await this.readState();
+    const { plan } = planSync(submission.rows, options, state);
+
+    // A run with nothing in it is never staged and never applied — not even
+    // when the caller asked to be doubted, because doubt about a parse that
+    // produced no change is still nothing for a person to decide.
+    const nothingToDo = isNoChange(plan);
+    const stagedReason = nothingToDo
+      ? null
+      : decideAutoApply(
+          plan.summary,
+          state.products.filter((product) => !product.deletedAt).length,
+          this.policy,
+          submission.requestReview,
+        );
+
+    await this.prune();
+    await this.supersedeStaged();
+    const [row] = await this.db
+      .insert(syncRuns)
+      .values({
+        status: nothingToDo ? 'no-change' : 'previewed',
+        finishedAt: nothingToDo ? new Date() : null,
+        source: 'api',
+        filename: submission.label ?? null,
+        tokenId: submitter.id,
+        tokenName: submitter.name,
+        stagedReason,
+        options,
+        summary: plan.summary,
+        rows: nothingToDo ? null : submission.rows,
+        plan: nothingToDo ? plan : null,
+      })
+      .returning();
+
+    if (nothingToDo || stagedReason) return { run: toSyncRun(row), plan };
+
+    // The applying half re-diffs against state read inside its own
+    // transaction, so what it computed — not what was planned a moment ago —
+    // is what the caller is told about.
+    const applied = await this.applyRun(row.id, null);
+    return { run: applied.run, plan: applied.plan };
+  }
+
+  /**
+   * A breakage the caller could not turn into a run. Recorded as a failed run
+   * of its own, because the alternative is silence — and a feed that has
+   * stopped working looks exactly like a feed with nothing to send.
+   *
+   * The row carries no options and no summary: nothing was ever intended and
+   * nothing was ever counted. The message is the caller's own text, kept
+   * verbatim for a person to read, like the exception text beside it.
+   */
+  async reportFailure(
+    report: SyncFailureReport,
+    submitter: Submitter,
+  ): Promise<{ run: SyncRun }> {
+    const now = new Date();
+    const [row] = await this.db
+      .insert(syncRuns)
+      .values({
+        status: 'failed',
+        source: 'api',
+        filename: report.label ?? null,
+        tokenId: submitter.id,
+        tokenName: submitter.name,
+        startedAt: now,
+        finishedAt: now,
+        error: report.message,
+      })
+      .returning();
+    return { run: toSyncRun(row) };
+  }
+
+  /**
+   * An admin deciding against a staged run. The row stays, marked as the
+   * decision it was: a preview nobody applied is part of the record, and a
+   * queue that can only be cleared by the next run arriving is a queue nobody
+   * reads.
+   */
+  async discard(id: string, actor: Actor): Promise<{ run: SyncRun }> {
+    return this.db.transaction(async (tx) => {
+      const [run] = await tx
+        .select()
+        .from(syncRuns)
+        .where(eq(syncRuns.id, id))
+        .for('update');
+      if (!run) throw runNotFound();
+      if (run.status !== 'previewed') {
+        throw new ConflictException({
+          code: CONFLICT_CODE[run.status],
+          message: `This run is ${run.status} and cannot be discarded`,
+        });
+      }
+
+      const [updated] = await tx
+        .update(syncRuns)
+        .set({
+          status: 'discarded',
+          finishedAt: new Date(),
+          actorId: actor.id,
+          actorEmail: actor.email,
+          rows: null,
+          parseErrors: null,
+        })
+        .where(eq(syncRuns.id, id))
+        .returning();
+      return { run: toSyncRun(updated) };
+    });
+  }
+
   async getRun(id: string): Promise<{ run: SyncRun; plan: SyncPlan | null }> {
     const [run] = await this.db
       .select()
@@ -187,9 +398,13 @@ export class SyncService {
       .where(eq(syncRuns.id, id));
     if (!run) throw runNotFound();
 
-    // A previewed run can still show its diff (its rows are staged); a finished
-    // one has only its summary, which is what the audit trail needs.
-    if (!run.rows) return { run: toSyncRun(run), plan: null };
+    // A staged run recomputes its diff, because the catalog may have moved
+    // since it was taken and a preview has to describe what would happen now.
+    // A finished one shows the diff it stored — that one is history and must
+    // not be recomputed. A run that failed before it had either shows nothing.
+    if (!run.rows || !run.options) {
+      return { run: toSyncRun(run), plan: run.plan ?? null };
+    }
     const state = await this.readState();
     const { plan } = planSync(
       run.rows,
@@ -200,17 +415,23 @@ export class SyncService {
     return { run: toSyncRun(run), plan };
   }
 
-  async listRuns(page: number): Promise<{
+  async listRuns(
+    page: number,
+    status?: SyncRunStatus,
+  ): Promise<{
     runs: SyncRun[];
-    total: number;
+    pagination: Pagination;
     lastApplied: SyncRun | null;
   }> {
+    const filter = status ? eq(syncRuns.status, status) : undefined;
     const [{ value: total }] = await this.db
       .select({ value: count() })
-      .from(syncRuns);
+      .from(syncRuns)
+      .where(filter);
     const rows = await this.db
       .select()
       .from(syncRuns)
+      .where(filter)
       .orderBy(desc(syncRuns.startedAt))
       .limit(SYNC_RUNS_PAGE_SIZE)
       .offset((page - 1) * SYNC_RUNS_PAGE_SIZE);
@@ -223,7 +444,12 @@ export class SyncService {
 
     return {
       runs: rows.map(toSyncRun),
-      total: Number(total),
+      pagination: {
+        page,
+        pageSize: SYNC_RUNS_PAGE_SIZE,
+        total: Number(total),
+        totalPages: Math.ceil(Number(total) / SYNC_RUNS_PAGE_SIZE),
+      },
       lastApplied: applied ? toSyncRun(applied) : null,
     };
   }
@@ -459,6 +685,28 @@ export class SyncService {
     }
   }
 
+  /**
+   * Retires whatever headless run is still staged, because this one replaces
+   * it.
+   *
+   * A staged run is a snapshot of a diff that was true when it was taken. Two
+   * hour-old previews from a quarter-hourly feed are not a backlog to work
+   * through, they are noise, and only the newest is worth applying. An admin's
+   * own upload is left alone: it is theirs, and nothing a machine sends
+   * supersedes a decision a person is in the middle of.
+   */
+  private async supersedeStaged(): Promise<void> {
+    await this.db
+      .update(syncRuns)
+      .set({
+        status: 'superseded',
+        finishedAt: new Date(),
+        rows: null,
+        parseErrors: null,
+      })
+      .where(and(eq(syncRuns.status, 'previewed'), eq(syncRuns.source, 'api')));
+  }
+
   /** Drops staged rows and whole runs past the retention window. */
   private async prune(): Promise<void> {
     const cutoff = new Date(Date.now() - RUN_RETENTION_DAYS * 86_400_000);
@@ -501,6 +749,8 @@ function toSyncRun(row: typeof syncRuns.$inferSelect): SyncRun {
     startedAt: row.startedAt.toISOString(),
     finishedAt: row.finishedAt ? row.finishedAt.toISOString() : null,
     actorEmail: row.actorEmail,
+    tokenName: row.tokenName,
+    stagedReason: row.stagedReason,
     options: row.options,
     summary: row.summary,
     error: row.error,

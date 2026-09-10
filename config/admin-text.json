@@ -339,7 +339,7 @@
       "too-many-rows": "That file has {rows} rows; the limit is {limit}. Split it into smaller files.",
       "options-invalid": "The options sent with this file were not valid. Reload the page and try again."
     },
-    "summaryTitle": "What this file would change",
+    "summaryTitle": "What this run would change",
     "productsTitle": "Products",
     "categoriesTitle": "New categories",
     "categoriesHint": "These are created without a parent. Place them in the tree under Categories afterwards.",
@@ -364,7 +364,7 @@
       "cannot-create-product": "This product is new, and a new product needs a name, a price and a category."
     },
     "truncated": "Only the first entries are listed; the counts above cover the whole file.",
-    "nothingToApply": "This file changes nothing.",
+    "nothingToApply": "This run would change nothing.",
     "deleteWarning": "{count} product(s) will be hidden from the storefront. They stay in the catalog and can be restored.",
     "deleteConfirmLabel": "Type {word} to confirm",
     "deleteConfirmWord": "HIDE",
@@ -374,11 +374,13 @@
       "run-not-found": "This run no longer exists. Upload the file again.",
       "run-already-applied": "These changes have already been applied.",
       "run-failed": "This run failed earlier and cannot be applied. Upload the file again.",
-      "run-rows-pruned": "This preview has expired. Upload the file again to see the current changes."
+      "run-rows-pruned": "This preview has expired. Upload the file again to see the current changes.",
+      "run-superseded": "A newer run has replaced this one. Open the latest run instead.",
+      "run-discarded": "This run was discarded and cannot be applied.",
+      "run-no-change": "This run changed nothing, so there is nothing to apply."
     },
     "applied": "Applied.",
     "discard": "Discard",
-    "historyTitle": "Previous runs",
     "historyEmpty": "No sync has run yet.",
     "lastSyncNever": "Never synced",
     "mode": {
@@ -420,9 +422,12 @@
       "restore": "Restored"
     },
     "status": {
-      "previewed": "Previewed",
+      "previewed": "Waiting",
       "applied": "Applied",
-      "failed": "Failed"
+      "failed": "Failed",
+      "superseded": "Replaced",
+      "discarded": "Discarded",
+      "no-change": "No change"
     },
     "col": {
       "date": "Date",
@@ -430,6 +435,36 @@
       "actor": "By",
       "status": "Status",
       "changes": "Changes"
+    },
+    "statusAll": "All runs",
+    "filterStatus": "Filter by status",
+    "stagedReason": {
+      "policy": "Waiting for review: this run changes more than may be applied on its own.",
+      "requested": "Waiting for review: the system that sent it could not fully vouch for what it read."
+    },
+    "uploadTitle": "Manual sync",
+    "newRun": "Manual sync",
+    "backToRuns": "All runs",
+    "runsDescription": "Every catalog run, uploaded by hand or sent by a connected system. A run waiting for review changes nothing until it is applied.",
+    "sourceUpload": "Uploaded",
+    "runTitle": "Sync run",
+    "runLoadError": "This run could not be loaded.",
+    "planUnavailable": "The changes this run staged are no longer stored.",
+    "failureTitle": "What the sending system reported",
+    "startedLabel": "Started",
+    "finishedLabel": "Finished",
+    "discardRun": "Discard this run",
+    "discardTitle": "Discard this run?",
+    "discardMessage": "Nothing will be applied and the run stays in the log as discarded. A later run can still bring the same changes.",
+    "summaryTitleApplied": "What this run changed",
+    "nothingChanged": "This run changed nothing.",
+    "field": {
+      "name": "names",
+      "category": "categories",
+      "stock": "stock",
+      "price": "prices",
+      "priceList": "prices ({key})",
+      "more": "+{count}"
     }
   },
   "maintenance": {

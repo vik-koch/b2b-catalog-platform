@@ -1,8 +1,15 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { SYNC_ALL_FIELDS, SYNC_FIELDS } from './sync-constants';
+import {
+  SYNC_ALL_FIELDS,
+  SYNC_FAILURE_MESSAGE_MAX_LENGTH,
+  SYNC_FIELDS,
+  SYNC_LABEL_MAX_LENGTH,
+  SYNC_MAX_ROWS,
+} from './sync-constants';
+import { machineAuthErrors } from './api-tokens.contract';
 import { commonAuthErrors } from './api-error';
-import { priceMinorSchema } from './catalog.contract';
+import { paginationSchema, priceMinorSchema } from './catalog.contract';
 import {
   CATEGORY_NAME_MAX_LENGTH,
   PRODUCT_NAME_MAX_LENGTH,
@@ -281,6 +288,17 @@ export const syncSummarySchema = z
     /** Live products absent from the file but kept because they are `manual:`. */
     keptManual: z.number().int().nonnegative(),
     errors: z.number().int().nonnegative(),
+    /**
+     * Which fields this run rewrote, as they are named in a change:
+     * `name`, `category`, `stock`, `price:<listKey>`. The counts say how much a
+     * run did; this says *what* it does, which for a feed that runs every
+     * twenty minutes is the more useful of the two.
+     *
+     * Only rewrites: a product this run creates writes everything it carries by
+     * definition, and the create count already says so. Defaulted, so summaries
+     * stored before this existed still parse.
+     */
+    fields: z.array(z.string()).default([]),
   })
   .strict();
 export type SyncSummary = z.infer<typeof syncSummarySchema>;
@@ -304,12 +322,44 @@ export type SyncPlan = z.infer<typeof syncPlanSchema>;
 
 // --- Runs ----------------------------------------------------------------
 
-export const syncRunStatusSchema = z.enum(['previewed', 'applied', 'failed']);
+/**
+ * Where a run ended up.
+ *
+ * `previewed` is staged and still applicable; `superseded` and `discarded` are
+ * both staged runs that never will be, kept apart because they are different
+ * sentences — the newer run replaced this one, or a person said no to it. Both
+ * stay in the log: a preview nobody applied is part of the record.
+ */
+export const syncRunStatusSchema = z.enum([
+  'previewed',
+  'applied',
+  'failed',
+  /**
+   * The source and the catalog already agree. Terminal from the moment it is
+   * computed: there is nothing to apply, so there is no decision to put in
+   * front of anybody — and a queue holding runs with nothing in them is a
+   * queue that stops being read. A run that skipped rows is never this,
+   * however empty its diff: "nothing happened" and "the file could not be read
+   * and so nothing happened" are opposite pieces of news.
+   */
+  'no-change',
+  'superseded',
+  'discarded',
+]);
 export type SyncRunStatus = z.infer<typeof syncRunStatusSchema>;
 
-/** How the run entered the system. `api` is the headless path (not built yet —
- * it needs a non-cookie credential; deferred with its own ADR). */
+/** How the run entered the system: an admin's upload, or a machine token. */
 export const syncRunSourceSchema = z.enum(['upload', 'api']);
+
+/**
+ * Why a run was left for a person instead of applying itself (ADR 0055).
+ * `policy` — its effect was outside what the deployment lets a run do
+ * unattended. `requested` — the caller asked to be doubted, which it does when
+ * it cannot fully vouch for what it parsed. The screen has to say which, or an
+ * ordinary large import and one whose parsing is suspect look the same.
+ */
+export const syncStagedReasonSchema = z.enum(['policy', 'requested']);
+export type SyncStagedReason = z.infer<typeof syncStagedReasonSchema>;
 
 export const syncRunSchema = z
   .object({
@@ -319,10 +369,20 @@ export const syncRunSchema = z
     filename: z.string().nullable(),
     startedAt: z.iso.datetime(),
     finishedAt: z.iso.datetime().nullable(),
-    /** Who ran it; null if that account has since been deleted. */
+    /** Who ran it; null if that account has since been deleted, and null for
+     * a machine run, which has no person behind it at all. */
     actorEmail: z.string().nullable(),
-    options: syncOptionsSchema,
-    summary: syncSummarySchema,
+    /** The token that submitted it, by name. Null for an upload. Denormalized
+     * like `actorEmail`, so the trail still names the credential after it is
+     * revoked and renamed out of use. */
+    tokenName: z.string().nullable(),
+    /** Set only while a run is staged, or was staged and then ended without
+     * being applied. Null on anything that applied itself. */
+    stagedReason: syncStagedReasonSchema.nullable(),
+    /** Null on a run that failed before it had any: an automated client's
+     * report of its own breakage is a run that never got as far as intent. */
+    options: syncOptionsSchema.nullable(),
+    summary: syncSummarySchema.nullable(),
     error: z.string().nullable(),
   })
   .strict();
@@ -413,6 +473,12 @@ export const SYNC_COMMIT_CODES = [
   'run-not-found',
   'run-already-applied',
   'run-failed',
+  /** There was nothing in it to apply. */
+  'run-no-change',
+  /** A newer run from the same source replaced this one's diff. */
+  'run-superseded',
+  /** An admin already decided against it. */
+  'run-discarded',
   /** Staged rows pruned; the diff cannot be recomputed, so re-upload. */
   'run-rows-pruned',
 ] as const;
@@ -423,8 +489,15 @@ const commitErrors = {
   'run-not-found': { status: 404 },
   'run-already-applied': { status: 409 },
   'run-failed': { status: 409 },
+  'run-no-change': { status: 409 },
+  'run-superseded': { status: 409 },
+  'run-discarded': { status: 409 },
   'run-rows-pruned': { status: 409 },
 } as const satisfies Record<SyncCommitCode, { status: number }>;
+
+/** The refusals a run this screen acts on can answer with — the same set for
+ * applying and for discarding, since both need a run that is still staged. */
+const runActionErrors = commitErrors;
 
 /**
  * The JSON half of the sync surface. The preview *upload* is not here: it is
@@ -462,6 +535,23 @@ export const syncContract = {
         .strict(),
     ),
 
+  /**
+   * Give up on a staged run. The row stays, marked as the decision it was:
+   * without this the only way a preview leaves the queue is the next run
+   * replacing it, and a work-awaiting count nobody can clear is a count
+   * nobody reads.
+   */
+  discardRun: admin
+    .route({
+      method: 'POST',
+      path: '/admin/sync/runs/{id}/discard',
+      inputStructure: 'detailed',
+      summary: 'Give up on a staged run (admin)',
+    })
+    .errors(runActionErrors)
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(z.object({ run: syncRunSchema }).strict()),
+
   listRuns: admin
     .route({
       method: 'GET',
@@ -471,17 +561,122 @@ export const syncContract = {
     })
     .input(
       z.object({
-        query: z.object({ page: z.coerce.number().int().min(1).default(1) }),
+        query: z.object({
+          page: z.coerce.number().int().min(1).default(1),
+          /** Narrows the list to one outcome — what the panel's staged-run
+           * count links into. Absent is every run. */
+          status: syncRunStatusSchema.optional(),
+        }),
       }),
     )
     .output(
       z
         .object({
           runs: z.array(syncRunSchema),
-          total: z.number().int().nonnegative(),
-          /** The newest *applied* run — the admin dashboard's "last sync". */
+          pagination: paginationSchema,
+          /** The newest *applied* run — the admin dashboard's "last sync".
+           * Answered whatever the list is narrowed to: it is a fact about the
+           * catalog, not about the page being read. */
           lastApplied: syncRunSchema.nullable(),
         })
         .strict(),
     ),
+};
+
+// --- The headless surface ------------------------------------------------
+
+/**
+ * What an automated client submits (FR-ADM-07). The same rows and the same
+ * per-run intent a manual upload carries — this is one entry point onto one
+ * engine, not a second importer — encoded as JSON rather than as a file,
+ * because the thing on the other end is a converter and not a spreadsheet.
+ */
+export const syncSubmissionSchema = z
+  .object({
+    rows: z.array(syncRowSchema).max(SYNC_MAX_ROWS),
+    /** Absent means the defaults, exactly as an upload's absent options do. */
+    options: syncOptionsSchema.optional(),
+    /**
+     * What to call this run in the log, where an upload has a filename. The
+     * caller's own words — a source file's name, an export's timestamp — kept
+     * as a label and never interpreted.
+     */
+    label: z.string().trim().min(1).max(SYNC_LABEL_MAX_LENGTH).optional(),
+    /**
+     * "Stage this even if it would otherwise apply." A client sets it when it
+     * cannot fully vouch for what it parsed. The platform does not ask why:
+     * knowing the reason would mean knowing the format, which is the adapter's
+     * business and deliberately not this repository's.
+     */
+    requestReview: z.boolean().default(false),
+  })
+  .strict();
+export type SyncSubmission = z.infer<typeof syncSubmissionSchema>;
+
+/**
+ * A breakage the caller wants recorded (NFR-OPS-07). It is not a refusal the
+ * platform issued, so it carries no code: it is the automated client's own
+ * account of what went wrong, kept verbatim for a person to read, the way a
+ * failed run's `error` already is.
+ */
+export const syncFailureReportSchema = z
+  .object({
+    message: z.string().trim().min(1).max(SYNC_FAILURE_MESSAGE_MAX_LENGTH),
+    label: z.string().trim().min(1).max(SYNC_LABEL_MAX_LENGTH).optional(),
+  })
+  .strict();
+export type SyncFailureReport = z.infer<typeof syncFailureReportSchema>;
+
+/**
+ * What a submitted run answers with: the run, and the diff it staged or
+ * applied. `run.status` is what the caller reads — `applied` means the catalog
+ * has moved, `previewed` means a person now has to look, and `run.stagedReason`
+ * says which of the two reasons that was.
+ */
+export const syncSubmitResponseSchema = z
+  .object({ run: syncRunSchema, plan: syncPlanSchema })
+  .strict();
+export type SyncSubmitResponse = z.infer<typeof syncSubmitResponseSchema>;
+
+/** Authenticated by the token alone; no cookie reaches these. */
+const machine = oc.errors(machineAuthErrors);
+
+/**
+ * The machine half of the sync surface: submit a catalog, or report that you
+ * could not produce one.
+ *
+ * There is deliberately no commit route here. An automated client never
+ * presses apply — either its run was within the deployment's policy and
+ * applied itself, or a person applies it.
+ */
+export const machineSyncContract = {
+  submitRun: machine
+    .route({
+      method: 'POST',
+      path: '/machine/sync/runs',
+      // A run is created whichever way the policy decides, exactly as the
+      // upload creates one.
+      successStatus: 201,
+      inputStructure: 'detailed',
+      summary: 'Submit a catalog import (machine)',
+    })
+    .input(z.object({ body: syncSubmissionSchema }))
+    .output(syncSubmitResponseSchema),
+
+  /**
+   * A run that never happened, recorded so that a broken exchange looks like
+   * something rather than like silence. A feed that stops sending is
+   * indistinguishable from a feed with nothing to send; this is how the
+   * difference reaches the admin panel.
+   */
+  reportFailure: machine
+    .route({
+      method: 'POST',
+      path: '/machine/sync/failures',
+      successStatus: 201,
+      inputStructure: 'detailed',
+      summary: 'Record a run that failed before it began (machine)',
+    })
+    .input(z.object({ body: syncFailureReportSchema }))
+    .output(z.object({ run: syncRunSchema }).strict()),
 };

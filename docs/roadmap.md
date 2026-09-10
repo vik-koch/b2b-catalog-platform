@@ -17,8 +17,9 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 9   | Sold-together sets → **tag v1.7.0**                                                            | FR-SET-01…05                                                                                                                                                                        |
 | 10  | Product documents & certificates → **tag v1.8.0**                                              | FR-DOC-01…04, FR-CAT-05 amended                                                                                                                                                     |
 | 11  | Order processing, payment state & order documents → **tag v1.9.0**                             | FR-ORD-01…05, FR-CART-05 + FR-CART-06 amended, FR-NOTIF-03/07/08 + FR-ORD-02 amended, FR-ACC-02, FR-WORK-02/04 + FR-AUTH-04 amended, NFR-LEGAL-04, NFR-SEC-10, NFR-OPS-02 amended   |
-| 12  | Two-way sync with the source system → **tag v1.10.0**                                          | FR-ADM-07/08/09, FR-ORD-06, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02 amended                                                                                                            |
-| 13  | Online card payment → **tag v1.11.0**                                                          | FR-CART-04/06 amended                                                                                                                                                               |
+| 12  | Automated catalog sync from the source system → **tag v1.10.0**                                | FR-ADM-07/09/10, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02/04 + FR-WORK-02 amended                                                                                                       |
+| 13  | Order exchange with the source system → **tag v1.11.0**                                        | FR-ADM-08, FR-ADM-09/10 amended, FR-ORD-02/03 amended                                                                                                                               |
+| 14  | Online card payment → **tag v1.12.0**                                                          | FR-CART-04/06 amended                                                                                                                                                               |
 
 Notes:
 
@@ -230,49 +231,83 @@ Notes:
   login form sends, from one place. And **accounts got journeys of their own**
   (`docs/account-lifecycle.md`), reusing the facility the order ones were built on, because "no mail
   was sent" is exactly the kind of claim no single-endpoint test makes.
-- Iteration 12 is a **two-way** exchange, not the one-way import it was first written as. The
-  return direction is the point: a manager should be able to work an order entirely in the shop's
-  own system, with the platform keeping the customer's view, the notifications the source system
-  has no way to send, and the catalog layer that system does not hold at all — descriptions,
-  attributes, search, documents, pairings. That is where the platform earns its place in a
-  deployment that already has a back-office, and it is why the manual mode built since iteration 1
-  is not a demo affordance: it is the mode the shop falls back to when the exchange breaks
-  (FR-ORD-06, an operator switch in the admin panel rather than a config key, so recovery does not
-  need a deploy). **FR-ORD-06 moved here from iteration 11** (2026-09-09): what the switch has to
-  gate is defined entirely by what the exchange owns, a global lock answers the rarer of the two
-  failures — one order the exchange chokes on is likelier than the whole source system being down,
-  and a manager should not need an admin to unlock the whole shop to correct it — and a switch
-  guarding a writer that does not exist yet cannot be tested end to end. Whether it is global,
-  per-order, or a hard refusal rather than a disclosure a manager can work past is decided with the
-  exchange itself. Two rules were settled in advance all the same: an exchange writes as **the
-  integration's token**, never as a person — a revision an outside system wrote carries no author
-  today, and gets a `source` of its own when there is something to write it (an ERP operator's name
-  travels as an opaque label and is never resolved to a platform account); and a customer
-  cancellation on an exported order is an export-shape question, since forward-only write-back
-  would otherwise overwrite it silently. Three rules were agreed in advance: **ownership, not conflict resolution** — the
-  platform records what the customer submitted, the source system owns processing once an order has
-  been exported, and nothing is merged; **the platform's status vocabulary stays coarse and the
-  adapter maps onto it**, collapsing however many intermediate steps the source system moves an
-  order through into the one transition a customer should read; and **updates are idempotent and
-  forward-only**, since a polling adapter will re-send and every move it writes back has to
-  state whether the customer hears about it (FR-NOTIF-03).
-  The adapter is a private sidecar speaking the public contract, the third such container after
-  the address suggester and the payment one; the format is not named here, for the same reason the
-  suggestion provider is not. The manual upload is **not** retired behind a flag when the automated
-  feed exists: it is the operator's fallback when the feed breaks or a run needs correcting by hand.
-  Two operability requirements ride along because this is the release that makes them urgent —
-  NFR-OPS-06 (what a deploy costs in downtime, how to see it failed, how to roll back) and
-  NFR-OPS-07 (what a half-finished sync leaves behind).
-- Iteration 13 is online card payment, deferred from 11 (2026-09-06). It is blocked on something
-  that cannot be built: a merchant account the shop does not yet have. It is also the least urgent
-  of the three — nothing about the current flow needs it, since a card payment arranged with the
-  manager is already a recorded method — and the most speculative, since the provider is unchosen.
-  Sequencing it after the source-system exchange means it is designed against a live order flow
-  with real orders in it. `card-later` is therefore **not** renamed in iteration 11: it accurately
-  names an offline arrangement, and an online provider adds a second method beside it rather than
-  redefining the first. It is offered to a private customer only, though: a company is invoiced,
-  and an offline card arrangement leaves no more paper than cash does (FR-CART-04 amended
-  2026-09-08, ADR 0039).
+- Iteration 12 was re-cut on 2026-09-10, before any of it was built. It had been written as a
+  **two-way** exchange in one release; it is now the **catalog direction only**, and the order
+  exchange is iteration 13. The reason is that the catalog direction is where the unknowns are —
+  an external format nobody here has parsed, an adapter that is called rather than calling, and a
+  machine credential the platform has never issued — and every one of those is answered by
+  building the one-way feed end to end. Designing the order exchange against a feed that does not
+  yet run would be designing against a guess. It also splits an iteration that was, laid out
+  honestly, larger than iteration 7.
+- Iteration 12's own ordering puts the **platform ahead of the adapter**. Machine credentials
+  (NFR-SEC-09), the headless run ADR 0026 specified and deferred, the ownership switch
+  (FR-ADM-10) and the sync log (FR-ADM-09) need nothing from the source system's format: they
+  are exercised with an HTTP client and shipped whether or not the adapter ever exists. That is
+  not only sequencing convenience — a deployment with no source system at all still gains an
+  automatable import, and the manual upload stops being an unguarded second writer. Only two
+  seams depend on what a real export looks like, and both are data rather than design: the
+  numbers in the commit policy, and the list of fields the exchange owns.
+- The **adapter is a private sidecar**, the third such container after the address suggester and
+  the payment one, and the format it speaks is not named here for the same reason the suggestion
+  provider is not. Two rules from ADR 0054 shape everything else. It is **called by the source
+  system**, not called by us — which inverts the suggestion sidecar and is why it is stateful,
+  why it holds a volume, and why its failures have to be loud rather than silently degrading.
+  And the platform models **one identity per entity** — `sourceId` is the source system's key
+  and nothing else, as it always was. Whatever further bookkeeping that system's own
+  identifiers require belongs to the adapter, so the platform gains no column, no second
+  identity for an order line to snapshot, and no format knowledge at all. The one thing the
+  import contract does gain is a way for a run to say that a row's key _changed_
+  (`previousSourceId`), so a renamed key is a rename rather than a create plus a delete —
+  which is a statement about one row, not a second identity.
+- What the exchange owns and what the shop owns is settled in iteration 12 rather than left to
+  accumulate: the source system owns identity, name, category, price and stock; the shop owns
+  everything a customer reads — descriptions, images, attributes, documents, pairings. Images are
+  named explicitly because they are the case that looks like an omission and is not: the source
+  system holds none, so they are admin-owned for good and the import contract has no image field.
+  Attributes and packaging stay admin overlay, as iterations 5 and 6 already decided.
+- **FR-ORD-06 was deleted and replaced by FR-ADM-10** (2026-09-10). The switch it asked for —
+  turn the platform's own order transitions off while an external system owns them — is the same
+  mechanism as the one the catalog needs, and writing it twice would have produced two unrelated
+  toggles for one idea. FR-ADM-10 is that mechanism with an **area**: the catalog now, order
+  processing in iteration 13, which adds a value rather than a switch. It is a rule and not a
+  disabled button — the API refuses a write to an externally owned field, and the greying-out in
+  the admin panel only explains the refusal before it is hit. It also resolves what looked like a
+  contradiction: the manual upload is not retired when the feed exists, and the way an operator
+  gets it back when the feed breaks is to turn the ownership off, which needs no deploy.
+  Maintenance mode needs no change to sit beside it — FR-ADM-04 has only ever gated the public
+  storefront and its read APIs, so a machine run populates a deployment that has not opened yet.
+- Iteration 13 is the order exchange (FR-ADM-08), deferred out of 12 above. Three rules were
+  agreed when it was first planned and still hold: **ownership, not conflict resolution** — the
+  platform records what the customer submitted, the source system owns processing once an order
+  has been exported, and nothing is merged; **the platform's status vocabulary stays coarse and
+  the adapter maps onto it**, collapsing however many intermediate steps the source system moves
+  an order through into the one transition a customer should read; and **updates are idempotent
+  and forward-only**, since a polling adapter will re-send and every move it writes back has to
+  state whether the customer hears about it (FR-NOTIF-03). Two more were settled in advance: an
+  exchange writes as **the integration's token**, never as a person — a revision an outside
+  system wrote carries no author today, and gets a `source` of its own when there is something to
+  write it (an operator's name in the other system travels as an opaque label and is never
+  resolved to a platform account); and a customer cancellation on an exported order is an
+  export-shape question, since forward-only write-back would otherwise overwrite it silently.
+  Iteration 11 left this iteration exactly one debt and paid it: transitions are written as
+  service operations with the role table stated once.
+- Two operability requirements ride with iteration 12 because it is the release that makes them
+  urgent — NFR-OPS-06 (what a deploy costs in downtime, how to see it failed, how to roll back)
+  and NFR-OPS-07 (what a half-finished sync leaves behind). The second is largely already true:
+  ADR 0026 applies a run in one transaction, so the failure mode it names cannot produce a
+  half-applied catalog. What iteration 12 adds is making the failure **visible** — a run that
+  died in the adapter, before it ever became a run, is recorded as a failed one rather than
+  vanishing.
+- Iteration 14 is online card payment, deferred from 11 (2026-09-06) and pushed one further by
+  the iteration-12 split. It is blocked on something that cannot be built: a merchant account the
+  shop does not yet have. It is also the least urgent of the three — nothing about the current
+  flow needs it, since a card payment arranged with the manager is already a recorded method —
+  and the most speculative, since the provider is unchosen. Sequencing it after the source-system
+  exchange means it is designed against a live order flow with real orders in it. `card-later` is
+  therefore **not** renamed in iteration 11: it accurately names an offline arrangement, and an
+  online provider adds a second method beside it rather than redefining the first. It is offered
+  to a private customer only, though: a company is invoiced, and an offline card arrangement
+  leaves no more paper than cash does (FR-CART-04 amended 2026-09-08, ADR 0039).
 - Still open, to be decided before their iteration rather than now: whether audit records and usage
   metrics (page and product views, search-to-order funnels) are worth persisting beyond the log
   aggregation NFR-OPS-03/05 already provide; and a security assessment pass across the whole
@@ -292,5 +327,8 @@ Notes:
 
 - UI localization / i18n — both deployments are single-locale; revisit only if a deployment ever needs a second language
 - Automated delivery/courier API integration
-- Live/automatic sync from the legacy source system — moved into scope as iteration 12
-  (FR-ADM-07); what stays out is a live two-way integration
+- Live/automatic sync from the legacy source system — in scope: the catalog direction as
+  iteration 12 (FR-ADM-07), the order direction as iteration 13 (FR-ADM-08). What stays out is
+  any direction in which the platform writes catalog content back into the source system: the
+  ownership split runs the other way (see the iteration-12 notes), and the exchange protocol
+  offers no such message in any case

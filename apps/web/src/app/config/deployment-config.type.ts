@@ -6,6 +6,7 @@ import {
   PAGE_SLUGS,
   pageSlugSchema,
   phoneInputSchema,
+  syncPolicySchema,
 } from '@b2b-catalog-platform/shared';
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
 import * as z from 'zod';
@@ -383,6 +384,16 @@ export const deploymentConfigSchema = z
      * is why a deployment that takes orders configures it.
      */
     address: addressConfigSchema.optional(),
+    /**
+     * What an automated catalog run may do without a person looking
+     * (FR-ADM-07). Server-side in effect — the browser never applies a run —
+     * but the config file is validated whole, so the shape is declared here as
+     * well, exactly as `orderReference` is.
+     */
+    sync: z
+      .object({ autoApply: syncPolicySchema.optional() })
+      .strict()
+      .optional(),
   })
   .strict();
 

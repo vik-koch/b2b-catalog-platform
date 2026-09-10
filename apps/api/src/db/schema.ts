@@ -14,6 +14,7 @@ import {
   PRODUCT_AVAILABILITIES,
   PRODUCT_UNITS,
   type SyncOptions,
+  type SyncPlan,
   type SyncRow,
   type SyncRowError,
   type SyncSummary,
@@ -1192,11 +1193,24 @@ export const syncRunStatus = pgEnum('sync_run_status', [
   'previewed',
   'applied',
   'failed',
+  // The source and the catalog already agree: terminal on arrival, because a
+  // run with nothing in it is not a decision anybody has to make.
+  'no-change',
+  // Both mean staged and never applied, kept apart because they are different
+  // sentences: a newer run replaced this one, or an admin said no to it.
+  'superseded',
+  'discarded',
 ]);
 
-// `api` is the headless entry point — specified but not built yet, since it
-// needs a non-cookie credential.
+// An admin's upload, or a machine token's submission (FR-ADM-07).
 export const syncRunSource = pgEnum('sync_run_source', ['upload', 'api']);
+
+// Why a run waited for a person instead of applying itself: its effect was
+// outside the deployment's policy, or the caller asked to be doubted.
+export const syncStagedReason = pgEnum('sync_staged_reason', [
+  'policy',
+  'requested',
+]);
 
 /**
  * One bulk-sync run (FR-ADM-02). This is both the audit log the requirement
@@ -1221,9 +1235,22 @@ export const syncRuns = pgTable('sync_runs', {
   // is gone (accounts are deletable; the audit record is not rewritable).
   actorId: uuid('actorId').references(() => users.id, { onDelete: 'set null' }),
   actorEmail: varchar('actorEmail', { length: 255 }),
-  options: jsonb('options').$type<SyncOptions>().notNull(),
-  summary: jsonb('summary').$type<SyncSummary>().notNull(),
+  // The credential behind a headless run, kept the same two ways and for the
+  // same reason. A token is revoked rather than deleted, so the FK holds.
+  tokenId: uuid('tokenId').references(() => apiTokens.id),
+  tokenName: varchar('tokenName', { length: API_TOKEN_NAME_MAX_LENGTH }),
+  stagedReason: syncStagedReason('stagedReason'),
+  // Null on a run an automated client reported as broken before it produced
+  // anything: no intent was ever stated and nothing was ever counted.
+  options: jsonb('options').$type<SyncOptions>(),
+  summary: jsonb('summary').$type<SyncSummary>(),
   rows: jsonb('rows').$type<SyncRow[]>(),
+  // What the run actually did, kept once it is applied — the staged `rows` are
+  // dropped at that point, and counts alone do not answer "which products
+  // moved last night", which is the question the log exists for. Capped by the
+  // same preview limit, so a first import stores a readable diff rather than a
+  // catalog.
+  plan: jsonb('plan').$type<SyncPlan>(),
   // Rows the file itself could not yield (bad price, missing/duplicate
   // sourceId). Staged with `rows` so a commit's re-diff reports the same error
   // count the preview showed — the parse happens once, at upload.

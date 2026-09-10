@@ -267,14 +267,33 @@ describe('Catalog sync (FR-ADM-02)', () => {
     });
 
     it('refuses to commit the same run twice', async () => {
+      // A row that creates something: a run with nothing in it never reaches
+      // `previewed` at all, so it could not be committed even once.
       const previewed = await preview(
-        csvForm(`sourceId,price\n${SOURCE_PREFIX}-1,1890\n`),
+        csvForm(
+          `sourceId,name,categorySourceId,categoryName,price\n${SOURCE_PREFIX}-twice,E2E Twice ${R},${CATEGORY_SOURCE_ID},${CATEGORY_NAME},1000\n`,
+        ),
       );
       expect((await commit(previewed.data.run.id)).status).toBe(200);
 
       const again = await commit(previewed.data.run.id);
       expect(again.status).toBe(409);
       expect(again.data.code).toBe('run-already-applied');
+    });
+
+    /** An upload the catalog already agrees with is recorded and then over:
+     * nothing to apply means nothing for an admin to decide. */
+    it('records an upload that changes nothing as a run with nothing in it', async () => {
+      const csv = `sourceId,name,categorySourceId,categoryName,price\n${SOURCE_PREFIX}-noop,E2E Noop ${R},${CATEGORY_SOURCE_ID},${CATEGORY_NAME},1000\n`;
+      await run(csv);
+
+      const previewed = await preview(csvForm(csv));
+      expect(previewed.data.run.status).toBe('no-change');
+      expect(previewed.data.run.finishedAt).not.toBeNull();
+
+      const refused = await commit(previewed.data.run.id);
+      expect(refused.status).toBe(409);
+      expect(refused.data.code).toBe('run-no-change');
     });
 
     it('404s on an unknown run', async () => {
@@ -300,11 +319,18 @@ describe('Catalog sync (FR-ADM-02)', () => {
       });
     });
 
-    it('reports an unchanged row as unchanged', async () => {
-      const { applied } = await run(
-        `sourceId,price\n${SOURCE_PREFIX}-1,2490\n`,
+    it('reports an unchanged row as unchanged, and stops there', async () => {
+      const previewed = await preview(
+        csvForm(`sourceId,price\n${SOURCE_PREFIX}-1,2490\n`),
       );
-      expect(applied).toMatchObject({ unchanged: 1, update: 0 });
+
+      expect(previewed.data.plan.summary).toMatchObject({
+        unchanged: 1,
+        update: 0,
+      });
+      // Nothing to apply is nothing to decide: the run is over on arrival
+      // rather than waiting in a queue for a button that is not on the screen.
+      expect(previewed.data.run.status).toBe('no-change');
     });
 
     it('keeps the slug fixed when the file renames a product', async () => {
@@ -490,7 +516,10 @@ describe('Catalog sync (FR-ADM-02)', () => {
     });
 
     it('never untracks a product through an empty cell', async () => {
-      await run(`sourceId,name,stock\n${sourceId},Stocked Beans,\n`);
+      // The rename is what makes this a run at all — a file that changed
+      // nothing would never be applied — and the empty stock cell beside it is
+      // what the test is about.
+      await run(`sourceId,name,stock\n${sourceId},Stocked Beans Kept,\n`);
 
       // Absent is not empty, here as everywhere else in a sync row.
       const product = await productBySourceId(sourceId);
@@ -504,7 +533,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
       const res = await get('/admin/sync/runs');
 
       expect(res.status).toBe(200);
-      expect(res.data.total).toBeGreaterThan(0);
+      expect(res.data.pagination.total).toBeGreaterThan(0);
       expect(res.data.runs[0].actorEmail).toBe(ADMIN_EMAIL);
       expect(res.data.lastApplied).toMatchObject({
         status: 'applied',
@@ -522,8 +551,10 @@ describe('Catalog sync (FR-ADM-02)', () => {
       const res = await get(`/admin/sync/runs/${applied.id}`);
       expect(res.status).toBe(200);
       expect(res.data.run.id).toBe(applied.id);
-      // Staged rows are dropped on commit; the summary is the record.
-      expect(res.data.plan).toBeNull();
+      // Staged rows are dropped on commit, and the diff that was applied is
+      // stored in their place: what a run *did* is the question the log is for.
+      expect(res.data.plan).not.toBeNull();
+      expect(res.data.plan.summary).toEqual(res.data.run.summary);
     });
 
     it('404s on an unknown run', async () => {

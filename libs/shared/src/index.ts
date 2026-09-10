@@ -47,6 +47,7 @@ export * from './lib/settings.contract';
 export * from './lib/shipment-estimate';
 export * from './lib/slug';
 export * from './lib/slugify';
+export * from './lib/sync-config';
 export * from './lib/sync-constants';
 export * from './lib/sync.contract';
 export * from './lib/tier-constants';

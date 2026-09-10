@@ -4,11 +4,14 @@ import {
   CompanyIdFormat,
   companyIdInputSchema,
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
+  DEFAULT_SYNC_POLICY,
   DeliveryConfig,
   deliveryConfigSchema,
   MoneyFormat,
   OrderReferenceConfig,
   orderReferenceConfigSchema,
+  SyncPolicy,
+  syncPolicySchema,
   PhoneConfig,
   phoneInputSchema,
 } from '@b2b-catalog-platform/shared';
@@ -128,6 +131,15 @@ export const apiDeploymentConfigSchema = z
          */
         pairingsEnforced: z.boolean().optional(),
       })
+      .passthrough()
+      .optional(),
+    /**
+     * What an unattended catalog run may do to itself (FR-ADM-07). API-only —
+     * the browser never decides this — but the config file is validated whole,
+     * so the web app declares the shape as well.
+     */
+    sync: z
+      .object({ autoApply: syncPolicySchema.optional() })
       .passthrough()
       .optional(),
   })
@@ -323,6 +335,16 @@ export function loadLowStockThresholdPieces(): number {
  * either answer without a config file.
  */
 export const PAIRINGS_ENFORCED = 'PAIRINGS_ENFORCED';
+
+/**
+ * The ceilings an automated run is judged against (ADR 0055). Injected like
+ * the rules beside it, so a spec can hand over a policy without a config file.
+ */
+export const SYNC_POLICY = 'SYNC_POLICY';
+
+export function loadSyncPolicy(): SyncPolicy {
+  return loadApiDeploymentConfig().sync?.autoApply ?? DEFAULT_SYNC_POLICY;
+}
 
 export function loadPairingsEnforced(): boolean {
   return loadApiDeploymentConfig().catalog?.pairingsEnforced ?? false;

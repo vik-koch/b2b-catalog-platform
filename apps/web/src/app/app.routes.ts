@@ -94,11 +94,26 @@ export const appRoutes: Route[] = [
         (m) => m.ProductListPage,
       ),
   },
+  // Catalog sync (FR-ADM-02, FR-ADM-07). The log is the screen the panel opens:
+  // runs arrive without anybody present now, so "what has happened" comes
+  // before "what am I about to upload".
   {
     path: 'admin/sync',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
-      import('./admin/sync/sync-page').then((m) => m.SyncPage),
+      import('./admin/sync/sync-runs-page').then((m) => m.SyncRunsPage),
+  },
+  {
+    path: 'admin/sync/new',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/sync/sync-upload-page').then((m) => m.SyncUploadPage),
+  },
+  {
+    path: 'admin/sync/runs/:id',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/sync/sync-run-page').then((m) => m.SyncRunPage),
   },
   // Filterable attributes edit in place too — a definition is four fields,
   // so there is no editor route to pair with this one.
