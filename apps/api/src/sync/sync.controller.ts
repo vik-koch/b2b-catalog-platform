@@ -103,6 +103,15 @@ export class SyncController {
       );
   }
 
+  @Implement(syncContract.discardRun)
+  discardRun(@CurrentUser() user: AuthUser) {
+    return implement(syncContract.discardRun)
+      .use(refusals)
+      .handler(({ input: { params } }) =>
+        this.service.discard(params.id, { id: user.id, email: user.email }),
+      );
+  }
+
   @Implement(syncContract.getRun)
   getRun() {
     return implement(syncContract.getRun)
@@ -114,7 +123,9 @@ export class SyncController {
   listRuns() {
     return implement(syncContract.listRuns)
       .use(refusals)
-      .handler(({ input: { query } }) => this.service.listRuns(query.page));
+      .handler(({ input: { query } }) =>
+        this.service.listRuns(query.page, query.status),
+      );
   }
 
   /**

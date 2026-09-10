@@ -9,7 +9,7 @@ import {
 } from './sync-constants';
 import { machineAuthErrors } from './api-tokens.contract';
 import { commonAuthErrors } from './api-error';
-import { priceMinorSchema } from './catalog.contract';
+import { paginationSchema, priceMinorSchema } from './catalog.contract';
 import {
   CATEGORY_NAME_MAX_LENGTH,
   PRODUCT_NAME_MAX_LENGTH,
@@ -311,7 +311,21 @@ export type SyncPlan = z.infer<typeof syncPlanSchema>;
 
 // --- Runs ----------------------------------------------------------------
 
-export const syncRunStatusSchema = z.enum(['previewed', 'applied', 'failed']);
+/**
+ * Where a run ended up.
+ *
+ * `previewed` is staged and still applicable; `superseded` and `discarded` are
+ * both staged runs that never will be, kept apart because they are different
+ * sentences — the newer run replaced this one, or a person said no to it. Both
+ * stay in the log: a preview nobody applied is part of the record.
+ */
+export const syncRunStatusSchema = z.enum([
+  'previewed',
+  'applied',
+  'failed',
+  'superseded',
+  'discarded',
+]);
 export type SyncRunStatus = z.infer<typeof syncRunStatusSchema>;
 
 /** How the run entered the system: an admin's upload, or a machine token. */
@@ -335,10 +349,20 @@ export const syncRunSchema = z
     filename: z.string().nullable(),
     startedAt: z.iso.datetime(),
     finishedAt: z.iso.datetime().nullable(),
-    /** Who ran it; null if that account has since been deleted. */
+    /** Who ran it; null if that account has since been deleted, and null for
+     * a machine run, which has no person behind it at all. */
     actorEmail: z.string().nullable(),
-    options: syncOptionsSchema,
-    summary: syncSummarySchema,
+    /** The token that submitted it, by name. Null for an upload. Denormalized
+     * like `actorEmail`, so the trail still names the credential after it is
+     * revoked and renamed out of use. */
+    tokenName: z.string().nullable(),
+    /** Set only while a run is staged, or was staged and then ended without
+     * being applied. Null on anything that applied itself. */
+    stagedReason: syncStagedReasonSchema.nullable(),
+    /** Null on a run that failed before it had any: an automated client's
+     * report of its own breakage is a run that never got as far as intent. */
+    options: syncOptionsSchema.nullable(),
+    summary: syncSummarySchema.nullable(),
     error: z.string().nullable(),
   })
   .strict();
@@ -429,6 +453,10 @@ export const SYNC_COMMIT_CODES = [
   'run-not-found',
   'run-already-applied',
   'run-failed',
+  /** A newer run from the same source replaced this one's diff. */
+  'run-superseded',
+  /** An admin already decided against it. */
+  'run-discarded',
   /** Staged rows pruned; the diff cannot be recomputed, so re-upload. */
   'run-rows-pruned',
 ] as const;
@@ -439,8 +467,14 @@ const commitErrors = {
   'run-not-found': { status: 404 },
   'run-already-applied': { status: 409 },
   'run-failed': { status: 409 },
+  'run-superseded': { status: 409 },
+  'run-discarded': { status: 409 },
   'run-rows-pruned': { status: 409 },
 } as const satisfies Record<SyncCommitCode, { status: number }>;
+
+/** The refusals a run this screen acts on can answer with — the same set for
+ * applying and for discarding, since both need a run that is still staged. */
+const runActionErrors = commitErrors;
 
 /**
  * The JSON half of the sync surface. The preview *upload* is not here: it is
@@ -478,6 +512,23 @@ export const syncContract = {
         .strict(),
     ),
 
+  /**
+   * Give up on a staged run. The row stays, marked as the decision it was:
+   * without this the only way a preview leaves the queue is the next run
+   * replacing it, and a work-awaiting count nobody can clear is a count
+   * nobody reads.
+   */
+  discardRun: admin
+    .route({
+      method: 'POST',
+      path: '/admin/sync/runs/{id}/discard',
+      inputStructure: 'detailed',
+      summary: 'Give up on a staged run (admin)',
+    })
+    .errors(runActionErrors)
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(z.object({ run: syncRunSchema }).strict()),
+
   listRuns: admin
     .route({
       method: 'GET',
@@ -487,15 +538,22 @@ export const syncContract = {
     })
     .input(
       z.object({
-        query: z.object({ page: z.coerce.number().int().min(1).default(1) }),
+        query: z.object({
+          page: z.coerce.number().int().min(1).default(1),
+          /** Narrows the list to one outcome — what the panel's staged-run
+           * count links into. Absent is every run. */
+          status: syncRunStatusSchema.optional(),
+        }),
       }),
     )
     .output(
       z
         .object({
           runs: z.array(syncRunSchema),
-          total: z.number().int().nonnegative(),
-          /** The newest *applied* run — the admin dashboard's "last sync". */
+          pagination: paginationSchema,
+          /** The newest *applied* run — the admin dashboard's "last sync".
+           * Answered whatever the list is narrowed to: it is a fact about the
+           * catalog, not about the page being read. */
           lastApplied: syncRunSchema.nullable(),
         })
         .strict(),

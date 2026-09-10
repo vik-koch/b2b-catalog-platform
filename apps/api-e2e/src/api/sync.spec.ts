@@ -504,7 +504,7 @@ describe('Catalog sync (FR-ADM-02)', () => {
       const res = await get('/admin/sync/runs');
 
       expect(res.status).toBe(200);
-      expect(res.data.total).toBeGreaterThan(0);
+      expect(res.data.pagination.total).toBeGreaterThan(0);
       expect(res.data.runs[0].actorEmail).toBe(ADMIN_EMAIL);
       expect(res.data.lastApplied).toMatchObject({
         status: 'applied',
@@ -522,8 +522,10 @@ describe('Catalog sync (FR-ADM-02)', () => {
       const res = await get(`/admin/sync/runs/${applied.id}`);
       expect(res.status).toBe(200);
       expect(res.data.run.id).toBe(applied.id);
-      // Staged rows are dropped on commit; the summary is the record.
-      expect(res.data.plan).toBeNull();
+      // Staged rows are dropped on commit, and the diff that was applied is
+      // stored in their place: what a run *did* is the question the log is for.
+      expect(res.data.plan).not.toBeNull();
+      expect(res.data.plan.summary).toEqual(res.data.run.summary);
     });
 
     it('404s on an unknown run', async () => {

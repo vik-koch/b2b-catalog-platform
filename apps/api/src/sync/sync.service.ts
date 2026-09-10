@@ -9,6 +9,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, desc, eq, inArray, isNull, lt, sql } from 'drizzle-orm';
 import {
   decideAutoApply,
+  Pagination,
   SYNC_RUNS_PAGE_SIZE,
   SyncCommitResponse,
   SyncFailureReport,
@@ -202,17 +203,19 @@ export class SyncService {
             status: 'applied',
             finishedAt: new Date(),
             summary: plan.summary,
-            actorId: actor.id,
-            actorEmail: actor.email,
-            // The staged input has served its purpose; the summary is the
-            // record.
+            ...(actor ? { actorId: actor.id, actorEmail: actor.email } : {}),
+            // The staged input has served its purpose. What replaces it is the
+            // diff rather than the counts: "which products moved last night" is
+            // the question this log exists to answer, and a run nobody watched
+            // is exactly the one nobody saw the preview of.
             rows: null,
             parseErrors: null,
+            plan,
           })
           .where(eq(syncRuns.id, id))
           .returning();
 
-        return { run: toSyncRun(updated), applied: plan.summary };
+        return { run: toSyncRun(updated), applied: plan.summary, plan };
       });
     } catch (error) {
       // A refusal is not a failed run: the run is untouched and still
@@ -314,6 +317,43 @@ export class SyncService {
     return { run: toSyncRun(row) };
   }
 
+  /**
+   * An admin deciding against a staged run. The row stays, marked as the
+   * decision it was: a preview nobody applied is part of the record, and a
+   * queue that can only be cleared by the next run arriving is a queue nobody
+   * reads.
+   */
+  async discard(id: string, actor: Actor): Promise<{ run: SyncRun }> {
+    return this.db.transaction(async (tx) => {
+      const [run] = await tx
+        .select()
+        .from(syncRuns)
+        .where(eq(syncRuns.id, id))
+        .for('update');
+      if (!run) throw runNotFound();
+      if (run.status !== 'previewed') {
+        throw new ConflictException({
+          code: CONFLICT_CODE[run.status],
+          message: `This run is ${run.status} and cannot be discarded`,
+        });
+      }
+
+      const [updated] = await tx
+        .update(syncRuns)
+        .set({
+          status: 'discarded',
+          finishedAt: new Date(),
+          actorId: actor.id,
+          actorEmail: actor.email,
+          rows: null,
+          parseErrors: null,
+        })
+        .where(eq(syncRuns.id, id))
+        .returning();
+      return { run: toSyncRun(updated) };
+    });
+  }
+
   async getRun(id: string): Promise<{ run: SyncRun; plan: SyncPlan | null }> {
     const [run] = await this.db
       .select()
@@ -321,9 +361,13 @@ export class SyncService {
       .where(eq(syncRuns.id, id));
     if (!run) throw runNotFound();
 
-    // A previewed run can still show its diff (its rows are staged); a finished
-    // one has only its summary, which is what the audit trail needs.
-    if (!run.rows) return { run: toSyncRun(run), plan: null };
+    // A staged run recomputes its diff, because the catalog may have moved
+    // since it was taken and a preview has to describe what would happen now.
+    // A finished one shows the diff it stored — that one is history and must
+    // not be recomputed. A run that failed before it had either shows nothing.
+    if (!run.rows || !run.options) {
+      return { run: toSyncRun(run), plan: run.plan ?? null };
+    }
     const state = await this.readState();
     const { plan } = planSync(
       run.rows,
@@ -334,17 +378,23 @@ export class SyncService {
     return { run: toSyncRun(run), plan };
   }
 
-  async listRuns(page: number): Promise<{
+  async listRuns(
+    page: number,
+    status?: SyncRunStatus,
+  ): Promise<{
     runs: SyncRun[];
-    total: number;
+    pagination: Pagination;
     lastApplied: SyncRun | null;
   }> {
+    const filter = status ? eq(syncRuns.status, status) : undefined;
     const [{ value: total }] = await this.db
       .select({ value: count() })
-      .from(syncRuns);
+      .from(syncRuns)
+      .where(filter);
     const rows = await this.db
       .select()
       .from(syncRuns)
+      .where(filter)
       .orderBy(desc(syncRuns.startedAt))
       .limit(SYNC_RUNS_PAGE_SIZE)
       .offset((page - 1) * SYNC_RUNS_PAGE_SIZE);
@@ -357,7 +407,12 @@ export class SyncService {
 
     return {
       runs: rows.map(toSyncRun),
-      total: Number(total),
+      pagination: {
+        page,
+        pageSize: SYNC_RUNS_PAGE_SIZE,
+        total: Number(total),
+        totalPages: Math.ceil(Number(total) / SYNC_RUNS_PAGE_SIZE),
+      },
       lastApplied: applied ? toSyncRun(applied) : null,
     };
   }
@@ -657,6 +712,8 @@ function toSyncRun(row: typeof syncRuns.$inferSelect): SyncRun {
     startedAt: row.startedAt.toISOString(),
     finishedAt: row.finishedAt ? row.finishedAt.toISOString() : null,
     actorEmail: row.actorEmail,
+    tokenName: row.tokenName,
+    stagedReason: row.stagedReason,
     options: row.options,
     summary: row.summary,
     error: row.error,

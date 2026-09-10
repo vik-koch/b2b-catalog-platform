@@ -871,6 +871,17 @@ export const syncContract = {
       },
     },
   },
+  discardRun: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/sync/runs/{id}/discard',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   listRuns: {
     '~orpc': {
       errorMap: {},
