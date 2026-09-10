@@ -2,6 +2,7 @@ import { Component, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { usePageSeo } from '../core/page-seo';
 import { emailFormat } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { Button } from '../ui/button';
@@ -134,6 +135,10 @@ export class LoginPage {
    * field is being retyped, and everything shown once submit is attempted.
    */
   protected readonly fieldErrors = new FieldErrors(this.form);
+
+  constructor() {
+    usePageSeo({ name: () => this.text.login });
+  }
 
   protected isInvalid(control: keyof typeof this.form.controls): boolean {
     return this.fieldErrors.show(this.form.controls[control]);

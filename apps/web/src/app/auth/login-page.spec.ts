@@ -3,6 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { defaultAppText } from '../config/app-text.fixture';
 import { AuthService, LoginResult } from './auth.service';
 import { LoginPage } from './login-page';
@@ -33,6 +35,7 @@ async function render(result: LoginResult = 'ok', signedIn: AuthUser = admin) {
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: { user, login } },
     ],
   });
