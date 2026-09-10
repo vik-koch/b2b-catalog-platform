@@ -1,6 +1,8 @@
 import { ConsoleLogger, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
+import { json, urlencoded } from 'express';
+import { SYNC_MAX_BODY_BYTES } from '@b2b-catalog-platform/shared';
 import { runBootstrapAdmin, runSeed } from '@b2b-catalog-platform/seed';
 import { AppModule } from './app/app.module';
 import { runMigrations } from './db/migrate';
@@ -23,8 +25,29 @@ function logger(): ConsoleLogger {
   return new ConsoleLogger({ colors: !deployed, json: deployed });
 }
 
+/**
+ * The one route that receives a whole catalog as JSON (FR-ADM-07).
+ *
+ * Written out with the global prefix, because a body parser is mounted on the
+ * URL rather than on a Nest route.
+ */
+const MACHINE_SYNC_RUNS_PATH = '/api/machine/sync/runs';
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: logger() });
+  // Nest's own body parser is declined so that a bigger one can be mounted
+  // ahead of it. A catalog of tens of thousands of rows is megabytes of JSON
+  // and the default ceiling is 100 kB — but raising that globally would widen
+  // every endpoint in the API to the same limit, so the large parser is
+  // mounted on the single path that needs it and everything else keeps the
+  // default. body-parser marks a request it has already read, so the general
+  // parser below leaves that one alone.
+  const app = await NestFactory.create(AppModule, {
+    logger: logger(),
+    bodyParser: false,
+  });
+  app.use(MACHINE_SYNC_RUNS_PATH, json({ limit: SYNC_MAX_BODY_BYTES }));
+  app.use(json());
+  app.use(urlencoded({ extended: true }));
 
   // Populates req.cookies so the auth guard can read the httpOnly session
   // cookie. No secret: the JWT is self-verifying, so cookie signing adds nothing.

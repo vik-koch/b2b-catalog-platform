@@ -36,3 +36,22 @@ export const SYNC_FIELDS = ['name', 'category', 'stock'] as const;
 
 /** All of them: the default when a run does not narrow the set. */
 export const SYNC_ALL_FIELDS: (typeof SYNC_FIELDS)[number][] = [...SYNC_FIELDS];
+
+/**
+ * Upper bound on a headless run's JSON body. The same order as the upload
+ * limit beside it and for the same reason — a DoS guard, not an editorial
+ * one — but it is enforced by a body parser mounted on that route alone: the
+ * rest of the API keeps the default, so one machine endpoint does not widen
+ * every other one to ten megabytes.
+ */
+export const SYNC_MAX_BODY_BYTES = 10 * 1024 * 1024;
+
+/**
+ * How much of an automated client's own failure text is kept. Long enough for
+ * the sentence a person needs — which file, which line, what broke — and short
+ * enough that a stack trace cannot fill the log.
+ */
+export const SYNC_FAILURE_MESSAGE_MAX_LENGTH = 500;
+
+/** How a headless run labels itself where a manual one has a filename. */
+export const SYNC_LABEL_MAX_LENGTH = 200;

@@ -1,6 +1,13 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { SYNC_ALL_FIELDS, SYNC_FIELDS } from './sync-constants';
+import {
+  SYNC_ALL_FIELDS,
+  SYNC_FAILURE_MESSAGE_MAX_LENGTH,
+  SYNC_FIELDS,
+  SYNC_LABEL_MAX_LENGTH,
+  SYNC_MAX_ROWS,
+} from './sync-constants';
+import { machineAuthErrors } from './api-tokens.contract';
 import { commonAuthErrors } from './api-error';
 import { priceMinorSchema } from './catalog.contract';
 import {
@@ -493,4 +500,102 @@ export const syncContract = {
         })
         .strict(),
     ),
+};
+
+// --- The headless surface ------------------------------------------------
+
+/**
+ * What an automated client submits (FR-ADM-07). The same rows and the same
+ * per-run intent a manual upload carries — this is one entry point onto one
+ * engine, not a second importer — encoded as JSON rather than as a file,
+ * because the thing on the other end is a converter and not a spreadsheet.
+ */
+export const syncSubmissionSchema = z
+  .object({
+    rows: z.array(syncRowSchema).max(SYNC_MAX_ROWS),
+    /** Absent means the defaults, exactly as an upload's absent options do. */
+    options: syncOptionsSchema.optional(),
+    /**
+     * What to call this run in the log, where an upload has a filename. The
+     * caller's own words — a source file's name, an export's timestamp — kept
+     * as a label and never interpreted.
+     */
+    label: z.string().trim().min(1).max(SYNC_LABEL_MAX_LENGTH).optional(),
+    /**
+     * "Stage this even if it would otherwise apply." A client sets it when it
+     * cannot fully vouch for what it parsed. The platform does not ask why:
+     * knowing the reason would mean knowing the format, which is the adapter's
+     * business and deliberately not this repository's.
+     */
+    requestReview: z.boolean().default(false),
+  })
+  .strict();
+export type SyncSubmission = z.infer<typeof syncSubmissionSchema>;
+
+/**
+ * A breakage the caller wants recorded (NFR-OPS-07). It is not a refusal the
+ * platform issued, so it carries no code: it is the automated client's own
+ * account of what went wrong, kept verbatim for a person to read, the way a
+ * failed run's `error` already is.
+ */
+export const syncFailureReportSchema = z
+  .object({
+    message: z.string().trim().min(1).max(SYNC_FAILURE_MESSAGE_MAX_LENGTH),
+    label: z.string().trim().min(1).max(SYNC_LABEL_MAX_LENGTH).optional(),
+  })
+  .strict();
+export type SyncFailureReport = z.infer<typeof syncFailureReportSchema>;
+
+/**
+ * What a submitted run answers with: the run, and the diff it staged or
+ * applied. `run.status` is what the caller reads — `applied` means the catalog
+ * has moved, `previewed` means a person now has to look, and `run.stagedReason`
+ * says which of the two reasons that was.
+ */
+export const syncSubmitResponseSchema = z
+  .object({ run: syncRunSchema, plan: syncPlanSchema })
+  .strict();
+export type SyncSubmitResponse = z.infer<typeof syncSubmitResponseSchema>;
+
+/** Authenticated by the token alone; no cookie reaches these. */
+const machine = oc.errors(machineAuthErrors);
+
+/**
+ * The machine half of the sync surface: submit a catalog, or report that you
+ * could not produce one.
+ *
+ * There is deliberately no commit route here. An automated client never
+ * presses apply — either its run was within the deployment's policy and
+ * applied itself, or a person applies it.
+ */
+export const machineSyncContract = {
+  submitRun: machine
+    .route({
+      method: 'POST',
+      path: '/machine/sync/runs',
+      // A run is created whichever way the policy decides, exactly as the
+      // upload creates one.
+      successStatus: 201,
+      inputStructure: 'detailed',
+      summary: 'Submit a catalog import (machine)',
+    })
+    .input(z.object({ body: syncSubmissionSchema }))
+    .output(syncSubmitResponseSchema),
+
+  /**
+   * A run that never happened, recorded so that a broken exchange looks like
+   * something rather than like silence. A feed that stops sending is
+   * indistinguishable from a feed with nothing to send; this is how the
+   * difference reaches the admin panel.
+   */
+  reportFailure: machine
+    .route({
+      method: 'POST',
+      path: '/machine/sync/failures',
+      successStatus: 201,
+      inputStructure: 'detailed',
+      summary: 'Record a run that failed before it began (machine)',
+    })
+    .input(z.object({ body: syncFailureReportSchema }))
+    .output(z.object({ run: syncRunSchema }).strict()),
 };
