@@ -377,6 +377,7 @@
       "run-rows-pruned": "This preview has expired. Upload the file again to see the current changes.",
       "run-superseded": "A newer run has replaced this one. Open the latest run instead.",
       "run-discarded": "This run was discarded and cannot be applied.",
+      "run-no-change": "This run changed nothing, so there is nothing to apply."
     },
     "applied": "Applied.",
     "discard": "Discard",
@@ -426,6 +427,7 @@
       "failed": "Failed",
       "superseded": "Replaced",
       "discarded": "Discarded",
+      "no-change": "No change"
     },
     "col": {
       "date": "Date",

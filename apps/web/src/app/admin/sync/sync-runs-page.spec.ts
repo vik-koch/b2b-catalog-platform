@@ -134,6 +134,19 @@ describe('SyncRunsPage', () => {
     expect(el.textContent).toContain(text.status.failed);
   });
 
+  /** A run the source and the catalog agree about is over on arrival: it is
+   * recorded, and it is not work. */
+  it('shows a no-change run as such', async () => {
+    const { el } = await render([
+      run({
+        status: 'no-change',
+        summary: { ...summary, create: 0, update: 0 },
+      }),
+    ]);
+
+    expect(el.textContent).toContain(text.status['no-change']);
+  });
+
   it('asks the API for the status the URL names', async () => {
     const { service } = await render([run()], 'previewed');
 

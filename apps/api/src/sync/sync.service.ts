@@ -79,9 +79,31 @@ interface Submitter {
 const CONFLICT_CODE: Record<Exclude<SyncRunStatus, 'previewed'>, string> = {
   applied: 'run-already-applied',
   failed: 'run-failed',
+  'no-change': 'run-no-change',
   superseded: 'run-superseded',
   discarded: 'run-discarded',
 };
+
+/**
+ * Whether a run has anything in it at all.
+ *
+ * Skipped rows count as something. A run whose diff is empty because the file
+ * could not be read is the opposite of a quiet night, and burying it as "no
+ * change" would hide the one thing the log exists to show.
+ */
+function isNoChange(plan: SyncPlan): boolean {
+  const s = plan.summary;
+  return (
+    s.create +
+      s.update +
+      s.softDelete +
+      s.restore +
+      s.categoriesCreated +
+      s.categoriesRenamed +
+      s.errors ===
+    0
+  );
+}
 
 /**
  * The sync engine. Preview and commit share one differ (`planSync`);
@@ -117,19 +139,26 @@ export class SyncService {
     const state = await this.readState();
     const { plan } = planSync(rows, options, state, parseErrors);
 
+    // Nothing to decide: the run is recorded as it stands and stages no rows,
+    // rather than waiting in a queue for somebody to press a button that is
+    // not even on the screen.
+    const nothingToDo = isNoChange(plan);
+
     await this.prune();
     const [row] = await this.db
       .insert(syncRuns)
       .values({
-        status: 'previewed',
+        status: nothingToDo ? 'no-change' : 'previewed',
+        finishedAt: nothingToDo ? new Date() : null,
         source: 'upload',
         filename,
         actorId: actor.id,
         actorEmail: actor.email,
         options,
         summary: plan.summary,
-        rows,
-        parseErrors,
+        rows: nothingToDo ? null : rows,
+        parseErrors: nothingToDo ? null : parseErrors,
+        plan: nothingToDo ? plan : null,
       })
       .returning();
 
@@ -254,19 +283,26 @@ export class SyncService {
     const state = await this.readState();
     const { plan } = planSync(submission.rows, options, state);
 
-    const stagedReason = decideAutoApply(
-      plan.summary,
-      state.products.filter((product) => !product.deletedAt).length,
-      this.policy,
-      submission.requestReview,
-    );
+    // A run with nothing in it is never staged and never applied — not even
+    // when the caller asked to be doubted, because doubt about a parse that
+    // produced no change is still nothing for a person to decide.
+    const nothingToDo = isNoChange(plan);
+    const stagedReason = nothingToDo
+      ? null
+      : decideAutoApply(
+          plan.summary,
+          state.products.filter((product) => !product.deletedAt).length,
+          this.policy,
+          submission.requestReview,
+        );
 
     await this.prune();
     await this.supersedeStaged();
     const [row] = await this.db
       .insert(syncRuns)
       .values({
-        status: 'previewed',
+        status: nothingToDo ? 'no-change' : 'previewed',
+        finishedAt: nothingToDo ? new Date() : null,
         source: 'api',
         filename: submission.label ?? null,
         tokenId: submitter.id,
@@ -274,11 +310,12 @@ export class SyncService {
         stagedReason,
         options,
         summary: plan.summary,
-        rows: submission.rows,
+        rows: nothingToDo ? null : submission.rows,
+        plan: nothingToDo ? plan : null,
       })
       .returning();
 
-    if (stagedReason) return { run: toSyncRun(row), plan };
+    if (nothingToDo || stagedReason) return { run: toSyncRun(row), plan };
 
     // The applying half re-diffs against state read inside its own
     // transaction, so what it computed — not what was planned a moment ago —

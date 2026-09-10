@@ -631,6 +631,8 @@ export const adminTextSchema = z
           .strict(),
         truncated: z.string(),
         nothingToApply: z.string(),
+        /** The same, said about a run that has already happened. */
+        nothingChanged: z.string(),
         /** Change kinds, used as row badges. */
         kind: z
           .object({
@@ -652,6 +654,7 @@ export const adminTextSchema = z
             'run-not-found': z.string(),
             'run-already-applied': z.string(),
             'run-failed': z.string(),
+            'run-no-change': z.string(),
             'run-superseded': z.string(),
             'run-discarded': z.string(),
             'run-rows-pruned': z.string(),

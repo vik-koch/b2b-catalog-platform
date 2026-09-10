@@ -323,6 +323,15 @@ export const syncRunStatusSchema = z.enum([
   'previewed',
   'applied',
   'failed',
+  /**
+   * The source and the catalog already agree. Terminal from the moment it is
+   * computed: there is nothing to apply, so there is no decision to put in
+   * front of anybody — and a queue holding runs with nothing in them is a
+   * queue that stops being read. A run that skipped rows is never this,
+   * however empty its diff: "nothing happened" and "the file could not be read
+   * and so nothing happened" are opposite pieces of news.
+   */
+  'no-change',
   'superseded',
   'discarded',
 ]);
@@ -453,6 +462,8 @@ export const SYNC_COMMIT_CODES = [
   'run-not-found',
   'run-already-applied',
   'run-failed',
+  /** There was nothing in it to apply. */
+  'run-no-change',
   /** A newer run from the same source replaced this one's diff. */
   'run-superseded',
   /** An admin already decided against it. */
@@ -467,6 +478,7 @@ const commitErrors = {
   'run-not-found': { status: 404 },
   'run-already-applied': { status: 409 },
   'run-failed': { status: 409 },
+  'run-no-change': { status: 409 },
   'run-superseded': { status: 409 },
   'run-discarded': { status: 409 },
   'run-rows-pruned': { status: 409 },

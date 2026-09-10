@@ -1193,6 +1193,9 @@ export const syncRunStatus = pgEnum('sync_run_status', [
   'previewed',
   'applied',
   'failed',
+  // The source and the catalog already agree: terminal on arrival, because a
+  // run with nothing in it is not a decision anybody has to make.
+  'no-change',
   // Both mean staged and never applied, kept apart because they are different
   // sentences: a newer run replaced this one, or an admin said no to it.
   'superseded',

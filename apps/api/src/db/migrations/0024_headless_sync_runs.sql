@@ -1,4 +1,5 @@
 CREATE TYPE "public"."sync_staged_reason" AS ENUM('policy', 'requested');--> statement-breakpoint
+ALTER TYPE "public"."sync_run_status" ADD VALUE 'no-change';--> statement-breakpoint
 ALTER TYPE "public"."sync_run_status" ADD VALUE 'superseded';--> statement-breakpoint
 ALTER TYPE "public"."sync_run_status" ADD VALUE 'discarded';--> statement-breakpoint
 ALTER TABLE "sync_runs" ALTER COLUMN "options" DROP NOT NULL;--> statement-breakpoint

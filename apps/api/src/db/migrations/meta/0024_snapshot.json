@@ -1,5 +1,5 @@
 {
-  "id": "656fae89-1dcc-4d51-9208-1288ad6116fa",
+  "id": "e94fc4fa-77aa-45f9-9fac-b980d0046b4c",
   "prevId": "76e15dbc-4238-4776-b5f5-9bea407fe149",
   "version": "7",
   "dialect": "postgresql",
@@ -2835,6 +2835,7 @@
         "previewed",
         "applied",
         "failed",
+        "no-change",
         "superseded",
         "discarded"
       ]

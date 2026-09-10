@@ -195,12 +195,22 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
       expect(product.publishedAt).toBeNull();
     });
 
-    it('is idempotent in effect: the same rows again change nothing', async () => {
+    /** The common case for a feed that runs every twenty minutes: the source
+     * and the catalog already agree, so the run is over on arrival rather than
+     * joining a queue nobody can clear. */
+    it('records the same rows again as a run with nothing in it', async () => {
       const res = await submit({ rows: [row(1), row(2)] });
 
-      expect(res.data.run.status).toBe('applied');
-      expect(res.data.plan.summary.create).toBe(0);
+      expect(res.data.run.status).toBe('no-change');
+      expect(res.data.run.finishedAt).not.toBeNull();
+      expect(res.data.run.stagedReason).toBeNull();
       expect(res.data.plan.summary.unchanged).toBe(2);
+    });
+
+    it('is not staged by a caller’s doubt when there is nothing to doubt', async () => {
+      const res = await submit({ rows: [row(1)], requestReview: true });
+
+      expect(res.data.run.status).toBe('no-change');
     });
   });
 

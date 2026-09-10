@@ -223,6 +223,8 @@ const STATUS_TONE: Record<SyncRun['status'], StatusTone> = {
   previewed: 'waiting',
   applied: 'ok',
   failed: 'danger',
+  // Nothing happened, and nothing was wrong with that.
+  'no-change': 'neutral',
   superseded: 'neutral',
   discarded: 'neutral',
 };
