@@ -162,6 +162,17 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/tiers/tier-list-page').then((m) => m.TierListPage),
   },
+  // Machine tokens (NFR-SEC-09). Beside the tiers rather than under the sync:
+  // a token is a credential the deployment issues, and the catalog import is
+  // only the first thing one of them may do.
+  {
+    path: 'admin/api-tokens',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/api-tokens/api-token-list-page').then(
+        (m) => m.ApiTokenListPage,
+      ),
+  },
   // Account management, one component in two views. Customers: admin and
   // manager both, since the permission split is on the row actions, not on
   // reaching the list. Staff: admin only — a manager may not even see who the

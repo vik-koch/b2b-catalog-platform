@@ -257,6 +257,25 @@ import { SyncService } from './sync/sync.service';
               </ul>
             </section>
 
+            <!-- What the shop lets in from outside. One row today; the switch
+                 that hands an area of the catalog to an external system joins
+                 it here. -->
+            <section>
+              <h2 id="admin-integrations-heading" [class]="headingClass">
+                <app-admin-icon name="link" class="h-4 w-4" />
+                {{ panelText.integrations }}
+              </h2>
+              <ul
+                [class]="cardClass"
+                aria-labelledby="admin-integrations-heading"
+              >
+                <app-panel-row
+                  [label]="apiTokenText.title"
+                  link="/admin/api-tokens"
+                />
+              </ul>
+            </section>
+
             <section>
               <h2 [class]="headingClass">
                 <app-admin-icon name="wrench" class="h-4 w-4" />
@@ -296,6 +315,7 @@ export class AdminPanelPage {
   protected readonly attributeText = inject(ADMIN_TEXT).attributeList;
   protected readonly inventoryText = inject(ADMIN_TEXT).attributeInventory;
   protected readonly tierText = inject(ADMIN_TEXT).tierList;
+  protected readonly apiTokenText = inject(ADMIN_TEXT).apiTokenList;
   protected readonly userText = inject(ADMIN_TEXT).userList;
   protected readonly orderText = inject(ADMIN_TEXT).orderList;
   protected readonly navText = inject(APP_TEXT).nav;

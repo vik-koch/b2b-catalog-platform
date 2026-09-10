@@ -233,6 +233,44 @@ export const adminCatalogContract = {
     },
   },
 } as unknown as typeof shared.adminCatalogContract;
+export const apiTokensContract = {
+  listApiTokens: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/admin/api-tokens' },
+    },
+  },
+  createApiToken: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/api-tokens',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  revokeApiToken: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/api-tokens/{id}/revoke',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  machineIdentity: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/machine/token' },
+    },
+  },
+} as unknown as typeof shared.apiTokensContract;
 export const attributesContract = {
   listAttributes: {
     '~orpc': {

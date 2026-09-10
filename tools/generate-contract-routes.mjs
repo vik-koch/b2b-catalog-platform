@@ -33,6 +33,7 @@ const CONTRACTS = [
   'addressSuggestionContract',
   'addressesContract',
   'adminCatalogContract',
+  'apiTokensContract',
   'attributesContract',
   'authContract',
   'cartContract',

@@ -97,3 +97,19 @@ export const OrderTokenThrottle = () =>
     UseGuards(ThrottlerGuard),
     Throttle({ default: { limit: 30, ttl: seconds(60) } }),
   );
+
+/**
+ * Machine endpoints (NFR-SEC-09). Its own bucket, so a misbehaving integration
+ * cannot exhaust an interactive limit and a busy shop cannot throttle the
+ * adapter — the independence ADR 0053 asks for.
+ *
+ * Sized for a scheduled caller rather than a person: a stock export every few
+ * minutes plus a nightly catalog is a handful of requests an hour, and the
+ * ceiling is there to bound a runaway loop, not to pace a healthy one. Keyed
+ * on the address like every other preset; the adapter is one host.
+ */
+export const MachineThrottle = () =>
+  applyDecorators(
+    UseGuards(ThrottlerGuard),
+    Throttle({ default: { limit: 60, ttl: seconds(60) } }),
+  );
