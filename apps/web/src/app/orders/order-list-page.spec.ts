@@ -1,6 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { OrderSummary, Pagination } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  OrderSummary,
+  Pagination,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -65,7 +69,7 @@ describe('OrderListPage (FR-ACC-01)', () => {
 
     expect(el.textContent).toContain(placed.reference);
     expect(el.textContent).toContain(
-      text.itemCount.replace('{count}', String(placed.itemCount)),
+      fillText(text.itemCount, { count: placed.itemCount }),
     );
     // The status is the shop's answer, in the customer's words rather than the
     // column's value.

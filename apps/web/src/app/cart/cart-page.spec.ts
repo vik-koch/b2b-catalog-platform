@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CartPreview } from '@b2b-catalog-platform/shared';
+import { CartPreview, fillText } from '@b2b-catalog-platform/shared';
 import { packagedPackaging } from '../catalog/product.fixture';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
@@ -578,7 +578,7 @@ describe('CartPage', () => {
     });
 
     expect(view.el.textContent).toContain(
-      text.pairing.summary.replace('{count}', '1'),
+      fillText(text.pairing.summary, { count: 1 }),
     );
     const checkout = [...view.el.querySelectorAll('a')].find((link) =>
       link.textContent?.includes(text.checkout),
@@ -594,7 +594,7 @@ describe('CartPage', () => {
     });
 
     expect(view.el.textContent).toContain(
-      text.pairing.summaryEnforced.replace('{count}', '1'),
+      fillText(text.pairing.summaryEnforced, { count: 1 }),
     );
     // A disabled button, not a link that refuses on the next page: the reason
     // is on screen right above it.

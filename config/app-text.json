@@ -73,7 +73,7 @@
     "imagePlaceholder": "No image available",
     "pairings": {
       "label": "Sold together",
-      "marker": "Sold together with {count} products",
+      "marker": "Sold together with {count} product|Sold together with {count} products",
       "intro": "These are sold with this product. Add what you need without leaving the page.",
       "close": "Close",
       "loadError": "Something went wrong loading these — please try again later."
@@ -110,7 +110,7 @@
   "cart": {
     "navLabel": "Cart",
     "title": "Your cart",
-    "summaryLabel": "Cart: {count} lines, {total}",
+    "summaryLabel": "Cart: {count} line, {total}|Cart: {count} lines, {total}",
     "empty": "Your cart is empty.",
     "emptyAction": "Browse the catalogue",
     "loadError": "Something went wrong pricing your cart — please try again later.",
@@ -138,7 +138,7 @@
     "clearSelection": "Clear selection",
     "deleteSelected": "Delete selection",
     "deleteSelectedHeading": "Delete the selected lines",
-    "deleteSelectedConfirm": "Remove the {count} selected lines from your cart? This cannot be undone.",
+    "deleteSelectedConfirm": "Remove the selected line from your cart? This cannot be undone.|Remove the {count} selected lines from your cart? This cannot be undone.",
     "cancel": "Cancel",
     "subtotal": "Subtotal",
     "noPrice": "On request",
@@ -173,8 +173,8 @@
     "pairing": {
       "shortAction": "Add {count} {unit}",
       "shortReason": "of what this is sold with.",
-      "summary": "{count} products in your cart are missing what they are sold with.",
-      "summaryEnforced": "{count} products in your cart cannot be ordered without what they are sold with."
+      "summary": "{count} product in your cart is missing what it is sold with.|{count} products in your cart are missing what they are sold with.",
+      "summaryEnforced": "{count} product in your cart cannot be ordered without what it is sold with.|{count} products in your cart cannot be ordered without what they are sold with."
     }
   },
   "checkout": {
@@ -313,7 +313,7 @@
     "filterEmpty": "Nothing is waiting for you right now.",
     "empty": "You have not sent us an order yet.",
     "emptyAction": "Browse the catalogue",
-    "itemCount": "{count} lines",
+    "itemCount": "{count} line|{count} lines",
     "statusRequested": "Awaiting confirmation",
     "statusApproved": "Confirmed",
     "statusReadyDelivery": "On its way to you",
@@ -366,10 +366,10 @@
     "clear": "Clear search",
     "searchNav": "Product search",
     "suggestionsLabel": "Product suggestions",
-    "suggestionCount": "{count} suggestions available. Use the arrow keys to review them.",
+    "suggestionCount": "{count} suggestion available. Use the arrow keys to review it.|{count} suggestions available. Use the arrow keys to review them.",
     "noSuggestions": "Nothing found",
     "resultsTitle": "Results for “{query}”",
-    "resultCount": "{count} products found",
+    "resultCount": "{count} product found|{count} products found",
     "noResults": "Nothing matched “{query}”.",
     "noResultsHint": "Check the spelling, or try fewer words.",
     "emptyQuery": "Type a product name to search the catalogue.",
@@ -449,7 +449,7 @@
         "unsupportedCountry": "We do not deliver to that country. Please choose another.",
         "suggestionsLabel": "Address suggestions",
         "noSuggestions": "No matching addresses. Carry on typing it yourself.",
-        "suggestionCount": "{count} address suggestions"
+        "suggestionCount": "{count} address suggestion|{count} address suggestions"
       },
       "delete": {
         "action": "Delete my account",
@@ -520,7 +520,7 @@
       "companySuggest": {
         "suggestionsLabel": "Company suggestions",
         "noSuggestions": "No matching companies. Carry on typing it yourself.",
-        "suggestionCount": "{count} company suggestions"
+        "suggestionCount": "{count} company suggestion|{count} company suggestions"
       }
     },
     "setPassword": {

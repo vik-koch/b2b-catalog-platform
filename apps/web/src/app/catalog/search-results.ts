@@ -3,6 +3,7 @@ import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   encodeAttributeParams,
+  fillText,
   parseAttributeParams,
 } from '@b2b-catalog-platform/shared';
 import { EditActions } from '../admin/edit-actions';
@@ -380,7 +381,7 @@ export class SearchResults {
   );
 
   protected resultCount(total: number): string {
-    return this.text.resultCount.replace('{count}', String(total));
+    return fillText(this.text.resultCount, { count: total });
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {

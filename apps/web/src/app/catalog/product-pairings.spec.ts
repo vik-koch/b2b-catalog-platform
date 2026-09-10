@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -43,7 +44,7 @@ describe('the sold-together marker (FR-SET-05)', () => {
     // The glyph alone in a price row, so the count is the accessible name
     // rather than anything on screen: a card has no line to spare for it.
     expect(button?.getAttribute('aria-label')).toBe(
-      text.marker.replace('{count}', '2'),
+      fillText(text.marker, { count: 2 }),
     );
     expect(button?.textContent?.trim()).toBe('');
     expect(el.querySelector('app-icon')).not.toBeNull();
