@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { UserRow, UsersService } from '../users/users.service';
 import { AUTH_COOKIE } from '../auth/auth.constants';
+import { MachineScope } from '../api-tokens/machine-scope.decorator';
 import { Roles } from '../auth/roles.decorator';
 import { MaintenanceGuard } from './maintenance.guard';
 import { SettingsService } from './settings.service';
@@ -31,12 +32,16 @@ describe('MaintenanceGuard', () => {
   const isMaintenanceEnabled = vi.fn();
   const verifyAsync = vi.fn();
   const findById = vi.fn();
-  // Emulates the reflector reading metadata off the route: returns the roles
-  // array when the route is marked as auth-guarded, or the exempt flag.
-  const metadata: { roles?: unknown; exempt?: boolean } = {};
+  // Emulates the reflector reading metadata off the route: the roles array
+  // when the route is marked as auth-guarded, the scope when it is a machine
+  // route, or the exempt flag.
+  const metadata: { roles?: unknown; scope?: unknown; exempt?: boolean } = {};
   const reflector = {
-    getAllAndOverride: (key: unknown) =>
-      key === Roles ? metadata.roles : metadata.exempt,
+    getAllAndOverride: (key: unknown) => {
+      if (key === Roles) return metadata.roles;
+      if (key === MachineScope) return metadata.scope;
+      return metadata.exempt;
+    },
   } as unknown as Reflector;
 
   const guard = new MaintenanceGuard(
@@ -63,6 +68,7 @@ describe('MaintenanceGuard', () => {
     findById.mockReset();
     setHeader.mockReset();
     metadata.roles = undefined;
+    metadata.scope = undefined;
     metadata.exempt = undefined;
   });
 
@@ -85,6 +91,14 @@ describe('MaintenanceGuard', () => {
   it('exempts a route carrying @Auth role metadata (even an empty list)', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     metadata.roles = [];
+
+    await expect(guard.canActivate(contextWith({}))).resolves.toBe(true);
+    expect(verifyAsync).not.toHaveBeenCalled();
+  });
+
+  it('exempts a route carrying @Machine scope metadata', async () => {
+    isMaintenanceEnabled.mockReturnValue(true);
+    metadata.scope = 'catalog-sync';
 
     await expect(guard.canActivate(contextWith({}))).resolves.toBe(true);
     expect(verifyAsync).not.toHaveBeenCalled();

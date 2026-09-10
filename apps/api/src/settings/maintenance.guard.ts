@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { Response } from 'express';
+import { MachineScope } from '../api-tokens/machine-scope.decorator';
 import { AUTH_COOKIE } from '../auth/auth.constants';
 import { AuthenticatedRequest } from '../auth/authenticated-request';
 import { JwtPayload } from '../auth/jwt-payload';
@@ -26,8 +27,9 @@ const RETRY_AFTER_SECONDS = 3600;
  * exempt on one of these grounds:
  *
  *  - route-structural: the route carries `@Auth(...)` role metadata (the admin
- *    panel and its APIs), or is explicitly `@MaintenanceExempt()` (login, health
- *    probes). Those routes' own guards still enforce authentication.
+ *    panel and its APIs) or `@Machine(...)` scope metadata (the automated
+ *    clients), or is explicitly `@MaintenanceExempt()` (login, health probes).
+ *    Those routes' own guards still enforce authentication.
  *  - identity: the request carries a valid admin session cookie, so an admin
  *    previews the live storefront exactly as it will appear at launch.
  *
@@ -57,6 +59,12 @@ export class MaintenanceGuard implements CanActivate {
     // behind authentication and stays reachable.
     const roles = this.reflector.getAllAndOverride(Roles, targets);
     if (roles !== undefined) {
+      return true;
+    }
+    // `@Machine(...)` is the same kind of proof for the other authentication
+    // path: an automated client's import is exactly the work maintenance mode
+    // is usually switched on to make room for.
+    if (this.reflector.getAllAndOverride(MachineScope, targets) !== undefined) {
       return true;
     }
     const exempt = this.reflector.getAllAndOverride<boolean>(
