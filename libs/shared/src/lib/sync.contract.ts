@@ -288,6 +288,17 @@ export const syncSummarySchema = z
     /** Live products absent from the file but kept because they are `manual:`. */
     keptManual: z.number().int().nonnegative(),
     errors: z.number().int().nonnegative(),
+    /**
+     * Which fields this run rewrote, as they are named in a change:
+     * `name`, `category`, `stock`, `price:<listKey>`. The counts say how much a
+     * run did; this says *what* it does, which for a feed that runs every
+     * twenty minutes is the more useful of the two.
+     *
+     * Only rewrites: a product this run creates writes everything it carries by
+     * definition, and the create count already says so. Defaulted, so summaries
+     * stored before this existed still parse.
+     */
+    fields: z.array(z.string()).default([]),
   })
   .strict();
 export type SyncSummary = z.infer<typeof syncSummarySchema>;

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { SyncRun, SyncSummary } from '@b2b-catalog-platform/shared';
+import { fillText, SyncRun, SyncSummary } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
@@ -23,6 +23,7 @@ const summary: SyncSummary = {
   categoriesRenamed: 0,
   keptManual: 0,
   errors: 0,
+  fields: [],
 };
 
 function run(overrides: Partial<SyncRun> = {}): SyncRun {
@@ -132,6 +133,28 @@ describe('SyncRunsPage', () => {
     ]);
 
     expect(el.textContent).toContain(text.status.failed);
+  });
+
+  /** The counts say how much; this says what — which for a feed that runs
+   * every twenty minutes is the question actually being asked of the log. */
+  it('names the fields a run rewrote, and counts the ones it has no room for', async () => {
+    const { el } = await render([
+      run({
+        summary: {
+          ...summary,
+          fields: ['name', 'stock', 'price:default', 'price:wholesale'],
+        },
+      }),
+    ]);
+
+    expect(el.textContent).toContain(text.field.name);
+    expect(el.textContent).toContain(text.field.stock);
+    expect(el.textContent).toContain(text.field.price);
+    // The fourth is over the limit the column shows, so it is counted instead.
+    expect(el.textContent).not.toContain(
+      fillText(text.field.priceList, { key: 'wholesale' }),
+    );
+    expect(el.textContent).toContain(fillText(text.field.more, { count: 1 }));
   });
 
   /** A run the source and the catalog agree about is over on arrival: it is

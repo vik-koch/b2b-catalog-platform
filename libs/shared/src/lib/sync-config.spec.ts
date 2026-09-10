@@ -17,6 +17,7 @@ const EMPTY: SyncSummary = {
   categoriesRenamed: 0,
   keptManual: 0,
   errors: 0,
+  fields: [],
 };
 
 const summary = (over: Partial<SyncSummary>): SyncSummary => ({

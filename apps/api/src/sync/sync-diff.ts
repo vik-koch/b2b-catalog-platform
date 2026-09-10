@@ -3,6 +3,8 @@ import {
   MANUAL_SOURCE_ID_PREFIX,
   ProductAvailability,
   productAvailability,
+  SYNC_CSV_COLUMNS,
+  SYNC_FIELDS,
   SYNC_PREVIEW_MAX_ITEMS,
   SyncOptions,
   SyncPlan,
@@ -513,6 +515,7 @@ export function planSync(
     categoriesRenamed: actions.updateCategories.length,
     keptManual: keptManual.length,
     errors: rowErrors.length,
+    fields: fieldsWritten(productChanges),
   };
 
   const categoryChanges = [
@@ -553,4 +556,30 @@ export function planSync(
       truncated,
     },
   };
+}
+
+/**
+ * Which fields a run rewrites, in a fixed order so two runs that touch the same
+ * things read the same. Taken from the changes themselves rather than from the
+ * run's declared `fields`: what a run is *allowed* to write and what it turned
+ * out to write are different sentences, and the log is about the second.
+ */
+function fieldsWritten(changes: SyncProductChange[]): string[] {
+  const seen = new Set<string>();
+  for (const change of changes) {
+    for (const field of change.changes) seen.add(field.field);
+  }
+  const ordered = SYNC_FIELDS.filter((field) => seen.has(field));
+  // Price lists after the plain fields, and the base list before the tiers:
+  // that is the order they are read in everywhere else.
+  const prices = [...seen]
+    .filter((field) => field.startsWith(SYNC_CSV_COLUMNS.pricePrefix))
+    .sort((a, b) =>
+      a === syncPriceColumn(DEFAULT_PRICE_LIST_KEY)
+        ? -1
+        : b === syncPriceColumn(DEFAULT_PRICE_LIST_KEY)
+          ? 1
+          : a.localeCompare(b),
+    );
+  return [...ordered, ...prices];
 }

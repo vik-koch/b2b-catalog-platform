@@ -212,6 +212,16 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
 
       expect(res.data.run.status).toBe('no-change');
     });
+
+    /** What a run rewrote, as the log shows it. */
+    it('names the fields a price-only run wrote', async () => {
+      const res = await submit({
+        rows: [{ sourceId: `${SOURCE_PREFIX}-1`, prices: { default: 4321 } }],
+      });
+
+      expect(res.data.run.status).toBe('applied');
+      expect(res.data.run.summary.fields).toEqual(['price:default']);
+    });
   });
 
   describe('a run outside the policy', () => {
@@ -262,7 +272,10 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
     });
 
     it('stages a run the caller asked to be doubted, however small', async () => {
-      const res = await submit({ rows: [row(1)], requestReview: true });
+      const res = await submit({
+        rows: [row(1, { prices: { default: 5555 } })],
+        requestReview: true,
+      });
 
       expect(res.data.run).toMatchObject({
         status: 'previewed',

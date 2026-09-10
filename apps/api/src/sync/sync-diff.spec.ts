@@ -86,6 +86,50 @@ describe('planSync', () => {
     expect(actions.updateProducts).toEqual([{ id: 'p-1', priceMinor: 1990 }]);
   });
 
+  /** What a run turned out to write, which is not the same claim as what it
+   * was allowed to write: the log is about the first. */
+  it('names the fields it rewrote, plain ones first and the base list before a tier', () => {
+    const { plan } = planSync(
+      [
+        row({
+          name: 'Renamed By File',
+          prices: { wholesale: 1500, default: 1990 },
+          stockPieces: 7,
+        }),
+      ],
+      options(),
+      state(),
+    );
+
+    expect(plan.summary.fields).toEqual([
+      'name',
+      'stock',
+      'price:default',
+      'price:wholesale',
+    ]);
+  });
+
+  it('names no fields for a run that only creates', () => {
+    // A new product writes everything it carries by definition, and the create
+    // count already says so.
+    const { plan } = planSync(
+      [
+        row({
+          sourceId: 'NEW-1',
+          name: 'New Thing',
+          categorySourceId: 'C-1',
+          categoryName: 'Coffee',
+          prices: { default: 500 },
+        }),
+      ],
+      options(),
+      state(),
+    );
+
+    expect(plan.summary.create).toBe(1);
+    expect(plan.summary.fields).toEqual([]);
+  });
+
   it('counts an identical row as unchanged', () => {
     const { plan, actions } = planSync(
       [row({ name: 'Espresso Blend', prices: { default: 1890 } })],

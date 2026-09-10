@@ -24,6 +24,7 @@ const summary: SyncSummary = {
   categoriesRenamed: 0,
   keptManual: 0,
   errors: 0,
+  fields: [],
 };
 
 const plan: SyncPlan = {

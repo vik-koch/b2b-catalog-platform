@@ -2,6 +2,10 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  DEFAULT_PRICE_LIST_KEY,
+  fillText,
+  SYNC_CSV_COLUMNS,
+  syncPriceColumn,
   SyncRun,
   SyncRunStatus,
   syncRunStatusSchema,
@@ -103,6 +107,9 @@ import { SyncService } from './sync.service';
           </td>
           <td class="text-subtle">
             <span class="block tabular-nums">{{ changeSummary(run) }}</span>
+            <span class="block truncate text-xs" [title]="fieldsTitle(run)">{{
+              fieldsLine(run)
+            }}</span>
           </td>
         </ng-template>
 
@@ -130,6 +137,7 @@ import { SyncService } from './sync.service';
             </p>
             <span recordMeta class="flex min-w-0 items-baseline gap-1">
               <span class="tabular-nums">{{ changeSummary(run) }}</span>
+              <span class="truncate">{{ fieldsLine(run) }}</span>
             </span>
           </app-record-row>
         </ng-template>
@@ -212,6 +220,7 @@ export class SyncRunsPage {
     { value: 'previewed', label: this.text.status.previewed },
     { value: 'applied', label: this.text.status.applied },
     { value: 'failed', label: this.text.status.failed },
+    { value: 'no-change', label: this.text.status['no-change'] },
     { value: 'superseded', label: this.text.status.superseded },
     { value: 'discarded', label: this.text.status.discarded },
   ];
@@ -225,6 +234,41 @@ export class SyncRunsPage {
    */
   protected who(run: SyncRun): string {
     return run.tokenName ?? run.actorEmail ?? this.text.sourceUpload;
+  }
+
+  /**
+   * What the run rewrote, under what it came to. The counts answer "how much";
+   * for a feed that runs every twenty minutes, "which fields" is the question
+   * actually being asked of the log.
+   */
+  protected fieldsLine(run: SyncRun): string {
+    const fields = run.summary?.fields ?? [];
+    const shown = fields.slice(0, FIELDS_SHOWN).map((f) => this.fieldLabel(f));
+    if (fields.length > FIELDS_SHOWN) {
+      shown.push(
+        fillText(this.text.field.more, { count: fields.length - FIELDS_SHOWN }),
+      );
+    }
+    return shown.join(' · ');
+  }
+
+  /** The whole list, for the ones the column had no room for. */
+  protected fieldsTitle(run: SyncRun): string {
+    return (run.summary?.fields ?? [])
+      .map((field) => this.fieldLabel(field))
+      .join(' · ');
+  }
+
+  private fieldLabel(field: string): string {
+    if (field === syncPriceColumn(DEFAULT_PRICE_LIST_KEY)) {
+      return this.text.field.price;
+    }
+    if (field.startsWith(SYNC_CSV_COLUMNS.pricePrefix)) {
+      return fillText(this.text.field.priceList, {
+        key: field.slice(SYNC_CSV_COLUMNS.pricePrefix.length),
+      });
+    }
+    return this.text.field[field as 'name' | 'category' | 'stock'] ?? field;
   }
 
   protected statusLabel(run: SyncRun): string {
@@ -256,6 +300,9 @@ export class SyncRunsPage {
       .join(' ');
   }
 }
+
+/** How many field names the column shows before it starts counting them. */
+const FIELDS_SHOWN = 3;
 
 const STATUS_TONE: Record<SyncRunStatus, StatusTone> = {
   previewed: 'waiting',

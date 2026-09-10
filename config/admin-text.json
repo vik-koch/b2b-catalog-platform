@@ -458,6 +458,13 @@
     "discardMessage": "Nothing will be applied and the run stays in the log as discarded. A later run can still bring the same changes.",
     "summaryTitleApplied": "What this run changed",
     "nothingChanged": "This run changed nothing.",
+    "field": {
+      "name": "names",
+      "category": "categories",
+      "stock": "stock",
+      "price": "prices",
+      "priceList": "prices ({key})",
+      "more": "+{count}"
     }
   },
   "maintenance": {

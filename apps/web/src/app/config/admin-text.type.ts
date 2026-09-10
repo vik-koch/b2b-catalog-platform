@@ -698,6 +698,7 @@ export const adminTextSchema = z
             previewed: z.string(),
             applied: z.string(),
             failed: z.string(),
+            'no-change': z.string(),
             superseded: z.string(),
             discarded: z.string(),
           })
@@ -706,6 +707,20 @@ export const adminTextSchema = z
          * column on a desktop, so it is the heading as well. */
         statusAll: z.string(),
         filterStatus: z.string(),
+        /**
+         * What a run rewrote, listed in the log under its counts. `price` is
+         * the base list; `priceList` names a tier's, since which lists a feed
+         * writes is the thing an admin is actually checking. `more` stands for
+         * the ones a narrow column has no room for.
+         */
+        field: z
+          .object({
+            name: z.string(),
+            category: z.string(),
+            stock: z.string(),
+            price: z.string(),
+            priceList: z.string(),
+            more: z.string(),
           })
           .strict(),
         /** Why a run is waiting, said in the log and on the run's own page. */
