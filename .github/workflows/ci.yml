@@ -118,9 +118,14 @@ jobs:
 
   # Each matrix job pushes its arch variant by digest only (no tags yet);
   # merge-manifests below attaches the tags to a combined manifest list.
+  #
+  # Gated on the browser smoke test as well as the unit checks: everything
+  # downstream of here is the deployment chain, and a push whose smoke test
+  # failed must not reach the dev environment. Branch protection keeps a red
+  # PR from merging, but nothing about a merge re-runs that promise.
   build-images:
     if: github.event_name == 'push'
-    needs: checks
+    needs: [checks, smoke-test]
     runs-on: ${{ matrix.platform.runner }}
     timeout-minutes: 30
     permissions:
