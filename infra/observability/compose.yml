@@ -224,7 +224,27 @@ configs:
         host          = "unix:///var/run/docker.sock"
         targets       = discovery.docker.containers.targets
         relabel_rules = discovery.relabel.containers.rules
-        forward_to    = [loki.write.default.receiver]
+        forward_to    = [loki.process.redact.receiver]
+      }
+
+      // Three routes carry their whole credential in the path: the order link
+      // a confirmation mail sends a guest (/orders/<token> and the API call
+      // behind it) and the set-a-password link (/auth/password-token/<token>).
+      // Traefik logs RequestPath, so without this the search box in Grafana
+      // hands over any order and any unspent password link to whoever can read
+      // the logs — for the 14 days Loki keeps them.
+      //
+      // Only the credential segment goes: which route was hit, how often and
+      // how it answered is exactly what the access log is kept for. The
+      // reference-shaped paths (/account/orders/<reference>, every /admin one)
+      // are left alone — a reference is not a way in.
+      loki.process "redact" {
+        forward_to = [loki.write.default.receiver]
+
+        stage.replace {
+          expression = "\"RequestPath\":\"(?:/api)?/(?:orders/by-token|auth/password-token|orders)/([^\"?/]+)"
+          replace    = "redacted"
+        }
       }
 
       loki.write "default" {

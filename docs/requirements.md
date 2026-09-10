@@ -214,6 +214,7 @@ without renumbering.
 | NFR-SEC-07 | The public search endpoint is rate-limited, and bounds the length and term count of a query it will execute.                                                                                          |
 | NFR-SEC-08 | Address suggestions are proxied by the API, never requested from the browser: the provider credential stays server-side, and the endpoint is rate-limited and bounds query length.                    |
 | NFR-SEC-09 | Machine clients (FR-ADM-07) authenticate with tokens that are stored hashed, scoped to what they may do, revocable from the admin panel, and rate-limited independently of the interactive endpoints. |
+| NFR-SEC-10 | A credential that travels in a URL — the link-opened order summary, the set-a-password link — is not retained in access logs: the credential segment is removed before the log line is stored.        |
 
 ### SEO & Accessibility (NFR-SEO)
 

@@ -202,6 +202,16 @@ one Grafana can serve dev and prod without summing them.
 | B2B — traffic & errors | Traefik access logs, no app code | requests by status, 5xx, latency p95, most-viewed products and pages                     |
 | B2B — search usage     | the api's `[Search]` log lines   | which searches come back empty, what is searched most, search volume and matcher latency |
 
+Traefik's access log keeps the request path, and three routes carry their whole
+credential in it — the order link a confirmation mail sends a guest, and the
+set-a-password link. Alloy strips that one segment on the way to Loki
+(NFR-SEC-10), so a path arrives as `/orders/redacted`; the route, its status
+and its latency are all still there, which is what the dashboards read. Traefik
+itself cannot rewrite a path segment, so the raw line does exist in the
+proxy container's own json log on the VM, where a tight rotation
+(2 × 10 MB) bounds how long it stays readable. Adding a route whose URL _is_
+the credential means adding it to that redaction.
+
 The search one (NFR-OPS-05) is the exception to "the edge supplies the data":
 Traefik does not keep query strings, and no access log knows how many rows a
 search returned. The api logs one line per executed search — normalised query,
