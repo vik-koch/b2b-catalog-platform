@@ -38,6 +38,13 @@
     "pairingsEnforced": false,
     "sortControlsEnabled": true
   },
+  "sync": {
+    "autoApply": {
+      "maxCreates": 100,
+      "maxSoftDeletes": 0,
+      "maxChangedShare": 0.5
+    }
+  },
   "locations": [
     {
       "name": "Speicherstadt Office",

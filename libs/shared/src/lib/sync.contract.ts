@@ -307,9 +307,18 @@ export type SyncPlan = z.infer<typeof syncPlanSchema>;
 export const syncRunStatusSchema = z.enum(['previewed', 'applied', 'failed']);
 export type SyncRunStatus = z.infer<typeof syncRunStatusSchema>;
 
-/** How the run entered the system. `api` is the headless path (not built yet —
- * it needs a non-cookie credential; deferred with its own ADR). */
+/** How the run entered the system: an admin's upload, or a machine token. */
 export const syncRunSourceSchema = z.enum(['upload', 'api']);
+
+/**
+ * Why a run was left for a person instead of applying itself (ADR 0055).
+ * `policy` — its effect was outside what the deployment lets a run do
+ * unattended. `requested` — the caller asked to be doubted, which it does when
+ * it cannot fully vouch for what it parsed. The screen has to say which, or an
+ * ordinary large import and one whose parsing is suspect look the same.
+ */
+export const syncStagedReasonSchema = z.enum(['policy', 'requested']);
+export type SyncStagedReason = z.infer<typeof syncStagedReasonSchema>;
 
 export const syncRunSchema = z
   .object({
