@@ -8,6 +8,8 @@ import {
   syncFormatErrorSchema,
   SyncOptions,
   SyncPreviewResponse,
+  SyncRun,
+  SyncRunStatus,
 } from '@b2b-catalog-platform/shared';
 import { syncContract } from '../../core/contract-routes.generated';
 import { safe } from '@orpc/client';
@@ -26,6 +28,11 @@ export type PreviewResult =
 export type CommitResult =
   | { ok: true; result: SyncCommitResponse }
   | { ok: false; code: SyncCommitCode };
+
+/** Giving up on a staged run answers with the same refusals applying does:
+ * both need a run that is still staged. */
+export type DiscardResult =
+  { ok: true; run: SyncRun } | { ok: false; code: SyncCommitCode };
 
 /**
  * The bulk-sync client. The upload is multipart, so it goes through HttpClient
@@ -87,7 +94,31 @@ export class SyncService {
     throw result.error;
   }
 
-  listRuns(page = 1) {
-    return this.client.listRuns({ query: { page } });
+  /** Gives up on a staged run. */
+  async discard(id: string): Promise<DiscardResult> {
+    const result = await safe(this.client.discardRun({ params: { id } }));
+
+    if (result.isSuccess) return { ok: true, run: result.data.run };
+    if (
+      result.isDefined &&
+      result.error.code !== 'not-authenticated' &&
+      result.error.code !== 'insufficient-role'
+    ) {
+      return { ok: false, code: result.error.code };
+    }
+    throw result.error;
+  }
+
+  listRuns(params: { page?: number; status?: SyncRunStatus } = {}) {
+    return this.client.listRuns({
+      query: { page: params.page ?? 1, status: params.status },
+    });
+  }
+
+  /** One run and the diff it stands for: recomputed while it is staged, stored
+   * once it has been applied, and absent for a run that failed before it had
+   * one. */
+  getRun(id: string) {
+    return this.client.getRun({ params: { id } });
   }
 }

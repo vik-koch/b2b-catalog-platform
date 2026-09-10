@@ -7,7 +7,7 @@ import { defaultAppText } from '../../config/app-text.fixture';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { DeploymentConfig } from '../../config/deployment-config.type';
-import { SyncPage } from './sync-page';
+import { SyncUploadPage } from './sync-upload-page';
 import { SyncService } from './sync.service';
 
 const text = defaultAdminText.sync;
@@ -28,6 +28,7 @@ const emptySummary = {
   categoriesRenamed: 0,
   keptManual: 0,
   errors: 0,
+  fields: [],
 };
 
 function plan(over: Partial<SyncPlan> = {}): SyncPlan {
@@ -53,6 +54,8 @@ function preview(p: SyncPlan): SyncPreviewResponse {
       startedAt: '2026-07-30T10:00:00.000Z',
       finishedAt: null,
       actorEmail: 'admin@example.com',
+      tokenName: null,
+      stagedReason: null,
       options: presetOptions,
       summary: p.summary,
       error: null,
@@ -86,7 +89,7 @@ async function render(previewResult: SyncPreviewResponse) {
   };
 
   TestBed.configureTestingModule({
-    imports: [SyncPage],
+    imports: [SyncUploadPage],
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
@@ -104,7 +107,7 @@ async function render(previewResult: SyncPreviewResponse) {
     ],
   });
 
-  const fixture = TestBed.createComponent(SyncPage);
+  const fixture = TestBed.createComponent(SyncUploadPage);
   await fixture.whenStable();
   fixture.detectChanges();
   return { fixture, el: fixture.nativeElement as HTMLElement, h };
@@ -136,7 +139,7 @@ function buttonWith(el: HTMLElement, label: string): HTMLButtonElement {
   return button;
 }
 
-describe('SyncPage', () => {
+describe('SyncUploadPage', () => {
   it('previews a file with the selected intent and writes nothing yet', async () => {
     const { fixture, el, h } = await render(preview(plan()));
 

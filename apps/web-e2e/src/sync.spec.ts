@@ -43,14 +43,17 @@ test('the admin dashboard links to the sync and shows a last-sync line', async (
 
   await expect(page.getByText(/Last sync|Never synced/)).toBeVisible();
   await page.getByRole('link', { name: 'Catalog sync' }).click();
+  // The panel opens the log of runs; the upload is a page reached from it.
   await expect(page).toHaveURL(/\/admin\/sync$/);
+  await page.getByRole('link', { name: 'Manual sync' }).click();
+  await expect(page).toHaveURL(/\/admin\/sync\/new$/);
 });
 
 test('a malformed file is refused with the reason, and nothing to apply', async ({
   page,
 }) => {
   await logIn(page);
-  await page.goto('/admin/sync');
+  await page.goto('/admin/sync/new');
 
   await upload(page, 'name,price\nBeans,100\n');
 
@@ -64,7 +67,7 @@ test('a preview shows the diff without writing, and hiding needs a typed confirm
   page,
 }) => {
   await logIn(page);
-  await page.goto('/admin/sync');
+  await page.goto('/admin/sync/new');
 
   // The default preset claims a complete catalog; turning on the hide option
   // makes this run sweep everything the seeded catalog has.
@@ -76,7 +79,7 @@ test('a preview shows the diff without writing, and hiding needs a typed confirm
     'sourceId,name,categorySourceId,categoryName,price\nE2E-1,Preview Only,E2E-C1,Preview Category,1000\n',
   );
 
-  await expect(page.getByText('What this file would change')).toBeVisible();
+  await expect(page.getByText('What this run would change')).toBeVisible();
   // A product and a category the catalog does not have → both are additions.
   await expect(page.getByText('Preview Only')).toBeVisible();
   await expect(page.getByText('Preview Category')).toBeVisible();
@@ -90,7 +93,7 @@ test('a preview shows the diff without writing, and hiding needs a typed confirm
   // Deliberately not clicked: applying would empty the seeded catalog that the
   // storefront specs assert against.
   await page.getByRole('button', { name: 'Discard' }).click();
-  await expect(page.getByText('What this file would change')).toBeHidden();
+  await expect(page.getByText('What this run would change')).toBeHidden();
 
   // The catalog is untouched — the preview really was a dry run.
   await page.goto('/catalog');
@@ -99,7 +102,7 @@ test('a preview shows the diff without writing, and hiding needs a typed confirm
 
 test('a price update cannot be given the hide option', async ({ page }) => {
   await logIn(page);
-  await page.goto('/admin/sync');
+  await page.goto('/admin/sync/new');
 
   // Clicked on the card's own hit area rather than `.check()`ed on the input:
   // the choice card lays an overlay over its whole surface, and that overlay
