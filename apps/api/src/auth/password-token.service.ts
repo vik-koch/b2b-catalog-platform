@@ -32,13 +32,19 @@ export class PasswordTokenService {
    * stays a way in.
    */
   async issue(userId: string, ttlMs: number): Promise<string> {
-    await this.revokeOutstanding(userId);
-
     const token = randomBytes(32).toString('base64url');
-    await this.db.insert(passwordTokens).values({
-      userId,
-      tokenHash: hashToken(token),
-      expiresAt: new Date(Date.now() + ttlMs),
+    // One transaction, so two requests racing each other cannot interleave
+    // into two live links: whichever commits second revokes the first.
+    await this.db.transaction(async (tx) => {
+      await tx
+        .update(passwordTokens)
+        .set({ expiresAt: new Date(0) })
+        .where(this.outstanding(userId));
+      await tx.insert(passwordTokens).values({
+        userId,
+        tokenHash: hashToken(token),
+        expiresAt: new Date(Date.now() + ttlMs),
+      });
     });
     return token;
   }
@@ -79,9 +85,15 @@ export class PasswordTokenService {
     await this.db
       .update(passwordTokens)
       .set({ expiresAt: new Date(0) })
-      .where(
-        and(eq(passwordTokens.userId, userId), isNull(passwordTokens.usedAt)),
-      );
+      .where(this.outstanding(userId));
+  }
+
+  /** Every link for an account that has not been spent yet. */
+  private outstanding(userId: string) {
+    return and(
+      eq(passwordTokens.userId, userId),
+      isNull(passwordTokens.usedAt),
+    );
   }
 
   /** Unused and unexpired — the only state a link may be redeemed in. */
