@@ -3,6 +3,8 @@ import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import { ApiTokensController } from './api-tokens.controller';
 import { ApiTokensService } from './api-tokens.service';
+import { MachineTokenGuard } from './machine-token.guard';
+import { MachineController } from './machine.controller';
 
 /**
  * Machine tokens (NFR-SEC-09): the credential itself, the admin surface that
@@ -11,8 +13,8 @@ import { ApiTokensService } from './api-tokens.service';
  */
 @Module({
   imports: [AuthModule],
-  controllers: [ApiTokensController],
-  providers: [ApiTokensService, AuditLogger],
-  exports: [ApiTokensService],
+  controllers: [ApiTokensController, MachineController],
+  providers: [ApiTokensService, MachineTokenGuard, AuditLogger],
+  exports: [ApiTokensService, MachineTokenGuard],
 })
 export class ApiTokensModule {}
