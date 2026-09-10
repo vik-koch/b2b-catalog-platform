@@ -16,6 +16,13 @@ import { orderStatusChangedMail } from '../mail/templates/order-status.template'
 import { MailAttachment } from '../mail/mailer';
 import { env } from '../env';
 
+/** Narrows the configured staff inbox, which env.ts requires in server mode. */
+function staffInbox(): string {
+  const inbox = env.MAIL_STAFF_TO;
+  if (!inbox) throw new Error('MAIL_STAFF_TO is not configured');
+  return inbox;
+}
+
 /**
  * The two mails an order request produces (FR-NOTIF-05/06).
  *
@@ -55,15 +62,13 @@ export class OrderNotifications {
       'order confirmation',
     );
 
-    const staffInbox = env.MAIL_STAFF_TO;
-    if (!staffInbox) {
-      // env.ts requires this in server mode; this narrows the type.
-      throw new Error('MAIL_STAFF_TO is not configured');
-    }
     await this.send(
       () =>
         this.mail.send(newOrderMail(order, this.currency, this.text), {
-          to: staffInbox,
+          // env.ts requires this in server mode; asking for it in here means a
+          // deployment that lost it still logs one failed mail rather than
+          // throwing past the customer's own.
+          to: staffInbox(),
           // A manager reading it on a phone replies to the customer, not to
           // the shop's own inbox.
           replyTo: order.contact.email,
@@ -84,15 +89,10 @@ export class OrderNotifications {
    * the shop's mail.
    */
   async cancelledByCustomer(order: AdminOrderDetail): Promise<void> {
-    const staffInbox = env.MAIL_STAFF_TO;
-    if (!staffInbox) {
-      // env.ts requires this in server mode; this narrows the type.
-      throw new Error('MAIL_STAFF_TO is not configured');
-    }
     await this.send(
       () =>
         this.mail.send(orderCancelledMail(order, this.currency, this.text), {
-          to: staffInbox,
+          to: staffInbox(),
           // As on the arrival notification: a manager reading it on a phone
           // rings the customer back, not the shop's own inbox.
           replyTo: order.contact.email,

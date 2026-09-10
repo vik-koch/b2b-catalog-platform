@@ -1,3 +1,5 @@
+import type { MockInstance } from 'vitest';
+import { Logger } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   deliveryConfigSchema,
@@ -14,6 +16,7 @@ import {
   users,
 } from '../db/schema';
 import { OrderNotifications } from './order-notifications';
+import { demoAdminOrder } from './order.fixture';
 import * as reference from './order-reference';
 import {
   CartChangedException,
@@ -537,5 +540,51 @@ describe('OrdersService.submit', () => {
     ).rejects.toMatchObject({
       response: { code: 'unknown-pickup-location' },
     });
+  });
+});
+
+/**
+ * The order is committed before the mails are prepared, and the customer is
+ * about to be shown its reference — so nothing in this step may fail the
+ * request. An unreachable SMTP is already swallowed by the notifier itself;
+ * what is asserted here is the rest of the step, which used to sit outside
+ * that net: the read that assembles the mails, and a deployment missing the
+ * staff inbox it sends one of them to.
+ *
+ * Failing instead would answer an error for an order that exists, and there is
+ * no submission identity to make the customer's retry the same order — they
+ * would simply place a second one.
+ */
+describe('OrdersService.notifyPlaced', () => {
+  const placed = { reference: 'CK-0001', publicToken: 'token' };
+  let error: MockInstance;
+
+  beforeEach(() => {
+    error = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => {
+      // The failure path logs; the assertion is that it does not throw.
+    });
+  });
+
+  afterEach(() => error.mockRestore());
+
+  it('swallows a read that fails after the order was committed', async () => {
+    const orders = service(testDb(0, {}));
+    vi.spyOn(orders, 'getForStaff').mockRejectedValue(
+      new Error('the connection went away'),
+    );
+
+    await expect(orders.notifyPlaced(placed)).resolves.toBeUndefined();
+    expect(error).toHaveBeenCalled();
+  });
+
+  it('swallows a notifier that throws for any other reason', async () => {
+    const orders = service(testDb(0, {}));
+    vi.spyOn(orders, 'getForStaff').mockResolvedValue(demoAdminOrder);
+    vi.spyOn(orders['notifications'], 'placed').mockRejectedValue(
+      new Error('MAIL_STAFF_TO is not configured'),
+    );
+
+    await expect(orders.notifyPlaced(placed)).resolves.toBeUndefined();
+    expect(error).toHaveBeenCalled();
   });
 });

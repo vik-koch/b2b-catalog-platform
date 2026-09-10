@@ -43,6 +43,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -277,6 +278,8 @@ end`;
  */
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger('Orders');
+
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     private readonly addresses: AddressesService,
@@ -350,6 +353,26 @@ export class OrdersService {
    * small lie.
    */
   private async mailCustomer(
+    reference: string,
+    since: number,
+    notice: OrderNotice,
+  ): Promise<void> {
+    // None of this may fail the move that produced it — the move is committed,
+    // the version is already stamped as written about, and the manager is
+    // owed an answer about the order, not about SMTP. The mailer swallows its
+    // own failures; this covers the rest of the step, which is real work: two
+    // reads and, for an order that owes money, a PDF built on the spot.
+    try {
+      await this.sendCustomerMail(reference, since, notice);
+    } catch (error) {
+      this.logger.error(
+        `Could not write to the customer about ${reference}`,
+        error,
+      );
+    }
+  }
+
+  private async sendCustomerMail(
     reference: string,
     since: number,
     notice: OrderNotice,
@@ -517,10 +540,23 @@ export class OrdersService {
     reference: string;
     publicToken: string;
   }): Promise<void> {
-    await this.notifications.placed(
-      await this.getForStaff(placed.reference),
-      placed.publicToken,
-    );
+    // Nothing in here may fail the request. The order is already committed and
+    // the customer is about to be shown its reference — so a read that fails
+    // after the commit, or a deployment missing its staff inbox, is logged and
+    // swallowed exactly as an unreachable SMTP already is. Failing instead
+    // would answer an error for an order that exists, and a customer who
+    // retries would place a second one.
+    try {
+      await this.notifications.placed(
+        await this.getForStaff(placed.reference),
+        placed.publicToken,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Could not notify about order ${placed.reference}`,
+        error,
+      );
+    }
   }
 
   /**
@@ -1320,10 +1356,19 @@ export class OrdersService {
     );
     // The shop is told (FR-NOTIF-07). Read as staff, because the mail is the
     // shop's: it states the money recorded against the order, which is not on
-    // the customer's projection at all.
-    await this.notifications.cancelledByCustomer(
-      await this.staffDetail(await this.row(eq(orders.id, moved.id))),
-    );
+    // the customer's projection at all. Swallowed like every other order mail:
+    // the customer has called their order off either way, and answering them
+    // an error for a cancellation that happened would invite them to try again.
+    try {
+      await this.notifications.cancelledByCustomer(
+        await this.staffDetail(await this.row(eq(orders.id, moved.id))),
+      );
+    } catch (error) {
+      this.logger.error(
+        `Could not tell the shop about the cancelled order ${reference}`,
+        error,
+      );
+    }
     return this.toDetail(moved, undefined, await this.customerDocuments(moved));
   }
 
