@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 /**
  * One record, drawn the way the admin grids draw a record on a phone: the one
@@ -74,9 +74,7 @@ import { Component, input } from '@angular/core';
           class="flex items-center justify-between gap-3 mt-0 sm:mt-1"
           [class]="compact() ? 'sm:min-h-8' : null"
         >
-          <div
-            class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-subtle"
-          >
+          <div [class]="metaClass()">
             <ng-content select="[recordMeta]" />
           </div>
           <!-- Never squeezed: the buttons are the reason the row is listed, and
@@ -97,4 +95,23 @@ export class RecordRow {
    * of the buttons in it so every row in the list measures the same.
    */
   readonly compact = input(false);
+
+  /**
+   * The other direction: facts that read down instead of across. A row whose
+   * meta is counts and dates strings them along one line and they scan; a row
+   * whose meta is sentences — what a credential may do, when it was issued and
+   * by whom, when it was last used — runs them together, because the only
+   * thing separating one from the next is a gap, and at any narrow width they
+   * wrap into a block with no shape at all.
+   *
+   * The row simply grows. The buttons stay centred against it, which is where
+   * a wrapped meta block already put them.
+   */
+  readonly stackMeta = input(false);
+
+  protected readonly metaClass = computed(() =>
+    this.stackMeta()
+      ? 'flex min-w-0 flex-col items-start gap-y-0.5 text-sm text-subtle'
+      : 'flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-subtle',
+  );
 }

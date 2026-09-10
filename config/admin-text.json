@@ -48,6 +48,7 @@
     "registries": "Filters and pricing",
     "pages": "Content pages",
     "site": "Maintenance mode",
+    "integrations": "Integrations",
     "version": "Version {version}",
     "versionUnknown": "Version unknown",
     "deployedAt": "deployed {date}",
@@ -471,6 +472,39 @@
       "tier-has-accounts": "This tier still has customer accounts on it. Move them to another tier first.",
       "tier-has-prices": "This tier still prices some products. Clear those prices first."
     }
+  },
+  "apiTokenList": {
+    "title": "Machine tokens",
+    "intro": "A machine token lets an automated client — a scheduled import, an integration — reach the API without signing in. It is not an account: it has no password, no mailbox and no role, only the things it is allowed to do.",
+    "add": "New token",
+    "create": "Create token",
+    "name": "Name",
+    "namePlaceholder": "Nightly catalog import",
+    "nameRequired": "A name is required.",
+    "scope": "Allowed to",
+    "scopeHint": "A token can only do what it is allowed to here. To change that, revoke it and issue another.",
+    "scopeRequired": "Choose at least one thing this token may do.",
+    "scopes": {
+      "catalog-sync": "Submit catalog imports"
+    },
+    "createdHeading": "“{name}” created",
+    "createdOnce": "Copy the value now — it is shown this once and cannot be looked up again. If you lose it, revoke this token and issue another.",
+    "createdDone": "Done",
+    "copy": "Copy",
+    "copied": "Copied",
+    "active": "Active",
+    "revoked": "Revoked",
+    "created": "Created {date} by {actor}",
+    "actorGone": "a deleted account",
+    "lastUsed": "Last used {date}",
+    "neverUsed": "Never used",
+    "empty": "No machine tokens yet.",
+    "createError": "This token could not be created. Please try again.",
+    "revoke": "Revoke",
+    "revokeTitle": "Revoke token",
+    "revokeConfirm": "Revoke “{name}”?",
+    "revokeWarning": "Whatever uses this token stops working on its next request. Revoking cannot be undone — issue a new token and reconfigure the client.",
+    "revokeError": "This token could not be revoked. Please try again."
   },
   "attributeList": {
     "title": "Filterable attributes",

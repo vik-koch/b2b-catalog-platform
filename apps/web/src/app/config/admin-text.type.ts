@@ -107,6 +107,9 @@ export const adminTextSchema = z
          * to managers as well as admins. */
         orders: z.string(),
         site: z.string(),
+        /** What the shop lets in from outside: machine tokens, and later the
+         * switch that hands an area of the catalog to an external system. */
+        integrations: z.string(),
         /** Deployed version line. `{version}` / `{date}` are substituted. */
         version: z.string(),
         versionUnknown: z.string(),
@@ -726,6 +729,51 @@ export const adminTextSchema = z
             'tier-has-prices': z.string(),
           })
           .strict(),
+      })
+      .strict(),
+    /**
+     * Machine tokens (NFR-SEC-09). The wording carries the one thing the
+     * screen cannot take back — a value shown once — so the created-token
+     * panel gets three lines of its own rather than a single label.
+     */
+    apiTokenList: z
+      .object({
+        title: z.string(),
+        intro: z.string(),
+        add: z.string(),
+        create: z.string(),
+        name: z.string(),
+        namePlaceholder: z.string(),
+        nameRequired: z.string(),
+        scope: z.string(),
+        scopeHint: z.string(),
+        scopeRequired: z.string(),
+        /** What each capability lets a token do, keyed by the contract's own
+         * scope values. A new scope is a release, so a missing key here is a
+         * config error rather than a fallback. */
+        scopes: z.object({ 'catalog-sync': z.string() }).strict(),
+        /** The panel that shows the value. `{name}` substituted at render. */
+        createdHeading: z.string(),
+        createdOnce: z.string(),
+        createdDone: z.string(),
+        copy: z.string(),
+        copied: z.string(),
+        active: z.string(),
+        revoked: z.string(),
+        /** Per-row facts. `{date}` and `{actor}` substituted at render. */
+        created: z.string(),
+        actorGone: z.string(),
+        lastUsed: z.string(),
+        neverUsed: z.string(),
+        empty: z.string(),
+        createError: z.string(),
+        /** Revocation, which is the only destructive thing here — and it is
+         * not undoable: a revoked token is replaced, not restored. */
+        revoke: z.string(),
+        revokeTitle: z.string(),
+        revokeConfirm: z.string(),
+        revokeWarning: z.string(),
+        revokeError: z.string(),
       })
       .strict(),
     /**
