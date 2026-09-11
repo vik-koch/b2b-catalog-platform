@@ -35,6 +35,21 @@ const EnvSchema = z
     // because both are the same job — a person answering prospective and
     // existing customers. Split it only if a deployment says otherwise.
     MAIL_STAFF_TO: z.string().optional(),
+    // Where the platform writes to the person who runs the shop: a sync that
+    // needs deciding, a sync that broke. Deliberately an address rather than
+    // "whoever holds an admin account" — it has to work on a deployment that
+    // has no admin account yet, it is the operator's to point at a list, and
+    // it does not change silently when somebody is deactivated. Required in
+    // server mode: falling back to MAIL_STAFF_TO would put operational mail in
+    // the inbox customers write to.
+    MAIL_ADMIN_TO: z.string().optional(),
+    // Optional second copy of the *fault* mails only — a broken exchange is
+    // fixed where the exchange runs, not in the admin panel. Unset (the usual
+    // case) means the admin address is the whole audience, which is why the
+    // admin gets those mails whether or not this is set. Grafana's alerting
+    // reads the same address (it was `ALERT_EMAIL` before the API became its
+    // second reader).
+    MAIL_OPS_TO: z.string().optional(),
     // Public origin of this deployment (the same value the web app gets), used
     // to build the absolute links every email needs — mail is read outside the
     // app, so nothing relative resolves. Required in server mode.
@@ -92,6 +107,7 @@ const EnvSchema = z
         'MAIL_PORT',
         'MAIL_FROM',
         'MAIL_STAFF_TO',
+        'MAIL_ADMIN_TO',
         'APP_ORIGIN',
         'JWT_SECRET',
         'MEDIA_ROOT',

@@ -1,0 +1,15 @@
+New products arrived
+
+They are in your catalog but not on the shop: a new product stays off the storefront until you have given it its description and pictures and published it.
+
+Started: 14 Mar 2026, 03:15
+Export: nightly-catalog
+Source: ERP nightly export
+Changes: +12 ~40 −0
+
+Open the new products: https://shop.example.com/admin/products?state=unpublished
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

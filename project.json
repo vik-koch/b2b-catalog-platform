@@ -18,6 +18,11 @@
       "// description": "Rebuilds the generated tables, diagram and journeys in docs/order-lifecycle.md.",
       "cache": false
     },
+    "catalog-sync": {
+      "command": "node tools/generate-catalog-sync.mjs",
+      "// description": "Rebuilds the generated journeys in docs/catalog-sync.md.",
+      "cache": false
+    },
     "account-lifecycle": {
       "command": "node tools/generate-account-lifecycle.mjs",
       "// description": "Rebuilds the generated statuses and journeys in docs/account-lifecycle.md.",

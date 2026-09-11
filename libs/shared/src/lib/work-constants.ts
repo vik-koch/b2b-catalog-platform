@@ -22,6 +22,8 @@ export const WORK_QUEUES = [
   'expiredDocuments',
   /** Documents whose expiry is within the warning window (FR-DOC-04). Admin. */
   'expiringDocuments',
+  /** Sync runs staged for a person to review (FR-ADM-07). Admin. */
+  'stagedSyncRuns',
   /** Orders handed over and not recorded as paid (FR-ORD-04). Staff. */
   'unpaidOrders',
   /** The account's own orders whose money the shop is waiting for. */

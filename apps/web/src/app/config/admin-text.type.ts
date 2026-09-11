@@ -142,6 +142,8 @@ export const adminTextSchema = z
         /** Documents whose expiry has already passed; `{count}`
          * substituted. */
         workDocumentsExpired: z.string(),
+        /** Sync runs staged for review; `{count}` substituted. */
+        workSyncRuns: z.string(),
       })
       .strict(),
     /** The storefront edit-mode toggle and its inline controls (FR-ADM-01). */

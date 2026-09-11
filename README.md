@@ -95,10 +95,11 @@ Planned:
 - [`docs/roadmap.md`](docs/roadmap.md) — iteration plan mapping requirements to delivery order
 - [`docs/adr/`](docs/adr) — architecture decision records, one per decision, in the order they
   were taken; each states the alternatives weighed and what the choice costs
-- [`docs/order-lifecycle.md`](docs/order-lifecycle.md) and
-  [`docs/account-lifecycle.md`](docs/account-lifecycle.md) — what an order and an account actually
-  do, step by step; the tables and journeys are generated from the rules and the end-to-end tests,
-  so they cannot describe anything unchecked
+- [`docs/order-lifecycle.md`](docs/order-lifecycle.md),
+  [`docs/account-lifecycle.md`](docs/account-lifecycle.md) and
+  [`docs/catalog-sync.md`](docs/catalog-sync.md) — what an order, an account and an automated
+  catalog feed actually do, step by step; the tables and journeys are generated from the rules and
+  the end-to-end tests, so they cannot describe anything unchecked
 - [`docs/mail.md`](docs/mail.md) — every message the platform sends, rendered from the deployment's
   own wording
 

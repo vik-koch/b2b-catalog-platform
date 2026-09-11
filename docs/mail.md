@@ -295,3 +295,49 @@ The contact form, delivered to the staff inbox with the visitor as Reply-To.
 **Preheader:** A visitor sent an inquiry through the contact form.
 
 [View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/inquiry.html) · [HTML source](mail/inquiry.html) · [Plain text](mail/inquiry.txt)
+
+## Running the shop
+
+<a id="sync-failed"></a>
+
+### Catalog update failed
+
+The first failure after the feed was working. Only the source’s own account of what broke is quoted — everything else is on the run page.
+
+**Subject:** Catalog update failed  
+**Preheader:** An automatic catalog update did not go through.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/sync-failed.html) · [HTML source](mail/sync-failed.html) · [Plain text](mail/sync-failed.txt)
+
+<a id="sync-recovered"></a>
+
+### Catalog updates working again
+
+Sent once, to whoever was told it was broken, so an announced failure is never left open.
+
+**Subject:** Catalog updates are working again  
+**Preheader:** The automatic catalog update went through.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/sync-recovered.html) · [HTML source](mail/sync-recovered.html) · [Plain text](mail/sync-recovered.txt)
+
+<a id="sync-waiting"></a>
+
+### A catalog update is waiting
+
+A run held back for a person. The reason separates an ordinary large import from one the source itself doubts.
+
+**Subject:** A catalog update is waiting for you  
+**Preheader:** An automatic catalog update needs your decision.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/sync-waiting.html) · [HTML source](mail/sync-waiting.html) · [Plain text](mail/sync-waiting.txt)
+
+<a id="sync-created"></a>
+
+### New products arrived
+
+A run that applied itself and brought products nobody has published yet. The only one of the four that opens the product list rather than the run.
+
+**Subject:** New products from your system  
+**Preheader:** An automatic catalog update brought new products.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/sync-created.html) · [HTML source](mail/sync-created.html) · [Plain text](mail/sync-created.txt)

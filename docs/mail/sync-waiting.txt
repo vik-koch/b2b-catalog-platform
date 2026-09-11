@@ -1,0 +1,16 @@
+A catalog update is waiting for you
+
+It has not been applied. Look at what it would change, then apply it or discard it — nothing on the shop moves until you do.
+
+Started: 14 Mar 2026, 03:15
+Export: nightly-catalog
+Source: ERP nightly export
+Changes: +4 ~96 −212
+Why it is waiting: Its effect is larger than an automatic update is allowed to be
+
+Review the update: https://shop.example.com/admin/sync/runs/6f0b2b3c-6f2c-4c0a-9d1e-9c5a8f0a1b2c
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

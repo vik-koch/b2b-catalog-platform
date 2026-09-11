@@ -252,6 +252,48 @@ export const demoMailText: MailText = {
       paid: 'Paid',
     },
   },
+  syncRun: {
+    startedLabel: 'Started',
+    labelLabel: 'Export',
+    sourceLabel: 'Source',
+    changesLabel: 'Changes',
+    errorLabel: 'What went wrong',
+    reasonLabel: 'Why it is waiting',
+    reasons: {
+      policy: 'Its effect is larger than an automatic update is allowed to be',
+      requested: 'The source asked for it to be reviewed',
+    },
+    kinds: {
+      failed: {
+        subject: 'Catalog update failed',
+        preheader: 'An automatic catalog update did not go through.',
+        heading: 'An automatic catalog update failed',
+        body: 'Your catalog is unchanged and the shop is serving what it served before.',
+        action: 'Open the run',
+      },
+      recovered: {
+        subject: 'Catalog updates are working again',
+        preheader: 'The automatic catalog update went through.',
+        heading: 'Catalog updates are working again',
+        body: 'The connection to your system is delivering again.',
+        action: 'Open the run',
+      },
+      waiting: {
+        subject: 'A catalog update is waiting for you',
+        preheader: 'An automatic catalog update needs your decision.',
+        heading: 'A catalog update is waiting for you',
+        body: 'It has not been applied. Apply it or discard it.',
+        action: 'Review the update',
+      },
+      created: {
+        subject: 'New products from your system',
+        preheader: 'An automatic catalog update brought new products.',
+        heading: 'New products arrived',
+        body: 'They are in your catalog but not on the shop.',
+        action: 'Open the new products',
+      },
+    },
+  },
 };
 
 /** Demo branding for tests, mirroring config/deployment.json. */

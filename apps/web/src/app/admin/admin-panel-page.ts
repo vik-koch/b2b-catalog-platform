@@ -154,22 +154,34 @@ import { SyncService } from './sync/sync.service';
                     }
                   </div>
                 </app-panel-row>
-                <!-- The run it reports is the one this row starts again. The
-                     audit trail's newest applied run is the whole answer; until
-                     it arrives, hold the line's space rather than showing
-                     "never synced" and correcting it — and hold exactly the
-                     width the answer takes, which is one timestamp. -->
+                <!-- Two readings on one right-hand axis, as the documents
+                     row has: what is waiting to be decided, over when the
+                     catalog last moved. The run it reports is the one this row
+                     starts again. The audit trail's newest applied run is the
+                     whole answer; until it arrives, hold the line's space
+                     rather than showing "never synced" and correcting it — and
+                     hold exactly the width the answer takes, which is one
+                     timestamp. -->
                 <app-panel-row [label]="syncText.title" link="/admin/sync">
-                  @if (runs.isLoading()) {
-                    <span
-                      class="block h-3 w-24 animate-pulse rounded bg-stone-200"
-                      aria-hidden="true"
-                    ></span>
-                  } @else {
-                    <span class="flex text-xs text-muted">{{
-                      lastSync()
-                    }}</span>
-                  }
+                  <div class="flex flex-col items-end gap-0.5">
+                    @if (stagedSyncRuns(); as count) {
+                      <app-work-note
+                        [label]="fill(panelText.workSyncRuns, count)"
+                        link="/admin/sync"
+                        [queryParams]="{ status: 'previewed' }"
+                      />
+                    }
+                    @if (runs.isLoading()) {
+                      <span
+                        class="block h-3 w-24 animate-pulse rounded bg-stone-200"
+                        aria-hidden="true"
+                      ></span>
+                    } @else {
+                      <span class="flex text-xs text-muted">{{
+                        lastSync()
+                      }}</span>
+                    }
+                  </div>
                 </app-panel-row>
               </ul>
             </section>
@@ -414,6 +426,9 @@ export class AdminPanelPage {
   );
   protected readonly expiredDocuments = computed(
     () => this.work.counts().expiredDocuments || undefined,
+  );
+  protected readonly stagedSyncRuns = computed(
+    () => this.work.counts().stagedSyncRuns || undefined,
   );
 
   protected fill(template: string, count: number): string {

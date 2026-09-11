@@ -59,6 +59,7 @@
     "workProducts": "{count} awaiting publication",
     "workDocuments": "{count} expiring soon",
     "workDocumentsExpired": "{count} expired",
+    "workSyncRuns": "{count} awaiting review",
     "operations": "Operations",
     "maintenanceOn": "Maintenance on",
     "catalogOwned": "Catalog externally owned"

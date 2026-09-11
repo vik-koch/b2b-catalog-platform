@@ -56,6 +56,7 @@ jobs:
       - run: node tools/generate-mail-previews.mjs --check
       - run: node tools/generate-order-lifecycle.mjs --check
       - run: node tools/generate-account-lifecycle.mjs --check
+      - run: node tools/generate-catalog-sync.mjs --check
 
       - run: cp .env.example .env
 
@@ -308,6 +309,7 @@ jobs:
           MAIL_PORT=1025
           MAIL_FROM=Coffee Kontor <no-reply@coffee-kontor.example>
           MAIL_STAFF_TO=hallo@coffee-kontor.example
+          MAIL_ADMIN_TO=admin@coffee-kontor.example
           INBOX_BASICAUTH=reviewer:{SHA}$inbox_hash
           # Dev mirrors prod content pre-launch — never indexed.
           SEO_INDEXABLE=false
@@ -324,7 +326,7 @@ jobs:
           # Alert mail is deliberately absent here: dev and the public prod send
           # through Mailpit, which lives in the app stack's network and is not
           # reachable from Grafana. A deployment with real SMTP (the private
-          # repo) sets SMTP_* + ALERT_EMAIL in this file — see
+          # repo) sets SMTP_* + MAIL_OPS_TO in this file — see
           # infra/observability/.env.example. Unset -> Grafana runs without mail.
           EOF
             export OBSERVABILITY_ENV="$RUNNER_TEMP/observability.env"

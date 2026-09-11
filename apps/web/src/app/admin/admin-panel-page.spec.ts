@@ -127,6 +127,7 @@ describe('AdminPanelPage work counts', () => {
       unpublishedProducts: 3,
       expiredDocuments: 5,
       expiringDocuments: 6,
+      stagedSyncRuns: 2,
     });
 
     expect(note(el, '2 awaiting approval')?.getAttribute('href')).toBe(
@@ -151,6 +152,11 @@ describe('AdminPanelPage work counts', () => {
     );
     expect(note(el, '6 expiring soon')?.getAttribute('href')).toBe(
       '/admin/documents?status=expiring',
+    );
+    // The sync row carries two readings on one axis: what is waiting to be
+    // decided, over when the catalog last moved.
+    expect(note(el, '2 awaiting review')?.getAttribute('href')).toBe(
+      '/admin/sync?status=previewed',
     );
   });
 

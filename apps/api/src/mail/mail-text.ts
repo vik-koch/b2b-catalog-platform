@@ -21,6 +21,20 @@ const statusMailText = z
   .object({ heading: z.string(), body: z.string() })
   .strict();
 
+/** One sync outcome: its own subject and its own two lines. Subject and
+ * preheader are per outcome rather than shared, because these four land in an
+ * inbox side by side and a common subject would make them one thread. */
+const syncMailText = z
+  .object({
+    subject: z.string(),
+    preheader: z.string(),
+    heading: z.string(),
+    body: z.string(),
+    /** Button into the admin panel. */
+    action: z.string(),
+  })
+  .strict();
+
 export const mailTextSchema = z
   .object({
     /** Wording the shared layout puts on every message. */
@@ -396,6 +410,58 @@ export const mailTextSchema = z
             notDue: z.string(),
             awaiting: z.string(),
             paid: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
+     * What an automated catalog sync writes to the shop (FR-ADM-07/09).
+     *
+     * One section rather than four, because these four messages are the same
+     * message about four different outcomes: they carry the same facts about
+     * the same run, and only the sentence at the top differs. The labels are
+     * shared for the same reason a status mail's are — a run described two
+     * ways in two mails is a run nobody can follow across them.
+     */
+    syncRun: z
+      .object({
+        startedLabel: z.string(),
+        /** What the run called itself — a filename for an upload, a label the
+         * automated source chose for its export. */
+        labelLabel: z.string(),
+        /** Which credential submitted it, so a deployment with more than one
+         * source says which one this was. */
+        sourceLabel: z.string(),
+        /** Created / updated / hidden, as one line. */
+        changesLabel: z.string(),
+        /** The reported reason a run broke. Never an exception's text: what
+         * the automated source said about itself. */
+        errorLabel: z.string(),
+        /** Why it is waiting rather than applied. */
+        reasonLabel: z.string(),
+        reasons: z
+          .object({
+            /** Its effect was outside what the deployment lets a run apply
+             * unattended. */
+            policy: z.string(),
+            /** The source asked to be doubted. */
+            requested: z.string(),
+          })
+          .strict(),
+        kinds: z
+          .object({
+            /** The exchange stopped working. Goes to the admin, and to the
+             * operator where one is configured: the admin cannot fix it, but
+             * they are the one who knows it is broken and who asks. */
+            failed: syncMailText,
+            /** It works again. Sent once, to the same readers, so a failure
+             * that was announced is never left open. */
+            recovered: syncMailText,
+            /** A run is staged and nobody has decided it. */
+            waiting: syncMailText,
+            /** A run applied itself and brought new products, which are off
+             * the storefront until somebody publishes them (FR-ADM-06). */
+            created: syncMailText,
           })
           .strict(),
       })
