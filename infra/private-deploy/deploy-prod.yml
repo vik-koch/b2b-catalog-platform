@@ -69,6 +69,10 @@ jobs:
           MAIL_PORT: ${{ vars.MAIL_PORT }}
           MAIL_FROM: ${{ vars.MAIL_FROM }}
           MAIL_STAFF_TO: ${{ vars.MAIL_STAFF_TO }}
+          # The shop's admin, who decides a staged sync run and is told when
+          # the exchange breaks. Not MAIL_STAFF_TO: these mails link into the
+          # admin panel.
+          MAIL_ADMIN_TO: ${{ vars.MAIL_ADMIN_TO }}
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_SECURE: ${{ vars.MAIL_SECURE }}
@@ -135,6 +139,7 @@ jobs:
           MAIL_PORT=${MAIL_PORT:-587}
           MAIL_FROM=$MAIL_FROM
           MAIL_STAFF_TO=$MAIL_STAFF_TO
+          MAIL_ADMIN_TO=$MAIL_ADMIN_TO
           MAIL_OPS_TO=$MAIL_OPS_TO
           MAIL_USER=$MAIL_USER
           MAIL_PASSWORD=$MAIL_PASSWORD
