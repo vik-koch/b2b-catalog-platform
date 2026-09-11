@@ -1,9 +1,9 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { totalMinor } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { injectNarrowScreen } from '../../core/narrow-screen';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { formatPriceMinor } from '../../catalog/price';
+import { ADMIN_TEXT } from '../../config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { injectNarrowScreen } from '../../core/narrow-screen';
 import { FieldLabel } from '../../ui/field-label';
 import { NumericField } from '../../ui/numeric-field';
 import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
@@ -169,7 +169,6 @@ export function parseCount(text: string): number | null {
           </tbody>
         </table>
       }
-
     </fieldset>
   `,
 })
@@ -223,15 +222,15 @@ export class ProductPackagingEditor {
     });
 
     return [
-      row('minPieceQty', this.text.minPieceQty, {
-        placeholder: '1',
-        suffix: this.text.pieceSuffix,
-        hint: this.text.minPieceQtyHint,
-      }),
       row('piecesPerPack', this.text.piecesPerPack, {
         placeholder: this.text.notSoldPerPack,
         suffix: this.text.pieceSuffix,
         price: prices.pack,
+      }),
+      row('minPieceQty', this.text.minPieceQty, {
+        placeholder: '1',
+        suffix: this.text.pieceSuffix,
+        hint: this.text.minPieceQtyHint,
       }),
       row('packsPerBox', this.text.packsPerBox, {
         placeholder: this.text.notSoldPerBox,
