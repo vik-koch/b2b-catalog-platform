@@ -94,6 +94,7 @@ describe('work counts', () => {
       'expiringDocuments',
       'orders',
       'registrations',
+      'stagedSyncRuns',
       'unpaidOrders',
       'unpublishedProducts',
     ]);

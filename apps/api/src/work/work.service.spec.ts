@@ -3,7 +3,7 @@ import { PgDialect } from 'drizzle-orm/pg-core';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import * as schema from '../db/schema';
-import { documents, orders, products, users } from '../db/schema';
+import { documents, orders, products, syncRuns, users } from '../db/schema';
 import { WorkService } from './work.service';
 
 /**
@@ -17,13 +17,16 @@ interface Ask {
   table: unknown;
   /** The condition as SQL, so the filter is asserted rather than assumed. */
   where: string;
+  /** Its bound values, which is where an enum the filter turns on ends up. */
+  params: unknown[];
 }
 
 function testDb(counts: number[] = []) {
   const asks: Ask[] = [];
   let next = 0;
   const record = (table: unknown, where: SQL) => {
-    asks.push({ table, where: new PgDialect().sqlToQuery(where).sql });
+    const query = new PgDialect().sqlToQuery(where);
+    asks.push({ table, where: query.sql, params: query.params });
     return counts[next++] ?? 0;
   };
   const db = {
@@ -69,7 +72,7 @@ describe('WorkService', () => {
   });
 
   it('adds the catalog queues for an admin', async () => {
-    const { db, asks } = testDb([1, 2, 3, 5, 4, 6]);
+    const { db, asks } = testDb([1, 2, 3, 5, 4, 6, 2]);
 
     const counts = await new WorkService(db).countsFor(user('admin'));
 
@@ -80,12 +83,31 @@ describe('WorkService', () => {
       unpublishedProducts: 5,
       expiredDocuments: 4,
       expiringDocuments: 6,
+      stagedSyncRuns: 2,
     });
     expect(asks[3].table).toBe(products);
     // Off the storefront and still in the catalog: a soft-deleted row is not
     // work, because nothing is waiting for it to be published.
     expect(asks[3].where).toContain('"publishedAt" is null');
     expect(asks[3].where).toContain('"deletedAt" is null');
+  });
+
+  /**
+   * A manual upload sits in `previewed` too, between an admin's preview and
+   * their commit. That is one person's screen mid-use, not a queue, so the
+   * source is half the filter — and the link beside the count opens the same
+   * rows.
+   */
+  it('counts only automated runs left waiting for a decision', async () => {
+    const { db, asks } = testDb([0, 0, 0, 0, 0, 0, 2]);
+
+    const counts = await new WorkService(db).countsFor(user('admin'));
+
+    expect(counts.stagedSyncRuns).toBe(2);
+    expect(asks[6].table).toBe(syncRuns);
+    expect(asks[6].where).toContain('"status" = $1');
+    expect(asks[6].where).toContain('"source" = $2');
+    expect(asks[6].params).toEqual(['previewed', 'api']);
   });
 
   // The money queue is the payment axis and the status axis together, which is

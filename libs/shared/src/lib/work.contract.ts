@@ -30,6 +30,13 @@ export const workCountsSchema = z.object({
   /** Documents inside the warning window (FR-DOC-04). Admin. */
   expiringDocuments: z.number().int().nonnegative().optional(),
   /**
+   * Sync runs waiting for an admin to apply or discard them (FR-ADM-07).
+   * Admin. A staged run is the only kind counted: a run that applied itself
+   * asks nothing of anybody, and one superseded or discarded has been
+   * answered — by a later run or by a person.
+   */
+  stagedSyncRuns: z.number().int().nonnegative().optional(),
+  /**
    * Orders finished with the money not recorded (FR-ORD-04). Staff. Its own
    * queue rather than a second reading of `orders`: they are two jobs with two
    * lists, and one figure over both could not link to either.

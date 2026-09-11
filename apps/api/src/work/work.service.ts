@@ -22,7 +22,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 
-const { documents, orderRevisions, orders, products, users } = schema;
+const { documents, orderRevisions, orders, products, syncRuns, users } = schema;
 
 /**
  * Which queues a role is told about (FR-WORK-04), as a table rather than as a
@@ -48,6 +48,7 @@ const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
     'unpublishedProducts',
     'expiredDocuments',
     'expiringDocuments',
+    'stagedSyncRuns',
   ],
   manager: ['registrations', 'orders', 'unpaidOrders'],
   user: ['myPayments', 'myPickups'],
@@ -83,6 +84,7 @@ export class WorkService {
     unpublishedProducts: () => this.unpublishedProducts(),
     expiredDocuments: () => this.expiredDocuments(),
     expiringDocuments: () => this.expiringDocuments(),
+    stagedSyncRuns: () => this.stagedSyncRuns(),
     myPayments: (user) => this.myPayments(user.id),
     myPickups: (user) => this.myPickups(user.id),
   };
@@ -177,6 +179,23 @@ export class WorkService {
         gte(documents.expiresAt, isoToday(new Date())),
         lte(documents.expiresAt, isoToday(due)),
       ),
+    );
+  }
+
+  /**
+   * Automated runs staged for an admin to apply or discard (FR-ADM-07). The
+   * figure falls on its own: a staged run is superseded by the next one and a
+   * discarded one has been answered, so nothing here is acknowledged.
+   *
+   * `source` is half the predicate, not decoration. A manual upload sits in
+   * `previewed` too, between its preview and its commit — but that is one
+   * person's screen mid-use, which is why nothing supersedes it either. Only a
+   * run that arrived while nobody was looking is work waiting for somebody.
+   */
+  private stagedSyncRuns(): Promise<number> {
+    return this.db.$count(
+      syncRuns,
+      and(eq(syncRuns.status, 'previewed'), eq(syncRuns.source, 'api')),
     );
   }
 
