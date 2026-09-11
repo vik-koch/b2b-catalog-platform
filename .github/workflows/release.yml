@@ -149,7 +149,7 @@ jobs:
           # Alert mail is deliberately absent here: dev and the public prod send
           # through Mailpit, which lives in the app stack's network and is not
           # reachable from Grafana. A deployment with real SMTP (the private
-          # repo) sets SMTP_* + ALERT_EMAIL in this file — see
+          # repo) sets SMTP_* + MAIL_OPS_TO in this file — see
           # infra/observability/.env.example. Unset -> Grafana runs without mail.
           EOF
             export OBSERVABILITY_ENV="$RUNNER_TEMP/observability.env"

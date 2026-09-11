@@ -143,7 +143,7 @@ Whatever the provider, the VM needs:
    application mail via Mailpit, which sits in the app stack's network where
    Grafana cannot reach it, so alerting stays dormant there. A deployment with
    real SMTP — the private repo — sets `SMTP_ENABLED`, `SMTP_HOST`, `SMTP_USER`,
-   `SMTP_PASSWORD`, `SMTP_FROM` and `ALERT_EMAIL` directly in the stack's
+   `SMTP_PASSWORD`, `SMTP_FROM` and `MAIL_OPS_TO` directly in the stack's
    `observability/.env` (see
    [.env.example](observability/.env.example) and [Alerting](#alerting)).
    Without them Grafana still runs and still evaluates the rules — it just
@@ -248,7 +248,7 @@ the disk quietly fills.
 | Backup job reporting errors | `db-backup`/`media-backup` log an error within an hour | a backup nobody checks is not a backup                                                         |
 | Elevated server errors      | >20 responses ≥500 in 10 minutes                       | a page that cannot load its data answers 503, so an outage is visible rather than a silent 200 |
 
-Set `SMTP_*` and `ALERT_EMAIL` in the observability `.env` (see
+Set `SMTP_*` and `MAIL_OPS_TO` in the observability `.env` (see
 [.env.example](observability/.env.example)). Disk usage reaches Loki as a log
 line every five minutes rather than as a metric, which is what lets a single
 log pipeline carry it.

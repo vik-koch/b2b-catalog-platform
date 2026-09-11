@@ -40,11 +40,11 @@ smtp_host=$(val SMTP_HOST)
 smtp_user=$(val SMTP_USER)
 smtp_pass=$(val SMTP_PASSWORD)
 smtp_from=$(val SMTP_FROM)
-alert_to=$(val ALERT_EMAIL)
+alert_to=$(val MAIL_OPS_TO)
 skip_verify=$(val SMTP_SKIP_VERIFY)
 
 [ -n "$smtp_host" ] && [ -n "$alert_to" ] || {
-  echo "alerting is not configured on '$stack' (SMTP_HOST / ALERT_EMAIL empty)." >&2
+  echo "alerting is not configured on '$stack' (SMTP_HOST / MAIL_OPS_TO empty)." >&2
   echo "See infra/observability/.env.example." >&2
   exit 1
 }

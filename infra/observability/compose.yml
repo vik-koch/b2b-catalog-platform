@@ -115,7 +115,7 @@ services:
       # run without alerting. `.invalid` is reserved by RFC 2606 and cannot
       # resolve, so the placeholder can never mail a real person; with
       # SMTP_ENABLED=false nothing is attempted anyway.
-      ALERT_EMAIL: ${ALERT_EMAIL:-alerts-not-configured@invalid}
+      MAIL_OPS_TO: ${MAIL_OPS_TO:-alerts-not-configured@invalid}
     volumes:
       - grafana:/var/lib/grafana
     configs:
@@ -744,7 +744,7 @@ configs:
           }
         ]
       }
-  # Where alerts go. `${ALERT_EMAIL}` is interpolated by Grafana from its own
+  # Where alerts go. `${MAIL_OPS_TO}` is interpolated by Grafana from its own
   # environment at load time (doubled below so Compose leaves it alone).
   grafana_contact_points:
     content: |
@@ -756,7 +756,7 @@ configs:
             - uid: ops-email
               type: email
               settings:
-                addresses: $${ALERT_EMAIL}
+                addresses: $${MAIL_OPS_TO}
                 singleEmail: true
       policies:
         - orgId: 1
