@@ -86,6 +86,7 @@ describe('SettingsService', () => {
     await service.onModuleInit();
 
     expect(service.isMaintenanceEnabled()).toBe(true);
+    expect(service.isExternallyOwned('catalog')).toBe(true);
   });
 
   it('does not fail the boot when the table is not there yet', async () => {
@@ -96,6 +97,9 @@ describe('SettingsService', () => {
 
     await expect(service.onModuleInit()).resolves.toBeUndefined();
     expect(service.isMaintenanceEnabled()).toBe(false);
+    // Fail-open for the gate is fail-*closed* for ownership: an unreadable
+    // settings row must not hand the catalog to a system nobody configured.
+    expect(service.isExternallyOwned('catalog')).toBe(false);
   });
 
   it('reflects a write in the cached flag, and records the change', async () => {
@@ -120,6 +124,60 @@ describe('SettingsService', () => {
         changedByEmail: ACTOR.email,
       }),
     );
+  });
+
+  describe('external ownership', () => {
+    it('hands an area over, caches it, and records who did it', async () => {
+      const { db, inserted } = dbWriting(
+        settingsRow(),
+        settingsRow({ externallyOwnedAreas: ['catalog'] }),
+      );
+      const service = new SettingsService(db);
+      await service.onModuleInit();
+      expect(service.isExternallyOwned('catalog')).toBe(false);
+
+      const status = await service.setOwnership('catalog', true, ACTOR);
+
+      expect(status.ownedAreas).toEqual(['catalog']);
+      expect(service.isExternallyOwned('catalog')).toBe(true);
+      expect(inserted).toContainEqual(
+        expect.objectContaining({
+          kind: 'ownership',
+          area: 'catalog',
+          enabled: true,
+          changedByEmail: ACTOR.email,
+        }),
+      );
+    });
+
+    it('takes it back', async () => {
+      const { db } = dbWriting(
+        settingsRow({ externallyOwnedAreas: ['catalog'] }),
+        settingsRow(),
+      );
+      const service = new SettingsService(db);
+      await service.onModuleInit();
+      expect(service.isExternallyOwned('catalog')).toBe(true);
+
+      await service.setOwnership('catalog', false, ACTOR);
+
+      expect(service.isExternallyOwned('catalog')).toBe(false);
+    });
+
+    it('records nothing when the switch was already that way', async () => {
+      // The panel re-sending the state it is showing is not an event, and a
+      // trail full of non-events is one nobody reads.
+      const { db, inserted } = dbWriting(
+        settingsRow({ externallyOwnedAreas: ['catalog'] }),
+        settingsRow({ externallyOwnedAreas: ['catalog'] }),
+      );
+      const service = new SettingsService(db);
+      await service.onModuleInit();
+
+      await service.setOwnership('catalog', true, ACTOR);
+
+      expect(inserted.filter((row) => row['kind'] === 'ownership')).toEqual([]);
+    });
   });
 
   describe('build info', () => {

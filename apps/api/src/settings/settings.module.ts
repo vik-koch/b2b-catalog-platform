@@ -19,5 +19,8 @@ import { SettingsService } from './settings.service';
     SettingsService,
     { provide: APP_GUARD, useClass: MaintenanceGuard },
   ],
+  // The catalog and sync modules ask it whether an area is externally owned
+  // before they accept a write (FR-ADM-10).
+  exports: [SettingsService],
 })
 export class SettingsModule {}

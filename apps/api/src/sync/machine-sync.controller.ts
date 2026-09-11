@@ -4,6 +4,7 @@ import { machineSyncContract } from '@b2b-catalog-platform/shared';
 import { CurrentMachine } from '../api-tokens/current-machine.decorator';
 import { Machine } from '../api-tokens/machine.decorator';
 import { MachineClient } from '../api-tokens/machine-client';
+import { refusals } from '../orpc/refusals';
 import { MachineThrottle } from '../throttling/throttle-presets';
 import { SyncService } from './sync.service';
 
@@ -28,18 +29,30 @@ export class MachineSyncController {
 
   @Implement(machineSyncContract.submitRun)
   submitRun(@CurrentMachine() machine: MachineClient) {
-    return implement(machineSyncContract.submitRun).handler(({ input }) =>
-      this.service.submit(input.body, { id: machine.id, name: machine.name }),
+    return (
+      implement(machineSyncContract.submitRun)
+        // Both routes refuse while nobody has handed the catalog over
+        // (FR-ADM-10). Without this the service's exception is swallowed and
+        // answered as a 500 with the code gone — see `refusals`.
+        .use(refusals)
+        .handler(({ input }) =>
+          this.service.submit(input.body, {
+            id: machine.id,
+            name: machine.name,
+          }),
+        )
     );
   }
 
   @Implement(machineSyncContract.reportFailure)
   reportFailure(@CurrentMachine() machine: MachineClient) {
-    return implement(machineSyncContract.reportFailure).handler(({ input }) =>
-      this.service.reportFailure(input.body, {
-        id: machine.id,
-        name: machine.name,
-      }),
-    );
+    return implement(machineSyncContract.reportFailure)
+      .use(refusals)
+      .handler(({ input }) =>
+        this.service.reportFailure(input.body, {
+          id: machine.id,
+          name: machine.name,
+        }),
+      );
   }
 }

@@ -26,6 +26,11 @@ import {
   syncOptionsSchema,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
+import { SettingsService } from '../settings/settings.service';
+import {
+  catalogExternallyOwned,
+  catalogNotExternallyOwned,
+} from '../settings/ownership.refusals';
 import * as schema from '../db/schema';
 import {
   categories,
@@ -126,7 +131,13 @@ export class SyncService {
     // What this deployment lets an unattended run do to itself.
     @Inject(SYNC_POLICY)
     private readonly policy: SyncPolicy,
+    private readonly settings: SettingsService,
   ) {}
+
+  /** Whether the exchange currently holds the pen (FR-ADM-10). */
+  private get catalogIsOwned(): boolean {
+    return this.settings.isExternallyOwned('catalog');
+  }
 
   /** Parse-free entry point: rows are already validated (CSV or JSON). */
   async preview(
@@ -136,6 +147,10 @@ export class SyncService {
     actor: Actor,
     parseErrors: SyncPlan['rowErrors'] = [],
   ): Promise<SyncPreviewResponse> {
+    // The manual upload is the operator's fallback, and it is closed exactly
+    // while somebody else is doing the job (FR-ADM-02). Refused here rather
+    // than only in the controller so the rule holds for every caller.
+    if (this.catalogIsOwned) throw catalogExternallyOwned('upload');
     const state = await this.readState();
     const { plan } = planSync(rows, options, state, parseErrors);
 
@@ -211,6 +226,14 @@ export class SyncService {
             message: 'This run’s staged rows have been pruned',
           });
         }
+        // Applying is the write, so it is judged by the setting in force now
+        // rather than the one in force when the file went up: a run uploaded
+        // before the catalog was handed over is not a way to get a manual
+        // write in afterwards. Machine runs are unaffected — they exist only
+        // while the catalog *is* owned, which is when applying them is right.
+        if (run.source === 'upload' && this.catalogIsOwned) {
+          throw catalogExternallyOwned('apply an uploaded run');
+        }
 
         // Re-diff against current state: the catalog may have moved since the
         // preview (another admin edited a product), so the preview is advisory
@@ -276,6 +299,9 @@ export class SyncService {
     submission: SyncSubmission,
     submitter: Submitter,
   ): Promise<SyncSubmitResponse> {
+    // The other half of the mutual exclusion: nobody has handed the catalog
+    // over, so the shop is writing it by hand and a second writer is refused.
+    if (!this.catalogIsOwned) throw catalogNotExternallyOwned();
     // Absent options mean the schema's defaults, exactly as they do for an
     // upload — parsed rather than assumed, so the delete gate is applied to a
     // headless run's intent as well.
@@ -337,6 +363,12 @@ export class SyncService {
     report: SyncFailureReport,
     submitter: Submitter,
   ): Promise<{ run: SyncRun }> {
+    // Refused for the same reason a submission is. It costs the record of a
+    // feed that is still broken while an operator has taken the catalog back —
+    // which is the right trade: they took it back *because* it is broken, and
+    // a client told plainly that the platform is not listening is better than
+    // one quietly filling a log nobody asked it to write.
+    if (!this.catalogIsOwned) throw catalogNotExternallyOwned();
     const now = new Date();
     const [row] = await this.db
       .insert(syncRuns)

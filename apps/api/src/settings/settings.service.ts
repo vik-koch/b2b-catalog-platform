@@ -166,6 +166,16 @@ export class SettingsService implements OnModuleInit {
     );
   }
 
+  // --- External ownership (FR-ADM-10) --------------------------------------
+
+  /**
+   * Synchronous cached read for the write guards. `readonly` on the way out so
+   * a caller cannot quietly edit the cache it was handed.
+   */
+  isExternallyOwned(area: OwnershipArea): boolean {
+    return this.ownedAreas.includes(area);
+  }
+
   /**
    * Hand one area over, or take it back. Idempotent by construction — the
    * areas are held as a set — but a no-op still records nothing rather than a

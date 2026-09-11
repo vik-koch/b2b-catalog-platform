@@ -338,7 +338,8 @@
       "unknown-columns": "These columns are not recognised: {columns}. Expected any of: {expected}.",
       "missing-required-column": "The file needs a “{column}” column.",
       "too-many-rows": "That file has {rows} rows; the limit is {limit}. Split it into smaller files.",
-      "options-invalid": "The options sent with this file were not valid. Reload the page and try again."
+      "options-invalid": "The options sent with this file were not valid. Reload the page and try again.",
+      "catalog-externally-owned": "The catalog is managed by an external system, so uploads are turned off. To upload a file, take the catalog back under Data ownership in the admin panel."
     },
     "summaryTitle": "What this run would change",
     "productsTitle": "Products",

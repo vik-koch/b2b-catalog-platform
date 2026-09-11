@@ -1,5 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SettingsService } from '../settings/settings.service';
 import {
   fillText,
   SYNC_ALL_FIELDS,
@@ -67,136 +68,149 @@ import { SyncService } from './sync.service';
          fields and rows to read down, not a table to scan across, and a line
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
-      <!-- Step 1: what is this file? -->
-      <section class="mb-8">
-        <h2 class="mb-3 text-sm font-medium">{{ text.modeLabel }}</h2>
-        <!-- Cards, the same control checkout uses for a choice that reshapes
+      <!-- The upload is the operator's fallback, and it is closed exactly
+           while somebody else is doing the job. The form is replaced rather
+           than disabled: there is nothing here to fill in, and a greyed form
+           invites an attempt the API would refuse anyway. -->
+      @if (catalogOwned()) {
+        <p
+          class="rounded-md border border-border bg-stone-100 px-4 py-3 text-sm text-muted"
+          role="status"
+        >
+          {{ text.formatErrors['catalog-externally-owned'] }}
+        </p>
+      } @else {
+        <!-- Step 1: what is this file? -->
+        <section class="mb-8">
+          <h2 class="mb-3 text-sm font-medium">{{ text.modeLabel }}</h2>
+          <!-- Cards, the same control checkout uses for a choice that reshapes
            what follows: each preset needs a sentence, and the destructive one
            needs to be readable as the outlier it is. -->
-        <div class="space-y-2">
-          @for (option of presets; track option.name) {
-            <app-choice-card
-              name="preset"
-              [value]="option.name"
-              [checked]="preset() === option.name"
-              [title]="text.mode[option.label]"
-              [description]="option.hint ? text.mode[option.hint] : undefined"
-              (chosen)="selectPreset(option.name)"
-            />
-          }
-        </div>
-
-        <details class="mt-4">
-          <summary class="cursor-pointer text-sm text-muted">
-            {{ text.advanced }}
-          </summary>
-          <div class="mt-3 space-y-2 border-l-2 border-stone-100 pl-4">
-            @for (flag of flags; track flag.key) {
-              <label class="flex cursor-pointer items-start gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  appCheckbox
-                  class="mt-0.5"
-                  [checked]="isFlagOn(flag.key)"
-                  [disabled]="
-                    flag.key === 'softDelete' &&
-                    !options().productSetAuthoritative
-                  "
-                  (change)="toggleFlag(flag.key, $any($event.target).checked)"
-                />
-                <span>
-                  {{ text.option[flag.label] }}
-                  @if (flag.hint) {
-                    <span class="block text-subtle">{{
-                      text.option[flag.hint]
-                    }}</span>
-                  }
-                </span>
-              </label>
+          <div class="space-y-2">
+            @for (option of presets; track option.name) {
+              <app-choice-card
+                name="preset"
+                [value]="option.name"
+                [checked]="preset() === option.name"
+                [title]="text.mode[option.label]"
+                [description]="option.hint ? text.mode[option.hint] : undefined"
+                (chosen)="selectPreset(option.name)"
+              />
             }
           </div>
-        </details>
-      </section>
 
-      <!-- Step 2: the file -->
-      <section class="mb-8">
-        <span appFieldLabel>{{ text.file }}</span>
+          <details class="mt-4">
+            <summary class="cursor-pointer text-sm text-muted">
+              {{ text.advanced }}
+            </summary>
+            <div class="mt-3 space-y-2 border-l-2 border-stone-100 pl-4">
+              @for (flag of flags; track flag.key) {
+                <label class="flex cursor-pointer items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    appCheckbox
+                    class="mt-0.5"
+                    [checked]="isFlagOn(flag.key)"
+                    [disabled]="
+                      flag.key === 'softDelete' &&
+                      !options().productSetAuthoritative
+                    "
+                    (change)="toggleFlag(flag.key, $any($event.target).checked)"
+                  />
+                  <span>
+                    {{ text.option[flag.label] }}
+                    @if (flag.hint) {
+                      <span class="block text-subtle">{{
+                        text.option[flag.hint]
+                      }}</span>
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+          </details>
+        </section>
 
-        <!-- The picker is the drop target: a bare file input is easy to miss on
+        <!-- Step 2: the file -->
+        <section class="mb-8">
+          <span appFieldLabel>{{ text.file }}</span>
+
+          <!-- The picker is the drop target: a bare file input is easy to miss on
            a screen where uploading is the whole point. -->
-        <input
-          #fileInput
-          type="file"
-          accept=".csv,text/csv"
-          class="sr-only"
-          (change)="onFile($event)"
-        />
-        <button
-          type="button"
-          class="w-full p-4"
-          [class]="dropZoneClass()"
-          (click)="openPicker(fileInput)"
-          (dragover)="onDragOver($event)"
-          (dragleave)="dragging.set(false)"
-          (drop)="onDrop($event)"
-        >
-          <app-admin-icon name="upload" class="h-6 w-6 mb-2" />
-          @if (file(); as chosen) {
-            <span class="font-medium">{{ chosen.name }}</span>
-            <span class="text-sm text-subtle">{{ text.changeFile }}</span>
-          } @else {
-            <span class="font-medium">{{ text.dropHint }}</span>
-            <span class="text-sm">{{ text.browse }}</span>
-          }
-        </button>
-        <p class="mt-1 text-sm text-subtle">{{ text.fileHint }}</p>
-
-        <div class="mt-4 flex items-center gap-3">
+          <input
+            #fileInput
+            type="file"
+            accept=".csv,text/csv"
+            class="sr-only"
+            (change)="onFile($event)"
+          />
           <button
-            appButton
             type="button"
-            [disabled]="!file() || previewing()"
-            (click)="runPreview()"
+            class="w-full p-4"
+            [class]="dropZoneClass()"
+            (click)="openPicker(fileInput)"
+            (dragover)="onDragOver($event)"
+            (dragleave)="dragging.set(false)"
+            (drop)="onDrop($event)"
           >
-            {{ previewing() ? text.previewing : text.preview }}
+            <app-admin-icon name="upload" class="h-6 w-6 mb-2" />
+            @if (file(); as chosen) {
+              <span class="font-medium">{{ chosen.name }}</span>
+              <span class="text-sm text-subtle">{{ text.changeFile }}</span>
+            } @else {
+              <span class="font-medium">{{ text.dropHint }}</span>
+              <span class="text-sm">{{ text.browse }}</span>
+            }
           </button>
-          @if (previewed()) {
+          <p class="mt-1 text-sm text-subtle">{{ text.fileHint }}</p>
+
+          <div class="mt-4 flex items-center gap-3">
             <button
               appButton
-              variant="secondary"
               type="button"
-              (click)="reset()"
+              [disabled]="!file() || previewing()"
+              (click)="runPreview()"
             >
-              {{ text.discard }}
+              {{ previewing() ? text.previewing : text.preview }}
             </button>
+            @if (previewed()) {
+              <button
+                appButton
+                variant="secondary"
+                type="button"
+                (click)="reset()"
+              >
+                {{ text.discard }}
+              </button>
+            }
+          </div>
+
+          @if (previewError(); as message) {
+            <p class="mt-3 text-sm text-red-700" role="alert">{{ message }}</p>
           }
-        </div>
+        </section>
 
-        @if (previewError(); as message) {
-          <p class="mt-3 text-sm text-red-700" role="alert">{{ message }}</p>
+        <!-- Step 3: the diff -->
+        @if (previewed(); as response) {
+          <div class="mb-8">
+            <app-sync-plan-view
+              [plan]="response.plan"
+              [applicable]="true"
+              [busy]="applying()"
+              [error]="applyError()"
+              (apply)="apply(response.run.id)"
+            />
+          </div>
         }
-      </section>
 
-      <!-- Step 3: the diff -->
-      @if (previewed(); as response) {
-        <div class="mb-8">
-          <app-sync-plan-view
-            [plan]="response.plan"
-            [applicable]="true"
-            [busy]="applying()"
-            [error]="applyError()"
-            (apply)="apply(response.run.id)"
-          />
-        </div>
-      }
-
-      @if (appliedRun(); as run) {
-        <p class="mb-8 rounded-md bg-stone-100 p-3 text-sm" role="status">
-          {{ text.applied }} {{ changeSummary(run) }}
-          <a appLink routerLink="/catalog" class="ml-2">{{
-            catalogText.navLabel
-          }}</a>
-        </p>
+        @if (appliedRun(); as run) {
+          <p class="mb-8 rounded-md bg-stone-100 p-3 text-sm" role="status">
+            {{ text.applied }} {{ changeSummary(run) }}
+            <a appLink routerLink="/catalog" class="ml-2">{{
+              catalogText.navLabel
+            }}</a>
+          </p>
+        }
       }
     </div>
   `,
@@ -204,12 +218,19 @@ import { SyncService } from './sync.service';
 export class SyncUploadPage {
   private readonly sync = inject(SyncService);
   protected readonly text = inject(ADMIN_TEXT).sync;
+  private readonly ownership = inject(SettingsService);
+
+  /** Whether an external system owns the catalog (FR-ADM-10). */
+  protected readonly catalogOwned = computed(
+    () => this.ownership.ownedAreas()?.includes('catalog') ?? false,
+  );
   protected readonly catalogText = inject(APP_TEXT).catalog;
 
   constructor() {
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({ name: () => this.text.uploadTitle });
+    void this.ownership.load();
   }
 
   protected readonly presets = SYNC_PRESETS;

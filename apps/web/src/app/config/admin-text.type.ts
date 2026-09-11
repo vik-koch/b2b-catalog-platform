@@ -587,6 +587,9 @@ export const adminTextSchema = z
             'missing-required-column': z.string(),
             'too-many-rows': z.string(),
             'options-invalid': z.string(),
+            /** Not a fault in the file: the catalog is externally owned
+             * (FR-ADM-10) and the upload is closed. */
+            'catalog-externally-owned': z.string(),
           })
           .strict(),
         /** The diff. `{count}` substituted at render. */
