@@ -8,10 +8,11 @@ import { defaultAppText } from '../config/app-text.fixture';
 import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
+import { AppSettings } from '@b2b-catalog-platform/shared';
 import { AdminPanelPage } from './admin-panel-page';
+import { SettingsService } from './settings/settings.service';
 import { BuildInfoService } from './build-info.service';
 import { SyncService } from './sync/sync.service';
-import { MaintenanceService } from './maintenance/maintenance.service';
 import { AuthService } from '../auth/auth.service';
 import { adminUser, managerUser } from '../auth/auth-user.fixture';
 import { WorkService } from '../work/work.service';
@@ -25,10 +26,17 @@ const config = defaultDeploymentConfig;
  * `user` (whose role decides how much of the panel exists at all), with `counts`
  * waiting.
  */
+/** The last settings answer the panel's chips read, and the read itself. */
+const settingsStub = (settings: AppSettings | null = null) => ({
+  load: vi.fn(async () => settings?.ownedAreas ?? []),
+  settings: signal(settings).asReadonly(),
+});
+
 async function render(
   info: BuildInfo | 'reject',
   user: AuthUser | null = null,
   counts: WorkCounts = {},
+  settings = settingsStub(),
 ) {
   TestBed.configureTestingModule({
     imports: [AdminPanelPage],
@@ -52,12 +60,9 @@ async function render(
           ),
         },
       },
-      // Not under test here, and both would otherwise reach the network.
+      // Not under test here, and would otherwise reach the network.
       { provide: SyncService, useValue: { listRuns: vi.fn(async () => null) } },
-      {
-        provide: MaintenanceService,
-        useValue: { getStatus: vi.fn(async () => ({ enabled: false })) },
-      },
+      { provide: SettingsService, useValue: settings },
     ],
   });
   const fixture = TestBed.createComponent(AdminPanelPage);
@@ -171,5 +176,77 @@ describe('AdminPanelPage work counts', () => {
     expect(note(el, '1 awaiting approval')).toBeDefined();
     expect(note(el, '2 awaiting your answer')).toBeDefined();
     expect(el.querySelectorAll('app-work-note a')).toHaveLength(2);
+  });
+});
+
+/**
+ * The two runtime switches, beside the row that changes them (FR-ADM-04,
+ * FR-ADM-10). The panel is the first screen of an admin session, and these are
+ * the states an admin can leave on without the shop telling them.
+ */
+describe('AdminPanelPage runtime state', () => {
+  const panelText = defaultAdminText.panel;
+
+  const withSettings = (over: Partial<AppSettings>) =>
+    settingsStub({
+      maintenanceEnabled: false,
+      ownedAreas: [],
+      updatedAt: '2026-09-11T10:00:00.000Z',
+      ...over,
+    });
+
+  it('says nothing while the shop is live and owns its own catalog', async () => {
+    const el = await render(
+      { version: null, deployedAt: null },
+      adminUser,
+      {},
+      withSettings({}),
+    );
+
+    expect(el.textContent).not.toContain(panelText.maintenanceOn);
+    expect(el.textContent).not.toContain(panelText.catalogOwned);
+  });
+
+  it('marks maintenance mode while it is on', async () => {
+    const el = await render(
+      { version: null, deployedAt: null },
+      adminUser,
+      {},
+      withSettings({ maintenanceEnabled: true }),
+    );
+
+    expect(el.textContent).toContain(panelText.maintenanceOn);
+  });
+
+  it('marks a catalog an external system owns', async () => {
+    const el = await render(
+      { version: null, deployedAt: null },
+      adminUser,
+      {},
+      withSettings({ ownedAreas: ['catalog'] }),
+    );
+
+    expect(el.textContent).toContain(panelText.catalogOwned);
+  });
+
+  it('does not ask for the settings as a manager', async () => {
+    // The endpoint is admin-only, and a failed read is what tells the editors
+    // to lock every field — so a manager's panel must not provoke one.
+    const settings = withSettings({});
+    await render(
+      { version: null, deployedAt: null },
+      managerUser,
+      {},
+      settings,
+    );
+
+    expect(settings.load).not.toHaveBeenCalled();
+  });
+
+  it('asks for them once as an admin', async () => {
+    const settings = withSettings({});
+    await render({ version: null, deployedAt: null }, adminUser, {}, settings);
+
+    expect(settings.load).toHaveBeenCalledTimes(1);
   });
 });

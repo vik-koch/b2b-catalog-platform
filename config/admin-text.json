@@ -47,8 +47,6 @@
     "catalog": "Catalog",
     "registries": "Filters and pricing",
     "pages": "Content pages",
-    "site": "Maintenance mode",
-    "integrations": "Integrations",
     "version": "Version {version}",
     "versionUnknown": "Version unknown",
     "deployedAt": "deployed {date}",
@@ -59,7 +57,10 @@
     "workUnpaid": "{count} finished, not paid",
     "workProducts": "{count} awaiting publication",
     "workDocuments": "{count} expiring soon",
-    "workDocumentsExpired": "{count} expired"
+    "workDocumentsExpired": "{count} expired",
+    "operations": "Operations",
+    "maintenanceOn": "Maintenance on",
+    "catalogOwned": "Catalog externally owned"
   },
   "editMode": {
     "enable": "Edit mode",
@@ -1100,5 +1101,48 @@
       "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}.",
       "tierRequired": "Please choose a tier."
     }
+  },
+  "ownership": {
+    "intro": "Hand an area of the shop's data to an external system, or take it back. While an external system owns an area, it is the only thing that writes it: the fields it fills are read-only here, and the shop's own way in is turned off. While nobody owns it, the shop is in charge and automated updates are refused.",
+    "areas": {
+      "catalog": "Catalog"
+    },
+    "areaDescription": {
+      "catalog": "Product names, categories, prices and stock. Descriptions, photos, attributes, documents and what is paired with what stay yours either way."
+    },
+    "statusOwned": "Managed by an external system",
+    "statusOwnedEffect": "File uploads are off, and the fields above are read-only in the catalog editor.",
+    "statusOwn": "Managed in the shop",
+    "statusOwnEffect": "File uploads work, and automated updates are refused.",
+    "hand": "Hand over",
+    "take": "Take back",
+    "takeTitle": "Take the catalog back",
+    "takeConfirm": "Take the catalog back from the external system?",
+    "takeWarning": "The external system's updates will be refused from its next attempt, and whatever it sends while it is refused is not kept. Hand the catalog back when you are done.",
+    "handTitle": "Hand the catalog over",
+    "handConfirm": "Hand the catalog to an external system?",
+    "handWarning": "File uploads stop working, and names, categories, prices and stock become read-only in the catalog editor. Any file already uploaded and waiting can no longer be applied.",
+    "error": "Something went wrong changing this. Please try again.",
+    "fieldLocked": "The catalog is managed by an external system, so this is set there rather than here. To edit it in the shop, take the catalog back under Data ownership in the admin panel.",
+    "fieldLockedShort": "Set by the external system that manages the catalog.",
+    "categoryHasProducts": "This category still has products in it. While the catalog is managed by an external system, products cannot be moved between categories here — empty it in that system first, or take the catalog back under Data ownership in the admin panel.",
+    "productDelete": "The catalog is managed by an external system, so what it contains is set there. Remove this product in that system, or take the catalog back under Data ownership in the admin panel.",
+    "productCreate": "The catalog is managed by an external system, so new products are added there. To add one in the shop, take the catalog back under Data ownership in the admin panel."
+  },
+  "operations": {
+    "title": "Maintenance and ownership",
+    "backToPanel": "Back to the panel",
+    "maintenanceHeading": "Maintenance mode",
+    "ownershipHeading": "Data ownership",
+    "loadError": "This could not be loaded. Please reload the page.",
+    "historyTitle": "Recent changes",
+    "historyEmpty": "Nothing has been changed yet.",
+    "historyOwnershipOn": "{area} handed to an external system",
+    "historyOwnershipOff": "{area} taken back",
+    "historyMaintenanceOn": "Maintenance mode turned on",
+    "historyMaintenanceOff": "Maintenance mode turned off",
+    "historyBy": "{date} by {actor}",
+    "historyActorGone": "a deleted account",
+    "historyMore": "Only the {count} most recent changes are shown."
   }
 }

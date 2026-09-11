@@ -106,10 +106,18 @@ export const adminTextSchema = z
         /** Heading of the orders card — a manager's daily work, so it is shown
          * to managers as well as admins. */
         orders: z.string(),
-        site: z.string(),
-        /** What the shop lets in from outside: machine tokens, and later the
-         * switch that hands an area of the catalog to an external system. */
-        integrations: z.string(),
+        /** How the shop is running and what it lets in from outside: the two
+         * runtime switches, and the credentials an automated client presents.
+         * One section, because "maintenance mode" was a heading that could only
+         * ever name one card. */
+        operations: z.string(),
+        /**
+         * What is unusual about how the shop is running, beside the operations
+         * row. Shown only while true: a chip that says "maintenance off" on
+         * every visit is a chip nobody sees when it says anything else.
+         */
+        maintenanceOn: z.string(),
+        catalogOwned: z.string(),
         /** Deployed version line. `{version}` / `{date}` are substituted. */
         version: z.string(),
         versionUnknown: z.string(),
@@ -1744,6 +1752,78 @@ export const adminTextSchema = z
         enable: z.string(),
         disable: z.string(),
         error: z.string(),
+      })
+      .strict(),
+    /**
+     * The switch that hands an area of the shop's data to an external system
+     * (FR-ADM-10), and the trail of runtime-setting changes shown beside it.
+     *
+     * Keyed by area rather than written out per area: iteration 13 adds a
+     * value, and a deployment that never hands anything over still ships the
+     * wording, because the file is validated whole.
+     */
+    /**
+     * The switch that hands an area of the shop's data to an external system
+     * (FR-ADM-10), and the refusals it produces across the catalog screens.
+     * The page it sits on is `operations` below — this is the switch, not the
+     * screen.
+     */
+    ownership: z
+      .object({
+        intro: z.string(),
+        areas: z.object({ catalog: z.string() }).strict(),
+        areaDescription: z.object({ catalog: z.string() }).strict(),
+        statusOwned: z.string(),
+        statusOwnedEffect: z.string(),
+        statusOwn: z.string(),
+        statusOwnEffect: z.string(),
+        hand: z.string(),
+        take: z.string(),
+        takeTitle: z.string(),
+        takeConfirm: z.string(),
+        takeWarning: z.string(),
+        handTitle: z.string(),
+        handConfirm: z.string(),
+        handWarning: z.string(),
+        error: z.string(),
+        /** The banner at the top of an editor: why, and where to change it. */
+        fieldLocked: z.string(),
+        /** The same fact in one clause, for the mark beside each locked field —
+         * the banner above it already gives the long version. */
+        fieldLockedShort: z.string(),
+        /** The delete dialog, where reassigning would move products. */
+        categoryHasProducts: z.string(),
+        /** The product delete dialog, which explains instead of asking. */
+        productDelete: z.string(),
+        /** The product editor, opened on the "new" route. */
+        productCreate: z.string(),
+      })
+      .strict(),
+    /**
+     * The screen the two runtime switches share (FR-ADM-04, FR-ADM-10), and
+     * the trail of changes to both. They are one page because the trail covers
+     * both: a settings history split across two screens is one an operator has
+     * to read twice.
+     */
+    operations: z
+      .object({
+        title: z.string(),
+        backToPanel: z.string(),
+        maintenanceHeading: z.string(),
+        ownershipHeading: z.string(),
+        loadError: z.string(),
+        historyTitle: z.string(),
+        historyEmpty: z.string(),
+        /** `{area}` */
+        historyOwnershipOn: z.string(),
+        historyOwnershipOff: z.string(),
+        historyMaintenanceOn: z.string(),
+        historyMaintenanceOff: z.string(),
+        /** `{date}` and `{actor}` */
+        historyBy: z.string(),
+        historyActorGone: z.string(),
+        /** `{count}` — shown only when the list came back full. */
+        historyMore: z.string(),
       })
       .strict(),
   })

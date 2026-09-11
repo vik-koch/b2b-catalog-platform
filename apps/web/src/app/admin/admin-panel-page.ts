@@ -7,25 +7,26 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { usePageSeo } from '../core/page-seo';
 import { AdminIcon } from '../ui/icons/admin-icon';
+import { StatusBadge } from '../ui/status-badge';
 import { WorkNote } from '../work/work-note';
 import { WorkService } from '../work/work.service';
 import { BuildInfoService } from './build-info.service';
 import { injectEditorReturnParams } from './editor-return';
 import { adminMomentFormat } from './grid/admin-date';
-import { MaintenanceToggle } from './maintenance/maintenance-toggle';
 import { PanelRow } from './panel-row';
+import { SettingsService } from './settings/settings.service';
 import { SyncService } from './sync/sync.service';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and
  * accounts) side by side, then everything that changes shop content (the
  * catalog import, products and categories, the fixed static pages), then site
- * state (maintenance mode). Everything an admin can change is discoverable
+ * state. Everything an admin can change is discoverable
  * from here, consistent with the storefront edit-mode affordances.
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [SignedInAs, MaintenanceToggle, AdminIcon, PanelRow, WorkNote],
+  imports: [SignedInAs, AdminIcon, PanelRow, StatusBadge, WorkNote],
   template: `
     <!-- Narrower than the shell allows. The panel is a column of short lists,
          and at the full width of a desktop each card was a name on the left
@@ -182,20 +183,6 @@ import { SyncService } from './sync/sync.service';
               </ul>
             </section>
           }
-          <!-- The session's own password, in the same place a customer finds
-               it. -->
-          <section>
-            <h2 id="admin-security-heading" [class]="headingClass">
-              <app-admin-icon name="lock" class="h-4 w-4" />
-              {{ text.securityHeading }}
-            </h2>
-            <ul [class]="cardClass" aria-labelledby="admin-security-heading">
-              <app-panel-row
-                [label]="text.changePassword.heading"
-                link="/change-password"
-              />
-            </ul>
-          </section>
         </div>
 
         <div class="flex flex-col gap-8">
@@ -257,33 +244,70 @@ import { SyncService } from './sync/sync.service';
               </ul>
             </section>
 
-            <!-- What the shop lets in from outside. One row today; the switch
-                 that hands an area of the catalog to an external system joins
-                 it here. -->
+            <!-- How the shop is running, and what it lets in from outside.
+                 One section rather than two: "Maintenance mode" was a heading
+                 that could only ever name the single card under it, and the
+                 switches moved onto a page of their own once they had a shared
+                 history to sit above. -->
             <section>
-              <h2 id="admin-integrations-heading" [class]="headingClass">
-                <app-admin-icon name="link" class="h-4 w-4" />
-                {{ panelText.integrations }}
+              <h2 id="admin-operations-heading" [class]="headingClass">
+                <app-admin-icon name="wrench" class="h-4 w-4" />
+                {{ panelText.operations }}
               </h2>
               <ul
                 [class]="cardClass"
-                aria-labelledby="admin-integrations-heading"
+                aria-labelledby="admin-operations-heading"
               >
+                <!-- The only two runtime states an admin can forget they
+                     left on, said where they will be seen without going
+                     looking: the panel is the first screen of every admin
+                     session. Shown only while true — a row that always
+                     carries "maintenance off" is a row nobody reads. -->
+                <app-panel-row
+                  [label]="operationsText.title"
+                  link="/admin/operations"
+                >
+                  <!-- Stacked, never side by side: the row's right-hand slot
+                       does not shrink, so two chips in a line ran off a 375px
+                       screen. Reading down is what this column does anyway —
+                       the work notes stack here too, and the row's padding is
+                       already cut for it. -->
+                  <span class="flex flex-col items-end gap-1">
+                    @if (maintenanceOn()) {
+                      <span appStatusBadge tone="danger">
+                        {{ panelText.maintenanceOn }}
+                      </span>
+                    }
+                    @if (catalogOwned()) {
+                      <span appStatusBadge tone="info">
+                        {{ panelText.catalogOwned }}
+                      </span>
+                    }
+                  </span>
+                </app-panel-row>
                 <app-panel-row
                   [label]="apiTokenText.title"
                   link="/admin/api-tokens"
                 />
               </ul>
             </section>
-
-            <section>
-              <h2 [class]="headingClass">
-                <app-admin-icon name="wrench" class="h-4 w-4" />
-                {{ panelText.site }}
-              </h2>
-              <app-maintenance-toggle />
-            </section>
           }
+
+          <!-- The session's own password, in the same place a customer finds
+               it — and at the foot of this column since the maintenance card
+               left, which is where a setting about yourself belongs anyway. -->
+          <section>
+            <h2 id="admin-security-heading" [class]="headingClass">
+              <app-admin-icon name="lock" class="h-4 w-4" />
+              {{ text.securityHeading }}
+            </h2>
+            <ul [class]="cardClass" aria-labelledby="admin-security-heading">
+              <app-panel-row
+                [label]="text.changePassword.heading"
+                link="/change-password"
+              />
+            </ul>
+          </section>
         </div>
       </div>
 
@@ -316,6 +340,7 @@ export class AdminPanelPage {
   protected readonly inventoryText = inject(ADMIN_TEXT).attributeInventory;
   protected readonly tierText = inject(ADMIN_TEXT).tierList;
   protected readonly apiTokenText = inject(ADMIN_TEXT).apiTokenList;
+  protected readonly operationsText = inject(ADMIN_TEXT).operations;
   protected readonly userText = inject(ADMIN_TEXT).userList;
   protected readonly orderText = inject(ADMIN_TEXT).orderList;
   protected readonly navText = inject(APP_TEXT).nav;
@@ -336,6 +361,19 @@ export class AdminPanelPage {
     'divide-y divide-border overflow-hidden rounded-lg border border-border';
 
   private readonly work = inject(WorkService);
+  private readonly settings = inject(SettingsService);
+
+  /**
+   * The runtime switches, for the chips beside the operations row. Null until
+   * the read lands, and null forever for a manager — who never sees that card
+   * and is refused the endpoint behind it.
+   */
+  protected readonly maintenanceOn = computed(
+    () => this.settings.settings()?.maintenanceEnabled ?? false,
+  );
+  protected readonly catalogOwned = computed(
+    () => this.settings.settings()?.ownedAreas.includes('catalog') ?? false,
+  );
 
   /**
    * What is waiting, per queue (FR-WORK-03) — `undefined` where there is
@@ -427,6 +465,9 @@ export class AdminPanelPage {
 
   constructor() {
     void this.loadBuildInfo();
+    // Admin-only, and deliberately not for a manager: the read is refused for
+    // them, and the failure is what tells the editors to lock every field.
+    if (this.isAdmin()) void this.settings.load();
 
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.

@@ -18,11 +18,12 @@ async function login(email: string): Promise<string> {
   return cookie;
 }
 
-// Note: the maintenance ON path (503 for the public, admin-session bypass, the
-// Retry-After header) is covered by the guard unit test — MaintenanceGuard.spec.
-// It is deliberately not exercised here: the api-e2e specs share one API process
-// and run in parallel, so turning the gate on globally would 503 the other
-// suites' public requests. These tests stay parallel-safe by never enabling it.
+// The gate's ON path is exercised here, which it could not be while these
+// specs ran their files at once: the API process is shared, so a global switch
+// turned on in one file 503s every other file's public requests. The suite now
+// runs one file at a time (see vite.config.ts), which is what the ownership
+// switch needed and what this inherited. Every test below restores the gate in
+// a `finally`, and the suite leaves it off.
 describe('settings (maintenance toggle)', () => {
   let client: Client;
 
@@ -44,6 +45,17 @@ describe('settings (maintenance toggle)', () => {
   });
 
   afterAll(async () => {
+    // The runs point at the token, so they go first — the FK is `restrict`.
+    await client.query('DELETE FROM sync_runs WHERE "tokenName" LIKE $1', [
+      'e2e settings gate%',
+    ]);
+    await client.query('DELETE FROM api_tokens WHERE name LIKE $1', [
+      'e2e settings gate%',
+    ]);
+    await client.query(
+      'DELETE FROM setting_changes WHERE "changedByEmail" = $1',
+      [ADMIN_EMAIL],
+    );
     await client.query('DELETE FROM users WHERE email = ANY($1)', [
       [ADMIN_EMAIL, USER_EMAIL],
     ]);
@@ -58,29 +70,30 @@ describe('settings (maintenance toggle)', () => {
     expect(res.data).toEqual({ enabled: false });
   });
 
-  it('rejects reading the toggle without a session', async () => {
-    const res = await axios.get('/settings/maintenance', {
+  it('rejects reading the settings without a session', async () => {
+    const res = await axios.get('/settings', {
       validateStatus: () => true,
     });
     expect(res.status).toBe(401);
   });
 
-  it('rejects a non-admin reading the toggle', async () => {
+  it('rejects a non-admin reading the settings', async () => {
     const cookie = await login(USER_EMAIL);
-    const res = await axios.get('/settings/maintenance', {
+    const res = await axios.get('/settings', {
       headers: { Cookie: cookie },
       validateStatus: () => true,
     });
     expect(res.status).toBe(403);
   });
 
-  it('returns the current toggle to an admin (off by default)', async () => {
+  it('returns both switches to an admin in one read (off by default)', async () => {
     const cookie = await login(ADMIN_EMAIL);
-    const res = await axios.get('/settings/maintenance', {
+    const res = await axios.get('/settings', {
       headers: { Cookie: cookie },
     });
     expect(res.status).toBe(200);
-    expect(res.data.enabled).toBe(false);
+    expect(res.data.maintenanceEnabled).toBe(false);
+    expect(res.data.ownedAreas).toEqual([]);
     expect(typeof res.data.updatedAt).toBe('string');
   });
 
@@ -94,10 +107,10 @@ describe('settings (maintenance toggle)', () => {
     expect(res.status).toBe(403);
     // State is unchanged: an admin still reads it as off.
     const adminCookie = await login(ADMIN_EMAIL);
-    const check = await axios.get('/settings/maintenance', {
+    const check = await axios.get('/settings', {
       headers: { Cookie: adminCookie },
     });
-    expect(check.data.enabled).toBe(false);
+    expect(check.data.maintenanceEnabled).toBe(false);
   });
 
   it('rejects an unknown field on the toggle body (strict contract)', async () => {
@@ -120,6 +133,7 @@ describe('settings (maintenance toggle)', () => {
       { headers: { Cookie: cookie } },
     );
     expect(res.status).toBe(200);
-    expect(res.data.enabled).toBe(false);
+    expect(res.data.maintenanceEnabled).toBe(false);
+  });
   });
 });
