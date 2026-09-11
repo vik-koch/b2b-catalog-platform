@@ -52,6 +52,10 @@ export interface ProductRowState {
       />
     </button>
 
+    <!-- Kept while an external system owns the catalog, rather than hidden:
+         the same rule greys the editor's fields instead of removing them, and a
+         control that vanishes teaches nobody why. The click opens the dialog,
+         which explains — see ProductDeleteDialog. -->
     @if (product().deletedAt) {
       <button
         type="button"

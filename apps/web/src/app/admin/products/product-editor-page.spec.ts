@@ -12,6 +12,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { provideOwnership } from '../settings/settings.fixture';
 import { defaultAppText } from '../../config/app-text.fixture';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
@@ -106,7 +107,13 @@ const wholesale: CustomerTier = {
 async function render(
   params: Record<string, string | null>,
   query: Record<string, string> = {},
-  options: { tiers?: CustomerTier[]; product?: AdminProduct } = {},
+  options: {
+    tiers?: CustomerTier[];
+    product?: AdminProduct;
+    /** Renders the screen as it looks while an external system owns the
+     * catalog (FR-ADM-10). */
+    catalogOwned?: boolean;
+  } = {},
 ): Promise<{
   fixture: ReturnType<typeof TestBed.createComponent<ProductEditorPage>>;
   el: HTMLElement;
@@ -130,6 +137,7 @@ async function render(
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      options.catalogOwned ? provideOwnership('catalog') : provideOwnership(),
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: Router, useValue: { navigate: h.navigate } },
       {
@@ -606,6 +614,78 @@ describe('ProductEditorPage', () => {
       expect(h.navigate).toHaveBeenCalledWith(['/admin/products'], {
         queryParams: { searchTerm: unpublishedProduct.name },
       });
+    });
+  });
+
+  describe('while an external system owns the catalog (FR-ADM-10)', () => {
+    it("locks the fields it writes and leaves the shop's own alone", async () => {
+      const { el } = await render(
+        { slug: 'coffee-beans' },
+        {},
+        { catalogOwned: true },
+      );
+
+      expect(inputByLabel(el, text.name).disabled).toBe(true);
+      expect(inputByLabel(el, text.price).disabled).toBe(true);
+      expect(inputByLabel(el, text.sourceId).disabled).toBe(true);
+      expect(inputByLabel(el, text.stock.pieces).disabled).toBe(true);
+
+      // The slug is the shop's address for the product, not the exchange's
+      // key for it, and the "few left" figure is a wording rule rather than a
+      // stock count — neither is in the owned list.
+      expect(inputByLabel(el, text.slug).disabled).toBe(false);
+    });
+
+    it('says why, once, rather than under every locked field', async () => {
+      const { el } = await render(
+        { slug: 'coffee-beans' },
+        {},
+        { catalogOwned: true },
+      );
+
+      const explanation = defaultAdminText.ownership.fieldLocked;
+      const occurrences = [...el.querySelectorAll('p')].filter(
+        (p) => p.textContent?.trim() === explanation,
+      );
+      expect(occurrences).toHaveLength(1);
+    });
+
+    it('leaves every field editable when nothing is owned', async () => {
+      const { el } = await render({ slug: 'coffee-beans' });
+
+      expect(inputByLabel(el, text.name).disabled).toBe(false);
+      expect(inputByLabel(el, text.price).disabled).toBe(false);
+      expect(inputByLabel(el, text.stock.pieces).disabled).toBe(false);
+    });
+  });
+
+  describe('creating while an external system owns the catalog', () => {
+    it('explains instead of offering a form', async () => {
+      // Both affordances that lead here — the list's button and the
+      // storefront's "add product here" — land on this route, so this is the
+      // one screen that has to say why.
+      const { el } = await render({ slug: null }, {}, { catalogOwned: true });
+
+      expect(el.textContent).toContain(
+        defaultAdminText.ownership.productCreate,
+      );
+      expect(el.querySelector('input')).toBeNull();
+    });
+
+    it('offers no way to save, but keeps a way out', async () => {
+      const { el } = await render({ slug: null }, {}, { catalogOwned: true });
+
+      const labels = [...el.querySelectorAll('button')].map((b) =>
+        b.textContent?.trim(),
+      );
+      expect(labels).not.toContain(defaultAdminText.common.save);
+      expect(labels).toContain(defaultAdminText.common.cancel);
+    });
+
+    it('still offers the form when nothing is owned', async () => {
+      const { el } = await render({ slug: null });
+
+      expect(inputByLabel(el, text.name).disabled).toBe(false);
     });
   });
 });

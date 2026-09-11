@@ -29,6 +29,8 @@ import {
   formatPriceInput,
   parsePriceInput,
 } from '../../catalog/price';
+import { LockedFieldMarker } from '../ownership/locked-field-marker';
+import { SettingsService } from '../settings/settings.service';
 import { ProductAvailabilityBadge } from '../../catalog/product-availability-badge';
 import { ProductDetailView } from '../../catalog/product-detail-view';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -95,6 +97,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
     PriceField,
     Skeleton,
     UnitField,
+    LockedFieldMarker,
   ],
   template: `
     <h1 class="mb-6 text-3xl font-medium tracking-tight">
@@ -107,6 +110,18 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
       }
     } @else if (notFound()) {
       <p class="text-muted" role="alert">{{ text.saveError }}</p>
+    } @else if (newAndOwned()) {
+      <!-- Creating writes every owned field at once, identity included, so
+           there is nothing here to offer. The affordances that lead here are
+           deliberately left in place — this is the one screen that can explain
+           why, and both of them (the list's button and the storefront's "add
+           product here") land on this route. -->
+      <p
+        class="max-w-3xl rounded-md border border-border bg-stone-100 px-4 py-3 text-sm text-muted"
+        role="status"
+      >
+        {{ ownershipText.productCreate }}
+      </p>
     } @else if (previewing()) {
       <p
         class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
@@ -117,16 +132,32 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
       <app-product-detail-view [item]="previewItem()" [canAdd]="false" />
     } @else {
       <div class="max-w-3xl space-y-6">
+        <!-- Said once, at the top, where it explains every lock below it. The
+             per-field marks say which fields; this says why and where to
+             change it. -->
+        @if (catalogOwned()) {
+          <p
+            class="rounded-md border border-border bg-stone-100 px-4 py-3 text-sm text-muted"
+            role="status"
+          >
+            {{ ownershipText.fieldLocked }}
+          </p>
+        }
+
         <label class="block">
           <span appFieldLabel>
             {{ text.name }}
             <span class="text-accent" aria-hidden="true">*</span>
+            @if (catalogOwned()) {
+              <app-locked-field-marker />
+            }
           </span>
           <input
             type="text"
             appInput
             class="w-full"
             [value]="name()"
+            [disabled]="catalogOwned()"
             (input)="name.set($any($event.target).value)"
           />
         </label>
@@ -140,6 +171,9 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
             <span appFieldLabel>
               {{ text.price }}
               <span class="text-accent" aria-hidden="true">*</span>
+              @if (catalogOwned()) {
+                <app-locked-field-marker />
+              }
             </span>
             <!-- Text, not type=number: a number input reports a half-typed
                  "18." as an empty value, so binding the signal back to it wiped
@@ -153,6 +187,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
                 [class]="unitFieldInput"
                 [value]="priceInput()"
                 [placeholder]="pricePlaceholder"
+                [disabled]="catalogOwned()"
                 (input)="priceInput.set($any($event.target).value)"
               />
             </app-unit-field>
@@ -162,12 +197,16 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
             <span appFieldLabel>
               {{ text.category }}
               <span class="text-accent" aria-hidden="true">*</span>
+              @if (catalogOwned()) {
+                <app-locked-field-marker />
+              }
             </span>
             <app-category-picker
               [categories]="categories()"
               [value]="categoryId()"
               [placeholder]="text.categoryPlaceholder"
               [ariaLabel]="text.category"
+              [disabled]="catalogOwned()"
               (valueChange)="categoryId.set($event)"
             />
           </div>
@@ -182,6 +221,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
               [tiers]="tiers()"
               [basePrice]="basePriceText()"
               [value]="tierPrices()"
+              [disabled]="catalogOwned()"
               (valueChange)="tierPrices.set($event)"
             />
           </div>
@@ -208,12 +248,18 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
           </label>
 
           <label class="block">
-            <span appFieldLabel>{{ text.sourceId }}</span>
+            <span appFieldLabel>
+              {{ text.sourceId }}
+              @if (catalogOwned()) {
+                <app-locked-field-marker />
+              }
+            </span>
             <input
               type="text"
               appInput
               class="w-full font-mono text-sm"
               [value]="sourceId()"
+              [disabled]="catalogOwned()"
               (input)="sourceId.set($any($event.target).value)"
             />
             <span class="mt-1 block text-xs text-subtle">{{
@@ -257,13 +303,19 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
                hint apiece made the block four lines deep for two numbers. -->
           <div class="grid gap-4 sm:grid-cols-2">
             <label class="block">
-              <span appFieldLabel>{{ text.stock.pieces }}</span>
+              <span appFieldLabel>
+                {{ text.stock.pieces }}
+                @if (catalogOwned()) {
+                  <app-locked-field-marker />
+                }
+              </span>
               <app-unit-field class="w-full" [unit]="pieceSuffix">
                 <input
                   type="text"
                   appNumericField="signed"
                   [class]="unitFieldInput"
                   [value]="stockPieces()"
+                  [disabled]="catalogOwned()"
                   (input)="stockPieces.set($any($event.target).value)"
                 />
               </app-unit-field>
@@ -364,19 +416,25 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
 
     @if (!loading() && !notFound()) {
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
-        <button
-          appButton
-          type="button"
-          class="gap-2"
-          [disabled]="saving()"
-          (click)="save()"
-        >
-          <app-admin-icon name="save" class="h-4 w-4" />
-          {{ saving() ? common.saving : common.save }}
-        </button>
+        <!-- Nothing to save on the "new" route while the catalog is externally
+             owned: what stands above is an explanation, not a form, and a Save
+             button over it could only fail. Cancel stays, so there is a way
+             out. -->
+        @if (!newAndOwned()) {
+          <button
+            appButton
+            type="button"
+            class="gap-2"
+            [disabled]="saving()"
+            (click)="save()"
+          >
+            <app-admin-icon name="save" class="h-4 w-4" />
+            {{ saving() ? common.saving : common.save }}
+          </button>
+        }
         <!-- Only while the product is off the storefront: publishing is one
              click from the list once it is on. -->
-        @if (!published()) {
+        @if (!published() && !newAndOwned()) {
           <button
             appButton
             variant="secondary"
@@ -389,19 +447,21 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
             {{ text.saveAndPublish }}
           </button>
         }
-        <button
-          appButton
-          variant="secondary"
-          type="button"
-          class="gap-2"
-          (click)="previewing.set(!previewing())"
-        >
-          <app-admin-icon
-            [name]="previewing() ? 'pencil' : 'eye'"
-            class="h-4 w-4"
-          />
-          {{ previewing() ? common.resumeEditing : common.preview }}
-        </button>
+        @if (!newAndOwned()) {
+          <button
+            appButton
+            variant="secondary"
+            type="button"
+            class="gap-2"
+            (click)="previewing.set(!previewing())"
+          >
+            <app-admin-icon
+              [name]="previewing() ? 'pencil' : 'eye'"
+              class="h-4 w-4"
+            />
+            {{ previewing() ? common.resumeEditing : common.preview }}
+          </button>
+        }
         <button
           appButton
           variant="secondary"
@@ -448,6 +508,25 @@ export class ProductEditorPage implements UnsavedChangesAware {
     DEFAULT_LOW_STOCK_THRESHOLD_PIECES;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  private readonly ownership = inject(SettingsService);
+
+  /**
+   * Whether the exchange holds the catalog's fields (FR-ADM-10). Null while
+   * the answer is still in flight, and that reads as *not* owned here: the
+   * load is kicked off in the constructor and resolves well before anyone has
+   * typed, and painting every field locked on the way in would be a worse
+   * flicker than the one it avoids. Nothing is decided by this — the API
+   * refuses the save either way.
+   */
+  protected readonly catalogOwned = computed(
+    () => this.ownership.ownedAreas()?.includes('catalog') ?? false,
+  );
+
+  /** The "new" route with nothing to create on it. */
+  protected readonly newAndOwned = computed(
+    () => this.isNew && this.catalogOwned(),
+  );
   /** The piece abbreviation, printed inside both stock fields — the same one
    * the packaging rows use, so the two blocks measure in one word. */
   protected readonly pieceSuffix = this.text.packaging.pieceSuffix;
@@ -688,6 +767,10 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // must not cost the editor.
       this.attributesService.listKeys().catch(() => []),
       this.attributesService.list().catch(() => []),
+      // Awaited with the rest so the form is never painted before the answer:
+      // on the "new" route the whole screen turns on it, and a form that
+      // flashes and is then replaced reads as a bug.
+      this.ownership.load(),
     ]);
     this.categories.set(categories);
     this.tiers.set(tiers);

@@ -14,6 +14,7 @@ import {
   SOURCE_ID_MAX_LENGTH,
 } from './catalog-constants';
 import { commonAuthErrors } from './api-error';
+import { ownershipErrors } from './ownership-constants';
 import {
   availabilitySchema,
   catalogImageSchema,
@@ -577,6 +578,7 @@ const e = {
 /** Saving a product can collide on either unique column, or name a gone tier,
  * a gone counterpart or a gone document. */
 const productWriteErrors = {
+  'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
   'category-not-found': e['category-not-found'],
   'tier-not-found': e['tier-not-found'],
   'paired-product-not-found': e['paired-product-not-found'],
@@ -669,7 +671,10 @@ export const adminCatalogContract = {
       inputStructure: 'detailed',
       summary: 'Soft-delete a product (admin; reversible via restore)',
     })
-    .errors({ 'product-not-found': e['product-not-found'] })
+    .errors({
+      'product-not-found': e['product-not-found'],
+      'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
+    })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(adminProductSchema),
 
@@ -680,7 +685,10 @@ export const adminCatalogContract = {
       inputStructure: 'detailed',
       summary: 'Restore a soft-deleted product (admin)',
     })
-    .errors({ 'product-not-found': e['product-not-found'] })
+    .errors({
+      'product-not-found': e['product-not-found'],
+      'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
+    })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(adminProductSchema),
 

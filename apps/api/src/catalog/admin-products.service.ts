@@ -45,6 +45,9 @@ import {
   productPrices,
   products,
 } from '../db/schema';
+import { SettingsService } from '../settings/settings.service';
+import { catalogExternallyOwned } from '../settings/ownership.refusals';
+import { changedProductFields } from './owned-fields';
 import { attributeFilterCondition } from './attribute-filter';
 import { documentCondition } from './document-filter';
 import { tierPriceCondition } from './tier-price-filter';
@@ -153,7 +156,16 @@ export class AdminProductsService {
     // The last rung of the "few left" ladder, injected the way every other
     // deployment rule is — a spec hands over a figure without a config file.
     @Inject(LOW_STOCK_THRESHOLD_PIECES) private lowStockFallback: number,
+    private readonly settings: SettingsService,
   ) {}
+
+  /**
+   * Whether the exchange currently holds the pen (FR-ADM-10). A cached
+   * synchronous read, so asking it on every write costs nothing.
+   */
+  private get catalogIsOwned(): boolean {
+    return this.settings.isExternallyOwned('catalog');
+  }
 
   /**
    * The admin grid (FR-ADM-05): filtered by publication state and category,
@@ -281,6 +293,10 @@ export class AdminProductsService {
     input: ProductInput,
     actorId: string,
   ): Promise<AdminProduct> {
+    // A create writes every owned field at once — identity included — so there
+    // is nothing to compare and nothing to allow through. While the exchange
+    // owns the catalog, what exists in it is the exchange's to say.
+    if (this.catalogIsOwned) throw catalogExternallyOwned('create');
     await assertCategoryExists(this.db, input.categoryId);
     const slug = await resolveNewSlug(
       this.db,
@@ -347,6 +363,13 @@ export class AdminProductsService {
   ): Promise<AdminProduct> {
     const existing = await this.productBySlug(slug);
     if (!existing) throw productNotFound();
+    if (this.catalogIsOwned) {
+      const moved = changedProductFields(
+        { ...existing, tierPrices: await this.tierPricesFor(existing.id) },
+        input,
+      );
+      if (moved.length) throw catalogExternallyOwned(moved.join(', '));
+    }
     await assertCategoryExists(this.db, input.categoryId);
 
     const newSlug = await resolveSlugOverride(
@@ -414,6 +437,10 @@ export class AdminProductsService {
    * timestamp; `updatedAt` only moves on the live→deleted transition).
    */
   async deleteProduct(slug: string, actorId: string): Promise<AdminProduct> {
+    // Existence is the exchange's to say too: it is the delete sweep's job to
+    // take a product out of the catalog, and an admin doing it by hand would
+    // be undone by the next full import anyway.
+    if (this.catalogIsOwned) throw catalogExternallyOwned('delete');
     const now = new Date();
     const rows = await this.db
       .update(products)
@@ -439,6 +466,7 @@ export class AdminProductsService {
   }
 
   async restoreProduct(slug: string, actorId: string): Promise<AdminProduct> {
+    if (this.catalogIsOwned) throw catalogExternallyOwned('restore');
     const rows = await this.db
       .update(products)
       .set({

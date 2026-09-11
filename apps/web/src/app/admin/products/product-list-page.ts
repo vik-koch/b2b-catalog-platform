@@ -82,6 +82,9 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
     >
+      <!-- Kept while the catalog is externally owned: the editor it opens is
+           where that refusal is explained, and it is the same route the
+           storefront's own "add product here" affordance lands on. -->
       <a
         appButton
         routerLink="/admin/products/new"

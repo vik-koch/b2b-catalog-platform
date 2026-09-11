@@ -24,6 +24,8 @@ export const adminTextSchema = z
         save: z.string(),
         saving: z.string(),
         cancel: z.string(),
+        /** A dialog that only explains has nothing to cancel. */
+        close: z.string(),
         preview: z.string(),
         resumeEditing: z.string(),
         /** Heading and confirm label of the discard-changes modal. */
@@ -666,6 +668,8 @@ export const adminTextSchema = z
             'run-already-applied': z.string(),
             'run-failed': z.string(),
             'run-no-change': z.string(),
+            /** Uploaded before the catalog was handed over, applied after. */
+            'catalog-externally-owned': z.string(),
             'run-superseded': z.string(),
             'run-discarded': z.string(),
             'run-rows-pruned': z.string(),
