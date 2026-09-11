@@ -280,5 +280,4 @@ describe('ProductPackagingEditor', () => {
 
     expect(emitted.at(-1)).toMatchObject({ boxCount: '1' });
   });
-
 });

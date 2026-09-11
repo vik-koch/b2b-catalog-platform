@@ -90,10 +90,7 @@ describe('priceRow', () => {
   // A unit the product is not sold in has no figure to invent, and the caller
   // words the absence rather than printing a zero.
   it('answers nothing for a unit the product carries no price for', () => {
-    const row = units().priceRow(
-      { piece: 500, pack: null, box: null },
-      'pack',
-    );
+    const row = units().priceRow({ piece: 500, pack: null, box: null }, 'pack');
 
     expect(row).toBeNull();
   });
