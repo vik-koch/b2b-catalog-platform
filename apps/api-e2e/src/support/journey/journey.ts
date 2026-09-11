@@ -56,7 +56,7 @@ export interface JourneyAdapter<Ctx> {
 export interface JourneyStep {
   /** What happens, in the words the documentation uses. */
   readonly what: string;
-  readonly actor: 'customer' | 'manager' | 'system';
+  readonly actor: 'customer' | 'manager' | 'admin' | 'system';
   readonly action: string;
   readonly args?: Readonly<Record<string, unknown>>;
   /**

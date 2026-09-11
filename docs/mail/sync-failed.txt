@@ -1,0 +1,15 @@
+An automatic catalog update failed
+
+Your catalog is unchanged and the shop is serving what it served before. Until this is fixed, prices and stock will slowly go out of date — pass this message on to whoever looks after the connection to your system.
+
+Started: 14 Mar 2026, 03:15
+Export: nightly-catalog
+Source: ERP nightly export
+What went wrong: export ended early: 1,284 of 3,010 rows received
+
+Open the run: https://shop.example.com/admin/sync/runs/6f0b2b3c-6f2c-4c0a-9d1e-9c5a8f0a1b2c
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

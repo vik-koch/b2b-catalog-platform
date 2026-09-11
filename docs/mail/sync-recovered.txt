@@ -1,0 +1,15 @@
+Catalog updates are working again
+
+The connection to your system is delivering again, and your catalog is up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes.
+
+Started: 14 Mar 2026, 03:15
+Export: nightly-catalog
+Source: ERP nightly export
+Changes: +0 ~128 −0
+
+Open the run: https://shop.example.com/admin/sync/runs/6f0b2b3c-6f2c-4c0a-9d1e-9c5a8f0a1b2c
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com
