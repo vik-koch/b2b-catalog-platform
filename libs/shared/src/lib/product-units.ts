@@ -23,9 +23,6 @@ export interface ProductPackaging {
   minPieceQty: number;
 }
 
-/** Thousandths of a minor unit, the scale the per-piece price is carried in. */
-export const PIECE_PRICE_SCALE = 1000;
-
 /**
  * How many decimals a quantity is read out to through a lens. Three, because a
  * pack is rarely more than a thousandth of a box and a figure nobody can act on
@@ -228,68 +225,24 @@ export function piecesFromUnitQuantity(
 }
 
 /**
- * What `pieces` pieces cost, in whole minor units, where `priceMinor` is the
- * price of `basisPieces` pieces.
- *
- * Null rather than a rounded price when `pieces` is not a whole number of basis
- * units: that means a caller bypassed the quantity rules, and a plausible number
- * would hide the bug.
+ * What `pieces` pieces cost, in whole minor units. A price is the price of one
+ * piece, so a total is a multiplication with nothing to divide and nothing to
+ * round — which is the whole reason the price is carried per piece.
  */
-export function totalMinor(
-  priceMinor: number,
-  basisPieces: number,
-  pieces: number,
-): number | null {
-  if (basisPieces < 1 || pieces % basisPieces !== 0) return null;
-  return priceMinor * (pieces / basisPieces);
-}
-
-/**
- * The per-piece price, in thousandths of a minor unit. The one figure that can
- * be inexact (€19.99 for ten pieces is €1.999), so it is for display only —
- * totals come from `totalMinor`.
- */
-export function piecePriceMilliMinor(
-  priceMinor: number,
-  basisPieces: number,
-): number {
-  return Math.round((priceMinor * PIECE_PRICE_SCALE) / basisPieces);
-}
-
-/**
- * Whether the basis divides every quantity that can be bought, which is what
- * keeps totals exact. Orderable quantities start at the floor and move by the
- * step, so the basis has to divide both; the pack is checked too, because the
- * pack price is a basis multiple as well. Where packs are broken open the step
- * is one piece, and only a per-piece price can describe a total exactly.
- *
- * Mirrors the `products_basis_divides_quantities` check constraint so the editor
- * can refuse with a useful message.
- */
-export function basisDividesQuantities(
-  packaging: ProductPackaging,
-  basisPieces: number,
-): boolean {
-  if (basisPieces < 1) return false;
-  if (packaging.minPieceQty % basisPieces !== 0) return false;
-  if (pieceStep(packaging) % basisPieces !== 0) return false;
-  return (
-    packaging.piecesPerPack === null ||
-    packaging.piecesPerPack % basisPieces === 0
-  );
+export function totalMinor(priceMinor: number, pieces: number): number {
+  return priceMinor * pieces;
 }
 
 /**
  * Whether the minimum sits with the pack rather than across it: either under one
  * pack, or a whole number of them.
  *
- * This is what lets one lot price describe every quantity. Under a pack, packs
- * are broken open and pieces move by ones, so the lot is a piece; at a whole
- * number of packs, nothing is broken open and the lot is a pack. Either way
- * every orderable quantity is a multiple of the step, so a total is
- * `pieceLotMinor × (pieces ÷ step)` with nothing divided and nothing rounded.
- * A minimum of 8 against a pack of 6 is the case in between — a shop that opens
- * packs but not for the first one — and is refused for now rather than modelled.
+ * This is what keeps the step meaningful. Under a pack, packs are broken open
+ * and pieces move by ones, so the step is a piece; at a whole number of packs,
+ * nothing is broken open and the step is a pack. A minimum of 8 against a pack
+ * of 6 is the case in between — a shop that opens packs but not for the first
+ * one — and is refused for now rather than modelled, because the first
+ * orderable quantity would sit off every lattice the stepper can walk.
  *
  * Mirrors `products_minimum_fits_packs`.
  */
@@ -305,32 +258,27 @@ export function minimumFitsPacks(packaging: ProductPackaging): boolean {
  * stays free of the contract's import graph.
  */
 export interface LineUnitPrices {
-  /** What one step — `pieceStep` pieces — costs, exactly. */
-  pieceLotMinor: number | null;
+  /** What one piece costs. */
+  piece: number;
   pack: number | null;
   box: number | null;
 }
 
 /**
- * What a cart line costs, in whole minor units — the client-safe sibling of
- * `totalMinor`, which needs the staff-facing price basis.
+ * What a cart line costs, in whole minor units.
  *
  * The chosen unit is not an argument, and that is the point: the pack and box
- * prices are labels on the same lattice the lot price describes, so pricing
- * through them would be a second expression for one figure, disagreeing by a
- * minor unit the first time a lens showed a fraction.
+ * prices are labels on the same piece count, so pricing through them would be a
+ * second expression for one figure, disagreeing by a minor unit the first time
+ * a lens showed a fraction.
  *
- * Null wherever the total cannot be exact: a piece count that is not a whole
- * number of steps, or a missing lot price. A null is a state to show, never a
- * zero to fall back to.
+ * Null only for a piece count that is not a positive whole number, which means
+ * a caller bypassed the quantity rules — a plausible figure would hide the bug.
  */
 export function exactLineTotal(
   prices: LineUnitPrices,
-  packaging: ProductPackaging,
   pieces: number,
 ): number | null {
   if (!Number.isInteger(pieces) || pieces < 1) return null;
-  const step = pieceStep(packaging);
-  if (prices.pieceLotMinor === null || pieces % step !== 0) return null;
-  return (pieces / step) * prices.pieceLotMinor;
+  return prices.piece * pieces;
 }

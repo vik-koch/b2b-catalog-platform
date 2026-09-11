@@ -16,10 +16,9 @@ const item = productListItem({
   name: 'Filter Roast',
   packaging: { ...packagedPackaging },
   prices: {
-    pieceMilliMinor: 1250,
-    pieceLotMinor: 7500,
-    pack: 7000,
-    box: 27000,
+    piece: 1250,
+    pack: 7500,
+    box: 30000,
   },
 });
 

@@ -115,7 +115,6 @@ describe('Product documents (FR-DOC-01)', () => {
       attributes: product.attributes,
       images: product.images,
       tierPrices: product.tierPrices,
-      priceBasisPieces: product.priceBasisPieces,
       piecesPerPack: product.piecesPerPack,
       packsPerBox: product.packsPerBox,
       minPieceQty: product.minPieceQty,

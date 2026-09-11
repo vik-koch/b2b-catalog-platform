@@ -12,8 +12,7 @@ function normalize(value: string): string {
 
 /** €10.00 a piece, so two of them come to a whole amount. */
 const wholePrices = {
-  pieceMilliMinor: 1000,
-  pieceLotMinor: 1000,
+  piece: 1000,
   pack: null,
   box: null,
 };
@@ -31,8 +30,7 @@ function addition(overrides: Partial<CartAddition> = {}): CartAddition {
     availability: null,
     image: null,
     prices: {
-      pieceMilliMinor: 1250,
-      pieceLotMinor: 1250,
+      piece: 1250,
       pack: null,
       box: null,
     },

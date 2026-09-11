@@ -17,7 +17,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 9   | Sold-together sets → **tag v1.7.0**                                                            | FR-SET-01…05                                                                                                                                                                        |
 | 10  | Product documents & certificates → **tag v1.8.0**                                              | FR-DOC-01…04, FR-CAT-05 amended                                                                                                                                                     |
 | 11  | Order processing, payment state & order documents → **tag v1.9.0**                             | FR-ORD-01…05, FR-CART-05 + FR-CART-06 amended, FR-NOTIF-03/07/08 + FR-ORD-02 amended, FR-ACC-02, FR-WORK-02/04 + FR-AUTH-04 amended, NFR-LEGAL-04, NFR-SEC-10, NFR-OPS-02 amended   |
-| 12  | Automated catalog sync from the source system → **tag v1.10.0**                                | FR-ADM-07/09/10, FR-NOTIF-09, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02/04 + FR-WORK-02 amended                                                                                          |
+| 12  | Automated catalog sync from the source system → **tag v1.10.0**                                | FR-ADM-07/09/10, FR-NOTIF-09, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02/04 + FR-UNIT-04/10 + FR-ADM-06 + FR-WORK-02 amended                                                              |
 | 13  | Order exchange with the source system → **tag v1.11.0**                                        | FR-ADM-08, FR-ADM-09/10 amended, FR-ORD-02/03 amended                                                                                                                               |
 | 14  | Online card payment → **tag v1.12.0**                                                          | FR-CART-04/06 amended                                                                                                                                                               |
 
@@ -47,8 +47,8 @@ Notes:
   cart is built once against a settled unit model instead of twice.
 - Iteration 5 keeps packaging **out of the bulk sync** (FR-ADM-02 is deliberately not
   amended): the values are admin-entered for now. That is also why FR-ADM-06 lands here — a
-  synced product arrives with a price whose basis nobody has set yet, so it must not be
-  publicly visible until a human has reviewed it.
+  synced product arrives with a price and a category nobody has reviewed and packaging the
+  sync does not carry, so it must not be publicly visible until a human has looked at it.
 - Iteration 6 was the cart until the client asked for attribute filtering, which took the
   slot and pushed the cart and order processing down one each. The reason is the same one
   that gave the units of sale an iteration of their own: filtering changes **what content
@@ -80,7 +80,7 @@ Notes:
   describe a whole line rather than to split one (FR-CART-08 rewritten), which removes the
   identity machinery it would otherwise have needed, and it is never mandatory. Checkout is
   **one prefilled form** (ADR 0039), not a wizard: a manager reviews every order anyway, so the
-  form's job is to be quick. And staff views of an order read in **basis units** (FR-UNIT-04
+  form's job is to be quick. And staff views of an order read in **pieces** (FR-UNIT-04
   amended), which is what the source system prices in.
 - Address entry is the one field ADR 0039's prefill cannot help with, and it is also what decides
   a delivery rule, so **FR-CART-11** (suggestion behind a per-deployment port) and the
@@ -291,6 +291,15 @@ Notes:
   export-shape question, since forward-only write-back would otherwise overwrite it silently.
   Iteration 11 left this iteration exactly one debt and paid it: transitions are written as
   service operations with the role table stated once.
+- The **price basis was removed** mid-iteration (2026-09-11, ADR 0058), which was not planned
+  into iteration 12 and earned its place from the real export: the source system quotes per unit
+  of measure, so the assumption the basis encoded — that a price may be exact only per lot — is
+  false. It is taken here rather than later for two reasons that both belong to this iteration.
+  The basis is the **denominator of an owned price**, so an admin could re-price an externally
+  owned product without touching a field the ownership rule covers (FR-ADM-10); and the tier
+  price refactor that follows it in this iteration would otherwise have to decide whether a
+  denominator belongs on `products` or on every price row. FR-UNIT-04 and FR-UNIT-10 are
+  rewritten, and FR-ADM-06 keeps the publication gate on a different argument.
 - Two operability requirements ride with iteration 12 because it is the release that makes them
   urgent — NFR-OPS-06 (what a deploy costs in downtime, how to see it failed, how to roll back)
   and NFR-OPS-07 (what a half-finished sync leaves behind). The second is largely already true:

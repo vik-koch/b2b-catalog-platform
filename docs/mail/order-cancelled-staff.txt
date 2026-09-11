@@ -6,10 +6,10 @@ Order: CK-260826-4831
 Account: alex@example.com
 Contact: Alex Fischer · +49 40 1234567
 Reason given: Ordered twice by mistake.
-Total: 129,90 €
+Total: 126,00 €
 
 Was ordered
-Espresso cups — 2 pk (12 pcs): 99,90 €
+Espresso cups — 2 pk (12 pcs): 96,00 €
   100 in <red>
 Saucers — 3 pcs: 30,00 €
 

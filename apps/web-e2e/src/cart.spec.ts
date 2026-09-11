@@ -289,7 +289,7 @@ test('says on return that a line went out of stock while the cart waited', async
     localStorage.setItem(
       'cart',
       JSON.stringify({
-        version: 1,
+        version: 2,
         pricedFor: null,
         lines: [
           {
@@ -302,8 +302,7 @@ test('says on return that a line went out of stock while the cart waited', async
             unitPriceMinor: 12_060,
             lineTotalMinor: 12_060,
             prices: {
-              pieceMilliMinor: 2_010_000,
-              pieceLotMinor: 12_060,
+              piece: 2_010,
               pack: 12_060,
               box: 48_240,
             },

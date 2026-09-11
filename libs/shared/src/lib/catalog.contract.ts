@@ -45,30 +45,23 @@ export type CatalogImage = z.infer<typeof catalogImageSchema>;
  * and its formatting are a per-deployment concern (deployment config), not part
  * of this contract — the API stays currency-agnostic and free of float
  * rounding. Resolved server-side: which tier's list it came from (FR-AUTH-05)
- * and how many pieces the stored price covered are both invisible here.
+ * is invisible here.
  */
 export const priceMinorSchema = z.number().int().nonnegative();
 
 /**
  * What a product costs, per unit it can be bought in (FR-UNIT-05). `pack` and
- * `box` are null where the packaging does not define them, and both are exact:
- * purchasable quantities are whole multiples of the stored price's basis, so
- * nothing is rounded.
+ * `box` are null where the packaging does not define them.
  *
- * `pieceMilliMinor` is the only sub-minor figure in the API — a single piece
- * cannot always be priced in cents (€19.99 for ten is €1.999 each). It is a
- * comparison figure for display: multiplying it will disagree with the server.
- * `pieceLotMinor` is the multiplicable one — what one **step** costs, exactly,
- * a step being a pack or one piece where there is no pack — so a piece line's
- * total is computable without the price basis ever leaving the server, every
- * piece quantity being a whole number of steps. Null only where the stored
- * basis does not divide the step, which is a broken invariant rather than a
- * price of zero.
+ * All three are exact whole minor units, and every one of them is `piece`
+ * multiplied out: a price is the price of a piece, so a total is a
+ * multiplication with nothing rounded, whichever lens the quantity is read
+ * through. `pack` and `box` are published rather than left to the browser only
+ * so that one arithmetic, the server's, produces every figure shown.
  */
 export const unitPricesSchema = z
   .object({
-    pieceMilliMinor: z.number().int().nonnegative(),
-    pieceLotMinor: priceMinorSchema.nullable(),
+    piece: priceMinorSchema,
     pack: priceMinorSchema.nullable(),
     box: priceMinorSchema.nullable(),
   })
@@ -77,9 +70,7 @@ export type UnitPrices = z.infer<typeof unitPricesSchema>;
 
 /**
  * How the units nest, and the smallest piece quantity that may be ordered —
- * enough for the browser to correct a quantity without a round trip. The price
- * basis is deliberately absent: it is staff-facing, and the prices above are
- * already resolved to the unit each is labelled with.
+ * enough for the browser to correct a quantity without a round trip.
  */
 export const productPackagingSchema = z
   .object({

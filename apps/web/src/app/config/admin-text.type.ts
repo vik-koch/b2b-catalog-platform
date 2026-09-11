@@ -388,7 +388,6 @@ export const adminTextSchema = z
             minPieceQty: z.string(),
             /** Under the field: the minimum is a floor, not the increment. */
             minPieceQtyHint: z.string(),
-            priceBasis: z.string(),
             /** Sits inside a piece-count field, after the number. */
             pieceSuffix: z.string(),
             packSuffix: z.string(),
@@ -399,10 +398,8 @@ export const adminTextSchema = z
             notSoldPerBox: z.string(),
             /** What the entered packaging costs, shown beside the row that
              * defines each unit. `{price}` is substituted. */
-            pricePerPiece: z.string(),
             pricePerPack: z.string(),
             pricePerBox: z.string(),
-            basisMustDivide: z.string(),
             minMustFitPacks: z.string(),
             invalid: z.string(),
           })
@@ -1194,9 +1191,9 @@ export const adminTextSchema = z
         card: z.string(),
         contact: z.string(),
         note: z.string(),
-        /** A line in basis units — `{count} × {price}`, the way the source
-         * system prices. */
-        basis: z.string(),
+        /** A line in pieces — `{count} × {price}`, the way the source system
+         * prices. */
+        pieceLine: z.string(),
         /** Why a declined or cancelled order ended that way. */
         statusReason: z.string(),
         /** Every version of the order (FR-ORD-03): what the shop said it
@@ -1474,12 +1471,9 @@ export const adminTextSchema = z
             unpublished: z.string(),
             deleted: z.string(),
             outOfStock: z.string(),
-            /** What the two fields on a line are counted in, printed inside
-             * them: pieces where the price is per one, `{count}` of them
-             * where it is per several, and `{symbol}` the currency's mark. */
+            /** What the quantity field on a line is counted in, printed
+             * inside it. */
             pieces: z.string(),
-            unitsSuffix: z.string(),
-            priceSuffix: z.string(),
             /** A line priced away from the list it would otherwise take
              * (FR-CART-09) — allowed, and worth saying. */
             offList: z.string(),
@@ -1582,7 +1576,6 @@ export const adminTextSchema = z
             'no-change': z.string(),
             'unknown-product': z.string(),
             'unknown-tier': z.string(),
-            'line-not-priceable': z.string(),
             'invalid-company-id': z.string(),
             'unsupported-country': z.string(),
             'invalid-postal-code': z.string(),

@@ -618,7 +618,6 @@ export class ProductBuyControls {
     if (!this.available()) return null;
     const exact = exactLineTotal(
       this.item().prices,
-      this.packaging(),
       correctPieces(this.packaging(), this.pieces()),
     );
     return exact === null ? null : formatPriceMinor(exact, this.currency);

@@ -12,7 +12,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { formatPiecePrice, formatPriceMinor } from './price';
+import { formatPriceMinor } from './price';
 import { formatUnitQuantity } from './quantity';
 
 /** One priced unit, ready to render. */
@@ -64,7 +64,7 @@ export function useProductUnits() {
       if (unit === 'piece') {
         return {
           label: perUnit(text.piece),
-          price: formatPiecePrice(prices.pieceMilliMinor, currency),
+          price: formatPriceMinor(prices.piece, currency),
         };
       }
       const price = unit === 'pack' ? prices.pack : prices.box;

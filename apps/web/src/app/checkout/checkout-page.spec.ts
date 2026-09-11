@@ -46,10 +46,9 @@ function addition(): CartAddition {
     pairedCount: 0,
     availability: null,
     prices: {
-      pieceMilliMinor: 1_166_667,
-      pieceLotMinor: 7000,
-      pack: 7000,
-      box: 28_000,
+      piece: 1200,
+      pack: 7200,
+      box: 28_800,
     },
     packaging: { ...packagedPackaging },
   };
@@ -748,10 +747,10 @@ describe('CheckoutPage', () => {
       const page = await render();
 
       // Hamburg 20359 is the demo's city zone, free from €150; the cart holds
-      // two packs at €70.
+      // two packs at €72.
       expect(page.text()).toContain('Hamburg city');
       expect(page.text()).toContain(
-        text.zone.shortOf.replace('{amount}', '10,00 €'),
+        text.zone.shortOf.replace('{amount}', '6,00 €'),
       );
     });
 

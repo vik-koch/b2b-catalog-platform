@@ -61,7 +61,6 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
       'prices',
       'slug',
     ]);
-    expect(JSON.stringify(res.data)).not.toContain('priceBasisPieces');
   });
 
   it('paginates like the category grid', async () => {

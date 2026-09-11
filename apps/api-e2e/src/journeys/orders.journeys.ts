@@ -256,7 +256,7 @@ export const orderJourneys: readonly OrderJourney[] = [
         action: 'adjust',
         // One basis unit — the line was priced per ten pieces and bought as
         // two of them.
-        args: { units: 1, note: 'Only ten left — agreed on the phone.' },
+        args: { pieces: 10, note: 'Only ten left — agreed on the phone.' },
         // A new version, and the order stands exactly where it stood. Their
         // page does not follow: a change nobody has told them about is not
         // theirs to see, and the total they hold is still the old one.
@@ -267,7 +267,7 @@ export const orderJourneys: readonly OrderJourney[] = [
         actor: 'manager',
         action: 'tellCustomer',
         args: { notify: true },
-        expect: { customerSees: 3, customerTotal: 1999, mail: ['changed'] },
+        expect: { customerSees: 3, customerTotal: 2000, mail: ['changed'] },
       },
       {
         what: 'The smaller order is packed and marked ready.',
@@ -401,7 +401,7 @@ export const orderJourneys: readonly OrderJourney[] = [
         what: 'A line is repriced, and the customer is not told yet.',
         actor: 'manager',
         action: 'adjust',
-        args: { units: 1, note: 'Halved, against the list the shop agreed.' },
+        args: { pieces: 10, note: 'Halved, against the list the shop agreed.' },
         expect: { version: 3 },
       },
       {
@@ -422,7 +422,7 @@ export const orderJourneys: readonly OrderJourney[] = [
         args: { notify: true },
         expect: {
           customerSees: 3,
-          customerTotal: 1999,
+          customerTotal: 2000,
           customerDocuments: ['order-summary', 'payment-instructions'],
           // The slip travels with the message, because the order owes money
           // and the shop has instructions for it: one mail, not two.
@@ -569,7 +569,7 @@ export const orderJourneys: readonly OrderJourney[] = [
         what: 'A line is repriced, which the filed summary no longer states.',
         actor: 'manager',
         action: 'adjust',
-        args: { units: 1, note: 'Halved, agreed on the phone.' },
+        args: { pieces: 10, note: 'Halved, agreed on the phone.' },
         // The file is not rewritten and not withdrawn — it is marked, and only
         // on the side that can see past it. The customer is still on the
         // version the file states, so for them nothing is out of date yet.

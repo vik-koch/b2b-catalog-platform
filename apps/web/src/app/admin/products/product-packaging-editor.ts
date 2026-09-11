@@ -1,19 +1,15 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import {
-  basisDividesQuantities,
-  piecePriceMilliMinor,
-  totalMinor,
-} from '@b2b-catalog-platform/shared';
+import { totalMinor } from '@b2b-catalog-platform/shared';
+import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
-import { injectNarrowScreen } from '../../core/narrow-screen';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { formatPiecePrice, formatPriceMinor } from '../../catalog/price';
+import { injectNarrowScreen } from '../../core/narrow-screen';
 import { FieldLabel } from '../../ui/field-label';
 import { NumericField } from '../../ui/numeric-field';
 import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
 
 /**
- * How a product is packaged, and how many pieces its price covers.
+ * How a product is packaged.
  *
  * Laid out as the same table as the attribute grid above it, but built from
  * ordinary inputs: the grid is one `contenteditable` region, and typed fields
@@ -21,13 +17,12 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
  *
  * Values are kept as strings so a half-typed number is not thrown away; the
  * page parses them on save. Empty means "not sold in that unit", except for the
- * basis and minimum, where it means 1.
+ * minimum, where it means 1.
  */
 export interface PackagingDraft {
   piecesPerPack: string;
   packsPerBox: string;
   minPieceQty: string;
-  priceBasisPieces: string;
   boxVolume: string;
   boxWeight: string;
   /** How many boxes ship; blank means the usual one. */
@@ -35,15 +30,14 @@ export interface PackagingDraft {
 }
 
 /**
- * The two required counts hold a real `1` rather than an empty field showing a
- * greyed placeholder: "minimum 1 piece" and "the price covers 1 piece" are the
- * actual rules, and stating them is clearer than leaving a blank to interpret.
+ * The minimum holds a real `1` rather than an empty field showing a greyed
+ * placeholder: "minimum 1 piece" is the actual rule, and stating it is clearer
+ * than leaving a blank to interpret.
  */
 export const emptyPackaging = (): PackagingDraft => ({
   piecesPerPack: '',
   packsPerBox: '',
   minPieceQty: '1',
-  priceBasisPieces: '1',
   boxVolume: '',
   boxWeight: '',
   boxCount: '',
@@ -54,7 +48,7 @@ export const emptyPackaging = (): PackagingDraft => ({
  * `boxCount` is conditional — required only once the product has a box — so it
  * is handled beside these rather than among them.
  */
-const REQUIRED_COUNTS = ['minPieceQty', 'priceBasisPieces'] as const;
+const REQUIRED_COUNTS = ['minPieceQty'] as const;
 
 /** A whole number, or null for blank/invalid. */
 export function parseCount(text: string): number | null {
@@ -75,14 +69,14 @@ export function parseCount(text: string): number | null {
       <p class="mb-2 text-xs text-subtle">{{ text.hint }}</p>
 
       @if (narrow()) {
-        <!-- The same seven fields, stacked. Not the record list the attribute
+        <!-- The same six fields, stacked. Not the record list the attribute
              grid gets below this width: those rows are the admin's own and vary
              in number, while these are a fixed form — and a form whose every
              field has to be opened with a pencil first is a form nobody
              finishes. What the third column carried becomes a caption under the
              field it is derived from.
 
-             One outlined box rather than seven divided rows: these are not
+             One outlined box rather than six divided rows: these are not
              records, they are the parts of one answer about how the product is
              packed, and rules between them would say the opposite. -->
         <div class="max-w-xl space-y-4 rounded-md border border-border p-4">
@@ -175,12 +169,6 @@ export function parseCount(text: string): number | null {
           </tbody>
         </table>
       }
-
-      @if (basisError()) {
-        <p class="mt-2 text-sm text-red-700" role="alert">
-          {{ text.basisMustDivide }}
-        </p>
-      }
     </fieldset>
   `,
 })
@@ -193,7 +181,7 @@ export class ProductPackagingEditor {
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
   readonly value = input.required<PackagingDraft>();
-  /** The base price, so the basis can show what a piece actually costs. */
+  /** The piece price, so each level can show what it will be sold for. */
   readonly priceMinor = input<number | null>(null);
   readonly valueChange = output<PackagingDraft>();
 
@@ -234,20 +222,15 @@ export class ProductPackagingEditor {
     });
 
     return [
-      row('minPieceQty', this.text.minPieceQty, {
-        placeholder: '1',
-        suffix: this.text.pieceSuffix,
-        hint: this.text.minPieceQtyHint,
-      }),
-      row('priceBasisPieces', this.text.priceBasis, {
-        placeholder: '1',
-        suffix: this.text.pieceSuffix,
-        price: prices.piece,
-      }),
       row('piecesPerPack', this.text.piecesPerPack, {
         placeholder: this.text.notSoldPerPack,
         suffix: this.text.pieceSuffix,
         price: prices.pack,
+      }),
+      row('minPieceQty', this.text.minPieceQty, {
+        placeholder: '1',
+        suffix: this.text.pieceSuffix,
+        hint: this.text.minPieceQtyHint,
       }),
       row('packsPerBox', this.text.packsPerBox, {
         placeholder: this.text.notSoldPerBox,
@@ -275,57 +258,30 @@ export class ProductPackagingEditor {
 
   private readonly units = inject(DEPLOYMENT_CONFIG).catalog.boxUnits;
 
-  /**
-   * What the entered packaging costs, per unit — the check that catches a basis
-   * typed as 100 when the price is per pack, and shows what a pack or a box
-   * will be sold for.
-   */
+  /** What a pack and a box will be sold for, once the piece price is applied
+   * to the packaging as entered. */
   private readonly unitPrices = computed(() => {
     const price = this.priceMinor();
     const v = this.value();
-    const basis = parseCount(v.priceBasisPieces) ?? 1;
     const pack = parseCount(v.piecesPerPack);
     const box = parseCount(v.packsPerBox);
-    if (price === null) return { piece: '', pack: '', box: '' };
+    if (price === null) return { pack: '', box: '' };
 
-    const per = (pieces: number | null, template: string) => {
-      const total = pieces === null ? null : totalMinor(price, basis, pieces);
-      return total === null
+    const per = (pieces: number | null, template: string) =>
+      pieces === null
         ? ''
-        : template.replace('{price}', formatPriceMinor(total, this.currency));
-    };
+        : template.replace(
+            '{price}',
+            formatPriceMinor(totalMinor(price, pieces), this.currency),
+          );
 
     return {
-      // Only where the basis makes it a different number from the price itself.
-      piece:
-        basis === 1
-          ? ''
-          : this.text.pricePerPiece.replace(
-              '{price}',
-              formatPiecePrice(
-                piecePriceMilliMinor(price, basis),
-                this.currency,
-              ),
-            ),
       pack: per(pack, this.text.pricePerPack),
       box: per(
         pack === null || box === null ? null : pack * box,
         this.text.pricePerBox,
       ),
     };
-  });
-
-  /** Mirrors the server's rule, so the refusal arrives while typing. */
-  protected readonly basisError = computed(() => {
-    const v = this.value();
-    return !basisDividesQuantities(
-      {
-        piecesPerPack: parseCount(v.piecesPerPack),
-        packsPerBox: parseCount(v.packsPerBox),
-        minPieceQty: parseCount(v.minPieceQty) ?? 1,
-      },
-      parseCount(v.priceBasisPieces) ?? 1,
-    );
   });
 
   protected edit(key: keyof PackagingDraft, raw: string): void {
@@ -353,9 +309,9 @@ export class ProductPackagingEditor {
         next.boxCount = '';
       } else if (next.boxCount.trim() === '') {
         // A box that exists ships as one unless told otherwise, and that is a
-        // real value rather than a placeholder — the treatment the minimum and
-        // the basis get, for the same reason: "ships as 1 box" is the rule, not
-        // a blank to interpret.
+        // real value rather than a placeholder — the treatment the minimum
+        // gets, for the same reason: "ships as 1 box" is the rule, not a blank
+        // to interpret.
         next.boxCount = '1';
       }
     }

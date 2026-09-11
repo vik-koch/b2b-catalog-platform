@@ -138,12 +138,8 @@ export const products = pgTable(
     name: varchar('name', { length: 512 }).notNull(),
     // The default list's price — the base every product has. The additional
     // tiers' prices live in product_prices and fall back to this one wherever
-    // they have no row. It is the price of `priceBasisPieces` pieces.
+    // they have no row. It is the price of one piece.
     defaultPriceMinor: integer('defaultPriceMinor').notNull(),
-    // How many pieces the stored price covers; 1 means per piece. Staff-facing:
-    // the read layer resolves prices per unit and only the resolved figures are
-    // ever serialized.
-    priceBasisPieces: integer('priceBasisPieces').notNull().default(1),
     // Packaging. Null means the product is not sold in that unit. Admin-owned —
     // the sync does not carry them.
     piecesPerPack: integer('piecesPerPack'),
@@ -254,7 +250,7 @@ export const products = pgTable(
     ),
     check(
       'products_units_positive',
-      sql`${t.priceBasisPieces} >= 1 and ${t.minPieceQty} >= 1
+      sql`${t.minPieceQty} >= 1
         and ${t.boxCount} >= 1
         and (${t.piecesPerPack} is null or ${t.piecesPerPack} >= 1)
         and (${t.packsPerBox} is null or ${t.packsPerBox} >= 1)`,
@@ -274,21 +270,6 @@ export const products = pgTable(
     check(
       'products_line_note_prompt_needs_note',
       sql`${t.lineNotePrompt} is null or ${t.lineNoteEnabled}`,
-    ),
-    // What keeps totals exact: every purchasable quantity is a whole number of
-    // basis units, so a total is a multiplication with nothing to round. In the
-    // database, not only the editor — it is the guarantee, not a form nicety.
-    // The last clause is the broken-open case: a minimum under a pack lets
-    // pieces be bought one at a time, and only a per-piece price describes those
-    // totals exactly.
-    check(
-      'products_basis_divides_quantities',
-      sql`${t.minPieceQty} % ${t.priceBasisPieces} = 0
-        and (${t.piecesPerPack} is null
-             or ${t.piecesPerPack} % ${t.priceBasisPieces} = 0)
-        and (${t.piecesPerPack} is null
-             or ${t.minPieceQty} >= ${t.piecesPerPack}
-             or ${t.priceBasisPieces} = 1)`,
     ),
     // The minimum must sit with the pack rather than across it: either under one
     // pack, where packs are opened and pieces move by ones, or a whole number of
@@ -992,12 +973,9 @@ export const orderRevisions = pgTable(
  * somebody ordered, and the read layer degrades to plain text where the product
  * is no longer visible.
  *
- * There is deliberately **no per-unit price column**. A piece has no exact
- * integer price where the stored price covers several (19.99 for ten is 1.999
- * each), so a rounded per-unit figure sitting beside the total would be a
- * column that looks multiplicable and is not — and every later consumer would
- * reach for it. `priceMinor` + `priceBasisPieces` keep the line exact and
- * reconstructible; a per-unit figure for display is derived at render time.
+ * `priceMinor` is the price of one piece, so `lineTotalMinor` is a plain
+ * multiplication and a line stays exact and reconstructible. Prices in the
+ * units the line was bought through are derived at render time.
  */
 export const orderItems = pgTable(
   'order_items',
@@ -1031,9 +1009,8 @@ export const orderItems = pgTable(
       mode: 'number',
     }).notNull(),
     pieces: integer('pieces').notNull(),
-    // The tier-resolved price of `priceBasisPieces` pieces, as it stood.
+    // The tier-resolved price of one piece, as it stood.
     priceMinor: integer('priceMinor').notNull(),
-    priceBasisPieces: integer('priceBasisPieces').notNull(),
     lineTotalMinor: integer('lineTotalMinor').notNull(),
     // Customer-typed, for a collective item's variant. Scrubbed by
     // anonymization: it can perfectly well read "deliver to Anna, 0170…".
@@ -1047,14 +1024,13 @@ export const orderItems = pgTable(
       'order_items_quantities_positive',
       // The reading only has to be positive: a line of two packs read as boxes
       // is 0.2 of one.
-      sql`${t.quantity} > 0 and ${t.pieces} >= 1 and ${t.priceBasisPieces} >= 1`,
+      sql`${t.quantity} > 0 and ${t.pieces} >= 1`,
     ),
     // The exactness rule, in the database: a line total is a multiplication of
-    // whole basis units, with nothing rounded.
+    // whole pieces, with nothing rounded.
     check(
       'order_items_total_exact',
-      sql`${t.pieces} % ${t.priceBasisPieces} = 0
-        and ${t.lineTotalMinor} = ${t.priceMinor} * (${t.pieces} / ${t.priceBasisPieces})`,
+      sql`${t.lineTotalMinor} = ${t.priceMinor} * ${t.pieces}`,
     ),
   ],
 );

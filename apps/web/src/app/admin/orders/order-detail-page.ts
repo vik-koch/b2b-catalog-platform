@@ -589,10 +589,9 @@ export class AdminOrderDetailPage {
   );
 
   /**
-   * The lines in basis units — "10 × 19.99" for a box of a hundred pieces
-   * priced per ten. Not the customer's reading of the same line: staff work
-   * against the source system, which prices in these units, and an order that
-   * has to be checked against it reads in its numbers.
+   * The lines in pieces — "100 × 0.42". Not the customer's reading of the same
+   * line: staff work against the source system, which prices per piece, and an
+   * order that has to be checked against it reads in its numbers.
    */
   protected readonly lines = computed<ReadBackLine[]>(() => {
     const order = this.detail();
@@ -602,7 +601,7 @@ export class AdminOrderDetailPage {
       name: line.name,
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
-      quantity: this.basis(line),
+      quantity: this.pieceLine(line),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
     }));
   });
@@ -617,9 +616,9 @@ export class AdminOrderDetailPage {
     });
   });
 
-  private basis(line: AdminOrderLine): string {
-    return fillText(this.text.basis, {
-      count: line.pieces / line.priceBasisPieces,
+  private pieceLine(line: AdminOrderLine): string {
+    return fillText(this.text.pieceLine, {
+      count: line.pieces,
       price: formatPriceMinor(line.priceMinor, this.currency),
     });
   }

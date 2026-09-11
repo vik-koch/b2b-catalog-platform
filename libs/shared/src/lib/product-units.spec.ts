@@ -1,13 +1,11 @@
 import {
   availableUnits,
-  basisDividesQuantities,
   correctPieces,
   exactLineTotal,
   LINE_PIECES_MAX,
   stepFrom,
   minimumFitsPacks,
   pieceFloor,
-  piecePriceMilliMinor,
   piecesFromUnitQuantity,
   piecesPerUnit,
   pieceStep,
@@ -378,121 +376,36 @@ describe('piecesFromUnitQuantity', () => {
 });
 
 describe('totalMinor', () => {
-  it('is exact for a price given per piece', () => {
-    expect(totalMinor(500, 1, 1)).toBe(500);
-    expect(totalMinor(500, 1, 24)).toBe(12000);
-  });
-
-  it('is exact for a price given per pack — the case that motivated the invariant', () => {
-    // €19.99 per pack of 10. Rounding a per-piece price (199.9) to 200 and
-    // multiplying back would charge €20.00 a pack.
-    expect(totalMinor(1999, 10, 10)).toBe(1999);
-    expect(totalMinor(1999, 10, 20)).toBe(3998);
-    // A box of four such packs.
-    expect(totalMinor(1999, 10, 40)).toBe(7996);
-  });
-
-  it('is exact for a price given per 100 pieces', () => {
-    expect(totalMinor(4999, 100, 100)).toBe(4999);
-    expect(totalMinor(4999, 100, 300)).toBe(14997);
-  });
-
-  it('refuses a quantity that is not a whole number of basis units', () => {
-    // A caller that gets here bypassed the quantity rules.
-    expect(totalMinor(1999, 10, 15)).toBeNull();
-    expect(totalMinor(1999, 10, 1)).toBeNull();
-  });
-
-  it('refuses a nonsensical basis instead of dividing by zero', () => {
-    expect(totalMinor(1999, 0, 10)).toBeNull();
-  });
-});
-
-describe('piecePriceMilliMinor', () => {
-  it('is exact where the basis divides cleanly', () => {
-    expect(piecePriceMilliMinor(500, 1)).toBe(500_000);
-    expect(piecePriceMilliMinor(1999, 10)).toBe(199_900); // €1.999
-    expect(piecePriceMilliMinor(4999, 100)).toBe(49_990); // €0.4999 → €0.500
-  });
-
-  it('rounds where no decimal precision could be exact', () => {
-    // One sixth does not terminate in base 10 at any precision.
-    expect(piecePriceMilliMinor(1999, 6)).toBe(333_167);
-  });
-});
-
-describe('basisDividesQuantities', () => {
-  it('accepts the normal case, where the basis is the pack size', () => {
-    expect(basisDividesQuantities(packOnly, 10)).toBe(true);
-    expect(basisDividesQuantities(packaged, 6)).toBe(true);
-    expect(basisDividesQuantities(plain, 1)).toBe(true);
-  });
-
-  it('accepts a basis that divides both the minimum and the pack', () => {
-    expect(basisDividesQuantities(packOnly, 5)).toBe(true);
-  });
-
-  it('rejects a basis that would leave a total needing rounding', () => {
-    // 100 % 3 !== 0, so some purchasable quantity would need rounding.
-    expect(basisDividesQuantities(packOnly, 3)).toBe(false);
-    // Divides the minimum but not the pack.
-    expect(basisDividesQuantities(packaged, 4)).toBe(false);
-  });
-
-  it('rejects anything but a per-piece basis where packs are opened', () => {
-    // The step is one piece, so a two-piece price cannot describe an order of
-    // three.
-    expect(basisDividesQuantities({ ...packaged, minPieceQty: 2 }, 2)).toBe(
-      false,
-    );
-    expect(basisDividesQuantities(loose, 1)).toBe(true);
-  });
-
-  it('rejects a basis below one', () => {
-    expect(basisDividesQuantities(plain, 0)).toBe(false);
+  it('multiplies a piece price by the pieces', () => {
+    expect(totalMinor(500, 1)).toBe(500);
+    expect(totalMinor(500, 24)).toBe(12000);
+    expect(totalMinor(1999, 40)).toBe(79960);
   });
 });
 
 describe('exactLineTotal', () => {
-  // €19.99 for ten pieces: no piece has an exact price, but every orderable
-  // quantity does. The lot is the pack of ten.
-  const inexactPerPiece = {
-    pieceLotMinor: 1999,
-    pack: 1999,
-    box: 7996,
-  };
-  const lots: ProductPackaging = {
-    piecesPerPack: 10,
-    packsPerBox: 4,
-    minPieceQty: 10,
-  };
+  const prices = { piece: 199, pack: 1990, box: 7960 };
 
-  it('multiplies whole lots, never the per-piece figure', () => {
-    expect(exactLineTotal(inexactPerPiece, lots, 10)).toBe(1999);
-    expect(exactLineTotal(inexactPerPiece, lots, 30)).toBe(5997);
-    // 1999 / 10 rounded per piece and multiplied back would give 6000.
-    expect(exactLineTotal(inexactPerPiece, lots, 30)).not.toBe(6000);
+  it('multiplies the piece price by the pieces, whatever the lens', () => {
+    expect(exactLineTotal(prices, 1)).toBe(199);
+    expect(exactLineTotal(prices, 10)).toBe(prices.pack);
+    expect(exactLineTotal(prices, 40)).toBe(prices.box);
   });
 
   // The lens cannot change what a quantity costs: half a box of these is two
   // packs, and two packs is what it is charged as.
   it('prices a part box as the packs it is', () => {
-    expect(exactLineTotal(inexactPerPiece, lots, 20)).toBe(3998);
-    expect(exactLineTotal(inexactPerPiece, lots, 40)).toBe(inexactPerPiece.box);
+    expect(exactLineTotal(prices, 20)).toBe(3980);
   });
 
-  it('refuses a quantity that is not whole lots', () => {
-    expect(exactLineTotal(inexactPerPiece, lots, 15)).toBeNull();
-  });
-
-  it('refuses a missing lot price rather than pricing it at nothing', () => {
-    expect(
-      exactLineTotal({ ...inexactPerPiece, pieceLotMinor: null }, lots, 10),
-    ).toBeNull();
+  // Nothing about a quantity makes it unpriceable any more: whatever the
+  // packaging, a piece count times a piece price is exact.
+  it('prices a quantity that is not whole packs', () => {
+    expect(exactLineTotal(prices, 15)).toBe(2985);
   });
 
   it('refuses a quantity that is not a positive integer', () => {
-    expect(exactLineTotal(inexactPerPiece, lots, 0)).toBeNull();
-    expect(exactLineTotal(inexactPerPiece, lots, 1.5)).toBeNull();
+    expect(exactLineTotal(prices, 0)).toBeNull();
+    expect(exactLineTotal(prices, 1.5)).toBeNull();
   });
 });

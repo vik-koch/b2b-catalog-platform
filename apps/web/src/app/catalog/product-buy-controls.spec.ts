@@ -56,8 +56,7 @@ const packaged = productDetail({
   // pack of ten, a box is four of those. The arithmetic guarantees they agree,
   // so a fixture that disagreed would be testing a shop that cannot exist.
   prices: {
-    pieceMilliMinor: 70_000,
-    pieceLotMinor: 700,
+    piece: 70,
     pack: 700,
     box: 2800,
   },
@@ -73,8 +72,7 @@ const loose = productDetail({
   name: 'Single Bag',
   packaging: { ...packagedPackaging, piecesPerPack: 10, minPieceQty: 1 },
   prices: {
-    pieceMilliMinor: 70_000,
-    pieceLotMinor: 70,
+    piece: 70,
     pack: 700,
     box: 2800,
   },
@@ -472,27 +470,6 @@ describe('ProductBuyControls', () => {
     await view.type('141');
     await view.blurQuantity();
     expect(view.text()).toContain(corrected);
-  });
-
-  // ADR 0035: a line that cannot be priced exactly shows words, never a zero.
-  it('says a line has no price rather than showing a made-up one', async () => {
-    const view = await render(
-      productDetail({
-        prices: {
-          pieceMilliMinor: 1250,
-          pieceLotMinor: null,
-          pack: null,
-          box: null,
-        },
-      }),
-    );
-
-    await view.click(text.add);
-
-    // The per-piece figure is a display price; the line total it cannot be
-    // derived from is words.
-    expect(view.text()).toContain(text.noPrice);
-    expect(view.text()).not.toContain('0,00');
   });
 
   it('adds the chosen unit and quantity to the cart', async () => {

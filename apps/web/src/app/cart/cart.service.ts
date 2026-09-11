@@ -808,18 +808,16 @@ function priceLine(
     unitPriceMinor: unitPriceOf(addition.prices, addition.unit),
     lineTotalMinor: exactLineTotal(
       addition.prices,
-      addition.packaging,
       correctPieces(addition.packaging, pieces),
     ),
   };
 }
 
-/** What one of a unit costs — for pieces, one minimum lot, which is the only
- * piece figure that may be multiplied (ADR 0035). */
+/** What one of a unit costs. */
 function unitPriceOf(prices: LineUnitPrices, unit: ProductUnit): number | null {
   if (unit === 'pack') return prices.pack;
   if (unit === 'box') return prices.box;
-  return prices.pieceLotMinor;
+  return prices.piece;
 }
 
 function isStoredLine(line: unknown): line is CartStoredLine {
@@ -889,8 +887,7 @@ function isPrices(prices: unknown): prices is UnitPrices {
   const candidate = prices as UnitPrices | null;
   return (
     !!candidate &&
-    typeof candidate.pieceMilliMinor === 'number' &&
-    isNullableNumber(candidate.pieceLotMinor) &&
+    typeof candidate.piece === 'number' &&
     isNullableNumber(candidate.pack) &&
     isNullableNumber(candidate.box)
   );

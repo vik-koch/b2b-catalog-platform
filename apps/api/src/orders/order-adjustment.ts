@@ -27,9 +27,8 @@ import { packagingOf, unitColumns } from '../catalog/product-view';
  * far the catalog has moved since. **The whole catalog is in scope**, deleted
  * and unpublished included: an order may already hold a withdrawn product, and
  * a shop filling one from something it no longer lists is doing ordinary work.
- * And **quantities are counted in basis units**, so a line's pieces are a whole
- * number of what its price is per — which is the database's own rule about
- * line totals, kept by construction rather than checked afterwards.
+ * And **quantities are counted in pieces**, the unit every price is per, so a
+ * line total is a multiplication with nothing to round.
  */
 
 export interface PricedAdjustmentLine {
@@ -39,20 +38,17 @@ export interface PricedAdjustmentLine {
   name: string;
   thumbnail: string | null;
   unit: ProductUnit;
-  units: number;
   pieces: number;
   quantity: number;
   priceMinor: number;
-  priceBasisPieces: number;
   lineTotalMinor: number;
   note: string | null;
   flags: AdjustmentLineFlag[];
-  /** What the chosen list charges for this product today, and what that price
-   * is per. Answered on every line, priced from the list or not: it is what
-   * lets a screen say a line was priced away from the list without working out
-   * either figure for itself. */
+  /** What the chosen list charges for one piece of this product today.
+   * Answered on every line, priced from the list or not: it is what lets a
+   * screen say a line was priced away from the list without working out either
+   * figure for itself. */
   listPriceMinor: number;
-  listPriceBasisPieces: number;
 }
 
 export interface PricedAdjustment {
@@ -74,7 +70,6 @@ type ProductRow = {
   availability: ProductAvailability | null;
   publishedAt: Date | null;
   deletedAt: Date | null;
-  priceBasisPieces: number;
   piecesPerPack: number | null;
   packsPerBox: number | null;
   minPieceQty: number;
@@ -157,19 +152,10 @@ function priceLine(
   if (!product) throw new Error('an unresolved line reached the pricer');
 
   const packaging = packagingOf(product);
-  // The line's own price, or the list's — never a mix: a price and the basis
-  // it is per are one figure in two columns.
+  // The line's own price, or the list's.
   const priceMinor = line.priceMinor ?? product.priceMinor;
-  const priceBasisPieces = line.priceBasisPieces ?? product.priceBasisPieces;
-  const pieces = line.units * priceBasisPieces;
-
-  const lineTotalMinor = totalMinor(priceMinor, priceBasisPieces, pieces);
-  if (lineTotalMinor === null) {
-    throw new BadRequestException({
-      code: 'line-not-priceable',
-      message: `The line for ${line.slug} has no exact price`,
-    });
-  }
+  const pieces = line.pieces;
+  const lineTotalMinor = totalMinor(priceMinor, pieces);
 
   // The lens only. A product repacked out of the unit this line was read in is
   // still perfectly orderable, so it falls back to the one unit every product
@@ -189,15 +175,12 @@ function priceLine(
     name: product.name,
     thumbnail: product.images[0]?.thumb ?? null,
     unit,
-    units: line.units,
     pieces,
     quantity: unitQuantity(packaging, unit, pieces) ?? pieces,
     priceMinor,
-    priceBasisPieces,
     lineTotalMinor,
     note: line.note,
     flags,
     listPriceMinor: product.priceMinor,
-    listPriceBasisPieces: product.priceBasisPieces,
   };
 }

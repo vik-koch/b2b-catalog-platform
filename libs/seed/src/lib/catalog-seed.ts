@@ -88,16 +88,16 @@ export async function seedCatalog(
     const { rows: productRows } = await client.query<{ id: string }>(
       `INSERT INTO products
          ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "descriptionHtml", images,
-          "piecesPerPack", "packsPerBox", "minPieceQty", "priceBasisPieces", "boxVolume", "boxWeight",
+          "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume", "boxWeight",
           "boxCount", "lineNoteEnabled", "lineNotePrompt", "stockPieces", availability, "publishedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, now())
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, now())
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "defaultPriceMinor" = EXCLUDED."defaultPriceMinor", "categoryId" = EXCLUDED."categoryId",
          "descriptionHtml" = EXCLUDED."descriptionHtml",
          images = EXCLUDED.images,
          "piecesPerPack" = EXCLUDED."piecesPerPack", "packsPerBox" = EXCLUDED."packsPerBox",
-         "minPieceQty" = EXCLUDED."minPieceQty", "priceBasisPieces" = EXCLUDED."priceBasisPieces",
+         "minPieceQty" = EXCLUDED."minPieceQty",
          "boxVolume" = EXCLUDED."boxVolume", "boxWeight" = EXCLUDED."boxWeight",
          "boxCount" = EXCLUDED."boxCount",
          "lineNoteEnabled" = EXCLUDED."lineNoteEnabled",
@@ -119,7 +119,6 @@ export async function seedCatalog(
         packaging.piecesPerPack ?? null,
         packaging.packsPerBox ?? null,
         packaging.minPieceQty ?? 1,
-        packaging.priceBasisPieces ?? 1,
         packaging.boxVolume ?? null,
         packaging.boxWeight ?? null,
         packaging.boxCount ?? 1,

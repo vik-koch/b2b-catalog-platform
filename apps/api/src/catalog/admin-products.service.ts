@@ -102,7 +102,6 @@ const adminProductColumns = {
   deletedAt: products.deletedAt,
   publishedAt: products.publishedAt,
   updatedAt: products.updatedAt,
-  priceBasisPieces: products.priceBasisPieces,
   piecesPerPack: products.piecesPerPack,
   packsPerBox: products.packsPerBox,
   minPieceQty: products.minPieceQty,
@@ -128,7 +127,6 @@ type ProductRow = {
   deletedAt: Date | null;
   publishedAt: Date | null;
   updatedAt: Date;
-  priceBasisPieces: number;
   piecesPerPack: number | null;
   packsPerBox: number | null;
   minPieceQty: number;
@@ -973,7 +971,6 @@ function toAdminProduct(
     deletedAt: row.deletedAt?.toISOString() ?? null,
     publishedAt: row.publishedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),
-    priceBasisPieces: row.priceBasisPieces,
     piecesPerPack: row.piecesPerPack,
     packsPerBox: row.packsPerBox,
     minPieceQty: row.minPieceQty,
@@ -991,7 +988,6 @@ function toAdminProduct(
 /** The packaging columns as create and update both write them. */
 function packagingValues(input: ProductInput) {
   return {
-    priceBasisPieces: input.priceBasisPieces,
     piecesPerPack: input.piecesPerPack,
     packsPerBox: input.packsPerBox,
     minPieceQty: input.minPieceQty,

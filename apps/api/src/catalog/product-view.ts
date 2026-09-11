@@ -4,8 +4,6 @@ import {
   ProductListItem,
   ProductPackagingInfo,
   UnitPrices,
-  piecePriceMilliMinor,
-  pieceStep,
   piecesPerUnit,
   totalMinor,
 } from '@b2b-catalog-platform/shared';
@@ -14,8 +12,8 @@ import { ProductImageRef, products } from '../db/schema';
 
 /**
  * Stored product rows → the prices and packaging the read contract publishes.
- * Rows carry the price of `priceBasisPieces` pieces; the API publishes prices
- * already resolved per unit, and the basis itself never leaves.
+ * A stored price is the price of one piece; the API publishes it multiplied
+ * out to every unit the product is sold in.
  */
 
 /**
@@ -31,7 +29,6 @@ export const publiclyVisible = and(
 
 /** Selected by every product read, so the paths cannot drift. */
 export const unitColumns = {
-  priceBasisPieces: products.priceBasisPieces,
   piecesPerPack: products.piecesPerPack,
   packsPerBox: products.packsPerBox,
   minPieceQty: products.minPieceQty,
@@ -51,16 +48,13 @@ export const availabilityColumns = {
 } as const;
 
 export interface PricedProductRow {
-  /** Tier-resolved, covering `priceBasisPieces` pieces. */
+  /** Tier-resolved, the price of one piece. */
   priceMinor: number;
-  priceBasisPieces: number;
   piecesPerPack: number | null;
   packsPerBox: number | null;
   minPieceQty: number;
 }
 
-/** A projection rather than the row: it is what keeps the basis out of the
- * response. */
 export function packagingOf(row: PricedProductRow): ProductPackagingInfo {
   return {
     piecesPerPack: row.piecesPerPack,
@@ -69,40 +63,21 @@ export function packagingOf(row: PricedProductRow): ProductPackagingInfo {
   };
 }
 
-/**
- * Pack and box prices are exact whole minor units — a pack is a whole number of
- * basis units, so `totalMinor` has no remainder. It returns null only if that
- * invariant is broken, surfacing as a missing price rather than a wrong one.
- */
+/** Every unit's price is the piece price multiplied out, so all three are
+ * exact whole minor units and null means only that the product is not sold in
+ * that unit. */
 export function unitPricesOf(row: PricedProductRow): UnitPrices {
   const packaging = packagingOf(row);
   const priceFor = (unit: 'pack' | 'box'): number | null => {
     const pieces = piecesPerUnit(packaging, unit);
-    return pieces === null
-      ? null
-      : totalMinor(row.priceMinor, row.priceBasisPieces, pieces);
+    return pieces === null ? null : totalMinor(row.priceMinor, pieces);
   };
 
   return {
-    pieceMilliMinor: piecePriceMilliMinor(row.priceMinor, row.priceBasisPieces),
-    // The multiplicable piece figure — the price of one step, which is what
-    // every piece quantity is a whole number of. Exact by construction: the
-    // basis divides the step and the pack alike
-    // (products_basis_divides_quantities), and the minimum sits on the step
-    // lattice (products_minimum_fits_packs).
-    pieceLotMinor: totalMinor(
-      row.priceMinor,
-      row.priceBasisPieces,
-      pieceStep(packaging),
-    ),
+    piece: row.priceMinor,
     pack: priceFor('pack'),
     box: priceFor('box'),
   };
-}
-
-/** The rounded per-piece price the pre-units surfaces still read. */
-export function displayPriceMinor(row: PricedProductRow): number {
-  return Math.round(row.priceMinor / row.priceBasisPieces);
 }
 
 export function toListItem<
@@ -119,7 +94,7 @@ export function toListItem<
   return {
     slug: row.slug,
     name: row.name,
-    priceMinor: displayPriceMinor(row),
+    priceMinor: row.priceMinor,
     prices: unitPricesOf(row),
     packaging: packagingOf(row),
     images: row.images,

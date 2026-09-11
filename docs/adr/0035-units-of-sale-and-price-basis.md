@@ -1,6 +1,6 @@
 # 0035 — Sell in piece/pack/box, with a staff-only price basis
 
-**Status:** accepted (amended 2026-08-18, 2026-08-23, 2026-08-26) · **Date:** 2026-08-16
+**Status:** accepted; the price basis superseded by 0058 (amended 2026-08-18, 2026-08-23, 2026-08-26, 2026-09-11) · **Date:** 2026-08-16
 
 ## Context
 
@@ -282,3 +282,11 @@ correction fires only on a minimum **above** a pack and between two of them.
 
 No data migration: the rules only widen what is accepted, and the constraint that
 refused this shape had not reached production.
+
+## Amendment — 2026-09-11: the basis is gone
+
+The **price basis is removed** — see [ADR 0058](0058-the-price-is-per-piece.md).
+A stored price is the price of one piece, so everything below about a basis, the
+quantities it has to divide, the sort dividing down to a piece price and the two
+piece figures in the contract no longer describes the system. Units of sale, the
+packaging columns, the minimum and the box facts are untouched.

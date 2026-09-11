@@ -10,4 +10,4 @@ export const CART_STORAGE_KEY = 'cart';
  * discarded rather than migrated: a cart is cheap to rebuild, and a
  * half-understood one would price wrongly.
  */
-export const CART_STORAGE_VERSION = 1;
+export const CART_STORAGE_VERSION = 2;

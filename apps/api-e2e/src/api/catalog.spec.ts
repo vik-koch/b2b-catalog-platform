@@ -77,8 +77,6 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
       'prices',
       'slug',
     ]);
-    // The price basis is staff-facing and must never reach a tile (FR-UNIT-04).
-    expect(JSON.stringify(item)).not.toContain('priceBasisPieces');
     // Some seed products ship without photos (the no-image placeholder case), so
     // assert the image shape against one that has images rather than items[0].
     const withImage = res.data.items.find(
@@ -319,12 +317,7 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
       'slug',
     ]);
     expect(res.data.name).toBe(seed.name);
-    // `priceMinor` is the price of one *piece*; the seed's is the price of
-    // however many pieces that product's basis covers (FR-UNIT-04).
-    const basis = seed.packaging?.priceBasisPieces ?? 1;
-    expect(res.data.priceMinor).toBe(Math.round(seed.priceMinor / basis));
-    // The basis itself is staff-facing and never serialized.
-    expect(JSON.stringify(res.data)).not.toContain('priceBasisPieces');
+    expect(res.data.priceMinor).toBe(seed.priceMinor);
     expect(Object.keys(res.data.category).sort()).toEqual([
       'ancestors',
       'name',

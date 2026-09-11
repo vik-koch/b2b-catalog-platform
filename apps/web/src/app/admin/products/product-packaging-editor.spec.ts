@@ -118,28 +118,20 @@ describe('ProductPackagingEditor', () => {
   });
 
   it('prices each unit beside the row that defines it', () => {
-    // €19.99 for ten pieces, ten to a pack, four packs to a box.
+    // €1.99 a piece, ten to a pack, four packs to a box.
     const { fixture } = render(
       {
         ...emptyPackaging(),
-        priceBasisPieces: '10',
         piecesPerPack: '10',
         minPieceQty: '10',
         packsPerBox: '4',
       },
-      1999,
+      199,
     );
     const text = plainSpaces(fixture.nativeElement.textContent);
 
-    expect(text).toContain('1,999 € per piece');
-    expect(text).toContain('19,99 € per pack');
-    expect(text).toContain('79,96 € per box');
-  });
-
-  it('says nothing about a per-piece price when the price is already per piece', () => {
-    const { fixture } = render(emptyPackaging(), 1999);
-
-    expect(fixture.nativeElement.textContent).not.toContain('per piece');
+    expect(text).toContain('19,90 € per pack');
+    expect(text).toContain('79,60 € per box');
   });
 
   it('puts a required count back to 1 when it is emptied', () => {
@@ -287,31 +279,5 @@ describe('ProductPackagingEditor', () => {
     input.dispatchEvent(new Event('blur'));
 
     expect(emitted.at(-1)).toMatchObject({ boxCount: '1' });
-  });
-
-  it('warns while the basis does not divide the quantities', () => {
-    const { fixture } = render({
-      ...emptyPackaging(),
-      piecesPerPack: '10',
-      minPieceQty: '10',
-      priceBasisPieces: '3',
-    });
-
-    expect(fixture.nativeElement.textContent).toContain(
-      defaultAdminText.productEditor.packaging.basisMustDivide,
-    );
-  });
-
-  it('stays quiet when the basis divides both', () => {
-    const { fixture } = render({
-      ...emptyPackaging(),
-      piecesPerPack: '10',
-      minPieceQty: '100',
-      priceBasisPieces: '10',
-    });
-
-    expect(fixture.nativeElement.textContent).not.toContain(
-      defaultAdminText.productEditor.packaging.basisMustDivide,
-    );
   });
 });

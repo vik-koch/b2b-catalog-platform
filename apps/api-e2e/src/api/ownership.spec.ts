@@ -95,7 +95,6 @@ describe('External data ownership (FR-ADM-10)', () => {
       attributes: [],
       images: [],
       tierPrices: [],
-      priceBasisPieces: stored['priceBasisPieces'],
       piecesPerPack: stored['piecesPerPack'],
       packsPerBox: stored['packsPerBox'],
       minPieceQty: stored['minPieceQty'],

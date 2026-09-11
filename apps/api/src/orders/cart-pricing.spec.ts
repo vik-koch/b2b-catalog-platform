@@ -28,26 +28,25 @@ function rendered(condition: unknown): string {
   return new PgDialect().sqlToQuery(condition as never).sql;
 }
 
-/** €19.99 per ten pieces: no piece has an exact price, every lot does. */
+/** €1.99 a piece, sold in packs of ten and boxes of four packs. */
 const coffee = {
   id: 'product-1',
   slug: 'hafen-espresso',
   name: 'Hafen Espresso',
   sourceId: 'ERP-1',
-  priceMinor: 1999,
+  priceMinor: 199,
   images: [{ full: '/media/a.jpg', thumb: '/media/a-thumb.jpg' }],
   boxVolume: '0.240',
   boxWeight: '12.500',
   boxCount: 1,
   lineNoteEnabled: true,
-  priceBasisPieces: 10,
   piecesPerPack: 10,
   packsPerBox: 4,
   minPieceQty: 10,
 };
 
 describe('priceCart', () => {
-  it('prices a pack line exactly and keeps the basis out of the preview', async () => {
+  it('prices a pack line exactly', async () => {
     const { db } = dbWith([coffee]);
 
     const { preview, lines } = await priceCart(
@@ -56,22 +55,22 @@ describe('priceCart', () => {
       null,
     );
 
-    expect(preview.lines[0].lineTotalMinor).toBe(5997);
-    expect(preview.totalMinor).toBe(5997);
+    expect(preview.lines[0].lineTotalMinor).toBe(5970);
+    expect(preview.totalMinor).toBe(5970);
     expect(preview.complete).toBe(true);
     expect(preview.lines[0].issues).toEqual([]);
-    expect(JSON.stringify(preview)).not.toContain('priceBasisPieces');
     // The stored figures the order line needs travel beside the preview.
     expect(lines[0].row).toMatchObject({
       productId: 'product-1',
       sourceId: 'ERP-1',
-      priceMinor: 1999,
-      priceBasisPieces: 10,
+      priceMinor: 199,
       pieces: 30,
     });
   });
 
-  it('never multiplies the per-piece display figure', async () => {
+  // The lens cannot change what a quantity costs: the same thirty pieces
+  // bought by the piece cost what they cost bought by the pack.
+  it('prices the same pieces the same through any lens', async () => {
     const { db } = dbWith([coffee]);
 
     const { preview } = await priceCart(
@@ -80,8 +79,7 @@ describe('priceCart', () => {
       null,
     );
 
-    // 199.9 minor per piece rounded and multiplied would be 6000.
-    expect(preview.lines[0].lineTotalMinor).toBe(5997);
+    expect(preview.lines[0].lineTotalMinor).toBe(5970);
   });
 
   it('corrects a below-minimum piece quantity before pricing it', async () => {
@@ -96,7 +94,7 @@ describe('priceCart', () => {
     expect(preview.lines[0]).toMatchObject({
       pieces: 10,
       issues: ['quantity-corrected'],
-      lineTotalMinor: 1999,
+      lineTotalMinor: 1990,
     });
   });
 
@@ -153,7 +151,7 @@ describe('priceCart', () => {
       unit: 'piece',
       pieces: 10,
       issues: ['unit-unavailable'],
-      lineTotalMinor: 1999,
+      lineTotalMinor: 1990,
     });
     // The packaging is still returned, so the browser can offer another unit.
     expect(preview.lines[0].packaging).toMatchObject({ minPieceQty: 10 });
@@ -178,13 +176,12 @@ describe('priceCart', () => {
     expect(preview.lines[0].note).toBeNull();
     expect(preview.lines[0].issues).toEqual(['note-not-allowed']);
     // Still priced: the note was the product's policy, not the customer's error.
-    expect(preview.lines[0].lineTotalMinor).toBe(1999);
+    expect(preview.lines[0].lineTotalMinor).toBe(1990);
   });
 
-  it('reports a price it cannot make exact rather than rounding one', async () => {
-    // A repackaged product: the basis no longer divides the pack. The minimum
-    // is one pack, so nothing else about the line needs correcting and the
-    // price is the only thing wrong with it.
+  // The case that used to be unpriceable: a repackaged product whose pack no
+  // longer divides what the price was per. A piece price divides everything.
+  it('prices a repackaged product rather than reporting no price', async () => {
     const { db } = dbWith([
       { ...coffee, piecesPerPack: 7, minPieceQty: 7, packsPerBox: null },
     ]);
@@ -195,10 +192,10 @@ describe('priceCart', () => {
       null,
     );
 
-    expect(preview.lines[0].lineTotalMinor).toBeNull();
-    expect(preview.lines[0].issues).toEqual(['price-unavailable']);
-    expect(preview.complete).toBe(false);
-    expect(lines[0].row).toBeNull();
+    expect(preview.lines[0].lineTotalMinor).toBe(1393);
+    expect(preview.lines[0].issues).toEqual([]);
+    expect(preview.complete).toBe(true);
+    expect(lines[0].row).not.toBeNull();
   });
 
   it('sums the shipment across the orderable lines only', async () => {
@@ -248,7 +245,7 @@ describe('priceCart', () => {
 
     expect(preview.lines[0].issues).toEqual(['out-of-stock']);
     expect(preview.lines[0].availability).toBe('out');
-    expect(preview.lines[0].lineTotalMinor).toBe(1999);
+    expect(preview.lines[0].lineTotalMinor).toBe(1990);
     expect(preview.complete).toBe(true);
     expect(lines[0].row).not.toBeNull();
     expect(JSON.stringify(preview)).not.toContain('stockPieces');

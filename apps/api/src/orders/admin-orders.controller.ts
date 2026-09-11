@@ -13,7 +13,7 @@ import { OrdersService } from './orders.service';
  *
  * The same service as the customer's own routes, so the two views cannot
  * describe an order differently; what separates them is the contract, which
- * lets only this one carry the price basis, the private source id and the tier
+ * lets only this one carry the piece price, the private source id and the tier
  * the order was priced from.
  */
 @Auth('admin', 'manager')

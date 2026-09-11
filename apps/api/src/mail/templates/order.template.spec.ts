@@ -43,12 +43,12 @@ describe('orderReceivedMail', () => {
       quantity: '2 pk (12 pcs)',
       name: 'Espresso cups',
       note: '100 in <red>',
-      total: expect.stringContaining('99,90'),
+      total: expect.stringContaining('96,00'),
     });
     expect(mail.items?.[1].quantity).toBe('3 pcs');
     expect(mail.rows).toContainEqual({
       label: t.totalLabel,
-      value: expect.stringContaining('129,90'),
+      value: expect.stringContaining('126,00'),
     });
     // The price list and the account behind the order are staff's to know.
     expect(JSON.stringify(mail)).not.toContain('wholesale');
