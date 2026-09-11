@@ -41,7 +41,7 @@ export const demoAdminOrder: AdminOrderDetail = {
     },
   ],
   paidAt: null,
-  totalMinor: 12990,
+  totalMinor: 12600,
   currency: 'EUR',
   itemCount: 2,
   contact: {
@@ -71,9 +71,8 @@ export const demoAdminOrder: AdminOrderDetail = {
       unit: 'pack',
       quantity: 2,
       pieces: 12,
-      priceMinor: 1999,
-      priceBasisPieces: 10,
-      lineTotalMinor: 9990,
+      priceMinor: 800,
+      lineTotalMinor: 9600,
       note: '100 in <red>',
     },
     {
@@ -85,7 +84,6 @@ export const demoAdminOrder: AdminOrderDetail = {
       quantity: 3,
       pieces: 3,
       priceMinor: 1000,
-      priceBasisPieces: 1,
       lineTotalMinor: 3000,
       note: null,
     },

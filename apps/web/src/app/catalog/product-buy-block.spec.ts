@@ -25,8 +25,7 @@ const packaged = productDetail({
   // pack of ten, a box is four of those. The arithmetic guarantees they agree,
   // so a fixture that disagreed would be testing a shop that cannot exist.
   prices: {
-    pieceMilliMinor: 70_000,
-    pieceLotMinor: 700,
+    piece: 70,
     pack: 700,
     box: 2800,
   },

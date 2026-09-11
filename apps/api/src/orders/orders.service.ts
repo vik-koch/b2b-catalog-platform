@@ -894,7 +894,6 @@ export class OrdersService {
                 quantity: row.quantity,
                 pieces: row.pieces,
                 priceMinor: row.priceMinor,
-                priceBasisPieces: row.priceBasisPieces,
                 lineTotalMinor: preview.lineTotalMinor,
                 note: preview.note,
               };
@@ -1058,7 +1057,6 @@ export class OrdersService {
       lines: detail.lines.map((line, index): AdminOrderLine => ({
         ...line,
         priceMinor: items[index].priceMinor,
-        priceBasisPieces: items[index].priceBasisPieces,
       })),
       documents,
       customerEmail: customer?.email ?? null,
@@ -1398,16 +1396,13 @@ export class OrdersService {
           ? { full: line.thumbnail, thumb: line.thumbnail }
           : null,
         unit: line.unit,
-        units: line.units,
         quantity: line.quantity,
         pieces: line.pieces,
         priceMinor: line.priceMinor,
-        priceBasisPieces: line.priceBasisPieces,
         lineTotalMinor: line.lineTotalMinor,
         note: line.note,
         flags: line.flags,
         listPriceMinor: line.listPriceMinor,
-        listPriceBasisPieces: line.listPriceBasisPieces,
       })),
       totalMinor: priced.totalMinor,
       // The order's own currency, not today's config: an old order is priced
@@ -1474,7 +1469,6 @@ export class OrdersService {
       quantity: line.quantity,
       pieces: line.pieces,
       priceMinor: line.priceMinor,
-      priceBasisPieces: line.priceBasisPieces,
       lineTotalMinor: line.lineTotalMinor,
       note: line.note,
     }));
@@ -1554,7 +1548,6 @@ export class OrdersService {
         line.quantity === item.quantity &&
         line.pieces === item.pieces &&
         line.priceMinor === item.priceMinor &&
-        line.priceBasisPieces === item.priceBasisPieces &&
         line.lineTotalMinor === item.lineTotalMinor &&
         line.note === item.note
       );
@@ -1761,12 +1754,10 @@ export class OrdersService {
           await tx.execute(sql`
             insert into ${orderItems} ("revisionId", "sortOrder", "productId",
               "productSourceId", "slug", "name", "thumbnail", "unit",
-              "quantity", "pieces", "priceMinor", "priceBasisPieces",
-              "lineTotalMinor", "note")
+              "quantity", "pieces", "priceMinor", "lineTotalMinor", "note")
             select ${revision.id}::uuid, "sortOrder", "productId",
               "productSourceId", "slug", "name", "thumbnail", "unit",
-              "quantity", "pieces", "priceMinor", "priceBasisPieces",
-              "lineTotalMinor", "note"
+              "quantity", "pieces", "priceMinor", "lineTotalMinor", "note"
               from ${orderItems}
               where ${orderItems.revisionId} = ${current.revisionId}::uuid`);
         }

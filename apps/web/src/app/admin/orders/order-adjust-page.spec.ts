@@ -54,7 +54,7 @@ const order: AdminOrderDetail = {
   paidAt: null,
   createdAt: '2026-08-26T09:15:00.000Z',
   statusChangedAt: '2026-08-26T09:15:00.000Z',
-  totalMinor: 3998,
+  totalMinor: 3980,
   currency: 'EUR',
   itemCount: 1,
   contact: {
@@ -83,9 +83,8 @@ const order: AdminOrderDetail = {
       unit: 'pack',
       quantity: 2,
       pieces: 20,
-      priceMinor: 1999,
-      priceBasisPieces: 10,
-      lineTotalMinor: 3998,
+      priceMinor: 199,
+      lineTotalMinor: 3980,
       note: null,
     },
   ],
@@ -105,13 +104,11 @@ const preview: OrderAdjustmentPreview = {
   lines: [
     {
       ...order.lines[0],
-      units: 2,
       flags: [],
-      listPriceMinor: 1999,
-      listPriceBasisPieces: 10,
+      listPriceMinor: 199,
     },
   ],
-  totalMinor: 3998,
+  totalMinor: 3980,
   currency: 'EUR',
   deliveryZone: null,
   shipment: order.shipment,
@@ -201,13 +198,11 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
     expect(body.lines).toEqual([
       {
         slug: 'espresso-cups',
-        // Two basis units, which is what "one box of a hundred priced per ten"
-        // is to staff.
-        units: 2,
+        // Twenty pieces, which is what two packs of ten is to staff.
+        pieces: 20,
         unit: 'pack',
         note: null,
-        priceMinor: 1999,
-        priceBasisPieces: 10,
+        priceMinor: 199,
       },
     ]);
     expect(body.paymentMethod).toBe('bank-transfer');
@@ -233,13 +228,12 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
       lines: [
         {
           ...preview.lines[0],
-          units: 1,
           quantity: 1,
           pieces: 10,
-          lineTotalMinor: 1999,
+          lineTotalMinor: 1990,
         },
       ],
-      totalMinor: 1999,
+      totalMinor: 1990,
     };
     const { el } = await settled({
       previewAdjustment: vi.fn(async () => ({
@@ -249,8 +243,8 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
     });
 
     expect(el.textContent).toContain(text.changes.total);
-    expect(el.textContent).toMatch(/39[.,]98/);
-    expect(el.textContent).toMatch(/19[.,]99/);
+    expect(el.textContent).toMatch(/39[.,]80/);
+    expect(el.textContent).toMatch(/19[.,]90/);
   });
 
   // Optional in the contract, asked for here: the customer is emailed it, and

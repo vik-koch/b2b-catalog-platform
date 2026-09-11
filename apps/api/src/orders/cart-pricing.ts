@@ -43,7 +43,6 @@ export interface PricedLineRow {
   productId: string;
   sourceId: string;
   priceMinor: number;
-  priceBasisPieces: number;
   pieces: number;
   /** `pieces` read through the line's unit — the display snapshot an order
    * line freezes, worked out here because this is where the packaging is. */
@@ -64,7 +63,7 @@ export interface PricedCart {
 
 /**
  * The visible half of a product row. Everything else the pricer reads
- * (`sourceId`, the price basis) stays inside `PricedLineRow`.
+ * (`sourceId`) stays inside `PricedLineRow`.
  */
 type ProductRow = {
   id: string;
@@ -82,7 +81,6 @@ type ProductRow = {
   availability: ProductAvailability | null;
   /** How many sellable products this one is sold together with (FR-SET-05). */
   pairedCount: number;
-  priceBasisPieces: number;
   piecesPerPack: number | null;
   packsPerBox: number | null;
   minPieceQty: number;
@@ -276,7 +274,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
   const unit = sold ? line.unit : 'piece';
   if (!sold) issues.push('unit-unavailable');
 
-  const lineTotalMinor = exactLineTotal(prices, packaging, pieces);
+  const lineTotalMinor = exactLineTotal(prices, pieces);
   if (lineTotalMinor === null) issues.push('price-unavailable');
 
   // The line stays exactly as it is — named, priced and orderable in every
@@ -293,7 +291,6 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
             productId: product.id,
             sourceId: product.sourceId,
             priceMinor: product.priceMinor,
-            priceBasisPieces: product.priceBasisPieces,
             pieces,
             // Never null: `unit` has already fallen back to one the product is
             // sold in.

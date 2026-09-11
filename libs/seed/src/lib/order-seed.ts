@@ -72,7 +72,6 @@ interface ProductRow {
   piecesPerPack: number | null;
   packsPerBox: number | null;
   minPieceQty: number;
-  priceBasisPieces: number;
   boxVolume: string | null;
   boxWeight: string | null;
   boxCount: number;
@@ -227,8 +226,8 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
       await client.query(
         `INSERT INTO order_items (
            "revisionId", "sortOrder", "productId", "productSourceId", slug, name, thumbnail,
-           unit, quantity, pieces, "priceMinor", "priceBasisPieces", "lineTotalMinor", note)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+           unit, quantity, pieces, "priceMinor", "lineTotalMinor", note)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
         [
           currentRevisionId,
           item.index,
@@ -241,7 +240,6 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
           item.quantity,
           item.line.pieces,
           item.priceMinor,
-          item.row.priceBasisPieces,
           item.lineTotalMinor,
           item.line.note ?? null,
         ],
@@ -259,9 +257,9 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
   );
 }
 
-/** One version's lines, priced from the catalog as seeded — a line total, the
- * piece price's basis and the shipment estimate, so the demo orders stay
- * consistent with the prices the storefront is showing. */
+/** One version's lines, priced from the catalog as seeded — a line total and
+ * the shipment estimate, so the demo orders stay consistent with the prices
+ * the storefront is showing. */
 function priceVersion(
   reference: string,
   lines: OrderLineSeed[],
@@ -272,15 +270,11 @@ function priceVersion(
     if (!row) throw new Error(`order ${reference}: no ${line.sourceId}`);
     const packaging = packagingOf(row);
     const priceMinor = row.tierPriceMinor ?? row.defaultPriceMinor;
-    const lineTotalMinor = totalMinor(
-      priceMinor,
-      row.priceBasisPieces,
-      line.pieces,
-    );
+    const lineTotalMinor = totalMinor(priceMinor, line.pieces);
     const quantity = unitQuantity(packaging, line.unit, line.pieces);
-    // Both are null only where a fixture buys a quantity or a unit the product's
-    // own rules refuse — which is a broken fixture, not a runtime case.
-    if (lineTotalMinor === null || quantity === null) {
+    // Null only where a fixture buys a unit the product's own rules refuse —
+    // which is a broken fixture, not a runtime case.
+    if (quantity === null) {
       throw new Error(
         `order ${reference}: ${line.sourceId} cannot be bought as ` +
           `${line.pieces} pieces in ${line.unit}`,
@@ -328,7 +322,7 @@ async function productRows(
             p.images->0->>'thumb' AS thumbnail,
             p."defaultPriceMinor",
             pp."priceMinor" AS "tierPriceMinor",
-            p."piecesPerPack", p."packsPerBox", p."minPieceQty", p."priceBasisPieces",
+            p."piecesPerPack", p."packsPerBox", p."minPieceQty",
             p."boxVolume", p."boxWeight", p."boxCount"
        FROM products p
        LEFT JOIN customer_tiers t ON t.key = $2

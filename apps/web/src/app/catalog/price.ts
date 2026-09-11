@@ -4,7 +4,6 @@ import {
   decimalSeparator,
   formatMoneyMinor,
   MoneyFormat,
-  PIECE_PRICE_SCALE,
 } from '@b2b-catalog-platform/shared';
 
 /** What the page needs to write a price. The shape the mails use, under the
@@ -45,28 +44,6 @@ export function formatPriceMinorShort(
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(priceMinor / 10 ** digits);
-}
-
-/**
- * Format a per-piece price, which arrives in thousandths of a minor unit
- * because a single piece cannot always be priced in whole cents.
- *
- * Three decimal places, never more: the extra precision exists so the figure is
- * not rounded twice, not so it is all shown. A price that *is* exact in minor
- * units renders like any other, so only the inexact ones read differently.
- */
-export function formatPiecePrice(
-  milliMinor: number,
-  currency: CurrencyConfig,
-): string {
-  const digits = currencyFractionDigits(currency);
-  const exact = milliMinor % PIECE_PRICE_SCALE === 0;
-  return new Intl.NumberFormat(currency.locale, {
-    style: 'currency',
-    currency: currency.code,
-    minimumFractionDigits: digits,
-    maximumFractionDigits: exact ? digits : Math.max(digits, 3),
-  }).format(milliMinor / PIECE_PRICE_SCALE / 10 ** digits);
 }
 
 /** Minor units → a major-unit number for a decimal input (e.g. 1890 → 18.9). */

@@ -31,7 +31,6 @@ export type AdjustmentRefusal =
   | 'no-change'
   | 'unknown-product'
   | 'unknown-tier'
-  | 'line-not-priceable'
   | 'invalid-company-id'
   | 'unsupported-country'
   | 'invalid-postal-code'

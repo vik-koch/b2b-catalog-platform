@@ -21,8 +21,7 @@ export const packagedPackaging = {
 
 export function plainPrices(priceMinor: number): ProductListItem['prices'] {
   return {
-    pieceMilliMinor: priceMinor * 1000,
-    pieceLotMinor: priceMinor,
+    piece: priceMinor,
     pack: null,
     box: null,
   };

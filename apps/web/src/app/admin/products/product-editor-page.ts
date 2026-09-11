@@ -4,11 +4,9 @@ import {
   AdminCategory,
   AttributeDefinition,
   AttributeKeyUsage,
-  basisDividesQuantities,
   CatalogImage,
   CustomerTier,
   minimumFitsPacks,
-  piecePriceMilliMinor,
   piecesPerUnit,
   PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
   ProductAttribute,
@@ -674,23 +672,20 @@ export class ProductEditorPage implements UnsavedChangesAware {
       piecesPerPack: null,
       packsPerBox: null,
       minPieceQty: 1,
-      priceBasisPieces: 1,
       boxVolume: null,
       boxWeight: null,
       boxCount: 1,
     };
-    const basis = packaging.priceBasisPieces;
     const priceFor = (unit: 'pack' | 'box') => {
       const pieces = piecesPerUnit(packaging, unit);
-      return pieces === null ? null : totalMinor(stored, basis, pieces);
+      return pieces === null ? null : totalMinor(stored, pieces);
     };
     return {
       slug: this.effectiveSlug(),
       name: this.name(),
-      priceMinor: Math.round(stored / basis),
+      priceMinor: stored,
       prices: {
-        pieceMilliMinor: piecePriceMilliMinor(stored, basis),
-        pieceLotMinor: totalMinor(stored, basis, packaging.minPieceQty),
+        piece: stored,
         pack: priceFor('pack'),
         box: priceFor('box'),
       },
@@ -806,15 +801,14 @@ export class ProductEditorPage implements UnsavedChangesAware {
         piecesPerPack: product.piecesPerPack?.toString() ?? '',
         packsPerBox: product.packsPerBox?.toString() ?? '',
         minPieceQty: product.minPieceQty.toString(),
-        priceBasisPieces: product.priceBasisPieces.toString(),
         // Shown with the deployment's own decimal separator, like a price:
         // the column holds "0.072" whatever the locale, and a form that prints
         // 18,90 beside 0.072 looks like two different products' data.
         boxVolume: this.showDecimal(product.boxVolume),
         boxWeight: this.showDecimal(product.boxWeight),
         // A box ships as one unless told otherwise, and the rule is shown the
-        // way the minimum and the basis are. Without a box there is nothing to
-        // count, and the field is disabled and empty.
+        // way the minimum is. Without a box there is nothing to count, and the
+        // field is disabled and empty.
         boxCount:
           product.packsPerBox === null ? '' : product.boxCount.toString(),
       });
@@ -872,7 +866,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   /**
    * The packaging fields as the contract wants them, or null if a field holds
    * something that is not a whole number. Blank means "not sold in that unit",
-   * and for the basis and minimum it means 1.
+   * and for the minimum it means 1.
    */
   /** A stored `numeric` string as the form shows it — the separator swapped for
    * the deployment's, and nothing else touched, so the digits an admin typed
@@ -887,7 +881,6 @@ export class ProductEditorPage implements UnsavedChangesAware {
     piecesPerPack: number | null;
     packsPerBox: number | null;
     minPieceQty: number;
-    priceBasisPieces: number;
     boxVolume: string | null;
     boxWeight: string | null;
     boxCount: number;
@@ -903,13 +896,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
     const piecesPerPack = optional(draft.piecesPerPack);
     const packsPerBox = optional(draft.packsPerBox);
     const minPieceQty = required(draft.minPieceQty);
-    const priceBasisPieces = required(draft.priceBasisPieces);
     const boxCount = required(draft.boxCount);
     if (
       piecesPerPack === undefined ||
       packsPerBox === undefined ||
       minPieceQty === undefined ||
-      priceBasisPieces === undefined ||
       boxCount === undefined
     ) {
       return null;
@@ -920,7 +911,6 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // A box without a pack is meaningless, and the server refuses it.
       packsPerBox: piecesPerPack === null ? null : packsPerBox,
       minPieceQty,
-      priceBasisPieces,
       // Dimensions belong to a box; without one they would never be shown.
       // Either separator is accepted while typing, like a price.
       boxVolume: packsPerBox === null ? null : decimal(draft.boxVolume),
@@ -964,9 +954,6 @@ export class ProductEditorPage implements UnsavedChangesAware {
 
     const packaging = this.packagingInput();
     if (packaging === null) return this.error.set(this.text.packaging.invalid);
-    if (!basisDividesQuantities(packaging, packaging.priceBasisPieces)) {
-      return this.error.set(this.text.packaging.basisMustDivide);
-    }
     if (!minimumFitsPacks(packaging)) {
       return this.error.set(this.text.packaging.minMustFitPacks);
     }

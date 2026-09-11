@@ -27,10 +27,9 @@ function addition(overrides: Partial<CartAddition> = {}): CartAddition {
     pairedCount: 0,
     availability: null,
     prices: {
-      pieceMilliMinor: 1_166_667,
-      pieceLotMinor: 7000,
-      pack: 7000,
-      box: 28_000,
+      piece: 1200,
+      pack: 7200,
+      box: 28_800,
     },
     packaging: { ...packagedPackaging },
     ...overrides,
@@ -58,12 +57,11 @@ function preview(
     pairingShortPieces: null,
     availability: null,
     prices: {
-      pieceMilliMinor: 1_166_667,
-      pieceLotMinor: 7000,
-      pack: 7000,
-      box: 28_000,
+      piece: 1200,
+      pack: 7200,
+      box: 28_800,
     },
-    lineTotalMinor: 14000,
+    lineTotalMinor: 14400,
     issues: [],
     ...line,
   }));
@@ -249,7 +247,7 @@ describe('CartPage', () => {
     expect(view.rows()).toHaveLength(1);
     expect(view.text()).toContain('Filter Roast');
     expect(view.quantities()).toEqual(['2']);
-    expect(view.text()).toContain('140,00');
+    expect(view.text()).toContain('144,00');
   });
 
   it('edits the line in place from the row’s own controls', async () => {
@@ -329,18 +327,18 @@ describe('CartPage', () => {
   // quantity nobody can be sold made both flicker between two keystrokes.
   it('holds the subtotal still while a quantity is being typed', async () => {
     const view = await render({ lines: [addition()] });
-    expect(view.text()).toContain('140,00');
+    expect(view.text()).toContain('144,00');
 
     await view.type('3');
 
-    expect(view.text()).toContain('140,00');
+    expect(view.text()).toContain('144,00');
     expect(view.cart.totalComplete()).toBe(true);
 
     await view.blurQuantity();
 
     // Three packs' worth of pieces is under the six-piece minimum only in the
     // piece lens; here 3 pk is 18 pieces, at 70,00 the pack.
-    expect(view.text()).toContain('210,00');
+    expect(view.text()).toContain('216,00');
   });
 
   // The correction is over by the time it can be read: folding the answer in
@@ -704,7 +702,7 @@ describe('CartPage', () => {
 
     expect(view.text()).toContain(text.noPrice);
     expect(view.text()).toContain(text.issues.unavailable);
-    expect(view.text()).not.toContain('140,00');
+    expect(view.text()).not.toContain('144,00');
   });
 
   // There is no quantity of a withdrawn product to choose, and letting one be
@@ -865,7 +863,7 @@ describe('CartPage', () => {
 
     expect(view.text()).toContain(text.loadError);
     expect(view.rows()).toHaveLength(1);
-    expect(view.text()).toContain('140,00');
+    expect(view.text()).toContain('144,00');
   });
 
   // FR-CART-02. A cart row is a product row, so a long cart is a long scroll;

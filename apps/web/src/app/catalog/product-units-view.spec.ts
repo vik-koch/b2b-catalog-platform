@@ -70,14 +70,9 @@ describe('minimumOrder', () => {
 
 describe('priceRow', () => {
   it('prices the selected unit, worded the same whichever it is', () => {
-    // €19.99 per pack of 10 stored as basis 10: the per-piece figure needs
-    // three decimals, the pack and box prices are exact.
-    const prices = {
-      pieceMilliMinor: 199_900,
-      pieceLotMinor: 1999,
-      pack: 1999,
-      box: 7996,
-    };
+    // €1.999 a piece is not a price: every unit reads in whole minor units,
+    // because the stored figure is the piece's own.
+    const prices = { piece: 200, pack: 2000, box: 8000 };
 
     const view = units();
     const rows = (['piece', 'pack', 'box'] as const).map((unit) =>
@@ -85,54 +80,18 @@ describe('priceRow', () => {
     );
 
     expect(rows.map((r) => plainSpaces(r?.price ?? ''))).toEqual([
-      '1,999 €',
-      '19,99 €',
-      '79,96 €',
+      '2,00 €',
+      '20,00 €',
+      '80,00 €',
     ]);
     expect(rows.map((r) => r?.label)).toEqual(['per pcs', 'per pk', 'per bx']);
-  });
-
-  it('caps the per-piece price at three decimals', () => {
-    // €102.70 per six pieces is €17.11666…, which must not print every digit
-    // the thousandths scale carries — the extra precision is there to avoid a
-    // double rounding, not to be shown.
-    const row = units().priceRow(
-      {
-        pieceMilliMinor: 1_711_667,
-        pieceLotMinor: 10_270,
-        pack: 10_270,
-        box: 41_080,
-      },
-      'piece',
-    );
-
-    expect(plainSpaces(row?.price ?? '')).toBe('17,117 €');
-  });
-
-  it('shows a whole-cent per-piece price without trailing noise', () => {
-    const row = units().priceRow(
-      {
-        pieceMilliMinor: 500_000,
-        pieceLotMinor: 500,
-        pack: null,
-        box: null,
-      },
-      'piece',
-    );
-
-    expect(plainSpaces(row?.price ?? '')).toBe('5,00 €');
   });
 
   // A unit the product is not sold in has no figure to invent, and the caller
   // words the absence rather than printing a zero.
   it('answers nothing for a unit the product carries no price for', () => {
     const row = units().priceRow(
-      {
-        pieceMilliMinor: 500_000,
-        pieceLotMinor: 500,
-        pack: null,
-        box: null,
-      },
+      { piece: 500, pack: null, box: null },
       'pack',
     );
 

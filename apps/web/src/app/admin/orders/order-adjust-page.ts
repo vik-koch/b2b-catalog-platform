@@ -72,13 +72,12 @@ interface DraftLine {
   key: string;
   slug: string;
   name: string;
-  units: number;
+  pieces: number;
   /** The customer's reading, carried. Null on a line staff just added. */
   unit: ProductUnit | null;
   note: string | null;
-  /** What one basis unit costs, as the field holds it. */
+  /** What one piece costs, as the field holds it. */
   priceText: string;
-  basisPieces: number | null;
   /**
    * Whether this line is waiting to be told what the list charges for it — a
    * line just added, or one a reprice has just asked for.
@@ -98,7 +97,6 @@ interface DraftLine {
 const REFUSAL_PART: Record<AdjustmentRefusal, 'lines' | 'details'> = {
   'unknown-product': 'lines',
   'unknown-tier': 'lines',
-  'line-not-priceable': 'lines',
   'invalid-company-id': 'details',
   'billing-details-required': 'details',
   'cash-not-available': 'details',
@@ -218,7 +216,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       class="mb-4"
                       [lines]="rows()"
                       [disabled]="saving()"
-                      (unitsChanged)="setUnits($event.index, $event.units)"
+                      (piecesChanged)="setPieces($event.index, $event.pieces)"
                       (priceChanged)="setPrice($event.index, $event.price)"
                       (moved)="moveLine($event.from, $event.to)"
                       (removed)="removeLine($event)"
@@ -953,11 +951,10 @@ export class AdminOrderAdjustPage {
     return {
       lines: this.lines().map((line) => ({
         slug: line.slug,
-        units: line.units,
+        pieces: line.pieces,
         unit: line.unit,
         note: line.note,
         priceMinor: this.priceOf(line),
-        priceBasisPieces: this.priceOf(line) === null ? null : line.basisPieces,
       })),
       contact: {
         name: this.contact.controls.name.value.trim(),
@@ -1084,9 +1081,8 @@ export class AdminOrderAdjustPage {
         key: line.key,
         slug: line.slug,
         name: answer?.name ?? line.name,
-        units: line.units,
+        pieces: line.pieces,
         priceText: line.priceText,
-        basisPieces: answer?.priceBasisPieces ?? line.basisPieces,
         quantityLabel: answer ? `${answer.quantity} ${answer.unit}` : '',
         note: line.note,
         totalLabel: answer
@@ -1099,15 +1095,9 @@ export class AdminOrderAdjustPage {
   });
 
   /**
-   * The server's answer written back into the draft: the basis each line was
-   * priced per, and — where the line was waiting to be told — the price
-   * itself.
-   *
-   * A line staff have just added has no basis until the server says what it
-   * is, and a price typed onto one before then would travel without it, which
-   * the contract refuses outright. Filling the price in is the other half of
-   * the same idea: what the list charges becomes what the field says, so the
-   * next thing done to it is an edit rather than a retype.
+   * The server's answer written back into the draft, where the line was
+   * waiting to be told what it costs: what the list charges becomes what the
+   * field says, so the next thing done to it is an edit rather than a retype.
    */
   private readonly carryAnswer = effect(() => {
     const answered = this.previewed.hasValue() ? this.previewed.value() : null;
@@ -1128,23 +1118,15 @@ export class AdminOrderAdjustPage {
           const answer = answers.get(line.slug);
           if (!answer) return line;
           const fill = line.fromList && current;
-          const basis = answer.priceBasisPieces;
-          const price = fill
-            ? formatPriceInput(answer.priceMinor, this.currency)
-            : line.priceText;
-          // Nothing to write back: the basis already matches and no field is
-          // waiting to be filled. Returning the same object is what keeps this
-          // from feeding its own answer back as a new draft.
-          if (!fill && line.basisPieces === basis) return line;
+          // Nothing to write back: no field is waiting to be filled. Returning
+          // the same object is what keeps this from feeding its own answer
+          // back as a new draft.
+          if (!fill) return line;
           changed = true;
           return {
             ...line,
-            basisPieces: basis,
-            priceText: price,
-            // A line still waiting on the *current* answer keeps waiting: the
-            // basis it just picked up came from an answer that has already
-            // been overtaken.
-            fromList: line.fromList && !fill,
+            priceText: formatPriceInput(answer.priceMinor, this.currency),
+            fromList: false,
           };
         });
         return changed ? next : lines;
@@ -1219,15 +1201,7 @@ export class AdminOrderAdjustPage {
     const was = new Map(order.lines.map((line) => [line.slug, line]));
     const moved = preview.lines.filter((line) => {
       const before = was.get(line.slug);
-      return (
-        before !== undefined &&
-        !samePrice(
-          before.priceMinor,
-          before.priceBasisPieces,
-          line.priceMinor,
-          line.priceBasisPieces,
-        )
-      );
+      return before !== undefined && before.priceMinor !== line.priceMinor;
     }).length;
     const offList = preview.lines.filter((line) => this.offList(line)).length;
 
@@ -1247,20 +1221,12 @@ export class AdminOrderAdjustPage {
   });
 
   /** Whether a priced line costs something other than what the chosen list
-   * charges for it. Compared per piece, since a line's price and the list's
-   * need not be per the same number of them. */
+   * charges for it. */
   private offList(line: {
     priceMinor: number;
-    priceBasisPieces: number;
     listPriceMinor: number;
-    listPriceBasisPieces: number;
   }): boolean {
-    return !samePrice(
-      line.priceMinor,
-      line.priceBasisPieces,
-      line.listPriceMinor,
-      line.listPriceBasisPieces,
-    );
+    return line.priceMinor !== line.listPriceMinor;
   }
 
   /** The chosen list, as it is named on screen. */
@@ -1270,9 +1236,9 @@ export class AdminOrderAdjustPage {
     return this.tiers().find((tier) => tier.key === key)?.label ?? key;
   }
 
-  protected setUnits(index: number, units: number): void {
+  protected setPieces(index: number, pieces: number): void {
     this.lines.update((lines) =>
-      lines.map((line, i) => (i === index ? { ...line, units } : line)),
+      lines.map((line, i) => (i === index ? { ...line, pieces } : line)),
     );
   }
 
@@ -1316,7 +1282,7 @@ export class AdminOrderAdjustPage {
         key: `added-${++this.added}-${item.slug}`,
         slug: item.slug,
         name: item.name,
-        units: 1,
+        pieces: 1,
         // Nobody has read this line in any unit yet, and it has no price of
         // its own until somebody types one: the list prices it.
         unit: null,
@@ -1324,7 +1290,6 @@ export class AdminOrderAdjustPage {
         // Nothing to show until the server has said what the list charges,
         // which it then fills in.
         priceText: '',
-        basisPieces: null,
         fromList: true,
       },
     ]);
@@ -1496,11 +1461,10 @@ export class AdminOrderAdjustPage {
         key: `${index}-${line.slug}`,
         slug: line.slug,
         name: line.name,
-        units: line.pieces / line.priceBasisPieces,
+        pieces: line.pieces,
         unit: line.unit,
         note: line.note,
         priceText: formatPriceInput(line.priceMinor, this.currency),
-        basisPieces: line.priceBasisPieces,
         fromList: false,
       })),
     );
@@ -1548,15 +1512,3 @@ export class AdminOrderAdjustPage {
   }
 }
 
-/** Two prices, each per its own number of pieces, compared as one figure.
- * Cross-multiplied rather than divided: a price per three pieces is not
- * exactly a price per one, and rounding it to compare would call two equal
- * prices different. */
-function samePrice(
-  aMinor: number,
-  aBasis: number,
-  bMinor: number,
-  bBasis: number,
-): boolean {
-  return aMinor * bBasis === bMinor * aBasis;
-}

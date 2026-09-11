@@ -27,8 +27,7 @@ function pieceAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     pairedCount: 0,
     availability: null,
     prices: {
-      pieceMilliMinor: 1250,
-      pieceLotMinor: 1250,
+      piece: 1250,
       pack: null,
       box: null,
     },
@@ -56,10 +55,9 @@ function packAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     pairedCount: 0,
     availability: null,
     prices: {
-      pieceMilliMinor: 1_166_667,
-      pieceLotMinor: 7000,
-      pack: 7000,
-      box: 28_000,
+      piece: 1200,
+      pack: 7200,
+      box: 28_800,
     },
     packaging: { ...packagedPackaging },
     ...overrides,
@@ -112,8 +110,8 @@ describe('CartService', () => {
 
     const [line] = cart.lines();
     expect(line.addedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-    expect(line.unitPriceMinor).toBe(7000);
-    expect(line.lineTotalMinor).toBe(14000);
+    expect(line.unitPriceMinor).toBe(7200);
+    expect(line.lineTotalMinor).toBe(14400);
   });
 
   // The identity rule: one product is one line, and the note describes that
@@ -125,7 +123,7 @@ describe('CartService', () => {
 
     expect(cart.count()).toBe(1);
     expect(cart.lines()[0].pieces).toBe(30);
-    expect(cart.lines()[0].lineTotalMinor).toBe(35000);
+    expect(cart.lines()[0].lineTotalMinor).toBe(36000);
   });
 
   // A unit is a lens, so two additions in different units are two piece counts
@@ -137,7 +135,7 @@ describe('CartService', () => {
 
     expect(cart.count()).toBe(1);
     expect(cart.lines()[0]).toMatchObject({ unit: 'box', pieces: 48 });
-    expect(cart.totalMinor()).toBe(56_000);
+    expect(cart.totalMinor()).toBe(57_600);
   });
 
   it('answers with the line a product is held in, whichever unit that is', () => {
@@ -159,7 +157,7 @@ describe('CartService', () => {
     expect(cart.lines()[0]).toMatchObject({
       unit: 'box',
       pieces: 48,
-      lineTotalMinor: 56_000,
+      lineTotalMinor: 57_600,
     });
   });
 
@@ -181,26 +179,6 @@ describe('CartService', () => {
 
     expect(cart.lines()[0].note).toBeNull();
     expect(cart.request()[0]).not.toHaveProperty('note');
-  });
-
-  // A line the shop cannot price exactly must not contribute a zero — the
-  // subtotal has to be able to say it is incomplete.
-  it('carries an unpriceable line as null rather than as nothing', () => {
-    const cart = service();
-    cart.add(pieceAddition({ pieces: 2 }));
-    cart.add(
-      packAddition({
-        prices: {
-          pieceMilliMinor: 1250,
-          pieceLotMinor: null,
-          pack: null,
-          box: null,
-        },
-      }),
-    );
-
-    expect(cart.totalMinor()).toBe(2500);
-    expect(cart.totalComplete()).toBe(false);
   });
 
   it('refuses an addition beyond the number of lines that may be priced', () => {
@@ -237,7 +215,7 @@ describe('CartService', () => {
 
     expect(next.count()).toBe(1);
     expect(next.lines()[0].note).toBe('two in green');
-    expect(next.totalMinor()).toBe(14000);
+    expect(next.totalMinor()).toBe(14400);
   });
 
   it('discards a cart written by an older version rather than half-reading it', () => {
@@ -256,7 +234,7 @@ describe('CartService', () => {
   // reach the contract as one.
   it('drops a stored line whose shape is wrong, keeping the rest', () => {
     write({
-      version: 1,
+      version: 2,
       lines: [
         { ...pieceAddition(), pieces: '5', addedAt: '', name: 'x' },
         {
@@ -266,8 +244,8 @@ describe('CartService', () => {
           note: null,
           name: 'Filter Roast',
           addedAt: '2026-08-01T00:00:00.000Z',
-          unitPriceMinor: 7000,
-          lineTotalMinor: 14000,
+          unitPriceMinor: 7200,
+          lineTotalMinor: 14400,
           prices: packAddition().prices,
           packaging: packAddition().packaging,
           image: null,
@@ -299,8 +277,8 @@ describe('CartService', () => {
       note: null,
       name: 'Filter Roast',
       addedAt: '2026-08-01T00:00:00.000Z',
-      unitPriceMinor: 7000,
-      lineTotalMinor: 14000,
+      unitPriceMinor: 7200,
+      lineTotalMinor: 14400,
       prices: packAddition().prices,
       packaging: packAddition().packaging,
       image: null,
@@ -312,13 +290,13 @@ describe('CartService', () => {
     };
 
     write({
-      version: 1,
+      version: 2,
       lines: [
         // No baseline to report against on the next visit.
         { ...good, slug: 'no-baseline', addedAt: undefined },
         // A total that would turn the sum into concatenation.
-        { ...good, slug: 'text-total', lineTotalMinor: '14000' },
-        { ...good, slug: 'text-unit-price', unitPriceMinor: '7000' },
+        { ...good, slug: 'text-total', lineTotalMinor: '14400' },
+        { ...good, slug: 'text-unit-price', unitPriceMinor: '7200' },
         good,
       ],
     });
@@ -326,7 +304,7 @@ describe('CartService', () => {
     const cart = service();
     expect(cart.lines().map((line) => line.slug)).toEqual(['filter-roast']);
     // And the surviving cart adds up as a number.
-    expect(cart.totalMinor()).toBe(14000);
+    expect(cart.totalMinor()).toBe(14400);
   });
 
   // Without this, a second tab writing the whole document makes the last
@@ -336,7 +314,7 @@ describe('CartService', () => {
     cart.add(pieceAddition());
 
     write({
-      version: 1,
+      version: 2,
       lines: [
         {
           slug: 'from-another-tab',
@@ -382,7 +360,7 @@ describe('CartService', () => {
 
   it('is empty on the server, where there is no storage to read', () => {
     write({
-      version: 1,
+      version: 2,
       lines: [
         {
           slug: 'espresso-roast',
@@ -437,16 +415,15 @@ describe('CartService', () => {
           pairingShortPieces: null,
           availability: null,
           prices: {
-            pieceMilliMinor: 1_166_667,
-            pieceLotMinor: 7000,
-            pack: 7000,
-            box: 28_000,
+            piece: 1200,
+            pack: 7200,
+            box: 28_800,
           },
-          lineTotalMinor: 7000,
+          lineTotalMinor: 7200,
           issues: [],
           ...line,
         })),
-        totalMinor: 7000,
+        totalMinor: 7200,
         complete: true,
         shipment: {
           cartons: 0,
@@ -470,8 +447,7 @@ describe('CartService', () => {
             note: null,
             lineTotalMinor: 15000,
             prices: {
-              pieceMilliMinor: 1_250_000,
-              pieceLotMinor: 7500,
+              piece: 1250,
               pack: 7500,
               box: 30_000,
             },
@@ -535,7 +511,7 @@ describe('CartService', () => {
       expect(stored()?.lines[0].available).toBe(false);
 
       // And offered again once the shop prices it again.
-      cart.applyPreview(preview([{ lineTotalMinor: 7000 }]));
+      cart.applyPreview(preview([{ lineTotalMinor: 7200 }]));
       expect(cart.lines()[0].available).toBe(true);
     });
 
@@ -550,7 +526,7 @@ describe('CartService', () => {
           {
             unit: 'piece',
             pieces: 24,
-            lineTotalMinor: 28_000,
+            lineTotalMinor: 28_800,
             issues: ['unit-unavailable'],
           },
         ]),
@@ -558,7 +534,7 @@ describe('CartService', () => {
 
       expect(cart.lines()[0]).toMatchObject({ unit: 'piece', pieces: 24 });
       // Re-priced through the unit the answer came back in.
-      expect(cart.lines()[0].unitPriceMinor).toBe(7000);
+      expect(cart.lines()[0].unitPriceMinor).toBe(1200);
     });
 
     /**
@@ -583,7 +559,7 @@ describe('CartService', () => {
             slug: 'filter-roast',
             name: 'Filter Roast',
             kind: 'price',
-            fromMinor: 7000,
+            fromMinor: 7200,
             toMinor: 7500,
           },
         ]);
@@ -620,7 +596,7 @@ describe('CartService', () => {
             {
               slug: 'b',
               pieces: 12,
-              lineTotalMinor: 14_000,
+              lineTotalMinor: 14_400,
               issues: ['quantity-corrected'],
             },
             { slug: 'c', lineTotalMinor: null, issues: ['price-unavailable'] },
@@ -654,7 +630,7 @@ describe('CartService', () => {
         // The line is otherwise untouched — named, priced, still in the cart.
         expect(cart.lines()[0]).toMatchObject({
           availability: 'out',
-          lineTotalMinor: 7000,
+          lineTotalMinor: 7200,
           available: true,
         });
       });
@@ -742,7 +718,7 @@ describe('CartService', () => {
       cart.applyPreview(preview([{ slug: 'something-else' }]));
 
       expect(cart.lines()[0].pieces).toBe(12);
-      expect(cart.lines()[0].lineTotalMinor).toBe(14000);
+      expect(cart.lines()[0].lineTotalMinor).toBe(14400);
     });
   });
 });

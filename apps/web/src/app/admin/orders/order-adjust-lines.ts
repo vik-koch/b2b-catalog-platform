@@ -9,7 +9,6 @@ import {
 import {
   AdjustmentLineFlag,
   AdminProductListItem,
-  fillText,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
@@ -40,15 +39,13 @@ export interface AdjustLineRow {
    * somebody is typing in keeps its cursor — when the list is reordered or a
    * line above it is removed. */
   key: string;
-  /** How many basis units — the staff reading of a quantity (FR-UNIT-04). */
-  units: number;
-  /** The price of one basis unit, as typed. Empty only in the moment between
-   * a line being added and the server saying what the list charges for it:
-   * the answer is written into the field rather than shown behind it, so the
-   * figure a manager corrects is a figure they can edit. */
+  /** How many pieces — the staff reading of a quantity. */
+  pieces: number;
+  /** The price of one piece, as typed. Empty only in the moment between a line
+   * being added and the server saying what the list charges for it: the answer
+   * is written into the field rather than shown behind it, so the figure a
+   * manager corrects is a figure they can edit. */
   priceText: string;
-  /** How many pieces one basis unit is, once the server has said. */
-  basisPieces: number | null;
   /** The customer's own reading of the quantity, and their words about the
    * line — both carried, neither edited. */
   quantityLabel: string;
@@ -65,10 +62,9 @@ export interface AdjustLineRow {
 /**
  * The lines of an order being adjusted (FR-ORD-03).
  *
- * Counted in **basis units** rather than in the customer's own unit: it is how
- * staff read a line and how the source system prices one, and it is the only
- * count that cannot produce a quantity the line's price does not divide. What
- * the customer sees — "2 pk", their note — is shown beside it, unedited.
+ * Counted in **pieces** rather than in the customer's own unit: it is how
+ * staff read a line and how the source system prices one. What the customer
+ * sees — "2 pk", their note — is shown beside it, unedited.
  *
  * Nothing here is priced on the client. The figures beside each line are the
  * server's answer to the draft as it stands, so the total a manager approves
@@ -110,20 +106,20 @@ export interface AdjustLineRow {
                hint below would be four lines for two numbers, and a form of
                forty lines is read by scrolling. -->
           <div class="mt-1 flex flex-wrap items-center gap-2">
-            <app-unit-field class="w-28" [unit]="unitsSuffix(line)">
+            <app-unit-field class="w-28" [unit]="text.pieces">
               <input
                 [class]="unitFieldInput"
                 type="number"
                 min="1"
                 step="1"
-                [id]="id + '-units-' + i"
+                [id]="id + '-pieces-' + i"
                 [attr.aria-label]="text.units"
                 [disabled]="disabled()"
-                [value]="line.units"
-                (input)="unitsTyped(i, $any($event.target).value)"
+                [value]="line.pieces"
+                (input)="piecesTyped(i, $any($event.target).value)"
               />
             </app-unit-field>
-            <app-unit-field class="w-28" [unit]="priceSuffix(line)">
+            <app-unit-field class="w-28" [unit]="priceSuffix()">
               <input
                 appPriceField
                 [class]="unitFieldInput"
@@ -290,7 +286,7 @@ export class OrderAdjustLines {
   readonly lines = input.required<readonly AdjustLineRow[]>();
   readonly disabled = input(false);
 
-  readonly unitsChanged = output<{ index: number; units: number }>();
+  readonly piecesChanged = output<{ index: number; pieces: number }>();
   readonly priceChanged = output<{ index: number; price: string }>();
   readonly moved = output<{ from: number; to: number }>();
   readonly removed = output<number>();
@@ -320,26 +316,11 @@ export class OrderAdjustLines {
       : null,
   );
 
-  /**
-   * What the quantity field counts in, printed inside it. A line is quantified
-   * in the units its price is per (FR-UNIT-04) — pieces where that is one of
-   * them, and packs of so many where it is not. Saying which inside the box is
-   * what lets the caption above it go.
-   */
-  protected unitsSuffix(line: AdjustLineRow): string {
-    const basis = line.basisPieces ?? 1;
-    return basis > 1
-      ? fillText(this.text.unitsSuffix, { count: basis })
-      : this.text.pieces;
-  }
-
-  /** And what the price is per, on the same principle. */
-  protected priceSuffix(line: AdjustLineRow): string {
-    const symbol = currencySymbol(this.currency);
-    const basis = line.basisPieces ?? 1;
-    return basis > 1
-      ? fillText(this.text.priceSuffix, { symbol, count: basis })
-      : symbol;
+  /** What the price field is per, printed inside it — the currency alone,
+   * since a price is always the price of one piece. Saying it inside the box
+   * is what lets the caption above it go. */
+  protected priceSuffix(): string {
+    return currencySymbol(this.currency);
   }
 
   protected removeLabel(line: AdjustLineRow): string {
@@ -360,12 +341,12 @@ export class OrderAdjustLines {
     return flag === 'deleted' ? 'danger' : 'waiting';
   }
 
-  protected unitsTyped(index: number, value: string): void {
-    const units = Number(value);
+  protected piecesTyped(index: number, value: string): void {
+    const pieces = Number(value);
     // A field being cleared is a field mid-edit, not a line of nothing: the
     // draft keeps the last real count until a new one is typed.
-    if (!Number.isInteger(units) || units < 1) return;
-    this.unitsChanged.emit({ index, units });
+    if (!Number.isInteger(pieces) || pieces < 1) return;
+    this.piecesChanged.emit({ index, pieces });
   }
 
   protected priceTyped(index: number, price: string): void {

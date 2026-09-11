@@ -28,8 +28,7 @@ function addition(overrides: Partial<CartAddition> = {}): CartAddition {
     pairedCount: 0,
     availability: null,
     prices: {
-      pieceMilliMinor: 1250,
-      pieceLotMinor: 1250,
+      piece: 1250,
       pack: null,
       box: null,
     },

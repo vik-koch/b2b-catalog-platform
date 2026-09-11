@@ -98,14 +98,10 @@ describe('productOrderBy', () => {
     ['price', 'asc'],
     ['price_desc', 'desc'],
   ] as const)(
-    'sorts %s by the price per piece, not the stored one',
+    'sorts %s on the piece price the caller resolved',
     (option, direction) => {
-      // Ordering on the raw column would put a €50-per-100-pieces product above
-      // a €10-per-piece one.
       expect(within(productOrderBy(option))).toMatch(
-        new RegExp(
-          `^\\("products"\\."defaultPriceMinor"\\)::numeric / "products"\\."priceBasisPieces" ${direction}`,
-        ),
+        new RegExp(`^"products"\\."defaultPriceMinor" ${direction}`),
       );
     },
   );

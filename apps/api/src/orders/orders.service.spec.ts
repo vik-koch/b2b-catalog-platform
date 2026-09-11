@@ -37,13 +37,12 @@ const product = {
   slug: 'hafen-espresso',
   name: 'Hafen Espresso',
   sourceId: 'ERP-1',
-  priceMinor: 1999,
+  priceMinor: 199,
   images: [],
   boxVolume: null,
   boxWeight: null,
   boxCount: 1,
   lineNoteEnabled: false,
-  priceBasisPieces: 10,
   piecesPerPack: 10,
   packsPerBox: 4,
   minPieceQty: 10,
@@ -245,7 +244,7 @@ const submission = (overrides: Record<string, unknown> = {}): OrderSubmission =>
     paymentMethod: 'bank-transfer',
     preferredDate: null,
     customerNote: null,
-    expectedTotalMinor: 3998,
+    expectedTotalMinor: 3980,
     acceptPrivacy: true,
     ...overrides,
   }) as OrderSubmission;
@@ -273,7 +272,7 @@ describe('OrdersService.submit', () => {
         { slug: product.slug, unit: 'piece', pieces: cupPieces },
         { slug: counterpart.slug, unit: 'piece', pieces: lidPieces },
       ],
-      expectedTotalMinor: ((cupPieces + lidPieces) / 10) * 1999,
+      expectedTotalMinor: (cupPieces + lidPieces) * 199,
     }),
   });
 
@@ -327,7 +326,7 @@ describe('OrdersService.submit', () => {
     expect(revisionRows()[0]).toMatchObject({
       orderId: 'order-1',
       revisionNumber: 1,
-      totalMinor: 3998,
+      totalMinor: 3980,
       currency: 'EUR',
       // Resolved from the postal code against the deployment's zones — nothing
       // about the zone came from the submission.
@@ -342,9 +341,8 @@ describe('OrdersService.submit', () => {
       unit: 'pack',
       quantity: 2,
       pieces: 20,
-      priceMinor: 1999,
-      priceBasisPieces: 10,
-      lineTotalMinor: 3998,
+      priceMinor: 199,
+      lineTotalMinor: 3980,
     });
   });
 
@@ -403,7 +401,7 @@ describe('OrdersService.submit', () => {
 
     await expect(
       service(db).submit(
-        submission({ ...asGuest, expectedTotalMinor: 1999 }),
+        submission({ ...asGuest, expectedTotalMinor: 1990 }),
         null,
         null,
       ),

@@ -77,10 +77,9 @@ const placed: AdminOrderDetail = {
       unit: 'box',
       quantity: 1,
       pieces: 100,
-      // A box of a hundred, priced per ten.
-      priceMinor: 1999,
-      priceBasisPieces: 10,
-      lineTotalMinor: 19990,
+      // A box of a hundred.
+      priceMinor: 199,
+      lineTotalMinor: 19900,
       note: null,
     },
   ],
@@ -107,7 +106,7 @@ const versions: OrderRevision[] = [
     revisionCreatedAt: '2026-08-27T10:00:00.000Z',
     customerView: false,
     notifiedAt: null,
-    lines: [{ ...placed.lines[0], quantity: 2, lineTotalMinor: 39980 }],
+    lines: [{ ...placed.lines[0], quantity: 2, lineTotalMinor: 39800 }],
   },
   {
     ...placed,
@@ -158,13 +157,13 @@ async function render(
 }
 
 describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
-  // FR-UNIT-04: the source system prices in basis units, so staff read the
-  // line in them — not in the unit the customer bought through.
-  it('reads a line in basis units', async () => {
+  // The source system prices per piece, so staff read the line in pieces —
+  // not in the unit the customer bought through.
+  it('reads a line in pieces', async () => {
     const { el } = await render(placed);
 
-    expect(el.textContent).toContain('10 ×');
-    expect(el.textContent).toMatch(/19[.,]99/);
+    expect(el.textContent).toContain('100 ×');
+    expect(el.textContent).toMatch(/1[.,]99/);
   });
 
   it('shows what only staff see', async () => {

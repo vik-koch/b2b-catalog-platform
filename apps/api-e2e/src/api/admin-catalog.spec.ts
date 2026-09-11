@@ -45,7 +45,6 @@ const PRODUCT_KEYS = [
   'packsPerBox',
   'pairings',
   'piecesPerPack',
-  'priceBasisPieces',
   'priceMinor',
   'publishedAt',
   'slug',

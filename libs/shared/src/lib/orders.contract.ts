@@ -221,14 +221,12 @@ export const orderLineSchema = z
 export type OrderLine = z.infer<typeof orderLineSchema>;
 
 /**
- * The same line as staff read it (FR-UNIT-04): in **basis units**, the way the
- * source system prices — "10 × 19.99" for one box of 100 pieces at a basis of
- * ten. The customer's view never carries the basis, and neither view ever
+ * The same line as staff read it: with the piece price it was charged at, so a
+ * line reconciles as "pieces × price" against the source system. Neither view
  * carries the product's private source id.
  */
 export const adminOrderLineSchema = orderLineSchema.extend({
   priceMinor: z.number().int().nonnegative(),
-  priceBasisPieces: z.number().int().positive(),
 });
 export type AdminOrderLine = z.infer<typeof adminOrderLineSchema>;
 
@@ -383,7 +381,8 @@ export type OrderDetail = z.infer<typeof orderDetailSchema>;
 
 /**
  * The staff view. It adds what the customer must never see: which price list
- * the order was taken from, who placed it, and the lines in basis units.
+ * the order was taken from, who placed it, and the price each line was
+ * charged at.
  */
 export const adminOrderDetailSchema = orderDetailSchema.extend({
   lines: z.array(adminOrderLineSchema),
@@ -585,35 +584,28 @@ const transitionErrors = {
 /**
  * A line as a manager adjusts it (FR-ORD-03).
  *
- * Counted in **basis units** — "10 × 19.99" — because that is how staff read a
- * line, how the source system prices one, and the one way of counting that
- * cannot produce a quantity the price does not divide. The pieces follow from
- * it.
+ * Counted in **pieces**, which is how staff read a line and how the source
+ * system prices one. The lens the customer chose only reads that count back.
  *
- * The price travels as the pair it means nothing without. Both null asks the
- * server to price the line from the order's list at today's catalog price,
- * which is what a newly added line needs; both set is the price this line is
- * to keep, whether that is the one it was quoted at or the one agreed on the
- * phone. One of the two alone is neither.
+ * A null price asks the server to price the line from the order's list at
+ * today's catalog price, which is what a newly added line needs; a price set is
+ * the one this line is to keep, whether that is the one it was quoted at or the
+ * one agreed on the phone.
  */
 export const orderAdjustmentLineSchema = z
   .object({
     slug: z.string().trim().min(1).max(255),
-    /** How many basis units of it. */
-    units: z.number().int().positive().max(LINE_PIECES_MAX),
+    /** How many pieces of it. */
+    pieces: z.number().int().positive().max(LINE_PIECES_MAX),
     /** The lens the customer reads it through, carried with the line. Null on
      * a line staff added, which nobody has read in any other unit yet. */
     unit: productUnitSchema.nullable(),
     /** The customer's words about this line, carried unedited. */
     note: z.string().trim().min(1).max(CART_NOTE_MAX).nullable(),
+    /** The price of one piece, or null to take the list's. */
     priceMinor: z.number().int().nonnegative().nullable(),
-    priceBasisPieces: z.number().int().positive().nullable(),
   })
-  .strict()
-  .refine(
-    (line) => (line.priceMinor === null) === (line.priceBasisPieces === null),
-    { message: 'a price and the basis it is per travel together' },
-  );
+  .strict();
 export type OrderAdjustmentLine = z.infer<typeof orderAdjustmentLineSchema>;
 
 /**
@@ -689,9 +681,8 @@ export type OrderAdjustment = z.infer<typeof orderAdjustmentSchema>;
  * whose product has since been withdrawn, or one the shop is filling from
  * something it no longer lists.
  *
- * The piece rules are not among them: a quantity is given in basis units and
- * is a whole number of them by construction, and the minimum a *customer* may
- * buy is not a rule about what a manager may write down.
+ * The piece rules are not among them: the minimum a *customer* may buy is not
+ * a rule about what a manager may write down.
  */
 export const adjustmentLineFlagSchema = z.enum([
   'out-of-stock',
@@ -710,11 +701,10 @@ export const orderAdjustmentPreviewSchema = z
   .object({
     lines: z.array(
       adminOrderLineSchema.extend({
-        units: z.number().int().positive(),
         flags: z.array(adjustmentLineFlagSchema),
         /**
-         * What the chosen price list charges for this product today, and what
-         * that price is per — beside what the line actually costs.
+         * What the chosen price list charges for one piece of this product
+         * today, beside what the line is actually priced at.
          *
          * It is what lets a screen say that a line is priced away from the
          * list without pricing anything itself: the comparison is between two
@@ -722,7 +712,6 @@ export const orderAdjustmentPreviewSchema = z
          * difference is deliberate rather than left to spot it.
          */
         listPriceMinor: z.number().int().nonnegative(),
-        listPriceBasisPieces: z.number().int().positive(),
       }),
     ),
     totalMinor: z.number().int().nonnegative(),
@@ -747,10 +736,6 @@ const adjustmentErrors = {
   'unknown-product': { status: 400 },
   /** A price list this deployment does not have. */
   'unknown-tier': { status: 400 },
-  /** A line with no price of its own that the chosen list cannot price
-   * exactly — a repackaged product whose basis no longer divides the
-   * quantity. It is named rather than silently zeroed. */
-  'line-not-priceable': { status: 400 },
   /** An adjustment that changes nothing the order says. A version identical to
    * the one before it is not history, it is noise in it — and a note is an
    * account of a change rather than a change of its own. Refused here rather

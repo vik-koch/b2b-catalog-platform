@@ -2,7 +2,7 @@ import { asc, desc, sql, SQL } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { AdminProductSort, SearchSort } from '@b2b-catalog-platform/shared';
 import { products } from '../db/schema';
-import { resolvedPiecePrice } from './product-price';
+import { resolvedPriceMinor } from './product-price';
 
 /**
  * Ordering for the product listings (FR-SEARCH-04) — one definition shared by
@@ -41,15 +41,12 @@ end`;
  * `price` is the caller's resolved price expression (FR-AUTH-05). It must be
  * the same one the caller selects, or the page is ordered by prices that
  * customer never sees. Omitted, it is the guest's default list.
- *
- * Always a price per piece: a stored price covers `priceBasisPieces` pieces, so
- * raw prices are not comparable between products.
  */
 
 export function productOrderBy(
   sort: SearchSort,
   score?: SQL<number>,
-  price: SQL<number> | PgColumn = resolvedPiecePrice(null),
+  price: SQL<number> | PgColumn = resolvedPriceMinor(null),
 ): OrderBy {
   return [asc(availabilityLast), ...sortKeys(sort, score, price)];
 }
@@ -64,7 +61,7 @@ export function productOrderBy(
 function sortKeys(
   sort: SearchSort,
   score?: SQL<number>,
-  price: SQL<number> | PgColumn = resolvedPiecePrice(null),
+  price: SQL<number> | PgColumn = resolvedPriceMinor(null),
 ): OrderBy {
   const tiebreak: OrderBy = [asc(products.name), asc(products.id)];
 

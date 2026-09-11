@@ -37,11 +37,10 @@ const PASSWORD = 'e2e-journey-password';
 const SOURCE_PREFIX = `E2E-JOURNEY-${SUFFIX}`;
 const SLUG = `e2e-journey-product-${SUFFIX}`;
 
-/** €19.99 per ten pieces, ordered twenty at a time. */
-const BASE_MINOR = 1999;
-const BASIS = 10;
+/** €2.00 a piece, ordered twenty at a time. */
+const BASE_MINOR = 200;
 const PIECES = 20;
-const TOTAL_MINOR = (BASE_MINOR * PIECES) / BASIS;
+const TOTAL_MINOR = BASE_MINOR * PIECES;
 
 /**
  * The office a collected order is picked up from, read from the deployment's
@@ -94,18 +93,17 @@ describe('the life of an order', () => {
     );
     await client.query(
       `INSERT INTO products (
-         "sourceId", slug, name, "defaultPriceMinor", "priceBasisPieces",
+         "sourceId", slug, name, "defaultPriceMinor",
          "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume",
          "boxWeight", "boxCount", "categoryId", "lineNoteEnabled",
          "publishedAt")
-       VALUES ($1, $2, $3, $4, $5, 10, 4, 10, '0.240', '12.500', 1, $6, true,
+       VALUES ($1, $2, $3, $4, 10, 4, 10, '0.240', '12.500', 1, $5, true,
                NOW())`,
       [
         `${SOURCE_PREFIX}-product`,
         SLUG,
         `E2E journey ${SUFFIX}`,
         BASE_MINOR,
-        BASIS,
         categories[0].id,
       ],
     );

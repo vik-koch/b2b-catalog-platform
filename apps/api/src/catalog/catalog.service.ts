@@ -57,11 +57,10 @@ import {
   searchCondition,
   setSearchThreshold,
 } from './product-search';
-import { resolvedPiecePrice, resolvedPriceMinor } from './product-price';
+import { resolvedPriceMinor } from './product-price';
 import { productOrderBy } from './product-sort';
 import {
   boxDimensionsOf,
-  displayPriceMinor,
   packagingOf,
   publiclyVisible,
   availabilityColumns,
@@ -154,7 +153,6 @@ export class CatalogService {
     attributes: AttributeSelection[] = [],
   ): Promise<CategoryProductsResult | null> {
     const price = resolvedPriceMinor(tierId);
-    const piecePrice = resolvedPiecePrice(tierId);
     const rows = await this.categoryRows();
     const category = categoryBySlug(rows, slug);
     if (!category) return null;
@@ -184,7 +182,7 @@ export class CatalogService {
       })
       .from(products)
       .where(where)
-      .orderBy(...productOrderBy(sort, undefined, piecePrice))
+      .orderBy(...productOrderBy(sort, undefined, price))
       .limit(pageSize)
       .offset((page - 1) * pageSize);
     const items = rowsPage.map(toListItem);
@@ -229,7 +227,6 @@ export class CatalogService {
     attributes: AttributeSelection[] = [],
   ): Promise<SearchResult> {
     const price = resolvedPriceMinor(tierId);
-    const piecePrice = resolvedPiecePrice(tierId);
     const pageSize = CATALOG_PAGE_SIZE;
     const query = parseSearchQuery(rawQuery);
     if (!query) {
@@ -270,7 +267,7 @@ export class CatalogService {
         })
         .from(products)
         .where(where)
-        .orderBy(...productOrderBy(sort, relevanceScore(query), piecePrice))
+        .orderBy(...productOrderBy(sort, relevanceScore(query), price))
         .limit(pageSize)
         .offset((page - 1) * pageSize);
       const items = rows.map(toListItem);
@@ -529,7 +526,7 @@ export class CatalogService {
     return {
       slug: product.slug,
       name: product.name,
-      priceMinor: displayPriceMinor(product),
+      priceMinor: product.priceMinor,
       prices: unitPricesOf(product),
       packaging: packagingOf(product),
       boxDimensions: boxDimensionsOf(product),

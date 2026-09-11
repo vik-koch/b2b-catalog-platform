@@ -25,7 +25,7 @@ import {
 import { SEARCH_QUERY_MAX_LENGTH } from './catalog-constants';
 import { PRODUCT_DOCUMENTS_MAX } from './document-constants';
 import { linkedDocumentSchema } from './documents.contract';
-import { basisDividesQuantities, minimumFitsPacks } from './product-units';
+import { minimumFitsPacks } from './product-units';
 import {
   ATTRIBUTE_NAME_MAX_LENGTH,
   ATTRIBUTE_VALUE_MAX_LENGTH,
@@ -139,8 +139,6 @@ export const productInputSchema = z
         'A tier can only be priced once',
       )
       .default([]),
-    /** How many pieces `priceMinor` covers. Staff-only; never served publicly. */
-    priceBasisPieces: z.number().int().positive().default(1),
     /** Null means the product is not sold in that unit. */
     piecesPerPack: z.number().int().positive().nullable().default(null),
     packsPerBox: z.number().int().positive().nullable().default(null),
@@ -239,14 +237,6 @@ export const productInputSchema = z
       path: ['lowStockThresholdPieces'],
     },
   )
-  // What keeps totals exact: every purchasable quantity must be a whole number
-  // of basis units. Checked here as well as in the database so the editor gets a
-  // 400 naming the field rather than a constraint violation.
-  .refine((input) => basisDividesQuantities(input, input.priceBasisPieces), {
-    message:
-      'The price basis must divide the minimum quantity, the pack size and the quantity step',
-    path: ['priceBasisPieces'],
-  })
   // The minimum sits with the pack or under it, never across it — mirrors
   // products_minimum_fits_packs.
   .refine(minimumFitsPacks, {
@@ -272,7 +262,6 @@ export const adminProductSchema = z
     images: z.array(catalogImageSchema),
     /** Only the tiers that override the base price; never the base itself. */
     tierPrices: z.array(productTierPriceSchema),
-    priceBasisPieces: z.number().int().positive(),
     piecesPerPack: z.number().int().positive().nullable(),
     packsPerBox: z.number().int().positive().nullable(),
     minPieceQty: z.number().int().positive(),

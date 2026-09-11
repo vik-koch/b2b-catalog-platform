@@ -33,10 +33,12 @@ const PASSWORD = 'e2e-orders-password';
 const TIER_KEY = `e2e-orders-tier-${SUFFIX}`;
 const SOURCE_PREFIX = `E2E-ORDERS-${SUFFIX}`;
 
-/** €19.99 per ten pieces: the case where no piece has an exact price. */
-const BASE_MINOR = 1999;
-const BASIS = 10;
-const TIER_MINOR = 1000;
+/** €2.00 a piece, sold ten to a pack. `BASE_MINOR` is what a pack comes to,
+ * which is the figure most of these assertions count in. */
+const PIECE_MINOR = 200;
+const BASE_MINOR = PIECE_MINOR * 10;
+const TIER_PIECE_MINOR = 100;
+const TIER_MINOR = TIER_PIECE_MINOR * 10;
 
 const slugs = {
   boxed: `e2e-orders-boxed-${SUFFIX}`,
@@ -141,11 +143,7 @@ const ADMIN_DETAIL_KEYS = [
   'statusChangedAt',
   'tierKey',
 ].sort();
-const ADMIN_LINE_KEYS = [
-  ...ORDER_LINE_KEYS,
-  'priceBasisPieces',
-  'priceMinor',
-].sort();
+const ADMIN_LINE_KEYS = [...ORDER_LINE_KEYS, 'priceMinor'].sort();
 const ADMIN_LIST_KEYS = [
   ...ORDER_SUMMARY_KEYS,
   'contactName',
@@ -270,18 +268,17 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     ) => {
       await client.query(
         `INSERT INTO products (
-           "sourceId", slug, name, "defaultPriceMinor", "priceBasisPieces",
+           "sourceId", slug, name, "defaultPriceMinor",
            "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume",
            "boxWeight", "boxCount", "categoryId", "lineNoteEnabled",
            "publishedAt", "deletedAt", "stockPieces", availability)
-         VALUES ($1, $2, $3, $4, $5, 10, 4, $10, '0.240', '12.500', 1, $6, $7,
-                 $8, $9, $11, $12)`,
+         VALUES ($1, $2, $3, $4, 10, 4, $9, '0.240', '12.500', 1, $5, $6,
+                 $7, $8, $10, $11)`,
         [
           `${SOURCE_PREFIX}-${slug}`,
           slug,
           `E2E ${slug}`,
-          BASE_MINOR,
-          BASIS,
+          PIECE_MINOR,
           categoryId,
           lineNoteEnabled,
           state === 'unpublished' ? null : new Date(),
@@ -306,7 +303,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     await client.query(
       `INSERT INTO product_prices ("productId", "tierId", "priceMinor")
        SELECT id, $1, $2 FROM products WHERE slug = $3`,
-      [tiers[0].id, TIER_MINOR, slugs.boxed],
+      [tiers[0].id, TIER_PIECE_MINOR, slugs.boxed],
     );
 
     const passwordHash = await hash(PASSWORD);
@@ -375,13 +372,10 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       });
 
       const body = JSON.stringify(res.data);
-      expect(body).not.toContain('priceBasisPieces');
       expect(body).not.toContain(SOURCE_PREFIX);
-      // The multiplicable piece figure is published; the display one stays a
-      // display one.
       expect(res.data.lines[0].prices).toMatchObject({
-        pieceLotMinor: BASE_MINOR,
-        pieceMilliMinor: 199_900,
+        piece: PIECE_MINOR,
+        pack: BASE_MINOR,
       });
       expect(res.data.lines[0].lineTotalMinor).toBe(BASE_MINOR * 2);
     });
@@ -588,7 +582,6 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       });
       const body = JSON.stringify(read.data);
       expect(body).not.toContain(SOURCE_PREFIX);
-      expect(body).not.toContain('priceBasisPieces');
       expect(body).not.toContain('tierKey');
     });
 
@@ -1427,11 +1420,10 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       lines: [
         {
           slug: slugs.boxed,
-          units: 2,
+          pieces: 20,
           unit: 'pack',
           note: null,
-          priceMinor: BASE_MINOR,
-          priceBasisPieces: BASIS,
+          priceMinor: PIECE_MINOR,
         },
       ],
       contact: {
@@ -1482,7 +1474,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       const res = await adjust(
         placed.reference,
-        adjustment({ lines: [{ ...adjustment().lines[0], units: 3 }] }),
+        adjustment({ lines: [{ ...adjustment().lines[0], pieces: 30 }] }),
       );
 
       expect(res.status).toBe(200);
@@ -1575,11 +1567,10 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           lines: [
             {
               slug: slugs.boxed,
-              units: 2,
+              pieces: 20,
               unit: 'pack',
               note: null,
               priceMinor: null,
-              priceBasisPieces: null,
             },
           ],
         }),
@@ -1587,8 +1578,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
 
       expect(res.status).toBe(200);
       expect(res.data.lines[0]).toMatchObject({
-        priceMinor: TIER_MINOR,
-        priceBasisPieces: BASIS,
+        priceMinor: TIER_PIECE_MINOR,
         lineTotalMinor: TIER_MINOR * 2,
       });
       expect(res.data.totalMinor).toBe(TIER_MINOR * 2);
@@ -1610,11 +1600,10 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         }),
       );
 
-      expect(res.data.totalMinor).toBe(2);
+      expect(res.data.totalMinor).toBe(20);
       expect(res.data.lines[0]).toMatchObject({
         priceMinor: 1,
-        priceBasisPieces: BASIS,
-        lineTotalMinor: 2,
+        lineTotalMinor: 20,
       });
     });
 
@@ -1622,11 +1611,10 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const placed = await place();
       const line = {
         slug: slugs.hidden,
-        units: 1,
+        pieces: 10,
         unit: null,
         note: null,
         priceMinor: null,
-        priceBasisPieces: null,
       };
 
       const res = await preview(
@@ -2026,7 +2014,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const placed = await place();
       await adjust(
         placed.reference,
-        adjustment({ lines: [{ ...adjustment().lines[0], units: 5 }] }),
+        adjustment({ lines: [{ ...adjustment().lines[0], pieces: 50 }] }),
       );
 
       const res = await get(
@@ -2083,7 +2071,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       const placed = await place();
       await adjust(
         placed.reference,
-        adjustment({ lines: [{ ...adjustment().lines[0], units: 5 }] }),
+        adjustment({ lines: [{ ...adjustment().lines[0], pieces: 50 }] }),
       );
 
       const res = await get(
@@ -2243,7 +2231,6 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // The customer's own order says nothing about how it was priced, nor
       // about the token that would open it without a session.
       const body = JSON.stringify(res.data);
-      expect(body).not.toContain('priceBasisPieces');
       expect(body).not.toContain('tierKey');
       expect(body).not.toContain(SOURCE_PREFIX);
       expect(body).not.toContain('publicToken');
@@ -2267,17 +2254,16 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       ).toBe(404);
     });
 
-    it('lets a manager read any order, in basis units', async () => {
+    it('lets a manager read any order, in pieces', async () => {
       const res = await get(`/admin/orders/${reference}`, managerCookie);
 
       expect(res.status).toBe(200);
       expect(Object.keys(res.data).sort()).toEqual(ADMIN_DETAIL_KEYS);
       expect(Object.keys(res.data.lines[0]).sort()).toEqual(ADMIN_LINE_KEYS);
-      // 2 packs of 10 pieces at a basis of 10: staff read it as 2 × the stored
-      // price, which is how the source system quotes it.
+      // 2 packs of 10 pieces: staff read it as 20 × the piece price, which is
+      // how the source system quotes it.
       expect(res.data.lines[0]).toMatchObject({
-        priceMinor: TIER_MINOR,
-        priceBasisPieces: BASIS,
+        priceMinor: TIER_PIECE_MINOR,
         pieces: 20,
       });
       expect(res.data.customerEmail).toBe(CUSTOMER);
@@ -2635,11 +2621,10 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           lines: [
             {
               slug: slugs.boxed,
-              units: 4,
+              pieces: 40,
               unit: 'pack',
               note: null,
-              priceMinor: BASE_MINOR,
-              priceBasisPieces: BASIS,
+              priceMinor: PIECE_MINOR,
             },
           ],
           contact: {

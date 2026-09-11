@@ -330,7 +330,7 @@ const actions: JourneyAdapter<OrderJourneyContext>['actions'] = {
    *
    * The payload is the order as it stands, sent back with one thing different
    * — which is what the admin screen holds — so a journey names only the
-   * change: `units`, `paymentMethod`, `contactName`. Building it from the
+   * change: `pieces`, `paymentMethod`, `contactName`. Building it from the
    * order rather than from a literal is what lets a journey adjust an order it
    * did not place, and keeps a change from silently reverting a field the
    * checkout set.
@@ -358,18 +358,15 @@ const actions: JourneyAdapter<OrderJourneyContext>['actions'] = {
             lines: order.lines.map(
               (line: Record<string, unknown>, index: number) => ({
                 slug: line['slug'],
-                // Counted in basis units, which is neither the piece count
-                // nor the quantity the line is read in: a line of 20 pieces
-                // priced per 10 is two of them.
-                units:
-                  index === 0 && 'units' in args
-                    ? args['units']
-                    : (line['pieces'] as number) /
-                      (line['priceBasisPieces'] as number),
+                // Counted in pieces, which is not the quantity the line is
+                // read in: a line of two packs of ten is twenty.
+                pieces:
+                  index === 0 && 'pieces' in args
+                    ? args['pieces']
+                    : line['pieces'],
                 unit: line['unit'],
                 note: line['note'],
                 priceMinor: line['priceMinor'],
-                priceBasisPieces: line['priceBasisPieces'],
               }),
             ),
             contact:

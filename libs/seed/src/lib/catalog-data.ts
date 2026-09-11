@@ -39,14 +39,12 @@ export interface ProductSeed {
 
 /**
  * The packaging cases worth having in a demo catalog, including the awkward
- * ones: a price that covers a whole pack, and a minimum above the pack size.
- * `priceBasisPieces` must divide `minPieceQty` and `piecesPerPack`.
+ * one: a minimum above the pack size.
  */
 export interface ProductPackagingSeed {
   piecesPerPack?: number;
   packsPerBox?: number;
   minPieceQty?: number;
-  priceBasisPieces?: number;
   boxVolume?: string;
   boxWeight?: string;
   /** How many boxes ship; informational, and 1 for almost every product. */
@@ -184,9 +182,7 @@ const ESPRESSO = [
  * Espresso is the packaged line, and deliberately not uniform — the display and
  * the arithmetic both need the awkward cases visible in the demo:
  *
- * - most: six 250 g bags to a pack, four packs to a box, priced per piece
- * - every 4th: priced per **pack** (a price that does not divide evenly into a
- *   per-piece figure, so the page shows three decimals)
+ * - most: six 250 g bags to a pack, four packs to a box
  * - every 5th: a minimum order well above the pack size
  * - every 6th: shipped as two boxes rather than one
  * - every 7th: packs but no box
@@ -204,7 +200,7 @@ const espressoPackaging = (i: number): ProductPackagingSeed | undefined => {
     // The rare case: a product that ships split across two boxes.
     ...(i % 6 === 5 ? { boxCount: 2 } : {}),
   };
-  return i % 4 === 3 ? { ...base, priceBasisPieces: 6 } : base;
+  return base;
 };
 
 const espressoProducts: ProductSeed[] = ESPRESSO.map(
@@ -216,8 +212,7 @@ const espressoProducts: ProductSeed[] = ESPRESSO.map(
       .replace(/(^-|-$)/g, ''),
     name,
     categoryKey: 'espresso',
-    // A pack-priced product stores the price of six bags, not one.
-    priceMinor: i % 4 === 3 ? 9990 + i * 40 : 1690 + i * 40,
+    priceMinor: 1690 + i * 40,
     descriptionHtml: beanDescription(name, notes),
     attributes: beanAttributes(origin, 'Medium-dark', 'Mixed', notes),
     imageCount: i < 6 ? 3 : 1,

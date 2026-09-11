@@ -22,10 +22,9 @@ function addition(): CartAddition {
     pairedCount: 0,
     availability: null,
     prices: {
-      pieceMilliMinor: 1_166_667,
-      pieceLotMinor: 7000,
-      pack: 7000,
-      box: 28_000,
+      piece: 1200,
+      pack: 7200,
+      box: 28_800,
     },
     packaging: { ...packagedPackaging },
   };
@@ -52,10 +51,9 @@ function preview(lineTotalMinor: number | null = 6500): CartPreview {
         pairingShortPieces: null,
         availability: null,
         prices: {
-          pieceMilliMinor: 1_083_333,
-          pieceLotMinor: 6500,
-          pack: 6500,
-          box: 26_000,
+          piece: 1100,
+          pack: 6600,
+          box: 26_400,
         },
         lineTotalMinor,
         issues: [],
@@ -182,7 +180,7 @@ describe('CartRepricing', () => {
 
     await view.signIn('user');
 
-    expect(view.cart.lines()[0].lineTotalMinor).toBe(7000);
+    expect(view.cart.lines()[0].lineTotalMinor).toBe(7200);
   });
 
   // A failure must not latch: the guard that stops two calls overlapping is
