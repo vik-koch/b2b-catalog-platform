@@ -6,7 +6,7 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, inject, resource, signal } from '@angular/core';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { CustomerTier, tierKeySchema } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
@@ -22,6 +22,8 @@ import { Skeleton } from '../../ui/skeleton';
 import { ConfirmService } from '../../ui/confirm.service';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
+import { LockedFieldMarker } from '../ownership/locked-field-marker';
+import { SettingsService } from '../settings/settings.service';
 import { TiersService } from './tiers.service';
 import { RouterLink } from '@angular/router';
 
@@ -56,6 +58,7 @@ type EditTarget = { id: string } | { id: null } | null;
     RecordRow,
     RecordFields,
     RecordFormActions,
+    LockedFieldMarker,
     Input,
     FieldLabel,
     Skeleton,
@@ -272,7 +275,17 @@ type EditTarget = { id: string } | { id: null } | null;
             />
           </div>
           <div>
-            <label appFieldLabel for="tier-key">{{ text.key }}</label>
+            <!-- Locked only on an existing list, and only while the catalog is
+                 managed elsewhere: the key is that system's handle on this
+                 list. A list being added has no handle yet, so the add form
+                 keeps the field — it is how an admin answers a run that priced
+                 a key this deployment does not have. -->
+            <label appFieldLabel for="tier-key">
+              {{ text.key }}
+              @if (keyLocked()) {
+                <app-locked-field-marker />
+              }
+            </label>
             <input
               appInput
               size="sm"
@@ -281,11 +294,14 @@ type EditTarget = { id: string } | { id: null } | null;
               class="w-full font-mono"
               autocomplete="off"
               [value]="draftKey()"
+              [disabled]="keyLocked()"
               [placeholder]="text.keyPlaceholder"
               (input)="draftKey.set($any($event.target).value)"
             />
           </div>
-          <p class="text-xs text-muted sm:col-span-2">{{ text.keyHint }}</p>
+          <p class="text-xs text-muted sm:col-span-2">
+            {{ keyLocked() ? ownershipText.tierKeyLocked : text.keyHint }}
+          </p>
           <div appRecordFormActions>
             <button
               appButton
@@ -323,7 +339,9 @@ type EditTarget = { id: string } | { id: null } | null;
 export class TierListPage {
   private readonly service = inject(TiersService);
   private readonly confirm = inject(ConfirmService);
+  private readonly settings = inject(SettingsService);
   protected readonly text = inject(ADMIN_TEXT).tierList;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
 
@@ -341,6 +359,18 @@ export class TierListPage {
   );
   protected readonly busy = signal(false);
   protected readonly reorderError = signal(false);
+
+  /**
+   * The sync key of a list that already exists, while an external system owns
+   * the catalog (FR-ADM-10). Nothing else on this screen locks: the label is
+   * what staff read, the order is display only, and adding or dropping a list
+   * writes no price.
+   */
+  protected readonly keyLocked = computed(
+    () =>
+      this.editing()?.id != null &&
+      (this.settings.ownedAreas()?.includes('catalog') ?? false),
+  );
 
   /**
    * Moves a tier one place and commits immediately — the click *is* the save,
@@ -505,5 +535,6 @@ export class TierListPage {
 
   constructor() {
     usePageSeo({ name: () => this.text.title });
+    void this.settings.load();
   }
 }

@@ -46,6 +46,25 @@ export const OWNED_CATEGORY_FIELDS = ['name', 'sourceId'] as const;
 export type OwnedCategoryField = (typeof OWNED_CATEGORY_FIELDS)[number];
 
 /**
+ * The customer-tier field an owning system writes — the `key` a price column
+ * addresses the list by (`price:<key>`), which is a sync key exactly as
+ * `sourceId` is: retyping it does not rename a price list, it points the
+ * exchange at a list nobody has.
+ *
+ * Everything else about a tier stays the shop's, and deliberately so. The
+ * `label` and the display order are staff-facing wording the exchange never
+ * carries — a run sends prices keyed by `key` and nothing more — so freezing
+ * them would be freezing a field against no second writer. Creating a tier
+ * stays open because it is how an admin answers the `unknown-price-list` row
+ * error without handing the catalog back first; it writes no price, so there
+ * is nothing for two writers to contend over. Deleting one stays open because
+ * a tier holding prices or accounts is already refused, which leaves only a
+ * list nothing uses.
+ */
+export const OWNED_TIER_FIELDS = ['key'] as const;
+export type OwnedTierField = (typeof OWNED_TIER_FIELDS)[number];
+
+/**
  * The two refusals the switch produces, and they are opposite news to opposite
  * readers: the first tells an admin the exchange holds the pen, the second
  * tells an automated client that it does not.

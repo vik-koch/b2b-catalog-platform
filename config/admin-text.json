@@ -1130,7 +1130,8 @@
     "fieldLockedShort": "Set by the external system that manages the catalog.",
     "categoryHasProducts": "This category still has products in it. While the catalog is managed by an external system, products cannot be moved between categories here — empty it in that system first, or take the catalog back under Data ownership in the admin panel.",
     "productDelete": "The catalog is managed by an external system, so what it contains is set there. Remove this product in that system, or take the catalog back under Data ownership in the admin panel.",
-    "productCreate": "The catalog is managed by an external system, so new products are added there. To add one in the shop, take the catalog back under Data ownership in the admin panel."
+    "productCreate": "The catalog is managed by an external system, so new products are added there. To add one in the shop, take the catalog back under Data ownership in the admin panel.",
+    "tierKeyLocked": "The catalog is managed by an external system, so this price list's key is set there. The name is yours to change either way, and you can still add a price list or remove an unused one."
   },
   "operations": {
     "title": "Maintenance and ownership",

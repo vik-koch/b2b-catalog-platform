@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { SettingsModule } from '../settings/settings.module';
 import { AuditLogger } from '../audit/audit.logger';
 import { TiersController } from './tiers.controller';
 import { TiersService } from './tiers.service';
@@ -10,7 +11,7 @@ import { TiersService } from './tiers.service';
  * service without the catalog write surface.
  */
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, SettingsModule],
   controllers: [TiersController],
   providers: [TiersService, AuditLogger],
   exports: [TiersService],

@@ -1804,6 +1804,8 @@ export const adminTextSchema = z
         productDelete: z.string(),
         /** The product editor, opened on the "new" route. */
         productCreate: z.string(),
+        /** The tier list, where only an existing list's sync key is locked. */
+        tierKeyLocked: z.string(),
       })
       .strict(),
     /**
