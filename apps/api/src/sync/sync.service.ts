@@ -40,6 +40,7 @@ import {
   syncRuns,
 } from '../db/schema';
 import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
+import { SyncNotifications } from './sync-notifications';
 import {
   LOW_STOCK_THRESHOLD_PIECES,
   SYNC_POLICY,
@@ -132,6 +133,7 @@ export class SyncService {
     @Inject(SYNC_POLICY)
     private readonly policy: SyncPolicy,
     private readonly settings: SettingsService,
+    private readonly notifications: SyncNotifications,
   ) {}
 
   /** Whether the exchange currently holds the pen (FR-ADM-10). */
@@ -323,6 +325,10 @@ export class SyncService {
         );
 
     await this.prune();
+    // Where the feed stood before this run, read before anything is written:
+    // inserting supersedes the staged run this one overtakes, so asked
+    // afterwards the question would answer itself.
+    const previous = await this.previousMachineStatus();
     await this.supersedeStaged();
     const [row] = await this.db
       .insert(syncRuns)
@@ -341,12 +347,17 @@ export class SyncService {
       })
       .returning();
 
-    if (nothingToDo || stagedReason) return { run: toSyncRun(row), plan };
+    if (nothingToDo || stagedReason) {
+      const run = toSyncRun(row);
+      await this.notifications.announce(run, previous);
+      return { run, plan };
+    }
 
     // The applying half re-diffs against state read inside its own
     // transaction, so what it computed — not what was planned a moment ago —
     // is what the caller is told about.
     const applied = await this.applyRun(row.id, null);
+    await this.notifications.announce(applied.run, previous);
     return { run: applied.run, plan: applied.plan };
   }
 
@@ -369,6 +380,7 @@ export class SyncService {
     // a client told plainly that the platform is not listening is better than
     // one quietly filling a log nobody asked it to write.
     if (!this.catalogIsOwned) throw catalogNotExternallyOwned();
+    const previous = await this.previousMachineStatus();
     const now = new Date();
     const [row] = await this.db
       .insert(syncRuns)
@@ -383,7 +395,9 @@ export class SyncService {
         error: report.message,
       })
       .returning();
-    return { run: toSyncRun(row) };
+    const run = toSyncRun(row);
+    await this.notifications.announce(run, previous);
+    return { run };
   }
 
   /**
@@ -727,6 +741,21 @@ export class SyncService {
    * own upload is left alone: it is theirs, and nothing a machine sends
    * supersedes a decision a person is in the middle of.
    */
+  /**
+   * The status of the automated run before this one, or null where there has
+   * never been one. Uploads are left out: a person previewing their own file
+   * is not the feed's state, and it is their screen that answers them.
+   */
+  private async previousMachineStatus(): Promise<SyncRunStatus | null> {
+    const [row] = await this.db
+      .select({ status: syncRuns.status })
+      .from(syncRuns)
+      .where(eq(syncRuns.source, 'api'))
+      .orderBy(desc(syncRuns.startedAt))
+      .limit(1);
+    return row?.status ?? null;
+  }
+
   private async supersedeStaged(): Promise<void> {
     await this.db
       .update(syncRuns)

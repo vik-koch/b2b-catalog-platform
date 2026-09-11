@@ -2,6 +2,7 @@ import {
   MoneyFormat,
   OrderDetail,
   OrderPickup,
+  SyncRun,
 } from '@b2b-catalog-platform/shared';
 import type { MailBranding } from './mail-branding';
 import { MailContent, RenderedMail, renderMail } from './mail-layout';
@@ -20,6 +21,12 @@ import { orderReceivedMail } from './templates/order-received.template';
 import { orderStatusChangedMail } from './templates/order-status.template';
 import { passwordResetMail } from './templates/password-reset.template';
 import { registrationReceivedMail } from './templates/registration-received.template';
+import {
+  syncCreatedMail,
+  syncFailedMail,
+  syncRecoveredMail,
+  syncWaitingMail,
+} from './templates/sync-run.template';
 
 /**
  * Every message the app can send, rendered from demo wording — the readable
@@ -102,6 +109,7 @@ export const MAIL_PREVIEW_GROUPS = [
   'The account itself',
   'Orders',
   'Getting in touch',
+  'Running the shop',
 ] as const;
 export type MailPreviewGroup = (typeof MAIL_PREVIEW_GROUPS)[number];
 
@@ -123,6 +131,61 @@ export interface MailPreview {
   readonly shows?: string;
   readonly content: MailContent;
 }
+
+/** One automated run, in the four states the shop is written to about. Fixed
+ * ids and a fixed timestamp, so the committed previews stay diffable. */
+const RUN_TIME = '14 Mar 2026, 03:15';
+const baseRun = {
+  id: '6f0b2b3c-6f2c-4c0a-9d1e-9c5a8f0a1b2c',
+  source: 'api',
+  filename: 'nightly-catalog',
+  startedAt: '2026-03-14T03:15:00.000Z',
+  finishedAt: '2026-03-14T03:15:42.000Z',
+  actorEmail: null,
+  tokenName: 'ERP nightly export',
+  stagedReason: null,
+  options: null,
+  summary: null,
+  error: null,
+} as const satisfies Omit<SyncRun, 'status'>;
+
+const summary = (create: number, update: number, softDelete: number) => ({
+  rows: create + update + softDelete,
+  create,
+  update,
+  softDelete,
+  restore: 0,
+  unchanged: 0,
+  categoriesCreated: 0,
+  categoriesRenamed: 0,
+  keptManual: 0,
+  errors: 0,
+  fields: ['price:base', 'stock'],
+});
+
+const FAILED_RUN: SyncRun = {
+  ...baseRun,
+  status: 'failed',
+  summary: null,
+  error: 'export ended early: 1,284 of 3,010 rows received',
+};
+const APPLIED_RUN: SyncRun = {
+  ...baseRun,
+  status: 'applied',
+  summary: summary(0, 128, 0),
+};
+const STAGED_RUN: SyncRun = {
+  ...baseRun,
+  status: 'previewed',
+  finishedAt: null,
+  stagedReason: 'policy',
+  summary: summary(4, 96, 212),
+};
+const CREATED_RUN: SyncRun = {
+  ...baseRun,
+  status: 'applied',
+  summary: summary(12, 40, 0),
+};
 
 /**
  * Every message, in whatever wording it is handed.
@@ -422,6 +485,38 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         text,
         CHANGES,
       ),
+    },
+    {
+      slug: 'sync-failed',
+      group: 'Running the shop',
+      shows: 'syncFailed',
+      title: 'Catalog update failed',
+      note: 'The first failure after the feed was working. Only the source’s own account of what broke is quoted — everything else is on the run page.',
+      content: syncFailedMail(FAILED_RUN, RUN_TIME, text),
+    },
+    {
+      slug: 'sync-recovered',
+      group: 'Running the shop',
+      shows: 'syncRecovered',
+      title: 'Catalog updates working again',
+      note: 'Sent once, to whoever was told it was broken, so an announced failure is never left open.',
+      content: syncRecoveredMail(APPLIED_RUN, RUN_TIME, text),
+    },
+    {
+      slug: 'sync-waiting',
+      group: 'Running the shop',
+      shows: 'syncWaiting',
+      title: 'A catalog update is waiting',
+      note: 'A run held back for a person. The reason separates an ordinary large import from one the source itself doubts.',
+      content: syncWaitingMail(STAGED_RUN, RUN_TIME, text),
+    },
+    {
+      slug: 'sync-created',
+      group: 'Running the shop',
+      shows: 'syncCreated',
+      title: 'New products arrived',
+      note: 'A run that applied itself and brought products nobody has published yet. The only one of the four that opens the product list rather than the run.',
+      content: syncCreatedMail(CREATED_RUN, RUN_TIME, text),
     },
     {
       slug: 'order-document',

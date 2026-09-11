@@ -3,6 +3,11 @@ import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { loadMailBranding, MAIL_BRANDING } from './mail-branding';
 import { MAIL_TEXT, mailTextSchema } from './mail-text';
 import { MailService } from './mail.service';
+import {
+  loadNotificationAddresses,
+  NOTIFICATION_ADDRESSES,
+  NotificationAudiences,
+} from './notification-audience';
 import { MAILER } from './mailer';
 import { SmtpMailer } from './smtp-mailer';
 
@@ -25,10 +30,25 @@ import { SmtpMailer } from './smtp-mailer';
     },
     { provide: MAIL_BRANDING, useFactory: loadMailBranding },
     MailService,
+    {
+      provide: NOTIFICATION_ADDRESSES,
+      useFactory: loadNotificationAddresses,
+    },
+    NotificationAudiences,
   ],
   // MAIL_BRANDING travels with the wording: the order summary the API draws is
   // rendered here as well, and it carries the shop's name for the same reason
   // a message does.
-  exports: [MAILER, MAIL_TEXT, MAIL_BRANDING, MailService],
+  exports: [
+    MAILER,
+    MAIL_TEXT,
+    MAIL_BRANDING,
+    MailService,
+    {
+      provide: NOTIFICATION_ADDRESSES,
+      useFactory: loadNotificationAddresses,
+    },
+    NotificationAudiences,
+  ],
 })
 export class MailModule {}
