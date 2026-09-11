@@ -1,6 +1,7 @@
 import {
   afterNextRender,
   Component,
+  computed,
   ElementRef,
   inject,
   input,
@@ -14,6 +15,7 @@ import { DialogActions } from '../../ui/dialog-actions';
 import { DialogPanel } from '../../ui/dialog-panel';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminCatalogService } from '../admin-catalog.service';
+import { SettingsService } from '../settings/settings.service';
 
 /**
  * Delete-a-product confirmation modal (FR-ADM-01). It owns `AdminCatalogService`
@@ -40,7 +42,14 @@ import { AdminCatalogService } from '../admin-catalog.service';
       >
         {{ text.deleteProduct }}
       </h2>
-      <p class="mt-3 text-muted">{{ confirmMessage() }}</p>
+      <!-- While an external system owns the catalog, what is in it is that
+           system's to say, so the dialog explains instead of asking. The
+           control that opened it is deliberately still there: the same rule
+           greys the editor's fields rather than removing them, and the
+           category delete dialog answers the same way. -->
+      <p class="mt-3 text-muted">
+        {{ catalogOwned() ? ownershipText.productDelete : confirmMessage() }}
+      </p>
 
       @if (error()) {
         <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
@@ -53,19 +62,21 @@ import { AdminCatalogService } from '../admin-catalog.service';
           type="button"
           (click)="cancelled.emit()"
         >
-          {{ common.cancel }}
+          {{ catalogOwned() ? common.close : common.cancel }}
         </button>
-        <button
-          appButton
-          variant="danger"
-          type="button"
-          class="gap-2"
-          [disabled]="deleting()"
-          (click)="confirm()"
-        >
-          <app-admin-icon name="trash-2" class="h-4 w-4" />
-          {{ text.deleteProduct }}
-        </button>
+        @if (!catalogOwned()) {
+          <button
+            appButton
+            variant="danger"
+            type="button"
+            class="gap-2"
+            [disabled]="deleting()"
+            (click)="confirm()"
+          >
+            <app-admin-icon name="trash-2" class="h-4 w-4" />
+            {{ text.deleteProduct }}
+          </button>
+        }
       </div>
     </dialog>
   `,
@@ -75,6 +86,15 @@ export class ProductDeleteDialog {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).editMode;
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  private readonly ownership = inject(SettingsService);
+
+  /** Whether the catalog is externally owned (FR-ADM-10). The dialog is opened
+   * by a click, long after the read has resolved, so there is no in-flight
+   * state to paint around here. */
+  protected readonly catalogOwned = computed(
+    () => this.ownership.ownedAreas()?.includes('catalog') ?? false,
+  );
 
   private readonly dialog =
     viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
@@ -91,6 +111,9 @@ export class ProductDeleteDialog {
     // showModal() must be called imperatively for the focus trap and backdrop;
     // the host removes this component to close, and a removed dialog is closed.
     afterNextRender(() => this.dialog().nativeElement.showModal());
+    // The storefront reaches this dialog through a @defer block, so it may be
+    // the first thing in the app to ask.
+    void this.ownership.load();
   }
 
   protected confirmMessage(): string {

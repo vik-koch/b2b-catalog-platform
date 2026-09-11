@@ -6,6 +6,8 @@ import {
   slugify,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { LockedFieldMarker } from '../ownership/locked-field-marker';
+import { SettingsService } from '../settings/settings.service';
 import { usePageSeo } from '../../core/page-seo';
 import { Skeleton } from '../../ui/skeleton';
 import { delayedLoading } from '../../core/delayed-loading';
@@ -39,6 +41,7 @@ import { CategoryPicker } from './category-picker';
     Input,
     ImagePicker,
     Skeleton,
+    LockedFieldMarker,
   ],
   template: `
     <h1 class="mb-6 text-3xl font-medium tracking-tight">
@@ -53,16 +56,33 @@ import { CategoryPicker } from './category-picker';
       <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
+        <!-- Only two of this form's fields are locked, so the banner names the
+             rest rather than letting the marks imply a whole read-only page:
+             the nickname, the parent, the picture and the description stay the
+             shop's, which is what keeps the tree rearrangeable. -->
+        @if (fieldsLocked()) {
+          <p
+            class="rounded-md border border-border bg-stone-100 px-4 py-3 text-sm text-muted"
+            role="status"
+          >
+            {{ ownershipText.fieldLocked }}
+          </p>
+        }
+
         <label class="block">
           <span appFieldLabel>
             {{ text.name }}
             <span class="text-accent" aria-hidden="true">*</span>
+            @if (fieldsLocked()) {
+              <app-locked-field-marker />
+            }
           </span>
           <input
             type="text"
             appInput
             class="w-full"
             [value]="name()"
+            [disabled]="fieldsLocked()"
             (input)="name.set($any($event.target).value)"
           />
         </label>
@@ -111,12 +131,18 @@ import { CategoryPicker } from './category-picker';
           </label>
 
           <label class="block">
-            <span appFieldLabel>{{ text.sourceId }}</span>
+            <span appFieldLabel>
+              {{ text.sourceId }}
+              @if (fieldsLocked()) {
+                <app-locked-field-marker />
+              }
+            </span>
             <input
               type="text"
               appInput
               class="w-full font-mono text-sm"
               [value]="sourceId()"
+              [disabled]="fieldsLocked()"
               (input)="sourceId.set($any($event.target).value)"
             />
             <span class="mt-1 block text-xs text-subtle">{{
@@ -180,6 +206,20 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).categoryEditor;
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  private readonly ownership = inject(SettingsService);
+
+  /**
+   * Only on an existing category. A new one has nothing stored to compare a
+   * name against, and creating categories stays open while the catalog is
+   * owned: the exchange creates the ones its rows name, and the shop is left
+   * free to add the ones it wants to arrange them under.
+   */
+  protected readonly fieldsLocked = computed(
+    () =>
+      !this.isNew &&
+      (this.ownership.ownedAreas()?.includes('catalog') ?? false),
+  );
 
   // No :slug segment means this is `/admin/categories/new` — the same screen,
   // creating instead of updating, mirroring the product editor.
@@ -241,6 +281,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   });
 
   constructor() {
+    void this.ownership.load();
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({

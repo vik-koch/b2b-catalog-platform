@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { AuthModule } from '../auth/auth.module';
+import { SettingsModule } from '../settings/settings.module';
 import { MachineSyncController } from './machine-sync.controller';
 import { SyncController } from './sync.controller';
 import { SyncService } from './sync.service';
@@ -17,7 +18,7 @@ import {
  * `@Auth('admin')` and ApiTokensModule the one behind `@Machine(...)`.
  */
 @Module({
-  imports: [AuthModule, ApiTokensModule],
+  imports: [AuthModule, ApiTokensModule, SettingsModule],
   controllers: [SyncController, MachineSyncController],
   providers: [
     SyncService,

@@ -6,6 +6,7 @@ import { AdminCategoriesService } from './admin-categories.service';
 import { AdminProductsService } from './admin-products.service';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
+import { SettingsModule } from '../settings/settings.module';
 import { SearchLogger } from './search.logger';
 import {
   LOW_STOCK_THRESHOLD_PIECES,
@@ -20,7 +21,7 @@ import {
  * (the read controller stays public).
  */
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, SettingsModule],
   controllers: [CatalogController, AdminCatalogController],
   providers: [
     CatalogService,

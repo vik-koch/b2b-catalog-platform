@@ -30,11 +30,13 @@ export class SettingsController {
     );
   }
 
+  // One read for both switches: they are one row, one screen asks for them
+  // together, and the write endpoints below answer with the same whole.
   @Auth('admin')
-  @Implement(settingsContract.getMaintenance)
-  getMaintenance() {
-    return implement(settingsContract.getMaintenance).handler(() =>
-      this.settings.getMaintenance(),
+  @Implement(settingsContract.getSettings)
+  getSettings() {
+    return implement(settingsContract.getSettings).handler(() =>
+      this.settings.getSettings(),
     );
   }
 
@@ -42,8 +44,24 @@ export class SettingsController {
   @Implement(settingsContract.setMaintenance)
   setMaintenance(@CurrentUser() user: AuthUser) {
     return implement(settingsContract.setMaintenance).handler(
-      ({ input: { body } }) =>
-        this.settings.setMaintenance(body.enabled, user.id),
+      ({ input: { body } }) => this.settings.setMaintenance(body.enabled, user),
     );
+  }
+
+  @Auth('admin')
+  @Implement(settingsContract.setOwnership)
+  setOwnership(@CurrentUser() user: AuthUser) {
+    return implement(settingsContract.setOwnership).handler(
+      ({ input: { body } }) =>
+        this.settings.setOwnership(body.area, body.owned, user),
+    );
+  }
+
+  @Auth('admin')
+  @Implement(settingsContract.listSettingChanges)
+  listSettingChanges() {
+    return implement(settingsContract.listSettingChanges).handler(async () => ({
+      changes: await this.settings.listChanges(),
+    }));
   }
 }

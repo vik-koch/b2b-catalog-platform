@@ -8,6 +8,7 @@ import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
 import { ConfirmService } from '../../ui/confirm.service';
+import { provideOwnership } from '../settings/settings.fixture';
 import { TierListPage } from './tier-list-page';
 import { TiersService } from './tiers.service';
 
@@ -31,6 +32,8 @@ async function render(
   options: {
     tiers?: CustomerTier[];
     defaultUserCount?: number;
+    /** Whether an external system owns the catalog (FR-ADM-10). */
+    owned?: boolean;
     create?: Awaited<ReturnType<TiersService['create']>>;
     update?: Awaited<ReturnType<TiersService['update']>>;
     remove?: Awaited<ReturnType<TiersService['remove']>>;
@@ -58,6 +61,7 @@ async function render(
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      provideOwnership(...(options.owned ? (['catalog'] as const) : [])),
       { provide: TiersService, useValue: service },
       { provide: ConfirmService, useValue: confirm },
     ],
@@ -199,6 +203,41 @@ describe('TierListPage', () => {
     expect(service.update).toHaveBeenCalledWith('tier-9', {
       label: 'Trade partners',
       key: 'trade',
+    });
+  });
+
+  describe('while an external system owns the catalog (FR-ADM-10)', () => {
+    const owned = defaultAdminText.ownership;
+
+    it('locks the sync key of a list that already exists, and nothing else', async () => {
+      const { el, byLabel, fixture } = await render({
+        tiers: [tier({ id: 'tier-9', key: 'trade', label: 'Trade' })],
+        owned: true,
+      });
+
+      byLabel(text.edit)?.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(el.querySelector<HTMLInputElement>('#tier-key')?.disabled).toBe(
+        true,
+      );
+      // The name is what staff read and the exchange never writes it.
+      expect(el.querySelector<HTMLInputElement>('#tier-label')?.disabled).toBe(
+        false,
+      );
+      expect(el.textContent).toContain(owned.tierKeyLocked);
+    });
+
+    it('leaves the add form alone — a new list has no key the exchange holds', async () => {
+      const { el, click } = await render({ tiers: [], owned: true });
+
+      await click('button.gap-2');
+
+      expect(el.querySelector<HTMLInputElement>('#tier-key')?.disabled).toBe(
+        false,
+      );
+      expect(el.textContent).toContain(text.keyHint);
     });
   });
 

@@ -6,6 +6,7 @@ import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { FieldLabel } from '../../ui/field-label';
 import { PriceField } from '../../ui/price-field';
 import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
+import { LockedFieldMarker } from '../ownership/locked-field-marker';
 
 /** A tier's field as the form holds it: raw text, empty meaning "no override". */
 export interface TierPriceDraft {
@@ -31,9 +32,14 @@ export interface TierPriceDraft {
  */
 @Component({
   selector: 'app-product-tier-prices-editor',
-  imports: [FieldLabel, PriceField, UnitField],
+  imports: [FieldLabel, PriceField, UnitField, LockedFieldMarker],
   template: `
-    <span appFieldLabel>{{ text.heading }}</span>
+    <span appFieldLabel>
+      {{ text.heading }}
+      @if (disabled()) {
+        <app-locked-field-marker />
+      }
+    </span>
     <!-- A line each below sm, as the base price above them takes: a row of
          10rem fields on a phone is a row of fields with more chrome than value
          in them, and the form reads as one column of prices either way.
@@ -60,6 +66,7 @@ export interface TierPriceDraft {
               [attr.aria-label]="tier.label"
               [value]="valueFor(tier.id)"
               [placeholder]="placeholder()"
+              [disabled]="disabled()"
               (input)="onInput(tier.id, $any($event.target).value)"
             />
           </app-unit-field>
@@ -81,6 +88,8 @@ export class ProductTierPricesEditor {
   /** The base price as text, e.g. "18,90" — empty while none is entered. */
   readonly basePrice = input('');
   readonly value = input.required<TierPriceDraft[]>();
+  /** Read-only while an external system sets the prices (FR-ADM-10). */
+  readonly disabled = input(false);
   readonly valueChange = output<TierPriceDraft[]>();
 
   protected readonly placeholder = computed(

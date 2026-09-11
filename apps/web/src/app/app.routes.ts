@@ -188,6 +188,16 @@ export const appRoutes: Route[] = [
         (m) => m.ApiTokenListPage,
       ),
   },
+  // The two runtime switches — maintenance mode (FR-ADM-04) and who writes the
+  // catalog (FR-ADM-10) — and the trail of changes to both.
+  {
+    path: 'admin/operations',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/operations/operations-page').then(
+        (m) => m.OperationsPage,
+      ),
+  },
   // Account management, one component in two views. Customers: admin and
   // manager both, since the permission split is on the row actions, not on
   // reaching the list. Staff: admin only — a manager may not even see who the

@@ -18,11 +18,12 @@ async function login(email: string): Promise<string> {
   return cookie;
 }
 
-// Note: the maintenance ON path (503 for the public, admin-session bypass, the
-// Retry-After header) is covered by the guard unit test — MaintenanceGuard.spec.
-// It is deliberately not exercised here: the api-e2e specs share one API process
-// and run in parallel, so turning the gate on globally would 503 the other
-// suites' public requests. These tests stay parallel-safe by never enabling it.
+// The gate's ON path is exercised here, which it could not be while these
+// specs ran their files at once: the API process is shared, so a global switch
+// turned on in one file 503s every other file's public requests. The suite now
+// runs one file at a time (see vite.config.ts), which is what the ownership
+// switch needed and what this inherited. Every test below restores the gate in
+// a `finally`, and the suite leaves it off.
 describe('settings (maintenance toggle)', () => {
   let client: Client;
 
@@ -44,6 +45,17 @@ describe('settings (maintenance toggle)', () => {
   });
 
   afterAll(async () => {
+    // The runs point at the token, so they go first — the FK is `restrict`.
+    await client.query('DELETE FROM sync_runs WHERE "tokenName" LIKE $1', [
+      'e2e settings gate%',
+    ]);
+    await client.query('DELETE FROM api_tokens WHERE name LIKE $1', [
+      'e2e settings gate%',
+    ]);
+    await client.query(
+      'DELETE FROM setting_changes WHERE "changedByEmail" = $1',
+      [ADMIN_EMAIL],
+    );
     await client.query('DELETE FROM users WHERE email = ANY($1)', [
       [ADMIN_EMAIL, USER_EMAIL],
     ]);
@@ -58,29 +70,30 @@ describe('settings (maintenance toggle)', () => {
     expect(res.data).toEqual({ enabled: false });
   });
 
-  it('rejects reading the toggle without a session', async () => {
-    const res = await axios.get('/settings/maintenance', {
+  it('rejects reading the settings without a session', async () => {
+    const res = await axios.get('/settings', {
       validateStatus: () => true,
     });
     expect(res.status).toBe(401);
   });
 
-  it('rejects a non-admin reading the toggle', async () => {
+  it('rejects a non-admin reading the settings', async () => {
     const cookie = await login(USER_EMAIL);
-    const res = await axios.get('/settings/maintenance', {
+    const res = await axios.get('/settings', {
       headers: { Cookie: cookie },
       validateStatus: () => true,
     });
     expect(res.status).toBe(403);
   });
 
-  it('returns the current toggle to an admin (off by default)', async () => {
+  it('returns both switches to an admin in one read (off by default)', async () => {
     const cookie = await login(ADMIN_EMAIL);
-    const res = await axios.get('/settings/maintenance', {
+    const res = await axios.get('/settings', {
       headers: { Cookie: cookie },
     });
     expect(res.status).toBe(200);
-    expect(res.data.enabled).toBe(false);
+    expect(res.data.maintenanceEnabled).toBe(false);
+    expect(res.data.ownedAreas).toEqual([]);
     expect(typeof res.data.updatedAt).toBe('string');
   });
 
@@ -94,10 +107,10 @@ describe('settings (maintenance toggle)', () => {
     expect(res.status).toBe(403);
     // State is unchanged: an admin still reads it as off.
     const adminCookie = await login(ADMIN_EMAIL);
-    const check = await axios.get('/settings/maintenance', {
+    const check = await axios.get('/settings', {
       headers: { Cookie: adminCookie },
     });
-    expect(check.data.enabled).toBe(false);
+    expect(check.data.maintenanceEnabled).toBe(false);
   });
 
   it('rejects an unknown field on the toggle body (strict contract)', async () => {
@@ -120,6 +133,132 @@ describe('settings (maintenance toggle)', () => {
       { headers: { Cookie: cookie } },
     );
     expect(res.status).toBe(200);
-    expect(res.data.enabled).toBe(false);
+    expect(res.data.maintenanceEnabled).toBe(false);
+  });
+
+  describe('while the gate is on (FR-ADM-04)', () => {
+    /** Turns the gate on, runs `body`, and always turns it back off. */
+    const whileInMaintenance = async (body: () => Promise<void>) => {
+      const cookie = await login(ADMIN_EMAIL);
+      const set = (enabled: boolean) =>
+        axios.put(
+          '/settings/maintenance',
+          { enabled },
+          { headers: { Cookie: cookie }, validateStatus: () => true },
+        );
+
+      expect((await set(true)).status).toBe(200);
+      try {
+        await body();
+      } finally {
+        expect((await set(false)).status).toBe(200);
+      }
+    };
+
+    const publicRequest = (cookie?: string) =>
+      axios.get('/catalog/categories', {
+        headers: cookie ? { Cookie: cookie } : {},
+        validateStatus: () => true,
+      });
+
+    it('answers a visitor with 503 and says when to come back', async () => {
+      await whileInMaintenance(async () => {
+        const res = await publicRequest();
+
+        expect(res.status).toBe(503);
+        // Not decoration: a crawler reads it as "this is temporary", which is
+        // the whole point of gating with 503 rather than hiding the shop.
+        expect(Number(res.headers['retry-after'])).toBeGreaterThan(0);
+      });
+    });
+
+    it('lets an admin session through, so the shop can be previewed', async () => {
+      await whileInMaintenance(async () => {
+        const cookie = await login(ADMIN_EMAIL);
+        const res = await publicRequest(cookie);
+
+        expect(res.status).toBe(200);
+      });
+    });
+
+    it('does not let an ordinary account through', async () => {
+      // The bypass is a preview for whoever is launching the shop, not a
+      // back door for everyone who happens to be signed in.
+      await whileInMaintenance(async () => {
+        const cookie = await login(USER_EMAIL);
+        const res = await publicRequest(cookie);
+
+        expect(res.status).toBe(503);
+      });
+    });
+
+    it('keeps the public check answering, and telling the truth', async () => {
+      // The storefront asks this to decide whether to show the maintenance
+      // screen, so a gate that gated it would leave the browser guessing.
+      await whileInMaintenance(async () => {
+        const res = await axios.get('/maintenance', {
+          validateStatus: () => true,
+        });
+
+        expect(res.status).toBe(200);
+        expect(res.data.enabled).toBe(true);
+      });
+    });
+
+    it('keeps the way back in open', async () => {
+      // The gate is turned off by an admin who has to sign in first. A login
+      // route behind the gate would be a shop nobody can reopen.
+      await whileInMaintenance(async () => {
+        const res = await axios.post(
+          '/auth/login',
+          { email: ADMIN_EMAIL, password: PASSWORD },
+          { validateStatus: () => true },
+        );
+
+        expect(res.status).toBe(200);
+      });
+    });
+
+    it('still accepts an automated catalog run (FR-ADM-07)', async () => {
+      // Both switches at once, which is the state a new deployment is filled
+      // in: the shop is not open yet, and the exchange is loading the catalog.
+      const cookie = await login(ADMIN_EMAIL);
+      const issued = await axios.post(
+        '/admin/api-tokens',
+        { name: `e2e settings gate ${Date.now()}`, scopes: ['catalog-sync'] },
+        { headers: { Cookie: cookie } },
+      );
+      const setOwned = (owned: boolean) =>
+        axios.put(
+          '/settings/ownership',
+          { area: 'catalog', owned },
+          { headers: { Cookie: cookie }, validateStatus: () => true },
+        );
+
+      expect((await setOwned(true)).status).toBe(200);
+      try {
+        await whileInMaintenance(async () => {
+          const res = await axios.post(
+            '/machine/sync/runs',
+            { rows: [], label: 'gate check' },
+            {
+              headers: { Authorization: `Bearer ${issued.data.token}` },
+              validateStatus: () => true,
+            },
+          );
+
+          expect(res.status).toBe(201);
+        });
+      } finally {
+        // Asserted, not fired and forgotten: this is a global switch, and one
+        // left on would fail every catalog write in every file after it.
+        expect((await setOwned(false)).status).toBe(200);
+        await axios.post(
+          `/admin/api-tokens/${issued.data.id}/revoke`,
+          {},
+          { headers: { Cookie: cookie }, validateStatus: () => true },
+        );
+      }
+    });
   });
 });

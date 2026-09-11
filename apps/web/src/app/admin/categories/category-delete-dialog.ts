@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { SettingsService } from '../settings/settings.service';
 import { Button } from '../../ui/button';
 import { DialogActions } from '../../ui/dialog-actions';
 import { DialogPanel } from '../../ui/dialog-panel';
@@ -61,6 +62,8 @@ import { categoryDescendantIds } from './category-tree';
         <p class="mt-3 text-subtle" role="status">…</p>
       } @else if (mode() === 'blocked-children') {
         <p class="mt-3 text-muted">{{ blockedChildrenMessage() }}</p>
+      } @else if (mode() === 'blocked-owned') {
+        <p class="mt-3 text-muted">{{ ownershipText.categoryHasProducts }}</p>
       } @else if (mode() === 'reassign') {
         <p class="mt-3 text-muted">{{ reassignIntro() }}</p>
         <div class="mt-4">
@@ -90,7 +93,11 @@ import { categoryDescendantIds } from './category-tree';
         >
           {{ common.cancel }}
         </button>
-        @if (mode() !== 'loading' && mode() !== 'blocked-children') {
+        @if (
+          mode() !== 'loading' &&
+          mode() !== 'blocked-children' &&
+          mode() !== 'blocked-owned'
+        ) {
           <button
             appButton
             variant="danger"
@@ -111,6 +118,7 @@ export class CategoryDeleteDialog {
   private readonly admin = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).categoryList;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
 
   private readonly dialog =
@@ -129,14 +137,24 @@ export class CategoryDeleteDialog {
   protected readonly reassignTo = signal('');
 
   protected readonly mode = computed<
-    'loading' | 'blocked-children' | 'reassign' | 'confirm'
+    'loading' | 'blocked-children' | 'blocked-owned' | 'reassign' | 'confirm'
   >(() => {
     if (this.loading()) return 'loading';
     const self = this.self();
     if (!self || self.childCount > 0) return 'blocked-children';
-    if (self.productCount > 0) return 'reassign';
+    if (self.productCount > 0) {
+      // Reassigning moves every product's category, which is the exchange's
+      // field. An *empty* category still deletes — that writes nothing it
+      // owns — so this blocks rather than replacing the whole flow.
+      return this.catalogOwned() ? 'blocked-owned' : 'reassign';
+    }
     return 'confirm';
   });
+
+  private readonly ownership = inject(SettingsService);
+  private readonly catalogOwned = computed(
+    () => this.ownership.ownedAreas()?.includes('catalog') ?? false,
+  );
 
   /** Categories the products can move to: everyone but this one and its
    * descendants (there are none in the reassign case, but guard anyway). */

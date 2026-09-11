@@ -829,11 +829,11 @@ export const settingsContract = {
       route: { method: 'GET', path: '/settings/build-info' },
     },
   },
-  getMaintenance: {
+  getSettings: {
     '~orpc': {
       errorMap: {},
       meta: {},
-      route: { method: 'GET', path: '/settings/maintenance' },
+      route: { method: 'GET', path: '/settings' },
     },
   },
   setMaintenance: {
@@ -845,6 +845,24 @@ export const settingsContract = {
         path: '/settings/maintenance',
         inputStructure: 'detailed',
       },
+    },
+  },
+  setOwnership: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/settings/ownership',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  listSettingChanges: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/settings/changes' },
     },
   },
 } as unknown as typeof shared.settingsContract;

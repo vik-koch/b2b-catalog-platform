@@ -93,6 +93,16 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
     return rows[0];
   };
 
+  /** Hands the catalog to the exchange, or takes it back. */
+  const setCatalogOwned = async (owned: boolean) => {
+    const res = await axios.put(
+      '/settings/ownership',
+      { area: 'catalog', owned },
+      { headers: { Cookie: adminCookie }, validateStatus: () => true },
+    );
+    expect(res.status).toBe(200);
+  };
+
   beforeAll(async () => {
     client = new Client({ connectionString: requireEnv('DATABASE_URL') });
     await client.connect();
@@ -117,9 +127,17 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
       { headers: { Cookie: adminCookie } },
     );
     token = issued.data.token;
+
+    // The machine route only accepts a run while the catalog is externally
+    // owned (FR-ADM-10) — that is the whole point of the switch, and the
+    // half-open state where both writers are accepted does not exist. This is
+    // a *global* setting, which is why the suite runs one file at a time; see
+    // the note in vite.config.ts.
+    await setCatalogOwned(true);
   });
 
   afterAll(async () => {
+    await setCatalogOwned(false);
     await client.query('DELETE FROM sync_runs WHERE "tokenName" LIKE $1', [
       `${TOKEN_NAME}%`,
     ]);

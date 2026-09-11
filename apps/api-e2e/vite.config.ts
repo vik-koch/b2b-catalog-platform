@@ -26,6 +26,19 @@ export default defineConfig({
     // not wrong here; a test that genuinely hangs still fails, just later.
     testTimeout: 30_000,
     hookTimeout: 30_000,
+    // One file at a time. These specs share one API process and one database,
+    // and two of the things under test are *global* runtime settings —
+    // maintenance mode and external data ownership (FR-ADM-10). A spec that
+    // hands the catalog over changes the answer for every catalog write in
+    // every other file, so the suite cannot both exercise those switches and
+    // run its files at once.
+    //
+    // The alternative was to keep the switches untested end to end, as the
+    // maintenance gate is (see settings.spec.ts). That was defensible while
+    // "on" was a state nothing needed; it is not once the machine sync route
+    // only works while the catalog *is* owned. Serial is the honest cost of
+    // testing what the release actually does.
+    fileParallelism: false,
     coverage: {
       reportsDirectory: '../../coverage/api-e2e',
       provider: 'v8',

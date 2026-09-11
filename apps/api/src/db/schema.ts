@@ -9,10 +9,12 @@ import {
   ORDER_REVISION_KINDS,
   ORDER_STATUS_REASON_MAX,
   ORDER_STATUSES,
+  OWNERSHIP_AREAS,
   PAYMENT_METHODS,
   PAYMENT_STATES,
   PRODUCT_AVAILABILITIES,
   PRODUCT_UNITS,
+  SETTING_CHANGE_KINDS,
   type SyncOptions,
   type SyncPlan,
   type SyncRow,
@@ -1120,11 +1122,27 @@ export const orderDocuments = pgTable(
  * permits exactly one row). This is mutable admin-toggled state, distinct from
  * the boot-time per-deployment `config/` surface.
  */
+/**
+ * Which areas an external system may be handed (FR-ADM-10). A Postgres enum
+ * for the same reason `api_token_scope` is one: the set is a rule in code, and
+ * a value nobody wrote a guard for should not be storable.
+ */
+export const ownershipArea = pgEnum('ownership_area', OWNERSHIP_AREAS);
+
 export const appSettings = pgTable(
   'app_settings',
   {
     id: integer('id').primaryKey().default(1),
     maintenanceMode: boolean('maintenanceMode').notNull().default(false),
+    // The areas currently owned from outside. An array rather than a column
+    // per area: iteration 13 hands over order processing by adding a value to
+    // the enum, not a migration to this table. Empty is the default and the
+    // only sane one for a fresh deployment — nothing has been handed over
+    // before anyone has configured anything to hand it to.
+    externallyOwnedAreas: ownershipArea('externallyOwnedAreas')
+      .array()
+      .notNull()
+      .default(sql`'{}'`),
     updatedAt: timestamp('updatedAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -1135,6 +1153,44 @@ export const appSettings = pgTable(
   },
   (t) => [check('app_settings_singleton', sql`${t.id} = 1`)],
 );
+
+export const settingChangeKind = pgEnum(
+  'setting_change_kind',
+  SETTING_CHANGE_KINDS,
+);
+
+/**
+ * Every change to a runtime setting, kept.
+ *
+ * `app_settings` is a singleton carrying one `updatedBy`/`updatedAt` for the
+ * whole row, which answers "who touched a setting last" and nothing else — and
+ * once there were two settings in it, not even that unambiguously. The
+ * question this table exists for is the one the ownership switch creates:
+ * somebody turned the exchange off to fix a price and went home, and a week of
+ * a stale catalog needs a name and a time against it.
+ *
+ * Append-only. Nothing updates or deletes a row here, so no `updatedAt` and no
+ * soft delete; the actor is denormalized like every other audit row here so
+ * the trail survives the account.
+ */
+export const settingChanges = pgTable('setting_changes', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  kind: settingChangeKind('kind').notNull(),
+  // Which area, for a setting that has parts; null for one that does not.
+  // Deliberately text rather than the `ownership_area` enum: this row is a
+  // record of what happened, and a retired area name must still read back.
+  area: varchar('area', { length: 40 }),
+  // Which way it was moved. Both settings are switches; a setting that is not
+  // one gets its own column rather than a stringly-typed value here.
+  enabled: boolean('enabled').notNull(),
+  changedAt: timestamp('changedAt', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  changedBy: uuid('changedBy').references(() => users.id, {
+    onDelete: 'set null',
+  }),
+  changedByEmail: varchar('changedByEmail', { length: 255 }),
+});
 
 export const apiTokenScope = pgEnum('api_token_scope', API_TOKEN_SCOPES);
 

@@ -8,12 +8,15 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, asc, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
 import {
   CustomerTier,
+  OWNED_TIER_FIELDS,
   ReorderTiersRequest,
   TierInput,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { customerTiers, productPrices, users } from '../db/schema';
+import { SettingsService } from '../settings/settings.service';
+import { catalogExternallyOwned } from '../settings/ownership.refusals';
 
 /**
  * Only customers are counted against a price list. Staff carry a null `tierId`
@@ -43,6 +46,7 @@ const notFound = () =>
 export class TiersService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    private readonly settings: SettingsService,
   ) {}
 
   /**
@@ -118,8 +122,16 @@ export class TiersService {
 
   /**
    * Renaming is free; changing the `key` is not, because the key is what a
-   * catalog sync file addresses the list by — the next sync run has to use the new
-   * one. That is the admin's call to make, so it is allowed, not blocked.
+   * catalog sync file addresses the list by — the next sync run has to use the
+   * new one. That is the admin's call to make while the shop is in charge of
+   * its own prices, so it is allowed then, and refused while an external system
+   * owns the catalog (FR-ADM-10): there the key is that system's handle on this
+   * list, and retyping it points it at a list nobody has.
+   *
+   * Only the key. The label is what staff read and no exchange writes it, so
+   * renaming stays open throughout — as do adding a list and dropping an unused
+   * one, which is how an admin answers a run that priced a key this deployment
+   * does not have.
    */
   async updateTier(
     id: string,
@@ -129,7 +141,12 @@ export class TiersService {
     const existing = await this.tierById(id);
     if (!existing) throw notFound();
 
-    if (input.key !== existing.key) await this.assertKeyFree(input.key, id);
+    if (input.key !== existing.key) {
+      if (this.settings.isExternallyOwned('catalog')) {
+        throw catalogExternallyOwned(OWNED_TIER_FIELDS.join(', '));
+      }
+      await this.assertKeyFree(input.key, id);
+    }
 
     const [updated] = await this.db
       .update(customerTiers)

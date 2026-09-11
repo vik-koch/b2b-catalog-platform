@@ -28,14 +28,22 @@ describe('SettingsController', () => {
   const settings = {
     isMaintenanceEnabled: () => maintenanceOn,
     getBuildInfo: () => ({ version: '1.5.3', deployedAt: null }),
-    getMaintenance: async () => ({
-      enabled: maintenanceOn,
-      updatedAt: '2026-09-02T10:00:00.000Z',
+    getSettings: async () => ({
+      maintenanceEnabled: maintenanceOn,
+      ownedAreas: [],
+      updatedAt: '2026-09-10T10:00:00.000Z',
     }),
     setMaintenance: vi.fn(async (enabled: boolean) => ({
-      enabled,
-      updatedAt: '2026-09-02T10:00:00.000Z',
+      maintenanceEnabled: enabled,
+      ownedAreas: [],
+      updatedAt: '2026-09-10T10:00:00.000Z',
     })),
+    setOwnership: vi.fn(async (area: string) => ({
+      maintenanceEnabled: false,
+      ownedAreas: [area],
+      updatedAt: '2026-09-10T10:00:00.000Z',
+    })),
+    listChanges: async () => [],
   };
 
   beforeAll(async () => {
@@ -126,7 +134,7 @@ describe('SettingsController', () => {
     maintenanceOn = true;
     signedInAs = { id: 'admin-1', role: 'admin' };
 
-    const response = await fetch(`${baseUrl}/api/settings/maintenance`);
+    const response = await fetch(`${baseUrl}/api/settings`);
 
     expect(response.status).toBe(200);
   });
@@ -162,7 +170,7 @@ describe('SettingsController', () => {
     expect(settings.setMaintenance).not.toHaveBeenCalled();
   });
 
-  it('lets an admin flip it, and hands the service the signed-in id', async () => {
+  it('lets an admin flip it, and hands the service the signed-in account', async () => {
     signedInAs = { id: 'admin-1', role: 'admin' };
 
     const response = await fetch(`${baseUrl}/api/settings/maintenance`, {
@@ -172,7 +180,12 @@ describe('SettingsController', () => {
     });
 
     expect(response.status).toBe(200);
-    expect(settings.setMaintenance).toHaveBeenCalledWith(true, 'admin-1');
+    // The account, not just its id: the change record names who did it, and
+    // keeps the address for after the account is gone.
+    expect(settings.setMaintenance).toHaveBeenCalledWith(
+      true,
+      expect.objectContaining({ id: 'admin-1' }),
+    );
   });
 
   // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
@@ -187,5 +200,63 @@ describe('SettingsController', () => {
 
     expect(response.status).toBe(400);
     expect(settings.setMaintenance).not.toHaveBeenCalled();
+  });
+
+  describe('external ownership (FR-ADM-10)', () => {
+    it('refuses the switch to a manager', async () => {
+      // The same rule as maintenance mode: it is a deployment-shaped decision,
+      // and a manager approving registrations is not the person making it.
+      signedInAs = { id: 'manager-1', role: 'manager' };
+
+      const response = await fetch(`${baseUrl}/api/settings/ownership`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ area: 'catalog', owned: true }),
+      });
+
+      expect(response.status).toBe(403);
+      expect(settings.setOwnership).not.toHaveBeenCalled();
+    });
+
+    it('hands the area and the signed-in account to the service', async () => {
+      signedInAs = { id: 'admin-1', role: 'admin' };
+
+      const response = await fetch(`${baseUrl}/api/settings/ownership`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ area: 'catalog', owned: true }),
+      });
+
+      expect(response.status).toBe(200);
+      expect(settings.setOwnership).toHaveBeenCalledWith(
+        'catalog',
+        true,
+        expect.objectContaining({ id: 'admin-1' }),
+      );
+    });
+
+    it('refuses an area nobody wrote a guard for', async () => {
+      // The area set is closed in code, so an unknown one is a 400 rather than
+      // a setting quietly stored that no guard will ever read.
+      signedInAs = { id: 'admin-1', role: 'admin' };
+      settings.setOwnership.mockClear();
+
+      const response = await fetch(`${baseUrl}/api/settings/ownership`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ area: 'everything', owned: true }),
+      });
+
+      expect(response.status).toBe(400);
+      expect(settings.setOwnership).not.toHaveBeenCalled();
+    });
+
+    it('keeps the history admin-only too', async () => {
+      signedInAs = { id: 'manager-1', role: 'manager' };
+
+      const response = await fetch(`${baseUrl}/api/settings/changes`);
+
+      expect(response.status).toBe(403);
+    });
   });
 });

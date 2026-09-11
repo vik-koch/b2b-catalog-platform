@@ -9,6 +9,7 @@ import {
 } from './sync-constants';
 import { machineAuthErrors } from './api-tokens.contract';
 import { commonAuthErrors } from './api-error';
+import { ownershipErrors } from './ownership-constants';
 import { paginationSchema, priceMinorSchema } from './catalog.contract';
 import {
   CATEGORY_NAME_MAX_LENGTH,
@@ -417,6 +418,13 @@ export const SYNC_FORMAT_CODES = [
   'too-many-rows',
   /** The options field the upload form sends alongside; a client bug. */
   'options-invalid',
+  /**
+   * Not a fault in the file: the catalog is externally owned (FR-ADM-10) and
+   * the manual upload is closed. It travels here because the upload is
+   * multipart with a single refusal channel, and the screen needs to say this
+   * sentence rather than a generic one.
+   */
+  'catalog-externally-owned',
 ] as const;
 export type SyncFormatCode = (typeof SYNC_FORMAT_CODES)[number];
 
@@ -481,6 +489,13 @@ export const SYNC_COMMIT_CODES = [
   'run-discarded',
   /** Staged rows pruned; the diff cannot be recomputed, so re-upload. */
   'run-rows-pruned',
+  /**
+   * An uploaded run staged before the catalog was handed over, and applied
+   * after. Applying is the write, so it is judged by the setting in force now,
+   * not the one in force when the file went up. Machine runs are unaffected:
+   * they can only exist while the catalog *is* owned.
+   */
+  'catalog-externally-owned',
 ] as const;
 export type SyncCommitCode = (typeof SYNC_COMMIT_CODES)[number];
 
@@ -493,6 +508,7 @@ const commitErrors = {
   'run-superseded': { status: 409 },
   'run-discarded': { status: 409 },
   'run-rows-pruned': { status: 409 },
+  'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
 } as const satisfies Record<SyncCommitCode, { status: number }>;
 
 /** The refusals a run this screen acts on can answer with — the same set for
@@ -639,7 +655,15 @@ export const syncSubmitResponseSchema = z
 export type SyncSubmitResponse = z.infer<typeof syncSubmitResponseSchema>;
 
 /** Authenticated by the token alone; no cookie reaches these. */
-const machine = oc.errors(machineAuthErrors);
+const machine = oc.errors({
+  ...machineAuthErrors,
+  // The other half of the mutual exclusion: while nobody has handed the
+  // catalog over, the shop is writing it by hand and an automated client is
+  // not welcome to. Distinct from the auth refusals beside it — the token is
+  // good, the platform is simply not listening on this area.
+  'catalog-not-externally-owned':
+    ownershipErrors['catalog-not-externally-owned'],
+});
 
 /**
  * The machine half of the sync surface: submit a catalog, or report that you

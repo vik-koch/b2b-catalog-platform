@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { MaintenanceStatus } from '@b2b-catalog-platform/shared';
 import { settingsContract } from '../../core/contract-routes.generated';
 import { createOrpcClient } from '../../core/orpc-client';
 
@@ -10,8 +9,9 @@ import { createOrpcClient } from '../../core/orpc-client';
  *    decide whether to show the maintenance screen. That read hits the public,
  *    gate-exempt endpoint and is memoized for the app's lifetime — the answer
  *    only changes when an admin toggles it, and a stuck visitor reloads anyway.
- *  - the admin panel reads and writes the toggle through the admin-only
- *    endpoints. Those are never cached: the panel must show and set the truth.
+ *  - the operations page reads and writes the toggle through SettingsService,
+ *    which hands the new state back here so this memo does not go stale in the
+ *    app instance that just changed it.
  *
  * As with every client-side gate, this is cosmetic. The API and SSR enforce
  * maintenance server-side regardless of what the browser believes.
@@ -34,16 +34,8 @@ export class MaintenanceService {
     }
   }
 
-  /** Admin: the current toggle with its audit timestamp. */
-  getStatus(): Promise<MaintenanceStatus> {
-    return this.client.getMaintenance();
-  }
-
-  /** Admin: flip the toggle; returns the stored state. */
-  async setEnabled(enabled: boolean): Promise<MaintenanceStatus> {
-    const status = await this.client.setMaintenance({ body: { enabled } });
-    // Keep the memoized public read consistent for this app instance.
-    this.enabled = Promise.resolve(status.enabled);
-    return status;
+  /** What a settings read or write just learned, so the memo above is current. */
+  noteEnabled(enabled: boolean): void {
+    this.enabled = Promise.resolve(enabled);
   }
 }
