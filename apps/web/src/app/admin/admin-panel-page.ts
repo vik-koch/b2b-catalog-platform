@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
@@ -26,7 +27,14 @@ import { SyncService } from './sync/sync.service';
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [SignedInAs, AdminIcon, PanelRow, StatusBadge, WorkNote],
+  imports: [
+    SignedInAs,
+    AdminIcon,
+    PanelRow,
+    StatusBadge,
+    WorkNote,
+    NgTemplateOutlet,
+  ],
   template: `
     <!-- Narrower than the shell allows. The panel is a column of short lists,
          and at the full width of a desktop each card was a name on the left
@@ -49,16 +57,19 @@ import { SyncService } from './sync/sync.service';
            — the catalog belongs under the orders, not wherever a balancing
            algorithm puts it.
 
-           Below md the two stack, so the left column is read through before
-           the right. -->
-      <div class="mt-10 grid items-start gap-x-6 gap-y-8 md:grid-cols-2">
-        <div class="flex flex-col gap-7">
+           Below md the columns are display: contents, so every section becomes
+           a child of this grid and the order property interleaves them — orders
+           then accounts, catalog then registries. Stacked a whole column at a
+           time, the second column's first card only arrived after the first
+           column's last one. -->
+      <div class="mt-7 grid items-start gap-x-6 gap-y-6.5 md:grid-cols-2">
+        <div class="contents md:flex md:flex-col md:gap-6.5">
           <!-- Orders first, and in the panel's only filled button: answering
                today's requests is the work. A manager has nothing here but this
                card and the accounts beside it, and an admin arriving at this
                screen is far more often answering an order than importing a
                catalog. -->
-          <section>
+          <section class="order-1 md:order-none">
             <h2 id="admin-orders-heading" [class]="headingClass">
               <app-admin-icon name="clipboard-list" class="h-4 w-4" />
               {{ panelText.orders }}
@@ -94,7 +105,7 @@ import { SyncService } from './sync/sync.service';
                  import that fills it at the foot: the four are one topic, and
                  the sub-headings that used to separate them only repeated the
                  button underneath. -->
-            <section>
+            <section class="order-3 md:order-none">
               <h2 id="admin-catalog-heading" [class]="headingClass">
                 <app-admin-icon name="package" class="h-4 w-4" />
                 {{ panelText.catalog }}
@@ -167,7 +178,7 @@ import { SyncService } from './sync/sync.service';
                  Straight into the editor: linking to the public page would land
                  an admin on a read-only view whose pencil only appears when
                  storefront edit mode happens to be on. -->
-            <section>
+            <section class="order-5 md:order-none">
               <h2 id="admin-pages-heading" [class]="headingClass">
                 <app-admin-icon name="file-text" class="h-4 w-4" />
                 {{ panelText.pages }}
@@ -182,15 +193,17 @@ import { SyncService } from './sync/sync.service';
                 }
               </ul>
             </section>
+          } @else {
+            <ng-container [ngTemplateOutlet]="security" />
           }
         </div>
 
-        <div class="flex flex-col gap-7">
+        <div class="contents md:flex md:flex-col md:gap-6.5">
           <!-- Two rows rather than one screen with tabs: they are two
                permissions, and a manager is only ever offered the one they
                have. Only customers can be waiting — staff accounts are created
                already approved. -->
-          <section>
+          <section class="order-2 md:order-none">
             <h2 id="admin-accounts-heading" [class]="headingClass">
               <app-admin-icon name="users" class="h-4 w-4" />
               {{ panelText.accounts }}
@@ -223,7 +236,7 @@ import { SyncService } from './sync/sync.service';
                  daily, and one card because that is what they have in common —
                  "Pricing" over a single row named "Customer tiers" said the
                  same thing twice. -->
-            <section>
+            <section class="order-4 md:order-none">
               <h2 id="admin-registries-heading" [class]="headingClass">
                 <app-admin-icon name="funnel" class="h-4 w-4" />
                 {{ panelText.registries }}
@@ -249,7 +262,7 @@ import { SyncService } from './sync/sync.service';
                  that could only ever name the single card under it, and the
                  switches moved onto a page of their own once they had a shared
                  history to sit above. -->
-            <section>
+            <section class="order-6 md:order-none">
               <h2 id="admin-operations-heading" [class]="headingClass">
                 <app-admin-icon name="wrench" class="h-4 w-4" />
                 {{ panelText.operations }}
@@ -292,25 +305,29 @@ import { SyncService } from './sync/sync.service';
                 />
               </ul>
             </section>
-          }
 
-          <!-- The session's own password, in the same place a customer finds
-               it — and at the foot of this column since the maintenance card
-               left, which is where a setting about yourself belongs anyway. -->
-          <section>
-            <h2 id="admin-security-heading" [class]="headingClass">
-              <app-admin-icon name="lock" class="h-4 w-4" />
-              {{ text.securityHeading }}
-            </h2>
-            <ul [class]="cardClass" aria-labelledby="admin-security-heading">
-              <app-panel-row
-                [label]="text.changePassword.heading"
-                link="/change-password"
-              />
-            </ul>
-          </section>
+            <ng-container [ngTemplateOutlet]="security" />
+          }
         </div>
       </div>
+
+      <!-- The session's own password, at the foot of whichever column is the
+           shorter one: an admin's left column already carries the catalog and
+           the pages, a manager's carries nothing but the orders. -->
+      <ng-template #security>
+        <section class="order-7 md:order-none">
+          <h2 id="admin-security-heading" [class]="headingClass">
+            <app-admin-icon name="lock" class="h-4 w-4" />
+            {{ text.securityHeading }}
+          </h2>
+          <ul [class]="cardClass" aria-labelledby="admin-security-heading">
+            <app-panel-row
+              [label]="text.changePassword.heading"
+              link="/change-password"
+            />
+          </ul>
+        </section>
+      </ng-template>
 
       <!-- What is running, in the quietest possible place: nobody comes to the
            panel for it, but it is the first thing asked when reporting a
@@ -355,7 +372,7 @@ export class AdminPanelPage {
   /** One heading, one card frame, written once: seven sections spelling the
    * same two class lists is seven chances for one of them to drift. */
   protected readonly headingClass =
-    'mb-1 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase';
+    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase';
   /** `overflow-hidden` because a row's hover ground is a square: without it
    * the first and last row paint their corners over the card's rounding. */
   protected readonly cardClass =
