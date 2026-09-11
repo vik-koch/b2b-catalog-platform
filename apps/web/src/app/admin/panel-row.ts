@@ -37,7 +37,7 @@ import { Params, RouterLink } from '@angular/router';
          beside it rather than sitting 14px out of step with them. -->
     <div
       class="group/row relative flex items-center justify-between gap-4 px-5 py-1.75 transition-[min-height,background-color] duration-200 ease-out hover:bg-stone-100"
-      [class]="tall() ? 'min-h-[97px]' : 'min-h-12'"
+      [class]="tall() ? 'min-h-24.25' : 'min-h-12'"
     >
       <a
         [routerLink]="link()"

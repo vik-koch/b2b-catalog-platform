@@ -52,7 +52,7 @@ import { SyncService } from './sync/sync.service';
            Below md the two stack, so the left column is read through before
            the right. -->
       <div class="mt-10 grid items-start gap-x-6 gap-y-8 md:grid-cols-2">
-        <div class="flex flex-col gap-8">
+        <div class="flex flex-col gap-7">
           <!-- Orders first, and in the panel's only filled button: answering
                today's requests is the work. A manager has nothing here but this
                card and the accounts beside it, and an admin arriving at this
@@ -185,7 +185,7 @@ import { SyncService } from './sync/sync.service';
           }
         </div>
 
-        <div class="flex flex-col gap-8">
+        <div class="flex flex-col gap-7">
           <!-- Two rows rather than one screen with tabs: they are two
                permissions, and a manager is only ever offered the one they
                have. Only customers can be waiting — staff accounts are created
@@ -355,7 +355,7 @@ export class AdminPanelPage {
   /** One heading, one card frame, written once: seven sections spelling the
    * same two class lists is seven chances for one of them to drift. */
   protected readonly headingClass =
-    'mb-2 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase';
+    'mb-1 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase';
   /** `overflow-hidden` because a row's hover ground is a square: without it
    * the first and last row paint their corners over the card's rounding. */
   protected readonly cardClass =
