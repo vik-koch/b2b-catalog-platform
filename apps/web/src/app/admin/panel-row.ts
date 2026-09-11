@@ -31,9 +31,13 @@ import { Params, RouterLink } from '@angular/router';
     <!-- A floor rather than a fixed height: a row is 48px whatever it holds,
          so a label on its own and a label with two work notes beside it read
          as the same list. The padding is what a two-note stack needs to reach
-         that height; anything shorter is centred against the floor. -->
+         that height; anything shorter is centred against the floor.
+         Where the floor has to rise it rises by a whole row — 48 + 48 + the
+         hairline between them — so a card keeps the same rhythm as the cards
+         beside it rather than sitting 14px out of step with them. -->
     <div
-      class="group/row relative flex min-h-12 items-center justify-between gap-4 px-5 py-1.75 transition-colors hover:bg-stone-100"
+      class="group/row relative flex items-center justify-between gap-4 px-5 py-1.75 transition-[min-height,background-color] duration-200 ease-out hover:bg-stone-100"
+      [class]="tall() ? 'min-h-[97px]' : 'min-h-12'"
     >
       <a
         [routerLink]="link()"
@@ -56,4 +60,14 @@ export class PanelRow {
   /** Where the row's own destination needs narrowing — not the note's, which
    * carries its own. */
   readonly queryParams = input<Params>();
+  /**
+   * Two rows' worth of floor, for a row whose right-hand slot holds more than
+   * one row's worth. The caller decides rather than the row measuring itself:
+   * what is in the slot is projected content, and a row that grew to whatever
+   * it happened to contain is how the card fell off the 48px grid in the first
+   * place. It animates because the thing that makes a row tall — a switch
+   * being on — arrives after the panel has painted, and a card that resizes
+   * under the cursor without moving is easier to read than one that jumps.
+   */
+  readonly tall = input(false);
 }

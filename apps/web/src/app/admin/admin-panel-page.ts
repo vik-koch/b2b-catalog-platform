@@ -266,6 +266,7 @@ import { SyncService } from './sync/sync.service';
                 <app-panel-row
                   [label]="operationsText.title"
                   link="/admin/operations"
+                  [tall]="runtimeBadges() > 0"
                 >
                   <!-- Stacked, never side by side: the row's right-hand slot
                        does not shrink, so two chips in a line ran off a 375px
@@ -373,6 +374,16 @@ export class AdminPanelPage {
   );
   protected readonly catalogOwned = computed(
     () => this.settings.settings()?.ownedAreas.includes('catalog') ?? false,
+  );
+
+  /**
+   * How many of the runtime states the operations row is carrying. Two chips
+   * stack past a single row's height, so the row takes a second row's worth
+   * rather than 14px of one — which is also enough for the third chip the
+   * orders area will add, so this stays two rows and not three.
+   */
+  protected readonly runtimeBadges = computed(
+    () => (this.maintenanceOn() ? 1 : 0) + (this.catalogOwned() ? 1 : 0),
   );
 
   /**
