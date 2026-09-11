@@ -1,4 +1,8 @@
-import { changedProductFields, StoredOwnedProduct } from './owned-fields';
+import {
+  changedCategoryFields,
+  changedProductFields,
+  StoredOwnedProduct,
+} from './owned-fields';
 
 const stored: StoredOwnedProduct = {
   name: 'Blue mug',
@@ -126,5 +130,26 @@ describe('changedProductFields', () => {
         }),
       ).toEqual(['tierPrices']);
     });
+  });
+});
+
+describe('changedCategoryFields', () => {
+  const category = { name: 'Mugs', sourceId: 'GRP-1' };
+
+  it('lets the presentation overlay through', () => {
+    // Nickname, parent, slug, image and description are not in the owned list
+    // at all, so a save that moves only those has nothing to report — which is
+    // what keeps the tree restructurable while the catalog is owned.
+    expect(changedCategoryFields(category, { name: 'Mugs' })).toEqual([]);
+  });
+
+  it('names a rename', () => {
+    expect(changedCategoryFields(category, { name: 'Cups' })).toEqual(['name']);
+  });
+
+  it('names a re-keying', () => {
+    expect(
+      changedCategoryFields(category, { name: 'Mugs', sourceId: 'GRP-2' }),
+    ).toEqual(['sourceId']);
   });
 });

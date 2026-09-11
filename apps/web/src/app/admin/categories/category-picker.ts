@@ -18,6 +18,7 @@ import { flattenCategoryTree } from './category-tree';
         appInput
         class="w-full"
         [attr.aria-label]="ariaLabel() || placeholder()"
+        [disabled]="disabled()"
         (change)="onChange($event)"
       >
         @if (emptyLabel() !== null) {
@@ -47,6 +48,8 @@ export class CategoryPicker {
   readonly emptyLabel = input<string | null>(null);
   /** Accessible name for the field (the visible label sits outside). */
   readonly ariaLabel = input('');
+  /** Read-only, for a category the shop does not get to choose (FR-ADM-10). */
+  readonly disabled = input(false);
   readonly valueChange = output<string>();
 
   protected readonly options = computed(() =>

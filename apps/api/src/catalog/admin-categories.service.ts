@@ -15,6 +15,9 @@ import {
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { categories, products } from '../db/schema';
+import { SettingsService } from '../settings/settings.service';
+import { catalogExternallyOwned } from '../settings/ownership.refusals';
+import { changedCategoryFields } from './owned-fields';
 import { hasCycle } from './category-cycle';
 import {
   resolveNewSlug,
@@ -58,7 +61,10 @@ export async function assertCategoryExists(
  */
 @Injectable()
 export class AdminCategoriesService {
-  constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
+  constructor(
+    @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
+    private readonly settings: SettingsService,
+  ) {}
 
   async listCategories(): Promise<AdminCategory[]> {
     const rows = await this.db
@@ -130,6 +136,15 @@ export class AdminCategoriesService {
   ): Promise<AdminCategory> {
     const existing = await this.categoryById(id);
     if (!existing) throw categoryNotFound();
+
+    // Only its name and its key belong to the exchange. The rest of this row —
+    // nickname, parent, slug, image, description — is presentation the shop has
+    // always owned, so restructuring the tree stays open throughout: a product
+    // keeps hanging on the same leaf whatever an admin does above it.
+    if (this.settings.isExternallyOwned('catalog')) {
+      const moved = changedCategoryFields(existing, input);
+      if (moved.length) throw catalogExternallyOwned(moved.join(', '));
+    }
 
     // PUT is a full replace, so parentId is always authoritative. Guard the
     // reparent against cycles before touching the row.
@@ -224,6 +239,14 @@ export class AdminCategoriesService {
         code: 'category-has-products',
         message: 'Category still has products',
       });
+    }
+    // Reassignment moves every product's `categoryId`, which is the exchange's
+    // field wherever the request arrives. Deleting an *empty* category is
+    // untouched by this — it writes nothing the exchange owns — so the
+    // existing refusal above becomes the only way out while the catalog is
+    // owned, which is the honest one: empty the category from the source.
+    if (this.settings.isExternallyOwned('catalog')) {
+      throw catalogExternallyOwned('reassign');
     }
     if (reassignToId === id) {
       throw new ConflictException({

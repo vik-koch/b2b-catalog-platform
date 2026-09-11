@@ -765,6 +765,10 @@ export const adminCatalogContract = {
     .errors({
       'category-not-found': e['category-not-found'],
       'category-cycle': e['category-cycle'],
+      // Its name and source id are the exchange's while the catalog is owned;
+      // the rest of the row — nickname, parent, image, description — is the
+      // shop's presentation and stays editable throughout.
+      'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
     })
     .input(
       z.object({
@@ -790,6 +794,10 @@ export const adminCatalogContract = {
       'category-has-subcategories': e['category-has-subcategories'],
       'category-has-products': e['category-has-products'],
       'category-reassign-to-self': e['category-reassign-to-self'],
+      // `reassignTo` while the catalog is owned: moving products between
+      // categories is a write to the field the exchange holds, whatever the
+      // route it arrives on. Deleting an *empty* category is unaffected.
+      'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
     })
     .input(
       z.object({

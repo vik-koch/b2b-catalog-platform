@@ -1,5 +1,7 @@
 import {
+  OWNED_CATEGORY_FIELDS,
   OWNED_PRODUCT_FIELDS,
+  OwnedCategoryField,
   OwnedProductField,
   ProductTierPrice,
 } from '@b2b-catalog-platform/shared';
@@ -72,4 +74,26 @@ function tierPricesDiffer(
   if (stored.length !== input.length) return true;
   const before = new Map(stored.map((p) => [p.tierId, p.priceMinor]));
   return input.some((p) => before.get(p.tierId) !== p.priceMinor);
+}
+
+export interface StoredOwnedCategory {
+  name: string;
+  sourceId: string;
+}
+
+export interface SubmittedOwnedCategory {
+  name: string;
+  sourceId?: string;
+}
+
+export function changedCategoryFields(
+  stored: StoredOwnedCategory,
+  input: SubmittedOwnedCategory,
+): OwnedCategoryField[] {
+  const moved: Record<OwnedCategoryField, boolean> = {
+    name: stored.name !== input.name,
+    sourceId:
+      input.sourceId !== undefined && input.sourceId !== stored.sourceId,
+  };
+  return OWNED_CATEGORY_FIELDS.filter((field) => moved[field]);
 }
