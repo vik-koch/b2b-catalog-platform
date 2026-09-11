@@ -135,5 +135,130 @@ describe('settings (maintenance toggle)', () => {
     expect(res.status).toBe(200);
     expect(res.data.maintenanceEnabled).toBe(false);
   });
+
+  describe('while the gate is on (FR-ADM-04)', () => {
+    /** Turns the gate on, runs `body`, and always turns it back off. */
+    const whileInMaintenance = async (body: () => Promise<void>) => {
+      const cookie = await login(ADMIN_EMAIL);
+      const set = (enabled: boolean) =>
+        axios.put(
+          '/settings/maintenance',
+          { enabled },
+          { headers: { Cookie: cookie }, validateStatus: () => true },
+        );
+
+      expect((await set(true)).status).toBe(200);
+      try {
+        await body();
+      } finally {
+        expect((await set(false)).status).toBe(200);
+      }
+    };
+
+    const publicRequest = (cookie?: string) =>
+      axios.get('/catalog/categories', {
+        headers: cookie ? { Cookie: cookie } : {},
+        validateStatus: () => true,
+      });
+
+    it('answers a visitor with 503 and says when to come back', async () => {
+      await whileInMaintenance(async () => {
+        const res = await publicRequest();
+
+        expect(res.status).toBe(503);
+        // Not decoration: a crawler reads it as "this is temporary", which is
+        // the whole point of gating with 503 rather than hiding the shop.
+        expect(Number(res.headers['retry-after'])).toBeGreaterThan(0);
+      });
+    });
+
+    it('lets an admin session through, so the shop can be previewed', async () => {
+      await whileInMaintenance(async () => {
+        const cookie = await login(ADMIN_EMAIL);
+        const res = await publicRequest(cookie);
+
+        expect(res.status).toBe(200);
+      });
+    });
+
+    it('does not let an ordinary account through', async () => {
+      // The bypass is a preview for whoever is launching the shop, not a
+      // back door for everyone who happens to be signed in.
+      await whileInMaintenance(async () => {
+        const cookie = await login(USER_EMAIL);
+        const res = await publicRequest(cookie);
+
+        expect(res.status).toBe(503);
+      });
+    });
+
+    it('keeps the public check answering, and telling the truth', async () => {
+      // The storefront asks this to decide whether to show the maintenance
+      // screen, so a gate that gated it would leave the browser guessing.
+      await whileInMaintenance(async () => {
+        const res = await axios.get('/maintenance', {
+          validateStatus: () => true,
+        });
+
+        expect(res.status).toBe(200);
+        expect(res.data.enabled).toBe(true);
+      });
+    });
+
+    it('keeps the way back in open', async () => {
+      // The gate is turned off by an admin who has to sign in first. A login
+      // route behind the gate would be a shop nobody can reopen.
+      await whileInMaintenance(async () => {
+        const res = await axios.post(
+          '/auth/login',
+          { email: ADMIN_EMAIL, password: PASSWORD },
+          { validateStatus: () => true },
+        );
+
+        expect(res.status).toBe(200);
+      });
+    });
+
+    it('still accepts an automated catalog run (FR-ADM-07)', async () => {
+      // Both switches at once, which is the state a new deployment is filled
+      // in: the shop is not open yet, and the exchange is loading the catalog.
+      const cookie = await login(ADMIN_EMAIL);
+      const issued = await axios.post(
+        '/admin/api-tokens',
+        { name: `e2e settings gate ${Date.now()}`, scopes: ['catalog-sync'] },
+        { headers: { Cookie: cookie } },
+      );
+      const setOwned = (owned: boolean) =>
+        axios.put(
+          '/settings/ownership',
+          { area: 'catalog', owned },
+          { headers: { Cookie: cookie }, validateStatus: () => true },
+        );
+
+      expect((await setOwned(true)).status).toBe(200);
+      try {
+        await whileInMaintenance(async () => {
+          const res = await axios.post(
+            '/machine/sync/runs',
+            { rows: [], label: 'gate check' },
+            {
+              headers: { Authorization: `Bearer ${issued.data.token}` },
+              validateStatus: () => true,
+            },
+          );
+
+          expect(res.status).toBe(201);
+        });
+      } finally {
+        // Asserted, not fired and forgotten: this is a global switch, and one
+        // left on would fail every catalog write in every file after it.
+        expect((await setOwned(false)).status).toBe(200);
+        await axios.post(
+          `/admin/api-tokens/${issued.data.id}/revoke`,
+          {},
+          { headers: { Cookie: cookie }, validateStatus: () => true },
+        );
+      }
+    });
   });
 });
