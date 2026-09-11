@@ -1,6 +1,6 @@
 # 0036 — A product reaches the storefront only when an admin publishes it
 
-**Status:** accepted · **Date:** 2026-08-16
+**Status:** accepted (amended 2026-09-11) · **Date:** 2026-08-16
 
 ## Context
 
@@ -93,3 +93,14 @@ staff, and any further state is state somebody has to maintain.
 - (⚠) Publication is orthogonal to soft-deletion, so restoring a soft-deleted
   product does **not** make it visible if it was never published. Restore and
   publish are two acts, and the UI must not imply otherwise.
+
+## Amendment — 2026-09-11: what the gate is now for
+
+The reason given below — that a synced product arrives with a price basis nobody
+has validated — went with the basis ([ADR 0058](0058-the-price-is-per-piece.md)).
+The gate stays, and is now argued from what it always also caught: a synced row
+arrives with a price and a category the shop has not looked at, and packaging it
+has none of. Publication is where somebody looks.
+
+It also carries the basis migration: a product whose price covered several pieces
+is unpublished by it, so the rounded figure is reviewed before it is on offer.

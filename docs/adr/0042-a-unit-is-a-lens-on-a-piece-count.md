@@ -1,6 +1,6 @@
 # 0042 — A unit is a lens on an integer piece count
 
-**Status:** accepted · **Date:** 2026-08-26
+**Status:** accepted (amended 2026-09-11) · **Date:** 2026-08-26
 
 Supersedes ADR 0038's "A line is a product in a unit" and its unit-conversion
 rules. Amends ADR 0035's treatment of the minimum in units above the piece.
@@ -116,3 +116,10 @@ the wire; after the tag that would have been a breaking change.
   the figure that stands.
 - A cart line's readings are computed from packaging the browser holds, so a
   repackaged product's line re-reads on the next preview.
+
+## Amendment — 2026-09-11: the lens reads a piece price
+
+The lens model is unchanged; what it reads has got simpler. With the basis gone
+([ADR 0058](0058-the-price-is-per-piece.md)) a total is `piece × pieces` through
+every lens, so the passages below about the basis dividing the pack and about
+integer division keeping its meaning describe arithmetic that no longer happens.

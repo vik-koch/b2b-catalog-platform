@@ -1,6 +1,6 @@
 # 0038 — Hold the cart in the browser, and store an order as a self-contained snapshot
 
-**Status:** accepted (partly superseded by 0042) · **Date:** 2026-08-23
+**Status:** accepted (partly superseded by 0042 and 0058) · **Date:** 2026-08-23
 
 ## Context
 
@@ -259,3 +259,11 @@ bagged in with something else, so the estimate deliberately overstates rather
 than understates, and it is labelled approximate and subject to a manager's
 confirmation. A product with no packaging figures contributes nothing, so the
 summary states what it covers rather than silently omitting it.
+
+## Amendment — 2026-09-11: a line stores a piece price
+
+An order line no longer stores `priceBasisPieces`. `priceMinor` is the price of
+one piece and `lineTotalMinor = priceMinor × pieces`, which is the check
+constraint too — so the reasoning below about a line having no exact per-unit
+price, and about the basis being what keeps a line reconstructible, no longer
+applies. See [ADR 0058](0058-the-price-is-per-piece.md).
