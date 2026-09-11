@@ -339,7 +339,7 @@ matters.
 | #   | What happens                                                                        | Who     | What changes                                                                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | Short of stock, the shop agrees a smaller quantity on the phone and writes it down. | manager | Version: 3                                                                                                                                                                                                           |
-| 2   | The manager confirms the change in writing.                                         | manager | The version the customer is on: 3<br>The total the customer reads: 1999<br>Mail to the customer: [`changed`](mail.md#order-changed)                                                                                  |
+| 2   | The manager confirms the change in writing.                                         | manager | The version the customer is on: 3<br>The total the customer reads: 2000<br>Mail to the customer: [`changed`](mail.md#order-changed)                                                                                  |
 | 3   | The smaller order is packed and marked ready.                                       | manager | Where it stands: `ready`<br>Version: 4<br>The version the customer is on: 4<br>Already written to about: `approved` · `ready` · `requested`<br>Mail to the customer: [`readyDelivery`](mail.md#order-ready-delivery) |
 
 </details>
@@ -389,7 +389,7 @@ matters.
 | --- | ----------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | A line is repriced, and the customer is not told yet.                   | manager | Version: 3                                                                                                                                                                                                           |
 | 2   | The shop files the payment instructions for the order as it now stands. | manager | What the shop can open: `order-summary` · `payment-instructions`                                                                                                                                                     |
-| 3   | The manager confirms the change, which brings the slip with it.         | manager | The version the customer is on: 3<br>The total the customer reads: 1999<br>What the customer can open: `order-summary` · `payment-instructions`<br>Mail to the customer: [`changed+attached`](mail.md#order-changed) |
+| 3   | The manager confirms the change, which brings the slip with it.         | manager | The version the customer is on: 3<br>The total the customer reads: 2000<br>What the customer can open: `order-summary` · `payment-instructions`<br>Mail to the customer: [`changed+attached`](mail.md#order-changed) |
 
 </details>
 
