@@ -229,25 +229,10 @@ describe('AdminPanelPage runtime state', () => {
     expect(el.textContent).toContain(panelText.catalogOwned);
   });
 
-  /** The row the two runtime marks sit on. */
-  const operationsRow = (el: HTMLElement) =>
-    el.querySelector('a[href="/admin/operations"]')?.closest('div');
-
-  it('keeps the operations row one row high while it carries one mark', async () => {
-    const el = await render(
-      { version: null, deployedAt: null },
-      adminUser,
-      {},
-      withSettings({ maintenanceEnabled: true }),
-    );
-
-    expect(operationsRow(el)?.className).toContain('min-h-12');
-  });
-
-  it('takes a whole second row when it carries both marks', async () => {
-    // Two chips stack past a single row, and a row 14px out of step puts the
-    // card out of line with the ones beside it — so the floor rises by a whole
-    // row (48 + 48 + the hairline), not by whatever the chips happened to need.
+  it('carries both marks at once', async () => {
+    // Side by side or stacked is the row's own business — it measures what it
+    // is holding and picks its floor, and `panelRowFloor` is where that rule
+    // is tested.
     const el = await render(
       { version: null, deployedAt: null },
       adminUser,
@@ -255,7 +240,8 @@ describe('AdminPanelPage runtime state', () => {
       withSettings({ maintenanceEnabled: true, ownedAreas: ['catalog'] }),
     );
 
-    expect(operationsRow(el)?.className).toContain('min-h-[97px]');
+    expect(el.textContent).toContain(panelText.maintenanceOn);
+    expect(el.textContent).toContain(panelText.catalogOwned);
   });
 
   it('does not ask for the settings as a manager', async () => {

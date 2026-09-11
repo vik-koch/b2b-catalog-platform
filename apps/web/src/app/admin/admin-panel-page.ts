@@ -79,7 +79,9 @@ import { SyncService } from './sync/sync.service';
                 <!-- Two queues, one screen: an order nobody has answered and
                      one handed over that nobody has been paid for are two
                      jobs with two lists, so they are two notes stacked on the
-                     row's right-hand axis rather than one figure over both. -->
+                     row's right-hand axis rather than one figure over both.
+                     Their own column, not the row's wrapping one: these are
+                     sentences to read down however wide the row is. -->
                 <div class="flex flex-col items-end gap-0.5">
                   @if (waitingOrders(); as count) {
                     <app-work-note
@@ -276,28 +278,24 @@ import { SyncService } from './sync/sync.service';
                      looking: the panel is the first screen of every admin
                      session. Shown only while true — a row that always
                      carries "maintenance off" is a row nobody reads. -->
+                <!-- Bare into the slot, with no stacking of their own: the
+                     row lays them out on one line where it is wide enough and
+                     wraps them where it is not, and takes a second row's worth
+                     of floor when they wrap. -->
                 <app-panel-row
                   [label]="operationsText.title"
                   link="/admin/operations"
-                  [tall]="runtimeBadges() > 0"
                 >
-                  <!-- Stacked, never side by side: the row's right-hand slot
-                       does not shrink, so two chips in a line ran off a 375px
-                       screen. Reading down is what this column does anyway —
-                       the work notes stack here too, and the row's padding is
-                       already cut for it. -->
-                  <span class="flex flex-col items-end gap-1">
-                    @if (maintenanceOn()) {
-                      <span appStatusBadge tone="danger">
-                        {{ panelText.maintenanceOn }}
-                      </span>
-                    }
-                    @if (catalogOwned()) {
-                      <span appStatusBadge tone="info">
-                        {{ panelText.catalogOwned }}
-                      </span>
-                    }
-                  </span>
+                  @if (maintenanceOn()) {
+                    <span appStatusBadge tone="danger">
+                      {{ panelText.maintenanceOn }}
+                    </span>
+                  }
+                  @if (catalogOwned()) {
+                    <span appStatusBadge tone="info">
+                      {{ panelText.catalogOwned }}
+                    </span>
+                  }
                 </app-panel-row>
                 <app-panel-row
                   [label]="apiTokenText.title"
@@ -391,16 +389,6 @@ export class AdminPanelPage {
   );
   protected readonly catalogOwned = computed(
     () => this.settings.settings()?.ownedAreas.includes('catalog') ?? false,
-  );
-
-  /**
-   * How many of the runtime states the operations row is carrying. Two chips
-   * stack past a single row's height, so the row takes a second row's worth
-   * rather than 14px of one — which is also enough for the third chip the
-   * orders area will add, so this stays two rows and not three.
-   */
-  protected readonly runtimeBadges = computed(
-    () => (this.maintenanceOn() ? 1 : 0) + (this.catalogOwned() ? 1 : 0),
   );
 
   /**
