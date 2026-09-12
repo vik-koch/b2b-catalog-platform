@@ -150,6 +150,10 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
         label: 'E2E Wholesale',
         userCount: 0,
         priceCount: 0,
+        // A new list is not the storefront's, and prices nothing, so badging
+        // it would take nothing off the shop front — yet.
+        isDefault: false,
+        wouldUnpublish: 0,
         sortOrder: expect.any(Number),
         updatedAt: expect.any(String),
       });
@@ -163,15 +167,37 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
       expect(res.status).toBe(409);
     });
 
-    it('refuses the reserved key `default`', async () => {
+    it('reserves no key: `default` is taken, not forbidden', async () => {
+      // It names the list the storefront quotes, which is an ordinary row —
+      // so this is the same 409 any other taken key answers with.
       const res = await createTier({ key: 'default', label: 'Base list' });
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('tier-key-taken');
     });
 
     it('refuses a key that would not survive a sync column', async () => {
-      for (const key of ['Wholesale', 'whole sale', '-leading', 'ümlaut']) {
+      // One word: it goes into a `price:<key>` header somebody types into a
+      // spreadsheet. Case and script are not the question.
+      for (const key of ['whole sale', '-leading', 'price:x', '']) {
         expect((await createTier({ key, label: 'x' })).status).toBe(400);
       }
+    });
+
+    it('accepts a key in any script, and in any case', async () => {
+      for (const key of [keyFor('Mixed_Case'), keyFor('оптовая')]) {
+        const res = await createTier({ key, label: 'x' });
+        expect(res.status).toBe(201);
+        expect(res.data.key).toBe(key);
+      }
+    });
+
+    it('refuses a key that differs from another only in case', async () => {
+      const key = keyFor('folded');
+      expect((await createTier({ key, label: 'First' })).status).toBe(201);
+
+      const res = await createTier({ key: key.toUpperCase(), label: 'Second' });
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('tier-key-taken');
     });
   });
 
@@ -297,8 +323,12 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
     });
   });
 
-  const baseCount = async (): Promise<number> =>
-    (await get('/admin/tiers')).data.defaultUserCount;
+  /** The badged list's own row — the customers on it are the untiered ones. */
+  const baseCount = async (): Promise<number> => {
+    const { data } = await get('/admin/tiers');
+    return data.tiers.find((t: { isDefault: boolean }) => t.isDefault)
+      .userCount;
+  };
 
   /**
    * What one edit does to the base list's customer count.
@@ -329,7 +359,90 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
     }
   }
 
-  describe('the base list', () => {
+  describe('the storefront list', () => {
+    it('is a row like any other, carrying the badge', async () => {
+      const { data } = await get('/admin/tiers');
+      const badged = data.tiers.filter(
+        (t: { isDefault: boolean }) => t.isDefault,
+      );
+
+      expect(badged).toHaveLength(1);
+      expect(badged[0]).toMatchObject({ id: expect.any(String) });
+      expect(typeof data.productCount).toBe('number');
+    });
+
+    it('cannot be deleted — the badge is moved, never removed', async () => {
+      const { data } = await get('/admin/tiers');
+      const badged = data.tiers.find(
+        (t: { isDefault: boolean }) => t.isDefault,
+      );
+
+      const res = await del(`/admin/tiers/${badged.id}`);
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('tier-is-default');
+    });
+
+    it('answers a badge move with the whole list and what it cost', async () => {
+      // The move is answered with the list route's own payload plus the
+      // figure: the screen takes it as the new state rather than asking
+      // again, so a field missing from the contract is a 500 on a write that
+      // already happened.
+      const before = await get('/admin/tiers');
+      const badged = before.data.tiers.find(
+        (t: { isDefault: boolean }) => t.isDefault,
+      );
+
+      // Everything the move will take off the storefront, so this test can
+      // put the catalogue back exactly as it found it.
+      const published = await client.query(
+        `SELECT id, "publishedAt", "publishedBy" FROM products
+         WHERE "publishedAt" IS NOT NULL AND "deletedAt" IS NULL`,
+      );
+
+      const created = await createTier({
+        key: keyFor('badge-move'),
+        label: 'Badge move',
+      });
+
+      const res = await put(`/admin/tiers/${created.data.id}/default`, {});
+      expect(res.status).toBe(200);
+      expect(res.data.tiers).toEqual(expect.any(Array));
+      expect(typeof res.data.productCount).toBe('number');
+      // The new list prices nothing, so everything published comes off.
+      expect(res.data.unpublished).toBe(published.rowCount);
+      expect(
+        res.data.tiers.find((t: { id: string }) => t.id === created.data.id)
+          .isDefault,
+      ).toBe(true);
+
+      // Moving it back is the same call, and costs nothing: the list it
+      // returns to prices what it always did.
+      const back = await put(`/admin/tiers/${badged.id}/default`, {});
+      expect(back.status).toBe(200);
+      expect(back.data.unpublished).toBe(0);
+
+      // Publication is not restored by moving the badge back — it is a
+      // separate decision — so this run puts back what it took off.
+      for (const row of published.rows) {
+        await client.query(
+          'UPDATE products SET "publishedAt" = $2, "publishedBy" = $3 WHERE id = $1',
+          [row.id, row.publishedAt, row.publishedBy],
+        );
+      }
+    });
+
+    it('answers a move onto the list that already carries the badge', async () => {
+      const { data } = await get('/admin/tiers');
+      const badged = data.tiers.find(
+        (t: { isDefault: boolean }) => t.isDefault,
+      );
+
+      const res = await put(`/admin/tiers/${badged.id}/default`, {});
+      expect(res.status).toBe(200);
+      expect(res.data.unpublished).toBe(0);
+      expect(typeof res.data.productCount).toBe('number');
+    });
+
     it('counts the customers on it, and no staff', async () => {
       // The seeded admin and manager also carry a null tierId; only the
       // customer may move the number.

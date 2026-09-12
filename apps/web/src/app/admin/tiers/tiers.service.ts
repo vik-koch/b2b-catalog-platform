@@ -38,8 +38,21 @@ function isTierCode(code: string): code is TierErrorCode {
 export class TiersService {
   private client = createOrpcClient(tiersContract);
 
-  list(): Promise<{ tiers: CustomerTier[]; defaultUserCount: number }> {
+  list(): Promise<{ tiers: CustomerTier[]; productCount: number }> {
     return this.client.listTiers();
+  }
+
+  /**
+   * Moves the default badge. Not a `TierResult`: the answer is the whole list
+   * plus what the move cost, and the only refusal is a race on a tier that is
+   * already gone.
+   */
+  async setDefault(id: string): Promise<{
+    tiers: CustomerTier[];
+    productCount: number;
+    unpublished: number;
+  }> {
+    return this.client.setDefaultTier({ params: { id } });
   }
 
   async create(body: TierInput): Promise<TierResult> {

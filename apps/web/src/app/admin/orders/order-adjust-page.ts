@@ -1221,12 +1221,15 @@ export class AdminOrderAdjustPage {
   });
 
   /** Whether a priced line costs something other than what the chosen list
-   * charges for it. */
+   * charges for it. A line the list does not price is not "off" it — there is
+   * nothing to be off — so it is the price staff named and nothing more. */
   private offList(line: {
     priceMinor: number;
-    listPriceMinor: number;
+    listPriceMinor: number | null;
   }): boolean {
-    return line.priceMinor !== line.listPriceMinor;
+    return (
+      line.listPriceMinor !== null && line.priceMinor !== line.listPriceMinor
+    );
   }
 
   /** The chosen list, as it is named on screen. */

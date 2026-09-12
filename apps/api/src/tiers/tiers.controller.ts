@@ -65,9 +65,26 @@ export class TiersController {
     return implement(tiersContract.reorderTiers)
       .use(refusals)
       .handler(async ({ input: { body } }) => {
-        const tiers = await this.service.reorderTiers(body, user.id);
+        const result = await this.service.reorderTiers(body, user.id);
         this.audit.record('tier.reordered', user, {});
-        return { tiers };
+        return result;
+      });
+  }
+
+  @Auth('admin')
+  @Implement(tiersContract.setDefaultTier)
+  setDefaultTier(@CurrentUser() user: AuthUser) {
+    return implement(tiersContract.setDefaultTier)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => {
+        const result = await this.service.setDefaultTier(params.id, user.id);
+        // The figure is part of the event: the same move made twice, a week
+        // apart, takes a different number of products off the storefront.
+        this.audit.record('tier.default-set', user, {
+          id: params.id,
+          name: String(result.unpublished),
+        });
+        return result;
       });
   }
 

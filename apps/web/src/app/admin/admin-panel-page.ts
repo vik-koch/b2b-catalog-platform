@@ -121,13 +121,25 @@ import { SyncService } from './sync/sync.service';
                   [label]="productText.title"
                   link="/admin/products"
                 >
-                  @if (waitingProducts(); as count) {
-                    <app-work-note
-                      [label]="fill(panelText.workProducts, count)"
-                      link="/admin/products"
-                      [queryParams]="{ state: 'unpublished' }"
-                    />
-                  }
+                  <div class="flex flex-col items-end gap-0.5">
+                    @if (waitingProducts(); as count) {
+                      <app-work-note
+                        [label]="fill(panelText.workProducts, count)"
+                        link="/admin/products"
+                        [queryParams]="{ state: 'unpublished' }"
+                      />
+                    }
+                    <!-- Its own note, like the documents row's pair: one is work
+                       an admin finishes by looking, the other is a product
+                       nobody can publish until it has a price. -->
+                    @if (unpricedProducts(); as count) {
+                      <app-work-note
+                        [label]="fill(panelText.workUnpricedProducts, count)"
+                        link="/admin/products"
+                        [queryParams]="{ state: 'unpriced' }"
+                      />
+                    }
+                  </div>
                 </app-panel-row>
                 <!-- Two notes, as the orders row has: a certificate that has
                      already lapsed is the shop out of compliance today, one
@@ -420,6 +432,9 @@ export class AdminPanelPage {
   );
   protected readonly waitingProducts = computed(
     () => this.work.counts().unpublishedProducts || undefined,
+  );
+  protected readonly unpricedProducts = computed(
+    () => this.work.counts().unpricedProducts || undefined,
   );
   protected readonly waitingDocuments = computed(
     () => this.work.counts().expiringDocuments || undefined,

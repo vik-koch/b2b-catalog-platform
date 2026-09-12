@@ -90,6 +90,10 @@ export const syncRowSchema = z
      * Per price list, in minor units. Only the keys present are written: a
      * file that carries `price:wholesale` and nothing else leaves the base
      * price and every other list untouched.
+     *
+     * A zero is refused as a row error rather than by this schema: it is a
+     * mistake in one line of a file, and one bad line never fails a whole
+     * catalog here.
      */
     prices: z.record(syncPriceListKeySchema, priceMinorSchema).optional(),
     /**
@@ -249,6 +253,8 @@ export const SYNC_ROW_ERROR_CODES = [
   'category-name-without-id',
   /** `{price}` and `{column}` */
   'price-not-an-integer',
+  /** `{column}` — a zero price, which is no price rather than a free product. */
+  'price-is-zero',
   /** `{stock}` — a stock cell that is not a whole number. */
   'stock-not-an-integer',
   /** `{key}` and `{known}` */

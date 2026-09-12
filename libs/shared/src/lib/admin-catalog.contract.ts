@@ -18,9 +18,11 @@ import { ownershipErrors } from './ownership-constants';
 import {
   availabilitySchema,
   catalogImageSchema,
+  priceInputMinorSchema,
   priceMinorSchema,
   productAttributeSchema,
   productListItemSchema,
+  unitPricesSchema,
 } from './catalog.contract';
 import { SEARCH_QUERY_MAX_LENGTH } from './catalog-constants';
 import { PRODUCT_DOCUMENTS_MAX } from './document-constants';
@@ -38,14 +40,16 @@ import { slugSchema } from './slug';
  * here rather than by their sync key: the editor already has the tier list in
  * hand, and an id survives a key being renamed mid-edit.
  *
- * The base price is **not** in this list — it is the product's own
- * `priceMinor`. A tier absent from the list has no override and falls back to
- * it, which is how a tier carries only its exceptions.
+ * The default list is **not** in this list — it is the product's own
+ * `priceMinor`, kept its own field because the editor gives it its own control
+ * beside the category. A tier absent from here has no price of its own and
+ * falls back to the default list, which is how a tier carries only its
+ * exceptions.
  */
 export const productTierPriceSchema = z
   .object({
     tierId: z.uuid(),
-    priceMinor: priceMinorSchema,
+    priceMinor: priceInputMinorSchema,
   })
   .strict();
 export type ProductTierPrice = z.infer<typeof productTierPriceSchema>;
@@ -108,7 +112,14 @@ export const productInputSchema = z
     name: z.string().trim().min(1).max(PRODUCT_NAME_MAX_LENGTH),
     /** Optional slug override; see the schema doc. */
     slug: slugSchema.optional(),
-    priceMinor: priceMinorSchema,
+    /**
+     * The default list's price for one piece, or null for a product nothing
+     * has priced yet — a product imported before its prices were. Saving null
+     * is allowed and takes the product off the storefront (FR-ADM-06): a page
+     * cannot show a visitor a price that does not exist. Zero is not that
+     * state spelled differently — see `priceInputMinorSchema`.
+     */
+    priceMinor: priceInputMinorSchema.nullable(),
     /** The single owning category (FR-CAT-05); picked from the admin tree. */
     categoryId: z.uuid(),
     /** Sanitized server-side before storage, same discipline as page bodies.
@@ -254,13 +265,14 @@ export const adminProductSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
-    priceMinor: priceMinorSchema,
+    /** The default list's price, or null where no list prices this product. */
+    priceMinor: priceMinorSchema.nullable(),
     categoryId: z.uuid(),
     sourceId: z.string(),
     descriptionHtml: z.string(),
     attributes: z.array(productAttributeSchema),
     images: z.array(catalogImageSchema),
-    /** Only the tiers that override the base price; never the base itself. */
+    /** Only the tiers priced away from the default list; never it. */
     tierPrices: z.array(productTierPriceSchema),
     piecesPerPack: z.number().int().positive().nullable(),
     packsPerBox: z.number().int().positive().nullable(),
@@ -297,7 +309,8 @@ export const adminProductListItemSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
-    priceMinor: priceMinorSchema,
+    /** Null where no list prices this product — it cannot be published. */
+    priceMinor: priceMinorSchema.nullable(),
     categoryId: z.uuid(),
     sourceId: z.string(),
     thumb: z.string().nullable(),
@@ -325,6 +338,11 @@ export type AdminProductListItem = z.infer<typeof adminProductListItemSchema>;
  * exclusive: a product can be both unpublished and deleted.
  */
 export const hiddenProductSchema = productListItemSchema.extend({
+  /** Null where no price list prices this product — which is one of the
+   * reasons it is down here, and the only one the storefront's own tile shape
+   * cannot express. */
+  priceMinor: priceMinorSchema.nullable(),
+  prices: unitPricesSchema.nullable(),
   deleted: z.boolean(),
   unpublished: z.boolean(),
 });
@@ -335,12 +353,15 @@ export type HiddenProduct = z.infer<typeof hiddenProductSchema>;
  * the admin sees the whole catalog, soft-deleted rows included and greyed out —
  * with the rest as narrowing filters rather than the storefront's implicit
  * "live only". `live` means on the storefront: published and not deleted.
- * `unpublished` is the review queue a sync fills (FR-ADM-06).
+ * `unpublished` is the review queue a sync fills (FR-ADM-06), and `unpriced`
+ * the narrower queue inside it: products no price list prices, which nobody
+ * can publish until somebody prices them.
  */
 export const adminProductStateSchema = z.enum([
   'all',
   'live',
   'unpublished',
+  'unpriced',
   'deleted',
 ]);
 export type AdminProductState = z.infer<typeof adminProductStateSchema>;
@@ -420,6 +441,13 @@ export const adminProductListQuerySchema = z.object({
    * every review of a tier.
    */
   tierId: z.uuid().optional(),
+  /**
+   * Which side of `tierId` to show: the products that list prices, or the ones
+   * it does not. The gap is the question a tier review actually ends on —
+   * "wholesale prices 98 of our 100 products, which two are missing?" — and it
+   * has no answer anywhere else. Ignored without a `tierId`.
+   */
+  tierPriced: z.enum(['yes', 'no']).optional(),
   /**
    * The products one document is shown on — where the document list's product
    * count leads (FR-DOC-02). Like the tier and attribute narrowings it has no
@@ -539,6 +567,9 @@ export const CATALOG_ERROR_CODES = [
    * trip to find out, so it is one code.
    */
   'slug-or-source-id-taken',
+  /** Publishing a product no price list prices (FR-ADM-06). The storefront
+   * shows every visitor the default list's figure, and there is none. */
+  'product-has-no-price',
 ] as const;
 export type CatalogErrorCode = (typeof CATALOG_ERROR_CODES)[number];
 
@@ -562,6 +593,7 @@ const e = {
   'slug-taken': { status: 409 },
   'source-id-taken': { status: 409 },
   'slug-or-source-id-taken': { status: 409 },
+  'product-has-no-price': { status: 409 },
 } as const satisfies Record<CatalogErrorCode, { status: number }>;
 
 /** Saving a product can collide on either unique column, or name a gone tier,
@@ -696,7 +728,10 @@ export const adminCatalogContract = {
       inputStructure: 'detailed',
       summary: 'Publish or unpublish a product (admin)',
     })
-    .errors({ 'product-not-found': e['product-not-found'] })
+    .errors({
+      'product-not-found': e['product-not-found'],
+      'product-has-no-price': e['product-has-no-price'],
+    })
     .input(
       z.object({
         params: z.object({ slug: z.string() }),

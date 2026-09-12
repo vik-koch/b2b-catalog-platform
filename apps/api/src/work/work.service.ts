@@ -20,6 +20,7 @@ import {
 } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../db/database.module';
+import { resolvedPriceMinor } from '../catalog/product-price';
 import * as schema from '../db/schema';
 
 const { documents, orderRevisions, orders, products, syncRuns, users } = schema;
@@ -46,6 +47,7 @@ const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
     'orders',
     'unpaidOrders',
     'unpublishedProducts',
+    'unpricedProducts',
     'expiredDocuments',
     'expiringDocuments',
     'stagedSyncRuns',
@@ -82,6 +84,7 @@ export class WorkService {
     orders: () => this.staffOrders(),
     unpaidOrders: () => this.unpaidOrders(),
     unpublishedProducts: () => this.unpublishedProducts(),
+    unpricedProducts: () => this.unpricedProducts(),
     expiredDocuments: () => this.expiredDocuments(),
     expiringDocuments: () => this.expiringDocuments(),
     stagedSyncRuns: () => this.stagedSyncRuns(),
@@ -138,11 +141,32 @@ export class WorkService {
    * Products off the storefront awaiting review (FR-ADM-06) — what a sync run
    * leaves behind. Soft-deleted rows are not work: nothing is waiting on a
    * product the source system has dropped.
+   *
+   * Priced ones only. An unpriced product cannot be published at all, so
+   * counting it here would leave a figure nobody can clear by doing the work
+   * the figure describes; it is counted beside this one instead, where the
+   * work it names is the work it needs.
    */
   private unpublishedProducts(): Promise<number> {
     return this.db.$count(
       products,
-      and(isNull(products.publishedAt), isNull(products.deletedAt)),
+      and(
+        isNull(products.publishedAt),
+        isNull(products.deletedAt),
+        isNotNull(resolvedPriceMinor(null)),
+      ),
+    );
+  }
+
+  /**
+   * Products no price list prices. Usually a source system that exported the
+   * product before its price — the catalog holds it, the storefront cannot
+   * show it, and somebody has to either price it here or fix the export.
+   */
+  private unpricedProducts(): Promise<number> {
+    return this.db.$count(
+      products,
+      and(isNull(products.deletedAt), isNull(resolvedPriceMinor(null))),
     );
   }
 

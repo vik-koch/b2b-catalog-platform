@@ -13,7 +13,7 @@ describe('parseSyncCsv', () => {
         name: 'Espresso Blend',
         categorySourceId: 'C-1',
         categoryName: 'Coffee Beans',
-        prices: { default: 1890 },
+        prices: { '*': 1890 },
       },
     ]);
   });
@@ -37,7 +37,7 @@ describe('parseSyncCsv', () => {
     );
     expect(errors).toEqual([]);
     expect(rows).toEqual([
-      { sourceId: 'A-1', name: 'Beans, "whole"', prices: { default: 1890 } },
+      { sourceId: 'A-1', name: 'Beans, "whole"', prices: { '*': 1890 } },
     ]);
   });
 
@@ -114,9 +114,10 @@ describe('parseSyncCsv', () => {
       row: 1,
       sourceId: 'A-1',
       code: 'price-not-an-integer',
-      // The canonical column name: a bare `price` header is an alias for the
-      // base list, and the parser has already resolved it.
-      params: { price: '18.90', column: 'price:default' },
+      // The canonical column name: a bare `price` header is the alias for the
+      // badged list, and the parser reports it under that alias because it
+      // cannot know what the list is called.
+      params: { price: '18.90', column: 'price:*' },
     });
   });
 
@@ -178,21 +179,32 @@ describe('parseSyncCsv', () => {
       // the parser only settles the shape, so a deployment can add a list
       // without a release.
       expect(rows[0].prices).toEqual({
-        default: 1890,
+        '*': 1890,
         wholesale: 1500,
         trade: 1600,
       });
     });
 
-    it('lower-cases the key, so one list cannot arrive as two columns', () => {
+    it('refuses two columns that differ only in case: one list, two writers', () => {
       expect(() =>
         parseSyncCsv('sourceId,price:Wholesale,price:wholesale\nA-1,1,2\n'),
       ).toThrow(SyncFormatError);
     });
 
-    it('reads a header case-insensitively, key included', () => {
+    it('keeps the key as written — the case fold belongs to the matcher', () => {
+      // Keys may be mixed-case and in any script, and Postgres and JavaScript
+      // do not fold every script alike, so the parser preserves and the differ
+      // matches (once, against the tier list).
       const { rows } = parseSyncCsv('sourceId,PRICE:Wholesale\nA-1,1500\n');
-      expect(rows[0].prices).toEqual({ wholesale: 1500 });
+      expect(rows[0].prices).toEqual({ Wholesale: 1500 });
+    });
+
+    it('normalizes a key to NFC, so one letter is not two lists', () => {
+      const composed = parseSyncCsv('sourceId,price:né\nA-1,1500\n');
+      const decomposed = parseSyncCsv('sourceId,price:ne\u0301\nA-1,1500\n');
+      expect(Object.keys(decomposed.rows[0].prices ?? {})).toEqual(
+        Object.keys(composed.rows[0].prices ?? {}),
+      );
     });
 
     it('refuses a price: column with no key at all', () => {

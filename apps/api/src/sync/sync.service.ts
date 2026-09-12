@@ -516,8 +516,6 @@ export class SyncService {
           sourceId: products.sourceId,
           slug: products.slug,
           name: products.name,
-
-          priceMinor: products.defaultPriceMinor,
           categoryId: products.categoryId,
           deletedAt: products.deletedAt,
           // Read for the availability recompute: a figure alone does not say
@@ -537,10 +535,15 @@ export class SyncService {
         })
         .from(categories),
       db
-        .select({ id: customerTiers.id, key: customerTiers.key })
+        .select({
+          id: customerTiers.id,
+          key: customerTiers.key,
+          isDefault: customerTiers.isDefault,
+        })
         .from(customerTiers),
-      // Every override in the catalog. A tier carries only its exceptions, so
-      // this table is far smaller than the product list it belongs to.
+      // Every price in the catalog. Most products are priced in the default
+      // list alone — a tier carries only its exceptions — so this table stays
+      // close to the size of the product list rather than a multiple of it.
       db
         .select({
           productId: productPrices.productId,
@@ -668,14 +671,13 @@ export class SyncService {
       );
       const [created] = await tx
         .insert(products)
-        // No `publishedAt`: an imported product carries a price whose basis
-        // nobody has set yet, so it waits for an admin (FR-ADM-06). An update
-        // leaves it alone, so a re-sync never hides a live product.
+        // No `publishedAt`: an imported product waits for an admin (FR-ADM-06),
+        // and one the file carries no price for could not be published anyway.
+        // An update leaves it alone, so a re-sync never hides a live product.
         .values({
           sourceId: product.sourceId,
           slug: allocateSlug(product.name, 'product', takenProductSlugs),
           name: product.name,
-          defaultPriceMinor: product.priceMinor,
           categoryId: categoryId as string,
           // Both or neither: the state is the figure's shadow, and the check
           // constraint on the table says so.
@@ -699,9 +701,6 @@ export class SyncService {
         .update(products)
         .set({
           ...(update.name !== undefined ? { name: update.name } : {}),
-          ...(update.priceMinor !== undefined
-            ? { defaultPriceMinor: update.priceMinor }
-            : {}),
           ...(categoryId !== undefined ? { categoryId } : {}),
           ...(update.stockPieces === undefined
             ? {}

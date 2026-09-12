@@ -71,9 +71,13 @@ async function arrange(testInfo: TestInfo): Promise<Fixture> {
   await client.connect();
   try {
     const { rows } = await client.query(
-      `SELECT p.slug, p.name, p."defaultPriceMinor", c.slug AS "categorySlug"
+      `SELECT p.slug, p.name, dp."priceMinor" AS "defaultPriceMinor",
+              c.slug AS "categorySlug"
          FROM products p
          JOIN categories c ON c.id = p."categoryId"
+         JOIN customer_tiers dt ON dt."isDefault"
+         JOIN product_prices dp
+           ON dp."productId" = p.id AND dp."tierId" = dt.id
         WHERE p."deletedAt" IS NULL AND p."publishedAt" IS NOT NULL
         ORDER BY p.name LIMIT 1`,
     );

@@ -7,19 +7,22 @@ import {
   resource,
   signal,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { HiddenProduct } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { PricePipe } from '../../catalog/price.pipe';
-import { PRODUCT_GRID } from '../../catalog/product-tile';
 import {
   NARROW_BODY_IN_GRID,
   NARROW_PADDING_IN_GRID,
   NARROW_PHOTO_IN_GRID,
 } from '../../catalog/listing-narrow';
+import { PricePipe } from '../../catalog/price.pipe';
+import { PRODUCT_GRID } from '../../catalog/product-tile';
+import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
+import { ConfirmService } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
-import { AdminCatalogService } from '../admin-catalog.service';
 import { StatusBadge } from '../../ui/status-badge';
+import { AdminCatalogService } from '../admin-catalog.service';
+import { injectEditorReturnParams } from '../editor-return';
 
 /**
  * The edit-mode overlay under a category grid (FR-ADM-01/06): what this category
@@ -37,7 +40,7 @@ import { StatusBadge } from '../../ui/status-badge';
  */
 @Component({
   selector: 'app-hidden-products-section',
-  imports: [PricePipe, Button, AdminIcon, StatusBadge],
+  imports: [PricePipe, Button, AdminIcon, StatusBadge, RouterLink],
   template: `
     @if (hidden.value(); as items) {
       @if (items.length) {
@@ -75,6 +78,13 @@ import { StatusBadge } from '../../ui/status-badge';
                           text.unpublishedBadge
                         }}</span>
                       }
+                      <!-- The third reason, and the one the button below
+                           cannot resolve: nothing prices this product. -->
+                      @if (item.priceMinor === null) {
+                        <span appStatusBadge tone="danger">{{
+                          text.unpricedBadge
+                        }}</span>
+                      }
                     </p>
                     <h3
                       class="line-clamp-2 text-sm text-subtle"
@@ -83,22 +93,45 @@ import { StatusBadge } from '../../ui/status-badge';
                       {{ item.name }}
                     </h3>
                     <p class="mt-auto pt-2 font-emphasis text-stone-400">
-                      {{ item.priceMinor | price }}
+                      @if (item.priceMinor === null) {
+                        {{ text.unpricedHint }}
+                      } @else {
+                        {{ item.priceMinor | price }}
+                      }
                     </p>
-                    <button
-                      appButton
-                      variant="secondary"
-                      type="button"
-                      class="mt-3 gap-2"
-                      [disabled]="busy() === item.slug"
-                      (click)="reveal(item)"
-                    >
-                      <app-admin-icon
-                        [name]="item.deleted ? 'rotate-ccw' : 'circle-check'"
-                        class="h-4 w-4"
-                      />
-                      {{ actionLabel(item) }}
-                    </button>
+                    <!-- Editing above the action that undoes the hiding: a
+                         tile down here has no pencil of its own, and a product
+                         nothing prices is fixed on the editor rather than by
+                         the button below — which is exactly what it says when
+                         pressed. Returns to this page, as every editor opened
+                         from the storefront does. -->
+                    <div class="mt-3 flex flex-col items-start gap-2">
+                      <a
+                        appButton
+                        variant="secondary"
+                        class="w-full gap-2"
+                        [routerLink]="['/admin/products', item.slug, 'edit']"
+                        [queryParams]="editorFrom()"
+                      >
+                        <app-admin-icon name="pencil" class="h-4 w-4" />
+                        {{ text.editProduct }}
+                      </a>
+                      <button
+                        appButton
+                        variant="secondary"
+                        type="button"
+                        class="w-full gap-2"
+                        [disabled]="busy() === item.slug"
+                        [title]="cannotPublish(item) ? text.unpricedHint : null"
+                        (click)="reveal(item)"
+                      >
+                        <app-admin-icon
+                          [name]="item.deleted ? 'rotate-ccw' : 'circle-check'"
+                          class="h-4 w-4"
+                        />
+                        {{ actionLabel(item) }}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </li>
@@ -114,6 +147,9 @@ import { StatusBadge } from '../../ui/status-badge';
 })
 export class HiddenProductsSection {
   private readonly admin = inject(AdminCatalogService);
+  private readonly confirm = inject(ConfirmService);
+  /** So the editor's cancel lands back on the page the tile was on. */
+  protected readonly editorFrom = injectEditorReturnParams();
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).editMode;
 
@@ -168,12 +204,31 @@ export class HiddenProductsSection {
 
   /** Restore comes first: a deleted product is not a candidate for publishing
    * until it exists again. */
+  /**
+   * A deleted product can always be restored — restoring says nothing about
+   * publication — but an unpriced one cannot be put on the storefront, and the
+   * server refuses it. The button explains rather than disappearing.
+   */
+  protected cannotPublish(item: HiddenProduct): boolean {
+    return !item.deleted && item.priceMinor === null;
+  }
+
   protected actionLabel(item: HiddenProduct): string {
     if (this.busy() === item.slug) return this.common.saving;
     return item.deleted ? this.common.restore : this.text.publishProduct;
   }
 
   protected async reveal(item: HiddenProduct): Promise<void> {
+    // Live but refusing on an unpriced product: the click is answered with the
+    // reason, which a dead button cannot give.
+    if (this.cannotPublish(item)) {
+      await this.confirm.tell({
+        heading: this.text.unpricedTitle,
+        message: this.common.catalogErrors['product-has-no-price'],
+        closeLabel: this.common.close,
+      });
+      return;
+    }
     this.busy.set(item.slug);
     this.error.set(null);
     try {

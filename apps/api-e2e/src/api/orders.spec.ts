@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { hash } from '@node-rs/argon2';
 import axios, { AxiosResponse } from 'axios';
 import { Client } from 'pg';
+import { priceProduct } from '../support/catalog-fixture';
 import { requireEnv } from '../support/env';
 import {
   deleteMatching,
@@ -268,17 +269,16 @@ describe('Cart and orders (FR-CART-01…04)', () => {
     ) => {
       await client.query(
         `INSERT INTO products (
-           "sourceId", slug, name, "defaultPriceMinor",
+           "sourceId", slug, name,
            "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume",
            "boxWeight", "boxCount", "categoryId", "lineNoteEnabled",
            "publishedAt", "deletedAt", "stockPieces", availability)
-         VALUES ($1, $2, $3, $4, 10, 4, $9, '0.240', '12.500', 1, $5, $6,
-                 $7, $8, $10, $11)`,
+         VALUES ($1, $2, $3, 10, 4, $8, '0.240', '12.500', 1, $4, $5,
+                 $6, $7, $9, $10)`,
         [
           `${SOURCE_PREFIX}-${slug}`,
           slug,
           `E2E ${slug}`,
-          PIECE_MINOR,
           categoryId,
           lineNoteEnabled,
           state === 'unpublished' ? null : new Date(),
@@ -288,6 +288,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           stockPieces === null ? null : stockPieces > 0 ? 'in' : 'out',
         ],
       );
+      await priceProduct(client, `${SOURCE_PREFIX}-${slug}`, PIECE_MINOR);
     };
     await product(slugs.boxed, 'live');
     await product(slugs.hidden, 'unpublished');

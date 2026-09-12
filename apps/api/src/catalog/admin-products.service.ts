@@ -62,10 +62,12 @@ import { adminProductOrderBy } from './product-sort';
 import {
   availabilityColumns,
   noteColumns,
-  toListItem,
+  toUnpricedListItem,
   unitColumns,
 } from './product-view';
 import { counterpartOf, involves, pairedCountOf } from './product-pairings';
+import { defaultTierId } from './default-tier';
+import { resolvedPriceMinor } from './product-price';
 import { LOW_STOCK_THRESHOLD_PIECES } from '../config/deployment-config';
 import {
   resolveNewSlug,
@@ -89,12 +91,16 @@ const productNotFound = () =>
     message: 'Product not found',
   });
 
-/** The editable product shape the admin contract returns. */
-const adminProductColumns = {
+/**
+ * The editable product shape, minus the price. A write's `returning` uses this
+ * one: the default list's price is a row in another table, written *after* the
+ * product, so a subquery in `returning` would report the state before the save
+ * rather than the one it just made.
+ */
+const adminProductWriteColumns = {
   id: products.id,
   slug: products.slug,
   name: products.name,
-  priceMinor: products.defaultPriceMinor,
   categoryId: products.categoryId,
   sourceId: products.sourceId,
   descriptionHtml: products.descriptionHtml,
@@ -115,11 +121,17 @@ const adminProductColumns = {
   availability: products.availability,
 } as const;
 
+/** The same shape as a read sees it — the default list's price included. */
+const adminProductColumns = {
+  ...adminProductWriteColumns,
+  priceMinor: resolvedPriceMinor(null),
+} as const;
+
 type ProductRow = {
   id: string;
   slug: string;
   name: string;
-  priceMinor: number;
+  priceMinor: number | null;
   categoryId: string;
   sourceId: string;
   descriptionHtml: string;
@@ -196,6 +208,12 @@ export class AdminProductsService {
       query.state === 'unpublished'
         ? and(isNull(products.deletedAt), isNull(products.publishedAt))
         : undefined,
+      // Its own state rather than a price filter the caller has to name a
+      // list for: "not priced" is about the default list by definition, since
+      // that is the one publication needs.
+      query.state === 'unpriced'
+        ? and(isNull(products.deletedAt), isNull(resolvedPriceMinor(null)))
+        : undefined,
       query.state === 'deleted' ? isNotNull(products.deletedAt) : undefined,
       // The stored state, not the count: the threshold that decides "few left"
       // follows the packaging, and a filter that re-derived it here would go
@@ -212,7 +230,7 @@ export class AdminProductsService {
       ),
       // Where the tier list's price count leads: the products this tier has a
       // price of its own for.
-      tierPriceCondition(this.db, query.tierId),
+      tierPriceCondition(this.db, query.tierId, query.tierPriced),
       // Where the document list's product count leads: the products showing
       // one certificate, declaration or data sheet.
       documentCondition(this.db, query.documentId),
@@ -234,7 +252,7 @@ export class AdminProductsService {
         .select({
           slug: products.slug,
           name: products.name,
-          priceMinor: products.defaultPriceMinor,
+          priceMinor: resolvedPriceMinor(null),
           categoryId: products.categoryId,
           sourceId: products.sourceId,
           images: products.images,
@@ -323,7 +341,6 @@ export class AdminProductsService {
             sourceId,
             slug,
             name: input.name,
-            defaultPriceMinor: input.priceMinor,
             categoryId: input.categoryId,
             descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
             images: input.images,
@@ -333,8 +350,9 @@ export class AdminProductsService {
             ...packagingValues(input),
             ...this.stockValues(input),
           })
-          .returning(adminProductColumns),
+          .returning(adminProductWriteColumns),
       );
+      await this.writeDefaultPrice(tx, row[0].id, input.priceMinor);
       await this.replaceTierPrices(tx, row[0].id, input.tierPrices);
       const attributes = storedAttributes(input.attributes);
       await this.replaceAttributes(tx, row[0].id, attributes);
@@ -345,7 +363,7 @@ export class AdminProductsService {
       );
       await this.replaceDocumentLinks(tx, row[0].id, linked);
       return toAdminProduct(
-        row[0],
+        { ...row[0], priceMinor: input.priceMinor },
         input.tierPrices,
         attributes,
         namedPairings(paired),
@@ -394,7 +412,6 @@ export class AdminProductsService {
           .set({
             slug: newSlug,
             name: input.name,
-            defaultPriceMinor: input.priceMinor,
             categoryId: input.categoryId,
             descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
             images: input.images,
@@ -403,12 +420,20 @@ export class AdminProductsService {
             sourceId: newSourceId,
             updatedAt: new Date(),
             updatedBy: actorId,
+            // Clearing the price takes the product off the storefront: a page
+            // cannot show a visitor a price that does not exist. The editor
+            // says so on the button before it is pressed, so this is the save
+            // the admin asked for rather than a refusal they have to undo.
+            ...(input.priceMinor === null
+              ? { publishedAt: null, publishedBy: null }
+              : {}),
             ...packagingValues(input),
             ...this.stockValues(input),
           })
           .where(eq(products.id, existing.id))
-          .returning(adminProductColumns),
+          .returning(adminProductWriteColumns),
       );
+      await this.writeDefaultPrice(tx, existing.id, input.priceMinor);
       await this.replaceTierPrices(tx, existing.id, input.tierPrices);
       const attributes = storedAttributes(input.attributes);
       await this.replaceAttributes(tx, existing.id, attributes);
@@ -419,7 +444,7 @@ export class AdminProductsService {
       );
       await this.replaceDocumentLinks(tx, existing.id, linked);
       return toAdminProduct(
-        row[0],
+        { ...row[0], priceMinor: input.priceMinor },
         input.tierPrices,
         attributes,
         namedPairings(paired),
@@ -492,12 +517,19 @@ export class AdminProductsService {
    * it, and restoring an unpublished one does not publish it. `publishedBy`
    * records who accepted the price going public, and is cleared on the way back
    * so it never names somebody for a decision that has been undone.
+   *
+   * Publishing needs a price in the default list: the storefront shows every
+   * visitor that list's figure, and there is nothing to show without it. A
+   * refusal rather than a control the screen hides — the rule is the server's,
+   * and a page that merely greyed the button would leave a machine client
+   * publishing unpriced products.
    */
   async setProductPublished(
     slug: string,
     published: boolean,
     actorId: string,
   ): Promise<AdminProduct> {
+    if (published) await this.assertPriced(slug);
     const rows = await this.db
       .update(products)
       .set({
@@ -545,7 +577,7 @@ export class AdminProductsService {
       .select({
         slug: products.slug,
         name: products.name,
-        priceMinor: products.defaultPriceMinor,
+        priceMinor: resolvedPriceMinor(null),
         images: products.images,
         deletedAt: products.deletedAt,
         publishedAt: products.publishedAt,
@@ -563,7 +595,7 @@ export class AdminProductsService {
       )
       .orderBy(asc(products.name));
     return hidden.map((row) => ({
-      ...toListItem(row),
+      ...toUnpricedListItem(row),
       deleted: row.deletedAt !== null,
       unpublished: row.publishedAt === null,
     }));
@@ -602,9 +634,24 @@ export class AdminProductsService {
     return row;
   }
 
+  /** Refuses a product the default list does not price (FR-ADM-06). */
+  private async assertPriced(slug: string): Promise<void> {
+    const [row] = await this.db
+      .select({ priceMinor: resolvedPriceMinor(null) })
+      .from(products)
+      .where(eq(products.slug, slug))
+      .limit(1);
+    if (row && row.priceMinor === null) {
+      throw new ConflictException({
+        code: 'product-has-no-price',
+        message: `${slug} has no price in the default list`,
+      });
+    }
+  }
+
   /**
-   * The tier overrides stored for a product. The base price is never in here —
-   * it is `products.defaultPriceMinor` — so an empty result means "this product
+   * The prices stored for a product, without the default list's — the editor
+   * carries that one in its own field, so an empty result means "this product
    * costs the same in every tier".
    */
   private async tierPricesFor(productId: string): Promise<ProductTierPrice[]> {
@@ -614,27 +661,69 @@ export class AdminProductsService {
         priceMinor: productPrices.priceMinor,
       })
       .from(productPrices)
-      .where(eq(productPrices.productId, productId))
+      .innerJoin(customerTiers, eq(customerTiers.id, productPrices.tierId))
+      .where(
+        and(
+          eq(productPrices.productId, productId),
+          eq(customerTiers.isDefault, false),
+        ),
+      )
       .orderBy(asc(productPrices.tierId));
   }
 
   /**
-   * The single write path for tier prices. The posted list is the whole truth:
-   * what is missing from it is deleted, so removing a product's override in the
-   * editor returns that tier to the base price.
+   * The default list's price for one product — the editor's own price field.
+   * Written apart from the other lists because the editor offers it apart, and
+   * null deletes it: a product nothing prices is a state the catalog holds
+   * rather than an error, and only publication refuses it.
+   */
+  private async writeDefaultPrice(
+    tx: NodePgDatabase<typeof schema>,
+    productId: string,
+    priceMinor: number | null,
+  ): Promise<void> {
+    const tierId = await defaultTierId(tx);
+    if (priceMinor === null) {
+      await tx
+        .delete(productPrices)
+        .where(
+          and(
+            eq(productPrices.productId, productId),
+            eq(productPrices.tierId, tierId),
+          ),
+        );
+      return;
+    }
+    await tx
+      .insert(productPrices)
+      .values({ productId, tierId, priceMinor })
+      .onConflictDoUpdate({
+        target: [productPrices.productId, productPrices.tierId],
+        set: { priceMinor, updatedAt: new Date() },
+      });
+  }
+
+  /**
+   * The single write path for the non-default lists. The posted list is the
+   * whole truth: what is missing from it is deleted, so removing a product's
+   * price in the editor returns that tier to the default list's.
+   *
+   * The default list's own row is never swept — it is not in the posted list
+   * because the editor keeps it in a field of its own, and `writeDefaultPrice`
+   * is what answers for it.
    */
   private async replaceTierPrices(
     tx: NodePgDatabase<typeof schema>,
     productId: string,
     entries: ProductTierPrice[],
   ): Promise<void> {
-    const keep = entries.map((e) => e.tierId);
+    const keep = [...entries.map((e) => e.tierId), await defaultTierId(tx)];
     await tx
       .delete(productPrices)
       .where(
         and(
           eq(productPrices.productId, productId),
-          keep.length > 0 ? notInArray(productPrices.tierId, keep) : undefined,
+          notInArray(productPrices.tierId, keep),
         ),
       );
     if (entries.length === 0) return;

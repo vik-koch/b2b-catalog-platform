@@ -33,6 +33,10 @@ export type AuditAction =
   | 'tier.updated'
   | 'tier.reordered'
   | 'tier.deleted'
+  // Which price list the storefront quotes — a commercial decision, and one
+  // that can take products off the shop front, so it is recorded with the
+  // number it moved.
+  | 'tier.default-set'
   // Account management (FR-AUTH-03/04). Who let a customer in, who priced
   // them, and — the one an auditor actually asks about — who granted a role.
   | 'user.approved'

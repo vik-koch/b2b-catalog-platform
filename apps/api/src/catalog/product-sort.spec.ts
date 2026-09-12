@@ -98,11 +98,12 @@ describe('productOrderBy', () => {
     ['price', 'asc'],
     ['price_desc', 'desc'],
   ] as const)(
-    'sorts %s on the piece price the caller resolved',
+    'sorts %s on the piece price the caller resolved, nulls last',
     (option, direction) => {
-      expect(within(productOrderBy(option))).toMatch(
-        new RegExp(`^"products"\\."defaultPriceMinor" ${direction}`),
-      );
+      const ordered = within(productOrderBy(option));
+
+      expect(ordered).toContain('"dt"."isDefault"');
+      expect(ordered).toMatch(new RegExp(`${direction} nulls last`));
     },
   );
 });

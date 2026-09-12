@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { CustomerTier } from '@b2b-catalog-platform/shared';
-import { currencySymbol } from '../../catalog/price';
+import { currencySymbol, parsePriceInput } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { FieldLabel } from '../../ui/field-label';
@@ -19,9 +19,10 @@ export interface TierPriceDraft {
  * The per-tier price fields of the product editor (FR-AUTH-05).
  *
  * Values stay as *typed text* rather than numbers, because the distinction the
- * model needs is "empty" versus "priced" — and `0` is a legitimate price, so a
- * numeric model with a null-ish default cannot express it. The parent converts
- * to minor units on save, exactly as it does for the base price.
+ * model needs is "empty" versus "priced", and a half-typed decimal has to
+ * survive being read back. The parent converts to minor units on save, exactly
+ * as it does for the base price — and drops a zero, which is no price rather
+ * than a price of nothing, the same reading the base field gets.
  *
  * Only the deployment's own tiers appear. The base list is not among them: it
  * is the product's own price field above — so an empty tier field shows that
@@ -68,6 +69,7 @@ export interface TierPriceDraft {
               [placeholder]="placeholder()"
               [disabled]="disabled()"
               (input)="onInput(tier.id, $any($event.target).value)"
+              (blur)="onBlur(tier.id, $any($event.target).value)"
             />
           </app-unit-field>
         </label>
@@ -79,10 +81,9 @@ export interface TierPriceDraft {
 export class ProductTierPricesEditor {
   protected readonly text = inject(ADMIN_TEXT).productEditor.tierPrices;
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
+  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
   /** The same mark the base price field above carries. */
-  protected readonly currencySuffix = currencySymbol(
-    inject(DEPLOYMENT_CONFIG).catalog.currency,
-  );
+  protected readonly currencySuffix = currencySymbol(this.currency);
 
   readonly tiers = input.required<CustomerTier[]>();
   /** The base price as text, e.g. "18,90" — empty while none is entered. */
@@ -102,6 +103,19 @@ export class ProductTierPricesEditor {
 
   protected valueFor(tierId: string): string {
     return this.byTier().get(tierId) ?? '';
+  }
+
+  /**
+   * Empties a field left at zero. A price of nothing is no price, and the way
+   * this editor says "no price" is an empty field — so the field is put into
+   * that state as soon as it is left, rather than saving something that reads
+   * as a free product and quietly storing something else.
+   */
+  protected onBlur(tierId: string, value: string): void {
+    // Read off the field rather than out of the draft: the draft is the
+    // parent's signal coming back down, and a blur that follows the last
+    // keystroke closely enough arrives before it has.
+    if (parsePriceInput(value, this.currency) === 0) this.onInput(tierId, '');
   }
 
   protected onInput(tierId: string, value: string): void {

@@ -18,8 +18,17 @@ export const workCountsSchema = z.object({
   registrations: z.number().int().nonnegative().optional(),
   /** Orders nobody has answered yet. Staff. */
   orders: z.number().int().nonnegative().optional(),
-  /** Products off the storefront awaiting review. Admin. */
+  /** Products off the storefront awaiting review — priced, so an admin can
+   * publish them as they stand. Admin. */
   unpublishedProducts: z.number().int().nonnegative().optional(),
+  /**
+   * Products no price list prices (FR-ADM-06). Admin, and apart from the count
+   * above for the same reason the two document figures are apart: it is a
+   * different job. One is "look at this and publish it", the other is "this
+   * cannot be published until somebody prices it" — usually a gap in the
+   * source system's export, and the only figure that says so.
+   */
+  unpricedProducts: z.number().int().nonnegative().optional(),
   /**
    * Documents whose expiry has already passed (FR-DOC-04). Admin. Apart from
    * the ones about to expire because the two are read differently — an

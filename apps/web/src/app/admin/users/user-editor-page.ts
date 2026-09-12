@@ -233,8 +233,12 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                   @if (isApproval()) {
                     <option value="">{{ text.tierChoose }}</option>
                   }
-                  <option value="default">{{ baseTierLabel }}</option>
-                  @for (tier of tiers(); track tier.id) {
+                  <!-- The default list is offered as "no tier" and not a
+                       second time under its own id: an account on it carries a
+                       null, the same state a guest is in, and two spellings of
+                       one state is what the null is here to avoid. -->
+                  <option value="default">{{ baseTierLabel() }}</option>
+                  @for (tier of otherTiers(); track tier.id) {
                     <option [value]="tier.id">{{ tier.label }}</option>
                   }
                 </select>
@@ -357,7 +361,21 @@ export class UserEditorPage implements UnsavedChangesAware {
     { value: 'company', label: this.listText.typeCompany },
   ];
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly baseTierLabel = inject(ADMIN_TEXT).tierList.defaultLabel;
+  /**
+   * What an account with no tier of its own is charged, named: "Default
+   * (Base list)". The option carries a null, which is also what a brand new
+   * customer has — so it is marked as the default rather than sitting in the
+   * list looking like one choice among several.
+   */
+  protected readonly baseTierLabel = computed(() =>
+    this.common.tierDefault.replace(
+      '{list}',
+      this.tiers().find((t) => t.isDefault)?.label ?? '',
+    ),
+  );
+  protected readonly otherTiers = computed(() =>
+    this.tiers().filter((t) => !t.isDefault),
+  );
 
   private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;

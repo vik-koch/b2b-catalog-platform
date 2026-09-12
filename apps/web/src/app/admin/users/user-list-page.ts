@@ -361,11 +361,13 @@ export class UserListPage {
 
   protected readonly tierOptions = computed<GridFilterOption[]>(() => [
     { value: '', label: this.text.tierAll },
-    { value: 'default', label: this.baseTierLabel },
-    ...(this.tierList.value()?.tiers ?? []).map((t) => ({
-      value: t.id,
-      label: t.label,
-    })),
+    // The storefront's list under its own name, and once: an account on it is
+    // a null `tierId`, so it is the `default` option here rather than a second
+    // entry carrying its id.
+    { value: 'default', label: this.baseTierLabel() },
+    ...(this.tierList.value()?.tiers ?? [])
+      .filter((t) => !t.isDefault)
+      .map((t) => ({ value: t.id, label: t.label })),
   ]);
 
   /**
@@ -516,9 +518,18 @@ export class UserListPage {
     { value: 'manager', label: this.text.roleManager },
   ];
 
-  /** The base price list's name is deployment wording, not a stored tier — the
-   * same label the tier list gives its uneditable first row. */
-  private readonly baseTierLabel = inject(ADMIN_TEXT).tierList.defaultLabel;
+  /**
+   * The storefront's price list under its own name — a row like any other now,
+   * so the name comes from it rather than from the deployment's text — and
+   * marked as the default: an account here holds a null rather than a choice
+   * somebody made, and the column should not read as if one had been made.
+   */
+  private readonly baseTierLabel = computed(() =>
+    this.common.tierDefault.replace(
+      '{list}',
+      this.tierList.value()?.tiers.find((t) => t.isDefault)?.label ?? '',
+    ),
+  );
 
   // --- Row actions -------------------------------------------------------
 
@@ -603,7 +614,7 @@ export class UserListPage {
   protected tierName(tierId: string | null): string {
     return tierId
       ? (this.tierNames().get(tierId) ?? this.dash)
-      : this.baseTierLabel;
+      : this.baseTierLabel();
   }
 
   protected roleLabel(role: StaffUser['role']): string {

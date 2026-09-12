@@ -25,6 +25,7 @@
     "countSuffix": "({count})",
     "sortLabel": "Sort",
     "sortDefault": "Default order",
+    "tierDefault": "Default ({list})",
     "sortAscending": "{column}, ascending",
     "sortDescending": "{column}, descending",
     "catalogErrors": {
@@ -41,7 +42,8 @@
       "paired-product-not-found": "One of the products this one is sold with no longer exists. Reload the page and pick the products again.",
       "document-not-found": "One of the documents on this product no longer exists. Reload the page and pick the documents again.",
       "pairing-self": "A product cannot be sold together with itself.",
-      "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again."
+      "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again.",
+      "product-has-no-price": "This product has no price in the price list the storefront shows, so it cannot be published. Give it a price first."
     }
   },
   "panel": {
@@ -57,6 +59,7 @@
     "workOrders": "{count} awaiting your answer",
     "workUnpaid": "{count} finished, not paid",
     "workProducts": "{count} awaiting publication",
+    "workUnpricedProducts": "{count} without a price",
     "workDocuments": "{count} expiring soon",
     "workDocumentsExpired": "{count} expired",
     "workSyncRuns": "{count} awaiting review",
@@ -79,6 +82,9 @@
     "hiddenHint": "These products are in this category but customers cannot see them.",
     "deletedBadge": "Deleted",
     "unpublishedBadge": "Not published",
+    "unpricedBadge": "No price",
+    "unpricedHint": "Give this product a price before publishing it.",
+    "unpricedTitle": "This product has no price",
     "publishProduct": "Publish",
     "unpublishProduct": "Unpublish",
     "unpublishConfirm": "Take “{name}” off the storefront? Customers will no longer see it; you can publish it again at any time.",
@@ -236,10 +242,14 @@
     },
     "tierPrices": {
       "heading": "Tier prices",
-      "hint": "Leave a tier price empty to charge it the base price above.",
-      "usesBase": "Base price",
+      "hint": "Leave a price empty to charge that list the storefront price above.",
+      "usesBase": "n/a",
       "invalid": "Please enter a valid price for “{tier}”."
-    }
+    },
+    "priceWithList": "Price ({list})",
+    "priceCleared": "With no price in this list the product cannot be on the storefront. Saving will take it off.",
+    "saveAndUnpublish": "Save and unpublish",
+    "packagingUnavailable": "—"
   },
   "productList": {
     "title": "Products",
@@ -267,10 +277,15 @@
     "stockUntracked": "—",
     "filterAttribute": "Attribute",
     "clearAttribute": "Clear the attribute filter",
-    "filterTier": "Tier price",
-    "clearTier": "Clear the tier filter",
+    "filterTier": "Price list",
+    "clearTier": "Clear the price list filter",
     "filterDocument": "Document",
-    "clearDocument": "Clear the document filter"
+    "clearDocument": "Clear the document filter",
+    "tierPricedYes": "Priced in this list",
+    "tierPricedNo": "Not priced in this list",
+    "unpricedBadge": "No price",
+    "noPrice": "—",
+    "stateUnpriced": "No price"
   },
   "categoryList": {
     "title": "Categories",
@@ -358,6 +373,7 @@
       "category-id-without-name": "The category “{category}” has an ID but no name, so it cannot be created or renamed.",
       "category-name-without-id": "The category “{category}” has a name but no ID, so it is unclear which category it means.",
       "price-not-an-integer": "The price “{price}” in column “{column}” is not a whole number of cents.",
+      "price-is-zero": "The price in column “{column}” is zero. A product without a price is sent without that column, not with a zero in it.",
       "stock-not-an-integer": "The stock “{stock}” is not a whole number of pieces.",
       "unknown-price-list": "There is no price list “{key}” — this catalogue has {known}.",
       "category-name-conflict": "The category “{key}” is called both “{first}” and “{second}” in this file.",
@@ -464,7 +480,6 @@
       "name": "names",
       "category": "categories",
       "stock": "stock",
-      "price": "prices",
       "priceList": "prices ({key})",
       "more": "+{count}"
     }
@@ -479,25 +494,24 @@
   },
   "tierList": {
     "title": "Customer tiers",
-    "intro": "A tier is a price list. Products carry the base price; a tier only carries the products it prices differently. Customers are put on a tier when their account is approved.",
+    "intro": "A tier is a price list. One of them is what the storefront shows everybody — guests, staff and customers who are not on a tier; the others carry only the products they price differently. Customers are put on a tier when their account is approved.",
     "add": "Add tier",
     "label": "Name",
     "labelPlaceholder": "Wholesale",
     "key": "Sync key",
     "keyPlaceholder": "wholesale",
-    "keyHint": "The catalog file addresses this list as a “price:wholesale” column. Lowercase letters, digits and hyphens.",
+    "keyHint": "The catalog file addresses this list as a “price:wholesale” column. One word — letters, digits, hyphens and underscores.",
     "accounts": "{count} customer(s)",
     "prices": "{count} product(s)",
     "seeAccounts": "Show the accounts on this price list",
     "seePrices": "Show the products this tier prices",
-    "defaultLabel": "Base price list",
-    "defaultHint": "Every product's own price. Guests, staff and customers without a tier see it.",
+    "defaultHint": "Guests, staff and customers without a tier are charged this list.",
     "edit": "Edit",
     "delete": "Delete",
-    "empty": "No extra price lists yet — every customer sees the base price.",
+    "empty": "No price lists yet.",
     "saveError": "This tier could not be saved. Please try again.",
     "labelRequired": "A name is required.",
-    "keyInvalid": "Use lowercase letters, digits and hyphens, e.g. “wholesale”.",
+    "keyInvalid": "Use letters, digits, hyphens and underscores, in one word, e.g. “wholesale”.",
     "deleteTitle": "Delete tier",
     "deleteConfirm": "Delete “{name}”? The catalog sync will stop recognising its “price:{key}” column.",
     "deleteBlocked": "“{name}” is still in use: {reason}",
@@ -507,8 +521,19 @@
       "tier-not-found": "This tier no longer exists. Reload the page to see the current list.",
       "tier-key-taken": "Another tier already uses that sync key.",
       "tier-has-accounts": "This tier still has customer accounts on it. Move them to another tier first.",
-      "tier-has-prices": "This tier still prices some products. Clear those prices first."
-    }
+      "tier-has-prices": "This tier still prices some products. Clear those prices first.",
+      "tier-is-default": "This is the list the storefront shows, so it cannot be deleted. Show another list on the storefront first."
+    },
+    "defaultBadge": "Shown on the storefront",
+    "setDefault": "Show this list on the storefront",
+    "setDefaultTitle": "Change the storefront's price list",
+    "setDefaultConfirm": "Show “{name}” to everybody who is not on a tier?",
+    "setDefaultWarning": "{count} product(s) have no price in this list and will be taken off the storefront until somebody prices them.",
+    "setDefaultNone": "Every product on the storefront has a price in this list.",
+    "setDefaultDone": "{count} product(s) were taken off the storefront.",
+    "setDefaultError": "The storefront's price list could not be changed. Please try again.",
+    "seeUnpriced": "Show the products this list does not price",
+    "unpriced": "{count} not priced"
   },
   "apiTokenList": {
     "title": "Machine tokens",

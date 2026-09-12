@@ -175,6 +175,8 @@ export function parseCount(text: string): number | null {
 export class ProductPackagingEditor {
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly text = inject(ADMIN_TEXT).productEditor.packaging;
+  private readonly unavailable =
+    inject(ADMIN_TEXT).productEditor.packagingUnavailable;
   /** Below `md` a three-column table of typed cells has no room; the glyph
    * sizes turn on the same line. */
   protected readonly narrow = injectNarrowScreen('md');
@@ -265,15 +267,19 @@ export class ProductPackagingEditor {
     const v = this.value();
     const pack = parseCount(v.piecesPerPack);
     const box = parseCount(v.packsPerBox);
-    if (price === null) return { pack: '', box: '' };
 
+    // A unit the product is not sold in has nothing to say; one it *is* sold
+    // in, on a product nothing prices, has a figure that cannot be worked out —
+    // and a dash says that, where a blank would read as the former.
     const per = (pieces: number | null, template: string) =>
       pieces === null
         ? ''
-        : template.replace(
-            '{price}',
-            formatPriceMinor(totalMinor(price, pieces), this.currency),
-          );
+        : price === null
+          ? template.replace('{price}', this.unavailable)
+          : template.replace(
+              '{price}',
+              formatPriceMinor(totalMinor(price, pieces), this.currency),
+            );
 
     return {
       pack: per(pack, this.text.pricePerPack),

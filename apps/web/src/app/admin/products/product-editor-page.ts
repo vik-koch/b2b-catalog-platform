@@ -6,6 +6,7 @@ import {
   AttributeKeyUsage,
   CatalogImage,
   CustomerTier,
+  fillText,
   minimumFitsPacks,
   piecesPerUnit,
   PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
@@ -27,6 +28,7 @@ import {
   formatPriceInput,
   parsePriceInput,
 } from '../../catalog/price';
+import { StatusBadge } from '../../ui/status-badge';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
 import { ProductAvailabilityBadge } from '../../catalog/product-availability-badge';
@@ -96,11 +98,32 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
     Skeleton,
     UnitField,
     LockedFieldMarker,
+    StatusBadge,
   ],
   template: `
-    <h1 class="mb-6 text-3xl font-medium tracking-tight">
-      {{ isNew ? text.newTitle : text.editTitle }}
-    </h1>
+    <div class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <h1 class="text-3xl font-medium tracking-tight">
+        {{ isNew ? text.newTitle : text.editTitle }}
+      </h1>
+      <!-- Where the product stands, beside its name — the same three badges
+           the hidden-products overlay puts on a tile, in the one place all
+           three can be changed. The price one tracks the field rather than
+           what is stored: it says what the product will be after a save, which
+           is the question somebody editing it is actually asking. -->
+      @if (!isNew && !loading() && !notFound()) {
+        @if (deleted()) {
+          <span appStatusBadge tone="danger">{{ editText.deletedBadge }}</span>
+        }
+        @if (!published()) {
+          <span appStatusBadge tone="waiting">{{
+            editText.unpublishedBadge
+          }}</span>
+        }
+        @if (priceCleared()) {
+          <span appStatusBadge tone="danger">{{ editText.unpricedBadge }}</span>
+        }
+      }
+    </div>
 
     @if (loading()) {
       @if (showSkeleton()) {
@@ -163,12 +186,21 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
         <!-- Side by side from sm up: the price is a short field and the
              category picker is the long one beside it. Below that each takes a
              line of its own — a 10rem price field and a picker sharing 360px
-             are two fields too narrow to read. -->
-        <div class="flex flex-wrap gap-6">
+             are two fields too narrow to read.
+
+             A grid rather than a flex row so the note under the price can be a
+             row of its own: inside the price field's own column it grew that
+             column and pushed the category picker away from the field it
+             belongs to. The picker is placed explicitly, so the note can sit
+             between the two fields in the markup and read under the price on a
+             phone. -->
+        <div class="grid gap-x-6 gap-y-6 sm:grid-cols-[10rem_minmax(0,1fr)]">
           <label class="block w-full sm:w-auto">
+            <!-- Named after the list it writes: it is one price list's row like
+                 any other below, and the only thing separating it is that the
+                 storefront quotes it. -->
             <span appFieldLabel>
-              {{ text.price }}
-              <span class="text-accent" aria-hidden="true">*</span>
+              {{ priceLabel() }}
               @if (catalogOwned()) {
                 <app-locked-field-marker />
               }
@@ -187,11 +219,25 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
                 [placeholder]="pricePlaceholder"
                 [disabled]="catalogOwned()"
                 (input)="priceInput.set($any($event.target).value)"
+                (blur)="onPriceBlur()"
               />
             </app-unit-field>
           </label>
 
-          <div class="w-full sm:w-auto sm:flex-1">
+          <!-- Said where the field is, not only on the button: by the time
+               somebody reads the button they have already cleared it. Under
+               the price on a phone, where the fields are a column; across both
+               columns from sm up, so appearing mid-edit moves nothing beside
+               it. -->
+          @if (priceCleared() && published()) {
+            <p
+              class="-mt-4 text-sm text-amber-700 sm:col-span-2 sm:row-start-2"
+            >
+              {{ text.priceCleared }}
+            </p>
+          }
+
+          <div class="w-full sm:col-start-2 sm:row-start-1 sm:w-auto">
             <span appFieldLabel>
               {{ text.category }}
               <span class="text-accent" aria-hidden="true">*</span>
@@ -213,10 +259,10 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
         <!-- Only where the deployment actually has tiers: with none, the base
              price is the whole pricing story and an empty section would only
              raise a question the admin cannot act on. -->
-        @if (tiers().length > 0) {
+        @if (otherTiers().length > 0) {
           <div>
             <app-product-tier-prices-editor
-              [tiers]="tiers()"
+              [tiers]="otherTiers()"
               [basePrice]="basePriceText()"
               [value]="tierPrices()"
               [disabled]="catalogOwned()"
@@ -288,7 +334,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
         <div>
           <app-product-packaging-editor
             [value]="packaging()"
-            [priceMinor]="previewPriceMinor()"
+            [priceMinor]="packagingPriceMinor()"
             (valueChange)="packaging.set($event)"
           />
         </div>
@@ -427,12 +473,16 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
             (click)="save()"
           >
             <app-admin-icon name="save" class="h-4 w-4" />
-            {{ saving() ? common.saving : common.save }}
+            {{ saving() ? common.saving : saveLabel() }}
           </button>
         }
         <!-- Only while the product is off the storefront: publishing is one
              click from the list once it is on. -->
-        @if (!published() && !newAndOwned()) {
+        <!-- Not offered without a price: the server refuses to publish one,
+             and a button whose only outcome is that refusal is a worse way of
+             saying so than not offering it. The refusal still stands behind
+             it — this is the screen agreeing with the rule, not enforcing it. -->
+        @if (!published() && !newAndOwned() && !priceCleared()) {
           <button
             appButton
             variant="secondary"
@@ -507,6 +557,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  /** The badge wording, shared with the storefront's hidden-products overlay. */
+  protected readonly editText = inject(ADMIN_TEXT).editMode;
   private readonly ownership = inject(SettingsService);
 
   /**
@@ -571,6 +623,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
 
   /** Null until loaded; drives the publish switch and where a save returns to. */
   protected readonly published = signal(false);
+  /** Soft-deleted: still editable, and the badge beside the title says so. */
+  protected readonly deleted = signal(false);
   protected readonly previewing = signal(false);
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -597,9 +651,64 @@ export class ProductEditorPage implements UnsavedChangesAware {
    * "18,00" it would save as; empty while the field holds no price at all.
    */
   protected readonly basePriceText = computed(() => {
+    // Nothing to advertise while the field holds no price — a zero included,
+    // which saves as none: the tier fields fall back to naming it instead.
+    if (this.priceCleared()) return '';
     const minor = parsePriceInput(this.priceInput(), this.currency);
     return minor === null ? '' : formatPriceInput(minor, this.currency);
   });
+
+  /** The storefront's price list, under its own name. */
+  private readonly defaultTier = computed(() =>
+    this.tiers().find((t) => t.isDefault),
+  );
+
+  protected readonly priceLabel = computed(() =>
+    fillText(this.text.priceWithList, {
+      list: this.defaultTier()?.label ?? '',
+    }),
+  );
+
+  /** The other lists — this product's price in the storefront's list is the
+   * field above, not a row in the table below. */
+  protected readonly otherTiers = computed(() =>
+    this.tiers().filter((t) => !t.isDefault),
+  );
+
+  /**
+   * The field says this product has no price, which is a state the catalog
+   * holds: it simply cannot be on the storefront.
+   *
+   * Zero is that state too, and stored as one rather than as a row saying the
+   * product is free: a shop that gives something away does not price it at
+   * nothing, and two spellings of one state is what the null is here to
+   * avoid. Typing 0,00 therefore reads exactly as clearing the field, warning
+   * and save label included.
+   */
+  protected readonly priceCleared = computed(() => {
+    const text = this.priceInput().trim();
+    return text === '' || parsePriceInput(text, this.currency) === 0;
+  });
+
+  /** Says what the save will do before it is pressed: clearing the price of a
+   * published product takes it off the storefront in the same write. */
+  protected readonly saveLabel = computed(() =>
+    this.priceCleared() && this.published()
+      ? this.text.saveAndUnpublish
+      : this.common.save,
+  );
+
+  /**
+   * Empties a price field left at zero. A price of nothing is no price, and an
+   * empty field is how this form says that — so the field is put into that
+   * state as soon as it is left, rather than reading as a free product until
+   * the save silently turns it into none.
+   */
+  protected onPriceBlur(): void {
+    if (parsePriceInput(this.priceInput(), this.currency) === 0) {
+      this.priceInput.set('');
+    }
+  }
 
   /** The declared unit for an attribute key, matched as the server matches it:
    * exactly, apart from surrounding whitespace (FR-ATTR-02). */
@@ -659,6 +768,14 @@ export class ProductEditorPage implements UnsavedChangesAware {
 
   protected readonly previewPriceMinor = computed(
     () => parsePriceInput(this.priceInput(), this.currency) ?? 0,
+  );
+
+  /** Null where the packaging hints have no price to multiply: the editor says
+   * so rather than quoting a pack at zero. */
+  protected readonly packagingPriceMinor = computed(() =>
+    this.priceCleared()
+      ? null
+      : parsePriceInput(this.priceInput(), this.currency),
   );
 
   /** The current form state as a ProductDetail, so the preview renders through
@@ -781,7 +898,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
       }
       this.name.set(product.name);
       this.slug.set(product.slug);
-      this.priceInput.set(formatPriceInput(product.priceMinor, this.currency));
+      this.priceInput.set(
+        product.priceMinor === null
+          ? ''
+          : formatPriceInput(product.priceMinor, this.currency),
+      );
       this.categoryId.set(product.categoryId);
       this.sourceId.set(product.sourceId);
       this.description.set(product.descriptionHtml);
@@ -789,6 +910,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.ownAttributeKeys.set(product.attributes.map((a) => a.key));
       this.images.set(product.images);
       this.published.set(product.publishedAt !== null);
+      this.deleted.set(product.deletedAt !== null);
       this.pairings.set(product.pairings);
       this.documents.set(product.documents);
       this.lineNoteEnabled.set(product.lineNoteEnabled);
@@ -935,8 +1057,14 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected async save(andPublish = false): Promise<void> {
     if (!this.name().trim()) return this.error.set(this.text.nameRequired);
     if (!this.categoryId()) return this.error.set(this.text.categoryRequired);
-    const priceMinor = parsePriceInput(this.priceInput(), this.currency);
-    if (priceMinor === null) return this.error.set(this.text.priceInvalid);
+    // An empty field is "no price", a real state; anything else that will not
+    // parse is a typo and is refused.
+    const priceMinor = this.priceCleared()
+      ? null
+      : parsePriceInput(this.priceInput(), this.currency);
+    if (!this.priceCleared() && priceMinor === null) {
+      return this.error.set(this.text.priceInvalid);
+    }
 
     // Each tier field is validated against its own name, since "invalid price"
     // on a screen with several price fields does not say which one.
@@ -949,6 +1077,10 @@ export class ProductEditorPage implements UnsavedChangesAware {
           this.text.tierPrices.invalid.replace('{tier}', tier?.label ?? ''),
         );
       }
+      // A zero is dropped rather than written, the same reading the field
+      // above gets: the list keeps no price of its own and is charged the
+      // storefront's, which is what an emptied field already means here.
+      if (tierMinor === 0) continue;
       tierPrices.push({ tierId: draft.tierId, priceMinor: tierMinor });
     }
 

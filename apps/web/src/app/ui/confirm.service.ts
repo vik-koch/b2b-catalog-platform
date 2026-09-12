@@ -13,10 +13,11 @@ import { ConfirmAnswer, ConfirmCheck, ConfirmDialog } from './confirm-dialog';
 export interface ConfirmRequest {
   heading: string;
   message: string;
+  /** Null on a dialog that only explains: there is nothing to answer yes to. */
+  confirmLabel: string | null;
   /** A consequence worth weighing before answering yes — drawn amber under the
    * question, and never a refusal. */
   warning?: string;
-  confirmLabel: string;
   cancelLabel: string;
   confirmVariant?: 'primary' | 'danger';
   /** What happens *because* the answer is yes, each offered as a tick with the
@@ -49,6 +50,25 @@ export class ConfirmService {
 
   async ask(request: ConfirmRequest): Promise<boolean> {
     return (await this.open(request)) !== null;
+  }
+
+  /**
+   * States something and waits for it to be read — the same modal with nothing
+   * to answer. For a control that refuses rather than acts: the button stays
+   * where it is and says why it will not work, which is what the product
+   * delete dialog does while the catalog is owned elsewhere.
+   */
+  async tell(request: {
+    heading: string;
+    message: string;
+    closeLabel: string;
+  }): Promise<void> {
+    await this.open({
+      heading: request.heading,
+      message: request.message,
+      confirmLabel: null,
+      cancelLabel: request.closeLabel,
+    });
   }
 
   /**

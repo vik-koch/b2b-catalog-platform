@@ -18,6 +18,8 @@ export const WORK_QUEUES = [
   'orders',
   /** Products a sync left off the storefront (FR-ADM-06). Admin. */
   'unpublishedProducts',
+  /** Products no price list prices, so nobody can publish them. Admin. */
+  'unpricedProducts',
   /** Documents whose expiry has passed (FR-DOC-04). Admin. */
   'expiredDocuments',
   /** Documents whose expiry is within the warning window (FR-DOC-04). Admin. */

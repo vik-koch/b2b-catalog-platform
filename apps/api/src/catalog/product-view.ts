@@ -55,7 +55,9 @@ export interface PricedProductRow {
   minPieceQty: number;
 }
 
-export function packagingOf(row: PricedProductRow): ProductPackagingInfo {
+export function packagingOf(
+  row: Omit<PricedProductRow, 'priceMinor'>,
+): ProductPackagingInfo {
   return {
     piecesPerPack: row.piecesPerPack,
     packsPerBox: row.packsPerBox,
@@ -102,6 +104,38 @@ export function toListItem<
     lineNotePrompt: row.lineNotePrompt,
     availability: row.availability,
     pairedCount: row.pairedCount,
+  };
+}
+
+/**
+ * The same row for a staff screen, where a product may have no price at all.
+ * Separate from `toListItem` rather than making that one's price nullable: the
+ * storefront cannot show an unpriced product — publication refuses it — and a
+ * null the whole shop front would have to carry for one admin panel's sake is
+ * a null in the wrong place.
+ */
+export function toUnpricedListItem<
+  T extends Omit<PricedProductRow, 'priceMinor'> & {
+    priceMinor: number | null;
+    slug: string;
+    name: string;
+    images: ProductImageRef[];
+    lineNoteEnabled: boolean;
+    lineNotePrompt: string | null;
+    availability: ProductAvailability | null;
+    pairedCount: number;
+  },
+>(
+  row: T,
+): Omit<ProductListItem, 'priceMinor' | 'prices'> & {
+  priceMinor: number | null;
+  prices: UnitPrices | null;
+} {
+  const priceMinor = row.priceMinor;
+  return {
+    ...toListItem({ ...row, priceMinor: priceMinor ?? 0 }),
+    priceMinor,
+    prices: priceMinor === null ? null : unitPricesOf({ ...row, priceMinor }),
   };
 }
 

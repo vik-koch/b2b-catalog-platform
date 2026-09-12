@@ -67,9 +67,17 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
   ) {
     const { published = true, deleted = false } = options;
     const { rows } = await client.query<{ id: string }>(
-      `INSERT INTO products ("sourceId", slug, name, "defaultPriceMinor",
-                             "categoryId", "publishedAt", "deletedAt")
-       VALUES ($1, $1, $2, 100, $3, $4, $5) RETURNING id`,
+      // The price is a row in the badged list, written in the same statement:
+      // a published product without one could not exist.
+      `WITH p AS (
+         INSERT INTO products ("sourceId", slug, name,
+                               "categoryId", "publishedAt", "deletedAt")
+         VALUES ($1, $1, $2, $3, $4, $5) RETURNING id
+       ), priced AS (
+         INSERT INTO product_prices ("productId", "tierId", "priceMinor")
+         SELECT p.id, t.id, 100 FROM p, customer_tiers t WHERE t."isDefault"
+       )
+       SELECT id FROM p`,
       [
         `e2e-facet-${R}-${suffix}`,
         `${NAME_TOKEN} ${suffix}`,

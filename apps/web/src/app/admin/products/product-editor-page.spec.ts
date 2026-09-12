@@ -9,6 +9,7 @@ import {
   AdminCategory,
   AdminProduct,
   CustomerTier,
+  fillText,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -93,10 +94,25 @@ const unpublishedProduct: AdminProduct = {
   publishedAt: null,
 };
 
+/** The storefront's list, which every deployment has. */
+const baseList: CustomerTier = {
+  id: 'tier-d',
+  key: 'default',
+  label: 'Base price list',
+  userCount: 0,
+  priceCount: 0,
+  isDefault: true,
+  wouldUnpublish: 0,
+  sortOrder: 0,
+  updatedAt: '2026-08-01T00:00:00.000Z',
+};
+
 const wholesale: CustomerTier = {
   id: 'tier-w',
   key: 'wholesale',
   label: 'Wholesale',
+  isDefault: false,
+  wouldUnpublish: 0,
   userCount: 2,
   priceCount: 1,
   sortOrder: 0,
@@ -165,9 +181,11 @@ async function render(
         provide: TiersService,
         useValue: {
           list: () =>
+            // The storefront's list is always there: the price field above
+            // the others is that list's, and it is named after it.
             Promise.resolve({
-              tiers: options.tiers ?? [],
-              defaultUserCount: 0,
+              tiers: [baseList, ...(options.tiers ?? [])],
+              productCount: 0,
             }),
         },
       },
@@ -179,6 +197,11 @@ async function render(
   fixture.detectChanges();
   return { fixture, el: fixture.nativeElement as HTMLElement, h };
 }
+
+/** The price field's caption, which names the list it writes. */
+const priceLabel = fillText(text.priceWithList, { list: baseList.label });
+/** The badge wording, shared with the storefront's hidden-products overlay. */
+const editText = defaultAdminText.editMode;
 
 function inputByLabel(el: HTMLElement, label: string): HTMLInputElement {
   // A mandatory field's caption carries a trailing asterisk; the caption is
@@ -226,7 +249,7 @@ describe('ProductEditorPage', () => {
     const { fixture, el, h } = await render({ slug: null });
 
     setInput(inputByLabel(el, text.name), 'New Roast');
-    setInput(inputByLabel(el, text.price), '12.50');
+    setInput(inputByLabel(el, priceLabel), '12.50');
     (
       fixture.componentInstance as unknown as {
         categoryId: { set(v: string): void };
@@ -250,7 +273,7 @@ describe('ProductEditorPage', () => {
     const { fixture, el, h } = await render({ slug: null });
 
     setInput(inputByLabel(el, text.name), 'New Roast');
-    setInput(inputByLabel(el, text.price), '12.50');
+    setInput(inputByLabel(el, priceLabel), '12.50');
     setInput(inputByLabel(el, text.slug), 'custom-slug');
     (
       fixture.componentInstance as unknown as {
@@ -268,7 +291,7 @@ describe('ProductEditorPage', () => {
   it('refuses to save without a name and does not call the server', async () => {
     const { fixture, el, h } = await render({ slug: null });
 
-    setInput(inputByLabel(el, text.price), '12.50');
+    setInput(inputByLabel(el, priceLabel), '12.50');
     (
       fixture.componentInstance as unknown as {
         categoryId: { set(v: string): void };
@@ -286,7 +309,7 @@ describe('ProductEditorPage', () => {
     const { fixture, el, h } = await render({ slug: null });
 
     setInput(inputByLabel(el, text.name), 'New Roast');
-    setInput(inputByLabel(el, text.price), '12.50');
+    setInput(inputByLabel(el, priceLabel), '12.50');
     saveButton(el).click();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -496,6 +519,34 @@ describe('ProductEditorPage', () => {
       expect(h.updateProduct.mock.calls[0][1].tierPrices).toEqual([]);
     });
 
+    it('drops a tier field holding a zero, the way an empty one is dropped', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          tiers: [wholesale],
+          product: {
+            ...storedProduct,
+            tierPrices: [{ tierId: 'tier-w', priceMinor: 950 }],
+          },
+        },
+      );
+
+      const field = tierInput(el, wholesale.label);
+      setInput(field, '0,00');
+      // Leaving the field empties it: no price is what a zero means, and an
+      // empty field is how this editor says it.
+      field.dispatchEvent(new Event('blur'));
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(field.value).toBe('');
+
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1].tierPrices).toEqual([]);
+    });
+
     it('names the tier when its price is invalid', async () => {
       const { fixture, el, h } = await render(
         { slug: 'hafen-espresso' },
@@ -516,7 +567,83 @@ describe('ProductEditorPage', () => {
       );
     });
   });
+  describe('the state beside the title', () => {
+    it('says nothing about a product that is published and priced', async () => {
+      const { el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: publishedProduct },
+      );
+
+      expect(el.textContent).not.toContain(editText.unpublishedBadge);
+      expect(el.textContent).not.toContain(editText.unpricedBadge);
+      expect(el.textContent).not.toContain(editText.deletedBadge);
+    });
+
+    it('badges a product that is off the storefront and deleted', async () => {
+      const { el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          product: {
+            ...unpublishedProduct,
+            deletedAt: '2026-08-03T09:00:00.000Z',
+          },
+        },
+      );
+
+      expect(el.textContent).toContain(editText.unpublishedBadge);
+      expect(el.textContent).toContain(editText.deletedBadge);
+    });
+
+    it('follows the price field rather than what is stored', async () => {
+      const { fixture, el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: publishedProduct },
+      );
+
+      expect(el.textContent).not.toContain(editText.unpricedBadge);
+
+      setInput(inputByLabel(el, priceLabel), '');
+      fixture.detectChanges();
+
+      // What the product will be after the save, which is the question
+      // somebody editing it is asking.
+      expect(el.textContent).toContain(editText.unpricedBadge);
+    });
+  });
+
   describe('publication (FR-ADM-06)', () => {
+    it('reads a price of zero as no price at all', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: publishedProduct },
+      );
+
+      const field = inputByLabel(el, priceLabel);
+      setInput(field, '0,00');
+      fixture.detectChanges();
+
+      // The same warning an emptied field raises, and the same button: zero is
+      // that state written differently, not a product that costs nothing.
+      expect(el.textContent).toContain(text.priceCleared);
+
+      // And leaving the field empties it, so the form stops showing a price
+      // it is not going to store.
+      field.dispatchEvent(new Event('blur'));
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(field.value).toBe('');
+      expect(() => buttonByText(el, text.saveAndPublish)).toThrow();
+
+      buttonByText(el, text.saveAndUnpublish).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1].priceMinor).toBeNull();
+    });
+
     it('saves first and publishes second, then lands on the storefront page', async () => {
       const { fixture, el, h } = await render(
         { slug: null },
@@ -525,7 +652,7 @@ describe('ProductEditorPage', () => {
       );
 
       setInput(inputByLabel(el, text.name), 'New Roast');
-      setInput(inputByLabel(el, text.price), '12.50');
+      setInput(inputByLabel(el, priceLabel), '12.50');
       (
         fixture.componentInstance as unknown as {
           categoryId: { set(v: string): void };
@@ -535,6 +662,9 @@ describe('ProductEditorPage', () => {
         ok: true,
         product: unpublishedProduct,
       });
+      // The publish button appears with the price: without one there is
+      // nothing to put on the storefront.
+      fixture.detectChanges();
 
       buttonByText(el, text.saveAndPublish).click();
       await fixture.whenStable();
@@ -563,7 +693,7 @@ describe('ProductEditorPage', () => {
       );
 
       setInput(inputByLabel(el, text.name), 'New Roast');
-      setInput(inputByLabel(el, text.price), '12.50');
+      setInput(inputByLabel(el, priceLabel), '12.50');
       (
         fixture.componentInstance as unknown as {
           categoryId: { set(v: string): void };
@@ -574,6 +704,7 @@ describe('ProductEditorPage', () => {
         product: unpublishedProduct,
       });
       h.setProductPublished.mockRejectedValue(new Error('nope'));
+      fixture.detectChanges();
 
       buttonByText(el, text.saveAndPublish).click();
       await fixture.whenStable();
@@ -595,7 +726,7 @@ describe('ProductEditorPage', () => {
       );
 
       setInput(inputByLabel(el, text.name), 'New Roast');
-      setInput(inputByLabel(el, text.price), '12.50');
+      setInput(inputByLabel(el, priceLabel), '12.50');
       (
         fixture.componentInstance as unknown as {
           categoryId: { set(v: string): void };
@@ -625,7 +756,7 @@ describe('ProductEditorPage', () => {
       );
 
       expect(inputByLabel(el, text.name).disabled).toBe(true);
-      expect(inputByLabel(el, text.price).disabled).toBe(true);
+      expect(inputByLabel(el, priceLabel).disabled).toBe(true);
       expect(inputByLabel(el, text.sourceId).disabled).toBe(true);
       expect(inputByLabel(el, text.stock.pieces).disabled).toBe(true);
 
@@ -653,7 +784,7 @@ describe('ProductEditorPage', () => {
       const { el } = await render({ slug: 'coffee-beans' });
 
       expect(inputByLabel(el, text.name).disabled).toBe(false);
-      expect(inputByLabel(el, text.price).disabled).toBe(false);
+      expect(inputByLabel(el, priceLabel).disabled).toBe(false);
       expect(inputByLabel(el, text.stock.pieces).disabled).toBe(false);
     });
   });

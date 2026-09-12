@@ -5,10 +5,16 @@
  */
 
 /**
- * The key that addresses the base price list — `products.defaultPriceMinor`,
- * which is a column rather than a tier row, so no tier may claim this name.
+ * What a bare `price` column means: whichever list carries the default badge,
+ * whatever it is keyed. A file with one price column addresses the shop's own
+ * front price without having to know its name.
+ *
+ * Not a key, and deliberately unspellable as one — no tier key may contain
+ * `*` — so the parser can hand it on and the differ, which can see the
+ * database, resolves it to the badged tier. No key is reserved any more: a
+ * list named `default` is addressed as `price:default` like any other.
  */
-export const DEFAULT_PRICE_LIST_KEY = 'default';
+export const DEFAULT_PRICE_LIST_ALIAS = '*';
 
 /** A whole catalog in one request, with a DoS bound well above any real one. */
 export const SYNC_MAX_ROWS = 50_000;

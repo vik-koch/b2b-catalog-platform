@@ -711,7 +711,7 @@ export const orderAdjustmentPreviewSchema = z
          * figures the server worked out, and a manager is told that the
          * difference is deliberate rather than left to spot it.
          */
-        listPriceMinor: z.number().int().nonnegative(),
+        listPriceMinor: z.number().int().nonnegative().nullable(),
       }),
     ),
     totalMinor: z.number().int().nonnegative(),
@@ -736,6 +736,9 @@ const adjustmentErrors = {
   'unknown-product': { status: 400 },
   /** A price list this deployment does not have. */
   'unknown-tier': { status: 400 },
+  /** A line with no price of its own, on a product no list prices. Staff may
+   * put such a product on an order, but they have to name the price. */
+  'product-has-no-price': { status: 400 },
   /** An adjustment that changes nothing the order says. A version identical to
    * the one before it is not history, it is noise in it — and a note is an
    * account of a change rather than a change of its own. Refused here rather
