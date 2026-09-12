@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
+import { priceProduct } from '../support/catalog-fixture';
 import { requireEnv } from '../support/env';
 import { JourneyRun } from '../support/journey/journey';
 import {
@@ -93,20 +94,20 @@ describe('the life of an order', () => {
     );
     await client.query(
       `INSERT INTO products (
-         "sourceId", slug, name, "defaultPriceMinor",
+         "sourceId", slug, name,
          "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume",
          "boxWeight", "boxCount", "categoryId", "lineNoteEnabled",
          "publishedAt")
-       VALUES ($1, $2, $3, $4, 10, 4, 10, '0.240', '12.500', 1, $5, true,
+       VALUES ($1, $2, $3, 10, 4, 10, '0.240', '12.500', 1, $4, true,
                NOW())`,
       [
         `${SOURCE_PREFIX}-product`,
         SLUG,
         `E2E journey ${SUFFIX}`,
-        BASE_MINOR,
         categories[0].id,
       ],
     );
+    await priceProduct(client, `${SOURCE_PREFIX}-product`, BASE_MINOR);
 
     // Hashed once and reused: argon2 is deliberately slow, and ten accounts
     // hashed separately would be most of this suite's runtime.

@@ -264,7 +264,12 @@ describe('External data ownership (FR-ADM-10)', () => {
       });
 
       const { rows } = await client.query(
-        'SELECT "defaultPriceMinor" FROM products WHERE "sourceId" = $1',
+        `SELECT dp."priceMinor" AS "defaultPriceMinor"
+           FROM products p
+           JOIN customer_tiers dt ON dt."isDefault"
+           JOIN product_prices dp
+             ON dp."productId" = p.id AND dp."tierId" = dt.id
+          WHERE p."sourceId" = $1`,
         [PRODUCT_SOURCE_ID],
       );
       expect(rows[0].defaultPriceMinor).toBe(1500);
@@ -461,7 +466,12 @@ describe('External data ownership (FR-ADM-10)', () => {
 
       // Reset for the specs that follow, and prove the write landed.
       const { rows } = await client.query(
-        'SELECT "defaultPriceMinor" FROM products WHERE "sourceId" = $1',
+        `SELECT dp."priceMinor" AS "defaultPriceMinor"
+           FROM products p
+           JOIN customer_tiers dt ON dt."isDefault"
+           JOIN product_prices dp
+             ON dp."productId" = p.id AND dp."tierId" = dt.id
+          WHERE p."sourceId" = $1`,
         [PRODUCT_SOURCE_ID],
       );
       expect(rows[0].defaultPriceMinor).toBe(1600);

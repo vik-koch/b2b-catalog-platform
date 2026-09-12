@@ -320,11 +320,13 @@ async function productRows(
   const { rows } = await client.query<ProductRow>(
     `SELECT p.id, p."sourceId", p.slug, p.name,
             p.images->0->>'thumb' AS thumbnail,
-            p."defaultPriceMinor",
+            dp."priceMinor" AS "defaultPriceMinor",
             pp."priceMinor" AS "tierPriceMinor",
             p."piecesPerPack", p."packsPerBox", p."minPieceQty",
             p."boxVolume", p."boxWeight", p."boxCount"
        FROM products p
+       JOIN customer_tiers dt ON dt."isDefault"
+       JOIN product_prices dp ON dp."productId" = p.id AND dp."tierId" = dt.id
        LEFT JOIN customer_tiers t ON t.key = $2
        LEFT JOIN product_prices pp ON pp."productId" = p.id AND pp."tierId" = t.id
       WHERE p."sourceId" = ANY($1)`,

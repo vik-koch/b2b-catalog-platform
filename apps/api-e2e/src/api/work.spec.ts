@@ -42,8 +42,9 @@ describe('work counts', () => {
   let admin: string;
   let manager: string;
   let customer: string;
-  /** Removed in afterAll — it is created to be counted, and nothing else. */
+  /** Removed in afterAll — they are created to be counted, and nothing else. */
   let productSlug: string | undefined;
+  let unpricedSlug: string | undefined;
 
   beforeAll(async () => {
     client = new Client({ connectionString: requireEnv('DATABASE_URL') });
@@ -71,8 +72,11 @@ describe('work counts', () => {
   });
 
   afterAll(async () => {
-    if (productSlug) {
-      await client.query('DELETE FROM products WHERE slug = $1', [productSlug]);
+    const made = [productSlug, unpricedSlug].filter(
+      (slug): slug is string => slug !== undefined,
+    );
+    if (made.length) {
+      await client.query('DELETE FROM products WHERE slug = ANY($1)', [made]);
     }
     await client.query('DELETE FROM users WHERE email = ANY($1)', [
       [ADMIN_EMAIL, MANAGER_EMAIL, CUSTOMER_EMAIL, PENDING_EMAIL],
@@ -96,6 +100,7 @@ describe('work counts', () => {
       'registrations',
       'stagedSyncRuns',
       'unpaidOrders',
+      'unpricedProducts',
       'unpublishedProducts',
     ]);
   });
@@ -157,6 +162,39 @@ describe('work counts', () => {
     expect(created.status).toBe(201);
     productSlug = created.data.slug;
 
+    // Priced, so it is the review queue rather than the unpriced one: the two
+    // are disjoint, and a product an admin can publish belongs in the first.
     expect((await counts(admin)).unpublishedProducts).toBeGreaterThanOrEqual(1);
+  });
+
+  it('counts a product no list prices in its own queue, not the review one', async () => {
+    const before = await counts(admin);
+    const { rows } = await client.query<{ id: string }>(
+      "SELECT id FROM categories WHERE slug = 'cleaning'",
+    );
+    const created = await axios.post(
+      '/admin/catalog/products',
+      {
+        name: `E2E unpriced ${Date.now()}`,
+        priceMinor: null,
+        categoryId: rows[0].id,
+      },
+      { headers: { Cookie: admin } },
+    );
+    expect(created.status).toBe(201);
+    unpricedSlug = created.data.slug;
+
+    const after = await counts(admin);
+    expect(after.unpricedProducts).toBe((before.unpricedProducts ?? 0) + 1);
+    expect(after.unpublishedProducts).toBe(before.unpublishedProducts);
+
+    // And it cannot be published at all — the refusal, not a hidden button.
+    const refused = await axios.patch(
+      `/admin/catalog/products/${created.data.slug}/published`,
+      { published: true },
+      { headers: { Cookie: admin }, validateStatus: () => true },
+    );
+    expect(refused.status).toBe(409);
+    expect(refused.data.code).toBe('product-has-no-price');
   });
 });

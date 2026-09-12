@@ -93,9 +93,14 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
     options: { deleted?: boolean } = {},
   ): Promise<string> {
     const { rows } = await client.query<{ id: string }>(
-      `INSERT INTO products ("sourceId", slug, name, "defaultPriceMinor",
-                             "categoryId", "deletedAt")
-       VALUES ($1, $1, $1, 100, $2, $3) RETURNING id`,
+      `WITH p AS (
+         INSERT INTO products ("sourceId", slug, name, "categoryId", "deletedAt")
+         VALUES ($1, $1, $1, $2, $3) RETURNING id
+       ), priced AS (
+         INSERT INTO product_prices ("productId", "tierId", "priceMinor")
+         SELECT p.id, t.id, 100 FROM p, customer_tiers t WHERE t."isDefault"
+       )
+       SELECT id FROM p`,
       [
         `e2e-attr-${R}-${suffix}`,
         categoryId,

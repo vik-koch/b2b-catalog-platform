@@ -87,13 +87,13 @@ export async function seedCatalog(
 
     const { rows: productRows } = await client.query<{ id: string }>(
       `INSERT INTO products
-         ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "descriptionHtml", images,
+         ("sourceId", slug, name, "categoryId", "descriptionHtml", images,
           "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume", "boxWeight",
           "boxCount", "lineNoteEnabled", "lineNotePrompt", "stockPieces", availability, "publishedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, now())
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, now())
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
-         "defaultPriceMinor" = EXCLUDED."defaultPriceMinor", "categoryId" = EXCLUDED."categoryId",
+         "categoryId" = EXCLUDED."categoryId",
          "descriptionHtml" = EXCLUDED."descriptionHtml",
          images = EXCLUDED.images,
          "piecesPerPack" = EXCLUDED."piecesPerPack", "packsPerBox" = EXCLUDED."packsPerBox",
@@ -112,7 +112,6 @@ export async function seedCatalog(
         product.sourceId,
         product.slug,
         product.name,
-        product.priceMinor,
         categoryId,
         sanitizeRichText(product.descriptionHtml),
         JSON.stringify(images),
@@ -127,6 +126,15 @@ export async function seedCatalog(
         stockPieces,
         availability,
       ],
+    );
+
+    // The price is a row in the default list, like every other list's.
+    await client.query(
+      `INSERT INTO product_prices ("productId", "tierId", "priceMinor")
+       SELECT $1, id, $2 FROM customer_tiers WHERE "isDefault"
+       ON CONFLICT ("productId", "tierId") DO UPDATE SET
+         "priceMinor" = EXCLUDED."priceMinor", "updatedAt" = now()`,
+      [productRows[0].id, product.priceMinor],
     );
 
     await seedProductAttributes(client, productRows[0].id, product.attributes);

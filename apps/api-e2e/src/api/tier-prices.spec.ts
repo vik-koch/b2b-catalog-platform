@@ -1,6 +1,7 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
+import { priceProduct } from '../support/catalog-fixture';
 
 /**
  * Tier price resolution end to end (FR-AUTH-05, ADR 0031): the same product,
@@ -75,17 +76,13 @@ describe('Tier prices (FR-AUTH-05)', () => {
 
     await client.query(
       `INSERT INTO products
-         ("sourceId", slug, name, "defaultPriceMinor", "categoryId", "publishedAt")
-       VALUES ($1, $1, 'Priced by the tier', $2, $4, now()),
-              ($3, $3, 'Untouched by the tier', $5, $4, now())`,
-      [
-        PRICED_SLUG,
-        PRICED_BASE_MINOR,
-        UNTOUCHED_SLUG,
-        categoryId,
-        UNTOUCHED_BASE_MINOR,
-      ],
+         ("sourceId", slug, name, "categoryId", "publishedAt")
+       VALUES ($1, $1, 'Priced by the tier', $3, now()),
+              ($2, $2, 'Untouched by the tier', $3, now())`,
+      [PRICED_SLUG, UNTOUCHED_SLUG, categoryId],
     );
+    await priceProduct(client, PRICED_SLUG, PRICED_BASE_MINOR);
+    await priceProduct(client, UNTOUCHED_SLUG, UNTOUCHED_BASE_MINOR);
 
     const { rows: tierRows } = await client.query(
       `INSERT INTO customer_tiers (key, label) VALUES ($1, $2) RETURNING id`,

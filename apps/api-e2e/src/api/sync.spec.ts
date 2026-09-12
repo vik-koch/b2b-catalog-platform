@@ -83,19 +83,27 @@ describe('Catalog sync (FR-ADM-02)', () => {
 
   const productBySourceId = async (sourceId: string) => {
     const { rows } = await client.query(
-      'SELECT name, "defaultPriceMinor" AS "priceMinor", slug, "deletedAt", "publishedAt", "categoryId", "stockPieces", availability FROM products WHERE "sourceId" = $1',
+      `SELECT p.name, dp."priceMinor", p.slug, p."deletedAt", p."publishedAt",
+              p."categoryId", p."stockPieces", p.availability
+         FROM products p
+         LEFT JOIN customer_tiers dt ON dt."isDefault"
+         LEFT JOIN product_prices dp
+           ON dp."productId" = p.id AND dp."tierId" = dt.id
+        WHERE p."sourceId" = $1`,
       [sourceId],
     );
     return rows[0];
   };
 
   /** A product's overrides, keyed by tier key — what a customer would be charged. */
+  /** Every list that prices a product except the storefront's own, which is
+   * read as `priceMinor` — the same split the product editor shows. */
   const tierPricesOf = async (sourceId: string) => {
     const { rows } = await client.query(
       `SELECT t.key, pp."priceMinor" FROM product_prices pp
          JOIN products p ON p.id = pp."productId"
          JOIN customer_tiers t ON t.id = pp."tierId"
-        WHERE p."sourceId" = $1`,
+        WHERE p."sourceId" = $1 AND NOT t."isDefault"`,
       [sourceId],
     );
     return Object.fromEntries(

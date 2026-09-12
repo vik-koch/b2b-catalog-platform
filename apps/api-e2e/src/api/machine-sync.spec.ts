@@ -87,7 +87,12 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
 
   const productBySourceId = async (sourceId: string) => {
     const { rows } = await client.query(
-      'SELECT name, "defaultPriceMinor" AS "priceMinor", "publishedAt" FROM products WHERE "sourceId" = $1',
+      `SELECT p.name, dp."priceMinor", p."publishedAt"
+         FROM products p
+         LEFT JOIN customer_tiers dt ON dt."isDefault"
+         LEFT JOIN product_prices dp
+           ON dp."productId" = p.id AND dp."tierId" = dt.id
+        WHERE p."sourceId" = $1`,
       [sourceId],
     );
     return rows[0];
