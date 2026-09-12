@@ -58,6 +58,7 @@
     "workOrders": "{count} awaiting your answer",
     "workUnpaid": "{count} finished, not paid",
     "workProducts": "{count} awaiting publication",
+    "workUnpricedProducts": "{count} without a price",
     "workDocuments": "{count} expiring soon",
     "workDocumentsExpired": "{count} expired",
     "workSyncRuns": "{count} awaiting review",

@@ -137,6 +137,7 @@ export const adminTextSchema = z
          * substituted. */
         workUnpaid: z.string(),
         workProducts: z.string(),
+        workUnpricedProducts: z.string(),
         /** Documents inside the expiry warning window; `{count}`
          * substituted. */
         workDocuments: z.string(),
