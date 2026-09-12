@@ -41,7 +41,8 @@
       "paired-product-not-found": "One of the products this one is sold with no longer exists. Reload the page and pick the products again.",
       "document-not-found": "One of the documents on this product no longer exists. Reload the page and pick the documents again.",
       "pairing-self": "A product cannot be sold together with itself.",
-      "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again."
+      "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again.",
+      "product-has-no-price": "This product has no price in the price list the storefront shows, so it cannot be published. Give it a price first."
     }
   },
   "panel": {
@@ -79,6 +80,8 @@
     "hiddenHint": "These products are in this category but customers cannot see them.",
     "deletedBadge": "Deleted",
     "unpublishedBadge": "Not published",
+    "unpricedBadge": "No price",
+    "unpricedHint": "Give this product a price before publishing it.",
     "publishProduct": "Publish",
     "unpublishProduct": "Unpublish",
     "unpublishConfirm": "Take “{name}” off the storefront? Customers will no longer see it; you can publish it again at any time.",
@@ -236,10 +239,14 @@
     },
     "tierPrices": {
       "heading": "Tier prices",
-      "hint": "Leave a tier price empty to charge it the base price above.",
-      "usesBase": "Base price",
+      "hint": "Leave a price empty to charge that list the storefront price above.",
+      "usesBase": "Storefront price",
       "invalid": "Please enter a valid price for “{tier}”."
-    }
+    },
+    "priceWithList": "Price ({list})",
+    "priceCleared": "With no price in this list the product cannot be on the storefront. Saving will take it off.",
+    "saveAndUnpublish": "Save and unpublish",
+    "packagingUnavailable": "—"
   },
   "productList": {
     "title": "Products",
@@ -267,10 +274,15 @@
     "stockUntracked": "—",
     "filterAttribute": "Attribute",
     "clearAttribute": "Clear the attribute filter",
-    "filterTier": "Tier price",
-    "clearTier": "Clear the tier filter",
+    "filterTier": "Price list",
+    "clearTier": "Clear the price list filter",
     "filterDocument": "Document",
-    "clearDocument": "Clear the document filter"
+    "clearDocument": "Clear the document filter",
+    "tierPricedYes": "Priced in this list",
+    "tierPricedNo": "Not priced in this list",
+    "unpricedBadge": "No price",
+    "noPrice": "—",
+    "stateUnpriced": "No price"
   },
   "categoryList": {
     "title": "Categories",
@@ -464,7 +476,6 @@
       "name": "names",
       "category": "categories",
       "stock": "stock",
-      "price": "prices",
       "priceList": "prices ({key})",
       "more": "+{count}"
     }

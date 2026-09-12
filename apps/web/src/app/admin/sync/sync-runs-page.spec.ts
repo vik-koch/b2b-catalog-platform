@@ -149,7 +149,10 @@ describe('SyncRunsPage', () => {
 
     expect(el.textContent).toContain(text.field.name);
     expect(el.textContent).toContain(text.field.stock);
-    expect(el.textContent).toContain(text.field.price);
+    // Every price column names its own list now — the storefront's included.
+    expect(el.textContent).toContain(
+      fillText(text.field.priceList, { key: 'default' }),
+    );
     // The fourth is over the limit the column shows, so it is counted instead.
     expect(el.textContent).not.toContain(
       fillText(text.field.priceList, { key: 'wholesale' }),

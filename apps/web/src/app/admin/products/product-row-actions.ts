@@ -10,6 +10,9 @@ export interface ProductRowState {
   name: string;
   publishedAt: string | null;
   deletedAt: string | null;
+  /** Null where no price list prices it, which is the one thing that stops it
+   * being published (FR-ADM-06). */
+  priceMinor: number | null;
 }
 
 /**
@@ -39,10 +42,12 @@ export interface ProductRowState {
     <!-- Publication is independent of deletion, so a deleted row still shows
          where it stands: restoring it does not put it back on the storefront by
          itself. -->
+    <!-- Present but refused on a product nothing prices: the server says no
+         either way, and a button that disappears teaches nobody why. -->
     <button
       type="button"
       appIconButton
-      [disabled]="busy()"
+      [disabled]="busy() || cannotPublish()"
       [attr.aria-label]="publishLabel()"
       [title]="publishLabel()"
       (click)="publishToggled.emit(product())"
@@ -94,8 +99,16 @@ export class ProductRowActions {
   readonly restored = output<ProductRowState>();
   readonly deleteRequested = output<ProductRowState>();
 
+  /** An unpublished product with no price cannot go on the storefront; one
+   * already published can always come off. */
+  protected cannotPublish(): boolean {
+    const product = this.product();
+    return product.publishedAt === null && product.priceMinor === null;
+  }
+
   /** Names what the button would do, for both the tooltip and screen readers. */
   protected publishLabel(): string {
+    if (this.cannotPublish()) return this.editText.unpricedHint;
     return this.product().publishedAt
       ? this.editText.unpublishProduct
       : this.editText.publishProduct;

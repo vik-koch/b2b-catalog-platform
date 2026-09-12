@@ -2,10 +2,8 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  DEFAULT_PRICE_LIST_KEY,
   fillText,
   SYNC_CSV_COLUMNS,
-  syncPriceColumn,
   SyncRun,
   SyncRunStatus,
   syncRunStatusSchema,
@@ -260,9 +258,9 @@ export class SyncRunsPage {
   }
 
   private fieldLabel(field: string): string {
-    if (field === syncPriceColumn(DEFAULT_PRICE_LIST_KEY)) {
-      return this.text.field.price;
-    }
+    // Every price column names its list now, the storefront's included: the
+    // run wrote `price:<key>`, and printing a generic word for one of them
+    // would be the screen inventing a name the file never used.
     if (field.startsWith(SYNC_CSV_COLUMNS.pricePrefix)) {
       return fillText(this.text.field.priceList, {
         key: field.slice(SYNC_CSV_COLUMNS.pricePrefix.length),

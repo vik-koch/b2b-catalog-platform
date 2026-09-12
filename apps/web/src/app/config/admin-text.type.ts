@@ -88,6 +88,7 @@ export const adminTextSchema = z
             'document-not-found': z.string(),
             'pairing-self': z.string(),
             'slug-or-source-id-taken': z.string(),
+            'product-has-no-price': z.string(),
           })
           .strict(),
       })
@@ -165,6 +166,10 @@ export const adminTextSchema = z
         hiddenHint: z.string(),
         deletedBadge: z.string(),
         unpublishedBadge: z.string(),
+        /** A product no price list prices, and why the publish button will
+         * not take it back onto the storefront. */
+        unpricedBadge: z.string(),
+        unpricedHint: z.string(),
         publishProduct: z.string(),
         unpublishProduct: z.string(),
         unpublishConfirm: z.string(),
@@ -256,6 +261,13 @@ export const adminTextSchema = z
         nameRequired: z.string(),
         categoryRequired: z.string(),
         priceInvalid: z.string(),
+        /** The price field's label, naming the list it writes: `{list}`. */
+        priceWithList: z.string(),
+        /** What clearing it costs, and the button that says so. */
+        priceCleared: z.string(),
+        saveAndUnpublish: z.string(),
+        /** Stands in for a per-pack or per-box figure with no price behind it. */
+        packagingUnavailable: z.string(),
         saveError: z.string(),
         /** Commits the edits and puts the product on the storefront at once
          * (FR-ADM-06); shown only while it is not published. */
@@ -434,6 +446,14 @@ export const adminTextSchema = z
          * attribute one is: no column of the grid says it. */
         filterTier: z.string(),
         clearTier: z.string(),
+        /** Which side of a price list to show: the products it prices, or the
+         * gap. */
+        tierPricedYes: z.string(),
+        tierPricedNo: z.string(),
+        /** The grid's marker for a product no list prices, and what stands in
+         * the price column for it. */
+        unpricedBadge: z.string(),
+        noPrice: z.string(),
         /** The document list's drill-down, a chip for the same reason. */
         filterDocument: z.string(),
         clearDocument: z.string(),
@@ -443,6 +463,7 @@ export const adminTextSchema = z
         state: z.string(),
         stateLive: z.string(),
         stateUnpublished: z.string(),
+        stateUnpriced: z.string(),
         stateDeleted: z.string(),
         allCategories: z.string(),
         /**
@@ -722,17 +743,17 @@ export const adminTextSchema = z
         statusAll: z.string(),
         filterStatus: z.string(),
         /**
-         * What a run rewrote, listed in the log under its counts. `price` is
-         * the base list; `priceList` names a tier's, since which lists a feed
-         * writes is the thing an admin is actually checking. `more` stands for
-         * the ones a narrow column has no room for.
+         * What a run rewrote, listed in the log under its counts. Every price
+         * column names its own list through `priceList`, the storefront's
+         * included — which lists a feed writes is the thing an admin is
+         * actually checking. `more` stands for the ones a narrow column has no
+         * room for.
          */
         field: z
           .object({
             name: z.string(),
             category: z.string(),
             stock: z.string(),
-            price: z.string(),
             priceList: z.string(),
             more: z.string(),
           })
@@ -1101,8 +1122,8 @@ export const adminTextSchema = z
      * The staff account list (FR-AUTH-03/04). Column headings double as the
      * sort/filter controls, so several of these are the accessible names of a
      * control whose visible text is the value in effect rather than a label.
-     * The base price list's name is not here — it is the tier list's
-     * `defaultLabel`, shared so the two screens name it identically.
+     * The storefront list's name is not here either: it is that tier row's own
+     * label, which is why the two screens cannot drift apart.
      */
     /** The staff order list (FR-AUTH-03) — read-only: an order is a request a
      * manager answers by phone or mail. */
@@ -1172,8 +1193,9 @@ export const adminTextSchema = z
          * customer is looking at when they ring about the order. Only on a
          * guest's order; an account holder's own view is the version link. */
         guestView: z.string(),
-        /** Which price list it was taken from; the default list has no name of
-         * its own here. */
+        /** Which price list it was taken from, as the order recorded it. A
+         * null key is the storefront's list — named generically because the
+         * list it was may since have been renamed or replaced. */
         tier: z.string(),
         tierDefault: z.string(),
         /** The blocks, headed as the checkout asked its questions. */

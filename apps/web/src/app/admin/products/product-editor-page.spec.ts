@@ -9,6 +9,7 @@ import {
   AdminCategory,
   AdminProduct,
   CustomerTier,
+  fillText,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -93,10 +94,25 @@ const unpublishedProduct: AdminProduct = {
   publishedAt: null,
 };
 
+/** The storefront's list, which every deployment has. */
+const baseList: CustomerTier = {
+  id: 'tier-d',
+  key: 'default',
+  label: 'Base price list',
+  userCount: 0,
+  priceCount: 0,
+  isDefault: true,
+  wouldUnpublish: 0,
+  sortOrder: 0,
+  updatedAt: '2026-08-01T00:00:00.000Z',
+};
+
 const wholesale: CustomerTier = {
   id: 'tier-w',
   key: 'wholesale',
   label: 'Wholesale',
+  isDefault: false,
+  wouldUnpublish: 0,
   userCount: 2,
   priceCount: 1,
   sortOrder: 0,
@@ -165,9 +181,11 @@ async function render(
         provide: TiersService,
         useValue: {
           list: () =>
+            // The storefront's list is always there: the price field above
+            // the others is that list's, and it is named after it.
             Promise.resolve({
-              tiers: options.tiers ?? [],
-              defaultUserCount: 0,
+              tiers: [baseList, ...(options.tiers ?? [])],
+              productCount: 0,
             }),
         },
       },
@@ -179,6 +197,9 @@ async function render(
   fixture.detectChanges();
   return { fixture, el: fixture.nativeElement as HTMLElement, h };
 }
+
+/** The price field's caption, which names the list it writes. */
+const priceLabel = fillText(text.priceWithList, { list: baseList.label });
 
 function inputByLabel(el: HTMLElement, label: string): HTMLInputElement {
   // A mandatory field's caption carries a trailing asterisk; the caption is
@@ -226,7 +247,7 @@ describe('ProductEditorPage', () => {
     const { fixture, el, h } = await render({ slug: null });
 
     setInput(inputByLabel(el, text.name), 'New Roast');
-    setInput(inputByLabel(el, text.price), '12.50');
+    setInput(inputByLabel(el, priceLabel), '12.50');
     (
       fixture.componentInstance as unknown as {
         categoryId: { set(v: string): void };
@@ -250,7 +271,7 @@ describe('ProductEditorPage', () => {
     const { fixture, el, h } = await render({ slug: null });
 
     setInput(inputByLabel(el, text.name), 'New Roast');
-    setInput(inputByLabel(el, text.price), '12.50');
+    setInput(inputByLabel(el, priceLabel), '12.50');
     setInput(inputByLabel(el, text.slug), 'custom-slug');
     (
       fixture.componentInstance as unknown as {
@@ -268,7 +289,7 @@ describe('ProductEditorPage', () => {
   it('refuses to save without a name and does not call the server', async () => {
     const { fixture, el, h } = await render({ slug: null });
 
-    setInput(inputByLabel(el, text.price), '12.50');
+    setInput(inputByLabel(el, priceLabel), '12.50');
     (
       fixture.componentInstance as unknown as {
         categoryId: { set(v: string): void };
@@ -286,7 +307,7 @@ describe('ProductEditorPage', () => {
     const { fixture, el, h } = await render({ slug: null });
 
     setInput(inputByLabel(el, text.name), 'New Roast');
-    setInput(inputByLabel(el, text.price), '12.50');
+    setInput(inputByLabel(el, priceLabel), '12.50');
     saveButton(el).click();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -525,7 +546,7 @@ describe('ProductEditorPage', () => {
       );
 
       setInput(inputByLabel(el, text.name), 'New Roast');
-      setInput(inputByLabel(el, text.price), '12.50');
+      setInput(inputByLabel(el, priceLabel), '12.50');
       (
         fixture.componentInstance as unknown as {
           categoryId: { set(v: string): void };
@@ -535,6 +556,9 @@ describe('ProductEditorPage', () => {
         ok: true,
         product: unpublishedProduct,
       });
+      // The publish button appears with the price: without one there is
+      // nothing to put on the storefront.
+      fixture.detectChanges();
 
       buttonByText(el, text.saveAndPublish).click();
       await fixture.whenStable();
@@ -563,7 +587,7 @@ describe('ProductEditorPage', () => {
       );
 
       setInput(inputByLabel(el, text.name), 'New Roast');
-      setInput(inputByLabel(el, text.price), '12.50');
+      setInput(inputByLabel(el, priceLabel), '12.50');
       (
         fixture.componentInstance as unknown as {
           categoryId: { set(v: string): void };
@@ -574,6 +598,7 @@ describe('ProductEditorPage', () => {
         product: unpublishedProduct,
       });
       h.setProductPublished.mockRejectedValue(new Error('nope'));
+      fixture.detectChanges();
 
       buttonByText(el, text.saveAndPublish).click();
       await fixture.whenStable();
@@ -595,7 +620,7 @@ describe('ProductEditorPage', () => {
       );
 
       setInput(inputByLabel(el, text.name), 'New Roast');
-      setInput(inputByLabel(el, text.price), '12.50');
+      setInput(inputByLabel(el, priceLabel), '12.50');
       (
         fixture.componentInstance as unknown as {
           categoryId: { set(v: string): void };
@@ -625,7 +650,7 @@ describe('ProductEditorPage', () => {
       );
 
       expect(inputByLabel(el, text.name).disabled).toBe(true);
-      expect(inputByLabel(el, text.price).disabled).toBe(true);
+      expect(inputByLabel(el, priceLabel).disabled).toBe(true);
       expect(inputByLabel(el, text.sourceId).disabled).toBe(true);
       expect(inputByLabel(el, text.stock.pieces).disabled).toBe(true);
 
@@ -653,7 +678,7 @@ describe('ProductEditorPage', () => {
       const { el } = await render({ slug: 'coffee-beans' });
 
       expect(inputByLabel(el, text.name).disabled).toBe(false);
-      expect(inputByLabel(el, text.price).disabled).toBe(false);
+      expect(inputByLabel(el, priceLabel).disabled).toBe(false);
       expect(inputByLabel(el, text.stock.pieces).disabled).toBe(false);
     });
   });

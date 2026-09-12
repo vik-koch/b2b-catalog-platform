@@ -19,21 +19,25 @@ function render(expression: unknown): { text: string; params: unknown[] } {
  * is covered in api-e2e.
  */
 describe('resolvedPriceMinor', () => {
-  it('reads the base column directly when there is no tier', () => {
+  it('reads the badged list when there is no tier', () => {
     const { text, params } = render(resolvedPriceMinor(null));
 
-    expect(text).toBe('"products"."defaultPriceMinor"');
+    // One subquery, no coalesce: with no tier there is nothing to fall back
+    // *from*. The badge is what picks the list, so no key is named here.
+    expect(text).not.toContain('coalesce');
+    expect(text).toContain('"dt"."isDefault"');
+    expect(text).toContain('"dp"."priceMinor"');
     expect(params).toEqual([]);
   });
 
-  it('falls back to the base column for a tier without a row', () => {
+  it('falls back to the badged list for a tier without a row', () => {
     const { text } = render(resolvedPriceMinor('tier-1'));
 
     expect(text).toContain('coalesce');
-    expect(text).toContain('"product_prices"."priceMinor"');
-    // The fallback arm is the base column, so a tier that prices nothing sees
-    // exactly the default list.
-    expect(text).toContain('"products"."defaultPriceMinor"');
+    expect(text).toContain('"tp"."priceMinor"');
+    // The fallback arm is the badged list, so a tier that prices nothing sees
+    // exactly what a guest sees.
+    expect(text).toContain('"dt"."isDefault"');
   });
 
   it('binds the tier id as a parameter rather than inlining it', () => {
@@ -45,11 +49,11 @@ describe('resolvedPriceMinor', () => {
     expect(text).not.toContain('drop table');
   });
 
-  it('correlates on the product row instead of joining', () => {
+  it('correlates each arm on the product row', () => {
     const { text } = render(resolvedPriceMinor('tier-1'));
 
-    expect(text).toContain('"product_prices"."productId" = "products"."id"');
-    expect(text).not.toContain('join');
+    expect(text).toContain('"tp"."productId" = "products"."id"');
+    expect(text).toContain('"dp"."productId" = "products"."id"');
   });
 
   it('keeps the correlation table-qualified inside a real query', () => {
@@ -62,7 +66,7 @@ describe('resolvedPriceMinor', () => {
       .from(products)
       .toSQL();
 
-    expect(text).toContain('"product_prices"."productId" = "products"."id"');
+    expect(text).toContain('"tp"."productId" = "products"."id"');
   });
 });
 
@@ -89,10 +93,12 @@ describe('price sorting follows resolution', () => {
     expect(ordered).toMatch(/^coalesce/);
   });
 
-  it('orders an untiered sort on the bare column, so the index applies', () => {
-    expect(renderOrder(productOrderBy('price'))).toMatch(
-      /^"products"\."defaultPriceMinor" asc/,
-    );
+  it('orders an untiered sort on the badged list, nulls last', () => {
+    const ordered = renderOrder(productOrderBy('price'));
+
+    expect(ordered).toContain('"dt"."isDefault"');
+    // A product nobody has priced is not the cheapest thing in the catalog.
+    expect(ordered).toMatch(/asc nulls last/);
   });
 
   it('sorts descending on the resolved price too', () => {
@@ -100,6 +106,6 @@ describe('price sorting follows resolution', () => {
     const ordered = renderOrder(productOrderBy('price_desc', undefined, price));
 
     expect(ordered).toContain('coalesce');
-    expect(ordered).toMatch(/\) desc/);
+    expect(ordered).toMatch(/desc nulls last/);
   });
 });

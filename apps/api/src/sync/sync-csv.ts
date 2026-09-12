@@ -1,6 +1,5 @@
-import Papa from 'papaparse';
 import {
-  DEFAULT_PRICE_LIST_KEY,
+  DEFAULT_PRICE_LIST_ALIAS,
   SYNC_CSV_COLUMNS,
   SYNC_MAX_ROWS,
   SyncFormatCode,
@@ -8,6 +7,7 @@ import {
   SyncRow,
   SyncRowError,
 } from '@b2b-catalog-platform/shared';
+import Papa from 'papaparse';
 
 /**
  * CSV → `SyncRow[]`. One of the two encodings of the import contract;
@@ -55,15 +55,22 @@ const FIXED_COLUMNS = new Set<string>([
  * rows, which differ per deployment and change without a release (ADR 0031).
  * So the parser settles the *shape* — `price` or `price:<key>` — and the
  * validator, which can see the database, decides whether the key names a list.
- * Keys are lowercased because that is the only form a tier key can take, which
- * also makes `price:Wholesale` and `price:wholesale` the duplicate they are.
+ *
+ * The key keeps the case it was written in — keys may be mixed-case, and in
+ * scripts whose case-folding a database and a JavaScript engine do not agree
+ * on, so the *matching* is done once, against the tier list, by the differ.
+ * What is settled here is that `price:Wholesale` and `price:wholesale` are the
+ * duplicate they are, and that a key is NFC-normalized: two spellings of the
+ * same letter look identical in a spreadsheet and would otherwise address
+ * different lists.
  */
 function priceListKeyOf(header: string): SyncPriceListKey | null {
-  const normalized = header.trim().toLowerCase();
-  // A bare `price` is the alias for the base list, so a single-price export
-  // stays readable in a spreadsheet.
-  if (normalized === SYNC_CSV_COLUMNS.price) return DEFAULT_PRICE_LIST_KEY;
-  if (!normalized.startsWith(SYNC_CSV_COLUMNS.pricePrefix)) return null;
+  const normalized = header.trim().normalize('NFC');
+  const lowered = normalized.toLowerCase();
+  // A bare `price` is the alias for the badged list, so a single-price export
+  // stays readable in a spreadsheet and needs no knowledge of its name.
+  if (lowered === SYNC_CSV_COLUMNS.price) return DEFAULT_PRICE_LIST_ALIAS;
+  if (!lowered.startsWith(SYNC_CSV_COLUMNS.pricePrefix)) return null;
   const key = normalized.slice(SYNC_CSV_COLUMNS.pricePrefix.length);
   return key === '' ? null : key;
 }
@@ -127,7 +134,14 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
       unknown.push(header);
       continue;
     }
-    if ([...canonical.values()].includes(match)) {
+    // Case-insensitively: a key keeps its case, but two columns differing only
+    // in case address one list, and which of them wins is exactly the question
+    // this refusal exists to avoid asking.
+    if (
+      [...canonical.values()].some(
+        (taken) => taken.toLowerCase() === match.toLowerCase(),
+      )
+    ) {
       throw new SyncFormatError(
         'duplicate-column',
         `Duplicate column "${match}"`,

@@ -78,8 +78,8 @@ async function upsertWholesaleTier(client: Client): Promise<string> {
 
 /**
  * The tier prices the demo advertises. Only the categories the discount table
- * names get a row — the rest fall back to `products.defaultPriceMinor`, which
- * is the behaviour worth being able to see on the demo.
+ * names get a row — the rest fall back to the default list's price, which is
+ * the behaviour worth being able to see on the demo.
  */
 async function upsertWholesalePrices(
   client: Client,

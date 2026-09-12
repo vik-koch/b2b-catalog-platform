@@ -47,8 +47,9 @@ export interface PricedAdjustmentLine {
   /** What the chosen list charges for one piece of this product today.
    * Answered on every line, priced from the list or not: it is what lets a
    * screen say a line was priced away from the list without working out either
-   * figure for itself. */
-  listPriceMinor: number;
+   * figure for itself. Null when no list prices the product — the line then
+   * carries a price staff typed, which is the only way it got here. */
+  listPriceMinor: number | null;
 }
 
 export interface PricedAdjustment {
@@ -62,7 +63,9 @@ type ProductRow = {
   slug: string;
   name: string;
   sourceId: string;
-  priceMinor: number;
+  /** Null where no price list prices it — staff may still order it by naming
+   * the price on the line. */
+  priceMinor: number | null;
   images: schema.ProductImageRef[];
   boxVolume: string | null;
   boxWeight: string | null;
@@ -152,8 +155,15 @@ function priceLine(
   if (!product) throw new Error('an unresolved line reached the pricer');
 
   const packaging = packagingOf(product);
-  // The line's own price, or the list's.
+  // The line's own price, or the list's. A product no list prices can still be
+  // put on an order — staff name the price — but nothing can invent one for it.
   const priceMinor = line.priceMinor ?? product.priceMinor;
+  if (priceMinor === null) {
+    throw new BadRequestException({
+      code: 'product-has-no-price',
+      message: `${product.slug} has no price in any list; give the line a price`,
+    });
+  }
   const pieces = line.pieces;
   const lineTotalMinor = totalMinor(priceMinor, pieces);
 

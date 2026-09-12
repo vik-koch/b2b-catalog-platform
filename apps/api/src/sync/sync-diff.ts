@@ -1,5 +1,5 @@
 import {
-  DEFAULT_PRICE_LIST_KEY,
+  DEFAULT_PRICE_LIST_ALIAS,
   MANUAL_SOURCE_ID_PREFIX,
   ProductAvailability,
   productAvailability,
@@ -8,7 +8,6 @@ import {
   SYNC_PREVIEW_MAX_ITEMS,
   SyncOptions,
   SyncPlan,
-  SyncPriceListKey,
   SyncProductChange,
   SyncRow,
   SyncRowError,
@@ -44,6 +43,8 @@ export interface SyncCatalogState {
 export interface ExistingTier {
   id: string;
   key: string;
+  /** The list guests are charged, and the one a bare `price` column means. */
+  isDefault: boolean;
 }
 
 export interface ExistingProduct {
@@ -51,9 +52,10 @@ export interface ExistingProduct {
   sourceId: string;
   slug: string;
   name: string;
-  priceMinor: number;
-  /** Current overrides by tier key — only the lists this product departs from
-   * the base price in, so an absent key means "same as the base price". */
+  /** Current prices by tier key — every list that prices this product, the
+   * default one included. An absent key means that list charges the default
+   * list's price; a product absent from *every* list has no price at all and
+   * cannot be published. */
   tierPrices: Record<string, number>;
   categoryId: string;
   deletedAt: Date | null;
@@ -83,7 +85,6 @@ export interface SyncActions {
   createProducts: {
     sourceId: string;
     name: string;
-    priceMinor: number;
     /** Resolved at apply time: an existing id, or a category this run creates. */
     categoryId: string | null;
     categorySourceId: string | null;
@@ -96,11 +97,10 @@ export interface SyncActions {
   updateProducts: {
     id: string;
     name?: string;
-    priceMinor?: number;
     categoryId?: string | null;
     categorySourceId?: string | null;
     /**
-     * Overrides to write, **upsert only**. A sync writes the lists its file
+     * Prices to write, **upsert only**. A sync writes the lists its file
      * carries and leaves the others alone — the same "absent is not empty"
      * rule the rest of a row follows, and the reason this differs from the
      * product editor, where the posted set is the whole truth.
@@ -137,8 +137,37 @@ export function normalizeCategoryName(name: string): string {
   return name.trim().replace(/\s+/g, ' ').toLowerCase();
 }
 
-function priceOf(row: SyncRow, key: SyncPriceListKey): number | undefined {
-  return row.prices?.[key];
+/**
+ * A row's prices keyed by the list they name, with the bare `price` column's
+ * alias resolved to the badged list's key and every key matched
+ * case-insensitively against the ones this deployment has.
+ *
+ * Matched here rather than in the parser because only the database knows the
+ * keys, and matched in TypeScript rather than by a `lower()` index because
+ * Postgres folds case by collation and a JavaScript engine folds it by the
+ * Unicode default — one rule, applied once, in one place.
+ */
+function resolvePriceKeys(
+  row: SyncRow,
+  tiers: ExistingTier[],
+): { prices: Record<string, number>; unknownKey?: string } {
+  const byFolded = new Map(tiers.map((t) => [fold(t.key), t.key]));
+  const defaultKey = tiers.find((t) => t.isDefault)?.key;
+  const prices: Record<string, number> = {};
+  for (const [written, priceMinor] of Object.entries(row.prices ?? {})) {
+    const key =
+      written === DEFAULT_PRICE_LIST_ALIAS
+        ? defaultKey
+        : byFolded.get(fold(written));
+    if (key === undefined) return { prices, unknownKey: written };
+    prices[key] = priceMinor as number;
+  }
+  return { prices };
+}
+
+/** One spelling of a key, for comparison only — never for storage or display. */
+function fold(key: string): string {
+  return key.normalize('NFC').toLowerCase();
 }
 
 export function planSync(
@@ -162,10 +191,8 @@ export function planSync(
   // Price-list keys are validated here rather than in the contract: they are
   // rows, not code, so only the database knows which exist.
   const tierIdByKey = new Map(state.tiers.map((t) => [t.key, t.id]));
-  const knownPriceListKeys = [
-    DEFAULT_PRICE_LIST_KEY,
-    ...state.tiers.map((t) => t.key),
-  ];
+  const knownPriceListKeys = state.tiers.map((t) => t.key);
+  const defaultTierKey = state.tiers.find((t) => t.isDefault)?.key;
 
   const rowErrors: SyncRowError[] = [...parseErrors];
   const productChanges: SyncProductChange[] = [];
@@ -204,14 +231,12 @@ export function planSync(
       (liveCountByCategory.get(categoryId) ?? 0) + delta,
     );
 
-  /** A row's non-default prices, resolved to tier ids. */
-  const tierPricesOf = (row: SyncRow): TierPriceWrite[] =>
-    Object.entries(row.prices ?? {})
-      .filter(([key]) => key !== DEFAULT_PRICE_LIST_KEY)
-      .map(([key, priceMinor]) => ({
-        tierId: tierIdByKey.get(key) as string,
-        priceMinor: priceMinor as number,
-      }));
+  /** A row's prices, resolved to tier ids. */
+  const tierPricesOf = (prices: Record<string, number>): TierPriceWrite[] =>
+    Object.entries(prices).map(([key, priceMinor]) => ({
+      tierId: tierIdByKey.get(key) as string,
+      priceMinor,
+    }));
 
   let unchanged = 0;
   const seenSourceIds = new Set<string>();
@@ -224,9 +249,7 @@ export function planSync(
     // A price for a list this deployment does not have is a converter bug, not
     // something to guess at: the row is skipped and the message names the keys
     // that would have worked, the same treatment an unknown category gets.
-    const unknownKey = Object.keys(row.prices ?? {}).find(
-      (key) => key !== DEFAULT_PRICE_LIST_KEY && !tierIdByKey.has(key),
-    );
+    const { prices, unknownKey } = resolvePriceKeys(row, state.tiers);
     if (unknownKey !== undefined) {
       rowErrors.push({
         row: rowNumber,
@@ -305,10 +328,11 @@ export function planSync(
         continue;
       }
       // A new product needs the fields the read model cannot default: a name
-      // and a price. A run that does not write them cannot create.
+      // and a category. A price is not among them — a source that exports
+      // products and prices in separate files creates the product first, and
+      // it simply waits unpublished until a list prices it (FR-ADM-06).
       const name = writesName ? row.name : undefined;
-      const priceMinor = priceOf(row, 'default');
-      if (!name || priceMinor === undefined || categoryId === undefined) {
+      if (!name || categoryId === undefined) {
         rowErrors.push({
           row: rowNumber,
           sourceId: row.sourceId,
@@ -320,10 +344,9 @@ export function planSync(
       actions.createProducts.push({
         sourceId: row.sourceId,
         name,
-        priceMinor,
         categoryId,
         categorySourceId: categorySourceId ?? null,
-        tierPrices: tierPricesOf(row),
+        tierPrices: tierPricesOf(prices),
         ...(stock === undefined
           ? {}
           : {
@@ -362,28 +385,22 @@ export function planSync(
       update.name = row.name;
     }
 
-    const price = priceOf(row, DEFAULT_PRICE_LIST_KEY);
-    if (price !== undefined && price !== existing.priceMinor) {
-      changes.push({
-        field: syncPriceColumn(DEFAULT_PRICE_LIST_KEY),
-        from: existing.priceMinor,
-        to: price,
-      });
-      update.priceMinor = price;
-    }
-
-    // Each additional list the file carries, against what that list holds
-    // today. A tier with no override falls back to the base price, so that is
+    // Each list the file carries, against what that list charges today. A tier
+    // with no price of its own falls back to the default list's, so that is
     // what the diff shows it moving *from* — the number the customer sees now,
-    // not a blank.
-    const tierWrites = tierPricesOf(row).filter((write) => {
+    // not a blank. Null where nothing prices the product yet.
+    const tierWrites = tierPricesOf(prices).filter((write) => {
       const key = state.tiers.find((t) => t.id === write.tierId)?.key as string;
-      const current = existing.tierPrices[key] ?? existing.priceMinor;
+      const fallback =
+        defaultTierKey === undefined
+          ? undefined
+          : existing.tierPrices[defaultTierKey];
+      const current = existing.tierPrices[key] ?? fallback ?? null;
       if (current === write.priceMinor && key in existing.tierPrices) {
         return false;
       }
-      // An override equal to the base price is still worth writing: it pins
-      // that tier's price against a later change to the base.
+      // A price equal to the default list's is still worth writing: it pins
+      // that tier against a later change to the default list.
       changes.push({
         field: syncPriceColumn(key),
         from: current,
@@ -515,7 +532,7 @@ export function planSync(
     categoriesRenamed: actions.updateCategories.length,
     keptManual: keptManual.length,
     errors: rowErrors.length,
-    fields: fieldsWritten(productChanges),
+    fields: fieldsWritten(productChanges, defaultTierKey),
   };
 
   const categoryChanges = [
@@ -564,22 +581,23 @@ export function planSync(
  * run's declared `fields`: what a run is *allowed* to write and what it turned
  * out to write are different sentences, and the log is about the second.
  */
-function fieldsWritten(changes: SyncProductChange[]): string[] {
+function fieldsWritten(
+  changes: SyncProductChange[],
+  defaultTierKey: string | undefined,
+): string[] {
   const seen = new Set<string>();
   for (const change of changes) {
     for (const field of change.changes) seen.add(field.field);
   }
   const ordered = SYNC_FIELDS.filter((field) => seen.has(field));
-  // Price lists after the plain fields, and the base list before the tiers:
+  // Price lists after the plain fields, and the default list before the rest:
   // that is the order they are read in everywhere else.
+  const defaultColumn =
+    defaultTierKey === undefined ? null : syncPriceColumn(defaultTierKey);
   const prices = [...seen]
     .filter((field) => field.startsWith(SYNC_CSV_COLUMNS.pricePrefix))
     .sort((a, b) =>
-      a === syncPriceColumn(DEFAULT_PRICE_LIST_KEY)
-        ? -1
-        : b === syncPriceColumn(DEFAULT_PRICE_LIST_KEY)
-          ? 1
-          : a.localeCompare(b),
+      a === defaultColumn ? -1 : b === defaultColumn ? 1 : a.localeCompare(b),
     );
   return [...ordered, ...prices];
 }

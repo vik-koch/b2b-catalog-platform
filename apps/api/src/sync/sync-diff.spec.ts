@@ -11,8 +11,14 @@ import {
   planSync,
 } from './sync-diff';
 
-/** The demo's one extra price list; the base list is a column, not a row. */
-const wholesale: ExistingTier = { id: 'tier-w', key: 'wholesale' };
+/** The storefront's list and the demo's one extra. Both are rows; only the
+ * badge tells them apart. */
+const base: ExistingTier = { id: 'tier-d', key: 'default', isDefault: true };
+const wholesale: ExistingTier = {
+  id: 'tier-w',
+  key: 'wholesale',
+  isDefault: false,
+};
 
 const beans: ExistingCategory = {
   id: 'cat-1',
@@ -32,8 +38,7 @@ const product = (over: Partial<ExistingProduct> = {}): ExistingProduct => ({
   sourceId: 'A-1',
   slug: 'espresso-blend',
   name: 'Espresso Blend',
-  priceMinor: 1890,
-  tierPrices: {},
+  tierPrices: { default: 1890 },
   categoryId: beans.id,
   deletedAt: null,
   stockPieces: null,
@@ -46,7 +51,7 @@ const product = (over: Partial<ExistingProduct> = {}): ExistingProduct => ({
 const state = (over: Partial<SyncCatalogState> = {}): SyncCatalogState => ({
   products: [product()],
   categories: [beans, gear],
-  tiers: [wholesale],
+  tiers: [base, wholesale],
   lowStockFallback: 10,
   ...over,
 });
@@ -83,7 +88,9 @@ describe('planSync', () => {
       slug: 'espresso-blend',
       changes: [{ field: 'price:default', from: 1890, to: 1990 }],
     });
-    expect(actions.updateProducts).toEqual([{ id: 'p-1', priceMinor: 1990 }]);
+    expect(actions.updateProducts).toEqual([
+      { id: 'p-1', tierPrices: [{ tierId: 'tier-d', priceMinor: 1990 }] },
+    ]);
   });
 
   /** What a run turned out to write, which is not the same claim as what it
@@ -149,10 +156,12 @@ describe('planSync', () => {
     );
 
     // Prices are self-describing, so the price still lands; the name does not.
-    expect(actions.updateProducts).toEqual([{ id: 'p-1', priceMinor: 1990 }]);
+    expect(actions.updateProducts).toEqual([
+      { id: 'p-1', tierPrices: [{ tierId: 'tier-d', priceMinor: 1990 }] },
+    ]);
   });
 
-  it('creates an unknown product, and needs a name, price and category to do it', () => {
+  it('creates an unknown product, and needs a name and a category to do it', () => {
     const complete = planSync(
       [
         row({
@@ -170,10 +179,9 @@ describe('planSync', () => {
       {
         sourceId: 'A-9',
         name: 'Chemex',
-        priceMinor: 4500,
         categoryId: 'cat-2',
         categorySourceId: null,
-        tierPrices: [],
+        tierPrices: [{ tierId: 'tier-d', priceMinor: 4500 }],
       },
     ]);
 
@@ -189,8 +197,27 @@ describe('planSync', () => {
       options(),
       state(),
     );
-    expect(priceless.actions.createProducts).toEqual([]);
-    expect(priceless.plan.rowErrors[0].code).toBe('cannot-create-product');
+    // A price is *not* among them: a source that exports products and prices
+    // separately creates the product first, and it waits unpublished until
+    // something prices it.
+    expect(priceless.actions.createProducts).toEqual([
+      {
+        sourceId: 'A-9',
+        name: 'Chemex',
+        categoryId: 'cat-2',
+        categorySourceId: null,
+        tierPrices: [],
+      },
+    ]);
+    expect(priceless.plan.rowErrors).toEqual([]);
+
+    const nameless = planSync(
+      [row({ sourceId: 'A-9', categorySourceId: 'C-2', categoryName: 'Gear' })],
+      options(),
+      state(),
+    );
+    expect(nameless.actions.createProducts).toEqual([]);
+    expect(nameless.plan.rowErrors[0].code).toBe('cannot-create-product');
   });
 
   it('matches a category by source id, whatever the file calls it', () => {
@@ -422,7 +449,9 @@ describe('planSync', () => {
 
     expect(actions.restoreProductIds).toEqual(['p-1']);
     // The price change rides along with the restore.
-    expect(actions.updateProducts).toEqual([{ id: 'p-1', priceMinor: 1990 }]);
+    expect(actions.updateProducts).toEqual([
+      { id: 'p-1', tierPrices: [{ tierId: 'tier-d', priceMinor: 1990 }] },
+    ]);
     expect(plan.products[0].kind).toBe('restore');
     expect(plan.summary.restore).toBe(1);
   });
@@ -628,8 +657,10 @@ describe('planSync', () => {
       );
 
       expect(result.actions.createProducts[0]).toMatchObject({
-        priceMinor: 4500,
-        tierPrices: [{ tierId: 'tier-w', priceMinor: 4000 }],
+        tierPrices: [
+          { tierId: 'tier-d', priceMinor: 4500 },
+          { tierId: 'tier-w', priceMinor: 4000 },
+        ],
       });
     });
 

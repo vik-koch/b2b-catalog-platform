@@ -75,6 +75,13 @@ import { StatusBadge } from '../../ui/status-badge';
                           text.unpublishedBadge
                         }}</span>
                       }
+                      <!-- The third reason, and the one the button below
+                           cannot resolve: nothing prices this product. -->
+                      @if (item.priceMinor === null) {
+                        <span appStatusBadge tone="danger">{{
+                          text.unpricedBadge
+                        }}</span>
+                      }
                     </p>
                     <h3
                       class="line-clamp-2 text-sm text-subtle"
@@ -83,14 +90,19 @@ import { StatusBadge } from '../../ui/status-badge';
                       {{ item.name }}
                     </h3>
                     <p class="mt-auto pt-2 font-emphasis text-stone-400">
-                      {{ item.priceMinor | price }}
+                      @if (item.priceMinor === null) {
+                        {{ text.unpricedHint }}
+                      } @else {
+                        {{ item.priceMinor | price }}
+                      }
                     </p>
                     <button
                       appButton
                       variant="secondary"
                       type="button"
                       class="mt-3 gap-2"
-                      [disabled]="busy() === item.slug"
+                      [disabled]="busy() === item.slug || cannotPublish(item)"
+                      [title]="cannotPublish(item) ? text.unpricedHint : null"
                       (click)="reveal(item)"
                     >
                       <app-admin-icon
@@ -168,6 +180,15 @@ export class HiddenProductsSection {
 
   /** Restore comes first: a deleted product is not a candidate for publishing
    * until it exists again. */
+  /**
+   * A deleted product can always be restored — restoring says nothing about
+   * publication — but an unpriced one cannot be put on the storefront, and the
+   * server refuses it. The button explains rather than disappearing.
+   */
+  protected cannotPublish(item: HiddenProduct): boolean {
+    return !item.deleted && item.priceMinor === null;
+  }
+
   protected actionLabel(item: HiddenProduct): string {
     if (this.busy() === item.slug) return this.common.saving;
     return item.deleted ? this.common.restore : this.text.publishProduct;

@@ -163,7 +163,11 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
             </div>
           </td>
           <td class="text-stone-700">
-            {{ item.priceMinor | price }}
+            @if (item.priceMinor === null) {
+              <span [title]="text.unpricedBadge">{{ text.noPrice }}</span>
+            } @else {
+              {{ item.priceMinor | price }}
+            }
           </td>
           <td>
             <!-- The figure inside the badge, not the word: what a manager
@@ -254,7 +258,11 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
             >
             <ng-container recordMeta>
               <span class="text-stone-700" [class.opacity-50]="isDeleted(item)">
-                {{ item.priceMinor | price }}
+                @if (item.priceMinor === null) {
+                  {{ text.unpricedBadge }}
+                } @else {
+                  {{ item.priceMinor | price }}
+                }
               </span>
               @if (item.stockPieces !== null) {
                 <span
@@ -386,6 +394,12 @@ export class ProductListPage {
    * the grid shows the base price, not a tier's — so it is a chip too.
    */
   readonly tierId = input('');
+  /**
+   * Which side of that list to show: the products it prices, or the gap. Only
+   * meaningful beside a `tierId`, and it rides on the same chip — "not priced
+   * in wholesale" is one filter, not two.
+   */
+  readonly tierPriced = input('');
   /**
    * Where the document list's product count drills down to: the products one
    * certificate, declaration or data sheet is shown on (FR-DOC-02). A chip
@@ -572,9 +586,12 @@ export class ProductListPage {
     const tier = this.tierFilter();
     if (tier) {
       chips.push({
-        label: this.text.filterTier,
+        label:
+          this.tierPriced() === 'no'
+            ? this.text.tierPricedNo
+            : this.text.tierPricedYes,
         value: tier,
-        clearParams: { tierId: null, page: null },
+        clearParams: { tierId: null, tierPriced: null, page: null },
         clearLabel: this.text.clearTier,
       });
     }
@@ -694,6 +711,7 @@ export class ProductListPage {
     { value: '', label: this.text.stateAll },
     { value: 'live', label: this.text.stateLive },
     { value: 'unpublished', label: this.text.stateUnpublished },
+    { value: 'unpriced', label: this.text.stateUnpriced },
     { value: 'deleted', label: this.text.stateDeleted },
   ];
 
@@ -708,6 +726,7 @@ export class ProductListPage {
       attributeKey: this.attributeKey() || undefined,
       attributeValue: this.attributeValue() || undefined,
       tierId: this.tierId() || undefined,
+      tierPriced: this.tierPriced() === 'no' ? ('no' as const) : undefined,
       documentId: this.documentId() || undefined,
     }),
     loader: ({ params }) => this.admin.listProducts(params),

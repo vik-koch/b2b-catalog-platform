@@ -28,7 +28,7 @@ import {
 export interface StoredOwnedProduct {
   name: string;
   categoryId: string;
-  priceMinor: number;
+  priceMinor: number | null;
   sourceId: string;
   stockPieces: number | null;
   tierPrices: readonly ProductTierPrice[];
@@ -39,7 +39,7 @@ export interface StoredOwnedProduct {
 export interface SubmittedOwnedProduct {
   name: string;
   categoryId: string;
-  priceMinor: number;
+  priceMinor: number | null;
   sourceId?: string;
   stockPieces: number | null;
   tierPrices: readonly ProductTierPrice[];

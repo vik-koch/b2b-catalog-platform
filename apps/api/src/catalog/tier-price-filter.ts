@@ -1,5 +1,5 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, eq, exists, SQL, sql } from 'drizzle-orm';
+import { and, eq, exists, not, SQL, sql } from 'drizzle-orm';
 import * as schema from '../db/schema';
 import { productPrices, products } from '../db/schema';
 
@@ -13,17 +13,23 @@ import { productPrices, products } from '../db/schema';
  * written the same way. The tier-leading index on `product_prices` is what
  * makes it cheap.
  *
- * Absent from a product means it is charged the base price; that is not a row
- * here and is deliberately not matched. The filter answers "agreed with", not
- * "charged to".
+ * Absent from a product means it is charged the default list's price; that is
+ * not a row here and is deliberately not matched. The filter answers "agreed
+ * with", not "charged to".
+ *
+ * `priced: 'no'` asks the same question the other way round — the products a
+ * list does *not* price. It is what the tier list's count leads to when the
+ * count is read as a gap ("wholesale prices 98 of 100"), and, against the
+ * default list, it is the set no product can be published from.
  */
 export function tierPriceCondition(
   db: NodePgDatabase<typeof schema>,
   tierId: string | undefined,
+  priced: 'yes' | 'no' = 'yes',
 ): SQL | undefined {
   if (!tierId) return undefined;
 
-  return exists(
+  const has = exists(
     db
       .select({ one: sql`1` })
       .from(productPrices)
@@ -34,4 +40,5 @@ export function tierPriceCondition(
         ),
       ),
   );
+  return priced === 'no' ? not(has) : has;
 }
