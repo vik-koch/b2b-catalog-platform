@@ -43,8 +43,8 @@ import { LicenseNotice, parseLicenseNotices } from './license-notice';
          stranded at the far edge of a wide screen is a line nobody follows
          back. -->
     <div class="max-w-3xl">
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ heading }}</h1>
-      <p class="mb-8 text-muted">{{ text.intro }}</p>
+      <h1 class="mb-2 text-3xl font-medium tracking-tight">{{ heading }}</h1>
+      <p class="mb-4 text-muted">{{ text.intro }}</p>
 
       @if (notices(); as list) {
         @if (list.length === 0) {

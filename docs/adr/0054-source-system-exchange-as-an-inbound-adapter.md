@@ -72,9 +72,13 @@ categories, and the identity an order line snapshots so its history stays
 readable all want it, and each copy is another thing that can disagree. It also
 makes keys mutable, which the order snapshots are written on the assumption
 they are not. Keeping the correspondence in the adapter costs it state it must
-hold a volume for anyway, and costs the platform nothing. ADR 0026's contract
-gains only a way for a run to _say_ a key changed (`previousSourceId`), which
-is a statement about one row rather than a second identity.
+hold a volume for anyway, and costs the platform nothing.
+
+A way for a run to _say_ a key changed (`previousSourceId`) was planned with
+this and **dropped before it was built**: it is insurance against something the
+identity chosen here makes rare, and speculative contract surface is the thing
+this ADR is otherwise at pains to avoid. The consequence is stated as a
+limitation below rather than hidden.
 
 **Stating the ownership split as permanent** costs nothing and settles a
 recurring question. It is also what the platform is _for_ in a deployment that
@@ -94,6 +98,22 @@ already has a back office: the catalog layer that system does not hold.
 - (−) The platform cannot answer "which record in that system is this" on its
   own — only "what key did it come in under". That is deliberate; the adapter's
   own log is where the fuller question is asked.
+- (−) **A key the source system re-issues cannot be renamed by a run.** Nothing
+  in the import contract says "this row is the product you knew as X", so a run
+  that meets a renamed key reads it as a create plus a soft delete, and the
+  product loses its slug, description, images, attributes, pairings and
+  documents to a new row. The operator's path is manual and needs no deploy:
+  take the catalog back (FR-ADM-10), correct the `sourceId` in the product
+  editor, hand it over again. Acceptable because the key chosen for `sourceId`
+  is one that system does not normally re-issue, and because a rename is a thing
+  a person should see rather than a thing a feed does silently. If it turns out
+  to happen often, the contract gains an optional per-row `previousSourceId`
+  and nothing else changes.
+- (−) Whether keys stay unique and stable over there is **not the platform's
+  guarantee to make**. A source system that re-uses a retired key for a
+  different product produces a wrong product here, and the platform cannot tell
+  that from a legitimate edit. The run log and the diff preview are what make it
+  visible after the fact.
 - (⚠) The protocol, its version handling, the field-by-field mapping and
   whatever identity bookkeeping that particular source system requires are all
   specified in the private deployment repository, not here.

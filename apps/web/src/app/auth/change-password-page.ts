@@ -11,7 +11,7 @@ import { ChangePasswordForm } from './change-password-form';
   imports: [ChangePasswordForm],
   template: `
     <div class="max-w-xl">
-      <h1 class="mb-6 text-3xl font-medium tracking-tight">
+      <h1 class="mb-4 text-3xl font-medium tracking-tight">
         {{ text.heading }}
       </h1>
       <app-change-password-form />

@@ -39,7 +39,7 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
          same three at both widths, and projected content can only be placed
          once. -->
     <div
-      class="mb-4 grid grid-cols-[1fr_auto] items-center gap-4 md:mb-6 md:grid-cols-[1fr_2fr_1fr]"
+      class="mb-4 grid grid-cols-[1fr_auto] items-center gap-4 md:grid-cols-[1fr_2fr_1fr]"
     >
       <!-- Top-aligned, alone among the three: the row is as tall as whatever
            else is in it — a 38px button here, a search box there, nothing at

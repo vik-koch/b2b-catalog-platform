@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { asc, count, eq, sql } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
 import {
   AdminCategory,
   CategoryInput,
@@ -21,6 +20,7 @@ import { changedCategoryFields } from './owned-fields';
 import { hasCycle } from './category-cycle';
 import {
   resolveNewSlug,
+  resolveNewSourceId,
   resolveSlugOverride,
   resolveSourceIdOverride,
   runUnique,
@@ -109,12 +109,19 @@ export class AdminCategoriesService {
     );
     // Place a new category after its current siblings.
     const sortOrder = await this.nextSortOrder(input.parentId);
+    // A pre-assigned key is how a category an admin entered by hand binds to
+    // the source system's tree on the first run.
+    const sourceId = await resolveNewSourceId(
+      this.db,
+      categories,
+      input.sourceId,
+    );
 
     const row = await runUnique(() =>
       this.db
         .insert(categories)
         .values({
-          sourceId: `manual:${randomUUID()}`,
+          sourceId,
           slug,
           name: input.name,
           shortName: input.shortName,

@@ -101,7 +101,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
     StatusBadge,
   ],
   template: `
-    <div class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+    <div class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
       <h1 class="text-3xl font-medium tracking-tight">
         {{ isNew ? text.newTitle : text.editTitle }}
       </h1>

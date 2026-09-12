@@ -39,7 +39,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
         <h1 class="mb-2 text-3xl font-medium tracking-tight">
           {{ text.heading }}
         </h1>
-        <p class="mb-6 text-muted">{{ text.intro }}</p>
+        <p class="mb-4 text-muted">{{ text.intro }}</p>
 
         <ul class="mb-6 list-disc space-y-2 pl-5 text-sm text-muted">
           @for (line of text.consequences; track line) {

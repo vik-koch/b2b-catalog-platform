@@ -134,7 +134,7 @@ interface CartRow {
   ],
   template: `
     @if (cart.isEmpty()) {
-      <h1 class="mb-6 text-2xl font-medium tracking-tight sm:text-3xl">
+      <h1 class="mb-4 text-2xl font-medium tracking-tight sm:text-3xl">
         {{ text.title }}
       </h1>
       <!-- The same panel the account draws with no orders on it and the
@@ -202,7 +202,7 @@ interface CartRow {
             <!-- In the column, not above the grid: the summary beside it then
                  starts level with the heading, and the same card sits at the
                  same height on the cart, the checkout and the read-back. -->
-            <h1 class="mb-6 text-2xl font-medium tracking-tight sm:text-3xl">
+            <h1 class="mb-4 text-2xl font-medium tracking-tight sm:text-3xl">
               {{ text.title }}
             </h1>
 

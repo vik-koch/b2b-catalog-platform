@@ -25,7 +25,7 @@ import { OrdersService } from './orders.service';
   imports: [RouterLink, Button, EmptyState, OrderRows, Skeleton, Icon],
   template: `
     <h1 class="mb-2 text-3xl font-medium tracking-tight">{{ text.heading }}</h1>
-    <p class="mb-8 text-muted">{{ text.intro }}</p>
+    <p class="mb-4 text-muted">{{ text.intro }}</p>
 
     <!-- What the history is narrowed to, said as the one chip that narrowed
          it (FR-WORK-03). A chip and not a dropdown: nothing on this page

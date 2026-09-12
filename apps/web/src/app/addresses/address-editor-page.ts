@@ -30,7 +30,7 @@ type Status = 'idle' | 'submitting' | 'error';
       <h1 class="mb-2 text-3xl font-medium tracking-tight">
         {{ isNew ? text.newHeading : text.editHeading }}
       </h1>
-      <p class="mb-8 text-muted">{{ text.intro }}</p>
+      <p class="mb-4 text-muted">{{ text.intro }}</p>
 
       @if (ready()) {
         <!-- The native submit rather than Angular's: the form group lives

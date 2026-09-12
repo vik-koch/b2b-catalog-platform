@@ -96,7 +96,7 @@ import { WarningNote } from '../ui/warning-note';
   ],
   template: `
     @if (placed(); as reference) {
-      <h1 class="mb-6 text-3xl font-medium tracking-tight">{{ heading() }}</h1>
+      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ heading() }}</h1>
       <!-- The cart's and the account's own empty panel, read the other way
            round: the same shape of screen says "there is nothing here" and
            "that is done". Opening the order comes first — it is what somebody
@@ -124,7 +124,7 @@ import { WarningNote } from '../ui/warning-note';
         </p>
       }
     } @else if (cart.isEmpty()) {
-      <h1 class="mb-6 text-3xl font-medium tracking-tight">{{ heading() }}</h1>
+      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ heading() }}</h1>
       <app-empty-state icon="shopping-basket" [message]="text.emptyCart">
         <a appButton routerLink="/catalog">
           {{ cartText.emptyAction }}

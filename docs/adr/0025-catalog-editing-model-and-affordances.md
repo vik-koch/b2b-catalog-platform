@@ -1,6 +1,6 @@
 # 0025 — Edit the catalog in place, with soft-deleted products and guarded categories
 
-**Status:** accepted · **Date:** 2026-07-30
+**Status:** accepted (amended 2026-08-18) · **Date:** 2026-07-30
 
 ## Context
 

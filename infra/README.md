@@ -168,6 +168,79 @@ A real **client prod** is a separate, client-owned VM deployed from the private
 repo — same `deploy.sh`, its own config and real SMTP, no Mailpit, and
 `SEO_INDEXABLE=true` so it is the one stack search engines index.
 
+## What a deploy costs, and how to undo it
+
+A deploy is a **restart of one instance**, not a rolling release: there is one
+`api` container and one `web` container behind Traefik, and
+[deploy.sh](deploy.sh) recreates both (`up -d --force-recreate --no-deps web
+api`). So the platform is briefly unreachable rather than briefly slower.
+
+**What happens, in order.** `up -d` runs the one-shot `migrate` container first
+(the `api` image in `RUN_MODE=migrate`), then `bootstrap-admin`, then brings up
+`web` and `api`. Two consequences worth knowing before writing a migration:
+
+- Postgres is never recreated (`--no-deps`), so the database does not restart
+  and the data volume is untouched.
+- The schema moves **before** the new containers do. For the length of a deploy
+  the _previous_ app version is running against the _new_ schema, so a migration
+  that drops or renames something the running version still reads takes the site
+  down for that window rather than at the swap. Add first, remove a release
+  later; ADR 0044 makes the unattended case the definition of a major release.
+
+**How long.** Container restart plus application boot — seconds, not minutes, on
+the standing VM. The deploy script then polls the domain for up to **3 minutes**
+(36 rounds, 5s apart) before giving up; that ceiling is sized for a _first_
+deploy on a fresh host, where DNS propagation and the Let's Encrypt order
+dominate, not for a redeploy of a running stack.
+
+**How you know it failed.** In the order they fire:
+
+1. The workflow run goes red — the smoke check is part of the deploy, so a stack
+   that does not answer fails the job rather than reporting success, and the log
+   ends with the VM's container table and Traefik's last 20 lines.
+2. The **Elevated server errors** alert (below) mails `MAIL_OPS_TO` when the
+   stack is up but answering 5xx.
+3. The admin panel's footer names the running version and deploy time, which is
+   how you tell a deploy that silently did not take from one that did.
+
+Note what that list does _not_ contain: every alert here is answered from logs,
+and a stack that is fully down writes none. A container that will not start is
+caught by the deploy failing, not by an alert afterwards — so a stack that dies
+**between** deploys is found by the next request, not by mail. Accepted
+deliberately: closing it means a metrics store or an external prober for a
+single-VM deployment whose own alerting already mails on every fault it can
+see.
+
+The smoke check deliberately accepts **503** as well as 200 while maintenance
+mode is on (FR-ADM-04): a gated storefront is a correctly deployed stack.
+
+**How to roll back.** Images are immutable and version-tagged in GHCR, and
+`release.yml` only ever retags the tested `main` image — so the previous
+release is still there, byte for byte, and nothing has to be rebuilt.
+
+There is no rollback _button_: `release.yml` fires on a tag push and on nothing
+else, so a rollback is a deploy run by hand from a workstation with SSH access
+to the VM and the stack's secrets —
+
+```sh
+# the prod .env, with API_IMAGE/WEB_IMAGE pinned to the release you want back
+SSH_OPTS="-i /path/to/deploy-key" infra/deploy.sh "$DEPLOY_HOST" prod.env infra/traefik/.env
+```
+
+— which is the same script and the same file CD writes, with two lines changed.
+Deliberate for a single-VM deployment: the alternative is holding prod's secrets
+in a manually triggerable workflow, and a rollback is a decision somebody makes
+at a keyboard anyway. It is also the one hand-run path NFR-OPS-01 tolerates: it
+bans manual commands from the _routine_ deploy, and this is the incident.
+
+What a rollback does **not** do is reverse the migration. There are no down
+migrations: the schema stays where the newer release put it, and the older image
+runs against it. That is safe exactly when the migration was additive, which is
+the same property that makes the deploy window above safe — so in practice
+"can I roll back?" and "was this migration additive?" are one question. A
+release whose migration is not additive is a major under ADR 0044 and its
+rollback is a restore from backup (see **Backups & restore**), not a redeploy.
+
 ## Demo workflows
 
 - **demo-up** (manual trigger): terraform apply → wait for cloud-init →

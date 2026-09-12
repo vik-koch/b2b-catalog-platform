@@ -1320,6 +1320,28 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(cleared.data.shortName).toBeNull();
     });
 
+    it('keeps a pre-assigned sourceId on create, and mints one otherwise', async () => {
+      // How a category typed in the admin binds to the source system's tree
+      // before the first run: the admin pre-assigns the key it will arrive
+      // under.
+      const sourceId = `e2e-cat-src-${R}`;
+      const bound = await createCategory({ name: `Bound ${R}`, sourceId });
+      expect(bound.status).toBe(201);
+      expect(bound.data.sourceId).toBe(sourceId);
+
+      const own = await createCategory({ name: `Unbound ${R}` });
+      expect(own.data.sourceId).toMatch(/^manual:/);
+    });
+
+    it('rejects a duplicate category sourceId with 409', async () => {
+      const sourceId = `e2e-cat-dup-${R}`;
+      await createCategory({ name: `Dup ${R}`, sourceId });
+
+      const again = await createCategory({ name: `Dup again ${R}`, sourceId });
+      expect(again.status).toBe(409);
+      expect(again.data.code).toBe('source-id-taken');
+    });
+
     it('404s a create under an unknown parent', async () => {
       const res = await post('/admin/catalog/categories', {
         name: 'orphan',

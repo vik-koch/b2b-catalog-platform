@@ -47,7 +47,7 @@ type Status = 'idle' | 'submitting' | 'error';
       <h1 class="mb-2 text-3xl font-medium tracking-tight">
         {{ text.heading }}
       </h1>
-      <p class="mb-8 text-muted">{{ text.intro }}</p>
+      <p class="mb-4 text-muted">{{ text.intro }}</p>
 
       @if (profile.hasValue()) {
         <form

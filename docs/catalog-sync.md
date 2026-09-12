@@ -59,6 +59,63 @@ about it are not the same event.
 A run an admin applies by hand says nothing at all. They have just read the
 preview that says what it does.
 
+## What the feed cannot do
+
+**Rename a product's key.** A run says what the catalog should contain, keyed by
+the source system's own identifier, and carries no way to say "this row is the
+product you knew as X". So a key that changes over there arrives as a new
+product plus the disappearance of an old one — and the old one's slug, its
+description, its photos, its attributes, what it is paired with and its
+documents stay behind on a row the run soft-deletes.
+
+It is a manual correction, and it needs no deploy:
+
+1. Take the catalog back under **Data ownership** in the admin panel. The feed
+   is refused from its next attempt, so nothing lands mid-correction.
+2. Correct the product's catalogue ID in the product editor.
+3. Hand the catalog over again.
+
+That is the whole of it, and it is deliberately not automated: the keys this
+feeds on are ones a source system does not normally re-issue, and a rename is a
+thing somebody should see rather than something a feed does quietly at 3am.
+
+**Guarantee that those keys are consistent.** They belong to the other system.
+If it retires a key and later gives it to a different product, that product
+becomes this one here, and nothing in a diff can tell that from a legitimate
+edit — the run log and the preview are what make it visible afterwards.
+
+## What a run that dies leaves behind
+
+The question an operator actually has is "the feed broke — what state is the
+catalog in?", and the answer is always **the one it was in before the run**.
+
+A run is applied in a **single transaction**: claiming the run, writing every
+product and category it touches, and marking it applied all commit together or
+none of them do. There is no point at which half a catalog is live. A crash
+between the write and the bookkeeping cannot happen either, because they are
+the same commit — so a run is never left claiming to have applied something it
+did not, and never leaves a catalog the log has no record of.
+
+What that leaves is three ways a feed can stop, and all three are visible:
+
+| What happened                                          | What the catalog shows | What the log shows                                         |
+| ------------------------------------------------------ | ---------------------- | ---------------------------------------------------------- |
+| The run was rejected (bad rows, an unknown price list) | Its previous state     | Nothing was ever a run — the caller is told, in its answer |
+| The run was applied and the write failed               | Its previous state     | A `failed` run carrying the message                        |
+| The feed broke before it could submit anything         | Its previous state     | A `failed` run the adapter reported for itself             |
+
+The third row is the one that has to be deliberate. A source system that cannot
+read its own export, or cannot reach the platform at all, produces no
+submission — and a feed that has stopped working looks exactly like a feed with
+nothing to send. So the adapter reports the breakage as a run of its own,
+carrying no options and no summary because nothing was ever intended or
+counted, and the notification above treats it as the state change it is.
+
+Retrying is safe by construction and needs no cleanup step. A run is a
+statement of what the catalog should say, not a list of edits to append: the
+same file submitted twice makes the second run a no-change. Correcting a feed
+is therefore sending the corrected file, never undoing the last one.
+
 ## The journeys
 
 These are walked against a running API by `sync-journeys.spec.ts` and printed

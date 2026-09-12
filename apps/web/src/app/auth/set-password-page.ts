@@ -76,7 +76,7 @@ type Status = 'checking' | 'ready' | 'expired' | 'submitting' | 'done';
           <h1 class="mb-2 text-3xl font-medium tracking-tight">
             {{ purpose() === 'set' ? text.setHeading : text.resetHeading }}
           </h1>
-          <p class="mb-8 text-muted">
+          <p class="mb-4 text-muted">
             {{ purpose() === 'set' ? text.setIntro : text.resetIntro }}
             <span class="mt-1 block">{{ text.forAccount }} {{ email() }}</span>
           </p>

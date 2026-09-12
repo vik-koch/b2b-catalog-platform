@@ -447,6 +447,43 @@ describe('OrdersService.submit', () => {
     });
   });
 
+  /**
+   * An order is a snapshot. One placed while the shop asked for an invoice
+   * address carries it for good, so a deployment that has since stopped asking
+   * must not delete it from the next version — which is what resolving the
+   * address from today's config alone would do, on every adjustment, without
+   * anybody having touched the field.
+   */
+  it('keeps an invoice address an adjustment no longer asks for', () => {
+    const { db } = testDb();
+    const carried = {
+      billingStreet: 'Hafenstraße 12',
+      billingStreet2: null,
+      billingPostalCode: '20359',
+      billingCity: 'Hamburg',
+      billingRegion: null,
+      billingCountry: 'DE',
+    };
+
+    const kept = service(db, false)['adjustedBilling'](
+      { billingAddress: null } as never,
+      carried as never,
+    );
+
+    expect(kept).toMatchObject({ street: 'Hafenstraße 12', city: 'Hamburg' });
+  });
+
+  it('carries no invoice address where the order never had one', () => {
+    const { db } = testDb();
+
+    const kept = service(db, false)['adjustedBilling'](
+      { billingAddress: null } as never,
+      { billingStreet: null, billingCountry: null } as never,
+    );
+
+    expect(kept).toBeNull();
+  });
+
   it('refuses a submission with no billing address where it invoices one', async () => {
     const { db } = testDb();
 

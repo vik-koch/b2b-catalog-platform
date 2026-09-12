@@ -42,7 +42,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
       <app-load-error-view [heading]="errorText.cannotLoadTitle" />
     } @else if (ready()) {
       <div class="flex items-start justify-between gap-4">
-        <h1 class="mb-6 text-3xl font-medium tracking-tight">{{ heading }}</h1>
+        <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ heading }}</h1>
         @if (canEdit(); as editorText) {
           <app-edit-actions
             variant="inline"
@@ -61,7 +61,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
       } @else if (canEdit(); as editorText) {
-        <p class="mb-8 text-muted">{{ editorText.emptyNotice }}</p>
+        <p class="mb-4 text-muted">{{ editorText.emptyNotice }}</p>
       }
 
       <div class="space-y-10">
