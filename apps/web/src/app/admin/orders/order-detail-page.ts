@@ -127,7 +127,7 @@ const MARK_PAID = 'markPaid';
               are looking at. Nothing has to line up across the block for that
               to read: a button is next to its own sentence.
             -->
-            <section class="mt-6 rounded-lg border border-border p-5 text-sm">
+            <section class="mt-4 rounded-lg border border-border p-5 text-sm">
               <dl class="grid gap-x-6 break-words sm:grid-cols-[7rem_1fr]">
                 <dt [class]="term">{{ text.customer }}</dt>
                 <dd [class]="value">

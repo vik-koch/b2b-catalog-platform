@@ -47,7 +47,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
         <h1 class="mb-2 text-3xl font-medium tracking-tight">
           {{ text.heading }}
         </h1>
-        <p class="mb-8 text-muted">{{ text.intro }}</p>
+        <p class="mb-4 text-muted">{{ text.intro }}</p>
 
         <form
           class="space-y-6"

@@ -54,7 +54,7 @@ import { SyncService } from './sync.service';
     Link,
   ],
   template: `
-    <div class="mb-4 md:mb-6 flex flex-wrap items-center gap-3">
+    <div class="mb-4 flex flex-wrap items-center gap-3">
       <h1 class="text-3xl font-medium tracking-tight">
         {{ text.uploadTitle }}
       </h1>

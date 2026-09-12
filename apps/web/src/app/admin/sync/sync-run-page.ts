@@ -36,7 +36,7 @@ import { SyncService } from './sync.service';
       <div>
         <!-- Title left, way back right: the same shape as every list heading,
              and the counterpart of the button that opened this page. -->
-        <div class="mb-4 md:mb-6 flex flex-wrap items-center gap-3">
+        <div class="mb-4 flex flex-wrap items-center gap-3">
           <h1 class="text-3xl font-medium tracking-tight">
             {{ text.runTitle }}
           </h1>

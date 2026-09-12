@@ -516,6 +516,29 @@ body:has(dialog[open]) {
   font-weight: 400;
   letter-spacing: -0.025em;
 }
+/*
+ * And they sit closer to what precedes them than Typography's 2em/1.6em, which
+ * opens a gap wide enough to read as a section break before the heading that
+ * announces one. The space below each is Typography's own — a heading belongs
+ * to the text under it.
+ */
+.prose :where(h2) {
+  margin-top: 1.4em;
+}
+.prose :where(h3, h4) {
+  margin-top: 1.15em;
+}
+/*
+ * And the body never opens with that gap. Typography resets its own first
+ * child, but that rule lives inside Tailwind's layer and the two above do not,
+ * so unlayered wins whatever the specificity says — the same trap the
+ * ProseMirror rules further down already work around. Restated here rather
+ * than layering the rules above, because the editing surface needs its own
+ * copy anyway (the wrapper breaks the `>` chain).
+ */
+.prose > :first-child {
+  margin-top: 0;
+}
 
 /*
  * Rich-text image placement. Width arrives inline (width:N%, sanitizer-built);

@@ -75,7 +75,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
     <!-- One narrow column for the whole screen, heading included: a full-width
          title over a narrow form is a third layout where two will do. -->
     <div class="max-w-xl">
-      <h1 class="mb-6 text-3xl font-medium tracking-tight">{{ title() }}</h1>
+      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ title() }}</h1>
 
       @if (loading()) {
         @if (showSkeleton()) {

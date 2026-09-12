@@ -68,10 +68,10 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           {{ home }}
         </a>
       } @else {
-        <h1 class="mb-4 text-3xl font-medium tracking-tight">
+        <h1 class="mb-2 text-3xl font-medium tracking-tight">
           {{ text.register.heading }}
         </h1>
-        <p class="mb-8 text-muted">{{ text.register.intro }}</p>
+        <p class="mb-4 text-muted">{{ text.register.intro }}</p>
 
         <form
           [formGroup]="form"
