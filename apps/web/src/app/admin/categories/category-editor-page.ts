@@ -16,7 +16,10 @@ import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
-import { AdminCatalogService } from '../admin-catalog.service';
+import {
+  AdminCatalogService,
+  type CategorySaveErrorCode,
+} from '../admin-catalog.service';
 import { injectEditorReturn } from '../editor-return';
 import { categoryDescendantIds } from './category-tree';
 import { ImagePicker } from '../media/image-picker';
@@ -367,10 +370,13 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       ...(sourceId ? { sourceId } : {}),
     };
     try {
-      if (current) {
-        await this.admin.updateCategory(current.id, body);
-      } else {
-        await this.admin.createCategory(body);
+      const result = current
+        ? await this.admin.updateCategory(current.id, body)
+        : await this.admin.createCategory(body);
+      if (!result.ok) {
+        this.error.set(this.refusalText(result.code));
+        this.saving.set(false);
+        return;
       }
       this.navigatingAway = true; // let the unsaved-changes guard pass
       await this.close('/admin/categories');
@@ -378,6 +384,14 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       this.error.set(this.text.saveError);
       this.saving.set(false);
     }
+  }
+
+  /** A refusal is named by its code and worded here — never by what the server
+   * wrote. The ownership one reuses the sentence the locked fields carry. */
+  private refusalText(code: CategorySaveErrorCode): string {
+    return code === 'catalog-externally-owned'
+      ? this.ownershipText.fieldLocked
+      : this.common.catalogErrors[code];
   }
 
   protected cancel(): void {

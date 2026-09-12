@@ -483,10 +483,10 @@ export const adminCategorySchema = z
   .strict();
 export type AdminCategory = z.infer<typeof adminCategorySchema>;
 
-/** What create/update accept for a category. `slug` follows the same
- * optional-override rule as products (omit to derive/keep). `sourceId` is
- * server-owned. Reorder/reparent within the tree goes through `reorder`, but a
- * single move may also set `parentId` here. */
+/** What create/update accept for a category. `slug` and `sourceId` follow the
+ * same optional-override rule as products (omit to derive/keep). Reorder and
+ * reparent within the tree go through `reorder`, but a single move may also set
+ * `parentId` here. */
 export const categoryInputSchema = z
   .object({
     name: z.string().trim().min(1).max(CATEGORY_NAME_MAX_LENGTH),
@@ -605,6 +605,15 @@ const productWriteErrors = {
   'paired-product-not-found': e['paired-product-not-found'],
   'document-not-found': e['document-not-found'],
   'pairing-self': e['pairing-self'],
+  'slug-taken': e['slug-taken'],
+  'source-id-taken': e['source-id-taken'],
+  'slug-or-source-id-taken': e['slug-or-source-id-taken'],
+} as const;
+
+/** A category is addressed by the same two unique columns a product is, so
+ * writing one collides the same way — including on create, where an admin
+ * pre-assigns the source system's key to a category entered by hand. */
+const categoryIdentityErrors = {
   'slug-taken': e['slug-taken'],
   'source-id-taken': e['source-id-taken'],
   'slug-or-source-id-taken': e['slug-or-source-id-taken'],
@@ -773,9 +782,12 @@ export const adminCatalogContract = {
       path: '/admin/catalog/categories',
       successStatus: 201,
       inputStructure: 'detailed',
-      summary: 'Create a category (admin; slug/sourceId generated)',
+      summary: 'Create a category (admin; slug/sourceId derived when omitted)',
     })
-    .errors({ 'category-not-found': e['category-not-found'] })
+    .errors({
+      'category-not-found': e['category-not-found'],
+      ...categoryIdentityErrors,
+    })
     .input(z.object({ body: categoryInputSchema }))
     .output(adminCategorySchema),
 
@@ -793,6 +805,7 @@ export const adminCatalogContract = {
       // the rest of the row — nickname, parent, image, description — is the
       // shop's presentation and stays editable throughout.
       'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
+      ...categoryIdentityErrors,
     })
     .input(
       z.object({

@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import {
+  AdminCategory,
   AdminProduct,
   CatalogErrorCode,
   AdminProductSort,
@@ -22,6 +23,12 @@ import { WorkService } from '../work/work.service';
  */
 function renderable(code: string): code is CatalogErrorCode {
   return code !== 'not-authenticated' && code !== 'insufficient-role';
+}
+
+/** The same rule for a category save, which may also be refused because an
+ * external system owns the catalog (FR-ADM-10). */
+function renderableCategory(code: string): code is CategorySaveErrorCode {
+  return renderable(code) || code === 'catalog-externally-owned';
 }
 
 /**
@@ -123,12 +130,32 @@ export class AdminCatalogService {
     return (await this.client.listCategories()).categories;
   }
 
-  createCategory(body: CategoryInput) {
-    return this.client.createCategory({ body });
+  /**
+   * Creates a category. Like a product save, a collision on either unique
+   * column comes back as a code the editor renders rather than as a throw —
+   * an admin pre-assigning the source system's key to a category typed here is
+   * the case that hits it.
+   */
+  createCategory(body: CategoryInput): Promise<CategorySaveResult> {
+    return this.savedCategory(this.client.createCategory({ body }));
   }
 
-  updateCategory(id: string, body: CategoryInput) {
-    return this.client.updateCategory({ params: { id }, body });
+  updateCategory(id: string, body: CategoryInput): Promise<CategorySaveResult> {
+    return this.savedCategory(
+      this.client.updateCategory({ params: { id }, body }),
+    );
+  }
+
+  /** The stored row, or the code the server refused with. */
+  private async savedCategory<TError extends Error>(
+    call: ClientPromiseResult<AdminCategory, TError>,
+  ): Promise<CategorySaveResult> {
+    const result = await safe(call);
+    if (result.isDefined && renderableCategory(result.error.code)) {
+      return { ok: false, code: result.error.code };
+    }
+    if (!result.isSuccess) throw result.error;
+    return { ok: true, category: result.data };
   }
 
   /**
@@ -182,6 +209,18 @@ export interface ProductGridQuery {
  */
 export type SaveResult =
   { ok: true; product: AdminProduct } | { ok: false; code: CatalogErrorCode };
+
+/**
+ * A category create/update outcome. Wider than `SaveResult` by one code: the
+ * ownership refusal, which the editor already has wording for because the same
+ * rule greys the fields out before the save is attempted.
+ */
+export type CategorySaveResult =
+  | { ok: true; category: AdminCategory }
+  | { ok: false; code: CategorySaveErrorCode };
+
+export type CategorySaveErrorCode =
+  CatalogErrorCode | 'catalog-externally-owned';
 
 /** A category delete outcome: done, or blocked with a code to explain. */
 export type CategoryDeleteResult =

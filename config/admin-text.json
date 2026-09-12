@@ -37,7 +37,7 @@
       "category-reassign-to-self": "The products cannot be moved into the category being deleted.",
       "category-cycle": "A category cannot be moved inside one of its own subcategories.",
       "slug-taken": "That web address is already used by something else. Please pick another.",
-      "source-id-taken": "That catalogue ID is already used by another product.",
+      "source-id-taken": "That catalogue ID is already used by another product or category.",
       "tier-not-found": "One of the price lists on this product no longer exists. Reload the page and set its prices again.",
       "paired-product-not-found": "One of the products this one is sold with no longer exists. Reload the page and pick the products again.",
       "document-not-found": "One of the documents on this product no longer exists. Reload the page and pick the documents again.",
