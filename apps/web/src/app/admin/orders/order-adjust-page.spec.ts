@@ -119,6 +119,7 @@ function render(
     previewAdjustment: unknown;
     adjust: unknown;
   }> = {},
+  config = defaultDeploymentConfig,
 ) {
   const previewAdjustment = vi.fn(
     async (_reference: string, _body: OrderAdjustment) => ({
@@ -134,7 +135,7 @@ function render(
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      { provide: DEPLOYMENT_CONFIG, useValue: config },
       {
         provide: AdminOrdersService,
         useValue: {
@@ -172,8 +173,11 @@ function render(
   return { fixture, previewAdjustment };
 }
 
-async function settled(api: Parameters<typeof render>[0] = {}) {
-  const { fixture, previewAdjustment } = render(api);
+async function settled(
+  api: Parameters<typeof render>[0] = {},
+  config = defaultDeploymentConfig,
+) {
+  const { fixture, previewAdjustment } = render(api, config);
   await fixture.whenStable();
   fixture.detectChanges();
   // The draft is priced once the form holds still, so the test has to hold
@@ -220,6 +224,21 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
       (field) => (field as HTMLInputElement).value,
     );
     expect(editable).not.toContain('Ring the bell twice');
+  });
+
+  // The order is a snapshot: one placed while the shop asked for an invoice
+  // address keeps it, and a deployment that has since stopped asking must not
+  // report an untouched form as deleting it.
+  it('keeps an invoice address the deployment no longer asks for', async () => {
+    const { el } = await settled(
+      {},
+      {
+        ...defaultDeploymentConfig,
+        billingAddressEnabled: false,
+      },
+    );
+
+    expect(el.textContent).toContain(text.changes.none);
   });
 
   it('names what changed, old beside new', async () => {

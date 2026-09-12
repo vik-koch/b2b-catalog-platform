@@ -1439,7 +1439,12 @@ export class AdminOrderAdjustPage {
               address: pickup.address,
             }
           : null,
-      billingAddress: this.billingEnabled ? this.billing.value() : null,
+      // Where this deployment invoices no address of its own, the order keeps
+      // the one it already carried — the server carries it forward rather than
+      // dropping it, so the proposed version has to say the same.
+      billingAddress: this.billingEnabled
+        ? this.billing.value()
+        : order.billingAddress,
       paymentMethod: this.paymentMethod(),
       // Where there is no pricing, the order's own figures stand in: the block
       // comparison never reads them, and a caller that does is asking about

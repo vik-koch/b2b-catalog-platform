@@ -10,6 +10,7 @@ import {
   MyOrderFilter,
   ORDER_PAGE_SIZE,
   OrderActor,
+  OrderAddress,
   OrderAdjustment,
   OrderAdjustmentPreview,
   OrderDetail,
@@ -1383,7 +1384,7 @@ export class OrdersService {
     input: OrderAdjustment,
   ): Promise<OrderAdjustmentPreview> {
     const current = await this.row(eq(orders.reference, reference));
-    const { priced, fulfilment } = await this.priceAdjusted(input);
+    const { priced, fulfilment } = await this.priceAdjusted(input, current);
 
     return {
       lines: priced.lines.map((line) => ({
@@ -1452,7 +1453,10 @@ export class OrdersService {
     }
 
     const notified = await this.customerThread(current.id);
-    const { priced, fulfilment, billing } = await this.priceAdjusted(input);
+    const { priced, fulfilment, billing } = await this.priceAdjusted(
+      input,
+      current,
+    );
     const status = current.status as OrderStatus;
     const snapshot = this.adjustedSnapshot(current, input, priced, {
       billing,
@@ -1773,7 +1777,10 @@ export class OrdersService {
 
   /** Everything both the preview and the write need worked out, in the order
    * the checkout works it out in. */
-  private async priceAdjusted(input: OrderAdjustment): Promise<{
+  private async priceAdjusted(
+    input: OrderAdjustment,
+    current: OrderRow,
+  ): Promise<{
     priced: PricedAdjustment;
     fulfilment: Fulfilment;
     billing: AddressInput | null;
@@ -1788,8 +1795,29 @@ export class OrdersService {
     return {
       priced,
       fulfilment: this.resolveFulfilment(input),
-      billing: this.billingAddress(input),
+      billing: this.adjustedBilling(input, current),
     };
+  }
+
+  /**
+   * The invoice address the new version carries. Where the deployment invoices
+   * an address of its own it is the one the form sent; where it does not, the
+   * version keeps what the order already carried.
+   *
+   * The order is a snapshot: one submitted while the shop asked for an invoice
+   * address holds the address the customer gave, and turning that question off
+   * changes what checkout asks rather than what an order already says. Nulling
+   * it here would make every adjustment of an older order silently delete an
+   * address nobody touched.
+   */
+  private adjustedBilling(
+    input: OrderAdjustment,
+    current: OrderRow,
+  ): AddressInput | null {
+    if (this.billingAddressEnabled) return this.billingAddress(input);
+    // The snapshot carries no label — nothing reads one off an order.
+    const carried = rowBillingAddress(current);
+    return carried && { ...carried, label: null };
   }
 
   /** The price list an adjustment names, as an id. Null is the default one. */
@@ -2124,20 +2152,7 @@ export class OrdersService {
             freeFromMinor: row.deliveryFreeFromMinor,
           }
         : null,
-      billingAddress:
-        row.billingStreet &&
-        row.billingPostalCode &&
-        row.billingCity &&
-        row.billingCountry
-          ? {
-              street: row.billingStreet,
-              street2: row.billingStreet2,
-              postalCode: row.billingPostalCode,
-              city: row.billingCity,
-              region: row.billingRegion,
-              country: row.billingCountry,
-            }
-          : null,
+      billingAddress: rowBillingAddress(row),
       paymentMethod: row.paymentMethod as OrderDetail['paymentMethod'],
       preferredDate: row.preferredDate,
       customerNote: row.customerNote,
@@ -2192,6 +2207,27 @@ export class PairingUnsatisfiedException extends Error {
   constructor(readonly shortfalls: { slug: string; shortPieces: number }[]) {
     super('The cart is missing what its products are sold with');
   }
+}
+
+/**
+ * The invoice address an order row carries, or null where it carries none —
+ * a deployment that invoices no address of its own (FR-CART-07), or an order
+ * from before it asked.
+ */
+function rowBillingAddress(row: OrderRow): OrderAddress | null {
+  return row.billingStreet &&
+    row.billingPostalCode &&
+    row.billingCity &&
+    row.billingCountry
+    ? {
+        street: row.billingStreet,
+        street2: row.billingStreet2,
+        postalCode: row.billingPostalCode,
+        city: row.billingCity,
+        region: row.billingRegion,
+        country: row.billingCountry,
+      }
+    : null;
 }
 
 function toSummary(row: OrderRow, itemCount: number): OrderSummary {
