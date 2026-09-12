@@ -29,7 +29,7 @@ Notes:
   Self-service password change (FR-AUTH-08) comes with it: the seeded password is known to
   whoever can read the deployment config, so the admin must be able — and be made — to replace
   it. Full account management lands in iteration 4.
-- Iteration 2 prices come from the default (lowest-tier) price list only — one price per
+- Iteration 2 prices come from the default price list only — one price per
   product. Tier→price-list resolution (FR-AUTH-05) lands in iteration 4.
 - Iteration 3 grew past the three search requirements it started with. Search needs sort controls
   to be usable at all (FR-SEARCH-04), and building the matcher makes the admin grid's
@@ -265,6 +265,15 @@ Notes:
   named explicitly because they are the case that looks like an omission and is not: the source
   system holds none, so they are admin-owned for good and the import contract has no image field.
   Attributes and packaging stay admin overlay, as iterations 5 and 6 already decided.
+- A **price became a (product, price list) row** inside iteration 12 rather than after it
+  (ADR 0059). The base price had been a column on `products`, which the adapter's mapper would
+  have had to be written against — and rewritten a release later, over a table the exchange was
+  by then actively writing. Two facts from the real export forced it rather than tidiness: the
+  source exports products and prices as separate files, so a product legitimately exists before
+  any price does; and a list that prices only part of the catalog silently charges everyone else
+  the guest price, which the old shape could not even express as a question. It ships inside
+  v1.10.0: the migration applies unattended, so it is a minor release under ADR 0044.
+
 - **FR-ORD-06 was deleted and replaced by FR-ADM-10** (2026-09-10). The switch it asked for —
   turn the platform's own order transitions off while an external system owns them — is the same
   mechanism as the one the catalog needs, and writing it twice would have produced two unrelated

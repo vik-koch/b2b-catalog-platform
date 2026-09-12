@@ -49,7 +49,9 @@ symmetrically with products.
   `price:default`. Iteration 2 knows only the key `default`; tier keys are added
   later as a semver-minor enum extension. _(Superseded by ADR 0031: the key is a
   plain string validated against `customer_tiers` at run time, not an enum —
-  tier keys are deployment data, so the contract never has to change again.)_
+  tier keys are deployment data, so the contract never has to change again. And
+  by ADR 0059: no key is reserved, and a bare `price` means whichever list
+  carries the default badge, whatever it is keyed.)_
   **Only keys present in the payload are
   written**; an absent key is left untouched, never cleared. A price is an
   **integer in the currency's minor unit**, as in the read contract and storage;

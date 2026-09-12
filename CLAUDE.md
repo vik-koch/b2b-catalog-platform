@@ -55,7 +55,9 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
 
 - **Role ≠ tier.** Role (admin/manager/user) = authorization. Customer tier = pricing group,
   independent field, only for `user` accounts, assigned on approval, invisible to the user.
-  Prices resolve via tier→price-list mapping; guests see lowest-tier price.
+  Prices resolve via tier→price-list mapping; one list carries the default badge and
+  guests see it. A price is a (product, price list) row; a product with none cannot be
+  published.
 - Single-language throughout (product content and UI), no i18n framework, no locale keys.
   Each deployment ships one locale's text; i18n is explicitly out of scope (see roadmap).
 - Static page content (privacy, imprint, about, conditions, contact) = generic `Page`
