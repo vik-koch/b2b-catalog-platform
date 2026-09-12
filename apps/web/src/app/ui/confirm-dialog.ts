@@ -152,17 +152,23 @@ export interface ConfirmAnswer {
         >
           {{ cancelLabel() }}
         </button>
-        <button
-          appButton
-          [variant]="confirmVariant()"
-          type="button"
-          [disabled]="incomplete()"
-          (click)="
-            confirmed.emit({ reason: reason().trim(), checks: ticked() })
-          "
-        >
-          {{ confirmLabel() }}
-        </button>
+        <!-- Absent where there is nothing to answer: a dialog that only
+             explains why a control refused is the same dialog with its yes
+             taken away, and a second component for it would be this one
+             copied. -->
+        @if (confirmLabel(); as label) {
+          <button
+            appButton
+            [variant]="confirmVariant()"
+            type="button"
+            [disabled]="incomplete()"
+            (click)="
+              confirmed.emit({ reason: reason().trim(), checks: ticked() })
+            "
+          >
+            {{ label }}
+          </button>
+        }
       </div>
     </dialog>
   `,
@@ -176,7 +182,9 @@ export class ConfirmDialog {
   /** A consequence the reader should weigh, drawn under the question. Absent
    * on a question that has none. */
   readonly warning = input<string | null>(null);
-  readonly confirmLabel = input.required<string>();
+  /** Null where the dialog only explains: the close button is then the whole
+   * of its actions. */
+  readonly confirmLabel = input.required<string | null>();
   readonly cancelLabel = input.required<string>();
   readonly confirmVariant = input<'primary' | 'danger'>('danger');
   /** Present where the answer may say why; absent for a plain yes/no. */

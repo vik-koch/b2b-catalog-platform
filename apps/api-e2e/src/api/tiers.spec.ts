@@ -382,6 +382,67 @@ describe('Customer tiers admin (FR-AUTH-05)', () => {
       expect(res.data.code).toBe('tier-is-default');
     });
 
+    it('answers a badge move with the whole list and what it cost', async () => {
+      // The move is answered with the list route's own payload plus the
+      // figure: the screen takes it as the new state rather than asking
+      // again, so a field missing from the contract is a 500 on a write that
+      // already happened.
+      const before = await get('/admin/tiers');
+      const badged = before.data.tiers.find(
+        (t: { isDefault: boolean }) => t.isDefault,
+      );
+
+      // Everything the move will take off the storefront, so this test can
+      // put the catalogue back exactly as it found it.
+      const published = await client.query(
+        `SELECT id, "publishedAt", "publishedBy" FROM products
+         WHERE "publishedAt" IS NOT NULL AND "deletedAt" IS NULL`,
+      );
+
+      const created = await createTier({
+        key: keyFor('badge-move'),
+        label: 'Badge move',
+      });
+
+      const res = await put(`/admin/tiers/${created.data.id}/default`, {});
+      expect(res.status).toBe(200);
+      expect(res.data.tiers).toEqual(expect.any(Array));
+      expect(typeof res.data.productCount).toBe('number');
+      // The new list prices nothing, so everything published comes off.
+      expect(res.data.unpublished).toBe(published.rowCount);
+      expect(
+        res.data.tiers.find((t: { id: string }) => t.id === created.data.id)
+          .isDefault,
+      ).toBe(true);
+
+      // Moving it back is the same call, and costs nothing: the list it
+      // returns to prices what it always did.
+      const back = await put(`/admin/tiers/${badged.id}/default`, {});
+      expect(back.status).toBe(200);
+      expect(back.data.unpublished).toBe(0);
+
+      // Publication is not restored by moving the badge back — it is a
+      // separate decision — so this run puts back what it took off.
+      for (const row of published.rows) {
+        await client.query(
+          'UPDATE products SET "publishedAt" = $2, "publishedBy" = $3 WHERE id = $1',
+          [row.id, row.publishedAt, row.publishedBy],
+        );
+      }
+    });
+
+    it('answers a move onto the list that already carries the badge', async () => {
+      const { data } = await get('/admin/tiers');
+      const badged = data.tiers.find(
+        (t: { isDefault: boolean }) => t.isDefault,
+      );
+
+      const res = await put(`/admin/tiers/${badged.id}/default`, {});
+      expect(res.status).toBe(200);
+      expect(res.data.unpublished).toBe(0);
+      expect(typeof res.data.productCount).toBe('number');
+    });
+
     it('counts the customers on it, and no staff', async () => {
       // The seeded admin and manager also carry a null tierId; only the
       // customer may move the number.

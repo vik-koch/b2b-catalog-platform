@@ -1,6 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { ConfirmService } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { IconButton } from '../../ui/icon-button';
 
@@ -42,15 +43,16 @@ export interface ProductRowState {
     <!-- Publication is independent of deletion, so a deleted row still shows
          where it stands: restoring it does not put it back on the storefront by
          itself. -->
-    <!-- Present but refused on a product nothing prices: the server says no
-         either way, and a button that disappears teaches nobody why. -->
+    <!-- Present and live on a product nothing prices: it explains instead of
+         acting, the way the delete dialog explains an externally owned
+         catalog. A dead button says only that something is wrong with it. -->
     <button
       type="button"
       appIconButton
-      [disabled]="busy() || cannotPublish()"
+      [disabled]="busy()"
       [attr.aria-label]="publishLabel()"
-      [title]="publishLabel()"
-      (click)="publishToggled.emit(product())"
+      [title]="cannotPublish() ? editText.unpricedHint : publishLabel()"
+      (click)="onPublishClick()"
     >
       <app-admin-icon
         [name]="product().publishedAt ? 'book-dashed' : 'book-check'"
@@ -86,6 +88,7 @@ export interface ProductRowState {
   `,
 })
 export class ProductRowActions {
+  private readonly confirm = inject(ConfirmService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
 
@@ -106,9 +109,24 @@ export class ProductRowActions {
     return product.publishedAt === null && product.priceMinor === null;
   }
 
-  /** Names what the button would do, for both the tooltip and screen readers. */
+  /** Publishing an unpriced product is refused by the server, so the click
+   * says why rather than sending a request that cannot succeed. */
+  protected onPublishClick(): void {
+    if (this.cannotPublish()) {
+      void this.confirm.tell({
+        heading: this.editText.unpricedTitle,
+        message: this.common.catalogErrors['product-has-no-price'],
+        closeLabel: this.common.close,
+      });
+      return;
+    }
+    this.publishToggled.emit(this.product());
+  }
+
+  /** Names what the button is for. It says "Publish" on a product nothing
+   * prices too: that is what the click is aimed at, and the tooltip beside it
+   * is where the reason it will not happen is said. */
   protected publishLabel(): string {
-    if (this.cannotPublish()) return this.editText.unpricedHint;
     return this.product().publishedAt
       ? this.editText.unpublishProduct
       : this.editText.publishProduct;
