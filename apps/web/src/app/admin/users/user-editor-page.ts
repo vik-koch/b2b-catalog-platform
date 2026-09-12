@@ -361,9 +361,17 @@ export class UserEditorPage implements UnsavedChangesAware {
     { value: 'company', label: this.listText.typeCompany },
   ];
   protected readonly common = inject(ADMIN_TEXT).common;
-  /** The storefront list's own name, as the tier screen shows it. */
-  protected readonly baseTierLabel = computed(
-    () => this.tiers().find((t) => t.isDefault)?.label ?? '',
+  /**
+   * What an account with no tier of its own is charged, named: "Default
+   * (Base list)". The option carries a null, which is also what a brand new
+   * customer has — so it is marked as the default rather than sitting in the
+   * list looking like one choice among several.
+   */
+  protected readonly baseTierLabel = computed(() =>
+    this.common.tierDefault.replace(
+      '{list}',
+      this.tiers().find((t) => t.isDefault)?.label ?? '',
+    ),
   );
   protected readonly otherTiers = computed(() =>
     this.tiers().filter((t) => !t.isDefault),

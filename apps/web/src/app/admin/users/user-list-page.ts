@@ -518,10 +518,17 @@ export class UserListPage {
     { value: 'manager', label: this.text.roleManager },
   ];
 
-  /** The storefront's price list under its own name — a row like any other
-   * now, so the name comes from it rather than from the deployment's text. */
-  private readonly baseTierLabel = computed(
-    () => this.tierList.value()?.tiers.find((t) => t.isDefault)?.label ?? '',
+  /**
+   * The storefront's price list under its own name — a row like any other now,
+   * so the name comes from it rather than from the deployment's text — and
+   * marked as the default: an account here holds a null rather than a choice
+   * somebody made, and the column should not read as if one had been made.
+   */
+  private readonly baseTierLabel = computed(() =>
+    this.common.tierDefault.replace(
+      '{list}',
+      this.tierList.value()?.tiers.find((t) => t.isDefault)?.label ?? '',
+    ),
   );
 
   // --- Row actions -------------------------------------------------------

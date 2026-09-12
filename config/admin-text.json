@@ -25,6 +25,7 @@
     "countSuffix": "({count})",
     "sortLabel": "Sort",
     "sortDefault": "Default order",
+    "tierDefault": "Default ({list})",
     "sortAscending": "{column}, ascending",
     "sortDescending": "{column}, descending",
     "catalogErrors": {

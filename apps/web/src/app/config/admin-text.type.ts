@@ -62,6 +62,10 @@ export const adminTextSchema = z
         sortLabel: z.string(),
         /** The ordering a grid has when nothing is chosen. */
         sortDefault: z.string(),
+        /** What an account with no tier of its own is charged, naming the
+         * storefront's list: `{list}`. A null tier is not a blank — it is the
+         * default list, and the screens say which one that is. */
+        tierDefault: z.string(),
         /** One line of the phone's sort picker: `{column}`. */
         sortAscending: z.string(),
         sortDescending: z.string(),
