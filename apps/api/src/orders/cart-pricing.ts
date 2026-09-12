@@ -16,7 +16,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';
-import { resolvedPriceMinor } from '../catalog/product-price';
+import { livePriceMinor } from '../catalog/product-price';
 import {
   availabilityColumns,
   packagingOf,
@@ -196,7 +196,7 @@ async function loadProducts(
       slug: products.slug,
       name: products.name,
       sourceId: products.sourceId,
-      priceMinor: resolvedPriceMinor(tierId),
+      priceMinor: livePriceMinor(tierId),
       images: products.images,
       boxVolume: products.boxVolume,
       boxWeight: products.boxWeight,

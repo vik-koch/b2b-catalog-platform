@@ -57,7 +57,7 @@ import {
   searchCondition,
   setSearchThreshold,
 } from './product-search';
-import { resolvedPriceMinor } from './product-price';
+import { livePriceMinor } from './product-price';
 import { productOrderBy } from './product-sort';
 import {
   boxDimensionsOf,
@@ -152,7 +152,7 @@ export class CatalogService {
     tierId: string | null = null,
     attributes: AttributeSelection[] = [],
   ): Promise<CategoryProductsResult | null> {
-    const price = resolvedPriceMinor(tierId);
+    const price = livePriceMinor(tierId);
     const rows = await this.categoryRows();
     const category = categoryBySlug(rows, slug);
     if (!category) return null;
@@ -226,7 +226,7 @@ export class CatalogService {
     tierId: string | null = null,
     attributes: AttributeSelection[] = [],
   ): Promise<SearchResult> {
-    const price = resolvedPriceMinor(tierId);
+    const price = livePriceMinor(tierId);
     const pageSize = CATALOG_PAGE_SIZE;
     const query = parseSearchQuery(rawQuery);
     if (!query) {
@@ -470,7 +470,7 @@ export class CatalogService {
       .select({
         slug: products.slug,
         name: products.name,
-        priceMinor: resolvedPriceMinor(tierId),
+        priceMinor: livePriceMinor(tierId),
         images: products.images,
         ...unitColumns,
         ...noteColumns,
@@ -493,7 +493,7 @@ export class CatalogService {
         id: products.id,
         slug: products.slug,
         name: products.name,
-        priceMinor: resolvedPriceMinor(tierId),
+        priceMinor: livePriceMinor(tierId),
         descriptionHtml: products.descriptionHtml,
         images: products.images,
         categoryId: products.categoryId,

@@ -16,6 +16,9 @@ import { resolvedPriceMinor } from './product-price';
 
 type OrderBy = (SQL | PgColumn)[];
 
+/** A resolved price, nullable because a product may not be priced yet. */
+type PriceExpression = SQL<number | null> | PgColumn;
+
 /**
  * What a listing leads with (FR-STOCK-05): everything that can be had, then
  * what cannot. Binary rather than three-way — "few left" is still on the shelf,
@@ -46,7 +49,7 @@ end`;
 export function productOrderBy(
   sort: SearchSort,
   score?: SQL<number>,
-  price: SQL<number> | PgColumn = resolvedPriceMinor(null),
+  price: PriceExpression = resolvedPriceMinor(null),
 ): OrderBy {
   return [asc(availabilityLast), ...sortKeys(sort, score, price)];
 }
@@ -61,7 +64,7 @@ export function productOrderBy(
 function sortKeys(
   sort: SearchSort,
   score?: SQL<number>,
-  price: SQL<number> | PgColumn = resolvedPriceMinor(null),
+  price: PriceExpression = resolvedPriceMinor(null),
 ): OrderBy {
   const tiebreak: OrderBy = [asc(products.name), asc(products.id)];
 
@@ -75,9 +78,12 @@ function sortKeys(
     case 'name_desc':
       return [desc(products.name), asc(products.id)];
     case 'price':
-      return [asc(price), ...tiebreak];
+      return [sql`${price} asc nulls last`, ...tiebreak];
     case 'price_desc':
-      return [desc(price), ...tiebreak];
+      // Nulls last in both directions: a product nobody has priced is not the
+      // dearest thing in the catalog, it is the one with no answer. Only the
+      // admin grid can see one at all.
+      return [sql`${price} desc nulls last`, ...tiebreak];
   }
 }
 
