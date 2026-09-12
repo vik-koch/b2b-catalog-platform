@@ -28,6 +28,7 @@ import {
   formatPriceInput,
   parsePriceInput,
 } from '../../catalog/price';
+import { StatusBadge } from '../../ui/status-badge';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
 import { ProductAvailabilityBadge } from '../../catalog/product-availability-badge';
@@ -97,11 +98,32 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
     Skeleton,
     UnitField,
     LockedFieldMarker,
+    StatusBadge,
   ],
   template: `
-    <h1 class="mb-6 text-3xl font-medium tracking-tight">
-      {{ isNew ? text.newTitle : text.editTitle }}
-    </h1>
+    <div class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <h1 class="text-3xl font-medium tracking-tight">
+        {{ isNew ? text.newTitle : text.editTitle }}
+      </h1>
+      <!-- Where the product stands, beside its name — the same three badges
+           the hidden-products overlay puts on a tile, in the one place all
+           three can be changed. The price one tracks the field rather than
+           what is stored: it says what the product will be after a save, which
+           is the question somebody editing it is actually asking. -->
+      @if (!isNew && !loading() && !notFound()) {
+        @if (deleted()) {
+          <span appStatusBadge tone="danger">{{ editText.deletedBadge }}</span>
+        }
+        @if (!published()) {
+          <span appStatusBadge tone="waiting">{{
+            editText.unpublishedBadge
+          }}</span>
+        }
+        @if (priceCleared()) {
+          <span appStatusBadge tone="danger">{{ editText.unpricedBadge }}</span>
+        }
+      }
+    </div>
 
     @if (loading()) {
       @if (showSkeleton()) {
@@ -535,6 +557,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  /** The badge wording, shared with the storefront's hidden-products overlay. */
+  protected readonly editText = inject(ADMIN_TEXT).editMode;
   private readonly ownership = inject(SettingsService);
 
   /**
@@ -599,6 +623,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
 
   /** Null until loaded; drives the publish switch and where a save returns to. */
   protected readonly published = signal(false);
+  /** Soft-deleted: still editable, and the badge beside the title says so. */
+  protected readonly deleted = signal(false);
   protected readonly previewing = signal(false);
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -884,6 +910,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.ownAttributeKeys.set(product.attributes.map((a) => a.key));
       this.images.set(product.images);
       this.published.set(product.publishedAt !== null);
+      this.deleted.set(product.deletedAt !== null);
       this.pairings.set(product.pairings);
       this.documents.set(product.documents);
       this.lineNoteEnabled.set(product.lineNoteEnabled);

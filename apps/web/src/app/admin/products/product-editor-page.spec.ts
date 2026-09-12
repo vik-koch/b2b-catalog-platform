@@ -200,6 +200,8 @@ async function render(
 
 /** The price field's caption, which names the list it writes. */
 const priceLabel = fillText(text.priceWithList, { list: baseList.label });
+/** The badge wording, shared with the storefront's hidden-products overlay. */
+const editText = defaultAdminText.editMode;
 
 function inputByLabel(el: HTMLElement, label: string): HTMLInputElement {
   // A mandatory field's caption carries a trailing asterisk; the caption is
@@ -565,6 +567,53 @@ describe('ProductEditorPage', () => {
       );
     });
   });
+  describe('the state beside the title', () => {
+    it('says nothing about a product that is published and priced', async () => {
+      const { el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: publishedProduct },
+      );
+
+      expect(el.textContent).not.toContain(editText.unpublishedBadge);
+      expect(el.textContent).not.toContain(editText.unpricedBadge);
+      expect(el.textContent).not.toContain(editText.deletedBadge);
+    });
+
+    it('badges a product that is off the storefront and deleted', async () => {
+      const { el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          product: {
+            ...unpublishedProduct,
+            deletedAt: '2026-08-03T09:00:00.000Z',
+          },
+        },
+      );
+
+      expect(el.textContent).toContain(editText.unpublishedBadge);
+      expect(el.textContent).toContain(editText.deletedBadge);
+    });
+
+    it('follows the price field rather than what is stored', async () => {
+      const { fixture, el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: publishedProduct },
+      );
+
+      expect(el.textContent).not.toContain(editText.unpricedBadge);
+
+      setInput(inputByLabel(el, priceLabel), '');
+      fixture.detectChanges();
+
+      // What the product will be after the save, which is the question
+      // somebody editing it is asking.
+      expect(el.textContent).toContain(editText.unpricedBadge);
+    });
+  });
+
   describe('publication (FR-ADM-06)', () => {
     it('reads a price of zero as no price at all', async () => {
       const { fixture, el, h } = await render(
