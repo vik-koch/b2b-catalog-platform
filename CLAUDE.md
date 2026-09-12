@@ -68,9 +68,13 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
   config. Navigation, header/footer, and interactive widgets (contact form, map embed)
   are code; the map embed URL and header contact info come from deployment config, not
   CMS content.
-- Catalog sync: manual file-based, upsert by private `sourceId` (never serialized to the
-  storefront; SKU is display only), soft-delete missing, diff preview before commit,
-  audit-logged. No live sync with the legacy source system.
+- Catalog sync: manual file-based, upsert by private `sourceId` — the source system's own
+  key, readable and admin-editable but never serialized to the storefront, and the only
+  identity the platform models. There is no public article number: the catalog has no SKU
+  field and the storefront quotes none. Soft-delete missing, diff preview before commit,
+  audit-logged. The same run contract is also driven headlessly by a machine token, so an
+  external system can feed the catalog without anyone opening the admin panel; which of the
+  two is allowed is the ownership switch, never both at once.
 - Account deletion anonymizes past orders, never deletes them.
 
 ## Workflow conventions

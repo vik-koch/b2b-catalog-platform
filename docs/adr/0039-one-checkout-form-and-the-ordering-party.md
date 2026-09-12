@@ -1,6 +1,6 @@
 # 0039 — One prefilled checkout form, and the party it is invoiced to
 
-**Status:** accepted · **Date:** 2026-08-23
+**Status:** accepted (amended 2026-08-29, 2026-09-08) · **Date:** 2026-08-23
 
 ## Context
 

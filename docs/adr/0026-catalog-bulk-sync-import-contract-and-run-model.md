@@ -1,6 +1,6 @@
 # 0026 — Define a stable sync row contract with per-run intent, applied through a staged preview
 
-**Status:** accepted · **Date:** 2026-07-30
+**Status:** accepted (amended 2026-08-03, 2026-09-10) · **Date:** 2026-07-30
 
 ## Context
 

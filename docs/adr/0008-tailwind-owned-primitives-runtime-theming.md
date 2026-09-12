@@ -1,6 +1,6 @@
 # 0008 — Tailwind with owned UI primitives and runtime theme tokens
 
-**Status:** accepted · **Date:** 2026-07-19
+**Status:** accepted (amended 2026-09-04, 2026-09-05) · **Date:** 2026-07-19
 
 ## Context
 

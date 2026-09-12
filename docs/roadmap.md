@@ -17,7 +17,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 9   | Sold-together sets → **tag v1.7.0**                                                            | FR-SET-01…05                                                                                                                                                                        |
 | 10  | Product documents & certificates → **tag v1.8.0**                                              | FR-DOC-01…04, FR-CAT-05 amended                                                                                                                                                     |
 | 11  | Order processing, payment state & order documents → **tag v1.9.0**                             | FR-ORD-01…05, FR-CART-05 + FR-CART-06 amended, FR-NOTIF-03/07/08 + FR-ORD-02 amended, FR-ACC-02, FR-WORK-02/04 + FR-AUTH-04 amended, NFR-LEGAL-04, NFR-SEC-10, NFR-OPS-02 amended   |
-| 12  | Automated catalog sync from the source system → **tag v1.10.0**                                | FR-ADM-07/09/10, FR-NOTIF-09, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02/04 + FR-UNIT-04/10 + FR-ADM-06 + FR-WORK-02 amended                                                              |
+| 12  | Automated catalog sync from the source system → **tag v1.10.0**                                | FR-ADM-07/09/10, FR-NOTIF-09, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02/04 + FR-AUTH-05 + FR-UNIT-04/10 + FR-ADM-06 + FR-WORK-02 amended                                                 |
 | 13  | Order exchange with the source system → **tag v1.11.0**                                        | FR-ADM-08, FR-ADM-09/10 amended, FR-ORD-02/03 amended                                                                                                                               |
 | 14  | Online card payment → **tag v1.12.0**                                                          | FR-CART-04/06 amended                                                                                                                                                               |
 
@@ -256,9 +256,14 @@ Notes:
   and nothing else, as it always was. Whatever further bookkeeping that system's own
   identifiers require belongs to the adapter, so the platform gains no column, no second
   identity for an order line to snapshot, and no format knowledge at all. The one thing the
-  import contract does gain is a way for a run to say that a row's key _changed_
-  (`previousSourceId`), so a renamed key is a rename rather than a create plus a delete —
-  which is a statement about one row, not a second identity.
+  import contract carries no way for a run to say a row's key _changed_, either. That was
+  planned and dropped before it was built: a key the source system re-issues is rare enough
+  that a feed which renames one is a thing an operator handles rather than a path the
+  contract carries. A run that meets a renamed key reads it as a create plus a soft delete,
+  so the way to rename one is to take the catalog back, correct the key in the product
+  editor, and hand it over again — which needs no deploy, because the ownership switch is
+  the same one that turns the feed off. What the platform does not promise, and should not,
+  is that the source system keeps its own keys consistent.
 - What the exchange owns and what the shop owns is settled in iteration 12 rather than left to
   accumulate: the source system owns identity, name, category, price and stock; the shop owns
   everything a customer reads — descriptions, images, attributes, documents, pairings. Images are
@@ -271,8 +276,12 @@ Notes:
   by then actively writing. Two facts from the real export forced it rather than tidiness: the
   source exports products and prices as separate files, so a product legitimately exists before
   any price does; and a list that prices only part of the catalog silently charges everyone else
-  the guest price, which the old shape could not even express as a question. It ships inside
-  v1.10.0: the migration applies unattended, so it is a minor release under ADR 0044.
+  the guest price, which the old shape could not even express as a question. With the column
+  gone, "the default list" became a **badge one price list carries** rather than a reserved key,
+  so which list guests and untiered accounts are charged is an admin decision that can be moved
+  (FR-AUTH-05 amended) — and moving it unpublishes what the newly badged list does not price,
+  rather than refusing the move. It ships inside v1.10.0: the migration applies unattended, so
+  it is a minor release under ADR 0044.
 
 - **FR-ORD-06 was deleted and replaced by FR-ADM-10** (2026-09-10). The switch it asked for —
   turn the platform's own order transitions off while an external system owns them — is the same
