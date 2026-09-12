@@ -52,6 +52,10 @@ pointer to one designated list already existed, encoded in a column name.
 - **A product may have no price**, and then cannot be published: `setProductPublished`
   refuses with `product-has-no-price` (FR-ADM-06), and saving a published product
   with its price cleared takes it off the storefront in the same write.
+- **A price is positive, and "not priced" is the absence of the row.** There is
+  no second spelling: `product_prices` carries a `> 0` check, the write
+  contracts refuse a zero, a catalog file carrying one is a row error rather
+  than a product given away, and an admin field left at zero empties itself.
 - **The badge is the shop's, not the exchange's.** It stays editable while the
   catalog is externally owned
   ([ADR 0056](0056-an-external-owner-makes-fields-read-only.md)), like a tier's
@@ -84,6 +88,14 @@ no longer exists. Refusing the move instead would make the badge unmovable for a
 long as one product is unpriced. The screen states the figure before the move, so
 the outcome is the one the admin chose.
 
+**Zero is not a price.** With the base price a `NOT NULL` column, a zero was
+the only way an importer could say "no price yet" — the workaround this ADR
+removes. Keeping it _legal_ afterwards would leave the state with two
+spellings, and every screen reads the second one as a product given away: a
+storefront tile quoting 0,00, a cart totalling nothing, an order line charging
+nothing. So it is refused where the state lives, in the check constraint, and
+at each edge that writes one.
+
 **The unpriced are their own work queue.** A product no list prices cannot be
 published, so counting it among "awaiting publication" would leave a figure
 nobody can clear by doing the work the figure names — against FR-WORK-02. The
@@ -115,6 +127,9 @@ write across `users`.
 - (−) The guest price resolves through a subquery rather than a column, and the
   price sort with it. Accepted: sorting is off in the deployment this serves,
   and the covering index is the answer if that changes.
+- (−) A deployment that had written a zero as "not priced" loses those rows in
+  the migration, and those products come off the storefront — which is what the
+  zero already meant everywhere it was read.
 - (−) A price is nullable throughout the admin surfaces — the grid, the editor,
   the hidden-products panel, an order adjustment. The storefront's contract
   stays non-null, because publication guarantees it.

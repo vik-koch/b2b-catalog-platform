@@ -164,8 +164,15 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
         <!-- Side by side from sm up: the price is a short field and the
              category picker is the long one beside it. Below that each takes a
              line of its own — a 10rem price field and a picker sharing 360px
-             are two fields too narrow to read. -->
-        <div class="flex flex-wrap gap-6">
+             are two fields too narrow to read.
+
+             A grid rather than a flex row so the note under the price can be a
+             row of its own: inside the price field's own column it grew that
+             column and pushed the category picker away from the field it
+             belongs to. The picker is placed explicitly, so the note can sit
+             between the two fields in the markup and read under the price on a
+             phone. -->
+        <div class="grid gap-x-6 gap-y-6 sm:grid-cols-[10rem_minmax(0,1fr)]">
           <label class="block w-full sm:w-auto">
             <!-- Named after the list it writes: it is one price list's row like
                  any other below, and the only thing separating it is that the
@@ -190,18 +197,25 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
                 [placeholder]="pricePlaceholder"
                 [disabled]="catalogOwned()"
                 (input)="priceInput.set($any($event.target).value)"
+                (blur)="onPriceBlur()"
               />
             </app-unit-field>
-            <!-- Said where the field is, not only on the button: by the time
-                 somebody reads the button they have already cleared it. -->
-            @if (priceCleared() && published()) {
-              <p class="mt-1 text-sm text-amber-700">
-                {{ text.priceCleared }}
-              </p>
-            }
           </label>
 
-          <div class="w-full sm:w-auto sm:flex-1">
+          <!-- Said where the field is, not only on the button: by the time
+               somebody reads the button they have already cleared it. Under
+               the price on a phone, where the fields are a column; across both
+               columns from sm up, so appearing mid-edit moves nothing beside
+               it. -->
+          @if (priceCleared() && published()) {
+            <p
+              class="-mt-4 text-sm text-amber-700 sm:col-span-2 sm:row-start-2"
+            >
+              {{ text.priceCleared }}
+            </p>
+          }
+
+          <div class="w-full sm:col-start-2 sm:row-start-1 sm:w-auto">
             <span appFieldLabel>
               {{ text.category }}
               <span class="text-accent" aria-hidden="true">*</span>
@@ -611,6 +625,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
    * "18,00" it would save as; empty while the field holds no price at all.
    */
   protected readonly basePriceText = computed(() => {
+    // Nothing to advertise while the field holds no price — a zero included,
+    // which saves as none: the tier fields fall back to naming it instead.
+    if (this.priceCleared()) return '';
     const minor = parsePriceInput(this.priceInput(), this.currency);
     return minor === null ? '' : formatPriceInput(minor, this.currency);
   });
@@ -632,11 +649,20 @@ export class ProductEditorPage implements UnsavedChangesAware {
     this.tiers().filter((t) => !t.isDefault),
   );
 
-  /** An empty price field is a product with no price, which is a state the
-   * catalog holds: it simply cannot be on the storefront. */
-  protected readonly priceCleared = computed(
-    () => this.priceInput().trim() === '',
-  );
+  /**
+   * The field says this product has no price, which is a state the catalog
+   * holds: it simply cannot be on the storefront.
+   *
+   * Zero is that state too, and stored as one rather than as a row saying the
+   * product is free: a shop that gives something away does not price it at
+   * nothing, and two spellings of one state is what the null is here to
+   * avoid. Typing 0,00 therefore reads exactly as clearing the field, warning
+   * and save label included.
+   */
+  protected readonly priceCleared = computed(() => {
+    const text = this.priceInput().trim();
+    return text === '' || parsePriceInput(text, this.currency) === 0;
+  });
 
   /** Says what the save will do before it is pressed: clearing the price of a
    * published product takes it off the storefront in the same write. */
@@ -645,6 +671,18 @@ export class ProductEditorPage implements UnsavedChangesAware {
       ? this.text.saveAndUnpublish
       : this.common.save,
   );
+
+  /**
+   * Empties a price field left at zero. A price of nothing is no price, and an
+   * empty field is how this form says that — so the field is put into that
+   * state as soon as it is left, rather than reading as a free product until
+   * the save silently turns it into none.
+   */
+  protected onPriceBlur(): void {
+    if (parsePriceInput(this.priceInput(), this.currency) === 0) {
+      this.priceInput.set('');
+    }
+  }
 
   /** The declared unit for an attribute key, matched as the server matches it:
    * exactly, apart from surrounding whitespace (FR-ATTR-02). */
@@ -1012,6 +1050,10 @@ export class ProductEditorPage implements UnsavedChangesAware {
           this.text.tierPrices.invalid.replace('{tier}', tier?.label ?? ''),
         );
       }
+      // A zero is dropped rather than written, the same reading the field
+      // above gets: the list keeps no price of its own and is charged the
+      // storefront's, which is what an emptied field already means here.
+      if (tierMinor === 0) continue;
       tierPrices.push({ tierId: draft.tierId, priceMinor: tierMinor });
     }
 

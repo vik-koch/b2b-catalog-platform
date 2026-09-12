@@ -50,6 +50,18 @@ export type CatalogImage = z.infer<typeof catalogImageSchema>;
 export const priceMinorSchema = z.number().int().nonnegative();
 
 /**
+ * A price as it is *written*. Zero is refused here and nowhere else: a product
+ * that costs nothing is a product with no price, which the catalog already
+ * says by storing none, and two spellings of one state is what the null is
+ * there to avoid.
+ *
+ * Reads stay `priceMinorSchema`: a deployment may hold zeros written before
+ * this rule, and the storefront quotes what is stored rather than refusing to
+ * render it.
+ */
+export const priceInputMinorSchema = z.number().int().positive();
+
+/**
  * What a product costs, per unit it can be bought in (FR-UNIT-05). `pack` and
  * `box` are null where the packaging does not define them.
  *

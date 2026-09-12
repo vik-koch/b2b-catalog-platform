@@ -684,6 +684,33 @@ describe('planSync', () => {
       expect(result.actions.updateProducts).toEqual([]);
     });
 
+    it('skips a row priced at zero, and names the column', () => {
+      const result = planSync(
+        [row({ prices: { default: 0 } })],
+        options(),
+        state(),
+      );
+
+      // Zero is not a free product: a product the file does not price is sent
+      // without the column, and a zero in it is a converter bug.
+      expect(result.plan.rowErrors[0]).toMatchObject({
+        code: 'price-is-zero',
+        params: { column: 'price:default' },
+      });
+      expect(result.actions.updateProducts).toEqual([]);
+    });
+
+    it('refuses the whole row when one of its prices is zero', () => {
+      const result = planSync(
+        [row({ prices: { default: 4500, wholesale: 0 } })],
+        options(),
+        state(),
+      );
+
+      expect(result.plan.rowErrors[0].code).toBe('price-is-zero');
+      expect(result.actions.updateProducts).toEqual([]);
+    });
+
     it('refuses the whole row, base price included, on an unknown list', () => {
       const result = planSync(
         [row({ prices: { default: 999, retail: 1500 } })],

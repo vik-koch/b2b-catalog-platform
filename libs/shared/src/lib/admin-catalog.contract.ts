@@ -18,6 +18,7 @@ import { ownershipErrors } from './ownership-constants';
 import {
   availabilitySchema,
   catalogImageSchema,
+  priceInputMinorSchema,
   priceMinorSchema,
   productAttributeSchema,
   productListItemSchema,
@@ -48,7 +49,7 @@ import { slugSchema } from './slug';
 export const productTierPriceSchema = z
   .object({
     tierId: z.uuid(),
-    priceMinor: priceMinorSchema,
+    priceMinor: priceInputMinorSchema,
   })
   .strict();
 export type ProductTierPrice = z.infer<typeof productTierPriceSchema>;
@@ -115,9 +116,10 @@ export const productInputSchema = z
      * The default list's price for one piece, or null for a product nothing
      * has priced yet — a product imported before its prices were. Saving null
      * is allowed and takes the product off the storefront (FR-ADM-06): a page
-     * cannot show a visitor a price that does not exist.
+     * cannot show a visitor a price that does not exist. Zero is not that
+     * state spelled differently — see `priceInputMinorSchema`.
      */
-    priceMinor: priceMinorSchema.nullable(),
+    priceMinor: priceInputMinorSchema.nullable(),
     /** The single owning category (FR-CAT-05); picked from the admin tree. */
     categoryId: z.uuid(),
     /** Sanitized server-side before storage, same discipline as page bodies.

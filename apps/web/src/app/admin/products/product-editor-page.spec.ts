@@ -517,6 +517,34 @@ describe('ProductEditorPage', () => {
       expect(h.updateProduct.mock.calls[0][1].tierPrices).toEqual([]);
     });
 
+    it('drops a tier field holding a zero, the way an empty one is dropped', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          tiers: [wholesale],
+          product: {
+            ...storedProduct,
+            tierPrices: [{ tierId: 'tier-w', priceMinor: 950 }],
+          },
+        },
+      );
+
+      const field = tierInput(el, wholesale.label);
+      setInput(field, '0,00');
+      // Leaving the field empties it: no price is what a zero means, and an
+      // empty field is how this editor says it.
+      field.dispatchEvent(new Event('blur'));
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(field.value).toBe('');
+
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1].tierPrices).toEqual([]);
+    });
+
     it('names the tier when its price is invalid', async () => {
       const { fixture, el, h } = await render(
         { slug: 'hafen-espresso' },
@@ -538,6 +566,35 @@ describe('ProductEditorPage', () => {
     });
   });
   describe('publication (FR-ADM-06)', () => {
+    it('reads a price of zero as no price at all', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: publishedProduct },
+      );
+
+      const field = inputByLabel(el, priceLabel);
+      setInput(field, '0,00');
+      fixture.detectChanges();
+
+      // The same warning an emptied field raises, and the same button: zero is
+      // that state written differently, not a product that costs nothing.
+      expect(el.textContent).toContain(text.priceCleared);
+
+      // And leaving the field empties it, so the form stops showing a price
+      // it is not going to store.
+      field.dispatchEvent(new Event('blur'));
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(field.value).toBe('');
+      expect(() => buttonByText(el, text.saveAndPublish)).toThrow();
+
+      buttonByText(el, text.saveAndUnpublish).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1].priceMinor).toBeNull();
+    });
+
     it('saves first and publishes second, then lands on the storefront page', async () => {
       const { fixture, el, h } = await render(
         { slug: null },

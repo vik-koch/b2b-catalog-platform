@@ -486,6 +486,10 @@ export const productPrices = pgTable(
     // The PK covers product-leading lookups (resolving one listing page); this
     // covers tier-leading ones (the delete guard, per-tier admin views).
     index('product_prices_tierId_idx').on(t.tierId),
+    // A price is a positive amount of money. "Not priced" is the absence of
+    // this row and has no other spelling: a zero would be a second one, read
+    // by every screen as a product given away. Negative was never meaningful.
+    check('product_prices_price_positive', sql`${t.priceMinor} > 0`),
   ],
 );
 

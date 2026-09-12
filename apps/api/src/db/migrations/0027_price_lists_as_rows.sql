@@ -26,4 +26,16 @@ SELECT p."id", t."id", p."defaultPriceMinor"
   FROM "products" p
  CROSS JOIN (SELECT "id" FROM "customer_tiers" WHERE "isDefault") t;--> statement-breakpoint
 
-ALTER TABLE "products" DROP COLUMN "defaultPriceMinor";
+ALTER TABLE "products" DROP COLUMN "defaultPriceMinor";--> statement-breakpoint
+
+-- A deployment that wrote a zero into the old column meant "not priced" —
+-- there was no other way to say it while the column was NOT NULL. It is said
+-- by the absence of the row now, so those rows go before the check below can
+-- be stated. Such a product ends up unpriced and comes off the storefront,
+-- which is what a zero already meant everywhere it was read.
+DELETE FROM "product_prices" WHERE "priceMinor" <= 0;--> statement-breakpoint
+
+-- A price is a positive amount of money. "Not priced" is this row's absence
+-- and has no second spelling: a zero would read on every screen as a product
+-- given away, and a negative one never meant anything.
+ALTER TABLE "product_prices" ADD CONSTRAINT "product_prices_price_positive" CHECK ("product_prices"."priceMinor" > 0);

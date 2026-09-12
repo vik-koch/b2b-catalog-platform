@@ -263,6 +263,22 @@ export function planSync(
       continue;
     }
 
+    // A price of nothing is not a price. The shop says "this product is not
+    // priced" by leaving the column out, so a zero in it is a converter bug
+    // worth naming rather than a free product worth storing.
+    const zeroKey = Object.entries(prices).find(
+      ([, priceMinor]) => priceMinor === 0,
+    )?.[0];
+    if (zeroKey !== undefined) {
+      rowErrors.push({
+        row: rowNumber,
+        sourceId: row.sourceId,
+        code: 'price-is-zero',
+        params: { column: syncPriceColumn(zeroKey) },
+      });
+      continue;
+    }
+
     // Resolve the row's category first: an unresolvable one fails the row
     // before anything else is decided about it.
     let categoryId: string | null | undefined;

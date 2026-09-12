@@ -171,6 +171,8 @@ export const adminTextSchema = z
          * not take it back onto the storefront. */
         unpricedBadge: z.string(),
         unpricedHint: z.string(),
+        /** The heading over that explanation, where a click asks for it. */
+        unpricedTitle: z.string(),
         publishProduct: z.string(),
         unpublishProduct: z.string(),
         unpublishConfirm: z.string(),
@@ -656,6 +658,8 @@ export const adminTextSchema = z
             'category-id-without-name': z.string(),
             'category-name-without-id': z.string(),
             'price-not-an-integer': z.string(),
+            /** `{column}` — a zero price, which the catalog stores as none. */
+            'price-is-zero': z.string(),
             'stock-not-an-integer': z.string(),
             'unknown-price-list': z.string(),
             'category-name-conflict': z.string(),

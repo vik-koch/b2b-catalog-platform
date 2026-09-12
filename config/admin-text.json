@@ -83,6 +83,7 @@
     "unpublishedBadge": "Not published",
     "unpricedBadge": "No price",
     "unpricedHint": "Give this product a price before publishing it.",
+    "unpricedTitle": "This product has no price",
     "publishProduct": "Publish",
     "unpublishProduct": "Unpublish",
     "unpublishConfirm": "Take “{name}” off the storefront? Customers will no longer see it; you can publish it again at any time.",
@@ -241,7 +242,7 @@
     "tierPrices": {
       "heading": "Tier prices",
       "hint": "Leave a price empty to charge that list the storefront price above.",
-      "usesBase": "Storefront price",
+      "usesBase": "n/a",
       "invalid": "Please enter a valid price for “{tier}”."
     },
     "priceWithList": "Price ({list})",
@@ -371,6 +372,7 @@
       "category-id-without-name": "The category “{category}” has an ID but no name, so it cannot be created or renamed.",
       "category-name-without-id": "The category “{category}” has a name but no ID, so it is unclear which category it means.",
       "price-not-an-integer": "The price “{price}” in column “{column}” is not a whole number of cents.",
+      "price-is-zero": "The price in column “{column}” is zero. A product without a price is sent without that column, not with a zero in it.",
       "stock-not-an-integer": "The stock “{stock}” is not a whole number of pieces.",
       "unknown-price-list": "There is no price list “{key}” — this catalogue has {known}.",
       "category-name-conflict": "The category “{key}” is called both “{first}” and “{second}” in this file.",

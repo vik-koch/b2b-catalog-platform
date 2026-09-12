@@ -2141,7 +2141,12 @@
       },
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "product_prices_price_positive": {
+          "name": "product_prices_price_positive",
+          "value": "\"product_prices\".\"priceMinor\" > 0"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.products": {
