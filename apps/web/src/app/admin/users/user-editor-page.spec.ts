@@ -42,10 +42,25 @@ function user(overrides: Partial<StaffUser> = {}): StaffUser {
   };
 }
 
+/** The storefront's list, which every deployment has. */
+const baseList: CustomerTier = {
+  id: 'tier-d',
+  key: 'default',
+  label: 'Base price list',
+  userCount: 0,
+  priceCount: 0,
+  isDefault: true,
+  wouldUnpublish: 0,
+  sortOrder: 0,
+  updatedAt: '2026-08-01T00:00:00.000Z',
+};
+
 const wholesale: CustomerTier = {
   id: 'tier-w',
   key: 'wholesale',
   label: 'Wholesale',
+  isDefault: false,
+  wouldUnpublish: 0,
   userCount: 2,
   priceCount: 1,
   sortOrder: 0,
@@ -83,9 +98,11 @@ async function render(
     ),
   };
   const tiers = {
+    // The storefront's list is always among them: it is what the "no tier"
+    // option is named after.
     list: vi.fn(async () => ({
-      tiers: options.tiers ?? [wholesale],
-      defaultUserCount: 0,
+      tiers: options.tiers ?? [baseList, wholesale],
+      productCount: 0,
     })),
   };
   const navigateByUrl = vi.fn().mockResolvedValue(true);

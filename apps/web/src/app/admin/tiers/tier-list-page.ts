@@ -38,11 +38,11 @@ type EditTarget = { id: string } | { id: null } | null;
  * this differs from categories and products, which have enough content to earn
  * a route of their own.
  *
- * The first row is the base price list. It is not a tier — it is
- * `products.defaultPriceMinor` — so it has no id, no sync key of its own
- * beyond the reserved `price` column, and no actions; it is drawn here because
- * an admin thinking about price lists is thinking about that one too, and its
- * account count is real data only the server can give.
+ * Every list is a row here, the one the storefront quotes included: it is an
+ * ordinary tier carrying a badge, renamed, rekeyed and priced like the rest.
+ * Only two things separate it — it cannot be deleted, because every read path
+ * resolves a price through it, and its account count is the customers with no
+ * tier at all, which is the same state a guest is in.
  */
 @Component({
   selector: 'app-tier-list-page',
@@ -98,31 +98,6 @@ type EditTarget = { id: string } | { id: null } | null;
              records an admin grid draws on a phone, and two lists in one panel
              that frame themselves differently read as two tools. -->
         <div class="divide-y divide-border border-y border-border">
-          <!-- The base list, pinned first and inert: nothing about it is stored,
-             so there is nothing here to change. It sits outside the drop list
-             too — it is not a row anyone can move. -->
-          <div class="py-3">
-            <app-record-row [compact]="true">
-              <span class="font-medium text-stone-700">
-                {{ text.defaultLabel }}
-              </span>
-              <ng-container recordMeta>
-                <span class="mr-13">
-                  <ng-container
-                    [ngTemplateOutlet]="accounts"
-                    [ngTemplateOutletContext]="{
-                      $implicit: tiers.value().defaultUserCount,
-                      tier: 'default',
-                    }"
-                  />
-                </span>
-              </ng-container>
-            </app-record-row>
-            <p class="mt-2 sm:mt-0 text-sm text-muted">
-              {{ text.defaultHint }}
-            </p>
-          </div>
-
           <ul
             class="divide-y divide-border"
             cdkDropList
@@ -159,6 +134,14 @@ type EditTarget = { id: string } | { id: null } | null;
                     <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
                       {{ tier.key }}
                     </code>
+                    @if (tier.isDefault) {
+                      <span
+                        class="rounded bg-stone-700 px-1.5 py-0.5 text-xs text-white"
+                        [title]="text.defaultHint"
+                      >
+                        {{ text.defaultBadge }}
+                      </span>
+                    }
                     <!-- Both counts are the ways out of the row: the accounts
                          on this tier, and the products it prices — the second
                          is what the glyph at the other end used to open, said
@@ -178,6 +161,24 @@ type EditTarget = { id: string } | { id: null } | null;
                         } @else {
                           {{ pricesLabel(0) }}
                         }
+                        <!-- The other side of that count: what this list does
+                             not price. On the storefront's list those are the
+                             products nobody can publish; on any other they are
+                             the ones charged the storefront price. -->
+                        @if (unpricedCount(tier); as missing) {
+                          ·
+                          <a
+                            appLink
+                            routerLink="/admin/products"
+                            [queryParams]="{
+                              tierId: tier.id,
+                              tierPriced: 'no',
+                            }"
+                            [title]="text.seeUnpriced"
+                          >
+                            {{ unpricedLabel(missing) }}
+                          </a>
+                        }
                         ·
                         <ng-container
                           [ngTemplateOutlet]="accounts"
@@ -189,6 +190,20 @@ type EditTarget = { id: string } | { id: null } | null;
                       </span>
                     </ng-container>
                     <ng-container recordActions>
+                      <!-- Only on a list that is not already the storefront's:
+                           there is nowhere for the badge to go from there. -->
+                      @if (!tier.isDefault) {
+                        <button
+                          appIconButton
+                          type="button"
+                          [attr.aria-label]="text.setDefault"
+                          [title]="text.setDefault"
+                          [disabled]="busy() || editing() !== null"
+                          (click)="makeDefault(tier)"
+                        >
+                          <app-admin-icon name="eye" />
+                        </button>
+                      }
                       <button
                         appIconButton
                         type="button"
@@ -198,6 +213,10 @@ type EditTarget = { id: string } | { id: null } | null;
                       >
                         <app-admin-icon name="pencil" />
                       </button>
+                      <!-- Present on the storefront's list too, and it
+                           explains rather than disappears: a control that is
+                           simply absent leaves the admin wondering whether the
+                           page is broken. -->
                       <button
                         appIconButton
                         variant="danger"
@@ -411,6 +430,51 @@ export class TierListPage {
     }
   }
 
+  /**
+   * Moves the storefront's badge onto one list. The confirmation names what it
+   * costs first: products the new list does not price come off the storefront,
+   * and that figure is already on the row.
+   */
+  protected async makeDefault(tier: CustomerTier): Promise<void> {
+    this.rowError.set(null);
+    const confirmed = await this.confirm.ask({
+      heading: this.text.setDefaultTitle,
+      message: [
+        this.text.setDefaultConfirm.replace('{name}', tier.label),
+        tier.wouldUnpublish > 0
+          ? this.text.setDefaultWarning.replace(
+              '{count}',
+              String(tier.wouldUnpublish),
+            )
+          : this.text.setDefaultNone,
+      ].join(' '),
+      confirmLabel: this.text.setDefault,
+      cancelLabel: this.common.cancel,
+    });
+    if (!confirmed) return;
+
+    this.busy.set(true);
+    try {
+      const { unpublished } = await this.service.setDefault(tier.id);
+      this.tiers.reload();
+      if (unpublished > 0) {
+        // Said afterwards as well: an admin who accepted the figure is owed
+        // the confirmation that it is what happened.
+        this.rowError.set({
+          id: tier.id,
+          message: this.text.setDefaultDone.replace(
+            '{count}',
+            String(unpublished),
+          ),
+        });
+      }
+    } catch {
+      this.rowError.set({ id: tier.id, message: this.text.setDefaultError });
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
   protected isEditing(id: string | null): boolean {
     const target = this.editing();
     return target !== null && target.id === id;
@@ -422,6 +486,20 @@ export class TierListPage {
 
   protected pricesLabel(count: number): string {
     return this.text.prices.replace('{count}', String(count));
+  }
+
+  protected unpricedLabel(count: number): string {
+    return this.text.unpriced.replace('{count}', String(count));
+  }
+
+  /**
+   * How many live products this list does not price — the gap behind its own
+   * count. Two server figures subtracted rather than a third query: the list
+   * already carries both, and they are read together on the row.
+   */
+  protected unpricedCount(tier: CustomerTier): number {
+    const total = this.tiers.value()?.productCount ?? 0;
+    return Math.max(total - tier.priceCount, 0);
   }
 
   protected startAdd(): void {
@@ -490,6 +568,17 @@ export class TierListPage {
    */
   protected async remove(tier: CustomerTier): Promise<void> {
     this.rowError.set(null);
+    // The same refusal the server makes, said here because the row already
+    // knows: this is the list the storefront quotes, and it is moved, never
+    // removed.
+    if (tier.isDefault) {
+      this.rowError.set({
+        id: tier.id,
+        message: this.text.errors['tier-is-default'],
+      });
+      return;
+    }
+
     const reasons = [
       tier.userCount > 0 ? this.accountsLabel(tier.userCount) : null,
       tier.priceCount > 0 ? this.pricesLabel(tier.priceCount) : null,

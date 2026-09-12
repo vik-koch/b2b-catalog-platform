@@ -21,35 +21,54 @@ function tier(overrides: Partial<CustomerTier> = {}): CustomerTier {
     label: 'Wholesale',
     userCount: 0,
     priceCount: 0,
+    isDefault: false,
+    wouldUnpublish: 0,
     sortOrder: 0,
     updatedAt: '2026-08-01T00:00:00.000Z',
     ...overrides,
   };
 }
 
+/** The list the storefront quotes — a row like any other, badge aside. */
+function defaultTier(overrides: Partial<CustomerTier> = {}): CustomerTier {
+  return tier({
+    id: 'tier-default',
+    key: 'default',
+    label: 'Base price list',
+    isDefault: true,
+    ...overrides,
+  });
+}
+
 /** Renders the page over a stub client, returning both for assertions. */
 async function render(
   options: {
     tiers?: CustomerTier[];
-    defaultUserCount?: number;
+    productCount?: number;
     /** Whether an external system owns the catalog (FR-ADM-10). */
     owned?: boolean;
     create?: Awaited<ReturnType<TiersService['create']>>;
     update?: Awaited<ReturnType<TiersService['update']>>;
     remove?: Awaited<ReturnType<TiersService['remove']>>;
     reorder?: CustomerTier[];
+    /** What moving the badge took off the storefront. */
+    unpublished?: number;
     confirmed?: boolean;
   } = {},
 ) {
   const service = {
     list: vi.fn(async () => ({
       tiers: options.tiers ?? [],
-      defaultUserCount: options.defaultUserCount ?? 0,
+      productCount: options.productCount ?? 0,
     })),
     create: vi.fn(async () => options.create ?? { ok: true, tier: tier() }),
     update: vi.fn(async () => options.update ?? { ok: true, tier: tier() }),
     remove: vi.fn(async () => options.remove ?? { ok: true }),
     reorder: vi.fn(async () => options.reorder ?? []),
+    setDefault: vi.fn(async () => ({
+      tiers: options.tiers ?? [],
+      unpublished: options.unpublished ?? 0,
+    })),
   };
   const confirm = { ask: vi.fn(async () => options.confirmed ?? true) };
 
@@ -109,34 +128,71 @@ async function render(
   return { el, service, confirm, click, type, submit, byLabel, drop, fixture };
 }
 
-/** The pinned, non-draggable base-list block: the list's first child. */
-function baseRow(el: HTMLElement): HTMLElement {
-  const row = el.querySelector<HTMLElement>('.divide-y > div:first-child');
-  if (!row) throw new Error('no base price list row');
-  return row;
-}
-
 describe('TierListPage', () => {
-  it('always shows the base list first, with its account count', async () => {
+  it('draws the storefront list as a row, badged, with its account count', async () => {
     const { el } = await render({
-      tiers: [tier({ label: 'Wholesale' })],
-      defaultUserCount: 7,
+      tiers: [defaultTier({ userCount: 7 }), tier({ label: 'Wholesale' })],
     });
 
-    // The base list is not a tier and has no id, but it is the first thing an
-    // admin looking at price lists needs to see — and it sits outside the
-    // draggable list, since it is not a row anyone can move.
-    const base = baseRow(el);
-    expect(base.textContent).toContain(text.defaultLabel);
-    expect(base.textContent).toContain(fillText(text.accounts, { count: 7 }));
-    expect(el.querySelectorAll('li')[0].textContent).toContain('Wholesale');
+    // A row like any other now: it is dragged, renamed and priced like the
+    // rest, and the badge is the only thing that marks it.
+    const first = el.querySelectorAll('li')[0];
+    expect(first.textContent).toContain('Base price list');
+    expect(first.textContent).toContain(text.defaultBadge);
+    expect(first.textContent).toContain(fillText(text.accounts, { count: 7 }));
+    expect(el.querySelectorAll('li')[1].textContent).toContain('Wholesale');
   });
 
-  it('offers no actions on the base list — there is nothing stored to change', async () => {
-    const { el } = await render({ tiers: [] });
+  it('offers no badge move on the list that already carries it', async () => {
+    const { el, byLabel } = await render({ tiers: [defaultTier()] });
 
-    expect(baseRow(el).querySelector('button')).toBeNull();
-    expect(el.textContent).toContain(text.empty);
+    expect(el.querySelectorAll('li')[0].textContent).toContain(
+      text.defaultBadge,
+    );
+    expect(byLabel(text.setDefault)).toBeNull();
+  });
+
+  it('refuses to delete the storefront list, and says why', async () => {
+    const { el, byLabel, service, fixture } = await render({
+      tiers: [defaultTier()],
+    });
+
+    byLabel(text.delete)?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(service.remove).not.toHaveBeenCalled();
+    expect(el.textContent).toContain(text.errors['tier-is-default']);
+  });
+
+  it('warns what moving the badge takes off the storefront', async () => {
+    const { confirm, service, byLabel, fixture } = await render({
+      tiers: [defaultTier(), tier({ wouldUnpublish: 3 })],
+      unpublished: 3,
+    });
+
+    byLabel(text.setDefault)?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // The figure is on the row already, so the confirmation states it rather
+    // than asking the admin to find out by pressing.
+    expect(confirm.ask).toHaveBeenCalled();
+    const asked = confirm.ask.mock.calls.at(0)?.at(0) as
+      { message: string } | undefined;
+    expect(asked?.message).toContain('3');
+    expect(service.setDefault).toHaveBeenCalledWith('tier-1');
+  });
+
+  it('shows the gap behind a list — what it does not price', async () => {
+    const { el } = await render({
+      tiers: [defaultTier({ priceCount: 100 }), tier({ priceCount: 98 })],
+      productCount: 100,
+    });
+
+    expect(el.querySelectorAll('li')[1].textContent).toContain(
+      fillText(text.unpriced, { count: 2 }),
+    );
   });
 
   it('creates a tier from the add form', async () => {

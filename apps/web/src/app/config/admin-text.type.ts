@@ -768,10 +768,10 @@ export const adminTextSchema = z
       })
       .strict(),
     /**
-     * Customer tiers, i.e. price lists (FR-AUTH-05). The base list is not a
-     * stored tier, so its name and explanation are deployment wording rather
-     * than data — `defaultLabel`/`defaultHint` are what the list's first,
-     * uneditable row shows.
+     * Customer tiers, i.e. price lists (FR-AUTH-05). Every list is a row,
+     * including the one the storefront quotes, so its *name* is data — what is
+     * wording here is the badge that marks it and what moving that badge
+     * costs.
      */
     tierList: z
       .object({
@@ -791,8 +791,21 @@ export const adminTextSchema = z
          * and into the product grid priced by it. */
         seeAccounts: z.string(),
         seePrices: z.string(),
-        defaultLabel: z.string(),
+        /** Where the gap between two lists leads: the products this one does
+         * not price. */
+        seeUnpriced: z.string(),
+        unpriced: z.string(),
+        /** The badge on the list the storefront quotes, and what it means. */
+        defaultBadge: z.string(),
         defaultHint: z.string(),
+        /** Moving that badge. `{name}`/`{count}` substituted at render. */
+        setDefault: z.string(),
+        setDefaultTitle: z.string(),
+        setDefaultConfirm: z.string(),
+        setDefaultWarning: z.string(),
+        setDefaultNone: z.string(),
+        setDefaultDone: z.string(),
+        setDefaultError: z.string(),
         edit: z.string(),
         delete: z.string(),
         empty: z.string(),
@@ -815,6 +828,7 @@ export const adminTextSchema = z
             'tier-key-taken': z.string(),
             'tier-has-accounts': z.string(),
             'tier-has-prices': z.string(),
+            'tier-is-default': z.string(),
           })
           .strict(),
       })

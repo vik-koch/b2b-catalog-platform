@@ -44,6 +44,8 @@ function tier(overrides: Partial<CustomerTier> = {}): CustomerTier {
     label: 'Wholesale',
     userCount: 0,
     priceCount: 0,
+    isDefault: false,
+    wouldUnpublish: 0,
     sortOrder: 0,
     updatedAt: '2026-08-01T00:00:00.000Z',
     ...overrides,
@@ -182,13 +184,17 @@ describe('UserListPage', () => {
     }
   });
 
-  it('names the base price list for an account with no tier', async () => {
-    const { el } = await render({ users: [user({ tierId: null })] });
+  it('names the storefront price list for an account with no tier', async () => {
+    const { el } = await render({
+      users: [user({ tierId: null })],
+      tiers: [
+        tier({ id: 'tier-d', key: 'default', label: 'Base', isDefault: true }),
+      ],
+    });
 
-    // The same wording the tier list gives its first row, not a blank cell.
-    expect(el.querySelector('tbody tr')?.textContent).toContain(
-      defaultAdminText.tierList.defaultLabel,
-    );
+    // No tier *is* the storefront's list — the same state a guest is in — so
+    // the cell names that list rather than sitting blank.
+    expect(el.querySelector('tbody tr')?.textContent).toContain('Base');
   });
 
   it('distinguishes an empty deployment from an emptied filter', async () => {

@@ -953,6 +953,17 @@ export const tiersContract = {
       },
     },
   },
+  setDefaultTier: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/admin/tiers/{id}/default',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   deleteTier: {
     '~orpc': {
       errorMap: {},

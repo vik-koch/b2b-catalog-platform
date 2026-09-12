@@ -3,6 +3,7 @@ import * as z from 'zod';
 import {
   TIER_ERROR_CODES,
   TIER_KEY_MAX_LENGTH,
+  TIER_KEY_PATTERN,
   TIER_LABEL_MAX_LENGTH,
 } from './tier-constants';
 import { commonAuthErrors } from './api-error';
@@ -10,27 +11,34 @@ import { commonAuthErrors } from './api-error';
 /**
  * Customer tiers (FR-AUTH-05), admin side.
  *
- * The default list is deliberately absent here: it is
- * `products.defaultPriceMinor`, not a row, so it has no id and cannot be
- * created, renamed or deleted through this surface.
+ * Every price list is here, the default one included — it is an ordinary row
+ * carrying a badge. No key is reserved: which list guests are charged is the
+ * badge's answer, not a name's.
  */
 
 /**
  * The key a catalog sync file addresses a price list by (`price:<key>`
- * columns), so it has to survive a spreadsheet round-trip: lowercase, no
- * spaces, no quoting rules of its own. `default` is refused here as well as by
- * a check constraint — that key already names the base list.
+ * columns), so it has to survive a spreadsheet round-trip: one word, any
+ * script, no spaces and no quoting rules of its own.
+ *
+ * Normalized to NFC before anything compares it: two encodings of the same
+ * accented or composed letter look identical in a spreadsheet and would
+ * otherwise address two different lists.
  */
 export const tierKeySchema = z
   .string()
   .trim()
-  .min(1)
-  .max(TIER_KEY_MAX_LENGTH)
-  .regex(
-    /^[a-z0-9][a-z0-9-]*$/,
-    'Use lowercase letters, digits and hyphens (e.g. "wholesale")',
-  )
-  .refine((k) => k !== 'default', '"default" names the base price list');
+  .transform((k) => k.normalize('NFC'))
+  .pipe(
+    z
+      .string()
+      .min(1)
+      .max(TIER_KEY_MAX_LENGTH)
+      .regex(
+        TIER_KEY_PATTERN,
+        'Use letters, digits, hyphens and underscores, in one word (e.g. "wholesale")',
+      ),
+  );
 
 export const tierInputSchema = z
   .object({
@@ -52,8 +60,19 @@ export const customerTierSchema = z
     label: z.string(),
     /** Customer accounts currently on this tier (staff are never counted). */
     userCount: z.number().int().nonnegative(),
-    /** Products with a price override in this tier. */
+    /** Products this tier prices itself. */
     priceCount: z.number().int().nonnegative(),
+    /**
+     * The list guests, staff and untiered customers are charged, and the one a
+     * product must be priced in to be published. Exactly one tier carries it.
+     */
+    isDefault: z.boolean(),
+    /**
+     * How many products on the storefront this tier does not price — what
+     * badging it would take off the storefront. Zero on the tier that already
+     * carries the badge, which has nothing to move to.
+     */
+    wouldUnpublish: z.number().int().nonnegative(),
     /**
      * Where this tier sits in staff screens — the tier list and the product
      * editor's price fields. **Presentation only.** Tiers do not rank: nothing
@@ -88,6 +107,7 @@ const tierErrors = {
   'tier-key-taken': { status: 409 },
   'tier-has-accounts': { status: 409 },
   'tier-has-prices': { status: 409 },
+  'tier-is-default': { status: 409 },
 } as const;
 
 /** Every route here is admin-only, so they all carry the two auth refusals. */
@@ -105,13 +125,12 @@ export const tiersContract = {
         .object({
           tiers: z.array(customerTierSchema),
           /**
-           * Customer accounts on the base list — the one figure the synthetic
-           * default entry cannot derive on the client, since "no tier" is a
-           * null, not a row. A sibling field rather than a tier-shaped object
-           * with a null id: the default list is a column, and nothing that
-           * consumes a `CustomerTier` should have to handle an id-less one.
+           * Live products in the catalog. A sibling rather than a per-tier
+           * figure because it is one number about the catalog, and it is what
+           * turns each tier's `priceCount` into the gap behind it: "wholesale
+           * prices 98 of 100" is the question a tier review ends on.
            */
-          defaultUserCount: z.number().int().nonnegative(),
+          productCount: z.number().int().nonnegative(),
         })
         .strict(),
     ),
@@ -157,7 +176,42 @@ export const tiersContract = {
     })
     .errors({ 'tier-not-found': tierErrors['tier-not-found'] })
     .input(z.object({ body: reorderTiersSchema }))
-    .output(z.object({ tiers: z.array(customerTierSchema) }).strict()),
+    .output(
+      z
+        .object({
+          tiers: z.array(customerTierSchema),
+          /**
+           * Live products in the catalog. A sibling rather than a per-tier
+           * figure because it is one number about the catalog, and it is what
+           * turns each tier's `priceCount` into the gap behind it: "wholesale
+           * prices 98 of 100" is the question a tier review ends on.
+           */
+          productCount: z.number().int().nonnegative(),
+        })
+        .strict(),
+    ),
+
+  setDefaultTier: admin
+    .route({
+      method: 'PUT',
+      path: '/admin/tiers/{id}/default',
+      inputStructure: 'detailed',
+      summary: 'Move the default badge to this price list (admin)',
+    })
+    .errors({ 'tier-not-found': tierErrors['tier-not-found'] })
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(
+      z
+        .object({
+          tiers: z.array(customerTierSchema),
+          /** Products this move took off the storefront, because the newly
+           * badged list does not price them. Reported rather than refused: the
+           * screen says the figure before the move, and an admin who accepts
+           * it is owed the confirmation that it happened. */
+          unpublished: z.number().int().nonnegative(),
+        })
+        .strict(),
+    ),
 
   deleteTier: admin
     .route({
@@ -171,6 +225,7 @@ export const tiersContract = {
       // Still referenced by accounts or product prices.
       'tier-has-accounts': tierErrors['tier-has-accounts'],
       'tier-has-prices': tierErrors['tier-has-prices'],
+      'tier-is-default': tierErrors['tier-is-default'],
     })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(z.object({ message: z.string() })),
