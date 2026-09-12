@@ -47,9 +47,11 @@ export class TiersService {
    * plus what the move cost, and the only refusal is a race on a tier that is
    * already gone.
    */
-  async setDefault(
-    id: string,
-  ): Promise<{ tiers: CustomerTier[]; unpublished: number }> {
+  async setDefault(id: string): Promise<{
+    tiers: CustomerTier[];
+    productCount: number;
+    unpublished: number;
+  }> {
     return this.client.setDefaultTier({ params: { id } });
   }
 

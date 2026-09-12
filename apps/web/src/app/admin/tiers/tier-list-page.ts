@@ -203,6 +203,14 @@ type EditTarget = { id: string } | { id: null } | null;
                         >
                           <app-admin-icon name="eye" />
                         </button>
+                      } @else {
+                        <!-- The badged list keeps the place rather than the
+                             control: with the glyph simply gone its row's
+                             buttons — and the counts they push against — sit a
+                             glyph's width off every other row in the list. -->
+                        <span aria-hidden="true" class="inline-flex p-2 sm:p-1">
+                          <span class="block size-5 sm:size-4"></span>
+                        </span>
                       }
                       <button
                         appIconButton
@@ -455,8 +463,11 @@ export class TierListPage {
 
     this.busy.set(true);
     try {
-      const { unpublished } = await this.service.setDefault(tier.id);
-      this.tiers.reload();
+      const { tiers, productCount, unpublished } =
+        await this.service.setDefault(tier.id);
+      // The move answers with the whole list, counts and badge included, so
+      // the screen takes it rather than asking for it again.
+      this.tiers.set({ tiers, productCount });
       if (unpublished > 0) {
         // Said afterwards as well: an admin who accepted the figure is owed
         // the confirmation that it is what happened.

@@ -257,7 +257,11 @@ export class TiersService {
   async setDefaultTier(
     id: string,
     actorId: string,
-  ): Promise<{ tiers: CustomerTier[]; unpublished: number }> {
+  ): Promise<{
+    tiers: CustomerTier[];
+    productCount: number;
+    unpublished: number;
+  }> {
     const target = await this.tierById(id);
     if (!target) throw notFound();
     if (target.isDefault)

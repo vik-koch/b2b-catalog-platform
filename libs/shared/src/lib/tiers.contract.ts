@@ -204,6 +204,10 @@ export const tiersContract = {
       z
         .object({
           tiers: z.array(customerTierSchema),
+          /** Live products in the catalog, as the list route reports it — the
+           * move is answered with the whole list, so the screen can take it
+           * without asking again. */
+          productCount: z.number().int().nonnegative(),
           /** Products this move took off the storefront, because the newly
            * badged list does not price them. Reported rather than refused: the
            * screen says the figure before the move, and an admin who accepts

@@ -53,6 +53,8 @@ async function render(
     reorder?: CustomerTier[];
     /** What moving the badge took off the storefront. */
     unpublished?: number;
+    /** The list as the badge move answers with it. */
+    afterDefault?: CustomerTier[];
     confirmed?: boolean;
   } = {},
 ) {
@@ -66,7 +68,8 @@ async function render(
     remove: vi.fn(async () => options.remove ?? { ok: true }),
     reorder: vi.fn(async () => options.reorder ?? []),
     setDefault: vi.fn(async () => ({
-      tiers: options.tiers ?? [],
+      tiers: options.afterDefault ?? options.tiers ?? [],
+      productCount: options.productCount ?? 0,
       unpublished: options.unpublished ?? 0,
     })),
   };
@@ -182,6 +185,27 @@ describe('TierListPage', () => {
       { message: string } | undefined;
     expect(asked?.message).toContain('3');
     expect(service.setDefault).toHaveBeenCalledWith('tier-1');
+  });
+
+  it('takes the moved badge from the answer rather than asking again', async () => {
+    const { service, byLabel, el, fixture } = await render({
+      tiers: [defaultTier(), tier()],
+      afterDefault: [
+        defaultTier({ isDefault: false }),
+        tier({ isDefault: true }),
+      ],
+    });
+
+    byLabel(text.setDefault)?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // The move answers with the whole list, so the screen is not reloaded —
+    // and the badge is where the answer put it.
+    expect(service.list).toHaveBeenCalledTimes(1);
+    expect(el.querySelectorAll('li')[1].textContent).toContain(
+      text.defaultBadge,
+    );
   });
 
   it('shows the gap behind a list — what it does not price', async () => {
