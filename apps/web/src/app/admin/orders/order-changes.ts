@@ -1,10 +1,12 @@
 import { OrderDetail } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../../catalog/price';
+import { CurrencyConfig, formatPriceMinor } from '../../catalog/price';
 import {
   orderBlocks,
   OrderBlockConfig,
   OrderBlockLabels,
 } from '../../orders/order-blocks';
+import { customerQuantity } from '../../orders/order-view';
+import { AppText } from '../../config/app-text.type';
 import { OrderChange } from './order-adjust-changes';
 
 /** The words a change list needs of its own. Everything else it says comes
@@ -17,6 +19,13 @@ export interface OrderChangeLabels {
   /** What the order is estimated to weigh and take up, where the products say
    * enough for it to be estimated at all. */
   readonly shipment: string;
+}
+
+/** What the deployment decides about how a change reads: how money is
+ * written, and the units its packing figures are measured in. */
+export interface OrderChangeConfig extends OrderBlockConfig {
+  readonly currency: CurrencyConfig;
+  readonly boxUnits: { readonly volume: string; readonly weight: string };
 }
 
 /**
@@ -45,12 +54,12 @@ export function orderChanges(
   before: ComparedOrder,
   after: ComparedOrder,
   labels: OrderChangeLabels,
+  text: AppText,
   blockLabels: OrderBlockLabels,
-  config: OrderBlockConfig,
-  currency: Parameters<typeof formatPriceMinor>[1],
+  config: OrderChangeConfig,
 ): OrderChange[] {
   return [
-    ...orderLineChanges(before, after, labels, currency),
+    ...orderLineChanges(before, after, labels, text, config),
     ...orderBlockChanges(before, after, blockLabels, config),
   ];
 }
@@ -69,11 +78,15 @@ export function orderLineChanges(
   before: ComparedOrder,
   after: ComparedOrder,
   labels: OrderChangeLabels,
-  currency: Parameters<typeof formatPriceMinor>[1],
+  text: AppText,
+  config: OrderChangeConfig,
 ): OrderChange[] {
+  const { currency } = config;
   const changes: OrderChange[] = [];
+  // The customer's own reading of the quantity, unit words and all, because
+  // that is the reading the rest of the order is written in.
   const line = (entry: OrderDetail['lines'][number]) =>
-    `${entry.quantity} ${entry.unit} · ${formatPriceMinor(entry.lineTotalMinor, currency)}`;
+    `${customerQuantity(entry, text, currency)} · ${formatPriceMinor(entry.lineTotalMinor, currency)}`;
 
   const was = new Map(before.lines.map((entry) => [entry.slug, entry]));
   const is = new Map(after.lines.map((entry) => [entry.slug, entry]));
@@ -114,8 +127,8 @@ export function orderLineChanges(
   // What it comes to on a pallet. Derived rather than typed, but a real change
   // to the order all the same: two boxes fewer is a different van, and the
   // shop reads this figure before it books one.
-  const wasShipment = shipmentText(before);
-  const isShipment = shipmentText(after);
+  const wasShipment = shipmentText(before, config.boxUnits);
+  const isShipment = shipmentText(after, config.boxUnits);
   if (wasShipment !== isShipment) {
     changes.push({
       label: labels.shipment,
@@ -158,11 +171,14 @@ export function orderBlockChanges(
  * little to estimate from. An approximate figure says so: a change from an
  * exact estimate to a guess is itself worth seeing.
  */
-function shipmentText(order: ComparedOrder): string | null {
+function shipmentText(
+  order: ComparedOrder,
+  boxUnits: OrderChangeConfig['boxUnits'],
+): string | null {
   const { weight, volume, approximate } = order.shipment;
   const parts = [
-    weight === null ? null : `${weight} kg`,
-    volume === null ? null : `${volume} m³`,
+    weight === null ? null : `${weight} ${boxUnits.weight}`,
+    volume === null ? null : `${volume} ${boxUnits.volume}`,
   ].filter((part): part is string => part !== null);
   if (parts.length === 0) return null;
   return approximate ? `≈ ${parts.join(' · ')}` : parts.join(' · ');

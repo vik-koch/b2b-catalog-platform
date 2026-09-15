@@ -20,7 +20,9 @@ import { OrderBlockLabels } from './order-blocks';
  * repacking the product never rewrites what somebody ordered.
  */
 export function customerQuantity(
-  line: OrderLine,
+  // Only the three fields a quantity is read from, so a screen holding a
+  // priced line rather than a placed one reads it in the same words.
+  line: Pick<OrderLine, 'unit' | 'quantity' | 'pieces'>,
   text: AppText,
   currency: CurrencyConfig,
 ): string {

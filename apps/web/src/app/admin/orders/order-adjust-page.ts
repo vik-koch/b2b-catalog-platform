@@ -38,6 +38,7 @@ import {
   parsePriceInput,
 } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { APP_TEXT } from '../../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { debounced } from '../../core/debounced';
 import { FieldErrors } from '../../core/form-errors';
@@ -63,6 +64,7 @@ import { TiersService } from '../tiers/tiers.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
 import { orderBlockChanges, orderLineChanges } from './order-changes';
+import { customerQuantity } from '../../orders/order-view';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
 
 /** One line as the form holds it, before the server has priced it. */
@@ -671,6 +673,7 @@ export class AdminOrderAdjustPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = this.config.catalog.currency;
 
+  private readonly appText = inject(APP_TEXT);
   protected readonly text = inject(ADMIN_TEXT).orderAdjust;
   protected readonly detailText = inject(ADMIN_TEXT).orderDetail;
   protected readonly common = inject(ADMIN_TEXT).common;
@@ -1083,7 +1086,9 @@ export class AdminOrderAdjustPage {
         name: answer?.name ?? line.name,
         pieces: line.pieces,
         priceText: line.priceText,
-        quantityLabel: answer ? `${answer.quantity} ${answer.unit}` : '',
+        quantityLabel: answer
+          ? customerQuantity(answer, this.appText, this.currency)
+          : '',
         note: line.note,
         totalLabel: answer
           ? formatPriceMinor(answer.lineTotalMinor, this.currency)
@@ -1152,11 +1157,19 @@ export class AdminOrderAdjustPage {
       address: this.config.address,
       phoneInput: this.config.phoneInput,
       locale: this.currency.locale,
+      currency: this.currency,
+      boxUnits: this.config.catalog.boxUnits,
     };
     const proposed = this.proposed(order, preview);
     return [
       ...(preview
-        ? orderLineChanges(order, proposed, this.text.changes, this.currency)
+        ? orderLineChanges(
+            order,
+            proposed,
+            this.text.changes,
+            this.appText,
+            config,
+          )
         : []),
       ...orderBlockChanges(order, proposed, this.detailText, config),
     ];

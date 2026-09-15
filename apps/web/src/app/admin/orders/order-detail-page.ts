@@ -24,6 +24,7 @@ import {
 import { OrderSummary } from '../../cart/order-summary';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { APP_TEXT } from '../../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
@@ -535,6 +536,7 @@ export class AdminOrderDetailPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = this.config.catalog.currency;
 
+  private readonly appText = inject(APP_TEXT);
   protected readonly text = inject(ADMIN_TEXT).orderDetail;
   protected readonly listText = inject(ADMIN_TEXT).orderList;
   protected readonly revisionText = this.text.revisions;
@@ -762,13 +764,15 @@ export class AdminOrderDetailPage {
       before,
       versions[index],
       this.revisionText,
+      this.appText,
       this.text,
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
         locale: this.currency.locale,
+        currency: this.currency,
+        boxUnits: this.config.catalog.boxUnits,
       },
-      this.currency,
     );
   }
 
