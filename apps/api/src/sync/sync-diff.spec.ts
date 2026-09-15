@@ -437,6 +437,8 @@ describe('planSync', () => {
       expect(plan.emptiedCategories).toEqual([
         { slug: 'coffee-beans', name: 'Coffee Beans' },
       ]);
+      // Counted as well as listed: the auto-apply policy reads the number.
+      expect(plan.summary.categoriesEmptied).toBe(1);
     });
   });
 

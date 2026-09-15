@@ -292,6 +292,13 @@ export const syncSummarySchema = z
     categoriesCreated: z.number().int().nonnegative(),
     /** Defaulted, so summaries stored before renaming existed still parse. */
     categoriesRenamed: z.number().int().nonnegative().default(0),
+    /**
+     * Categories this run leaves with nothing in them — because it moved their
+     * products elsewhere, or swept them. Counted beside the creates because the
+     * two together are what a source-side regrouping looks like. Defaulted,
+     * like the rename count above.
+     */
+    categoriesEmptied: z.number().int().nonnegative().default(0),
     /** Live products absent from the file but kept because they are `manual:`. */
     keptManual: z.number().int().nonnegative(),
     errors: z.number().int().nonnegative(),

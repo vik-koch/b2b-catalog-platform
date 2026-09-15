@@ -106,3 +106,34 @@ export function directChildren(
       image: row.image,
     }));
 }
+
+/**
+ * The categories worth linking to: those a publicly visible product is filed
+ * under, plus every ancestor of one.
+ *
+ * A category is a grouping of products rather than a thing in its own right, so
+ * one with nothing visible beneath it is a tile leading to an empty grid. That
+ * happens both ways round — a category the sync has just created holds only
+ * unpublished products, and a category the sync has emptied holds none at all —
+ * and neither wants a flag an admin has to remember to set.
+ *
+ * `liveIds` are the categories products sit in directly; walking upward is what
+ * keeps a parent whose stock all lives in its children.
+ */
+export function stockedCategoryIds(
+  rows: Pick<CategoryRow, 'id' | 'parentId'>[],
+  liveIds: Iterable<string>,
+): Set<string> {
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  const stocked = new Set<string>();
+  for (const id of liveIds) {
+    let current: string | null = id;
+    // Guarded against a parent loop the write path should have refused, so a
+    // bad row costs a wrong tree rather than a hung request.
+    while (current && !stocked.has(current)) {
+      stocked.add(current);
+      current = byId.get(current)?.parentId ?? null;
+    }
+  }
+  return stocked;
+}

@@ -12,10 +12,26 @@ import axios from 'axios';
 
 const get = (url: string) => axios.get(url, { validateStatus: () => true });
 
-const topLevel = categorySeeds
+/** The seeded categories a product is filed under, plus their ancestors — the
+ * ones the storefront shows (FR-CAT-01). A seeded category nothing sits in is
+ * not a tile, so it is not expected in the tree either. */
+const stockedSeeds = (() => {
+  const parentOf = new Map(categorySeeds.map((c) => [c.sourceId, c.parentKey]));
+  const stocked = new Set<string>();
+  for (const product of productSeeds) {
+    let key: string | null | undefined = product.categoryKey;
+    while (key && !stocked.has(key)) {
+      stocked.add(key);
+      key = parentOf.get(key) ?? null;
+    }
+  }
+  return categorySeeds.filter((c) => stocked.has(c.sourceId));
+})();
+
+const topLevel = stockedSeeds
   .filter((c) => c.parentKey === null)
   .map((c) => c.slug);
-const coffeeChildren = categorySeeds
+const coffeeChildren = stockedSeeds
   .filter((c) => c.parentKey === 'coffee-beans')
   .map((c) => c.slug);
 const inEspresso = productSeeds.filter((p) => p.categoryKey === 'espresso');
@@ -28,9 +44,9 @@ describe('GET /catalog/categories (FR-CAT-01/02)', () => {
     const res = await get('/catalog/categories');
 
     expect(res.status).toBe(200);
-    // Seeded roots only, in seed order: sibling specs share this database and
-    // an import creates its category unparented, so a bare count of the roots
-    // is a race against whatever else is mid-run.
+    // Stocked seeded roots only, in seed order: sibling specs share this
+    // database and an import creates its category unparented, so a bare count
+    // of the roots is a race against whatever else is mid-run.
     const roots = res.data.categories.map((c: { slug: string }) => c.slug);
     expect(roots.filter((s: string) => topLevel.includes(s))).toEqual(topLevel);
 
