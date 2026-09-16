@@ -292,6 +292,12 @@ export class SyncPlanView {
     this.plan().categories.filter((category) => category.kind === 'rename'),
   );
 
+  /**
+   * Four counts are answers even at zero — nothing was added, nothing changed,
+   * nothing was hidden, nothing was skipped — and they hold their place so the
+   * row does not rearrange itself between runs. The rest are only worth a tile
+   * when they happened.
+   */
   protected readonly tiles = computed(() => {
     const s = this.plan().summary;
     return [
@@ -316,7 +322,7 @@ export class SyncPlanView {
       { label: 'unchanged' as const, value: s.unchanged, danger: false },
       { label: 'kept' as const, value: s.keptManual, danger: false },
       { label: 'errors' as const, value: s.errors, danger: s.errors > 0 },
-    ];
+    ].filter((tile) => tile.value > 0 || ALWAYS_SHOWN.has(tile.label));
   });
 
   /** A run that hides products needs the confirmation word typed exactly. */
@@ -362,6 +368,15 @@ export class SyncPlanView {
     });
   }
 }
+
+/** The counts that are an answer even at zero: nothing added, nothing changed,
+ * nothing hidden, nothing skipped. */
+const ALWAYS_SHOWN: ReadonlySet<string> = new Set([
+  'create',
+  'update',
+  'softDelete',
+  'errors',
+]);
 
 /** What the run would do to a row, in the app's own status tones: a product
  * arriving is settled, one leaving is a refusal, one coming back is worth

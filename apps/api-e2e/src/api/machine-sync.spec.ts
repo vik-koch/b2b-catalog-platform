@@ -236,6 +236,20 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
       expect(res.data.run.status).toBe('no-change');
     });
 
+    /** A note explains, it does not decide: a run that would have gone
+     * through goes through with one attached, and the words are kept for
+     * whoever reads the run afterwards. */
+    it('keeps a note the caller attached without holding the run for it', async () => {
+      const res = await submit({
+        rows: [row(1), row(2)],
+        notice: 'Session 3 of the export was empty; 2 articles may be stale',
+      });
+
+      expect(res.data.run.notice).toContain('Session 3');
+      expect(res.data.run.stagedReason).toBeNull();
+      expect(res.data.run.status).toBe('no-change');
+    });
+
     /** What a run rewrote, as the log shows it. */
     it('names the fields a price-only run wrote', async () => {
       const res = await submit({

@@ -469,6 +469,7 @@
     "runLoadError": "This run could not be loaded.",
     "planUnavailable": "The changes this run staged are no longer stored.",
     "failureTitle": "What the sending system reported",
+    "noticeTitle": "Note from the sending system",
     "startedLabel": "Started",
     "finishedLabel": "Finished",
     "discardRun": "Discard this run",
@@ -479,7 +480,7 @@
     "field": {
       "name": "names",
       "category": "categories",
-      "stock": "stock",
+      "stock": "stock levels",
       "priceList": "prices ({key})",
       "more": "+{count}"
     }

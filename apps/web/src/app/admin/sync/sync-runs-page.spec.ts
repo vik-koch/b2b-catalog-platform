@@ -41,6 +41,7 @@ function run(overrides: Partial<SyncRun> = {}): SyncRun {
     options: null,
     summary,
     error: null,
+    notice: null,
     ...overrides,
   };
 }

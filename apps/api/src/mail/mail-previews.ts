@@ -147,6 +147,7 @@ const baseRun = {
   options: null,
   summary: null,
   error: null,
+  notice: null,
 } as const satisfies Omit<SyncRun, 'status'>;
 
 const summary = (create: number, update: number, softDelete: number) => ({

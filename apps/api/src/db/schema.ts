@@ -1307,6 +1307,10 @@ export const syncRuns = pgTable('sync_runs', {
   // count the preview showed — the parse happens once, at upload.
   parseErrors: jsonb('parseErrors').$type<SyncRowError[]>(),
   error: text('error'),
+  // What the sending system wanted said about a run that worked anyway. Kept
+  // like `error` and never read by anything here: the platform does not know
+  // the source format well enough to have an opinion about it.
+  notice: text('notice'),
 });
 
 /**

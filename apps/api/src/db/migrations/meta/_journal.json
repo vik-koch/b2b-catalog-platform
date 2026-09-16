@@ -197,6 +197,13 @@
       "when": 1789158599755,
       "tag": "0027_price_lists_as_rows",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1789503642950,
+      "tag": "0028_sync_run_notice",
+      "breakpoints": true
     }
   ]
 }

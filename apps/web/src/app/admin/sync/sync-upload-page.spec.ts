@@ -61,6 +61,7 @@ function preview(p: SyncPlan): SyncPreviewResponse {
       options: presetOptions,
       summary: p.summary,
       error: null,
+      notice: null,
     },
     plan: p,
   };
