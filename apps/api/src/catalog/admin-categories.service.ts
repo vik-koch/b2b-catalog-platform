@@ -20,9 +20,9 @@ import { changedCategoryFields } from './owned-fields';
 import { hasCycle } from './category-cycle';
 import {
   resolveNewSlug,
-  resolveNewSourceId,
+  resolveNewCategorySourceId,
   resolveSlugOverride,
-  resolveSourceIdOverride,
+  resolveCategorySourceIdOverride,
   runUnique,
 } from './catalog-identity';
 
@@ -110,12 +110,9 @@ export class AdminCategoriesService {
     // Place a new category after its current siblings.
     const sortOrder = await this.nextSortOrder(input.parentId);
     // A pre-assigned key is how a category an admin entered by hand binds to
-    // the source system's tree on the first run.
-    const sourceId = await resolveNewSourceId(
-      this.db,
-      categories,
-      input.sourceId,
-    );
+    // the source system's tree on the first run. Without one it has none: it
+    // is the shop's own, and stays the shop's to rename.
+    const sourceId = await resolveNewCategorySourceId(this.db, input.sourceId);
 
     const row = await runUnique(() =>
       this.db
@@ -166,9 +163,8 @@ export class AdminCategoriesService {
       existing.slug,
     );
 
-    const newSourceId = await resolveSourceIdOverride(
+    const newSourceId = await resolveCategorySourceIdOverride(
       this.db,
-      categories,
       input.sourceId,
       existing.sourceId,
     );

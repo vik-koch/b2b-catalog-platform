@@ -213,14 +213,17 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private readonly ownership = inject(SettingsService);
 
   /**
-   * Only on an existing category. A new one has nothing stored to compare a
-   * name against, and creating categories stays open while the catalog is
-   * owned: the exchange creates the ones its rows name, and the shop is left
-   * free to add the ones it wants to arrange them under.
+   * Only an existing category the exchange knows — one carrying a source key.
+   * A new one has nothing stored to compare a name against, and creating
+   * categories stays open while the catalog is owned: the exchange creates the
+   * ones its rows name, and the shop is left free to add the ones it wants to
+   * arrange them under. Those keep their own name and key afterwards, since no
+   * file names them and no run writes them.
    */
   protected readonly fieldsLocked = computed(
     () =>
       !this.isNew &&
+      this.category()?.sourceId != null &&
       (this.ownership.ownedAreas()?.includes('catalog') ?? false),
   );
 
@@ -316,7 +319,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       this.shortName.set(match.shortName ?? '');
       this.slug.set(match.slug);
       this.parentId.set(match.parentId ?? '');
-      this.sourceId.set(match.sourceId);
+      this.sourceId.set(match.sourceId ?? '');
       this.description.set(match.description ?? '');
       this.image.set(match.image);
       this.original = this.snapshot();
@@ -329,6 +332,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       name: this.name(),
       shortName: this.shortName(),
       slug: this.effectiveSlug(),
+      sourceId: this.sourceId(),
       parentId: this.parentId(),
       description: this.description(),
       image: this.image(),
@@ -358,7 +362,9 @@ export class CategoryEditorPage implements UnsavedChangesAware {
         ? this.slug().trim()
         : undefined
       : this.slug().trim() || undefined;
-    const sourceId = this.sourceId().trim() || undefined;
+    // Always sent, never omitted: an emptied box detaches the category from
+    // the exchange, which is the only way to undo a key typed by mistake.
+    const sourceId = this.sourceId().trim() || null;
 
     const body = {
       name: this.name().trim(),
@@ -367,7 +373,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       description: this.description().trim() || null,
       image: this.image(),
       ...(slug ? { slug } : {}),
-      ...(sourceId ? { sourceId } : {}),
+      sourceId,
     };
     try {
       const result = current

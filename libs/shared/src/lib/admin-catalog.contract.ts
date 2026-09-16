@@ -472,7 +472,9 @@ export const adminCategorySchema = z
     parentId: z.uuid().nullable(),
     sortOrder: z.number().int(),
     image: catalogImageSchema.nullable(),
-    sourceId: z.string(),
+    /** Null for a category the shop made up: no source system knows it, which
+     * is also what leaves its name the shop's to change. */
+    sourceId: z.string().nullable(),
     description: z.string().nullable(),
     /** Optional nickname for contexts where the parent is visible; see the
      * public contract's `shortNameSchema`. */
@@ -483,8 +485,8 @@ export const adminCategorySchema = z
   .strict();
 export type AdminCategory = z.infer<typeof adminCategorySchema>;
 
-/** What create/update accept for a category. `slug` and `sourceId` follow the
- * same optional-override rule as products (omit to derive/keep). Reorder and
+/** What create/update accept for a category. `slug` follows the same
+ * optional-override rule as products (omit to derive/keep). Reorder and
  * reparent within the tree go through `reorder`, but a single move may also set
  * `parentId` here. */
 export const categoryInputSchema = z
@@ -503,9 +505,21 @@ export const categoryInputSchema = z
     slug: slugSchema.optional(),
     parentId: z.uuid().nullable().default(null),
     image: catalogImageSchema.nullable().default(null),
-    /** Private sync key. Admin-settable to pre-assign a legacy key for future
-     * file reconciliation; omit to let the server generate `manual:<uuid>`. */
-    sourceId: z.string().trim().min(1).max(SOURCE_ID_MAX_LENGTH).optional(),
+    /**
+     * Private sync key. Admin-settable to pre-assign a legacy key for future
+     * file reconciliation. Three values, three meanings: omitted keeps what is
+     * stored, `null` detaches the category from the exchange, and a string
+     * binds it to that key. A category created without one has none — unlike a
+     * product, it is a container the shop invented, not a row the source
+     * system is missing.
+     */
+    sourceId: z
+      .string()
+      .trim()
+      .min(1)
+      .max(SOURCE_ID_MAX_LENGTH)
+      .nullable()
+      .optional(),
     description: z
       .string()
       .max(PRODUCT_DESCRIPTION_MAX_LENGTH)
@@ -782,7 +796,7 @@ export const adminCatalogContract = {
       path: '/admin/catalog/categories',
       successStatus: 201,
       inputStructure: 'detailed',
-      summary: 'Create a category (admin; slug/sourceId derived when omitted)',
+      summary: 'Create a category (admin; slug derived when omitted)',
     })
     .errors({
       'category-not-found': e['category-not-found'],

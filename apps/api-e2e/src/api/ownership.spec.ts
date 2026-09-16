@@ -437,6 +437,61 @@ describe('External data ownership (FR-ADM-10)', () => {
       });
     });
 
+    it('leaves a category the exchange never named to the shop', async () => {
+      await whileOwned(async () => {
+        // Created here, under a switch that is already on: no file names it,
+        // so nothing else is writing it and the shop keeps its name and key.
+        const own = await asAdmin('post', '/admin/catalog/categories', {
+          name: `${CATEGORY_NAME} own`,
+          shortName: null,
+          parentId: null,
+          image: null,
+          description: null,
+        });
+        expect(own.status).toBe(201);
+        expect(own.data.sourceId).toBeNull();
+
+        const base = {
+          shortName: null,
+          parentId: null,
+          image: null,
+          description: null,
+        };
+        const renamed = await asAdmin(
+          'put',
+          `/admin/catalog/categories/${own.data.id}`,
+          { ...base, name: `${CATEGORY_NAME} own renamed` },
+        );
+        expect(renamed.status).toBe(200);
+        expect(renamed.data.name).toBe(`${CATEGORY_NAME} own renamed`);
+
+        // And binding it to the source tree, which is how it joins the
+        // exchange before the run that will carry it.
+        const bound = await asAdmin(
+          'put',
+          `/admin/catalog/categories/${own.data.id}`,
+          {
+            ...base,
+            name: `${CATEGORY_NAME} own renamed`,
+            sourceId: `${CATEGORY_SOURCE_ID}-own`,
+          },
+        );
+        expect(bound.status).toBe(200);
+        expect(bound.data.sourceId).toBe(`${CATEGORY_SOURCE_ID}-own`);
+
+        // Bound, it is the exchange's: the next rename is refused.
+        const again = await asAdmin(
+          'put',
+          `/admin/catalog/categories/${own.data.id}`,
+          { ...base, name: `${CATEGORY_NAME} own again` },
+        );
+        expect(again.status).toBe(409);
+        expect(again.data.code).toBe('catalog-externally-owned');
+
+        await asAdmin('delete', `/admin/catalog/categories/${own.data.id}`);
+      });
+    });
+
     it('refuses a delete that would reassign products to another category', async () => {
       await whileOwned(async () => {
         const other = await asAdmin('post', '/admin/catalog/categories', {

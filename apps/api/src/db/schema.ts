@@ -81,7 +81,11 @@ export const pages = pgTable('pages', {
 export const categories = pgTable('categories', {
   id: uuid('id').primaryKey().defaultRandom(),
   // The sync identity, derived from the file's category path. Unique + private.
-  sourceId: varchar('sourceId', { length: 512 }).notNull().unique(),
+  // Null for a category the shop invented: no source system knows it, and
+  // nothing but the exchange needs a key — which is what leaves such a
+  // category's name the shop's to change while the catalog is externally
+  // owned. Postgres allows many nulls under a unique constraint.
+  sourceId: varchar('sourceId', { length: 512 }).unique(),
   slug: varchar('slug', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   parentId: uuid('parentId').references((): AnyPgColumn => categories.id, {

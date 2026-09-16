@@ -70,7 +70,9 @@ export interface ExistingProduct {
 
 export interface ExistingCategory {
   id: string;
-  sourceId: string;
+  /** Null for a category the shop invented: no file names it, so no run
+   * touches it — it is here only for the emptied-category report. */
+  sourceId: string | null;
   slug: string;
   name: string;
 }
@@ -185,7 +187,9 @@ export function planSync(
   );
 
   const categoriesBySourceId = new Map(
-    state.categories.map((c) => [c.sourceId, c]),
+    state.categories
+      .filter((c) => c.sourceId !== null)
+      .map((c) => [c.sourceId as string, c]),
   );
 
   // Price-list keys are validated here rather than in the contract: they are
