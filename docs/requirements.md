@@ -103,6 +103,12 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-ADM-08](#fr-adm-08) — Order exchange with the source system
 - [FR-ADM-09](#fr-adm-09) — Sync activity log
 - [FR-ADM-10](#fr-adm-10) — External ownership of an area
+- [FR-ADM-11](#fr-adm-11) — Customer exchange over the machine endpoint
+- [FR-ADM-12](#fr-adm-12) — Bulk customer import
+- [FR-ADM-13](#fr-adm-13) — The exchange issues no credential
+- [FR-ADM-14](#fr-adm-14) — Accounts are matched by their source key
+- [FR-ADM-15](#fr-adm-15) — The account holder's own data travels outward only
+- [FR-ADM-16](#fr-adm-16) — A repeated instruction changes nothing
 
 **[Accounts, Roles & Pricing (FR-AUTH)](#fr-auth)**
 
@@ -116,6 +122,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-AUTH-08](#fr-auth-08) — Changing your own password
 - [FR-AUTH-09](#fr-auth-09) — Company suggestions at sign-up
 - [FR-AUTH-10](#fr-auth-10) — Registered address as first address
+- [FR-AUTH-11](#fr-auth-11) — Declining a registration
 
 **[Cart & Checkout (FR-CART)](#fr-cart)**
 
@@ -171,6 +178,8 @@ survives a retitling; the Contents block below is generated from those headings 
 - [NFR-LEGAL-04](#nfr-legal-04) — Right-of-withdrawal page
 - [NFR-LEGAL-05](#nfr-legal-05) — Data residency
 - [NFR-LEGAL-06](#nfr-legal-06) — Open-source attribution page
+- [NFR-LEGAL-07](#nfr-legal-07) — Disclosing a transfer of account details
+- [NFR-LEGAL-08](#nfr-legal-08) — Deletion reaches only this platform
 
 **[Security (NFR-SEC)](#nfr-sec)**
 
@@ -201,6 +210,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [NFR-OPS-05](#nfr-ops-05) — Search observability
 - [NFR-OPS-06](#nfr-ops-06) — Bounded release and downtime
 - [NFR-OPS-07](#nfr-ops-07) — A failed sync leaves consistent state
+
 ---
 
 ## Functional Requirements
@@ -477,23 +487,50 @@ A product is not visible to the public until an admin publishes it. Products cre
 
 #### <a id="fr-adm-07"></a>FR-ADM-07 — Catalog import over a machine endpoint
 
-Where a deployment configures one, an automated source can submit the same catalog import over an authenticated machine endpoint, producing the same staged run, preview and audit record as a manual upload. A run applies itself where its effect stays within a policy the deployment declares, and is otherwise staged for an admin to review, which is work awaiting them ([FR-WORK-02](#fr-work-02)) — as is a run whose source the adapter cannot fully vouch for. A machine run is accepted while maintenance mode is active ([FR-ADM-04](#fr-adm-04)), so a deployment can be populated before it opens to the public. The manual upload stays available as the operator's fallback: it is refused only while the catalog is externally owned ([FR-ADM-10](#fr-adm-10)), which an admin can turn off without a deploy.
-
+Where a deployment configures one, an automated source can submit the same catalog import over an authenticated machine endpoint, producing the same staged run, preview and audit record as a manual upload. A run applies itself where its effect stays within a policy the deployment declares — which counts the categories it adds and the categories it leaves empty as well as the products it creates, hides and rewrites, so a regrouping upstream is read before it lands — and is otherwise staged for an admin to review, which is work awaiting them ([FR-WORK-02](#fr-work-02)) — as is a run whose source the adapter cannot fully vouch for. A machine run is accepted while maintenance mode is active ([FR-ADM-04](#fr-adm-04)), so a deployment can be populated before it opens to the public. The manual upload stays available as the operator's fallback: it is refused only while the catalog is externally owned ([FR-ADM-10](#fr-adm-10)), which an admin can turn off without a deploy.
 #### <a id="fr-adm-08"></a>FR-ADM-08 — Order exchange with the source system
 
-Where a deployment configures one, the same automated source can read order requests and write back their processing state and adjustments, so an order can be worked entirely in that system while the platform keeps the customer's view and notifications. A repeated or out-of-date update changes nothing and notifies nobody.
-
+Where a deployment configures one, the same automated source can read order requests and write back their processing state and adjustments, so an order can be worked entirely in that system while the platform keeps the customer's view and notifications.
 #### <a id="fr-adm-09"></a>FR-ADM-09 — Sync activity log
 
-The admin panel shows a log of sync activity in both directions — what ran, which way, what it changed, and what failed — in enough detail to diagnose a broken or partial exchange without access to the server. An automated source may attach a note to a run it did produce, kept verbatim beside it and shown whatever became of the run; it explains, and decides nothing.
+The admin panel shows a log of sync activity in every area — the catalog, customers, orders — and in both directions: what ran, which way, over what, what it changed, and what failed, in enough detail to diagnose a broken or partial exchange without access to the server. An area's runs are readable, and a staged run of theirs reviewable, by whoever may do that area's work by hand: the catalog by admins, customers and orders by managers too ([FR-AUTH-03](#fr-auth-03)). Handing an area over and issuing a machine token ([NFR-SEC-09](#nfr-sec-09)) stay admin-only — they are configuration, not the work.
 
+An automated source may attach a note to a run it did produce, kept verbatim beside it and shown whatever became of the run; it explains, and decides nothing.
 #### <a id="fr-adm-10"></a>FR-ADM-10 — External ownership of an area
 
-Where an external system owns an area of the platform's data — the catalog, order processing — an admin can say so from the admin panel, one area at a time, and take it back. While an area is externally owned, the fields that system writes are read-only in the admin panel and refused by the API — as is adding or removing the records it owns — and the platform's own way into that area — the manual bulk upload, the order transitions — is refused; while it is not owned, the automated exchange for that area is refused instead.
+Where an external system owns an area of the platform's data — the catalog, customers, order processing — an admin can say so from the admin panel, one area at a time, and take it back. While an area is externally owned, the fields that system writes are read-only in the admin panel and refused by the API — as is adding or removing the records it owns — and the platform's own way into that area — the manual bulk upload, every staff action on a customer account or an order — is refused; while it is not owned, the automated exchange for that area is refused instead.
 
 What the shop presents rather than stocks stays the shop's however an area is owned: a product's publication, and how its categories are named for display, pictured and arranged. A price list stays the shop's to name, add and remove — only the key the external system addresses it by is frozen, because that key is how its prices arrive.
 
+Owning customers or order processing closes the admin panel's side of them completely rather than field by field: the screens stay readable — staff must be able to see what a customer sees, and the counts of work awaiting attention ([FR-WORK-02](#fr-work-02)) are read from them — but every action on them is refused, because the point of the switch is that the work is done in the owning system.
+
+Two things stay outside it. A staff account is not a customer: who holds which role, and the administration of admin and manager accounts, stay the platform's under every setting ([FR-AUTH-03](#fr-auth-03)). And an account holder's own actions on their own account — their name and phone, their password, deleting it ([FR-AUTH-06](#fr-auth-06)) — are never refused, because the switch is about who does the shop's work, not about whether a person may use their own account.
+
 Only an admin may change the setting; it takes effect without a deploy, and every change to it — and to maintenance mode ([FR-ADM-04](#fr-adm-04)) — is recorded with who made it and shown in the admin panel.
+
+#### <a id="fr-adm-11"></a>FR-ADM-11 — Customer exchange over the machine endpoint
+
+Where a deployment configures one, the automated source can do, over the machine endpoint, everything a manager can do to a customer account in the admin panel — invite an account into being, approve or refuse a registration, set its tier and company details, deactivate and reactivate it — so a deployment can be run without anybody opening the admin panel. Orders are worked over the exchange under [FR-ADM-08](#fr-adm-08) instead; the account is what has to exist first, so that an exported order names a counterparty rather than inventing one.
+
+#### <a id="fr-adm-12"></a>FR-ADM-12 — Bulk customer import
+
+Admin can bulk-import customer details from a file, producing the same staged run, preview and audit record as a catalog upload ([FR-ADM-02](#fr-adm-02)) and reaching no further than [FR-ADM-11](#fr-adm-11) does: it may invite accounts into being and set what a manager could set, and it issues no credential. It exists for the case the automated exchange does not cover — a deployment going live with customers whose tiers are already settled elsewhere — and, like the catalog upload, it is refused while customers are externally owned ([FR-ADM-10](#fr-adm-10)).
+
+#### <a id="fr-adm-13"></a>FR-ADM-13 — The exchange issues no credential
+
+An account the exchange asks for ([FR-ADM-11](#fr-adm-11)) is created in the platform's own invited state, and the set-a-password link is sent from here to the person themselves, as it is on a manager's approval ([FR-AUTH-01](#fr-auth-01)). The exchange cannot set a password and cannot delete an account.
+
+#### <a id="fr-adm-14"></a>FR-ADM-14 — Accounts are matched by their source key
+
+Every customer account carries a private `sourceId` — the source system's own key, and the only identity the platform models for it, as for a product ([FR-ADM-02](#fr-adm-02)). An account is never matched by email address or company registration id, both of which a person can change and two people can share.
+
+#### <a id="fr-adm-15"></a>FR-ADM-15 — The account holder's own data travels outward only
+
+What an account holder maintains themselves — their name, their phone number, their password, and the deletion of their own account ([FR-AUTH-06](#fr-auth-06)) — travels outward only and is never written from outside. An account the person has deleted is reported as withdrawn rather than deleted on the exchange's say-so, and keeps its `sourceId` when the rest of it is cleared, so a run asking for that customer again is refused rather than obeyed: a deletion the next run could undo is not a deletion.
+
+#### <a id="fr-adm-16"></a>FR-ADM-16 — A repeated instruction changes nothing
+
+An instruction arriving over the machine endpoint that repeats or is out of date changes nothing and notifies nobody, in every area ([FR-ADM-07](#fr-adm-07), [FR-ADM-08](#fr-adm-08), [FR-ADM-11](#fr-adm-11)). A run that acts on many accounts at once sends each person affected the same single notification the equivalent manual action would.
 
 ---
 
@@ -501,8 +538,7 @@ Only an admin may change the setting; it takes effect without a deploy, and ever
 
 #### <a id="fr-auth-01"></a>FR-AUTH-01 — Sign-up and approval
 
-A user signs up with the details a human needs to judge the request — name, email address, phone number, and for a business its registered company name and registration id, both required; the account requires admin/manager approval before use. On approval a customer tier is assigned (not visible to the user) and the account is invited, by a single-use link, to choose its own password.
-
+A user signs up with the details a human needs to judge the request — name, email address, phone number, and for a business its registered company name and registration id, both required; the account requires admin/manager approval before use. On approval a customer tier is assigned (not visible to the user) and the account is invited, by a single-use link, to choose its own password. Where an external system owns customers ([FR-ADM-10](#fr-adm-10)) the approval and the tier arrive from it instead of from a manager; the link is still issued and sent from here.
 #### <a id="fr-auth-02"></a>FR-AUTH-02 — Password reset
 
 Users can request a password reset via email.
@@ -538,6 +574,11 @@ Where a deployment configures a provider, typing a company's name or registratio
 #### <a id="fr-auth-10"></a>FR-AUTH-10 — Registered address as first address
 
 Where a chosen company suggestion carries a registered address and identifies a legal entity, the account is created with that address as its first saved address. It is an ordinary saved address once the account is active — visible, editable and removable by its owner — and it is never created from the registered address of an individual, which is a personal address rather than a business one.
+
+
+#### <a id="fr-auth-11"></a>FR-AUTH-11 — Declining a registration
+
+A registration can be declined, which deactivates the account rather than leaving it waiting ([FR-WORK-02](#fr-work-02)) and can be reversed by approving it later. No separate refused state exists, because a declined registration and a switched-off account are the same thing to everyone who reads them.
 
 ---
 
@@ -712,6 +753,15 @@ Personal data is stored on infrastructure satisfying the operating business's ap
 #### <a id="nfr-legal-06"></a>NFR-LEGAL-06 — Open-source attribution page
 
 The open-source components delivered to the browser are attributed, with their license texts, on a dedicated page.
+
+
+#### <a id="nfr-legal-07"></a>NFR-LEGAL-07 — Disclosing a transfer of account details
+
+Where a deployment transfers account details to an external system ([FR-ADM-11](#fr-adm-11)), the transfer is configured rather than assumed, and the privacy page names it, its purpose and the category of recipient.
+
+#### <a id="nfr-legal-08"></a>NFR-LEGAL-08 — Deletion reaches only this platform
+
+Deleting an account under [FR-AUTH-06](#fr-auth-06) reaches only as far as this platform — the account can no longer sign in, can no longer be written to, and its personal details are cleared here — and is reported outward as withdrawn. The platform neither erases the receiving system's own record nor claims to: that system keeps its own data under its own obligations, and the privacy page says so plainly instead of promising an erasure the shop would have to perform by hand. The source system's key for the account is deliberately retained on the cleared row ([FR-ADM-15](#fr-adm-15)), so a later run cannot recreate what the person asked to have removed; the privacy page describes the outcome in those terms rather than as anonymity it cannot deliver.
 
 ---
 

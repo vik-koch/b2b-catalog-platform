@@ -18,8 +18,9 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 10<br>`v1.8.0` | Product documents & certificates | [FR-DOC-01](requirements.md#fr-doc-01)/[02](requirements.md#fr-doc-02)/[03](requirements.md#fr-doc-03)/[04](requirements.md#fr-doc-04) | [FR-CAT-05](requirements.md#fr-cat-05) |
 | 11<br>`v1.9.0` | Order processing, payment state & order documents | [FR-ORD-01](requirements.md#fr-ord-01)/[02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[04](requirements.md#fr-ord-04)/[05](requirements.md#fr-ord-05),<br>[FR-CART-05](requirements.md#fr-cart-05),<br>[FR-ACC-02](requirements.md#fr-acc-02),<br>[NFR-LEGAL-04](requirements.md#nfr-legal-04),<br>[NFR-SEC-10](requirements.md#nfr-sec-10) | [FR-CART-06](requirements.md#fr-cart-06),<br>[FR-NOTIF-03](requirements.md#fr-notif-03)/[07](requirements.md#fr-notif-07)/[08](requirements.md#fr-notif-08),<br>[FR-WORK-02](requirements.md#fr-work-02)/[04](requirements.md#fr-work-04),<br>[FR-AUTH-04](requirements.md#fr-auth-04),<br>[NFR-OPS-02](requirements.md#nfr-ops-02) |
 | 12<br>`v1.10.0` | Automated catalog sync from the source system | [FR-ADM-07](requirements.md#fr-adm-07)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-SEC-09](requirements.md#nfr-sec-09),<br>[NFR-OPS-06](requirements.md#nfr-ops-06)/[07](requirements.md#nfr-ops-07) | [FR-ADM-02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[06](requirements.md#fr-adm-06),<br>[FR-AUTH-05](requirements.md#fr-auth-05),<br>[FR-UNIT-04](requirements.md#fr-unit-04)/[10](requirements.md#fr-unit-10),<br>[FR-WORK-02](requirements.md#fr-work-02),<br>[FR-CAT-01](requirements.md#fr-cat-01) |
-| 13<br>`v1.11.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03) |
-| 14<br>`v1.12.0` | Online card payment | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
+| 13<br>`v1.11.0` | Customer exchange with the source system | [FR-ADM-11](requirements.md#fr-adm-11)/[12](requirements.md#fr-adm-12)/[13](requirements.md#fr-adm-13)/[14](requirements.md#fr-adm-14)/[15](requirements.md#fr-adm-15)/[16](requirements.md#fr-adm-16),<br>[FR-AUTH-11](requirements.md#fr-auth-11),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07)/[08](requirements.md#nfr-legal-08) | [FR-ADM-07](requirements.md#fr-adm-07)/[08](requirements.md#fr-adm-08)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-AUTH-01](requirements.md#fr-auth-01) |
+| 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03) |
+| 15<br>`v1.13.0` | Online card payment | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
 
@@ -366,3 +367,90 @@ Notes:
   any direction in which the platform writes catalog content back into the source system: the
   ownership split runs the other way (see the iteration-12 notes), and the exchange protocol
   offers no such message in any case
+- Iterations 13 and 14 were swapped (2026-09-15). Order exchange had held row 13 since the
+  iteration-11 planning round; customer exchange did not exist as a requirement at all, because
+  the source system's stock site-exchange setting carries a catalog and orders and nothing else,
+  and the platform's own assumption since iteration 2 had been that only the catalog ever
+  arrived from outside. An upgrade over there made a fuller exchange possible, and asking what
+  a fully source-driven deployment would still need a person for surfaced the gap: **iteration
+  12 handed over the prices but nothing hands over the tier**. A price arrives keyed by
+  `price:<key>` ([FR-AUTH-05](requirements.md#fr-auth-05)), and which key a given customer is charged is still assigned by
+  hand here — a half-closed loop already running in production. Closing it first follows the
+  rule that has ordered this roadmap since iteration 5: the thing that constrains the data goes
+  before the thing that consumes it. The practical argument points the same way — with no
+  `sourceId` on an account, every order exported first would have the source system invent a
+  counterparty from the order's party fields, and the customer exchange would arrive a release
+  later to reconcile duplicates it caused itself.
+- Iteration 13 is where the **ownership switch stops being a catalog feature**. ADR 0056 built
+  it with an area and one value; customers is the second, orders the third, and each is a value
+  rather than a mechanism. The sync run table gains an `area` beside them rather than being
+  split in three: the run lifecycle, the staged reasons, the actor, the counts, the
+  state-change notifications (ADR 0057) and the work-awaiting count ([FR-WORK-02](requirements.md#fr-work-02)) are the same
+  in every area, and only the row payload and the owned-field list differ — and those already
+  live in the contract layer. The **machine endpoint paths do not move**: `/machine/sync/runs`
+  shipped in v1.10.0 and an adapter is being written against it, so the area travels in the
+  body, where the per-run field intent already travels. Renaming it would be a major under
+  ADR 0044 for the sake of a tidier URL.
+- The customer exchange is stated as a **capability rather than a field list**: the adapter can
+  do everything a manager can do to a customer account and an order, and while the area is
+  owned the admin panel's side of it is closed completely rather than field by field. A first
+  cut enumerated the columns the source system may write — tier, company name, registration id
+  — and drew the line at "who may sign in", keeping approval here on the grounds that no field
+  over there maps onto it. That was answered by making one: an account state on the source
+  system's own customer record, which is where the decision belongs if the goal is a deployment
+  nobody administers by hand. The field list went with it, because enumerating columns is the
+  wrong shape for "do what the manager does" and would have needed extending on every iteration
+  that gives a manager a new button.
+- The line that survived the reframe is **narrower and sharper: the exchange never issues a
+  credential.** It can ask for an account, and the platform creates it in the state a manager's
+  approval creates it in and sends the person their own set-a-password link. It cannot set a
+  password, and it cannot delete — deleting an account is the account holder's own act under
+  [FR-AUTH-06](requirements.md#fr-auth-06), irreversible, and a mis-mapped key in a feed must not be able to destroy who
+  somebody was. A removal on the source system's side deactivates instead, which is reversible
+  and says what the shop actually means.
+- **Deletion stops at the platform boundary, and the wording says so.** An earlier draft had it
+  travelling outward as an erasure the receiving system was expected to honour, which is a
+  promise the shop would have to keep by hand and the platform cannot verify — and the source
+  system has its own retention obligations for the same relationship. So deleting an account
+  means what it can mean here: no sign-in, no mail, personal details cleared, reported outward
+  as withdrawn and no further claim made ([NFR-LEGAL-08](requirements.md#nfr-legal-08)). The cleared row **keeps the source
+  system's key**, which looks like the opposite of erasure and is what makes the erasure hold:
+  without it the next run meets a customer it has no account for and creates one, mailing a
+  person who asked to be gone. It also means the outcome is honestly a closed and cleared
+  account rather than anonymity, and the privacy page has to describe it in those terms.
+- Two things stay outside the switch. **A staff account is not a customer** — roles, and the
+  administration of admin and manager accounts, are portal administration with no counterpart
+  in the source system, so an admin can always appoint another admin. And the **screens stay
+  readable** while every action on them is refused: staff must be able to see what a customer
+  sees, and the counts of work awaiting attention are read from exactly those rows.
+- Approval moving outward has a **cost worth stating**: a registration a manager used to answer
+  in seconds now waits for the next exchange and for somebody to look at it over there. The
+  recovery path is the one ADR 0056 already documents — take the area back, approve by hand,
+  hand it over again. A declined registration is **deactivated** rather than given a state of
+  its own, which keeps the work-awaiting count honest without a fifth account state that reads
+  identically to the fourth.
+- There is deliberately **no manual import for orders** and **no catalog export**. An order is
+  a thread of versions with a customer pointer, snapshotted prices and a notification decision
+  per move (ADR 0051); a file of state changes is a worse order screen, and ADR 0056 already
+  documents the recovery path as taking the area back and working the order by hand. A catalog
+  export was considered for symmetry with the customer one and dropped: ADR 0054 states that no
+  direction writes catalog content back, and "the screens should match" is not a reason to
+  amend it. Customers get a manual import because they have a case the catalog's fallback
+  argument does not cover — a go-live with several hundred existing customers whose tiers are
+  already settled over there.
+- Sync becomes **three screens rather than one with a filter** (2026-09-16, ADR 0060): the catalog, the
+  customers and, later, the orders each get their own slug and their own way in from the admin
+  panel, because who may read them differs ([FR-ADM-09](requirements.md#fr-adm-09)) and a manager should not arrive at a log
+  whose first half is refused. A run's own page keeps its existing path — a staged-run link that
+  has already been mailed must not stop working, and a run id says which area it belongs to. For
+  the same reason the **work-awaiting count splits per area**: a staged catalog run is an
+  admin's, a staged customer run is a manager's too, and one figure covering both would show a
+  manager work they cannot finish ([FR-WORK-02](requirements.md#fr-work-02)).
+- **Ownership is presented as one shop, stored as areas.** An operator handing everything over is
+  doing one thing, so the panel offers one switch that moves every area and a badge that says the
+  shop is externally owned rather than listing the areas one by one; but the stored setting stays
+  one value per area, and the audit still records the area each one moved ([FR-ADM-10](requirements.md#fr-adm-10)). A fourth
+  stored "everything" flag would be a value that can disagree with the three beneath it, and an
+  audit row naming no area would leave a gap in the history of the area it moved. So the master
+  switch is a read over the areas and an action across them — one request, one transaction, one
+  row per area that actually changed, shown as a single entry.
