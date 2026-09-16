@@ -34,8 +34,8 @@ const variants = {
  * they were drifting apart across five call sites, and a control that moves
  * between screens reads as a different control.
  *
- * Every affordance is optional: omit the `add*` links where nothing is created
- * from here, omit `editLink` for a cluster with no editor,
+ * Every affordance is optional: omit the `add*` link and label where nothing is
+ * created from here, omit `editLink` for a cluster with no editor,
  * omit `deleteLabel` where deleting does not belong (a static page, the
  * catalogue root — and the grid tiles, where the bin was noise beside an edit
  * people reach for far more often), omit `publishLabel` for anything that is not
@@ -61,17 +61,20 @@ const variants = {
           <app-icon name="folder-plus" [class]="style().icon" />
         </a>
       }
-      @if (addProductLink(); as link) {
-        <a
+      <!-- A button, not a link: where an external system owns the catalog the
+           gesture opens that explanation instead of an editor, and only the
+           caller's service knows which. -->
+      @if (addProductLabel(); as label) {
+        <button
           appDiscButton
           [size]="style().size"
-          [routerLink]="link"
-          [queryParams]="addProductParams()"
-          [attr.aria-label]="addProductLabel()"
-          [attr.title]="addProductLabel()"
+          type="button"
+          [attr.aria-label]="label"
+          [attr.title]="label"
+          (click)="addProduct.emit()"
         >
           <app-icon name="file-plus" [class]="style().icon" />
-        </a>
+        </button>
       }
       @if (filtersLink(); as link) {
         <a
@@ -132,7 +135,7 @@ export class EditActions {
   readonly variant = input<keyof typeof variants>('page');
   /**
    * "New category here" and "new product here" — the two creation affordances,
-   * each its own optional link. They live in the cluster rather than as a tile
+   * each optional. They live in the cluster rather than as a tile
    * among the content because a dashed placeholder card sat in the grid
    * pretending to be a product, moved as the grid reflowed, and cost the
    * listing a column at every width.
@@ -140,9 +143,9 @@ export class EditActions {
   readonly addCategoryLink = input<unknown[] | null>(null);
   readonly addCategoryParams = input<Params | undefined>(undefined);
   readonly addCategoryLabel = input<string>('');
-  readonly addProductLink = input<unknown[] | null>(null);
-  readonly addProductParams = input<Params | undefined>(undefined);
+  /** Doubles as the switch for the ＋ disc: no label, no creation affordance. */
   readonly addProductLabel = input<string>('');
+  readonly addProduct = output<void>();
   /**
    * The category's filter panel (FR-ATTR-11) — which attributes this listing
    * offers as filters. Beside the pencil rather than inside the editor: it is

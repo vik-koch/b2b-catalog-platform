@@ -11,7 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Params, Router, RouterLink } from '@angular/router';
 import {
   categoryDisplayName,
   encodeAttributeParams,
@@ -20,6 +20,7 @@ import {
 import { EditActions } from '../admin/edit-actions';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { EditModeService } from '../admin/edit-mode.service';
+import { ProductCreateService } from '../admin/ownership/product-create.service';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { HiddenProductsSection } from '../admin/products/hidden-products-section';
 import { APP_TEXT } from '../config/app-text';
@@ -123,12 +124,13 @@ const SUBS_ASSUMED_FIT = 4;
                 from: editorFrom().from,
               }"
               [addCategoryLabel]="editText.addCategory"
-              [addProductLink]="['/admin/products/new']"
-              [addProductParams]="{
-                category: data.category.slug,
-                from: editorFrom().from,
-              }"
               [addProductLabel]="editText.addProduct"
+              (addProduct)="
+                addProduct({
+                  category: data.category.slug,
+                  from: editorFrom().from,
+                })
+              "
             />
           }
           <!-- The category's controls share the breadcrumb's row rather than
@@ -444,6 +446,7 @@ export class CategoryGrid {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly editMode = inject(EditModeService);
+  private readonly productCreate = inject(ProductCreateService);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();
@@ -544,6 +547,11 @@ export class CategoryGrid {
   protected readonly ready = this.content.ready;
   protected readonly editControls = this.content.controls;
   protected readonly showSkeleton = this.content.showSkeleton;
+
+  /** The ＋ disc: an editor for this category, or the reason there is none. */
+  protected addProduct(queryParams: Params): void {
+    void this.productCreate.start(queryParams);
+  }
 
   constructor() {
     usePageSeo({

@@ -25,6 +25,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
+import { ProductCreateService } from '../ownership/product-create.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { injectEditorReturnParams } from '../editor-return';
@@ -82,18 +83,13 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
     >
-      <!-- Kept while the catalog is externally owned: the editor it opens is
-           where that refusal is explained, and it is the same route the
-           storefront's own "add product here" affordance lands on. -->
-      <a
-        appButton
-        routerLink="/admin/products/new"
-        [queryParams]="editorFrom()"
-        class="gap-2"
-      >
+      <!-- Kept while the catalog is externally owned: the click then explains
+           who owns it instead of opening an editor that could only refuse the
+           save. The storefront's own ＋ disc makes the same gesture. -->
+      <button appButton type="button" class="gap-2" (click)="addProduct()">
         <app-admin-icon name="plus" class="h-4 w-4" />
         {{ editText.addProduct }}
-      </a>
+      </button>
     </app-admin-list-header>
 
     @if (products.error()) {
@@ -307,6 +303,7 @@ export class ProductListPage {
   protected readonly text = inject(ADMIN_TEXT).productList;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   private readonly confirm = inject(ConfirmService);
+  private readonly productCreate = inject(ProductCreateService);
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   /** The storefront's three words for a stock state, reused rather than
@@ -770,12 +767,20 @@ export class ProductListPage {
     }
   }
 
+  /** The header's ＋: a new product's editor, or the reason there is none. */
+  protected addProduct(): void {
+    void this.productCreate.start(this.editorFrom());
+  }
+
   protected async restore(item: ProductRowState): Promise<void> {
     await this.admin.restoreProduct(item.slug);
     this.products.reload();
   }
 
   constructor() {
+    // This screen is certain to need the ownership answer — its ＋ is always on
+    // screen — so it is asked for on load rather than on the click.
+    this.productCreate.prepare();
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({ name: () => this.text.title });
