@@ -53,7 +53,7 @@ export class SettingsController {
   setOwnership(@CurrentUser() user: AuthUser) {
     return implement(settingsContract.setOwnership).handler(
       ({ input: { body } }) =>
-        this.settings.setOwnership(body.area, body.owned, user),
+        this.settings.setOwnership(body.areas, body.owned, user),
     );
   }
 

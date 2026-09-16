@@ -138,7 +138,7 @@ export class SettingsService implements OnModuleInit {
     // Recorded only when it moved: a panel that re-sends the state it is
     // already showing would otherwise fill the trail with non-events.
     if (wasEnabled !== enabled) {
-      await this.recordChange('maintenance', null, enabled, user);
+      await this.recordMaintenanceChange(enabled, user);
       this.logger.log(`Maintenance mode turned ${enabled ? 'ON' : 'off'}`);
     }
     return toSettings(row);
@@ -177,54 +177,85 @@ export class SettingsService implements OnModuleInit {
   }
 
   /**
-   * Hand one area over, or take it back. Idempotent by construction — the
-   * areas are held as a set — but a no-op still records nothing rather than a
-   * change that did not happen.
+   * Hand areas over, or take them back. Idempotent by construction — the areas
+   * are held as a set — and an area already where it is asked to be records
+   * nothing rather than a change that did not happen.
+   *
+   * One transaction for the whole request, which is what lets the panel offer a
+   * master switch without storing a fourth flag: the areas move together or not
+   * at all, and the rows they write share the transaction's timestamp, so the
+   * history can show one entry for one decision (`listChanges`).
    */
   async setOwnership(
-    area: OwnershipArea,
+    areas: readonly OwnershipArea[],
     owned: boolean,
     user: { id: string; email: string },
   ): Promise<AppSettings> {
-    const current = new Set((await this.readSettings()).externallyOwnedAreas);
-    const wasOwned = current.has(area);
-    if (owned) current.add(area);
-    else current.delete(area);
-    const areas = [...current];
+    const row = await this.db.transaction(async (tx) => {
+      const [before] = await tx
+        .select(RETURNED_SETTINGS)
+        .from(appSettings)
+        .for('update');
+      const current = new Set<OwnershipArea>(
+        before?.externallyOwnedAreas ?? [],
+      );
+      const moved = areas.filter((area) => current.has(area) !== owned);
+      for (const area of areas) {
+        if (owned) current.add(area);
+        else current.delete(area);
+      }
 
-    const settings = {
-      externallyOwnedAreas: areas,
-      updatedAt: new Date(),
-      updatedBy: user.id,
-    };
-    const [row] = await this.db
-      .insert(appSettings)
-      .values(settings)
-      .onConflictDoUpdate({ target: appSettings.id, set: settings })
-      .returning(RETURNED_SETTINGS);
+      const settings = {
+        externallyOwnedAreas: [...current],
+        updatedAt: new Date(),
+        updatedBy: user.id,
+      };
+      const [written] = await tx
+        .insert(appSettings)
+        .values(settings)
+        .onConflictDoUpdate({ target: appSettings.id, set: settings })
+        .returning(RETURNED_SETTINGS);
 
-    this.ownedAreas = row.externallyOwnedAreas;
-    if (wasOwned !== owned) {
-      await this.recordChange('ownership', area, owned, user);
+      // One row per area that actually moved, never one row naming the group:
+      // an audit entry naming no area would leave a gap in that area's own
+      // history, and the grouping is a question for the reader, not the record.
+      if (moved.length) {
+        await tx.insert(settingChanges).values(
+          moved.map((area) => ({
+            kind: 'ownership' as const,
+            area,
+            enabled: owned,
+            changedBy: user.id,
+            changedByEmail: user.email,
+          })),
+        );
+      }
+      return { written, moved };
+    });
+
+    this.ownedAreas = row.written.externallyOwnedAreas;
+    if (row.moved.length) {
       this.logger.log(
-        `Catalog area '${area}' is ${owned ? 'now externally owned' : 'no longer externally owned'}`,
+        `${row.moved.join(', ')} ${row.moved.length > 1 ? 'are' : 'is'} ${
+          owned ? 'now externally owned' : 'no longer externally owned'
+        }`,
       );
     }
-    return toSettings(row);
+    return toSettings(row.written);
   }
 
   // --- The trail -----------------------------------------------------------
 
-  /** Append one record. Never updated, never deleted. */
-  private async recordChange(
-    kind: 'maintenance' | 'ownership',
-    area: string | null,
+  /** Append one record. Never updated, never deleted. The ownership rows are
+   * written inside `setOwnership`'s transaction instead, so that they share its
+   * timestamp. */
+  private async recordMaintenanceChange(
     enabled: boolean,
     user: { id: string; email: string },
   ): Promise<void> {
     await this.db.insert(settingChanges).values({
-      kind,
-      area,
+      kind: 'maintenance',
+      area: null,
       enabled,
       changedBy: user.id,
       changedByEmail: user.email,

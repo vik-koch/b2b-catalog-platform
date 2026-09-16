@@ -17,6 +17,7 @@ export function provideOwnership(...areas: OwnershipArea[]): Provider {
     provide: SettingsService,
     useValue: {
       ownedAreas: owned.asReadonly(),
+      owns: (area: OwnershipArea) => areas.includes(area),
       load: () => Promise.resolve(areas),
       read: () =>
         Promise.resolve({

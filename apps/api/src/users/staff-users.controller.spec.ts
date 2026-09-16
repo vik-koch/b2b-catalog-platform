@@ -12,6 +12,7 @@ import { AuditLogger } from '../audit/audit.logger';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
+import { SettingsService } from '../settings/settings.service';
 
 /**
  * The role boundary is the whole point of this surface, and it is the kind of
@@ -28,6 +29,13 @@ describe('StaffUsersController', () => {
   const findById = vi.fn();
   const update = vi.fn();
   const create = vi.fn();
+  const approve = vi.fn();
+  const deactivate = vi.fn();
+  const reactivate = vi.fn();
+  const sendPasswordLink = vi.fn();
+  const purgePending = vi.fn();
+  /** Which areas an external system holds, per test. */
+  let ownedAreas: string[] = [];
 
   const customer = {
     id: '11111111-1111-4111-8111-111111111111',
@@ -42,7 +50,6 @@ describe('StaffUsersController', () => {
     companyRegistrationId: null,
     tierId: null,
     createdAt: '2026-01-05T09:00:00.000Z',
-    updatedAt: '2026-01-05T09:00:00.000Z',
     approvedAt: null,
     approvedBy: null,
   };
@@ -69,10 +76,26 @@ describe('StaffUsersController', () => {
       providers: [
         {
           provide: StaffUsersService,
-          useValue: { list, findById, update, purgePending: vi.fn() },
+          useValue: {
+            list,
+            findById,
+            update,
+            purgePending,
+            approve,
+            reactivate,
+          },
         },
-        { provide: AccountInvitations, useValue: { create } },
+        {
+          provide: AccountInvitations,
+          useValue: { create, deactivate, sendPasswordLink, send: vi.fn() },
+        },
         { provide: AuditLogger, useValue: { record: vi.fn() } },
+        {
+          provide: SettingsService,
+          useValue: {
+            isExternallyOwned: (area: string) => ownedAreas.includes(area),
+          },
+        },
         { provide: APP_FILTER, useClass: ContractErrorFilter },
       ],
     })
@@ -102,10 +125,16 @@ describe('StaffUsersController', () => {
 
   beforeEach(() => {
     actor = { id: 'admin-1', role: 'admin' };
+    ownedAreas = [];
     list.mockReset();
     findById.mockReset();
     update.mockReset();
     create.mockReset();
+    approve.mockReset();
+    deactivate.mockReset();
+    reactivate.mockReset();
+    sendPasswordLink.mockReset();
+    purgePending.mockReset();
   });
 
   const send = (path: string, method: string, body?: unknown) =>
@@ -220,5 +249,114 @@ describe('StaffUsersController', () => {
 
     expect(response.status).toBe(400);
     expect(findById).not.toHaveBeenCalled();
+  });
+
+  /**
+   * The area closed whole (FR-ADM-10, FR-AUTH-04 as amended). Written as a
+   * sweep over every write rather than one case per handler, because the rule
+   * being tested is that *nothing* was missed — a per-handler test proves only
+   * the handlers somebody remembered.
+   */
+  describe('while an external system owns customer accounts', () => {
+    beforeEach(() => {
+      ownedAreas = ['customers'];
+      findById.mockResolvedValue(customer);
+    });
+
+    const writes: [string, string, string, unknown?][] = [
+      [
+        'approve',
+        `/admin/users/${customer.id}/approve`,
+        'POST',
+        { tierId: null },
+      ],
+      [
+        'create',
+        '/admin/users',
+        'POST',
+        {
+          email: 'new@example.com',
+          role: 'user',
+          tierId: null,
+          firstName: 'New',
+          lastName: 'Customer',
+        },
+      ],
+      [
+        'edit',
+        `/admin/users/${customer.id}`,
+        'PATCH',
+        { ...edit, firstName: 'Janet' },
+      ],
+      [
+        'deactivate',
+        `/admin/users/${customer.id}/active`,
+        'PATCH',
+        { active: false },
+      ],
+      [
+        'reactivate',
+        `/admin/users/${customer.id}/active`,
+        'PATCH',
+        { active: true },
+      ],
+      ['password link', `/admin/users/${customer.id}/password-link`, 'POST'],
+      ['decline', `/admin/users/${customer.id}`, 'DELETE'],
+    ];
+
+    it.each(writes)('refuses to %s', async (_what, path, method, body) => {
+      const response = await send(path, method, body);
+
+      expect(response.status).toBe(409);
+      expect(await response.json()).toMatchObject({
+        defined: true,
+        code: 'customers-externally-owned',
+      });
+      for (const call of [
+        approve,
+        create,
+        update,
+        deactivate,
+        reactivate,
+        sendPasswordLink,
+        purgePending,
+      ]) {
+        expect(call).not.toHaveBeenCalled();
+      }
+    });
+
+    // The screens stay readable while the actions are refused: staff must see
+    // what a customer sees, and the work counts are read from these rows.
+    it('still answers a read', async () => {
+      list.mockResolvedValue([]);
+
+      expect((await send('/admin/users', 'GET')).status).toBe(200);
+      expect((await send(`/admin/users/${customer.id}`, 'GET')).status).toBe(
+        200,
+      );
+    });
+
+    // An admin who could not appoint another admin would have handed away more
+    // than a customer list.
+    it('leaves staff administration alone', async () => {
+      findById.mockResolvedValue(staffMember);
+      update.mockResolvedValue({ ...staffMember, firstName: 'Janet' });
+      create.mockResolvedValue(staffMember);
+
+      const edited = await send(`/admin/users/${staffMember.id}`, 'PATCH', {
+        ...edit,
+        firstName: 'Janet',
+      });
+      const created = await send('/admin/users', 'POST', {
+        email: 'new@example.com',
+        role: 'manager',
+        tierId: null,
+        firstName: 'New',
+        lastName: 'Colleague',
+      });
+
+      expect(edited.status).toBe(200);
+      expect(created.status).toBe(201);
+    });
   });
 });

@@ -28,6 +28,8 @@ const PRODUCT_SOURCE_ID = `e2e-own-${R}`;
 const TOKEN_NAME = `e2e ownership ${R}`;
 const TIER_KEY = `e2e-own-tier-${R}`;
 const TIER_LABEL = `E2E Ownership Tier ${R}`;
+const CUSTOMER_EMAIL = `e2e-own-customer-${R}@example.com`;
+const PENDING_EMAIL = `e2e-own-pending-${R}@example.com`;
 
 function sessionCookie(setCookie: string[] | undefined): string {
   const cookie = setCookie
@@ -49,6 +51,9 @@ describe('External data ownership (FR-ADM-10)', () => {
   let categorySourceId: string;
   let productSlug: string;
   let tierId: string;
+  let customerId: string;
+  let pendingId: string;
+  let managerId: string;
   /** The product as the editor last read it — what a save carries back. */
   let stored: Record<string, unknown>;
 
@@ -65,24 +70,30 @@ describe('External data ownership (FR-ADM-10)', () => {
       validateStatus: () => true,
     });
 
-  const setOwned = async (owned: boolean) => {
-    const res = await asAdmin('put', '/settings/ownership', {
-      area: 'catalog',
-      owned,
-    });
+  const setOwned = async (owned: boolean, areas = ['catalog']) => {
+    const res = await asAdmin('put', '/settings/ownership', { areas, owned });
     expect(res.status).toBe(200);
     return res.data;
   };
 
-  /** Runs `body` with the catalog handed over, and always hands it back. */
-  const whileOwned = async (body: () => Promise<void>) => {
-    await setOwned(true);
+  /** Runs `body` with the given areas handed over, and always hands them back. */
+  const whileOwning = async (
+    areas: string[],
+    body: () => Promise<void>,
+  ): Promise<void> => {
+    await setOwned(true, areas);
     try {
       await body();
     } finally {
-      await setOwned(false);
+      // Asserted, not merely attempted: a restore that failed silently leaves
+      // every later file in this serial suite refused.
+      await setOwned(false, areas);
     }
   };
+
+  /** Runs `body` with the catalog handed over, and always hands it back. */
+  const whileOwned = (body: () => Promise<void>) =>
+    whileOwning(['catalog'], body);
 
   /** A whole-product save that carries the stored values back unchanged. */
   const saveUnchanged = (over: Record<string, unknown> = {}) =>
@@ -132,10 +143,15 @@ describe('External data ownership (FR-ADM-10)', () => {
       );
     adminCookie = await login(ADMIN_EMAIL);
     managerCookie = await login(MANAGER_EMAIL);
+    managerId = (
+      await client.query('SELECT id FROM users WHERE email = $1', [
+        MANAGER_EMAIL,
+      ])
+    ).rows[0].id;
 
     // Nothing may be owned on the way in: a previous crashed run must not
     // decide what this one sees.
-    await setOwned(false);
+    await setOwned(false, ['catalog', 'customers']);
 
     const category = await asAdmin('post', '/admin/catalog/categories', {
       name: CATEGORY_NAME,
@@ -171,6 +187,29 @@ describe('External data ownership (FR-ADM-10)', () => {
     expect(tier.status).toBe(201);
     tierId = tier.data.id;
 
+    // Two customers to be refused over: one approved, one still asking. Made
+    // through the API so that they are exactly what the screens would create.
+    const approved = await asAdmin('post', '/admin/users', {
+      email: CUSTOMER_EMAIL,
+      role: 'user',
+      tierId: null,
+      firstName: 'Owned',
+      lastName: 'Customer',
+    });
+    expect(approved.status).toBe(201);
+    customerId = approved.data.id;
+
+    await client.query(
+      `INSERT INTO users (email, "passwordHash", role, status)
+       VALUES ($1, $2, 'user', 'pending')`,
+      [PENDING_EMAIL, await hash(PASSWORD)],
+    );
+    const pending = await client.query(
+      'SELECT id FROM users WHERE email = $1',
+      [PENDING_EMAIL],
+    );
+    pendingId = pending.rows[0].id;
+
     const issued = await asAdmin('post', '/admin/api-tokens', {
       name: TOKEN_NAME,
       scopes: ['catalog-sync'],
@@ -179,9 +218,9 @@ describe('External data ownership (FR-ADM-10)', () => {
   });
 
   afterAll(async () => {
-    // Whatever went wrong above, the shared switch goes back off.
+    // Whatever went wrong above, the shared switches go back off.
     await asAdmin('put', '/settings/ownership', {
-      area: 'catalog',
+      areas: ['catalog', 'customers'],
       owned: false,
     });
     await client.query('DELETE FROM sync_runs WHERE "tokenName" LIKE $1', [
@@ -204,7 +243,7 @@ describe('External data ownership (FR-ADM-10)', () => {
       [ADMIN_EMAIL],
     );
     await client.query('DELETE FROM users WHERE email = ANY($1)', [
-      [ADMIN_EMAIL, MANAGER_EMAIL],
+      [ADMIN_EMAIL, MANAGER_EMAIL, CUSTOMER_EMAIL, PENDING_EMAIL],
     ]);
     await client.end();
   });
@@ -213,7 +252,7 @@ describe('External data ownership (FR-ADM-10)', () => {
     it('is admin-only', async () => {
       const res = await axios.put(
         '/settings/ownership',
-        { area: 'catalog', owned: true },
+        { areas: ['catalog'], owned: true },
         { headers: { Cookie: managerCookie }, validateStatus: () => true },
       );
       expect(res.status).toBe(403);
@@ -221,7 +260,15 @@ describe('External data ownership (FR-ADM-10)', () => {
 
     it('refuses an area nobody wrote a guard for', async () => {
       const res = await asAdmin('put', '/settings/ownership', {
-        area: 'everything',
+        areas: ['everything'],
+        owned: true,
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it('refuses a request that names no area', async () => {
+      const res = await asAdmin('put', '/settings/ownership', {
+        areas: [],
         owned: true,
       });
       expect(res.status).toBe(400);
@@ -239,6 +286,42 @@ describe('External data ownership (FR-ADM-10)', () => {
           enabled: true,
           actorEmail: ADMIN_EMAIL,
         });
+      });
+    });
+
+    it('moves every area named in one request, under one timestamp', async () => {
+      // What the panel's master switch sends. One transaction is what lets the
+      // history read those rows back as a single decision, and the shared
+      // timestamp is the only thing that says they were one.
+      await whileOwning(['catalog', 'customers'], async () => {
+        const status = await asAdmin('get', '/settings');
+        expect(status.data.ownedAreas).toEqual(
+          expect.arrayContaining(['catalog', 'customers']),
+        );
+
+        const history = await asAdmin('get', '/settings/changes');
+        const [first, second] = history.data.changes;
+        expect([first.area, second.area].sort()).toEqual([
+          'catalog',
+          'customers',
+        ]);
+        expect(first.changedAt).toBe(second.changedAt);
+      });
+    });
+
+    it('records nothing for an area that was already there', async () => {
+      await whileOwning(['catalog'], async () => {
+        const before = await asAdmin('get', '/settings/changes');
+        await setOwned(true, ['catalog', 'customers']);
+        const after = await asAdmin('get', '/settings/changes');
+
+        // Customers moved; the catalog was named again and is not an event.
+        expect(after.data.changes[0]).toMatchObject({
+          area: 'customers',
+          enabled: true,
+        });
+        expect(after.data.changes[1]).toEqual(before.data.changes[0]);
+        await setOwned(false, ['customers']);
       });
     });
   });
@@ -553,6 +636,140 @@ describe('External data ownership (FR-ADM-10)', () => {
       await client.query('DELETE FROM sync_runs WHERE "actorEmail" = $1', [
         ADMIN_EMAIL,
       ]);
+    });
+  });
+  /**
+   * The customer area, closed whole rather than field by field (FR-ADM-11,
+   * FR-AUTH-04 as amended). Every staff write refused, every read still
+   * answered, and staff administration untouched.
+   */
+  describe('while customer accounts are externally owned', () => {
+    const refusal = (res: { status: number; data: { code?: string } }) => ({
+      status: res.status,
+      code: res.data.code,
+    });
+    const refused = { status: 409, code: 'customers-externally-owned' };
+
+    /** A whole edit: the contract takes the complete field set per save. */
+    const wholeEdit = (over: Record<string, unknown> = {}) => ({
+      firstName: 'Owned',
+      lastName: 'Customer',
+      phone: null,
+      customerType: null,
+      companyName: null,
+      companyRegistrationId: null,
+      tierId: null,
+      ...over,
+    });
+
+    it('refuses every staff write on a customer account', async () => {
+      await whileOwning(['customers'], async () => {
+        expect(
+          refusal(
+            await asAdmin('post', `/admin/users/${pendingId}/approve`, {
+              tierId: null,
+            }),
+          ),
+        ).toEqual(refused);
+        expect(
+          refusal(
+            await asAdmin(
+              'patch',
+              `/admin/users/${customerId}`,
+              wholeEdit({ firstName: 'Renamed' }),
+            ),
+          ),
+        ).toEqual(refused);
+        expect(
+          refusal(
+            await asAdmin('patch', `/admin/users/${customerId}/active`, {
+              active: false,
+            }),
+          ),
+        ).toEqual(refused);
+        expect(
+          refusal(
+            await asAdmin(
+              'post',
+              `/admin/users/${customerId}/password-link`,
+              {},
+            ),
+          ),
+        ).toEqual(refused);
+        expect(
+          refusal(await asAdmin('delete', `/admin/users/${pendingId}`)),
+        ).toEqual(refused);
+        expect(
+          refusal(
+            await asAdmin('post', '/admin/users', {
+              email: `e2e-own-refused-${R}@example.com`,
+              role: 'user',
+              tierId: null,
+              firstName: 'Refused',
+              lastName: 'Customer',
+            }),
+          ),
+        ).toEqual(refused);
+      });
+    });
+
+    it('refuses a manager as readily as an admin', async () => {
+      // The switch is a state, not a permission: the person with the most
+      // reason to click is refused the same way.
+      await whileOwning(['customers'], async () => {
+        const res = await axios.patch(
+          `/admin/users/${customerId}`,
+          wholeEdit({ firstName: 'Renamed' }),
+          { headers: { Cookie: managerCookie }, validateStatus: () => true },
+        );
+        expect(refusal(res)).toEqual(refused);
+      });
+    });
+
+    it('still answers every read', async () => {
+      // The screens stay legible: staff must see what a customer sees, and the
+      // work-awaiting counts are read from these rows.
+      await whileOwning(['customers'], async () => {
+        const list = await asAdmin('get', '/admin/users?kind=customer');
+        expect(list.status).toBe(200);
+        const one = await asAdmin('get', `/admin/users/${customerId}`);
+        expect(one.status).toBe(200);
+        const work = await asAdmin('get', '/work/counts');
+        expect(work.status).toBe(200);
+        // A registration nobody here can answer is still counted: it is real
+        // work, and it says whose record to go and look at in the other
+        // system — the same reading as the unpriced-products figure, which is
+        // also answered elsewhere while the catalog is owned.
+        expect(work.data.registrations).toBeGreaterThan(0);
+      });
+    });
+
+    it('leaves staff administration alone', async () => {
+      // An admin who could not appoint another admin would have handed away
+      // more than a customer list.
+      await whileOwning(['customers'], async () => {
+        const res = await asAdmin(
+          'patch',
+          `/admin/users/${managerId}`,
+          wholeEdit({ firstName: 'Still', lastName: 'Editable' }),
+        );
+        expect(res.status).toBe(200);
+      });
+    });
+
+    it('leaves the catalog alone, and is left alone by it', async () => {
+      // Two areas, two rules: handing one over says nothing about the other.
+      await whileOwning(['customers'], async () => {
+        expect((await saveUnchanged()).status).toBe(200);
+      });
+      await whileOwned(async () => {
+        const res = await asAdmin(
+          'patch',
+          `/admin/users/${customerId}`,
+          wholeEdit({ firstName: 'Edited' }),
+        );
+        expect(res.status).toBe(200);
+      });
     });
   });
 });

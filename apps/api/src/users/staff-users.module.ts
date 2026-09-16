@@ -6,6 +6,7 @@ import {
   loadCompanyIdFormats,
 } from '../config/deployment-config';
 import { MailModule } from '../mail/mail.module';
+import { SettingsModule } from '../settings/settings.module';
 import { AccountInvitations } from './account-invitations';
 import { StaffUsersController } from './staff-users.controller';
 import { StaffUsersService } from './staff-users.service';
@@ -19,7 +20,7 @@ import { StaffUsersService } from './staff-users.service';
  * so merging them would be a cycle.
  */
 @Module({
-  imports: [AuthModule, MailModule],
+  imports: [AuthModule, MailModule, SettingsModule],
   controllers: [StaffUsersController],
   providers: [
     StaffUsersService,

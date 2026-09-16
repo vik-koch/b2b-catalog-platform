@@ -19,6 +19,8 @@ import { AuditLogger } from '../audit/audit.logger';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { refusals } from '../orpc/refusals';
+import { customersExternallyOwned } from '../settings/ownership.refusals';
+import { SettingsService } from '../settings/settings.service';
 import { AccountInvitations } from './account-invitations';
 import { StaffUsersService } from './staff-users.service';
 
@@ -43,6 +45,7 @@ export class StaffUsersController {
     private readonly service: StaffUsersService,
     private readonly invitations: AccountInvitations,
     private readonly audit: AuditLogger,
+    private readonly settings: SettingsService,
   ) {}
 
   @Implement(usersContract.listUsers)
@@ -72,6 +75,7 @@ export class StaffUsersController {
         if (!pending || !this.mayManage(actor, pending)) {
           throw errors['account-not-found'](NOT_FOUND);
         }
+        this.refuseIfOwned(pending, 'approve an account');
         const user = await this.service.approve(id, body.tierId, actor.id);
         this.audit.record('user.approved', actor, {
           id: user.id,
@@ -94,6 +98,11 @@ export class StaffUsersController {
             message: 'Only an admin can create a staff account',
           });
         }
+        // Checked against the role being asked for, since there is no stored
+        // row yet — the one place the rule reads the request, and safely: a
+        // request claiming a staff role is already refused above unless the
+        // actor may grant one.
+        this.refuseIfOwned({ role: body.role }, 'create a customer account');
         const user = await this.invitations.create(body, actor.id);
         this.audit.record('user.created', actor, {
           id: user.id,
@@ -137,6 +146,7 @@ export class StaffUsersController {
             message: 'Only an admin can change a role',
           });
         }
+        this.refuseIfOwned(before, 'edit an account');
 
         const user = await this.service.update(id, body, actor.id);
         this.recordUpdate(actor, before, user);
@@ -180,6 +190,29 @@ export class StaffUsersController {
   }
 
   /**
+   * The customer area, closed whole (FR-ADM-10, FR-AUTH-04 as amended). While
+   * an external system owns customer accounts it does everything a manager can
+   * do to one, so every write here is refused rather than a list of columns
+   * being frozen — a list would need extending each time this controller grew
+   * a handler, and the one it forgot would be the one that mattered.
+   *
+   * Two things it deliberately does not reach. Staff accounts: an admin who
+   * could not appoint another admin would have handed away more than a customer
+   * list, so the rule keys on the *target's* role, read from the stored row for
+   * the same reason `mayManage` does. And reads: the screens stay legible while
+   * the actions are refused, because staff must still be able to see what a
+   * customer sees and the work counts are read from these rows.
+   */
+  private refuseIfOwned(target: { role: StaffUser['role'] }, action: string) {
+    if (
+      target.role === 'user' &&
+      this.settings.isExternallyOwned('customers')
+    ) {
+      throw customersExternallyOwned(action);
+    }
+  }
+
+  /**
    * Switching an account off, and back on.
    *
    * Off goes through AccountInvitations, which has the links to retire beside
@@ -197,6 +230,10 @@ export class StaffUsersController {
         if (!target || !this.mayManage(actor, target)) {
           throw errors['account-not-found'](NOT_FOUND);
         }
+        this.refuseIfOwned(
+          target,
+          body.active ? 'reactivate an account' : 'deactivate an account',
+        );
         const user = body.active
           ? await this.service.reactivate(id)
           : await this.invitations.deactivate(id, actor.id);
@@ -218,6 +255,12 @@ export class StaffUsersController {
         if (!user || !this.mayManage(actor, user)) {
           throw errors['account-not-found'](NOT_FOUND);
         }
+        // Closed with the rest, even though it hands out no access a customer
+        // could not already ask for: the sign-in page's own "forgotten your
+        // password" still works, so nobody is locked out by this, and leaving
+        // one staff button live on an owned account would reopen the
+        // field-by-field reading the area closure exists to avoid.
+        this.refuseIfOwned(user, 'send a password link');
         // Unlike an approval, the mail *is* the request: a failure here is
         // reported rather than swallowed, because nothing else happened.
         await this.invitations.sendPasswordLink(user);
@@ -239,6 +282,7 @@ export class StaffUsersController {
         if (!user || !this.mayManage(actor, user)) {
           throw errors['account-not-found'](NOT_FOUND);
         }
+        this.refuseIfOwned(user, 'decline a registration');
         await this.service.purgePending(id);
         this.audit.record('user.declined', actor, { id, name: user.email });
         return { message: 'Registration declined' };

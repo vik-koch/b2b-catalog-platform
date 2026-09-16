@@ -133,3 +133,32 @@ deployment should be filled.
   the switch untested, as it leaves the maintenance gate — but that stopped
   being defensible once the machine sync route only works while the catalog _is_
   owned. Serial costs about a minute and tests what the release does.
+
+## Amendment — 2026-09-16: the panel offers one switch over all of them
+
+Customers are the first area whose answer to "which fields does the exchange
+write" is _all of them, and the buttons too_ (FR-ADM-11). The adapter does
+everything a manager can do to an account — approve, edit, re-tier, switch off,
+switch back on — so this ADR's owned-field list has nothing to enumerate there.
+
+- **The closure keys on the target's stored role, not on the request.** A staff
+  account is not a customer under any setting, or an admin could not appoint
+  another admin. The account holder's own actions on their own account are not
+  the shop's work and are never refused.
+- **The panel offers a master switch, and there is no fourth stored flag.**
+  "The whole shop is owned" is a read over the areas plus an action across
+  them: one request, one transaction, one `setting_changes` row per area that
+  actually moved. A stored answer could disagree with the areas beneath it, and
+  then neither would be believable.
+- **The history groups by decision and records by area.** A row has to name its
+  area or that area's own history has a gap in it; rows written together share
+  the transaction's timestamp, which is what lets the panel show one flip of
+  the master as one line.
+
+Consequences worth naming: a registration that arrives while customers are
+owned is still counted as work awaiting attention (FR-WORK-02) even though
+nobody can approve it here — it is real work, and the count says whose record
+to go and look at in the owning system, exactly as the unpriced-products figure
+does while the catalog is owned. And the staff-facing "send this account a
+password link" button closes with the rest, so somebody locked out is answered
+by the sign-in page's own forgotten-password form rather than by a manager.

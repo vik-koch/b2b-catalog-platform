@@ -1,6 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AppSettings, SettingChange } from '@b2b-catalog-platform/shared';
+import {
+  AppSettings,
+  OwnershipArea,
+  SettingChange,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
@@ -39,6 +43,8 @@ interface Harness {
 async function render(
   options: {
     owned?: boolean;
+    /** Which areas are owned, where "all or none" is not the question. */
+    ownedAreas?: OwnershipArea[];
     maintenanceOn?: boolean;
     changes?: SettingChange[];
     confirmed?: boolean;
@@ -48,7 +54,8 @@ async function render(
 ) {
   const settings: AppSettings = {
     maintenanceEnabled: options.maintenanceOn ?? false,
-    ownedAreas: options.owned ? ['catalog'] : [],
+    ownedAreas:
+      options.ownedAreas ?? (options.owned ? ['catalog', 'customers'] : []),
     updatedAt: '2026-09-10T10:00:00.000Z',
   };
   const h: Harness = {
@@ -89,27 +96,44 @@ async function render(
   return { fixture, el: fixture.nativeElement as HTMLElement, h };
 }
 
-/** The switches in template order: maintenance first, then one per area. */
+/**
+ * The switches in template order: maintenance, the master, then one per area —
+ * the last of which are drawn only while the areas lid is open.
+ */
 function switches(el: HTMLElement): HTMLButtonElement[] {
   return [...el.querySelectorAll<HTMLButtonElement>('button[role=switch]')];
 }
 
 const maintenanceSwitch = (el: HTMLElement) => switches(el)[0];
-const catalogSwitch = (el: HTMLElement) => switches(el)[1];
+const masterSwitch = (el: HTMLElement) => switches(el)[1];
+const catalogSwitch = (el: HTMLElement) => switches(el)[2];
 
-async function openHistory(
+/** The lids in template order: the areas, then the trail. */
+async function openLid(
   fixture: Awaited<ReturnType<typeof render>>['fixture'],
   el: HTMLElement,
+  which: 'areas' | 'history',
 ): Promise<void> {
-  const lid = el.querySelector<HTMLButtonElement>(
+  const lids = el.querySelectorAll<HTMLButtonElement>(
     'app-disclosure-toggle button',
   );
-  if (!lid) throw new Error('no history lid');
+  const lid = which === 'areas' ? lids[0] : lids[lids.length - 1];
+  if (!lid) throw new Error(`no ${which} lid`);
   lid.click();
   fixture.detectChanges();
   await fixture.whenStable();
   fixture.detectChanges();
 }
+
+const openHistory = (
+  fixture: Awaited<ReturnType<typeof render>>['fixture'],
+  el: HTMLElement,
+) => openLid(fixture, el, 'history');
+
+const openAreas = (
+  fixture: Awaited<ReturnType<typeof render>>['fixture'],
+  el: HTMLElement,
+) => openLid(fixture, el, 'areas');
 
 describe('OperationsPage', () => {
   it('carries both switches, maintenance first, from one read', async () => {
@@ -118,6 +142,7 @@ describe('OperationsPage', () => {
     const { el, h } = await render();
 
     expect(h.read).toHaveBeenCalledTimes(1);
+    // Maintenance and the master; the per-area switches are behind their lid.
     expect(switches(el)).toHaveLength(2);
     expect(el.textContent).toContain(text.maintenanceHeading);
     expect(el.textContent).toContain(text.ownershipHeading);
@@ -168,40 +193,52 @@ describe('OperationsPage', () => {
 
   describe('data ownership', () => {
     it('says the shop is in charge, and what follows from that', async () => {
-      const { el } = await render({ owned: false });
+      const { el, fixture } = await render({ owned: false });
+      await openAreas(fixture, el);
 
       expect(el.textContent).toContain(ownershipText.statusOwn);
-      expect(el.textContent).toContain(ownershipText.statusOwnEffect);
+      expect(el.textContent).toContain(
+        ownershipText.areaText.catalog.ownEffect,
+      );
       expect(catalogSwitch(el).getAttribute('aria-checked')).toBe('false');
     });
 
     it('says an external system is in charge when an area is handed over', async () => {
-      const { el } = await render({ owned: true });
+      const { el, fixture } = await render({ owned: true });
+      await openAreas(fixture, el);
 
       expect(el.textContent).toContain(ownershipText.statusOwned);
-      expect(el.textContent).toContain(ownershipText.statusOwnedEffect);
+      expect(el.textContent).toContain(
+        ownershipText.areaText.catalog.ownedEffect,
+      );
       expect(catalogSwitch(el).getAttribute('aria-checked')).toBe('true');
     });
 
-    it('confirms before handing an area over', async () => {
-      const { el, h } = await render({ owned: false });
+    it('confirms before handing an area over, in that area’s words', async () => {
+      const { el, h, fixture } = await render({ owned: false });
+      await openAreas(fixture, el);
 
       catalogSwitch(el).click();
       await Promise.resolve();
 
       expect(h.confirm).toHaveBeenCalledWith(
-        expect.objectContaining({ heading: ownershipText.handTitle }),
+        expect.objectContaining({
+          heading: ownershipText.areaText.catalog.handTitle,
+        }),
       );
     });
 
     it('warns about taking it back in the other direction', async () => {
-      const { el, h } = await render({ owned: true });
+      const { el, h, fixture } = await render({ owned: true });
+      await openAreas(fixture, el);
 
       catalogSwitch(el).click();
       await Promise.resolve();
 
       expect(h.confirm).toHaveBeenCalledWith(
-        expect.objectContaining({ heading: ownershipText.takeTitle }),
+        expect.objectContaining({
+          heading: ownershipText.areaText.catalog.takeTitle,
+        }),
       );
     });
 
@@ -210,11 +247,53 @@ describe('OperationsPage', () => {
         owned: false,
         confirmed: false,
       });
+      await openAreas(fixture, el);
 
       catalogSwitch(el).click();
       await fixture.whenStable();
 
       expect(h.setOwnership).not.toHaveBeenCalled();
+    });
+
+    it('hands every area over in one request', async () => {
+      // One request is what makes it one transaction and one history entry —
+      // three requests could half-succeed.
+      const { el, h, fixture } = await render({ owned: false });
+
+      masterSwitch(el).click();
+      await fixture.whenStable();
+
+      expect(h.confirm).toHaveBeenCalledWith(
+        expect.objectContaining({ heading: ownershipText.all.handTitle }),
+      );
+      expect(h.setOwnership).toHaveBeenCalledTimes(1);
+      expect(h.setOwnership).toHaveBeenCalledWith(
+        ['catalog', 'customers'],
+        true,
+      );
+    });
+
+    it('reads the master off the areas rather than off a flag of its own', async () => {
+      const { el } = await render({ owned: true });
+
+      expect(masterSwitch(el).getAttribute('aria-checked')).toBe('true');
+      expect(el.textContent).toContain(ownershipText.all.statusOwned);
+    });
+
+    it('says "partly" when the areas disagree, and opens the rows', async () => {
+      // "Partly" is not an answer, so the screen shows which is which without
+      // being asked.
+      const { el } = await render({ ownedAreas: ['catalog'] });
+
+      expect(el.textContent).toContain(ownershipText.all.statusMixed);
+      expect(masterSwitch(el).getAttribute('aria-checked')).toBe('false');
+      expect(switches(el)).toHaveLength(4);
+    });
+
+    it('keeps the rows shut while the areas agree', async () => {
+      const { el } = await render({ owned: true });
+
+      expect(switches(el)).toHaveLength(2);
     });
   });
 
@@ -245,7 +324,43 @@ describe('OperationsPage', () => {
       const { el, fixture } = await render({ changes: [change()] });
       await openHistory(fixture, el);
 
-      expect(el.textContent).toContain(ownershipText.areas.catalog);
+      expect(el.textContent).toContain(ownershipText.areaText.catalog.name);
+    });
+
+    it('reads one decision over two areas as one line', async () => {
+      // The master switch writes a record per area — each area's own history
+      // has to name it — but it was one decision, so it is read as one.
+      const { el, fixture } = await render({
+        changes: [
+          change({ area: 'catalog' }),
+          change({
+            id: '00000000-0000-0000-0000-0000000000c2',
+            area: 'customers',
+          }),
+        ],
+      });
+      await openHistory(fixture, el);
+
+      expect(el.querySelectorAll('li')).toHaveLength(1);
+      expect(el.textContent).toContain(ownershipText.areaText.catalog.name);
+      expect(el.textContent).toContain(ownershipText.areaText.customers.name);
+    });
+
+    it('keeps two separate decisions apart', async () => {
+      // Same person, same direction, a second later: two flips, two lines.
+      const { el, fixture } = await render({
+        changes: [
+          change({ area: 'catalog' }),
+          change({
+            id: '00000000-0000-0000-0000-0000000000c2',
+            area: 'customers',
+            changedAt: '2026-09-10T10:00:01.000Z',
+          }),
+        ],
+      });
+      await openHistory(fixture, el);
+
+      expect(el.querySelectorAll('li')).toHaveLength(2);
     });
 
     it('names a deleted account rather than leaving the line blank', async () => {

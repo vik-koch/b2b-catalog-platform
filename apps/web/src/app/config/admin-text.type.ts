@@ -16,6 +16,27 @@ const syncAreaTextSchema = z
   .object({ title: z.string(), runsDescription: z.string() })
   .strict();
 
+/**
+ * One ownership area's copy. The two directions carry a warning each because
+ * they are opposite losses: handing over takes the shop's own way in away,
+ * taking back starts refusing the system that has been doing the work.
+ */
+const ownershipAreaText = z
+  .object({
+    name: z.string(),
+    description: z.string(),
+    /** What follows from the state, said beside the badge that names it. */
+    ownedEffect: z.string(),
+    ownEffect: z.string(),
+    handTitle: z.string(),
+    handConfirm: z.string(),
+    handWarning: z.string(),
+    takeTitle: z.string(),
+    takeConfirm: z.string(),
+    takeWarning: z.string(),
+  })
+  .strict();
+
 export const adminTextSchema = z
   .object({
     /**
@@ -1841,20 +1862,47 @@ export const adminTextSchema = z
     ownership: z
       .object({
         intro: z.string(),
-        areas: z.object({ catalog: z.string() }).strict(),
-        areaDescription: z.object({ catalog: z.string() }).strict(),
+        /**
+         * One area's whole vocabulary in one block: what it is called, what it
+         * covers, what each direction does to the screens, and the two
+         * confirmations. Grouped per area rather than spread over eight
+         * parallel maps so that adding an area is one block to write and one
+         * block to translate — and so that a half-worded area is a type error
+         * rather than a screen with a hole in it.
+         */
+        areaText: z
+          .object({ catalog: ownershipAreaText, customers: ownershipAreaText })
+          .strict(),
         statusOwned: z.string(),
-        statusOwnedEffect: z.string(),
         statusOwn: z.string(),
-        statusOwnEffect: z.string(),
         hand: z.string(),
         take: z.string(),
-        takeTitle: z.string(),
-        takeConfirm: z.string(),
-        takeWarning: z.string(),
-        handTitle: z.string(),
-        handConfirm: z.string(),
-        handWarning: z.string(),
+        /**
+         * The master switch, which is a read over the areas and an action
+         * across them — never a stored fourth flag. It needs a third status
+         * the per-area rows do not: a shop where the areas disagree.
+         */
+        all: z
+          .object({
+            heading: z.string(),
+            description: z.string(),
+            statusOwned: z.string(),
+            statusMixed: z.string(),
+            statusOwn: z.string(),
+            /** `{count}` of `{total}` areas, for the mixed state. */
+            statusMixedEffect: z.string(),
+            hand: z.string(),
+            take: z.string(),
+            handTitle: z.string(),
+            handConfirm: z.string(),
+            handWarning: z.string(),
+            takeTitle: z.string(),
+            takeConfirm: z.string(),
+            takeWarning: z.string(),
+            /** The lid over the per-area rows. */
+            areasToggle: z.string(),
+          })
+          .strict(),
         error: z.string(),
         /** The banner at the top of an editor: why, and where to change it. */
         fieldLocked: z.string(),
@@ -1869,6 +1917,20 @@ export const adminTextSchema = z
         productCreate: z.string(),
         /** The tier list, where only an existing list's sync key is locked. */
         tierKeyLocked: z.string(),
+        /**
+         * The customer area is closed whole rather than field by field, so its
+         * copy is one banner and three refusals rather than a lock per field:
+         * an editor in which every input is greyed does not need each one
+         * labelled.
+         */
+        accountLocked: z.string(),
+        /** The editor opened on a "new customer" route, which explains
+         * instead of rendering a form. */
+        accountCreate: z.string(),
+        /** The list's decline dialog, which explains instead of asking. */
+        accountDecline: z.string(),
+        /** The list's deactivate and reactivate dialogs, likewise. */
+        accountActive: z.string(),
       })
       .strict(),
     /**

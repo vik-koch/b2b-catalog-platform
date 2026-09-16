@@ -5,12 +5,17 @@ import {
   Router,
   provideRouter,
 } from '@angular/router';
-import { CustomerTier, StaffUser } from '@b2b-catalog-platform/shared';
+import {
+  CustomerTier,
+  OwnershipArea,
+  StaffUser,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
 import { AuthService } from '../../auth/auth.service';
+import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';
 import { UserEditorPage } from './user-editor-page';
 import { StaffUsersService } from './users.service';
@@ -74,6 +79,7 @@ async function render(
     kind?: 'customer' | 'staff';
     role?: 'admin' | 'manager';
     tiers?: CustomerTier[];
+    ownedAreas?: OwnershipArea[];
   } = {},
 ) {
   const isNew = options.account === undefined;
@@ -120,6 +126,9 @@ async function render(
       },
       { provide: StaffUsersService, useValue: service },
       { provide: TiersService, useValue: tiers },
+      // Needed, not optional: the real read fails closed, so an unstubbed call
+      // renders the editor's locked shape.
+      provideOwnership(...(options.ownedAreas ?? [])),
       { provide: Router, useValue: { navigateByUrl, url: '/admin/users' } },
       {
         provide: ActivatedRoute,
@@ -371,6 +380,63 @@ describe('UserEditorPage', () => {
     const { el } = await render({ account: null });
 
     expect(el.textContent).toContain(text.notFound);
+  });
+
+  /**
+   * The customer area closed whole (FR-ADM-10). Unlike the catalog editor,
+   * which greys the handful of fields the exchange writes, there is nothing
+   * partial to express here: the form is disabled and the banner says so once.
+   */
+  describe('while an external system owns customer accounts', () => {
+    it('locks the whole form and offers no way to save it', async () => {
+      const { el, field, button } = await render({
+        account: user(),
+        ownedAreas: ['customers'],
+      });
+
+      expect(el.textContent).toContain(
+        defaultAdminText.ownership.accountLocked,
+      );
+      expect((field('firstName') as HTMLInputElement).disabled).toBe(true);
+      expect(button(defaultAdminText.common.save)).toBeUndefined();
+      expect(button(text.resend)).toBeUndefined();
+      // The way back stays, as it does on the catalog's locked route.
+      expect(button(defaultAdminText.common.cancel)).toBeDefined();
+    });
+
+    it('offers no approval either', async () => {
+      const { button } = await render({
+        account: user({ status: 'pending', approvedAt: null }),
+        ownedAreas: ['customers'],
+      });
+
+      expect(button(text.approve)).toBeUndefined();
+    });
+
+    it('draws no form at all on the "new customer" route', async () => {
+      const { el, field, button } = await render({
+        kind: 'customer',
+        ownedAreas: ['customers'],
+      });
+
+      expect(el.textContent).toContain(
+        defaultAdminText.ownership.accountCreate,
+      );
+      expect(field('firstName')).toBeNull();
+      expect(button(defaultAdminText.common.cancel)).toBeDefined();
+    });
+
+    it('leaves a staff account editable', async () => {
+      // An admin who could not appoint another admin would have handed away
+      // more than a customer list.
+      const { field, button } = await render({
+        account: user({ role: 'manager', customerType: null }),
+        ownedAreas: ['customers'],
+      });
+
+      expect((field('firstName') as HTMLInputElement).disabled).toBe(false);
+      expect(button(defaultAdminText.common.save)).toBeDefined();
+    });
   });
 
   it('reports a refusal instead of navigating away from it', async () => {

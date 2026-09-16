@@ -231,7 +231,7 @@ describe('settings (maintenance toggle)', () => {
       const setOwned = (owned: boolean) =>
         axios.put(
           '/settings/ownership',
-          { area: 'catalog', owned },
+          { areas: ['catalog'], owned },
           { headers: { Cookie: cookie }, validateStatus: () => true },
         );
 

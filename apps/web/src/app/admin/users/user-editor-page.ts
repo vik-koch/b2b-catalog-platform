@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -33,6 +33,7 @@ import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
 import { Skeleton } from '../../ui/skeleton';
 import { injectEditorReturn } from '../editor-return';
+import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { SelectField } from '../../ui/select-field';
@@ -113,233 +114,268 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
           </p>
         }
 
-        <form
-          [formGroup]="form"
-          (ngSubmit)="submit()"
-          novalidate
-          class="space-y-6"
-        >
-          @if (isNew) {
-            <app-email-field
-              [control]="form.controls.email"
-              [label]="text.email"
-              [text]="emailText"
-              [required]="true"
-              [invalid]="isInvalid('email')"
-              autocomplete="off"
-            />
-          } @else {
-            <p class="text-sm text-muted">{{ text.emailFixed }}</p>
-          }
+        <!-- One banner for the whole form rather than a lock beside each
+             field: the catalog editor marks the handful of fields an exchange
+             writes, but here the area is closed whole, and an editor in which
+             every input is greyed does not need each one labelled. -->
+        @if (locked()) {
+          <p
+            class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
+            role="status"
+          >
+            {{
+              newAndLocked()
+                ? ownershipText.accountCreate
+                : ownershipText.accountLocked
+            }}
+          </p>
+        }
 
-          @if (isCustomer()) {
-            <fieldset>
-              <legend appFieldLabel>{{ text.customerType }}</legend>
-              <app-segmented
-                [options]="customerTypes"
-                size="md"
-                formControlName="customerType"
-              />
-            </fieldset>
-          }
-
-          <div class="grid gap-6 sm:grid-cols-2">
-            <div>
-              <label for="firstName" appFieldLabel>
-                {{ text.firstName }}
-                <span class="text-accent" aria-hidden="true">*</span>
-              </label>
-              <input
-                id="firstName"
-                type="text"
-                formControlName="firstName"
+        @if (newAndLocked()) {
+          <!-- Nothing to fill in, so nothing is drawn: a blank form whose Save
+               is refused would only be a longer way of saying this. The way
+               back stays, as it does on the catalog's own locked route. -->
+          <button
+            appButton
+            variant="secondary"
+            type="button"
+            class="gap-2"
+            (click)="cancel()"
+          >
+            <app-admin-icon name="x" class="h-4 w-4" />
+            {{ common.cancel }}
+          </button>
+        } @else {
+          <form
+            [formGroup]="form"
+            (ngSubmit)="submit()"
+            novalidate
+            class="space-y-6"
+          >
+            @if (isNew) {
+              <app-email-field
+                [control]="form.controls.email"
+                [label]="text.email"
+                [text]="emailText"
+                [required]="true"
+                [invalid]="isInvalid('email')"
                 autocomplete="off"
-                aria-required="true"
-                appInput
-                class="w-full"
-                [attr.aria-invalid]="isInvalid('firstName') || null"
               />
-              @if (isInvalid('firstName')) {
-                <p class="mt-1 text-sm text-red-600">
-                  {{ text.validation.firstNameRequired }}
-                </p>
-              }
+            } @else {
+              <p class="text-sm text-muted">{{ text.emailFixed }}</p>
+            }
+
+            @if (isCustomer()) {
+              <fieldset>
+                <legend appFieldLabel>{{ text.customerType }}</legend>
+                <app-segmented
+                  [options]="customerTypes"
+                  size="md"
+                  formControlName="customerType"
+                />
+              </fieldset>
+            }
+
+            <div class="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label for="firstName" appFieldLabel>
+                  {{ text.firstName }}
+                  <span class="text-accent" aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="firstName"
+                  type="text"
+                  formControlName="firstName"
+                  autocomplete="off"
+                  aria-required="true"
+                  appInput
+                  class="w-full"
+                  [attr.aria-invalid]="isInvalid('firstName') || null"
+                  [disabled]="locked()"
+                />
+                @if (isInvalid('firstName')) {
+                  <p class="mt-1 text-sm text-red-600">
+                    {{ text.validation.firstNameRequired }}
+                  </p>
+                }
+              </div>
+
+              <div>
+                <label for="lastName" appFieldLabel>
+                  {{ text.lastName }}
+                  <span class="text-accent" aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="lastName"
+                  type="text"
+                  formControlName="lastName"
+                  autocomplete="off"
+                  aria-required="true"
+                  appInput
+                  class="w-full"
+                  [attr.aria-invalid]="isInvalid('lastName') || null"
+                  [disabled]="locked()"
+                />
+                @if (isInvalid('lastName')) {
+                  <p class="mt-1 text-sm text-red-600">
+                    {{ text.validation.lastNameRequired }}
+                  </p>
+                }
+              </div>
             </div>
 
-            <div>
-              <label for="lastName" appFieldLabel>
-                {{ text.lastName }}
-                <span class="text-accent" aria-hidden="true">*</span>
-              </label>
-              <input
-                id="lastName"
-                type="text"
-                formControlName="lastName"
-                autocomplete="off"
-                aria-required="true"
-                appInput
-                class="w-full"
-                [attr.aria-invalid]="isInvalid('lastName') || null"
+            @if (isCompany()) {
+              <app-company-fields
+                idInputId="companyRegistrationId"
+                [idControl]="form.controls.companyRegistrationId"
+                [nameControl]="form.controls.companyName"
+                [text]="companyText"
+                [idInvalid]="isInvalid('companyRegistrationId')"
+                [nameInvalid]="isInvalid('companyName')"
+                (picked)="fillCompanyFrom($event)"
               />
-              @if (isInvalid('lastName')) {
-                <p class="mt-1 text-sm text-red-600">
-                  {{ text.validation.lastNameRequired }}
-                </p>
-              }
-            </div>
-          </div>
+            }
 
-          @if (isCompany()) {
-            <app-company-fields
-              idInputId="companyRegistrationId"
-              [idControl]="form.controls.companyRegistrationId"
-              [nameControl]="form.controls.companyName"
-              [text]="companyText"
-              [idInvalid]="isInvalid('companyRegistrationId')"
-              [nameInvalid]="isInvalid('companyName')"
-              (picked)="fillCompanyFrom($event)"
-            />
-          }
-
-          <!-- Optional here, unlike on the registration form: staff often set
+            <!-- Optional here, unlike on the registration form: staff often set
                an account up from an email alone, and a phone number they do
                not have is not a reason to block the account. -->
-          <app-phone-field
-            [control]="form.controls.phone"
-            [label]="text.phone"
-            [text]="phoneText"
-            [invalid]="isInvalid('phone')"
-            autocomplete="off"
-          />
+            <app-phone-field
+              [control]="form.controls.phone"
+              [label]="text.phone"
+              [text]="phoneText"
+              [invalid]="isInvalid('phone')"
+              autocomplete="off"
+            />
 
-          @if (isCustomer()) {
-            <div>
-              <label for="tier" appFieldLabel>
-                {{ text.tier }}
-                @if (isApproval()) {
-                  <span class="text-accent" aria-hidden="true">*</span>
-                }
-              </label>
-              <app-select-field class="w-full">
-                <select
-                  appInput
-                  id="tier"
-                  formControlName="tierId"
-                  class="w-full"
-                  [attr.aria-invalid]="isInvalid('tierId') || null"
-                >
-                  <!-- No tier is a default anywhere (ADR 0031), so an approval
-                       has nothing to fall back on and must be chosen. -->
+            @if (isCustomer()) {
+              <div>
+                <label for="tier" appFieldLabel>
+                  {{ text.tier }}
                   @if (isApproval()) {
-                    <option value="">{{ text.tierChoose }}</option>
+                    <span class="text-accent" aria-hidden="true">*</span>
                   }
-                  <!-- The default list is offered as "no tier" and not a
+                </label>
+                <app-select-field class="w-full">
+                  <select
+                    appInput
+                    id="tier"
+                    formControlName="tierId"
+                    class="w-full"
+                    [attr.aria-invalid]="isInvalid('tierId') || null"
+                  >
+                    <!-- No tier is a default anywhere (ADR 0031), so an approval
+                       has nothing to fall back on and must be chosen. -->
+                    @if (isApproval()) {
+                      <option value="">{{ text.tierChoose }}</option>
+                    }
+                    <!-- The default list is offered as "no tier" and not a
                        second time under its own id: an account on it carries a
                        null, the same state a guest is in, and two spellings of
                        one state is what the null is here to avoid. -->
-                  <option value="default">{{ baseTierLabel() }}</option>
-                  @for (tier of otherTiers(); track tier.id) {
-                    <option [value]="tier.id">{{ tier.label }}</option>
-                  }
-                </select>
-              </app-select-field>
-              @if (isInvalid('tierId')) {
-                <p class="mt-1 text-sm text-red-600">
-                  {{ text.validation.tierRequired }}
-                </p>
-              }
-            </div>
-          }
+                    <option value="default">{{ baseTierLabel() }}</option>
+                    @for (tier of otherTiers(); track tier.id) {
+                      <option [value]="tier.id">{{ tier.label }}</option>
+                    }
+                  </select>
+                </app-select-field>
+                @if (isInvalid('tierId')) {
+                  <p class="mt-1 text-sm text-red-600">
+                    {{ text.validation.tierRequired }}
+                  </p>
+                }
+              </div>
+            }
 
-          <!-- Admin only. A manager who could grant a role could grant it to
+            <!-- Admin only. A manager who could grant a role could grant it to
                themselves, so the field is absent for them and the API refuses
                it besides. -->
-          @if (showsRole()) {
-            <div>
-              <label for="role" appFieldLabel>{{ text.role }}</label>
-              <app-select-field class="w-full">
-                <select
-                  id="role"
-                  formControlName="role"
-                  appInput
-                  class="w-full"
+            @if (showsRole()) {
+              <div>
+                <label for="role" appFieldLabel>{{ text.role }}</label>
+                <app-select-field class="w-full">
+                  <select
+                    id="role"
+                    formControlName="role"
+                    appInput
+                    class="w-full"
+                  >
+                    <option value="manager">{{ listText.roleManager }}</option>
+                    <option value="admin">{{ listText.roleAdmin }}</option>
+                  </select>
+                </app-select-field>
+              </div>
+            }
+
+            @if (isNew) {
+              <p class="text-sm text-muted">{{ text.inviteHint }}</p>
+            }
+
+            @if (error()) {
+              <p class="text-sm text-red-700" role="alert">{{ error() }}</p>
+            }
+            @if (resent()) {
+              <p class="text-sm text-green-700" role="status">
+                {{ text.resendSent }}
+              </p>
+            }
+
+            <div class="flex flex-wrap gap-3">
+              @if (!closed() && !locked()) {
+                <button
+                  appButton
+                  type="submit"
+                  class="gap-2"
+                  [disabled]="saving()"
                 >
-                  <option value="manager">{{ listText.roleManager }}</option>
-                  <option value="admin">{{ listText.roleAdmin }}</option>
-                </select>
-              </app-select-field>
-            </div>
-          }
-
-          @if (isNew) {
-            <p class="text-sm text-muted">{{ text.inviteHint }}</p>
-          }
-
-          @if (error()) {
-            <p class="text-sm text-red-700" role="alert">{{ error() }}</p>
-          }
-          @if (resent()) {
-            <p class="text-sm text-green-700" role="status">
-              {{ text.resendSent }}
-            </p>
-          }
-
-          <div class="flex flex-wrap gap-3">
-            @if (!closed()) {
-              <button
-                appButton
-                type="submit"
-                class="gap-2"
-                [disabled]="saving()"
-              >
-                <app-admin-icon [name]="submitIcon()" class="h-4 w-4" />
-                {{ saving() ? common.saving : submitLabel() }}
-              </button>
-              <!-- On a pending account the primary button approves, which is a
+                  <app-admin-icon [name]="submitIcon()" class="h-4 w-4" />
+                  {{ saving() ? common.saving : submitLabel() }}
+                </button>
+                <!-- On a pending account the primary button approves, which is a
                    decision. Correcting a typo without taking that decision has
                    to stay possible, so it gets its own button. -->
-              @if (isApproval()) {
+                @if (isApproval()) {
+                  <button
+                    appButton
+                    variant="secondary"
+                    type="button"
+                    class="gap-2"
+                    [disabled]="saving()"
+                    (click)="submit(false)"
+                  >
+                    <app-admin-icon name="save" class="h-4 w-4" />
+                    {{ common.save }}
+                  </button>
+                }
+              }
+              <!-- For any account that may sign in: the invitation while it has
+                 no password, the reset link once it has. Which one is the
+                 API's decision, off the account's own status. -->
+              @if (canSendLink() && !locked()) {
                 <button
                   appButton
                   variant="secondary"
                   type="button"
                   class="gap-2"
                   [disabled]="saving()"
-                  (click)="submit(false)"
+                  (click)="sendPasswordLink()"
                 >
-                  <app-admin-icon name="save" class="h-4 w-4" />
-                  {{ common.save }}
+                  <app-admin-icon name="send" class="h-4 w-4" />
+                  {{ text.resend }}
                 </button>
               }
-            }
-            <!-- For any account that may sign in: the invitation while it has
-                 no password, the reset link once it has. Which one is the
-                 API's decision, off the account's own status. -->
-            @if (canSendLink()) {
               <button
                 appButton
                 variant="secondary"
                 type="button"
                 class="gap-2"
-                [disabled]="saving()"
-                (click)="sendPasswordLink()"
+                (click)="cancel()"
               >
-                <app-admin-icon name="send" class="h-4 w-4" />
-                {{ text.resend }}
+                <app-admin-icon name="x" class="h-4 w-4" />
+                {{ common.cancel }}
               </button>
-            }
-            <button
-              appButton
-              variant="secondary"
-              type="button"
-              class="gap-2"
-              (click)="cancel()"
-            >
-              <app-admin-icon name="x" class="h-4 w-4" />
-              {{ common.cancel }}
-            </button>
-          </div>
-        </form>
+            </div>
+          </form>
+        }
       }
     </div>
   `,
@@ -361,6 +397,8 @@ export class UserEditorPage implements UnsavedChangesAware {
     { value: 'company', label: this.listText.typeCompany },
   ];
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  private readonly ownership = inject(SettingsService);
   /**
    * What an account with no tier of its own is charged, named: "Default
    * (Base list)". The option carries a null, which is also what a brand new
@@ -430,6 +468,22 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly closed = computed(
     () => this.account()?.status === 'anonymized',
   );
+  /**
+   * Whether an external system holds customer accounts (FR-ADM-10). Read on
+   * the same terms as the catalog editor reads its own area: the load starts
+   * in the constructor and resolves well before anyone has typed, and an
+   * answer still in flight reads as not owned rather than painting a locked
+   * form that may not be one. The API refuses the save either way.
+   *
+   * Staff accounts are never locked by it — an admin has to be able to appoint
+   * another admin whatever the exchange holds.
+   */
+  protected readonly locked = computed(
+    () => this.isCustomer() && this.ownership.owns('customers'),
+  );
+  /** The "new customer" route with nothing to create on it. */
+  protected readonly newAndLocked = computed(() => this.isNew && this.locked());
+
   protected readonly canSendLink = computed(() => {
     const status = this.account()?.status;
     return status === 'invited' || status === 'active';
@@ -493,6 +547,12 @@ export class UserEditorPage implements UnsavedChangesAware {
       .subscribe((type) => this.applyCompanyValidators(type));
     this.applyCompanyValidators('person');
 
+    effect(() => {
+      if (this.locked()) {
+        this.form.disable();
+      }
+    });
+    void this.ownership.load();
     void this.load();
   }
 

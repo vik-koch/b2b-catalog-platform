@@ -6,7 +6,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   COMPANY_ID_NONE,
   formatPersonName,
@@ -32,6 +32,7 @@ import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
 import { GridTimestamp } from '../grid/grid-timestamp';
 import { RecordRow } from '../records/record-row';
 import { AdminListHeader } from '../list-header';
+import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { UserRowActions } from './user-row-actions';
 import { injectEditorReturnParams } from '../editor-return';
@@ -99,7 +100,6 @@ const typeRank = (t: StaffUser['customerType']): number =>
 @Component({
   selector: 'app-user-list-page',
   imports: [
-    RouterLink,
     Button,
     AdminIcon,
     AdminListHeader,
@@ -121,15 +121,10 @@ const typeRank = (t: StaffUser['customerType']): number =>
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
     >
-      <a
-        appButton
-        class="gap-2"
-        [routerLink]="isStaff() ? '/admin/users/staff/new' : '/admin/users/new'"
-        [queryParams]="editorFrom()"
-      >
+      <button appButton type="button" class="gap-2" (click)="add()">
         <app-admin-icon name="plus" class="h-4 w-4" />
         {{ isStaff() ? text.addStaff : text.addCustomer }}
-      </a>
+      </button>
     </app-admin-list-header>
 
     <!-- Where a decline that raced with another change reports itself: every
@@ -256,6 +251,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
 })
 export class UserListPage {
   private readonly service = inject(StaffUsersService);
+  private readonly ownership = inject(SettingsService);
   private readonly tiers = inject(TiersService);
   protected readonly text = inject(ADMIN_TEXT).userList;
   protected readonly defaultSort = DEFAULT_USER_SORT;
@@ -534,9 +530,49 @@ export class UserListPage {
   // --- Row actions -------------------------------------------------------
 
   private readonly confirm = inject(ConfirmService);
+  private readonly router = inject(Router);
   protected readonly common = inject(ADMIN_TEXT).common;
+  private readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /** So an editor opened from here returns to this list, filters and all. */
   protected readonly editorFrom = injectEditorReturnParams();
+
+  /**
+   * While an external system owns customer accounts, both row actions are
+   * refused (FR-ADM-10) — so the dialog explains instead of asking, and the
+   * button that opened it stays where it was. The same rule the catalog
+   * screens follow: a control that vanishes teaches nobody why.
+   */
+  private lockedMessage(): string | null {
+    return this.isCustomers() && this.ownership.owns('customers')
+      ? this.ownershipText.accountActive
+      : null;
+  }
+
+  /**
+   * Add an account, or say why not. While an external system owns customer
+   * accounts, new ones are made there — so the button opens the explanation
+   * instead of the editor, on the same terms as the row actions: it stays
+   * where it is rather than vanishing. Staff accounts are never owned by it.
+   *
+   * The route itself stays reachable, and the editor still refuses on it: a
+   * link typed in or kept from before lands somewhere that says the same
+   * thing, rather than on a screen that has forgotten why it is empty.
+   */
+  protected async add(): Promise<void> {
+    const staff = this.isStaff();
+    if (!staff && this.ownership.owns('customers')) {
+      await this.confirm.tell({
+        heading: this.text.addCustomer,
+        message: this.ownershipText.accountCreate,
+        closeLabel: this.common.close,
+      });
+      return;
+    }
+    void this.router.navigate(
+      [staff ? '/admin/users/staff/new' : '/admin/users/new'],
+      { queryParams: this.editorFrom() },
+    );
+  }
 
   /** For the one action that is not a navigation: a declined row that raced. */
   protected readonly pageError = signal<string | null>(null);
@@ -550,17 +586,24 @@ export class UserListPage {
   protected async setActive(user: StaffUser, active: boolean): Promise<void> {
     this.pageError.set(null);
     const off = !active;
+    const locked = this.lockedMessage();
     const ok = await this.confirm.ask({
       heading: off ? this.text.deactivateTitle : this.text.reactivateTitle,
-      message: (off
-        ? this.text.deactivateConfirm
-        : this.text.reactivateConfirm
-      ).replace('{name}', this.name(user)),
-      confirmLabel: off ? this.text.deactivate : this.text.reactivate,
-      cancelLabel: this.common.cancel,
+      message:
+        locked ??
+        (off
+          ? this.text.deactivateConfirm
+          : this.text.reactivateConfirm
+        ).replace('{name}', this.name(user)),
+      confirmLabel: locked
+        ? null
+        : off
+          ? this.text.deactivate
+          : this.text.reactivate,
+      cancelLabel: locked ? this.common.close : this.common.cancel,
       confirmVariant: off ? 'danger' : 'primary',
     });
-    if (!ok) return;
+    if (locked || !ok) return;
 
     try {
       const result = await this.service.setActive(user.id, active);
@@ -576,14 +619,18 @@ export class UserListPage {
    * refusal shows in the page banner. */
   protected async decline(user: StaffUser): Promise<void> {
     this.pageError.set(null);
+    const locked = this.lockedMessage();
     const ok = await this.confirm.ask({
       heading: this.text.declineTitle,
-      message: this.text.declineConfirm.replace('{name}', this.name(user)),
-      confirmLabel: this.text.decline,
-      cancelLabel: this.common.cancel,
+      message:
+        locked === null
+          ? this.text.declineConfirm.replace('{name}', this.name(user))
+          : this.ownershipText.accountDecline,
+      confirmLabel: locked ? null : this.text.decline,
+      cancelLabel: locked ? this.common.close : this.common.cancel,
       confirmVariant: 'danger',
     });
-    if (!ok) return;
+    if (locked || !ok) return;
 
     try {
       const result = await this.service.remove(user.id);
@@ -674,5 +721,9 @@ export class UserListPage {
 
   constructor() {
     usePageSeo({ name: () => this.title() });
+    // Asked for here rather than at the click: the answer is cached for the
+    // app's lifetime, and a dialog that had to wait for it would open on a
+    // question it cannot yet word.
+    void this.ownership.load();
   }
 }

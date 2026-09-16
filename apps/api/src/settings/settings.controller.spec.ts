@@ -38,9 +38,9 @@ describe('SettingsController', () => {
       ownedAreas: [],
       updatedAt: '2026-09-10T10:00:00.000Z',
     })),
-    setOwnership: vi.fn(async (area: string) => ({
+    setOwnership: vi.fn(async (areas: string[]) => ({
       maintenanceEnabled: false,
-      ownedAreas: [area],
+      ownedAreas: areas,
       updatedAt: '2026-09-10T10:00:00.000Z',
     })),
     listChanges: async () => [],
@@ -211,25 +211,25 @@ describe('SettingsController', () => {
       const response = await fetch(`${baseUrl}/api/settings/ownership`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ area: 'catalog', owned: true }),
+        body: JSON.stringify({ areas: ['catalog'], owned: true }),
       });
 
       expect(response.status).toBe(403);
       expect(settings.setOwnership).not.toHaveBeenCalled();
     });
 
-    it('hands the area and the signed-in account to the service', async () => {
+    it('hands the areas and the signed-in account to the service', async () => {
       signedInAs = { id: 'admin-1', role: 'admin' };
 
       const response = await fetch(`${baseUrl}/api/settings/ownership`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ area: 'catalog', owned: true }),
+        body: JSON.stringify({ areas: ['catalog', 'customers'], owned: true }),
       });
 
       expect(response.status).toBe(200);
       expect(settings.setOwnership).toHaveBeenCalledWith(
-        'catalog',
+        ['catalog', 'customers'],
         true,
         expect.objectContaining({ id: 'admin-1' }),
       );
@@ -244,7 +244,23 @@ describe('SettingsController', () => {
       const response = await fetch(`${baseUrl}/api/settings/ownership`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ area: 'everything', owned: true }),
+        body: JSON.stringify({ areas: ['everything'], owned: true }),
+      });
+
+      expect(response.status).toBe(400);
+      expect(settings.setOwnership).not.toHaveBeenCalled();
+    });
+
+    it('refuses a request that names no area at all', async () => {
+      // An empty list asks for nothing, and would answer with the whole
+      // settings row as though something had been done.
+      signedInAs = { id: 'admin-1', role: 'admin' };
+      settings.setOwnership.mockClear();
+
+      const response = await fetch(`${baseUrl}/api/settings/ownership`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ areas: [], owned: true }),
       });
 
       expect(response.status).toBe(400);

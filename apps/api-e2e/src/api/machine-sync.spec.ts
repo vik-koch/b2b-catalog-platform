@@ -102,7 +102,7 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
   const setCatalogOwned = async (owned: boolean) => {
     const res = await axios.put(
       '/settings/ownership',
-      { area: 'catalog', owned },
+      { areas: ['catalog'], owned },
       { headers: { Cookie: adminCookie }, validateStatus: () => true },
     );
     expect(res.status).toBe(200);
