@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Controller,
+  ForbiddenException,
   PayloadTooLargeException,
   Post,
   UploadedFile,
@@ -12,7 +13,9 @@ import { Implement, implement } from '@orpc/nest';
 import {
   AuthUser,
   SYNC_MAX_UPLOAD_BYTES,
+  SyncArea,
   SyncPreviewResponse,
+  UserRole,
   syncContract,
   syncOptionsSchema,
 } from '@b2b-catalog-platform/shared';
@@ -23,7 +26,33 @@ import { SyncFormatError, parseSyncCsv } from './sync-csv';
 import { SyncService } from './sync.service';
 
 /**
- * The bulk-sync surface. Admin-only.
+ * Which areas' runs a role may read (FR-ADM-09).
+ *
+ * | role    | catalog | customers |
+ * | ------- | ------- | --------- |
+ * | admin   | yes     | yes       |
+ * | manager | no      | yes       |
+ * | user    | no      | no        |
+ *
+ * An area's log is readable by whoever may do that area's work by hand: the
+ * catalog is an admin's, a customer account is a manager's too. Written as a
+ * `Record<UserRole, …>` for the reason the work counts are — a new role has to
+ * name its areas to compile, and an area named by nobody is simply refused,
+ * which is the safe direction to fail in.
+ *
+ * It is a check in the handler rather than a guard because the rule is about
+ * the *run*, not the route: the list is narrowed by an area in the query, and
+ * a run's own page is one route serving every area (ADR 0060). The guard above
+ * still does the coarse half — nobody but staff reaches either.
+ */
+const READABLE_AREAS: Record<UserRole, readonly SyncArea[]> = {
+  admin: ['catalog', 'customers'],
+  manager: ['customers'],
+  user: [],
+};
+
+/**
+ * The bulk-sync surface. Admin-only, except the two reads a manager shares.
  *
  * The preview *upload* is not a contract route: it is multipart/form-data,
  * which the JSON contracts do not model — the same split the media upload uses.
@@ -112,20 +141,41 @@ export class SyncController {
       );
   }
 
+  /**
+   * One run, whatever area it belongs to — the area is read off the run and
+   * checked against the reader, so a mailed link to a staged run works for
+   * whoever was asked to answer it and for nobody else.
+   */
+  @Auth('admin', 'manager')
   @Implement(syncContract.getRun)
-  getRun() {
+  getRun(@CurrentUser() user: AuthUser) {
     return implement(syncContract.getRun)
       .use(refusals)
-      .handler(({ input: { params } }) => this.service.getRun(params.id));
+      .handler(async ({ input: { params } }) => {
+        const result = await this.service.getRun(params.id);
+        this.assertMayRead(user, result.run.area);
+        return result;
+      });
   }
 
+  @Auth('admin', 'manager')
   @Implement(syncContract.listRuns)
-  listRuns() {
+  listRuns(@CurrentUser() user: AuthUser) {
     return implement(syncContract.listRuns)
       .use(refusals)
-      .handler(({ input: { query } }) =>
-        this.service.listRuns(query.page, query.status),
-      );
+      .handler(({ input: { query } }) => {
+        this.assertMayRead(user, query.area);
+        return this.service.listRuns(query.page, query.area, query.status);
+      });
+  }
+
+  private assertMayRead(user: AuthUser, area: SyncArea): void {
+    if (!READABLE_AREAS[user.role].includes(area)) {
+      throw new ForbiddenException({
+        code: 'insufficient-role',
+        message: 'This area of the sync log is not yours to read',
+      });
+    }
   }
 
   /**

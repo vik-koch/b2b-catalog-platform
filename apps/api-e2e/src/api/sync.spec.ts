@@ -167,11 +167,33 @@ describe('Catalog sync (FR-ADM-02)', () => {
       expect((await get('/admin/sync/runs', '')).status).toBe(401);
     });
 
-    it('rejects a manager — the sync is admin-only', async () => {
+    it('rejects a manager — the catalog is admin-only', async () => {
       expect(
         (await preview(csvForm('sourceId\nx\n'), managerCookie)).status,
       ).toBe(403);
       expect((await get('/admin/sync/runs', managerCookie)).status).toBe(403);
+      // Spelled out as well as defaulted: naming the area explicitly must not
+      // be a way round the rule the default already applies.
+      expect(
+        (await get('/admin/sync/runs?area=catalog', managerCookie)).status,
+      ).toBe(403);
+    });
+
+    /**
+     * The other half of the same rule (FR-ADM-09): an area's log is readable
+     * by whoever may do that area's work by hand, and a customer account is a
+     * manager's work.
+     */
+    it('lets a manager read the customer log', async () => {
+      const res = await get('/admin/sync/runs?area=customers', managerCookie);
+
+      expect(res.status).toBe(200);
+      expect(res.data).toMatchObject({ runs: expect.any(Array) });
+    });
+
+    it('lets an admin read either log', async () => {
+      expect((await get('/admin/sync/runs?area=catalog')).status).toBe(200);
+      expect((await get('/admin/sync/runs?area=customers')).status).toBe(200);
     });
   });
 

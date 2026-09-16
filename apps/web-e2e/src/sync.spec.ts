@@ -43,17 +43,18 @@ test('the admin dashboard links to the sync and shows a last-sync line', async (
 
   await expect(page.getByText(/Last sync|Never synced/)).toBeVisible();
   await page.getByRole('link', { name: 'Catalog sync' }).click();
-  // The panel opens the log of runs; the upload is a page reached from it.
-  await expect(page).toHaveURL(/\/admin\/sync$/);
+  // The panel opens that area's log of runs; the upload is a page reached
+  // from it.
+  await expect(page).toHaveURL(/\/admin\/sync\/catalog$/);
   await page.getByRole('link', { name: 'Manual sync' }).click();
-  await expect(page).toHaveURL(/\/admin\/sync\/new$/);
+  await expect(page).toHaveURL(/\/admin\/sync\/catalog\/new$/);
 });
 
 test('a malformed file is refused with the reason, and nothing to apply', async ({
   page,
 }) => {
   await logIn(page);
-  await page.goto('/admin/sync/new');
+  await page.goto('/admin/sync/catalog/new');
 
   await upload(page, 'name,price\nBeans,100\n');
 
@@ -67,7 +68,7 @@ test('a preview shows the diff without writing, and hiding needs a typed confirm
   page,
 }) => {
   await logIn(page);
-  await page.goto('/admin/sync/new');
+  await page.goto('/admin/sync/catalog/new');
 
   // The default preset claims a complete catalog; turning on the hide option
   // makes this run sweep everything the seeded catalog has.
@@ -102,7 +103,7 @@ test('a preview shows the diff without writing, and hiding needs a typed confirm
 
 test('a price update cannot be given the hide option', async ({ page }) => {
   await logIn(page);
-  await page.goto('/admin/sync/new');
+  await page.goto('/admin/sync/catalog/new');
 
   // Clicked on the card's own hit area rather than `.check()`ed on the input:
   // the choice card lays an overlay over its whole surface, and that overlay

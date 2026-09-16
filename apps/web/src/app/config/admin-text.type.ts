@@ -11,6 +11,11 @@ import * as z from 'zod';
  * reach — the login form, the public maintenance screen — belongs in AppText
  * even when it is adjacent to an admin feature.
  */
+/** The heading and standfirst of one area's sync log. */
+const syncAreaTextSchema = z
+  .object({ title: z.string(), runsDescription: z.string() })
+  .strict();
+
 export const adminTextSchema = z
   .object({
     /**
@@ -723,6 +728,22 @@ export const adminTextSchema = z
         newRun: z.string(),
         backToRuns: z.string(),
         runsDescription: z.string(),
+        /**
+         * What each area's log is called and what it says about itself. One
+         * screen serves every area (ADR 0060), so its heading is the one thing
+         * that has to be written per area; everything else on it — the
+         * statuses, the columns, why a run was staged — is the same sentence
+         * whatever the run carries.
+         *
+         * `title`/`runsDescription` above stay the catalog's, because the
+         * upload screen is still the catalog's alone.
+         */
+        areas: z
+          .object({
+            catalog: syncAreaTextSchema,
+            customers: syncAreaTextSchema,
+          })
+          .strict(),
         /** What ran it, where there is no person: an upload says so, and a
          * machine run is named by its token. */
         sourceUpload: z.string(),

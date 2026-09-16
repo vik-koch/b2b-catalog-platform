@@ -57,6 +57,7 @@ function preview(p: SyncPlan): SyncPreviewResponse {
       finishedAt: null,
       actorEmail: 'admin@example.com',
       tokenName: null,
+      area: 'catalog',
       stagedReason: null,
       options: presetOptions,
       summary: p.summary,

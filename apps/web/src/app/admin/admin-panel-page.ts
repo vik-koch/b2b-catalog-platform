@@ -174,12 +174,15 @@ import { SyncService } from './sync/sync.service';
                      rather than showing "never synced" and correcting it — and
                      hold exactly the width the answer takes, which is one
                      timestamp. -->
-                <app-panel-row [label]="syncText.title" link="/admin/sync">
+                <app-panel-row
+                  [label]="syncText.areas.catalog.title"
+                  link="/admin/sync/catalog"
+                >
                   <div class="flex flex-col items-end gap-0.5">
                     @if (stagedSyncRuns(); as count) {
                       <app-work-note
                         [label]="fill(panelText.workSyncRuns, count)"
-                        link="/admin/sync"
+                        link="/admin/sync/catalog"
                         [queryParams]="{ status: 'previewed' }"
                       />
                     }
@@ -253,6 +256,19 @@ import { SyncService } from './sync/sync.service';
                   link="/admin/users/staff"
                 />
               }
+              <!-- The customer sync sits with the accounts it writes, not with
+                   the catalog import: it is the same work a manager does on
+                   this card by hand, arriving from somewhere else. -->
+              <app-panel-row
+                [label]="syncText.areas.customers.title"
+                link="/admin/sync/customers"
+              >
+                  <app-work-note
+                    [label]="fill(panelText.workSyncRuns, count)"
+                    link="/admin/sync/customers"
+                    [queryParams]="{ status: 'previewed' }"
+                  />
+              </app-panel-row>
             </ul>
           </section>
 
@@ -453,7 +469,7 @@ export class AdminPanelPage {
   // Managers reach this page too, but the sync is admin-only — a 403 here is
   // expected, not an error, so the line simply stays absent for them.
   protected readonly runs = resource({
-    loader: () => this.sync.listRuns().catch(() => null),
+    loader: () => this.sync.listRuns({ area: 'catalog' }).catch(() => null),
   });
 
   /**

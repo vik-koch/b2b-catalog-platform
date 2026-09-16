@@ -94,24 +94,50 @@ export const appRoutes: Route[] = [
         (m) => m.ProductListPage,
       ),
   },
-  // Catalog sync (FR-ADM-02, FR-ADM-07). The log is the screen the panel opens:
-  // runs arrive without anybody present now, so "what has happened" comes
-  // before "what am I about to upload".
+  // Sync (FR-ADM-02, FR-ADM-07, FR-ADM-09). The log is the screen the panel
+  // opens: runs arrive without anybody present now, so "what has happened"
+  // comes before "what am I about to upload".
+  //
+  // One screen per area rather than one with a filter, because who may read
+  // them differs — the catalog is an admin's, customers are a manager's too
+  // (ADR 0060). The area travels as route data, so the component is told which
+  // log it is and the guard beside it is the one that matches.
+  //
+  // Explicit paths rather than `admin/sync/:area`: the areas are a closed set
+  // in code, and a parameter here would also match `runs`.
+  //
+  // Both redirects are absolute: a `redirectTo` without a leading slash is
+  // resolved against the matched route's parent, which turned `/admin/sync`
+  // into `/admin/admin/sync/catalog`.
+  { path: 'admin/sync', pathMatch: 'full', redirectTo: '/admin/sync/catalog' },
+  { path: 'admin/sync/new', redirectTo: '/admin/sync/catalog/new' },
   {
-    path: 'admin/sync',
+    path: 'admin/sync/catalog',
+    data: { area: 'catalog' },
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
       import('./admin/sync/sync-runs-page').then((m) => m.SyncRunsPage),
   },
   {
-    path: 'admin/sync/new',
+    path: 'admin/sync/customers',
+    data: { area: 'customers' },
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/sync/sync-runs-page').then((m) => m.SyncRunsPage),
+  },
+  {
+    path: 'admin/sync/catalog/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
     loadComponent: () =>
       import('./admin/sync/sync-upload-page').then((m) => m.SyncUploadPage),
   },
+  // One run page for every area: a run id is unique across them, the page
+  // reads the area off the run, and a staged-run link already sitting in
+  // somebody's inbox keeps working. Staff-level here, with the per-area rule
+  // enforced by the API, which is the only place that knows what the run is.
   {
     path: 'admin/sync/runs/:id',
-    canActivate: [requireAuth('admin'), adminTextGuard],
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
     loadComponent: () =>
       import('./admin/sync/sync-run-page').then((m) => m.SyncRunPage),
   },

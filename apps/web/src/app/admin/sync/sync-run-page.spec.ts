@@ -42,6 +42,7 @@ function run(overrides: Partial<SyncRun> = {}): SyncRun {
   return {
     id: 'run-1',
     status: 'previewed',
+    area: 'catalog',
     source: 'api',
     filename: 'catalog-export',
     startedAt: '2026-09-10T08:00:00.000Z',
@@ -139,6 +140,7 @@ describe('SyncRunPage', () => {
     const { el, button } = await render({
       run: run({
         status: 'applied',
+        area: 'catalog',
         stagedReason: null,
         finishedAt: '2026-09-10T08:00:05.000Z',
       }),
@@ -153,6 +155,7 @@ describe('SyncRunPage', () => {
     const { el } = await render({
       run: run({
         status: 'failed',
+        area: 'catalog',
         stagedReason: null,
         summary: null,
         error: 'Session 4 timed out reassembling the export',
@@ -172,6 +175,7 @@ describe('SyncRunPage', () => {
     const { el } = await render({
       run: run({
         status: 'applied',
+        area: 'catalog',
         stagedReason: null,
         finishedAt: '2026-09-10T08:00:05.000Z',
         notice: 'Prices for 12 articles were missing and were left as they are',
