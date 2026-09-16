@@ -4,22 +4,22 @@ Iteration plan mapping requirements (see [`requirements.md`](requirements.md)) t
 as priorities shift; the requirements doc stays stable. Live per-iteration tracking: GitHub
 Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 
-| #   | Milestone                                                                                      | Requirements                                                                                                                                                                        |
-| --- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Static pages, compliance scaffolding, base infra (walking skeleton, CI/CD, IaC, dev+prod)      | FR-NAV-\*, NFR-LEGAL-01/02/03/05, NFR-SEC-01, NFR-SEO-03, NFR-OPS-\*                                                                                                                |
-| 2   | Catalog display + admin login, management & sync → **tag v1.0.0**, client starts content entry | FR-CAT-01…05, FR-ADM-\*, FR-AUTH-07/08, NFR-SEC-02/03/05, NFR-SEO-01/02, NFR-LEGAL-06                                                                                               |
-| 3   | Search, listing sort & admin grid filters → **tag v1.1.0**                                     | FR-SEARCH-01…05, FR-ADM-05, NFR-SEC-07, NFR-SEO-04, NFR-OPS-05                                                                                                                      |
-| 4   | Accounts, roles & tiered pricing → **tag v1.2.0**                                              | FR-AUTH-01…06, FR-NOTIF-01/02/04, NFR-SEC-04                                                                                                                                        |
-| 5   | Units of sale, pack pricing & product publication → **tag v1.3.0**                             | FR-UNIT-01…06/08/09/10, FR-ADM-06, FR-ADM-01/05 + FR-CAT-04/05 amended                                                                                                              |
-| 6   | Attribute definitions & faceted filtering → **tag v1.4.0**                                     | FR-ATTR-01…10, FR-UNIT-11, FR-UNIT-06/09 amended, NFR-SEO-04 amended                                                                                                                |
-| 7   | Cart & order-request checkout → **tag v1.5.0**                                                 | FR-UNIT-07, FR-UNIT-01/03/04/10/11 amended, FR-CART-01…04/07…11 (02 rewritten), FR-ATTR-11, FR-CAT-06, FR-AUTH-09/10 + FR-AUTH-01 amended, FR-ACC-01, FR-NOTIF-05/06, NFR-SEC-06/08 |
-| 8   | Stock availability & work-awaiting indicators → **tag v1.6.0**                                 | FR-STOCK-01…05, FR-WORK-01…04, FR-ADM-02/05 + FR-SEARCH-04 + FR-CAT-04/05 + FR-CART-02 amended                                                                                      |
-| 9   | Sold-together sets → **tag v1.7.0**                                                            | FR-SET-01…05                                                                                                                                                                        |
-| 10  | Product documents & certificates → **tag v1.8.0**                                              | FR-DOC-01…04, FR-CAT-05 amended                                                                                                                                                     |
-| 11  | Order processing, payment state & order documents → **tag v1.9.0**                             | FR-ORD-01…05, FR-CART-05 + FR-CART-06 amended, FR-NOTIF-03/07/08 + FR-ORD-02 amended, FR-ACC-02, FR-WORK-02/04 + FR-AUTH-04 amended, NFR-LEGAL-04, NFR-SEC-10, NFR-OPS-02 amended   |
-| 12  | Automated catalog sync from the source system → **tag v1.10.0**                                | FR-ADM-07/09/10, FR-NOTIF-09, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02/06/04 + FR-AUTH-05 + FR-UNIT-04/10 + FR-WORK-02 + FR-CAT-01 amended                                              |
-| 13  | Order exchange with the source system → **tag v1.11.0**                                        | FR-ADM-08, FR-ADM-09/10 amended, FR-ORD-02/03 amended                                                                                                                               |
-| 14  | Online card payment → **tag v1.12.0**                                                          | FR-CART-04/06 amended                                                                                                                                                               |
+| # / tag           | Milestone | Delivers | Amends |
+| ----------------- | --------- | -------- | ------ |
+| 1                 | Static pages, compliance scaffolding, base infra (walking skeleton, CI/CD, IaC, dev+prod) | FR-NAV-\*, NFR-LEGAL-01/02/03/05, NFR-SEC-01, NFR-SEO-03, NFR-OPS-\* | — |
+| 2<br>**v1.0.0**   | Catalog display + admin login, management & sync; client starts content entry | FR-CAT-01…05, FR-ADM-\*, FR-AUTH-07/08, NFR-SEC-02/03/05, NFR-SEO-01/02, NFR-LEGAL-06 | — |
+| 3<br>**v1.1.0**   | Search, listing sort & admin grid filters | FR-SEARCH-01…05, FR-ADM-05, NFR-SEC-07, NFR-SEO-04, NFR-OPS-05 | — |
+| 4<br>**v1.2.0**   | Accounts, roles & tiered pricing | FR-AUTH-01…06, FR-NOTIF-01/02/04, NFR-SEC-04 | — |
+| 5<br>**v1.3.0**   | Units of sale, pack pricing & product publication | FR-UNIT-01…06/08/09/10, FR-ADM-06 | FR-ADM-01/05, FR-CAT-04/05 |
+| 6<br>**v1.4.0**   | Attribute definitions & faceted filtering | FR-ATTR-01…10, FR-UNIT-11 | FR-UNIT-06/09, NFR-SEO-04 |
+| 7<br>**v1.5.0**   | Cart & order-request checkout | FR-UNIT-07, FR-CART-01…04/07…11 (02 rewritten), FR-ATTR-11, FR-CAT-06, FR-AUTH-09/10, FR-ACC-01, FR-NOTIF-05/06, NFR-SEC-06/08 | FR-UNIT-01/03/04/10/11, FR-AUTH-01 |
+| 8<br>**v1.6.0**   | Stock availability & work-awaiting indicators | FR-STOCK-01…05, FR-WORK-01…04 | FR-ADM-02/05, FR-SEARCH-04, FR-CAT-04/05, FR-CART-02 |
+| 9<br>**v1.7.0**   | Sold-together sets | FR-SET-01…05 | — |
+| 10<br>**v1.8.0**  | Product documents & certificates | FR-DOC-01…04 | FR-CAT-05 |
+| 11<br>**v1.9.0**  | Order processing, payment state & order documents | FR-ORD-01…05, FR-CART-05, FR-ACC-02, NFR-LEGAL-04, NFR-SEC-10 | FR-CART-06, FR-NOTIF-03/07/08, FR-WORK-02/04, FR-AUTH-04, NFR-OPS-02 |
+| 12<br>**v1.10.0** | Automated catalog sync from the source system | FR-ADM-07/09/10/13/14, FR-NOTIF-09, NFR-SEC-09, NFR-OPS-06/07 | FR-ADM-02/04/06, FR-AUTH-05, FR-UNIT-04/10, FR-WORK-02, FR-CAT-01 |
+| 13<br>**v1.11.0** | Order exchange with the source system | FR-ADM-08 | FR-ADM-09/10, FR-ORD-02/03 |
+| 14<br>**v1.12.0** | Online card payment | — | FR-CART-04/06 |
 
 Notes:
 

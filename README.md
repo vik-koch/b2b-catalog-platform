@@ -4,13 +4,13 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.9.0` — what the shop does with an order after it arrives: a manager answers
-> it, changes it by agreement, records the money against it and hands over the papers, and
-> every one of those moves writes a version the customer's own page and their mail can be
-> pointed at. Iterations 1–11 are delivered (static pages and infrastructure, catalog + admin
-> panel, search, accounts and tiered pricing, units of sale, attribute filtering, cart and
-> checkout, stock availability and work-awaiting indicators, sold-together sets, product
-> documents, order processing). Iteration 12 (two-way sync with the source system) is next.
+> **Status:** `v1.10.0` — the catalog now arrives on its own: a scoped machine token, a run
+> that applies itself or waits for somebody, a log of every one, and a switch that says an
+> external system owns the catalog and makes the fields it fills read-only here. Iterations
+> 1–12 are delivered (static pages and infrastructure, catalog + admin panel, search, accounts
+> and tiered pricing, units of sale, attribute filtering, cart and checkout, stock availability
+> and work-awaiting indicators, sold-together sets, product documents, order processing,
+> automated catalog feed). Iteration 13 (customer exchange with the source system) is next.
 
 ## Environments
 
