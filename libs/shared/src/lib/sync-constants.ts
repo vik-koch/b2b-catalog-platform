@@ -16,6 +16,25 @@
  */
 export const DEFAULT_PRICE_LIST_ALIAS = '*';
 
+/**
+ * The areas of the platform's data an exchange can carry, and the vocabulary
+ * every run is filed under.
+ *
+ * One list, one run table, one set of screens parameterised by it: the run
+ * lifecycle, the staged reasons, the actor, the counts and the notifications
+ * are the same whatever is being exchanged, and only the row payload and the
+ * owned fields differ (ADR 0060).
+ *
+ * Wider than `OWNERSHIP_AREAS` on purpose: a run can exist for an area no
+ * external system owns yet — that is what a manual import is — so the two
+ * lists answer different questions and converge only by coincidence.
+ */
+export const SYNC_AREAS = ['catalog', 'customers'] as const;
+export type SyncArea = (typeof SYNC_AREAS)[number];
+
+/** What a caller that predates areas was asking about, and still is. */
+export const DEFAULT_SYNC_AREA: SyncArea = 'catalog';
+
 /** A whole catalog in one request, with a DoS bound well above any real one. */
 export const SYNC_MAX_ROWS = 50_000;
 

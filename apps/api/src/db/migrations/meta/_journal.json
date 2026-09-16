@@ -204,6 +204,13 @@
       "when": 1789503642950,
       "tag": "0028_sync_run_notice",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1789555938134,
+      "tag": "0029_sync_area_and_customer_source_id",
+      "breakpoints": true
     }
   ]
 }
