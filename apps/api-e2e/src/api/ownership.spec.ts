@@ -28,6 +28,8 @@ const PRODUCT_SOURCE_ID = `e2e-own-${R}`;
 const TOKEN_NAME = `e2e ownership ${R}`;
 const TIER_KEY = `e2e-own-tier-${R}`;
 const TIER_LABEL = `E2E Ownership Tier ${R}`;
+const CUSTOMER_EMAIL = `e2e-own-customer-${R}@example.com`;
+const PENDING_EMAIL = `e2e-own-pending-${R}@example.com`;
 
 function sessionCookie(setCookie: string[] | undefined): string {
   const cookie = setCookie
@@ -49,6 +51,9 @@ describe('External data ownership (FR-ADM-10)', () => {
   let categorySourceId: string;
   let productSlug: string;
   let tierId: string;
+  let customerId: string;
+  let pendingId: string;
+  let managerId: string;
   /** The product as the editor last read it — what a save carries back. */
   let stored: Record<string, unknown>;
 
@@ -65,24 +70,30 @@ describe('External data ownership (FR-ADM-10)', () => {
       validateStatus: () => true,
     });
 
-  const setOwned = async (owned: boolean) => {
-    const res = await asAdmin('put', '/settings/ownership', {
-      area: 'catalog',
-      owned,
-    });
+  const setOwned = async (owned: boolean, areas = ['catalog']) => {
+    const res = await asAdmin('put', '/settings/ownership', { areas, owned });
     expect(res.status).toBe(200);
     return res.data;
   };
 
-  /** Runs `body` with the catalog handed over, and always hands it back. */
-  const whileOwned = async (body: () => Promise<void>) => {
-    await setOwned(true);
+  /** Runs `body` with the given areas handed over, and always hands them back. */
+  const whileOwning = async (
+    areas: string[],
+    body: () => Promise<void>,
+  ): Promise<void> => {
+    await setOwned(true, areas);
     try {
       await body();
     } finally {
-      await setOwned(false);
+      // Asserted, not merely attempted: a restore that failed silently leaves
+      // every later file in this serial suite refused.
+      await setOwned(false, areas);
     }
   };
+
+  /** Runs `body` with the catalog handed over, and always hands it back. */
+  const whileOwned = (body: () => Promise<void>) =>
+    whileOwning(['catalog'], body);
 
   /** A whole-product save that carries the stored values back unchanged. */
   const saveUnchanged = (over: Record<string, unknown> = {}) =>
@@ -132,10 +143,15 @@ describe('External data ownership (FR-ADM-10)', () => {
       );
     adminCookie = await login(ADMIN_EMAIL);
     managerCookie = await login(MANAGER_EMAIL);
+    managerId = (
+      await client.query('SELECT id FROM users WHERE email = $1', [
+        MANAGER_EMAIL,
+      ])
+    ).rows[0].id;
 
     // Nothing may be owned on the way in: a previous crashed run must not
     // decide what this one sees.
-    await setOwned(false);
+    await setOwned(false, ['catalog', 'customers']);
 
     const category = await asAdmin('post', '/admin/catalog/categories', {
       name: CATEGORY_NAME,
@@ -171,6 +187,29 @@ describe('External data ownership (FR-ADM-10)', () => {
     expect(tier.status).toBe(201);
     tierId = tier.data.id;
 
+    // Two customers to be refused over: one approved, one still asking. Made
+    // through the API so that they are exactly what the screens would create.
+    const approved = await asAdmin('post', '/admin/users', {
+      email: CUSTOMER_EMAIL,
+      role: 'user',
+      tierId: null,
+      firstName: 'Owned',
+      lastName: 'Customer',
+    });
+    expect(approved.status).toBe(201);
+    customerId = approved.data.id;
+
+    await client.query(
+      `INSERT INTO users (email, "passwordHash", role, status)
+       VALUES ($1, $2, 'user', 'pending')`,
+      [PENDING_EMAIL, await hash(PASSWORD)],
+    );
+    const pending = await client.query(
+      'SELECT id FROM users WHERE email = $1',
+      [PENDING_EMAIL],
+    );
+    pendingId = pending.rows[0].id;
+
     const issued = await asAdmin('post', '/admin/api-tokens', {
       name: TOKEN_NAME,
       scopes: ['catalog-sync'],
@@ -179,9 +218,9 @@ describe('External data ownership (FR-ADM-10)', () => {
   });
 
   afterAll(async () => {
-    // Whatever went wrong above, the shared switch goes back off.
+    // Whatever went wrong above, the shared switches go back off.
     await asAdmin('put', '/settings/ownership', {
-      area: 'catalog',
+      areas: ['catalog', 'customers'],
       owned: false,
     });
     await client.query('DELETE FROM sync_runs WHERE "tokenName" LIKE $1', [
@@ -204,7 +243,7 @@ describe('External data ownership (FR-ADM-10)', () => {
       [ADMIN_EMAIL],
     );
     await client.query('DELETE FROM users WHERE email = ANY($1)', [
-      [ADMIN_EMAIL, MANAGER_EMAIL],
+      [ADMIN_EMAIL, MANAGER_EMAIL, CUSTOMER_EMAIL, PENDING_EMAIL],
     ]);
     await client.end();
   });
@@ -213,7 +252,7 @@ describe('External data ownership (FR-ADM-10)', () => {
     it('is admin-only', async () => {
       const res = await axios.put(
         '/settings/ownership',
-        { area: 'catalog', owned: true },
+        { areas: ['catalog'], owned: true },
         { headers: { Cookie: managerCookie }, validateStatus: () => true },
       );
       expect(res.status).toBe(403);
@@ -221,7 +260,15 @@ describe('External data ownership (FR-ADM-10)', () => {
 
     it('refuses an area nobody wrote a guard for', async () => {
       const res = await asAdmin('put', '/settings/ownership', {
-        area: 'everything',
+        areas: ['everything'],
+        owned: true,
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it('refuses a request that names no area', async () => {
+      const res = await asAdmin('put', '/settings/ownership', {
+        areas: [],
         owned: true,
       });
       expect(res.status).toBe(400);

@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import {
   AppSettings,
+  OWNERSHIP_AREAS,
   OwnershipArea,
   SettingChange,
 } from '@b2b-catalog-platform/shared';
@@ -9,7 +10,7 @@ import { createOrpcClient } from '../../core/orpc-client';
 import { MaintenanceService } from '../maintenance/maintenance.service';
 
 /** The fail-closed answer: assume everything is owned rather than nothing. */
-const ALL_AREAS: readonly OwnershipArea[] = ['catalog'];
+const ALL_AREAS: readonly OwnershipArea[] = OWNERSHIP_AREAS;
 
 /**
  * The admin's window onto the runtime settings — maintenance mode and external
@@ -48,6 +49,17 @@ export class SettingsService {
    */
   readonly ownedAreas = this.areas.asReadonly();
 
+  /**
+   * One area's answer, for the screens that only ever ask about one. Null —
+   * the answer has not arrived — reads as "not owned" here, because these are
+   * asked from a click that happens long after `load()` resolved; a screen
+   * that paints itself during the read asks `ownedAreas()` directly and
+   * decides for itself what an unknown answer looks like.
+   */
+  owns(area: OwnershipArea): boolean {
+    return this.areas()?.includes(area) ?? false;
+  }
+
   /** Fetch once per app instance; concurrent callers share the one request. */
   load(): Promise<readonly OwnershipArea[]> {
     return (this.inFlight ??= this.fetchAreas());
@@ -78,12 +90,14 @@ export class SettingsService {
     );
   }
 
+  /** One area or every area — the master switch is the same call with the
+   * whole list, so it lands as one transaction and one history entry. */
   async setOwnership(
-    area: OwnershipArea,
+    areas: readonly OwnershipArea[],
     owned: boolean,
   ): Promise<AppSettings> {
     return this.remember(
-      await this.client.setOwnership({ body: { area, owned } }),
+      await this.client.setOwnership({ body: { areas: [...areas], owned } }),
     );
   }
 

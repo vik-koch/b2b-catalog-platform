@@ -39,25 +39,37 @@ function dbReturning(row: SettingsRow | 'throw') {
  * A stand-in that reads `stored` and answers a write with `written`, recording
  * the rows any `insert(...).values(...)` was handed — which is how a change
  * record is observed without a database.
+ *
+ * `transaction` runs its callback against the same stand-in: what the ownership
+ * write needs from a real transaction is atomicity and one timestamp, neither
+ * of which a stub can be asked to prove. The e2e suite is where that is worth
+ * checking; here it only has to be callable.
  */
 function dbWriting(stored: SettingsRow, written: SettingsRow) {
   const inserted: Record<string, unknown>[] = [];
   const db = {
     select: () => ({
-      from: () => ({ where: () => Promise.resolve([stored]) }),
+      from: () => ({
+        where: () => Promise.resolve([stored]),
+        // The ownership write locks the singleton and has no `where`: there is
+        // one row, and its primary key is a check constraint.
+        for: () => Promise.resolve([stored]),
+      }),
     }),
     insert: () => ({
-      values: (row: Record<string, unknown>) => {
-        inserted.push(row);
+      values: (row: Record<string, unknown> | Record<string, unknown>[]) => {
+        inserted.push(...(Array.isArray(row) ? row : [row]));
         return {
           onConflictDoUpdate: () => ({
             returning: () => Promise.resolve([written]),
           }),
-          // The change record has no conflict clause; it is awaited directly.
+          // The change records have no conflict clause; they are awaited
+          // directly.
           then: (resolve: (v: unknown) => unknown) => resolve(undefined),
         };
       },
     }),
+    transaction: <T>(fn: (tx: unknown) => Promise<T>) => fn(db),
   } as unknown as NodePgDatabase<typeof schema>;
   return { db, inserted };
 }
@@ -136,7 +148,7 @@ describe('SettingsService', () => {
       await service.onModuleInit();
       expect(service.isExternallyOwned('catalog')).toBe(false);
 
-      const status = await service.setOwnership('catalog', true, ACTOR);
+      const status = await service.setOwnership(['catalog'], true, ACTOR);
 
       expect(status.ownedAreas).toEqual(['catalog']);
       expect(service.isExternallyOwned('catalog')).toBe(true);
@@ -159,7 +171,7 @@ describe('SettingsService', () => {
       await service.onModuleInit();
       expect(service.isExternallyOwned('catalog')).toBe(true);
 
-      await service.setOwnership('catalog', false, ACTOR);
+      await service.setOwnership(['catalog'], false, ACTOR);
 
       expect(service.isExternallyOwned('catalog')).toBe(false);
     });
@@ -174,9 +186,32 @@ describe('SettingsService', () => {
       const service = new SettingsService(db);
       await service.onModuleInit();
 
-      await service.setOwnership('catalog', true, ACTOR);
+      await service.setOwnership(['catalog'], true, ACTOR);
 
       expect(inserted.filter((row) => row['kind'] === 'ownership')).toEqual([]);
+    });
+
+    it('moves every area named, and records only the ones that moved', async () => {
+      // The master switch: one request over all of them, and the area that was
+      // already owned is not an event just because it was named again.
+      const { db, inserted } = dbWriting(
+        settingsRow({ externallyOwnedAreas: ['catalog'] }),
+        settingsRow({ externallyOwnedAreas: ['catalog', 'customers'] }),
+      );
+      const service = new SettingsService(db);
+      await service.onModuleInit();
+
+      const status = await service.setOwnership(
+        ['catalog', 'customers'],
+        true,
+        ACTOR,
+      );
+
+      expect(status.ownedAreas).toEqual(['catalog', 'customers']);
+      expect(service.isExternallyOwned('customers')).toBe(true);
+      expect(inserted.filter((row) => row['kind'] === 'ownership')).toEqual([
+        expect.objectContaining({ area: 'customers', enabled: true }),
+      ]);
     });
   });
 

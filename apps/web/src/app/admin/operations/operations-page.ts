@@ -1,4 +1,11 @@
-import { Component, computed, inject, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  resource,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   fillText,
@@ -112,46 +119,101 @@ import { SettingsService } from '../settings/settings.service';
           </h2>
           <p class="mb-3 text-sm text-muted">{{ ownershipText.intro }}</p>
 
-          @for (area of areas; track area) {
-            <div class="mb-4 rounded-lg border border-border px-5 py-4">
-              <div class="flex items-center justify-between gap-4">
-                <h3 class="text-sm font-medium">{{ areaName(area) }}</h3>
-                <app-switch
-                  [checked]="isOwned(area)"
-                  [label]="
-                    isOwned(area) ? ownershipText.take : ownershipText.hand
-                  "
-                  [disabled]="pending()"
-                  (toggled)="flipOwnership(area, $event)"
-                />
-              </div>
-
-              <p class="mt-1 text-sm text-muted">{{ areaDescription(area) }}</p>
-
-              <!-- What is true now, then what follows from it. Two sentences
-                   rather than one: the state is the answer, the effect is what
-                   an admin came here to change. -->
-              <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span
-                  appStatusBadge
-                  [tone]="isOwned(area) ? 'info' : 'neutral'"
-                >
-                  {{
-                    isOwned(area)
-                      ? ownershipText.statusOwned
-                      : ownershipText.statusOwn
-                  }}
-                </span>
-                <p class="text-sm text-muted">
-                  {{
-                    isOwned(area)
-                      ? ownershipText.statusOwnedEffect
-                      : ownershipText.statusOwnEffect
-                  }}
-                </p>
-              </div>
+          <!-- One shop above, areas beneath it. The master is a read over the
+               areas and an action across them, never a fourth stored flag: a
+               stored answer to "is everything owned" could disagree with the
+               three switches under it, and then neither would be believable. -->
+          <div class="mb-4 rounded-lg border border-border px-5 py-4">
+            <div class="flex items-center justify-between gap-4">
+              <h3 class="text-sm font-medium">{{ allText.heading }}</h3>
+              <app-switch
+                [checked]="allOwned()"
+                [label]="allOwned() ? allText.take : allText.hand"
+                [disabled]="pending()"
+                (toggled)="flipEverything($event)"
+              />
             </div>
-          }
+
+            <p class="mt-1 text-sm text-muted">{{ allText.description }}</p>
+
+            <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span appStatusBadge [tone]="allTone()">{{ allStatus() }}</span>
+              @if (mixed()) {
+                <p class="text-sm text-muted">{{ mixedEffect() }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Collapsed while the areas agree, because then the badge above has
+               already said everything the rows would: three cards repeating one
+               sentence is how a screen teaches an operator to stop reading it.
+               Open when they disagree, where "partly" is not an answer. -->
+          <section
+            class="mb-4 rounded-md border"
+            [class]="frame + ' ' + border(areasOpen())"
+          >
+            <app-disclosure-toggle
+              [label]="allText.areasToggle"
+              [open]="areasOpen()"
+              [panelId]="areasPanelId"
+              (toggled)="areasOpen.set(!areasOpen())"
+            />
+
+            @if (areasOpen()) {
+              <div [id]="areasPanelId" class="border-t border-border p-4">
+                @for (area of areas; track area) {
+                  <div
+                    class="mb-4 rounded-lg border border-border px-5 py-4 last:mb-0"
+                  >
+                    <div class="flex items-center justify-between gap-4">
+                      <h3 class="text-sm font-medium">
+                        {{ areaText(area).name }}
+                      </h3>
+                      <app-switch
+                        [checked]="isOwned(area)"
+                        [label]="
+                          isOwned(area)
+                            ? ownershipText.take
+                            : ownershipText.hand
+                        "
+                        [disabled]="pending()"
+                        (toggled)="flipOwnership(area, $event)"
+                      />
+                    </div>
+
+                    <p class="mt-1 text-sm text-muted">
+                      {{ areaText(area).description }}
+                    </p>
+
+                    <!-- What is true now, then what follows from it. Two
+                         sentences rather than one: the state is the answer, the
+                         effect is what an admin came here to change. -->
+                    <div
+                      class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1"
+                    >
+                      <span
+                        appStatusBadge
+                        [tone]="isOwned(area) ? 'info' : 'neutral'"
+                      >
+                        {{
+                          isOwned(area)
+                            ? ownershipText.statusOwned
+                            : ownershipText.statusOwn
+                        }}
+                      </span>
+                      <p class="text-sm text-muted">
+                        {{
+                          isOwned(area)
+                            ? areaText(area).ownedEffect
+                            : areaText(area).ownEffect
+                        }}
+                      </p>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </section>
 
           @if (ownershipFailed()) {
             <p class="text-sm text-red-600">{{ ownershipText.error }}</p>
@@ -173,17 +235,15 @@ import { SettingsService } from '../settings/settings.service';
 
           @if (historyOpen()) {
             <div [id]="historyPanelId" class="border-t border-border">
-              @if (changes.value(); as rows) {
+              @if (entries(); as rows) {
                 @if (rows.length) {
                   <ul>
-                    @for (change of rows; track change.id) {
+                    @for (entry of rows; track entry.id) {
                       <li
                         class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border px-4 py-2.5 last:border-b-0"
                       >
-                        <span class="text-sm">{{ describe(change) }}</span>
-                        <span class="text-xs text-subtle">{{
-                          who(change)
-                        }}</span>
+                        <span class="text-sm">{{ entry.what }}</span>
+                        <span class="text-xs text-subtle">{{ entry.who }}</span>
                       </li>
                     }
                   </ul>
@@ -191,7 +251,7 @@ import { SettingsService } from '../settings/settings.service';
                        is anything missing from it. There is no paging: this is a
                        recency question, and a settings trail that needed pages
                        would be a shop with a much stranger problem. -->
-                  @if (rows.length >= pageSize) {
+                  @if (recordCount() >= pageSize) {
                     <p class="px-4 py-2.5 text-xs text-subtle">
                       {{ moreLabel }}
                     </p>
@@ -224,15 +284,21 @@ export class OperationsPage {
   protected readonly common = inject(ADMIN_TEXT).common;
   private readonly settingsService = inject(SettingsService);
   private readonly confirm = inject(ConfirmService);
-  private readonly moment = adminMomentFormat(
-    inject(DEPLOYMENT_CONFIG).catalog.currency.locale,
-  );
+  private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly moment = adminMomentFormat(this.locale);
+  /** "Catalog and Customer accounts", in the deployment's own locale. */
+  private readonly areaJoin = new Intl.ListFormat(this.locale, {
+    style: 'long',
+    type: 'conjunction',
+  });
 
+  protected readonly allText = inject(ADMIN_TEXT).ownership.all;
   protected readonly areas = OWNERSHIP_AREAS;
   protected readonly pageSize = SETTING_CHANGES_PAGE_SIZE;
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly border = disclosureBorder;
   protected readonly historyPanelId = 'operations-history';
+  protected readonly areasPanelId = 'operations-areas';
 
   protected readonly pending = signal(false);
   protected readonly ownershipFailed = signal(false);
@@ -259,6 +325,47 @@ export class OperationsPage {
     () => new Set(this.settings.value()?.ownedAreas ?? []),
   );
 
+  /** The master's state, derived — see the template's note on the fourth flag. */
+  protected readonly allOwned = computed(
+    () => this.owned().size === this.areas.length,
+  );
+  protected readonly mixed = computed(
+    () => this.owned().size > 0 && !this.allOwned(),
+  );
+  protected readonly allTone = computed(() =>
+    this.owned().size ? ('info' as const) : ('neutral' as const),
+  );
+  protected readonly allStatus = computed(() =>
+    this.allOwned()
+      ? this.allText.statusOwned
+      : this.mixed()
+        ? this.allText.statusMixed
+        : this.allText.statusOwn,
+  );
+  /**
+   * The rows open on arrival only where the badge above cannot answer on its
+   * own — a shop whose areas disagree.
+   *
+   * Seeded from the *first* answer the API gives rather than from `mixed()`
+   * directly: before the read resolves nothing is owned, and a lid that took
+   * that for an answer would decide to stay shut a moment before learning that
+   * the areas disagree. Afterwards the operator's own open or close stands,
+   * through every flip they make from here.
+   */
+  protected readonly areasOpen = linkedSignal<boolean, boolean>({
+    source: () => this.settings.value() !== undefined,
+    computation: (loaded, previous) =>
+      previous?.source ? previous.value : loaded && this.mixed(),
+  });
+
+  /** "1 of 2 areas are managed by an external system." */
+  protected readonly mixedEffect = computed(() =>
+    fillText(this.allText.statusMixedEffect, {
+      count: this.owned().size,
+      total: this.areas.length,
+    }),
+  );
+
   /** "Only the 20 most recent changes are shown." */
   protected readonly moreLabel = fillText(this.text.historyMore, {
     count: SETTING_CHANGES_PAGE_SIZE,
@@ -276,12 +383,8 @@ export class OperationsPage {
     return this.owned().has(area);
   }
 
-  protected areaName(area: OwnershipArea): string {
-    return this.ownershipText.areas[area];
-  }
-
-  protected areaDescription(area: OwnershipArea): string {
-    return this.ownershipText.areaDescription[area];
+  protected areaText(area: OwnershipArea) {
+    return this.ownershipText.areaText[area];
   }
 
   protected async flipMaintenance(enabled: boolean): Promise<void> {
@@ -308,26 +411,47 @@ export class OperationsPage {
     area: OwnershipArea,
     owned: boolean,
   ): Promise<void> {
+    const text = this.areaText(area);
     const confirmed = await this.confirm.ask({
-      heading: owned
-        ? this.ownershipText.handTitle
-        : this.ownershipText.takeTitle,
-      message: owned
-        ? this.ownershipText.handConfirm
-        : this.ownershipText.takeConfirm,
-      warning: owned
-        ? this.ownershipText.handWarning
-        : this.ownershipText.takeWarning,
+      heading: owned ? text.handTitle : text.takeTitle,
+      message: owned ? text.handConfirm : text.takeConfirm,
+      warning: owned ? text.handWarning : text.takeWarning,
       confirmLabel: owned ? this.ownershipText.hand : this.ownershipText.take,
       cancelLabel: this.common.cancel,
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
+    await this.write([area], owned);
+  }
 
+  /**
+   * The master switch: the same request with every area in it, so the shop
+   * moves in one transaction and the trail shows one decision. Areas already
+   * where they are being sent are sent anyway and record nothing — the switch
+   * says "make this true of everything", and the API is what knows which of
+   * them it was already true of.
+   */
+  protected async flipEverything(owned: boolean): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      heading: owned ? this.allText.handTitle : this.allText.takeTitle,
+      message: owned ? this.allText.handConfirm : this.allText.takeConfirm,
+      warning: owned ? this.allText.handWarning : this.allText.takeWarning,
+      confirmLabel: owned ? this.allText.hand : this.allText.take,
+      cancelLabel: this.common.cancel,
+      confirmVariant: 'danger',
+    });
+    if (!confirmed) return;
+    await this.write(this.areas, owned);
+  }
+
+  private async write(
+    areas: readonly OwnershipArea[],
+    owned: boolean,
+  ): Promise<void> {
     this.pending.set(true);
     this.ownershipFailed.set(false);
     try {
-      this.settings.set(await this.settingsService.setOwnership(area, owned));
+      this.settings.set(await this.settingsService.setOwnership(areas, owned));
       this.historyVersion.update((n) => n + 1);
     } catch {
       this.ownershipFailed.set(true);
@@ -336,23 +460,73 @@ export class OperationsPage {
     }
   }
 
-  protected describe(change: SettingChange): string {
+  /**
+   * The trail, as decisions rather than as rows. One flip of the master switch
+   * writes a record per area — the record has to name its area, or that area's
+   * own history has a gap in it — but it was one decision, so the reader is
+   * shown one line. Rows written by the same person, in the same direction, in
+   * the same transaction share a timestamp exactly, which is what makes the
+   * grouping safe: two flips a second apart do not collide.
+   */
+  protected readonly entries = computed(() => {
+    const rows = this.changes.value();
+    if (!rows) return null;
+
+    const groups: { id: string; rows: SettingChange[] }[] = [];
+    for (const row of rows) {
+      const last = groups.at(-1);
+      const head = last?.rows[0];
+      const sameDecision =
+        head &&
+        head.kind === 'ownership' &&
+        row.kind === 'ownership' &&
+        head.changedAt === row.changedAt &&
+        head.enabled === row.enabled &&
+        head.actorEmail === row.actorEmail;
+      if (sameDecision) last.rows.push(row);
+      else groups.push({ id: row.id, rows: [row] });
+    }
+
+    return groups.map((group) => ({
+      id: group.id,
+      what: this.describe(group.rows),
+      who: this.who(group.rows[0]),
+    }));
+  });
+
+  /** How many records the page holds, which is what "only the 20 most recent"
+   * counts — the grouping is a way of reading them, not fewer of them. */
+  protected readonly recordCount = computed(
+    () => this.changes.value()?.length ?? 0,
+  );
+
+  private describe(group: readonly SettingChange[]): string {
+    const change = group[0];
     if (change.kind === 'maintenance') {
       return change.enabled
         ? this.text.historyMaintenanceOn
         : this.text.historyMaintenanceOff;
     }
-    const area =
-      this.ownershipText.areas[change.area as OwnershipArea] ?? change.area;
+    // Joined by the deployment's own locale rather than by a hard-coded comma:
+    // "Catalog and Customer accounts" is one decision read aloud, and the list
+    // is at most as long as there are areas.
+    const areas = this.areaJoin.format(
+      group.map(
+        (row) =>
+          this.ownershipText.areaText[row.area as OwnershipArea]?.name ??
+          row.area ??
+          '',
+      ),
+    );
     return fillText(
       change.enabled
         ? this.text.historyOwnershipOn
         : this.text.historyOwnershipOff,
-      { area: area ?? '' },
+      { area: areas },
     );
   }
 
-  protected who(change: SettingChange): string {
+  private who(change: SettingChange): string {
     return fillText(this.text.historyBy, {
       date: this.moment.format(new Date(change.changedAt)),
       actor: change.actorEmail ?? this.text.historyActorGone,

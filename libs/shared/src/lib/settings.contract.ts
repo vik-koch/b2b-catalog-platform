@@ -59,10 +59,24 @@ export const buildInfoSchema = z.object({
 });
 export type BuildInfo = z.infer<typeof buildInfoSchema>;
 
-/** One area, one direction — areas are independent and are set one at a time. */
+/**
+ * One direction, one or more areas. A list rather than a single area because
+ * the panel offers a master switch over the whole shop as well as a row per
+ * area, and one request is what makes that one transaction and one audit
+ * entry — a master switch that fired three requests could half-succeed and
+ * leave the shop in a state nobody asked for.
+ *
+ * Non-empty and deduplicated: an empty list is a request that asks for
+ * nothing, and a repeated area is the same question twice.
+ */
 export const setOwnershipSchema = z
   .object({
-    area: z.enum(OWNERSHIP_AREAS),
+    areas: z
+      .array(z.enum(OWNERSHIP_AREAS))
+      .min(1)
+      .refine((areas) => new Set(areas).size === areas.length, {
+        message: 'An area may be named only once',
+      }),
     owned: z.boolean(),
   })
   .strict();
@@ -129,7 +143,7 @@ export const settingsContract = {
       method: 'PUT',
       path: '/settings/ownership',
       inputStructure: 'detailed',
-      summary: 'Hand one area to an external system, or take it back (admin)',
+      summary: 'Hand areas to an external system, or take them back (admin)',
     })
     .errors(commonAuthErrors)
     .input(z.object({ body: setOwnershipSchema }))
