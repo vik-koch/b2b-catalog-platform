@@ -73,6 +73,9 @@ export class StatusBadge {
     const variant = this.variant();
     const colours = variant === 'dot' ? dots[this.tone()] : tones[this.tone()];
     // select-none: a badge names a state, it is not text about one. See Button.
-    return `inline-flex items-center text-xs font-medium select-none ${shapes[variant]} ${colours}`;
+    // nowrap for the same reason: a two-word state is one label, and a narrow
+    // column — a table the reader has dragged, a phone — should push it out of
+    // the way rather than break it across two lines.
+    return `inline-flex items-center text-xs font-medium whitespace-nowrap select-none ${shapes[variant]} ${colours}`;
   });
 }

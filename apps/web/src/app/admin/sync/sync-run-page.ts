@@ -88,6 +88,24 @@ import { SyncService } from './sync.service';
             </p>
           }
 
+          <!-- Something the sending system wanted said about a run that
+             worked anyway — a file it read only part of, an export that looked
+             stale. Its own words, like the failure box below, but neither a
+             refusal nor a reason to wait: it is shown on a run of any status,
+             including one that applied itself hours ago. -->
+          @if (data.run.notice; as note) {
+            <section
+              class="mb-6 rounded-md border border-sky-200 bg-sky-50 p-3"
+            >
+              <h2 class="mb-1 text-sm font-medium text-sky-800">
+                {{ text.noticeTitle }}
+              </h2>
+              <p class="break-words font-mono text-sm text-stone-700">
+                {{ note }}
+              </p>
+            </section>
+          }
+
           <!-- A failure the sending system reported: its own words, kept as a
              diagnostic rather than turned into wording of ours. -->
           @if (data.run.error; as failure) {

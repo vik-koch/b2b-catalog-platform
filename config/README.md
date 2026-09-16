@@ -63,6 +63,14 @@ each is its Zod schema: `apps/web/src/app/config/deployment-config.type.ts`,
 schema stays the authority on the whole file. The committed demo files are the
 worked example to copy from.
 
+### Keeping two words on one line
+
+Where a phrase must never break across lines — a short label in a table column
+the reader can drag narrow, a figure and its unit — write a non-breaking space
+as the JSON escape ` `: `"paid in full"`. It is valid JSON, it
+parses to a real non-breaking space, and unlike a pasted one it stays visible to
+whoever edits the file next. Status badges do not need it: they never wrap.
+
 ## Assets (logo, favicon, fonts)
 
 Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:

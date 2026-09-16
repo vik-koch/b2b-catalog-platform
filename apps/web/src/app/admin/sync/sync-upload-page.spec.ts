@@ -27,6 +27,7 @@ const emptySummary = {
   unchanged: 0,
   categoriesCreated: 0,
   categoriesRenamed: 0,
+  categoriesEmptied: 0,
   keptManual: 0,
   errors: 0,
   fields: [],
@@ -60,6 +61,7 @@ function preview(p: SyncPlan): SyncPreviewResponse {
       options: presetOptions,
       summary: p.summary,
       error: null,
+      notice: null,
     },
     plan: p,
   };

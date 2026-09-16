@@ -4,25 +4,42 @@ import { CatalogService } from './catalog.service';
 import { SearchLogger } from './search.logger';
 
 /**
- * A drizzle stand-in for the sitemap selects. Each chain ends in `.orderBy(...)`,
- * which resolves to the next queued result array — categories, then products,
- * then pages (the Promise.all order in getSitemap).
+ * A drizzle stand-in for the sitemap selects. Each chain resolves to the next
+ * queued result array — categories, products, pages (the Promise.all order in
+ * getSitemap), then the live-category ids the pruning reads.
  */
 function dbReturning(results: unknown[][]) {
   let i = 0;
+  // Chainable and awaitable at once, so a query ending in `.where(...)` and one
+  // ending in `.orderBy(...)` both resolve to the next queued array.
   const chain = {
     from: () => chain,
     where: () => chain,
-    orderBy: () => Promise.resolve(results[i++]),
+    orderBy: () => chain,
+    then: (resolve: (rows: unknown[]) => unknown) => resolve(results[i++]),
   };
-  return { select: () => chain } as unknown as NodePgDatabase<typeof schema>;
+  return {
+    select: () => chain,
+    selectDistinct: () => chain,
+  } as unknown as NodePgDatabase<typeof schema>;
 }
+
+const category = (
+  id: string,
+  slug: string,
+  parentId: string | null = null,
+) => ({
+  id,
+  parentId,
+  slug,
+  updatedAt: new Date('2026-01-01T00:00:00Z'),
+});
 
 describe('CatalogService.getSitemap', () => {
   it('returns category and product slugs with ISO lastmod timestamps', async () => {
     const service = new CatalogService(
       dbReturning([
-        [{ slug: 'coffee-beans', updatedAt: new Date('2026-01-01T00:00:00Z') }],
+        [category('cb', 'coffee-beans')],
         [
           {
             slug: 'hafen-espresso',
@@ -31,6 +48,7 @@ describe('CatalogService.getSitemap', () => {
           { slug: 'filter-blend', updatedAt: new Date('2026-03-03T12:00:00Z') },
         ],
         [{ slug: 'about', updatedAt: new Date('2026-04-04T08:00:00Z') }],
+        [{ id: 'cb' }],
       ]),
       new SearchLogger(),
     );
@@ -50,9 +68,34 @@ describe('CatalogService.getSitemap', () => {
     ]);
   });
 
+  it('offers a crawler only the categories with something to show', async () => {
+    // `tea` holds nothing visible, so it is not a URL worth crawling; the
+    // parent of a stocked leaf is, even with no products of its own.
+    const service = new CatalogService(
+      dbReturning([
+        [
+          category('cb', 'coffee-beans'),
+          category('esp', 'espresso', 'cb'),
+          category('tea', 'tea'),
+        ],
+        [],
+        [],
+        [{ id: 'esp' }],
+      ]),
+      new SearchLogger(),
+    );
+
+    const result = await service.getSitemap();
+
+    expect(result.categories.map((c) => c.slug)).toEqual([
+      'coffee-beans',
+      'espresso',
+    ]);
+  });
+
   it('yields empty lists when there is no catalog content', async () => {
     const service = new CatalogService(
-      dbReturning([[], [], []]),
+      dbReturning([[], [], [], []]),
       new SearchLogger(),
     );
 

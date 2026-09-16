@@ -97,7 +97,9 @@ test('collapsing and restoring the utility bar never moves the page content', as
   // eslint-disable-next-line playwright/no-skipped-test
   test.skip(isMobile, 'the utility bar is desktop-only');
 
-  await page.goto('/catalog');
+  // A category listing, not the catalog root: the root is one viewport tall
+  // once empty categories are hidden, so there would be nothing to scroll.
+  await page.goto('/catalog/espresso');
   const heading = page.locator('h1');
   // Position in *document* coordinates, so scrolling alone cannot change it.
   const headingTop = () =>

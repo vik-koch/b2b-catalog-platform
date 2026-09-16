@@ -54,10 +54,10 @@ import { Component, computed, input } from '@angular/core';
              grip and a row without measure the same — which is what lets the
              inventory's values sit under their key without the nested list
              stepping to a different rhythm. -->
-        <div class="flex min-h-9 min-w-0 flex-1 items-center gap-3 md:min-h-6">
+        <div class="flex min-h-6 min-w-0 flex-1 items-center gap-3">
           <ng-content select="[recordControl]" />
           <div
-            class="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-1"
+            class="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1"
           >
             <ng-content />
           </div>

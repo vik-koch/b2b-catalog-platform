@@ -3,6 +3,7 @@ import {
   DEFAULT_SYNC_POLICY,
   decideAutoApply,
   SyncPolicy,
+  syncPolicySchema,
 } from './sync-config';
 import { SyncSummary } from './sync.contract';
 
@@ -15,6 +16,7 @@ const EMPTY: SyncSummary = {
   unchanged: 0,
   categoriesCreated: 0,
   categoriesRenamed: 0,
+  categoriesEmptied: 0,
   keptManual: 0,
   errors: 0,
   fields: [],
@@ -29,6 +31,8 @@ const policy: SyncPolicy = {
   maxCreates: 10,
   maxSoftDeletes: 0,
   maxChangedShare: 0.5,
+  maxCategoriesCreated: 2,
+  maxCategoriesEmptied: 0,
 };
 
 describe('decideAutoApply', () => {
@@ -50,6 +54,29 @@ describe('decideAutoApply', () => {
   it('stages any deletion where the ceiling is zero', () => {
     expect(
       decideAutoApply(summary({ softDelete: 1 }), 400, policy, false),
+    ).toBe('policy');
+  });
+
+  it('stages a run that adds more categories than the ceiling', () => {
+    expect(
+      decideAutoApply(summary({ categoriesCreated: 3 }), 400, policy, false),
+    ).toBe('policy');
+    expect(
+      decideAutoApply(summary({ categoriesCreated: 2 }), 400, policy, false),
+    ).toBe(null);
+  });
+
+  it('stages a regrouping no product-level ceiling notices', () => {
+    // Thirty products moved out of one category and into a new one: no create,
+    // no deletion, and 30 of 400 is well under the share ceiling. What gives it
+    // away is the category left with nothing in it.
+    expect(
+      decideAutoApply(
+        summary({ update: 30, categoriesCreated: 1, categoriesEmptied: 1 }),
+        400,
+        policy,
+        false,
+      ),
     ).toBe('policy');
   });
 
@@ -95,5 +122,27 @@ describe('decideAutoApply', () => {
         false,
       ),
     ).toBe('policy');
+    expect(
+      decideAutoApply(
+        summary({ categoriesEmptied: 1 }),
+        400,
+        DEFAULT_SYNC_POLICY,
+        false,
+      ),
+    ).toBe('policy');
+  });
+
+  it('keeps loading a policy written before the category ceilings existed', () => {
+    const stored = syncPolicySchema.parse({
+      maxCreates: 100,
+      maxSoftDeletes: 0,
+      maxChangedShare: 0.5,
+    });
+    expect(stored.maxCategoriesCreated).toBe(
+      DEFAULT_SYNC_POLICY.maxCategoriesCreated,
+    );
+    expect(stored.maxCategoriesEmptied).toBe(
+      DEFAULT_SYNC_POLICY.maxCategoriesEmptied,
+    );
   });
 });

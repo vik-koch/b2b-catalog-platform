@@ -22,6 +22,7 @@ const summary: SyncSummary = {
   unchanged: 0,
   categoriesCreated: 0,
   categoriesRenamed: 0,
+  categoriesEmptied: 0,
   keptManual: 0,
   errors: 0,
   fields: [],
@@ -51,6 +52,7 @@ function run(overrides: Partial<SyncRun> = {}): SyncRun {
     options: null,
     summary,
     error: null,
+    notice: null,
     ...overrides,
   };
 }
@@ -162,6 +164,62 @@ describe('SyncRunPage', () => {
     expect(el.textContent).toContain('Session 4 timed out');
     // Not the "no diff stored" line: this run never had one to lose.
     expect(el.textContent).not.toContain(text.planUnavailable);
+  });
+
+  /** A note is not a verdict: it rides along a run that went through, and
+   * says nothing about whether anyone still has to act. */
+  it('shows a note the sender attached to a run that applied itself', async () => {
+    const { el } = await render({
+      run: run({
+        status: 'applied',
+        stagedReason: null,
+        finishedAt: '2026-09-10T08:00:05.000Z',
+        notice: 'Prices for 12 articles were missing and were left as they are',
+      }),
+    });
+
+    expect(el.textContent).toContain(text.noticeTitle);
+    expect(el.textContent).toContain('12 articles');
+    expect(el.textContent).not.toContain(text.failureTitle);
+  });
+
+  it('shows no note section on a run that came without one', async () => {
+    const { el } = await render();
+
+    expect(el.textContent).not.toContain(text.noticeTitle);
+  });
+
+  /** The counts that are an answer at zero stay; the ones that are only
+   * noise at zero — a deployment whose feed never restores or renames —
+   * appear the run they finally happen. */
+  it('keeps the four standing counts and drops the zeroed rest', async () => {
+    const { el } = await render();
+
+    for (const label of [
+      text.count.create,
+      text.count.update,
+      text.count.softDelete,
+      text.count.errors,
+    ]) {
+      expect(el.textContent).toContain(label);
+    }
+    for (const label of [
+      text.count.restore,
+      text.count.kept,
+      text.count.unchanged,
+      text.count.renamedCategories,
+    ]) {
+      expect(el.textContent).not.toContain(label);
+    }
+  });
+
+  it('shows a count that happened, however quiet the rest of the run', async () => {
+    const { el } = await render({
+      run: run({ summary: { ...summary, keptManual: 2 } }),
+      plan: { ...plan, summary: { ...summary, keptManual: 2 } },
+    });
+
+    expect(el.textContent).toContain(text.count.kept);
   });
 
   it('says so when a run’s diff is no longer stored', async () => {

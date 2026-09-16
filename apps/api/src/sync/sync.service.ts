@@ -344,6 +344,7 @@ export class SyncService {
         summary: plan.summary,
         rows: nothingToDo ? null : submission.rows,
         plan: nothingToDo ? plan : null,
+        notice: submission.notice ?? null,
       })
       .returning();
 
@@ -814,5 +815,6 @@ function toSyncRun(row: typeof syncRuns.$inferSelect): SyncRun {
     options: row.options,
     summary: row.summary,
     error: row.error,
+    notice: row.notice,
   };
 }

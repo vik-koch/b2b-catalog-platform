@@ -17,7 +17,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 9   | Sold-together sets → **tag v1.7.0**                                                            | FR-SET-01…05                                                                                                                                                                        |
 | 10  | Product documents & certificates → **tag v1.8.0**                                              | FR-DOC-01…04, FR-CAT-05 amended                                                                                                                                                     |
 | 11  | Order processing, payment state & order documents → **tag v1.9.0**                             | FR-ORD-01…05, FR-CART-05 + FR-CART-06 amended, FR-NOTIF-03/07/08 + FR-ORD-02 amended, FR-ACC-02, FR-WORK-02/04 + FR-AUTH-04 amended, NFR-LEGAL-04, NFR-SEC-10, NFR-OPS-02 amended   |
-| 12  | Automated catalog sync from the source system → **tag v1.10.0**                                | FR-ADM-07/09/10, FR-NOTIF-09, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02/04 + FR-AUTH-05 + FR-UNIT-04/10 + FR-ADM-06 + FR-WORK-02 amended                                                 |
+| 12  | Automated catalog sync from the source system → **tag v1.10.0**                                | FR-ADM-07/09/10, FR-NOTIF-09, NFR-SEC-09, NFR-OPS-06/07, FR-ADM-02/06/04 + FR-AUTH-05 + FR-UNIT-04/10 + FR-WORK-02 + FR-CAT-01 amended                                              |
 | 13  | Order exchange with the source system → **tag v1.11.0**                                        | FR-ADM-08, FR-ADM-09/10 amended, FR-ORD-02/03 amended                                                                                                                               |
 | 14  | Online card payment → **tag v1.12.0**                                                          | FR-CART-04/06 amended                                                                                                                                                               |
 
@@ -318,6 +318,13 @@ Notes:
   price refactor that follows it in this iteration would otherwise have to decide whether a
   denominator belongs on `products` or on every price row. FR-UNIT-04 and FR-UNIT-10 are
   rewritten, and FR-ADM-06 keeps the publication gate on a different argument.
+- **FR-CAT-01 was amended late in the iteration** (2026-09-15), for a reason only the feed
+  produces: the sync creates a category before any of its products are published and empties one
+  by regrouping upstream, so the storefront had to say what an empty grouping is before an
+  unattended feed could be allowed to make them. A category with nothing publicly visible beneath
+  it is now absent from the overview, the navigation and the sitemap, and stays editable in the
+  admin panel throughout. The policy gained two ceilings alongside it — categories created and
+  categories emptied — which are defaulted config keys and so version-neutral.
 - Two operability requirements ride with iteration 12 because it is the release that makes them
   urgent — NFR-OPS-06 (what a deploy costs in downtime, how to see it failed, how to roll back)
   and NFR-OPS-07 (what a half-finished sync leaves behind). The second is largely already true:

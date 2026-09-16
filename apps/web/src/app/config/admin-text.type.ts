@@ -731,6 +731,8 @@ export const adminTextSchema = z
         runLoadError: z.string(),
         planUnavailable: z.string(),
         failureTitle: z.string(),
+        /** A run that worked and still had something to say for itself. */
+        noticeTitle: z.string(),
         startedLabel: z.string(),
         finishedLabel: z.string(),
         /** Giving up on a staged run, and the question asked first. */

@@ -127,29 +127,18 @@ import { ProductRowActions, ProductRowState } from './product-row-actions';
             </div>
           </td>
           <td>
-            <!-- The sync key beside the name, dropping under it where the
-                 column is too narrow to hold both: it is this product's
-                 identifier, the same grey chip the tiers and the attribute
-                 definitions wear for theirs. It is shown because the search box
-                 matches it, not because it is worth a column of its own. -->
-            <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <span class="line-clamp-2 wrap-break-word text-subtle">
-                <!-- The name goes to the product as a customer sees it; the
-                     pencil in the actions column is the way into the editor.
-                     Except where there is no such page — the storefront 404s a
-                     product that is unpublished or deleted, and the badge
-                     beside the name says which — so those rows keep the editor
-                     as their destination. -->
-                <a
-                  [routerLink]="storefrontOrEditor(item)"
-                  [queryParams]="editorFrom()"
-                  class="font-medium text-stone-700 hover:text-accent"
-                >
-                  {{ item.name }}
-                </a>
-              </span>
-              <span
-                class="max-w-full truncate rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs"
+            <!-- The sync key trails the name in the same flow rather than
+                 sitting beside it as its own column of the row: a name that
+                 wraps used to push the chip onto a line of its own, and the two
+                 belong together. -->
+            <div class="line-clamp-3 wrap-break-word [word-spacing:0.25rem]">
+              <a
+                [routerLink]="storefrontOrEditor(item)"
+                [queryParams]="editorFrom()"
+                class="align-middle font-medium text-stone-700 hover:text-accent [word-spacing:normal]"
+                >{{ item.name }}</a
+              >&ngsp;<span
+                class="inline-block max-w-full truncate rounded bg-stone-100 px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
                 [title]="item.sourceId"
                 >{{ item.sourceId }}</span
               >

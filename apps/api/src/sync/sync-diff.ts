@@ -546,6 +546,7 @@ export function planSync(
     unchanged,
     categoriesCreated: actions.createCategories.length,
     categoriesRenamed: actions.updateCategories.length,
+    categoriesEmptied: emptiedCategories.length,
     keptManual: keptManual.length,
     errors: rowErrors.length,
     fields: fieldsWritten(productChanges, defaultTierKey),

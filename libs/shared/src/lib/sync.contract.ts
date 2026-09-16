@@ -292,6 +292,13 @@ export const syncSummarySchema = z
     categoriesCreated: z.number().int().nonnegative(),
     /** Defaulted, so summaries stored before renaming existed still parse. */
     categoriesRenamed: z.number().int().nonnegative().default(0),
+    /**
+     * Categories this run leaves with nothing in them — because it moved their
+     * products elsewhere, or swept them. Counted beside the creates because the
+     * two together are what a source-side regrouping looks like. Defaulted,
+     * like the rename count above.
+     */
+    categoriesEmptied: z.number().int().nonnegative().default(0),
     /** Live products absent from the file but kept because they are `manual:`. */
     keptManual: z.number().int().nonnegative(),
     errors: z.number().int().nonnegative(),
@@ -391,6 +398,13 @@ export const syncRunSchema = z
     options: syncOptionsSchema.nullable(),
     summary: syncSummarySchema.nullable(),
     error: z.string().nullable(),
+    /**
+     * Something the sending system wanted said about a run that otherwise went
+     * through — a source file it had to skip part of, an export older than it
+     * expected. Kept verbatim like `error`, and like `error` never interpreted
+     * here; unlike it, the run still counts as having worked.
+     */
+    notice: z.string().nullable(),
   })
   .strict();
 export type SyncRun = z.infer<typeof syncRunSchema>;
@@ -631,6 +645,20 @@ export const syncSubmissionSchema = z
      * business and deliberately not this repository's.
      */
     requestReview: z.boolean().default(false),
+    /**
+     * Anything the caller wants a person to read beside this run, in its own
+     * words. It is the counterpart of a failure report for a run that did
+     * produce rows: what it had to leave out, what looked stale, why it asked
+     * to be doubted. Recorded and shown, never parsed — and on its own it
+     * decides nothing, so a client can explain itself without its run being
+     * held back for it. `requestReview` remains the only way to ask for that.
+     */
+    notice: z
+      .string()
+      .trim()
+      .min(1)
+      .max(SYNC_FAILURE_MESSAGE_MAX_LENGTH)
+      .optional(),
   })
   .strict();
 export type SyncSubmission = z.infer<typeof syncSubmissionSchema>;

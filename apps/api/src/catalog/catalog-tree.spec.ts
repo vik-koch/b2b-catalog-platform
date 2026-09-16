@@ -5,6 +5,7 @@ import {
   CategoryRow,
   descendantIds,
   directChildren,
+  stockedCategoryIds,
 } from './catalog-tree';
 
 const cat = (
@@ -76,6 +77,37 @@ describe('catalog-tree', () => {
       null,
     ]);
     expect(buildCategoryTree(rows)[0].children[0].shortName).toBe('Esp');
+  });
+
+  it('keeps a stocked category and every ancestor of one', () => {
+    // Products sit on the leaf; the parent is kept because of them, and the
+    // sibling leaf and the flat category are not.
+    expect(stockedCategoryIds(rows, ['esp'])).toEqual(new Set(['esp', 'cb']));
+  });
+
+  it('drops a category nothing visible is filed under', () => {
+    const stocked = stockedCategoryIds(rows, ['tea']);
+    const tree = buildCategoryTree(rows.filter((r) => stocked.has(r.id)));
+
+    expect(tree.map((n) => n.slug)).toEqual(['tea']);
+    expect(
+      directChildren(
+        'cb',
+        rows.filter((r) => stocked.has(r.id)),
+      ),
+    ).toEqual([]);
+  });
+
+  it('keeps nothing when nothing is visible', () => {
+    expect(stockedCategoryIds(rows, [])).toEqual(new Set());
+  });
+
+  it('survives a parent loop rather than hanging on it', () => {
+    const looped: CategoryRow[] = [
+      { ...cat('a', 'a', 'b', 0) },
+      { ...cat('b', 'b', 'a', 1) },
+    ];
+    expect(stockedCategoryIds(looped, ['a'])).toEqual(new Set(['a', 'b']));
   });
 
   it('finds a category by slug', () => {

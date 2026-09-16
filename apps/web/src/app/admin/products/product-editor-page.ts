@@ -194,7 +194,9 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
              belongs to. The picker is placed explicitly, so the note can sit
              between the two fields in the markup and read under the price on a
              phone. -->
-        <div class="grid gap-x-6 gap-y-6 sm:grid-cols-[10rem_minmax(0,1fr)]">
+        <div
+          class="grid gap-x-6 gap-y-6 sm:grid-cols-[10.875rem_minmax(0,1fr)]"
+        >
           <label class="block w-full sm:w-auto">
             <!-- Named after the list it writes: it is one price list's row like
                  any other below, and the only thing separating it is that the
@@ -209,7 +211,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
                  "18." as an empty value, so binding the signal back to it wiped
                  the field the moment a decimal separator was pressed. The
                  inputmode still gets the numeric keypad on touch. -->
-            <app-unit-field class="w-full sm:w-40" [unit]="currencySuffix">
+            <app-unit-field class="w-full sm:w-43.5" [unit]="currencySuffix">
               <input
                 type="text"
                 inputmode="decimal"
@@ -341,7 +343,9 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
 
         <fieldset class="max-w-xl">
           <legend appFieldLabel>{{ text.stock.heading }}</legend>
-          <p class="mb-2 text-xs text-subtle">{{ text.stock.hint }}</p>
+          @if (!catalogOwned()) {
+            <p class="mb-2 text-xs text-subtle">{{ text.stock.hint }}</p>
+          }
           <!-- Both counts in pieces, said in the fields rather than under
                them: the two are one sentence about how much is left, and a
                hint apiece made the block four lines deep for two numbers. -->

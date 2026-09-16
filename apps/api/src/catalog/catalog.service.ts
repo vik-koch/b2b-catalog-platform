@@ -50,6 +50,7 @@ import {
   CategoryRow,
   descendantIds,
   directChildren,
+  stockedCategoryIds,
 } from './catalog-tree';
 import {
   parseSearchQuery,
@@ -133,8 +134,23 @@ export class CatalogService {
       .orderBy(asc(categories.sortOrder), asc(categories.name));
   }
 
+  /**
+   * Category ids a publicly visible product sits in, direct only. The input to
+   * every public category listing: what is not stocked is not linked to.
+   */
+  private async liveCategoryIds(): Promise<string[]> {
+    const rows = await this.db
+      .selectDistinct({ id: products.categoryId })
+      .from(products)
+      .where(publiclyVisible);
+    return rows.map((row) => row.id);
+  }
+
+  /** The public tree (FR-CAT-01/02), pruned to what has something to show. */
   async getCategoryTree(): Promise<CategoryNode[]> {
-    return buildCategoryTree(await this.categoryRows());
+    const rows = await this.categoryRows();
+    const stocked = stockedCategoryIds(rows, await this.liveCategoryIds());
+    return buildCategoryTree(rows.filter((row) => stocked.has(row.id)));
   }
 
   /**
@@ -159,6 +175,11 @@ export class CatalogService {
 
     const ids = descendantIds(category.id, rows);
     const scope = and(inArray(products.categoryId, ids), publiclyVisible);
+    // Scoping reads every row — a product's page must work under a category
+    // nothing else is visible in — while the drill-down nav reads the pruned
+    // set, so it never offers a subcategory with an empty grid behind it.
+    const stocked = stockedCategoryIds(rows, await this.liveCategoryIds());
+    const stockedRows = rows.filter((row) => stocked.has(row.id));
     const definitions = await this.categoryDefinitions(category.id, rows);
     const selections = resolveSelections(attributes, definitions);
     const where = and(scope, ...selectionConditions(this.db, selections));
@@ -194,7 +215,7 @@ export class CatalogService {
         name: category.name,
         shortName: category.shortName,
         ancestors: ancestorsOf(category.id, rows),
-        subcategories: directChildren(category.id, rows),
+        subcategories: directChildren(category.id, stockedRows),
       },
       items,
       pagination: {
@@ -322,10 +343,10 @@ export class CatalogService {
   }
 
   /**
-   * Every indexable slug for the sitemap: all categories, all non-deleted
-   * products, and the DB-backed static pages, each with its `updatedAt` for
-   * `<lastmod>` (a page's id is its public slug). Returns bare slugs only — the
-   * SSR server builds the absolute URLs.
+   * Every indexable slug for the sitemap: the categories with something to
+   * show, all publicly visible products, and the DB-backed static pages, each
+   * with its `updatedAt` for `<lastmod>` (a page's id is its public slug).
+   * Returns bare slugs only — the SSR server builds the absolute URLs.
    */
   async getSitemap(): Promise<{
     categories: SitemapEntry[];
@@ -334,7 +355,12 @@ export class CatalogService {
   }> {
     const [categoryRows, productRows, pageRows] = await Promise.all([
       this.db
-        .select({ slug: categories.slug, updatedAt: categories.updatedAt })
+        .select({
+          id: categories.id,
+          parentId: categories.parentId,
+          slug: categories.slug,
+          updatedAt: categories.updatedAt,
+        })
         .from(categories)
         .orderBy(asc(categories.slug)),
       this.db
@@ -351,8 +377,16 @@ export class CatalogService {
       slug: r.slug,
       updatedAt: r.updatedAt.toISOString(),
     });
+    // An empty category is not linked to anywhere, so it is not offered to a
+    // crawler either.
+    const stocked = stockedCategoryIds(
+      categoryRows,
+      await this.liveCategoryIds(),
+    );
     return {
-      categories: categoryRows.map(toEntry),
+      categories: categoryRows
+        .filter((row) => stocked.has(row.id))
+        .map(toEntry),
       products: productRows.map(toEntry),
       pages: pageRows.map(toEntry),
     };
