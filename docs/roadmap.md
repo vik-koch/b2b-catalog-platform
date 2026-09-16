@@ -6,34 +6,34 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 
 | # / tag           | Milestone | Delivers | Amends |
 | ----------------- | --------- | -------- | ------ |
-| 1                 | Static pages, compliance scaffolding, base infra (walking skeleton, CI/CD, IaC, dev+prod) | FR-NAV-\*, NFR-LEGAL-01/02/03/05, NFR-SEC-01, NFR-SEO-03, NFR-OPS-\* | — |
-| 2<br>**v1.0.0**   | Catalog display + admin login, management & sync; client starts content entry | FR-CAT-01…05, FR-ADM-\*, FR-AUTH-07/08, NFR-SEC-02/03/05, NFR-SEO-01/02, NFR-LEGAL-06 | — |
-| 3<br>**v1.1.0**   | Search, listing sort & admin grid filters | FR-SEARCH-01…05, FR-ADM-05, NFR-SEC-07, NFR-SEO-04, NFR-OPS-05 | — |
-| 4<br>**v1.2.0**   | Accounts, roles & tiered pricing | FR-AUTH-01…06, FR-NOTIF-01/02/04, NFR-SEC-04 | — |
-| 5<br>**v1.3.0**   | Units of sale, pack pricing & product publication | FR-UNIT-01…06/08/09/10, FR-ADM-06 | FR-ADM-01/05, FR-CAT-04/05 |
-| 6<br>**v1.4.0**   | Attribute definitions & faceted filtering | FR-ATTR-01…10, FR-UNIT-11 | FR-UNIT-06/09, NFR-SEO-04 |
-| 7<br>**v1.5.0**   | Cart & order-request checkout | FR-UNIT-07, FR-CART-01…04/07…11 (02 rewritten), FR-ATTR-11, FR-CAT-06, FR-AUTH-09/10, FR-ACC-01, FR-NOTIF-05/06, NFR-SEC-06/08 | FR-UNIT-01/03/04/10/11, FR-AUTH-01 |
-| 8<br>**v1.6.0**   | Stock availability & work-awaiting indicators | FR-STOCK-01…05, FR-WORK-01…04 | FR-ADM-02/05, FR-SEARCH-04, FR-CAT-04/05, FR-CART-02 |
-| 9<br>**v1.7.0**   | Sold-together sets | FR-SET-01…05 | — |
-| 10<br>**v1.8.0**  | Product documents & certificates | FR-DOC-01…04 | FR-CAT-05 |
-| 11<br>**v1.9.0**  | Order processing, payment state & order documents | FR-ORD-01…05, FR-CART-05, FR-ACC-02, NFR-LEGAL-04, NFR-SEC-10 | FR-CART-06, FR-NOTIF-03/07/08, FR-WORK-02/04, FR-AUTH-04, NFR-OPS-02 |
-| 12<br>**v1.10.0** | Automated catalog sync from the source system | FR-ADM-07/09/10/13/14, FR-NOTIF-09, NFR-SEC-09, NFR-OPS-06/07 | FR-ADM-02/04/06, FR-AUTH-05, FR-UNIT-04/10, FR-WORK-02, FR-CAT-01 |
-| 13<br>**v1.11.0** | Order exchange with the source system | FR-ADM-08 | FR-ADM-09/10, FR-ORD-02/03 |
-| 14<br>**v1.12.0** | Online card payment | — | FR-CART-04/06 |
+| 1 | Static pages, compliance scaffolding, base infra (walking skeleton, CI/CD, IaC, dev+prod) | [FR-NAV-\*](requirements.md#fr-nav),<br>[NFR-LEGAL-01](requirements.md#nfr-legal-01)/[02](requirements.md#nfr-legal-02)/[03](requirements.md#nfr-legal-03)/[05](requirements.md#nfr-legal-05),<br>[NFR-SEC-01](requirements.md#nfr-sec-01),<br>[NFR-SEO-03](requirements.md#nfr-seo-03),<br>[NFR-OPS-\*](requirements.md#nfr-ops) | — |
+| 2<br>**v1.0.0** | Catalog display + admin login, management & sync; client starts content entry | [FR-CAT-01](requirements.md#fr-cat-01)/[02](requirements.md#fr-cat-02)/[03](requirements.md#fr-cat-03)/[04](requirements.md#fr-cat-04)/[05](requirements.md#fr-cat-05),<br>[FR-ADM-\*](requirements.md#fr-adm),<br>[FR-AUTH-07](requirements.md#fr-auth-07)/[08](requirements.md#fr-auth-08),<br>[NFR-SEC-02](requirements.md#nfr-sec-02)/[03](requirements.md#nfr-sec-03)/[05](requirements.md#nfr-sec-05),<br>[NFR-SEO-01](requirements.md#nfr-seo-01)/[02](requirements.md#nfr-seo-02),<br>[NFR-LEGAL-06](requirements.md#nfr-legal-06) | — |
+| 3<br>**v1.1.0** | Search, listing sort & admin grid filters | [FR-SEARCH-01](requirements.md#fr-search-01)/[02](requirements.md#fr-search-02)/[03](requirements.md#fr-search-03)/[04](requirements.md#fr-search-04)/[05](requirements.md#fr-search-05),<br>[FR-ADM-05](requirements.md#fr-adm-05),<br>[NFR-SEC-07](requirements.md#nfr-sec-07),<br>[NFR-SEO-04](requirements.md#nfr-seo-04),<br>[NFR-OPS-05](requirements.md#nfr-ops-05) | — |
+| 4<br>**v1.2.0** | Accounts, roles & tiered pricing | [FR-AUTH-01](requirements.md#fr-auth-01)/[02](requirements.md#fr-auth-02)/[03](requirements.md#fr-auth-03)/[04](requirements.md#fr-auth-04)/[05](requirements.md#fr-auth-05)/[06](requirements.md#fr-auth-06),<br>[FR-NOTIF-01](requirements.md#fr-notif-01)/[02](requirements.md#fr-notif-02)/[04](requirements.md#fr-notif-04),<br>[NFR-SEC-04](requirements.md#nfr-sec-04) | — |
+| 5<br>**v1.3.0** | Units of sale, pack pricing & product publication | [FR-UNIT-01](requirements.md#fr-unit-01)/[02](requirements.md#fr-unit-02)/[03](requirements.md#fr-unit-03)/[04](requirements.md#fr-unit-04)/[05](requirements.md#fr-unit-05)/[06](requirements.md#fr-unit-06)/[08](requirements.md#fr-unit-08)/[09](requirements.md#fr-unit-09)/[10](requirements.md#fr-unit-10),<br>[FR-ADM-06](requirements.md#fr-adm-06) | [FR-ADM-01](requirements.md#fr-adm-01)/[05](requirements.md#fr-adm-05),<br>[FR-CAT-04](requirements.md#fr-cat-04)/[05](requirements.md#fr-cat-05) |
+| 6<br>**v1.4.0** | Attribute definitions & faceted filtering | [FR-ATTR-01](requirements.md#fr-attr-01)/[02](requirements.md#fr-attr-02)/[03](requirements.md#fr-attr-03)/[04](requirements.md#fr-attr-04)/[05](requirements.md#fr-attr-05)/[06](requirements.md#fr-attr-06)/[07](requirements.md#fr-attr-07)/[08](requirements.md#fr-attr-08)/[09](requirements.md#fr-attr-09)/[10](requirements.md#fr-attr-10),<br>[FR-UNIT-11](requirements.md#fr-unit-11) | [FR-UNIT-06](requirements.md#fr-unit-06)/[09](requirements.md#fr-unit-09),<br>[NFR-SEO-04](requirements.md#nfr-seo-04) |
+| 7<br>**v1.5.0** | Cart & order-request checkout | [FR-UNIT-07](requirements.md#fr-unit-07),<br>[FR-CART-01](requirements.md#fr-cart-01)/[02](requirements.md#fr-cart-02)/[03](requirements.md#fr-cart-03)/[04](requirements.md#fr-cart-04)/[07](requirements.md#fr-cart-07)/[08](requirements.md#fr-cart-08)/[09](requirements.md#fr-cart-09)/[10](requirements.md#fr-cart-10)/[11](requirements.md#fr-cart-11) (02 rewritten),<br>[FR-ATTR-11](requirements.md#fr-attr-11),<br>[FR-CAT-06](requirements.md#fr-cat-06),<br>[FR-AUTH-09](requirements.md#fr-auth-09)/[10](requirements.md#fr-auth-10),<br>[FR-ACC-01](requirements.md#fr-acc-01),<br>[FR-NOTIF-05](requirements.md#fr-notif-05)/[06](requirements.md#fr-notif-06),<br>[NFR-SEC-06](requirements.md#nfr-sec-06)/[08](requirements.md#nfr-sec-08) | [FR-UNIT-01](requirements.md#fr-unit-01)/[03](requirements.md#fr-unit-03)/[04](requirements.md#fr-unit-04)/[10](requirements.md#fr-unit-10)/[11](requirements.md#fr-unit-11),<br>[FR-AUTH-01](requirements.md#fr-auth-01) |
+| 8<br>**v1.6.0** | Stock availability & work-awaiting indicators | [FR-STOCK-01](requirements.md#fr-stock-01)/[02](requirements.md#fr-stock-02)/[03](requirements.md#fr-stock-03)/[04](requirements.md#fr-stock-04)/[05](requirements.md#fr-stock-05),<br>[FR-WORK-01](requirements.md#fr-work-01)/[02](requirements.md#fr-work-02)/[03](requirements.md#fr-work-03)/[04](requirements.md#fr-work-04) | [FR-ADM-02](requirements.md#fr-adm-02)/[05](requirements.md#fr-adm-05),<br>[FR-SEARCH-04](requirements.md#fr-search-04),<br>[FR-CAT-04](requirements.md#fr-cat-04)/[05](requirements.md#fr-cat-05),<br>[FR-CART-02](requirements.md#fr-cart-02) |
+| 9<br>**v1.7.0** | Sold-together sets | [FR-SET-01](requirements.md#fr-set-01)/[02](requirements.md#fr-set-02)/[03](requirements.md#fr-set-03)/[04](requirements.md#fr-set-04)/[05](requirements.md#fr-set-05) | — |
+| 10<br>**v1.8.0** | Product documents & certificates | [FR-DOC-01](requirements.md#fr-doc-01)/[02](requirements.md#fr-doc-02)/[03](requirements.md#fr-doc-03)/[04](requirements.md#fr-doc-04) | [FR-CAT-05](requirements.md#fr-cat-05) |
+| 11<br>**v1.9.0** | Order processing, payment state & order documents | [FR-ORD-01](requirements.md#fr-ord-01)/[02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[04](requirements.md#fr-ord-04)/[05](requirements.md#fr-ord-05),<br>[FR-CART-05](requirements.md#fr-cart-05),<br>[FR-ACC-02](requirements.md#fr-acc-02),<br>[NFR-LEGAL-04](requirements.md#nfr-legal-04),<br>[NFR-SEC-10](requirements.md#nfr-sec-10) | [FR-CART-06](requirements.md#fr-cart-06),<br>[FR-NOTIF-03](requirements.md#fr-notif-03)/[07](requirements.md#fr-notif-07)/[08](requirements.md#fr-notif-08),<br>[FR-WORK-02](requirements.md#fr-work-02)/[04](requirements.md#fr-work-04),<br>[FR-AUTH-04](requirements.md#fr-auth-04),<br>[NFR-OPS-02](requirements.md#nfr-ops-02) |
+| 12<br>**v1.10.0** | Automated catalog sync from the source system | [FR-ADM-07](requirements.md#fr-adm-07)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-SEC-09](requirements.md#nfr-sec-09),<br>[NFR-OPS-06](requirements.md#nfr-ops-06)/[07](requirements.md#nfr-ops-07) | [FR-ADM-02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[06](requirements.md#fr-adm-06),<br>[FR-AUTH-05](requirements.md#fr-auth-05),<br>[FR-UNIT-04](requirements.md#fr-unit-04)/[10](requirements.md#fr-unit-10),<br>[FR-WORK-02](requirements.md#fr-work-02),<br>[FR-CAT-01](requirements.md#fr-cat-01) |
+| 13<br>**v1.11.0** | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03) |
+| 14<br>**v1.12.0** | Online card payment | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
 
-- Iteration 2 ships the minimal admin login (FR-AUTH-07: seeded admin account, config-provided
-  credentials) with rate limiting, password hashing, and payload validation (NFR-SEC-02/03/05)
+- Iteration 2 ships the minimal admin login ([FR-AUTH-07](requirements.md#fr-auth-07): seeded admin account, config-provided
+  credentials) with rate limiting, password hashing, and payload validation ([NFR-SEC-02](requirements.md#nfr-sec-02)/[03](requirements.md#nfr-sec-03)/[05](requirements.md#nfr-sec-05))
   pulled forward — the admin panel cannot be public or unprotected during real content entry.
-  Self-service password change (FR-AUTH-08) comes with it: the seeded password is known to
+  Self-service password change ([FR-AUTH-08](requirements.md#fr-auth-08)) comes with it: the seeded password is known to
   whoever can read the deployment config, so the admin must be able — and be made — to replace
   it. Full account management lands in iteration 4.
 - Iteration 2 prices come from the default price list only — one price per
-  product. Tier→price-list resolution (FR-AUTH-05) lands in iteration 4.
+  product. Tier→price-list resolution ([FR-AUTH-05](requirements.md#fr-auth-05)) lands in iteration 4.
 - Iteration 3 grew past the three search requirements it started with. Search needs sort controls
-  to be usable at all (FR-SEARCH-04), and building the matcher makes the admin grid's
-  find-a-product problem cheap to solve at the same time (FR-ADM-05) — the client is entering
+  to be usable at all ([FR-SEARCH-04](requirements.md#fr-search-04)), and building the matcher makes the admin grid's
+  find-a-product problem cheap to solve at the same time ([FR-ADM-05](requirements.md#fr-adm-05)) — the client is entering
   content now and is the one feeling it. The three NFRs are the tail search drags in: a new
   unauthenticated endpoint to rate-limit, listing variants to keep out of the index, and
   zero-result queries to make visible. All additive → **v1.1.0**, no contract breakage.
@@ -42,11 +42,11 @@ Notes:
   asked — whether the shop sells by the piece. It does not: products sell by piece, pack or
   box, some prices in the source system cover a pack rather than a piece, and some products
   have a minimum order quantity. That is catalog and pricing data, so it earned an iteration
-  of its own (FR-UNIT-\*) **before** the cart, rather than being discovered inside it. Two
+  of its own ([FR-UNIT-\*](requirements.md#fr-unit)) **before** the cart, rather than being discovered inside it. Two
   consequences: the client can start entering packaging data one release earlier, and the
   cart is built once against a settled unit model instead of twice.
-- Iteration 5 keeps packaging **out of the bulk sync** (FR-ADM-02 is deliberately not
-  amended): the values are admin-entered for now. That is also why FR-ADM-06 lands here — a
+- Iteration 5 keeps packaging **out of the bulk sync** ([FR-ADM-02](requirements.md#fr-adm-02) is deliberately not
+  amended): the values are admin-entered for now. That is also why [FR-ADM-06](requirements.md#fr-adm-06) lands here — a
   synced product arrives with a price and a category nobody has reviewed and packaging the
   sync does not carry, so it must not be publicly visible until a human has looked at it.
 - Iteration 6 was the cart until the client asked for attribute filtering, which took the
@@ -56,45 +56,45 @@ Notes:
   several hundred products is far cheaper before they are typed than after, so the feature
   that constrains data entry goes first and the feature that only changes what visitors do
   waits. It also settles a question iteration 5 left open — the packaging summary and the
-  minimum quantity leave the product page's attribute table here (FR-UNIT-06/09 amended)
+  minimum quantity leave the product page's attribute table here ([FR-UNIT-06](requirements.md#fr-unit-06)/[09](requirements.md#fr-unit-09) amended)
   and come back in iteration 7 beside the add-to-cart control, where the minimum is a rule
   on an input rather than a fact about the product.
 - Iteration 6 keeps attributes **outside the bulk sync**, as they already are: they are an
   admin overlay under ADR 0022, so a definition can be added without a sync run and a
   filter cannot be broken by one.
-- Iteration 7 pulls **FR-CART-07** forward from the old payment row. A delivery address and a
+- Iteration 7 pulls **[FR-CART-07](requirements.md#fr-cart-07)** forward from the old payment row. A delivery address and a
   pickup choice are checkout, not payment; leaving them out would mean building the checkout
   form twice and an address book that omits the address most customers have. It also adds
-  **FR-CART-08**, a per-product note on a cart line, for goods whose variant is stated in
+  **[FR-CART-08](requirements.md#fr-cart-08)**, a per-product note on a cart line, for goods whose variant is stated in
   words rather than carried by a separate article.
 - A client review of the ordering flow (2026-08-23) reshaped iteration 7 without moving its
   boundary. A cart line can **change its unit**, which is a conversion rather than a relabelling
-  and so is spelled out in FR-CART-02, and the unit a customer chose is never normalized away.
+  and so is spelled out in [FR-CART-02](requirements.md#fr-cart-02), and the unit a customer chose is never normalized away.
   ⚠ Both halves of that sentence were reversed within the iteration — see the note below.
-  The **shipment estimate covers every unit**, not only whole boxes (FR-UNIT-11 amended) — the
+  The **shipment estimate covers every unit**, not only whole boxes ([FR-UNIT-11](requirements.md#fr-unit-11) amended) — the
   client wants a carton count and a weight on a piece order too, and accepts that it is
-  approximate. **FR-CART-09** is new: an order names the party it is for, because a sole trader
+  approximate. **[FR-CART-09](requirements.md#fr-cart-09)** is new: an order names the party it is for, because a sole trader
   may buy privately and a private customer may be buying for a company, and which it is decides
-  the paperwork and can decide the price. **FR-CART-10** is new too: a cart is expected to sit in
+  the paperwork and can decide the price. **[FR-CART-10](requirements.md#fr-cart-10)** is new too: a cart is expected to sit in
   a browser for weeks, so it says what changed while it waited. The **line note** turned out to
-  describe a whole line rather than to split one (FR-CART-08 rewritten), which removes the
+  describe a whole line rather than to split one ([FR-CART-08](requirements.md#fr-cart-08) rewritten), which removes the
   identity machinery it would otherwise have needed, and it is never mandatory. Checkout is
   **one prefilled form** (ADR 0039), not a wizard: a manager reviews every order anyway, so the
-  form's job is to be quick. And staff views of an order read in **pieces** (FR-UNIT-04
+  form's job is to be quick. And staff views of an order read in **pieces** ([FR-UNIT-04](requirements.md#fr-unit-04)
   amended), which is what the source system prices in.
 - Address entry is the one field ADR 0039's prefill cannot help with, and it is also what decides
-  a delivery rule, so **FR-CART-11** (suggestion behind a per-deployment port) and the
-  free-delivery minimum in FR-CART-07 land together rather than a release apart: a threshold
+  a delivery rule, so **[FR-CART-11](requirements.md#fr-cart-11)** (suggestion behind a per-deployment port) and the
+  free-delivery minimum in [FR-CART-07](requirements.md#fr-cart-07) land together rather than a release apart: a threshold
   keyed off a postal code is only as reliable as the postal code, and suggestion is what makes
   that field trustworthy. Both stay advisory — no order is refused for missing a threshold, and
   no delivery price is computed (ADR 0040).
 - Late in iteration 7 the units model was re-cut twice (issue #141). `minPieceQty` had been
   serving as both the minimum and the increment, which made a shop that will not ship fewer
   than 24 also refuse to sell 30: **the pack is now the increment and the minimum only a
-  floor** (FR-UNIT-03 amended, ADR 0035 amended). That exposed the deeper framing problem —
+  floor** ([FR-UNIT-03](requirements.md#fr-unit-03) amended, ADR 0035 amended). That exposed the deeper framing problem —
   a unit was a quantity dimension, so two packs could not be _shown_ as boxes without becoming
-  a whole box, and FR-CART-02 had grown a confirmation prompt to cover it. **A unit is now a
-  lens on an integer piece count** (FR-UNIT-01/07/10 amended, FR-CART-02 rewritten, ADR 0042,
+  a whole box, and [FR-CART-02](requirements.md#fr-cart-02) had grown a confirmation prompt to cover it. **A unit is now a
+  lens on an integer piece count** ([FR-UNIT-01](requirements.md#fr-unit-01)/[07](requirements.md#fr-unit-07)/[10](requirements.md#fr-unit-10) amended, [FR-CART-02](requirements.md#fr-cart-02) rewritten, ADR 0042,
   superseding part of ADR 0038): the quantity is always pieces, the unit only decides how it
   reads, and a line of two packs of a ten-pack box reads 0.2 bx. It was affordable because
   v1.5.0 was still untagged and the cart and order contracts had never shipped.
@@ -103,28 +103,28 @@ Notes:
   before it shipped. The invoiced party had been a property of the **address** — choosing
   a row named the party — which fails the moment a customer is invoiced to one party at
   another's saved address: the screen contradicts itself, and "save this address" would
-  file an identity nobody typed. The party is now **a field of the order** (FR-CART-09
+  file an identity nobody typed. The party is now **a field of the order** ([FR-CART-09](requirements.md#fr-cart-09)
   reworded), in three answers — the account's own, another person, another company — and
   `addresses` lost `companyName`, `companyId` and `phone`: registration already collects a
   company's name (which is the gap ADR 0039 was filling), and the order already carries
   the number a manager rings. Bank transfer therefore needs a **company** party
-  (FR-CART-04 reworded). ADR 0039 was rewritten rather than amended — it had never
+  ([FR-CART-04](requirements.md#fr-cart-04) reworded). ADR 0039 was rewritten rather than amended — it had never
   shipped, so its amendment trail would have been a record of drafting — and iteration 7's
   unreleased migrations were squashed into one.
 - Two requirements outside the cart landed in iteration 7 because the cart is what
-  exposed them. **FR-CAT-06** is the card/row choice: a buying control on a listing tile
+  exposed them. **[FR-CAT-06](requirements.md#fr-cat-06)** is the card/row choice: a buying control on a listing tile
   makes a dense row worth having, and a shop ordering from a familiar catalog scans rows
-  faster than cards. **FR-ATTR-11** lets a category declare which filterable attributes its
+  faster than cards. **[FR-ATTR-11](requirements.md#fr-attr-11)** lets a category declare which filterable attributes its
   listing offers and in what order (ADR 0037 amended) — declaring an attribute filterable
   catalog-wide had meant every listing that carried it offered it, which is right for a
   category whose products share a vocabulary and wrong for one that does not. Both are
   additive; neither changes what the client has already entered.
 - A first pass on the real deployment (2026-08-29) found the checkout asking
   for things that locale does not have. **Whether an order carries an invoice address
-  is now deployment config** (`billingAddressEnabled`, FR-CART-07 reworded, ADR 0039
+  is now deployment config** (`billingAddressEnabled`, [FR-CART-07](requirements.md#fr-cart-07) reworded, ADR 0039
   amended); off, a delivery gives one address and a collected order none, and the
   order's `billing*` columns are nullable rather than filled with blanks. **Cash is no
-  longer offered for a company** (FR-CART-04 reworded) — the mirror of the rule that
+  longer offered for a company** ([FR-CART-04](requirements.md#fr-cart-04) reworded) — the mirror of the rule that
   already made bank transfer company-only. And the **preferred date** offers working
   days from the next one onwards; the stricter lead times the shop actually keeps
   (an order placed at a weekend is ready on the Tuesday) are deliberately not modelled
@@ -140,14 +140,14 @@ Notes:
   entry**: stock arrives from the sync, so it can ship while the client is still typing
   packaging and attributes. Sets and documents are entered by hand, so the sooner each ships
   the sooner that entry can start — which is also why neither waits for order processing.
-- The **work-awaiting indicators** (FR-WORK-\*) ride in iteration 8 rather than with order
+- The **work-awaiting indicators** ([FR-WORK-\*](requirements.md#fr-work)) ride in iteration 8 rather than with order
   processing, where they were first proposed. Three consumers already exist — registrations
   awaiting approval since iteration 4, products awaiting publication since 5, orders awaiting
   payment since 7 — so the mechanism has customers the day it ships, and each later iteration
   registers a count instead of retrofitting one into a finished screen. Nothing is
   acknowledged and no table records that it was: every count is a query over state that is
   already there, so it appears when the work does and clears when the work is done (ADR 0046).
-  The customer half of FR-WORK-04 ships with **no source yet**: an order is only ever written
+  The customer half of [FR-WORK-04](requirements.md#fr-work-04) ships with **no source yet**: an order is only ever written
   in the one state that waits on the shop, and the states that wait on a customer arrive with
   order processing in iteration 11. Their marker therefore stays dark until then — which is
   the honest reading of "a count clears when the work is done", since nothing today records
@@ -185,10 +185,10 @@ Notes:
   `approved`, which made changing a request silently accept it and needed a special case for an
   order already packed. An adjustment may change everything the checkout asked — lines, prices, the
   price list the order is read from, fulfilment, addresses, party, payment method, contact — and
-  nothing the customer wrote in their own words (FR-ORD-03 amended 2026-09-08); it is offered
+  nothing the customer wrote in their own words ([FR-ORD-03](requirements.md#fr-ord-03) amended 2026-09-08); it is offered
   wherever the order stands, since a shortage found while packing is exactly the case it exists
   for. **The customer's view of the order is a pointer; the mail is a
-  decision** (FR-NOTIF-03 amended 2026-09-08): the pointer follows every move, so their page
+  decision** ([FR-NOTIF-03](requirements.md#fr-notif-03) amended 2026-09-08): the pointer follows every move, so their page
   says where the order actually is, and every move and change carries a "write to them" tick —
   offered ticked for news they have not had, clear for a step back or a second pass through a
   state they already know. A finished order reopened, corrected and finished again therefore
@@ -240,8 +240,8 @@ Notes:
   yet run would be designing against a guess. It also splits an iteration that was, laid out
   honestly, larger than iteration 7.
 - Iteration 12's own ordering puts the **platform ahead of the adapter**. Machine credentials
-  (NFR-SEC-09), the headless run ADR 0026 specified and deferred, the ownership switch
-  (FR-ADM-10) and the sync log (FR-ADM-09) need nothing from the source system's format: they
+  ([NFR-SEC-09](requirements.md#nfr-sec-09)), the headless run ADR 0026 specified and deferred, the ownership switch
+  ([FR-ADM-10](requirements.md#fr-adm-10)) and the sync log ([FR-ADM-09](requirements.md#fr-adm-09)) need nothing from the source system's format: they
   are exercised with an HTTP client and shipped whether or not the adapter ever exists. That is
   not only sequencing convenience — a deployment with no source system at all still gains an
   automatable import, and the manual upload stops being an unguarded second writer. Only two
@@ -279,29 +279,29 @@ Notes:
   the guest price, which the old shape could not even express as a question. With the column
   gone, "the default list" became a **badge one price list carries** rather than a reserved key,
   so which list guests and untiered accounts are charged is an admin decision that can be moved
-  (FR-AUTH-05 amended) — and moving it unpublishes what the newly badged list does not price,
+  ([FR-AUTH-05](requirements.md#fr-auth-05) amended) — and moving it unpublishes what the newly badged list does not price,
   rather than refusing the move. It ships inside v1.10.0: the migration applies unattended, so
   it is a minor release under ADR 0044.
 
-- **FR-ORD-06 was deleted and replaced by FR-ADM-10** (2026-09-10). The switch it asked for —
+- **FR-ORD-06 was deleted and replaced by [FR-ADM-10](requirements.md#fr-adm-10)** (2026-09-10). The switch it asked for —
   turn the platform's own order transitions off while an external system owns them — is the same
   mechanism as the one the catalog needs, and writing it twice would have produced two unrelated
-  toggles for one idea. FR-ADM-10 is that mechanism with an **area**: the catalog now, order
+  toggles for one idea. [FR-ADM-10](requirements.md#fr-adm-10) is that mechanism with an **area**: the catalog now, order
   processing in iteration 13, which adds a value rather than a switch. It is a rule and not a
   disabled button — the API refuses a write to an externally owned field, and the greying-out in
   the admin panel only explains the refusal before it is hit. It also resolves what looked like a
   contradiction: the manual upload is not retired when the feed exists, and the way an operator
   gets it back when the feed breaks is to turn the ownership off, which needs no deploy.
-  Maintenance mode needs no change to sit beside it — FR-ADM-04 has only ever gated the public
+  Maintenance mode needs no change to sit beside it — [FR-ADM-04](requirements.md#fr-adm-04) has only ever gated the public
   storefront and its read APIs, so a machine run populates a deployment that has not opened yet.
-- Iteration 13 is the order exchange (FR-ADM-08), deferred out of 12 above. Three rules were
+- Iteration 13 is the order exchange ([FR-ADM-08](requirements.md#fr-adm-08)), deferred out of 12 above. Three rules were
   agreed when it was first planned and still hold: **ownership, not conflict resolution** — the
   platform records what the customer submitted, the source system owns processing once an order
   has been exported, and nothing is merged; **the platform's status vocabulary stays coarse and
   the adapter maps onto it**, collapsing however many intermediate steps the source system moves
   an order through into the one transition a customer should read; and **updates are idempotent
   and forward-only**, since a polling adapter will re-send and every move it writes back has to
-  state whether the customer hears about it (FR-NOTIF-03). Two more were settled in advance: an
+  state whether the customer hears about it ([FR-NOTIF-03](requirements.md#fr-notif-03)). Two more were settled in advance: an
   exchange writes as **the integration's token**, never as a person — a revision an outside
   system wrote carries no author today, and gets a `source` of its own when there is something to
   write it (an operator's name in the other system travels as an opaque label and is never
@@ -314,11 +314,11 @@ Notes:
   of measure, so the assumption the basis encoded — that a price may be exact only per lot — is
   false. It is taken here rather than later for two reasons that both belong to this iteration.
   The basis is the **denominator of an owned price**, so an admin could re-price an externally
-  owned product without touching a field the ownership rule covers (FR-ADM-10); and the tier
+  owned product without touching a field the ownership rule covers ([FR-ADM-10](requirements.md#fr-adm-10)); and the tier
   price refactor that follows it in this iteration would otherwise have to decide whether a
-  denominator belongs on `products` or on every price row. FR-UNIT-04 and FR-UNIT-10 are
-  rewritten, and FR-ADM-06 keeps the publication gate on a different argument.
-- **FR-CAT-01 was amended late in the iteration** (2026-09-15), for a reason only the feed
+  denominator belongs on `products` or on every price row. [FR-UNIT-04](requirements.md#fr-unit-04) and [FR-UNIT-10](requirements.md#fr-unit-10) are
+  rewritten, and [FR-ADM-06](requirements.md#fr-adm-06) keeps the publication gate on a different argument.
+- **[FR-CAT-01](requirements.md#fr-cat-01) was amended late in the iteration** (2026-09-15), for a reason only the feed
   produces: the sync creates a category before any of its products are published and empties one
   by regrouping upstream, so the storefront had to say what an empty grouping is before an
   unattended feed could be allowed to make them. A category with nothing publicly visible beneath
@@ -326,8 +326,8 @@ Notes:
   admin panel throughout. The policy gained two ceilings alongside it — categories created and
   categories emptied — which are defaulted config keys and so version-neutral.
 - Two operability requirements ride with iteration 12 because it is the release that makes them
-  urgent — NFR-OPS-06 (what a deploy costs in downtime, how to see it failed, how to roll back)
-  and NFR-OPS-07 (what a half-finished sync leaves behind). The second is largely already true:
+  urgent — [NFR-OPS-06](requirements.md#nfr-ops-06) (what a deploy costs in downtime, how to see it failed, how to roll back)
+  and [NFR-OPS-07](requirements.md#nfr-ops-07) (what a half-finished sync leaves behind). The second is largely already true:
   ADR 0026 applies a run in one transaction, so the failure mode it names cannot produce a
   half-applied catalog. What iteration 12 adds is making the failure **visible** — a run that
   died in the adapter, before it ever became a run, is recorded as a failed one rather than
@@ -341,19 +341,19 @@ Notes:
   therefore **not** renamed in iteration 11: it accurately names an offline arrangement, and an
   online provider adds a second method beside it rather than redefining the first. It is offered
   to a private customer only, though: a company is invoiced, and an offline card arrangement
-  leaves no more paper than cash does (FR-CART-04 amended 2026-09-08, ADR 0039).
+  leaves no more paper than cash does ([FR-CART-04](requirements.md#fr-cart-04) amended 2026-09-08, ADR 0039).
 - Still open, to be decided before their iteration rather than now: whether audit records and usage
   metrics (page and product views, search-to-order funnels) are worth persisting beyond the log
-  aggregation NFR-OPS-03/05 already provide; and a security assessment pass across the whole
+  aggregation [NFR-OPS-03](requirements.md#nfr-ops-03)/[05](requirements.md#nfr-ops-05) already provide; and a security assessment pass across the whole
   feature surface once the machine endpoints exist, which is a release activity rather than a
   requirement.
 - Client reviews v1.0.0 on the **dev** environment only. Frame that feedback round as
   catalog/content/UX review — no accounts or cart exist yet, and prices are default-list only.
-- SSR and sitemap (NFR-SEO-01/02) are built in iteration 2, but the dev environment stays
+- SSR and sitemap ([NFR-SEO-01](requirements.md#nfr-seo-01)/[02](requirements.md#nfr-seo-02)) are built in iteration 2, but the dev environment stays
   `noindex`; indexing is enabled only when prod goes live.
-- Maintenance mode (FR-ADM-04) is the go-live gate. A deployment boots with it **off** (the
+- Maintenance mode ([FR-ADM-04](requirements.md#fr-adm-04)) is the go-live gate. A deployment boots with it **off** (the
   default runtime setting); the admin logs in — the login route stays reachable — flips it
-  **on** to populate catalog and content behind a 503'd storefront via FR-ADM-01-03, then flips
+  **on** to populate catalog and content behind a 503'd storefront via [FR-ADM-01](requirements.md#fr-adm-01)-03, then flips
   it **off** to launch. The brief window before it is first switched on is harmless: prod DNS
   is not public and dev stays `noindex` until launch.
 
@@ -362,7 +362,7 @@ Notes:
 - UI localization / i18n — both deployments are single-locale; revisit only if a deployment ever needs a second language
 - Automated delivery/courier API integration
 - Live/automatic sync from the legacy source system — in scope: the catalog direction as
-  iteration 12 (FR-ADM-07), the order direction as iteration 13 (FR-ADM-08). What stays out is
+  iteration 12 ([FR-ADM-07](requirements.md#fr-adm-07)), the order direction as iteration 13 ([FR-ADM-08](requirements.md#fr-adm-08)). What stays out is
   any direction in which the platform writes catalog content back into the source system: the
   ownership split runs the other way (see the iteration-12 notes), and the exchange protocol
   offers no such message in any case
