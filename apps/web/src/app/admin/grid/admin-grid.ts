@@ -150,7 +150,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
              flow: a link that appeared in the flow when the first column was
              dragged would push the whole table down mid-gesture. -->
         @if (customised()) {
-          <div class="absolute right-0 bottom-full">
+          <div class="absolute right-0 bottom-full -mb-2">
             <button
               type="button"
               class="cursor-pointer text-xs text-subtle hover:text-accent"

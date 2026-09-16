@@ -58,7 +58,7 @@ export interface TierPriceDraft {
           <span class="mb-1 block text-sm text-muted">{{ tier.label }}</span>
           <!-- Text with inputmode, for the same reason as the base price
                field: a number input drops a half-typed decimal. -->
-          <app-unit-field class="w-full sm:w-40" [unit]="currencySuffix">
+          <app-unit-field class="w-full sm:w-43.5" [unit]="currencySuffix">
             <input
               type="text"
               inputmode="decimal"
@@ -75,7 +75,9 @@ export interface TierPriceDraft {
         </label>
       }
     </div>
-    <span class="mt-1 block text-xs text-subtle">{{ text.hint }}</span>
+    @if (!disabled()) {
+      <span class="mt-1 block text-xs text-subtle">{{ text.hint }}</span>
+    }
   `,
 })
 export class ProductTierPricesEditor {
