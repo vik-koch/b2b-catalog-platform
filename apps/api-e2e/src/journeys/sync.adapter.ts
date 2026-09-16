@@ -146,7 +146,7 @@ const probes: Record<string, Probe<SyncJourneyContext>> = {
     label: reading.waiting.label,
     read: async (ctx) => {
       const res = await asAdmin(ctx, 'get', '/work/counts');
-      return (res.data.stagedSyncRuns ?? 0) - ctx.stagedAtStart;
+      return (res.data.stagedCatalogRuns ?? 0) - ctx.stagedAtStart;
     },
   },
   mail: {

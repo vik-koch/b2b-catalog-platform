@@ -93,6 +93,10 @@ Shipped:
 
 Planned:
 
+- **Customer exchange** — the same machine client doing everything a manager can do to a
+  customer account: inviting one into being, approving it, setting its tier, switching it off.
+  One line holds throughout — the exchange never issues a credential and never erases an
+  account, so a password is still chosen by the person and a deletion is still theirs
 - **Order exchange** — the same machine client carrying orders back to the source system
 - **Card payment** — online card payment offered after an order is accepted
 

@@ -1,6 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { fillText, SyncRun, SyncSummary } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  SyncArea,
+  SyncRun,
+  SyncSummary,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
@@ -37,6 +42,7 @@ function run(overrides: Partial<SyncRun> = {}): SyncRun {
     finishedAt: '2026-09-10T08:00:04.000Z',
     actorEmail: 'admin@example.com',
     tokenName: null,
+    area: 'catalog',
     stagedReason: null,
     options: null,
     summary,
@@ -46,7 +52,11 @@ function run(overrides: Partial<SyncRun> = {}): SyncRun {
   };
 }
 
-async function render(runs: SyncRun[] = [run()], status = '') {
+async function render(
+  runs: SyncRun[] = [run()],
+  status = '',
+  area: SyncArea = 'catalog',
+) {
   const service = {
     listRuns: vi.fn(async () => ({
       runs,
@@ -71,6 +81,7 @@ async function render(runs: SyncRun[] = [run()], status = '') {
     ],
   });
   const fixture = TestBed.createComponent(SyncRunsPage);
+  fixture.componentRef.setInput('area', area);
   fixture.componentRef.setInput('status', status);
   await fixture.whenStable();
   fixture.detectChanges();
@@ -179,6 +190,7 @@ describe('SyncRunsPage', () => {
     const { service } = await render([run()], 'previewed');
 
     expect(service.listRuns).toHaveBeenCalledWith({
+      area: 'catalog',
       page: 1,
       status: 'previewed',
     });
@@ -190,8 +202,30 @@ describe('SyncRunsPage', () => {
     const { service } = await render([run()], 'nonsense');
 
     expect(service.listRuns).toHaveBeenCalledWith({
+      area: 'catalog',
       page: 1,
       status: undefined,
     });
+  });
+
+  /** One component, two logs: the area decides the heading it wears and the
+   * log it asks for, and nothing else about the screen changes. */
+  it('reads the customer log when that is the area it is on', async () => {
+    const { el, service } = await render([run()], '', 'customers');
+
+    expect(service.listRuns).toHaveBeenCalledWith({
+      area: 'customers',
+      page: 1,
+      status: undefined,
+    });
+    expect(el.textContent).toContain(text.areas.customers.title);
+  });
+
+  /** The manual upload is the catalog's alone until the customer import
+   * ships, so the customer log offers no way to start one. */
+  it('offers no upload on the customer log', async () => {
+    const { el } = await render([run()], '', 'customers');
+
+    expect(el.querySelector('a[href="/admin/sync/catalog/new"]')).toBeNull();
   });
 });

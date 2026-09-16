@@ -127,7 +127,8 @@ describe('AdminPanelPage work counts', () => {
       unpublishedProducts: 3,
       expiredDocuments: 5,
       expiringDocuments: 6,
-      stagedSyncRuns: 2,
+      stagedCatalogRuns: 2,
+      stagedCustomerRuns: 3,
     });
 
     expect(note(el, '2 awaiting approval')?.getAttribute('href')).toBe(
@@ -156,7 +157,12 @@ describe('AdminPanelPage work counts', () => {
     // The sync row carries two readings on one axis: what is waiting to be
     // decided, over when the catalog last moved.
     expect(note(el, '2 awaiting review')?.getAttribute('href')).toBe(
-      '/admin/sync?status=previewed',
+      '/admin/sync/catalog?status=previewed',
+    );
+    // The customer runs are their own queue on their own row, beside the
+    // accounts they write rather than under the catalog import (FR-ADM-09).
+    expect(note(el, '3 awaiting review')?.getAttribute('href')).toBe(
+      '/admin/sync/customers?status=previewed',
     );
   });
 

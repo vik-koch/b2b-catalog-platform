@@ -58,7 +58,12 @@ import { SyncService } from './sync.service';
       <h1 class="text-3xl font-medium tracking-tight">
         {{ text.uploadTitle }}
       </h1>
-      <a appButton variant="secondary" routerLink="/admin/sync" class="ml-auto">
+      <a
+        appButton
+        variant="secondary"
+        routerLink="/admin/sync/catalog"
+        class="ml-auto"
+      >
         {{ text.backToRuns }}
       </a>
     </div>

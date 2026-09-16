@@ -1,7 +1,9 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import {
+  DEFAULT_SYNC_AREA,
   SYNC_ALL_FIELDS,
+  SYNC_AREAS,
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
   SYNC_FIELDS,
   SYNC_LABEL_MAX_LENGTH,
@@ -366,6 +368,13 @@ export type SyncRunStatus = z.infer<typeof syncRunStatusSchema>;
 export const syncRunSourceSchema = z.enum(['upload', 'api']);
 
 /**
+ * Which area of the platform's data the run carries. Two runs of different
+ * areas share everything in this file except the rows they hold and who may
+ * read them, which is why the area is a field and not a second contract.
+ */
+export const syncAreaSchema = z.enum(SYNC_AREAS);
+
+/**
  * Why a run was left for a person instead of applying itself (ADR 0055).
  * `policy` — its effect was outside what the deployment lets a run do
  * unattended. `requested` — the caller asked to be doubted, which it does when
@@ -379,6 +388,10 @@ export const syncRunSchema = z
   .object({
     id: z.uuid(),
     status: syncRunStatusSchema,
+    /** What the run is about. On the run's own page this is what decides how
+     * the body reads — a run id is unique across areas, so one screen serves
+     * them all and a link already in somebody's inbox keeps working. */
+    area: syncAreaSchema,
     source: syncRunSourceSchema,
     filename: z.string().nullable(),
     startedAt: z.iso.datetime(),
@@ -561,7 +574,8 @@ export const syncContract = {
       method: 'GET',
       path: '/admin/sync/runs/{id}',
       inputStructure: 'detailed',
-      summary: 'Fetch one run and its plan (admin; plan is null once pruned)',
+      summary:
+        'Fetch one run and its plan (staff by area; plan is null once pruned)',
     })
     .errors({ 'run-not-found': commitErrors['run-not-found'] })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
@@ -593,7 +607,7 @@ export const syncContract = {
       method: 'GET',
       path: '/admin/sync/runs',
       inputStructure: 'detailed',
-      summary: 'List sync runs, newest first (admin)',
+      summary: "List one area's sync runs, newest first (staff by area)",
     })
     .input(
       z.object({
@@ -602,6 +616,10 @@ export const syncContract = {
           /** Narrows the list to one outcome — what the panel's staged-run
            * count links into. Absent is every run. */
           status: syncRunStatusSchema.optional(),
+          /** Which area's log to read. Defaulted rather than required: every
+           * caller written before areas existed was asking about the catalog,
+           * and that is still what it means. The screens always send it. */
+          area: syncAreaSchema.default(DEFAULT_SYNC_AREA),
         }),
       }),
     )
@@ -610,9 +628,9 @@ export const syncContract = {
         .object({
           runs: z.array(syncRunSchema),
           pagination: paginationSchema,
-          /** The newest *applied* run — the admin dashboard's "last sync".
-           * Answered whatever the list is narrowed to: it is a fact about the
-           * catalog, not about the page being read. */
+          /** The newest *applied* run of this area — the admin dashboard's
+           * "last sync". Answered whatever the list is narrowed to by status:
+           * it is a fact about the area, not about the page being read. */
           lastApplied: syncRunSchema.nullable(),
         })
         .strict(),

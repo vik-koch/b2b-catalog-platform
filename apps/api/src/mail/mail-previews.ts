@@ -137,6 +137,7 @@ export interface MailPreview {
 const RUN_TIME = '14 Mar 2026, 03:15';
 const baseRun = {
   id: '6f0b2b3c-6f2c-4c0a-9d1e-9c5a8f0a1b2c',
+  area: 'catalog',
   source: 'api',
   filename: 'nightly-catalog',
   startedAt: '2026-03-14T03:15:00.000Z',

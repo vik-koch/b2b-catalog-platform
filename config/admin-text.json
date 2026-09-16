@@ -464,6 +464,16 @@
     "newRun": "Manual sync",
     "backToRuns": "All runs",
     "runsDescription": "Every catalog run, uploaded by hand or sent by a connected system. A run waiting for review changes nothing until it is applied.",
+    "areas": {
+      "catalog": {
+        "title": "Catalog sync",
+        "runsDescription": "Every catalog run, uploaded by hand or sent by a connected system. A run waiting for review changes nothing until it is applied."
+      },
+      "customers": {
+        "title": "Customer sync",
+        "runsDescription": "Every customer run sent by a connected system. A run waiting for review changes nothing until it is applied."
+      }
+    },
     "sourceUpload": "Uploaded",
     "runTitle": "Sync run",
     "runLoadError": "This run could not be loaded.",

@@ -1,6 +1,14 @@
-import { Component, inject, input, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  resource,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SyncRun } from '@b2b-catalog-platform/shared';
+import { AuthService } from '../../auth/auth.service';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
@@ -29,7 +37,12 @@ import { SyncService } from './sync.service';
   template: `
     @if (run.error()) {
       <p class="text-muted" role="alert">{{ text.runLoadError }}</p>
-      <a appButton variant="secondary" routerLink="/admin/sync" class="mt-5">
+      <a
+        appButton
+        variant="secondary"
+        [routerLink]="fallbackLog()"
+        class="mt-5"
+      >
         {{ text.backToRuns }}
       </a>
     } @else if (run.value(); as data) {
@@ -46,7 +59,7 @@ import { SyncService } from './sync.service';
           <a
             appButton
             variant="secondary"
-            routerLink="/admin/sync"
+            [routerLink]="['/admin/sync', data.run.area]"
             class="ml-auto"
           >
             {{ text.backToRuns }}
@@ -142,6 +155,7 @@ import { SyncService } from './sync.service';
   `,
 })
 export class SyncRunPage {
+  private readonly auth = inject(AuthService);
   private readonly sync = inject(SyncService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).sync;
@@ -154,6 +168,17 @@ export class SyncRunPage {
 
   /** The run's id, from the route. */
   readonly id = input.required<string>();
+
+  /**
+   * Where "back" goes when the run itself could not be read: there is no area
+   * to return to, so it is the one log this reader certainly has. A manager
+   * has no catalog log to be sent to.
+   */
+  protected readonly fallbackLog = computed(() =>
+    this.auth.user()?.role === 'manager'
+      ? '/admin/sync/customers'
+      : '/admin/sync/catalog',
+  );
 
   protected readonly run = resource({
     params: () => ({ id: this.id() }),

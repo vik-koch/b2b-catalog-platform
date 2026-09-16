@@ -98,7 +98,8 @@ describe('work counts', () => {
       'expiringDocuments',
       'orders',
       'registrations',
-      'stagedSyncRuns',
+      'stagedCatalogRuns',
+      'stagedCustomerRuns',
       'unpaidOrders',
       'unpricedProducts',
       'unpublishedProducts',
@@ -106,11 +107,14 @@ describe('work counts', () => {
   });
 
   // Absent, not zero: the products and documents screens refuse a manager, so
-  // a count linking there would be one they cannot act on (FR-WORK-04).
+  // a count linking there would be one they cannot act on (FR-WORK-04). The
+  // staged *customer* runs are theirs to answer, which is why the staged runs
+  // are two queues and not one figure (FR-ADM-09).
   it('leaves the catalog queues out for a manager', async () => {
     expect(Object.keys(await counts(manager)).sort()).toEqual([
       'orders',
       'registrations',
+      'stagedCustomerRuns',
       'unpaidOrders',
     ]);
   });

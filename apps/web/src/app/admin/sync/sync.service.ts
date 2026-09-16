@@ -8,6 +8,7 @@ import {
   syncFormatErrorSchema,
   SyncOptions,
   SyncPreviewResponse,
+  SyncArea,
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared';
@@ -109,9 +110,16 @@ export class SyncService {
     throw result.error;
   }
 
-  listRuns(params: { page?: number; status?: SyncRunStatus } = {}) {
+  /** One area's log. The area is always sent: the screen asking is always
+   * about one of them, and the server's default is there for callers written
+   * before areas existed, not for this one. */
+  listRuns(params: { area: SyncArea; page?: number; status?: SyncRunStatus }) {
     return this.client.listRuns({
-      query: { page: params.page ?? 1, status: params.status },
+      query: {
+        page: params.page ?? 1,
+        area: params.area,
+        status: params.status,
+      },
     });
   }
 

@@ -15,6 +15,7 @@ import {
   PRODUCT_AVAILABILITIES,
   PRODUCT_UNITS,
   SETTING_CHANGE_KINDS,
+  SYNC_AREAS,
   type SyncOptions,
   type SyncPlan,
   type SyncRow,
@@ -569,6 +570,18 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: text('passwordHash').notNull(),
   role: userRole('role').notNull().default('user'),
+  // The source system's own key for this customer, and the only identity the
+  // exchange matches on (FR-ADM-14) — never the email address, never the
+  // registration id, both of which a person can change and two people can
+  // share. Private: readable and editable by staff, never serialized to the
+  // storefront, exactly as a product's is (ADR 0054).
+  //
+  // Null for everyone who registered here and everyone who is not a customer:
+  // a staff account is not a customer and the exchange never sees one. Kept
+  // when an account is deleted and the rest of the row is cleared, so a later
+  // run meets a customer it must refuse rather than a stranger it recreates
+  // (NFR-LEGAL-08).
+  sourceId: varchar('sourceId', { length: 255 }).unique(),
   // Defaults to `pending`, the safe end: an account only becomes usable when
   // something sets `active` deliberately (staff approval, or the bootstrap
   // admin insert). A forgotten status can lock an account out, never let one in.
@@ -1256,6 +1269,8 @@ export const syncRunStatus = pgEnum('sync_run_status', [
 // An admin's upload, or a machine token's submission (FR-ADM-07).
 export const syncRunSource = pgEnum('sync_run_source', ['upload', 'api']);
 
+export const syncArea = pgEnum('sync_area', SYNC_AREAS);
+
 // Why a run waited for a person instead of applying itself: its effect was
 // outside the deployment's policy, or the caller asked to be doubted.
 export const syncStagedReason = pgEnum('sync_staged_reason', [
@@ -1275,6 +1290,14 @@ export const syncStagedReason = pgEnum('sync_staged_reason', [
 export const syncRuns = pgTable('sync_runs', {
   id: uuid('id').primaryKey().defaultRandom(),
   status: syncRunStatus('status').notNull().default('previewed'),
+  // Which area of the platform's data the run carries (ADR 0060). One table
+  // rather than one per area: everything around a run — its lifecycle, why it
+  // was staged, who ran it, what it is counted as — is the same whatever it
+  // carries, and only `rows` and who may read it differ.
+  //
+  // Defaulted to the catalog, which is what every row written before this
+  // column existed was, and what a caller that names no area still means.
+  area: syncArea('area').notNull().default('catalog'),
   source: syncRunSource('source').notNull().default('upload'),
   filename: text('filename'),
   startedAt: timestamp('startedAt', { withTimezone: true })

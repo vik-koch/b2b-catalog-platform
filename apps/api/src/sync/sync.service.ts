@@ -16,6 +16,7 @@ import {
   SyncOptions,
   SyncPlan,
   SyncPolicy,
+  SyncArea,
   SyncPreviewResponse,
   SyncRow,
   SyncRun,
@@ -462,15 +463,22 @@ export class SyncService {
     return { run: toSyncRun(run), plan };
   }
 
+  /**
+   * One area's log. The area is a filter and never a default here: every
+   * screen asks about one area, and a list mixing them would be unreadable by
+   * whoever may read only one of them (FR-ADM-09).
+   */
   async listRuns(
     page: number,
+    area: SyncArea,
     status?: SyncRunStatus,
   ): Promise<{
     runs: SyncRun[];
     pagination: Pagination;
     lastApplied: SyncRun | null;
   }> {
-    const filter = status ? eq(syncRuns.status, status) : undefined;
+    const inArea = eq(syncRuns.area, area);
+    const filter = status ? and(inArea, eq(syncRuns.status, status)) : inArea;
     const [{ value: total }] = await this.db
       .select({ value: count() })
       .from(syncRuns)
@@ -485,7 +493,7 @@ export class SyncService {
     const [applied] = await this.db
       .select()
       .from(syncRuns)
-      .where(eq(syncRuns.status, 'applied'))
+      .where(and(inArea, eq(syncRuns.status, 'applied')))
       .orderBy(desc(syncRuns.finishedAt))
       .limit(1);
 
@@ -805,6 +813,7 @@ function toSyncRun(row: typeof syncRuns.$inferSelect): SyncRun {
   return {
     id: row.id,
     status: row.status,
+    area: row.area,
     source: row.source,
     filename: row.filename,
     startedAt: row.startedAt.toISOString(),

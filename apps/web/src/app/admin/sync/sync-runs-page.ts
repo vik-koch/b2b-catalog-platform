@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import {
   fillText,
   SYNC_CSV_COLUMNS,
+  SyncArea,
   SyncRun,
   SyncRunStatus,
   syncRunStatusSchema,
@@ -27,8 +28,14 @@ import { RecordRow } from '../records/record-row';
 import { SyncService } from './sync.service';
 
 /**
- * Every catalog run, newest first (FR-ADM-09) — the screen `/admin/sync` opens
- * on.
+ * One area's runs, newest first (FR-ADM-09) — the screen
+ * `/admin/sync/<area>` opens on.
+ *
+ * One component for every area rather than one per area, and one screen per
+ * area rather than one screen with an area filter (ADR 0060). Both halves
+ * matter: a run reads the same whatever it carries, and who may read it does
+ * not — the catalog is an admin's and a customer run is a manager's too, so a
+ * single log would open on rows half its readers are refused.
  *
  * It used to be a five-column block under the upload form, which was enough
  * while an admin had just watched the only run there was. A run can now arrive
@@ -56,17 +63,23 @@ import { SyncService } from './sync.service';
   ],
   template: `
     <app-admin-list-header
-      [title]="text.title"
+      [title]="areaText().title"
       [searchable]="false"
       [filtered]="filtered()"
     >
-      <a appButton class="gap-2" routerLink="/admin/sync/new">
-        <app-admin-icon name="upload" class="h-4 w-4" />
-        {{ text.newRun }}
-      </a>
+      <!-- The upload is the catalog's alone for now: a customer run can only
+           arrive from a connected system until the manual import ships. -->
+      @if (area() === 'catalog') {
+        <a appButton class="gap-2" routerLink="/admin/sync/catalog/new">
+          <app-admin-icon name="upload" class="h-4 w-4" />
+          {{ text.newRun }}
+        </a>
+      }
     </app-admin-list-header>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.runsDescription }}</p>
+    <p class="mb-6 max-w-3xl text-sm text-muted">
+      {{ areaText().runsDescription }}
+    </p>
 
     @if (runs.error()) {
       <p class="text-muted" role="alert">{{ text.runLoadError }}</p>
@@ -161,8 +174,17 @@ export class SyncRunsPage {
   protected readonly common = inject(ADMIN_TEXT).common;
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.areaText().title });
   }
+
+  /**
+   * Which area's log this is. Bound from the route's own data rather than a
+   * query parameter: it is which screen you are on, not how you narrowed it,
+   * and the guard on the route is chosen to match it.
+   */
+  readonly area = input.required<SyncArea>();
+
+  protected readonly areaText = computed(() => this.text.areas[this.area()]);
 
   /**
    * Bound from the query parameters. Router input binding hands an absent one
@@ -185,7 +207,11 @@ export class SyncRunsPage {
   protected readonly filtered = computed(() => !!this.statusFilter());
 
   protected readonly runs = resource({
-    params: () => ({ page: this.currentPage(), status: this.statusFilter() }),
+    params: () => ({
+      area: this.area(),
+      page: this.currentPage(),
+      status: this.statusFilter(),
+    }),
     loader: ({ params }) => this.sync.listRuns(params),
   });
 
