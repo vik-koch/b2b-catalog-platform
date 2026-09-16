@@ -56,14 +56,18 @@ test.describe('as an admin', () => {
     await page.goto(`/catalog/${category.slug}`);
 
     // Off by default: nothing to create with, no per-tile edit control.
-    await expect(page.getByRole('link', { name: 'Add product' })).toBeHidden();
+    await expect(
+      page.getByRole('button', { name: 'Add product' }),
+    ).toBeHidden();
 
     await editModeToggle(page).click();
     await expect(
       page.getByRole('button', { name: 'Editing on' }),
     ).toBeVisible();
 
-    await expect(page.getByRole('link', { name: 'Add product' })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Add product' }),
+    ).toBeVisible();
     // The per-tile controls load lazily (@defer) once edit mode is on.
     await expect(
       page.getByRole('link', { name: 'Edit product' }).first(),
@@ -93,7 +97,7 @@ test.describe('as an admin', () => {
   }) => {
     await page.goto(`/catalog/${category.slug}`);
     await editModeToggle(page).click();
-    await page.getByRole('link', { name: 'Add product' }).click();
+    await page.getByRole('button', { name: 'Add product' }).click();
 
     // The `from` param rides along so cancelling returns to this category.
     await expect(page).toHaveURL(
