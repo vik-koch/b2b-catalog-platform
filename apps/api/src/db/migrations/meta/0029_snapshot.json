@@ -2923,7 +2923,8 @@
       "name": "ownership_area",
       "schema": "public",
       "values": [
-        "catalog"
+        "catalog",
+        "customers"
       ]
     },
     "public.product_availability": {
