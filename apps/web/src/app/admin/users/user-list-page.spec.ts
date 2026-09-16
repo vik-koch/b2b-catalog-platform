@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import {
   CustomerTier,
+  OwnershipArea,
   StaffUser,
   UserKind,
 } from '@b2b-catalog-platform/shared';
@@ -11,6 +12,7 @@ import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
 import { AuthService } from '../../auth/auth.service';
 import { ConfirmService } from '../../ui/confirm.service';
+import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';
 import { UserListPage } from './user-list-page';
 import { StaffUsersService } from './users.service';
@@ -61,6 +63,7 @@ async function render(
     confirmed?: boolean;
     /** Overrides the demo deployment, for the multi-format cases. */
     config?: unknown;
+    ownedAreas?: OwnershipArea[];
   } = {},
 ) {
   const service = {
@@ -78,7 +81,10 @@ async function render(
     })),
   };
   const auth = { user: () => ({ role: options.role ?? 'admin' }) };
-  const confirm = { ask: vi.fn(async () => options.confirmed ?? true) };
+  const confirm = {
+    ask: vi.fn(async () => options.confirmed ?? true),
+    tell: vi.fn(async () => undefined),
+  };
 
   // Some cases render both views to compare them, so start each render from a
   // clean module rather than reconfiguring an instantiated one.
@@ -96,6 +102,9 @@ async function render(
       { provide: ConfirmService, useValue: confirm },
       { provide: StaffUsersService, useValue: service },
       { provide: TiersService, useValue: tiers },
+      // Needed, not optional: the real read fails closed, so an unstubbed call
+      // renders the screen's locked shape.
+      provideOwnership(...(options.ownedAreas ?? [])),
     ],
   });
   const fixture = TestBed.createComponent(UserListPage);
@@ -144,6 +153,17 @@ async function render(
     );
   };
 
+  const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
+  /** Click the header's Add button, whichever list this is. */
+  const add = async () => {
+    const button = [...el.querySelectorAll('button')].find((b) =>
+      [text.addCustomer, text.addStaff].includes(b.textContent?.trim() ?? ''),
+    );
+    if (!button) throw new Error('no Add button');
+    button.click();
+    await settle();
+  };
+
   return {
     el,
     service,
@@ -154,6 +174,8 @@ async function render(
     names,
     rowAction,
     rowLink,
+    navigate,
+    add,
   };
 }
 
@@ -428,6 +450,61 @@ describe('UserListPage', () => {
     expect(service.remove).toHaveBeenCalledWith('p1');
   });
 
+  /**
+   * The area closed whole (FR-ADM-10): the buttons stay where they are and the
+   * dialog explains instead of asking — the same answer the catalog's delete
+   * dialog gives, and for the same reason. A control that vanishes teaches
+   * nobody why.
+   */
+  describe('while an external system owns customer accounts', () => {
+    it('explains instead of asking, and declines nothing', async () => {
+      const { service, confirm, rowAction } = await render({
+        users: [user({ id: 'p1', status: 'pending' })],
+        ownedAreas: ['customers'],
+      });
+
+      await rowAction(text.decline);
+
+      expect(confirm.ask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: defaultAdminText.ownership.accountDecline,
+          confirmLabel: null,
+        }),
+      );
+      expect(service.remove).not.toHaveBeenCalled();
+    });
+
+    it('explains instead of switching an account off', async () => {
+      const { service, confirm, rowAction } = await render({
+        users: [user({ id: 'a1', status: 'active' })],
+        ownedAreas: ['customers'],
+      });
+
+      await rowAction(text.deactivate);
+
+      expect(confirm.ask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: defaultAdminText.ownership.accountActive,
+          confirmLabel: null,
+        }),
+      );
+      expect(service.setActive).not.toHaveBeenCalled();
+    });
+
+    it('leaves the staff list alone', async () => {
+      // A staff account is not a customer, whatever the exchange holds.
+      const { service, rowAction } = await render({
+        kind: 'staff',
+        users: [user({ id: 's1', status: 'active', role: 'manager' })],
+        ownedAreas: ['customers'],
+      });
+
+      await rowAction(text.deactivate);
+
+      expect(service.setActive).toHaveBeenCalledWith('s1', false);
+    });
+  });
+
   it('keeps the row when the decline confirmation is declined', async () => {
     const { service, rowAction } = await render({
       users: [user({ id: 'p1', status: 'pending' })],
@@ -457,16 +534,53 @@ describe('UserListPage', () => {
   });
 
   it('points Add at the form for the view it is on', async () => {
-    const addLink = (el: HTMLElement) =>
-      (el.querySelector('a[href^="/admin/users"]') as HTMLAnchorElement)
-        .getAttribute('href')
-        ?.split('?')[0];
-
     const customers = await render({ users: [] });
-    expect(addLink(customers.el)).toBe('/admin/users/new');
+    await customers.add();
+    expect(customers.navigate).toHaveBeenCalledWith(
+      ['/admin/users/new'],
+      expect.anything(),
+    );
 
     const staff = await render({ kind: 'staff', users: [] });
-    expect(addLink(staff.el)).toBe('/admin/users/staff/new');
+    await staff.add();
+    expect(staff.navigate).toHaveBeenCalledWith(
+      ['/admin/users/staff/new'],
+      expect.anything(),
+    );
+  });
+
+  it('answers Add with the reason while customers are owned elsewhere', async () => {
+    const { add, confirm, navigate } = await render({
+      users: [],
+      ownedAreas: ['customers'],
+    });
+
+    await add();
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(confirm.tell).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: defaultAdminText.ownership.accountCreate,
+      }),
+    );
+  });
+
+  it('still adds staff while customers are owned elsewhere', async () => {
+    // An admin who could not appoint another admin would have handed away
+    // more than a customer list.
+    const { add, confirm, navigate } = await render({
+      kind: 'staff',
+      users: [],
+      ownedAreas: ['customers'],
+    });
+
+    await add();
+
+    expect(confirm.tell).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(
+      ['/admin/users/staff/new'],
+      expect.anything(),
+    );
   });
 
   it('names itself for the list it is, without offering the other one', async () => {

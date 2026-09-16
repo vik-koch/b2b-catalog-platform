@@ -180,11 +180,18 @@ export class Segmented<T extends string> implements ControlValueAccessor {
     () => this.value() ?? this.written(),
   );
 
+  /**
+   * A disabled group takes the locked look rather than only refusing the
+   * click: the radios are `sr-only`, so the browser's own disabled styling
+   * reaches nothing a reader can see, and a pill that answers a pointer with
+   * a hover wash is a pill that claims to be a choice.
+   */
   protected segment(value: T): string {
     return segmentClass(
       value === this.chosenValue() ? 'selected' : 'available',
       {
         size: this.size(),
+        locked: this.disabled(),
       },
     );
   }

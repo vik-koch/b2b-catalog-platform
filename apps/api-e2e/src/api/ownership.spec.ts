@@ -288,6 +288,42 @@ describe('External data ownership (FR-ADM-10)', () => {
         });
       });
     });
+
+    it('moves every area named in one request, under one timestamp', async () => {
+      // What the panel's master switch sends. One transaction is what lets the
+      // history read those rows back as a single decision, and the shared
+      // timestamp is the only thing that says they were one.
+      await whileOwning(['catalog', 'customers'], async () => {
+        const status = await asAdmin('get', '/settings');
+        expect(status.data.ownedAreas).toEqual(
+          expect.arrayContaining(['catalog', 'customers']),
+        );
+
+        const history = await asAdmin('get', '/settings/changes');
+        const [first, second] = history.data.changes;
+        expect([first.area, second.area].sort()).toEqual([
+          'catalog',
+          'customers',
+        ]);
+        expect(first.changedAt).toBe(second.changedAt);
+      });
+    });
+
+    it('records nothing for an area that was already there', async () => {
+      await whileOwning(['catalog'], async () => {
+        const before = await asAdmin('get', '/settings/changes');
+        await setOwned(true, ['catalog', 'customers']);
+        const after = await asAdmin('get', '/settings/changes');
+
+        // Customers moved; the catalog was named again and is not an event.
+        expect(after.data.changes[0]).toMatchObject({
+          area: 'customers',
+          enabled: true,
+        });
+        expect(after.data.changes[1]).toEqual(before.data.changes[0]);
+        await setOwned(false, ['customers']);
+      });
+    });
   });
 
   describe('while the catalog is externally owned', () => {
@@ -600,6 +636,140 @@ describe('External data ownership (FR-ADM-10)', () => {
       await client.query('DELETE FROM sync_runs WHERE "actorEmail" = $1', [
         ADMIN_EMAIL,
       ]);
+    });
+  });
+  /**
+   * The customer area, closed whole rather than field by field (FR-ADM-11,
+   * FR-AUTH-04 as amended). Every staff write refused, every read still
+   * answered, and staff administration untouched.
+   */
+  describe('while customer accounts are externally owned', () => {
+    const refusal = (res: { status: number; data: { code?: string } }) => ({
+      status: res.status,
+      code: res.data.code,
+    });
+    const refused = { status: 409, code: 'customers-externally-owned' };
+
+    /** A whole edit: the contract takes the complete field set per save. */
+    const wholeEdit = (over: Record<string, unknown> = {}) => ({
+      firstName: 'Owned',
+      lastName: 'Customer',
+      phone: null,
+      customerType: null,
+      companyName: null,
+      companyRegistrationId: null,
+      tierId: null,
+      ...over,
+    });
+
+    it('refuses every staff write on a customer account', async () => {
+      await whileOwning(['customers'], async () => {
+        expect(
+          refusal(
+            await asAdmin('post', `/admin/users/${pendingId}/approve`, {
+              tierId: null,
+            }),
+          ),
+        ).toEqual(refused);
+        expect(
+          refusal(
+            await asAdmin(
+              'patch',
+              `/admin/users/${customerId}`,
+              wholeEdit({ firstName: 'Renamed' }),
+            ),
+          ),
+        ).toEqual(refused);
+        expect(
+          refusal(
+            await asAdmin('patch', `/admin/users/${customerId}/active`, {
+              active: false,
+            }),
+          ),
+        ).toEqual(refused);
+        expect(
+          refusal(
+            await asAdmin(
+              'post',
+              `/admin/users/${customerId}/password-link`,
+              {},
+            ),
+          ),
+        ).toEqual(refused);
+        expect(
+          refusal(await asAdmin('delete', `/admin/users/${pendingId}`)),
+        ).toEqual(refused);
+        expect(
+          refusal(
+            await asAdmin('post', '/admin/users', {
+              email: `e2e-own-refused-${R}@example.com`,
+              role: 'user',
+              tierId: null,
+              firstName: 'Refused',
+              lastName: 'Customer',
+            }),
+          ),
+        ).toEqual(refused);
+      });
+    });
+
+    it('refuses a manager as readily as an admin', async () => {
+      // The switch is a state, not a permission: the person with the most
+      // reason to click is refused the same way.
+      await whileOwning(['customers'], async () => {
+        const res = await axios.patch(
+          `/admin/users/${customerId}`,
+          wholeEdit({ firstName: 'Renamed' }),
+          { headers: { Cookie: managerCookie }, validateStatus: () => true },
+        );
+        expect(refusal(res)).toEqual(refused);
+      });
+    });
+
+    it('still answers every read', async () => {
+      // The screens stay legible: staff must see what a customer sees, and the
+      // work-awaiting counts are read from these rows.
+      await whileOwning(['customers'], async () => {
+        const list = await asAdmin('get', '/admin/users?kind=customer');
+        expect(list.status).toBe(200);
+        const one = await asAdmin('get', `/admin/users/${customerId}`);
+        expect(one.status).toBe(200);
+        const work = await asAdmin('get', '/work/counts');
+        expect(work.status).toBe(200);
+        // A registration nobody here can answer is still counted: it is real
+        // work, and it says whose record to go and look at in the other
+        // system — the same reading as the unpriced-products figure, which is
+        // also answered elsewhere while the catalog is owned.
+        expect(work.data.registrations).toBeGreaterThan(0);
+      });
+    });
+
+    it('leaves staff administration alone', async () => {
+      // An admin who could not appoint another admin would have handed away
+      // more than a customer list.
+      await whileOwning(['customers'], async () => {
+        const res = await asAdmin(
+          'patch',
+          `/admin/users/${managerId}`,
+          wholeEdit({ firstName: 'Still', lastName: 'Editable' }),
+        );
+        expect(res.status).toBe(200);
+      });
+    });
+
+    it('leaves the catalog alone, and is left alone by it', async () => {
+      // Two areas, two rules: handing one over says nothing about the other.
+      await whileOwning(['customers'], async () => {
+        expect((await saveUnchanged()).status).toBe(200);
+      });
+      await whileOwned(async () => {
+        const res = await asAdmin(
+          'patch',
+          `/admin/users/${customerId}`,
+          wholeEdit({ firstName: 'Edited' }),
+        );
+        expect(res.status).toBe(200);
+      });
     });
   });
 });

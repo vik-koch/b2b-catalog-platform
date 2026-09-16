@@ -8,6 +8,7 @@ import {
 } from './contact-config';
 import { COMMON_AUTH_ERROR_CODES, commonAuthErrors } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
+import { ownershipErrors } from './ownership-constants';
 
 /**
  * Account management (FR-AUTH-01/03/04), staff side.
@@ -196,6 +197,17 @@ export type UserErrorCode = (typeof USER_ERROR_CODES)[number];
  * is what cannot be done.
  */
 const notFound = { 'account-not-found': { status: 404 } } as const;
+
+/**
+ * Every write to a *customer* account carries this, and none of the reads do:
+ * while an external system owns customer accounts the platform's own side is
+ * closed as a whole (FR-ADM-10), while the screens that show them stay open.
+ * Staff administration is never refused by it — an admin has to be able to
+ * appoint another admin whatever the exchange holds.
+ */
+const owned = {
+  'customers-externally-owned': ownershipErrors['customers-externally-owned'],
+} as const;
 const conflicts = {
   'account-not-pending': { status: 409 },
   'account-closed': { status: 409 },
@@ -251,6 +263,7 @@ export const usersContract = {
       ...notFound,
       // Only a pending registration can be approved.
       'account-not-pending': conflicts['account-not-pending'],
+      ...owned,
     })
     .input(
       z.object({
@@ -269,7 +282,7 @@ export const usersContract = {
       summary: 'Create an account and invite it (admin, manager)',
     })
     // Email already has an account.
-    .errors({ 'email-taken': conflicts['email-taken'] })
+    .errors({ 'email-taken': conflicts['email-taken'], ...owned })
     .input(z.object({ body: createUserSchema }))
     .output(staffUserSchema),
 
@@ -299,6 +312,7 @@ export const usersContract = {
       'last-admin': conflicts['last-admin'],
       'email-taken': conflicts['email-taken'],
       'account-closed': conflicts['account-closed'],
+      ...owned,
     })
     .input(
       z.object({
@@ -323,6 +337,7 @@ export const usersContract = {
       'account-not-disabled': conflicts['account-not-disabled'],
       'self-deactivate': conflicts['self-deactivate'],
       'last-admin': conflicts['last-admin'],
+      ...owned,
     })
     .input(
       z.object({
@@ -347,6 +362,7 @@ export const usersContract = {
       ...notFound,
       // Nothing to send to: a pending, disabled or anonymized account.
       'account-cannot-sign-in': conflicts['account-cannot-sign-in'],
+      ...owned,
     })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(z.object({ message: z.string() })),
@@ -363,6 +379,7 @@ export const usersContract = {
       // Only an unapproved registration can be deleted outright; an account
       // that has ever been usable is anonymized instead, never removed.
       'account-not-purgeable': conflicts['account-not-purgeable'],
+      ...owned,
     })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(z.object({ message: z.string() })),

@@ -24,3 +24,20 @@ export const catalogNotExternallyOwned = () =>
     message:
       'The catalog is not externally owned; automated catalog runs are refused',
   });
+
+/**
+ * The customer area's refusal, and it has no second half here: the automated
+ * side arrives with the machine route that needs it.
+ *
+ * `detail` names the action rather than a field, because this area is closed
+ * whole (FR-AUTH-04 as amended) — there is no list of columns to report, and
+ * the screens stay readable, so a person who meets this has clicked a control
+ * that already told them it would be refused.
+ */
+export const customersExternallyOwned = (detail?: string) =>
+  new ConflictException({
+    code: 'customers-externally-owned',
+    message: detail
+      ? `Customer accounts are externally owned; refused: ${detail}`
+      : 'Customer accounts are externally owned',
+  });

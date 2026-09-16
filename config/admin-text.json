@@ -1150,6 +1150,18 @@
         "takeTitle": "Take the catalog back",
         "takeConfirm": "Take the catalog back from the external system?",
         "takeWarning": "The external system's updates will be refused from its next attempt, and whatever it sends while it is refused is not kept. Hand the catalog back when you are done."
+      },
+      "customers": {
+        "name": "Customer accounts",
+        "description": "Who may sign in, what they are called, the company they buy for and which price list they are on. Their orders, and what staff write on an order, stay yours either way.",
+        "ownedEffect": "Accounts are approved, edited, switched off and switched back on in that system. The lists here still show everything.",
+        "ownEffect": "Accounts are approved and edited here, and automated updates are refused.",
+        "handTitle": "Hand customer accounts over",
+        "handConfirm": "Hand customer accounts to an external system?",
+        "handWarning": "Approving a registration, editing an account, changing a price list, switching an account off or back on and sending a password link all stop working here and are done in that system instead. Registrations still arrive and are still counted, so you can see who is waiting — but the decision is made over there. Nobody is signed out, and nothing is deleted.",
+        "takeTitle": "Take customer accounts back",
+        "takeConfirm": "Take customer accounts back from the external system?",
+        "takeWarning": "The external system's updates will be refused from its next attempt, and whatever it sends while it is refused is not kept. Anything it had not yet sent — an approval, a price list — you will have to set here yourself."
       }
     },
     "statusOwned": "Managed by an external system",
@@ -1179,7 +1191,11 @@
     "categoryHasProducts": "This category still has products in it. While the catalog is managed by an external system, products cannot be moved between categories here — empty it in that system first, or take the catalog back under Data ownership in the admin panel.",
     "productDelete": "The catalog is managed by an external system, so what it contains is set there. Remove this product in that system, or take the catalog back under Data ownership in the admin panel.",
     "productCreate": "The catalog is managed by an external system, so new products are added there. To add one in the shop, take the catalog back under Data ownership in the admin panel.",
-    "tierKeyLocked": "The catalog is managed by an external system, so this price list's key is set there. The name is yours to change either way, and you can still add a price list or remove an unused one."
+    "tierKeyLocked": "The catalog is managed by an external system, so this price list's key is set there. The name is yours to change either way, and you can still add a price list or remove an unused one.",
+    "accountLocked": "Customer accounts are managed by an external system, so this account is edited there rather than here. To edit it in the shop, take customer accounts back under Data ownership in the admin panel.",
+    "accountCreate": "Customer accounts are managed by an external system, so new customers are added there. To add one in the shop, take customer accounts back under Data ownership in the admin panel.",
+    "accountDecline": "Customer accounts are managed by an external system, so registrations are decided there. Decline this one in that system, or take customer accounts back under Data ownership in the admin panel.",
+    "accountActive": "Customer accounts are managed by an external system, so switching one off or back on is done there. Change it in that system, or take customer accounts back under Data ownership in the admin panel."
   },
   "operations": {
     "title": "Maintenance and ownership",

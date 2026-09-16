@@ -1917,6 +1917,20 @@ export const adminTextSchema = z
         productCreate: z.string(),
         /** The tier list, where only an existing list's sync key is locked. */
         tierKeyLocked: z.string(),
+        /**
+         * The customer area is closed whole rather than field by field, so its
+         * copy is one banner and three refusals rather than a lock per field:
+         * an editor in which every input is greyed does not need each one
+         * labelled.
+         */
+        accountLocked: z.string(),
+        /** The editor opened on a "new customer" route, which explains
+         * instead of rendering a form. */
+        accountCreate: z.string(),
+        /** The list's decline dialog, which explains instead of asking. */
+        accountDecline: z.string(),
+        /** The list's deactivate and reactivate dialogs, likewise. */
+        accountActive: z.string(),
       })
       .strict(),
     /**
