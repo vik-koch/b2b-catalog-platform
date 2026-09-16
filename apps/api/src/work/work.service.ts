@@ -2,6 +2,7 @@ import {
   AuthUser,
   DOCUMENT_EXPIRY_WARNING_DAYS,
   isoToday,
+  SyncArea,
   UserRole,
   WorkCounts,
   WorkQueue,
@@ -36,10 +37,12 @@ const { documents, orderRevisions, orders, products, syncRuns, users } = schema;
  * queues to compile, and a queue named by nobody is simply never counted,
  * which is the safe direction to fail in.
  *
- * Both staff roles approve registrations and answer orders; only an admin has
- * the catalog, and a count linking somewhere its reader may not go is worse
- * than no count. A customer shares no queue with staff — their orders count is
- * their own rows, not the shop's.
+ * Both staff roles approve registrations and answer orders, and both answer a
+ * staged customer sync run — which is why the staged runs are two queues and
+ * not one figure (FR-ADM-09). Only an admin has the catalog, and a count
+ * linking somewhere its reader may not go is worse than no count. A customer
+ * shares no queue with staff — their orders count is their own rows, not the
+ * shop's.
  */
 const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
   admin: [
@@ -50,9 +53,10 @@ const QUEUES_BY_ROLE: Record<UserRole, readonly WorkQueue[]> = {
     'unpricedProducts',
     'expiredDocuments',
     'expiringDocuments',
-    'stagedSyncRuns',
+    'stagedCatalogRuns',
+    'stagedCustomerRuns',
   ],
-  manager: ['registrations', 'orders', 'unpaidOrders'],
+  manager: ['registrations', 'orders', 'unpaidOrders', 'stagedCustomerRuns'],
   user: ['myPayments', 'myPickups'],
 };
 
@@ -87,7 +91,8 @@ export class WorkService {
     unpricedProducts: () => this.unpricedProducts(),
     expiredDocuments: () => this.expiredDocuments(),
     expiringDocuments: () => this.expiringDocuments(),
-    stagedSyncRuns: () => this.stagedSyncRuns(),
+    stagedCatalogRuns: () => this.stagedRuns('catalog'),
+    stagedCustomerRuns: () => this.stagedRuns('customers'),
     myPayments: (user) => this.myPayments(user.id),
     myPickups: (user) => this.myPickups(user.id),
   };
@@ -216,10 +221,14 @@ export class WorkService {
    * person's screen mid-use, which is why nothing supersedes it either. Only a
    * run that arrived while nobody was looking is work waiting for somebody.
    */
-  private stagedSyncRuns(): Promise<number> {
+  private stagedRuns(area: SyncArea): Promise<number> {
     return this.db.$count(
       syncRuns,
-      and(eq(syncRuns.status, 'previewed'), eq(syncRuns.source, 'api')),
+      and(
+        eq(syncRuns.area, area),
+        eq(syncRuns.status, 'previewed'),
+        eq(syncRuns.source, 'api'),
+      ),
     );
   }
 

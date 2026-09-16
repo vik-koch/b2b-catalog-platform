@@ -24,8 +24,18 @@ export const WORK_QUEUES = [
   'expiredDocuments',
   /** Documents whose expiry is within the warning window (FR-DOC-04). Admin. */
   'expiringDocuments',
-  /** Sync runs staged for a person to review (FR-ADM-07). Admin. */
-  'stagedSyncRuns',
+  /**
+   * Catalog sync runs staged for a person to review (FR-ADM-07). Admin.
+   *
+   * One queue per area rather than one figure over all of them: a staged
+   * catalog run is an admin's to answer and a staged customer run is a
+   * manager's too (FR-ADM-09), so a single count would show a manager work
+   * they cannot finish — and a count that links somewhere its reader may not
+   * go is worse than no count.
+   */
+  'stagedCatalogRuns',
+  /** Customer sync runs staged for a person to review (FR-ADM-09). Staff. */
+  'stagedCustomerRuns',
   /** Orders handed over and not recorded as paid (FR-ORD-04). Staff. */
   'unpaidOrders',
   /** The account's own orders whose money the shop is waiting for. */

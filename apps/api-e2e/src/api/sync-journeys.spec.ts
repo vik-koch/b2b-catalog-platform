@@ -92,7 +92,7 @@ describe('an automated catalog feed', () => {
     const counts = await axios.get('/work/counts', {
       headers: { Cookie: adminCookie },
     });
-    stagedAtStart = counts.data.stagedSyncRuns ?? 0;
+    stagedAtStart = counts.data.stagedCatalogRuns ?? 0;
   });
 
   afterAll(async () => {

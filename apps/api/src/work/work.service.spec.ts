@@ -61,18 +61,31 @@ const user = (role: AuthUser['role']): AuthUser => ({
 
 describe('WorkService', () => {
   it('counts the staff queues for a manager, and no catalog', async () => {
-    const { db, asks } = testDb([3, 7, 1]);
+    const { db, asks } = testDb([3, 7, 1, 4]);
 
     const counts = await new WorkService(db).countsFor(user('manager'));
 
     // `unpublishedProducts` is absent rather than zero: a manager cannot reach
-    // the products screen, so the queue is not theirs to be told about.
-    expect(counts).toEqual({ registrations: 3, orders: 7, unpaidOrders: 1 });
-    expect(asks.map((ask) => ask.table)).toEqual([users, orders, orders]);
+    // the products screen, so the queue is not theirs to be told about. The
+    // staged customer runs *are* theirs, which is why the staged runs are two
+    // queues and not one figure (FR-ADM-09).
+    expect(counts).toEqual({
+      registrations: 3,
+      orders: 7,
+      unpaidOrders: 1,
+      stagedCustomerRuns: 4,
+    });
+    expect(asks.map((ask) => ask.table)).toEqual([
+      users,
+      orders,
+      orders,
+      syncRuns,
+    ]);
+    expect(asks[3].params).toEqual(['customers', 'previewed', 'api']);
   });
 
   it('adds the catalog queues for an admin', async () => {
-    const { db, asks } = testDb([1, 2, 3, 5, 9, 4, 6, 2]);
+    const { db, asks } = testDb([1, 2, 3, 5, 9, 4, 6, 2, 8]);
 
     const counts = await new WorkService(db).countsFor(user('admin'));
 
@@ -84,7 +97,8 @@ describe('WorkService', () => {
       unpricedProducts: 9,
       expiredDocuments: 4,
       expiringDocuments: 6,
-      stagedSyncRuns: 2,
+      stagedCatalogRuns: 2,
+      stagedCustomerRuns: 8,
     });
     expect(asks[3].table).toBe(products);
     // Off the storefront and still in the catalog: a soft-deleted row is not
@@ -105,15 +119,29 @@ describe('WorkService', () => {
    * rows.
    */
   it('counts only automated runs left waiting for a decision', async () => {
-    const { db, asks } = testDb([0, 0, 0, 0, 0, 0, 0, 2]);
+    const { db, asks } = testDb([0, 0, 0, 0, 0, 0, 0, 2, 0]);
 
     const counts = await new WorkService(db).countsFor(user('admin'));
 
-    expect(counts.stagedSyncRuns).toBe(2);
+    expect(counts.stagedCatalogRuns).toBe(2);
     expect(asks[7].table).toBe(syncRuns);
-    expect(asks[7].where).toContain('"status" = $1');
-    expect(asks[7].where).toContain('"source" = $2');
-    expect(asks[7].params).toEqual(['previewed', 'api']);
+    expect(asks[7].where).toContain('"area" = $1');
+    expect(asks[7].where).toContain('"status" = $2');
+    expect(asks[7].where).toContain('"source" = $3');
+    expect(asks[7].params).toEqual(['catalog', 'previewed', 'api']);
+  });
+
+  /** Two queues over one table: each asks about its own area, so a staged
+   * catalog run can never be counted as a manager's work. */
+  it('counts the staged runs of each area separately', async () => {
+    const { db, asks } = testDb([0, 0, 0, 0, 0, 0, 0, 2, 5]);
+
+    const counts = await new WorkService(db).countsFor(user('admin'));
+
+    expect(counts.stagedCatalogRuns).toBe(2);
+    expect(counts.stagedCustomerRuns).toBe(5);
+    expect(asks[8].table).toBe(syncRuns);
+    expect(asks[8].params).toEqual(['customers', 'previewed', 'api']);
   });
 
   // The money queue is the payment axis and the status axis together, which is

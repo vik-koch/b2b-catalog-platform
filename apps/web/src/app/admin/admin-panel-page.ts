@@ -179,7 +179,7 @@ import { SyncService } from './sync/sync.service';
                   link="/admin/sync/catalog"
                 >
                   <div class="flex flex-col items-end gap-0.5">
-                    @if (stagedSyncRuns(); as count) {
+                    @if (stagedCatalogRuns(); as count) {
                       <app-work-note
                         [label]="fill(panelText.workSyncRuns, count)"
                         link="/admin/sync/catalog"
@@ -263,11 +263,13 @@ import { SyncService } from './sync/sync.service';
                 [label]="syncText.areas.customers.title"
                 link="/admin/sync/customers"
               >
+                @if (stagedCustomerRuns(); as count) {
                   <app-work-note
                     [label]="fill(panelText.workSyncRuns, count)"
                     link="/admin/sync/customers"
                     [queryParams]="{ status: 'previewed' }"
                   />
+                }
               </app-panel-row>
             </ul>
           </section>
@@ -458,8 +460,11 @@ export class AdminPanelPage {
   protected readonly expiredDocuments = computed(
     () => this.work.counts().expiredDocuments || undefined,
   );
-  protected readonly stagedSyncRuns = computed(
-    () => this.work.counts().stagedSyncRuns || undefined,
+  protected readonly stagedCatalogRuns = computed(
+    () => this.work.counts().stagedCatalogRuns || undefined,
+  );
+  protected readonly stagedCustomerRuns = computed(
+    () => this.work.counts().stagedCustomerRuns || undefined,
   );
 
   protected fill(template: string, count: number): string {
