@@ -71,9 +71,9 @@ import { resolvedPriceMinor } from './product-price';
 import { LOW_STOCK_THRESHOLD_PIECES } from '../config/deployment-config';
 import {
   resolveNewSlug,
-  resolveNewSourceId,
+  resolveNewProductSourceId,
   resolveSlugOverride,
-  resolveSourceIdOverride,
+  resolveProductSourceIdOverride,
   runUnique,
 } from './catalog-identity';
 import {
@@ -321,11 +321,7 @@ export class AdminProductsService {
       input.name,
       'product',
     );
-    const sourceId = await resolveNewSourceId(
-      this.db,
-      products,
-      input.sourceId,
-    );
+    const sourceId = await resolveNewProductSourceId(this.db, input.sourceId);
 
     await this.ensureTiersExist(input.tierPrices);
     const paired = await this.pairedProducts(input.pairedSlugs);
@@ -394,9 +390,8 @@ export class AdminProductsService {
       input.slug,
       existing.slug,
     );
-    const newSourceId = await resolveSourceIdOverride(
+    const newSourceId = await resolveProductSourceIdOverride(
       this.db,
-      products,
       input.sourceId,
       existing.sourceId,
     );

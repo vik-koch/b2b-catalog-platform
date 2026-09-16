@@ -1320,7 +1320,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(cleared.data.shortName).toBeNull();
     });
 
-    it('keeps a pre-assigned sourceId on create, and mints one otherwise', async () => {
+    it('keeps a pre-assigned sourceId on create, and leaves it empty otherwise', async () => {
       // How a category typed in the admin binds to the source system's tree
       // before the first run: the admin pre-assigns the key it will arrive
       // under.
@@ -1329,8 +1329,9 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(bound.status).toBe(201);
       expect(bound.data.sourceId).toBe(sourceId);
 
+      // A category the shop invented is bound to nothing, and says so.
       const own = await createCategory({ name: `Unbound ${R}` });
-      expect(own.data.sourceId).toMatch(/^manual:/);
+      expect(own.data.sourceId).toBeNull();
     });
 
     it('rejects a duplicate category sourceId with 409', async () => {

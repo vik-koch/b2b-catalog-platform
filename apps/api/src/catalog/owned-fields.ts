@@ -78,18 +78,27 @@ function tierPricesDiffer(
 
 export interface StoredOwnedCategory {
   name: string;
-  sourceId: string;
+  sourceId: string | null;
 }
 
 export interface SubmittedOwnedCategory {
   name: string;
-  sourceId?: string;
+  sourceId?: string | null;
 }
 
+/**
+ * A keyless category is nobody else's. No export names it, so no run renames
+ * it and no run deletes it — refusing the shop its own name would protect
+ * nothing. Its key is open for the same reason: typing one in is how a
+ * hand-made category binds to the source tree on the next run, and creating
+ * one with a key is allowed while owned, so forbidding it afterwards would
+ * only mean deleting the category and making it again.
+ */
 export function changedCategoryFields(
   stored: StoredOwnedCategory,
   input: SubmittedOwnedCategory,
 ): OwnedCategoryField[] {
+  if (stored.sourceId === null) return [];
   const moved: Record<OwnedCategoryField, boolean> = {
     name: stored.name !== input.name,
     sourceId:

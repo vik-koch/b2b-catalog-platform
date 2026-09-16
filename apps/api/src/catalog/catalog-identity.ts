@@ -82,27 +82,66 @@ async function slugExists(
 }
 
 /**
- * A row created in the admin has no legacy id to carry, so it is given one that
- * cannot collide with the source system's namespace.
+ * A product created in the admin has no legacy id to carry, so it is given one
+ * that cannot collide with the source system's namespace — every product is
+ * quoted, ordered and invoiced by a key, so it needs one whether or not an
+ * exchange knows it.
  */
-export async function resolveNewSourceId(
+export async function resolveNewProductSourceId(
   db: Db,
-  table: IdentifiedTable,
   provided: string | undefined,
 ): Promise<string> {
   if (!provided) return `manual:${randomUUID()}`;
-  if (await sourceIdExists(db, table, provided)) throw sourceIdTaken(provided);
+  if (await sourceIdExists(db, products, provided)) {
+    throw sourceIdTaken(provided);
+  }
   return provided;
 }
 
-export async function resolveSourceIdOverride(
+/**
+ * A category is a container the shop invented, not a row a source system is
+ * missing, so one created without a key simply has none. Null is the honest
+ * record of that, and it is what tells the ownership rules nobody else is
+ * writing this row.
+ */
+export async function resolveNewCategorySourceId(
   db: Db,
-  table: IdentifiedTable,
+  provided: string | null | undefined,
+): Promise<string | null> {
+  if (!provided) return null;
+  if (await sourceIdExists(db, categories, provided)) {
+    throw sourceIdTaken(provided);
+  }
+  return provided;
+}
+
+/** On update, an absent key means "leave it alone". */
+export async function resolveProductSourceIdOverride(
+  db: Db,
   provided: string | undefined,
   current: string,
 ): Promise<string> {
   if (!provided || provided === current) return current;
-  if (await sourceIdExists(db, table, provided)) throw sourceIdTaken(provided);
+  if (await sourceIdExists(db, products, provided)) {
+    throw sourceIdTaken(provided);
+  }
+  return provided;
+}
+
+/**
+ * The same, plus the answer only a category has: an explicit null detaches it
+ * from the exchange, which is how a key typed by mistake is taken back.
+ */
+export async function resolveCategorySourceIdOverride(
+  db: Db,
+  provided: string | null | undefined,
+  current: string | null,
+): Promise<string | null> {
+  if (provided === undefined || provided === current) return current;
+  if (provided === null) return null;
+  if (await sourceIdExists(db, categories, provided)) {
+    throw sourceIdTaken(provided);
+  }
   return provided;
 }
 

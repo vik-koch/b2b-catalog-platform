@@ -1,6 +1,6 @@
 # 0056 — Make external ownership an operator switch with an area, not two toggles
 
-**Status:** accepted · **Date:** 2026-09-10
+**Status:** accepted (amended 2026-09-16) · **Date:** 2026-09-10
 
 ## Context
 
@@ -162,3 +162,24 @@ to go and look at in the owning system, exactly as the unpriced-products figure
 does while the catalog is owned. And the staff-facing "send this account a
 password link" button closes with the rest, so somebody locked out is answered
 by the sign-in page's own forgotten-password form rather than by a manager.
+
+## Amendment — 2026-09-16: a category the exchange never named is the shop's
+
+Categories created in the admin were minted a `manual:<uuid>` source key, so
+the column could be `NOT NULL`. The key bound them to nothing — no export
+contains it — but the ownership rule read it as identity like any other, and a
+category an admin had just made while the catalog was owned could never be
+renamed. Taken:
+
+- **`categories.sourceId` is nullable**, and a category created without one has
+  none. Existing minted keys are cleared by the migration. A product still
+  gets one: it is quoted, ordered and invoiced by a key whether or not an
+  exchange knows it, so there is always something to address it by.
+- **A keyless category is outside the exchange, and outside the switch.** Its
+  name and its key are the shop's while the catalog is owned, because no file
+  names it: there is no second writer to protect it from. Typing a key in is
+  how it joins the exchange — and is allowed for the same reason creating a
+  category with one is.
+- **A key it has is still the exchange's.** Once bound, the category is back
+  under the rule above: its name and key are read-only while the catalog is
+  owned.

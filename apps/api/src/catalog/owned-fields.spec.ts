@@ -152,4 +152,20 @@ describe('changedCategoryFields', () => {
       changedCategoryFields(category, { name: 'Mugs', sourceId: 'GRP-2' }),
     ).toEqual(['sourceId']);
   });
+
+  describe('a category with no source key', () => {
+    const own = { name: 'Offers', sourceId: null };
+
+    it("is the shop's to rename", () => {
+      // Nothing exports it, so no run renames it and there is no second writer
+      // to protect it from.
+      expect(changedCategoryFields(own, { name: 'Bargains' })).toEqual([]);
+    });
+
+    it("is the shop's to bind to the source tree", () => {
+      expect(
+        changedCategoryFields(own, { name: 'Offers', sourceId: 'GRP-9' }),
+      ).toEqual([]);
+    });
+  });
 });
