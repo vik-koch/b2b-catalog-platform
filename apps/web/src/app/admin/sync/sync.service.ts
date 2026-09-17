@@ -8,8 +8,8 @@ import {
   SyncCommitResponse,
   SyncFormatErrorBody,
   syncFormatErrorSchema,
-  SyncOptions,
-  SyncPreviewResponse,
+  CatalogSyncOptions,
+  CatalogSyncPreviewResponse,
   SyncArea,
   SyncRun,
   SyncRunStatus,
@@ -24,7 +24,7 @@ import { createOrpcClient } from '../../core/orpc-client';
  * the page turns it into a sentence out of the admin text.
  */
 export type PreviewResult =
-  | { ok: true; preview: SyncPreviewResponse }
+  | { ok: true; preview: CatalogSyncPreviewResponse }
   | { ok: false; failure: SyncFormatErrorBody | null };
 
 /** The same, for a customer file (FR-ADM-12): one refusal channel, one shape,
@@ -60,8 +60,11 @@ export class SyncService {
   private readonly client = createOrpcClient(syncContract);
 
   /** Uploads a catalog file and returns what it would change. Writes nothing. */
-  async preview(file: File, options: SyncOptions): Promise<PreviewResult> {
-    return this.upload<SyncPreviewResponse>(
+  async preview(
+    file: File,
+    options: CatalogSyncOptions,
+  ): Promise<PreviewResult> {
+    return this.upload<CatalogSyncPreviewResponse>(
       '/api/admin/sync/preview',
       file,
       options,
@@ -92,7 +95,7 @@ export class SyncService {
   private async upload<T>(
     path: string,
     file: File,
-    options: SyncOptions | CustomerSyncOptions,
+    options: CatalogSyncOptions | CustomerSyncOptions,
   ): Promise<
     | { ok: true; preview: T }
     | { ok: false; failure: SyncFormatErrorBody | null }

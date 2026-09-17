@@ -1,6 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { SyncPlan, SyncPreviewResponse } from '@b2b-catalog-platform/shared';
+import {
+  CatalogSyncPlan,
+  CatalogSyncPreviewResponse,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';
@@ -35,7 +38,7 @@ const emptySummary = {
   fields: [],
 };
 
-function plan(over: Partial<SyncPlan> = {}): SyncPlan {
+function plan(over: Partial<CatalogSyncPlan> = {}): CatalogSyncPlan {
   return {
     summary: { ...emptySummary, ...(over.summary ?? {}) },
     products: [],
@@ -48,7 +51,7 @@ function plan(over: Partial<SyncPlan> = {}): SyncPlan {
   };
 }
 
-function preview(p: SyncPlan): SyncPreviewResponse {
+function preview(p: CatalogSyncPlan): CatalogSyncPreviewResponse {
   return {
     run: {
       id: 'run-1',
@@ -85,7 +88,7 @@ interface Harness {
   commit: ReturnType<typeof vi.fn>;
 }
 
-async function render(previewResult: SyncPreviewResponse) {
+async function render(previewResult: CatalogSyncPreviewResponse) {
   const h: Harness = {
     previewFn: vi.fn().mockResolvedValue({ ok: true, preview: previewResult }),
     commit: vi.fn().mockResolvedValue({

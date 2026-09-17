@@ -3,10 +3,10 @@ import { RouterLink } from '@angular/router';
 import { SettingsService } from '../settings/settings.service';
 import {
   fillText,
-  SYNC_ALL_FIELDS,
+  CATALOG_SYNC_ALL_FIELDS,
   SyncFormatErrorBody,
-  SyncOptions,
-  SyncPreviewResponse,
+  CatalogSyncOptions,
+  CatalogSyncPreviewResponse,
   SyncRun,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -242,10 +242,12 @@ export class SyncUploadPage {
   protected readonly flags = FLAGS;
 
   protected readonly preset = signal<SyncPresetName>('full');
-  protected readonly options = signal<SyncOptions>(presetFor('full'));
+  protected readonly options = signal<CatalogSyncOptions>(presetFor('full'));
   protected readonly file = signal<File | null>(null);
   protected readonly previewing = signal(false);
-  protected readonly previewed = signal<SyncPreviewResponse | null>(null);
+  protected readonly previewed = signal<CatalogSyncPreviewResponse | null>(
+    null,
+  );
   protected readonly previewError = signal<string | null>(null);
   protected readonly applying = signal(false);
   protected readonly applyError = signal<string | null>(null);
@@ -413,7 +415,7 @@ const FLAGS: { key: FlagKey; label: SyncOptionKey; hint?: SyncOptionKey }[] = [
   },
 ];
 
-const FLAG_VALUE: Record<FlagKey, (o: SyncOptions) => boolean> = {
+const FLAG_VALUE: Record<FlagKey, (o: CatalogSyncOptions) => boolean> = {
   name: (o) => o.fields.includes('name'),
   category: (o) => o.fields.includes('category'),
   stock: (o) => o.fields.includes('stock'),
@@ -425,26 +427,28 @@ const FLAG_VALUE: Record<FlagKey, (o: SyncOptions) => boolean> = {
   softDelete: (o) => o.softDeleteMissingProducts,
 };
 
-const FLAG_SET: Record<FlagKey, (o: SyncOptions, on: boolean) => SyncOptions> =
-  {
-    name: (o, on) => ({ ...o, fields: withField(o, 'name', on) }),
-    category: (o, on) => ({ ...o, fields: withField(o, 'category', on) }),
-    stock: (o, on) => ({ ...o, fields: withField(o, 'stock', on) }),
-    createMissing: (o, on) => ({ ...o, createMissing: on }),
-    updateExisting: (o, on) => ({ ...o, updateExisting: on }),
-    restoreReturning: (o, on) => ({ ...o, restoreReturning: on }),
-    createCategories: (o, on) => ({ ...o, createCategories: on }),
-    authoritative: (o, on) => ({ ...o, productSetAuthoritative: on }),
-    softDelete: (o, on) => ({ ...o, softDeleteMissingProducts: on }),
-  };
+const FLAG_SET: Record<
+  FlagKey,
+  (o: CatalogSyncOptions, on: boolean) => CatalogSyncOptions
+> = {
+  name: (o, on) => ({ ...o, fields: withField(o, 'name', on) }),
+  category: (o, on) => ({ ...o, fields: withField(o, 'category', on) }),
+  stock: (o, on) => ({ ...o, fields: withField(o, 'stock', on) }),
+  createMissing: (o, on) => ({ ...o, createMissing: on }),
+  updateExisting: (o, on) => ({ ...o, updateExisting: on }),
+  restoreReturning: (o, on) => ({ ...o, restoreReturning: on }),
+  createCategories: (o, on) => ({ ...o, createCategories: on }),
+  authoritative: (o, on) => ({ ...o, productSetAuthoritative: on }),
+  softDelete: (o, on) => ({ ...o, softDeleteMissingProducts: on }),
+};
 
 function withField(
-  options: SyncOptions,
-  field: (typeof SYNC_ALL_FIELDS)[number],
+  options: CatalogSyncOptions,
+  field: (typeof CATALOG_SYNC_ALL_FIELDS)[number],
   on: boolean,
-): SyncOptions['fields'] {
+): CatalogSyncOptions['fields'] {
   const set = new Set(options.fields);
   if (on) set.add(field);
   else set.delete(field);
-  return SYNC_ALL_FIELDS.filter((f) => set.has(f));
+  return CATALOG_SYNC_ALL_FIELDS.filter((f) => set.has(f));
 }

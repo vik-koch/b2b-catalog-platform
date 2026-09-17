@@ -10,7 +10,7 @@ import { RouterLink } from '@angular/router';
 import {
   CustomerSyncPlan,
   isCustomerSyncPlan,
-  SyncPlan,
+  CatalogSyncPlan,
   SyncRun,
 } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../../auth/auth.service';
@@ -216,14 +216,14 @@ export class SyncRunPage {
   protected readonly actionError = signal<string | null>(null);
 
   protected customerPlan(
-    plan: SyncPlan | CustomerSyncPlan | null,
+    plan: CatalogSyncPlan | CustomerSyncPlan | null,
   ): CustomerSyncPlan | null {
     return plan && isCustomerSyncPlan(plan) ? plan : null;
   }
 
   protected catalogPlan(
-    plan: SyncPlan | CustomerSyncPlan | null,
-  ): SyncPlan | null {
+    plan: CatalogSyncPlan | CustomerSyncPlan | null,
+  ): CatalogSyncPlan | null {
     return plan && !isCustomerSyncPlan(plan) ? plan : null;
   }
 

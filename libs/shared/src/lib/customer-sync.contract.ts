@@ -8,8 +8,8 @@ import {
   lowercaseEmailField,
 } from './contact-config';
 import { ownershipErrors } from './ownership-constants';
+import { CUSTOMER_SYNC_FIELDS } from './customer-sync-constants';
 import {
-  CUSTOMER_SYNC_FIELDS,
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
   SYNC_LABEL_MAX_LENGTH,
   SYNC_MAX_ROWS,

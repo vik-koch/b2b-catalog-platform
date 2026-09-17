@@ -3,14 +3,14 @@ import {
   MANUAL_SOURCE_ID_PREFIX,
   ProductAvailability,
   productAvailability,
-  SYNC_CSV_COLUMNS,
-  SYNC_FIELDS,
+  CATALOG_SYNC_CSV_COLUMNS,
+  CATALOG_SYNC_FIELDS,
   SYNC_PREVIEW_MAX_ITEMS,
-  SyncOptions,
-  SyncPlan,
-  SyncProductChange,
-  SyncRow,
-  SyncRowError,
+  CatalogSyncOptions,
+  CatalogSyncPlan,
+  CatalogSyncProductChange,
+  CatalogSyncRow,
+  CatalogSyncRowError,
   SyncSummary,
   syncPriceColumn,
 } from '@b2b-catalog-platform/shared';
@@ -77,7 +77,7 @@ export interface ExistingCategory {
   name: string;
 }
 
-/** What the applier executes. Kept separate from the presentational `SyncPlan`
+/** What the applier executes. Kept separate from the presentational `CatalogSyncPlan`
  * so the UI shape can change without touching the write path. */
 export interface SyncActions {
   createCategories: { sourceId: string; name: string }[];
@@ -124,7 +124,7 @@ export interface TierPriceWrite {
 }
 
 export interface SyncPlanResult {
-  plan: SyncPlan;
+  plan: CatalogSyncPlan;
   actions: SyncActions;
 }
 
@@ -150,7 +150,7 @@ export function normalizeCategoryName(name: string): string {
  * Unicode default — one rule, applied once, in one place.
  */
 function resolvePriceKeys(
-  row: SyncRow,
+  row: CatalogSyncRow,
   tiers: ExistingTier[],
 ): { prices: Record<string, number>; unknownKey?: string } {
   const byFolded = new Map(tiers.map((t) => [fold(t.key), t.key]));
@@ -173,10 +173,10 @@ function fold(key: string): string {
 }
 
 export function planSync(
-  rows: SyncRow[],
-  options: SyncOptions,
+  rows: CatalogSyncRow[],
+  options: CatalogSyncOptions,
   state: SyncCatalogState,
-  parseErrors: SyncRowError[] = [],
+  parseErrors: CatalogSyncRowError[] = [],
 ): SyncPlanResult {
   const writesName = options.fields.includes('name');
   const writesCategory = options.fields.includes('category');
@@ -198,8 +198,8 @@ export function planSync(
   const knownPriceListKeys = state.tiers.map((t) => t.key);
   const defaultTierKey = state.tiers.find((t) => t.isDefault)?.key;
 
-  const rowErrors: SyncRowError[] = [...parseErrors];
-  const productChanges: SyncProductChange[] = [];
+  const rowErrors: CatalogSyncRowError[] = [...parseErrors];
+  const productChanges: CatalogSyncProductChange[] = [];
   const actions: SyncActions = {
     createCategories: [],
     updateCategories: [],
@@ -397,7 +397,7 @@ export function planSync(
       continue;
     }
 
-    const changes: SyncProductChange['changes'] = [];
+    const changes: CatalogSyncProductChange['changes'] = [];
     const update: SyncActions['updateProducts'][number] = { id: existing.id };
 
     if (writesName && row.name !== undefined && row.name !== existing.name) {
@@ -609,20 +609,20 @@ export function planSync(
  * out to write are different sentences, and the log is about the second.
  */
 function fieldsWritten(
-  changes: SyncProductChange[],
+  changes: CatalogSyncProductChange[],
   defaultTierKey: string | undefined,
 ): string[] {
   const seen = new Set<string>();
   for (const change of changes) {
     for (const field of change.changes) seen.add(field.field);
   }
-  const ordered = SYNC_FIELDS.filter((field) => seen.has(field));
+  const ordered = CATALOG_SYNC_FIELDS.filter((field) => seen.has(field));
   // Price lists after the plain fields, and the default list before the rest:
   // that is the order they are read in everywhere else.
   const defaultColumn =
     defaultTierKey === undefined ? null : syncPriceColumn(defaultTierKey);
   const prices = [...seen]
-    .filter((field) => field.startsWith(SYNC_CSV_COLUMNS.pricePrefix))
+    .filter((field) => field.startsWith(CATALOG_SYNC_CSV_COLUMNS.pricePrefix))
     .sort((a, b) =>
       a === defaultColumn ? -1 : b === defaultColumn ? 1 : a.localeCompare(b),
     );

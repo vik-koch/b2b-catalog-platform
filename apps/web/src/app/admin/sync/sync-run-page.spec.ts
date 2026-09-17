@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
   CustomerSyncPlan,
-  SyncPlan,
+  CatalogSyncPlan,
   SyncRun,
   SyncSummary,
 } from '@b2b-catalog-platform/shared';
@@ -35,7 +35,7 @@ const summary: SyncSummary = {
   fields: [],
 };
 
-const plan: SyncPlan = {
+const plan: CatalogSyncPlan = {
   summary,
   products: [],
   categories: [],
@@ -68,7 +68,7 @@ function run(overrides: Partial<SyncRun> = {}): SyncRun {
 async function render(
   options: {
     run?: SyncRun;
-    plan?: SyncPlan | CustomerSyncPlan | null;
+    plan?: CatalogSyncPlan | CustomerSyncPlan | null;
     confirmed?: boolean;
     commit?: Awaited<ReturnType<SyncService['commit']>>;
     discard?: Awaited<ReturnType<SyncService['discard']>>;

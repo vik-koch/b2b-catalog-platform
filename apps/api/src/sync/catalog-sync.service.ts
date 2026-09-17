@@ -10,16 +10,16 @@ import {
   decideAutoApply,
   SyncCommitResponse,
   SyncFailureReport,
-  SyncOptions,
-  SyncPlan,
+  CatalogSyncOptions,
+  CatalogSyncPlan,
   SyncPolicy,
-  SyncPreviewResponse,
-  SyncRow,
+  CatalogSyncPreviewResponse,
+  CatalogSyncRow,
   SyncRun,
-  SyncSubmission,
-  SyncSubmitResponse,
+  CatalogSyncSubmission,
+  CatalogSyncSubmitResponse,
   slugify,
-  syncOptionsSchema,
+  catalogSyncOptionsSchema,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import { SettingsService } from '../settings/settings.service';
@@ -60,7 +60,7 @@ type Reader = Pick<NodePgDatabase<typeof schema>, 'select'>;
  * could not be read is the opposite of a quiet night, and burying it as "no
  * change" would hide the one thing the log exists to show.
  */
-function isNoChange(plan: SyncPlan): boolean {
+function isNoChange(plan: CatalogSyncPlan): boolean {
   const s = plan.summary;
   return (
     s.create +
@@ -110,12 +110,12 @@ export class CatalogSyncService {
 
   /** Parse-free entry point: rows are already validated (CSV or JSON). */
   async preview(
-    rows: SyncRow[],
-    options: SyncOptions,
+    rows: CatalogSyncRow[],
+    options: CatalogSyncOptions,
     filename: string | null,
     actor: Actor,
-    parseErrors: SyncPlan['rowErrors'] = [],
-  ): Promise<SyncPreviewResponse> {
+    parseErrors: CatalogSyncPlan['rowErrors'] = [],
+  ): Promise<CatalogSyncPreviewResponse> {
     // The manual upload is the operator's fallback, and it is closed exactly
     // while somebody else is doing the job (FR-ADM-02). Refused here rather
     // than only in the controller so the rule holds for every caller.
@@ -160,7 +160,7 @@ export class CatalogSyncService {
    * staged run's page shows: the preview is advisory, and a person about to
    * apply one has to be looking at what would happen now.
    */
-  async replan(staged: StagedPayloadOf<'catalog'>): Promise<SyncPlan> {
+  async replan(staged: StagedPayloadOf<'catalog'>): Promise<CatalogSyncPlan> {
     const state = await this.readState();
     return planSync(staged.rows, staged.options, state, staged.parseErrors)
       .plan;
@@ -175,7 +175,7 @@ export class CatalogSyncService {
   private async applyRun(
     id: string,
     actor: Actor | null,
-  ): Promise<SyncCommitResponse & { plan: SyncPlan }> {
+  ): Promise<SyncCommitResponse & { plan: CatalogSyncPlan }> {
     try {
       return await this.db.transaction(async (tx) => {
         const [run] = await tx
@@ -275,16 +275,16 @@ export class CatalogSyncService {
    * states an effect, and only the second is worth a person's attention.
    */
   async submit(
-    submission: SyncSubmission,
+    submission: CatalogSyncSubmission,
     submitter: Submitter,
-  ): Promise<SyncSubmitResponse> {
+  ): Promise<CatalogSyncSubmitResponse> {
     // The other half of the mutual exclusion: nobody has handed the catalog
     // over, so the shop is writing it by hand and a second writer is refused.
     if (!this.catalogIsOwned) throw catalogNotExternallyOwned();
     // Absent options mean the schema's defaults, exactly as they do for an
     // upload — parsed rather than assumed, so the delete gate is applied to a
     // headless run's intent as well.
-    const options = syncOptionsSchema.parse(submission.options ?? {});
+    const options = catalogSyncOptionsSchema.parse(submission.options ?? {});
     const state = await this.readState();
     const { plan } = planSync(submission.rows, options, state);
 

@@ -11,8 +11,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import {
   AuthUser,
   SYNC_MAX_UPLOAD_BYTES,
-  SyncPreviewResponse,
-  syncOptionsSchema,
+  CatalogSyncPreviewResponse,
+  catalogSyncOptionsSchema,
 } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -56,7 +56,7 @@ export class CatalogSyncController {
     // string field alongside the file.
     @Body('options') rawOptions: string | undefined,
     @CurrentUser() user: AuthUser,
-  ): Promise<SyncPreviewResponse> {
+  ): Promise<CatalogSyncPreviewResponse> {
     if (!file) {
       throw new BadRequestException({
         code: 'no-file',
@@ -113,7 +113,7 @@ export class CatalogSyncController {
         });
       }
     }
-    const result = syncOptionsSchema.safeParse(value);
+    const result = catalogSyncOptionsSchema.safeParse(value);
     if (!result.success) {
       throw new BadRequestException({
         code: 'options-invalid',

@@ -1,7 +1,7 @@
 import {
-  SYNC_ALL_FIELDS,
-  SyncOptions,
-  SyncRow,
+  CATALOG_SYNC_ALL_FIELDS,
+  CatalogSyncOptions,
+  CatalogSyncRow,
 } from '@b2b-catalog-platform/shared';
 import {
   ExistingCategory,
@@ -56,9 +56,9 @@ const state = (over: Partial<SyncCatalogState> = {}): SyncCatalogState => ({
   ...over,
 });
 
-const options = (over: Partial<SyncOptions> = {}): SyncOptions =>
+const options = (over: Partial<CatalogSyncOptions> = {}): CatalogSyncOptions =>
   ({
-    fields: SYNC_ALL_FIELDS,
+    fields: CATALOG_SYNC_ALL_FIELDS,
     createMissing: true,
     updateExisting: true,
     restoreReturning: true,
@@ -66,9 +66,9 @@ const options = (over: Partial<SyncOptions> = {}): SyncOptions =>
     productSetAuthoritative: false,
     softDeleteMissingProducts: false,
     ...over,
-  }) as SyncOptions;
+  }) as CatalogSyncOptions;
 
-const row = (over: Partial<SyncRow> = {}): SyncRow => ({
+const row = (over: Partial<CatalogSyncRow> = {}): CatalogSyncRow => ({
   sourceId: 'A-1',
   ...over,
 });

@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { machineSyncContract } from '@b2b-catalog-platform/shared';
+import { machineCatalogSyncContract } from '@b2b-catalog-platform/shared';
 import { CurrentMachine } from '../api-tokens/current-machine.decorator';
 import { Machine } from '../api-tokens/machine.decorator';
 import { MachineClient } from '../api-tokens/machine-client';
@@ -27,10 +27,10 @@ import { CatalogSyncService } from './catalog-sync.service';
 export class MachineSyncController {
   constructor(private readonly service: CatalogSyncService) {}
 
-  @Implement(machineSyncContract.submitRun)
+  @Implement(machineCatalogSyncContract.submitRun)
   submitRun(@CurrentMachine() machine: MachineClient) {
     return (
-      implement(machineSyncContract.submitRun)
+      implement(machineCatalogSyncContract.submitRun)
         // Both routes refuse while nobody has handed the catalog over
         // (FR-ADM-10). Without this the service's exception is swallowed and
         // answered as a 500 with the code gone — see `refusals`.
@@ -44,9 +44,9 @@ export class MachineSyncController {
     );
   }
 
-  @Implement(machineSyncContract.reportFailure)
+  @Implement(machineCatalogSyncContract.reportFailure)
   reportFailure(@CurrentMachine() machine: MachineClient) {
-    return implement(machineSyncContract.reportFailure)
+    return implement(machineCatalogSyncContract.reportFailure)
       .use(refusals)
       .handler(({ input }) =>
         this.service.reportFailure(input.body, {
