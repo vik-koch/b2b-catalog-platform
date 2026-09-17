@@ -109,6 +109,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-ADM-14](#fr-adm-14) — Accounts are matched by their source key
 - [FR-ADM-15](#fr-adm-15) — The account holder's own data travels outward only
 - [FR-ADM-16](#fr-adm-16) — A repeated instruction changes nothing
+- [FR-ADM-17](#fr-adm-17) — Claiming an account registered on the shop
 
 **[Accounts, Roles & Pricing (FR-AUTH)](#fr-auth)**
 
@@ -533,6 +534,12 @@ What an account holder maintains themselves — their name, their phone number, 
 #### <a id="fr-adm-16"></a>FR-ADM-16 — A repeated instruction changes nothing
 
 An instruction arriving over the machine endpoint that repeats or is out of date changes nothing and notifies nobody, in every area ([FR-ADM-07](#fr-adm-07), [FR-ADM-08](#fr-adm-08), [FR-ADM-11](#fr-adm-11)). A run that acts on many accounts at once sends each person affected the same single notification the equivalent manual action would.
+
+#### <a id="fr-adm-17"></a>FR-ADM-17 — Claiming an account registered on the shop
+
+Registering is the person's own act and stays open however customers are owned ([FR-ADM-10](#fr-adm-10)), so a shop whose customers are owned can acquire accounts the owning system has never heard of and cannot address. A customer run may therefore claim such an account: where its key is unknown and the shop holds an account with that email address and no key of its own, the run adopts that account instead of refusing the row or creating a second one beside it.
+
+It is a per-run option, off unless the run asks for it, and what it does appears in the preview as its own kind of change rather than as an ordinary edit — the deployment says how many claims a run may make before a person has to read it, and none by default. A claim happens once per account; from then on the key is the identity ([FR-ADM-14](#fr-adm-14)). Staff accounts and accounts the person has closed are never claimed, and where the option is off the row is refused in terms that say an unclaimed account is what was found, not that the address is taken.
 
 ---
 

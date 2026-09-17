@@ -96,6 +96,17 @@ export const syncSummarySchema = z
      * received under "nothing happened".
      */
     mailed: z.number().int().nonnegative().default(0),
+    /**
+     * Accounts this run adopted: existing rows that carried no source key and
+     * were matched by address instead, once (FR-ADM-17).
+     *
+     * Counted apart from `update` although a claim is an edit, because it is
+     * the one edit that changes *which account* a key means from then on. A
+     * reader deciding whether to apply a staged run is owed that figure by
+     * itself. Defaulted, like `mailed`: an area that cannot claim does not
+     * carry it, and neither did a summary stored before this existed.
+     */
+    claimed: z.number().int().nonnegative().default(0),
     errors: z.number().int().nonnegative(),
     /**
      * Which fields this run rewrote, as they are named in a change:

@@ -31,6 +31,7 @@ const emptySummary = {
   categoriesEmptied: 0,
   keptManual: 0,
   mailed: 0,
+  claimed: 0,
   errors: 0,
   fields: [],
 };

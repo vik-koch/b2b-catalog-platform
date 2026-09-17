@@ -47,8 +47,9 @@
       "maxCategoriesEmptied": 0
     },
     "customerAutoApply": {
-      "maxInvites": 10,
-      "maxDisables": 0
+      "maxInvites": 25,
+      "maxDisables": 0,
+      "maxClaims": 0
     }
   },
   "locations": [

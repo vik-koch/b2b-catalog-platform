@@ -110,6 +110,17 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
       }
 
       @if (applicable()) {
+        <!-- An adoption changes what a key means from now on, so a reader
+             about to apply one is told before they press, not after. -->
+        @if (plan().summary.claimed > 0) {
+          <p
+            class="mt-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+            role="status"
+          >
+            {{ claimWarning() }}
+          </p>
+        }
+
         <!-- The gate before a run that takes people's access away: the same
              typed confirmation a sweep of the catalog asks for, because it is
              the same class of act. -->
@@ -191,8 +202,9 @@ export class SyncCustomerPlanView {
    * nothing, and the button has to stay live for it.
    */
   protected readonly isNoop = computed(() => {
-    const { create, update, softDelete, restore, mailed } = this.plan().summary;
-    return create + update + softDelete + restore + mailed === 0;
+    const { create, update, softDelete, restore, claimed, mailed } =
+      this.plan().summary;
+    return create + update + softDelete + restore + claimed + mailed === 0;
   });
 
   /**
@@ -211,6 +223,10 @@ export class SyncCustomerPlanView {
         danger: s.softDelete > 0,
       },
       { label: 'restore' as const, value: s.restore, danger: false },
+      // Earns its tile by happening, and never sits at zero: a claim is the
+      // exception rather than what a run is for, and a permanent zero beside
+      // the counts that matter would read as a field nobody fills.
+      { label: 'claimed' as const, value: s.claimed, danger: false },
       { label: 'mailed' as const, value: s.mailed, danger: false },
       { label: 'unchanged' as const, value: s.unchanged, danger: false },
       { label: 'errors' as const, value: s.errors, danger: s.errors > 0 },
@@ -253,6 +269,19 @@ export class SyncCustomerPlanView {
     return fillText(this.text.errorRow, { row });
   }
 
+  /**
+   * Said above a run that adopts accounts registered here (FR-ADM-17). A
+   * notice rather than the typed confirmation a disable asks for: the typed
+   * word is reserved for taking something away from somebody, and what a claim
+   * needs is that the reader knows it is in there — which the deployment's
+   * `maxClaims` has usually already made a person's decision by staging the run.
+   */
+  protected claimWarning(): string {
+    return fillText(this.text.customers.claimWarning, {
+      count: this.plan().summary.claimed,
+    });
+  }
+
   protected disableWarning(): string {
     return fillText(this.text.customers.disableWarning, {
       count: this.plan().summary.softDelete,
@@ -282,4 +311,7 @@ const KIND_TONE: Record<CustomerAccountChange['kind'], StatusTone> = {
   update: 'neutral',
   disable: 'danger',
   enable: 'info',
+  // An adoption is the one change worth stopping on: from here that key means
+  // this person, and a wrong one is not undone by the next run.
+  claim: 'waiting',
 };

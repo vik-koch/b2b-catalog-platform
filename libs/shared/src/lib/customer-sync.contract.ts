@@ -163,6 +163,24 @@ export const customerSyncOptionsSchema = z
     createMissing: z.boolean().default(true),
     /** Update accounts whose `sourceId` is known. */
     updateExisting: z.boolean().default(true),
+    /**
+     * Let a row whose `sourceId` is unknown adopt the account that already
+     * holds its address, once (FR-ADM-17).
+     *
+     * Reads like a contradiction of FR-ADM-14 and is not. That requirement's
+     * reasons are about *identity* — an address changes, two people can share
+     * one — so an address cannot be what an account **is**. Claiming happens
+     * to an account whose key is null, exactly once, and from then on identity
+     * is the key precisely as stated.
+     *
+     * Off by default, and gated the way `softDeleteMissingProducts` is gated:
+     * the danger is a typo'd address upstream taking over a real customer's
+     * account and then tiering or disabling them inside a run nobody read. So
+     * a claim surfaces in the diff as its own kind rather than as an ordinary
+     * update, and the deployment's `maxClaims` decides whether a run carrying
+     * one may apply itself at all.
+     */
+    claimByEmail: z.boolean().default(false),
   })
   .strict();
 export type CustomerSyncOptions = z.infer<typeof customerSyncOptionsSchema>;
@@ -184,14 +202,19 @@ export type CustomerFieldChange = z.infer<typeof customerFieldChangeSchema>;
 /**
  * What a run would do to one account.
  *
- * `invite` is a creation, `enable` and `disable` are the access moves, `update`
- * is everything else. They are kinds rather than a status, because what a
- * reader of a staged run needs to know is what is about to happen to this
- * person, not which enum value it lands on.
+ * `invite` is a creation, `enable` and `disable` are the access moves, `claim`
+ * is this run adopting an account somebody registered here, and `update` is
+ * everything else. They are kinds rather than a status, because what a reader
+ * of a staged run needs to know is what is about to happen to this person, not
+ * which enum value it lands on.
+ *
+ * A claim wins over the other kinds when a row does several things at once —
+ * it is the one that changes which account this key means from now on, and the
+ * `changes` list still carries whatever else the row rewrote.
  */
 export const customerAccountChangeSchema = z
   .object({
-    kind: z.enum(['invite', 'update', 'disable', 'enable']),
+    kind: z.enum(['invite', 'update', 'disable', 'enable', 'claim']),
     sourceId: z.string(),
     /** How the account is recognisable to staff: its address. Null on a row
      * that would create an account and carries none — which is a row error, and
@@ -219,8 +242,19 @@ export const CUSTOMER_SYNC_ROW_ERROR_CODES = [
   'duplicate-source-id',
   /** `{email}` — two rows of this run claim one address. */
   'duplicate-email',
-  /** `{email}` — another account already has it. */
+  /** `{email}` — another account, with a source key of its own, already has it. */
   'email-taken',
+  /**
+   * `{email}` — an account carrying **no** source key already has that
+   * address: somebody who registered on the storefront, and who is almost
+   * certainly the person this row is about.
+   *
+   * Its own code rather than `email-taken`, which would be true about the data
+   * and false about the situation. What it needs is a claim (FR-ADM-17), so
+   * the wording points at the option that was off rather than at a collision
+   * nobody can resolve.
+   */
+  'account-unclaimed',
   /** `{key}` and `{known}` — no price list is keyed that. */
   'unknown-tier',
   /** An unknown `sourceId` asking for access, with no address to mail. */

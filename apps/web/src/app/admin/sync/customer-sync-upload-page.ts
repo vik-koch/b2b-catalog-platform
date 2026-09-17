@@ -389,6 +389,7 @@ const FLAGS: { key: FlagKey }[] = [
   { key: 'company' },
   { key: 'createMissing' },
   { key: 'updateExisting' },
+  { key: 'claimByEmail' },
 ];
 
 const FLAG_VALUE: Record<FlagKey, (o: CustomerSyncOptions) => boolean> = {
@@ -397,6 +398,7 @@ const FLAG_VALUE: Record<FlagKey, (o: CustomerSyncOptions) => boolean> = {
   company: (o) => o.fields.includes('company'),
   createMissing: (o) => o.createMissing,
   updateExisting: (o) => o.updateExisting,
+  claimByEmail: (o) => o.claimByEmail,
 };
 
 const FLAG_SET: Record<
@@ -408,6 +410,7 @@ const FLAG_SET: Record<
   company: (o, on) => ({ ...o, fields: withField(o, 'company', on) }),
   createMissing: (o, on) => ({ ...o, createMissing: on }),
   updateExisting: (o, on) => ({ ...o, updateExisting: on }),
+  claimByEmail: (o, on) => ({ ...o, claimByEmail: on }),
 };
 
 function withField(
