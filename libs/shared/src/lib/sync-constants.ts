@@ -63,6 +63,20 @@ export const SYNC_FIELDS = ['name', 'category', 'stock'] as const;
 export const SYNC_ALL_FIELDS: (typeof SYNC_FIELDS)[number][] = [...SYNC_FIELDS];
 
 /**
+ * What a customer run can write (FR-ADM-11), and the source
+ * `customerSyncFieldSchema` is built from.
+ *
+ * Shorter than it looks at first glance, and each absence is a decision. A
+ * customer's **name and phone number** are not here: they are the account
+ * holder's own to maintain and travel outward only (FR-ADM-15), so a run seeds
+ * them when it asks an account into being and can never write them again. A
+ * **password** is not here and never will be (FR-ADM-13). And there is no field
+ * for deletion, because the exchange has no way to delete.
+ */
+export const CUSTOMER_SYNC_FIELDS = ['email', 'tier', 'company'] as const;
+export type CustomerSyncFieldName = (typeof CUSTOMER_SYNC_FIELDS)[number];
+
+/**
  * Upper bound on a headless run's JSON body. The same order as the upload
  * limit beside it and for the same reason — a DoS guard, not an editorial
  * one — but it is enforced by a body parser mounted on that route alone: the

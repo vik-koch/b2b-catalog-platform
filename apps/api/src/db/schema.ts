@@ -16,6 +16,10 @@ import {
   PRODUCT_UNITS,
   SETTING_CHANGE_KINDS,
   SYNC_AREAS,
+  type CustomerSyncOptions,
+  type CustomerSyncPlan,
+  type CustomerSyncRow,
+  type CustomerSyncRowError,
   type SyncOptions,
   type SyncPlan,
   type SyncRow,
@@ -1320,19 +1324,25 @@ export const syncRuns = pgTable('sync_runs', {
   stagedReason: syncStagedReason('stagedReason'),
   // Null on a run an automated client reported as broken before it produced
   // anything: no intent was ever stated and nothing was ever counted.
-  options: jsonb('options').$type<SyncOptions>(),
+  // The three columns whose shape follows the run's `area` (ADR 0060). One
+  // table rather than one per area, so they are typed as the union and read
+  // through it — the service that acts on a run knows which area it is in
+  // before it looks, since that is what decided which service it reached.
+  options: jsonb('options').$type<SyncOptions | CustomerSyncOptions>(),
   summary: jsonb('summary').$type<SyncSummary>(),
-  rows: jsonb('rows').$type<SyncRow[]>(),
+  rows: jsonb('rows').$type<SyncRow[] | CustomerSyncRow[]>(),
   // What the run actually did, kept once it is applied — the staged `rows` are
   // dropped at that point, and counts alone do not answer "which products
   // moved last night", which is the question the log exists for. Capped by the
   // same preview limit, so a first import stores a readable diff rather than a
   // catalog.
-  plan: jsonb('plan').$type<SyncPlan>(),
+  plan: jsonb('plan').$type<SyncPlan | CustomerSyncPlan>(),
   // Rows the file itself could not yield (bad price, missing/duplicate
   // sourceId). Staged with `rows` so a commit's re-diff reports the same error
   // count the preview showed — the parse happens once, at upload.
-  parseErrors: jsonb('parseErrors').$type<SyncRowError[]>(),
+  parseErrors: jsonb('parseErrors').$type<
+    SyncRowError[] | CustomerSyncRowError[]
+  >(),
   error: text('error'),
   // What the sending system wanted said about a run that worked anyway. Kept
   // like `error` and never read by anything here: the platform does not know

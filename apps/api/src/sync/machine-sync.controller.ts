@@ -6,7 +6,7 @@ import { Machine } from '../api-tokens/machine.decorator';
 import { MachineClient } from '../api-tokens/machine-client';
 import { refusals } from '../orpc/refusals';
 import { MachineThrottle } from '../throttling/throttle-presets';
-import { SyncService } from './sync.service';
+import { CatalogSyncService } from './catalog-sync.service';
 
 /**
  * The headless catalog sync (FR-ADM-07): what an automated client reaches with
@@ -14,8 +14,8 @@ import { SyncService } from './sync.service';
  *
  * Its own controller because the guard is declared at class level and the two
  * authentication paths must not share one — a route added here can never
- * acquire a session, and a route added to `SyncController` can never acquire a
- * token. Behind it sits the same engine the upload uses: one importer, two
+ * acquire a session, and a route added to `CatalogSyncController` can never
+ * acquire a token. Behind it sits the same engine the upload uses: one importer, two
  * entry points.
  *
  * Notably absent: a commit route. An automated client never applies a run —
@@ -25,7 +25,7 @@ import { SyncService } from './sync.service';
 @MachineThrottle()
 @Controller()
 export class MachineSyncController {
-  constructor(private readonly service: SyncService) {}
+  constructor(private readonly service: CatalogSyncService) {}
 
   @Implement(machineSyncContract.submitRun)
   submitRun(@CurrentMachine() machine: MachineClient) {

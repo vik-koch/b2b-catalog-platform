@@ -4,6 +4,9 @@ import {
   CompanyIdFormat,
   companyIdInputSchema,
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
+  CustomerSyncPolicy,
+  customerSyncPolicySchema,
+  DEFAULT_CUSTOMER_SYNC_POLICY,
   DEFAULT_SYNC_POLICY,
   DeliveryConfig,
   deliveryConfigSchema,
@@ -139,7 +142,12 @@ export const apiDeploymentConfigSchema = z
      * so the web app declares the shape as well.
      */
     sync: z
-      .object({ autoApply: syncPolicySchema.optional() })
+      .object({
+        autoApply: syncPolicySchema.optional(),
+        /** The same, for an unattended customer run (FR-ADM-11). Its own key
+         * and its own ceilings: the two areas do not measure the same harm. */
+        customerAutoApply: customerSyncPolicySchema.optional(),
+      })
       .passthrough()
       .optional(),
   })
@@ -344,6 +352,16 @@ export const SYNC_POLICY = 'SYNC_POLICY';
 
 export function loadSyncPolicy(): SyncPolicy {
   return loadApiDeploymentConfig().sync?.autoApply ?? DEFAULT_SYNC_POLICY;
+}
+
+/** The customer exchange's own ceilings (FR-ADM-11). */
+export const CUSTOMER_SYNC_POLICY = 'CUSTOMER_SYNC_POLICY';
+
+export function loadCustomerSyncPolicy(): CustomerSyncPolicy {
+  return (
+    loadApiDeploymentConfig().sync?.customerAutoApply ??
+    DEFAULT_CUSTOMER_SYNC_POLICY
+  );
 }
 
 export function loadPairingsEnforced(): boolean {

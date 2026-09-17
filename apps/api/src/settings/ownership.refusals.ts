@@ -26,8 +26,7 @@ export const catalogNotExternallyOwned = () =>
   });
 
 /**
- * The customer area's refusal, and it has no second half here: the automated
- * side arrives with the machine route that needs it.
+ * The customer area's refusals, in the same pair the catalog has.
  *
  * `detail` names the action rather than a field, because this area is closed
  * whole (FR-AUTH-04 as amended) — there is no list of columns to report, and
@@ -40,4 +39,16 @@ export const customersExternallyOwned = (detail?: string) =>
     message: detail
       ? `Customer accounts are externally owned; refused: ${detail}`
       : 'Customer accounts are externally owned',
+  });
+
+/**
+ * The other half of the customer pair, raised by the machine route: the token
+ * is good, the platform is simply not listening on this area because nobody
+ * has handed it over.
+ */
+export const customersNotExternallyOwned = () =>
+  new ConflictException({
+    code: 'customers-not-externally-owned',
+    message:
+      'Customer accounts are not externally owned; automated customer runs are refused',
   });

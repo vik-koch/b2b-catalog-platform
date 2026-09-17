@@ -7,7 +7,12 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SyncRun } from '@b2b-catalog-platform/shared';
+import {
+  CustomerSyncPlan,
+  isCustomerSyncPlan,
+  SyncPlan,
+  SyncRun,
+} from '@b2b-catalog-platform/shared';
 import { AuthService } from '../../auth/auth.service';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
@@ -18,6 +23,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { adminDayFormat } from '../grid/admin-date';
+import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncPlanView } from './sync-plan-view';
 import { SyncService } from './sync.service';
 
@@ -33,7 +39,14 @@ import { SyncService } from './sync.service';
  */
 @Component({
   selector: 'app-sync-run-page',
-  imports: [Button, RouterLink, Skeleton, StatusBadge, SyncPlanView],
+  imports: [
+    Button,
+    RouterLink,
+    Skeleton,
+    StatusBadge,
+    SyncCustomerPlanView,
+    SyncPlanView,
+  ],
   template: `
     @if (run.error()) {
       <p class="text-muted" role="alert">{{ text.runLoadError }}</p>
@@ -134,7 +147,20 @@ import { SyncService } from './sync.service';
             </section>
           }
 
-          @if (data.plan; as plan) {
+          <!-- Which diff this run holds. One page for every area (ADR 0060),
+               and the two plans are disjoint shapes, so the answer comes from
+               the plan itself rather than from a second field beside it. -->
+          @if (customerPlan(data.plan); as plan) {
+            <app-sync-customer-plan-view
+              [plan]="plan"
+              [applicable]="isStaged(data.run)"
+              [discardable]="isStaged(data.run)"
+              [busy]="busy()"
+              [error]="actionError()"
+              (apply)="apply(data.run.id)"
+              (discardRun)="discard(data.run.id)"
+            />
+          } @else if (catalogPlan(data.plan); as plan) {
             <app-sync-plan-view
               [plan]="plan"
               [applicable]="isStaged(data.run)"
@@ -188,6 +214,18 @@ export class SyncRunPage {
 
   protected readonly busy = signal(false);
   protected readonly actionError = signal<string | null>(null);
+
+  protected customerPlan(
+    plan: SyncPlan | CustomerSyncPlan | null,
+  ): CustomerSyncPlan | null {
+    return plan && isCustomerSyncPlan(plan) ? plan : null;
+  }
+
+  protected catalogPlan(
+    plan: SyncPlan | CustomerSyncPlan | null,
+  ): SyncPlan | null {
+    return plan && !isCustomerSyncPlan(plan) ? plan : null;
+  }
 
   protected statusLabel(run: SyncRun): string {
     return this.text.status[run.status];

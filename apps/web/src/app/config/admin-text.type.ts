@@ -710,6 +710,73 @@ export const adminTextSchema = z
             restore: z.string(),
           })
           .strict(),
+        /**
+         * The customer exchange's own words (FR-ADM-11). Only what the catalog
+         * cannot lend: a run's counts mean accounts here rather than products,
+         * a row is somebody rather than something, and the refusals are about
+         * people. Everything a run says about itself — its status, why it is
+         * waiting, when it ran — is shared and lives above.
+         */
+        customers: z
+          .object({
+            accountsTitle: z.string(),
+            /** The count tiles, in this area's reading of them. */
+            count: z
+              .object({
+                create: z.string(),
+                update: z.string(),
+                softDelete: z.string(),
+                restore: z.string(),
+                mailed: z.string(),
+                unchanged: z.string(),
+                errors: z.string(),
+              })
+              .strict(),
+            /** Change kinds, used as row badges. */
+            kind: z
+              .object({
+                invite: z.string(),
+                update: z.string(),
+                disable: z.string(),
+                enable: z.string(),
+              })
+              .strict(),
+            /** Field names as a diff line labels them. */
+            field: z
+              .object({
+                email: z.string(),
+                tier: z.string(),
+                customerType: z.string(),
+                companyName: z.string(),
+                companyId: z.string(),
+              })
+              .strict(),
+            /** Said beside a row this run would mail a set-a-password link to. */
+            mailedRow: z.string(),
+            /**
+             * Why a single row was skipped, keyed by the API's own `code`.
+             * `{email}`, `{key}` and `{known}` come from the response.
+             */
+            rowErrors: z
+              .object({
+                'missing-source-id': z.string(),
+                'duplicate-source-id': z.string(),
+                'duplicate-email': z.string(),
+                'email-taken': z.string(),
+                'unknown-tier': z.string(),
+                'cannot-create-account': z.string(),
+                /** Closed by the person themselves; the key is kept so this
+                 * refusal can happen (FR-ADM-15). */
+                'account-withdrawn': z.string(),
+                'staff-account': z.string(),
+                'cannot-send-link': z.string(),
+                'company-details-incomplete': z.string(),
+              })
+              .strict(),
+            /** The gate before a run that takes people's access away. `{count}`. */
+            disableWarning: z.string(),
+          })
+          .strict(),
         /** The delete gate: a typed confirmation before an authoritative run. */
         deleteWarning: z.string(),
         deleteConfirmLabel: z.string(),
@@ -906,7 +973,15 @@ export const adminTextSchema = z
         /** What each capability lets a token do, keyed by the contract's own
          * scope values. A new scope is a release, so a missing key here is a
          * config error rather than a fallback. */
-        scopes: z.object({ 'catalog-sync': z.string() }).strict(),
+        /** One line per capability a token can carry, keyed by the scope
+         * itself — a new scope is a new key here, and a missing one is a
+         * config that will not load rather than a blank cell. */
+        scopes: z
+          .object({
+            'catalog-sync': z.string(),
+            'customer-sync': z.string(),
+          })
+          .strict(),
         /** The panel that shows the value. `{name}` substituted at render. */
         createdHeading: z.string(),
         createdOnce: z.string(),

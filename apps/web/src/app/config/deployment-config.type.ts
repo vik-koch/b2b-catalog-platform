@@ -1,6 +1,7 @@
 import {
   addressConfigSchema,
   companyIdInputSchema,
+  customerSyncPolicySchema,
   deliveryConfigSchema,
   orderReferenceConfigSchema,
   PAGE_SLUGS,
@@ -391,7 +392,10 @@ export const deploymentConfigSchema = z
      * well, exactly as `orderReference` is.
      */
     sync: z
-      .object({ autoApply: syncPolicySchema.optional() })
+      .object({
+        autoApply: syncPolicySchema.optional(),
+        customerAutoApply: customerSyncPolicySchema.optional(),
+      })
       .strict()
       .optional(),
   })

@@ -224,7 +224,7 @@ function defaultScopes(): ApiTokenScope[] {
                       {{ text.scope }}
                       <span class="text-accent" aria-hidden="true">*</span>
                     </legend>
-                    <div class="mt-1 flex flex-col gap-1.5">
+                    <div class="flex flex-col gap-1.5">
                       @for (scope of scopes; track scope) {
                         <label class="flex items-center gap-2 text-sm">
                           <input

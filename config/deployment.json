@@ -45,6 +45,10 @@
       "maxChangedShare": 0.5,
       "maxCategoriesCreated": 5,
       "maxCategoriesEmptied": 0
+    },
+    "customerAutoApply": {
+      "maxInvites": 10,
+      "maxDisables": 0
     }
   },
   "locations": [
