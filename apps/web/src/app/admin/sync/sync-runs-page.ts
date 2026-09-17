@@ -9,6 +9,7 @@ import {
   SyncRunStatus,
   syncRunStatusSchema,
 } from '@b2b-catalog-platform/shared';
+import { AuthService } from '../../auth/auth.service';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
@@ -67,10 +68,11 @@ import { SyncService } from './sync.service';
       [searchable]="false"
       [filtered]="filtered()"
     >
-      <!-- The upload is the catalog's alone for now: a customer run can only
-           arrive from a connected system until the manual import ships. -->
-      @if (area() === 'catalog') {
-        <a appButton class="gap-2" routerLink="/admin/sync/catalog/new">
+      <!-- Both areas take a file (FR-ADM-02, FR-ADM-12), and both uploads are
+           an admin's: a manager reading this log sees no button, which is the
+           same rule the routes behind them enforce. -->
+      @if (canUpload()) {
+        <a appButton class="gap-2" [routerLink]="uploadLink()">
           <app-admin-icon name="upload" class="h-4 w-4" />
           {{ text.newRun }}
         </a>
@@ -172,6 +174,22 @@ export class SyncRunsPage {
   private readonly sync = inject(SyncService);
   protected readonly text = inject(ADMIN_TEXT).sync;
   protected readonly common = inject(ADMIN_TEXT).common;
+  private readonly auth = inject(AuthService);
+
+  /**
+   * Whether this reader may upload into this area. Both uploads are an
+   * admin's, so a manager — who may read and answer a customer run — is shown
+   * no button rather than one that leads to a guarded route.
+   */
+  protected readonly canUpload = computed(
+    () => this.auth.user()?.role === 'admin',
+  );
+
+  protected readonly uploadLink = computed(() =>
+    this.area() === 'customers'
+      ? '/admin/sync/customers/new'
+      : '/admin/sync/catalog/new',
+  );
 
   constructor() {
     usePageSeo({ name: () => this.areaText().title });

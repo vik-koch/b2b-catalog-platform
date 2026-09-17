@@ -131,6 +131,17 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/sync/sync-upload-page').then((m) => m.SyncUploadPage),
   },
+  // The manual customer import (FR-ADM-12), admin-only where reading and
+  // answering a customer run are a manager's too: bringing several hundred
+  // accounts into being from a file is a deployment act, not the work.
+  {
+    path: 'admin/sync/customers/new',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/sync/customer-sync-upload-page').then(
+        (m) => m.CustomerSyncUploadPage,
+      ),
+  },
   // One run page for every area: a run id is unique across them, the page
   // reads the area off the run, and a staged-run link already sitting in
   // somebody's inbox keeps working. Staff-level here, with the per-area rule
