@@ -16,7 +16,8 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
-import { SyncFormatError, parseSyncCsv } from './sync-csv';
+import { SyncFormatError } from './csv-file';
+import { parseSyncCsv } from './sync-csv';
 import { CatalogSyncService } from './catalog-sync.service';
 
 /**

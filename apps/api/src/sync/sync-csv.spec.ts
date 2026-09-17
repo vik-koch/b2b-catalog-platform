@@ -1,4 +1,5 @@
-import { SyncFormatError, parseSyncCsv } from './sync-csv';
+import { SyncFormatError } from './csv-file';
+import { parseSyncCsv } from './sync-csv';
 
 describe('parseSyncCsv', () => {
   it('parses the documented columns', () => {
