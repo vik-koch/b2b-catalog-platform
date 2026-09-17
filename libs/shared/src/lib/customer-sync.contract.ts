@@ -237,6 +237,17 @@ export const CUSTOMER_SYNC_ROW_ERROR_CODES = [
   'cannot-send-link',
   /** A company needs both a name and a registration id, and this one has one. */
   'company-details-incomplete',
+  /**
+   * `{column}` and `{value}` — a cell a file's column cannot hold: a word that
+   * is not `enabled` or `disabled`, an address that is not one, a yes/no column
+   * answered with a sentence.
+   *
+   * Only an uploaded file can produce it (FR-ADM-12). A headless submission is
+   * validated by the row schema before it reaches the differ, so a malformed
+   * field there refuses the whole request — which is right for a converter and
+   * wrong for a person who has typed one cell badly in a file of six hundred.
+   */
+  'invalid-value',
 ] as const;
 export type CustomerSyncRowErrorCode =
   (typeof CUSTOMER_SYNC_ROW_ERROR_CODES)[number];
@@ -319,6 +330,14 @@ export const customerSyncSubmitResponseSchema = z
 export type CustomerSyncSubmitResponse = z.infer<
   typeof customerSyncSubmitResponseSchema
 >;
+
+/**
+ * What an uploaded file's preview answers with (FR-ADM-12) — the same pair,
+ * under the name the screen knows it by. An upload and a submission are one
+ * entry point onto one engine, so this is an alias and not a second shape: the
+ * day they differ is the day there are two importers.
+ */
+export type CustomerSyncPreviewResponse = CustomerSyncSubmitResponse;
 
 /**
  * Authenticated by the token alone, and by a scope of its own: a credential

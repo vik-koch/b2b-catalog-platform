@@ -2,6 +2,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import {
+  CustomerSyncOptions,
+  CustomerSyncPreviewResponse,
   SyncCommitCode,
   SyncCommitResponse,
   SyncFormatErrorBody,
@@ -23,6 +25,12 @@ import { createOrpcClient } from '../../core/orpc-client';
  */
 export type PreviewResult =
   | { ok: true; preview: SyncPreviewResponse }
+  | { ok: false; failure: SyncFormatErrorBody | null };
+
+/** The same, for a customer file (FR-ADM-12): one refusal channel, one shape,
+ * a different diff. */
+export type CustomerPreviewResult =
+  | { ok: true; preview: CustomerSyncPreviewResponse }
   | { ok: false; failure: SyncFormatErrorBody | null };
 
 /** A commit that could not be applied (already applied, or its rows expired). */
@@ -51,24 +59,60 @@ export class SyncService {
   private readonly document = inject(DOCUMENT);
   private readonly client = createOrpcClient(syncContract);
 
-  /** Uploads a file and returns what it would change. Writes nothing. */
+  /** Uploads a catalog file and returns what it would change. Writes nothing. */
   async preview(file: File, options: SyncOptions): Promise<PreviewResult> {
+    return this.upload<SyncPreviewResponse>(
+      '/api/admin/sync/preview',
+      file,
+      options,
+    );
+  }
+
+  /**
+   * Uploads a customer file and returns what it would do to people's accounts
+   * (FR-ADM-12). Writes nothing, and mails nobody: the links go out when the
+   * staged run is applied.
+   */
+  async previewCustomers(
+    file: File,
+    options: CustomerSyncOptions,
+  ): Promise<CustomerPreviewResult> {
+    return this.upload<CustomerSyncPreviewResponse>(
+      '/api/admin/sync/customers/preview',
+      file,
+      options,
+    );
+  }
+
+  /**
+   * The multipart half, which the JSON contracts do not model — one upload, one
+   * refusal channel, whatever the file carries. The plan's shape is the
+   * caller's to name, which is the only thing that differs between the areas.
+   */
+  private async upload<T>(
+    path: string,
+    file: File,
+    options: SyncOptions | CustomerSyncOptions,
+  ): Promise<
+    | { ok: true; preview: T }
+    | { ok: false; failure: SyncFormatErrorBody | null }
+  > {
     const form = new FormData();
     form.append('file', file);
     form.append('options', JSON.stringify(options));
-    const url = `${this.document.location.origin}/api/admin/sync/preview`;
+    const url = `${this.document.location.origin}${path}`;
 
     try {
-      const preview = await lastValueFrom(
-        this.http.post<SyncPreviewResponse>(url, form),
-      );
+      const preview = await lastValueFrom(this.http.post<T>(url, form));
       return { ok: true, preview };
     } catch (error) {
       // 413 comes from the size guard, which the browser cannot pre-empt for a
-      // file picked before the limit is known; both are the admin's to fix.
+      // file picked before the limit is known. 409 is the area having been
+      // handed over since the screen loaded — not a fault in the file, but the
+      // admin's to understand and the same sentence-from-a-code as the rest.
       if (
         error instanceof HttpErrorResponse &&
-        (error.status === 400 || error.status === 413)
+        (error.status === 400 || error.status === 409 || error.status === 413)
       ) {
         // A body that does not parse is a proxy's error page, not the API's;
         // null lands on the page's generic wording rather than throwing.

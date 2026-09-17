@@ -49,6 +49,34 @@ const row = (over: Partial<CustomerSyncRow> = {}): CustomerSyncRow => ({
 });
 
 describe('planCustomerSync', () => {
+  describe('rows a file could not be read at all (FR-ADM-12)', () => {
+    it('carries them into the plan and counts them as errors', () => {
+      // An admin reading a preview is owed one list of what this file will not
+      // do, not one from the parser and another from here.
+      const { plan } = planCustomerSync(
+        [row({ access: 'disabled' })],
+        options(),
+        state(),
+        [{ row: 4, sourceId: 'C-9', code: 'invalid-value' }],
+      );
+
+      expect(plan.rowErrors).toEqual([
+        { row: 4, sourceId: 'C-9', code: 'invalid-value' },
+      ]);
+      expect(plan.summary).toMatchObject({ errors: 1, softDelete: 1 });
+    });
+
+    it('makes a file of nothing but bad rows a run that happened', () => {
+      // The opposite of a quiet night: filing it as no change would hide the
+      // one thing the log exists to show.
+      const { plan } = planCustomerSync([], options(), state(), [
+        { row: 1, sourceId: null, code: 'missing-source-id' },
+      ]);
+
+      expect(plan.summary).toMatchObject({ rows: 0, errors: 1 });
+    });
+  });
+
   describe('a run that changes nothing', () => {
     it('reports an account whose details already match as unchanged', () => {
       const { plan, actions } = planCustomerSync(

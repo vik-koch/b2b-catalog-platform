@@ -1,49 +1,52 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   PayloadTooLargeException,
   Post,
   UploadedFile,
   UseInterceptors,
-  Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   AuthUser,
+  CustomerSyncPreviewResponse,
   SYNC_MAX_UPLOAD_BYTES,
-  SyncPreviewResponse,
-  syncOptionsSchema,
+  customerSyncOptionsSchema,
 } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SyncFormatError } from './csv-file';
-import { parseSyncCsv } from './sync-csv';
-import { CatalogSyncService } from './catalog-sync.service';
+import { parseCustomerSyncCsv } from './customer-sync-csv';
+import { CustomerSyncService } from './customer-sync.service';
 
 /**
- * The operator's own way into the catalog exchange: upload a file, read what
- * it would change (FR-ADM-02).
+ * The operator's own way into the customer exchange: upload a file, read what
+ * it would do to people's accounts (FR-ADM-12).
  *
- * Admin-only, and nobody else — unlike the run routes next door, which a
- * manager shares for the areas that are theirs. The catalog is an admin's work
- * by hand, so the route that does it by hand is too.
+ * **Admin-only**, where reading and answering a customer run are a manager's
+ * too. The split is the one the whole area is drawn along: a manager works the
+ * customers this shop has, and bringing several hundred accounts into being
+ * from a file is a deployment act — the same class of thing as handing the area
+ * over, which is also an admin's alone.
  *
  * Not a contract route: it is multipart/form-data, which the JSON contracts do
- * not model — the same split the media upload uses. Its response shape still
- * comes from the shared contract, so the admin UI and this handler cannot
- * drift, and its refusals travel in the same envelope as every other one.
+ * not model — the same split the catalog upload and the media upload use. Its
+ * response shape still comes from the shared contract, and its refusals travel
+ * in the same envelope as every other one.
  */
 @Auth('admin')
 @Controller()
-export class CatalogSyncController {
-  constructor(private readonly service: CatalogSyncService) {}
+export class CustomerSyncController {
+  constructor(private readonly service: CustomerSyncService) {}
 
   /**
-   * Upload a catalog file and get back what it *would* change. Writes nothing
-   * to the catalog: the parsed rows are staged on a run, which a separate
-   * commit applies.
+   * Upload a customer file and get back what it *would* do. Writes nothing:
+   * the parsed rows are staged on a run, which a separate commit applies —
+   * and which the run routes next door will let a manager apply, because by
+   * then it is a staged customer run like any other.
    */
-  @Post('admin/sync/preview')
+  @Post('admin/sync/customers/preview')
   // memoryStorage — the file is parsed in one pass and never stored; the limit
   // is a hard multer-level cutoff so an oversized body is refused before it is
   // fully buffered.
@@ -56,7 +59,7 @@ export class CatalogSyncController {
     // string field alongside the file.
     @Body('options') rawOptions: string | undefined,
     @CurrentUser() user: AuthUser,
-  ): Promise<SyncPreviewResponse> {
+  ): Promise<CustomerSyncPreviewResponse> {
     if (!file) {
       throw new BadRequestException({
         code: 'no-file',
@@ -75,7 +78,7 @@ export class CatalogSyncController {
 
     let parsed;
     try {
-      parsed = parseSyncCsv(file.buffer.toString('utf8'));
+      parsed = parseCustomerSyncCsv(file.buffer.toString('utf8'));
     } catch (error) {
       if (error instanceof SyncFormatError) {
         throw new BadRequestException({
@@ -96,11 +99,8 @@ export class CatalogSyncController {
     );
   }
 
-  /**
-   * The options are validated by the same schema the JSON path would use, so
-   * the delete gate (`softDeleteMissingProducts` requires
-   * `productSetAuthoritative`) is enforced here too rather than only in the UI.
-   */
+  /** Validated by the same schema the headless path uses, so a file cannot
+   * ask for an intent a submission could not. */
   private parseOptions(raw: string | undefined) {
     let value: unknown = {};
     if (raw) {
@@ -113,7 +113,7 @@ export class CatalogSyncController {
         });
       }
     }
-    const result = syncOptionsSchema.safeParse(value);
+    const result = customerSyncOptionsSchema.safeParse(value);
     if (!result.success) {
       throw new BadRequestException({
         code: 'options-invalid',

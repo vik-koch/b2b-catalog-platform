@@ -8,8 +8,12 @@ import {
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
+  CustomerSyncOptions,
   CustomerSyncPlan,
   CustomerSyncPolicy,
+  CustomerSyncPreviewResponse,
+  CustomerSyncRow,
+  CustomerSyncRowError,
   CustomerSyncSubmission,
   CustomerSyncSubmitResponse,
   SyncCommitResponse,
@@ -164,6 +168,65 @@ export class CustomerSyncService {
   }
 
   /**
+   * The operator's own run: rows read out of an uploaded file, staged for a
+   * person to read before anything is written (FR-ADM-12).
+   *
+   * Parse-free, exactly as the catalog's is — the rows arrive validated, from
+   * a file or from a submission, and this is the one engine both of them reach.
+   * What it does *not* share with `submit` is the policy: an upload is never
+   * applied by itself, whatever the diff says. There is a person at the other
+   * end of it by definition, and the preview is the thing they asked for.
+   *
+   * It exists for the case the automated exchange does not cover — a go-live
+   * with several hundred customers whose tiers are already settled in the other
+   * system — so it is refused exactly while somebody else holds the pen
+   * (FR-ADM-10), the mirror of the refusal `submit` meets when nobody does.
+   */
+  async preview(
+    rows: CustomerSyncRow[],
+    options: CustomerSyncOptions,
+    filename: string | null,
+    actor: Actor,
+    parseErrors: CustomerSyncRowError[] = [],
+  ): Promise<CustomerSyncPreviewResponse> {
+    if (this.customersAreOwned) throw customersExternallyOwned('upload');
+
+    const state = await this.readState();
+    const { plan } = planCustomerSync(rows, options, state, parseErrors);
+
+    // Nothing to decide: the run is recorded as it stands and stages no rows,
+    // rather than waiting in a queue for somebody to press a button that is
+    // not even on the screen.
+    const nothingToDo = isNoChange(plan);
+
+    await this.log.prune();
+    // A staged upload retires a staged upload, for the reason a machine run
+    // retires one: two previews of the same accounts are two answers to one
+    // question, and the older one is answering it against a catalog of
+    // accounts that has moved.
+    await this.log.supersedeStaged('customers');
+    const [row] = await this.db
+      .insert(syncRuns)
+      .values({
+        area: 'customers',
+        status: nothingToDo ? 'no-change' : 'previewed',
+        finishedAt: nothingToDo ? new Date() : null,
+        source: 'upload',
+        filename,
+        actorId: actor.id,
+        actorEmail: actor.email,
+        options,
+        summary: plan.summary,
+        rows: nothingToDo ? null : rows,
+        parseErrors: nothingToDo ? null : parseErrors,
+        plan: nothingToDo ? plan : null,
+      })
+      .returning();
+
+    return { run: toSyncRun(row), plan };
+  }
+
+  /**
    * A breakage the caller could not turn into a run, recorded as a failed run
    * of its own — because the alternative is silence, and an exchange that has
    * stopped working looks exactly like one with nothing to send.
@@ -206,7 +269,12 @@ export class CustomerSyncService {
     staged: StagedPayloadOf<'customers'>,
   ): Promise<CustomerSyncPlan> {
     const state = await this.readState();
-    return planCustomerSync(staged.rows, staged.options, state).plan;
+    return planCustomerSync(
+      staged.rows,
+      staged.options,
+      state,
+      staged.parseErrors,
+    ).plan;
   }
 
   /**
@@ -268,6 +336,7 @@ export class CustomerSyncService {
           staged.rows,
           staged.options,
           state,
+          staged.parseErrors,
         );
         const invitedIds = await this.apply(tx, actions);
 

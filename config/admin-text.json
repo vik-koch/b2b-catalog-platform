@@ -353,7 +353,8 @@
       "missing-required-column": "The file needs a “{column}” column.",
       "too-many-rows": "That file has {rows} rows; the limit is {limit}. Split it into smaller files.",
       "options-invalid": "The options sent with this file were not valid. Reload the page and try again.",
-      "catalog-externally-owned": "The catalog is managed by an external system, so uploads are turned off. To upload a file, take the catalog back under Data ownership in the admin panel."
+      "catalog-externally-owned": "The catalog is managed by an external system, so uploads are turned off. To upload a file, take the catalog back under Data ownership in the admin panel.",
+      "customers-externally-owned": "Customer accounts are kept up to date by a connected system, so importing them from a file here is switched off. Take the accounts back in Settings to import one by hand."
     },
     "summaryTitle": "What this run would change",
     "productsTitle": "Products",
@@ -382,6 +383,24 @@
     },
     "customers": {
       "accountsTitle": "Accounts",
+      "uploadTitle": "Customer import",
+      "uploadDescription": "Import customer details from a file — their price list, their company details, and whether they may sign in. Nothing is written, and nobody is emailed, until you review the changes and apply them. New accounts are created without a password: each person is sent a link to set their own.",
+      "file": "Customer file (CSV)",
+      "fileHint": "Columns: {columns}. sourceId is required and is the key the customer is matched by. access is “enabled” or “disabled”; sendPasswordLink is “yes” or “no”. An empty cell leaves the field as it is — it never clears it.",
+      "mode": {
+        "full": "Customer list",
+        "fullHint": "The file carries whole customer records. Price lists and company details are updated, and customers the shop doesn’t have yet are invited — each of them by email.",
+        "tiers": "Price list update",
+        "tiersHint": "The file only says which price list each customer is charged. Nobody is invited, nobody is emailed, and nobody’s access changes.",
+        "custom": "Custom"
+      },
+      "option": {
+        "email": "Update email addresses",
+        "tier": "Update price lists",
+        "company": "Update company details",
+        "createMissing": "Invite customers who don’t have an account yet",
+        "updateExisting": "Update customers who already have an account"
+      },
       "count": {
         "create": "Invited",
         "update": "Updated",
@@ -415,7 +434,8 @@
         "account-withdrawn": "This customer deleted their account. It is not created again from here — they would have to register themselves.",
         "staff-account": "This row points at a staff account. Staff are never customers, and their accounts stay the shop’s to manage.",
         "cannot-send-link": "A set-a-password link was asked for, but this account cannot sign in — switch it on in the same run, or first.",
-        "company-details-incomplete": "A company needs both a name and a company ID; this row has one without the other."
+        "company-details-incomplete": "A company needs both a name and a company ID; this row has one without the other.",
+        "invalid-value": "The “{column}” column of this row says “{value}”, which is not something that column can hold. The row is skipped; the rest of the file is not."
       },
       "disableWarning": "{count} customer(s) will lose access. They stay in the account list and can be switched back on."
     },
@@ -434,7 +454,8 @@
       "run-superseded": "A newer run has replaced this one. Open the latest run instead.",
       "run-discarded": "This run was discarded and cannot be applied.",
       "run-no-change": "This run changed nothing, so there is nothing to apply.",
-      "catalog-externally-owned": "The catalog was handed to an external system after this file was uploaded, so it can no longer be applied. Take the catalog back to apply it, or discard it."
+      "catalog-externally-owned": "The catalog was handed to an external system after this file was uploaded, so it can no longer be applied. Take the catalog back to apply it, or discard it.",
+      "customers-externally-owned": "Customer accounts were handed over to a connected system after this file was uploaded, so it can no longer be applied. Take the accounts back in Settings, or let the connected system send the change."
     },
     "applied": "Applied.",
     "discard": "Discard",
