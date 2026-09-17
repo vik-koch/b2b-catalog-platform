@@ -338,6 +338,11 @@ import { SyncService } from './sync/sync.service';
                       {{ panelText.catalogOwned }}
                     </span>
                   }
+                  @if (customersOwned()) {
+                    <span appStatusBadge tone="info">
+                      {{ panelText.customersOwned }}
+                    </span>
+                  }
                 </app-panel-row>
                 <app-panel-row
                   [label]="apiTokenText.title"
@@ -431,6 +436,9 @@ export class AdminPanelPage {
   );
   protected readonly catalogOwned = computed(
     () => this.settings.settings()?.ownedAreas.includes('catalog') ?? false,
+  );
+  protected readonly customersOwned = computed(
+    () => this.settings.settings()?.ownedAreas.includes('customers') ?? false,
   );
 
   /**

@@ -151,6 +151,7 @@ export const adminTextSchema = z
          */
         maintenanceOn: z.string(),
         catalogOwned: z.string(),
+        customersOwned: z.string(),
         /** Deployed version line. `{version}` / `{date}` are substituted. */
         version: z.string(),
         versionUnknown: z.string(),

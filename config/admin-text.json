@@ -65,7 +65,8 @@
     "workSyncRuns": "{count} awaiting review",
     "operations": "Operations",
     "maintenanceOn": "Maintenance on",
-    "catalogOwned": "Catalog externally owned"
+    "catalogOwned": "Catalog externally owned",
+    "customersOwned": "Customers externally owned"
   },
   "editMode": {
     "enable": "Edit mode",

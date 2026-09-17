@@ -256,6 +256,17 @@ describe('AdminPanelPage runtime state', () => {
     expect(el.textContent).toContain(panelText.catalogOwned);
   });
 
+  it('marks the customer area when it is externally owned', async () => {
+    const el = await render(
+      { version: null, deployedAt: null },
+      adminUser,
+      {},
+      withSettings({ ownedAreas: ['customers'] }),
+    );
+
+    expect(el.textContent).toContain(panelText.customersOwned);
+  });
+
   it('does not ask for the settings as a manager', async () => {
     // The endpoint is admin-only, and a failed read is what tells the editors
     // to lock every field — so a manager's panel must not provoke one.
