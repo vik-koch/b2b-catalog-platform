@@ -8,6 +8,7 @@ import {
   SYNC_LABEL_MAX_LENGTH,
   SYNC_MAX_ROWS,
 } from './sync-constants';
+import { customerSyncPlanSchema } from './customer-sync.contract';
 import {
   syncAreaSchema,
   syncFailureReportSchema,
@@ -467,7 +468,19 @@ export const syncContract = {
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(
       z
-        .object({ run: syncRunSchema, plan: syncPlanSchema.nullable() })
+        .object({
+          run: syncRunSchema,
+          /**
+           * The diff, in the shape its area states one. A union rather than a
+           * second route, because this is one screen (ADR 0060): a run id is
+           * unique across the areas, so a link mailed to whoever was asked to
+           * answer a staged run works whatever that run carries.
+           *
+           * The two shapes are disjoint, so nothing has to be stored beside a
+           * plan to tell them apart — `isCustomerSyncPlan` asks the value.
+           */
+          plan: z.union([syncPlanSchema, customerSyncPlanSchema]).nullable(),
+        })
         .strict(),
     ),
 

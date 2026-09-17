@@ -1,6 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { SyncPlan, SyncRun, SyncSummary } from '@b2b-catalog-platform/shared';
+import {
+  CustomerSyncPlan,
+  SyncPlan,
+  SyncRun,
+  SyncSummary,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
@@ -62,7 +67,7 @@ function run(overrides: Partial<SyncRun> = {}): SyncRun {
 async function render(
   options: {
     run?: SyncRun;
-    plan?: SyncPlan | null;
+    plan?: SyncPlan | CustomerSyncPlan | null;
     confirmed?: boolean;
     commit?: Awaited<ReturnType<SyncService['commit']>>;
     discard?: Awaited<ReturnType<SyncService['discard']>>;
@@ -266,5 +271,39 @@ describe('SyncRunPage', () => {
 
     expect(el.textContent).toContain(text.applyErrors['run-superseded']);
     expect(service.getRun).toHaveBeenCalledTimes(2);
+  });
+
+  /**
+   * One page, two areas (ADR 0060). Which diff a run holds is read off the
+   * plan itself, so a link to a customer run opens on accounts rather than on
+   * an empty catalog panel.
+   */
+  it('renders a customer run with the customer plan', async () => {
+    const customerPlan: CustomerSyncPlan = {
+      summary: { ...summary, update: 0, create: 1, rows: 1 },
+      accounts: [
+        {
+          kind: 'invite',
+          sourceId: 'C-1',
+          email: 'ada@example.com',
+          id: null,
+          changes: [],
+          mailed: true,
+        },
+      ],
+      rowErrors: [],
+      truncated: false,
+    };
+
+    const { el } = await render({
+      run: run({ area: 'customers' }),
+      plan: customerPlan,
+    });
+
+    expect(el.textContent).toContain(text.customers.accountsTitle);
+    expect(el.textContent).toContain('ada@example.com');
+    expect(el.textContent).toContain(text.customers.kind.invite);
+    // The catalog panel's own headings stay away from it.
+    expect(el.textContent).not.toContain(text.productsTitle);
   });
 });

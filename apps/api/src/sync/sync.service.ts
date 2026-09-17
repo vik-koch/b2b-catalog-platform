@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotImplementedException,
-} from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, desc, eq } from 'drizzle-orm';
 import {
@@ -11,6 +6,7 @@ import {
   SYNC_RUNS_PAGE_SIZE,
   SyncArea,
   SyncCommitResponse,
+  CustomerSyncPlan,
   SyncPlan,
   SyncRun,
   SyncRunStatus,
@@ -21,6 +17,7 @@ import { syncRuns } from '../db/schema';
 import { stagedPayload } from './sync-run-payload';
 import { Actor, CONFLICT_CODE, runNotFound } from './sync-run';
 import { CatalogSyncService } from './catalog-sync.service';
+import { CustomerSyncService } from './customer-sync.service';
 import { toSyncRun } from './sync-run-log';
 
 /**
@@ -37,6 +34,7 @@ export class SyncService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     private readonly catalog: CatalogSyncService,
+    private readonly customers: CustomerSyncService,
   ) {}
 
   /**
@@ -48,7 +46,7 @@ export class SyncService {
   async commit(id: string, actor: Actor): Promise<SyncCommitResponse> {
     switch (await this.areaOf(id)) {
       case 'customers':
-        throw new NotImplementedException();
+        return this.customers.commit(id, actor);
       case 'catalog':
         return this.catalog.commit(id, actor);
     }
@@ -103,7 +101,9 @@ export class SyncService {
     });
   }
 
-  async getRun(id: string): Promise<{ run: SyncRun; plan: SyncPlan | null }> {
+  async getRun(
+    id: string,
+  ): Promise<{ run: SyncRun; plan: SyncPlan | CustomerSyncPlan | null }> {
     const [run] = await this.db
       .select()
       .from(syncRuns)
@@ -124,6 +124,11 @@ export class SyncService {
     // Each arm is handed rows already narrowed to the shape its engine works
     // in.
     switch (staged.area) {
+      case 'customers':
+        return {
+          run: toSyncRun(run),
+          plan: await this.customers.replan(staged),
+        };
       case 'catalog':
         return { run: toSyncRun(run), plan: await this.catalog.replan(staged) };
     }

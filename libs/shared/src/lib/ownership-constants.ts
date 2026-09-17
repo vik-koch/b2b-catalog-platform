@@ -94,12 +94,12 @@ export type OwnedTierField = (typeof OWNED_TIER_FIELDS)[number];
  * Codes name the area rather than carrying it as data, because a code is the
  * whole contract of a refusal (`message` is never rendered) and one sentence
  * per code is what the panel's text file is keyed by — a string per area, never
- * a parameter. `customers-not-externally-owned` joins them with the machine
- * route that raises it.
+ * a parameter.
  */
 export const ownershipErrors = {
   'catalog-externally-owned': { status: 409 },
   'catalog-not-externally-owned': { status: 409 },
   'customers-externally-owned': { status: 409 },
+  'customers-not-externally-owned': { status: 409 },
 } as const;
 export type OwnershipErrorCode = keyof typeof ownershipErrors;

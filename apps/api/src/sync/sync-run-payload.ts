@@ -1,15 +1,20 @@
 import * as z from 'zod';
 import {
+  CustomerSyncOptions,
+  CustomerSyncRow,
+  CustomerSyncRowError,
   SyncArea,
   SyncOptions,
   SyncRow,
   SyncRowError,
+  customerSyncOptionsSchema,
+  customerSyncRowErrorSchema,
+  customerSyncRowSchema,
   syncOptionsSchema,
   syncRowErrorSchema,
   syncRowSchema,
 } from '@b2b-catalog-platform/shared';
 import { syncRuns } from '../db/schema';
-import { NotImplementedException } from '@nestjs/common';
 
 type RunRow = typeof syncRuns.$inferSelect;
 
@@ -22,12 +27,19 @@ type RunRow = typeof syncRuns.$inferSelect;
  * assertion, made once and checked — `area` is a real discriminant here, so a
  * caller writes `if (payload.area === 'catalog')` and the rest follows.
  */
-export type StagedPayload = {
-  area: 'catalog';
-  rows: SyncRow[];
-  options: SyncOptions;
-  parseErrors: SyncRowError[];
-};
+export type StagedPayload =
+  | {
+      area: 'catalog';
+      rows: SyncRow[];
+      options: SyncOptions;
+      parseErrors: SyncRowError[];
+    }
+  | {
+      area: 'customers';
+      rows: CustomerSyncRow[];
+      options: CustomerSyncOptions;
+      parseErrors: CustomerSyncRowError[];
+    };
 
 /** One area's arm of the union, for a signature that takes only that area's
  * staged payload — an engine that serves one area states which it is. */
@@ -94,6 +106,15 @@ export function stagedPayload(run: RunRow): StagedPayload | null {
         parseErrors: parse('parseErrors', z.array(syncRowErrorSchema), errors),
       };
     case 'customers':
-      throw new NotImplementedException();
+      return {
+        area: 'customers',
+        rows: parse('rows', z.array(customerSyncRowSchema), run.rows),
+        options: parse('options', customerSyncOptionsSchema, run.options),
+        parseErrors: parse(
+          'parseErrors',
+          z.array(customerSyncRowErrorSchema),
+          errors,
+        ),
+      };
   }
 }
