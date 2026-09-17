@@ -11,6 +11,7 @@ import { AuthService } from '../../auth/auth.service';
 import { formatPhone } from '../../core/contact-fields';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
+import { LockedNote } from '../ownership/locked-note';
 import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
@@ -46,7 +47,7 @@ interface DetailRow {
  */
 @Component({
   selector: 'app-user-detail-page',
-  imports: [RouterLink, AdminIcon, Button, Skeleton, StatusBadge],
+  imports: [RouterLink, AdminIcon, Button, LockedNote, Skeleton, StatusBadge],
   template: `
     <!-- The account page's own width: a column of short cards, which at the
          full width of a desktop is a heading beside half a screen of nothing. -->
@@ -107,12 +108,9 @@ interface DetailRow {
         <!-- The same banner the editor carries, and for the same reason: a
              button that quietly is not there teaches nobody why. -->
         @if (locked()) {
-          <p
-            class="mt-7 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
-            role="status"
-          >
-            {{ ownershipText.accountLocked }}
-          </p>
+          <app-locked-note class="mt-7">{{
+            ownershipText.accountLocked
+          }}</app-locked-note>
         }
 
         <div class="mt-7 flex flex-wrap gap-3">

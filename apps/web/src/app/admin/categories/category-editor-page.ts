@@ -9,6 +9,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
 import { usePageSeo } from '../../core/page-seo';
+import { LockedNote } from '../ownership/locked-note';
 import { Skeleton } from '../../ui/skeleton';
 import { delayedLoading } from '../../core/delayed-loading';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
@@ -37,6 +38,7 @@ import { CategoryPicker } from './category-picker';
 @Component({
   selector: 'app-category-editor-page',
   imports: [
+    LockedNote,
     Button,
     AdminIcon,
     CategoryPicker,
@@ -64,12 +66,7 @@ import { CategoryPicker } from './category-picker';
              the nickname, the parent, the picture and the description stay the
              shop's, which is what keeps the tree rearrangeable. -->
         @if (fieldsLocked()) {
-          <p
-            class="rounded-md border border-border bg-stone-100 px-4 py-3 text-sm text-muted"
-            role="status"
-          >
-            {{ ownershipText.fieldLocked }}
-          </p>
+          <app-locked-note>{{ ownershipText.fieldLocked }}</app-locked-note>
         }
 
         <label class="block">

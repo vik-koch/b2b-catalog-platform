@@ -25,6 +25,7 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { adminDayFormat } from '../grid/admin-date';
 import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncPlanView } from './sync-plan-view';
+import { LockedNote } from '../ownership/locked-note';
 import { SyncService } from './sync.service';
 
 /**
@@ -150,6 +151,12 @@ import { SyncService } from './sync.service';
           <!-- Which diff this run holds. One page for every area (ADR 0060),
                and the two plans are disjoint shapes, so the answer comes from
                the plan itself rather than from a second field beside it. -->
+          @if (strandedByOwnership(data.run)) {
+            <app-locked-note class="mb-4">
+              {{ ownershipText.runStranded }}
+            </app-locked-note>
+          }
+
           @if (customerPlan(data.plan); as plan) {
             <app-sync-customer-plan-view
               [plan]="plan"
