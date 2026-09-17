@@ -752,6 +752,7 @@ export const adminTextSchema = z
                 company: z.string(),
                 createMissing: z.string(),
                 updateExisting: z.string(),
+                claimByEmail: z.string(),
               })
               .strict(),
             /** The count tiles, in this area's reading of them. */
@@ -761,6 +762,7 @@ export const adminTextSchema = z
                 update: z.string(),
                 softDelete: z.string(),
                 restore: z.string(),
+                claimed: z.string(),
                 mailed: z.string(),
                 unchanged: z.string(),
                 errors: z.string(),
@@ -773,6 +775,7 @@ export const adminTextSchema = z
                 update: z.string(),
                 disable: z.string(),
                 enable: z.string(),
+                claim: z.string(),
               })
               .strict(),
             /** Field names as a diff line labels them. */
@@ -797,6 +800,10 @@ export const adminTextSchema = z
                 'duplicate-source-id': z.string(),
                 'duplicate-email': z.string(),
                 'email-taken': z.string(),
+                /** An account with no source key already holds that address —
+                 * almost certainly this person, registered on the storefront
+                 * (FR-ADM-17). */
+                'account-unclaimed': z.string(),
                 'unknown-tier': z.string(),
                 'cannot-create-account': z.string(),
                 /** Closed by the person themselves; the key is kept so this
@@ -812,6 +819,10 @@ export const adminTextSchema = z
               .strict(),
             /** The gate before a run that takes people's access away. `{count}`. */
             disableWarning: z.string(),
+            /** The gate before a run that adopts accounts registered here.
+             * `{count}` — and it is the count that matters, since a claim is
+             * the one change that decides what a key means from then on. */
+            claimWarning: z.string(),
           })
           .strict(),
         /** The delete gate: a typed confirmation before an authoritative run. */

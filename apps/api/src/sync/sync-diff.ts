@@ -552,10 +552,12 @@ export function planSync(
     categoriesRenamed: actions.updateCategories.length,
     categoriesEmptied: emptiedCategories.length,
     keptManual: keptManual.length,
-    // A catalog run tells nobody anything by mail; what it brings in is
-    // announced to the shop, never to a customer (ADR 0060 — the count is
-    // shared, the areas that fill it are not).
+    // A catalog run tells nobody anything by mail, and adopts nobody: what it
+    // brings in is announced to the shop, never to a customer, and there is no
+    // account here to claim (ADR 0060 — the counts are shared, the areas that
+    // fill them are not).
     mailed: 0,
+    claimed: 0,
     errors: rowErrors.length,
     fields: fieldsWritten(productChanges, defaultTierKey),
   };

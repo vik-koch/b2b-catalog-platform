@@ -43,6 +43,12 @@ export function customerPresetFor(
     fields: [...CUSTOMER_SYNC_FIELDS],
     createMissing: true,
     updateExisting: true,
+    // Off in both presets, and ticked by hand on the one run that wants it.
+    // A go-live file is exactly where a claim is useful — half the customer
+    // book may already have registered on the storefront — and exactly where
+    // a wrong address in it would adopt the wrong person's account. The
+    // decision is worth one tick (FR-ADM-17).
+    claimByEmail: false,
   };
 
   // A tier file is about people the shop already has. Creating nobody is what

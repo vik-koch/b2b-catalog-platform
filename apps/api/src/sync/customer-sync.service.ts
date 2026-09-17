@@ -62,7 +62,14 @@ type Reader = Pick<NodePgDatabase<typeof schema>, 'select'>;
 function isNoChange(plan: CustomerSyncPlan): boolean {
   const s = plan.summary;
   return (
-    s.create + s.update + s.softDelete + s.restore + s.mailed + s.errors === 0
+    s.create +
+      s.update +
+      s.softDelete +
+      s.restore +
+      s.claimed +
+      s.mailed +
+      s.errors ===
+    0
   );
 }
 
@@ -391,6 +398,22 @@ export class CustomerSyncService {
    */
   private async apply(tx: Tx, actions: CustomerSyncActions): Promise<string[]> {
     const invitedIds: string[] = [];
+
+    // Adoptions first (FR-ADM-17): from here on this account *is* what the key
+    // means, and everything below it in this run writes to it under that
+    // identity rather than by address.
+    //
+    // Guarded on the key still being null, so a claim can only ever fill an
+    // empty column — never move a key from one account to another, which is
+    // the one thing FR-ADM-14 exists to prevent. If another run got there
+    // first the write is simply skipped: the account is the same person's
+    // either way, and the rest of this row still applies to it.
+    for (const claim of actions.claimAccounts) {
+      await tx
+        .update(users)
+        .set({ sourceId: claim.sourceId, updatedAt: new Date() })
+        .where(and(eq(users.id, claim.id), isNull(users.sourceId)));
+    }
 
     for (const account of actions.createAccounts) {
       // The stand-in hash, made the way a staff-created account's is: a real

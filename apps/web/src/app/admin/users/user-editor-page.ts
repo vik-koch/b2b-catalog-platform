@@ -731,6 +731,9 @@ export class UserEditorPage implements UnsavedChangesAware {
       firstName: value.firstName.trim(),
       lastName: value.lastName.trim(),
       ...this.contactFields(),
+      ...(this.showsSourceId()
+        ? { sourceId: value.sourceId.trim() || null }
+        : {}),
     });
     if (result.ok) return result.user;
     this.error.set(this.listText.errors[result.code]);

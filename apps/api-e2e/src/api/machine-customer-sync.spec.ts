@@ -325,6 +325,105 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
       });
     });
 
+    describe('claiming an account somebody registered here (FR-ADM-17)', () => {
+      /**
+       * The deadlock this closes. Somebody signs up on the storefront while
+       * the area is owned: the account has no source key, so nothing the
+       * exchange sends can reach it, and staff actions on customers are
+       * refused whole — nobody on either side can approve them.
+       */
+      const selfRegistered = address(90);
+
+      beforeAll(async () => {
+        await client.query(
+          `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName")
+           VALUES ($1, $2, 'user', 'pending', 'Grace', 'Hopper')`,
+          [selfRegistered, await hash(PASSWORD)],
+        );
+      });
+
+      afterAll(async () => {
+        await client.query('DELETE FROM users WHERE email = $1', [
+          selfRegistered,
+        ]);
+      });
+
+      it('refuses the row as unclaimed, not as a taken address, by default', async () => {
+        const res = await submit({
+          rows: [
+            { sourceId: key(90), email: selfRegistered, access: 'enabled' },
+          ],
+        });
+
+        expect(res.status).toBe(201);
+        expect(res.data.plan.rowErrors[0]).toMatchObject({
+          code: 'account-unclaimed',
+        });
+        // Nothing was created under a second address, which is what the old
+        // refusal left an operator guessing about.
+        expect(await accountByKey(key(90))).toBeUndefined();
+      });
+
+      it('waits for a person when it is asked to claim one', async () => {
+        // `maxClaims` is zero by default, so an adoption is never applied
+        // unattended: a typo'd address upstream must not take over a real
+        // customer's account inside a run nobody read.
+        const res = await submit({
+          rows: [
+            { sourceId: key(90), email: selfRegistered, access: 'enabled' },
+          ],
+          options: { claimByEmail: true },
+        });
+
+        expect(res.data.run).toMatchObject({
+          status: 'previewed',
+          stagedReason: 'policy',
+        });
+        expect(res.data.plan.summary).toMatchObject({ claimed: 1 });
+        expect(res.data.plan.accounts[0]).toMatchObject({ kind: 'claim' });
+        expect(await accountByKey(key(90))).toBeUndefined();
+      });
+
+      it('adopts the account, and approves it, once a person applies it', async () => {
+        const staged = await submit({
+          rows: [
+            { sourceId: key(90), email: selfRegistered, access: 'enabled' },
+          ],
+          options: { claimByEmail: true },
+        });
+        const runId = staged.data.run.id;
+
+        const applied = await asStaff(
+          managerCookie,
+          'post',
+          `/admin/sync/runs/${runId}/commit`,
+        );
+        expect(applied.status).toBe(200);
+
+        const account = await accountByKey(key(90));
+        // The same row, now reachable by key — not a second account beside it.
+        expect(account).toMatchObject({
+          email: selfRegistered,
+          status: 'invited',
+          firstName: 'Grace',
+        });
+      });
+
+      it('leaves the key alone on the next run, which claims nothing', async () => {
+        // Identity is the key from here on, exactly as FR-ADM-14 says: the
+        // claim happened once.
+        const res = await submit({
+          rows: [
+            { sourceId: key(90), email: selfRegistered, access: 'enabled' },
+          ],
+          options: { claimByEmail: true },
+        });
+
+        expect(res.data.run.status).toBe('no-change');
+        expect(res.data.plan.summary).toMatchObject({ claimed: 0 });
+      });
+    });
+
     it('sets the price list a customer is charged', async () => {
       const { rows } = await client.query(
         'SELECT key FROM customer_tiers ORDER BY "sortOrder" LIMIT 1',

@@ -39,6 +39,7 @@ const options = (
   fields: [...CUSTOMER_SYNC_FIELDS],
   createMissing: true,
   updateExisting: true,
+  claimByEmail: false,
   ...over,
 });
 
@@ -74,6 +75,162 @@ describe('planCustomerSync', () => {
       ]);
 
       expect(plan.summary).toMatchObject({ rows: 0, errors: 1 });
+    });
+  });
+
+  describe('claiming an account somebody registered here (FR-ADM-17)', () => {
+    /** The deadlock this exists for: registered on the storefront, no source
+     * key, so nothing the exchange sends can ever reach them. */
+    const selfRegistered = (over: Partial<ExistingAccount> = {}) =>
+      account({
+        id: 'u-new',
+        sourceId: null,
+        email: 'grace@example.com',
+        status: 'pending',
+        hasPassword: false,
+        ...over,
+      });
+
+    it('refuses the row with its own code while the option is off', () => {
+      // `email-taken` would be true about the data and false about the
+      // situation: it is the same person, and what is needed is a claim.
+      const { plan, actions } = planCustomerSync(
+        [
+          row({
+            sourceId: 'C-9',
+            email: 'grace@example.com',
+            access: 'enabled',
+          }),
+        ],
+        options(),
+        state({ accounts: [selfRegistered()] }),
+      );
+
+      expect(plan.rowErrors).toEqual([
+        {
+          row: 1,
+          sourceId: 'C-9',
+          code: 'account-unclaimed',
+          params: { email: 'grace@example.com' },
+        },
+      ]);
+      expect(actions.createAccounts).toEqual([]);
+      expect(actions.claimAccounts).toEqual([]);
+    });
+
+    it('adopts the account and approves it in one row while it is on', () => {
+      const { plan, actions } = planCustomerSync(
+        [
+          row({
+            sourceId: 'C-9',
+            email: 'grace@example.com',
+            access: 'enabled',
+            tierKey: 'wholesale',
+          }),
+        ],
+        options({ claimByEmail: true }),
+        state({ accounts: [selfRegistered()] }),
+      );
+
+      expect(actions.claimAccounts).toEqual([{ id: 'u-new', sourceId: 'C-9' }]);
+      expect(actions.createAccounts).toEqual([]);
+      expect(actions.approveIds).toEqual(['u-new']);
+      expect(actions.setStatus).toEqual([
+        { id: 'u-new', status: 'invited', endSessions: false },
+      ]);
+      // The kind a reader needs is the adoption, not the approval every other
+      // row of the run is also doing — and the tier still travels with it.
+      expect(plan.accounts).toEqual([
+        {
+          kind: 'claim',
+          sourceId: 'C-9',
+          email: 'grace@example.com',
+          id: 'u-new',
+          changes: [{ field: 'tier', from: null, to: 'wholesale' }],
+          mailed: true,
+        },
+      ]);
+      expect(plan.summary).toMatchObject({ claimed: 1, create: 0, mailed: 1 });
+    });
+
+    it('is a change in its own right, even when the row asks for nothing else', () => {
+      // Giving an account its key is what makes every later run able to reach
+      // it, so a run that does only that is not a quiet night.
+      const { plan, actions } = planCustomerSync(
+        [row({ sourceId: 'C-9', email: 'grace@example.com' })],
+        options({ claimByEmail: true }),
+        state({ accounts: [selfRegistered({ status: 'active' })] }),
+      );
+
+      expect(actions.claimAccounts).toEqual([{ id: 'u-new', sourceId: 'C-9' }]);
+      expect(plan.summary).toMatchObject({ claimed: 1, unchanged: 0 });
+    });
+
+    it('never claims a staff account', () => {
+      // Staff are not customers under any setting, and the refusal says so by
+      // name rather than the account being quietly adopted.
+      const { plan, actions } = planCustomerSync(
+        [
+          row({
+            sourceId: 'C-9',
+            email: 'boss@example.com',
+            access: 'enabled',
+          }),
+        ],
+        options({ claimByEmail: true }),
+        state({
+          accounts: [
+            selfRegistered({
+              id: 'u-staff',
+              email: 'boss@example.com',
+              role: 'admin',
+            }),
+          ],
+        }),
+      );
+
+      expect(actions.claimAccounts).toEqual([]);
+      expect(plan.rowErrors[0]).toMatchObject({ code: 'staff-account' });
+    });
+
+    it('never claims an account the person closed themselves', () => {
+      const { plan, actions } = planCustomerSync(
+        [
+          row({
+            sourceId: 'C-9',
+            email: 'gone@example.com',
+            access: 'enabled',
+          }),
+        ],
+        options({ claimByEmail: true }),
+        state({
+          accounts: [
+            selfRegistered({
+              id: 'u-gone',
+              email: 'gone@example.com',
+              status: 'anonymized',
+            }),
+          ],
+        }),
+      );
+
+      expect(actions.claimAccounts).toEqual([]);
+      expect(actions.createAccounts).toEqual([]);
+      // Refused as closed, not as unclaimed: pointing at an option that would
+      // refuse it too is worse than saying nothing.
+      expect(plan.rowErrors[0]).toMatchObject({ code: 'account-withdrawn' });
+    });
+
+    it("stays an ordinary collision when the row's own key is already spoken for", () => {
+      // Claiming cannot help here: this key names one account and the address
+      // names another, and only a person can say which is meant.
+      const { plan } = planCustomerSync(
+        [row({ sourceId: 'C-1', email: 'grace@example.com' })],
+        options({ claimByEmail: true }),
+        state({ accounts: [account(), selfRegistered()] }),
+      );
+
+      expect(plan.rowErrors[0]).toMatchObject({ code: 'email-taken' });
     });
   });
 

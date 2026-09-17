@@ -144,6 +144,16 @@ const DEFAULT_MAX_INVITES = 25;
 /** See `maxDisables`. */
 const DEFAULT_MAX_DISABLES = 0;
 
+/**
+ * Claims a run may make unattended (FR-ADM-17). Zero, so the default is that a
+ * run adopting an account somebody registered here waits for a person — the
+ * danger it guards is a mistyped address upstream taking over a real
+ * customer's account and then tiering or disabling them inside a run nobody
+ * read. An operator bringing a customer book in for the first time writes the
+ * number down, which is the moment they decide it is safe.
+ */
+const DEFAULT_MAX_CLAIMS = 0;
+
 export const customerSyncPolicySchema = z
   .object({
     /**
@@ -159,6 +169,8 @@ export const customerSyncPolicySchema = z
      * operator who wants it unattended should have to write the number down.
      */
     maxDisables: z.number().int().nonnegative().default(DEFAULT_MAX_DISABLES),
+    /** Accounts it may claim by address. See `DEFAULT_MAX_CLAIMS`. */
+    maxClaims: z.number().int().nonnegative().default(DEFAULT_MAX_CLAIMS),
   })
   .strict();
 export type CustomerSyncPolicy = z.infer<typeof customerSyncPolicySchema>;
@@ -166,6 +178,7 @@ export type CustomerSyncPolicy = z.infer<typeof customerSyncPolicySchema>;
 export const DEFAULT_CUSTOMER_SYNC_POLICY: CustomerSyncPolicy = {
   maxInvites: DEFAULT_MAX_INVITES,
   maxDisables: DEFAULT_MAX_DISABLES,
+  maxClaims: DEFAULT_MAX_CLAIMS,
 };
 
 /**
@@ -187,5 +200,6 @@ export function decideCustomerAutoApply(
   if (requestReview) return 'requested';
   if (summary.create > policy.maxInvites) return 'policy';
   if (summary.softDelete > policy.maxDisables) return 'policy';
+  if (summary.claimed > policy.maxClaims) return 'policy';
   return null;
 }

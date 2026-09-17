@@ -110,6 +110,16 @@ export interface CustomerSyncActions {
    * for one. Accounts this run creates are mailed by virtue of being created
    * and are not listed here — they have no id yet. */
   mailLinkIds: string[];
+  /**
+   * Accounts adopted by address (FR-ADM-17): the key each one is given, and
+   * from then on the only thing it is matched by.
+   *
+   * Its own list rather than a `sourceId` on `updateAccounts`, because it is
+   * the one write here that is not an edit of the account's contents — it
+   * decides what this key *means*, and the applier has to be able to refuse it
+   * if somebody else claimed the same row in between.
+   */
+  claimAccounts: { id: string; sourceId: string }[];
 }
 
 interface PlanResult {
@@ -147,6 +157,7 @@ export function planCustomerSync(
     setStatus: [],
     approveIds: [],
     mailLinkIds: [],
+    claimAccounts: [],
   };
   const changes: CustomerAccountChange[] = [];
   const rowErrors: CustomerSyncRowError[] = [...parseErrors];
@@ -177,7 +188,16 @@ export function planCustomerSync(
     }
     seenSourceIds.add(row.sourceId);
 
-    const existing = bySourceId.get(row.sourceId);
+    // The account this row is about: the one holding its key, or — once, and
+    // only where the run was asked to (FR-ADM-17) — the one already holding
+    // its address and carrying no key of its own. Staff and withdrawn rows are
+    // never claim candidates: the checks below have their own answers for
+    // those, and both of them are "no", not "adopt it".
+    const byKey = bySourceId.get(row.sourceId);
+    const unclaimed =
+      !byKey && row.email ? unclaimedHolder(byEmail.get(row.email)) : undefined;
+    const claimed = options.claimByEmail ? unclaimed : undefined;
+    const existing = byKey ?? claimed;
 
     // A staff account is not a customer under any setting, so a run that has
     // somehow acquired one's key is refused rather than obeyed: the alternative
@@ -198,9 +218,26 @@ export function planCustomerSync(
     if (email) {
       const holder = byEmail.get(email);
       if (holder && holder.id !== existing?.id) {
-        return fail(holder.role === 'user' ? 'email-taken' : 'staff-account', {
-          email,
-        });
+        if (holder.role !== 'user') return fail('staff-account', { email });
+        // An account this run *could* have adopted, on a run that was not
+        // allowed to, is not the collision `email-taken` describes: it is
+        // almost certainly this very person, who registered on the storefront.
+        // Saying so points at the option that was off instead of at a clash
+        // nobody can resolve.
+        //
+        // The two exclusions matter here as much as in the claim itself. A row
+        // whose own key already names another account is an ordinary collision
+        // again — claiming cannot help when the key is spoken for. And an
+        // account the person closed is refused as closed, because telling
+        // somebody to turn on an option that would also refuse it is worse
+        // than saying nothing.
+        if (!byKey && unclaimedHolder(holder)) {
+          return fail('account-unclaimed', { email });
+        }
+        return fail(
+          holder.status === 'anonymized' ? 'account-withdrawn' : 'email-taken',
+          { email },
+        );
       }
       if (claimedEmails.has(email) && email !== existing?.email) {
         return fail('duplicate-email', { email });
@@ -341,7 +378,8 @@ export function planCustomerSync(
     const sendsLink =
       needsLink || (wantsLink && CAN_SIGN_IN.includes(statusAfter));
 
-    if (fieldChanges.length === 0 && !access && !sendsLink) {
+    const claims = existing === claimed;
+    if (!claims && fieldChanges.length === 0 && !access && !sendsLink) {
       unchanged++;
       return;
     }
@@ -362,9 +400,16 @@ export function planCustomerSync(
       actions.mailLinkIds.push(existing.id);
       mailed++;
     }
+    if (claims) {
+      actions.claimAccounts.push({ id: existing.id, sourceId: row.sourceId });
+    }
 
     changes.push({
-      kind: access?.kind ?? 'update',
+      // A claim outranks the move it arrives with. A run that adopts somebody's
+      // registration and approves it in one row is doing both, and the one a
+      // reader has to be told about is the adoption — the approval is what
+      // every other row of the run is already doing.
+      kind: claims ? 'claim' : (access?.kind ?? 'update'),
       sourceId: row.sourceId,
       email: update.email ?? existing.email,
       id: existing.id,
@@ -382,6 +427,7 @@ export function planCustomerSync(
     // restored one is (ADR 0060).
     softDelete: count(changes, 'disable'),
     restore: count(changes, 'enable'),
+    claimed: count(changes, 'claim'),
     unchanged,
     categoriesCreated: 0,
     categoriesRenamed: 0,
@@ -494,6 +540,25 @@ function resolveCompany(
     companyName: null,
     companyRegistrationId: null,
   };
+}
+
+/**
+ * Whether an account already holding a row's address may be adopted by it
+ * (FR-ADM-17): a customer, registered here, carrying no source key of its own,
+ * and still an account at all.
+ *
+ * Staff are excluded because they are never customers under any setting, and a
+ * withdrawn account because there is nothing left in it to claim — both fall
+ * through to the refusals that say so by name rather than being quietly
+ * adopted.
+ */
+function unclaimedHolder(
+  holder: ExistingAccount | undefined,
+): ExistingAccount | undefined {
+  if (!holder) return undefined;
+  if (holder.role !== 'user') return undefined;
+  if (holder.status === 'anonymized') return undefined;
+  return holder.sourceId === null ? holder : undefined;
 }
 
 function count(

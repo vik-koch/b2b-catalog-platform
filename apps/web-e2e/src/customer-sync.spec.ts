@@ -109,3 +109,57 @@ test('the price-list preset asks for no invitations at all', async ({
   await expect(page.getByText('Skipped', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Apply' })).toBeHidden();
 });
+
+/**
+ * Claiming an account somebody registered on the shop (FR-ADM-17). Preview
+ * only, like everything else here: a claim is a write to a seeded account, and
+ * what is worth seeing on this screen is that the operator is told what is
+ * about to happen before they can press anything.
+ *
+ * `s.moreau@mail.example` is seeded `pending` with no source key — the
+ * deadlock the claim exists for, in the one state where nobody on either side
+ * can decide about them.
+ */
+const UNCLAIMED = 's.moreau@mail.example';
+
+test('a row matching an account nobody claimed says so, rather than “address taken”', async ({
+  page,
+}) => {
+  await logIn(page);
+  await page.goto('/admin/sync/customers/new');
+
+  await upload(
+    page,
+    `sourceId,email,access\ne2e-web-${R}-9,${UNCLAIMED},enabled\n`,
+  );
+
+  // Matched on wording only the row error has: the checkbox that would fix it
+  // is on the same screen, and says almost the same thing.
+  await expect(page.getByText(/carries no source key yet/)).toBeVisible();
+  await expect(page.getByText('Claimed', { exact: true })).toBeHidden();
+});
+
+test('claiming is opted into, and the preview warns before anything is applied', async ({
+  page,
+}) => {
+  await logIn(page);
+  await page.goto('/admin/sync/customers/new');
+
+  await page.getByText('Advanced').click();
+  await page
+    .getByRole('checkbox', { name: /Claim accounts by email address/ })
+    .check();
+
+  await upload(
+    page,
+    `sourceId,email,access\ne2e-web-${R}-9,${UNCLAIMED},enabled\n`,
+  );
+
+  // The count tile, the row badge and the warning above the button — the three
+  // places a reader could notice it, and the reason none of them is optional.
+  await expect(
+    page.getByText('Claimed', { exact: true }).first(),
+  ).toBeVisible();
+  await expect(page.getByRole('status')).toContainText('will be claimed');
+  await expect(page.getByRole('button', { name: 'Apply' })).toBeEnabled();
+});
