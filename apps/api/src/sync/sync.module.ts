@@ -17,6 +17,8 @@ import {
   loadMoneyFormat,
   SYNC_POLICY,
   loadSyncPolicy,
+  CUSTOMER_SYNC_POLICY,
+  loadCustomerSyncPolicy,
 } from '../config/deployment-config';
 
 /**
@@ -38,6 +40,7 @@ import {
       useFactory: loadLowStockThresholdPieces,
     },
     { provide: SYNC_POLICY, useFactory: loadSyncPolicy },
+    { provide: CUSTOMER_SYNC_POLICY, useFactory: loadCustomerSyncPolicy },
     // Only for the locale its dates are written in: a mail about a run states
     // when it ran, and the deployment writes one kind of timestamp.
     { provide: MONEY_FORMAT, useFactory: loadMoneyFormat },
