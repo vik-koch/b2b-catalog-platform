@@ -22,6 +22,7 @@ const text = defaultAdminText.userList;
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {
     id: 'u1',
+    sourceId: null,
     email: 'jane@example.com',
     role: 'user',
     status: 'active',

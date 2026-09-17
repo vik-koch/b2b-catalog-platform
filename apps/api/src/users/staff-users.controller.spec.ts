@@ -40,6 +40,7 @@ describe('StaffUsersController', () => {
   const customer = {
     id: '11111111-1111-4111-8111-111111111111',
     email: 'jane@example.com',
+    sourceId: null,
     role: 'user' as const,
     status: 'active' as const,
     firstName: 'Jane',

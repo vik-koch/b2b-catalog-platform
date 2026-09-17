@@ -98,6 +98,16 @@ export class StaffUsersController {
             message: 'Only an admin can create a staff account',
           });
         }
+        // The source key is the other field a manager may not touch, and for a
+        // neighbouring reason: it decides which account an exchange addresses
+        // (FR-ADM-14), so typing one in is a deployment act like the ownership
+        // switch rather than the customer work a manager does. Refused outright
+        // rather than dropped, so a refusal cannot read as a save.
+        if (body.sourceId !== undefined && actor.role !== 'admin') {
+          throw errors['source-id-change-admin-only']({
+            message: 'Only an admin can change a source key',
+          });
+        }
         // Checked against the role being asked for, since there is no stored
         // row yet — the one place the rule reads the request, and safely: a
         // request claiming a staff role is already refused above unless the
@@ -146,6 +156,16 @@ export class StaffUsersController {
             message: 'Only an admin can change a role',
           });
         }
+        // The source key is the other field a manager may not touch, and for a
+        // neighbouring reason: it decides which account an exchange addresses
+        // (FR-ADM-14), so typing one in is a deployment act like the ownership
+        // switch rather than the customer work a manager does. Refused outright
+        // rather than dropped, so a refusal cannot read as a save.
+        if (body.sourceId !== undefined && actor.role !== 'admin') {
+          throw errors['source-id-change-admin-only']({
+            message: 'Only an admin can change a source key',
+          });
+        }
         this.refuseIfOwned(before, 'edit an account');
 
         const user = await this.service.update(id, body, actor.id);
@@ -174,6 +194,15 @@ export class StaffUsersController {
     }
     if (after.tierId !== before.tierId) {
       this.audit.record('user.tierChanged', actor, entity);
+    }
+    // Its own line for the reason the role and the tier have one: "who gave
+    // this account that source key" is a question an auditor asks by itself,
+    // and it is the edit that decides what an exchange may reach.
+    if (after.sourceId !== before.sourceId) {
+      this.audit.record('user.sourceIdChanged', actor, {
+        ...entity,
+        name: `${after.email} → ${after.sourceId ?? '—'}`,
+      });
     }
     if (PROFILE_FIELDS.some((field) => after[field] !== before[field])) {
       this.audit.record('user.updated', actor, entity);

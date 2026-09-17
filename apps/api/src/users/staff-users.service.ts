@@ -45,10 +45,29 @@ const notFound = () =>
     message: 'Account not found',
   });
 
+/**
+ * Somebody else already carries that source key (FR-ADM-14). The key is the
+ * only identity the exchange models, so two accounts sharing one would make
+ * every later run ambiguous, which is why the column is unique.
+ */
+const sourceIdTaken = () =>
+  new ConflictException({
+    code: 'source-id-taken',
+    message: 'Another account already carries that source key',
+  });
+
+/** A Postgres unique-index violation, as Drizzle hands it on: the driver's
+ * error is wrapped, and its code lives on `cause`. */
+function isUniqueViolation(error: unknown): boolean {
+  const cause = (error as { cause?: unknown })?.cause ?? error;
+  return (cause as { code?: string })?.code === '23505';
+}
+
 /** What the account list and every mutation answer with. */
 const staffUserColumns = {
   id: users.id,
   email: users.email,
+  sourceId: users.sourceId,
   role: users.role,
   status: users.status,
   firstName: users.firstName,
@@ -235,12 +254,18 @@ export class StaffUsersService {
       });
     }
 
+    const sourceId = input.sourceId ?? null;
+    if (sourceId !== null && input.role === 'user') {
+      await this.assertSourceIdFree(sourceId, sourceId);
+    }
+
     const [created] = await this.db
       .insert(users)
       .values({
         email,
         passwordHash: unusablePasswordHash,
         role: input.role,
+        sourceId: input.sourceId,
         status: 'invited',
         tierId: input.tierId,
         firstName: input.firstName,
@@ -283,6 +308,20 @@ export class StaffUsersService {
     const role = input.role ?? current.role;
     if (input.role) this.assertRoleChangeAllowed(current, role, actorId);
 
+    // The source key is a customer's (FR-ADM-14), so promoting somebody out of
+    // `user` clears it for the reason a promotion clears the tier: a staff
+    // account the exchange could address would be one it could tier, disable
+    // or re-mail, and it is never allowed either.
+    const sourceId =
+      role === 'user'
+        ? input.sourceId !== undefined
+          ? input.sourceId
+          : current.sourceId
+        : null;
+    if (sourceId !== null && sourceId !== current.sourceId) {
+      await this.assertSourceIdFree(sourceId, id);
+    }
+
     const apply = async (tx: Pick<typeof this.db, 'update'>) => {
       const [updated] = await tx
         .update(users)
@@ -294,6 +333,7 @@ export class StaffUsersService {
           companyName: input.companyName?.trim() ?? null,
           companyRegistrationId: input.companyRegistrationId,
           tierId: role === 'user' ? input.tierId : null,
+          sourceId,
           role,
           updatedAt: new Date(),
         })
@@ -304,9 +344,34 @@ export class StaffUsersService {
 
     // A demotion out of `admin` is an admin removal like any other, so it goes
     // through the guard that holds the invariant against a concurrent one.
-    return current.role === 'admin' && role !== 'admin'
-      ? this.users.removingAdmin(id, apply)
-      : apply(this.db);
+    try {
+      return await (current.role === 'admin' && role !== 'admin'
+        ? this.users.removingAdmin(id, apply)
+        : apply(this.db));
+    } catch (error) {
+      // The check above answers the ordinary case with a sentence; the unique
+      // index answers the race, and it has to arrive as the same refusal
+      // rather than as a 500 (see `drizzle` wrapping driver errors on `cause`).
+      if (isUniqueViolation(error)) throw sourceIdTaken();
+      throw error;
+    }
+  }
+
+  /**
+   * Nobody else may already carry this key. Checked here as well as by the
+   * unique index, because "another account already has that key" is a sentence
+   * an admin can act on and a constraint violation is not.
+   */
+  private async assertSourceIdFree(
+    sourceId: string,
+    selfId: string,
+  ): Promise<void> {
+    const [holder] = await this.db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.sourceId, sourceId))
+      .limit(1);
+    if (holder && holder.id !== selfId) throw sourceIdTaken();
   }
 
   /**

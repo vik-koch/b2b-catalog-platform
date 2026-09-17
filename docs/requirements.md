@@ -524,6 +524,8 @@ An account the exchange asks for ([FR-ADM-11](#fr-adm-11)) is created in the pla
 
 Every customer account carries a private `sourceId` — the source system's own key, and the only identity the platform models for it, as for a product ([FR-ADM-02](#fr-adm-02)). An account is never matched by email address or company registration id, both of which a person can change and two people can share.
 
+The one exception is the moment an account first acquires a key, which is what [FR-ADM-17](#fr-adm-17) governs: an account that has none has no identity to match on yet, and matching it by address once is how it gets one. Afterwards it is matched by the key exactly as stated above. An admin can also set, correct and clear the key by hand, as they can a product's; only an admin can, and — like every other write to a customer account — not while an external system owns them ([FR-ADM-10](#fr-adm-10)).
+
 #### <a id="fr-adm-15"></a>FR-ADM-15 — The account holder's own data travels outward only
 
 What an account holder maintains themselves — their name, their phone number, their password, and the deletion of their own account ([FR-AUTH-06](#fr-auth-06)) — travels outward only and is never written from outside. An account the person has deleted is reported as withdrawn rather than deleted on the exchange's say-so, and keeps its `sourceId` when the rest of it is cleared, so a run asking for that customer again is refused rather than obeyed: a deletion the next run could undo is not a deletion.
