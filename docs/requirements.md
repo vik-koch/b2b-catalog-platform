@@ -212,7 +212,6 @@ survives a retitling; the Contents block below is generated from those headings 
 - [NFR-OPS-05](#nfr-ops-05) — Search observability
 - [NFR-OPS-06](#nfr-ops-06) — Bounded release and downtime
 - [NFR-OPS-07](#nfr-ops-07) — A failed sync leaves consistent state
-
 ---
 
 ## Functional Requirements
