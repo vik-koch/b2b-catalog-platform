@@ -341,3 +341,36 @@ A run that applied itself and brought products nobody has published yet. The onl
 **Preheader:** An automatic catalog update brought new products.
 
 [View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/sync-created.html) · [HTML source](mail/sync-created.html) · [Plain text](mail/sync-created.txt)
+
+<a id="customer-sync-failed"></a>
+
+### Customer update failed
+
+The same three feed messages in the other area (FR-NOTIF-09). Worded about accounts rather than products, because the subject line is where a mail about the wrong thing does its damage.
+
+**Subject:** Customer update failed  
+**Preheader:** An automatic customer update did not go through.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/customer-sync-failed.html) · [HTML source](mail/customer-sync-failed.html) · [Plain text](mail/customer-sync-failed.txt)
+
+<a id="customer-sync-recovered"></a>
+
+### Customer updates working again
+
+Read off this area’s own previous run: a catalog feed that is still broken does not suppress this, and this does not clear that.
+
+**Subject:** Customer updates are working again  
+**Preheader:** The automatic customer update went through.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/customer-sync-recovered.html) · [HTML source](mail/customer-sync-recovered.html) · [Plain text](mail/customer-sync-recovered.txt)
+
+<a id="customer-sync-waiting"></a>
+
+### A customer update is waiting
+
+A run held back for a person. There is deliberately no customer counterpart to “new products arrived”: an invited account has already been mailed its own set-a-password link.
+
+**Subject:** A customer update is waiting for you  
+**Preheader:** An automatic customer update needs your decision.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/customer-sync-waiting.html) · [HTML source](mail/customer-sync-waiting.html) · [Plain text](mail/customer-sync-waiting.txt)

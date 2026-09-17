@@ -1,0 +1,15 @@
+An automatic customer update failed
+
+Your customer accounts are unchanged and everybody who could sign in still can. Until this is fixed, new customers and changed price groups will not reach the shop and you may have to enter them by hand — pass this message on to whoever looks after the connection to your system.
+
+Started: 14 Mar 2026, 03:15
+Export: nightly-customers
+Source: ERP customer export
+What went wrong: customer export ended early: 48 of 1,120 rows received
+
+Open the run: https://shop.example.com/admin/sync/runs/2a7d9e41-5b3f-4e18-8c02-7d4b1f6e9a35
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com
