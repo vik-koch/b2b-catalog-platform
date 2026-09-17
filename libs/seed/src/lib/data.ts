@@ -55,6 +55,13 @@ export const conditionsPageSeed: PageSeed = {
  * narrower than a plain reading (ADR 0032: the row survives, tombstoned). A
  * notice that promised more than the code delivers would be the wrong half of
  * the pair to leave unmaintained.
+ *
+ * Two sections describe the exchange with the business system (NFR-LEGAL-07,
+ * NFR-LEGAL-08) and belong **only to a deployment that has one**. They are
+ * seeded because the demo shop does: a transfer is configured, never assumed —
+ * nothing leaves this platform until somebody issues a credential that can read
+ * accounts — so an operator who has issued none deletes these two sections, the
+ * same edit they make to every other line of this page.
  */
 export const privacyPageSeed: PageSeed = {
   slug: 'privacy',
@@ -87,6 +94,15 @@ export const privacyPageSeed: PageSeed = {
     'so it is not part of your account and does not follow you to another',
     'device — and it stays until you order it or empty it yourself.</li>',
     '</ul>',
+    '<h2>Your account in our business system</h2>',
+    '<p>We run the shop from the same system we run the rest of the business',
+    'from, and the two are kept in step: your name, contact details, company',
+    'details and pricing group are transferred to it, so that an order placed',
+    'here can be invoiced and delivered there. The recipient is our own',
+    'business software — the supplier who provides it can reach the data in',
+    'the course of maintaining it, and nobody else does. Nothing about your',
+    'password ever leaves this shop: it is stored here, and the business',
+    'system neither receives it nor can set one for you.</p>',
     '<h2>If we cannot open an account for you</h2>',
     '<p>A registration we decline is deleted outright, along with everything',
     'you entered on it.</p>',
@@ -104,6 +120,15 @@ export const privacyPageSeed: PageSeed = {
     'later — but that is a new account, and your earlier orders will not',
     'appear in it.</li>',
     '</ul>',
+    '<p>Deleting your account here reaches this shop, and we would rather say',
+    'so plainly than promise more. Our business system is told that you have',
+    'withdrawn, and it stops receiving anything further about you — but it',
+    'keeps its own record of you under its own obligations, the same record it',
+    'would hold for a customer who had never used this website. Ask us and we',
+    'will deal with that side by hand. One detail survives here for your',
+    'benefit: the reference our business system knows you by stays on the',
+    'emptied record, which is what stops a later update from recreating the',
+    'account you asked us to close.</p>',
     '<h2>Your rights</h2>',
     '<p>You can ask us at any time what we hold about you, have it',
     'corrected, or have it deleted. Deleting your account does most of this',
