@@ -162,6 +162,7 @@ const summary = (create: number, update: number, softDelete: number) => ({
   categoriesRenamed: 0,
   categoriesEmptied: 0,
   keptManual: 0,
+  mailed: 0,
   errors: 0,
   fields: ['price:base', 'stock'],
 });

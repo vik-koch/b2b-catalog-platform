@@ -85,6 +85,17 @@ export const syncSummarySchema = z
     categoriesEmptied: z.number().int().nonnegative().default(0),
     /** Live products absent from the file but kept because they are `manual:`. */
     keptManual: z.number().int().nonnegative().default(0),
+    /**
+     * Mails this run sent to the people it is about — the set-a-password links
+     * a customer run hands to accounts it invited, and to anyone whose row
+     * asked for one again (FR-ADM-13).
+     *
+     * A count of an effect rather than of a row, and the only one here that is
+     * not a row: a run that changed no account but re-sent one link did
+     * something, and calling it `no-change` would file a mail somebody
+     * received under "nothing happened".
+     */
+    mailed: z.number().int().nonnegative().default(0),
     errors: z.number().int().nonnegative(),
     /**
      * Which fields this run rewrote, as they are named in a change:
