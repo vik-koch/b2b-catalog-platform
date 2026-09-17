@@ -391,6 +391,17 @@ Notes:
   shipped in v1.10.0 and an adapter is being written against it, so the area travels in the
   body, where the per-run field intent already travels. Renaming it would be a major under
   ADR 0044 for the sake of a tidier URL.
+- The **health mails are shared machinery with unshared words** ([FR-NOTIF-09](requirements.md#fr-notif-09)). One
+  notifier serves both areas and the change-of-state rule ADR 0057 argued for is unchanged, but
+  each area is read against its own last run and writes its own sentences: two feeds that break
+  independently must not clear each other, and "Catalog update failed" about an account import
+  is wrong in the subject line, which is the only part of a mail that is certainly read. The
+  catalog's fourth message — products that arrived unpublished — has deliberately **no customer
+  counterpart**: an invited account has already been sent its own set-a-password link
+  ([FR-ADM-13](requirements.md#fr-adm-13)), so there is no queue on anybody's desk to announce. Who reads them did
+  *not* split with the wording: FR-NOTIF-09 names the admin, and a manager's readership of
+  customer runs ([FR-ADM-09](requirements.md#fr-adm-09)) is the panel, which is the channel that works when SMTP does
+  not.
 - The customer exchange is stated as a **capability rather than a field list**: the adapter can
   do everything a manager can do to a customer account and an order, and while the area is
   owned the admin panel's side of it is closed completely rather than field by field. A first

@@ -3,18 +3,28 @@ import { MailContent, MailRow } from '../mail-layout';
 import { MailText } from '../mail-text';
 
 /**
- * What an automated catalog sync writes to the shop (FR-ADM-07/09).
+ * What an automated exchange writes to the shop (FR-ADM-07/09, FR-NOTIF-09).
  *
- * Four messages in one file, because they are four outcomes of the same event
- * and say them with the same facts: the run, when it started, what it called
- * itself, which credential sent it. Only the sentence at the top and where the
- * button goes differ, so a reader following a broken feed across two mails is
- * reading one description of one thing.
+ * Four messages in one file — the three every area sends and the catalog's
+ * fourth — because they are outcomes of the same event and say it with the
+ * same facts: the run, when it started, what it called itself, which
+ * credential sent it. Only the sentence at the top and where the button goes
+ * differ, so a reader following a broken feed across two mails is reading one
+ * description of one thing.
+ *
+ * Which *words* those are is the run's area, read off the run itself rather
+ * than passed in beside it: a run knows what it is about, and a second
+ * argument saying so again is an argument that can disagree with it.
  *
  * Every mail links to the run rather than describing it in full. A mail is
  * read on a phone and the decision is not one to take there — what it has to
  * do is say something happened and be one tap from where it can be answered.
  */
+
+/** The sentences for the area this run belongs to. */
+function wording(run: SyncRun, text: MailText) {
+  return text.syncRun.areas[run.area];
+}
 
 /** How a run is identified in any of the four: the same three lines, in the
  * same order, so two mails about one feed line up. */
@@ -58,7 +68,7 @@ export function syncFailedMail(
   started: string,
   text: MailText,
 ): MailContent {
-  const t = text.syncRun.kinds.failed;
+  const t = wording(run, text).failed;
   return {
     subject: t.subject,
     preheader: t.preheader,
@@ -81,7 +91,7 @@ export function syncRecoveredMail(
   started: string,
   text: MailText,
 ): MailContent {
-  const t = text.syncRun.kinds.recovered;
+  const t = wording(run, text).recovered;
   return {
     subject: t.subject,
     preheader: t.preheader,
@@ -104,7 +114,7 @@ export function syncWaitingMail(
   started: string,
   text: MailText,
 ): MailContent {
-  const t = text.syncRun.kinds.waiting;
+  const t = wording(run, text).waiting;
   const reason = run.stagedReason
     ? [
         {
@@ -125,6 +135,8 @@ export function syncWaitingMail(
 
 /**
  * A run applied itself and brought new products (`admins` audience).
+ * Catalog only — see `customerSyncMails` for why the customer exchange has no
+ * counterpart.
  *
  * The only one of the four that does not link to the run: what is waiting is
  * not a decision about the import — that is already made — but a product page
@@ -136,7 +148,7 @@ export function syncCreatedMail(
   started: string,
   text: MailText,
 ): MailContent {
-  const t = text.syncRun.kinds.created;
+  const t = text.syncRun.areas.catalog.created;
   return {
     subject: t.subject,
     preheader: t.preheader,

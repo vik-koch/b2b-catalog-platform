@@ -45,7 +45,18 @@ const STATE_OF: Record<SyncRunStatus, FeedState> = {
 };
 
 /**
- * What an automated catalog sync tells the shop (FR-ADM-07/09).
+ * What an automated exchange tells the shop (FR-ADM-07/09, FR-NOTIF-09).
+ *
+ * **One notifier, one area at a time.** The feed state it reads is the status
+ * of the previous machine run *of that area*, which the caller supplies, so a
+ * broken catalog feed and a working customer one are two independent facts and
+ * neither announces the other's recovery. The wording follows the same seam:
+ * the templates key their sentences off `run.area`.
+ *
+ * Who reads it is *not* per area. FR-NOTIF-09 names the admin, and these go to
+ * the addresses the deployment configures rather than to staff accounts — a
+ * manager's readership of customer runs (FR-ADM-09) is the panel, which is the
+ * channel that works whether or not SMTP does.
  *
  * Three of the four mails are sent on a **change of state**, not on a run:
  * the first failure after things were working, the recovery, and the moment
@@ -107,7 +118,16 @@ export class SyncNotifications {
     // transition: every such run is its own piece of news, and there is no
     // state for it to be in. A staged run an admin applied by hand says
     // nothing here — they have just read the preview that says it.
-    if (run.status === 'applied' && !run.stagedReason && run.summary?.create) {
+    //
+    // Catalog only. A customer run that invited accounts has already mailed
+    // those people their set-a-password link; there is no queue left on
+    // anybody's desk for a fourth message to point at.
+    if (
+      run.area === 'catalog' &&
+      run.status === 'applied' &&
+      !run.stagedReason &&
+      run.summary?.create
+    ) {
       await this.send(
         syncCreatedMail(run, this.when(run), this.text),
         'admins',
