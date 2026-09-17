@@ -271,6 +271,16 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
   },
+  // Reading one account, for customers and staff alike. Kept ahead of the
+  // editor for no reason but reading order — the two paths cannot collide.
+  // It never stands in front of `:id/edit`: the editor is reachable on its own
+  // terms, owned or not.
+  {
+    path: 'admin/users/:id',
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/users/user-detail-page').then((m) => m.UserDetailPage),
+  },
   {
     // Admin and manager both: which accounts a manager may open is the API's
     // call (a staff account is 404 for them), not a second list of rules here.

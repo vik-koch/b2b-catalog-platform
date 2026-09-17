@@ -33,6 +33,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'admin/users/staff', renderMode: RenderMode.Client },
   { path: 'admin/users/new', renderMode: RenderMode.Client },
   { path: 'admin/users/staff/new', renderMode: RenderMode.Client },
+  { path: 'admin/users/:id', renderMode: RenderMode.Client },
   { path: 'admin/users/:id/edit', renderMode: RenderMode.Client },
   { path: 'admin/orders', renderMode: RenderMode.Client },
   { path: 'admin/orders/:reference', renderMode: RenderMode.Client },

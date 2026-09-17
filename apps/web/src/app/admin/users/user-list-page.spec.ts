@@ -122,10 +122,11 @@ async function render(
     fixture.componentRef.setInput(name, value);
     await settle();
   };
-  /** The name, which shares its cell with the email — the first line of it. */
+  /** The name, which shares its cell with the email — the first line of it,
+   * and a link to the account's own page. */
   const names = () =>
     [...el.querySelectorAll('tbody tr')].map((row) =>
-      row.querySelector('td span')?.textContent?.trim(),
+      row.querySelector('td a')?.textContent?.trim(),
     );
 
   /** Click a row action button by its text or aria-label. */
@@ -436,7 +437,11 @@ describe('UserListPage', () => {
       users: [user({ id: 'x1', status: 'anonymized' })],
     });
 
-    expect(el.querySelectorAll('tbody a')).toHaveLength(0);
+    // The name still opens the account — a closed one is a record, and a
+    // record is there to be read. What goes is every control that acts on it.
+    expect(
+      [...el.querySelectorAll('tbody a')].map((a) => a.getAttribute('href')),
+    ).toEqual(['/admin/users/x1?from=%2F']);
     expect(el.querySelectorAll('tbody button')).toHaveLength(0);
   });
 

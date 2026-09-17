@@ -6,7 +6,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   COMPANY_ID_NONE,
   formatPersonName,
@@ -101,6 +101,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
   selector: 'app-user-list-page',
   imports: [
     Button,
+    RouterLink,
     AdminIcon,
     AdminListHeader,
     AdminGrid,
@@ -153,9 +154,17 @@ const typeRank = (t: StaffUser['customerType']): number =>
                pair the order list draws in one cell, for the same reason: two
                columns of the same person cost a third of the table. -->
           <td class="truncate" [title]="user.email">
-            <span class="block truncate font-medium text-stone-700">
+            <!-- The name opens the account as it stands to be read; the
+                 pencil at the end of the row opens the screen that changes
+                 it. Two jobs, two links — most of what a manager does with a
+                 list is look somebody up. -->
+            <a
+              class="block truncate font-medium text-stone-700 hover:text-accent"
+              [routerLink]="['/admin/users', user.id]"
+              [queryParams]="editorFrom()"
+            >
               {{ name(user) }}
-            </span>
+            </a>
             <span class="block truncate text-xs text-subtle">
               {{ user.email }}
             </span>
@@ -205,12 +214,14 @@ const typeRank = (t: StaffUser['customerType']): number =>
           <!-- Only the account is greyed once it is closed, never the badge
                that says so — the same rule the table follows cell by cell. -->
           <app-record-row>
-            <span
+            <a
               class="truncate font-medium text-stone-700"
               [class.opacity-50]="isClosed(user)"
+              [routerLink]="['/admin/users', user.id]"
+              [queryParams]="editorFrom()"
             >
               {{ name(user) }}
-            </span>
+            </a>
             <span
               recordBadge
               appStatusBadge
