@@ -8,7 +8,9 @@ what an account holder actually experiences.
 
 What follows is the logic **as it currently stands**, not the thinking behind
 it. The reasoning lives in the ADRs; the requirements live in
-`requirements.md`.
+`requirements.md`. What to actually send over the wire — routes, row fields,
+error codes, what each one causes — is [the customer machine
+API](customer-machine-api.md).
 
 Requirements: FR-ADM-11 (the exchange itself), FR-ADM-12 (a file an operator
 uploads instead), FR-ADM-13 (no credential is ever issued from outside),
