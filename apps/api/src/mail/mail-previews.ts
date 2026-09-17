@@ -555,6 +555,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
     {
       slug: 'customer-sync-failed',
       group: 'Running the shop',
+      shows: 'customerSyncFailed',
       title: 'Customer update failed',
       note: 'The same three feed messages in the other area (FR-NOTIF-09). Worded about accounts rather than products, because the subject line is where a mail about the wrong thing does its damage.',
       content: syncFailedMail(CUSTOMERS_FAILED_RUN, RUN_TIME, text),
@@ -562,6 +563,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
     {
       slug: 'customer-sync-recovered',
       group: 'Running the shop',
+      shows: 'customerSyncRecovered',
       title: 'Customer updates working again',
       note: 'Read off this area’s own previous run: a catalog feed that is still broken does not suppress this, and this does not clear that.',
       content: syncRecoveredMail(CUSTOMERS_APPLIED_RUN, RUN_TIME, text),
@@ -569,6 +571,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
     {
       slug: 'customer-sync-waiting',
       group: 'Running the shop',
+      shows: 'customerSyncWaiting',
       title: 'A customer update is waiting',
       note: 'A run held back for a person. There is deliberately no customer counterpart to “new products arrived”: an invited account has already been mailed its own set-a-password link.',
       content: syncWaitingMail(CUSTOMERS_STAGED_RUN, RUN_TIME, text),
