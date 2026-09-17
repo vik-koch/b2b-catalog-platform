@@ -124,6 +124,11 @@ export function planCustomerSync(
   rows: CustomerSyncRow[],
   options: CustomerSyncOptions,
   state: CustomerSyncState,
+  /** Rows a file was carrying that could not be read at all (FR-ADM-12). They
+   * are the run's errors as much as the ones found here — an admin reading the
+   * preview is owed one list of what this file will not do, not two. Empty for
+   * a headless run, whose rows were a schema's to refuse. */
+  parseErrors: CustomerSyncRowError[] = [],
 ): PlanResult {
   const writes = new Set(options.fields);
   const bySourceId = new Map(
@@ -144,7 +149,7 @@ export function planCustomerSync(
     mailLinkIds: [],
   };
   const changes: CustomerAccountChange[] = [];
-  const rowErrors: CustomerSyncRowError[] = [];
+  const rowErrors: CustomerSyncRowError[] = [...parseErrors];
   const fieldsWritten = new Set<string>();
   let unchanged = 0;
   let mailed = 0;

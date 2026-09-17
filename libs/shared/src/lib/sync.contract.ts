@@ -345,6 +345,11 @@ export const SYNC_FORMAT_CODES = [
    * sentence rather than a generic one.
    */
   'catalog-externally-owned',
+  /** The same, said of the customer import (FR-ADM-12). The two uploads share
+   * one refusal vocabulary because they share one multipart channel; which of
+   * them is closed is not a thing the screen should have to work out from a
+   * code that does not say. */
+  'customers-externally-owned',
 ] as const;
 export type SyncFormatCode = (typeof SYNC_FORMAT_CODES)[number];
 
@@ -416,6 +421,10 @@ export const SYNC_COMMIT_CODES = [
    * they can only exist while the catalog *is* owned.
    */
   'catalog-externally-owned',
+  /** The same, said of an uploaded customer run (FR-ADM-12). One route applies
+   * every area's runs, so the codes it can answer with are the union of what
+   * the areas refuse. */
+  'customers-externally-owned',
 ] as const;
 export type SyncCommitCode = (typeof SYNC_COMMIT_CODES)[number];
 
@@ -429,6 +438,7 @@ const commitErrors = {
   'run-discarded': { status: 409 },
   'run-rows-pruned': { status: 409 },
   'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
+  'customers-externally-owned': ownershipErrors['customers-externally-owned'],
 } as const satisfies Record<SyncCommitCode, { status: number }>;
 
 /** The refusals a run this screen acts on can answer with — the same set for
