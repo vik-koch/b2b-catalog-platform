@@ -20,7 +20,11 @@ export const API_TOKEN_NAME_MAX_LENGTH = 80;
  * wrong one in the wrong slot. Least privilege is kept by which capabilities
  * an operator ticks, not by how many rows they have to manage.
  */
-export const API_TOKEN_SCOPES = ['catalog-sync', 'customer-sync'] as const;
+export const API_TOKEN_SCOPES = [
+  'catalog-sync',
+  'customer-sync',
+  'customer-read',
+] as const;
 export type ApiTokenScope = (typeof API_TOKEN_SCOPES)[number];
 
 /**

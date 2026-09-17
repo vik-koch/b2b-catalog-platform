@@ -110,6 +110,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-ADM-15](#fr-adm-15) — The account holder's own data travels outward only
 - [FR-ADM-16](#fr-adm-16) — A repeated instruction changes nothing
 - [FR-ADM-17](#fr-adm-17) — Claiming an account registered on the shop
+- [FR-ADM-18](#fr-adm-18) — Reading customer accounts outward
 
 **[Accounts, Roles & Pricing (FR-AUTH)](#fr-auth)**
 
@@ -541,6 +542,12 @@ Registering is the person's own act and stays open however customers are owned (
 
 It is a per-run option, off unless the run asks for it, and what it does appears in the preview as its own kind of change rather than as an ordinary edit — the deployment says how many claims a run may make before a person has to read it, and none by default. A claim happens once per account; from then on the key is the identity ([FR-ADM-14](#fr-adm-14)). Staff accounts and accounts the person has closed are never claimed, and where the option is off the row is refused in terms that say an unclaimed account is what was found, not that the address is taken.
 
+#### <a id="fr-adm-18"></a>FR-ADM-18 — Reading customer accounts outward
+
+The source system can read the shop's customer accounts over the machine endpoint — their source keys where they have them, their state, the details the account holder maintains, and the price list each is charged ([FR-ADM-15](#fr-adm-15)). Without it a person who registers on the shop is invisible to the system that is supposed to decide about them, and the account details the exchange is documented as sending outward would never leave.
+
+It reads whether or not an external system owns customers, because the case it exists for is the one where it does not yet. Staff accounts are never included ([FR-ADM-10](#fr-adm-10)). An account the person has deleted is reported as withdrawn and carries nothing but its keys and its dates ([NFR-LEGAL-08](#nfr-legal-08)). The reading is its own capability on the credential, separate from the one that writes.
+
 ---
 
 ### <a id="fr-auth"></a>Accounts, Roles & Pricing (FR-AUTH)
@@ -766,7 +773,7 @@ The open-source components delivered to the browser are attributed, with their l
 
 #### <a id="nfr-legal-07"></a>NFR-LEGAL-07 — Disclosing a transfer of account details
 
-Where a deployment transfers account details to an external system ([FR-ADM-11](#fr-adm-11)), the transfer is configured rather than assumed, and the privacy page names it, its purpose and the category of recipient.
+Where a deployment transfers account details to an external system ([FR-ADM-11](#fr-adm-11), [FR-ADM-18](#fr-adm-18)), the transfer is configured rather than assumed — no credential is issued with the reading capability unless somebody means it — and the privacy page names it, its purpose and the category of recipient.
 
 #### <a id="nfr-legal-08"></a>NFR-LEGAL-08 — Deletion reaches only this platform
 

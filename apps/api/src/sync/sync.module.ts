@@ -5,6 +5,8 @@ import { SettingsModule } from '../settings/settings.module';
 import { CatalogSyncController } from './catalog-sync.controller';
 import { CatalogSyncService } from './catalog-sync.service';
 import { CustomerSyncController } from './customer-sync.controller';
+import { CustomerReadService } from './customer-read.service';
+import { MachineCustomerReadController } from './machine-customer-read.controller';
 import { MachineCustomerSyncController } from './machine-customer-sync.controller';
 import { MachineSyncController } from './machine-sync.controller';
 import { SyncController } from './sync.controller';
@@ -50,12 +52,14 @@ import { AccountInvitations } from '../users/account-invitations';
     CustomerSyncController,
     MachineSyncController,
     MachineCustomerSyncController,
+    MachineCustomerReadController,
   ],
   providers: [
     SyncService,
     CatalogSyncService,
     AccountInvitations,
     CustomerSyncService,
+    CustomerReadService,
     SyncRunLog,
     SyncNotifications,
     {

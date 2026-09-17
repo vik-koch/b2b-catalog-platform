@@ -147,3 +147,10 @@ export const CUSTOMER_SYNC_FALSE_VALUES: readonly string[] = [
   'no',
   '0',
 ];
+
+/**
+ * The most accounts one page of the outbound read carries (FR-ADM-18), and
+ * also its default: a puller wants whole pages, and a client that names no
+ * limit is asking for as much as it can get.
+ */
+export const CUSTOMER_READ_MAX_LIMIT = 200;

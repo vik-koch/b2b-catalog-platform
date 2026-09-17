@@ -624,7 +624,8 @@
     "scopeRequired": "Choose at least one thing this token may do.",
     "scopes": {
       "catalog-sync": "Submit catalog imports",
-      "customer-sync": "Submit customer updates"
+      "customer-sync": "Submit customer updates",
+      "customer-read": "Read customer accounts"
     },
     "createdHeading": "“{name}” created",
     "createdOnce": "Copy the value now — it is shown this once and cannot be looked up again. If you lose it, revoke this token and issue another.",
