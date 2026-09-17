@@ -558,7 +558,8 @@
     "scopeHint": "A token can only do what it is allowed to here. To change that, revoke it and issue another.",
     "scopeRequired": "Choose at least one thing this token may do.",
     "scopes": {
-      "catalog-sync": "Submit catalog imports"
+      "catalog-sync": "Submit catalog imports",
+      "customer-sync": "Submit customer updates"
     },
     "createdHeading": "“{name}” created",
     "createdOnce": "Copy the value now — it is shown this once and cannot be looked up again. If you lose it, revoke this token and issue another.",

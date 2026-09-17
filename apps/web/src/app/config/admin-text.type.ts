@@ -906,7 +906,15 @@ export const adminTextSchema = z
         /** What each capability lets a token do, keyed by the contract's own
          * scope values. A new scope is a release, so a missing key here is a
          * config error rather than a fallback. */
-        scopes: z.object({ 'catalog-sync': z.string() }).strict(),
+        /** One line per capability a token can carry, keyed by the scope
+         * itself — a new scope is a new key here, and a missing one is a
+         * config that will not load rather than a blank cell. */
+        scopes: z
+          .object({
+            'catalog-sync': z.string(),
+            'customer-sync': z.string(),
+          })
+          .strict(),
         /** The panel that shows the value. `{name}` substituted at render. */
         createdHeading: z.string(),
         createdOnce: z.string(),

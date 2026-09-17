@@ -218,6 +218,13 @@
       "when": 1789588733169,
       "tag": "0030_category_source_id_optional",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1789594324985,
+      "tag": "0031_api_token_customer_sync_scope",
+      "breakpoints": true
     }
   ]
 }

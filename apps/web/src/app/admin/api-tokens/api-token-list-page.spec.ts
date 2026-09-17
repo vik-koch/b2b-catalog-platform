@@ -91,8 +91,18 @@ async function render(
   };
   const byLabel = (label: string) =>
     el.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`);
+  /** Ticks one capability in the create form, by the wording beside its box. */
+  const tick = async (label: string) => {
+    const box = [...el.querySelectorAll('label')]
+      .find((option) => option.textContent?.includes(label))
+      ?.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    if (!box) throw new Error(`no capability “${label}”`);
+    box.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
 
-  return { el, service, confirm, click, type, submit, byLabel, fixture };
+  return { el, service, confirm, click, type, submit, byLabel, tick, fixture };
 }
 
 describe('ApiTokenListPage', () => {
@@ -143,19 +153,33 @@ describe('ApiTokenListPage', () => {
     expect(byLabel(text.revoke)).toBeNull();
   });
 
-  /** With one capability to give there is nothing to choose, so the form
-   * fills it in; the day a second exists, the ticks start empty and the API is
-   * never called with a grant nobody made. */
-  it('sends the only capability there is without asking for it', async () => {
-    const { service, click, type, submit } = await render();
+  /** There is more than one capability now, so the ticks start empty and the
+   * API is never called with a grant nobody made. */
+  it('refuses to create a token nobody chose a capability for', async () => {
+    const { el, service, click, type, submit } = await render();
 
     await click('button[appButton]');
     await type('#api-token-name', 'Stock feed');
     await submit();
 
+    expect(el.textContent).toContain(text.scopeRequired);
+    expect(service.create).not.toHaveBeenCalled();
+  });
+
+  /** One credential, several capabilities: an operator who runs one client for
+   * both feeds ticks both rather than managing two secrets. */
+  it('sends exactly the capabilities that were ticked', async () => {
+    const { service, click, type, tick, submit } = await render();
+
+    await click('button[appButton]');
+    await type('#api-token-name', 'Stock feed');
+    await tick(text.scopes['catalog-sync']);
+    await tick(text.scopes['customer-sync']);
+    await submit();
+
     expect(service.create).toHaveBeenCalledWith({
       name: 'Stock feed',
-      scopes: ['catalog-sync'],
+      scopes: ['catalog-sync', 'customer-sync'],
     });
   });
 
@@ -170,10 +194,11 @@ describe('ApiTokenListPage', () => {
   });
 
   it('creates a token and shows its value once', async () => {
-    const { el, service, click, type, submit } = await render();
+    const { el, service, click, type, tick, submit } = await render();
 
     await click('button[appButton]');
     await type('#api-token-name', '  Stock feed  ');
+    await tick(text.scopes['catalog-sync']);
     await submit();
 
     expect(service.create).toHaveBeenCalledWith({
@@ -185,10 +210,11 @@ describe('ApiTokenListPage', () => {
   });
 
   it('clears the value only when it is dismissed', async () => {
-    const { el, click, type, submit, fixture } = await render();
+    const { el, click, type, tick, submit, fixture } = await render();
 
     await click('button[appButton]');
     await type('#api-token-name', 'Stock feed');
+    await tick(text.scopes['catalog-sync']);
     await submit();
     expect(el.textContent).toContain(created.token);
 
@@ -203,10 +229,13 @@ describe('ApiTokenListPage', () => {
   });
 
   it('reports a failed create without pretending one was issued', async () => {
-    const { el, click, type, submit } = await render({ createFails: true });
+    const { el, click, type, tick, submit } = await render({
+      createFails: true,
+    });
 
     await click('button[appButton]');
     await type('#api-token-name', 'Stock feed');
+    await tick(text.scopes['catalog-sync']);
     await submit();
 
     expect(el.textContent).toContain(text.createError);
