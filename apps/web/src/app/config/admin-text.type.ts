@@ -645,6 +645,8 @@ export const adminTextSchema = z
             /** Not a fault in the file: the catalog is externally owned
              * (FR-ADM-10) and the upload is closed. */
             'catalog-externally-owned': z.string(),
+            /** The same, said of the customer import (FR-ADM-12). */
+            'customers-externally-owned': z.string(),
           })
           .strict(),
         /** The diff. `{count}` substituted at render. */
@@ -720,6 +722,38 @@ export const adminTextSchema = z
         customers: z
           .object({
             accountsTitle: z.string(),
+            /**
+             * The manual import (FR-ADM-12), which is the catalog upload's
+             * sibling screen and needs its own three sentences: what the file
+             * is for, what a preset means, and which columns to write.
+             * `fileHint` substitutes `{columns}`, listed by the contract so the
+             * wording cannot go out of date without anything failing.
+             */
+            uploadTitle: z.string(),
+            uploadDescription: z.string(),
+            /** The file field's own label: the catalog's says "catalog". */
+            file: z.string(),
+            fileHint: z.string(),
+            /** Presets over the individual options. */
+            mode: z
+              .object({
+                full: z.string(),
+                fullHint: z.string(),
+                tiers: z.string(),
+                tiersHint: z.string(),
+                custom: z.string(),
+              })
+              .strict(),
+            /** Individual options, in the order the form shows them. */
+            option: z
+              .object({
+                email: z.string(),
+                tier: z.string(),
+                company: z.string(),
+                createMissing: z.string(),
+                updateExisting: z.string(),
+              })
+              .strict(),
             /** The count tiles, in this area's reading of them. */
             count: z
               .object({
@@ -771,6 +805,9 @@ export const adminTextSchema = z
                 'staff-account': z.string(),
                 'cannot-send-link': z.string(),
                 'company-details-incomplete': z.string(),
+                /** `{column}` and `{value}` — a cell an uploaded file's column
+                 * cannot hold (FR-ADM-12). */
+                'invalid-value': z.string(),
               })
               .strict(),
             /** The gate before a run that takes people's access away. `{count}`. */
@@ -792,6 +829,8 @@ export const adminTextSchema = z
             'run-no-change': z.string(),
             /** Uploaded before the catalog was handed over, applied after. */
             'catalog-externally-owned': z.string(),
+            /** The same, for an uploaded customer run (FR-ADM-12). */
+            'customers-externally-owned': z.string(),
             'run-superseded': z.string(),
             'run-discarded': z.string(),
             'run-rows-pruned': z.string(),
