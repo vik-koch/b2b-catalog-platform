@@ -2,7 +2,7 @@ import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { machineAuthErrors } from './api-tokens.contract';
 import { customerTypeSchema } from './auth.contract';
-import { CUSTOMER_READ_MAX_LIMIT } from './sync-constants';
+import { CUSTOMER_READ_MAX_LIMIT } from './customer-sync-constants';
 
 /**
  * The outbound read of customer accounts (FR-ADM-18, NFR-LEGAL-07): what a

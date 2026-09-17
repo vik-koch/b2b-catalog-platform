@@ -2,6 +2,8 @@ import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
+import { deleteMatching, messagesMatching } from '../support/mailpit';
+import { readFileSync } from 'node:fs';
 
 /**
  * The headless customer exchange (FR-ADM-11) end to end.
@@ -11,8 +13,11 @@ import { requireEnv } from '../support/env';
  * this route at all, that the exchange is refused unless somebody has handed
  * customer accounts over, that an account it asks for arrives `invited` with no
  * password anybody holds (FR-ADM-13), that a run taking access away waits for a
- * person, and that the person who may answer it is a manager as well as an
- * admin.
+ * person, that the person who may answer it is a manager as well as an admin,
+ * and that what the admin is written to about it is worded about accounts
+ * rather than about the catalog (FR-NOTIF-09) — which is the one part of the
+ * notification that a unit test proves only for a notifier it constructs
+ * itself, never for the service that has to call it.
  *
  * Isolation: every account this spec touches carries its own source key and
  * address, and the one global thing it moves — the ownership switch — is put
@@ -35,6 +40,20 @@ function sessionCookie(setCookie: string[] | undefined): string {
   if (!cookie) throw new Error('expected a session cookie');
   return cookie;
 }
+
+/** The deployment's own wording, read where the app reads it: a subject
+ * asserted as a literal here would pass against the catalog's. */
+const mailText = JSON.parse(
+  readFileSync(requireEnv('MAIL_TEXT_FILE'), 'utf8'),
+) as {
+  syncRun: {
+    areas: Record<string, Record<string, { subject: string }>>;
+  };
+};
+const WAITING = mailText.syncRun.areas.customers.waiting.subject;
+// Scoped to this suite's own mail: the admin inbox is shared with every other
+// suite, and the catalog's machine spec writes to it about its own runs.
+const WAITING_MAIL = `to:"${requireEnv('MAIL_ADMIN_TO')}" subject:"${WAITING}"`;
 
 const key = (n: number) => `${SOURCE_PREFIX}-${n}`;
 const address = (n: number) => `customer-${n}-${R}@${EMAIL_DOMAIN}`;
@@ -280,6 +299,19 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
         // Nothing has happened to the account: a staged run is a description,
         // not a write.
         expect((await accountByKey(key(1))).status).toBe('invited');
+      });
+
+      /**
+       * The mail the staged run wrote. Its subject is the customer exchange's
+       * own, which is the whole point: an inbox shows the subject, and
+       * "A catalog update is waiting for you" about an account import is wrong
+       * in the one line that gets read.
+       */
+      it('tells the admin about it in the customer exchange’s own words', async () => {
+        const [message] = await messagesMatching(WAITING_MAIL);
+
+        expect(message?.Subject).toBe(WAITING);
+        await deleteMatching(WAITING_MAIL);
       });
 
       it('is readable by a manager, whose work customer accounts are', async () => {

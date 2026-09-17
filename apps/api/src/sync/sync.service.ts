@@ -7,7 +7,7 @@ import {
   SyncArea,
   SyncCommitResponse,
   CustomerSyncPlan,
-  SyncPlan,
+  CatalogSyncPlan,
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared';
@@ -101,9 +101,10 @@ export class SyncService {
     });
   }
 
-  async getRun(
-    id: string,
-  ): Promise<{ run: SyncRun; plan: SyncPlan | CustomerSyncPlan | null }> {
+  async getRun(id: string): Promise<{
+    run: SyncRun;
+    plan: CatalogSyncPlan | CustomerSyncPlan | null;
+  }> {
     const [run] = await this.db
       .select()
       .from(syncRuns)

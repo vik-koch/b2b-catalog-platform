@@ -20,10 +20,10 @@ import {
   type CustomerSyncPlan,
   type CustomerSyncRow,
   type CustomerSyncRowError,
-  type SyncOptions,
-  type SyncPlan,
-  type SyncRow,
-  type SyncRowError,
+  type CatalogSyncOptions,
+  type CatalogSyncPlan,
+  type CatalogSyncRow,
+  type CatalogSyncRowError,
   type SyncSummary,
 } from '@b2b-catalog-platform/shared';
 import {
@@ -1328,20 +1328,20 @@ export const syncRuns = pgTable('sync_runs', {
   // table rather than one per area, so they are typed as the union and read
   // through it — the service that acts on a run knows which area it is in
   // before it looks, since that is what decided which service it reached.
-  options: jsonb('options').$type<SyncOptions | CustomerSyncOptions>(),
+  options: jsonb('options').$type<CatalogSyncOptions | CustomerSyncOptions>(),
   summary: jsonb('summary').$type<SyncSummary>(),
-  rows: jsonb('rows').$type<SyncRow[] | CustomerSyncRow[]>(),
+  rows: jsonb('rows').$type<CatalogSyncRow[] | CustomerSyncRow[]>(),
   // What the run actually did, kept once it is applied — the staged `rows` are
   // dropped at that point, and counts alone do not answer "which products
   // moved last night", which is the question the log exists for. Capped by the
   // same preview limit, so a first import stores a readable diff rather than a
   // catalog.
-  plan: jsonb('plan').$type<SyncPlan | CustomerSyncPlan>(),
+  plan: jsonb('plan').$type<CatalogSyncPlan | CustomerSyncPlan>(),
   // Rows the file itself could not yield (bad price, missing/duplicate
   // sourceId). Staged with `rows` so a commit's re-diff reports the same error
   // count the preview showed — the parse happens once, at upload.
   parseErrors: jsonb('parseErrors').$type<
-    SyncRowError[] | CustomerSyncRowError[]
+    CatalogSyncRowError[] | CustomerSyncRowError[]
   >(),
   error: text('error'),
   // What the sending system wanted said about a run that worked anyway. Kept

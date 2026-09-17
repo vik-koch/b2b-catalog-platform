@@ -90,3 +90,30 @@ customers as the last to know.
   deletes runs (the retention window, a restore) can make the next run announce
   itself as though it were the first. Harmless, and the alternative is the
   stored flag this avoids.
+
+## Amendment — 2026-09-17 (v1.11.0)
+
+The customer exchange (FR-ADM-11) is the second area, and it took the mechanism
+without change and the wording without reuse.
+
+- **State is per area.** The state is read off the previous machine run **of the
+  same area**, so a broken catalog feed and a working customer exchange are two
+  independent facts: neither announces the other's recovery, and neither
+  suppresses the other's failure. Nothing is stored for this either — the run
+  table already carries the area (ADR 0060).
+- **The words are per area; the machinery is not.** One notifier and one set of
+  audiences serve both, and the templates key their sentences off the run's own
+  area. "Catalog update failed" about an account import is wrong in the subject
+  line, which is the only part of a message that is certainly read — so the
+  deployment's wording carries a section per area rather than a noun to
+  substitute.
+- **The fourth message did not generalise.** "A run applied itself and brought
+  records a person must finish" is a catalog fact: an imported product needs a
+  page before it can be sold. An imported account needs a password, and its
+  owner has already been sent a link to set one — so the customer exchange has
+  three messages, not four, and the absence is in the schema rather than in a
+  convention.
+- **Audience did not split.** FR-NOTIF-09 names the admin, and these still go to
+  the deployment's configured addresses. That a manager may answer a staged
+  customer run (FR-ADM-09) is a fact about the panel, which is the durable
+  channel the original decision already leaned on.

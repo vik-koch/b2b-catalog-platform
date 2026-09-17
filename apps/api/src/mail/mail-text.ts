@@ -22,7 +22,7 @@ const statusMailText = z
   .strict();
 
 /** One sync outcome: its own subject and its own two lines. Subject and
- * preheader are per outcome rather than shared, because these four land in an
+ * preheader are per outcome rather than shared, because these land in an
  * inbox side by side and a common subject would make them one thread. */
 const syncMailText = z
   .object({
@@ -34,6 +34,42 @@ const syncMailText = z
     action: z.string(),
   })
   .strict();
+
+/**
+ * The three outcomes every area sends, which are the three that are about the
+ * exchange itself rather than about what it carried.
+ */
+const syncFeedMails = {
+  /** The exchange stopped working. Goes to the admin, and to the operator
+   * where one is configured: the admin cannot fix it, but they are the one who
+   * knows it is broken and who asks. */
+  failed: syncMailText,
+  /** It works again. Sent once, to the same readers, so a failure that was
+   * announced is never left open. */
+  recovered: syncMailText,
+  /** A run is staged and nobody has decided it. */
+  waiting: syncMailText,
+};
+
+/**
+ * The catalog's, which has a fourth: a run that applied itself and brought
+ * products that are off the storefront until somebody writes their pages and
+ * publishes them (FR-ADM-06).
+ */
+const catalogSyncMails = z
+  .object({ ...syncFeedMails, created: syncMailText })
+  .strict();
+
+/**
+ * The customer exchange's three.
+ *
+ * Deliberately without a `created`. The catalog's fourth mail exists because
+ * an imported product leaves work on somebody's desk; an imported account does
+ * not. What an invited account needs is a password, and the run has already
+ * mailed the person themselves a link to set one (FR-ADM-13) — telling the
+ * admin as well would be announcing a queue that nobody is standing in.
+ */
+const customerSyncMails = z.object(syncFeedMails).strict();
 
 export const mailTextSchema = z
   .object({
@@ -415,13 +451,20 @@ export const mailTextSchema = z
       })
       .strict(),
     /**
-     * What an automated catalog sync writes to the shop (FR-ADM-07/09).
+     * What an automated exchange writes to the shop (FR-ADM-07/09,
+     * FR-NOTIF-09).
      *
-     * One section rather than four, because these four messages are the same
-     * message about four different outcomes: they carry the same facts about
+     * One section rather than one per outcome, because these messages are the
+     * same message about different outcomes: they carry the same facts about
      * the same run, and only the sentence at the top differs. The labels are
      * shared for the same reason a status mail's are — a run described two
      * ways in two mails is a run nobody can follow across them.
+     *
+     * The labels are shared across the areas too; the sentences are not.
+     * "Catalog update failed" is the wrong thing to send a manager about a
+     * customer run, and it is wrong in the one place a mail is read — the
+     * subject line — so the wording is keyed by area and the facts around it
+     * are not.
      */
     syncRun: z
       .object({
@@ -448,20 +491,20 @@ export const mailTextSchema = z
             requested: z.string(),
           })
           .strict(),
-        kinds: z
+        /**
+         * The sentences, keyed by the area the run is about.
+         *
+         * An area carries its own wording rather than a placeholder filled
+         * with its name, because the sentence under the heading is not the
+         * same sentence with a noun swapped: a stale catalog is a shop selling
+         * yesterday's prices, and a stalled customer exchange is tiers that no
+         * longer match what the other system says. Both need saying, and
+         * neither is a template of the other.
+         */
+        areas: z
           .object({
-            /** The exchange stopped working. Goes to the admin, and to the
-             * operator where one is configured: the admin cannot fix it, but
-             * they are the one who knows it is broken and who asks. */
-            failed: syncMailText,
-            /** It works again. Sent once, to the same readers, so a failure
-             * that was announced is never left open. */
-            recovered: syncMailText,
-            /** A run is staged and nobody has decided it. */
-            waiting: syncMailText,
-            /** A run applied itself and brought new products, which are off
-             * the storefront until somebody publishes them (FR-ADM-06). */
-            created: syncMailText,
+            catalog: catalogSyncMails,
+            customers: customerSyncMails,
           })
           .strict(),
       })

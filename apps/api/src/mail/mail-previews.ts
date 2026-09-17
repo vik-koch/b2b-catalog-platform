@@ -192,6 +192,35 @@ const CREATED_RUN: SyncRun = {
   summary: summary(12, 40, 0),
 };
 
+/** The same run in the other area, which is what decides the wording. Its own
+ * id, so the two sets of previews never link at the same page. */
+const customerRun = {
+  ...baseRun,
+  id: '2a7d9e41-5b3f-4e18-8c02-7d4b1f6e9a35',
+  area: 'customers',
+  filename: 'nightly-customers',
+  tokenName: 'ERP customer export',
+} as const satisfies Omit<SyncRun, 'status'>;
+
+const CUSTOMERS_FAILED_RUN: SyncRun = {
+  ...customerRun,
+  status: 'failed',
+  summary: null,
+  error: 'customer export ended early: 48 of 1,120 rows received',
+};
+const CUSTOMERS_APPLIED_RUN: SyncRun = {
+  ...customerRun,
+  status: 'applied',
+  summary: { ...summary(0, 31, 0), fields: ['tier'], mailed: 0 },
+};
+const CUSTOMERS_STAGED_RUN: SyncRun = {
+  ...customerRun,
+  status: 'previewed',
+  finishedAt: null,
+  stagedReason: 'policy',
+  summary: { ...summary(9, 24, 17), fields: ['tier', 'company'], mailed: 0 },
+};
+
 /**
  * Every message, in whatever wording it is handed.
  *
@@ -522,6 +551,30 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
       title: 'New products arrived',
       note: 'A run that applied itself and brought products nobody has published yet. The only one of the four that opens the product list rather than the run.',
       content: syncCreatedMail(CREATED_RUN, RUN_TIME, text),
+    },
+    {
+      slug: 'customer-sync-failed',
+      group: 'Running the shop',
+      shows: 'customerSyncFailed',
+      title: 'Customer update failed',
+      note: 'The same three feed messages in the other area (FR-NOTIF-09). Worded about accounts rather than products, because the subject line is where a mail about the wrong thing does its damage.',
+      content: syncFailedMail(CUSTOMERS_FAILED_RUN, RUN_TIME, text),
+    },
+    {
+      slug: 'customer-sync-recovered',
+      group: 'Running the shop',
+      shows: 'customerSyncRecovered',
+      title: 'Customer updates working again',
+      note: 'Read off this area’s own previous run: a catalog feed that is still broken does not suppress this, and this does not clear that.',
+      content: syncRecoveredMail(CUSTOMERS_APPLIED_RUN, RUN_TIME, text),
+    },
+    {
+      slug: 'customer-sync-waiting',
+      group: 'Running the shop',
+      shows: 'customerSyncWaiting',
+      title: 'A customer update is waiting',
+      note: 'A run held back for a person. There is deliberately no customer counterpart to “new products arrived”: an invited account has already been mailed its own set-a-password link.',
+      content: syncWaitingMail(CUSTOMERS_STAGED_RUN, RUN_TIME, text),
     },
     {
       slug: 'order-document',

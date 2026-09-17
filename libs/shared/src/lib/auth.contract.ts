@@ -11,6 +11,7 @@ import {
   companyNameSchema,
   companyRegistrationIdSchema,
   emailField,
+  storedEmailField,
 } from './contact-config';
 import { commonAuthErrors } from './api-error';
 
@@ -23,7 +24,7 @@ export const userRoleSchema = z.enum(USER_ROLES);
  */
 export const authUserSchema = z.object({
   id: z.uuid(),
-  email: z.email(),
+  email: storedEmailField,
   role: userRoleSchema,
   /**
    * Enough to greet the account holder by name, and nothing more — the rest of
@@ -255,7 +256,7 @@ export const authContract = {
         .object({
           purpose: passwordTokenPurposeSchema,
           /** Shown so the visitor sees which account they are setting up. */
-          email: z.email(),
+          email: storedEmailField,
         })
         .strict(),
     ),

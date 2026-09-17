@@ -1,0 +1,15 @@
+Customer updates are working again
+
+The connection to your system is delivering again, and your customer accounts are up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes.
+
+Started: 14 Mar 2026, 03:15
+Export: nightly-customers
+Source: ERP customer export
+Changes: +0 ~31 −0
+
+Open the run: https://shop.example.com/admin/sync/runs/2a7d9e41-5b3f-4e18-8c02-7d4b1f6e9a35
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

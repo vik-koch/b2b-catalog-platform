@@ -1972,6 +1972,32 @@ export const adminTextSchema = z
           .strict(),
       })
       .strict(),
+    /**
+     * One account, read rather than edited (FR-AUTH-03/04) — the same surface
+     * a customer sees of their own record, plus the two facts they never see:
+     * what price list they are on, and what key an exchange knows them by.
+     *
+     * Only what this screen says *itself* is here. Every field name, status,
+     * role and tier label is `userList`'s or `userEditor`'s, for the reason
+     * those two already share them: one thing, named once.
+     */
+    userDetail: z
+      .object({
+        detailsHeading: z.string(),
+        accountHeading: z.string(),
+        /** When the registration was decided, and the line for one that has
+         * not been — a pending account is not an account with a missing date. */
+        approved: z.string(),
+        approvedNever: z.string(),
+        /** Said in full rather than as a dash: an empty source key is what
+         * makes an account invisible to the exchange, which is worth a
+         * sentence on the one screen that shows the field. */
+        sourceIdEmpty: z.string(),
+        back: z.string(),
+        notFound: z.string(),
+        loadError: z.string(),
+      })
+      .strict(),
     /** The admin-panel control that gates the storefront (FR-ADM-04). */
     maintenance: z
       .object({

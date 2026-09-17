@@ -1,4 +1,7 @@
-import { SYNC_ALL_FIELDS, SyncOptions } from '@b2b-catalog-platform/shared';
+import {
+  CATALOG_SYNC_ALL_FIELDS,
+  CatalogSyncOptions,
+} from '@b2b-catalog-platform/shared';
 
 /**
  * Named intents over the raw run options. The flag space is larger than anyone
@@ -28,9 +31,9 @@ export const SYNC_PRESETS: SyncPreset[] = [
  * over the product set but still leaves the actual hiding switched off — the
  * claim is what makes the option *available*, not what enables it.
  */
-export function presetFor(name: SyncPresetName): SyncOptions {
-  const base: SyncOptions = {
-    fields: [...SYNC_ALL_FIELDS],
+export function presetFor(name: SyncPresetName): CatalogSyncOptions {
+  const base: CatalogSyncOptions = {
+    fields: [...CATALOG_SYNC_ALL_FIELDS],
     createMissing: true,
     updateExisting: true,
     restoreReturning: true,

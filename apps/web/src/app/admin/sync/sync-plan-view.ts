@@ -9,9 +9,9 @@ import {
 import { RouterLink } from '@angular/router';
 import {
   fillText,
-  SyncPlan,
-  SyncProductChange,
-  SyncRowError,
+  CatalogSyncPlan,
+  CatalogSyncProductChange,
+  CatalogSyncRowError,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -240,7 +240,7 @@ export class SyncPlanView {
   protected readonly text = inject(ADMIN_TEXT).sync;
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
-  readonly plan = input.required<SyncPlan>();
+  readonly plan = input.required<CatalogSyncPlan>();
   /** A staged run, which can still be acted on. False for a record. */
   readonly applicable = input(false);
   /** Whether giving up on the run is offered — it is not, for a preview that
@@ -343,12 +343,12 @@ export class SyncPlanView {
     return value;
   }
 
-  protected kindTone(kind: SyncProductChange['kind']): StatusTone {
+  protected kindTone(kind: CatalogSyncProductChange['kind']): StatusTone {
     return KIND_TONE[kind];
   }
 
   /** The sentence for a skipped row, in this deployment's wording. */
-  protected rowErrorText(error: SyncRowError): string {
+  protected rowErrorText(error: CatalogSyncRowError): string {
     return fillText(this.text.rowErrors[error.code], error.params ?? {});
   }
 
@@ -381,7 +381,7 @@ const ALWAYS_SHOWN: ReadonlySet<string> = new Set([
 /** What the run would do to a row, in the app's own status tones: a product
  * arriving is settled, one leaving is a refusal, one coming back is worth
  * pointing out, and a plain edit is neither. */
-const KIND_TONE: Record<SyncProductChange['kind'], StatusTone> = {
+const KIND_TONE: Record<CatalogSyncProductChange['kind'], StatusTone> = {
   create: 'ok',
   update: 'neutral',
   softDelete: 'danger',

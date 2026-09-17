@@ -53,10 +53,12 @@ jobs:
       # from the templates, the order lifecycle tables from the transition
       # table. A rule changed without regenerating would leave the docs
       # describing behaviour the app no longer has.
+      - run: node tools/generate-requirements-index.mjs --check
       - run: node tools/generate-mail-previews.mjs --check
       - run: node tools/generate-order-lifecycle.mjs --check
       - run: node tools/generate-account-lifecycle.mjs --check
       - run: node tools/generate-catalog-sync.mjs --check
+      - run: node tools/generate-customer-sync.mjs --check
 
       - run: cp .env.example .env
 

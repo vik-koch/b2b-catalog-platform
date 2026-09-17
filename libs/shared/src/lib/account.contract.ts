@@ -2,6 +2,7 @@ import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
+import { storedEmailField } from './contact-config';
 
 /**
  * What the account holder sees of their own record (FR-AUTH-06's neighbourhood:
@@ -14,7 +15,7 @@ import { customerTypeSchema, userRoleSchema } from './auth.contract';
  * created by other staff and describe nobody.
  */
 export const accountProfileSchema = z.object({
-  email: z.email(),
+  email: storedEmailField,
   role: userRoleSchema,
   firstName: z.string().nullable(),
   lastName: z.string().nullable(),

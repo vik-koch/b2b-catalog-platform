@@ -16,16 +16,23 @@
  *
  * The exception is mail, where the name of a message is also the way to go and
  * read it — the gallery holds every one of them.
+ *
+ * A subject may have more than one inbox: the customer exchange reads what the
+ * shop was told and what the account holder was told separately, because they
+ * are different news to different people. So a mail probe is recognised by its
+ * *name* — `mail`, or anything ending in `Mail` — rather than by there being
+ * exactly one of them.
  */
+const isMailProbe = (probe) => probe === 'mail' || probe.endsWith('Mail');
+
 function value(probe, reading, mailPreviewByKind) {
   const one = (entry) => {
     // A message's name may carry what travelled with it (`approved+attached`).
     // The gallery holds that variant where it is worth showing on its own, and
     // otherwise the plain message is the right thing to link at.
-    const preview =
-      probe === 'mail'
-        ? (mailPreviewByKind[entry] ?? mailPreviewByKind[entry.split('+')[0]])
-        : undefined;
+    const preview = isMailProbe(probe)
+      ? (mailPreviewByKind[entry] ?? mailPreviewByKind[entry.split('+')[0]])
+      : undefined;
     if (preview) return `[\`${entry}\`](mail.md#${preview})`;
     // A marker is drawn, not named: backticks around a dot read as code for
     // something, and there is nothing behind it to look up.

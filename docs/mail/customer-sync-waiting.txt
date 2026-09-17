@@ -1,0 +1,16 @@
+A customer update is waiting for you
+
+It has not been applied. Look at which accounts it would invite, change or switch off, then apply it or discard it — nobody's access changes until you do.
+
+Started: 14 Mar 2026, 03:15
+Export: nightly-customers
+Source: ERP customer export
+Changes: +9 ~24 −17
+Why it is waiting: Its effect is larger than an automatic update is allowed to be
+
+Review the update: https://shop.example.com/admin/sync/runs/2a7d9e41-5b3f-4e18-8c02-7d4b1f6e9a35
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

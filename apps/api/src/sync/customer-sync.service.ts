@@ -41,6 +41,7 @@ import {
 } from './customer-sync';
 import { Actor, CONFLICT_CODE, Submitter, runNotFound } from './sync-run';
 import { SyncRunLog, toSyncRun } from './sync-run-log';
+import { SyncNotifications } from './sync-notifications';
 import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
 
 /** The transaction handle Drizzle hands a `db.transaction` callback. */
@@ -83,14 +84,13 @@ function isNoChange(plan: CustomerSyncPlan): boolean {
  * own transaction, so a half-written customer list is not a state this can
  * reach.
  *
- * **It tells the shop nothing by mail yet.** A customer run reaches its
- * readers through the panel — the run log and the work-awaiting count, both
- * already split per area — and not through the four sync mails beside it:
- * every one of those is worded about the catalog ("Catalog update failed"),
- * and sending a manager one of those about a customer run would be worse than
- * sending nothing. The per-area wording is FR-NOTIF-09, which arrives with the
- * notifications slice; the channel that does not depend on mail is the one
- * ADR 0057 already leans on.
+ * **What it tells the shop** it tells in its own words (FR-NOTIF-09): the same
+ * three feed mails the catalog sends — stopped, working again, waiting for a
+ * decision — worded about accounts rather than about products, and read off
+ * this area's own previous run so the two feeds cannot announce each other.
+ * The panel is still the channel that does not depend on mail: the run log and
+ * the work-awaiting count, both already split per area, are what ADR 0057
+ * leans on and what a manager reads.
  *
  * What it will not do is the part worth stating here. It **issues no
  * credential** (FR-ADM-13): an account it asks for is created `invited` with
@@ -111,6 +111,7 @@ export class CustomerSyncService {
     private readonly invitations: AccountInvitations,
     private readonly staffUsers: StaffUsersService,
     private readonly passwords: PasswordService,
+    private readonly notifications: SyncNotifications,
   ) {}
 
   /** Whether the exchange currently holds the pen (FR-ADM-10). */
@@ -148,6 +149,10 @@ export class CustomerSyncService {
         );
 
     await this.log.prune();
+    // Where this area's feed stood before this run, read before anything is
+    // written: inserting supersedes the staged run this one overtakes, so
+    // asked afterwards the question would answer itself.
+    const previous = await this.log.previousMachineStatus('customers');
     await this.log.supersedeStaged('customers');
     const [row] = await this.db
       .insert(syncRuns)
@@ -168,9 +173,14 @@ export class CustomerSyncService {
       })
       .returning();
 
-    if (nothingToDo || stagedReason) return { run: toSyncRun(row), plan };
+    if (nothingToDo || stagedReason) {
+      const run = toSyncRun(row);
+      await this.notifications.announce(run, previous);
+      return { run, plan };
+    }
 
     const applied = await this.applyRun(row.id, null);
+    await this.notifications.announce(applied.run, previous);
     return { run: applied.run, plan: applied.plan };
   }
 
@@ -243,6 +253,7 @@ export class CustomerSyncService {
     submitter: Submitter,
   ): Promise<{ run: SyncRun }> {
     if (!this.customersAreOwned) throw customersNotExternallyOwned();
+    const previous = await this.log.previousMachineStatus('customers');
     const now = new Date();
     const [row] = await this.db
       .insert(syncRuns)
@@ -258,7 +269,9 @@ export class CustomerSyncService {
         error: report.message,
       })
       .returning();
-    return { run: toSyncRun(row) };
+    const run = toSyncRun(row);
+    await this.notifications.announce(run, previous);
+    return { run };
   }
 
   /** A staged run, applied by a person (a manager or an admin). */

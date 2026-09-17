@@ -1,6 +1,6 @@
 import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { SyncRun, SyncRunStatus } from '@b2b-catalog-platform/shared';
+import { SyncArea, SyncRun, SyncRunStatus } from '@b2b-catalog-platform/shared';
 import { MailService } from '../mail/mail.service';
 import { demoMailText } from '../mail/mail-text.fixture';
 import { NotificationAudiences } from '../mail/notification-audience';
@@ -13,6 +13,7 @@ const OPS = 'ops@example.com';
 const run = (status: SyncRunStatus, over: Partial<SyncRun> = {}): SyncRun => ({
   id: '1a2b3c4d-0000-4000-8000-00000000abcd',
   status,
+  area: 'catalog',
   source: 'api',
   filename: 'nightly',
   startedAt: '2026-03-14T03:15:00.000Z',
@@ -25,6 +26,10 @@ const run = (status: SyncRunStatus, over: Partial<SyncRun> = {}): SyncRun => ({
   error: status === 'failed' ? 'export ended early' : null,
   ...over,
 });
+
+/** The same run in another area. What it is about is the run's own field, so
+ * this is the whole of the difference at this level. */
+const inArea = (area: SyncArea): Partial<SyncRun> => ({ area });
 
 const withCreates = (create: number): Partial<SyncRun> => ({
   summary: {
@@ -58,7 +63,8 @@ describe('SyncNotifications', () => {
   const recipients = () =>
     send.mock.calls.map((call) => (call[1] as { to: string }).to);
 
-  const t = demoMailText.syncRun.kinds;
+  const t = demoMailText.syncRun.areas.catalog;
+  const customers = demoMailText.syncRun.areas.customers;
 
   beforeEach(() => {
     send = vi.fn().mockResolvedValue(undefined);
@@ -175,6 +181,50 @@ describe('SyncNotifications', () => {
     await notifications.announce(run('previewed'), 'applied');
 
     expect(recipients()).toEqual([ADMIN, OPS, ADMIN]);
+  });
+
+  /**
+   * The area decides the words (FR-NOTIF-09). A manager who gets "Catalog
+   * update failed" about an account import learns the wrong thing in the one
+   * line an inbox shows them.
+   */
+  it('writes a customer run in the customer exchange’s own words', async () => {
+    await notifications.announce(run('failed', inArea('customers')), 'applied');
+    await notifications.announce(
+      run('previewed', inArea('customers')),
+      'applied',
+    );
+
+    expect(subjects()).toEqual([
+      customers.failed.subject,
+      customers.waiting.subject,
+    ]);
+  });
+
+  /**
+   * No customer counterpart to "new products arrived": the accounts a run
+   * invited have already been mailed their own set-a-password link, so there
+   * is no queue on anybody's desk to announce.
+   */
+  it('says nothing about accounts a customer run created', async () => {
+    await notifications.announce(
+      run('applied', { ...inArea('customers'), ...withCreates(12) }),
+      'applied',
+    );
+
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  /**
+   * The two feeds are two facts. The caller reads each area's own previous
+   * run, so a customer run recovering says nothing about a catalog feed that
+   * is still down — and cannot clear it.
+   */
+  it('reads each area against its own previous run', async () => {
+    await notifications.announce(run('applied', inArea('customers')), 'failed');
+    await notifications.announce(run('failed'), 'failed');
+
+    expect(subjects()).toEqual([customers.recovered.subject]);
   });
 
   /** A catalog that imported and a message about it are not one event. */

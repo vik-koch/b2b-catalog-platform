@@ -4,15 +4,15 @@ import {
   CustomerSyncRow,
   CustomerSyncRowError,
   SyncArea,
-  SyncOptions,
-  SyncRow,
-  SyncRowError,
+  CatalogSyncOptions,
+  CatalogSyncRow,
+  CatalogSyncRowError,
   customerSyncOptionsSchema,
   customerSyncRowErrorSchema,
   customerSyncRowSchema,
-  syncOptionsSchema,
-  syncRowErrorSchema,
-  syncRowSchema,
+  catalogSyncOptionsSchema,
+  catalogSyncRowErrorSchema,
+  catalogSyncRowSchema,
 } from '@b2b-catalog-platform/shared';
 import { syncRuns } from '../db/schema';
 
@@ -30,9 +30,9 @@ type RunRow = typeof syncRuns.$inferSelect;
 export type StagedPayload =
   | {
       area: 'catalog';
-      rows: SyncRow[];
-      options: SyncOptions;
-      parseErrors: SyncRowError[];
+      rows: CatalogSyncRow[];
+      options: CatalogSyncOptions;
+      parseErrors: CatalogSyncRowError[];
     }
   | {
       area: 'customers';
@@ -101,9 +101,13 @@ export function stagedPayload(run: RunRow): StagedPayload | null {
     case 'catalog':
       return {
         area: 'catalog',
-        rows: parse('rows', z.array(syncRowSchema), run.rows),
-        options: parse('options', syncOptionsSchema, run.options),
-        parseErrors: parse('parseErrors', z.array(syncRowErrorSchema), errors),
+        rows: parse('rows', z.array(catalogSyncRowSchema), run.rows),
+        options: parse('options', catalogSyncOptionsSchema, run.options),
+        parseErrors: parse(
+          'parseErrors',
+          z.array(catalogSyncRowErrorSchema),
+          errors,
+        ),
       };
     case 'customers':
       return {
