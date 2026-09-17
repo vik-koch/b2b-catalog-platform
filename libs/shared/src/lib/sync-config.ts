@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { SyncStagedReason, SyncSummary } from './sync.contract';
+import { SyncStagedReason, SyncSummary } from './sync-run.contract';
 
 /**
  * When an automated catalog run applies itself (FR-ADM-07).

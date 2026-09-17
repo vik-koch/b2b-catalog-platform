@@ -2,10 +2,13 @@ import { Module } from '@nestjs/common';
 import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { AuthModule } from '../auth/auth.module';
 import { SettingsModule } from '../settings/settings.module';
+import { CatalogSyncController } from './catalog-sync.controller';
+import { CatalogSyncService } from './catalog-sync.service';
 import { MachineSyncController } from './machine-sync.controller';
 import { SyncController } from './sync.controller';
 import { SyncService } from './sync.service';
 import { SyncNotifications } from './sync-notifications';
+import { SyncRunLog } from './sync-run-log';
 import { MailModule } from '../mail/mail.module';
 import {
   LOW_STOCK_THRESHOLD_PIECES,
@@ -24,9 +27,11 @@ import {
  */
 @Module({
   imports: [AuthModule, ApiTokensModule, SettingsModule, MailModule],
-  controllers: [SyncController, MachineSyncController],
+  controllers: [SyncController, CatalogSyncController, MachineSyncController],
   providers: [
     SyncService,
+    CatalogSyncService,
+    SyncRunLog,
     SyncNotifications,
     {
       provide: LOW_STOCK_THRESHOLD_PIECES,

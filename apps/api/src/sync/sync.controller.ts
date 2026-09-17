@@ -1,32 +1,18 @@
-import {
-  BadRequestException,
-  Controller,
-  ForbiddenException,
-  PayloadTooLargeException,
-  Post,
-  UploadedFile,
-  UseInterceptors,
-  Body,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, ForbiddenException } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import {
   AuthUser,
-  SYNC_MAX_UPLOAD_BYTES,
   SyncArea,
-  SyncPreviewResponse,
   UserRole,
   syncContract,
-  syncOptionsSchema,
 } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { refusals } from '../orpc/refusals';
-import { SyncFormatError, parseSyncCsv } from './sync-csv';
 import { SyncService } from './sync.service';
 
 /**
- * Which areas' runs a role may read (FR-ADM-09).
+ * Which areas' runs a role may read — and decide about (FR-ADM-09).
  *
  * | role    | catalog | customers |
  * | ------- | ------- | --------- |
@@ -35,7 +21,9 @@ import { SyncService } from './sync.service';
  * | user    | no      | no        |
  *
  * An area's log is readable by whoever may do that area's work by hand: the
- * catalog is an admin's, a customer account is a manager's too. Written as a
+ * catalog is an admin's, a customer account is a manager's too. The same table
+ * decides who may apply or discard a staged run of it, because answering a run
+ * is that work arriving by another route. Written as a
  * `Record<UserRole, …>` for the reason the work counts are — a new role has to
  * name its areas to compile, and an area named by nobody is simply refused,
  * which is the safe direction to fail in.
@@ -52,13 +40,16 @@ const READABLE_AREAS: Record<UserRole, readonly SyncArea[]> = {
 };
 
 /**
- * The bulk-sync surface. Admin-only, except the two reads a manager shares.
+ * The runs themselves, whatever area they belong to: reading the log, reading
+ * one run, and the two decisions a person makes on a staged one.
  *
- * The preview *upload* is not a contract route: it is multipart/form-data,
- * which the JSON contracts do not model — the same split the media upload uses.
- * Its response shape still comes from the shared contract, so the admin UI and
- * this handler cannot drift, and its refusals travel in the same envelope as
- * every other one. Commit, fetch and list are ordinary contract routes.
+ * Area-blind like the service behind it — an area's own entry points are its
+ * own controller's (the catalog upload next door, and a machine controller per
+ * area). What lives here instead is the rule about *who may see which area*,
+ * which is the one thing every one of these routes needs and no area owns.
+ *
+ * `@Auth('admin')` at class level is the floor; the routes a manager shares
+ * widen it themselves.
  */
 @Auth('admin')
 @Controller()
@@ -66,79 +57,49 @@ export class SyncController {
   constructor(private readonly service: SyncService) {}
 
   /**
-   * Upload a catalog file and get back what it *would* change. Writes nothing
-   * to the catalog: the parsed rows are staged on a run, which a separate
-   * commit applies.
+   * Apply a staged run — whichever area it belongs to.
+   *
+   * Open to a manager for the same reason reading is: a staged run is work
+   * awaiting attention, and the person who may do that area's work by hand is
+   * the person who may answer a run of it. The area is read off the run and
+   * checked against them, so a manager can apply a customer run and still
+   * cannot touch a catalog one.
    */
-  @Post('admin/sync/preview')
-  // memoryStorage — the file is parsed in one pass and never stored; the limit
-  // is a hard multer-level cutoff so an oversized body is refused before it is
-  // fully buffered.
-  @UseInterceptors(
-    FileInterceptor('file', { limits: { fileSize: SYNC_MAX_UPLOAD_BYTES } }),
-  )
-  async preview(
-    @UploadedFile() file: Express.Multer.File | undefined,
-    // Multipart carries no JSON body, so the run's options travel as a JSON
-    // string field alongside the file.
-    @Body('options') rawOptions: string | undefined,
-    @CurrentUser() user: AuthUser,
-  ): Promise<SyncPreviewResponse> {
-    if (!file) {
-      throw new BadRequestException({
-        code: 'no-file',
-        message: 'No file uploaded (field "file")',
-      });
-    }
-    if (file.size > SYNC_MAX_UPLOAD_BYTES) {
-      throw new PayloadTooLargeException({
-        code: 'file-too-large',
-        message: 'The file exceeds the size limit',
-        params: { limit: String(SYNC_MAX_UPLOAD_BYTES) },
-      });
-    }
-
-    const options = this.parseOptions(rawOptions);
-
-    let parsed;
-    try {
-      parsed = parseSyncCsv(file.buffer.toString('utf8'));
-    } catch (error) {
-      if (error instanceof SyncFormatError) {
-        throw new BadRequestException({
-          code: error.code,
-          message: error.message,
-          params: error.params,
-        });
-      }
-      throw error;
-    }
-
-    return this.service.preview(
-      parsed.rows,
-      options,
-      file.originalname ?? null,
-      { id: user.id, email: user.email },
-      parsed.errors,
-    );
-  }
-
+  @Auth('admin', 'manager')
   @Implement(syncContract.commitRun)
   commitRun(@CurrentUser() user: AuthUser) {
     return implement(syncContract.commitRun)
       .use(refusals)
-      .handler(({ input: { params } }) =>
-        this.service.commit(params.id, { id: user.id, email: user.email }),
-      );
+      .handler(async ({ input: { params } }) => {
+        await this.assertMayAct(user, params.id);
+        return this.service.commit(params.id, {
+          id: user.id,
+          email: user.email,
+        });
+      });
   }
 
+  @Auth('admin', 'manager')
   @Implement(syncContract.discardRun)
   discardRun(@CurrentUser() user: AuthUser) {
     return implement(syncContract.discardRun)
       .use(refusals)
-      .handler(({ input: { params } }) =>
-        this.service.discard(params.id, { id: user.id, email: user.email }),
-      );
+      .handler(async ({ input: { params } }) => {
+        await this.assertMayAct(user, params.id);
+        return this.service.discard(params.id, {
+          id: user.id,
+          email: user.email,
+        });
+      });
+  }
+
+  /**
+   * Whether this reader may decide about this run. Costs one read of the run
+   * before the one the action itself does, which is the price of the rule
+   * living on the run rather than on the route.
+   */
+  private async assertMayAct(user: AuthUser, id: string): Promise<void> {
+    this.assertMayRead(user, await this.service.areaOf(id));
   }
 
   /**
@@ -176,32 +137,5 @@ export class SyncController {
         message: 'This area of the sync log is not yours to read',
       });
     }
-  }
-
-  /**
-   * The options are validated by the same schema the JSON path would use, so
-   * the delete gate (`softDeleteMissingProducts` requires
-   * `productSetAuthoritative`) is enforced here too rather than only in the UI.
-   */
-  private parseOptions(raw: string | undefined) {
-    let value: unknown = {};
-    if (raw) {
-      try {
-        value = JSON.parse(raw);
-      } catch {
-        throw new BadRequestException({
-          code: 'options-invalid',
-          message: 'The "options" field is not valid JSON',
-        });
-      }
-    }
-    const result = syncOptionsSchema.safeParse(value);
-    if (!result.success) {
-      throw new BadRequestException({
-        code: 'options-invalid',
-        message: result.error.issues.map((i) => i.message).join('; '),
-      });
-    }
-    return result.data;
   }
 }

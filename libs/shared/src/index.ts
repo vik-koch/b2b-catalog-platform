@@ -51,6 +51,7 @@ export * from './lib/slug';
 export * from './lib/slugify';
 export * from './lib/sync-config';
 export * from './lib/sync-constants';
+export * from './lib/sync-run.contract';
 export * from './lib/sync.contract';
 export * from './lib/tier-constants';
 export * from './lib/tiers.contract';
