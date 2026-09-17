@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { emailField } from '@b2b-catalog-platform/shared';
 
 /** Treats an empty variable as an unset one, then applies the schema. */
 const emptyAsUndefined = <T extends z.ZodTypeAny>(schema: T) =>
@@ -19,7 +20,10 @@ const EnvSchema = z
     // refinement below). Plaintext is hashed by the one-shot and never stored;
     // the account is created-if-missing, so this is meaningful on first deploy
     // only. The admin rotates it via the app afterwards.
-    ADMIN_EMAIL: z.email().optional(),
+    // The app's own rule, not Zod's stricter one: an address the
+    // registration form accepts must not be an address the API refuses to
+    // boot on.
+    ADMIN_EMAIL: emailField(320).optional(),
     ADMIN_PASSWORD: z.string().min(8).optional(),
     // SMTP mail transport. Declared optional but required in server
     // mode by the refinement below — the migrate/seed one-shots never send

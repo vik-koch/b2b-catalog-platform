@@ -10,7 +10,11 @@ import {
   stripDialPrefix,
   typedPhone,
 } from './contact-format';
-import { emailField, lowercaseEmailField } from './contact-config';
+import {
+  emailField,
+  lowercaseEmailField,
+  storedEmailField,
+} from './contact-config';
 
 const config: PhoneConfig = { countryCode: '+49', mask: '(###) ###-####' };
 /** A deployment that fixes a country code but does not group the digits. */
@@ -246,5 +250,28 @@ describe('emailField', () => {
     expect(lowercaseEmailField(255).parse(' Jane@Example.COM ')).toBe(
       'jane@example.com',
     );
+  });
+});
+
+describe('storedEmailField', () => {
+  /**
+   * The regression: a reader stricter than the writer loses the whole list.
+   * `a@a.a` goes in through the registration form, and the account grid reads
+   * every account back through one array schema — so the one row that fails
+   * takes the other three hundred with it.
+   */
+  it.each([
+    'a@a.a',
+    'a@a.a.a',
+    'jane@example.com',
+    'deleted-6f1c0c7e-0000-4000-8000-000000000000@deleted.invalid',
+  ])('reads back an address the writing side accepts: %s', (address) => {
+    expect(emailField(320).safeParse(address).success).toBe(true);
+    expect(storedEmailField.safeParse(address).success).toBe(true);
+  });
+
+  it('still refuses what was never an address', () => {
+    expect(storedEmailField.safeParse('not-an-address').success).toBe(false);
+    expect(storedEmailField.safeParse('jane@example').success).toBe(false);
   });
 });

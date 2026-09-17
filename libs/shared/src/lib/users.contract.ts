@@ -5,6 +5,7 @@ import {
   companyNameSchema,
   companyRegistrationIdSchema,
   emailField,
+  storedEmailField,
 } from './contact-config';
 import { COMMON_AUTH_ERROR_CODES, commonAuthErrors } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
@@ -30,7 +31,7 @@ export const userStatusSchema = z.enum(USER_STATUSES);
 export const staffUserSchema = z
   .object({
     id: z.uuid(),
-    email: z.email(),
+    email: storedEmailField,
     /**
      * The source system's own key for this customer (FR-ADM-14), or null for
      * everyone who registered here and was never claimed by a run — which is

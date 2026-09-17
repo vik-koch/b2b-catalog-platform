@@ -5,6 +5,7 @@ import {
   API_TOKEN_SCOPES,
 } from './api-token-constants';
 import { commonAuthErrors } from './api-error';
+import { storedEmailField } from './contact-config';
 
 /**
  * Machine tokens (NFR-SEC-09): the credential an automated client presents
@@ -47,7 +48,7 @@ export const apiTokenSchema = z
     prefix: z.string(),
     createdAt: z.iso.datetime(),
     /** Who issued it, by email. Null once that account is gone. */
-    createdBy: z.email().nullable(),
+    createdBy: storedEmailField.nullable(),
     lastUsedAt: z.iso.datetime().nullable(),
     /** Set means refused from that moment on; the row is kept for the audit. */
     revokedAt: z.iso.datetime().nullable(),

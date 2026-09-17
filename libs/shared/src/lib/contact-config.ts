@@ -159,3 +159,19 @@ export const lowercaseEmailField = (max: number) =>
     .trim()
     .toLowerCase()
     .pipe(z.string().regex(EMAIL_PATTERN).max(max));
+
+/**
+ * A stored address, on the way *out*.
+ *
+ * It exists because the obvious spelling — `z.email()` — is a **second**
+ * definition of what an address is, and a stricter one: it insists on a TLD of
+ * two letters or more, where `EMAIL_PATTERN` asks only for a dotted domain. An
+ * account saved as `a@a.a` therefore went in and could not come back out, and
+ * because these schemas sit on list responses, the one row failed the whole
+ * page: the account table did not lose a cell, it lost every account.
+ *
+ * So a read applies the rule the write applied, and nothing more. There is no
+ * length bound either — the column is what caps that, and a value already
+ * stored is not the place to discover it is too long.
+ */
+export const storedEmailField = z.string().regex(EMAIL_PATTERN);
