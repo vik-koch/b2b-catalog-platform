@@ -26,6 +26,7 @@ import { adminDayFormat } from '../grid/admin-date';
 import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncPlanView } from './sync-plan-view';
 import { LockedNote } from '../ownership/locked-note';
+import { SettingsService } from '../settings/settings.service';
 import { SyncService } from './sync.service';
 
 /**
@@ -42,6 +43,7 @@ import { SyncService } from './sync.service';
   selector: 'app-sync-run-page',
   imports: [
     Button,
+    LockedNote,
     RouterLink,
     Skeleton,
     StatusBadge,
@@ -161,6 +163,7 @@ import { SyncService } from './sync.service';
             <app-sync-customer-plan-view
               [plan]="plan"
               [applicable]="isStaged(data.run)"
+              [applyBlocked]="strandedByOwnership(data.run)"
               [discardable]="isStaged(data.run)"
               [busy]="busy()"
               [error]="actionError()"
@@ -171,6 +174,7 @@ import { SyncService } from './sync.service';
             <app-sync-plan-view
               [plan]="plan"
               [applicable]="isStaged(data.run)"
+              [applyBlocked]="strandedByOwnership(data.run)"
               [discardable]="isStaged(data.run)"
               [busy]="busy()"
               [error]="actionError()"
@@ -191,12 +195,17 @@ export class SyncRunPage {
   private readonly auth = inject(AuthService);
   private readonly sync = inject(SyncService);
   private readonly confirm = inject(ConfirmService);
+  private readonly ownership = inject(SettingsService);
   protected readonly text = inject(ADMIN_TEXT).sync;
   private readonly common = inject(ADMIN_TEXT).common;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
 
   constructor() {
     usePageSeo({ name: () => this.text.runTitle });
+    // Admins only — the read is theirs and fails closed, so a manager asking
+    // would come back believing every area is owned. See `strandedByOwnership`.
+    if (this.auth.user()?.role === 'admin') void this.ownership.load();
   }
 
   /** The run's id, from the route. */
@@ -240,6 +249,30 @@ export class SyncRunPage {
 
   protected isStaged(run: SyncRun): boolean {
     return run.status === 'previewed';
+  }
+
+  /**
+   * A staged run that can no longer be applied: a file uploaded before the
+   * area was handed over, now that it has been (FR-ADM-10). The API judges an
+   * apply by the setting in force *now*, so the button would only earn a
+   * refusal.
+   *
+   * Narrow on purpose. A run the connected system sent stays appliable — that
+   * is the whole of staging: a run that exceeded the policy waits for a person
+   * to answer it here, and it can only ever exist while the area is owned.
+   * Discarding stays possible either way; it writes nothing to the area, and
+   * without it a stranded run would sit in the log with no way to clear it.
+   * Only an admin is asked, because the settings read is admin-only and fails
+   * closed; a manager keeps the button and meets the API's refusal, which the
+   * apply errors already word.
+   */
+  protected strandedByOwnership(run: SyncRun): boolean {
+    return (
+      this.isStaged(run) &&
+      run.source === 'upload' &&
+      this.auth.user()?.role === 'admin' &&
+      (this.ownership.ownedAreas()?.includes(run.area) ?? false)
+    );
   }
 
   protected stagedReason(run: SyncRun): string {

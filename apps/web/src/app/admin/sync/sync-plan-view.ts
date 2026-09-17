@@ -185,7 +185,7 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
 
       @if (applicable()) {
         <!-- The delete gate: typed confirmation, and only when it applies. -->
-        @if (plan().summary.softDelete > 0) {
+        @if (plan().summary.softDelete > 0 && !applyBlocked()) {
           <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-3">
             <p class="text-sm text-red-800">
               {{ deleteWarning() }}
@@ -203,9 +203,9 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
           </div>
         }
 
-        @if (!isNoop() || discardable()) {
+        @if ((!isNoop() && !applyBlocked()) || discardable()) {
           <div class="mt-6 flex flex-wrap items-center gap-3">
-            @if (!isNoop()) {
+            @if (!isNoop() && !applyBlocked()) {
               <button
                 appButton
                 type="button"
@@ -246,6 +246,16 @@ export class SyncPlanView {
   /** Whether giving up on the run is offered — it is not, for a preview that
    * exists only in this browser and is thrown away by leaving the page. */
   readonly discardable = input(false);
+
+  /**
+   * A staged run that can no longer be applied, though it is still staged: a
+   * file uploaded before its area was handed over (FR-ADM-10). Distinct from
+   * `applicable`, which is what tells the summary whether it is describing a
+   * diff about to land or one that already has — a blocked run is still the
+   * former. The apply button and its delete gate go; discarding stays, because
+   * somebody has to be able to clear it.
+   */
+  readonly applyBlocked = input(false);
   /** An apply or a discard is in flight. */
   readonly busy = input(false);
   readonly error = input<string | null>(null);

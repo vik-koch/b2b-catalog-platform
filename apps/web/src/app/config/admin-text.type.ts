@@ -2092,6 +2092,12 @@ export const adminTextSchema = z
         /** The editor opened on a "new customer" route, which explains
          * instead of rendering a form. */
         accountCreate: z.string(),
+        /**
+         * A staged upload opened after its area was handed over: the apply is
+         * judged by the setting in force now, so the button is gone and this
+         * is what stands in its place. Discarding it stays possible.
+         */
+        runStranded: z.string(),
         /** The list's decline dialog, which explains instead of asking. */
         accountDecline: z.string(),
         /** The list's deactivate and reactivate dialogs, likewise. */

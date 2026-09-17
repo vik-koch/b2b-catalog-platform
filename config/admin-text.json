@@ -537,7 +537,7 @@
       },
       "customers": {
         "title": "Customer sync",
-        "runsDescription": "Every customer run sent by a connected system. A run waiting for review changes nothing until it is applied."
+        "runsDescription": "Every customer run, uploaded by hand or sent by a connected system. A run waiting for review changes nothing until it is applied."
       }
     },
     "sourceUpload": "Uploaded",
@@ -1276,6 +1276,7 @@
     "tierKeyLocked": "The catalog is managed by an external system, so this price list's key is set there. The name is yours to change either way, and you can still add a price list or remove an unused one.",
     "accountLocked": "Customer accounts are managed by an external system, so this account is edited there rather than here. To edit it in the shop, take customer accounts back under Data ownership in the admin panel.",
     "accountCreate": "Customer accounts are managed by an external system, so new customers are added there. To add one in the shop, take customer accounts back under Data ownership in the admin panel.",
+    "runStranded": "This file was uploaded before the area was handed to an external system, so it can no longer be applied. Discard it, or take the area back under Data ownership in the admin panel.",
     "accountDecline": "Customer accounts are managed by an external system, so registrations are decided there. Decline this one in that system, or take customer accounts back under Data ownership in the admin panel.",
     "accountActive": "Customer accounts are managed by an external system, so switching one off or back on is done there. Change it in that system, or take customer accounts back under Data ownership in the admin panel."
   },
