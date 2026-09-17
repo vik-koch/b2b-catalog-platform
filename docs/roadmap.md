@@ -387,10 +387,15 @@ Notes:
   split in three: the run lifecycle, the staged reasons, the actor, the counts, the
   state-change notifications (ADR 0057) and the work-awaiting count ([FR-WORK-02](requirements.md#fr-work-02)) are the same
   in every area, and only the row payload and the owned-field list differ — and those already
-  live in the contract layer. The **machine endpoint paths do not move**: `/machine/sync/runs`
-  shipped in v1.10.0 and an adapter is being written against it, so the area travels in the
-  body, where the per-run field intent already travels. Renaming it would be a major under
-  ADR 0044 for the sake of a tidier URL.
+  live in the contract layer. The **catalog's machine endpoint does not move**:
+  `/machine/sync/runs` shipped in v1.10.0 and an adapter is being written against it, and
+  renaming it would be a major under ADR 0044 for the sake of a tidier URL. What did not
+  survive the build is the other half of that sentence — that the area would travel in the
+  *body* of one shared endpoint. The customer exchange took **its own** paths
+  (`/machine/sync/customers/...`) and its own token scope instead: a machine route names one
+  capability and has to check it before reading the body, and a credential that may write
+  customers must not reach the catalog by changing a field in a payload. Nothing moved; a
+  second surface was added beside the first.
 - The **health mails are shared machinery with unshared words** ([FR-NOTIF-09](requirements.md#fr-notif-09)). One
   notifier serves both areas and the change-of-state rule ADR 0057 argued for is unchanged, but
   each area is read against its own last run and writes its own sentences: two feeds that break

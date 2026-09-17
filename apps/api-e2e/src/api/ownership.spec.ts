@@ -279,8 +279,14 @@ describe('External data ownership (FR-ADM-10)', () => {
         const status = await asAdmin('get', '/settings');
         expect(status.data.ownedAreas).toEqual(['catalog']);
 
+        // This suite's own entry, found by its actor rather than taken as the
+        // newest: the history is global, and any other suite that hands an
+        // area over — the sync journeys do — writes a row after this one.
         const history = await asAdmin('get', '/settings/changes');
-        expect(history.data.changes[0]).toMatchObject({
+        const ours = (history.data.changes as { actorEmail: string }[]).filter(
+          (change) => change.actorEmail === ADMIN_EMAIL,
+        );
+        expect(ours[0]).toMatchObject({
           kind: 'ownership',
           area: 'catalog',
           enabled: true,
@@ -299,8 +305,12 @@ describe('External data ownership (FR-ADM-10)', () => {
           expect.arrayContaining(['catalog', 'customers']),
         );
 
+        // Ours, for the same reason as above — and the two rows this request
+        // wrote are the two newest of ours, whatever else the log holds.
         const history = await asAdmin('get', '/settings/changes');
-        const [first, second] = history.data.changes;
+        const [first, second] = (
+          history.data.changes as { actorEmail: string }[]
+        ).filter((change) => change.actorEmail === ADMIN_EMAIL);
         expect([first.area, second.area].sort()).toEqual([
           'catalog',
           'customers',
@@ -316,11 +326,21 @@ describe('External data ownership (FR-ADM-10)', () => {
         const after = await asAdmin('get', '/settings/changes');
 
         // Customers moved; the catalog was named again and is not an event.
-        expect(after.data.changes[0]).toMatchObject({
+        expect(
+          (after.data.changes as { actorEmail: string }[]).filter(
+            (change) => change.actorEmail === ADMIN_EMAIL,
+          )[0],
+        ).toMatchObject({
           area: 'customers',
           enabled: true,
         });
-        expect(after.data.changes[1]).toEqual(before.data.changes[0]);
+        // And the row under it is still the one that was newest before —
+        // ours, for the same reason.
+        const ours = (list: { actorEmail: string }[]) =>
+          list.filter((change) => change.actorEmail === ADMIN_EMAIL);
+        expect(ours(after.data.changes)[1]).toEqual(
+          ours(before.data.changes)[0],
+        );
         await setOwned(false, ['customers']);
       });
     });

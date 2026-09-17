@@ -4,13 +4,15 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.10.0` — the catalog now arrives on its own: a scoped machine token, a run
-> that applies itself or waits for somebody, a log of every one, and a switch that says an
-> external system owns the catalog and makes the fields it fills read-only here. Iterations
-> 1–12 are delivered (static pages and infrastructure, catalog + admin panel, search, accounts
-> and tiered pricing, units of sale, attribute filtering, cart and checkout, stock availability
+> **Status:** `v1.11.0` — customer accounts now travel the same way the catalog does, in both
+> directions: a source system can invite an account into being, approve or refuse a
+> registration, move its price group and switch it off, and can read the accounts back out
+> again — while never issuing a credential and never deleting anybody. Iterations 1–13 are
+> delivered (static pages and infrastructure, catalog + admin panel, search, accounts and
+> tiered pricing, units of sale, attribute filtering, cart and checkout, stock availability
 > and work-awaiting indicators, sold-together sets, product documents, order processing,
-> automated catalog feed). Iteration 13 (customer exchange with the source system) is next.
+> automated catalog feed, customer exchange). Iteration 14 (order exchange with the source
+> system) is next.
 
 ## Environments
 
@@ -89,14 +91,19 @@ Shipped:
   switch says an external system owns the catalog, which makes the fields it fills read-only
   here and turns the manual upload off — and back on again when the feed breaks, without a
   deploy
+- **Customer exchange** — the same machine client doing everything a manager can do to a
+  customer account: inviting one into being, approving or refusing a registration, setting its
+  price group, switching it off and on again — plus a read back out, so an account somebody
+  registered on the website is not invisible to the system that has to invoice it. One line
+  holds throughout: the exchange never issues a credential and never erases an account, so a
+  password is still chosen by the person and a deletion is still theirs, reported outward as a
+  withdrawal. An account registered here can be **claimed** by address, once and only with
+  somebody agreeing to it, which is the one thing no key can do on its own. An operator who
+  has no feed yet can upload the same rows from a file instead
 - **Compliance** — configurable legal pages, cookie consent, third-party licence attribution
 
 Planned:
 
-- **Customer exchange** — the same machine client doing everything a manager can do to a
-  customer account: inviting one into being, approving it, setting its tier, switching it off.
-  One line holds throughout — the exchange never issues a credential and never erases an
-  account, so a password is still chosen by the person and a deletion is still theirs
 - **Order exchange** — the same machine client carrying orders back to the source system
 - **Card payment** — online card payment offered after an order is accepted
 
@@ -107,10 +114,11 @@ Planned:
 - [`docs/adr/`](docs/adr) — architecture decision records, one per decision, in the order they
   were taken; each states the alternatives weighed and what the choice costs
 - [`docs/order-lifecycle.md`](docs/order-lifecycle.md),
-  [`docs/account-lifecycle.md`](docs/account-lifecycle.md) and
-  [`docs/catalog-sync.md`](docs/catalog-sync.md) — what an order, an account and an automated
-  catalog feed actually do, step by step; the tables and journeys are generated from the rules and
-  the end-to-end tests, so they cannot describe anything unchecked
+  [`docs/account-lifecycle.md`](docs/account-lifecycle.md),
+  [`docs/catalog-sync.md`](docs/catalog-sync.md) and
+  [`docs/customer-sync.md`](docs/customer-sync.md) — what an order, an account, an automated
+  catalog feed and the customer exchange actually do, step by step; the tables and journeys are
+  generated from the rules and the end-to-end tests, so they cannot describe anything unchecked
 - [`docs/mail.md`](docs/mail.md) — every message the platform sends, rendered from the deployment's
   own wording
 
