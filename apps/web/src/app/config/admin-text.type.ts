@@ -1878,9 +1878,12 @@ export const adminTextSchema = z
             'self-demote': z.string(),
             'last-admin': z.string(),
             'account-not-purgeable': z.string(),
-            /** The two a manager is refused, shown next to the field. */
+            /** Another account already carries that source key (FR-ADM-14). */
+            'source-id-taken': z.string(),
+            /** The three a manager is refused, shown next to the field. */
             'role-change-admin-only': z.string(),
             'staff-create-admin-only': z.string(),
+            'source-id-change-admin-only': z.string(),
           })
           .strict(),
       })
@@ -1918,6 +1921,15 @@ export const adminTextSchema = z
         tier: z.string(),
         tierChoose: z.string(),
         role: z.string(),
+        /**
+         * The source system's key for this customer (FR-ADM-14), shown to an
+         * admin only. `sourceIdHint` says what it is for, because it is the
+         * one field on this screen whose effect is on a system the person
+         * reading it cannot see: an account with no key is invisible to the
+         * exchange, and filling it in is how a self-registered customer joins.
+         */
+        sourceId: z.string(),
+        sourceIdHint: z.string(),
         /** Said on the create form: nobody is ever sent a password (ADR 0034). */
         inviteHint: z.string(),
         /** Re-sending the set-your-password link, for a mail that never

@@ -31,6 +31,17 @@ export const staffUserSchema = z
   .object({
     id: z.uuid(),
     email: z.email(),
+    /**
+     * The source system's own key for this customer (FR-ADM-14), or null for
+     * everyone who registered here and was never claimed by a run — which is
+     * everyone, on a deployment that exchanges nothing.
+     *
+     * Staff-facing and never serialized to the storefront, exactly as a
+     * product's is. It is here because an account whose key is null is an
+     * account the exchange cannot see at all, and a screen that does not show
+     * the field cannot tell anybody that is why.
+     */
+    sourceId: z.string().nullable(),
     role: userRoleSchema,
     status: userStatusSchema,
     firstName: z.string().nullable(),
@@ -85,6 +96,17 @@ export const updateUserSchema = z
     /** Null is the base price list — a real choice, not an omission. */
     tierId: z.uuid().nullable(),
     role: userRoleSchema.optional(),
+    /**
+     * The source key (FR-ADM-14). Optional for the reason `role` is: it is a
+     * field a *manager* may not touch, and the API refuses it from one rather
+     * than dropping it, so a refused change is never mistaken for a saved one.
+     *
+     * The manual way to give a self-registered account its key, and the escape
+     * hatch behind the run-level claim (FR-ADM-17): it needs an admin, and it
+     * needs the area handed back first, since every write to a customer account
+     * is refused while an external system owns them.
+     */
+    sourceId: z.string().trim().min(1).max(255).nullable().optional(),
   })
   .strict()
   // The same pairing the registration form enforces: a name and a number
@@ -125,6 +147,7 @@ export const createUserSchema = z
     customerType: customerTypeSchema.optional(),
     companyName: companyNameSchema.optional(),
     companyRegistrationId: companyRegistrationIdSchema.optional(),
+    sourceId: z.string().trim().min(1).max(255).nullable().optional(),
   })
   .strict();
 export type CreateUserRequest = z.infer<typeof createUserSchema>;
@@ -178,6 +201,8 @@ export const USER_ERROR_CODES = [
   'account-not-pending',
   'account-closed',
   'email-taken',
+  /** Another account already carries that source key (FR-ADM-14). */
+  'source-id-taken',
   /** Only an `active` or `invited` account can be switched off. */
   'account-not-approved',
   'account-not-disabled',
@@ -212,6 +237,7 @@ const conflicts = {
   'account-not-pending': { status: 409 },
   'account-closed': { status: 409 },
   'email-taken': { status: 409 },
+  'source-id-taken': { status: 409 },
   'account-not-approved': { status: 409 },
   'account-not-disabled': { status: 409 },
   'account-cannot-sign-in': { status: 409 },
@@ -231,6 +257,8 @@ export const USER_FORBIDDEN_CODES = [
   ...COMMON_AUTH_ERROR_CODES,
   'role-change-admin-only',
   'staff-create-admin-only',
+  /** The source key is an admin's, for the reason the ownership switch is. */
+  'source-id-change-admin-only',
 ] as const;
 export type UserForbiddenCode = (typeof USER_FORBIDDEN_CODES)[number];
 
@@ -239,6 +267,7 @@ const staff = oc.errors({
   ...commonAuthErrors,
   'role-change-admin-only': { status: 403 },
   'staff-create-admin-only': { status: 403 },
+  'source-id-change-admin-only': { status: 403 },
 });
 
 export const usersContract = {
@@ -282,7 +311,11 @@ export const usersContract = {
       summary: 'Create an account and invite it (admin, manager)',
     })
     // Email already has an account.
-    .errors({ 'email-taken': conflicts['email-taken'], ...owned })
+    .errors({
+      'email-taken': conflicts['email-taken'],
+      'source-id-taken': conflicts['source-id-taken'],
+      ...owned,
+    })
     .input(z.object({ body: createUserSchema }))
     .output(staffUserSchema),
 
@@ -311,6 +344,7 @@ export const usersContract = {
       'self-demote': conflicts['self-demote'],
       'last-admin': conflicts['last-admin'],
       'email-taken': conflicts['email-taken'],
+      'source-id-taken': conflicts['source-id-taken'],
       'account-closed': conflicts['account-closed'],
       ...owned,
     })

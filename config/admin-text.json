@@ -1150,8 +1150,10 @@
       "self-demote": "You cannot take the admin role from your own account.",
       "last-admin": "This is the only admin account. Another admin must exist before this one can be changed.",
       "account-not-purgeable": "Only a registration nobody has decided on can be declined. Deactivate this account instead.",
+      "source-id-taken": "Another account already carries that source key. Each key names exactly one account.",
       "role-change-admin-only": "Only an admin can change the role of an account.",
-      "staff-create-admin-only": "Only an admin can create a staff account."
+      "staff-create-admin-only": "Only an admin can create a staff account.",
+      "source-id-change-admin-only": "Only an admin can change the source key of an account."
     }
   },
   "userEditor": {
@@ -1175,6 +1177,8 @@
     "tier": "Tier",
     "tierChoose": "Select a tier…",
     "role": "Role",
+    "sourceId": "Source key",
+    "sourceIdHint": "The key the connected system knows this customer by. While it is empty no automated update can reach this account at all.",
     "inviteHint": "An email with a link to choose a password is sent when the account is created.",
     "resend": "Send a password link",
     "resendSent": "The link has been sent.",

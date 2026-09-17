@@ -28,6 +28,7 @@ const phone = defaultDeploymentConfig.phoneInput;
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {
     id: 'u1',
+    sourceId: null,
     email: 'jane@example.com',
     role: 'user',
     status: 'active',
@@ -228,7 +229,9 @@ describe('UserEditorPage', () => {
       companyName: 'Kontor GmbH',
       companyRegistrationId: 'DE123456789',
       tierId: 'tier-w',
-      role: undefined,
+      // An admin editing a customer sends the source key too, and an account
+      // that carries none says so explicitly rather than leaving the field out.
+      sourceId: null,
     });
   });
 
@@ -301,6 +304,48 @@ describe('UserEditorPage', () => {
       role: 'admin',
     });
     expect(asAdmin.field('role')).not.toBeNull();
+  });
+
+  it('keeps the source key to admins, and off a manager’s request entirely', async () => {
+    // The same rule the role field lives under, for a neighbouring reason: the
+    // key decides which account an automated exchange may reach (FR-ADM-14),
+    // which is a deployment matter rather than the customer work a manager does.
+    const asManager = await render({ account: user(), role: 'manager' });
+    expect(asManager.field('sourceId')).toBeNull();
+
+    await asManager.press(defaultAdminText.common.save);
+    expect(asManager.service.update.mock.calls[0][1]).not.toHaveProperty(
+      'sourceId',
+    );
+
+    const asAdmin = await render({ account: user({ sourceId: 'C-42' }) });
+    expect(asAdmin.field('sourceId')).not.toBeNull();
+  });
+
+  it('shows no source key on a staff account, which never has one', async () => {
+    // A staff account is not a customer under any setting, so there is nothing
+    // for an exchange to address it by.
+    const { field } = await render({
+      account: user({ role: 'manager', customerType: null }),
+    });
+
+    expect(field('sourceId')).toBeNull();
+  });
+
+  it('sends the key an admin typed, and null for one they cleared', async () => {
+    const { service, type, press } = await render({
+      account: user({ sourceId: 'C-42' }),
+    });
+
+    await type('sourceId', '  C-77  ');
+    await press(defaultAdminText.common.save);
+    expect(service.update.mock.calls[0][1]).toMatchObject({ sourceId: 'C-77' });
+
+    await type('sourceId', '');
+    await press(defaultAdminText.common.save);
+    // Cleared means "this account carries none", which is a real state and the
+    // one every self-registered account is in.
+    expect(service.update.mock.calls[1][1]).toMatchObject({ sourceId: null });
   });
 
   it('creates a customer as a customer, whatever the role field would say', async () => {

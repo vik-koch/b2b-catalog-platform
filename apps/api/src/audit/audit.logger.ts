@@ -46,6 +46,8 @@ export type AuditAction =
   | 'user.deactivated'
   | 'user.reactivated'
   | 'user.tierChanged'
+  // Who gave this account the key an exchange addresses it by (FR-ADM-14).
+  | 'user.sourceIdChanged'
   | 'user.roleChanged'
   | 'user.declined'
   // Self-service (FR-AUTH-06's neighbourhood). Named apart from `user.updated`

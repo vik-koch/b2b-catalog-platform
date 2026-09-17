@@ -431,6 +431,68 @@ describe('/admin/users', () => {
   });
 
   describe('editing an account', () => {
+    /**
+     * The manual way to give a self-registered account the key an exchange
+     * addresses it by (FR-ADM-14) — the escape hatch behind the run-level
+     * claim, and the reason the catalog has no equivalent deadlock: a
+     * product's key has always been editable.
+     */
+    describe('the source key', () => {
+      const KEY = `e2e-users-key-${SUFFIX}`;
+
+      it("is an admin's to set, and a manager is refused it outright", async () => {
+        const { id } = await statusOf(CUSTOMER_EMAIL);
+
+        const refused = await request(
+          'patch',
+          `/admin/users/${id}`,
+          managerCookie,
+          { ...edits(), tierId: null, sourceId: KEY },
+        );
+        expect(refused.status).toBe(403);
+        expect(refused.data.code).toBe('source-id-change-admin-only');
+
+        const saved = await request(
+          'patch',
+          `/admin/users/${id}`,
+          adminCookie,
+          {
+            ...edits(),
+            tierId: null,
+            sourceId: KEY,
+          },
+        );
+        expect(saved.status).toBe(200);
+        expect(saved.data.sourceId).toBe(KEY);
+      });
+
+      it('names exactly one account', async () => {
+        const { id } = await statusOf(PENDING_EMAIL);
+
+        const res = await request('patch', `/admin/users/${id}`, adminCookie, {
+          ...edits(),
+          tierId: null,
+          sourceId: KEY,
+        });
+
+        expect(res.status).toBe(409);
+        expect(res.data.code).toBe('source-id-taken');
+      });
+
+      it('is cleared by sending null, which is a real state', async () => {
+        const { id } = await statusOf(CUSTOMER_EMAIL);
+
+        const res = await request('patch', `/admin/users/${id}`, adminCookie, {
+          ...edits(),
+          tierId: null,
+          sourceId: null,
+        });
+
+        expect(res.status).toBe(200);
+        expect(res.data.sourceId).toBeNull();
+      });
+    });
+
     it('saves the details staff correct, and never the address', async () => {
       const { id, status } = await statusOf(PENDING_EMAIL);
 

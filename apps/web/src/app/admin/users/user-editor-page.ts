@@ -306,6 +306,24 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
               </div>
             }
 
+            <!-- Admin only, and only on a customer: the key an exchange
+                 addresses this account by (FR-ADM-14). Shown on an existing
+                 account alone — a staff-created account has nothing to be
+                 keyed against yet, and the field would invite a guess. -->
+            @if (showsSourceId()) {
+              <div>
+                <label for="sourceId" appFieldLabel>{{ text.sourceId }}</label>
+                <input
+                  id="sourceId"
+                  formControlName="sourceId"
+                  appInput
+                  class="w-full"
+                  autocomplete="off"
+                />
+                <p class="mt-1 text-sm text-muted">{{ text.sourceIdHint }}</p>
+              </div>
+            }
+
             @if (isNew) {
               <p class="text-sm text-muted">{{ text.inviteHint }}</p>
             }
@@ -461,6 +479,15 @@ export class UserEditorPage implements UnsavedChangesAware {
   protected readonly showsRole = computed(
     () => !this.isCustomer() && this.auth.user()?.role === 'admin',
   );
+  /**
+   * Only an admin edits the source key (FR-ADM-14). A manager is refused it by
+   * the API besides — it decides what an automated exchange may reach, which is
+   * a deployment matter like the ownership switch rather than the customer
+   * work a manager does.
+   */
+  protected readonly showsSourceId = computed(
+    () => this.isCustomer() && this.auth.user()?.role === 'admin',
+  );
   /** A pending account is a registration awaiting a decision. */
   protected readonly isApproval = computed(
     () => this.account()?.status === 'pending',
@@ -502,6 +529,9 @@ export class UserEditorPage implements UnsavedChangesAware {
     /** `default` is the base price list; `''` only exists before an approval. */
     tierId: ['default'],
     role: ['manager' as UserRole],
+    /** Empty means the account carries none — which is every account nobody
+     * has claimed, and a normal state. */
+    sourceId: [''],
   });
 
   protected readonly isCompany = signal(false);
@@ -604,6 +634,7 @@ export class UserEditorPage implements UnsavedChangesAware {
         // A pending account has no tier yet and must be given one explicitly.
         tierId: user.status === 'pending' ? '' : (user.tierId ?? 'default'),
         role: user.role === 'admin' ? 'admin' : 'manager',
+        sourceId: user.sourceId ?? '',
       },
       { emitEvent: false },
     );
@@ -720,6 +751,9 @@ export class UserEditorPage implements UnsavedChangesAware {
       // Sent only when this caller may set it, so a manager's save is never
       // refused for a field their form does not even show.
       ...(this.showsRole() ? { role: value.role } : {}),
+      ...(this.showsSourceId()
+        ? { sourceId: value.sourceId.trim() || null }
+        : {}),
     });
     if (result.ok) return result.user;
     this.error.set(this.listText.errors[result.code]);
