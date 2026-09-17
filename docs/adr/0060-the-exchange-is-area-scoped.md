@@ -30,8 +30,9 @@ screen with an area filter; moving the machine endpoints under a per-area path.
   and the same for the work-awaiting count, which becomes one queue per area.
 - **The run's own page keeps `/admin/sync/runs/:id`** and is reached without
   naming an area; the area is read off the run and checked against the reader.
-- **The machine paths do not move.** The area travels in the body, where the
-  per-run intent already travels.
+- **The machine paths already published do not move**, and a new area gets a
+  path of its own beside them (`/machine/sync/customers/runs`) rather than an
+  `area` field in the body of the existing one.
 
 ## Rationale
 
@@ -50,10 +51,18 @@ count that links somewhere its reader may not go is worse than no count
 
 **The run page is one screen because a run id already names its area.** Putting
 the area in that path would buy a tidier URL and break a link somebody has
-already been sent. The same argument decides the machine endpoint, with more
-force: renaming it would be a major version under ADR 0044 — a port contract
-breaking — for cosmetics, and the adapter being written against it today is the
-thing the versioning rule exists to protect.
+already been sent. The same argument protects the machine endpoint the adapter
+is written against today: renaming `/machine/sync/runs` would be a major
+version under ADR 0044 — a port contract breaking — for cosmetics.
+
+**But a new area gets its own machine path, because a machine route is scoped.**
+This is the one place the areas part company. A machine route names the single
+capability it needs and the guard checks it before the body is read, so putting
+two areas on one path would mean either one credential that can do both — a
+token that receives a price list also able to invite people into accounts and
+take their sign-in away — or a scope check moved into the handler, where the
+next route added can forget it. Least privilege is worth an extra path; the
+paths already published keep their meaning, and a v1.10.0 adapter is untouched.
 
 **Areas are a closed set in code, not deployment data.** An area is a rule
 about who may write which column and who may read which log; a new one arrives
@@ -66,6 +75,10 @@ with the exchange that needs it, not with a config key.
   it ships, and orders will inherit them again.
 - (+) Nothing already deployed moves. The adapter keeps its endpoint, mailed
   links keep working, and the migration is one column with a default.
+- (−) The machine surface is the one part of the exchange that is not
+  parameterised by area: each new area brings a controller and a scope of its
+  own. That is two files rather than a value — paid once per area, in exchange
+  for a boundary a reviewer can see from the class declaration.
 - (−) Two screens now render from one component, so a change to the log has to
   be read twice — once as the catalog's and once as the customers'.
 - (−) The per-area readership rule is enforced in the handler rather than by

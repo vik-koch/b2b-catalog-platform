@@ -446,6 +446,21 @@ Notes:
   the same reason the **work-awaiting count splits per area**: a staged catalog run is an
   admin's, a staged customer run is a manager's too, and one figure covering both would show a
   manager work they cannot finish ([FR-WORK-02](requirements.md#fr-work-02)).
+- The customer exchange **issues no credential and never deletes** (2026-09-16, ADR 0061). It can
+  ask for an account; the platform creates it in its own invited state and mails the person the
+  same set-a-password link a manager's approval sends ([FR-ADM-13](requirements.md#fr-adm-13)), so no password ever travels in
+  a feed or sits in a staged run. A removal upstream maps to a **deactivation**, and an account
+  the holder has closed themselves keeps its source key so that the next run asking for that
+  customer is refused rather than obeyed ([FR-ADM-15](requirements.md#fr-adm-15)) — a deletion the next run could undo is
+  not a deletion. It also means what [FR-AUTH-06](requirements.md#fr-auth-06) produces is a closed and cleared account
+  rather than anonymity, which the privacy page has to say in those words.
+- The **machine surface is the one thing not parameterised by area**: the customer exchange gets
+  its own paths (`/machine/sync/customers/...`) and its own token scope rather than an `area`
+  field on the catalog's, because a machine route names the one capability it needs and the guard
+  checks it before the body is read. A credential that receives a price list should not also be
+  able to invite people into accounts. The paths already published are untouched, so the v1.10.0
+  adapter keeps working.
+
 - **Ownership is presented as one shop, stored as areas.** An operator handing everything over is
   doing one thing, so the panel offers one switch that moves every area and a badge that says the
   shop is externally owned rather than listing the areas one by one; but the stored setting stays
