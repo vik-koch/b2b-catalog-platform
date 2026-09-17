@@ -255,6 +255,31 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
       expect(res.data.plan.summary).toMatchObject({ unchanged: 1, update: 0 });
     });
 
+    /**
+     * A customer book is submitted as one body, and the enlarged parser that
+     * makes that possible is mounted on the URL rather than on a Nest route —
+     * so it is mounted on a *list* of paths, and the customer one was once
+     * missing from it. Every other test here sends a handful of rows and would
+     * pass with the 100 kB default in force.
+     *
+     * The rows name keys nothing has and ask for nothing, so the run is a
+     * no-change and no account is written: what is under test is the request
+     * being read at all.
+     */
+    it('accepts a submission far larger than the default body limit', async () => {
+      const rows = Array.from({ length: 4000 }, (_, i) => ({
+        sourceId: `${SOURCE_PREFIX}-bulk-${i}`,
+        email: `bulk-${i}-${R}@${EMAIL_DOMAIN}`,
+      }));
+      expect(JSON.stringify({ rows }).length).toBeGreaterThan(200_000);
+
+      const res = await submit({ rows });
+
+      expect(res.status).toBe(201);
+      expect(res.data.run.status).toBe('no-change');
+      expect(res.data.plan.summary).toMatchObject({ rows: 4000, create: 0 });
+    });
+
     it('skips a row that names a staff account', async () => {
       const { rows } = await client.query(
         'SELECT id FROM users WHERE email = $1',

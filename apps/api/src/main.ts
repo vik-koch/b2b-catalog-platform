@@ -26,26 +26,33 @@ function logger(): ConsoleLogger {
 }
 
 /**
- * The one route that receives a whole catalog as JSON (FR-ADM-07).
+ * The routes that receive a whole area as JSON — a catalog (FR-ADM-07) or a
+ * customer book (FR-ADM-11).
  *
  * Written out with the global prefix, because a body parser is mounted on the
- * URL rather than on a Nest route.
+ * URL rather than on a Nest route. Both are listed: express matches a mount
+ * path as a prefix, and the customer path does not sit under the catalog one,
+ * so a single entry would leave customer submissions on the 100 kB default.
+ * The failure routes are deliberately left out — a sentence is not megabytes.
  */
-const MACHINE_SYNC_RUNS_PATH = '/api/machine/sync/runs';
+const MACHINE_SYNC_RUNS_PATHS = [
+  '/api/machine/sync/runs',
+  '/api/machine/sync/customers/runs',
+];
 
 async function bootstrap() {
   // Nest's own body parser is declined so that a bigger one can be mounted
   // ahead of it. A catalog of tens of thousands of rows is megabytes of JSON
   // and the default ceiling is 100 kB — but raising that globally would widen
   // every endpoint in the API to the same limit, so the large parser is
-  // mounted on the single path that needs it and everything else keeps the
+  // mounted on the two paths that need it and everything else keeps the
   // default. body-parser marks a request it has already read, so the general
-  // parser below leaves that one alone.
+  // parser below leaves those alone.
   const app = await NestFactory.create(AppModule, {
     logger: logger(),
     bodyParser: false,
   });
-  app.use(MACHINE_SYNC_RUNS_PATH, json({ limit: SYNC_MAX_BODY_BYTES }));
+  app.use(MACHINE_SYNC_RUNS_PATHS, json({ limit: SYNC_MAX_BODY_BYTES }));
   app.use(json());
   app.use(urlencoded({ extended: true }));
 
