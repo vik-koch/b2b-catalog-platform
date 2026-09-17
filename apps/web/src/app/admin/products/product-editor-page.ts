@@ -28,6 +28,7 @@ import {
   formatPriceInput,
   parsePriceInput,
 } from '../../catalog/price';
+import { LockedNote } from '../ownership/locked-note';
 import { StatusBadge } from '../../ui/status-badge';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
@@ -78,6 +79,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
 @Component({
   selector: 'app-product-editor-page',
   imports: [
+    LockedNote,
     Button,
     AdminIcon,
     RichTextEditor,
@@ -137,12 +139,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
            deliberately left in place — this is the one screen that can explain
            why, and both of them (the list's button and the storefront's "add
            product here") land on this route. -->
-      <p
-        class="max-w-3xl rounded-md border border-border bg-stone-100 px-4 py-3 text-sm text-muted"
-        role="status"
-      >
-        {{ ownershipText.productCreate }}
-      </p>
+      <app-locked-note>{{ ownershipText.productCreate }}</app-locked-note>
     } @else if (previewing()) {
       <p
         class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
@@ -157,12 +154,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
              per-field marks say which fields; this says why and where to
              change it. -->
         @if (catalogOwned()) {
-          <p
-            class="rounded-md border border-border bg-stone-100 px-4 py-3 text-sm text-muted"
-            role="status"
-          >
-            {{ ownershipText.fieldLocked }}
-          </p>
+          <app-locked-note>{{ ownershipText.fieldLocked }}</app-locked-note>
         }
 
         <label class="block">

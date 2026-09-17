@@ -36,12 +36,28 @@ test('the sync screen is admin-only', async ({ page }) => {
   await expect(page).toHaveURL(/\/login/);
 });
 
+/** The panel row whose link reads `name`: each sync area has its own row, and
+ * each row its own last-sync line, so the line is read inside one of them. */
+function syncRow(page: Page, name: string) {
+  return page
+    .getByRole('listitem')
+    .filter({ has: page.getByRole('link', { name, exact: true }) });
+}
+
 test('the admin dashboard links to the sync and shows a last-sync line', async ({
   page,
 }) => {
   await logIn(page);
 
-  await expect(page.getByText(/Last sync|Never synced/)).toBeVisible();
+  // One line per area, on the area's own row: the catalog's with the catalog,
+  // the customers' with the accounts it writes.
+  await expect(
+    syncRow(page, 'Catalog sync').getByText(/Last sync|Never synced/),
+  ).toBeVisible();
+  await expect(
+    syncRow(page, 'Customer sync').getByText(/Last sync|Never synced/),
+  ).toBeVisible();
+
   await page.getByRole('link', { name: 'Catalog sync' }).click();
   // The panel opens that area's log of runs; the upload is a page reached
   // from it.

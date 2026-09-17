@@ -1,7 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AuthUser, BuildInfo, WorkCounts } from '@b2b-catalog-platform/shared';
+import {
+  AuthUser,
+  BuildInfo,
+  SyncArea,
+  WorkCounts,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
@@ -32,11 +37,22 @@ const settingsStub = (settings: AppSettings | null = null) => ({
   settings: signal(settings).asReadonly(),
 });
 
+/** The two logs the panel reads, answering per area so the two rows can be
+ * told apart. */
+const syncStub = (lastApplied: Partial<Record<SyncArea, string>> = {}) => ({
+  listRuns: vi.fn(async ({ area }: { area: SyncArea }) =>
+    lastApplied[area]
+      ? { lastApplied: { finishedAt: lastApplied[area] } }
+      : null,
+  ),
+});
+
 async function render(
   info: BuildInfo | 'reject',
   user: AuthUser | null = null,
   counts: WorkCounts = {},
   settings = settingsStub(),
+  sync = syncStub(),
 ) {
   TestBed.configureTestingModule({
     imports: [AdminPanelPage],
@@ -61,7 +77,7 @@ async function render(
         },
       },
       // Not under test here, and would otherwise reach the network.
-      { provide: SyncService, useValue: { listRuns: vi.fn(async () => null) } },
+      { provide: SyncService, useValue: sync },
       { provide: SettingsService, useValue: settings },
     ],
   });
@@ -196,6 +212,40 @@ describe('AdminPanelPage work counts', () => {
  * FR-ADM-10). The panel is the first screen of an admin session, and these are
  * the states an admin can leave on without the shop telling them.
  */
+describe('AdminPanelPage sync rows', () => {
+  const syncText = defaultAdminText.sync;
+
+  /** Two areas, two logs, two answers — the customer row used to carry no
+   * reading at all, which read as an area that had never moved. */
+  it('dates each area from its own log', async () => {
+    const el = await render(
+      { version: null, deployedAt: null },
+      adminUser,
+      {},
+      settingsStub(),
+      syncStub({
+        catalog: '2026-08-01T10:00:00Z',
+        customers: '2026-09-02T10:00:00Z',
+      }),
+    );
+
+    expect(el.textContent).toMatch(/01\.08\.2026/);
+    expect(el.textContent).toMatch(/02\.09\.2026/);
+  });
+
+  it('says so for an area that has never run', async () => {
+    const el = await render(
+      { version: null, deployedAt: null },
+      adminUser,
+      {},
+      settingsStub(),
+      syncStub({ catalog: '2026-08-01T10:00:00Z' }),
+    );
+
+    expect(el.textContent).toContain(syncText.lastSyncNever);
+  });
+});
+
 describe('AdminPanelPage runtime state', () => {
   const panelText = defaultAdminText.panel;
 
@@ -254,6 +304,17 @@ describe('AdminPanelPage runtime state', () => {
 
     expect(el.textContent).toContain(panelText.maintenanceOn);
     expect(el.textContent).toContain(panelText.catalogOwned);
+  });
+
+  it('marks the customer area when it is externally owned', async () => {
+    const el = await render(
+      { version: null, deployedAt: null },
+      adminUser,
+      {},
+      withSettings({ ownedAreas: ['customers'] }),
+    );
+
+    expect(el.textContent).toContain(panelText.customersOwned);
   });
 
   it('does not ask for the settings as a manager', async () => {

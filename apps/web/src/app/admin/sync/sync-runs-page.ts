@@ -70,7 +70,10 @@ import { SyncService } from './sync.service';
     >
       <!-- Both areas take a file (FR-ADM-02, FR-ADM-12), and both uploads are
            an admin's: a manager reading this log sees no button, which is the
-           same rule the routes behind them enforce. -->
+           same rule the routes behind them enforce. It stays while the area is
+           owned: the upload behind it is refused (FR-ADM-10) and says so on
+           arrival, which is a better place to learn it than a button that
+           quietly is not there. -->
       @if (canUpload()) {
         <a appButton class="gap-2" [routerLink]="uploadLink()">
           <app-admin-icon name="upload" class="h-4 w-4" />

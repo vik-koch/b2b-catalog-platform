@@ -6,6 +6,11 @@ import {
   SyncRun,
   SyncSummary,
 } from '@b2b-catalog-platform/shared';
+import { signal } from '@angular/core';
+import { AuthUser, SyncArea } from '@b2b-catalog-platform/shared';
+import { AuthService } from '../../auth/auth.service';
+import { adminUser, managerUser } from '../../auth/auth-user.fixture';
+import { provideOwnership } from '../settings/settings.fixture';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
@@ -17,6 +22,7 @@ import { SyncRunPage } from './sync-run-page';
 import { SyncService } from './sync.service';
 
 const text = defaultAdminText.sync;
+const ownershipText = defaultAdminText.ownership;
 
 const summary: SyncSummary = {
   rows: 4,
@@ -72,6 +78,8 @@ async function render(
     confirmed?: boolean;
     commit?: Awaited<ReturnType<SyncService['commit']>>;
     discard?: Awaited<ReturnType<SyncService['discard']>>;
+    user?: AuthUser | null;
+    owned?: SyncArea[];
   } = {},
 ) {
   const shown = options.run ?? run();
@@ -102,6 +110,11 @@ async function render(
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: SyncService, useValue: service },
       { provide: ConfirmService, useValue: confirm },
+      {
+        provide: AuthService,
+        useValue: { user: signal(options.user ?? null) },
+      },
+      provideOwnership(...(options.owned ?? [])),
     ],
   });
   const fixture = TestBed.createComponent(SyncRunPage);
@@ -306,5 +319,58 @@ describe('SyncRunPage', () => {
     expect(el.textContent).toContain(text.customers.kind.invite);
     // The catalog panel's own headings stay away from it.
     expect(el.textContent).not.toContain(text.productsTitle);
+  });
+});
+
+describe('SyncRunPage while an area is externally owned', () => {
+  /** The point of staging: a run the connected system sent exceeded the policy
+   * and waits for a person, who answers it here. Ownership is what lets that
+   * run exist, so it must not also be what hides its button. */
+  it('still applies a staged machine run', async () => {
+    const { button, el } = await render({
+      run: run({ source: 'api' }),
+      user: adminUser,
+      owned: ['catalog'],
+    });
+
+    expect(button(text.apply)).toBeTruthy();
+    expect(el.textContent).not.toContain(ownershipText.runStranded);
+  });
+
+  /** An upload staged before the handover, opened after it: the API judges the
+   * apply by the setting in force now, so the button would only earn a refusal. */
+  it('drops apply on an uploaded run stranded by the handover, and says why', async () => {
+    const { button, el } = await render({
+      run: run({ source: 'upload', actorEmail: 'admin@example.com' }),
+      user: adminUser,
+      owned: ['catalog'],
+    });
+
+    expect(button(text.apply)).toBeFalsy();
+    expect(el.textContent).toContain(ownershipText.runStranded);
+    // Somebody has to be able to clear it, and discarding writes nothing to
+    // the area — the admin used to lose this button with the other one.
+    expect(button(text.discardRun)).toBeTruthy();
+  });
+
+  it('keeps apply on an uploaded run while the area is still ours', async () => {
+    const { button } = await render({
+      run: run({ source: 'upload' }),
+      user: adminUser,
+    });
+
+    expect(button(text.apply)).toBeTruthy();
+  });
+
+  /** A manager cannot read the setting, and a failed read means "everything is
+   * owned" — so they keep the button and meet the API's refusal instead. */
+  it('leaves a manager’s button alone', async () => {
+    const { button } = await render({
+      run: run({ area: 'customers', source: 'upload' }),
+      user: managerUser,
+      owned: ['customers'],
+    });
+
+    expect(button(text.apply)).toBeTruthy();
   });
 });

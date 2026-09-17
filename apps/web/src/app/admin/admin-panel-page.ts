@@ -263,13 +263,25 @@ import { SyncService } from './sync/sync.service';
                 [label]="syncText.areas.customers.title"
                 link="/admin/sync/customers"
               >
-                @if (stagedCustomerRuns(); as count) {
-                  <app-work-note
-                    [label]="fill(panelText.workSyncRuns, count)"
-                    link="/admin/sync/customers"
-                    [queryParams]="{ status: 'previewed' }"
-                  />
-                }
+                <div class="flex flex-col items-end gap-0.5">
+                  @if (stagedCustomerRuns(); as count) {
+                    <app-work-note
+                      [label]="fill(panelText.workSyncRuns, count)"
+                      link="/admin/sync/customers"
+                      [queryParams]="{ status: 'previewed' }"
+                    />
+                  }
+                  @if (customerRuns.isLoading()) {
+                    <span
+                      class="block h-3 w-24 animate-pulse rounded bg-stone-200"
+                      aria-hidden="true"
+                    ></span>
+                  } @else {
+                    <span class="flex text-xs text-muted">{{
+                      lastCustomerSync()
+                    }}</span>
+                  }
+                </div>
               </app-panel-row>
             </ul>
           </section>
@@ -336,6 +348,11 @@ import { SyncService } from './sync/sync.service';
                   @if (catalogOwned()) {
                     <span appStatusBadge tone="info">
                       {{ panelText.catalogOwned }}
+                    </span>
+                  }
+                  @if (customersOwned()) {
+                    <span appStatusBadge tone="info">
+                      {{ panelText.customersOwned }}
                     </span>
                   }
                 </app-panel-row>
@@ -432,6 +449,9 @@ export class AdminPanelPage {
   protected readonly catalogOwned = computed(
     () => this.settings.settings()?.ownedAreas.includes('catalog') ?? false,
   );
+  protected readonly customersOwned = computed(
+    () => this.settings.settings()?.ownedAreas.includes('customers') ?? false,
+  );
 
   /**
    * What is waiting, per queue (FR-WORK-03) — `undefined` where there is
@@ -477,6 +497,12 @@ export class AdminPanelPage {
     loader: () => this.sync.listRuns({ area: 'catalog' }).catch(() => null),
   });
 
+  // The customer log, which a manager may read too (FR-ADM-09) — so unlike the
+  // catalog line above, this one does arrive for them.
+  protected readonly customerRuns = resource({
+    loader: () => this.sync.listRuns({ area: 'customers' }).catch(() => null),
+  });
+
   /**
    * When the catalog was last synced — the timestamp and nothing else.
    *
@@ -485,13 +511,20 @@ export class AdminPanelPage {
    * that is not a date says so in words, because an empty-looking line there
    * would read as a figure that failed to load.
    */
-  protected readonly lastSync = computed(() => {
-    const applied = this.runs.value()?.lastApplied;
-    if (!applied?.finishedAt) return this.syncText.lastSyncNever;
-    return adminMomentFormat(this.currency.locale).format(
-      new Date(applied.finishedAt),
-    );
-  });
+  protected readonly lastSync = computed(() =>
+    this.syncMoment(this.runs.value()?.lastApplied?.finishedAt),
+  );
+
+  /** The same reading for the customer row: both areas answer "when did this
+   * last move", and neither says so in more words than a date. */
+  protected readonly lastCustomerSync = computed(() =>
+    this.syncMoment(this.customerRuns.value()?.lastApplied?.finishedAt),
+  );
+
+  private syncMoment(finishedAt: string | null | undefined): string {
+    if (!finishedAt) return this.syncText.lastSyncNever;
+    return adminMomentFormat(this.currency.locale).format(new Date(finishedAt));
+  }
 
   // A dev deployment's version is the full `sha-<40 hex>` image tag — unreadable
   // inline, so it is shortened to the length people actually quote, with the

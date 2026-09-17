@@ -24,6 +24,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { FieldErrors } from '../../core/form-errors';
 import { usePageSeo } from '../../core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
+import { LockedNote } from '../ownership/locked-note';
 import { Button } from '../../ui/button';
 import { CompanyFields } from '../../parties/company-fields';
 import { EmailField } from '../../ui/email-field';
@@ -59,6 +60,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
 @Component({
   selector: 'app-user-editor-page',
   imports: [
+    LockedNote,
     ReactiveFormsModule,
     Button,
     AdminIcon,
@@ -119,16 +121,13 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
              writes, but here the area is closed whole, and an editor in which
              every input is greyed does not need each one labelled. -->
         @if (locked()) {
-          <p
-            class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
-            role="status"
-          >
+          <app-locked-note class="mb-6">
             {{
               newAndLocked()
                 ? ownershipText.accountCreate
                 : ownershipText.accountLocked
             }}
-          </p>
+          </app-locked-note>
         }
 
         @if (newAndLocked()) {
