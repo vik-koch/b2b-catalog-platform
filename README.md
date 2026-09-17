@@ -119,6 +119,10 @@ Planned:
   [`docs/customer-sync.md`](docs/customer-sync.md) — what an order, an account, an automated
   catalog feed and the customer exchange actually do, step by step; the tables and journeys are
   generated from the rules and the end-to-end tests, so they cannot describe anything unchecked
+- [`docs/catalog-machine-api.md`](docs/catalog-machine-api.md) and
+  [`docs/customer-machine-api.md`](docs/customer-machine-api.md) — the wire-level reference for the
+  system on the other end of an exchange: routes, credentials, row fields, refusal codes, and what
+  each of them causes
 - [`docs/mail.md`](docs/mail.md) — every message the platform sends, rendered from the deployment's
   own wording
 

@@ -8,7 +8,9 @@ which says on its own what the shop actually experiences.
 
 What follows is the logic **as it currently stands**, not the thinking behind
 it. The reasoning lives in the ADRs; the requirements live in
-`requirements.md`.
+`requirements.md`. What to actually send over the wire — routes, row fields,
+error codes, what each one causes — is [the catalog machine
+API](catalog-machine-api.md).
 
 Requirements: FR-ADM-02 (the import itself), FR-ADM-07 (an automated source
 submitting one), FR-ADM-09 (the log), FR-ADM-10 (an external system owning the
