@@ -26,7 +26,7 @@ every call).
 parameter. A session cookie is not accepted on any `/machine/*` route, and a
 machine token is not accepted anywhere else.
 
-**Scopes.** Four exist; a token carries one or more, chosen at issue time and
+**Scopes.** Five exist; a token carries one or more, chosen at issue time and
 **not editable afterwards** (rotate by issuing a new token and revoking the old).
 
 | Scope           | Grants                                     |
@@ -35,6 +35,7 @@ machine token is not accepted anywhere else.
 | `customer-sync` | writing customer accounts                  |
 | `customer-read` | reading the customer book                  |
 | `order-read`    | reading the order book (out of scope here) |
+| `order-sync`    | answering orders (out of scope here)       |
 
 Reading and writing are deliberately separate powers. An adapter being brought
 up can hold `customer-read` for weeks before anybody grants it `customer-sync`.
