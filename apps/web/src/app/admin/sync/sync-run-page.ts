@@ -26,6 +26,7 @@ import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { adminDayFormat } from '../grid/admin-date';
 import { SyncCustomerPlanView } from './sync-customer-plan-view';
+import { SyncOrderPlanView } from './sync-order-plan-view';
 import { SyncPlanView } from './sync-plan-view';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
@@ -53,6 +54,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
     Skeleton,
     StatusBadge,
     SyncCustomerPlanView,
+    SyncOrderPlanView,
     SyncPlanView,
   ],
   template: `
@@ -175,6 +177,10 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
               (apply)="apply(data.run.id)"
               (discardRun)="discard(data.run.id)"
             />
+          } @else if (orderPlan(data.plan); as plan) {
+            <!-- Nothing to apply and nothing to discard: an order run is
+                 applied as it arrives (ADR 0062), so this is always a record. -->
+            <app-sync-order-plan-view [plan]="plan" />
           } @else if (catalogPlan(data.plan); as plan) {
             <app-sync-plan-view
               [plan]="plan"

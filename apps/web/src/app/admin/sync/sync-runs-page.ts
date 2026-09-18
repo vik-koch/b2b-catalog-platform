@@ -185,14 +185,24 @@ export class SyncRunsPage {
    * no button rather than one that leads to a guarded route.
    */
   protected readonly canUpload = computed(
-    () => this.auth.user()?.role === 'admin',
+    () => this.auth.user()?.role === 'admin' && this.uploadLink() !== null,
   );
 
-  protected readonly uploadLink = computed(() =>
-    this.area() === 'customers'
-      ? '/admin/sync/customers/new'
-      : '/admin/sync/catalog/new',
-  );
+  /**
+   * Where this area's manual import lives, or null where it has none. Orders
+   * have none and never will: an order is answered, and a file of answers to
+   * orders is not a thing anybody has.
+   */
+  protected readonly uploadLink = computed(() => {
+    switch (this.area()) {
+      case 'customers':
+        return '/admin/sync/customers/new';
+      case 'catalog':
+        return '/admin/sync/catalog/new';
+      case 'orders':
+        return null;
+    }
+  });
 
   constructor() {
     usePageSeo({ name: () => this.areaText().title });

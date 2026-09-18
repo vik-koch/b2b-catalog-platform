@@ -99,6 +99,26 @@ import { SyncService } from './sync/sync.service';
                   }
                 </div>
               </app-panel-row>
+              <!-- The order exchange sits with the orders it answers, as the
+                   customer one sits with the accounts it writes: it is the
+                   same work arriving from somewhere else. No waiting count
+                   beside it — an order update is applied as it arrives, so
+                   there is never anything here to decide. -->
+              <app-panel-row
+                [label]="syncText.areas.orders.title"
+                link="/admin/sync/orders"
+              >
+                @if (orderRuns.isLoading()) {
+                  <span
+                    class="block h-3 w-24 animate-pulse rounded bg-stone-200"
+                    aria-hidden="true"
+                  ></span>
+                } @else {
+                  <span class="flex text-xs text-muted">{{
+                    lastOrderSync()
+                  }}</span>
+                }
+              </app-panel-row>
             </ul>
           </section>
 
@@ -539,6 +559,16 @@ export class AdminPanelPage {
    * last move", and neither says so in more words than a date. */
   protected readonly lastCustomerSync = computed(() =>
     this.syncMoment(this.customerRuns.value()?.lastApplied?.finishedAt),
+  );
+
+  /** A manager reads this one too — the order log is theirs as well
+   * (FR-ADM-09) — so unlike the catalog's it is not an admin-only line. */
+  protected readonly orderRuns = resource({
+    loader: () => this.sync.listRuns({ area: 'orders' }).catch(() => null),
+  });
+
+  protected readonly lastOrderSync = computed(() =>
+    this.syncMoment(this.orderRuns.value()?.lastApplied?.finishedAt),
   );
 
   private syncMoment(finishedAt: string | null | undefined): string {
