@@ -113,8 +113,13 @@ export function syncWaitingMail(
   run: SyncRun,
   started: string,
   text: MailText,
-): MailContent {
-  const t = wording(run, text).waiting;
+): MailContent | null {
+  const area = wording(run, text);
+  // An area whose runs are never staged has no such sentence and no such
+  // moment — see `orderSyncMails`. Answered here rather than at the call site
+  // so the one place that knows which areas wait is the text they wait with.
+  if (!('waiting' in area)) return null;
+  const t = area.waiting;
   const reason = run.stagedReason
     ? [
         {

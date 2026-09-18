@@ -71,6 +71,19 @@ const catalogSyncMails = z
  */
 const customerSyncMails = z.object(syncFeedMails).strict();
 
+/**
+ * The order exchange's two.
+ *
+ * Without a `waiting` as well as without a `created`, and the missing one is
+ * the interesting one: an order write-back is never staged (ADR 0062), so
+ * there is no run for a person to decide and no mail that could point at one.
+ * A key here would be a sentence the deployment writes and the platform can
+ * never send.
+ */
+const orderSyncMails = z
+  .object({ failed: syncMailText, recovered: syncMailText })
+  .strict();
+
 export const mailTextSchema = z
   .object({
     /** Wording the shared layout puts on every message. */
@@ -505,6 +518,7 @@ export const mailTextSchema = z
           .object({
             catalog: catalogSyncMails,
             customers: customerSyncMails,
+            orders: orderSyncMails,
           })
           .strict(),
       })

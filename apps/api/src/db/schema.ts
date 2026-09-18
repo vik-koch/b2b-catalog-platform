@@ -5,6 +5,7 @@ import {
   API_TOKEN_SCOPES,
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
+  ORDER_WRITE_ACTOR_MAX,
   ORDER_DOCUMENT_KINDS,
   ORDER_REVISION_KINDS,
   ORDER_STATUS_REASON_MAX,
@@ -18,6 +19,7 @@ import {
   SYNC_AREAS,
   type CustomerSyncOptions,
   type CustomerSyncPlan,
+  type OrderSyncPlan,
   type CustomerSyncRow,
   type CustomerSyncRowError,
   type CatalogSyncOptions,
@@ -889,6 +891,13 @@ export const orderRevisions = pgTable(
     createdBy: uuid('createdBy').references(() => users.id, {
       onDelete: 'set null',
     }),
+    // Who wrote it from outside (FR-ADM-08): the owning system's own name for
+    // whoever acted, or the credential's name where it named nobody. An opaque
+    // label and never a reference — the person is a user of another system,
+    // and matching one of those onto an account here would put one person's
+    // name on another's work. Null on everything written in this shop, which
+    // is what makes this column the answer to "did the exchange write this".
+    source: varchar('source', { length: ORDER_WRITE_ACTOR_MAX }),
     // What this version was written for: the customer's submission, a move
     // through the workflow, or a change to what the order says. Stored rather
     // than derived — a reader should not have to diff two rows to find out why
@@ -1348,7 +1357,9 @@ export const syncRuns = pgTable('sync_runs', {
   // moved last night", which is the question the log exists for. Capped by the
   // same preview limit, so a first import stores a readable diff rather than a
   // catalog.
-  plan: jsonb('plan').$type<CatalogSyncPlan | CustomerSyncPlan>(),
+  plan: jsonb('plan').$type<
+    CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan
+  >(),
   // Rows the file itself could not yield (bad price, missing/duplicate
   // sourceId). Staged with `rows` so a commit's re-diff reports the same error
   // count the preview showed — the parse happens once, at upload.

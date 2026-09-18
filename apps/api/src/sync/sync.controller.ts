@@ -34,8 +34,11 @@ import { SyncService } from './sync.service';
  * still does the coarse half — nobody but staff reaches either.
  */
 const READABLE_AREAS: Record<UserRole, readonly SyncArea[]> = {
-  admin: ['catalog', 'customers'],
-  manager: ['customers'],
+  admin: ['catalog', 'customers', 'orders'],
+  // The two areas a manager does by hand are the two whose exchange they may
+  // read (FR-ADM-09): an order run is the work on their own desk arriving from
+  // somewhere else.
+  manager: ['customers', 'orders'],
   user: [],
 };
 

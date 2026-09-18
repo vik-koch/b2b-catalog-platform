@@ -519,6 +519,19 @@ Notes:
   new rule is about what a write-back may *not* do: a customer can still call off an unanswered
   order however orders are owned, so forward-only write-back has to meet a cancellation and be
   refused by it rather than silently undoing it.
+- **An order write-back is one version, applied as it arrives** (2026-09-18, ADR 0062). The rule
+  the iteration inherited — at most one version per exchange — turned out to carry two more with
+  it. An order run is **never staged**: the catalog and the customer book have a person in this
+  shop as their fallback owner, so "wait, somebody should look at this" is a real instruction,
+  while an order handed to an external system has nobody here placed to answer it, and a source
+  polling every few minutes would file a run per cycle for a queue nobody could clear. And a
+  batch is **not a transaction**: one instruction refused refuses that order alone, because
+  all-or-nothing would have a source re-send forty answered orders to retry three. The write-back
+  may change an order's **lines and nothing else it says** — the contact, the party and the
+  addresses came from this platform in the first place and are the customer's own answers to its
+  checkout, so an exchange overwriting them would be answering for them. Whoever acted in the
+  owning system travels as an **opaque label** beside the version, never resolved to an account
+  here ([FR-ADM-08](requirements.md#fr-adm-08)).
 - **Two edges of the exchanges that already ship are closed at the start of iteration 14**, before
   any order work, because the adapter is being written against `v1.10.0`/`v1.11.0` now and one of
   them is a live blocker. A source can **read one of its own runs back** ([FR-ADM-09](requirements.md#fr-adm-09) amended):

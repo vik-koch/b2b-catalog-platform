@@ -3,6 +3,7 @@ import * as z from 'zod';
 import { DEFAULT_SYNC_AREA } from './sync-constants';
 import { catalogSyncPlanSchema } from './catalog-sync.contract';
 import { customerSyncPlanSchema } from './customer-sync.contract';
+import { orderSyncPlanSchema } from './order-sync.contract';
 import {
   syncAreaSchema,
   syncRunSchema,
@@ -218,7 +219,11 @@ export const syncContract = {
            * plan to tell them apart — `isCustomerSyncPlan` asks the value.
            */
           plan: z
-            .union([catalogSyncPlanSchema, customerSyncPlanSchema])
+            .union([
+              catalogSyncPlanSchema,
+              customerSyncPlanSchema,
+              orderSyncPlanSchema,
+            ])
             .nullable(),
         })
         .strict(),

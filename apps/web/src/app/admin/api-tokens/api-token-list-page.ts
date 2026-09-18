@@ -41,6 +41,53 @@ function defaultScopes(): ApiTokenScope[] {
 }
 
 /**
+ * The areas a capability can be about, in the order the form lists them — the
+ * catalog first because it is where a deployment's exchange starts, then the
+ * customers it sells to, then the orders they place.
+ */
+const SCOPE_AREAS = ['catalog', 'customers', 'orders'] as const;
+type ScopeArea = (typeof SCOPE_AREAS)[number];
+
+/**
+ * Where each capability sits in that grid.
+ *
+ * A total map rather than a rule about how a scope is spelled: adding a
+ * capability is a release (see `API_TOKEN_SCOPES`), and this is what makes the
+ * compiler say so — a new scope with no square to sit in is a checkbox nobody
+ * can tick, which would be invisible in a screenshot and obvious to nobody.
+ */
+const SCOPE_PLACE: Record<
+  ApiTokenScope,
+  { area: ScopeArea; kind: 'read' | 'submit' }
+> = {
+  'catalog-sync': { area: 'catalog', kind: 'submit' },
+  'customer-read': { area: 'customers', kind: 'read' },
+  'customer-sync': { area: 'customers', kind: 'submit' },
+  'order-read': { area: 'orders', kind: 'read' },
+  'order-sync': { area: 'orders', kind: 'submit' },
+};
+
+/**
+ * One row per area, reading then writing. A null cell is a capability that
+ * does not exist: the catalog travels inward only, so there is nothing to
+ * grant a reader of it, and an empty square says that better than a row with
+ * one tick in a column of two.
+ */
+const SCOPE_ROWS: readonly {
+  area: ScopeArea;
+  cells: readonly (ApiTokenScope | null)[];
+}[] = SCOPE_AREAS.map((area) => ({
+  area,
+  cells: (['read', 'submit'] as const).map(
+    (kind) =>
+      API_TOKEN_SCOPES.find(
+        (scope) =>
+          SCOPE_PLACE[scope].area === area && SCOPE_PLACE[scope].kind === kind,
+      ) ?? null,
+  ),
+}));
+
+/**
  * Machine tokens (NFR-SEC-09) — the credentials automated clients present
  * instead of signing in.
  *
@@ -215,26 +262,53 @@ function defaultScopes(): ApiTokenScope[] {
                      things to rotate and two to mix up.
 
                      A tick apiece rather than a multi-select, which hides
-                     what is not chosen. While only one capability exists
-                     there is nothing to ask, so it is stated instead; the
-                     ticks appear on their own when a second one is added. -->
+                     what is not chosen — laid out as the grid the capabilities
+                     actually form: an area per row, reading and writing as the
+                     two columns. Reading first, because it is the lesser of
+                     the two and the one a client is given while it is being
+                     brought up. A blank cell is a capability that does not
+                     exist rather than one left unticked: nothing reads the
+                     catalog outward, so the exchange that receives it has no
+                     read to grant.
+
+                     While only one capability exists there is nothing to ask,
+                     so it is stated instead; the ticks appear on their own
+                     when a second one is added. -->
                 @if (scopes.length > 1) {
                   <fieldset>
                     <legend appFieldLabel>
                       {{ text.scope }}
                       <span class="text-accent" aria-hidden="true">*</span>
                     </legend>
-                    <div class="flex flex-col gap-1.5">
-                      @for (scope of scopes; track scope) {
-                        <label class="flex items-center gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            appCheckbox
-                            [checked]="draftScopes().includes(scope)"
-                            (change)="toggleScope(scope)"
-                          />
-                          {{ scopeLabel(scope) }}
-                        </label>
+                    <!-- Columns as wide as their heading, not as wide as the
+                         form: a tick belongs beside the words that name it,
+                         and two stretched columns put it halfway across the
+                         screen from both. -->
+                    <div
+                      class="grid grid-cols-[auto_auto_auto] justify-start items-center gap-x-8 gap-y-1.5 text-sm"
+                    >
+                      <span aria-hidden="true"></span>
+                      <span class="justify-self-center text-xs text-subtle">
+                        {{ text.scopeKind.read }}
+                      </span>
+                      <span class="justify-self-center text-xs text-subtle">
+                        {{ text.scopeKind.submit }}
+                      </span>
+                      @for (row of scopeRows; track row.area) {
+                        <span>{{ text.scopeArea[row.area] }}</span>
+                        @for (cell of row.cells; track $index) {
+                          <span class="justify-self-center">
+                            @if (cell; as scope) {
+                              <input
+                                type="checkbox"
+                                appCheckbox
+                                [checked]="draftScopes().includes(scope)"
+                                [attr.aria-label]="scopeLabel(scope)"
+                                (change)="toggleScope(scope)"
+                              />
+                            }
+                          </span>
+                        }
                       }
                     </div>
                   </fieldset>
@@ -246,7 +320,7 @@ function defaultScopes(): ApiTokenScope[] {
                     </p>
                   </div>
                 }
-                <p class="text-xs text-muted sm:col-span-2">
+                <p class="text-xs text-muted sm:col-span-full">
                   {{ text.scopeHint }}
                 </p>
                 <div appRecordFormActions>
@@ -274,7 +348,7 @@ function defaultScopes(): ApiTokenScope[] {
                   </button>
                 </div>
                 @if (formError()) {
-                  <p class="text-sm text-red-700 sm:col-span-2" role="alert">
+                  <p class="text-sm text-red-700 sm:col-span-full" role="alert">
                     {{ formError() }}
                   </p>
                 }
@@ -301,6 +375,7 @@ export class ApiTokenListPage {
   /** Widened for the same reason `defaultScopes` widens: the template asks
    * how many there are. */
   protected readonly scopes: readonly ApiTokenScope[] = API_TOKEN_SCOPES;
+  protected readonly scopeRows = SCOPE_ROWS;
   protected readonly nameMaxLength = API_TOKEN_NAME_MAX_LENGTH;
 
   protected readonly tokens = resource({ loader: () => this.service.list() });

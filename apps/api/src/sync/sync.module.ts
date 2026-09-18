@@ -7,15 +7,18 @@ import { CatalogSyncService } from './catalog-sync.service';
 import { CustomerSyncController } from './customer-sync.controller';
 import { CustomerReadService } from './customer-read.service';
 import { OrderReadService } from './order-read.service';
+import { OrderSyncService } from './order-sync.service';
 import { MachineCustomerReadController } from './machine-customer-read.controller';
 import { MachineCustomerSyncController } from './machine-customer-sync.controller';
 import { MachineOrderReadController } from './machine-order-read.controller';
+import { MachineOrderSyncController } from './machine-order-sync.controller';
 import { MachineSyncController } from './machine-sync.controller';
 import { SyncController } from './sync.controller';
 import { SyncService } from './sync.service';
 import { SyncNotifications } from './sync-notifications';
 import { CustomerSyncService } from './customer-sync.service';
 import { SyncRunLog } from './sync-run-log';
+import { OrdersModule } from '../orders/orders.module';
 import { StaffUsersModule } from '../users/staff-users.module';
 import { MailModule } from '../mail/mail.module';
 import {
@@ -48,6 +51,10 @@ import { AccountInvitations } from '../users/account-invitations';
     // service and the same invitation mail a manager's approval goes through —
     // there is one way to create an account here, not two.
     StaffUsersModule,
+    // The order write-back answers orders through the same service the admin
+    // screens answer them with, for the reason the customer exchange shares
+    // one: an order written a second way is an order written differently.
+    OrdersModule,
   ],
   controllers: [
     SyncController,
@@ -57,6 +64,7 @@ import { AccountInvitations } from '../users/account-invitations';
     MachineCustomerSyncController,
     MachineCustomerReadController,
     MachineOrderReadController,
+    MachineOrderSyncController,
   ],
   providers: [
     SyncService,
@@ -65,6 +73,7 @@ import { AccountInvitations } from '../users/account-invitations';
     CustomerSyncService,
     CustomerReadService,
     OrderReadService,
+    OrderSyncService,
     SyncRunLog,
     SyncNotifications,
     {

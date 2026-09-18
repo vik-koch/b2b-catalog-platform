@@ -299,7 +299,10 @@ export class AdminOrderRevisionPage {
       number: order.revisionNumber,
       date: this.dateTimeFormat.format(new Date(order.revisionCreatedAt)),
       who:
+        // A person here, then the outside system that wrote it, then the two
+        // versions nobody signed (FR-ADM-08).
         order.author ??
+        order.source ??
         (order.revisionNumber === 1
           ? this.text.authorCustomer
           : this.text.authorUnknown),

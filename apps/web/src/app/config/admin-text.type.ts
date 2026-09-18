@@ -843,6 +843,65 @@ export const adminTextSchema = z
             claimByIdWarning: z.string(),
           })
           .strict(),
+        /**
+         * The order exchange's own wording (FR-ADM-08). Much the shortest of
+         * the three areas, because an order run has nothing to decide: it is
+         * applied as it arrives (ADR 0062), so there is no preset to pick, no
+         * option to tick and no gate to type a word into — only what it did.
+         */
+        orders: z
+          .object({
+            ordersTitle: z.string(),
+            /** The count tiles, in this area's reading of them. */
+            count: z
+              .object({
+                /** Orders this run answered. */
+                update: z.string(),
+                /** Orders that already said what it said (FR-ADM-16). */
+                unchanged: z.string(),
+                mailed: z.string(),
+                errors: z.string(),
+              })
+              .strict(),
+            /** What one answer was, used as a row badge. */
+            kind: z
+              .object({
+                /** What the order says changed. */
+                adjustment: z.string(),
+                /** Only its status moved. */
+                transition: z.string(),
+                /** Only the money was recorded. */
+                payment: z.string(),
+                /** It already said this; nothing was written. */
+                unchanged: z.string(),
+              })
+              .strict(),
+            /** Said beside a row whose customer was written to. */
+            notifiedRow: z.string(),
+            /**
+             * Why a single instruction was refused, keyed by the API's own
+             * `code`. `{reference}`, `{current}` and `{productSourceId}` come
+             * from the response.
+             */
+            rowErrors: z
+              .object({
+                'order-not-found': z.string(),
+                'duplicate-reference': z.string(),
+                /** `{current}` — the order has moved since the source read it. */
+                'order-changed': z.string(),
+                /** The customer called it off, which they may do however the
+                 * area is owned (FR-ADM-10). */
+                'order-called-off': z.string(),
+                'transition-not-allowed': z.string(),
+                'reason-required': z.string(),
+                /** `{productSourceId}` — no product carries that key. */
+                'unknown-product': z.string(),
+                'duplicate-product': z.string(),
+                'payment-not-recordable': z.string(),
+              })
+              .strict(),
+          })
+          .strict(),
         /** The delete gate: a typed confirmation before an authoritative run. */
         deleteWarning: z.string(),
         deleteConfirmLabel: z.string(),
@@ -898,6 +957,7 @@ export const adminTextSchema = z
           .object({
             catalog: syncAreaTextSchema,
             customers: syncAreaTextSchema,
+            orders: syncAreaTextSchema,
           })
           .strict(),
         /** What ran it, where there is no person: an upload says so, and a
@@ -1044,12 +1104,26 @@ export const adminTextSchema = z
         /** One line per capability a token can carry, keyed by the scope
          * itself — a new scope is a new key here, and a missing one is a
          * config that will not load rather than a blank cell. */
+        /**
+         * The two columns the capabilities are laid out in: what a credential
+         * may read out of the shop, and what it may send into it.
+         */
+        scopeKind: z.object({ read: z.string(), submit: z.string() }).strict(),
+        /** The rows: which area of the shop's data a capability is about. */
+        scopeArea: z
+          .object({
+            catalog: z.string(),
+            customers: z.string(),
+            orders: z.string(),
+          })
+          .strict(),
         scopes: z
           .object({
             'catalog-sync': z.string(),
             'customer-sync': z.string(),
             'customer-read': z.string(),
             'order-read': z.string(),
+            'order-sync': z.string(),
           })
           .strict(),
         /** The panel that shows the value. `{name}` substituted at render. */

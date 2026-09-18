@@ -52,6 +52,7 @@ const version: OrderRevision = {
   revisionCreatedAt: '2026-08-27T10:00:00.000Z',
   notifiedAt: '2026-08-27T10:01:00.000Z',
   author: 'manager@example.com',
+  source: null,
   kind: 'adjustment',
   customerView: false,
   totalMinor: 39800,

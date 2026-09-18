@@ -317,6 +317,22 @@ export const demoMailText: MailText = {
           action: 'Review the update',
         },
       },
+      orders: {
+        failed: {
+          subject: 'Order updates failed',
+          preheader: 'An automatic order update did not go through.',
+          heading: 'An automatic order update failed',
+          body: 'Your orders are unchanged, and customers are waiting to hear where they stand.',
+          action: 'Open the run',
+        },
+        recovered: {
+          subject: 'Order updates are working again',
+          preheader: 'The automatic order update went through.',
+          heading: 'Order updates are working again',
+          body: 'The connection to your system is answering orders again.',
+          action: 'Open the run',
+        },
+      },
     },
   },
 };

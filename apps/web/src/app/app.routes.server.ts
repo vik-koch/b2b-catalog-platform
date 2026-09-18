@@ -20,6 +20,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'admin/sync/catalog/new', renderMode: RenderMode.Client },
   { path: 'admin/sync/customers', renderMode: RenderMode.Client },
   { path: 'admin/sync/customers/new', renderMode: RenderMode.Client },
+  { path: 'admin/sync/orders', renderMode: RenderMode.Client },
   { path: 'admin/sync/runs/:id', renderMode: RenderMode.Client },
   { path: 'admin/attributes', renderMode: RenderMode.Client },
   { path: 'admin/attributes/inventory', renderMode: RenderMode.Client },

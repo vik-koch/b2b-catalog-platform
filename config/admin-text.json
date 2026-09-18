@@ -453,6 +453,33 @@
       "claimByIdWarning": "{count} account(s) will be claimed by the ID the source system named. That ID came from this shop, so it is a deliberate choice rather than a guess — but it is only as right as the mapping on the other side. From then on the source key names that person.",
       "disableWarning": "{count} customer(s) will lose access. They stay in the account list and can be switched back on."
     },
+    "orders": {
+      "ordersTitle": "Orders",
+      "count": {
+        "update": "Answered",
+        "unchanged": "Unchanged",
+        "mailed": "Customers told",
+        "errors": "Skipped"
+      },
+      "kind": {
+        "adjustment": "Changed",
+        "transition": "Moved",
+        "payment": "Payment",
+        "unchanged": "Unchanged"
+      },
+      "notifiedRow": "customer was written to",
+      "rowErrors": {
+        "order-not-found": "No order here is numbered {reference}.",
+        "duplicate-reference": "Order {reference} appears earlier in this update; only the first instruction for it is used.",
+        "order-changed": "Order {reference} has moved on since your system read it — it now stands at version {current}. Read it again and send the answer against that version.",
+        "order-called-off": "The customer called order {reference} off, which they may do at any time before it is answered. It cannot be moved on.",
+        "transition-not-allowed": "Order {reference} cannot go there from where it stands.",
+        "reason-required": "Declining an order has to say why, so the customer can be told.",
+        "unknown-product": "No product here carries the key {productSourceId}, so it cannot be put on order {reference}.",
+        "duplicate-product": "The product {productSourceId} is on order {reference} twice.",
+        "payment-not-recordable": "Nothing is owed on order {reference}, so no payment can be recorded against it."
+      }
+    },
     "truncated": "Only the first entries are listed; the counts above cover the whole file.",
     "nothingToApply": "This run would change nothing.",
     "deleteWarning": "{count} product(s) will be hidden from the storefront. They stay in the catalog and can be restored.",
@@ -546,6 +573,10 @@
       "customers": {
         "title": "Customer sync",
         "runsDescription": "Every customer run, uploaded by hand or sent by a connected system. A run waiting for review changes nothing until it is applied."
+      },
+      "orders": {
+        "title": "Order sync",
+        "runsDescription": "Every order update your connected system has sent back. These are applied as they arrive — there is nothing here to review, and this is the record of what was answered."
       }
     },
     "sourceUpload": "Uploaded",
@@ -631,11 +662,21 @@
     "scope": "Allowed to",
     "scopeHint": "A token can only do what it is allowed to here. To change that, revoke it and issue another.",
     "scopeRequired": "Choose at least one thing this token may do.",
+    "scopeKind": {
+      "read": "Read",
+      "submit": "Submit"
+    },
+    "scopeArea": {
+      "catalog": "Catalog",
+      "customers": "Customer accounts",
+      "orders": "Orders"
+    },
     "scopes": {
       "catalog-sync": "Submit catalog imports",
       "customer-sync": "Submit customer updates",
       "customer-read": "Read customer accounts",
-      "order-read": "Read orders"
+      "order-read": "Read orders",
+      "order-sync": "Submit order updates"
     },
     "createdHeading": "“{name}” created",
     "createdOnce": "Copy the value now — it is shown this once and cannot be looked up again. If you lose it, revoke this token and issue another.",

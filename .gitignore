@@ -39,6 +39,28 @@ Thumbs.db
 .claude/worktrees
 .claude/settings.local.json
 
+# Claude Sandbox
+.claude/agents
+.claude/commands
+.claude/hooks
+.claude/launch.json
+.claude/loop.md
+.claude/output-styles
+.claude/routines
+.claude/scheduled_tasks.json
+.claude/settings.json
+.claude/skills
+.claude/workflows
+.bash_profile
+.bashrc
+.gitconfig
+.gitmodules
+.mcp.json
+.profile
+.ripgreprc
+.zprofile
+.zshrc
+
 # Environment & secrets
 .env
 .env.*

@@ -22,7 +22,7 @@
  * external system owns yet — that is what a manual import is — so the two
  * lists answer different questions and converge only by coincidence.
  */
-export const SYNC_AREAS = ['catalog', 'customers'] as const;
+export const SYNC_AREAS = ['catalog', 'customers', 'orders'] as const;
 export type SyncArea = (typeof SYNC_AREAS)[number];
 
 /** What a caller that predates areas was asking about, and still is. */

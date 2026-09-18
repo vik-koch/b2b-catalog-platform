@@ -125,6 +125,17 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/sync/sync-runs-page').then((m) => m.SyncRunsPage),
   },
+  // The order exchange's log. A manager's as well as an admin's, for the
+  // reason the customer one is: an order run is the work on their own desk
+  // arriving from somewhere else (FR-ADM-09). There is no `new` beside it —
+  // orders are answered here or over there, never uploaded from a file.
+  {
+    path: 'admin/sync/orders',
+    data: { area: 'orders' },
+    canActivate: [requireAuth('admin', 'manager'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/sync/sync-runs-page').then((m) => m.SyncRunsPage),
+  },
   {
     path: 'admin/sync/catalog/new',
     canActivate: [requireAuth('admin'), adminTextGuard],
