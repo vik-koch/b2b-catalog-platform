@@ -40,6 +40,7 @@ const options = (
   createMissing: true,
   updateExisting: true,
   claimByEmail: false,
+  claimById: false,
   ...over,
 });
 
@@ -231,6 +232,155 @@ describe('planCustomerSync', () => {
       );
 
       expect(plan.rowErrors[0]).toMatchObject({ code: 'email-taken' });
+    });
+  });
+
+  describe('claiming by the account identifier (FR-ADM-17)', () => {
+    /** The identifier is the one handle a keyless account has, and the one the
+     * outward read hands out (FR-ADM-18). */
+    const selfRegistered = (over: Partial<ExistingAccount> = {}) =>
+      account({
+        id: 'u-new',
+        sourceId: null,
+        email: 'grace@example.com',
+        status: 'pending',
+        hasPassword: false,
+        ...over,
+      });
+
+    const namedRow = (over: Partial<CustomerSyncRow> = {}) =>
+      row({ sourceId: 'C-9', accountId: 'u-new', access: 'enabled', ...over });
+
+    it('adopts the account the row named, and counts it apart', () => {
+      const { plan, actions } = planCustomerSync(
+        [namedRow({ tierKey: 'wholesale' })],
+        options({ claimById: true }),
+        state({ accounts: [selfRegistered()] }),
+      );
+
+      expect(actions.claimAccounts).toEqual([{ id: 'u-new', sourceId: 'C-9' }]);
+      expect(plan.accounts[0]).toMatchObject({ kind: 'claim-id', id: 'u-new' });
+      // Its own count, because its own ceiling decides whether a run carrying
+      // it may apply itself.
+      expect(plan.summary).toMatchObject({ claimedById: 1, claimed: 0 });
+    });
+
+    it('needs no address to find the account', () => {
+      // The whole point over the address match: the source need not know, or
+      // agree about, what the person signs in with.
+      const { actions } = planCustomerSync(
+        [namedRow()],
+        options({ claimById: true }),
+        state({ accounts: [selfRegistered()] }),
+      );
+
+      expect(actions.claimAccounts).toEqual([{ id: 'u-new', sourceId: 'C-9' }]);
+    });
+
+    it('points at the switch that was off, not at the address one', () => {
+      const { plan, actions } = planCustomerSync(
+        [namedRow()],
+        options({ claimByEmail: true }),
+        state({ accounts: [selfRegistered()] }),
+      );
+
+      expect(plan.rowErrors).toEqual([
+        {
+          row: 1,
+          sourceId: 'C-9',
+          code: 'account-unclaimed-by-id',
+          params: { accountId: 'u-new', email: 'grace@example.com' },
+        },
+      ]);
+      expect(actions.claimAccounts).toEqual([]);
+    });
+
+    it('lets the address claim it where the row carries both and only that is on', () => {
+      // A row naming the same account twice over is not refused for carrying
+      // the extra field: the run was allowed to reach this account.
+      const { plan, actions } = planCustomerSync(
+        [namedRow({ email: 'grace@example.com' })],
+        options({ claimByEmail: true }),
+        state({ accounts: [selfRegistered()] }),
+      );
+
+      expect(plan.rowErrors).toEqual([]);
+      expect(actions.claimAccounts).toEqual([{ id: 'u-new', sourceId: 'C-9' }]);
+      expect(plan.summary).toMatchObject({ claimed: 1, claimedById: 0 });
+    });
+
+    it('refuses an identifier that names nothing, rather than guessing from the address', () => {
+      const { plan, actions } = planCustomerSync(
+        [namedRow({ accountId: 'u-gone', email: 'grace@example.com' })],
+        options({ claimById: true, claimByEmail: true }),
+        state({ accounts: [selfRegistered()] }),
+      );
+
+      expect(plan.rowErrors).toEqual([
+        {
+          row: 1,
+          sourceId: 'C-9',
+          code: 'account-unknown',
+          params: { accountId: 'u-gone' },
+        },
+      ]);
+      expect(actions.claimAccounts).toEqual([]);
+    });
+
+    it('refuses an account that already answers to a key', () => {
+      const { plan } = planCustomerSync(
+        [namedRow({ accountId: 'u-1' })],
+        options({ claimById: true }),
+        state({ accounts: [account(), selfRegistered()] }),
+      );
+
+      expect(plan.rowErrors).toEqual([
+        {
+          row: 1,
+          sourceId: 'C-9',
+          code: 'account-already-keyed',
+          params: { accountId: 'u-1' },
+        },
+      ]);
+    });
+
+    it('refuses a staff account and a withdrawn one by name', () => {
+      const staff = selfRegistered({ id: 'u-staff', role: 'admin' });
+      const gone = selfRegistered({
+        id: 'u-gone',
+        status: 'anonymized',
+        email: 'deleted@deleted.invalid',
+      });
+
+      const { plan } = planCustomerSync(
+        [
+          namedRow({ accountId: 'u-staff' }),
+          namedRow({ sourceId: 'C-10', accountId: 'u-gone' }),
+        ],
+        options({ claimById: true }),
+        state({ accounts: [staff, gone] }),
+      );
+
+      expect(plan.rowErrors.map((e) => e.code)).toEqual([
+        'staff-account',
+        'account-withdrawn',
+      ]);
+    });
+
+    it('is ignored once the key names an account of its own (FR-ADM-14)', () => {
+      // Identity is the key from here on; an identifier disagreeing with it is
+      // a stale mapping, not an instruction.
+      const { plan, actions } = planCustomerSync(
+        [row({ sourceId: 'C-1', accountId: 'u-new', tierKey: 'trade' })],
+        options({ claimById: true }),
+        state({ accounts: [account(), selfRegistered()] }),
+      );
+
+      expect(plan.rowErrors).toEqual([]);
+      expect(actions.claimAccounts).toEqual([]);
+      expect(actions.updateAccounts).toEqual([
+        expect.objectContaining({ id: 'u-1' }),
+      ]);
     });
   });
 

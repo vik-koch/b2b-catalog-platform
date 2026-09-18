@@ -164,6 +164,7 @@ const summary = (create: number, update: number, softDelete: number) => ({
   keptManual: 0,
   mailed: 0,
   claimed: 0,
+  claimedById: 0,
   errors: 0,
   fields: ['price:base', 'stock'],
 });

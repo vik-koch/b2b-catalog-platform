@@ -149,6 +149,7 @@ export function planCustomerSync(
   const byEmail = new Map(
     state.accounts.map((account) => [account.email.toLowerCase(), account]),
   );
+  const byId = new Map(state.accounts.map((account) => [account.id, account]));
   const tierByKey = new Map(state.tiers.map((tier) => [tier.key, tier.id]));
 
   const actions: CustomerSyncActions = {
@@ -194,9 +195,43 @@ export function planCustomerSync(
     // never claim candidates: the checks below have their own answers for
     // those, and both of them are "no", not "adopt it".
     const byKey = bySourceId.get(row.sourceId);
+
+    // An account the row named outright. Read only where the key is unknown:
+    // once a key names an account, that is what the row is about, and an
+    // identifier disagreeing with it is stale rather than authoritative
+    // (FR-ADM-14).
+    const named = !byKey && row.accountId ? byId.get(row.accountId) : undefined;
+    if (!byKey && row.accountId) {
+      // What is wrong with the identifier itself, said before any option is
+      // consulted: these four are true of the row whatever the run is allowed
+      // to do, and answering them with "claiming was off" would send an
+      // operator to switch on a setting that would refuse it anyway.
+      if (!named) return fail('account-unknown', { accountId: row.accountId });
+      if (named.role !== 'user') return fail('staff-account');
+      if (named.status === 'anonymized') return fail('account-withdrawn');
+      if (named.sourceId !== null) {
+        return fail('account-already-keyed', { accountId: row.accountId });
+      }
+    }
+    const claimedById = options.claimById ? unclaimedHolder(named) : undefined;
+
     const unclaimed =
       !byKey && row.email ? unclaimedHolder(byEmail.get(row.email)) : undefined;
-    const claimed = options.claimByEmail ? unclaimed : undefined;
+    // The identifier wins where a row carries both and both are allowed: it is
+    // the one the sending system chose deliberately rather than the one a
+    // match happened to find.
+    const claimed =
+      claimedById ?? (options.claimByEmail ? unclaimed : undefined);
+
+    // A perfectly good identifier on a run that may not act on it. Asked after
+    // the address, so a run allowed to claim by address is not refused for
+    // carrying an extra field that would have reached the same account.
+    if (named && !claimed) {
+      return fail('account-unclaimed-by-id', {
+        accountId: row.accountId as string,
+        email: named.email,
+      });
+    }
     const existing = byKey ?? claimed;
 
     // A staff account is not a customer under any setting, so a run that has
@@ -379,6 +414,7 @@ export function planCustomerSync(
       needsLink || (wantsLink && CAN_SIGN_IN.includes(statusAfter));
 
     const claims = existing === claimed;
+    const claimsById = claims && existing === claimedById;
     if (!claims && fieldChanges.length === 0 && !access && !sendsLink) {
       unchanged++;
       return;
@@ -409,7 +445,11 @@ export function planCustomerSync(
       // registration and approves it in one row is doing both, and the one a
       // reader has to be told about is the adoption — the approval is what
       // every other row of the run is already doing.
-      kind: claims ? 'claim' : (access?.kind ?? 'update'),
+      kind: claims
+        ? claimsById
+          ? 'claim-id'
+          : 'claim'
+        : (access?.kind ?? 'update'),
       sourceId: row.sourceId,
       email: update.email ?? existing.email,
       id: existing.id,
@@ -428,6 +468,7 @@ export function planCustomerSync(
     softDelete: count(changes, 'disable'),
     restore: count(changes, 'enable'),
     claimed: count(changes, 'claim'),
+    claimedById: count(changes, 'claim-id'),
     unchanged,
     categoriesCreated: 0,
     categoriesRenamed: 0,

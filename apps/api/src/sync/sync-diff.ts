@@ -558,6 +558,7 @@ export function planSync(
     // fill them are not).
     mailed: 0,
     claimed: 0,
+    claimedById: 0,
     errors: rowErrors.length,
     fields: fieldsWritten(productChanges, defaultTierKey),
   };

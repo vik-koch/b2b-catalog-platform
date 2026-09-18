@@ -107,6 +107,17 @@ export const syncSummarySchema = z
      * carry it, and neither did a summary stored before this existed.
      */
     claimed: z.number().int().nonnegative().default(0),
+    /**
+     * Accounts adopted by the platform's own identifier instead (FR-ADM-17).
+     *
+     * A second count rather than a share of the first, because the two carry
+     * different evidence and the deployment sets a ceiling on each: a run that
+     * adopted twelve accounts a source system had *read out of here* and one
+     * that adopted twelve on an address match are not the same run, and a
+     * single figure would let the safer number wave the riskier one through.
+     * Defaulted, like `claimed` above it.
+     */
+    claimedById: z.number().int().nonnegative().default(0),
     errors: z.number().int().nonnegative(),
     /**
      * Which fields this run rewrote, as they are named in a change:

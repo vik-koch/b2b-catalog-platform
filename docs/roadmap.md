@@ -19,7 +19,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 11<br>`v1.9.0` | Order processing, payment state & order documents | [FR-ORD-01](requirements.md#fr-ord-01)/[02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[04](requirements.md#fr-ord-04)/[05](requirements.md#fr-ord-05),<br>[FR-CART-05](requirements.md#fr-cart-05),<br>[FR-ACC-02](requirements.md#fr-acc-02),<br>[NFR-LEGAL-04](requirements.md#nfr-legal-04),<br>[NFR-SEC-10](requirements.md#nfr-sec-10) | [FR-CART-06](requirements.md#fr-cart-06),<br>[FR-NOTIF-03](requirements.md#fr-notif-03)/[07](requirements.md#fr-notif-07)/[08](requirements.md#fr-notif-08),<br>[FR-WORK-02](requirements.md#fr-work-02)/[04](requirements.md#fr-work-04),<br>[FR-AUTH-04](requirements.md#fr-auth-04),<br>[NFR-OPS-02](requirements.md#nfr-ops-02) |
 | 12<br>`v1.10.0` | Automated catalog sync from the source system | [FR-ADM-07](requirements.md#fr-adm-07)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-SEC-09](requirements.md#nfr-sec-09),<br>[NFR-OPS-06](requirements.md#nfr-ops-06)/[07](requirements.md#nfr-ops-07) | [FR-ADM-02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[06](requirements.md#fr-adm-06),<br>[FR-AUTH-05](requirements.md#fr-auth-05),<br>[FR-UNIT-04](requirements.md#fr-unit-04)/[10](requirements.md#fr-unit-10),<br>[FR-WORK-02](requirements.md#fr-work-02),<br>[FR-CAT-01](requirements.md#fr-cat-01) |
 | 13<br>`v1.11.0` | Customer exchange with the source system | [FR-ADM-11](requirements.md#fr-adm-11)/[12](requirements.md#fr-adm-12)/[13](requirements.md#fr-adm-13)/[14](requirements.md#fr-adm-14)/[15](requirements.md#fr-adm-15)/[16](requirements.md#fr-adm-16)/[17](requirements.md#fr-adm-17)/[18](requirements.md#fr-adm-18),<br>[FR-AUTH-11](requirements.md#fr-auth-11),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07)/[08](requirements.md#nfr-legal-08) | [FR-ADM-07](requirements.md#fr-adm-07)/[08](requirements.md#fr-adm-08)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-AUTH-01](requirements.md#fr-auth-01) |
-| 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[05](requirements.md#fr-ord-05),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07) |
+| 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10)/[17](requirements.md#fr-adm-17),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[05](requirements.md#fr-ord-05),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07) |
 | 15<br>`v1.13.0` | Online card payment | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
@@ -519,3 +519,19 @@ Notes:
   new rule is about what a write-back may *not* do: a customer can still call off an unanswered
   order however orders are owned, so forward-only write-back has to meet a cancellation and be
   refused by it rather than silently undoing it.
+- **Two edges of the exchanges that already ship are closed at the start of iteration 14**, before
+  any order work, because the adapter is being written against `v1.10.0`/`v1.11.0` now and one of
+  them is a live blocker. A source can **read one of its own runs back** ([FR-ADM-09](requirements.md#fr-adm-09) amended):
+  a fresher submission supersedes a run still waiting to be reviewed, which is the right
+  behaviour and left a scheduled adapter unable to discover that it had happened — it would keep
+  sending, keep replacing the run somebody was about to read, and never learn why. Scoping that
+  read to the credential's **area** rather than to the credential that submitted the run is what
+  keeps token rotation from needing a rule of its own. And a run may **claim an account by the
+  platform's own identifier** ([FR-ADM-17](requirements.md#fr-adm-17) amended), not only by email address — the identifier
+  is what the outward read hands out, so a system that has already looked at the shop's accounts
+  can name the one it means. It gets **its own ceiling** rather than sharing the address one:
+  format is not trust — a wrong local mapping still claims the wrong account — but it is stronger
+  evidence than an address, and one shared number cannot let a deployment allow identifier claims
+  freely while making every address match wait for a person. Both are new scope, so neither can
+  ride a patch tag; they are held and released with `v1.12.0` rather than earning an interim
+  minor of their own.

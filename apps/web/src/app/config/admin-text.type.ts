@@ -764,6 +764,7 @@ export const adminTextSchema = z
                 softDelete: z.string(),
                 restore: z.string(),
                 claimed: z.string(),
+                claimedById: z.string(),
                 mailed: z.string(),
                 unchanged: z.string(),
                 errors: z.string(),
@@ -777,6 +778,7 @@ export const adminTextSchema = z
                 disable: z.string(),
                 enable: z.string(),
                 claim: z.string(),
+                'claim-id': z.string(),
               })
               .strict(),
             /** Field names as a diff line labels them. */
@@ -805,6 +807,14 @@ export const adminTextSchema = z
                  * almost certainly this person, registered on the storefront
                  * (FR-ADM-17). */
                 'account-unclaimed': z.string(),
+                /** `{accountId}` — the row named an account that is not here. */
+                'account-unknown': z.string(),
+                /** `{accountId}` — the account it named is already somebody's
+                 * in the source system. */
+                'account-already-keyed': z.string(),
+                /** `{accountId}` and `{email}` — claimable, on a run not
+                 * allowed to claim by identifier. */
+                'account-unclaimed-by-id': z.string(),
                 'unknown-tier': z.string(),
                 'cannot-create-account': z.string(),
                 /** Closed by the person themselves; the key is kept so this
@@ -824,6 +834,11 @@ export const adminTextSchema = z
              * `{count}` — and it is the count that matters, since a claim is
              * the one change that decides what a key means from then on. */
             claimWarning: z.string(),
+            /** The same gate for an adoption the source system named by
+             * identifier. Its own sentence because the evidence is a different
+             * one, and a reader weighing a staged run is weighing exactly
+             * that. `{count}`. */
+            claimByIdWarning: z.string(),
           })
           .strict(),
         /** The delete gate: a typed confirmation before an authoritative run. */

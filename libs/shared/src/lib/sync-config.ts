@@ -154,6 +154,21 @@ const DEFAULT_MAX_DISABLES = 0;
  */
 const DEFAULT_MAX_CLAIMS = 0;
 
+/**
+ * Claims by the platform's own account identifier (FR-ADM-17). Zero as well,
+ * and for a reason that is *not* "an identifier is as doubtful as an address".
+ * It is not: the platform issued it, the source system can only have learned
+ * it by reading the accounts out, and nobody typed it in. What it is not safe
+ * against is the mistake that actually happens — a local mapping pointing at
+ * the wrong account — and that mistake is as damaging either way.
+ *
+ * It has its own number rather than sharing `maxClaims` because the two
+ * deserve different answers, which one number cannot give: a deployment that
+ * trusts its source's mapping wants identifier claims to flow and every match
+ * on a mere address to wait for a person.
+ */
+const DEFAULT_MAX_ID_CLAIMS = 0;
+
 export const customerSyncPolicySchema = z
   .object({
     /**
@@ -171,6 +186,8 @@ export const customerSyncPolicySchema = z
     maxDisables: z.number().int().nonnegative().default(DEFAULT_MAX_DISABLES),
     /** Accounts it may claim by address. See `DEFAULT_MAX_CLAIMS`. */
     maxClaims: z.number().int().nonnegative().default(DEFAULT_MAX_CLAIMS),
+    /** Accounts it may claim by identifier. See `DEFAULT_MAX_ID_CLAIMS`. */
+    maxIdClaims: z.number().int().nonnegative().default(DEFAULT_MAX_ID_CLAIMS),
   })
   .strict();
 export type CustomerSyncPolicy = z.infer<typeof customerSyncPolicySchema>;
@@ -179,6 +196,7 @@ export const DEFAULT_CUSTOMER_SYNC_POLICY: CustomerSyncPolicy = {
   maxInvites: DEFAULT_MAX_INVITES,
   maxDisables: DEFAULT_MAX_DISABLES,
   maxClaims: DEFAULT_MAX_CLAIMS,
+  maxIdClaims: DEFAULT_MAX_ID_CLAIMS,
 };
 
 /**
@@ -201,5 +219,6 @@ export function decideCustomerAutoApply(
   if (summary.create > policy.maxInvites) return 'policy';
   if (summary.softDelete > policy.maxDisables) return 'policy';
   if (summary.claimed > policy.maxClaims) return 'policy';
+  if (summary.claimedById > policy.maxIdClaims) return 'policy';
   return null;
 }

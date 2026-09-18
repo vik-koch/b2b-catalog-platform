@@ -49,6 +49,11 @@ export function customerPresetFor(
     // a wrong address in it would adopt the wrong person's account. The
     // decision is worth one tick (FR-ADM-17).
     claimByEmail: false,
+    // Never offered on an upload, and so always off here: the identifier a
+    // claim by ID names is one the machine exchange read out of this shop
+    // (FR-ADM-18), and a person filling in a spreadsheet does not have it.
+    // There is no column for it either.
+    claimById: false,
   };
 
   // A tier file is about people the shop already has. Creating nobody is what

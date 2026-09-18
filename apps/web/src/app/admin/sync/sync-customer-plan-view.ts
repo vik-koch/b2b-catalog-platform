@@ -120,6 +120,17 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
             {{ claimWarning() }}
           </p>
         }
+        <!-- Its own notice rather than one sentence covering both: a run may
+             carry either kind or both, and the two are told apart by which
+             evidence adopted the account. -->
+        @if (plan().summary.claimedById > 0) {
+          <p
+            class="mt-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+            role="status"
+          >
+            {{ claimByIdWarning() }}
+          </p>
+        }
 
         <!-- The gate before a run that takes people's access away: the same
              typed confirmation a sweep of the catalog asks for, because it is
@@ -212,9 +223,25 @@ export class SyncCustomerPlanView {
    * nothing, and the button has to stay live for it.
    */
   protected readonly isNoop = computed(() => {
-    const { create, update, softDelete, restore, claimed, mailed } =
-      this.plan().summary;
-    return create + update + softDelete + restore + claimed + mailed === 0;
+    const {
+      create,
+      update,
+      softDelete,
+      restore,
+      claimed,
+      claimedById,
+      mailed,
+    } = this.plan().summary;
+    return (
+      create +
+        update +
+        softDelete +
+        restore +
+        claimed +
+        claimedById +
+        mailed ===
+      0
+    );
   });
 
   /**
@@ -237,6 +264,7 @@ export class SyncCustomerPlanView {
       // exception rather than what a run is for, and a permanent zero beside
       // the counts that matter would read as a field nobody fills.
       { label: 'claimed' as const, value: s.claimed, danger: false },
+      { label: 'claimedById' as const, value: s.claimedById, danger: false },
       { label: 'mailed' as const, value: s.mailed, danger: false },
       { label: 'unchanged' as const, value: s.unchanged, danger: false },
       { label: 'errors' as const, value: s.errors, danger: s.errors > 0 },
@@ -292,6 +320,13 @@ export class SyncCustomerPlanView {
     });
   }
 
+  /** The same notice for an adoption the source system named outright. */
+  protected claimByIdWarning(): string {
+    return fillText(this.text.customers.claimByIdWarning, {
+      count: this.plan().summary.claimedById,
+    });
+  }
+
   protected disableWarning(): string {
     return fillText(this.text.customers.disableWarning, {
       count: this.plan().summary.softDelete,
@@ -324,4 +359,6 @@ const KIND_TONE: Record<CustomerAccountChange['kind'], StatusTone> = {
   // An adoption is the one change worth stopping on: from here that key means
   // this person, and a wrong one is not undone by the next run.
   claim: 'waiting',
+  // The same tone: the evidence differs, the consequence does not.
+  'claim-id': 'waiting',
 };

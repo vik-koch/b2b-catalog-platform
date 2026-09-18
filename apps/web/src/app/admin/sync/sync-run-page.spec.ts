@@ -36,6 +36,7 @@ const summary: SyncSummary = {
   categoriesEmptied: 0,
   keptManual: 0,
   claimed: 0,
+  claimedById: 0,
   mailed: 0,
   errors: 0,
   fields: [],
