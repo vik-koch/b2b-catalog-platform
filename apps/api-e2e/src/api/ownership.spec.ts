@@ -151,7 +151,7 @@ describe('External data ownership (FR-ADM-10)', () => {
 
     // Nothing may be owned on the way in: a previous crashed run must not
     // decide what this one sees.
-    await setOwned(false, ['catalog', 'customers']);
+    await setOwned(false, ['catalog', 'customers', 'orders']);
 
     const category = await asAdmin('post', '/admin/catalog/categories', {
       name: CATEGORY_NAME,
@@ -220,9 +220,18 @@ describe('External data ownership (FR-ADM-10)', () => {
   afterAll(async () => {
     // Whatever went wrong above, the shared switches go back off.
     await asAdmin('put', '/settings/ownership', {
-      areas: ['catalog', 'customers'],
+      areas: ['catalog', 'customers', 'orders'],
       owned: false,
     });
+    // Before the product and the customer they both point at: an order holds
+    // its account, and nothing deletes an account out from under one.
+    await client.query(
+      `DELETE FROM orders WHERE id IN (
+         SELECT r."orderId" FROM order_items i
+           JOIN order_revisions r ON r.id = i."revisionId"
+          WHERE i."productSourceId" = $1)`,
+      [PRODUCT_SOURCE_ID],
+    );
     await client.query('DELETE FROM sync_runs WHERE "tokenName" LIKE $1', [
       `${TOKEN_NAME}%`,
     ]);

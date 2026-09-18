@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText, OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
 import { ADMIN_TEXT } from '../config/admin-text';
@@ -345,15 +345,26 @@ import { SyncService } from './sync/sync.service';
                       {{ panelText.maintenanceOn }}
                     </span>
                   }
-                  @if (catalogOwned()) {
+                  @if (fullyOwned()) {
                     <span appStatusBadge tone="info">
-                      {{ panelText.catalogOwned }}
+                      {{ panelText.fullyOwned }}
                     </span>
-                  }
-                  @if (customersOwned()) {
-                    <span appStatusBadge tone="info">
-                      {{ panelText.customersOwned }}
-                    </span>
+                  } @else {
+                    @if (catalogOwned()) {
+                      <span appStatusBadge tone="info">
+                        {{ panelText.catalogOwned }}
+                      </span>
+                    }
+                    @if (customersOwned()) {
+                      <span appStatusBadge tone="info">
+                        {{ panelText.customersOwned }}
+                      </span>
+                    }
+                    @if (ordersOwned()) {
+                      <span appStatusBadge tone="info">
+                        {{ panelText.ordersOwned }}
+                      </span>
+                    }
                   }
                 </app-panel-row>
                 <app-panel-row
@@ -420,6 +431,7 @@ export class AdminPanelPage {
   protected readonly orderText = inject(ADMIN_TEXT).orderList;
   protected readonly navText = inject(APP_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
+  protected readonly areas = OWNERSHIP_AREAS;
   // Only what this deployment publishes: an unpublished page has no route to
   // edit it against, so offering it here would be a dead end.
   protected readonly pageSlugs = inject(DEPLOYMENT_CONFIG).pages.published;
@@ -446,11 +458,19 @@ export class AdminPanelPage {
   protected readonly maintenanceOn = computed(
     () => this.settings.settings()?.maintenanceEnabled ?? false,
   );
+  protected readonly fullyOwned = computed(
+    () =>
+      new Set(this.settings.settings()?.ownedAreas ?? []).size ===
+      this.areas.length,
+  );
   protected readonly catalogOwned = computed(
     () => this.settings.settings()?.ownedAreas.includes('catalog') ?? false,
   );
   protected readonly customersOwned = computed(
     () => this.settings.settings()?.ownedAreas.includes('customers') ?? false,
+  );
+  protected readonly ordersOwned = computed(
+    () => this.settings.settings()?.ownedAreas.includes('orders') ?? false,
   );
 
   /**

@@ -65,8 +65,10 @@
     "workSyncRuns": "{count} awaiting review",
     "operations": "Operations",
     "maintenanceOn": "Maintenance on",
+    "fullyOwned": "Shop externally owned",
     "catalogOwned": "Catalog externally owned",
-    "customersOwned": "Customers externally owned"
+    "customersOwned": "Customers externally owned",
+    "ordersOwned": "Orders externally owned"
   },
   "editMode": {
     "enable": "Edit mode",
@@ -1241,7 +1243,7 @@
       },
       "customers": {
         "name": "Customer accounts",
-        "description": "Who may sign in, what they are called, the company they buy for and which price list they are on. Their orders, and what staff write on an order, stay yours either way.",
+        "description": "Who may sign in, what they are called, the company they buy for and which price list they are on. Their orders are an area of their own.",
         "ownedEffect": "Accounts are approved, edited, switched off and switched back on in that system. The lists here still show everything.",
         "ownEffect": "Accounts are approved and edited here, and automated updates are refused.",
         "handTitle": "Hand customer accounts over",
@@ -1250,6 +1252,18 @@
         "takeTitle": "Take customer accounts back",
         "takeConfirm": "Take customer accounts back from the external system?",
         "takeWarning": "The external system's updates will be refused from its next attempt, and whatever it sends while it is refused is not kept. Anything it had not yet sent — an approval, a price list — you will have to set here yourself."
+      },
+      "orders": {
+        "name": "Order processing",
+        "description": "Answering orders, changing what they say, recording payments and the documents staff put on them. Placing an order and calling off an unanswered one are the customer's own and stay open either way.",
+        "ownedEffect": "Orders are answered, changed and paid off in that system. The lists and the orders themselves still show everything.",
+        "ownEffect": "Orders are answered here, and automated updates are refused.",
+        "handTitle": "Hand order processing over",
+        "handConfirm": "Hand order processing to an external system?",
+        "handWarning": "Accepting, refusing and moving an order, changing what it says, recording a payment, telling the customer and putting a document on an order all stop working here and are done in that system instead. Orders still arrive and are still counted, and a customer can still call off an order nobody has answered.",
+        "takeTitle": "Take order processing back",
+        "takeConfirm": "Take order processing back from the external system?",
+        "takeWarning": "The external system's updates will be refused from its next attempt, and whatever it sends while it is refused is not kept. Anything it had not yet sent — a status, a correction, a payment — you will have to record here yourself."
       }
     },
     "statusOwned": "Managed by an external system",

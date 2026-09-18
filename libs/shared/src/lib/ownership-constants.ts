@@ -14,7 +14,7 @@
  * shop is owned" is a read over this list, and a stored answer to it could
  * disagree with the areas beneath it.
  */
-export const OWNERSHIP_AREAS = ['catalog', 'customers'] as const;
+export const OWNERSHIP_AREAS = ['catalog', 'customers', 'orders'] as const;
 export type OwnershipArea = (typeof OWNERSHIP_AREAS)[number];
 
 /**
@@ -84,6 +84,19 @@ export type OwnedTierField = (typeof OWNED_TIER_FIELDS)[number];
  */
 
 /**
+ * Order processing owns no field list either, and for a nearer reason than the
+ * customer area's: an order is not a record staff edit but a thread of versions
+ * they answer, and every button on it — the moves, the adjustment, the payment
+ * tick, the file a manager supplies — writes the same order. A column list
+ * could not describe half of that.
+ *
+ * Two acts stay open here that are nobody's staff work: placing an order and
+ * calling off an unanswered one are the customer's own, exactly as editing
+ * their own name is (FR-ADM-10). An owned area therefore still gains orders and
+ * still loses them, which the exchange reads rather than resolves.
+ */
+
+/**
  * The refusals the switch produces, in pairs: one tells an admin the exchange
  * holds the pen, the other tells an automated client that it does not.
  *
@@ -101,5 +114,7 @@ export const ownershipErrors = {
   'catalog-not-externally-owned': { status: 409 },
   'customers-externally-owned': { status: 409 },
   'customers-not-externally-owned': { status: 409 },
+  'orders-externally-owned': { status: 409 },
+  'orders-not-externally-owned': { status: 409 },
 } as const;
 export type OwnershipErrorCode = keyof typeof ownershipErrors;

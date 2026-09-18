@@ -150,8 +150,10 @@ export const adminTextSchema = z
          * every visit is a chip nobody sees when it says anything else.
          */
         maintenanceOn: z.string(),
+        fullyOwned: z.string(),
         catalogOwned: z.string(),
         customersOwned: z.string(),
+        ordersOwned: z.string(),
         /** Deployed version line. `{version}` / `{date}` are substituted. */
         version: z.string(),
         versionUnknown: z.string(),
@@ -2051,7 +2053,11 @@ export const adminTextSchema = z
          * rather than a screen with a hole in it.
          */
         areaText: z
-          .object({ catalog: ownershipAreaText, customers: ownershipAreaText })
+          .object({
+            catalog: ownershipAreaText,
+            customers: ownershipAreaText,
+            orders: ownershipAreaText,
+          })
           .strict(),
         statusOwned: z.string(),
         statusOwn: z.string(),
