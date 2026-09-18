@@ -109,7 +109,7 @@ describe('UsersService.anonymize', () => {
   });
 
   it('does the whole thing in one transaction', () => {
-    // Four statements, one callback: an account that is half-anonymized is
+    // Five statements, one callback: an account that is half-anonymized is
     // worse than one that is not.
     expect(captured.map((entry) => entry.table)).toEqual([
       'addresses',
@@ -117,8 +117,21 @@ describe('UsersService.anonymize', () => {
       // Every version of every order, not the current one alone: a superseded
       // revision holds the same name and the same address (ADR 0051).
       'order_revisions',
+      // The orders themselves are touched only to say they changed.
+      'orders',
       'users',
     ]);
+  });
+
+  it('marks the scrubbed orders as changed', () => {
+    // How a system that pulled these orders before the account was closed
+    // finds out the name and address it holds are gone (FR-ADM-08,
+    // NFR-LEGAL-07): the outbound read pages by this column, so an order
+    // nobody stamped never comes round again.
+    const { sql } = statement('orders');
+
+    expect(sql).toContain('"updatedAt"');
+    expect(sql).not.toContain('"status"');
   });
 
   it('empties every free-text column an order can name someone in', () => {

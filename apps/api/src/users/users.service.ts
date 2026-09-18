@@ -326,6 +326,16 @@ export class UsersService {
         tierKey: null,
       })
       .where(inArray(orderRevisions.orderId, mine));
+
+    // The scrubbing is a change to every one of those orders, and the one
+    // reader that has to hear about it is the outbound read (FR-ADM-08,
+    // NFR-LEGAL-07): a system that pulled the order last week holds the name
+    // and address this just removed, and it learns they are gone by the order
+    // coming round again with them blank.
+    await tx
+      .update(orders)
+      .set({ updatedAt: new Date() })
+      .where(eq(orders.userId, userId));
   }
 
   private async anonymizeUser(
